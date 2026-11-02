@@ -9,6 +9,23 @@
 - Produce an implementation report before handing work to `quality-gate`.
 - `Implementation Complete` means ready for independent review, not `Done`.
 
+## Coding Rules In Scope
+
+Use the target project's adopted language rules, configuration and project skills.
+For sdd-forge source development, use the [coding standards index](../../../../../docs/contributor/coding-standards.md)
+and only the language/boundary notes relevant to the change; do not reload every
+rule or repository map. That repository preset is not imposed on installed projects.
+Missing/unadopted coding rules and non-code tasks do not create a new blocker.
+
+Before changing code, find the existing infrastructure API and source of truth.
+Share logging, connection and resource mechanisms only behind a narrow, stable
+contract; keep feature decisions separate unless a shared domain invariant is
+established. Similar syntax alone does not justify merging workflows.
+Before handoff, check unsafe value interpolation, swallowed failures, unused
+prototypes/fallbacks, fixture-specific branches and independent test expectations.
+Record the applicable checks, actual results and any unresolved contextual review
+in the implementation report; a successful lint subset does not prove every rule.
+
 ## UI Implementation Rules
 
 Apply these rules when the task touches UI-layer files and the project

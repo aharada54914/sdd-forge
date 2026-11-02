@@ -64,7 +64,7 @@ LIVE_GUARD="$LIVE_SCRIPTS/sdd-hook-guard.py"
 INV_REL="generated/guard_invariants.py"
 
 # The four basenames REQ-007 registered (design.md Test Strategy item 8).
-BASENAMES="sdd/project-context.approval.json sdd/provider-bindings.approval.json sdd/approver-registry.yaml sdd/.hook-canary-sentinel"
+BASENAMES=(sdd/project-context.approval.json sdd/provider-bindings.approval.json sdd/approver-registry.yaml sdd/.hook-canary-sentinel)
 SURFACES="01 02 03 04 05 06 07 08 09 10 11 12"
 SUDO_KEY="t010-fixture-key-not-a-real-secret"
 
@@ -101,7 +101,7 @@ rm -rf "$PRISTINE_DIR/__pycache__" "$STRIPPED_DIR/__pycache__"
 
 # Remove exactly the four REQ-007 entries from the stripped copy's inventory.
 STRIP_RC=0
-"$PY" - "$STRIPPED_DIR/$INV_REL" $BASENAMES <<'PYEOF' || STRIP_RC=$?
+"$PY" - "$STRIPPED_DIR/$INV_REL" "${BASENAMES[@]}" <<'PYEOF' || STRIP_RC=$?
 import sys
 path, entries = sys.argv[1], sys.argv[2:]
 text = open(path, encoding="utf-8").read()
@@ -205,7 +205,7 @@ guard_exit() {
 # PRE-* preflight (not part of AC-023's 96)
 # ---------------------------------------------------------------------------
 
-for bn in $BASENAMES; do
+for bn in "${BASENAMES[@]}"; do
   if grep -q "'$bn'" "$LIVE_SCRIPTS/$INV_REL"; then
     pass "PRE-live-inventory: $bn is registered in the LIVE generated inventory"
   else
@@ -213,7 +213,7 @@ for bn in $BASENAMES; do
   fi
 done
 
-for bn in $BASENAMES; do
+for bn in "${BASENAMES[@]}"; do
   if grep -q "'$bn'" "$STRIPPED_DIR/$INV_REL"; then
     fail "PRE-stripped-fixture: $bn should have been removed from the stripped fixture"
   else
@@ -250,7 +250,7 @@ if [ "${SDD_T010_SIMULATE_PRE_APPLY:-0}" = "1" ]; then
 fi
 printf '\n--- AC-023 matrix: %s ---\n' "$AC_MODE"
 
-for bn in $BASENAMES; do
+for bn in "${BASENAMES[@]}"; do
   base=${bn##*/}
   for sf in $SURFACES; do
     for lane in 0 1; do
@@ -285,7 +285,7 @@ fi
 # run the sudo-inactive lane only (4 x 12 = 48 cells each).
 
 printf '\n--- BASE-* pristine copy (must still deny) / MUT-* stripped copy (must allow) ---\n'
-for bn in $BASENAMES; do
+for bn in "${BASENAMES[@]}"; do
   base=${bn##*/}
   for sf in $SURFACES; do
     pl=$(payload_for "$sf" "$bn" "$base" "$PROJ_PLAIN/$bn")
@@ -319,7 +319,7 @@ fi
 # ---------------------------------------------------------------------------
 
 printf '\n--- SUPP-* R-10 pre-filter (supplementary; NOT counted in AC-023 96) ---\n'
-for bn in $BASENAMES; do
+for bn in "${BASENAMES[@]}"; do
   supp_rc=0
   "$PY" - "$LIVE_GUARD" "$bn" <<'PYEOF' >/dev/null 2>&1 || supp_rc=$?
 import importlib.util, sys
@@ -380,7 +380,7 @@ else
   cp -R "$STAGED_SCRIPTS" "$WIN05_STRIPPED" 2>/dev/null
   rm -rf "$WIN05_STRIPPED/__pycache__"
   WIN05_STRIP_RC=0
-  "$PY" - "$WIN05_STRIPPED/$INV_REL" $BASENAMES <<'PYEOF' >/dev/null 2>&1 || WIN05_STRIP_RC=$?
+  "$PY" - "$WIN05_STRIPPED/$INV_REL" "${BASENAMES[@]}" <<'PYEOF' >/dev/null 2>&1 || WIN05_STRIP_RC=$?
 import sys
 path, entries = sys.argv[1], sys.argv[2:]
 text = open(path, encoding="utf-8").read()
@@ -397,7 +397,7 @@ PYEOF
     pass "WIN05-strip-fixture: staged inventory copy stripped of the four entries"
   fi
 
-  for bn in $BASENAMES; do
+  for bn in "${BASENAMES[@]}"; do
     base=${bn##*/}
     pl=$(printf '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > %s%s"}}' "$WIN_JSON_PREFIX" "$base")
 

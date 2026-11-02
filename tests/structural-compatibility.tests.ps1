@@ -119,8 +119,8 @@ function Invoke-Canon([string]$Path) {
         $CopyStdout.GetAwaiter().GetResult()
         $CopyStderr.GetAwaiter().GetResult()
         $Output = [System.Text.Encoding]::UTF8.GetString($Stdout.ToArray())
-        $Error = [System.Text.Encoding]::UTF8.GetString($Stderr.ToArray())
-        [pscustomobject]@{ Text = $Output.Trim(); Error = $Error; ExitCode = $Process.ExitCode }
+        $ErrorText = [System.Text.Encoding]::UTF8.GetString($Stderr.ToArray())
+        [pscustomobject]@{ Text = $Output.Trim(); Error = $ErrorText; ExitCode = $Process.ExitCode }
     }
     function Invoke-CanonText([string]$Text, [string]$Name) {
         $Path = Join-Path $Temp $Name

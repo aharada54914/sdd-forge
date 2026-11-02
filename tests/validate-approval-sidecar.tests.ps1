@@ -942,13 +942,13 @@ if ($r.ExitCode -eq 0 -and (Get-OutText $r) -match 'VALID') {
 function New-Pr229Mutation([string]$Name, [string]$PyStatement) {
   $tpl = Join-Path $Work "pr229_${Name}_tpl.json"
   $out = Join-Path $Work "pr229_${Name}.json"
-  $code = "import json" + "`n" +
-          "obj = json.load(open(r'$Pr229Tpl'))" + "`n" +
+  $code = "import json, sys" + "`n" +
+          "obj = json.load(open(sys.argv[1]))" + "`n" +
           $PyStatement + "`n" +
-          "json.dump(obj, open(r'$tpl', 'w'))" + "`n"
+          "json.dump(obj, open(sys.argv[2], 'w'))" + "`n"
   $codeFile = Join-Path $Work "pr229_${Name}_mutate.py"
   Set-Content -LiteralPath $codeFile -NoNewline -Encoding utf8 -Value $code
-  $rm = Invoke-Py -ArgList @($codeFile)
+  $rm = Invoke-Py -ArgList @($codeFile, $Pr229Tpl, $tpl)
   if ($rm.ExitCode -ne 0) { throw "pr229 mutation '$Name' failed: $(Get-ErrText $rm)" }
   New-SignedFixture $ContentValid $KeyFile $tpl $out
   return $out

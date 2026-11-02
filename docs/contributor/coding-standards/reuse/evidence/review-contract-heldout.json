@@ -1,0 +1,194 @@
+{
+  "before_sha256": "aef3b800f2cd65a1a8d47a45cc2f1f14d45dfcf3f84ee0bb6d9fa82163722b71",
+  "after_sha256": "fc5d450728054b336d644d7b66e723098cf7cdd801b7b6b7f1ef3711712b8c3a",
+  "runs": [
+    {
+      "state": "before",
+      "case": "object",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "before",
+      "case": "object",
+      "runtime": "sh",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "before",
+      "case": "singleton-root",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "before",
+      "case": "singleton-root",
+      "runtime": "sh",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "ERROR: review-contract-validate: contract identity or PASS verdict is invalid\n"
+    },
+    {
+      "state": "before",
+      "case": "fifo",
+      "runtime": "ps1",
+      "timeout_seconds": 3
+    },
+    {
+      "state": "before",
+      "case": "fifo",
+      "runtime": "sh",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "ERROR: review-contract-validate: contract does not exist\n"
+    },
+    {
+      "state": "before",
+      "case": "symbolic",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "before",
+      "case": "symbolic",
+      "runtime": "sh",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "before",
+      "case": "hardlink",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "before",
+      "case": "hardlink",
+      "runtime": "sh",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "case": "object",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "case": "object",
+      "runtime": "sh",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "case": "singleton-root",
+      "runtime": "ps1",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Exception: <private-fixture>/repo/plugins/sdd-review-loop/scripts/review-contract-validate.ps1:11\nLine |\n  11 |  \u2026 Fail([string]$Message) { throw \"review-contract-validate: $Message\" }\n     |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n     | review-contract-validate: contract must be a JSON object\n"
+    },
+    {
+      "state": "after",
+      "case": "singleton-root",
+      "runtime": "sh",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "ERROR: review-contract-validate: contract identity or PASS verdict is invalid\n"
+    },
+    {
+      "state": "after",
+      "case": "fifo",
+      "runtime": "ps1",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Exception: <private-fixture>/repo/plugins/sdd-review-loop/scripts/review-contract-validate.ps1:11\nLine |\n  11 |  \u2026 Fail([string]$Message) { throw \"review-contract-validate: $Message\" }\n     |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n     | review-contract-validate: contract is not a regular file\n"
+    },
+    {
+      "state": "after",
+      "case": "fifo",
+      "runtime": "sh",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "ERROR: review-contract-validate: contract does not exist\n"
+    },
+    {
+      "state": "after",
+      "case": "symbolic",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "case": "symbolic",
+      "runtime": "sh",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "case": "hardlink",
+      "runtime": "ps1",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "case": "hardlink",
+      "runtime": "sh",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    }
+  ],
+  "report_parent_controls": [
+    {
+      "mode": "native",
+      "link": "internal",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "mode": "native",
+      "link": "external",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Exception: <private-fixture>/repo/plugins/sdd-review-loop/scripts/review-contract-validate.ps1:11\nLine |\n  11 |  \u2026 Fail([string]$Message) { throw \"review-contract-validate: $Message\" }\n     |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n     | review-contract-validate: report root escapes reports directory\n"
+    },
+    {
+      "mode": "missing-method",
+      "link": "internal",
+      "exit": 0,
+      "stdout": "{\"schema\":\"review-contract-validation/v1\",\"feature\":\"utf8-feature\",\"attempt\":1,\"round\":2,\"stage\":\"spec\",\"verdict\":\"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "mode": "missing-method",
+      "link": "external",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Exception: <private-fixture>/repo/plugins/sdd-review-loop/scripts/review-contract-validate.ps1:11\nLine |\n  11 |  \u2026 Fail([string]$Message) { throw \"review-contract-validate: $Message\" }\n     |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n     | review-contract-validate: report root escapes reports directory\n"
+    }
+  ]
+}

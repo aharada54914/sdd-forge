@@ -22,7 +22,7 @@ trap 'rm -rf "$WORK"' EXIT
 # Usage: run_prepare [args...]  →  sets $PP_OUTPUT and $PP_EXIT
 run_prepare() {
     PP_EXIT=0
-    PP_OUTPUT=$(bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" "$@" 2>&1) || PP_EXIT=$?
+    PP_OUTPUT=$("${SCRIPTS_DIR}/prepare-panelist-input.sh" "$@" 2>&1) || PP_EXIT=$?
 }
 
 # Hermetic key for fixtures that assume NO consent. Such fixtures pass no
@@ -3067,6 +3067,229 @@ if [ -L "${D078}/domain/concept-model.md" ]; then
     fi
 else
     echo "SKIP: PP-082 host does not create symlinks"
+fi
+
+# BSD wc pads counts; exact elision markers must remain runtime-independent.
+WC_FIXTURE="${WORK}/padded-wc"
+mkdir -p "$WC_FIXTURE"
+cat > "$WC_FIXTURE/wc" <<'WC_SHIM'
+#!/bin/sh
+case "${SDD_TEST_WC_FAIL:-0}" in
+    1) exit 17 ;;
+    malformed) printf 'not-a-count\n'; exit 0 ;;
+esac
+count=$("$SDD_TEST_REAL_WC" "$@") || exit $?
+printf '%8d\n' "$count"
+WC_SHIM
+chmod +x "$WC_FIXTURE/wc"
+REAL_WC=$(command -v wc)
+for fixture in 052 062; do
+    fixture_root="${WORK}/pp${fixture}"
+    padded_output="$fixture_root/padded-out.txt"
+    PATH="$WC_FIXTURE:$PATH" SDD_TEST_REAL_WC="$REAL_WC" run_prepare \
+        --task T-004 --feature cross-model-verification \
+        --input "$fixture_root/empty-input" \
+        --tasks-file "$fixture_root/specs/cross-model-verification/tasks.md" \
+        --project-root "$fixture_root" --out "$padded_output" --max-bytes 15000
+    expected_marker="$EXPECTED_MARKER052"
+    [ "$fixture" = 062 ] && expected_marker="$EXPECTED_MARKER062"
+    if [ "$PP_EXIT" -eq 0 ] && grep -qF "$expected_marker" "$padded_output"; then
+        ok "BSD-wc-$fixture: padded count retains the exact independent elision marker"
+    else
+        fail "BSD-wc-$fixture: padded count changed the exact elision marker (exit $PP_EXIT)"
+    fi
+done
+failed_output="${D052}/failed-wc-out.txt"
+PATH="$WC_FIXTURE:$PATH" SDD_TEST_REAL_WC="$REAL_WC" SDD_TEST_WC_FAIL=1 run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D052}/empty-input" --tasks-file "${SPECDIR052}/tasks.md" \
+    --project-root "$D052" --out "$failed_output" --max-bytes 15000
+if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$failed_output" ]; then
+    ok 'BSD-wc-failure: failed count remains a tool error without bundle publication'
+else
+    fail "BSD-wc-failure: expected tool error 2 and no bundle, got $PP_EXIT"
+fi
+
+# With no elidable evidence, the first count is final bundle measurement.
+write_tasks_with_consent "$WC_FIXTURE/tasks.md" T-004
+printf 'complete review input\n' > "$WC_FIXTURE/input.txt"
+for count_mode in 1 malformed; do
+    measure_output="$WC_FIXTURE/measure-$count_mode.txt"
+    PATH="$WC_FIXTURE:$PATH" SDD_TEST_REAL_WC="$REAL_WC" SDD_TEST_WC_FAIL="$count_mode" run_prepare \
+        --task T-004 --feature cross-model-verification \
+        --input "$WC_FIXTURE/input.txt" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$measure_output" --max-bytes 15000
+    if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$measure_output" ]; then
+        ok "BSD-wc-measure-$count_mode: failed or malformed measurement cannot publish"
+    else
+        fail "BSD-wc-measure-$count_mode: expected tool error 2 and no bundle, got $PP_EXIT"
+    fi
+done
+
+# Compare cap boundaries to actual published bytes, including empty content.
+for content_case in populated empty; do
+    boundary_input="$WC_FIXTURE/boundary-input.txt"
+    : > "$boundary_input"
+    [ "$content_case" = empty ] || printf 'complete review input\n' > "$boundary_input"
+    boundary_output="$WC_FIXTURE/boundary-output.txt"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$boundary_input" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$boundary_output"
+    [ "$PP_EXIT" -eq 0 ] || fail "size-boundary-$content_case: baseline failed"
+    published_bytes=$(wc -c < "$boundary_output")
+    rm -f "$boundary_output"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$boundary_input" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$boundary_output" --max-bytes "$((published_bytes - 1))"
+    if [ "$PP_EXIT" -eq 1 ] && [ ! -e "$boundary_output" ]; then
+        ok "size-boundary-$content_case: one byte below actual bundle size rejects without publication"
+    else
+        fail "size-boundary-$content_case: cap below actual bytes admitted an oversized bundle"
+    fi
+    rm -f "$boundary_output"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$boundary_input" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$boundary_output" --max-bytes "$((published_bytes))"
+    if [ "$PP_EXIT" -eq 0 ] && [ "$(wc -c < "$boundary_output")" -eq "$published_bytes" ]; then
+        ok "size-boundary-$content_case: exact actual bundle size remains accepted"
+    else
+        fail "size-boundary-$content_case: exact cap unexpectedly rejected or changed bytes"
+    fi
+done
+
+# --max-bytes argument boundary: invalid values exit 2 with no publication;
+# valid forms (leading zeros, int64 max, explicit 0) keep their meaning.
+printf 'complete review input\n' > "$WC_FIXTURE/boundary-input.txt"
+cap_output="$WC_FIXTURE/cap-output.txt"
+run_cap() {
+    rm -f "$cap_output"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$WC_FIXTURE/boundary-input.txt" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$cap_output" "$@"
+}
+NL=$'\n'
+cap_n=0
+for bad_cap in abc "" " 10" "10 " "10${NL}" "${NL}10" "+10" "-1" "-0" "1e3" "1.5" "0x10" "١٢" \
+               9223372036854775808 99999999999999999999 999999999999999999999999999; do
+    cap_n=$((cap_n+1))
+    run_cap --max-bytes "$bad_cap"
+    if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$cap_output" ]; then
+        ok "max-bytes-invalid-$cap_n: rejected with exit 2 and no output"
+    else
+        fail "max-bytes-invalid-$cap_n: expected exit 2/no output, got $PP_EXIT"
+    fi
+done
+run_cap --max-bytes
+if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$cap_output" ]; then
+    ok "max-bytes-missing: final --max-bytes without value exits 2"
+else
+    fail "max-bytes-missing: expected exit 2/no output, got $PP_EXIT"
+fi
+for good_cap in 10000 000010000 9223372036854775807 0009223372036854775807 00000000000000000000010000; do
+    run_cap --max-bytes "$good_cap"
+    if [ "$PP_EXIT" -eq 0 ] && [ -s "$cap_output" ]; then
+        ok "max-bytes-valid-$good_cap: accepted"
+    else
+        fail "max-bytes-valid-$good_cap: expected success, got $PP_EXIT"
+    fi
+done
+for zero_cap in 0 000; do
+    run_cap --max-bytes "$zero_cap"
+    if [ "$PP_EXIT" -eq 1 ] && [ ! -e "$cap_output" ]; then
+        ok "max-bytes-zero-$zero_cap: real zero-byte cap rejects as oversize"
+    else
+        fail "max-bytes-zero-$zero_cap: expected exit 1/no output, got $PP_EXIT"
+    fi
+done
+run_cap
+published_bytes=$(wc -c < "$cap_output")
+run_cap --max-bytes "0000$((published_bytes))"
+if [ "$PP_EXIT" -eq 0 ] && [ "$(wc -c < "$cap_output")" -eq "$published_bytes" ]; then
+    ok "max-bytes-boundary: zero-padded exact cap accepted"
+else
+    fail "max-bytes-boundary: zero-padded exact cap rejected (exit $PP_EXIT)"
+fi
+run_cap --max-bytes "00$((published_bytes - 1))"
+if [ "$PP_EXIT" -eq 1 ] && [ ! -e "$cap_output" ]; then
+    ok "max-bytes-boundary: zero-padded cap one below rejects"
+else
+    fail "max-bytes-boundary: one-below zero-padded cap got $PP_EXIT"
+fi
+
+# Real POSIX I/O failures cannot yield a successful empty review bundle.
+if python3 - "${SCRIPTS_DIR}/prepare-panelist-input.sh" <<'PY_IO'
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+script = sys.argv[1]
+missing = subprocess.run(['bash', script, '--task'], capture_output=True, text=True, timeout=5)
+assert missing.returncode == 2 and 'missing option value' in missing.stderr, missing
+if os.name == 'nt':
+    print('SKIP: POSIX permission controls unavailable on Windows')
+    sys.exit(0)
+with tempfile.TemporaryDirectory(prefix='prepare IO ') as tmp:
+    root = Path(tmp)
+    root.chmod(0o777)
+    tasks = root / 'tasks.md'
+    tasks.write_text('## T-001\nCross-Model: enabled\n', encoding='utf-8')
+    source = root / 'input.txt'
+    source.write_text('review this complete input\n', encoding='utf-8')
+    output = root / 'out.txt'
+    command = ['bash', script, '--task', 'T-001', '--feature', 'demo', '--input', str(source),
+               '--tasks-file', str(tasks), '--project-root', str(root), '--out', str(output)]
+    def unprivileged():
+        if os.getuid() == 0:
+            os.setgroups([])
+            os.setgid(1000)
+            os.setuid(1000)
+    def run(argv):
+        return subprocess.run(argv, preexec_fn=unprivileged, capture_output=True, text=True, timeout=15)
+    control = run(command)
+    assert control.returncode == 0 and 'review this complete input' in output.read_text(), control
+    output.unlink()
+    source.chmod(0)
+    try:
+        result = run(command)
+        assert result.returncode == 2 and not result.stdout and not output.exists(), result
+    finally:
+        source.chmod(0o644)
+    denied_output = root / 'denied-output'
+    denied_output.mkdir()
+    denied_output.chmod(0o555)
+    try:
+        result = run(command[:-1] + [str(denied_output / 'out.txt')])
+        assert result.returncode == 2 and not result.stdout, result
+    finally:
+        denied_output.chmod(0o755)
+    evidence = root / 'specs/demo/verification/T-001/private'
+    evidence.mkdir(parents=True)
+    (evidence / 'evidence.log').write_text('must not omit', encoding='utf-8')
+    evidence.chmod(0)
+    directory_command = list(command)
+    directory_command[directory_command.index('--input') + 1] = str(root)
+    try:
+        result = run(directory_command)
+        assert result.returncode == 2 and not output.exists(), result
+    finally:
+        evidence.chmod(0o755)
+    report = root / 'reports/implementation/demo/T-001.md'
+    report.parent.mkdir(parents=True)
+    report.write_text('## Outputs\n', encoding='utf-8')
+    report.chmod(0)
+    try:
+        result = run(command)
+        assert result.returncode == 2 and not output.exists(), result
+    finally:
+        report.chmod(0o644)
+print('PASS: missing value, complete-input control, unreadable input/report/tree, and denied output')
+PY_IO
+then
+    ok 'review input I/O boundaries fail closed'
+else
+    fail 'review input I/O boundaries fail closed'
 fi
 
 # ============================================================================

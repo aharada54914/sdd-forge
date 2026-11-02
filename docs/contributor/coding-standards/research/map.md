@@ -1,0 +1,57 @@
+# Research map: coding standards
+
+Checked 2026-11-01; repository base `82b536954626e73b36853711b264cbf5df400d22`, newer than the issue planning base `555bfb5f`. This is original-source body research through the connected web reader plus repository inspection. Canonical Source/Claim metadata is [records/research-evidence.json](records/research-evidence.json); it intentionally records the stricter byte-acquisition status separately. No article bodies or private snapshots are redistributed.
+
+The ten sources below are independent publications/author reports, except the followed Vibecheck repository is the same author's implementation and is **not** counted as another independent report. Chinese-language versus US vendor/community identifies venue, not author nationality. Neither community anecdotes nor a detector's marketing statistics establish a model-wide failure rate.
+
+| Source | Body observation, date and limitation | Rules / claims |
+| --- | --- | --- |
+| [SRC-001: V2EX: 虽然 AI 编码很厉害，但是这些问题怎么办呢？](https://v2ex.com/t/1251827) | 2026-10-26; supplements 2026-10-27 and 2026-10-29. Chinese-language firsthand report; verbosity and constraints; uncontrolled personal experience. | CS-015/016; CLM-001 |
+| [SRC-002: LINUX DO: 全自动AI编码存在普遍的测试不全面问题](https://linux.do/t/topic/1769057) | 2026-03-17. Chinese-language firsthand report; many tests/high claimed coverage with failing visible happy paths; no supplied reproducible repository. | CS-028/029/030; CLM-003 |
+| [SRC-003: 腾讯: 大模型应用实践（一）：AI助力Code Review安全漏洞发现](https://security.tencent.com/index.php/blog/msg/210) | 2024-11-27. Chinese company author report on AI-assisted review: SQL concatenation, hardcoded credentials, variable-versus-literal false positives. Not evidence that these defects were AI-generated. | CS-003/004/010; CLM-002 |
+| [SRC-004: Show HN: Vibecheck – lint for AI-generated code smells](https://news.ycombinator.com/item?id=47398197) | Publication exact date unknown; page displays seven months ago as observed 2026-11-01. US-hosted community, author account; regex limitations acknowledged. User nationality unknown. Quoted third-party incidence statistics are not independently verified and not adopted. | CS-012/018/021; CLM-001 |
+| [SRC-005: Codex Desktop repeatedly loses the original acceptance goal after compaction](https://community.openai.com/t/codex-desktop-repeatedly-loses-the-original-acceptance-goal-after-compaction-and-enters-endless-subagent-test-loops/1391211) | 2026-08-19; follow-up 2026-09-08. US vendor community, firsthand report with private raw history; mock/live conflation and complexity growth. No causal controlled experiment; author nationality unknown. | CS-028/029/030; CLM-003 |
+| [SRC-006: Anthropic prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) | Rolling documentation; publication/update date not exposed in inspected body; checked 2026-11-01. US vendor advice explicitly names Opus 4.5/4.6 overengineering and cautions against test-specific hardcoding; not a universal model frequency estimate. | CS-011/016/017/027; CLM-001/003 |
+| [SRC-007: TRIM: Reducing AI-Generated CodeSlop via Agent Trajectory Minimization](https://arxiv.org/abs/2607.18161) | Submitted 2026-07-20; abstract page inspected. Research authors report speculative/abandoned edits persisting in final patches. Only abstract inspected here; effect sizes and full methodology not independently reproduced. | CS-017; CLM-001 |
+| [SRC-008: GitHub Actions secure use reference](https://docs.github.com/en/actions/reference/security/secure-use) | Rolling documentation; date/version not exposed; checked 2026-11-01. US vendor security advice: use action arguments or intermediate env values to avoid source injection; not evidence of AI causation. | CS-001/002/005/010; CLM-002 |
+| [SRC-009: Python subprocess documentation](https://docs.python.org/3/library/subprocess.html) | Page heading Python 3.15.2; checked 2026-11-01; runtime compatibility must use installed supported version. Official security semantics: shell opt-in; Windows bat/cmd may invoke shell even with argument sequences. Document version observed, not claim about installed runtime. | CS-001/009/019/023; CLM-002 |
+| [SRC-010: Issue 601 structural prevention](https://github.com/aharada54914/sdd-forge/blob/82b536954626e73b36853711b264cbf5df400d22/docs/contributor/issue-601-structural-prevention.md) | Git revision 82b536954626e73b36853711b264cbf5df400d22. Repository inspection: existing mirror classifier, BOM/case regressions and execution-evidence limitations; closed issue does not prove all platforms or all recurrence resolved. | CS-013/014/025/026/029; CLM-004/005 |
+
+The article summaries are bounded author claims, not replications. V2EX's initial post and follow-up are one report; LINUX DO's stated test count/coverage is self-reported. Tencent's examples concern reviewed code whose AI authorship is not established, and its measured detector improvement is not used as a universal effect size. HN discusses obvious-pattern detection and explicitly acknowledges regex brittleness. The OpenAI community author withholds raw histories and calls the later comparison uncontrolled. Anthropic's relevant guidance names particular older models; current page navigation naming newer models does not extend that empirical assertion. TRIM's abstract was inspected; full experimental methodology and claimed numerical improvement remain unverified.
+
+## Source/Claim contract boundary
+
+`research-acquire.py` was actually attempted for every selected source with an exact host allowlist and returned `proxy-adapter-required` in this environment. [Acquisition attempts](acquisition-attempts.json) preserve commands, times and failures. The inherited proxy was not unset or bypassed; no alternate crawler was created. The connected web reader exposed article text for analysis but does not expose original bytes under the existing extraction/hash contract. Consequently canonical retrieval remains `unreachable`, hashes/extraction/quote anchors are null, claims remain `unreachable` and semantic status `unassessed`. These values mean byte-verification unavailable, not that the connected reader failed to display the article. Dates above were read from article bodies when available; rolling page dates and HN's exact publication date remain unknown.
+
+Existing plan/merge/validator commands were used. The graph passed in the initial feature-path staging location; after relocation to standalone contributor metadata, graph CLI admission is unavailable because it requires repository-mode inputs. No fake snapshot manifest or quote hash was invented to make the binder pass. Relations are intentionally empty because this work defines no new REQ/ADR approval pins; canonical citations still provide source-to-claim links. An original-check/bound review packet requires an approved acquisition adapter and actual original bytes, and remains unavailable. Research metadata validation does not prove source truth, permissions or independent review.
+
+## Coverage and falsifiability
+
+| Required category | Rules | Implementation / check owner |
+| --- | --- | --- |
+| Interpreter/embedded program, SQL, JSON/YAML, Actions | CS-001–005 | #688/#689/#690; #687 tools + data-flow review |
+| HTML, regex, URL, paths/options | CS-006–009 | #688/#689/#690; destination-aware review |
+| Secrets, constants, globals/shadowing | CS-010–012 | #688/#689/#690; native tools + boundary review |
+| Infrastructure, parser ownership, cohesion, excess abstraction, abandoned paths | CS-013–017 | #691; intent/contract/history/divergence review |
+| Exceptions, statuses, type escapes, async/deadline/retry | CS-018–024 | #688/#689/#690; tools + failure-path execution |
+| Case, paths, encoding across platforms | CS-009/025/026 | #688/#689/#690; applicable native-host controls |
+| Hardcoding, copied oracle, mock/live, weakened acceptance | CS-027–030 | #692 with language owners; provenance + independent controls |
+
+CLM-001 would change with contrary model/setting evidence and cannot be generalized beyond its sources. CLM-002 is testable with interpreter-boundary hostile/normal inputs, including CLI flags and Windows batch exceptions. CLM-003 is testable by executing the actual public path with recorded substitutions and checking the independent oracle. CLM-004 requires reconciling every tracked entry and all added integration files, rather than equating lint with review. CLM-005 requires consumer-specific counterexamples and stable invariants; conflicting feature policies rule out forced consolidation.
+
+## Standalone metadata placement
+
+These records are contributor research, not a newly bootstrapped SDD feature. The existing validator accepts `--file docs/contributor/coding-standards/research/records/research-evidence.json` without `--repo-root` and validates the same Source/Claim shape and consistency. Repository-mode admission requires `specs/<feature>/research/records/research-evidence.json`; this standalone record is deliberately not admitted as a Full/Lite research gate input. No directory registration, task approval, fake Passed stage or validator relaxation is introduced. If a future approved feature uses this evidence, its owner must create the correctly located revision-bound records and original-verification inputs through the existing contract.
+
+## Language API supplement (round 1)
+
+The initial ten sources motivate failure categories; they do not document every destination API. Six additional official/reference bodies were inspected to close that specific support gap. The selected-source budget was explicitly expanded from ten to sixteen, within the existing maximum fifty; no new empirical AI-frequency claim is added.
+
+| Source | Body observation and edition | Rule |
+| --- | --- | --- |
+| [SRC-011: Python re.escape](https://docs.python.org/3/library/re.html) | Python 3.15.2 page; checked 2026-11-01. Pattern literal escaping; expressly not the replacement-string escaping API. | CS-007 |
+| [SRC-012: Python JSON encoding](https://docs.python.org/3/library/json.html) | Python 3.15.2 page; checked 2026-11-01. json.dumps preserves JSON quoting; external parse resource limits still apply. | CS-004 |
+| [SRC-013: Python urllib.parse](https://docs.python.org/3/library/urllib.parse.html) | Python 3.15.2 page; checked 2026-11-01. urlencode encodes query keys/values independently; parsing alone does not validate a destination. | CS-008 |
+| [SRC-014: MDN Node.textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent) | Last modified 2025-10-28; checked 2026-11-01. textContent is the text API; innerHTML invokes markup parsing and can expose XSS. | CS-006 |
+| [SRC-015: PowerShell comparison operators](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.5) | View PowerShell 7.5; last updated 2026-07-02; checked 2026-11-01. String operators default case-insensitive; c-prefixed variants request case sensitivity. Does not establish cmdlet defaults. | CS-025 |
+| [SRC-016: PowerShell character encoding](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_character_encoding?view=powershell-7.5) | View PowerShell 7.5; last updated 2024-01-19; checked 2026-11-01. Windows PowerShell output defaults vary; UTF8 implies BOM there, unlike PowerShell 6+. Script-source requirements differ from JSON output. | CS-026 |

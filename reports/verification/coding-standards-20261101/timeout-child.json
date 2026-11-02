@@ -1,0 +1,8 @@
+{
+  "kind": "actual Linux TypeScript7.0.2 API child with forced parent timeout",
+  "parent_exit": -9,
+  "child_state_after_parent_kill": "Z",
+  "child_running": false,
+  "limit": "Linux stdio transport only; Windows named-pipe behavior untested; zombie is exited but not reaped by PID1. Same subprocess timeout kill/communicate sequence, shortened to0.1seconds after initialized API.",
+  "probe": "Node imports pinned TypeScript API; new API().updateSnapshot({openFiles:[]}); obtain api.client.channel.child.pid; keep Node alive via setInterval; Python communicate(timeout=.1), kill parent, communicate(timeout=5); poll Linux /proc child state."
+}

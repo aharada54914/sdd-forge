@@ -282,7 +282,7 @@ shared_paths:
     if (Should-Run 'TEST-040F') {
         $mutantDir = Join-Path $tempRoot 'matcher'
         [IO.Directory]::CreateDirectory($mutantDir) | Out-Null
-        foreach ($name in @('resolve-component-paths.ps1', 'canonicalize-sdd-yaml.ps1', 'canonicalize-sdd-yaml.py', 'lib/py-dispatch.ps1')) {
+        foreach ($name in @('resolve-component-paths.ps1', 'canonicalize-sdd-yaml.ps1', 'canonicalize-sdd-yaml.py', 'lib/py-dispatch.ps1', 'lib/native-arguments.ps1')) {
             $mutantDestination = Join-Path $mutantDir $name
             [IO.Directory]::CreateDirectory((Split-Path -Parent $mutantDestination)) | Out-Null
             Copy-Item (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/$name") $mutantDestination

@@ -126,6 +126,13 @@ try {
   $graph = Get-Content "$taskReport/attempt-1/round-1/dependency-graph.json" -Raw | ConvertFrom-Json
   if ($graph.edges.Count -ne 1 -or $graph.edges[0].from -ne 'T-002' -or $graph.edges[0].to -ne 'T-001') { throw 'not ok: PowerShell task graph lost declared edge' }
   Remove-Item $taskReport -Recurse -Force
+  $savedTaskText = [IO.File]::ReadAllText((Join-Path $spec 'tasks.md'))
+  $invalidTaskText = $savedTaskText -creplace '(?m)^T-001(?=\r?$)', 't-001'
+  if ($invalidTaskText -ceq $savedTaskText) { throw 'not ok: lowercase blocker fixture mutation did not occur' }
+  [IO.File]::WriteAllText((Join-Path $spec 'tasks.md'), $invalidTaskText)
+  Assert-Fails { & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 } 'task must reject lowercase blocker protocol identifier'
+  if (Test-Path $taskReport) { throw 'not ok: invalid blocker created task evidence' }
+  [IO.File]::WriteAllText((Join-Path $spec 'tasks.md'), $savedTaskText)
   $implContract = Get-Content "$implReport/attempt-1/round-1/impl-review-contract.json" -Raw | ConvertFrom-Json
   foreach ($reviewer in $implContract.reviewers) { $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest | Where-Object { $_.path -ne 'plugins/sdd-review-loop/references/reviewer-calibration.md' }) }
   $implContract | ConvertTo-Json -Depth 6 | Set-Content "$implReport/attempt-1/round-1/impl-review-contract.json" -Encoding utf8NoBOM
@@ -406,7 +413,9 @@ try {
   $psExe = (Get-Process -Id $PID).Path
   $implPrecheckPath = Join-Path $root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1'
   function Invoke-AcRun {
-    $command = "try { & '$implPrecheckPath' -Feature '$feature' -Attempt 1 -Round 1 } catch { [Console]::Error.WriteLine([string]`$_.Exception.Message); exit 1 }"
+    $scriptLiteral = "'" + $implPrecheckPath.Replace("'", "''") + "'"
+    $featureLiteral = "'" + $feature.Replace("'", "''") + "'"
+    $command = "try { & $scriptLiteral -Feature $featureLiteral -Attempt 1 -Round 1 } catch { [Console]::Error.WriteLine([string]`$_.Exception.Message); exit 1 }"
     $lines = & $psExe -NoProfile -Command $command 2>&1 | ForEach-Object { $_.ToString() }
     return ($lines -join "`n")
   }

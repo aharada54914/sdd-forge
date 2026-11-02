@@ -1,0 +1,14 @@
+F
+======================================================================
+FAIL: test_precheck_argument_integer_range_and_spelling (__main__.DomainFinalizerTests.test_precheck_argument_integer_range_and_spelling) (runtime='bash', attempt='18446744073709551617')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 224, in test_precheck_argument_integer_range_and_spelling
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-pw47yudd/reports/domain-review/attempt-18446744073709551617/round-1/
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.613s
+
+FAILED (failures=1)

@@ -1,0 +1,5160 @@
+{
+  "schema": "independent-config-review/v1",
+  "revision": "5fe7430ceb7ec8acba76f324aedc382dc50ee449",
+  "scope": "258 intake current-config files plus active structured inputs corrected by scope-review; review applies to coding-standard boundaries, not re-certification of historical decisions",
+  "counts": {
+    "plugin-discovery": 23,
+    "agent-config": 4,
+    "dependency-policy": 1,
+    "branch-policy": 1,
+    "workflow-config": 6,
+    "schemas": 42,
+    "registry-policy": 13,
+    "rollback-policy": 1,
+    "review-tickets": 59,
+    "wfi-records": 70,
+    "historical-handoffs": 7,
+    "package-config": 12,
+    "golden-data": 8,
+    "hook-launch": 3,
+    "proof-policy": 3,
+    "context-workflow-policy": 7,
+    "pinned-signing-packet": 21
+  },
+  "checks": [
+    {
+      "check": "parse intake JSON/YAML/TOML; duplicate JSON keys rejected",
+      "result": "258 passed"
+    },
+    {
+      "check": "JSON Schema metaschema validation",
+      "result": "42 passed"
+    },
+    {
+      "check": "local schema JSON Pointer resolution",
+      "result": "176 resolved; zero broken"
+    },
+    {
+      "check": "A8 expected hook digest against shipped config bytes",
+      "result": "5 matched"
+    },
+    {
+      "check": "vendor-capability-registry.py --check; generate-gate-capabilities.py --check; generate-guard-invariants.py --check",
+      "result": "all exit0"
+    },
+    {
+      "check": "validate-capability-registry.py --registry contracts/capability-registry.json",
+      "result": "10 checks passed"
+    },
+    {
+      "check": "Context current/approved/candidate plus approver/workflow registry schema validation",
+      "result": "5 passed"
+    },
+    {
+      "check": "canonicalize-sdd-yaml.py sdd/project-context.yaml --hash-only",
+      "result": "matches sidecar context_sha256; no HMAC signing-key check claimed"
+    }
+  ],
+  "entries": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "source_sha256": "def18d29ab146730a1a234d23aab5b6508524067bc533c069e544cf40fc99fbf",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "interface",
+        "name",
+        "plugins"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "source_sha256": "6f7d55a092559aafaed2c13d1503e835ed297b2b3588189e7d66bad44eef09ec",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "description",
+        "metadata",
+        "name",
+        "owner",
+        "plugins"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".codex/agents/sdd-evaluator.toml",
+      "source_sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+      "group": "agent-config",
+      "state": "reviewed",
+      "root_fields": [
+        "description",
+        "developer_instructions",
+        "name",
+        "sandbox_mode"
+      ],
+      "evidence": "independent-config-review.md#agent-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".codex/agents/sdd-investigator.toml",
+      "source_sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+      "group": "agent-config",
+      "state": "reviewed",
+      "root_fields": [
+        "description",
+        "developer_instructions",
+        "name",
+        "sandbox_mode"
+      ],
+      "evidence": "independent-config-review.md#agent-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".codex/agents/sdd-panelist-gemini.toml",
+      "source_sha256": "cee875549343d2bc6bc8bee29694ee67b1f481819ed0a6e10a1044893c0ab270",
+      "group": "agent-config",
+      "state": "reviewed",
+      "root_fields": [
+        "description",
+        "developer_instructions",
+        "name",
+        "sandbox_mode"
+      ],
+      "evidence": "independent-config-review.md#agent-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".codex/agents/sdd-panelist-gpt.toml",
+      "source_sha256": "7dc97360df3e6656f065fa207dcd67f4ccbd5eabbc7c41e7011c1f59bf824816",
+      "group": "agent-config",
+      "state": "reviewed",
+      "root_fields": [
+        "description",
+        "developer_instructions",
+        "name",
+        "sandbox_mode"
+      ],
+      "evidence": "independent-config-review.md#agent-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "source_sha256": "2760f4a5b5dbc8083406724cc00eab911ade00a664e3d2bdcc110e995ed92d21",
+      "group": "dependency-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "updates",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#dependency-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/rulesets/main.json",
+      "source_sha256": "42c42bd63e6cbcc47f9d3168e95f18dc31e60e91059368259f8366dcf54b6e65",
+      "group": "branch-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "bypass_actors",
+        "conditions",
+        "enforcement",
+        "name",
+        "rules",
+        "target"
+      ],
+      "evidence": "independent-config-review.md#branch-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/workflows/context-approval.yml",
+      "source_sha256": "fa7100617d479fd14828f120952551c1f1777044ea29a25cd77aef9a9060a93c",
+      "group": "workflow-config",
+      "state": "reviewed",
+      "root_fields": [
+        "True",
+        "concurrency",
+        "jobs",
+        "name",
+        "permissions"
+      ],
+      "evidence": "independent-config-review.md#workflow-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/workflows/model-freshness-check.yml",
+      "source_sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+      "group": "workflow-config",
+      "state": "reviewed",
+      "root_fields": [
+        "True",
+        "concurrency",
+        "jobs",
+        "name",
+        "permissions"
+      ],
+      "evidence": "independent-config-review.md#workflow-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "source_sha256": "3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9",
+      "group": "workflow-config",
+      "state": "reviewed",
+      "root_fields": [
+        "True",
+        "jobs",
+        "name",
+        "permissions"
+      ],
+      "evidence": "independent-config-review.md#workflow-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/workflows/self-improvement.yml",
+      "source_sha256": "741264b437487bb6fe1731266ec17fd66867136f8ac72654f57e1025bc518fd3",
+      "group": "workflow-config",
+      "state": "reviewed",
+      "root_fields": [
+        "True",
+        "concurrency",
+        "jobs",
+        "name",
+        "permissions"
+      ],
+      "evidence": "independent-config-review.md#workflow-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "source_sha256": "258298aefde76d8f09795cd9cd667dcf795a0936381791efca850844d8cba8e2",
+      "group": "workflow-config",
+      "state": "reviewed",
+      "root_fields": [
+        "True",
+        "concurrency",
+        "jobs",
+        "name",
+        "permissions"
+      ],
+      "evidence": "independent-config-review.md#workflow-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/adversarial-review-evaluation.v1.schema.json",
+      "source_sha256": "79a3f7b75996474d318535dab04fd284706f2008ef7592fe66992e3dc39d054f",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "description",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/adversarial-review-report.v1.schema.json",
+      "source_sha256": "3dd9bbb8cfd475444b4662abddedc86b9088d419323e4bfeb34b663a8353fb1a",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "description",
+        "properties",
+        "required",
+        "title",
+        "type",
+        "x-stale-judgement-rules"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.json",
+      "source_sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "models",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "source_sha256": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "models",
+        "risk_effort_matrix",
+        "role_defaults",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/approval-sidecar.schema.json",
+      "source_sha256": "882985c8160a9a41f6a89d2a1db93b7b97eaee78dd8c7a21efb01534436feef4",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/approver-registry.schema.json",
+      "source_sha256": "47c1c3e0eddfca0a6abbf22db2fd4b8d633e2bdc9362044ec3c903c82d85e94e",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/capability-registry.json",
+      "source_sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "capabilities",
+        "gates",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/capability-registry.schema.json",
+      "source_sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/capability-summary.schema.json",
+      "source_sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/ci-mcp-tools.v1.schema.json",
+      "source_sha256": "7e2cc1d88a07ab4e62c4088d0cc0c2d0b0b49972b23cbc95d70debd3449ec357",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$defs",
+        "$id",
+        "$schema",
+        "description",
+        "oneOf",
+        "title"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/concept-test.v1.schema.json",
+      "source_sha256": "7b0bc534b1f0b819a19e5a70c0e3d39f35e3d5f6747e53086bb9c1dbbb810c71",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/context-projection.schema.json",
+      "source_sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/cross-critique.v1.schema.json",
+      "source_sha256": "8c72c37907036cf00d1d8d341199d4d3502fabd57db1c60d0205926e23135991",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "allOf",
+        "definitions",
+        "description",
+        "if",
+        "properties",
+        "required",
+        "then",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/decision-choice.v1.schema.json",
+      "source_sha256": "d689a3998f6a1115ec26f9cf8f131c2b47942aec7d357ca31918d6320f72dfe9",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/decision-packet.v1.schema.json",
+      "source_sha256": "b3a2f7dab9132158d6dc40a27057912ae0663b7e35696730923ae1793ca445af",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/design-system.contract.v1.schema.json",
+      "source_sha256": "3b8d541218fda8e794350b8a545d6bcb3a85733f2e0ee00089eb49f7de3d1db1",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "description",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/domain-contract.v1.schema.json",
+      "source_sha256": "0ab46b74c1e2561431b42b76106698339e79cd64ce0513b02aec5527b8b73841",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "description",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/domain-contract.v2.schema.json",
+      "source_sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "description",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/domain-review-contract.v1.schema.json",
+      "source_sha256": "b86f234e76f66887384284fed08ec3b5d951df3bcc7cc5722e9ed18489edfb35",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/facet-manifest.schema.json",
+      "source_sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/lite-check-catalog.json",
+      "source_sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "catalog_version",
+        "checks",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/lite-check-catalog.schema.json",
+      "source_sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/lite-upgrade-reason-catalog.json",
+      "source_sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "catalog_version",
+        "reasons",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/local-env-mcp-tools.v1.schema.json",
+      "source_sha256": "f1f81d484cd13b62c64b4802195efd6d50edb1ccedcd489626f699f6cac4ae1d",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$defs",
+        "$id",
+        "$schema",
+        "description",
+        "oneOf",
+        "title"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/project-context.schema.json",
+      "source_sha256": "a6a86903e8126ecc0d587499f75c7222aee0eb0f442a51b39fa8ff852829592e",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/project-context.template.yaml",
+      "source_sha256": "afb8ae3ae563887e4f6383effe2873e4dbf164601f8b218fe6105810b1c57fd3",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "components",
+        "schema",
+        "shared_paths",
+        "workflow"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/project-skill-manifest.schema.json",
+      "source_sha256": "769e1170db0b391aeac8ea39f02401c25e99c752891ad23a5bf14be9c21a5a89",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "oneOf",
+        "properties",
+        "required",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/project-verification-observation.schema.json",
+      "source_sha256": "38e932d4a582ae16e988903660ad2ca5c6b9f86a00c7018d233ab64b72279692",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "if",
+        "properties",
+        "required",
+        "then",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/provider-bindings.schema.json",
+      "source_sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/research-evidence.schema.json",
+      "source_sha256": "0eb506cf9f8bf445b24b16b2277a06c0d3df91f4d89f665a702c7ced28efe46e",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/resolver-evidence.schema.json",
+      "source_sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/review-contract.v1.schema.json",
+      "source_sha256": "d1bf67c20a8b1229f5550ba6deab339962236a626d5a9aac84e847dc7727597a",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/rollback-1.5.0.json",
+      "source_sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+      "group": "rollback-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "baseline_commit",
+        "files",
+        "reviewed_release_commit",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#rollback-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/run-measurement.schema.json",
+      "source_sha256": "cf6607bc519429acf74930203716a0499ff44df1aca594b1a1a2c51811f2c42f",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "oneOf",
+        "title"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "source_sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$defs",
+        "$id",
+        "$schema",
+        "description",
+        "oneOf",
+        "title"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/selected-verification-plan.schema.json",
+      "source_sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "source_sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$defs",
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "allOf",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/terminal-tier-blocked-state.schema.json",
+      "source_sha256": "bcf0d1b969fb917b656b0d25e24dcb34021378cc2639bb4b30198c3ccb722dc5",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/workflow-playbook-request.v1.schema.json",
+      "source_sha256": "1d4f494946c789a764f2fe5a9e3f101d0d71afc80a05e2352e459c6e9f0e65b3",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "contracts/workflow-state-registry.schema.json",
+      "source_sha256": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/ci-staging/test-yml-combined-candidate.yml",
+      "source_sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+      "group": "workflow-config",
+      "state": "reviewed",
+      "root_fields": [
+        "True",
+        "concurrency",
+        "jobs",
+        "name",
+        "permissions"
+      ],
+      "evidence": "independent-config-review.md#workflow-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260623-001.yml",
+      "source_sha256": "c020245e5e06d5ddb95ab156a60afedb2993a4299648f4360028981880901304",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260705-001.yml",
+      "source_sha256": "728239eb2990d2f7db4bfb390fd14334ef29a8a935dc60a210e717a3ac809905",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "resolution_record",
+        "resolved_at",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260706-001.yml",
+      "source_sha256": "6afa25fdd50d6195315b7232ab900f03169d057aa89261d11943de1f15533d04",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260706-002.yml",
+      "source_sha256": "5b6e994705e5323fc996b4171729cf7101ba912bb8bb751548c14b8968459058",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260707-001.yml",
+      "source_sha256": "08bdf92e60c1c4529188a42b8aaea6a04d0afa5d620d6679d74d2b767d2c4d50",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260707-002.yml",
+      "source_sha256": "9cfe5608908c1641b2029ee484098f6dd585af60965aa5a93ce35f8ede364843",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "resolution_progress",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260712-001.yml",
+      "source_sha256": "0b3fa2494cf05a53992533722dc75e02544ac5176533b71bf703769262dc936a",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260712-002.yml",
+      "source_sha256": "5342fbbfab678f408d903f8e615f418c2efe73abf2c28c5b283b3fca65b6fdc6",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260712-003.yml",
+      "source_sha256": "7fddb187e9e7e585cb9177fae945933504c38bffaa97ca5bc964562f7c4d5d23",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260715-001.yml",
+      "source_sha256": "0c732b1de2407f3d50bd63f584927589d6360de104e05bcd6e0807ce9bade88f",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "approval",
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260723-001.yml",
+      "source_sha256": "3a8e762092b36c9b49b80fa11c5a3e6b91f7bede3ba3c0189199e4db1c2ee1bc",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260805-001.yml",
+      "source_sha256": "616d6bddf173136d27bc5e12d97468257c7386cbf0b234a3c260f4e448c0c64b",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260805-002.yml",
+      "source_sha256": "3c349066dbcb0364d082763e1ddc39f429a2adc6f4a3197c21b4a4b141be27be",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260805-003.yml",
+      "source_sha256": "0a341e0cc919dc6e7ea33500dbaceb59064cc91cae2b1b6630350b4a70244442",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260807-001.yml",
+      "source_sha256": "953f3e6f384e55979a5b9eb7d488d4f2d74d35e54537610b26a810d404f63d6e",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "resolution",
+        "resolved",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260808-001.yml",
+      "source_sha256": "4cf2d49c9306c03987f31b23c8de2959e76f9e47826a2fa8d3e1d5e4be570fd9",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "resolution",
+        "resolved",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260809-001.yml",
+      "source_sha256": "dd074a1096fb3934f4e422eb01fb21ef558ea95004b1a8bba0ad442c1514196c",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260809-002.yml",
+      "source_sha256": "e74495754751cc310211b534ac6cdb8a07f54bee26e6a0418b3335169c0205c7",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260810-001.yml",
+      "source_sha256": "3734b6336e3ac1c58b7a7f151ac33f0d41bd9623355b9475578411d04d713c78",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260810-002.yml",
+      "source_sha256": "9b3f1d3839d08b006abc2ff9d13e39ea03c3899f3a7ec9703a6334ecfbc3bc54",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260811-001.yml",
+      "source_sha256": "7e6c7c5cc3b78639bbdf5836a012a095b1318e516396fd972007620064ad6fc9",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260811-002.yml",
+      "source_sha256": "fd1ec0daeaf737b8146e2de88550d547c560ce72275c630c71b238ee918143ad",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "created",
+        "disposition",
+        "disposition_2",
+        "expected_fix",
+        "gate_seq0680",
+        "human_ruling",
+        "human_ruling_2",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type",
+        "updated"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260811-003.yml",
+      "source_sha256": "778f33a7372f88a4b9c207fbc707456c100bdaa41d1924ee3f8d126288aca2dc",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260814-001.yml",
+      "source_sha256": "4414b3a12e4ecbb70e566ed94156d74baf80af92a702b9d10bc113dce867a6e0",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "created",
+        "problem",
+        "proposed_resolution",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260817-001.yml",
+      "source_sha256": "691bd09a78268829771f6483ac6f3c0dc156f5e6cbec34427d5db677d3407b71",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260817-002.yml",
+      "source_sha256": "a5e7732c724f806bb38bf9785a91ba3cc0f380c817687eb3ce85f380b5b7bfe3",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260817-003.yml",
+      "source_sha256": "fdd40875c65b5b163bc9b31c3cfb3ac4260db8f13d7c5a66b2f2bb75626da781",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260817-004.yml",
+      "source_sha256": "9571eaaf1ef8c089ae1176687f311c38b23bf324b744b9d9df34750e4ea4d548",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260817-005.yml",
+      "source_sha256": "30579b9e0784f04dd9717d0590af77277aeca84e161a09174dadf57a2019c359",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260817-006.yml",
+      "source_sha256": "415dbacb85be4145aec3b64e156079eae2d1bf1c84e507f95d3592979ecc822a",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260819-001.yml",
+      "source_sha256": "6ef4b3d0a277adbadd4b70c67e954a4948795af7d76ad470f42929c242441e5b",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260819-002.yml",
+      "source_sha256": "7feb695c7fd09c19ade26f63714a8de64cb3941e8e2935841e7b2a64ba45fcd2",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-001.yml",
+      "source_sha256": "a113f207dabb4ea8888268231d9ec4f427cd808ca5c0ec9adc957f8405650a58",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-002.yml",
+      "source_sha256": "1d0ef9ec99d670d53c87ad74fa6502c5ca5cf7a2bb51634b2ec153040feb9706",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-003.yml",
+      "source_sha256": "f71eb49544d1097fd3af4e12ce37009e5a3c290a4bb5c85b639c600d72e42a52",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-004.yml",
+      "source_sha256": "25cbe98873ce32ddf6fdb78e58154d7119851383b32ea24b9253ce4a77b80d82",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-005.yml",
+      "source_sha256": "da2b05c6eff55306adef8f297a68e6413d6f74984ef5d232ec493994bda1b05a",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-006.yml",
+      "source_sha256": "eed20e29be9bb38f25d4722ba3d2793a2367957206b92673e65eefeef2266dee",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-007.yml",
+      "source_sha256": "4bd318cbc2f30adddedbcd5c9a1f2f54d95eeaba8733cfb51e94e644d24e2067",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-008.yml",
+      "source_sha256": "8c80b60b53110310443a6573efdd57f30c3568214e2177d37a1d9a4cf61ef6d5",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-009.yml",
+      "source_sha256": "9118fbae45e915571ef48a669bcc92d88bdb77e5a1c93a86a86448da62f46afe",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-010.yml",
+      "source_sha256": "c2431316f8f6dc7d51ac331fd291b134b97c8d6e83e1e6bb698993112c47d824",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-011.yml",
+      "source_sha256": "37183659952b749fc4091c5dd1a9c2f376e7bd6b6dd5644aeffbae89c85f5769",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-012.yml",
+      "source_sha256": "d58f05fc57b85dcfe22f47bc6753daf86ab511fa9fd572512c821c95f24e71f3",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-013.yml",
+      "source_sha256": "36096ef151121dadeeacc7ac2c96acf5026ecc55a95ea6ccac4c5c18ff5e3373",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-014.yml",
+      "source_sha256": "8eca8d8b7b294ce3e258d8de90ebbf61acd4f1823b782dbe389c452298410440",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-015.yml",
+      "source_sha256": "3aba62575b345f6736f892cd13fe677b2b5e57895355000811787c36c15f574f",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-016.yml",
+      "source_sha256": "04789302c2943e24ced2f7c1cc3423b2d69c6a06a58d23e9a9d28bb8c42f3a9b",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-017.yml",
+      "source_sha256": "26e3d6738931060814cac7327ab65d6ff93c29678b0d0fd896af4b5c71964330",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260821-018.yml",
+      "source_sha256": "1afc3d0066c17a1e28bba481f492ae874fa676a2768ee766d952acbaecfd1a53",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260823-001.yml",
+      "source_sha256": "694ac6d1cc42bfda6249f7fcf6a4c472a267a2525fc630b2d96b12b684a0838e",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260823-002.yml",
+      "source_sha256": "03e81cd2bfe1b7448b8a518daaade159b3679c43424e7b94db84273bbe525ee5",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260826-001.yml",
+      "source_sha256": "33c49afb2ddb186ae564124a67d27f5b55597d3ca916cdd9b9b185c82cbad591",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "decision_needed",
+        "notes",
+        "problem",
+        "requires_human_decision",
+        "resolution",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260826-002.yml",
+      "source_sha256": "373c0b5397df926bbdd69978e89c0eb3b1350b0e8dece16e9b0d5fab696193d2",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "decision_needed",
+        "notes",
+        "problem",
+        "requires_human_decision",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260828-001.yml",
+      "source_sha256": "387acb69ce318b41c2fcec15ca095aabc77071f84a140388611d1d5bf9a7f03c",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260828-002.yml",
+      "source_sha256": "77e8bc650ccf088f2f46455e885c1588122935d44efd586fb8cf3ce35be8a19b",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260930-001.yml",
+      "source_sha256": "a79e6e39b867019d3a1557b1d593d8076923acc4667015edc839de1b19d48552",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261006-001.yml",
+      "source_sha256": "1ea6428bee5c75611200f240aa97a9e53f3783824eb4602e2e87ef8cf5df3be9",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261006-002.yml",
+      "source_sha256": "2523147dccb67f29b6977d52dbcc8802b067f23958f38cd65904e44c7c69fc39",
+      "group": "review-tickets",
+      "state": "reviewed",
+      "root_fields": [
+        "auto_fix_allowed",
+        "expected_fix",
+        "problem",
+        "references",
+        "requires_human_decision",
+        "resolution",
+        "review_cycles",
+        "severity",
+        "status",
+        "summary",
+        "target",
+        "ticket_id",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#review-tickets",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-001-auditor-a.json",
+      "source_sha256": "324978da3356e07af0bb37d332f1068a6fb61e6c478ba3415f99630f01b48258",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-001-auditor-b.json",
+      "source_sha256": "2b1a6acc3b252b070f2180c903881c38c440d5313b40a6202484f531e1ab1db3",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-001-integrated-summary.json",
+      "source_sha256": "ea34c2ddb3459ddd2df8cde2619059babbdb68256e403d667b47dc207d0ee4cb",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-002-auditor-a.json",
+      "source_sha256": "766450c059fd44c5211ca847d0e545a592fae08b6a4aa19a222c865a50518dc1",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "checks",
+        "cycle",
+        "findings",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-002-auditor-b.json",
+      "source_sha256": "8e7669f129a4626074ff58cb0035623c445dfdff98be86bb57736f9719120e52",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "checks",
+        "cycle",
+        "findings",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-002-integrated-summary.json",
+      "source_sha256": "39cfd090318fca8184ad7de5d3b0deacc1602447a6b800839ccb23a9f38eab98",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-003-auditor-a-blocked-attempt-1.json",
+      "source_sha256": "3c256d15b0f43cdbae5f23ce721c8a987af7d0a1de6a5b170949a0102449abdd",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "checks",
+        "cycle",
+        "findings",
+        "note",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-003-auditor-a.json",
+      "source_sha256": "bb313de9ab92eb5890c03b105302f8fbaf9261d5cb49a2d6f5c68c9ca1cb600f",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "checks",
+        "cycle",
+        "findings",
+        "note",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-003-auditor-b.json",
+      "source_sha256": "6d74f7d2c7832993e11d39c2124831d9ba9be51929516a00cb57dd72d095ef26",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "checks",
+        "cycle",
+        "findings",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-003-integrated-summary.json",
+      "source_sha256": "6acf4fe11a1359a4a2bb463301a54369affb81b85f6493fb6d15ac4f24570acb",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-004-auditor-a.json",
+      "source_sha256": "4a86f2590e02aa0682b34609385a74d111261b2ee15d368ea5a91fdc29c2ba8f",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "findings_counts",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-004-auditor-b.json",
+      "source_sha256": "280eee6921a5e5b3c6fee4dafa1dd10f9c2ae792869e56a6e57155404a5b6dce",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-004-integrated-summary.json",
+      "source_sha256": "c04a48afb9bf10ff7f2e0f40706b8b55cbc28c530e08feec327f9e3eae436370",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-005-auditor-a.json",
+      "source_sha256": "dd574563fdf89cf5fe44d71a3aaf2852e34f49c9dab94e3a987b86b326005632",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-005-auditor-b.json",
+      "source_sha256": "c4fb4cb02db8ef8ad265a7e7c953194e07e70a580379f7d5fcfd29ebfa2b5833",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-005-integrated-summary.json",
+      "source_sha256": "cd2e751a2d49ff1a3ce96729c559ae5651b5acfc8a4ea5d1fdc980f20d87d3ae",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-006-auditor-a.json",
+      "source_sha256": "065aa09686ae021839933ec45177c932d3e69d788686b09af647a763b9b68b94",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-006-auditor-b.json",
+      "source_sha256": "18cf71b59902637d54797ed3483942544338b139710210f1a814c406a0851672",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-007-auditor-a.json",
+      "source_sha256": "2d27cc6c0e66d7bd036907c49e0b6248a49d68094f8fa83f8e06b8bedc4754a2",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-007-auditor-b.json",
+      "source_sha256": "8400a6c2baafc534f018c1168976d2070edcc1b88852dba5201928d5d93ef82b",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-008-auditor-a.json",
+      "source_sha256": "fd26bd01aadd5355beca21c6cff8fd1d47707cb6e15c5cb64d59cf134d6f0fcd",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "findings",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-008-auditor-b.json",
+      "source_sha256": "904dcc29e37d2188ecba37259552eeaeb1089f73709d7e72b72d55263b4896f3",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "anti_goodhart_answer",
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "findings",
+        "meta_change",
+        "non_decreasing_guard",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-008-integrated-summary.json",
+      "source_sha256": "8430ec76d01072b4cf498e82d35208ecc4ebfd5770fda984fdd2223fca6be40a",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-009-auditor-a.json",
+      "source_sha256": "70111e3f8713c30cbf6e745de97a91fd4776ea6f659125666bb0fccb2a4ca2d2",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-009-auditor-b.json",
+      "source_sha256": "7636cc1f7673610f9892d7fd49f8885ed2bf7cfa4bbb0a3b8f0100982495c55f",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-009-integrated-summary.json",
+      "source_sha256": "868681716167d0db256ecdc210e644080601f3b456e2e2c9c7ebe86d44cc540e",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-010-auditor-a.json",
+      "source_sha256": "69ecf4bd9fbfd65bc54a71c3d416feb15e649f0c3fa81446c14ed0b2b5715398",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "attempt",
+        "category",
+        "checks",
+        "cycle",
+        "prior_attempts",
+        "proposed_revisions",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-010-auditor-b.json",
+      "source_sha256": "3c82b1ed2b96b0fc8219d1091d9f0aeeb6f50a4ab29e7b0ab28f64871afa1dab",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "process_note",
+        "proposed_revisions",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-010-integrated-summary.json",
+      "source_sha256": "f190060cf9f547ed32239ef79aacc92dd4bcc7495a4fb8fcb0c8b3a7ed2a43ea",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-011-auditor-a.json",
+      "source_sha256": "01c4d66ea032ba9db71752bb4358ebc04e0bd8cc4e830ab9f767b1b1ceb79736",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-011-auditor-b.json",
+      "source_sha256": "12a4d4cbc333af713421e46b4f032ad96b4f6c2960bc42717e1f00949eb1c1db",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-011-integrated-summary.json",
+      "source_sha256": "e895789071ee136cec64347f985e05ca197d45e7b1e5fc202b9d6ddce663498d",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-020-auditor-a.json",
+      "source_sha256": "eab962aaed916bc7c87dff536a55d709bd1c20dd09a75f54c25666cfb3e06361",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "attempt",
+        "category",
+        "checks",
+        "cycle",
+        "persistence_note",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-020-auditor-b.json",
+      "source_sha256": "5eff58467863ee94164ff0871e6c33b5d0aed216c4ccb57fc54752b67bc5c32b",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "persistence_note",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-020-integrated-summary.json",
+      "source_sha256": "e70e4dee11f0c835c2a4e2ae32a7f554fc7bd82b39662117f77b1f6e5119d2bd",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-022-auditor-a.json",
+      "source_sha256": "0e78be41a0a7deddc042623c6b6fb8fcbde0139adc6825274134adf26a3e2b9c",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-022-auditor-b.json",
+      "source_sha256": "70f8dddaf3cd9da2bfdb18e33ed5f97b920352ea90d04c4b79112558970377b3",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-022-integrated-summary.json",
+      "source_sha256": "094701b0cad000c6e883c7472b1dc17d134cafeb3885bdf4ab80700b869455df",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-attempt-1-auditor-a.json",
+      "source_sha256": "84a1808fb8456cd333e9342228d337ce3f481deb07af66a8ffaf76906570b423",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-attempt-1-auditor-b.json",
+      "source_sha256": "df18490ddf7f6f68bdaddf3e3f2d50579d253a85f5c4cd0420fb9e3a07b21233",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-attempt-1-integrated-summary.json",
+      "source_sha256": "b7393ed03780ed0f184c552c749dcc8281f7b3b32e0a6ddf8f1271f71e74ca79",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-attempt-2-halted-auditor-a.json",
+      "source_sha256": "a1f24021343bbe404cf3a95d9ef8d78df15bf7ec9f0cb737df4fcd31a5e29a1e",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-attempt-2-halted-integrated-summary.json",
+      "source_sha256": "389bbcfc837caa1158b0732d23094d007a03fc3825c4aaa87bfa50c958a83895",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-auditor-a.json",
+      "source_sha256": "1a4cfb20cb7d9e81c14f1b0397d63327d43a022a18261a98ddfbb704585c9e3a",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-auditor-b.json",
+      "source_sha256": "e3cf5d8c0357d607e68732a8b0fc98dcd2df4a8765f9e75d6956834ba5e9b51f",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-025-integrated-summary.json",
+      "source_sha256": "042a9bf0ffdb86b48f5b372a3a779f1b42547ea0f128d832d0fd89738407f876",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-037-auditor-a.json",
+      "source_sha256": "ca10afee741dc25b6bc60816c672554078635ee5f87de2c99dabca68e49437d1",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-037-auditor-b.json",
+      "source_sha256": "14cc99c4345f817275e76ed70c68ff2886e7a5bfe2d1b65194969739342162c5",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-037-integrated-summary.json",
+      "source_sha256": "41d990361482d65883a16361731af8b73507a8b952ab187ea2819c2a902ca344",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-039-auditor-a.json",
+      "source_sha256": "de12d5b91cf6ce8094c2650e1a794b6e3c9ad0a19ef2b6e1612d27dce029a4b0",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-039-auditor-b.json",
+      "source_sha256": "f1071443d197ecf5411baf99ffd2c15eec6abddf13f2b9d3aacee55b31b57b11",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-039-integrated-summary.json",
+      "source_sha256": "440232240504600b70a81c4aba0fea50ceb70cddaff4acee18d0532acf668df2",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-043-auditor-a.json",
+      "source_sha256": "bae98f4e306115904446d1ac1b37646e74d6981ef438fd29a3f7f6a001200d99",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "generated_at",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-043-auditor-b.json",
+      "source_sha256": "a04b57f1f5c65e71e3efd68dceccff31f1af6a5b33868848f070a37f26554e0d",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "critical_count",
+        "cycle",
+        "failed_check_ids",
+        "generated_at",
+        "major_count",
+        "minor_count",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-043-integrated-summary.json",
+      "source_sha256": "bd0a271712e033494103682260a6e10bc182de9bef263f96526c9bf539435969",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-044-auditor-a.json",
+      "source_sha256": "ebc74aa83621570a8a3bc9873cf22c063cb2fb3db9dd18d73e583c2c01ea1a8c",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "generated_at",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-044-auditor-b.json",
+      "source_sha256": "7bd118a9061bcf01346e2d92f9c6210518b3e32071b31f62aeebf5a514bc6d7a",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "critical_count",
+        "cycle",
+        "failed_check_ids",
+        "generated_at",
+        "major_count",
+        "minor_count",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-044-integrated-summary.json",
+      "source_sha256": "0ed1d6a173f4bc7d51cbf182049382bdbbf3e855ca246f6e1bcfc14faa4cde6a",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-045-auditor-a.json",
+      "source_sha256": "5b2bf9c2ee0474e80417436795303e011dbcb4d0ff020eb0601618523e7a09ba",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "generated_at",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-045-auditor-b.json",
+      "source_sha256": "7cc4a27f75f564d17042b1ac7d37840a9aa96577787860ebe5e4f6ab44de2385",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "critical_count",
+        "cycle",
+        "failed_check_ids",
+        "generated_at",
+        "major_count",
+        "minor_count",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-045-integrated-summary.json",
+      "source_sha256": "6c4882bae79f74fa38085aa8fe02353f6bb8dbfbe3fe27c5be6deb85b2afc35b",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-046-auditor-a.json",
+      "source_sha256": "61656a3215d5f650ea5f4a05f1453670b47f1a8c393d312dce4718bef94e017b",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "generated_at",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-046-auditor-b.json",
+      "source_sha256": "3933e70673f187f6aea035a0114f6d667776931b7e7b4bef71ccf6e468c7eff1",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "critical_count",
+        "cycle",
+        "failed_check_ids",
+        "generated_at",
+        "major_count",
+        "minor_count",
+        "schema",
+        "summary",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-046-integrated-summary.json",
+      "source_sha256": "8c8d42c3192446df0c4ad3a593960a44dc364a9605997d3c80467e39bf586a2c",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-061-auditor-a.json",
+      "source_sha256": "c37d779c276569453f9a2ee8c2f6ed8d96a88c362221cefc80589a9016b9add2",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-061-auditor-b.json",
+      "source_sha256": "c861ca94854fdb835733fa81f8e1bb3c5222083735ec3b7f44ffdb915c0c351b",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-061-integrated-summary.json",
+      "source_sha256": "844f5dd76e6bd147742f83728fea6439353091e1fc942032bd34ba06bf66af53",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-062-auditor-a.json",
+      "source_sha256": "399a15deb6c91f9472de5945fe6f4fcb54e8dc8735fb97abcffbf982faccc5c1",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-062-auditor-b.json",
+      "source_sha256": "c006f7db96b7b92d90e1d423da2858c1872f994d651d99f1dd124312c9f30914",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "category",
+        "checks",
+        "cycle",
+        "cycle_1_summary",
+        "proposed_revisions",
+        "schema",
+        "verdict",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-062-integrated-summary.json",
+      "source_sha256": "19ba47f02c0c831949fda3cb1c2fe0c3df7fb8317b4f77f672f7fe1d5eb74cce",
+      "group": "wfi-records",
+      "state": "reviewed",
+      "root_fields": [
+        "auditor_a_check_ids",
+        "auditor_a_fail_count",
+        "auditor_a_fail_ids",
+        "auditor_a_pass_count",
+        "auditor_a_skip_count",
+        "auditor_a_verdict",
+        "cycle",
+        "generated_at",
+        "schema",
+        "wfi_id"
+      ],
+      "evidence": "independent-config-review.md#wfi-records",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/T-006-input-manifest.json",
+      "source_sha256": "e734b3cae916120bfd59a4b5fd4e295bbc67100b9b596ec733e075279219296e",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/T-007-input-manifest.json",
+      "source_sha256": "cf5b1558d0d66ea58280f8354d9635506fbe2c5089e6fae5ace2b80038ed5328",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/T-008-input-manifest.json",
+      "source_sha256": "c2762792835b35092b4054fcc081b09e86737211bc5af7251bf7c06546888a08",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/T-009-input-manifest.json",
+      "source_sha256": "ec43030c2ad674f8ad5ca2d39a3622c34c637b4dcdc43f22ad855cceb842a411",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/T-010-input-manifest.json",
+      "source_sha256": "f6de4caf9c8748c7361874bd23092975deb52f3f3bfbb644ffb6005c88ee51f7",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/issue423-t001-20260928/manifest.json",
+      "source_sha256": "5a7b2d9e42be7ecc91f05aa68efe5f55d7347a8fa20939312f08a586cd642fae",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "handoffs/issue423-t002-20260928/manifest.json",
+      "source_sha256": "de0ee63808fec9bcafaea2363c3ffba7a95f1c16f1ef1b78033b2c4c112205c4",
+      "group": "historical-handoffs",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_instance_id",
+        "allowed_inputs",
+        "allowed_outputs",
+        "cost_estimate_source",
+        "cost_estimate_timestamp",
+        "estimated_cost_per_attempt_usd",
+        "fallback_reason",
+        "handoff_reload_evidence_hash",
+        "isolation_mode",
+        "model",
+        "model_tier",
+        "provider",
+        "run_id",
+        "schema",
+        "session_id",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#historical-handoffs",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/ci-mcp/package-lock.json",
+      "source_sha256": "53af732e84b394596090ce475803a8f8b3754e31252c0d209ecb18a019d0cff4",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "lockfileVersion",
+        "name",
+        "packages",
+        "requires",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/ci-mcp/package.json",
+      "source_sha256": "904cdd2c139cac9d93485bb9266a309b5007be73a21ce93c336877ae9e8d9d0a",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "dependencies",
+        "description",
+        "devDependencies",
+        "engines",
+        "name",
+        "private",
+        "scripts",
+        "type",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/ci-mcp/tsconfig.json",
+      "source_sha256": "58ad1654c10d1c5f263c428d083263dd2001dd960a75d74a971225d44cb08c67",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "compilerOptions",
+        "include"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/ci-mcp/tsconfig.test.json",
+      "source_sha256": "1b0a03e8923981d7bbce5fd5d98aea907ea3215630de18deb7f906667c0b1201",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "compilerOptions",
+        "include"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/local-env-mcp/package-lock.json",
+      "source_sha256": "b363003555c880029c87248dc0ad70d504b68555c677893918b2eb060885efab",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "lockfileVersion",
+        "name",
+        "packages",
+        "requires",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/local-env-mcp/package.json",
+      "source_sha256": "f56a47239c8edf108afe0a2de73badac58a1dbd6102df51f83c5bc35d2d39184",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "dependencies",
+        "description",
+        "devDependencies",
+        "engines",
+        "name",
+        "private",
+        "scripts",
+        "type",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/local-env-mcp/tsconfig.json",
+      "source_sha256": "58ad1654c10d1c5f263c428d083263dd2001dd960a75d74a971225d44cb08c67",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "compilerOptions",
+        "include"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/local-env-mcp/tsconfig.test.json",
+      "source_sha256": "1b0a03e8923981d7bbce5fd5d98aea907ea3215630de18deb7f906667c0b1201",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "compilerOptions",
+        "include"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package-lock.json",
+      "source_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "lockfileVersion",
+        "name",
+        "packages",
+        "requires",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package.json",
+      "source_sha256": "fe52324ba8c6460830974009714f5443d4052f186f5de84580c8c78070153345",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "dependencies",
+        "description",
+        "devDependencies",
+        "engines",
+        "name",
+        "private",
+        "scripts",
+        "type",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/bootstrap-interviewer-enhancement.expected.json",
+      "source_sha256": "a267e594217e4f479d1abeac352d2a273c23704a94ea76caada11b688ea65402",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/ci-mcp.expected.json",
+      "source_sha256": "727ca4bf247915fd4b6b5d9202b3d0aba148e695ea5b313d5d63c033ff8ee4eb",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/claude-workflow-compatibility.expected.json",
+      "source_sha256": "00e3ecc9406f82b0f0a2e6e35808fa7c52c028786a55462ea4e5ab4e9c6c9886",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/cross-model-verification.expected.json",
+      "source_sha256": "fca87351f9f95237cd7f32b5b401a8b174aa76671d4f9b917519b2d4e05f6743",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/evidence-deep-verify.expected.json",
+      "source_sha256": "8120b67fa2a5c7e30a7de04fff494dc33839d6f3649e052c375931a154921b11",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/risk-adaptive-layer.expected.json",
+      "source_sha256": "c18712794362e2049a306623b0b06337b2a6b1830c3acecd974d1731e2823530",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json",
+      "source_sha256": "b7078459625ee6380f9af4c85307b103909cb2169d7d566157d4b038b22dafe8",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-lite.expected.json",
+      "source_sha256": "03f18878205f29f8023e1238fba6b07d385071a3b7e5ae55a63865cf8081eb87",
+      "group": "golden-data",
+      "state": "reviewed",
+      "root_fields": [
+        "exitCode",
+        "feature",
+        "fileNotFound",
+        "ownFailureMessages"
+      ],
+      "evidence": "independent-config-review.md#golden-data",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tsconfig.json",
+      "source_sha256": "58ad1654c10d1c5f263c428d083263dd2001dd960a75d74a971225d44cb08c67",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "compilerOptions",
+        "include"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tsconfig.test.json",
+      "source_sha256": "1b0a03e8923981d7bbce5fd5d98aea907ea3215630de18deb7f906667c0b1201",
+      "group": "package-config",
+      "state": "reviewed",
+      "root_fields": [
+        "compilerOptions",
+        "include"
+      ],
+      "evidence": "independent-config-review.md#package-config",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+      "source_sha256": "f738a21479acefd6302a2cf825f4ded48b357087a9eb74be4a430a660e5d3632",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+      "source_sha256": "9de90fa324908e9445f843e54f7a55fb4ac9c52fa2d53ca8b554b30649aa1092",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.plugin/plugin.json",
+      "source_sha256": "7af28ddadf3b63c696886a9a29c061267dc07ca60c87d88c9a519d7f79268bcd",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "agents",
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-domain/.claude-plugin/plugin.json",
+      "source_sha256": "071097f0b740159349f7074024d843e6118f6cd15f382257e117a5708af7625a",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-domain/.codex-plugin/plugin.json",
+      "source_sha256": "377ed96508bce44cae812f1751db189a9cda0e573f6f071336bc4157e57168e9",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-domain/.plugin/plugin.json",
+      "source_sha256": "a4ebac14839f4cfb7641494c831cc9f2bd0a0d22f4f895aad1de0d7234335488",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-implementation/.claude-plugin/plugin.json",
+      "source_sha256": "473b4f905b852dd4f3f435b55a86862410fc2a91959f8b0bc70f5e55987b066d",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-implementation/.codex-plugin/plugin.json",
+      "source_sha256": "ab1398ce2ad45057e221e9e24000bc3b088fc8d39581b56fa2fe353a5ab73249",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-implementation/.plugin/plugin.json",
+      "source_sha256": "b5cb343a504f1120b3e85f596ec8df4ea6f8e0eb2b63041381c6ad20453ffb47",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-lite/.claude-plugin/plugin.json",
+      "source_sha256": "d4910fb0aa8fbf5546c94dfb1d3695ab3b87e169d76a04ad57257c1a2a63123b",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-lite/.codex-plugin/plugin.json",
+      "source_sha256": "44efc87de4ddd83319393b6eda601ec0d85d97dd2df3ac23c72cddaed73d542b",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-lite/.plugin/plugin.json",
+      "source_sha256": "3281c44c94032d1e9ee433791db3654b7f55776a6c49a0d6ee2646ff601bdead",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+      "source_sha256": "edb2e9ea6b7d5e6be480d71f80be2f064bf5aae1185caa17cb08b39103ad027d",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "hooks",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
+      "source_sha256": "3d91ef7f9be1fa0b0827499c55b925d8906dee883a60b36e277d69b7a7d789e1",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "hooks",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.plugin/plugin.json",
+      "source_sha256": "a086cd3e4c98509604afafeca3d0b236dd9eb0184240750db522fcc28891f5a7",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "agents",
+        "author",
+        "description",
+        "hooks",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-registry.json",
+      "source_sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "capabilities",
+        "gates",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+      "source_sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-summary.schema.json",
+      "source_sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+      "source_sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/facet-manifest.schema.json",
+      "source_sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-check-catalog.json",
+      "source_sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "catalog_version",
+        "checks",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-check-catalog.schema.json",
+      "source_sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json",
+      "source_sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "catalog_version",
+        "reasons",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/project-skill-manifest.schema.json",
+      "source_sha256": "769e1170db0b391aeac8ea39f02401c25e99c752891ad23a5bf14be9c21a5a89",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "oneOf",
+        "properties",
+        "required",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/project-verification-observation.schema.json",
+      "source_sha256": "38e932d4a582ae16e988903660ad2ca5c6b9f86a00c7018d233ab64b72279692",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "if",
+        "properties",
+        "required",
+        "then",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/research-evidence.schema.json",
+      "source_sha256": "0eb506cf9f8bf445b24b16b2277a06c0d3df91f4d89f665a702c7ced28efe46e",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json",
+      "source_sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe",
+      "group": "schemas",
+      "state": "reviewed",
+      "root_fields": [
+        "$id",
+        "$schema",
+        "additionalProperties",
+        "definitions",
+        "properties",
+        "required",
+        "title",
+        "type"
+      ],
+      "evidence": "independent-config-review.md#schemas",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+      "source_sha256": "09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d",
+      "group": "hook-launch",
+      "state": "reviewed",
+      "root_fields": [
+        "description",
+        "hooks"
+      ],
+      "evidence": "independent-config-review.md#hook-launch",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+      "source_sha256": "6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4",
+      "group": "hook-launch",
+      "state": "reviewed",
+      "root_fields": [
+        "hooks",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#hook-launch",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+      "source_sha256": "9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40",
+      "group": "hook-launch",
+      "state": "reviewed",
+      "root_fields": [
+        "description",
+        "hooks"
+      ],
+      "evidence": "independent-config-review.md#hook-launch",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "source_sha256": "c70e1a2ccf4b1d4b91b2b2ad430c1d760bb34f89d469cdb2a85a1f4580cef576",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "epic_a1_targets",
+        "phase2_human_copy_targets",
+        "protected_gate_plugin_json_suffixes",
+        "protected_gate_suffixes",
+        "schema_version",
+        "shell",
+        "sudo_signature_hex_length"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/provider-terms.json",
+      "source_sha256": "2355adabd24e3d01b18f3eb99e986073791fb3f85b4d9d27a91fd6a0f0a0ae7d",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "categories",
+        "comment",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
+      "source_sha256": "4527e0d33080d59c9ac95b89bc8e78b3d2932e897bd75b6688b388f830189fb9",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "commands",
+        "schema_version"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+      "source_sha256": "26c20a6a62259b598851beea58070aa1ddf2918fda5048f7467380852d648144",
+      "group": "registry-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "_generated",
+        "capability_gate_map",
+        "gates"
+      ],
+      "evidence": "independent-config-review.md#registry-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.claude-plugin/plugin.json",
+      "source_sha256": "43bc878aeaa51e7d30cb10a5c569ad50d85c5b8e883885f666f9bd5b0bf0efa9",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.codex-plugin/plugin.json",
+      "source_sha256": "6a72309bd59f7adb10e186ec08b4c26d1ff58f539a0eda1f632feccb7371bbea",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.plugin/plugin.json",
+      "source_sha256": "6028651f52594804e80f75cfc5cd3bdb23fad3f69c6c60bb7015b12ae82bb5ff",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json",
+      "source_sha256": "96e0f84ee6b97537f1784dc2d3460199380af2023ba1e8a3299032b06ac2daa6",
+      "group": "proof-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "Claude-active",
+        "Codex-disabled-expected-unavailable",
+        "Codex-enabled-active",
+        "Copilot-primary-active",
+        "Copilot-subagent-observed"
+      ],
+      "evidence": "independent-config-review.md#proof-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/a8-skip-allowlist.json",
+      "source_sha256": "0bd487921d967d431766976fb8a62d0f181c27eb6478ab5b04a32190f03154f5",
+      "group": "proof-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "entries",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#proof-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/a8-trusted-signers.json",
+      "source_sha256": "f6ec9affdaec7ce9eab180b5dcad45a468dd083a0261aebba64392ead8176886",
+      "group": "proof-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "schema",
+        "signers"
+      ],
+      "evidence": "independent-config-review.md#proof-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-ship/.claude-plugin/plugin.json",
+      "source_sha256": "99f247086dc546b8114f4cf3c19c1f717be7dd9d244390deb77e3b294af026fb",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-ship/.codex-plugin/plugin.json",
+      "source_sha256": "ac204d0f329d1704c36280dc6f5ec954d2037d47c95c89cccdb6151c87d321d4",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "interface",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "plugins/sdd-ship/.plugin/plugin.json",
+      "source_sha256": "ba2588569454d3a1ed6427fe91efd5f45fa6fff5dddd195bf1fa9ead15697cc9",
+      "group": "plugin-discovery",
+      "state": "reviewed",
+      "root_fields": [
+        "author",
+        "description",
+        "name",
+        "skills",
+        "version"
+      ],
+      "evidence": "independent-config-review.md#plugin-discovery",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "sdd/.approved-context/project-context.approved.yaml",
+      "source_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "components",
+        "schema",
+        "shared_paths",
+        "workflow"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "sdd/a9-advisory-request.json",
+      "source_sha256": "c6738553d4121d35c4823fe964396ae4d52e22d130df4fc036fcb43e9c109757",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "feature",
+        "schema",
+        "verification_contract"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "sdd/approver-registry.yaml",
+      "source_sha256": "566db70f27b64f3ffcc5925f04c98d3cff6fa75857485bfe7756a8c7a8401c15",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "approvers",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "sdd/project-context.approval.json",
+      "source_sha256": "2cbdbda5e15ddd9ebc743283f373b81d066223bf42204a81320dab41d721c169",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "approval_epoch",
+        "context_sha256",
+        "effective_at",
+        "hmac",
+        "predecessor_context_sha256",
+        "primary_approval",
+        "schema",
+        "second_approval",
+        "weakening_verdict"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "sdd/project-context.yaml",
+      "source_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "components",
+        "schema",
+        "shared_paths",
+        "workflow"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "specs/workflow-state-registry.json",
+      "source_sha256": "600d7bf3004b95ee7922eb4246f11da402b379019d4cc2b7c9956c43659d8393",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "entries",
+        "migration_baseline_commit",
+        "schema_version"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml",
+      "source_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+      "group": "context-workflow-policy",
+      "state": "reviewed",
+      "root_fields": [
+        "components",
+        "schema",
+        "shared_paths",
+        "workflow"
+      ],
+      "evidence": "independent-config-review.md#context-workflow-policy",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/registry.yaml",
+      "source_sha256": "566db70f27b64f3ffcc5925f04c98d3cff6fa75857485bfe7756a8c7a8401c15",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "approvers",
+        "schema"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/status.json",
+      "source_sha256": "114cf0200f45614ccd90c2bd932a45251f7ca1057c1fed73f31c2273f329b435",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "agent_actions_before_operational_acceptance",
+        "human_actions",
+        "keys_read",
+        "not_claimed",
+        "observed_checks",
+        "source",
+        "status",
+        "task",
+        "tracked_files_changed_by_this_agent"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/path-map.json",
+      "source_sha256": "a75b8f15ddb8713cf9911a3c988fa642481031018e8f35b5d43a29b6ff4cf0e3",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "files",
+        "purpose"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/readiness.json",
+      "source_sha256": "097ca39d0aed1c805aa271bb8e7e5bc7c32d6d9877e5145d1be3416c2a44dcde",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "actual_contract_path",
+        "actual_feature",
+        "approver_registry_exists",
+        "candidate_path",
+        "candidate_sha256",
+        "context_key_env_configured",
+        "context_key_file_exists",
+        "exit_code",
+        "key_material_read",
+        "live_context_exists",
+        "operational_advisory_result",
+        "phase1_validation",
+        "request_committed",
+        "request_exists",
+        "source",
+        "task_approval",
+        "writes_to_repository"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/unsigned-hashes.json",
+      "source_sha256": "0ef4f1e7b84f3cc0e16110c8d535b7b813d9da20447617b09989109a5a8ee750",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "sdd/approver-registry.yaml",
+        "sdd/project-context.yaml"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/phase1.json",
+      "source_sha256": "f01dd7002aa3c648c5c21b6b185804159ff28609a44995a4ab4b287c2616cb2a",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "candidate_valid",
+        "diagnostics",
+        "live_activation",
+        "ownership_digest",
+        "preflight_scope",
+        "promotion_authorized",
+        "release_cycle_evidence",
+        "signed_approval",
+        "unchecked_requirements"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/candidate.yaml",
+      "source_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "components",
+        "schema",
+        "shared_paths",
+        "workflow"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/export-hashes.json",
+      "source_sha256": "229211a91746e694c0aa31a3df50fec61a4c781f29a849d5fe0c3e14cefa181b",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "README.md",
+        "candidate.yaml",
+        "draft/contract.json",
+        "draft/request.json",
+        "draft/requirements.md",
+        "draft/tasks.md",
+        "e/build.execution.json",
+        "e/build.stderr",
+        "e/build.stdout",
+        "e/contract-check.execution.json",
+        "e/contract-check.stderr",
+        "e/contract-check.stdout",
+        "e/executions.json",
+        "e/fullsuite.execution.json",
+        "e/fullsuite.stderr",
+        "e/fullsuite.stdout",
+        "e/install.stderr",
+        "e/install.stdout",
+        "e/lint.execution.json",
+        "e/lint.stderr",
+        "e/lint.stdout",
+        "e/placeholder-scan.execution.json",
+        "e/placeholder-scan.stderr",
+        "e/placeholder-scan.stdout",
+        "e/preparation-executions.json",
+        "e/production-audit.execution.json",
+        "e/production-audit.stderr",
+        "e/production-audit.stdout",
+        "e/source-binding.json",
+        "e/task-state-check.execution.json",
+        "e/task-state-check.stderr",
+        "e/task-state-check.stdout",
+        "e/typecheck.execution.json",
+        "e/typecheck.stderr",
+        "e/typecheck.stdout",
+        "notes/original-readiness.md",
+        "notes/review-decisions.md",
+        "path-map.json",
+        "phase1.json",
+        "phase1.stderr",
+        "readiness.json",
+        "registry.yaml",
+        "status.json",
+        "unsigned-hashes.json"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/draft/request.json",
+      "source_sha256": "1d8a32090b9986f8b96df988082adec46bb1a258268e7d249c47fa468ba2ce61",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "feature",
+        "schema",
+        "verification_contract"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/draft/contract.json",
+      "source_sha256": "672596e008bf8b511e9b93ddb65fa3b2224608bbe81a1ba0dcf6fe756c556c0c",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "checks",
+        "comment",
+        "feature",
+        "risk",
+        "schema",
+        "spec_revision",
+        "stack",
+        "task_id"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/fullsuite.execution.json",
+      "source_sha256": "6b5337844ec3b6c37a0094201718cc9acfaf0522cc8f2cbb5810069cf90d908c",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "lock_sha256",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/source-binding.json",
+      "source_sha256": "05bd1bdc46d640caac4e632d6c8449342718148749b9436f3c552053dce35fad",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "mcp_diff_from_recovery_commit_451fa4c9",
+        "note",
+        "sha256",
+        "source_commit"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/typecheck.execution.json",
+      "source_sha256": "dd13ff17c110eda497ef5ea07aebac97517ab54a6c34e03ce34e2cf6fc670603",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "lock_sha256",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/placeholder-scan.execution.json",
+      "source_sha256": "e0f629f16e0714d63aa201bff033d9160b803eaf3f32a70dfd967ef69bb38405",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/task-state-check.execution.json",
+      "source_sha256": "936aa187f5244e3a72da40bdd9eebec59f8be27d33c8ce14f665dd92398a9aef",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/production-audit.execution.json",
+      "source_sha256": "b09eae561e57d94276e74b4e74c31c8ccb5d159ac49c11fa6aa88618e695f4de",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "lock_sha256",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/contract-check.execution.json",
+      "source_sha256": "25f5636301650de3d33de798d06ca058423691abfab472cab05d60300131bd3a",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "earlier_preparation_failure",
+        "exit_code",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/executions.json",
+      "source_sha256": "14cfeacb5aa491e042717e30c7042c6ffd4de9f0f28cddaaab86429df3c7be30",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": "list",
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/build.execution.json",
+      "source_sha256": "b1ec0080f224cbab5e164184860d7e31a1727644ba09704744401dfc43f775a9",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "lock_sha256",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/preparation-executions.json",
+      "source_sha256": "d8ebab51991ebec9fbc7860815cff2f10da1fde3920e10f8fbb8e7340ab7933e",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": "list",
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/lint.execution.json",
+      "source_sha256": "6b779267eecfa0dca5b345b7cd73100e74c17bd20c78a2965e66c158a4ec9fbf",
+      "group": "pinned-signing-packet",
+      "state": "reviewed",
+      "root_fields": [
+        "argv",
+        "completed_at",
+        "cwd",
+        "exit_code",
+        "label",
+        "started_at",
+        "stderr_path",
+        "stderr_sha256",
+        "stdout_path",
+        "stdout_sha256"
+      ],
+      "evidence": "independent-config-review.md#pinned-signing-packet",
+      "disposition": "coding-rule applicability reviewed via parsed field role and actual consumer; record verdicts are not new execution evidence"
+    }
+  ]
+}

@@ -477,6 +477,29 @@ else
     fail "QGCL-016 (AC-007, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands"
 fi
 
+if [ -n "$PWSH" ]; then
+    make_reports "$WORK/case-feature" 3 T-001 ALPHA
+    run_ps T-001 alpha "$WORK/case-feature"
+    if [ "$PS_EXIT" -eq 0 ] && [ "$PS_OUTPUT" = continue ]; then
+        ok 'PowerShell feature identity remains case-sensitive'
+    else
+        fail "PowerShell counted another case feature: $PS_EXIT $PS_OUTPUT"
+    fi
+    mkdir -p "$WORK/unreadable/nested"
+    chmod 000 "$WORK/unreadable/nested"
+    if [ ! -r "$WORK/unreadable/nested" ]; then
+        run_ps T-001 alpha "$WORK/unreadable"
+        if [ "$PS_EXIT" -ne 0 ] && [[ "$PS_OUTPUT" != *continue* ]]; then
+            ok 'PowerShell inaccessible enumeration fails without continue'
+        else
+            fail "PowerShell inaccessible enumeration falsely continues: $PS_EXIT $PS_OUTPUT"
+        fi
+    else
+        echo 'skip: real inaccessible directory requires non-root permission enforcement'
+    fi
+    chmod 700 "$WORK/unreadable/nested"
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================

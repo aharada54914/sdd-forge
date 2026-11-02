@@ -331,12 +331,19 @@ export function listGuardedFilesWithDiagnostics(
   const files: string[] = [];
   const errors: GuardedListError[] = [];
   const realEvidenceKeyPath = resolvedEvidenceKeyPath();
+  const ancestors = new Set<string>();
   const walk = (absDir: string, relPrefix: string): void => {
+    if (ancestors.has(absDir)) {
+      errors.push({ path: relPrefix, reason: "Directory traversal cycle detected." });
+      return;
+    }
+    ancestors.add(absDir);
     let entries: string[];
     try {
       entries = readdirSync(absDir);
     } catch (error) {
       errors.push({ path: relPrefix, reason: errorMessage(error) });
+      ancestors.delete(absDir);
       return;
     }
     for (const entry of entries) {
@@ -365,6 +372,7 @@ export function listGuardedFilesWithDiagnostics(
         files.push(relEntryPath);
       }
     }
+    ancestors.delete(absDir);
   };
 
   walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));

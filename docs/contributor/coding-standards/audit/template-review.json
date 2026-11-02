@@ -1,0 +1,417 @@
+{
+  "schema": "coding-standards-template-review/v1",
+  "revision": "d910fece8157e3bb8117da38f00d7bed7b31e6c2",
+  "scope": "All63 current-template census entries; complete text inspection including code fences and structured fields. Product instructions treated as data, not agent authority.",
+  "applicability": {
+    "CS-001–012": "Reviewed source-to-edit placeholders, fixed configuration/schema identifiers, shell/YAML boundaries, token constants and credentials. No general string interpolation renderer is implemented by these templates.",
+    "CS-013–017": "Distinct workflow report/specification responsibilities retained; shared lower-level implementation not owned by templates. No same-shape consolidation imposed.",
+    "CS-018–026": "Actual shell bodies tested where present. Interface-only TS declarations and explicitly incomplete HCL/Mermaid scaffolds have no runtime exception/async/process lifecycle; generated project-specific programs are not claimed verified.",
+    "CS-027–030": "Checked default outcomes, provenance, placeholder versus observed evidence. DOC-001 found actual false success and repaired; DOC-002 found parse-type defect. No remote GitLab or native project-host execution claimed."
+  },
+  "checks": [
+    {
+      "command": "bash tests/template-validator-parity.tests.sh",
+      "result": "25 passed/0 failed after DOC-001/DOC-002; actual preceding negative failures recorded in central findings"
+    },
+    {
+      "command": "bash tests/bootstrap-layer-templates.tests.sh",
+      "result": "97 passed/0 failed"
+    },
+    {
+      "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH bash tests/bootstrap-cross-layer-index.tests.sh",
+      "result": "54 passed/0 failed including Linux PowerShell parity; initial run without wrapper path37 passed/1 parity skip is not parity evidence"
+    },
+    {
+      "command": "bash tests/bootstrap-interview-guidance.tests.sh",
+      "result": "32 passed/0 failed"
+    },
+    {
+      "command": "bash tests/design-system-contract.tests.sh",
+      "result": "121 passed/0 failed"
+    },
+    {
+      "command": "Python3 json.loads/PyYAML6.0.3 safe_load over all structured templates",
+      "result": "10JSON/4YAML parse; independent pinned js-yaml5.5.0 actual CI command type checks detect DOC-002"
+    }
+  ],
+  "entries": [
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
+      "source_sha256": "ac455342b0c899e140ad35f5313e9c429311fc389620c0fbabdc8364e787251f",
+      "state": "reviewed",
+      "judgment": "Baseline observations require evidence and preserve/known-defect decisions; no invented baseline assertion."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md",
+      "source_sha256": "67b189171aa3254990203a81485c47193fc991aa12d86e02b10aee3c7ef030e5",
+      "state": "reviewed",
+      "judgment": "Codemap names entry points/dependencies and uncovered areas; explicitly regenerates from investigation."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md",
+      "source_sha256": "076acfd232ac4e1dc608c107115c2fa9b05fed3414b0313c7b6d414b74fe4d0c",
+      "state": "reviewed",
+      "judgment": "Investigation separates facts/confidence/questions; findings are unfilled prose."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/AGENTS.template.md",
+      "source_sha256": "b66529702696bae80e073403611fcda95b4b812b33b7c34afe91cfcad93d54e4",
+      "state": "reviewed",
+      "judgment": "Workflow and artifact-location guidance; task/gate boundaries stated, no executable renderer."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/CLAUDE.template.md",
+      "source_sha256": "af0d4c442611862fc0c54d4130884d34cbecc7dd9eda44e5984a727313eb8392",
+      "state": "reviewed",
+      "judgment": "Reference-only host guidance points at canonical AGENTS; no shell body."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md",
+      "source_sha256": "e4708bbd8ab0a390b970e4aa75d793feedaa3358ca6562c85963ae1dfb050179",
+      "state": "reviewed",
+      "judgment": "Planned acceptance rows and unchecked UI checks are examples, not successful test claims."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/adr.template.md",
+      "source_sha256": "bf314041612335324a71f26b0eae9a62cb0755f4dbc1ba830ab46f6de11f79ea",
+      "state": "reviewed",
+      "judgment": "ADR decision scaffold is an accepted-decision document format; unfilled context remains visible, not a gate receipt."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md",
+      "source_sha256": "adeaba316f174d8f66b31b30d8c48eeda76258d096ac501973f98426fcd809c9",
+      "state": "reviewed",
+      "judgment": "Task metadata uses placeholders and explicit fail-closed risk rationale; no executable sink."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-component.template.md",
+      "source_sha256": "c5f30e31b7f4ecc9aec207c98ac4dbfadd605989f7b3988a413cfe17fcd94bea",
+      "state": "reviewed",
+      "judgment": "Mermaid component diagram is editable source scaffold; placeholders are not runtime shell/HTML values."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md",
+      "source_sha256": "feb511c7c347df87a3be2c39df226e3b4c3ec403d592a902a1bcba839a5fa5ef",
+      "state": "reviewed",
+      "judgment": "Mermaid container scaffold explicitly rejects inferred deployment boundaries from concepts."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md",
+      "source_sha256": "b84748ecc5b01d83281d3c89f5e3a5ce30e133c384f8f9a8b9df52d003cba25f",
+      "state": "reviewed",
+      "judgment": "Mermaid context scaffold is source-to-edit, not a data-driven rendering function."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml",
+      "source_sha256": "02442fe1f63c43da36d8f13cebe125e88168ad306745b5cb9e1fa4e006fe7c2d",
+      "state": "reviewed",
+      "judgment": "Actual YAML command is fixed literal; unconfigured project command exits1, read-only permissions."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml",
+      "source_sha256": "e27e86de7be79691a6187a8f65861ab5662f7a642a2ef2bc6390ca4ebfe1aaa0",
+      "state": "reviewed",
+      "judgment": "DOC-002 repaired YAML scalar type; actual placeholder command exits1."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md",
+      "source_sha256": "5d801b9a47db7bc363e58c2c7609ed923255aec83ae74189460398a4c6c5f0cb",
+      "state": "reviewed",
+      "judgment": "Token references and owned transformation guidance; concrete accessibility version is normative, not magic runtime threshold."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json",
+      "source_sha256": "76f526f7c65ed20df8cef5805fe2c10f69dd19bee21aea040049773833481ae2",
+      "state": "reviewed",
+      "judgment": "Parsed JSON token defaults are central canonical design values, not duplicated credentials or test oracles."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md",
+      "source_sha256": "748f31b0136a2eae7ad8978ffb461ca749247408afd19217b73e93377bd95798",
+      "state": "reviewed",
+      "judgment": "Design index links owned facets and captures responsibility/public contract; no duplicated executable policy implementation."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/frontend-spec.template.md",
+      "source_sha256": "63fe6069647d5ca1b1214eba31fd0c191c27d7baa80b01577122898955b59f10",
+      "state": "reviewed",
+      "judgment": "Embedded TypeScript interfaces are declarations only, no casts/async/evaluation; budget values explicitly examples."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/gitlab-issue.template.md",
+      "source_sha256": "3353fc7232193d9ca0468012ea8c9aadf991803719c4ae539d0c43cbca6181ab",
+      "state": "reviewed",
+      "judgment": "Issue prose scaffold has unchecked acceptance and no validation bypass."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/infra-spec.template.md",
+      "source_sha256": "2089374cb3779b968c3dd511881213a5f2de51dafff33c07bd9bb953da39f020",
+      "state": "reviewed",
+      "judgment": "HCL is explicitly an unconfigured module-source scaffold; no real resource credential or runnable deployment claim."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/json-schema.template.json",
+      "source_sha256": "b9ae488e11e017beeb36772b0ca4ae95c537f7e036864684990d38321efa18d9",
+      "state": "reviewed",
+      "judgment": "Parsed JSON Schema scaffold identifies schema URI and empty user-defined properties; fixed URI is not a secret."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/merge-request.template.md",
+      "source_sha256": "4775037002942ee46f6c748a0ded512530fc7357384a032d3d46f3893d1436c8",
+      "state": "reviewed",
+      "judgment": "Merge request prose retains verification/risks placeholders; no successful evidence default."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/openapi.template.yaml",
+      "source_sha256": "a051e4381f84456526cb7e496d0e72043a3bf9fd60d2cf0bfcb2b0615234fe5e",
+      "state": "reviewed",
+      "judgment": "OpenAPI scaffold has empty paths and placeholder title; no dynamic YAML encoder implementation."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/pull-request.template.md",
+      "source_sha256": "ddc7214401358daf0422966b8fecefb4aac0d803016cb7bbe31f0bdb2b271cbb",
+      "state": "reviewed",
+      "judgment": "Pull request checkboxes remain unchecked and cite task/contracts."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md",
+      "source_sha256": "903a725c445fac4505dfea3a3ac7aaf13b37fdb103ccffc1d1a6d1608dc940b5",
+      "state": "reviewed",
+      "judgment": "Requirements begin Pending and require security/edge-case questions; placeholders do not claim acceptance."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/review-ticket.template.md",
+      "source_sha256": "b50fdb8320412c4b18bf3f55cbe724aecd9c3e39b3a7e0c6edb8d5f0e31c4ffc",
+      "state": "reviewed",
+      "judgment": "Review-ticket prose lists allowed outcomes/severity and explicit decision flags; no callable interpreter."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/security-spec.template.md",
+      "source_sha256": "f006ec05c71b0fe5f4800659a8d2b31628698187748d9de0eeaaa84004a533c5",
+      "state": "reviewed",
+      "judgment": "Security scaffold requires evidence and fail-closed boundaries; examples do not contain credential values."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md",
+      "source_sha256": "2bf9c1cc5f3fbfb77220ab4d5e60d1db5002a01c72db227bf38d3e2cbb58fc42",
+      "state": "reviewed",
+      "judgment": "Tasks start Draft/Planned; unchecked completion and cross-state clauses preserve evidence obligations."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md",
+      "source_sha256": "448ca507d5f1e98edd75e2994e8f2691622d88a695ff934e2623629260785627",
+      "state": "reviewed",
+      "judgment": "Traceability explicitly forbids invented evidence and uses Planned examples, not retrospective success."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md",
+      "source_sha256": "b00f27065467cdb5217022e9e80a3272b632443692f4fd177a4af57abae504fc",
+      "state": "reviewed",
+      "judgment": "UI conventions are editable policy defaults with intent; no shared business code or runtime threshold change."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md",
+      "source_sha256": "eb35a0c3da4d6a68bd98045a387d1dcac1ce929a7407c5fa053ee6312d43a607",
+      "state": "reviewed",
+      "judgment": "UX scaffold preserves actual REQ/AC references and reasoned inapplicability; diagrams are editable examples."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/aggregate.template.md",
+      "source_sha256": "3b434585bb6489be3553c7b3c77ed26b9241ecf76760cbb98d6fcae9832b44e0",
+      "state": "reviewed",
+      "judgment": "Aggregate template records own transaction/invariant boundaries and unknowns rather than merging similar domains."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/concept-model.template.md",
+      "source_sha256": "846a5697cbc1030bb9187d1fc9caab7c80525076b1490f9523b6001bf6d8ad91",
+      "state": "reviewed",
+      "judgment": "Concept template separates identity from names, human decisions from candidates, and hypothetical from observed evidence."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md",
+      "source_sha256": "89d84febd68da0414d68fb46c96276c1f502fff1c02b1c61a9ea81ed018705c0",
+      "state": "reviewed",
+      "judgment": "Context map defaults Pending; approval/reset contract and relationship enum are documented."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/domain-story.template.md",
+      "source_sha256": "efab4b4b466dda20086a53d02b07f5a9f87886f23d3d3047078c369dab360142",
+      "state": "reviewed",
+      "judgment": "Domain story is narrative/diagram scaffold; corrected Context Map stage reference to5, matching Context Map and message-flow templates."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/event-storming.template.md",
+      "source_sha256": "cd12922028606d3132176421070373a99c63a8ecc6fd04c060970c856d62337f",
+      "state": "reviewed",
+      "judgment": "Event storming preserves unresolved hotspots and tentative clusters; no implemented business policy conflation."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/message-flow.template.md",
+      "source_sha256": "47bd084a44cdb18840dbe035813a1aea3073f23b9800375057b04c6dc8eb364d",
+      "state": "reviewed",
+      "judgment": "Message flow keeps compensation per message/context; no shared retry wrapper."
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/ubiquitous-language.template.md",
+      "source_sha256": "a7442409c9656f5d5070ea0b179049a5c2273d36fb206e241e72b1ed6cc63de1",
+      "state": "reviewed",
+      "judgment": "Vocabulary ties approved concepts to stable IDs and preserves unknowns."
+    },
+    {
+      "path": "plugins/sdd-domain/templates/domain-review-contract.template.json",
+      "source_sha256": "34b3b211a78094bfa7ff32f67cdc6cc1bbf2f1f43d57e914c80115c1832a0bc1",
+      "state": "reviewed",
+      "judgment": "Parsed domain contract placeholders require actual run/session/hash, verdict remains placeholder and human approval Pending."
+    },
+    {
+      "path": "plugins/sdd-domain/templates/domain-review-integrated-verdict.template.json",
+      "source_sha256": "f130fb85d59b68f1c697b89dc346b84576d3c1057b50db1ab1a71cbd094dc565",
+      "state": "reviewed",
+      "judgment": "Parsed integrated domain verdict requires validated reviewer outputs; default zero counts alone cannot satisfy placeholder verdict."
+    },
+    {
+      "path": "plugins/sdd-domain/templates/domain-review-report.template.md",
+      "source_sha256": "fb08e1e4d9a9ec27d8d3b4b2d93692104a15a4c7cb3c9a82220e7917ef31802a",
+      "state": "reviewed",
+      "judgment": "Domain review report explicitly disclaims authorization and requires cross-model verification."
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/diagnosis-report.template.md",
+      "source_sha256": "88a492b9132329b366a4cd788646382054e29b18804dce6eddfb78778e55a834",
+      "state": "reviewed",
+      "judgment": "Diagnosis shell fence is explicitly a missing command placeholder; demands actual red observation and does not execute it."
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "source_sha256": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75",
+      "state": "reviewed",
+      "judgment": "Implementation report separates snapshot claims from independent gate evidence and pins actual outputs."
+    },
+    {
+      "path": "plugins/sdd-lite/templates/design-lite.md",
+      "source_sha256": "21e8827478ba6090d98639f9a899102705c2855981b95598561214a408b9e823",
+      "state": "reviewed",
+      "judgment": "Lite design is intentionally small own policy, no Full gate evidence injection."
+    },
+    {
+      "path": "plugins/sdd-lite/templates/quality-report-lite.md",
+      "source_sha256": "fbb10eeb476ab532f241acc532c570dcc1dbbbdaa46342eaa14dadfa149fb8b1",
+      "state": "reviewed",
+      "judgment": "DOC-001 repaired unfilled report false success; explicit completed PASS normal control preserved."
+    },
+    {
+      "path": "plugins/sdd-lite/templates/requirements-lite.md",
+      "source_sha256": "86b212b7a36652f7a617c21dfd80193d59a58babdf3a01a931c0ca626affb904",
+      "state": "reviewed",
+      "judgment": "Lite requirements are human-provided request scaffolding and unknown questions."
+    },
+    {
+      "path": "plugins/sdd-lite/templates/tasks-lite.md",
+      "source_sha256": "99ecea5271f55dde5764d12be63d1aa54288868d28cb15b9ec029d55e9619e31",
+      "state": "reviewed",
+      "judgment": "Lite tasks start Draft/Planned; no successful completion default."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/evidence-bundle.template.json",
+      "source_sha256": "d1a131c56c69a934186fe2fb940d8d689626746670682cda85f2e3efa67e7432",
+      "state": "reviewed",
+      "judgment": "Parsed evidence bundle has placeholder/empty hashes and verdict; no false signed execution receipt."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/quality-report.template.md",
+      "source_sha256": "7edd8a98524177276225b0f67c0905866437a8a7f98c2fec911c0f0af02a4cd1",
+      "state": "reviewed",
+      "judgment": "Quality report separates implementation claims, observed evidence, cannot-verify blockers and scope waivers."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
+      "source_sha256": "6082b26e4f72ebfdc28917d919c78bfe00d9e72b5fb84f659278da8b612c6f28",
+      "state": "reviewed",
+      "judgment": "Retrospective requires sample size/data completeness and count provenance; previous absence is N/A not fabricated zero."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/review-ticket.template.yml",
+      "source_sha256": "90a91199fd7012e65d7ed8106a03279c33ac7c5b05e8384e0e1906529c82b689",
+      "state": "reviewed",
+      "judgment": "Review ticket starts open with empty concrete details; boolean defaults describe intended autofix lane, not task approval."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+      "source_sha256": "d803be2741e21ea71ba7aaac691aeea314f63f477ee5bab27f37a8e7a553dbe5",
+      "state": "reviewed",
+      "judgment": "Parsed verification contract defaults every passes field false and runtime fields null; no skipped check becomes success."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/wfi-audit-report.template.md",
+      "source_sha256": "a054995c844c77e0d76d84a04cd40ff992896a90b9b308cd3ca063484e02a9f5",
+      "state": "reviewed",
+      "judgment": "WFI audit scaffold requires quoted evidence and explicit verdict; counts remain placeholders."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/workflow-improvement.template.md",
+      "source_sha256": "b99418c48b544a90e9dcb6a6150ae4327ea6329b223ca340fb3a8fbf14a316a9",
+      "state": "reviewed",
+      "judgment": "WFI template separates scope/mechanism, requires evidence and rollback, result remains Pending until verification."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/cli-library-spec.template.md",
+      "source_sha256": "13394c9079a7a0d786ed370dfd8715743a662e859497fe7c99d4cae0720872fd",
+      "state": "reviewed",
+      "judgment": "CLI facet keeps public input/output/failure/compatibility responsibility explicit."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/developer-tooling-spec.template.md",
+      "source_sha256": "35046d7f2c1494a9e445b7e1d6924fdac614a11c2d6b08648fe2edac9e9f713f",
+      "state": "reviewed",
+      "judgment": "Tooling facet keeps distribution/host/compatibility evidence explicit."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/impl-review-contract.template.json",
+      "source_sha256": "2c4e1c2d7f5b0dd495858432577a98b61f007c6daf97be8260f6501b091d46a3",
+      "state": "reviewed",
+      "judgment": "Parsed implementation contract defaults NEEDS_WORK; empty hashes cannot establish successful review."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/impl-review-report.template.md",
+      "source_sha256": "297917992ce7a821c6a234d3d070c8941e0fb8a9120654c6a2edfaef9029d205",
+      "state": "reviewed",
+      "judgment": "Implementation policy report uses placeholder verdict and observed reviewer counts."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/spec-review-contract.template.json",
+      "source_sha256": "b33961db0d5e7fd02261c86c23bc5b9b02b1857fa85433b239c64ff694936e60",
+      "state": "reviewed",
+      "judgment": "Parsed spec contract verdict is a choice placeholder and identities/hashes unfilled, not an accepted receipt."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/spec-review-integrated-verdict.template.json",
+      "source_sha256": "8834146f2616d92c420a7ed4960647351a5d17f5a578ca5302668d4c411a26b4",
+      "state": "reviewed",
+      "judgment": "Parsed integrated spec verdict requires validated distinct reviewer identities and choice placeholder verdict."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/spec-review-report.template.md",
+      "source_sha256": "0597ce0c38126c05e7e0d06d240538669853e8eaa75ea2979f68ccf1366a4d73",
+      "state": "reviewed",
+      "judgment": "Spec report derives verdict from validated independent outputs and identifies sole status writer."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "source_sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+      "state": "reviewed",
+      "judgment": "Parsed task contract defaults NEEDS_WORK; workflow_match_precheck PASS is not overall success without reviewers/hashes."
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/task-review-report.template.md",
+      "source_sha256": "c64765d789649d29ea662b4d6cc4ddab7fa633f93be49ba3e0c69ea051f3a59e",
+      "state": "reviewed",
+      "judgment": "Task report has placeholder verdict, evidence/findings and next steps."
+    },
+    {
+      "path": "skills/adversarial-review/templates/report-template.md",
+      "source_sha256": "5b80a2cc52ec14f311c78ca7519a94eb3e2bd0191c89afe856e0081f0dcaab46",
+      "state": "reviewed",
+      "judgment": "Adversarial report pins immutable target and stale rules; verified non-findings are examples explicitly to be replaced."
+    }
+  ]
+}

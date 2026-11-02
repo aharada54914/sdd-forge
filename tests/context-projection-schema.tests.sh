@@ -80,7 +80,7 @@ else
 fi
 
 if [ -f "$SCHEMA" ]; then
-  schema_dollar_schema="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$schema',''))" 2>/dev/null)"
+  schema_dollar_schema="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$schema',''))" "$SCHEMA" 2>/dev/null)"
 else
   schema_dollar_schema=""
 fi
@@ -91,7 +91,7 @@ else
 fi
 
 if [ -f "$SCHEMA" ]; then
-  schema_id="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$id',''))" 2>/dev/null)"
+  schema_id="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$id',''))" "$SCHEMA" 2>/dev/null)"
 else
   schema_id=""
 fi
@@ -104,12 +104,12 @@ fi
 
 # --- top-level required set --------------------------------------------------
 if [ -f "$SCHEMA" ]; then
-  required_json="$(python3 -c "import json;print(json.dumps(json.load(open('$SCHEMA')).get('required',[])))" 2>/dev/null)"
+  required_json="$(python3 -c "import sys; import json;print(json.dumps(json.load(open(sys.argv[1])).get('required',[])))" "$SCHEMA" 2>/dev/null)"
 else
   required_json=""
 fi
 expected_required_json='["schema", "source_sha256", "workflow", "components", "shared_paths"]'
-expected_required_json="$(python3 -c "import json;print(json.dumps(json.loads('$expected_required_json')))")"
+expected_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.loads(sys.argv[1])))" "$expected_required_json")"
 if [ "$required_json" = "$expected_required_json" ]; then
   ok "top-level 'required' is exactly the five-field set (AC-015)"
 else
@@ -118,12 +118,12 @@ fi
 
 # --- workflow sub-object required set ---------------------------------------
 if [ -f "$SCHEMA" ]; then
-  workflow_required_json="$(python3 -c "import json;print(json.dumps(json.load(open('$SCHEMA'))['properties']['workflow'].get('required',[])))" 2>/dev/null)"
+  workflow_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.load(open(sys.argv[1]))['properties']['workflow'].get('required',[])))" "$SCHEMA" 2>/dev/null)"
 else
   workflow_required_json=""
 fi
 expected_workflow_required='["spec_profile", "artifact_layout", "capability_enforcement"]'
-expected_workflow_required_json="$(python3 -c "import json;print(json.dumps(json.loads('$expected_workflow_required')))")"
+expected_workflow_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.loads(sys.argv[1])))" "$expected_workflow_required")"
 if [ "$workflow_required_json" = "$expected_workflow_required_json" ]; then
   ok "workflow.required is exactly the three-field set"
 else
@@ -171,8 +171,9 @@ expect_invalid "schema-invalid-const.json" "schema const" "/schema: expected con
 # sub-field anywhere.
 expect_valid "rekeyed-two-component-non-slug-id.json" "TEST-015"
 rekey_check="$(python3 -c "
+import sys
 import json
-d = json.load(open('$FIXTURES/rekeyed-two-component-non-slug-id.json'))
+d = json.load(open(sys.argv[1]))
 comps = d['components']
 keys = sorted(comps.keys())
 ok = (
@@ -182,7 +183,7 @@ ok = (
     and 'id' not in comps['Desktop/App']
 )
 print('OK' if ok else 'FAIL keys=%r' % (keys,))
-")"
+" "$FIXTURES/rekeyed-two-component-non-slug-id.json")"
 if [ "$rekey_check" = "OK" ]; then
   ok "TEST-015: components re-keys to exactly two id-valued keys (incl. non-slug 'Desktop/App'), no 'id' sub-field"
 else
@@ -193,11 +194,12 @@ fi
 # re-keys to components: {} / shared_paths: [] ("B8").
 expect_valid "source-omission-empty-valid.json" "TEST-015 (B8 source-omission)"
 omission_check="$(python3 -c "
+import sys
 import json
-d = json.load(open('$FIXTURES/source-omission-empty-valid.json'))
+d = json.load(open(sys.argv[1]))
 ok = d['components'] == {} and d['shared_paths'] == []
 print('OK' if ok else 'FAIL components=%r shared_paths=%r' % (d.get('components'), d.get('shared_paths')))
-")"
+" "$FIXTURES/source-omission-empty-valid.json")"
 if [ "$omission_check" = "OK" ]; then
   ok "TEST-015 (B8): source-omission fixture materializes components: {} / shared_paths: []"
 else
@@ -209,6 +211,7 @@ fi
 # own example, requirements.md:722/769) resolves against the AC-015-shaped
 # fixture to a real value.
 pointer_resolution="$(python3 -c "
+import sys
 import json
 def resolve(doc, pointer):
     if pointer == '':
@@ -221,10 +224,10 @@ def resolve(doc, pointer):
         else:
             node = node[token]
     return node
-d = json.load(open('$FIXTURES/rekeyed-two-component-non-slug-id.json'))
+d = json.load(open(sys.argv[1]))
 value = resolve(d, '/components/desktop-client/artifact_kinds')
 print(json.dumps(value))
-")"
+" "$FIXTURES/rekeyed-two-component-non-slug-id.json")"
 if [ "$pointer_resolution" = '["executable", "installer"]' ]; then
   ok "TEST-016: /components/desktop-client/artifact_kinds resolves to a real value ($pointer_resolution)"
 else

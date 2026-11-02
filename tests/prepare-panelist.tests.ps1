@@ -30,14 +30,27 @@ function Invoke-Prepare {
     param([string[]]$ArgList)
     $script:PP_Exit   = 0
     $script:PP_Output = ""
-    try {
-        $out = & $PowerShellHost -NoLogo -NoProfile -File (Join-Path $ScriptsDir "prepare-panelist-input.ps1") @ArgList 2>&1
-        $script:PP_Exit   = $LASTEXITCODE
-        $script:PP_Output = ($out -join "`n")
-    } catch {
-        $script:PP_Exit   = 99
-        $script:PP_Output = $_.ToString()
+    $start = [Diagnostics.ProcessStartInfo]::new()
+    $start.FileName = $PowerShellHost
+    $start.UseShellExecute = $false
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    foreach ($atom in @('-NoLogo', '-NoProfile', '-File', (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) + $ArgList) {
+        [void]$start.ArgumentList.Add($atom)
     }
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $start
+    try {
+        [void]$process.Start()
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        $process.WaitForExit()
+        $script:PP_Exit = $process.ExitCode
+        $script:PP_Output = $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult()
+    } catch {
+        $script:PP_Exit = 99
+        $script:PP_Output = $_.ToString()
+    } finally { $process.Dispose() }
 }
 
 function Write-TasksWithConsent {
@@ -1652,7 +1665,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-049c: bundle file must not be written when --max-bytes is exceeded"
 }
-if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-049d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-049d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -1692,7 +1705,7 @@ if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "
 } else {
     fail "TEST-050b: bundle missing or content lost under a generous --max-bytes"
 }
-if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+if ($script:PP_Output -match "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-050c: digest printed normally"
 } else {
     fail "TEST-050c: expected a printed digest, got: $($script:PP_Output)"
@@ -1945,7 +1958,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-055c: bundle file must not be written when still over --max-bytes after elision"
 }
-if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-055d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-055d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -2199,7 +2212,7 @@ if (Test-Path (Join-Path $d "out.txt")) {
 } else {
     fail "TEST-060b: bundle file not written"
 }
-if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+if ($script:PP_Output -match "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-060c: normal digest line still printed -- empty fields are not an error"
 } else {
     fail "TEST-060c: expected a digest line, got: $($script:PP_Output)"
@@ -2972,6 +2985,156 @@ if ($bundleText077.Contains("MARKER_077")) {
 } else {
     fail "TEST-077b: expected baz.tests.sh's content in the bundle, not found. Output: $($script:PP_Output)"
 }
+
+# Literal input/output paths and exact consent spelling are security boundaries.
+$literalRoot = Join-Path $Work 'literal-boundaries'
+New-Item -ItemType Directory -Path $literalRoot -Force | Out-Null
+$literalTasks = Join-Path $literalRoot 'tasks.md'
+$literalInput = Join-Path $literalRoot 'input[x].txt'
+$literalSibling = Join-Path $literalRoot 'inputx.txt'
+$literalOut = Join-Path $literalRoot 'bundle.txt'
+[IO.File]::WriteAllText($literalTasks, "## T-004`nCross-Model: enabled`n")
+[IO.File]::WriteAllText($literalInput, 'LITERAL_EVIDENCE')
+[IO.File]::WriteAllText($literalSibling, 'WRONG_SIBLING_EVIDENCE')
+Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalInput,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+if ($script:PP_Exit -eq 0 -and [IO.File]::ReadAllText($literalOut).Contains('LITERAL_EVIDENCE') -and -not [IO.File]::ReadAllText($literalOut).Contains('WRONG_SIBLING_EVIDENCE')) {
+    ok 'literal bracket input content is preserved'
+} else { fail "literal input used wildcard sibling: $($script:PP_Exit) $($script:PP_Output)" }
+$bracketOut = Join-Path $literalRoot 'bundle[x].txt'
+Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalSibling,'--tasks-file',$literalTasks,'--out',$bracketOut,'--project-root',$literalRoot)
+if ($script:PP_Exit -eq 0 -and [IO.File]::Exists($bracketOut)) { ok 'literal bracket output is created' }
+else { fail "literal output was not created: $($script:PP_Exit) $($script:PP_Output)" }
+[IO.File]::WriteAllText($literalTasks, "## T-004`ncross-model: ENABLED`n")
+Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalSibling,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+if ($script:PP_Exit -eq 1 -and $script:PP_Output -match 'consent denied') { ok 'mis-cased human consent does not authorize' }
+else { fail "mis-cased human consent was accepted: $($script:PP_Exit) $($script:PP_Output)" }
+
+$linkedSpec = Join-Path $literalRoot 'specs/literal'
+$linkedEvidence = Join-Path $linkedSpec 'verification/T-004'
+New-Item -ItemType Directory -Path $linkedEvidence -Force | Out-Null
+[IO.File]::WriteAllText($literalTasks, "## T-004`nCross-Model: enabled`n")
+[IO.File]::WriteAllText($literalSibling, 'OUTSIDE_SYMLINK_SENTINEL')
+$linkCreated = $false
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $linkedEvidence 'external.log') -Target $literalSibling -ErrorAction Stop | Out-Null
+    $linkCreated = $true
+} catch { Write-Host 'skip: symlink evidence test requires link creation capability' }
+if ($linkCreated) {
+    Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$linkedSpec,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+    if ($script:PP_Exit -eq 0 -and -not [IO.File]::ReadAllText($literalOut).Contains('OUTSIDE_SYMLINK_SENTINEL')) { ok 'task evidence traversal excludes symbolic-link files' }
+    else { fail "task evidence followed symbolic-link file: $($script:PP_Exit) $($script:PP_Output)" }
+}
+
+if ([IO.Path]::DirectorySeparatorChar -eq '/') {
+    [IO.File]::WriteAllText($literalTasks, "## T-004`n")
+    $savedSudoKey = $env:SDD_SUDO_KEY
+    $savedSkipSignature = $env:SDD_SUDO_SKIP_SIG
+    try {
+        $env:SDD_SUDO_KEY = 'public-fixture-signing-key'
+        $env:SDD_SUDO_SKIP_SIG = '0'
+        $tokenIssued = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+        $tokenExpires = $tokenIssued + 300
+        foreach ($binding in @($literalRoot, $literalRoot.ToUpperInvariant())) {
+            $signature = Get-SudoSignature -Key $env:SDD_SUDO_KEY -Issuer 'fixture' -Nonce ('a' * 32) -Repo $binding -Issued $tokenIssued -Expires $tokenExpires
+            [IO.File]::WriteAllText((Join-Path $literalRoot 'SDD_SUDO'), "issuer: fixture`nnonce: $('a' * 32)`nrepo: $binding`nissued-epoch: $tokenIssued`nexpires-epoch: $tokenExpires`nsig: $signature`n")
+            Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalSibling,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+            $expected = if ($binding -ceq $literalRoot) { 0 } else { 1 }
+            if ($script:PP_Exit -eq $expected) { ok "signed consent enforces exact repository binding: expected $expected" }
+            else { fail "signed consent repo comparison: expected $expected got $($script:PP_Exit) $($script:PP_Output)" }
+        }
+    } finally {
+        $env:SDD_SUDO_KEY = $savedSudoKey
+        $env:SDD_SUDO_SKIP_SIG = $savedSkipSignature
+    }
+}
+
+# The byte cap covers the writer's newline and host-specific UTF-8 preamble.
+$boundaryRoot = Join-Path $Work 'size-boundary'
+$boundaryTasks = Join-Path $boundaryRoot 'tasks.md'
+Write-TasksWithConsent -Path $boundaryTasks -TaskId T-004
+foreach ($contentCase in @('populated', 'empty')) {
+    $boundaryInput = Join-Path $boundaryRoot 'input.txt'
+    $content = if ($contentCase -eq 'empty') { '' } else { "complete review input`n" }
+    [IO.File]::WriteAllText($boundaryInput, $content)
+    $boundaryOutput = Join-Path $boundaryRoot 'bundle.txt'
+    $boundaryArgs = @('--task','T-004','--feature','cross-model-verification',
+        '--input',$boundaryInput,'--tasks-file',$boundaryTasks,'--project-root',$boundaryRoot,'--out',$boundaryOutput)
+    Invoke-Prepare -ArgList $boundaryArgs
+    if ($script:PP_Exit -ne 0) { throw "size-boundary-$contentCase baseline failed: $($script:PP_Output)" }
+    $publishedBytes = (Get-Item -LiteralPath $boundaryOutput).Length
+    Remove-Item -LiteralPath $boundaryOutput
+    Invoke-Prepare -ArgList ($boundaryArgs + @('--max-bytes', [string]($publishedBytes - 1)))
+    if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $boundaryOutput)) {
+        ok "size-boundary-${contentCase}: one byte below actual bundle size rejects without publication"
+    } else { fail "size-boundary-${contentCase}: cap below actual bytes admitted an oversized bundle" }
+    Remove-Item -LiteralPath $boundaryOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($boundaryArgs + @('--max-bytes', [string]$publishedBytes))
+    if ($script:PP_Exit -eq 0 -and (Get-Item -LiteralPath $boundaryOutput).Length -eq $publishedBytes) {
+        ok "size-boundary-${contentCase}: exact actual bundle size remains accepted"
+    } else { fail "size-boundary-${contentCase}: exact cap unexpectedly rejected or changed bytes" }
+}
+
+# --max-bytes argument boundary: invalid values exit 2 with no publication;
+# valid forms (leading zeros, int64 max, explicit 0) keep their meaning.
+$capInput = Join-Path $boundaryRoot 'input.txt'
+[IO.File]::WriteAllText($capInput, "complete review input`n")
+$capOutput = Join-Path $boundaryRoot 'cap-bundle.txt'
+$capBase = @('--task','T-004','--feature','cross-model-verification',
+    '--input',$capInput,'--tasks-file',$boundaryTasks,'--project-root',$boundaryRoot,'--out',$capOutput)
+$capN = 0
+foreach ($badCap in @('abc','',' 10','10 ',"10`n","`n10",'+10','-1','-0','1e3','1.5','0x10',
+        ([string][char]0x0661 + [char]0x0662),'9223372036854775808','99999999999999999999','999999999999999999999999999')) {
+    $capN++
+    Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($capBase + @('--max-bytes', $badCap))
+    if ($script:PP_Exit -eq 2 -and -not (Test-Path -LiteralPath $capOutput)) {
+        ok "max-bytes-invalid-${capN}: rejected with exit 2 and no output"
+    } else { fail "max-bytes-invalid-${capN}: expected exit 2/no output, got $($script:PP_Exit)" }
+}
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+Invoke-Prepare -ArgList ($capBase + @('--max-bytes'))
+if ($script:PP_Exit -eq 2 -and -not (Test-Path -LiteralPath $capOutput)) {
+    ok "max-bytes-missing: final --max-bytes without value exits 2"
+} else { fail "max-bytes-missing: expected exit 2/no output, got $($script:PP_Exit)" }
+foreach ($goodCap in @('10000','000010000','9223372036854775807','0009223372036854775807')) {
+    Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($capBase + @('--max-bytes', $goodCap))
+    if ($script:PP_Exit -eq 0 -and (Test-Path -LiteralPath $capOutput)) {
+        ok "max-bytes-valid-${goodCap}: accepted"
+    } else { fail "max-bytes-valid-${goodCap}: expected success, got $($script:PP_Exit)" }
+}
+foreach ($zeroCap in @('0','000')) {
+    Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($capBase + @('--max-bytes', $zeroCap))
+    if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
+        ok "max-bytes-zero-${zeroCap}: real zero-byte cap rejects as oversize"
+    } else { fail "max-bytes-zero-${zeroCap}: expected exit 1/no output, got $($script:PP_Exit)" }
+}
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+Invoke-Prepare -ArgList $capBase
+$capBytes = (Get-Item -LiteralPath $capOutput).Length
+Remove-Item -LiteralPath $capOutput
+Invoke-Prepare -ArgList ($capBase + @('--max-bytes', ('0000' + $capBytes)))
+if ($script:PP_Exit -eq 0 -and (Get-Item -LiteralPath $capOutput).Length -eq $capBytes) {
+    ok "max-bytes-boundary: zero-padded exact cap accepted"
+} else { fail "max-bytes-boundary: zero-padded exact cap rejected (exit $($script:PP_Exit))" }
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+Invoke-Prepare -ArgList ($capBase + @('--max-bytes', ('00' + ($capBytes - 1))))
+if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
+    ok "max-bytes-boundary: zero-padded cap one below rejects"
+} else { fail "max-bytes-boundary: one-below zero-padded cap got $($script:PP_Exit)" }
+
+# In-process numeric 0 is a real zero cap, not omitted (child pwsh, script invoked directly).
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+$q = { param($v) "'" + ($v -replace "'", "''") + "'" }
+$inprocCmd = "& " + (& $q (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) +
+    " --task T-004 --feature cross-model-verification --input " + (& $q $capInput) +
+    " --tasks-file " + (& $q $boundaryTasks) + " --project-root " + (& $q $boundaryRoot) +
+    " --out " + (& $q $capOutput) + " --max-bytes 0 *> `$null; exit `$LASTEXITCODE"
+& $PowerShellHost -NoLogo -NoProfile -Command $inprocCmd
+if ($LASTEXITCODE -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
+    ok "max-bytes-inprocess-zero: in-process numeric 0 is a real zero cap"
+} else { fail "max-bytes-inprocess-zero: expected exit 1/no output, got $LASTEXITCODE" }
 
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue

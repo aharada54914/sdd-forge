@@ -190,8 +190,9 @@ def _find_repo_root(config_path):
             ["git", "rev-parse", "--show-toplevel"],
             cwd=Path.cwd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             check=False,
+            timeout=30,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         result = None
     if result is not None and result.returncode == 0:
         return Path(result.stdout.decode("utf-8").strip())

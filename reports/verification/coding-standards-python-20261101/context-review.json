@@ -1,0 +1,3709 @@
+{
+  "schema": "python-context-review/v1",
+  "issue": 689,
+  "baseline_commit": "88c8b1abe1d95ba0b8190f35c54f68377cecd12a",
+  "scope": "Tracked .py under plugins/scripts/tests/.github at baseline plus this patch",
+  "status": "partial-not-acceptance-closure",
+  "reviewed_sites": [
+    {
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "lines": [
+        89,
+        182
+      ],
+      "source_sha256": "b819937a8fd4bc059bc65ac6cbc947ef7fc5ca104d733a7221165ad70b8e787c",
+      "rules": [
+        "CS-018",
+        "CS-022",
+        "CS-023"
+      ],
+      "result": "fixed",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "execute allocated both status-pipe FDs before Popen; startup OSError closed write FD only. Close read FD and rethrow original exception on every failed creation, including cancellation. No process has transferred to drain ownership yet. Successful lifecycle unchanged.",
+      "evidence": [
+        "PY-038",
+        "tests/project-skill-lifecycle.tests.py:Lifecycle.test_failed_process_start_releases_status_pipe",
+        "full lifecycle suite:44 tests pass"
+      ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "lines": [
+        73,
+        80
+      ],
+      "source_sha256": "b819937a8fd4bc059bc65ac6cbc947ef7fc5ca104d733a7221165ad70b8e787c",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Broad catch performs rollback of just-created manifest and rethrows, never converts validation failure to successful seal.",
+      "evidence": [
+        "tests/project-skill-lifecycle.tests.py"
+      ]
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "lines": [
+        397,
+        415
+      ],
+      "source_sha256": "5a7d7b199303df5401759ef7aab80339d69b746ffc6284eebdfc738f9d0433cc",
+      "rules": [
+        "CS-001",
+        "CS-002",
+        "CS-009"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Compact shell command bootstraps trusted verifier bytes: read once, hash same bytes, reject symlink ancestry, compile those exact bytes; each path/hash/receipt is shlex quoted. exec executes pinned source, not interpolated external data. Shell contract is specifically POSIX.",
+      "evidence": [
+        "tests/quality-nontty-transport.tests.py:test_compact_command_verifies_all_640_inputs_and_rejects_mutations",
+        "prior summary:quality transport20 tests,1 native skip"
+      ]
+    },
+    {
+      "path": "tests/quality-nontty-transport.tests.py",
+      "lines": [
+        55,
+        90
+      ],
+      "source_sha256": "9a420e3f8021dd62c6dc93379857b414b89b54c3180075a7160226a1464e77d0",
+      "rules": [
+        "CS-001",
+        "CS-002",
+        "CS-029"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "shell=True deliberately runs returned compact_command in a temporary fixture root; tests command length/permissions and mutation refusal. argv substitution would stop testing actual contract. This is local transport regression, not native-host E2E.",
+      "evidence": [
+        "prior summary:quality transport20 tests,1 native skip"
+      ]
+    },
+    {
+      "path": "tests/fixed-review-launch.tests.py",
+      "lines": [
+        74,
+        581,
+        669
+      ],
+      "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+      "rules": [
+        "CS-002",
+        "CS-028",
+        "CS-029"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "exec compiles selected AST from checked-out probe/launcher to test actual permission and transcript decisions without starting provider; supplied values are scope entries, not source interpolation. Assertions are explicit expected behavior; mocked receipt assembly remains unit evidence.",
+      "evidence": [
+        "prior summary:fixed-launch50 tests pass"
+      ]
+    },
+    {
+      "path": "tests/task-structured-output.tests.py",
+      "lines": [
+        134,
+        148
+      ],
+      "source_sha256": "3a72e335453109217ec9123168d5d8ffc022b2076f0f16cb61c3748453ac4996",
+      "rules": [
+        "CS-002",
+        "CS-028",
+        "CS-029"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "eval executes checked-out AST TemporaryDirectory dir expression; exec extracts probe function. These are trusted repository source, not external model/input strings. They exercise ledger-directory placement and completion ordering with expected outcomes, not native provider execution.",
+      "evidence": [
+        "prior summary:task-structured-output15 tests pass"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/research_extraction.py",
+      "lines": [
+        133,
+        179
+      ],
+      "source_sha256": "ee970a8d084cbc096563a999bca2d1bde3fade51da40f15f74b51b22d555b0b9",
+      "rules": [
+        "CS-018",
+        "CS-023"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "PDF worker catches parser-library exception as explicit pdf-invalid JSON and return1; CPU/AS/output/process/file limits precede parsing. ImportError/Invalid/MemoryError classified separately. This review does not establish all sandbox escape properties.",
+      "evidence": [
+        "tests/research-evidence.tests.py",
+        "tests/research-acquire.tests.py"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+      "lines": [
+        343,
+        361,
+        710
+      ],
+      "source_sha256": "f4628083cfe1cd13e80fa75e66e1fce0abfd9eef3839f21824e8b9002f258a5f",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Sibling module import/computation and fixed-approval entry failures become named GenerateApprovalSidecarError with cause; no allow/default return. Import can legitimately raise non-ImportError.",
+      "evidence": [
+        "tests/guards.tests.sh (prior summary:135 pass)"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+      "lines": [
+        765,
+        772
+      ],
+      "source_sha256": "c20dfa627a34d068dd5991345603a9b9440831b5e43352c23844449ab3622701",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Last CLI handler emits INTERNAL_ERROR and nonzero category exit. Does not turn exception into success.",
+      "evidence": [
+        "tests/copilot-hook-handshake.tests.py"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "lines": [
+        1031,
+        1038
+      ],
+      "source_sha256": "049fcab4a90c7327f776cca5d27305aa0e96416fe140f90f567dd5c1bcfcb2e8",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Last CLI handler emits INTERNAL_ERROR and nonzero category exit. Does not turn exception into success.",
+      "evidence": [
+        "tests/guards.tests.sh (prior summary:135 pass)"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "lines": [
+        433,
+        458
+      ],
+      "source_sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Sibling import failure is converted to ContractDiscoveryFailed using exception type only; preserves classification and avoids leaking source paths in SyntaxError. Narrowing to ImportError loses existing contract.",
+      "evidence": [
+        "tests/resolve-project-context-block-check.py:registry-discovery-unimportable/registry-discovery-syntax-error"
+      ]
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/fixed-review-state.py",
+      "lines": [
+        87,
+        106
+      ],
+      "source_sha256": "0051f87b6bea7921d5963aa32b34189e5888f5eeecdf204ef465001b38811153",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Outer record/verify boundary emits FIXED_STATE_STOPPED and return1, never an accepted record.",
+      "evidence": [
+        "tests/fixed-review-state.tests.py"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "lines": [
+        133,
+        144
+      ],
+      "source_sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Outer stdin classifier returns empty readonly indices with exit1. Caller check=True rejects failed classifier and removes exemption; empty indices cannot grant readonly allowance.",
+      "evidence": [
+        "sdd-hook-guard.py:1643-1652",
+        "tests/guard-readonly-inputs.tests.py"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "lines": [
+        1003,
+        1651,
+        2011,
+        2018,
+        2198,
+        2216
+      ],
+      "source_sha256": "0804f8cc008265bc5fa17391e25668e04508f213fd6a1a29388fed37b233c1a9",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "reviewed-no-confirmed-finding",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Invariant import marks load error; readonly classifier failure removes exemption; malformed payload denies; approval and role exceptions deny. invalid-byte stdin yields denial for copilot in actual default/strict-UTF8 CLI probes; read-failure fallback itself is not independently exercised. Other read/history catches still require separate review and are not covered by this record.",
+      "evidence": [
+        "prior summary:guards135 pass",
+        "actual b\\xff input default and strict UTF8:copilot deny"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "lines": [
+        257
+      ],
+      "source_sha256": "a98c6b573cbcaff070b850771718e3333b34976d56157a8144529d8ac8fdff22",
+      "rules": [
+        "CS-018"
+      ],
+      "result": "justified-exception",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "source-evidence fresh verification catches module/parser verification failure by adding contract failure; optional old contracts do not load new research runtime. This is fail-closed admission, not tolerant history parsing.",
+      "evidence": [
+        "tests/python-input-boundaries.tests.py",
+        "tests/research-consumers.tests.py"
+      ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/resolve-design-sync.py",
+      "lines": [
+        1,
+        113
+      ],
+      "source_sha256": "6b3f6157366ba5d00977a937e0f1bb4469f3a4e8b682e60953607ea972141422",
+      "rules": [
+        "CS-004",
+        "CS-012",
+        "CS-018",
+        "CS-020",
+        "CS-025"
+      ],
+      "result": "reviewed-no-confirmed-finding",
+      "review_method": "Read complete enclosing boundary and trace source/transform/sink or failure outcome; independent existing controls identified below",
+      "reason": "Whole small file read: validate object/schema before domain access, bool fields use exact bool type; records validated before filtering; protocol choices exact; local decision objects not shared mutable defaults; JSON serializer for stdout; ValueError/TypeError exits1. Policy scopes remain feature-owned. No child, SQL, URL request, file mutation or dynamic source sink present.",
+      "evidence": [
+        "tests/design-sync-policy.tests.py (not rerun; file unchanged)"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/scripts/check-context-signing-environment.py",
+      "source_sha256": "bf61380f4acf630c9243f7f9ef177100a40332c6d5f65e1ab63f0c328fbdd729",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 39,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": ".github/scripts/generate-sbom.py",
+      "source_sha256": "31900f6d8e672de8eaa78eab05c8dfadaa90b313595eca2e47d5673c29fa6f40",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 75,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/decision-packet.py",
+      "source_sha256": "f15788dd25e282de80c8611f6985820a7493a74d928fc2a93267a73abe9ebcbd",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 14,
+        "calls": 321,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/factory-adapter-readiness.py",
+      "source_sha256": "d075342bc55b90da2d06adaa88b382a45dae107154d579acf852a7db19a5b64d",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 8,
+        "calls": 131,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/project-skill-process.py",
+      "source_sha256": "4c72f4820a074170227c5a633162e17c944c77af54645195e05e91aa9c7b3d80",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 69,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "source_sha256": "b819937a8fd4bc059bc65ac6cbc947ef7fc5ca104d733a7221165ad70b8e787c",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 9,
+        "calls": 345,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        0,
+        1
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/research-acquire.py",
+      "source_sha256": "76029e83d35b139be2dd062d937c0a14f12f14f6dc38e19d6b948039fa34f863",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 378,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/research-sources.py",
+      "source_sha256": "3e43f4ffe2d0321be41f7738b3f1818e315d16c3a56416b4f98b6df705608e40",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 98,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/research-watch.py",
+      "source_sha256": "fe15f16bbb20f9a08d9ada789e0e958b0f1b0d14d3111692933a5f5e3b61afe3",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 181,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/resolve-design-sync.py",
+      "source_sha256": "6b3f6157366ba5d00977a937e0f1bb4469f3a4e8b682e60953607ea972141422",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 73,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        15
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/workflow-playbook.py",
+      "source_sha256": "1fbbbe5a2fb2cfbf41cb40baa75f35128102486c8a22db76ca03f8400077a36b",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 39,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/finalize-domain-review.py",
+      "source_sha256": "8afc630e47a047c60d4c6b408a2d782ffebd747dc8b6c75aa26799520f5b8b62",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 20,
+        "calls": 233,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/record-upstream-concept-issue.py",
+      "source_sha256": "5cfd8a2e04ac3bba3915c801622551417220dc674f0c1940fab65831928b019a",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 86,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/validate-concept-test.py",
+      "source_sha256": "d1a65094eb2e32c49b2d0f3803e1270c5573de0acefbd72e7ae7270ed08b0f2e",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 6,
+        "calls": 113,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-lite/lib/run-lite-gate.py",
+      "source_sha256": "1f8d42dd51dcffc87a96cfa8937340bd4355961284765d40ab59d0fc9a704296",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 8,
+        "calls": 164,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+      "source_sha256": "b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 43,
+        "calls": 280,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py",
+      "source_sha256": "1ed3d3a54b8f4aa2720ddef3b010601c742371424c2a4d0e44a5780c21c3ac1c",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 8,
+        "calls": 83,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py",
+      "source_sha256": "49752b8834db79ec6be60d90ecc400b98c2b692002d9bcf3827cad510a60e051",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 51,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py",
+      "source_sha256": "d6982f2568b659e0ef7f88941973df0114adeb5ef4b8e91a035ce41430b345ac",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 57,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "source_sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 101,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "source_sha256": "a98c6b573cbcaff070b850771718e3333b34976d56157a8144529d8ac8fdff22",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 193,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        14
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "source_sha256": "202bf36c4ae02c867b315e4f5207e43d524b6ff62d507bde24f852166726ddd4",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 63,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+      "source_sha256": "c20dfa627a34d068dd5991345603a9b9440831b5e43352c23844449ab3622701",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 24,
+        "calls": 209,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        8
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py",
+      "source_sha256": "c84be3e7d7f50147d7aad1a0118bf03811e30ea641e7f268c32e51ae9c96e2e9",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 137,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "source_sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 72,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        12
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/collect-project-evidence.py",
+      "source_sha256": "30f1bbc2315998aa1f4d82ee7f389b02cabe6b9c86dbf11e06b3fff71372b86b",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 191,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py",
+      "source_sha256": "e7b75cef97a477d98b1460d8f20124c144e4ecb96ea15866714e80e6d00e2f93",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 11,
+        "calls": 59,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.py",
+      "source_sha256": "a40433693b5274de2816710b352a000736f806daa2b68a58bf34579488fd116c",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 21,
+        "calls": 120,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.py",
+      "source_sha256": "4daa549e9bb06b71759580a0ed1389033745dee21c5a1ae7ef694c725a2b9156",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 93,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+      "source_sha256": "b31edeefb2d2549b349ed1052be40c0e2b22d6f7f14a98b9f1535720cb78b1cc",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 164,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+      "source_sha256": "f4628083cfe1cd13e80fa75e66e1fce0abfd9eef3839f21824e8b9002f258a5f",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 19,
+        "calls": 319,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        7
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "source_sha256": "18b145c1fe42c68331956ba3d7dcc56260a16ed42c9de019b91637bbc7bc1c24",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 70,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "source_sha256": "3ba423605573c45a04fb2b2e4d62911a69f468886f7fa378b4d6d55585581922",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 129,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+      "source_sha256": "dd3a0642deeceac3d8def2c476c97fe6cf69fbfcebb2e1682bcd7939862b0aaf",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 78,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "source_sha256": "fedc1884bdd3e2003bb3d87b8a4a16463407bffd96b8424e70d2450955362b0f",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
+      "source_sha256": "09d18de4572a758a8db987c5cf6d2b09f9d87d8d41ff35b4eafacfa37f7f73be",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 105,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py",
+      "source_sha256": "40fb8ec7238c7bf9b06c1894260c00698c39a963f9cef2f127e9c95554cb0e8a",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 118,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "source_sha256": "ab4a0c6bbaebbee71b60303585a71b4ae867f07461e8777c3d43fd8855cfa352",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 74,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "source_sha256": "bc09ff0ffff8df1d06beae2a0fb8f5614e38d8a74f0d9cc5f21a89b219236521",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 59,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/research-evidence-tools.py",
+      "source_sha256": "efd207a4566dda87b4459cbb2cc60dae42a4ef94a42f5e0923086ddce49aba84",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 72,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/research_consumers.py",
+      "source_sha256": "db2c61e496d95b8e959cc22f090194220249d5e6d486d0c1e084ec7349eac8d8",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 318,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/research_evidence.py",
+      "source_sha256": "43a3fa8e7e308280fe6f7abdf718ad74d1ac58e5d134216c25a56abf7c6ebbe6",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 24,
+        "calls": 253,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/research_extraction.py",
+      "source_sha256": "ee970a8d084cbc096563a999bca2d1bde3fade51da40f15f74b51b22d555b0b9",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 267,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        6
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "source_sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 47,
+        "calls": 515,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "source_sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 91,
+        "calls": 779,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        10
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "source_sha256": "54dda8da53ccebc605cc0afa414b104886724929e46d48157ba02f89e3db6fc0",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 11,
+        "calls": 227,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run_measurement.py",
+      "source_sha256": "ef40e2e6e80f7e864195ffaf862afcf8bc53908fcd8ecd1384ad701169d70682",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 31,
+        "calls": 445,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "source_sha256": "0804f8cc008265bc5fa17391e25668e04508f213fd6a1a29388fed37b233c1a9",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 66,
+        "calls": 852,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        13
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "source_sha256": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 73,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "source_sha256": "049fcab4a90c7327f776cca5d27305aa0e96416fe140f90f567dd5c1bcfcb2e8",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 35,
+        "calls": 318,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        9
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "source_sha256": "cb0570f619382c18390ed0b9ac21869aa6b0b8271c5c87220ce6058fc48c2d66",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 17,
+        "calls": 175,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "source_sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 17,
+        "calls": 152,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "source_sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 128,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 22,
+        "calls": 221,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
+      "source_sha256": "0ca6da3eca4239d4d2bc5c9740effd67866b7f463310d0085f25d59a5fc6af6f",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 11,
+        "calls": 109,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "source_sha256": "a2693fcd94de772af23c86f8528d694cd348f3aedd4ad80604d61691a50a76cb",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 51,
+        "calls": 818,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+      "source_sha256": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 21,
+        "calls": 277,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-research-evidence.py",
+      "source_sha256": "5b47a9a6b15cae9b6592150686dacd265a86e1f8363bcfd24da9417ef5a46bea",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 6,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "source_sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 43,
+        "calls": 425,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+      "source_sha256": "9da125e290a7081d79604a773d19d7d4327ed3bbc903e3d7653a94ee5615ab07",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 27,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "source_sha256": "7cc6d610d63558f7ceb841b09174ffcc767eef161ecaee89e6b5b2a82ab49c87",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 35,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/workflow-state-session.py",
+      "source_sha256": "0bd8fd0571d21787e736cd5860504bee7bdb4971feac788e64d79dbec75b4746",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 18,
+        "calls": 220,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+      "source_sha256": "db0a571e2ea0ed5254345fdb4a8e525430d36ed0949516833d958d5f7d05a9bb",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 255,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/fixed-review-state.py",
+      "source_sha256": "0051f87b6bea7921d5963aa32b34189e5888f5eeecdf204ef465001b38811153",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 6,
+        "calls": 63,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        11
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "source_sha256": "d42a96a674f57f05304ed030b758142d5057f02da06c1d411a580e727fb67f30",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 372,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "source_sha256": "e98caa6411285e8f483c24d9df5647c6fbd32b2cbcdcfd3de3b43a3b60502b72",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 119,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "source_sha256": "7b31515f98d09545173d1835f620cf1049c988394875db6933d0f1d5e1dd05d9",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 249,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py",
+      "source_sha256": "52bc01ad07f930d3dffd3788e6a44e506b3a041a502fcc0ffa3a814262ef9e53",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 134,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+      "source_sha256": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 38,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "source_sha256": "5a7d7b199303df5401759ef7aab80339d69b746ffc6284eebdfc738f9d0433cc",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 38,
+        "calls": 777,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        2
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/human_copy_mirrors.py",
+      "source_sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 81,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/measure-evaluator-scratch-isolation.py",
+      "source_sha256": "abbed4956bccec91733d0cbe3fef5194561fb10cfefc7bb85617bc177ed58640",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 69,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/observe-a9-advisory.py",
+      "source_sha256": "d788e472e4d0e70b37d9ab197c7b04c3bfcaef7624d1fb9490a53eef9af1d0ab",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 18,
+        "calls": 349,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/sync-human-copy-mirrors.py",
+      "source_sha256": "13e9572f3757325f21884b0a2d94e7ed2eabf98acc1078d915d3159acc7c2be9",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 53,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/validate-a9-candidate.py",
+      "source_sha256": "68fb96877a53d121dc303b255b5badbb6bd1e58cfc285979c0f671a0dd425963",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 190,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/validate-a9-promotion.py",
+      "source_sha256": "45492c515f50ef7c1b6d926d906b0c1dc4986c34e7a43aa4044c6c631843a341",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 308,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "scripts/validate-a9-rollback-receipt.py",
+      "source_sha256": "748f524dddd160d6590d84a1f6b7a48bb88eb9720ae4550694b2194e145f454f",
+      "classification": "active-implementation",
+      "census": {
+        "parse": "pass",
+        "functions": 19,
+        "calls": 257,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "source_sha256": "80a13e43c61af9a60cb2b5c2a54b32539ed81a81e2a8f2fd3693143de260b0a3",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 38,
+        "calls": 534,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/a9-dogfood.tests.py",
+      "source_sha256": "003c4298c2ec7903f361eae15a11c8bd54af7091e9766eca5b1e168ee8d6d184",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 44,
+        "calls": 427,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/a9-promotion-admission.tests.py",
+      "source_sha256": "d1a415808b00f0bc9ad3fa37823c85d4ec860de6a27d47567f88a05431ae92d7",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 54,
+        "calls": 406,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/a9-rollback-receipt.tests.py",
+      "source_sha256": "39d56913c66f1fa11d94dc446e9b8b9b7e797d1c39e9328ea35f96820e4458f1",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 50,
+        "calls": 285,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/benchmark-gates.py",
+      "source_sha256": "882e363034c7c6f93803751cca2dba8e04265ea812bca47f60e1837ee76a8998",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 14,
+        "calls": 303,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/benchmark-gates.tests.py",
+      "source_sha256": "c58b589e3de271075862b3cd4777d623f72649edd53f1568fdd0c54eb5b15a8f",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 138,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/concept-review-continuity.tests.py",
+      "source_sha256": "337d7c475d2f851768ef41e1b1b4bb67345889dad4f894391b1eeecaa7316cd2",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 245,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/concept-test.tests.py",
+      "source_sha256": "2b0af0f0741b797e399d15719e8cde06b0fa041c31738b8ac86da7cb7c0c2610",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 31,
+        "calls": 385,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/context-signing-environment.tests.py",
+      "source_sha256": "05eaa954d4d8e74102946effcf5c762a9609da643f92a185f15b1f282d9e5d30",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 7,
+        "calls": 43,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "source_sha256": "0ed8113b24fefe6edc17cc707a20eca8653b4875eff144c77bb04cf950343738",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 14,
+        "calls": 181,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/cross-model-process-state.tests.py",
+      "source_sha256": "a4fded07a452111e6dd26385130635ddfc6ad5001122df3ec006623090476b23",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 37,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/cross-runtime-live-driver.tests.py",
+      "source_sha256": "1ff562299c84f65365293fb5627930cec1268db35aa08b8919c2c4c2d1dc457a",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 113,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/current-byte-capture.tests.py",
+      "source_sha256": "57263aa681225b12492674aa08c626a961fdffdde3eb72644752ba7dbd6695d4",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 21,
+        "calls": 147,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/design-sync-policy.tests.py",
+      "source_sha256": "6e0aa6d58f622d52b1628a22c66c51935c6cdb090e67218a84963d544475a637",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 117,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 38,
+        "calls": 405,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/evaluator-scratch-metrics.tests.py",
+      "source_sha256": "af538c1a18cd9befe02d099a612afe75b0b8a47ef5f1f91e48132a8e5337dee9",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 41,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/factory-pilot.py",
+      "source_sha256": "e2f2eb554e937cae522b0eccafff1e2ca108191cd56421a7f3cb4490015e6f4d",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 88,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/factory-workflow.tests.py",
+      "source_sha256": "19620b69d2024c2775f0a0a0fcd734bdb6ed53b0a23f490c66f5558bd5d6d683",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 63,
+        "calls": 456,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixed-review-inputs.tests.py",
+      "source_sha256": "0663c13a7d1f2223d6ef022291591d82168fa6795e44f9ad206803c8f9724497",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 41,
+        "calls": 373,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixed-review-launch.tests.py",
+      "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 61,
+        "calls": 679,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        4
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixed-review-precheck-bash.tests.py",
+      "source_sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 23,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixed-review-precheck-ps.tests.py",
+      "source_sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 105,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixed-review-state.tests.py",
+      "source_sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 23,
+        "calls": 219,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/adr-jq-read-boundary.py",
+      "source_sha256": "e35f8e95734b0102204799d9a81a4bddfb0284ce9ba847de70a3e0ac334c1c7c",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 30,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/adr-pwsh-boundary-receipt.py",
+      "source_sha256": "7d029dcdae2f864dcc3b284713a7912afcc57b471f7dc0757b16b6de7f1fbedc",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 30,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/outside-scan-root/check-outside.py",
+      "source_sha256": "153d847b7b9d6c8084a8cc716f77ac3b0b0f52d1dfe9b88f03cb87ef34ba280f",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py",
+      "source_sha256": "8154a68e0fd5205dcf567d5d0efa4c7ff7588dcf9bdc4e5cb973e4bd624953bf",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered.py",
+      "source_sha256": "8154a68e0fd5205dcf567d5d0efa4c7ff7588dcf9bdc4e5cb973e4bd624953bf",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-unregistered.py",
+      "source_sha256": "e94a62801f8f67bcc438ccc67b7f90084c74287a60bb55a5c54cd160563f2a49",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/emit-run-record.py",
+      "source_sha256": "ac77b790d25874c037048d01ffe30b594b38052b746d415c0a11c467865ce13f",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/resolve-component-paths-order-a.py",
+      "source_sha256": "5b3b6b50fccbe8961d4ee649296cd80d63bd91fe31ad6580ceaf2d69066045be",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 3,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/resolve-component-paths-order-b.py",
+      "source_sha256": "0cbd60e6c4cb74b89c90527676c6fb1b4a3081baec9726b50f523185b2952837",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 3,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py",
+      "source_sha256": "aba58c21d5a47bfb780103514ad14da1bec16810541b287c065ae1d3f5be425a",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 4,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py",
+      "source_sha256": "215f395703319b5e2b9360e617fca33563b870a62b02fb9a7455bdeb64e8751e",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 4,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/resolve-component-paths.py",
+      "source_sha256": "8ef4761e79ca0fcab181f3736c9df930f34b38b9c98896b3caac6f4bf4a9a4e2",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/canonicalize-sdd-yaml.py",
+      "source_sha256": "d4fc38410ab6783feebcdfcd83a33f36dfe05a95616bea9915eff44229041e8f",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/canonicalize-sdd-yaml.py",
+      "source_sha256": "5c03e3a40fc22a6b84be1f84fd74643745686150984b35dd97aa9de50763be09",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 1,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/generate-registry-digest.py",
+      "source_sha256": "3af616fcc8fd2056aa6d48cfe17a6e7fd05289785038a8747b7d20ae186891aa",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py",
+      "source_sha256": "5f446beea05e58f35ede81981b0b25ff21dd68d1b4bb852069a6270d5f1da391",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/evaluate-predicate.py",
+      "source_sha256": "917fa018ff8bc918bea21482a394b31da1f6e3ad06798b318206ca879fb7b3be",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 9,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/evaluate-predicate.py",
+      "source_sha256": "938f7d048b38410a31da8e943e00a7b4e54170d43f79ec1040a585af634a61c5",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/evaluate-predicate.py",
+      "source_sha256": "68d54f7e01b3a124d9d2e9393c68fdb4408e3975a883065acc3d332dd48a86b3",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/evaluate-predicate.py",
+      "source_sha256": "65c73b21f7084f571efef7ca57877c943a45eb1fd86f6f3f8c08a15d2d4a1514",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/registry_discovery.py",
+      "source_sha256": "20003aacda80503ddcee72c3fa94f7af9a3cbb28ef8acfbc5e3c244fecf073d1",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 14,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/resolve-component-paths.py",
+      "source_sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 19,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/resolve-component-paths.py",
+      "source_sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 19,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/registry_discovery.py",
+      "source_sha256": "6a1fd82067858648657f1a17121d934a9c716c297641ca10b6f66a1001ed63ca",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 21,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+      "source_sha256": "6df06ade76f0a66ca014202a688ba471691a1b93daab91f903f8f621c33ad38e",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 23,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/registry_discovery.py",
+      "source_sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 15,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/registry_discovery.py",
+      "source_sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 15,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/registry_discovery.py",
+      "source_sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 15,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+      "source_sha256": "4bbd729dae89741e52919b97b8fa7a17d9b52de7832be58241ecb7f5ed9a68ac",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 17,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py",
+      "source_sha256": "746c8f384c7399329b967d2437cab3275eee217b92f865570ab00a18e4d64caa",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "source_sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "intentional-invalid-syntax-fixture"
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/registry_discovery.py",
+      "source_sha256": "b16af38d839bdcc28bdb1000a784a79a69eb2e00c78abe8b37d464bce2f7a34c",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 1,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py",
+      "source_sha256": "21b2faf08f66b9f95f82c86036cd30dce82014936efe8b83ea00fa5e2f5e7758",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 6,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/resolve-component-paths.py",
+      "source_sha256": "b36102a0cd8cdcbd0d71768baa39058919144ff2ce6f5de00f667d84de97671b",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py",
+      "source_sha256": "868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 11,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/generate-registry-digest.py",
+      "source_sha256": "94ce16ed44066f4102d1b26483d0a144c6f946211e3586ec7c4ca6adf00ad2a2",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/resolve-component-paths.py",
+      "source_sha256": "f310576b7da26432e7ba9b52eabb94c98b0ff1305adddc2b1a7511eb09af1564",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/full-pipeline/generate-registry-digest.py",
+      "source_sha256": "1662b2124d602fe99957879ac28b80cf7f6d267a87a778d40ebf34f4ded1d944",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/generate-registry-digest.py",
+      "source_sha256": "5c6875a0901677f10fddefb56c880c6f4654e481a2964c6b093d6db341bef053",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/resolve-component-paths.py",
+      "source_sha256": "c2a693a30dd1bb9b6cfaf61421e0797059e05628583e9dd0c8b0ea5e33918d83",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 4,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/validate-capability-registry.py",
+      "source_sha256": "269564ec65357ea29f01ec49bda30d15387038acf7425c4e9322999ab326ca58",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 3,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/generate-registry-digest.py",
+      "source_sha256": "972e4169b5d653deed2c68bc00119670a2e21730065ad25ee451646f57480a4d",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/generate-registry-digest.py",
+      "source_sha256": "972e4169b5d653deed2c68bc00119670a2e21730065ad25ee451646f57480a4d",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/generate-registry-digest.py",
+      "source_sha256": "6bb714aed3b1e01676e91a73a219cfbbb28b78e62974a28d445ed263a6de62b1",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 8,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/generate-registry-digest.py",
+      "source_sha256": "0e8c03ffdbf743bfe2bb66eba895008c0d1fdeaf22afa66de6f7a9f606d202c1",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 11,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/resolve-component-paths.py",
+      "source_sha256": "e88b3da3c38ccda7a3cf5d57985a4504fc0d0bacd1204851337b6b91a52d1d23",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 13,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/generate-registry-digest.py",
+      "source_sha256": "b285c8028982eed870e529375d185c30966a60b30bb49d0a36646267b5fff554",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 11,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py",
+      "source_sha256": "5520b44925770dcf7b784c874864dc2e88ef1989e3fd2568b5d75e0db2291ab0",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 24,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py",
+      "source_sha256": "8e11f63b463781e3be475124aad322db8ad573e277d79f1ea4a950edc17a594b",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/canonicalizer.py",
+      "source_sha256": "94f1a0d9a320e5754ee3c0c65a8502eb40d125fd9c9230a580d71369c0f9d6fd",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 2,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/installed-plugin-drift/fixture_driver.py",
+      "source_sha256": "9cf8c8bc693d437681bc5e6a7b453cc38282c3dfd1b893ab1a61235d62dd49ed",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 204,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/installed-plugin-drift/permissive-comparator.py",
+      "source_sha256": "7b1c0a515c29970028dd02b40b64359fcd609a5055555bd364aa12ad2ef8e807",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 0,
+        "calls": 9,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/installed-plugin-drift/tree_digest_tests.py",
+      "source_sha256": "b7e41de033a6bf064f1c2377e818143feafecc0c502b2d2f41bdf7c9a7f417cb",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 33,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/live-host-proof/issuer_cases.py",
+      "source_sha256": "b4cb7ef06e7b8c3ee0ebd0ede33c53d3a0f5af5b28887dc817523e12dc9c84b6",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 135,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/live-host-proof/run_cases.py",
+      "source_sha256": "1aa7fd849645821d3303838116f19f361cbe1d5817334f6ffdcd91160b3177dd",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 71,
+        "calls": 645,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/base.py",
+      "source_sha256": "c59bc057c267ed7b0385bc8940e22d33ee1511b1d9c27dd6829b05d29ce856ee",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/legacy_util.py",
+      "source_sha256": "41929742cd3a183360a9b25dbf84677ecc08fc757e4da404f7189752e1e7db14",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 1,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/service.py",
+      "source_sha256": "71a2839979bd59b989fbf247a892e44c2df98293fcdd9c2ba7e0951c9102871f",
+      "classification": "negative-or-support-fixture",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 0,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/golden-eval.py",
+      "source_sha256": "c2cbf72df13efa870fe1f7ae0c4fb8b33bf180827aa6aefdb074483024a42a8b",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 214,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/golden-eval.tests.py",
+      "source_sha256": "32f10515a3c9bd9ec0088b5a2183117bc4922f0caa3a4f73c25c5e563bc61123",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 24,
+        "calls": 169,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/guard-readonly-inputs.tests.py",
+      "source_sha256": "9ad61bc430e560e98b42605cf72f4455e4c623c813d2586ae3f72841184ac742",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 78,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "source_sha256": "2476dcd7fd6744ac116031f9126f0cb94caabd9e9e25b8092af59c60376cc584",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 32,
+        "calls": 282,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/human-copy-mirrors-classification.tests.py",
+      "source_sha256": "4d63e9ffbd43f9c5044c1d2585f958a33c782b733f02795d92df76390f41e877",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 23,
+        "calls": 325,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/issue311-scratch-isolation.tests.py",
+      "source_sha256": "7f58cd1c00bcb6680a4ffbe55de273e36123b953394feb6b739c994f48d086cb",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 99,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/a2-guard-invariants-evolution.py",
+      "source_sha256": "1d6015a8cf9461cfbbf9bac10dff6dfb3fcae3b5a763d5508eafc3c897b38441",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 34,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/a2-workflow-evolution.py",
+      "source_sha256": "ffb7788a72f0abeae9cedeab6d8ef6bd1d5ecfd1522766260ef269a2565074fc",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 92,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/cross-runtime-consumer-evidence.py",
+      "source_sha256": "5c30afdfe847fd07cbe4ca1ee4d1f59e2d88cc11b5324de483d822ff23a6acf7",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 10,
+        "calls": 140,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/current-byte-capture.py",
+      "source_sha256": "3cdee3f37d93c8249cd2265f69861343d2e3dfcdd0222a982bb2182d3aa00c40",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 11,
+        "calls": 188,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/guard-invariants-evolution.py",
+      "source_sha256": "1563eedc84bf7e997dad52b43fcf6f50ba2e5c3c3768c5f1e4742d2be3ef29d1",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 6,
+        "calls": 118,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/research-consumer-publication.py",
+      "source_sha256": "bfe749e2e0decb6d08b3a5833a047b5cf8a839b618665de993e78917f4d46302",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 35,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lib/structural-context-lite.py",
+      "source_sha256": "a517a4df3b9e3be4cc475bf2d37fb25b8d93170dd9a063e7d9a8d2dd1e464adf",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 58,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/lite-registry-contract.tests.py",
+      "source_sha256": "8059ce87242f6e3cd6263f9f36c49ce673ae6e12ec1932695932a4d1833bc909",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 17,
+        "calls": 170,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/project-evidence-collector.tests.py",
+      "source_sha256": "25e9d70ef5726955619b8ce91272197d49dc17379d4ad4bffe59fe45a6366b91",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 35,
+        "calls": 302,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/project-skill-formal.tests.py",
+      "source_sha256": "f6428a407327850db0da84b55cae4bdf3845924b05be1f0f5f3d253c813bd2e4",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 9,
+        "calls": 62,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/project-skill-lifecycle.tests.py",
+      "source_sha256": "1df82b4bc2a0a5bcf7d1c36049085e311b073bd8630f070d9c589599ab1e25fa",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 52,
+        "calls": 388,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/project-skill-observation.tests.py",
+      "source_sha256": "48eb76a4176c7094f07bcaeacfd2597a0356c716e08adbb0e9fb4db2309392ce",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 46,
+        "calls": 239,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/project-skill-profiles.tests.py",
+      "source_sha256": "a562464f3ba0a19aa5d9c07060c338e56e50a2bcc39871f356d1fa64ad95fe28",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 116,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/python-input-boundaries.tests.py",
+      "source_sha256": "6b1948a36d08b16b08fda2caed6e8dd9003d86e0b51252a87eda9ad60aef04a7",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 75,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/quality-nontty-transport.tests.py",
+      "source_sha256": "9a420e3f8021dd62c6dc93379857b414b89b54c3180075a7160226a1464e77d0",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 27,
+        "calls": 573,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        3
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/required-checks-posix.tests.py",
+      "source_sha256": "88d530c5868060c539fce48f0eb9929c946b7d573b94c736bbbda5c7f102b1f5",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 25,
+        "calls": 257,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/research-acquire.tests.py",
+      "source_sha256": "db36f4d66e9a834892cbdbf13643e3bc3d83acfed353fbc32890e1438fca7af0",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 47,
+        "calls": 457,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/research-consumers.tests.py",
+      "source_sha256": "af841b5d200a6b73b66aca8448e64e75ec06bd1dfd6f5832287f40f0ab5e5f9c",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 20,
+        "calls": 191,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/research-discovery.tests.py",
+      "source_sha256": "f42408e2e301f1098ff7cf4c02aa9790be1d1d87f7d7a8ccc189114205007b25",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 23,
+        "calls": 254,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/research-evidence.tests.py",
+      "source_sha256": "a66bc1bf3952e25b180057458a9f2f70d1658cdb45b5d8f0116c87374a101498",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 26,
+        "calls": 175,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/research-owner-integration.tests.py",
+      "source_sha256": "ec9332db526fa7f0b0744a2929ad3b3de83fd7115b758d90065205562a036c18",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 205,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-block-check.py",
+      "source_sha256": "cd174f0953030aeca5e2c108353fb135132273328e2d2cd8428ea988061a99e0",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 75,
+        "calls": 1382,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-caller-contract-check.py",
+      "source_sha256": "5c2700d343b8c262650b79911b620b38414633d382436431cba3cfdc26f61c4f",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 61,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-cli-check.py",
+      "source_sha256": "36f604747b7862d734f0919f2c70ee1175920d8dc77baaec2bef0fd2a65dadd0",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 58,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-discovery-check.py",
+      "source_sha256": "ac5cadfddf841accdc121496d3ce3f3abe53a4a507fd7408480a54320521728e",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 146,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-lite-check.py",
+      "source_sha256": "1bb69b27d9602edada5a13d0c111cf81a4e2cd336b681dd384c912a7dd8cf7ee",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 6,
+        "calls": 104,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-match-check.py",
+      "source_sha256": "ab76f598990f465885294690cf683c9e6542f92eff425bdb1acd06eaf1963fd6",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 24,
+        "calls": 668,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-metamorphic-check.py",
+      "source_sha256": "3c88bbb16bc1dce6a63cb8ddf5b1401c638c0d5e4d5db09a5e8859a859b5c7bf",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 22,
+        "calls": 336,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolve-project-context-parity-check.py",
+      "source_sha256": "030d306eda151f73a9b470c3eda5695a3550f963f9759afe240dece3382240c8",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 20,
+        "calls": 239,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/resolver-evidence-schema-check.py",
+      "source_sha256": "2f1b4b16f5fed85af37b18f3b274afc5a82c5519e437e83578bc8eefa40a3f9b",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 66,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/review-conditional-inputs.tests.py",
+      "source_sha256": "8870bda66f02b113c9b34b0da701a2cbe5b2638b59eef127247817b781fb7c4f",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 26,
+        "calls": 309,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/review-context-anchors.tests.py",
+      "source_sha256": "1822d8578a7912d90d7d254414db120ac5b25ff41fff4e2bd6cc8c4eec6469e8",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 69,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/review-implementation-binding.tests.py",
+      "source_sha256": "38b6758cc549c5b89f211b58d898589c1ccc82477a7ec2fd8d8eacb32799fa25",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 43,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/review-investigation-completeness.tests.py",
+      "source_sha256": "10569bdebec75ceee606a258693ee4959ef539c88aa223e74dc351f03f870dc1",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 5,
+        "calls": 99,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/review-investigation-runtime.tests.py",
+      "source_sha256": "b5559a73005ab53a3ae9429388edf2140a2e2b30b84000348b8ada0efaf3a5c8",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 18,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/review-scratch-history.tests.py",
+      "source_sha256": "dc28751bfeeeafc0651586d4fc5daae65f3cd39194cbccae8c0fa05fa941316c",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 130,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/run-measurement-integration.tests.py",
+      "source_sha256": "f424859e5c166e510fb9264bafb2bcc0c7b09dec6753166f673093398c186029",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 9,
+        "calls": 127,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/run-measurement.tests.py",
+      "source_sha256": "d856b8fde1a0d2ffa71843d28e655cead22a69a4b0b8d8f83926e4da25ce59bd",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 24,
+        "calls": 271,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 41,
+        "calls": 429,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-T-004.tests.py",
+      "source_sha256": "63a92ce85843409540856a5a7db302bd88d5d821a1a99935d3b2c6d0e31b90a6",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 179,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/sdd-sudo-guard-mutation.tests.py",
+      "source_sha256": "8e2255529082a6cdc2a50a774716e1c9d2a41258d5156e0d028c1f323cd54844",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 1,
+        "calls": 13,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/shared-launch-build.tests.py",
+      "source_sha256": "8eb686b2b30ad5a258155f4ff635874d195098ffeafa2d05f3e2086a32f18b04",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 2,
+        "calls": 40,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/spec-review-verify-inputs.tests.py",
+      "source_sha256": "ab2796fc7336d0142cd392105a342c3046d8f8db21c57c76b4f8785147e1bbfc",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 187,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "330625c453d2aa8650fafc3a2994c4c1311234136a9e9915378e0ba48d4b5675",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 38,
+        "calls": 184,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/t001-evaluation-preparation.tests.py",
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 71,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/task-prior-pass-receipt.tests.py",
+      "source_sha256": "b77a9c67ba28b6b78902c4352501492e721894dafc92b4c85476de8f75442329",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 13,
+        "calls": 136,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/task-structured-output.tests.py",
+      "source_sha256": "3a72e335453109217ec9123168d5d8ffc022b2076f0f16cb61c3748453ac4996",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 20,
+        "calls": 319,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [
+        5
+      ],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/traceability-freeze-contract.tests.py",
+      "source_sha256": "4ebcf422ed06b90ceefa5cafb8f9ee0ae1458ed09d99ad378a5ea73b769ad45d",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 54,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/unified-launch-order.tests.py",
+      "source_sha256": "d05b0affb6db2a55df28743367cf12da26328f87f7c5f0477b38e9dff16f8218",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 15,
+        "calls": 286,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/unified-task-launch.tests.py",
+      "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 85,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/upstream-concept-issue.tests.py",
+      "source_sha256": "e47b3cc6abe9cbb7e822557ac3b4508e7c5be77ef79c12c9f1245b43a51d6292",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 14,
+        "calls": 108,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/validate-resolver-evidence-check.py",
+      "source_sha256": "e319d1c4f81cd9c873c778de99706dbe11c2c4ce74b4bbac4145c26a703fb0b7",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 21,
+        "calls": 183,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "source_sha256": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 17,
+        "calls": 161,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/verification-impact.py",
+      "source_sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 4,
+        "calls": 66,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/verification-impact.tests.py",
+      "source_sha256": "ea2cfffba83708cba04caa2b709731840c70d770943611985a5edf3971878fb9",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 12,
+        "calls": 110,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "source_sha256": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 9,
+        "calls": 164,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/verification.py",
+      "source_sha256": "4e72b661e2b03e1eaaf20425aec0cc23da593d27272f9b5ebb4bc082d4ad441a",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 9,
+        "calls": 177,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/verify-review-reservation.py",
+      "source_sha256": "3a7207a1c2098f96654bd79b9b743746f06674f547ccb2230fb5edba1d4b2cc0",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 3,
+        "calls": 80,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "8a85cea570b499c2b09b435cb99862c101af82e3061b8199faef7e5e75b2564b",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 28,
+        "calls": 332,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    },
+    {
+      "path": "tests/workflow-state-session.tests.py",
+      "source_sha256": "df4806296ad44b986c42c89298444316aa57a1cf4dea7a2363f371dbe91b79cb",
+      "classification": "test-or-test-support",
+      "census": {
+        "parse": "pass",
+        "functions": 16,
+        "calls": 171,
+        "bare_except_lines": [],
+        "mutable_literal_defaults": []
+      },
+      "reviewed_site_indices": [],
+      "whole_file_all_rule_review": "unknown",
+      "unknown": "All rule/path combinations outside explicit reviewed site ranges remain unassessed; census and earlier passing tests do not establish semantic closure."
+    }
+  ],
+  "excluded": [
+    "Historical specs/reports .py copies:preserved; not treated as active executable code",
+    "Embedded Python in shell/PowerShell/CI and non-.py executable templates:ownership and whole inventory not established in this report; unknown, not waived",
+    "Native Windows/macOS execution:not run"
+  ],
+  "verification": {
+    "new_test_red": "Actual missing cwd => FileNotFoundError; /proc/self/fd after call contained extra fd4. Test run before production edit; exit1.",
+    "green": "python3 tests/project-skill-lifecycle.tests.py:Ran44 tests in9.281s,OK,exit0",
+    "lint": "ruff check --select E4,E7,E9,F project-skill.py project-skill-lifecycle.tests.py:All checks passed",
+    "mypy": "No configured mypy-target file changed; prior7-file pass retained, not rerun",
+    "limitations": "No full regression rerun without new affected boundary. Existing controls named in sites are references, not claims they were run this turn."
+  }
+}

@@ -51,7 +51,9 @@ fi
 [[ -f "$contract" && ! -L "$contract" ]] ||
   fail ROLLBACK_CONTRACT "contract must be a regular non-symlink file"
 
-[[ -z "$(git -C "$repo_root" status --porcelain=v1 --untracked-files=all)" ]] ||
+worktree_status=$(git -C "$repo_root" status --porcelain=v1 --untracked-files=all) ||
+  fail ROLLBACK_IO "cannot inspect repository status"
+[[ -z "$worktree_status" ]] ||
   fail ROLLBACK_DIRTY "repository must be clean"
 
 contract_ok="$(
@@ -83,6 +85,14 @@ contract_ok="$(
     ' "$contract" 2>/dev/null
 )" || fail ROLLBACK_CONTRACT "invalid or non-closed contract"
 [[ "$contract_ok" == "true" ]] || fail ROLLBACK_CONTRACT "invalid contract"
+
+# Capture one checked inventory before any mutation; process substitutions
+# cannot propagate a failed jq producer to their consuming while loops.
+inventory=$(jq -r '.files[] |
+  [.path, (.baseline_sha256 // "__ABSENT__"), (.new_sha256 // "__ABSENT__")] | @tsv' "$contract") ||
+  fail ROLLBACK_CONTRACT "cannot read rollback inventory"
+[[ -n "$inventory" ]] || fail ROLLBACK_CONTRACT "rollback inventory is empty"
+
 
 baseline="$(jq -r '.baseline_commit' "$contract")"
 reviewed="$(jq -r '.reviewed_release_commit' "$contract")"
@@ -153,8 +163,7 @@ while IFS=$'\t' read -r path baseline_hash new_hash; do
     [[ "$(hash_file "$current")" == "$new_hash" ]] ||
       fail ROLLBACK_HASH "current hash mismatch: $path"
   fi
-done < <(jq -r '.files[] |
-  [.path, (.baseline_sha256 // "__ABSENT__"), (.new_sha256 // "__ABSENT__")] | @tsv' "$contract")
+done <<< "$inventory"
 
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/sdd-rollback.XXXXXX")" ||
   fail ROLLBACK_IO "cannot create transaction directory"
@@ -181,7 +190,7 @@ git -C "$repo_root" worktree add --quiet --detach "$stage" "$baseline" ||
 worktree_added=1
 
 # Stage and verify the complete baseline inventory before validation.
-while IFS=$'\t' read -r path baseline_hash; do
+while IFS=$'\t' read -r path baseline_hash _new_hash; do
   validate_relative_path "$path"
   staged="$stage/$path"
   if [[ "$baseline_hash" == "__ABSENT__" ]]; then
@@ -193,7 +202,7 @@ while IFS=$'\t' read -r path baseline_hash; do
     [[ "$(hash_file "$staged")" == "$baseline_hash" ]] ||
       fail ROLLBACK_HASH "staged baseline hash mismatch: $path"
   fi
-done < <(jq -r '.files[] | [.path, (.baseline_sha256 // "__ABSENT__")] | @tsv' "$contract")
+done <<< "$inventory"
 
 set +e
 if [[ -n "$validator" ]]; then
@@ -214,7 +223,7 @@ set -e
 
 # Retain a byte-for-byte verified backup and an explicit present/absent map.
 : > "$backup_state"
-while IFS= read -r path; do
+while IFS=$'\t' read -r path _baseline_hash _new_hash; do
   validate_relative_path "$path"
   source="$repo_root/$path"
   if [[ -f "$source" && ! -L "$source" ]]; then
@@ -229,7 +238,7 @@ while IFS= read -r path; do
   else
     fail ROLLBACK_PATH "cannot back up non-regular path: $path"
   fi
-done < <(jq -r '.files[].path' "$contract")
+done <<< "$inventory"
 
 restore_original() {
   local state path expected target saved
@@ -248,7 +257,7 @@ restore_original() {
 
 apply_count=0
 apply_failed=0
-while IFS=$'\t' read -r path baseline_hash; do
+while IFS=$'\t' read -r path baseline_hash _new_hash; do
   target="$repo_root/$path"
   if [[ "$baseline_hash" == "__ABSENT__" ]]; then
     rm -f "$target" || apply_failed=1
@@ -261,7 +270,7 @@ while IFS=$'\t' read -r path baseline_hash; do
     apply_failed=1
   fi
   ((apply_failed == 0)) || break
-done < <(jq -r '.files[] | [.path, (.baseline_sha256 // "__ABSENT__")] | @tsv' "$contract")
+done <<< "$inventory"
 
 if ((apply_failed)); then
   restore_original ||
@@ -273,7 +282,7 @@ fi
 # original tree recoverable if this final check fails (including an injected
 # failure used by the regression suite).
 final_verification_failed=0
-while IFS=$'\t' read -r path baseline_hash; do
+while IFS=$'\t' read -r path baseline_hash _new_hash; do
   target="$repo_root/$path"
   if [[ "$baseline_hash" == "__ABSENT__" ]]; then
     [[ ! -e "$target" && ! -L "$target" ]] || final_verification_failed=1
@@ -281,7 +290,7 @@ while IFS=$'\t' read -r path baseline_hash; do
     [[ -f "$target" && ! -L "$target" &&
        "$(hash_file "$target")" == "$baseline_hash" ]] || final_verification_failed=1
   fi
-done < <(jq -r '.files[] | [.path, (.baseline_sha256 // "__ABSENT__")] | @tsv' "$contract")
+done <<< "$inventory"
 ((inject_final_failure)) && final_verification_failed=1
 if ((final_verification_failed)); then
   restore_original || fail ROLLBACK_RESTORE "final verification failed and original tree could not be restored"

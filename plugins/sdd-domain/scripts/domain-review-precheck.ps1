@@ -25,7 +25,7 @@ function Fail([string]$Message) {
 }
 
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
-  return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
+  return ($Left -is [string]) -and ($Right -is [string]) -and [string]::Equals($Left, $Right, [StringComparison]::Ordinal)
 }
 
 function Get-Sha256File([string]$Path) {
@@ -56,10 +56,12 @@ function Get-CanonicalDir([string]$Path) {
 if ($EditSummary -cmatch '^--edit-summary=(.*)$') { $EditSummary = $Matches[1] }
 if (Test-OrdinalEqual $EditSummary '--reset') { $EditSummary = ''; $Reset = $true }
 
-if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
-if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
-$attemptInt = [int64]$Attempt
-$roundInt = [int64]$Round
+if ($Attempt -cnotmatch '\A[1-9][0-9]*\z') { Fail 'attempt must be a positive integer' }
+if ($Round -cnotmatch '\A[1-9][0-9]*\z') { Fail 'round must be a positive integer' }
+$attemptInt = 0L
+$roundInt = 0L
+if (-not [int64]::TryParse($Attempt, [ref]$attemptInt)) { Fail 'attempt must be a positive integer within int64 range' }
+if (-not [int64]::TryParse($Round, [ref]$roundInt)) { Fail 'round must be a positive integer within int64 range' }
 if ($roundInt -gt 3) { Fail 'round must be between 1 and 3' }
 if (-not ([string]::IsNullOrEmpty($EditSummary)) -and $roundInt -le 1) { Fail '--edit-summary is valid only after round 1' }
 if ($roundInt -gt 1) {
@@ -71,7 +73,7 @@ if ($Reset) {
   if (-not ($attemptInt -eq 1 -or $roundInt -gt 1)) { Fail 'a new attempt requires --reset' }
 }
 
-$root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+$root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../../..')).Path
 $domainDir = Join-Path $root 'domain'
 $reportsRoot = Join-Path $root 'reports'
 $reportsBase = Join-Path $reportsRoot 'domain-review'
@@ -174,7 +176,7 @@ if ((Test-Path -LiteralPath $fingerprintPath -PathType Leaf) -and -not (Test-IsS
 if ((Test-Path -LiteralPath $fingerprintPath -PathType Leaf) -and -not (Test-IsSymlink $fingerprintPath)) {
   $fingerprint = $null
   try {
-    $fingerprint = Get-Content -LiteralPath $fingerprintPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $fingerprint = Get-Content -LiteralPath $fingerprintPath -Raw -Encoding utf8 | ConvertFrom-Json -NoEnumerate -ErrorAction Stop
   } catch {
     Fail 'last-approved-fingerprint.json is malformed'
   }
@@ -186,7 +188,8 @@ if ((Test-Path -LiteralPath $fingerprintPath -PathType Leaf) -and -not (Test-IsS
   $allCurrentPaths = @($canonicalPaths) + @($aggregateFilePaths)
   foreach ($prop in $fingerprint.files.PSObject.Properties) {
     $relPath = $prop.Name
-    $recordedHash = [string]$prop.Value
+    $recordedHash = $prop.Value
+    if ($recordedHash -isnot [string] -or $recordedHash -cnotmatch '\A[0-9a-f]{64}\z') { Fail 'last-approved-fingerprint.json is malformed' }
     $absPath = Join-Path $root $relPath
     if (-not (Test-Path -LiteralPath $absPath -PathType Leaf)) {
       $driftPaths.Add("$relPath (removed)")
@@ -248,8 +251,10 @@ if ($roundInt -gt 1) {
   $priorDir = Join-Path $reportsBase (Join-Path "attempt-$attemptInt" "round-$($roundInt - 1)")
   $priorPrecheck = Join-Path $priorDir 'precheck-result.json'
   if (-not (Test-Path -LiteralPath $priorPrecheck -PathType Leaf)) { Fail 'prior round precheck result is required' }
-  $priorData = Get-Content -LiteralPath $priorPrecheck -Raw | ConvertFrom-Json
-  $priorInputSha = [string]$priorData.input_sha256
+  try { $priorData = Get-Content -LiteralPath $priorPrecheck -Raw -Encoding utf8 | ConvertFrom-Json -NoEnumerate }
+  catch { Fail 'prior round precheck result is malformed' }
+  if ($priorData -isnot [PSCustomObject] -or $priorData.input_sha256 -isnot [string] -or $priorData.input_sha256 -cnotmatch '\A[0-9a-f]{64}\z') { Fail 'prior round precheck result is malformed' }
+  $priorInputSha = $priorData.input_sha256
   if (Test-OrdinalEqual $inputSha $priorInputSha) { Fail 'reviewed domain/ artifacts are unchanged from the prior round' }
 }
 
@@ -264,7 +269,10 @@ if ($Reset) {
   $previousContractPath = Join-Path $previousDir 'domain-review-contract.json'
   $previousVerdict = $null
   if (Test-Path -LiteralPath $previousContractPath -PathType Leaf) {
-    try { $previousVerdict = (Get-Content -LiteralPath $previousContractPath -Raw | ConvertFrom-Json).verdict } catch { $previousVerdict = $null }
+    try {
+      $previousContract = Get-Content -LiteralPath $previousContractPath -Raw -Encoding utf8 | ConvertFrom-Json -NoEnumerate
+      if ($previousContract -is [PSCustomObject]) { $previousVerdict = $previousContract.verdict }
+    } catch { $previousVerdict = $null }
   }
   if (-not (Test-OrdinalEqual $previousVerdict 'PASS') -and -not (Test-OrdinalEqual $previousVerdict 'BLOCKED')) { Fail 'reset requires a terminal PASS or BLOCKED contract' }
 }
@@ -277,26 +285,28 @@ try {
 } catch {
   Fail 'another domain review transition holds the lock'
 }
-if (Test-Path -LiteralPath $reportDir) {
-  Remove-Item -LiteralPath $lockDir -Recurse -Force -ErrorAction SilentlyContinue
-  Fail 'round destination already exists (replay is forbidden)'
-}
-New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
+try {
+  if (Test-Path -LiteralPath $reportDir) {
+    Fail 'round destination already exists (replay is forbidden)'
+  }
+  New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 
-$generatedAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
-$result = [ordered]@{
-  schema = 'domain-review-precheck/v1'
-  stage = 'domain'
-  attempt = $attemptInt
-  round = $roundInt
-  domain_model_status_field = $status
-  calibration_sha256 = $calibrationSha
-  input_sha256 = $inputSha
-  edit_summary = $EditSummary
-  reset = [bool]$Reset
-  generated_at = $generatedAt
+  $generatedAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
+  $result = [ordered]@{
+    schema = 'domain-review-precheck/v1'
+    stage = 'domain'
+    attempt = $attemptInt
+    round = $roundInt
+    domain_model_status_field = $status
+    calibration_sha256 = $calibrationSha
+    input_sha256 = $inputSha
+    edit_summary = $EditSummary
+    reset = [bool]$Reset
+    generated_at = $generatedAt
+  }
+  $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $reportDir 'precheck-result.json') -Encoding utf8NoBOM
+} finally {
+  Remove-Item -LiteralPath $lockDir -Recurse -Force -ErrorAction SilentlyContinue
 }
-$result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $reportDir 'precheck-result.json') -Encoding utf8NoBOM
-Remove-Item -LiteralPath $lockDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Output "domain-review-precheck: complete. Output written to $reportDir/"

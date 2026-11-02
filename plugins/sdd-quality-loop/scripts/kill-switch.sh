@@ -4,9 +4,35 @@
 # and deletes it to resume. Exit 2 blocks the tool call.
 # C-08: walk parents up to git root checking for AGENT_STOP.
 
-# Helper: check for AGENT_STOP at the given directory.
+deny_inspection() {
+  echo "SDD kill switch: cannot inspect stop-marker path; tool use denied." >&2
+  exit 2
+}
+
+# test -f hides EACCES. Enumerate only this directory, then follow only the
+# marker link: unrelated dangling/cyclic links must not block tool use.
 check_agent_stop() {
-  if [ -f "$1/AGENT_STOP" ]; then
+  base=$1
+  case "$base" in /*|./*|../*) ;; *) base="./$base" ;; esac
+  ancestor=$base
+  while [ ! -e "$ancestor" ] && [ ! -L "$ancestor" ]; do
+    parent=$(dirname -- "$ancestor") || deny_inspection
+    [ "$parent" != "$ancestor" ] || deny_inspection
+    ancestor=$parent
+  done
+  # A missing optional root is allowed only after its nearest existing parent
+  # can actually be inspected. -H follows this argument, never its children.
+  find -H "$ancestor" -maxdepth 0 >/dev/null 2>&1 || deny_inspection
+  if [ -d "$ancestor" ]; then
+    [ -x "$ancestor" ] || deny_inspection
+  else
+    return
+  fi
+  [ "$ancestor" = "$base" ] || return
+  marker=$(find -H "$base" -mindepth 1 -maxdepth 1 -name AGENT_STOP -exec printf present \; 2>/dev/null) || deny_inspection
+  [ -n "$marker" ] || return
+  marker=$(find -L "$base/AGENT_STOP" -maxdepth 0 -type f -exec printf present \; 2>/dev/null) || deny_inspection
+  if [ -n "$marker" ]; then
     echo "SDDキルスイッチ: プロジェクトルートに AGENT_STOP が存在します。人間がこのファイルを削除するまで、すべてのツール使用が停止されます。" >&2
     echo "[EN] SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file." >&2
     exit 2

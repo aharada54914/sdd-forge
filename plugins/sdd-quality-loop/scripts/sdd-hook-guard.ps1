@@ -451,7 +451,9 @@ function Test-KillSwitch {
                     $gitRootFound = $current
                     break
                 }
-            } catch { }
+            } catch {
+                Emit-Decision "deny" "SDD kill switch: cannot inspect stop-marker path; tool use denied."
+            }
             $parent = Split-Path -Parent $current
             if ([string]::IsNullOrEmpty($parent) -or $parent -eq $current) { break }
             $current = $parent
@@ -463,7 +465,9 @@ function Test-KillSwitch {
     foreach ($base in $bases) {
         try {
             if (Test-Path -LiteralPath (Join-Path $base "AGENT_STOP") -PathType Leaf) { return $true }
-        } catch { }
+        } catch {
+                Emit-Decision "deny" "SDD kill switch: cannot inspect stop-marker path; tool use denied."
+            }
     }
     return $false
 }
@@ -514,7 +518,7 @@ function Resolve-ProjectRoot {
 function Get-SudoFields {
     param([string]$Content)
     # Parse key: value lines into a hashtable (values stripped).
-    $fields = @{}
+    $fields = [hashtable]::new([StringComparer]::Ordinal)
     foreach ($rawLine in ($Content -split "`n")) {
         $line = $rawLine -replace "`r$", ""
         $colonIdx = $line.IndexOf(":")
@@ -601,6 +605,7 @@ function Test-SudoActive {
         $flag = Join-Path $sudoRoot "SDD_SUDO"
         # Check if path exists and is a file (not symlink).
         if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { return $false }
+        if ((Get-Item -LiteralPath $flag -Force).LinkType) { return $false }
         $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $flag
 
         $fields = Get-SudoFields $content
@@ -629,7 +634,7 @@ function Test-SudoActive {
         } catch {
             try { $actualRepo = [System.IO.Path]::GetFullPath($sudoRoot) } catch { return $false }
         }
-        if ($fields["repo"] -ne $actualRepo) { return $false }
+        if ($fields["repo"] -cne $actualRepo) { return $false }
 
         # Key resolution and HMAC verification
         $keyBytes = Resolve-SudoKey
@@ -1271,12 +1276,15 @@ function Get-ReadonlyInputIndices {
         $process = New-Object System.Diagnostics.Process
         $process.StartInfo = $start
         if (-not $process.Start()) { return @() }
+        $clock = [Diagnostics.Stopwatch]::StartNew()
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
-        $process.StandardInput.Write((@{ tokens = @($Tokens); directories = @($Directories) } | ConvertTo-Json -Depth 10 -Compress))
+        $inputWrite = $process.StandardInput.WriteAsync((@{ tokens = @($Tokens); directories = @($Directories) } | ConvertTo-Json -Depth 10 -Compress))
+        if (-not $inputWrite.Wait([Math]::Max(0, 3000 - [int]$clock.ElapsedMilliseconds))) { return @() }
         $process.StandardInput.Close()
-        if (-not $process.WaitForExit(3000)) { $process.Kill(); return @() }
+        if (-not $process.WaitForExit([Math]::Max(0, 3000 - [int]$clock.ElapsedMilliseconds))) { return @() }
         if ($process.ExitCode -ne 0) { return @() }
+        if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout, $stderr), [Math]::Max(0, 3000 - [int]$clock.ElapsedMilliseconds))) { return @() }
         $rawResult = $stdout.GetAwaiter().GetResult()
         if ($rawResult -notmatch '^\s*\[') { return @() }
         $indices = @($rawResult | ConvertFrom-Json -ErrorAction Stop)
@@ -1285,7 +1293,17 @@ function Get-ReadonlyInputIndices {
         }
         return $indices
     } catch { return @() }
-    finally { if ($null -ne $process) { $process.Dispose() } }
+    finally {
+        if ($null -ne $process) {
+            try {
+                if (-not $process.HasExited) {
+                    try { $process.Kill($true) } catch { $process.Kill() }
+                    [void]$process.WaitForExit(3000)
+                }
+            } catch { } # Classification remains conservative on runtime failure.
+            finally { $process.Dispose() }
+        }
+    }
 }
 
 function Test-CommandReferencesProtectedPath {
@@ -1458,7 +1476,7 @@ function Test-ImplReviewVerdictExists {
                         try {
                             $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $verdictPath
                             $verdict = $content | ConvertFrom-Json
-                            if ($verdict.verdict -eq "PASS" -or $verdict.verdict -eq "PASS-with-warnings") { return $true }
+                            if ($verdict.verdict -is [string] -and ($verdict.verdict -ceq "PASS" -or $verdict.verdict -ceq "PASS-with-warnings")) { return $true }
                         } catch { }
                     }
                 }
@@ -1871,11 +1889,11 @@ function Test-ShellTargetsSddSudo {
             }
             for ($i = 0; $i -lt $plain.Count; $i++) {
                 $base = Get-ShellTokenBasename $plain[$i]
-                $args = @($plain | Select-Object -Skip ($i + 1) | Where-Object { -not $_.StartsWith('-') })
+                $commandArguments = @($plain | Select-Object -Skip ($i + 1) | Where-Object { -not $_.StartsWith('-') })
                 if ($ShellWriteArgCmds -contains $base -or $ShellPsWriteCmds -contains $base) {
-                    if (@($args | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
+                    if (@($commandArguments | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
                 } elseif ($ShellWriteDestCmds -contains $base) {
-                    if ($args.Count -ge 2 -and (Test-TargetPathIsSddSudo $args[-1])) { return $true }
+                    if ($commandArguments.Count -ge 2 -and (Test-TargetPathIsSddSudo $commandArguments[-1])) { return $true }
                 } elseif ($ShellIndirectCmds -contains $base) {
                     if (@($plain | Select-Object -Skip ($i + 1) | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
                 }

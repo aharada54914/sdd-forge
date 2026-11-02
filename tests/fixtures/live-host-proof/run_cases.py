@@ -81,7 +81,7 @@ ERRORS = {
 Q = 2**255 - 19
 L = 2**252 + 27742317777372353535851937790883648493
 D = (-121665 * pow(121666, Q - 2, Q)) % Q
-I = pow(2, (Q - 1) // 4, Q)
+SQRT_MINUS_ONE = pow(2, (Q - 1) // 4, Q)
 
 
 def inv(value):
@@ -92,7 +92,7 @@ def recover_x(y):
     xx = (y * y - 1) * inv(D * y * y + 1) % Q
     x = pow(xx, (Q + 3) // 8, Q)
     if (x * x - xx) % Q:
-        x = x * I % Q
+        x = x * SQRT_MINUS_ONE % Q
     if x & 1:
         x = Q - x
     return x

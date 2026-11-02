@@ -91,7 +91,7 @@ test("runId is required: missing runId is rejected with invalid-input", async ()
   const { fetchImpl, calls } = fakeFetch({});
 
   const result = await getWorkflowRun(
-    { owner: "acme", repo: "widgets" } as never,
+    { owner: "acme", repo: "widgets" },
     { env: TOKEN_ENV, fetchImpl },
   );
 

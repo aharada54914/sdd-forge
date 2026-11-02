@@ -600,6 +600,28 @@ run_test_016
 run_test_020
 run_test_021
 
+if python3 - "$ROOT" <<'PYFRESHIO'
+import pathlib,tempfile,subprocess,os,json
+import sys
+root=pathlib.Path(sys.argv[1]); rows=[]
+for case in ('search-error','fetch-error','filter-error'):
+ with tempfile.TemporaryDirectory() as d:
+  p=pathlib.Path(d); b=p/'bin';b.mkdir(); source=p/'source';source.write_text('gpt-999999-new\n'); reg=p/'reg';reg.write_text('{"models":[]}'); log=p/'log'
+  (b/'gh').write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$PROBE_LOG"\nif [ "$2" = list ]; then if [ "$PROBE_CASE" = search-error ]; then exit 7; fi; printf "[]"; fi\n')
+  (b/'cat').write_text('#!/bin/sh\nif [ "$PROBE_CASE" = fetch-error ] && [ "$1" = "$PROBE_SOURCE" ]; then /bin/cat /nonexistent-source-probe; exit 1; fi\nexec /bin/cat "$@"\n')
+  (b/'tr').write_text('#!/bin/sh\nif [ "$PROBE_CASE" = filter-error ]; then /usr/bin/tr --invalid-freshness-option; exit 1; fi\nexec /usr/bin/tr "$@"\n')
+  for x in b.iterdir():x.chmod(0o755)
+  env=dict(os.environ,PATH=str(b)+':'+os.environ['PATH'],ANTHROPIC_FIXTURE_SOURCE=str(source),OPENAI_FIXTURE_SOURCE=str(source),MODEL_FRESHNESS_REGISTRY_PATH=str(reg),GITHUB_REPOSITORY='fixture/repo',PROBE_CASE=case,PROBE_LOG=str(log),PROBE_SOURCE=str(source))
+  r=subprocess.run(['bash',str(root/'.github/scripts/check-model-freshness.sh')],env=env,capture_output=True,text=True,timeout=10)
+  calls=log.read_text() if log.exists() else '';rows.append(dict(case=case,exit=r.returncode,created='issue create' in calls,unavailable='fetch-unavailable' in calls))
+assert rows == [dict(case='search-error',exit=7,created=False,unavailable=False), dict(case='fetch-error',exit=0,created=True,unavailable=True), dict(case='filter-error',exit=1,created=False,unavailable=False)], rows
+PYFRESHIO
+then
+  ok 'source/filter/search failures preserve unavailable reporting and prevent duplicate issue writes'
+else
+  fail 'model freshness error classification regression'
+fi
+
 printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -gt 0 ]]; then
   printf 'not ok: model-freshness-check suite FAILED (%d failures)\n' "$FAIL" >&2

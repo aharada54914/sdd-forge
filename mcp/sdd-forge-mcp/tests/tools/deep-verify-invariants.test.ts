@@ -26,7 +26,7 @@
  *   File absence never throws.
  */
 
-import { test } from "node:test";
+import { test, mock } from "node:test";
 import assert from "node:assert/strict";
 import childProcess from "node:child_process";
 import { rmSync } from "node:fs";
@@ -49,33 +49,21 @@ const CHILD_PROCESS_METHODS = [
   "fork",
 ] as const;
 
-type MutableChildProcess = Record<string, (...args: unknown[]) => unknown>;
-
 /**
  * Runs `fn` with every child_process spawn/exec entry point replaced by a trap
  * that records the call and throws. Returns the function's value plus the list
  * of any intercepted method names. The traps are always restored.
  */
 function runWithChildProcessTrap<T>(fn: () => T): { value: T; spawned: string[] } {
-  const cp = childProcess as unknown as MutableChildProcess;
   const spawned: string[] = [];
-  const originals = new Map<string, (...args: unknown[]) => unknown>();
-  for (const name of CHILD_PROCESS_METHODS) {
-    originals.set(name, cp[name]);
-    cp[name] = (..._args: unknown[]): never => {
-      spawned.push(name);
-      throw new Error(`evidence_deep_verify must not call child_process.${name}`);
-    };
-  }
+  const traps = CHILD_PROCESS_METHODS.map(name => mock.method(childProcess, name, () => {
+    spawned.push(name);
+    throw new Error(`evidence_deep_verify must not call child_process.${name}`);
+  }));
   try {
     return { value: fn(), spawned };
   } finally {
-    for (const name of CHILD_PROCESS_METHODS) {
-      const original = originals.get(name);
-      if (original) {
-        cp[name] = original;
-      }
-    }
+    for (const trap of traps) trap.mock.restore();
   }
 }
 

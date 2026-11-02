@@ -1,0 +1,21 @@
+{
+  "schema": "coding-standards-tools/v1",
+  "shellcheck_version": "0.11.0",
+  "ruff_version": "0.13.3",
+  "shellcheck_codes": [
+    "SC2086",
+    "SC2046",
+    "SC2155"
+  ],
+  "exceptions": [
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+      "tools": [
+        "ruff"
+      ],
+      "reason": "Deliberately invalid module verifies resolver reports a syntax error rather than importing it.",
+      "control": "tests/resolve-project-context-block.tests.sh"
+    }
+  ]
+}

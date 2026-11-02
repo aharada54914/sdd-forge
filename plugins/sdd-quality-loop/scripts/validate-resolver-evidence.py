@@ -150,12 +150,13 @@ def _find_git_root(start_dir):
         result = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
             cwd=str(start_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            timeout=30,
         )
         if result.returncode == 0:
             candidate = result.stdout.decode("utf-8").strip()
             if candidate:
                 return Path(candidate)
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         pass
     current = Path(start_dir)
     for _ in range(64):

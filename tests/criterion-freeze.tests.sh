@@ -248,5 +248,29 @@ for destination in "specs/demo/archive.md" "specs/renamed/tasks.md"; do
   expect_case "CF.10 control: specs-only rename to $destination passes" HEAD 0 "is specs-only"
 done
 
+# Native infrastructure errors while reading existing blobs are not additions.
+mkdir -p "$REPO/specs/error-case"
+write_tasks "$REPO/specs/error-case/tasks.md" Passed 'Frozen baseline criterion' ' ' Planned
+git -C "$REPO" add -A
+git -C "$REPO" commit -qm 'fixture: establish reviewed error-case'
+write_tasks "$REPO/specs/error-case/tasks.md" Passed 'Changed criterion' ' ' Planned
+printf 'mixed change\n' >> "$REPO/src/app.txt"
+git -C "$REPO" add -A
+git -C "$REPO" commit -qm 'fixture: mixed change for Git read failure'
+# Remove only the two disposable fixture blobs, retaining commit/tree metadata.
+# Both native Windows and POSIX Git now encounter an actual object-read error;
+# no POSIX executable shim needs to be selected by Windows child processes.
+before_blob="$(git -C "$REPO" rev-parse 'HEAD^:specs/error-case/tasks.md')"
+after_blob="$(git -C "$REPO" rev-parse 'HEAD:specs/error-case/tasks.md')"
+for blob in "$before_blob" "$after_blob"; do
+  object="$REPO/.git/objects/${blob:0:2}/${blob:2}"
+  if [ ! -f "$object" ]; then
+    bad 'CF.11 fixture must expose its newly created loose object'
+    exit 1
+  fi
+  rm -f -- "$object"
+done
+expect_case 'CF.11: Git show infrastructure failure fails closed' HEAD 2 'failed'
+
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

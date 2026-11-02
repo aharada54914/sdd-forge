@@ -1,0 +1,3 @@
+MUTATION: TEST-040F hides the changed matcher classification
+FAIL: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+0 passed / 1 failed

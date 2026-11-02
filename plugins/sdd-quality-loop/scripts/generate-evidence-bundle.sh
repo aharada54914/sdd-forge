@@ -84,7 +84,10 @@ def normalize_rel_path(abs_path, abs_root):
 try:
     with open(contract_path, encoding="utf-8") as fh:
         contract = json.load(fh)
-except Exception as exc:
+    if (not isinstance(contract, dict) or not isinstance(contract.get("checks", []), list)
+            or any(not isinstance(check, dict) for check in contract.get("checks", []))):
+        raise ValueError("contract must be an object with a checks array of objects")
+except (OSError, ValueError) as exc:
     print(f"generate-evidence-bundle: cannot parse contract: {exc}", file=sys.stderr)
     sys.exit(1)
 
@@ -167,9 +170,9 @@ for rel in ordered_paths:
 git_cmd = ["git", "-C", str(abs_root)]
 
 try:
-    r = subprocess.run(git_cmd + ["rev-parse", "HEAD"], capture_output=True, text=True)
-except FileNotFoundError:
-    print("generate-evidence-bundle: git is not available", file=sys.stderr)
+    r = subprocess.run(git_cmd + ["rev-parse", "HEAD"], capture_output=True, text=True, encoding="utf-8", timeout=30)
+except (OSError, subprocess.TimeoutExpired):
+    print("generate-evidence-bundle: git is unavailable or exceeded its deadline", file=sys.stderr)
     sys.exit(1)
 
 if r.returncode != 0:
@@ -182,11 +185,14 @@ if not re.fullmatch(r"[0-9a-f]{40}", git_commit):
     sys.exit(1)
 
 try:
-    status_r = subprocess.run(git_cmd + ["status", "--porcelain"], capture_output=True, text=True)
+    status_r = subprocess.run(git_cmd + ["status", "--porcelain"], capture_output=True, text=True, encoding="utf-8", timeout=30)
 except Exception as exc:
     print(f"generate-evidence-bundle: git status failed: {exc}", file=sys.stderr)
     sys.exit(1)
 
+if status_r.returncode != 0:
+    print("generate-evidence-bundle: git status failed", file=sys.stderr)
+    sys.exit(1)
 git_generated_dirty = bool(status_r.stdout.strip())
 
 # ------------------------------------------------------------------
@@ -307,7 +313,7 @@ build_env = {
 }
 
 try:
-    git_version_r = subprocess.run(["git", "--version"], capture_output=True, text=True)
+    git_version_r = subprocess.run(["git", "--version"], capture_output=True, text=True, encoding="utf-8", timeout=30)
     if git_version_r.returncode == 0:
         build_env["git"] = git_version_r.stdout.strip()
 except Exception:

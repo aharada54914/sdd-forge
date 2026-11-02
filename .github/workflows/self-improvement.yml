@@ -149,6 +149,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           changed="$RUNNER_TEMP/session_changed_paths.txt"
           pre_refs="$RUNNER_TEMP/pre_session_pr_refs.txt"
           [ -f "$pre_refs" ] || : > "$pre_refs"

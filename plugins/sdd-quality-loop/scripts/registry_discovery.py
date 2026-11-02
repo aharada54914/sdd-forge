@@ -64,12 +64,14 @@ def resolve_git_root() -> "Path | None":
             capture_output=True,
             text=True,
             cwd=str(_module_dir()),
+            encoding="utf-8",
+            timeout=30,
         )
         if result.returncode == 0:
             candidate = result.stdout.strip()
             if candidate:
                 return Path(candidate)
-    except (OSError, FileNotFoundError):
+    except (OSError, FileNotFoundError, subprocess.TimeoutExpired):
         pass
 
     current = _module_dir()

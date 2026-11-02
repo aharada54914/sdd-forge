@@ -12,8 +12,8 @@ usage() {
 
 fail() { echo "ERROR: domain-review-precheck: $*" >&2; exit 1; }
 sha256() {
-  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum < "$1" | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 < "$1" | awk '{print $1}';
   else fail "neither sha256sum nor shasum is available"; fi
 }
 sha256_text() {
@@ -39,6 +39,10 @@ done
 
 [[ "$attempt" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$round" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
+# Bash arithmetic wraps on overflow; match the PowerShell twin's int64 range.
+for integer in "$attempt" "$round"; do
+  [[ ${#integer} -lt 19 || ( ${#integer} -eq 19 && ! "$integer" > 9223372036854775807 ) ]] || fail "attempt and round must be positive integers within int64 range"
+done
 [[ "$round" -le 3 ]] || fail "round must be between 1 and 3"
 [[ -z "$edit_summary" || "$round" -gt 1 ]] || fail "--edit-summary is valid only after round 1"
 if [[ "$round" -gt 1 ]]; then
@@ -141,12 +145,14 @@ if [[ -f "$fingerprint_path" && ! -L "$fingerprint_path" && "$status" != "Approv
   printf 'domain-review-precheck: stale last-approved fingerprint cleared (Domain-Model-Status is %s, not Approved) -- re-review proceeds; the next human Approval records a fresh fingerprint\n' "$status" >&2
 fi
 if [[ -f "$fingerprint_path" && ! -L "$fingerprint_path" ]]; then
-  jq -e 'type == "object" and (keys | sort) == ["files","schema"] and .schema == "domain-review-approved-fingerprint/v1" and (.files | type == "object")' \
+  jq -e 'type == "object" and (keys | sort) == ["files","schema"] and .schema == "domain-review-approved-fingerprint/v1" and (.files | type == "object") and (.files | all(.[]; type == "string" and length == 64 and test("^[0-9a-f]+$")))' \
     "$fingerprint_path" >/dev/null 2>&1 || fail "last-approved-fingerprint.json is malformed"
   drift_paths=()
   all_current_paths=("${canonical_paths[@]}" "${aggregate_files[@]}")
   # Compare every currently-recorded fingerprint path against its live hash.
-  while IFS=$'\t' read -r rel_path recorded_hash; do
+  while IFS= read -r entry; do
+    rel_path="$(jq -r '.key' <<<"$entry")"
+    recorded_hash="$(jq -r '.value' <<<"$entry")"
     abs_path="${repo_root}/${rel_path}"
     if [[ ! -f "$abs_path" ]]; then
       drift_paths+=("$rel_path (removed)")
@@ -154,7 +160,7 @@ if [[ -f "$fingerprint_path" && ! -L "$fingerprint_path" ]]; then
     fi
     current_hash="$(normalized_hash_of "$abs_path")"
     [[ "$current_hash" == "$recorded_hash" ]] || drift_paths+=("$rel_path")
-  done < <(jq -r '.files | to_entries[] | [.key, .value] | @tsv' "$fingerprint_path")
+  done < <(jq -c '.files | to_entries[]' "$fingerprint_path")
   # Also catch a newly-added aggregate card not present at approval time.
   for p in "${all_current_paths[@]}"; do
     rel="${p#$repo_root/}"
@@ -173,18 +179,13 @@ if [[ "$status" == "Approved" && ! -f "$fingerprint_path" ]]; then
   mkdir -p "$reports_base"
   tmp_fp="${fingerprint_path}.tmp.$$"
   {
-    printf '{"schema":"domain-review-approved-fingerprint/v1","files":{'
-    first=true
     all_paths=("${canonical_paths[@]}" "${aggregate_files[@]}")
     for p in "${all_paths[@]}"; do
       rel="${p#$repo_root/}"
       h="$(normalized_hash_of "$p")"
-      $first || printf ','
-      first=false
-      printf '"%s":"%s"' "$rel" "$h"
+      jq -nc --arg key "$rel" --arg value "$h" '{key:$key,value:$value}'
     done
-    printf '}}'
-  } | jq . > "$tmp_fp"
+  } | jq -s '{schema:"domain-review-approved-fingerprint/v1",files:from_entries}' > "$tmp_fp"
   mv "$tmp_fp" "$fingerprint_path"
 fi
 
@@ -214,7 +215,7 @@ if [[ "$round" -gt 1 ]]; then
   prior_dir="${reports_base}/attempt-${attempt}/round-$((round - 1))"
   prior_precheck="${prior_dir}/precheck-result.json"
   [[ -f "$prior_precheck" ]] || fail "prior round precheck result is required"
-  prior_input_sha="$(jq -r '.input_sha256' "$prior_precheck")"
+  prior_input_sha="$(jq -er 'select(type == "object" and (.input_sha256 | type == "string" and length == 64 and test("^[0-9a-f]+$"))) | .input_sha256' "$prior_precheck")" || fail "prior round precheck result is malformed"
   [[ "$input_sha" != "$prior_input_sha" ]] || fail "reviewed domain/ artifacts are unchanged from the prior round"
 fi
 

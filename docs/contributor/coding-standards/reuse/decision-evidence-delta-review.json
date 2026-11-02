@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "path": "docs/contributor/coding-standards/reuse/decisions.md",
+      "review_scope": "delta",
+      "before_source_sha256": "e1ca4ffbc0911908793de43ba4221a50c3bbd2748a83fec907ca8d754024de63",
+      "source_sha256": "867a18d4ff8af292544be9be86b83e899f02f008b2c5d1cd20a4b1f12f73d30a",
+      "judgment": "Only R006/R008 execution evidence cells change: directly executed installed FilesOnly clean/tampered Bash and PowerShell controls with configured PATH passed, research-acquire32 tests has one skip. Pending generic completion language replaced by exact component receipts and preserved native/live-provider limitations. Ownership, divergence counterexamples, stability and separation decision unchanged.",
+      "evidence": [
+        "docs/contributor/coding-standards/reuse/python-reuse-receipts.json"
+      ]
+    }
+  ]
+}

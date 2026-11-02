@@ -63,9 +63,9 @@ def runtime_files(root, stage, fixed_inputs=False):
 
 def run(root, command, destination, prompt=None):
     result = subprocess.run(command, cwd=root, input=prompt, text=True,
-                            capture_output=True, timeout=600)
-    destination.write_text(result.stdout)
-    destination.with_suffix(destination.suffix + '.stderr').write_text(result.stderr)
+                            capture_output=True, timeout=600, encoding="utf-8")
+    destination.write_text(result.stdout, encoding="utf-8")
+    destination.with_suffix(destination.suffix + '.stderr').write_text(result.stderr, encoding="utf-8")
     transport.require(result.returncode == 0, 'command failed; see ' + str(destination))
     return result.stdout
 
@@ -133,7 +133,7 @@ def verify_inputs_before_output(root, stage, feature, attempt, round_number, run
                         '--fixed-input-snapshot' if runtime == 'bash' else '-FixedInputSnapshot',
                         fixed_inputs['snapshot']])
     result = subprocess.run(command,
-                            cwd=root, capture_output=True, text=True, timeout=600)
+                            cwd=root, capture_output=True, text=True, timeout=600, encoding="utf-8")
     transport.require(result.returncode == 0, 'read-only precheck failed before output')
 
 
@@ -216,7 +216,7 @@ def quality_input_precheck(root, invocation, output, data, fixed_args=(), fixed_
     check = ['rtk', 'proxy', 'bash', str(validator), str(invocation), str(root)]
     check.extend(fixed_args)
     result = subprocess.run(check, cwd=root, text=True, capture_output=True,
-                            timeout=600)
+                            timeout=600, encoding="utf-8")
     transport.require(result.returncode == 0 and
                       re.fullmatch(r'REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* '
                                    r'previous_record_sha256=(?:-|[0-9a-f]{64}) '
@@ -289,7 +289,7 @@ def launch(root, invocation, output, manifest_sha256=None, *,
                               '--fixed-input-snapshot', str(fixed_input_snapshot)])
     input_preflight = subprocess.run(
         input_command,
-        cwd=root, capture_output=True, text=True, timeout=600)
+        cwd=root, capture_output=True, text=True, timeout=600, encoding="utf-8")
     transport.require(input_preflight.returncode == 0,
                       'common input preflight rejected: ' + input_preflight.stderr.strip())
     transport.require(re.fullmatch(
@@ -298,7 +298,7 @@ def launch(root, invocation, output, manifest_sha256=None, *,
         input_preflight.stdout) is not None, 'invalid common input preflight result')
     if stage == 'quality':
         delivery = quality_delivery_command(root, invocation, manifest_sha256, data, fixed_args)
-        prepared = subprocess.run(delivery, cwd=root, capture_output=True, text=True, timeout=600)
+        prepared = subprocess.run(delivery, cwd=root, capture_output=True, text=True, timeout=600, encoding="utf-8")
         transport.require(prepared.returncode == 0,
                           'evaluator delivery preflight rejected: ' + prepared.stderr.strip())
         quality_delivery_result(prepared.stdout, len(data['allowed_input_manifest']))
@@ -336,7 +336,7 @@ def launch(root, invocation, output, manifest_sha256=None, *,
             verify.extend(['--fixed-input-record', fixed_inputs['record'],
                            '--fixed-input-snapshot', fixed_inputs['snapshot']])
         dependency_presence = required_dependencies(root, data, fixed_inputs)
-    role_parts = role_path.read_text().split('---', 2)
+    role_parts = role_path.read_text(encoding="utf-8").split('---', 2)
     transport.require(len(role_parts) == 3 and not role_parts[0].strip(),
                       'role frontmatter missing')
     selected_model = 'sonnet'
@@ -403,7 +403,7 @@ def launch(root, invocation, output, manifest_sha256=None, *,
     if sha256sum is not None:
         files.add(Path(sha256sum).resolve(strict=True))
     pins = {str(p): transport.sha(p) for p in files}
-    (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True))
+    (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True), encoding="utf-8")
     if verify is not None:
         run(root, verify, output / 'verify-before.txt')
     preview = run(root, check, output / 'preview.txt')
@@ -411,14 +411,14 @@ def launch(root, invocation, output, manifest_sha256=None, *,
         transport.require(preview == initial_preview,
                           'quality admission changed after initial preview')
     receipt = output / 'receipt.txt'
-    receipt.write_text(preview)
+    receipt.write_text(preview, encoding="utf-8")
     policy = output / 'policy.json'
     settings = output / 'settings.json'
     route_options = {'fixed_inputs': fixed_inputs} if fixed_inputs else {}
     policy_bytes, settings_value = transport.launch_policy(
         root, invocation, receipt, policy, **route_options)
     policy.write_bytes(policy_bytes)
-    settings.write_text(json.dumps(settings_value))
+    settings.write_text(json.dumps(settings_value), encoding="utf-8")
     permissions = transport.receipt_control(
         data, preview, invocation.relative_to(root).as_posix(),
             root=None if fixed_inputs else root)['exact_permission_rules']
@@ -463,12 +463,12 @@ def launch(root, invocation, output, manifest_sha256=None, *,
     else:
         reserved = run(root, check + ['--reserve'], output / 'reserved.txt')
     transport.require(reserved == preview, 'reservation differs from preview; do not retry identity')
-    receipt.write_text(reserved)
+    receipt.write_text(reserved, encoding="utf-8")
     prompt = output / 'prompt.txt'
     prompt.write_bytes(transport.expected_prompt(root, invocation, receipt, strict=True,
                                                  conditional_state=dependency_presence, **route_options))
     wrapper = output / 'wrapper.json'
-    run(root, command, wrapper, prompt.read_text())
+    run(root, command, wrapper, prompt.read_text(encoding="utf-8"))
     transcripts = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
     transport.require(len(transcripts) == 1, 'native transcript missing or ambiguous')
     transcript.write_bytes(transcripts[0].read_bytes())

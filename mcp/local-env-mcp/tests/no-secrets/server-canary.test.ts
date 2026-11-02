@@ -60,17 +60,36 @@ function runServerSweep(): Promise<SweepResult> {
 
     let stdout = "";
     let stderr = "";
+    let pending = "";
+    const responseIds = new Set<number>();
+    const deadline = setTimeout(() => { child.kill("SIGKILL"); }, 15_000);
     child.stdout.setEncoding("utf-8");
     child.stderr.setEncoding("utf-8");
     child.stdout.on("data", (chunk: string) => {
       stdout += chunk;
+      pending += chunk;
+      const lines = pending.split("\n");
+      pending = lines.pop() ?? "";
+      for (const line of lines) {
+        try {
+          const message: unknown = JSON.parse(line);
+          if (typeof message === "object" && message !== null && "id" in message && typeof message.id === "number") {
+            responseIds.add(message.id);
+          }
+        } catch (error) {
+          child.kill("SIGKILL");
+          reject(error);
+        }
+      }
+      if ([1, 2, 3, 4, 5].every(id => responseIds.has(id))) child.stdin.end();
     });
     child.stderr.on("data", (chunk: string) => {
       stderr += chunk;
     });
 
-    child.on("error", reject);
+    child.on("error", error => { clearTimeout(deadline); reject(error); });
     child.on("close", (code) => {
+      clearTimeout(deadline);
       resolve({ stdout, stderr, exitCode: code });
     });
 
@@ -90,16 +109,7 @@ function runServerSweep(): Promise<SweepResult> {
     child.stdin.write(rpc(4, "tools/call", { name: "get_toolchain_versions", arguments: { names: ["node"] } }));
     child.stdin.write(rpc(5, "tools/call", { name: "list_available_clis", arguments: {} }));
 
-    // Give the server time to answer, then close stdin so it exits.
-    setTimeout(() => {
-      child.stdin.end();
-      // Safety backstop: never let the test hang if the server stays open.
-      setTimeout(() => {
-        if (child.exitCode === null) {
-          child.kill("SIGKILL");
-        }
-      }, 3000);
-    }, 2500);
+
   });
 }
 
@@ -118,7 +128,9 @@ test("AC-005: server startup + all three tools leak no secrets to stdout or stde
   // The os-info payload rides inside an escaped-JSON MCP text field
   // (content[0].text), so the inner quotes are backslash-escaped on the wire;
   // match the kind marker without assuming a particular quote framing.
-  assert.ok(stdout.includes("os-info"), "get_os_info should have returned an os-info payload");
+  for (const kind of ["os-info", "toolchain-versions", "cli-availability"]) {
+    assert.ok(stdout.includes(kind), `all tools must return their data before the no-secrets assertion: ${kind}`);
+  }
 
   // The canary value must never appear on either stream.
   assert.ok(!combined.includes(CANARY_VALUE), "canary env value must not appear in stdout/stderr");
@@ -144,5 +156,5 @@ test("AC-005: server startup + all three tools leak no secrets to stdout or stde
   }
 
   // The server should exit cleanly once stdin closes (not crash).
-  assert.ok(exitCode === 0 || exitCode === null, `server exited abnormally with code ${String(exitCode)}`);
+  assert.equal(exitCode, 0, "server must exit normally, not be killed by the deadline");
 });

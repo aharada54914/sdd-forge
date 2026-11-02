@@ -31,6 +31,7 @@ import {
   listGuardedFiles,
   listGuardedFilesWithDiagnostics,
 } from "../../src/path-guard.js";
+import { getQualityGateSummary } from "../../src/tools/core.js";
 import type { SddRoot } from "../../src/root.js";
 import { makeTempSddRoot, makeSymlink, writeFile } from "../test-helpers.js";
 import { findSddForgeRepoRoot, makeRealRepoRoot } from "../parsers-state/test-helpers.js";
@@ -582,4 +583,22 @@ test("TEST-006 (AC-006, BL-003): the 2 Non-goal call sites were not changed to o
     ),
     "report-lookup.ts's anyFileContaining must keep its exact pre-existing signature (BL-003), whichever list function it delegates to",
   );
+});
+
+ test("directory cycles terminate with diagnostics while distinct aliases remain readable", () => {
+  const fixture = makeTempSddRoot("guarded-cycle");
+  try {
+    writeFile(fixture.root.path, "reports/quality-gate/report.md", "VERDICT: PASS\nCritical: 0\nMajor: 0\nMinor: 0\n");
+    makeSymlink(join(fixture.root.path, "reports/quality-gate"), join(fixture.root.path, "reports/quality-gate/loop"));
+    const scan = listGuardedFilesWithDiagnostics(fixture.root, "reports/quality-gate");
+    assert.deepEqual(scan.files, ["reports/quality-gate/report.md"]);
+    assert.deepEqual(scan.errors, [{ path: "reports/quality-gate/loop", reason: "Directory traversal cycle detected." }]);
+    const result = getQualityGateSummary(fixture.root);
+    assert.equal(result.ok, true);
+    if (result.ok) assert.equal(result.data.reports.length, 1);
+    makeSymlink(join(fixture.root.path, "reports/quality-gate"), join(fixture.root.path, "reports/alias"));
+    const aliases = listGuardedFilesWithDiagnostics(fixture.root, "reports");
+    assert.ok(aliases.files.includes("reports/alias/report.md"));
+    assert.ok(aliases.files.includes("reports/quality-gate/report.md"));
+  } finally { fixture.cleanup(); }
 });

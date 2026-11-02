@@ -1,0 +1,85 @@
+{
+  "schema": "shell-test-context-delta/v1",
+  "baseline_revision": "339d0bd978b115529e796c6c7c308851d02c41bb",
+  "reviewed_revision": "50c12f27b955d3a960d91a59506e3df7f4a602a9",
+  "scope": "Eight changed test sources reviewed against exact baseline contextual receipts; complete diffs plus containing helper/fixture and cleanup consumers inspected. No source coverage inferred from dependency hash alone.",
+  "entries": [
+    {
+      "path": "tests/collection-layer.tests.ps1",
+      "before_sha256": "67782d2b8b202775b0c74de7b6917537c36ba2fa004915876b9c978a53d241ef",
+      "sha256": "0575eb531103d14b3693c33662f2408ad2523892cc2c4a0e69e043bce6f8c547",
+      "diff_sha256": "28afe6e7a02bbef4b98cdff61c4132af2f098495fc4a9b44bfebf192cc3e5f93",
+      "baseline_receipt": "test-context-review.json#files:tests/collection-layer.tests.ps1",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "CL016 retains actual native provider stub argv capture; fixed -p prompt now paired with exactly one instruction and bundle on stdin. This coarse argv assertion is supplemented by exact atom/byte oracle in cross-model test, not presented as byte proof itself. New detector probe selects Python and current PowerShell executable, passes paths as argv, and folds nonzero into fail count."
+    },
+    {
+      "path": "tests/collection-layer.tests.sh",
+      "before_sha256": "126e04de715f96c037165b9287e9ad78d0a7dcec153921b05a07b094faf93cc2",
+      "sha256": "3aaa4d3c9a394d231074d7bbd943d24f3836bc9a3d625224b1fb4e22fdfb9564",
+      "diff_sha256": "55bb916a244496f8121c97cfa0605f54af920bf1c23dc6551d969f395ce746ab",
+      "baseline_receipt": "test-context-review.json#files:tests/collection-layer.tests.sh",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "Added literal Python probe invocation with quoted script/host argv and explicit if success/failure count. Inspected delegated detect-panel-probe.py: disposable executable, bounded subprocess12s, independent success/fail/hang expected statuses, stdout checks, elapsed bound and platform-specific child-liveness check. No provider/model call is made."
+    },
+    {
+      "path": "tests/component-path-diff-basis.tests.ps1",
+      "before_sha256": "31d7ecb5438564a1a004af23e37c609e106b4da8bf0b073a6fdacade09b51311",
+      "sha256": "5ac359063c0e5934c4e43caea50367c95c7fe1460c30fcca8e2efd1c7642efcc",
+      "diff_sha256": "9f5700fdf7addc75139e8c20678b07bd872ce6e456488361634eaec323f3e21a",
+      "baseline_receipt": "test-context-review.json#files:tests/component-path-diff-basis.tests.ps1",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "Added native POSIX git shim exit7 and sleeper, driving real Get-RepoFingerprint/Invoke-GitRaw already dot-sourced by baseline. Nonzero must be typed GitDiffError; stall must include deadline diagnostic, finish under40s and leave direct child absent. PID receipt is literal environment data. PATH restored in finally, live child stopped on failing assertion, Windows skip explicit. Existing mocked raw diff parser tests remain separately labeled."
+    },
+    {
+      "path": "tests/component-path-resolver.tests.ps1",
+      "before_sha256": "242596e5c3c03f708603e71dcb733e7a9ff69e333220f77b151db90bfa44188c",
+      "sha256": "1eee71dc0708e9cab67bc7e1bd020f7aa5e877daec2a57b3e7a7275f49d53486",
+      "diff_sha256": "20c9bfc773bfeca33ef74216c5dfbaf90737962129b0dda41a0e4469f7b2a987",
+      "baseline_receipt": "test-context-review.json#files:tests/component-path-resolver.tests.ps1",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "New scalar/container YAML counterexamples are literal fixture data passed through real Invoke-ResolverRaw subprocess; error requires nonzero and config diagnostic. A/a identities with lower-path provider binding assert absence of spurious Fail6 under successful parsed response. Temp root owned and finally removed. Reviewed wrapper argv single-quote escaping and stdout/stderr capture consumer context; no new runtime/lifecycle code in this delta."
+    },
+    {
+      "path": "tests/cross-model.tests.ps1",
+      "before_sha256": "380e2145a5b486107cc1a22518195ae3733b83de6d46cd837168d4eafbc732a0",
+      "sha256": "494e31fa5b0e534d0353f87387e203568388cfa44bbc8dbb2fe7766896a09637",
+      "diff_sha256": "c2c5bddbf92bfd280928ffb0cc58bab30272509989adb7fa4d1d198c6b83cc53",
+      "baseline_receipt": "test-context-review.json#files:tests/cross-model.tests.ps1",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "Changed literal Python worker records raw stdin as base64 and applies JSON-decoded test patch to serialized verdict. Environment values restored by Invoke-PanelistRunner finally. Seven malformed scalar variants drive actual runners and require exit1 plus no verdict publication. Exact four argv atoms and fixed prompt are checked separately from complete stdin bytes; expected instruction text comes from source AST while layout/transport boundary is independently constructed. Existing host-specific measured Unix newline is explicit. Cross-model gate invalid consent/findings/digest/root-array controls require exact exits; optional omitted findings remains positive. Stub output is not a real model claim."
+    },
+    {
+      "path": "tests/emit-run-record-feature-scope.tests.ps1",
+      "before_sha256": "5036eef87d73ab66769af206757911738bdd9f37d6ed597a795b55ba76992515",
+      "sha256": "659d2c90fe3f09107f34b77cd22e86528db523e0ab81f861b2eb4adab0005929",
+      "diff_sha256": "32f2df02a3ad4045d58ba0710e7a5d67e8a2854f70659e50c0ca8ca95f87cc6c",
+      "baseline_receipt": "test-context-review.json#files:tests/emit-run-record-feature-scope.tests.ps1",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "New fresh feat-case contains Done/done and bracket-literal report alongside wildcard-lookalike and uppercase-feature reports. Actual emitter runs in fixture cwd; parsed output must contain exactly1 done/1 report/0 blocked. Existing aggregate assertion failure and finally-owned cleanup retained. This is protocol/path handling, not arbitrary production report counting by test-name special case."
+    },
+    {
+      "path": "tests/emit-run-record-feature-scope.tests.sh",
+      "before_sha256": "c206f3d3e9f36e67c0a4f0bd8d394d862d206204cb6302f4137718723ff68f8e",
+      "sha256": "646e20a4ab42dd2c862658b0673dd5c86eab267bfe5683ff0ac4d5d641ece83a",
+      "diff_sha256": "a9e1d2a1344cbeaef64a1f005e0ab8987f5c920ca2b246166444533125129438",
+      "baseline_receipt": "test-context-review.json#files:tests/emit-run-record-feature-scope.tests.sh",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "Literal embedded Python receives script path by argv; missing option is bounded5s and requires diagnostic. Disposable spaced-path positive verifies independently expected metrics. Actual permission denial for task/report-directory/ticket executes child as unprivileged UID when root and bounds each run15s; failed runs cannot claim wrote or publish JSON. Modes restore in finally and temp directory owns cleanup. Windows explicitly skips permission semantics after missing-option check."
+    },
+    {
+      "path": "tests/hooks.tests.ps1",
+      "before_sha256": "be910b795998234346d02979521b6ea9ef32080a71d28d760c8168bb4e4296f1",
+      "sha256": "c20731c346d0c94b747b598e6529d5b10cf40f9b8f76681caaa39a750e5e81dc",
+      "diff_sha256": "8f95de3f2cb8128771569be2823067d7743e414546235557cf6159c00d7ff8ad",
+      "baseline_receipt": "test-context-review.json#files:tests/hooks.tests.ps1",
+      "evidence_kind": "baseline-plus-complete-delta-contextual-review",
+      "review": "Added signed-token issuer casing mutation restored before next scenario; actual Invoke-GuardPs must deny2. POSIX symlink substitution must deny2; signed token replay into case-distinct sibling tested only when distinct directory exists, otherwise explicit skip. Existing valid signed-token positive precedes mutations. Keys/epochs are fixture values and cleanup remains scoped to generated temp tree; no production user token modified."
+    }
+  ],
+  "validation": "Read-only contextual delta review; no source changes and no repeated execution claim. Existing execution receipts remain separate.",
+  "exclusions": [
+    "tests/evidence-generation-boundary.tests.ps1 owned by root active repair receipt",
+    "tests/prepare-panelist.tests.ps1 owned by checks CRLF repair receipt"
+  ]
+}

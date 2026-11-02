@@ -1,0 +1,24 @@
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+lowercase-blocker admitted
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one
+ok: PowerShell downstream prechecks fail closed and preserve graph semantics

@@ -14,13 +14,15 @@ function Get-Names($Object) {
   @($Object.PSObject.Properties | Select-Object -ExpandProperty Name)
 }
 function Assert-ExactNames($Object, [string[]]$Names, [string]$Label) {
+  if ($Object -isnot [pscustomobject]) { Fail JSON "invalid $Label object" }
   $actual = @((Get-Names $Object) | Sort-Object -CaseSensitive)
   $expected = @($Names | Sort-Object -CaseSensitive)
   if (($actual -join ',') -cne ($expected -join ',')) {
     Fail JSON "invalid $Label fields"
   }
 }
-function Get-SafeRepoFile([string]$RelativePath) {
+function Get-SafeRepoFile($RelativePath) {
+  if ($RelativePath -isnot [string]) { Fail PATH 'diagnosis path must be a string' }
   if ([string]::IsNullOrEmpty($RelativePath) -or
       [IO.Path]::IsPathRooted($RelativePath) -or $RelativePath.Contains('\')) {
     Fail PATH 'diagnosis path must be repository-relative'
@@ -58,7 +60,7 @@ function Get-SafeRepoFile([string]$RelativePath) {
 
 try {
   $data = Get-Content -Raw -LiteralPath $Evidence |
-    ConvertFrom-Json -DateKind String
+    ConvertFrom-Json -DateKind String -NoEnumerate
 } catch {
   Fail JSON $_.Exception.Message
 }
@@ -67,22 +69,22 @@ Assert-ExactNames $data @(
   'revised_task_contract_sha256','diagnosis_reference','human_reapproval',
   'blocked_state_reference'
 ) 'evidence'
-if ($data.schema -cne 'terminal-tier-resume/v1') { Fail JSON 'unsupported schema' }
-if ($data.task_id -isnot [string] -or $data.task_id -notmatch '^T-[0-9]{3}$') {
+if ($data.schema -isnot [string] -or $data.schema -cne 'terminal-tier-resume/v1') { Fail JSON 'unsupported schema' }
+if ($data.task_id -isnot [string] -or $data.task_id -cnotmatch '\AT-[0-9]{3}\z') {
   Fail TASK 'invalid task_id'
 }
 if ($data.task_id -cne $ExpectedTask) { Fail TASK 'task_id does not match expected task' }
 foreach ($field in @('blocked_task_contract_sha256','revised_task_contract_sha256')) {
-  if ($data.$field -isnot [string] -or $data.$field -notmatch '^[a-f0-9]{64}$') {
+  if ($data.$field -isnot [string] -or $data.$field -cnotmatch '\A[a-f0-9]{64}\z') {
     Fail HASH "invalid $field"
   }
 }
 Assert-ExactNames $data.blocked_state_reference @('path','sha256') 'blocked_state_reference'
 if ($data.blocked_state_reference.sha256 -isnot [string] -or
-    $data.blocked_state_reference.sha256 -notmatch '^[a-f0-9]{64}$') {
+    $data.blocked_state_reference.sha256 -cnotmatch '\A[a-f0-9]{64}\z') {
   Fail HASH 'invalid blocked state reference hash'
 }
-$blockedPath = Get-SafeRepoFile ([string]$data.blocked_state_reference.path)
+$blockedPath = Get-SafeRepoFile ($data.blocked_state_reference.path)
 if ([IO.Path]::GetFullPath($blockedPath) -cne [IO.Path]::GetFullPath($BlockedState)) {
   Fail PATH 'blocked state does not match trusted persisted input'
 }
@@ -92,7 +94,7 @@ if ($blockedHash -cne $data.blocked_state_reference.sha256) {
 }
 try {
   $blocked = Get-Content -Raw -LiteralPath $blockedPath |
-    ConvertFrom-Json -DateKind String
+    ConvertFrom-Json -DateKind String -NoEnumerate
 } catch {
   Fail JSON "invalid blocked state: $($_.Exception.Message)"
 }
@@ -100,16 +102,17 @@ Assert-ExactNames $blocked @(
   'schema','task_id','blocked_task_contract_sha256','tier','failure_class',
   'attempt_number','reason','blocked_at'
 ) 'blocked state'
-if ($blocked.schema -cne 'terminal-tier-blocked-state/v1') {
+if ($blocked.schema -isnot [string] -or $blocked.schema -cne 'terminal-tier-blocked-state/v1') {
   Fail JSON 'unsupported blocked state schema'
 }
-if ($blocked.task_id -cne $ExpectedTask) {
+if ($blocked.task_id -isnot [string] -or $blocked.task_id -cne $ExpectedTask) {
   Fail TASK 'blocked state task_id does not match expected task'
 }
-if ($blocked.blocked_task_contract_sha256 -cne $data.blocked_task_contract_sha256) {
+if ($blocked.blocked_task_contract_sha256 -isnot [string] -or $blocked.blocked_task_contract_sha256 -cne $data.blocked_task_contract_sha256) {
   Fail HASH 'blocked task contract hash does not match persisted blocked state'
 }
-if ($blocked.tier -cne 'strong' -or $blocked.reason -cne 'terminal-tier-recurrence') {
+if ($blocked.tier -isnot [string] -or $blocked.reason -isnot [string] -or
+    $blocked.tier -cne 'strong' -or $blocked.reason -cne 'terminal-tier-recurrence') {
   Fail CONTRACT 'blocked state is not a terminal-tier recurrence'
 }
 $validFailureClasses = @(
@@ -123,8 +126,8 @@ if ($blocked.attempt_number -isnot [long] -or $blocked.attempt_number -lt 2) {
   Fail CONTRACT 'invalid blocked state attempt number'
 }
 if ($blocked.blocked_at -isnot [string] -or
-    $blocked.blocked_at -notmatch
-      '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$') {
+    $blocked.blocked_at -cnotmatch
+      '\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\z') {
   Fail CONTRACT 'invalid blocked state timestamp'
 }
 if ($data.blocked_task_contract_sha256 -ceq $data.revised_task_contract_sha256) {
@@ -132,10 +135,10 @@ if ($data.blocked_task_contract_sha256 -ceq $data.revised_task_contract_sha256) 
 }
 Assert-ExactNames $data.diagnosis_reference @('path','sha256') 'diagnosis_reference'
 if ($data.diagnosis_reference.sha256 -isnot [string] -or
-    $data.diagnosis_reference.sha256 -notmatch '^[a-f0-9]{64}$') {
+    $data.diagnosis_reference.sha256 -cnotmatch '\A[a-f0-9]{64}\z') {
   Fail HASH 'invalid diagnosis reference hash'
 }
-$diagnosisPath = Get-SafeRepoFile ([string]$data.diagnosis_reference.path)
+$diagnosisPath = Get-SafeRepoFile ($data.diagnosis_reference.path)
 $diagnosisHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $diagnosisPath).Hash.ToLowerInvariant()
 if ($diagnosisHash -cne $data.diagnosis_reference.sha256) {
   Fail HASH 'diagnosis reference hash mismatch'
@@ -143,12 +146,12 @@ if ($diagnosisHash -cne $data.diagnosis_reference.sha256) {
 
 Assert-ExactNames $data.human_reapproval @('authority','timestamp') 'human_reapproval'
 if ($data.human_reapproval.authority -isnot [string] -or
-    $data.human_reapproval.authority -notmatch '^[A-Za-z0-9][A-Za-z0-9._:@ -]{1,127}$') {
+    $data.human_reapproval.authority -cnotmatch '\A[A-Za-z0-9][A-Za-z0-9._:@ -]{1,127}\z') {
   Fail APPROVAL 'invalid human reapproval authority'
 }
 $approvalTimestamp = if ($data.human_reapproval.timestamp -is [string] -and
-          $data.human_reapproval.timestamp -match
-          '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$') {
+          $data.human_reapproval.timestamp -cmatch
+          '\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\z') {
   $data.human_reapproval.timestamp
 } else {
   Fail APPROVAL 'invalid human reapproval timestamp'
@@ -167,10 +170,10 @@ $sectionHash = [Convert]::ToHexString(
 if ($sectionHash -cne $data.revised_task_contract_sha256) {
   Fail HASH 'revised task contract hash does not match the task section'
 }
-if ($section -notmatch '(?m)^Approval: Approved(?:\b| \()') {
+if ($section -cnotmatch '(?m)^Approval: Approved(?:\b| \()') {
   Fail APPROVAL 'task is not explicitly reapproved'
 }
-if ($section -notmatch '(?m)^Status: (?:Planned|In Progress)$') {
+if ($section -cnotmatch '(?m)^Status: (?:Planned|In Progress)$') {
   Fail APPROVAL 'reapproved task is not eligible to resume'
 }
 if (-not $section.Contains(

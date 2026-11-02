@@ -104,8 +104,8 @@ foreach ($task in $allTasks) {
     if ($s -ceq "Implementation Complete" -or $s -ceq "Done") {
         $hasImplReport = $false
         if (Test-Path -LiteralPath $ImplReportsDir) {
-            $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern "\b$task\b" -CaseSensitive -Quiet })
+            $hasImplReport = [bool](Get-ChildItem -LiteralPath $ImplReportsDir -File -Recurse |
+                Where-Object { Select-String -LiteralPath $_.FullName -Pattern "\b$task\b" -CaseSensitive -Quiet })
         }
         if (-not $hasImplReport) {
             $failures += "$task is '$s' but no implementation report in $ImplReportsDir mentions it"
@@ -116,10 +116,10 @@ foreach ($task in $allTasks) {
     if ($s -ceq "Done") {
         $qaFound = $false
         if (Test-Path -LiteralPath $ReportsDir) {
-            $candidates = Get-ChildItem $ReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern "\b$task\b" -CaseSensitive -Quiet }
+            $candidates = Get-ChildItem -LiteralPath $ReportsDir -File -Recurse |
+                Where-Object { Select-String -LiteralPath $_.FullName -Pattern "\b$task\b" -CaseSensitive -Quiet }
             foreach ($candidate in $candidates) {
-                $hasVerdict = Select-String -Path $candidate.FullName -Pattern "^VERDICT:\s*PASS\s*$" -CaseSensitive -Quiet
+                $hasVerdict = Select-String -LiteralPath $candidate.FullName -Pattern "^VERDICT:\s*PASS\s*$" -CaseSensitive -Quiet
                 if ($hasVerdict) { $qaFound = $true; break }
             }
         }

@@ -74,10 +74,10 @@ def shared_root(path, uid, gid):
                 'shared-acl-unsupported')
     descriptor = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
-        info = Path(f'/proc/self/fdinfo/{descriptor}').read_text()
+        info = Path(f'/proc/self/fdinfo/{descriptor}').read_text(encoding="utf-8")
         match = re.search(r'^mnt_id:\s+(\d+)$', info, re.MULTILINE)
         require(match is not None, 'shared-filesystem-unsupported')
-        mounts = [line.split() for line in Path('/proc/self/mountinfo').read_text().splitlines()
+        mounts = [line.split() for line in Path('/proc/self/mountinfo').read_text(encoding="utf-8").splitlines()
                   if line.split()[0] == match[1]]
     finally:
         os.close(descriptor)

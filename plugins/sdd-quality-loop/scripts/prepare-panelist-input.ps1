@@ -64,6 +64,7 @@
 # (test scaffolding only), signature check is skipped.
 param()
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
 
 # ── Parse GNU-style --flag value arguments ───────────────────────────────────
 $TaskId      = ""
@@ -75,10 +76,15 @@ $SpecRoot    = "specs"
 $ProjectRoot = ""
 $Effort      = ""
 $MaxBytes    = ""
+$MaxBytesSet = $false
 
 $argIdx = 0
 $passedArgs = $args
 while ($argIdx -lt $passedArgs.Count) {
+    if ($argIdx + 1 -ge $passedArgs.Count) {
+        [Console]::Error.WriteLine("prepare-panelist-input: missing option value: $($passedArgs[$argIdx])")
+        exit 2
+    }
     switch ($passedArgs[$argIdx]) {
         "--task"         { $TaskId      = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--feature"      { $Feature     = $passedArgs[$argIdx+1]; $argIdx += 2 }
@@ -88,12 +94,35 @@ while ($argIdx -lt $passedArgs.Count) {
         "--spec-root"    { $SpecRoot    = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--project-root" { $ProjectRoot = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--effort"       { $Effort      = $passedArgs[$argIdx+1]; $argIdx += 2 }
-        "--max-bytes"    { $MaxBytes    = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--max-bytes"    { $MaxBytes    = $passedArgs[$argIdx+1]; $MaxBytesSet = $true; $argIdx += 2 }
         default {
             [Console]::Error.WriteLine("prepare-panelist-input: unknown argument: $($passedArgs[$argIdx])")
             exit 2
         }
     }
+}
+
+# --max-bytes, when supplied, must be an ASCII decimal integer in 0..2^63-1
+# (leading zeros allowed). In-process callers may pass an integral numeric.
+if ($MaxBytesSet) {
+    $maxText = $null
+    if ($MaxBytes -is [string]) { $maxText = $MaxBytes }
+    elseif ($MaxBytes -is [int] -or $MaxBytes -is [long] -or $MaxBytes -is [uint32] -or $MaxBytes -is [uint64] -or
+            $MaxBytes -is [int16] -or $MaxBytes -is [uint16] -or $MaxBytes -is [byte] -or $MaxBytes -is [sbyte]) {
+        $maxText = $MaxBytes.ToString([Globalization.CultureInfo]::InvariantCulture)
+    }
+    # \z (not $) so a trailing newline is not tolerated.
+    if ($null -eq $maxText -or -not [regex]::IsMatch($maxText, '\A[0-9]+\z')) {
+        [Console]::Error.WriteLine("prepare-panelist-input: --max-bytes must be a nonnegative decimal integer")
+        exit 2
+    }
+    $maxText = $maxText.TrimStart('0')
+    if ($maxText.Length -eq 0) { $maxText = '0' }
+    if ($maxText.Length -gt 19 -or ($maxText.Length -eq 19 -and [string]::CompareOrdinal($maxText, '9223372036854775807') -gt 0)) {
+        [Console]::Error.WriteLine("prepare-panelist-input: --max-bytes exceeds 9223372036854775807")
+        exit 2
+    }
+    $MaxBytes = $maxText
 }
 
 # ── Validate required arguments ──────────────────────────────────────────────
@@ -115,7 +144,7 @@ if (-not $InputPath) {
 if (-not $ProjectRoot) {
     $dir = (Get-Location).Path
     while ($dir -and $dir -ne (Split-Path $dir -Parent)) {
-        if ((Test-Path (Join-Path $dir "AGENTS.md")) -or (Test-Path (Join-Path $dir ".git"))) {
+        if ((Test-Path -LiteralPath (Join-Path $dir "AGENTS.md")) -or (Test-Path -LiteralPath (Join-Path $dir ".git"))) {
             $ProjectRoot = $dir
             break
         }
@@ -139,15 +168,15 @@ if (-not $OutPath) {
 $ConsentKind = ""
 
 # Check (a): tasks.md has "Cross-Model: enabled" in the task section
-if (Test-Path $TasksFile) {
+if (Test-Path -LiteralPath $TasksFile) {
     $inSection = $false
-    foreach ($line in (Get-Content -Encoding Utf8 $TasksFile)) {
+    foreach ($line in (Get-Content -Encoding Utf8 -LiteralPath $TasksFile)) {
         $line = $line.TrimEnd("`r")
-        if ($line -match "^## $([regex]::Escape($TaskId))(\s|$)") {
+        if ($line -cmatch "^## $([regex]::Escape($TaskId))(\s|$)") {
             $inSection = $true
         } elseif ($line -match "^## " -and $inSection) {
             break
-        } elseif ($inSection -and $line -eq "Cross-Model: enabled") {
+        } elseif ($inSection -and $line -ceq "Cross-Model: enabled") {
             $ConsentKind = "human-flag"
             break
         }
@@ -159,7 +188,7 @@ if (-not $ConsentKind) {
     $sudoFile = Join-Path $ProjectRoot "SDD_SUDO"
     if ((Test-Path -LiteralPath $sudoFile) -and (-not (Get-Item -LiteralPath $sudoFile).LinkType)) {
         $fields = @{}
-        foreach ($line in (Get-Content -Encoding Utf8 $sudoFile)) {
+        foreach ($line in (Get-Content -Encoding Utf8 -LiteralPath $sudoFile)) {
             $line = $line.TrimEnd("`r")
             if ($line -match "^([a-z\-]+): (.+)$") {
                 $fields[$Matches[1]] = $Matches[2].Trim()
@@ -181,8 +210,8 @@ if (-not $ConsentKind) {
             $timeOk  = ($issued -le $now) -and ($now -lt $expires) -and (($expires - $issued) -le $maxTtl)
 
             # Repo binding: repo field equals realpath of directory containing SDD_SUDO
-            $expectedRepo = (Resolve-Path (Split-Path -Parent $sudoFile)).Path
-            $repoOk = ($fields["repo"] -eq $expectedRepo)
+            $expectedRepo = (Resolve-Path -LiteralPath (Split-Path -Parent $sudoFile)).Path
+            $repoOk = ($fields["repo"] -ceq $expectedRepo)
 
             # HMAC signature verification
             $sigOk = $false
@@ -291,7 +320,7 @@ if (-not $ConsentKind) {
 # Invoke-DeclaredOutputsCompletenessCheck) even though real callers now get
 # task-scoped content regardless of what --input points to.
 
-if (-not (Test-Path $InputPath)) {
+if (-not (Test-Path -LiteralPath $InputPath)) {
     [Console]::Error.WriteLine("prepare-panelist-input: input not found: $InputPath")
     exit 1
 }
@@ -495,7 +524,7 @@ function Add-PpiFileContent {
 
 $rawContent = ""
 
-if ((Get-Item $InputPath).PSIsContainer) {
+if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
     $specDir = Join-Path $ProjectRoot (Join-Path $SpecRoot $Feature)
 
     # 1. Spec documents (fixed order; only those that exist).
@@ -550,7 +579,7 @@ if ((Get-Item $InputPath).PSIsContainer) {
         $panelArtifacts = @('*.panelist-input.txt', '*.verdict.json', '*.cross-model.json')
         $taskVerifFull = (Resolve-Path -LiteralPath $taskVerifDir).Path.TrimEnd('/', '\')
         foreach ($f in (Get-ChildItem -LiteralPath $taskVerifDir -File -Recurse -Exclude $panelArtifacts |
-                Sort-Object FullName)) {
+                Where-Object { -not $_.LinkType } | Sort-Object FullName)) {
             $subPath = $f.FullName.Substring($taskVerifFull.Length + 1) -replace '\\', '/'
             $tfRel = "$SpecRoot/$Feature/verification/$TaskId/$subPath"
             $tfBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $f.FullName))
@@ -616,7 +645,7 @@ if ((Get-Item $InputPath).PSIsContainer) {
     $script:PpiContentSuffix = $rawContent
     $rawContent = ""
 } else {
-    $script:PpiContentPrefix = Get-Content -Raw -Encoding Utf8 $InputPath
+    $script:PpiContentPrefix = Get-Content -Raw -Encoding Utf8 -LiteralPath $InputPath
     $script:PpiContentSuffix = ""
     $script:PpiElidableIndex = @()
 }
@@ -820,8 +849,8 @@ function Get-PpiDeclarationCommit {
     $script:PpiDeclCommit = $null
 
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $null }
-    & git -C $ProjectRoot rev-parse --is-inside-work-tree *> $null
-    if ($LASTEXITCODE -ne 0) { return $null }
+    $inside = Invoke-SddGitRaw -RepoRoot $ProjectRoot -GitArgs @('rev-parse', '--is-inside-work-tree')
+    if ($inside.ExitCode -ne 0) { return $null }
 
     $reportRelPath = "reports/implementation/$Feature/$TaskId.md"
     $reportAbsPath = Join-Path $ProjectRoot (Join-Path "reports" (Join-Path "implementation" (Join-Path $Feature "$TaskId.md")))
@@ -851,11 +880,14 @@ function Get-PpiDeclarationCommit {
     $anchor = $null
     if (Test-Path -LiteralPath $reportAbsPath) {
         $currentFp = Get-PpiOutputsFingerprint -Lines (Get-Content -Encoding Utf8 -LiteralPath $reportAbsPath)
-        foreach ($commit in @(& git -C $ProjectRoot log --format='%H' -- $reportRelPath 2>$null)) {
+        $history = Invoke-SddGitRaw -RepoRoot $ProjectRoot -GitArgs @('log', '--format=%H', '--', $reportRelPath)
+        if ($history.ExitCode -ne 0) { return $null }
+        foreach ($commit in ([Text.Encoding]::UTF8.GetString($history.Stdout) -split "`r?`n")) {
             $commitId = ([string]$commit).Trim()
             if (-not $commitId) { continue }
-            $blob = @(& git -C $ProjectRoot show "${commitId}:${reportRelPath}" 2>$null)
-            if ($LASTEXITCODE -ne 0) { break }
+            $historical = Invoke-SddGitRaw -RepoRoot $ProjectRoot -GitArgs @('show', "${commitId}:${reportRelPath}")
+            if ($historical.ExitCode -ne 0) { break }
+            $blob = [Text.Encoding]::UTF8.GetString($historical.Stdout) -split "`r?`n"
             if ((Get-PpiOutputsFingerprint -Lines $blob) -ne $currentFp) { break }
             $anchor = $commitId
         }
@@ -866,8 +898,8 @@ function Get-PpiDeclarationCommit {
     # fallback entirely. A wrong anchor still cannot admit anything -- the row
     # is re-hashed against that commit's tree either way.
     if (-not $anchor) {
-        $fallback = & git -C $ProjectRoot log -1 --format='%H' -- $reportRelPath 2>$null
-        if ($LASTEXITCODE -eq 0 -and $fallback) { $anchor = ([string]$fallback).Trim() }
+        $fallback = Invoke-SddGitRaw -RepoRoot $ProjectRoot -GitArgs @('log', '-1', '--format=%H', '--', $reportRelPath)
+        if ($fallback.ExitCode -eq 0) { $anchor = [Text.Encoding]::ASCII.GetString($fallback.Stdout).Trim() }
     }
     if (-not $anchor) { return $null }
 
@@ -892,19 +924,13 @@ function Test-DeclaredOutputAtDeclarationCommit {
     $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
     if (-not $commit) { return $false }
 
-    # Redirect the blob straight to a temp file and hash the file so the
-    # comparison is byte-exact -- capturing external-command stdout through
-    # the PowerShell pipeline can alter encoding or line endings, which
-    # would corrupt the sha256 (same reasoning as check-workflow-state.ps1's
-    # Get-PluginsHashAtPin).
-    $tempFile = [IO.Path]::GetTempFileName()
+    # Hash raw stdout bytes; text pipelines can alter historical blob encoding.
+    $blob = Invoke-SddGitRaw -RepoRoot $ProjectRoot -GitArgs @('show', "${commit}:${RowPath}")
+    if ($blob.ExitCode -ne 0) { return $false }
+    $sha = [Security.Cryptography.SHA256]::Create()
     try {
-        & git -C $ProjectRoot show "${commit}:${RowPath}" > $tempFile 2>$null
-        if ($LASTEXITCODE -ne 0) { return $false }
-        $actualHash = (Get-FileHash -LiteralPath $tempFile -Algorithm SHA256).Hash.ToLower()
-    } finally {
-        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
-    }
+        $actualHash = ([BitConverter]::ToString($sha.ComputeHash($blob.Stdout)) -replace '-', '').ToLowerInvariant()
+    } finally { $sha.Dispose() }
     if ($actualHash -ne $RowHash) { return $false }
 
     $shortCommit = $commit.Substring(0, [Math]::Min(7, $commit.Length))
@@ -1033,7 +1059,7 @@ function Invoke-DeclaredOutputsCompletenessCheck {
     if (-not (Test-Path -LiteralPath $implReportPath)) { return }
 
     $gaps = New-Object System.Collections.Generic.List[string]
-    foreach ($record in @(Get-PpiDeclaredOutputRows -Lines (Get-Content -Encoding Utf8 $implReportPath))) {
+    foreach ($record in @(Get-PpiDeclaredOutputRows -Lines (Get-Content -Encoding Utf8 -LiteralPath $implReportPath))) {
         $fields = $record -split "`t", 3
         if ($fields[0] -eq "UNPARSEABLE") {
             $gaps.Add("declared output row could not be parsed: " + $fields[1])
@@ -1196,6 +1222,12 @@ $($script:PpiSanitizedContent)
 "@
 }
 
+# Match Set-Content Utf8 -NoNewline plus Add-Content's final host newline.
+function Get-PpiBundleByteCount([string]$Bundle) {
+    $preambleBytes = if ($PSVersionTable.PSVersion.Major -lt 6) { 3 } else { 0 }
+    return [System.Text.Encoding]::UTF8.GetByteCount($Bundle + [Environment]::NewLine) + $preambleBytes
+}
+
 # ── Size guard (fail-closed, --max-bytes only) -- two-tier budget-driven
 # elision ─────────────────────────────────────────────────────────────────
 # Compose the bundle whole (empty elide-sets, both tiers) and measure it --
@@ -1210,12 +1242,12 @@ $declaredElideSet = @()
 $script:PpiDeclaredContent = Build-PpiDeclaredContent -ElideSet $declaredElideSet
 Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
 $bundle = Get-PpiBundlePreview
-$bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+$bundleBytes = Get-PpiBundleByteCount $bundle
 
 $elidedCount = 0
 $declaredElidedCount = 0
-if ($MaxBytes) {
-    $maxBytesInt = [long]$MaxBytes
+if ($MaxBytesSet) {
+    $maxBytesInt = [long]::Parse($MaxBytes, [Globalization.CultureInfo]::InvariantCulture)
 
     if ($bundleBytes -gt $maxBytesInt) {
         # Tier one: the task's own verification/<task_id>/ evidence plus
@@ -1229,7 +1261,7 @@ if ($MaxBytes) {
             $step3Content = Build-PpiStep3Content -ElideSet $elideSet
             Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
             $bundle = Get-PpiBundlePreview
-            $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+            $bundleBytes = Get-PpiBundleByteCount $bundle
             if ($bundleBytes -le $maxBytesInt) { break }
         }
 
@@ -1250,7 +1282,7 @@ if ($MaxBytes) {
                 $script:PpiDeclaredContent = Build-PpiDeclaredContent -ElideSet $declaredElideSet
                 Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
                 $bundle = Get-PpiBundlePreview
-                $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+                $bundleBytes = Get-PpiBundleByteCount $bundle
                 if ($bundleBytes -le $maxBytesInt) { break }
             }
         }
@@ -1281,12 +1313,12 @@ $inputDigest = $script:PpiSanitizedDigest
 # ── Write output bundle ──────────────────────────────────────────────────────
 
 $outDir = Split-Path -Parent $OutPath
-if (-not (Test-Path $outDir)) {
+if (-not (Test-Path -LiteralPath $outDir)) {
     New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 }
 
-Set-Content -Encoding Utf8 -Path $OutPath -Value $bundle -NoNewline
-Add-Content -Encoding Utf8 -Path $OutPath -Value ""
+Set-Content -Encoding Utf8 -LiteralPath $OutPath -Value $bundle -NoNewline
+Add-Content -Encoding Utf8 -LiteralPath $OutPath -Value ""
 
 # ── Emit digest (and threaded effort, if supplied) to stdout ────────────────
 # AC-036: --effort is threaded through verbatim on a second stdout line, so

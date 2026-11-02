@@ -36888,7 +36888,7 @@ function buildServer() {
   return server;
 }
 
-// src/diagnostics.ts
+// src/diagnostics-core.ts
 import os2 from "node:os";
 var REDACTED = "[redacted]";
 var MIN_SECRET_LEN = 4;
@@ -36919,7 +36919,7 @@ function collectSecrets() {
 function escapeRegExp(literal2) {
   return literal2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function scrubMessage(message) {
+function scrubKnownSecrets(message) {
   let scrubbed = message;
   for (const secret of collectSecrets()) {
     if (scrubbed.includes(secret)) {
@@ -36928,6 +36928,8 @@ function scrubMessage(message) {
   }
   return scrubbed;
 }
+
+// src/diagnostics.ts
 function logStartup(info, sink = defaultSink) {
   const line = {
     event: "startup",
@@ -36943,7 +36945,7 @@ function logFatal(error62, sink = defaultSink) {
   const line = {
     event: "fatal",
     code: "cannot-determine",
-    message: scrubMessage(rawMessage)
+    message: scrubKnownSecrets(rawMessage)
   };
   sink(`${JSON.stringify(line)}
 `);

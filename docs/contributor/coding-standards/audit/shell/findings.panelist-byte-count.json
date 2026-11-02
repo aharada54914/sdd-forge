@@ -1,0 +1,65 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "ROOT-009",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 560,
+      "source_sha256": "13f5471e18587214241b0986aa184bfd171f6cb7ecd0c1dcc53939dd0b161e83",
+      "flow": {
+        "input": "BSD wc byte-count stdout",
+        "transformation": "raw padded count is interpolated as the original-size field",
+        "sink": "panelist bundle elision marker"
+      },
+      "impact": "BSD wc leading whitespace changes the public exact elision marker despite correct byte arithmetic.",
+      "reproduction": "reports/verification/panelist-byte-count-20261102/results.json",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/panelist-byte-count-20261102/context-delta.json",
+        "reports/verification/panelist-byte-count-20261102/results.json",
+        {
+          "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+          "sha256": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+          "sha256": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609"
+        }
+      ],
+      "resolution": "Shared checked count normalizes native whitespace and validates decimal output before marker serialization; exact marker oracle remains unchanged.",
+      "reuse": "Shared private checked-count mechanism; no new config or public API."
+    },
+    {
+      "finding_id": "ROOT-010",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 1439,
+      "source_sha256": "13f5471e18587214241b0986aa184bfd171f6cb7ecd0c1dcc53939dd0b161e83",
+      "flow": {
+        "input": "native count status and bundle preview",
+        "transformation": "unchecked Bash wc/filter status produces empty count; Bash preview loses trailing LF; PowerShell preview omits writer newline/BOM",
+        "sink": "max-bytes admission before output publication"
+      },
+      "impact": "Failed/malformed Bash counts bypass --max-bytes and both twins undercount final emitted serialization bytes, allowing oversized bundles.",
+      "reproduction": "reports/verification/panelist-byte-count-20261102/results.json",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/panelist-byte-count-20261102/context-delta.json",
+        "reports/verification/panelist-byte-count-20261102/results.json",
+        {
+          "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+          "sha256": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+          "sha256": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609"
+        }
+      ],
+      "resolution": "Every Bash admission count now checks status and numeric shape; measurement streams actual final header/content bytes. PowerShell counts unchanged writer host newline and Desktop UTF8 preamble at all three measurement sites. Both twins reject cap-minus1 and accept exact actual file length for populated/empty inputs.",
+      "reuse": "Shared private checked-count mechanism; no new config or public API."
+    }
+  ]
+}

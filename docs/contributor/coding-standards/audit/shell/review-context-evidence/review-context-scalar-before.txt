@@ -1,0 +1,21 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+control bash=0 powershell=0
+schema bash=1 powershell=0
+REVIEW_CONTEXT_CONTRACT: required fields, file-manifest input, read-only mode, or no-fallback contract is invalid
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes
+input_mode bash=1 powershell=0
+REVIEW_CONTEXT_CONTRACT: required fields, file-manifest input, read-only mode, or no-fallback contract is invalid
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes
+fallback_mode bash=1 powershell=0
+REVIEW_CONTEXT_CONTRACT: required fields, file-manifest input, read-only mode, or no-fallback contract is invalid
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes
+identity_ledger_path bash=1 powershell=0
+REVIEW_CONTEXT_CONTRACT: required fields, file-manifest input, read-only mode, or no-fallback contract is invalid
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes
+stage bash=1 powershell=0
+REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes
+role bash=1 powershell=0
+REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes

@@ -1,0 +1,17 @@
+ok: native adapter preserves argv, byte streams and nonzero status
+ok: native adapter enforces its process deadline
+ok: native adapter reaps its timed-out child
+ok: fixture repository initialized
+ok: generator preserves literal ordinary repository/report/output paths
+ok: generator records all ordinary artifacts
+ok: evidence consumer accepts the generated literal-path bundle: Verification contract passed for task T-001. WARNING: evidence bundle for task T-001 was generated with a dirty working tree Evidence bundle passed for task T-001.
+ok: generator preserves ordinary hardlinked artifacts
+ok: evidence consumer accepts ordinary hardlinked artifacts
+ok: generator rejects evidence linked outside repository
+ok: generator preserves in-repository evidence links
+Exception: /workspace/scratch/standards-685/python/plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1:19
+Line |
+  19 |  …             throw "cyclic or excessive evidence link traversal: $curr …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | cyclic or excessive evidence link traversal: /tmp/evidence boundary
+     | e971608a-377a-4144-ac97-1ecc10b40b93/ordinary/link-fixture/alias

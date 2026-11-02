@@ -153,7 +153,7 @@ async function callDeepVerify(
     name: "evidence_deep_verify",
     arguments: { feature: fx.feature, taskId: fx.taskId },
   });
-  return { envelope: parseEnvelope(result as never), cleanup: fixture.cleanup };
+  return { envelope: parseEnvelope(result), cleanup: fixture.cleanup };
 }
 
 /** Applies the same multi-dimension tamper the fail-verdict fixture uses. */
@@ -177,7 +177,7 @@ test("AC-015: a passing evidence_deep_verify response conforms to the v1 contrac
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: fx.taskId },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
 
     assert.equal((envelope as { ok: boolean }).ok, true);
     assert.equal((envelope as { data: { verdict: string } }).data.verdict, "pass");
@@ -217,7 +217,7 @@ test("AC-015: a failing evidence_deep_verify response (mixed statuses) conforms 
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: fx.taskId },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
 
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (envelope as {
@@ -248,7 +248,7 @@ test("AC-015: an invalid-input error envelope conforms to the v1 contract (ajv)"
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: "not-a-task-id" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
 
     assertConforms(envelope, "invalid-input error envelope");
     assert.equal((envelope as { ok: boolean }).ok, false);
@@ -267,7 +267,7 @@ test("AC-015: a not-found error envelope conforms to the v1 contract (ajv)", asy
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: "T-999" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
 
     assertConforms(envelope, "not-found error envelope");
     assert.equal((envelope as { ok: boolean }).ok, false);
@@ -287,7 +287,7 @@ test("AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv)", 
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: fx.taskId },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
 
     assertConforms(envelope, "cannot-parse error envelope");
     assert.equal((envelope as { ok: boolean }).ok, false);
@@ -548,7 +548,7 @@ test("AC-015 additivity: the existing five evidence tool responses still conform
     ];
     for (const call of calls) {
       const result = await fixture.client.callTool(call);
-      const envelope = parseEnvelope(result as never);
+      const envelope = parseEnvelope(result);
       assert.equal((envelope as { ok: boolean }).ok, true, `${call.name} did not return an ok envelope`);
       assertConforms(envelope, `${call.name} ok envelope`);
     }

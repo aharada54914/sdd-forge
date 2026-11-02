@@ -1,0 +1,143 @@
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel → exit 1 (diversity fail)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel → exit 0 (diversity satisfied)
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel → pass (non_anthropic≥1, distinct≥2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS, no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel PASS → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches all → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+=== T-001: POSIX panelist runner timeout contract ===
+ok: TEST-003 gpt/unset: valid timeout invokes CLI
+ok: TEST-003 gpt/empty: valid timeout invokes CLI
+ok: TEST-003 gpt/explicit-default: valid timeout invokes CLI
+ok: TEST-003 gpt/one: valid timeout invokes CLI
+ok: TEST-003 gpt/0: exit 2 without CLI invocation
+ok: TEST-003 gpt/-5: exit 2 without CLI invocation
+ok: TEST-003 gpt/abc: exit 2 without CLI invocation
+ok: TEST-003 gemini/unset: valid timeout invokes CLI
+ok: TEST-003 gemini/empty: valid timeout invokes CLI
+ok: TEST-003 gemini/explicit-default: valid timeout invokes CLI
+ok: TEST-003 gemini/one: valid timeout invokes CLI
+ok: TEST-003 gemini/0: exit 2 without CLI invocation
+ok: TEST-003 gemini/-5: exit 2 without CLI invocation
+ok: TEST-003 gemini/abc: exit 2 without CLI invocation
+ok: TEST-012: POSIX timeout defaults are derived from source and match (600s)
+measurement: TEST-004(a) runner=gpt elapsed_ms=5047 deadline_ms=1000 margin_ms=10000 stub_pid=1307367 stub_alive=0 child_pid=1307368 child_alive=0
+ok: TEST-004(a) gpt: deadline enforced and process group is dead
+ok: TEST-005 gpt/a: timeout exits 1 with no verdict JSON
+measurement: TEST-004(b) runner=gpt elapsed_ms=5049 deadline_ms=1000 margin_ms=10000 stub_pid=1308534 stub_alive=0 child_pid=1308535 child_alive=0
+ok: TEST-004(b) gpt: deadline enforced and process group is dead
+ok: TEST-005 gpt/b: timeout exits 1 with no verdict JSON
+measurement: TEST-004(a) runner=gemini elapsed_ms=5060 deadline_ms=1000 margin_ms=10000 stub_pid=1309834 stub_alive=0 child_pid=1309835 child_alive=0
+ok: TEST-004(a) gemini: deadline enforced and process group is dead
+ok: TEST-005 gemini/a: timeout exits 1 with no verdict JSON
+measurement: TEST-004(b) runner=gemini elapsed_ms=5096 deadline_ms=1000 margin_ms=10000 stub_pid=1315552 stub_alive=0 child_pid=1315554 child_alive=0
+ok: TEST-004(b) gemini: deadline enforced and process group is dead
+ok: TEST-005 gemini/b: timeout exits 1 with no verdict JSON
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=4173 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gpt mode=normal deadline_epoch_ms=1793514817000 stub_start=1793514812518 wait_end=1793514815000 output_end=1793514815543 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gpt/1: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=3087 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gpt mode=normal deadline_epoch_ms=1793514821000 stub_start=1793514816832 wait_end=1793514819000 output_end=1793514819516 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gpt/2: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=3056 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gpt mode=normal deadline_epoch_ms=1793514824000 stub_start=1793514819908 wait_end=1793514822000 output_end=1793514822514 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gpt/3: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=3069 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gpt mode=normal deadline_epoch_ms=1793514827000 stub_start=1793514823011 wait_end=1793514825000 output_end=1793514825515 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gpt/4: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=4066 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gpt mode=normal deadline_epoch_ms=1793514831000 stub_start=1793514826129 wait_end=1793514829001 output_end=1793514829515 observed_slack_ms=1999 expiry_observed=0
+ok: TEST-004(c) gpt/5: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=4059 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gemini mode=normal deadline_epoch_ms=1793514835000 stub_start=1793514830218 wait_end=1793514833000 output_end=1793514833515 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gemini/1: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=4055 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gemini mode=normal deadline_epoch_ms=1793514839000 stub_start=1793514834315 wait_end=1793514837000 output_end=1793514837516 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gemini/2: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=4062 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gemini mode=normal deadline_epoch_ms=1793514843000 stub_start=1793514838411 wait_end=1793514841000 output_end=1793514841518 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gemini/3: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=4089 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gemini mode=normal deadline_epoch_ms=1793514847000 stub_start=1793514842528 wait_end=1793514845000 output_end=1793514845531 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gemini/4: normal completion with delayed output stays successful
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=3075 budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=0 verdict=present
+measurement: completion runner=gemini mode=normal deadline_epoch_ms=1793514851000 stub_start=1793514846647 wait_end=1793514849000 output_end=1793514849520 observed_slack_ms=2000 expiry_observed=0
+ok: TEST-004(c) gemini/5: normal completion with delayed output stays successful
+measurement: completion runner=gpt mode=slow-start deadline_epoch_ms=1793514854000 stub_start=1793514852749 wait_end=1793514852750 output_end=1793514853264 observed_slack_ms=1250 expiry_observed=0
+ok: TEST-004(c-startup) gpt: slow startup still completes before expiry
+measurement: completion runner=gemini mode=slow-start deadline_epoch_ms=1793514858000 stub_start=1793514856820 wait_end=1793514856820 output_end=1793514857335 observed_slack_ms=1180 expiry_observed=0
+ok: TEST-004(c-startup) gemini: slow startup still completes before expiry
+measurement: TEST-004(c2) runner=gpt iteration=1 elapsed_ms=4581 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gpt mode=recheck deadline_epoch_ms=1793514860000 stub_start=1793514857911 wait_end=1793514860894 output_end=1793514861409 observed_slack_ms=-894 expiry_observed=1
+ok: TEST-004(c2) gpt/1: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gpt iteration=2 elapsed_ms=4623 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gpt mode=recheck deadline_epoch_ms=1793514865000 stub_start=1793514862541 wait_end=1793514865527 output_end=1793514866061 observed_slack_ms=-527 expiry_observed=1
+ok: TEST-004(c2) gpt/2: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gpt iteration=3 elapsed_ms=4601 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gpt mode=recheck deadline_epoch_ms=1793514870000 stub_start=1793514867192 wait_end=1793514870177 output_end=1793514870692 observed_slack_ms=-177 expiry_observed=1
+ok: TEST-004(c2) gpt/3: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gpt iteration=4 elapsed_ms=4594 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gpt mode=recheck deadline_epoch_ms=1793514874000 stub_start=1793514871825 wait_end=1793514874809 output_end=1793514875325 observed_slack_ms=-809 expiry_observed=1
+ok: TEST-004(c2) gpt/4: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gpt iteration=5 elapsed_ms=4605 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gpt mode=recheck deadline_epoch_ms=1793514879000 stub_start=1793514876458 wait_end=1793514879450 output_end=1793514879971 observed_slack_ms=-450 expiry_observed=1
+ok: TEST-004(c2) gpt/5: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gemini iteration=1 elapsed_ms=4595 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gemini mode=recheck deadline_epoch_ms=1793514884000 stub_start=1793514881088 wait_end=1793514884076 output_end=1793514884596 observed_slack_ms=-76 expiry_observed=1
+ok: TEST-004(c2) gemini/1: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gemini iteration=2 elapsed_ms=4590 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gemini mode=recheck deadline_epoch_ms=1793514888000 stub_start=1793514885724 wait_end=1793514888708 output_end=1793514889223 observed_slack_ms=-708 expiry_observed=1
+ok: TEST-004(c2) gemini/2: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gemini iteration=3 elapsed_ms=4602 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gemini mode=recheck deadline_epoch_ms=1793514893000 stub_start=1793514890370 wait_end=1793514893347 output_end=1793514893864 observed_slack_ms=-347 expiry_observed=1
+ok: TEST-004(c2) gemini/3: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gemini iteration=4 elapsed_ms=4617 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gemini mode=recheck deadline_epoch_ms=1793514897000 stub_start=1793514894990 wait_end=1793514897981 output_end=1793514898506 observed_slack_ms=-981 expiry_observed=1
+ok: TEST-004(c2) gemini/4: post-deadline re-check rescues a completing child
+measurement: TEST-004(c2) runner=gemini iteration=5 elapsed_ms=4605 deadline_ms=2000 exit=0 verdict=present
+measurement: completion runner=gemini mode=recheck deadline_epoch_ms=1793514902000 stub_start=1793514899642 wait_end=1793514902634 output_end=1793514903154 observed_slack_ms=-634 expiry_observed=1
+ok: TEST-004(c2) gemini/5: post-deadline re-check rescues a completing child
+ok: TEST-004(c2) gpt/nonzero: completed child remains failed with no verdict
+ok: TEST-004(c2) gpt/incomplete: completed child remains failed with no verdict
+ok: TEST-004(c2) gemini/nonzero: completed child remains failed with no verdict
+ok: TEST-004(c2) gemini/incomplete: completed child remains failed with no verdict
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+=== TEST-001/002: panelist failure taxonomy ===
+ok: TEST-001: CLI absent states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+ok: TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+ok: model argv is literal with and without effort; native failure is preserved
+ok: cross-model CLI values remain data and missing values fail with tool-error exit
+.
+----------------------------------------------------------------------
+Ran 1 test in 6.345s
+
+OK
+ok: process liveness distinguishes running, terminated, and reaped children
+
+Results: 83 passed, 0 failed

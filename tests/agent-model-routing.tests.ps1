@@ -738,6 +738,30 @@ Required Workflow: test-after
         Fail 'TEST-053 -RequestedEffort under welded did not apply the requested value'
     }
 
+    foreach ($shape in @('registry-root','schema','model-name','default-effort','control','candidate-name','candidate-effort')) {
+        $shapeRegistry = Get-Content -Raw -LiteralPath $v2RegistryPath | ConvertFrom-Json
+        $shapeCandidates = Get-Content -Raw -LiteralPath $v2GoldenCandidatesPath | ConvertFrom-Json -NoEnumerate
+        switch ($shape) {
+            'schema' { $shapeRegistry.schema = @($shapeRegistry.schema) }
+            'model-name' { $shapeRegistry.models[0].name = @($shapeRegistry.models[0].name) }
+            'default-effort' { $shapeRegistry.models[0].default_effort = @($shapeRegistry.models[0].default_effort) }
+            'control' { $shapeRegistry.models[0].effort_control.'claude-code' = @($shapeRegistry.models[0].effort_control.'claude-code') }
+            'candidate-name' { $shapeCandidates[0].name = @($shapeCandidates[0].name) }
+            'candidate-effort' { $shapeCandidates[0].effort = @($shapeCandidates[0].effort) }
+        }
+        $shapeRegistryJson = $shapeRegistry | ConvertTo-Json -Depth 12
+        if ($shape -ceq 'registry-root') { $shapeRegistryJson = "[$shapeRegistryJson]" }
+        $shapeRegistryPath = Join-Path $tmp 'shape-registry.json'
+        $shapeCandidatesPath = Join-Path $tmp 'shape-candidates.json'
+        [IO.File]::WriteAllText($shapeRegistryPath, $shapeRegistryJson)
+        [IO.File]::WriteAllText($shapeCandidatesPath, (ConvertTo-Json -InputObject $shapeCandidates -Depth 12))
+        $shapeRejected = $false
+        try { & $SelectorPs -Risk low -Registry $shapeRegistryPath -CandidatesFile $shapeCandidatesPath -Json | Out-Null }
+        catch { $shapeRejected = $_.Exception.Message -cmatch '^MODEL_SELECTION_ERROR:' }
+        if (-not $shapeRejected) { Fail "selector accepted non-scalar $shape" }
+        Write-Host "ok: selector rejects non-scalar $shape"
+    }
+
     # TEST-054 (AC-054): each malformed v2 field category is rejected
     # fail-closed with a MODEL_SELECTION_ERROR-class diagnostic and no
     # candidate selected.
@@ -904,6 +928,51 @@ Terminal Reapproval: release-owner @ 2026-06-30T03:00:00Z
     } catch {
         Fail "PowerShell terminal-resume validator rejected complete human evidence: $($_.Exception.Message)"
     }
+
+    # Preserve the native JSON root and every consumed scalar before comparisons.
+    $resumeBoundaryPath = Join-Path $tmp 'resume-boundary.json'
+    $blockedOriginal = Get-Content -Raw -LiteralPath $blockedStatePath
+    $tasksOriginal = Get-Content -Raw -LiteralPath $tasksPath
+    foreach ($case in @('root-array','schema-array','diagnosis-path-array','blocked-path-array','blocked-schema-array','blocked-task-array','blocked-tier-array','blocked-reason-array','blocked-hash-array','blocked-time-lowercase','blocked-time-newline','blocked-hash-newline','approval-lowercase','status-lowercase')) {
+        $boundary = Get-Content -Raw -LiteralPath $resumePath | ConvertFrom-Json -DateKind String
+        $blockedBoundary = $blockedOriginal | ConvertFrom-Json -DateKind String
+        $tasksBoundary = $tasksOriginal
+        switch ($case) {
+            'schema-array' { $boundary.schema = @($boundary.schema) }
+            'diagnosis-path-array' { $boundary.diagnosis_reference.path = @($boundary.diagnosis_reference.path) }
+            'blocked-path-array' { $boundary.blocked_state_reference.path = @($boundary.blocked_state_reference.path) }
+            'blocked-schema-array' { $blockedBoundary.schema = @($blockedBoundary.schema) }
+            'blocked-task-array' { $blockedBoundary.task_id = @($blockedBoundary.task_id) }
+            'blocked-tier-array' { $blockedBoundary.tier = @($blockedBoundary.tier) }
+            'blocked-reason-array' { $blockedBoundary.reason = @($blockedBoundary.reason) }
+            'blocked-hash-array' { $blockedBoundary.blocked_task_contract_sha256 = @($blockedBoundary.blocked_task_contract_sha256) }
+            'blocked-time-newline' { $blockedBoundary.blocked_at += "`n" }
+            'blocked-hash-newline' { $blockedBoundary.blocked_task_contract_sha256 += "`n"; $boundary.blocked_task_contract_sha256 += "`n" }
+            'blocked-time-lowercase' { $blockedBoundary.blocked_at = $blockedBoundary.blocked_at.ToLowerInvariant() }
+            'approval-lowercase' { $tasksBoundary = $tasksBoundary.Replace('Approval: Approved','Approval: approved') }
+            'status-lowercase' { $tasksBoundary = $tasksBoundary.Replace('Status: Planned','Status: planned') }
+        }
+        [IO.File]::WriteAllText($tasksPath, $tasksBoundary)
+        $blockedBoundary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $blockedStatePath
+        $boundary.blocked_state_reference.sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $blockedStatePath).Hash.ToLowerInvariant()
+        $boundarySection = [regex]::Match($tasksBoundary, '(?ms)^## T-900\b.*?(?=^## T-[0-9]{3}\b|\z)').Value.TrimEnd([char[]]"`r`n")
+        $boundary.revised_task_contract_sha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($boundarySection))).ToLowerInvariant()
+        $boundaryJson = $boundary | ConvertTo-Json -Depth 20
+        if ($case -ceq 'root-array') { $boundaryJson = '[' + $boundaryJson + ']' }
+        [IO.File]::WriteAllText($resumeBoundaryPath, $boundaryJson)
+        $rejected = $false
+        try {
+            & $ResumePs -Evidence $resumeBoundaryPath -BlockedState $blockedStatePath -Tasks $tasksPath -RepoRoot $resumeRepoRoot -ExpectedTask T-900 | Out-Null
+        } catch { $rejected = $true }
+        if (-not $rejected) { Fail "terminal resume accepted $case" }
+        if ($case -cin @('blocked-time-newline','blocked-hash-newline') -and (Get-Command bash -ErrorAction SilentlyContinue)) {
+            $bashResult = & bash ([IO.Path]::ChangeExtension($ResumePs, '.sh')) --evidence $resumeBoundaryPath --blocked-state $blockedStatePath --tasks $tasksPath --repo-root $resumeRepoRoot --expected-task T-900 2>&1
+            if ($LASTEXITCODE -eq 0) { Fail "Bash terminal resume accepted $case" }
+        }
+
+    }
+    [IO.File]::WriteAllText($blockedStatePath, $blockedOriginal)
+    [IO.File]::WriteAllText($tasksPath, $tasksOriginal)
 
     $resumeUnchangedPath = Join-Path $tmp 'resume-unchanged.json'
     $resumeUnchanged = $resumeJsonObject | Select-Object *

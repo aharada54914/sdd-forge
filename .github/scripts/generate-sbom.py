@@ -23,6 +23,7 @@ Usage:
              .claude-plugin/marketplace.json, else "0.0.0").
   --repo     owner/repo for the root purl (default: aharada54914/sdd-forge).
   --output   Write to PATH instead of stdout.
+  --source-root  Scan this exported source tree instead of the checkout.
 
 Stdlib only; no external dependencies.
 """
@@ -41,9 +42,9 @@ ACTION_RE = re.compile(r"^(?P<repo>[^/@\s]+/[^/@\s]+)(?P<path>/[^@\s]*)?@(?P<ref
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
-def read_default_version():
+def read_default_version(repo_root=REPO_ROOT):
     """Read the plugin version from marketplace.json, or return '0.0.0' as fallback."""
-    candidate = os.path.join(REPO_ROOT, ".claude-plugin", "marketplace.json")
+    candidate = os.path.join(repo_root, ".claude-plugin", "marketplace.json")
     try:
         with open(candidate, encoding="utf-8") as f:
             data = json.load(f)
@@ -59,9 +60,9 @@ def read_default_version():
     return "0.0.0"
 
 
-def collect_action_uses():
+def collect_action_uses(repo_root=REPO_ROOT):
     """Scan .github/workflows/*.{yml,yaml} for `uses:` action references."""
-    workflows_dir = os.path.join(REPO_ROOT, ".github", "workflows")
+    workflows_dir = os.path.join(repo_root, ".github", "workflows")
     found = {}  # key: "repo@ref" -> (repo, ref, path)
     if not os.path.isdir(workflows_dir):
         return found
@@ -73,7 +74,7 @@ def collect_action_uses():
             with open(path, encoding="utf-8") as f:
                 lines = f.readlines()
         except OSError:
-            continue
+            raise ValueError("workflow source is unreadable") from None
         for line in lines:
             m = USES_RE.match(line)
             if not m:
@@ -92,7 +93,7 @@ def collect_action_uses():
     return found
 
 
-def collect_npm_dependencies():
+def collect_npm_dependencies(repo_root=REPO_ROOT):
     """Scan mcp/*/package-lock.json (npm lockfile v3) for non-dev packages.
 
     Each lockfile's ``packages`` map keys entries by their path under
@@ -104,7 +105,7 @@ def collect_npm_dependencies():
     bundle. Returns a dict keyed by "name@version" (deduping the same package
     version recorded across multiple lockfiles) mapping to (name, version).
     """
-    mcp_dir = os.path.join(REPO_ROOT, "mcp")
+    mcp_dir = os.path.join(repo_root, "mcp")
     found = {}
     if not os.path.isdir(mcp_dir):
         return found
@@ -116,10 +117,12 @@ def collect_npm_dependencies():
             with open(lockfile, encoding="utf-8") as f:
                 data = json.load(f)
         except (OSError, ValueError):
-            continue
+            raise ValueError("dependency lockfile is unreadable or invalid JSON") from None
+        if not isinstance(data, dict):
+            raise ValueError("dependency lockfile must be an object")
         packages = data.get("packages")
         if not isinstance(packages, dict):
-            continue
+            raise ValueError("dependency lockfile packages must be an object")
         for path, meta in packages.items():
             if not path or not isinstance(meta, dict):
                 continue  # "" is the root package entry, not a dependency.
@@ -136,11 +139,11 @@ def collect_npm_dependencies():
     return found
 
 
-def build_sbom(version, repo):
+def build_sbom(version, repo, repo_root=REPO_ROOT):
     """Build a CycloneDX SBOM dict for the given plugin version and GitHub repo slug."""
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     components = []
-    for _, (action_repo, ref, subpath) in sorted(collect_action_uses().items()):
+    for _, (action_repo, ref, subpath) in sorted(collect_action_uses(repo_root).items()):
         comp = {
             "type": "library",
             "name": action_repo,
@@ -153,7 +156,7 @@ def build_sbom(version, repo):
         if subpath:
             comp["properties"] = [{"name": "github:action:subpath", "value": subpath.lstrip("/")}]
         components.append(comp)
-    for name, version_ in sorted(collect_npm_dependencies().values()):
+    for name, version_ in sorted(collect_npm_dependencies(repo_root).values()):
         # Canonical purl form percent-encodes the scope's "@" (purl-spec npm
         # examples: pkg:npm/%40angular/animation@12.3.1).
         components.append({
@@ -190,10 +193,17 @@ def main(argv):
     parser.add_argument("--version", default=None)
     parser.add_argument("--repo", default="aharada54914/sdd-forge")
     parser.add_argument("--output", default=None)
+    parser.add_argument("--source-root", default=REPO_ROOT)
     args = parser.parse_args(argv)
+    if not os.path.isdir(args.source_root):
+        parser.error("source root must be a directory")
 
-    version = args.version or read_default_version()
-    sbom = build_sbom(version, args.repo)
+    version = args.version or read_default_version(args.source_root)
+    try:
+        sbom = build_sbom(version, args.repo, args.source_root)
+    except ValueError:
+        sys.stderr.write("SBOM_SOURCE_INVALID: source inputs could not be inventoried\n")
+        return 1
     text = json.dumps(sbom, indent=2) + "\n"
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:

@@ -124,8 +124,7 @@ for relative in \
   cp "$ROOT/$relative" "$ROLLBACK/baseline/$relative"
   cp "$ROOT/$relative" "$ROLLBACK/working/$relative"
 done
-baseline_hashes=$(find "$ROLLBACK/baseline" -type f -exec shasum -a 256 {} \; |
-  sed "s|$ROLLBACK/baseline/||" | sort)
+baseline_hashes=$((cd "$ROLLBACK/baseline" && find . -type f -exec shasum -a 256 {} \;) | sort)
 printf '\n# rollback mutation\n' >> \
   "$ROLLBACK/working/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh"
 for relative in \
@@ -134,8 +133,7 @@ for relative in \
   scripts/check-sdd-structure.sh; do
   cp "$ROLLBACK/baseline/$relative" "$ROLLBACK/working/$relative"
 done
-restored_hashes=$(find "$ROLLBACK/working" -type f -exec shasum -a 256 {} \; |
-  sed "s|$ROLLBACK/working/||" | sort)
+restored_hashes=$((cd "$ROLLBACK/working" && find . -type f -exec shasum -a 256 {} \;) | sort)
 if [ "$baseline_hashes" = "$restored_hashes" ]; then
   pass "TEST-013 rollback restores baseline checker hashes"
 else

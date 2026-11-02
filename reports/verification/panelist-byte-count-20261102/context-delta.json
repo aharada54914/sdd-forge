@@ -1,0 +1,46 @@
+{
+  "schema": "coding-standards-source-delta/v1",
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "before_commit": "4c1aef08179c66f874b3080439d0301d9e70d338",
+      "before_source_sha256": "13f5471e18587214241b0986aa184bfd171f6cb7ecd0c1dcc53939dd0b161e83",
+      "source_sha256": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+      "review_scope": "changed_hunks",
+      "baseline_evidence": "reports/verification/coding-standards-20261101/posix-context-review.json",
+      "state": "reviewed",
+      "review": "Read all changed count sites with caller error and final publication paths. Shared stdin byte-count helper checks native wc status before Bash-only whitespace normalization and decimal validation; no formatting pipeline can hide failure. Inventory (task evidence, contract evidence, declared output), head/tail elision and final/rebuilt bundle measurement all check helper results before admission/publication. Existing _ppi_io_error remains tool error2. Elision markers receive canonical unpadded digits; expected markers are not relaxed. Measurement now streams exactly the existing header/content printf bytes, retaining trailing newlines rather than losing them through command substitution. Diagnostic-only counts in the already-rejected exit1 branch remain outside admission. No new public option, encoding, elision ordering, consent behavior or output writer introduced."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "before_commit": "4c1aef08179c66f874b3080439d0301d9e70d338",
+      "before_source_sha256": "b8e78b0f53762d55f799639bb6ab89923f15e484d5d7ff34ed9b4a1d6bd33b49",
+      "source_sha256": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+      "review_scope": "changed_hunks",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/coverage.python-assist-large.json",
+      "state": "reviewed",
+      "review": "Read all three preview measurements and existing final Set-Content Utf8 -NoNewline then Add-Content empty-value writer. The single byte-count helper adds the actual host newline and, on PowerShell before6, the UTF8 BOM emitted by that unchanged writer. All tier rebuilds use the helper. Existing output content/encoding/line endings remain unchanged; only budget admission uses actual serialized length. Actual Linux pwsh7 populated/empty controls verify count; Desktop BOM and Windows CRLF correspond to documented existing writer behavior and still require native execution, not claimed from Linux."
+    },
+    {
+      "path": "tests/prepare-panelist.tests.sh",
+      "before_commit": "4c1aef08179c66f874b3080439d0301d9e70d338",
+      "before_source_sha256": "5388c3910bcce766cc916249110df26cb75491e163e5bc91c100935ce892e6d1",
+      "source_sha256": "c3cbfb99a0bb76f32dbb7cce718b720704919821ade82817054354115f6cb12f",
+      "review_scope": "changed_hunks",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/test-context-deltas.json",
+      "state": "reviewed",
+      "review": "Read added fixtures with run_prepare, existing 052/062 independent marker/count oracles, temporary-root cleanup and publication assertions. A local wc executable delegates to the real binary then pads decimal output, emulating BSD formatting without changing count. Exit17 and malformed-success modes are explicit controls; environment injection is scoped to each invocation. Tests drive the public CLI with inventory-bearing and measurement-only inputs and require tool error2 plus absent output. Actual baseline file length independently determines cap-minus1 and exact-cap cases for populated and empty input; no expected count is read from the implementation. Existing 192 assertions remain; no skip added."
+    },
+    {
+      "path": "tests/prepare-panelist.tests.ps1",
+      "before_commit": "4c1aef08179c66f874b3080439d0301d9e70d338",
+      "before_source_sha256": "f4ca8d3943abb981b912ec17e8b7f991a3995bf8e7c171d807c5ba6a8651e0ee",
+      "source_sha256": "20578db510a3410e54a3ec90000a6ff729f12920d8ea56b8d7c75fdcb6af6c2e",
+      "review_scope": "changed_hunks",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/prepare-panelist-full-context-review.json",
+      "state": "reviewed",
+      "review": "Read added actual CLI boundary loop within existing try/finally temporary root and process helper. Published file Length supplies independent cap oracle; populated/empty cases each require cap-minus1 exit1 with no output, and exact-cap success with identical actual length. Writer encoding/line ending differences are included automatically in the file-length oracle. No weaker digest matching, platform skip, new process transport or expected-count derivation from production code."
+    }
+  ],
+  "reuse_decision": "Local checked-byte-count helper replaces repeated unchecked native count/filter expressions at one admission owner. PowerShell measurement helper matches its existing serializer. Neither adds configuration nor a new public abstraction."
+}

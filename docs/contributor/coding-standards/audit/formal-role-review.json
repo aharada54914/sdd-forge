@@ -1,0 +1,104 @@
+{
+  "schema": "coding-standards-formal-role-review/v1",
+  "revision": "4e6c2226fb589f01085750a9aba817252683bad0",
+  "existing_evidence": {
+    "reports/verification/formal-reservation-rt002-20261101/report.json": "a27a2ed217a89e88a0b631f6ce7062434da3cbe7787f9f470ee7c1d10a63bd9c",
+    "tests/fixtures/project-skills/formal-review-reservation/mapping.json": "ad6ad7e0f0892d569d35ee329a3edcea6db985e59a135efae53c171cf9726ffe",
+    "tests/verify-review-reservation.py": "3a7207a1c2098f96654bd79b9b743746f06674f547ccb2230fb5edba1d4b2cc0",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "543aa0cc568fe54fdc6f95d8a218ec1e55b58277836fc5aef340404b131666d4"
+  },
+  "evidence_check": "Existing report source_sha256 and mapping source_sha256 both equal current source543aa0cc568fe54fdc6f95d8a218ec1e55b58277836fc5aef340404b131666d4. Existing report records actual TLC negative exit12/counterexample + two accepts in lock-removed replay, baseline exit0 + one accept with lock. These are previously executed results read now, not new runs.",
+  "limits": "Two contenders, one initial ledger hash, one attempt each; atomic mkdir/rename, cooperative writers, no crashes/retries/hostile filesystem. No Windows, distributed filesystem or entire application guarantee. Any source change invalidates source mapping until rechecked.",
+  "entries": [
+    {
+      "path": "reports/verification/formal-reservation-asset-683491413-20261029/baseline/Reservation.cfg",
+      "source_sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-asset-683491413-20261029/baseline/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-asset-683491413-20261029/negative/Reservation.cfg",
+      "source_sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-asset-683491413-20261029/negative/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-asset-683491413-20261029/negative/Reservation_TTrace_1793279673.tla",
+      "source_sha256": "b23fc1490b1e55ad167bee6830cd5345c14c71d46d8ae3706c87460a050f2230",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-rt002-20261101/baseline/Reservation.cfg",
+      "source_sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-rt002-20261101/baseline/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-rt002-20261101/negative/Reservation.cfg",
+      "source_sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-rt002-20261101/negative/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-stable-20261031/baseline/Reservation.cfg",
+      "source_sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-stable-20261031/baseline/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-stable-20261031/negative/Reservation.cfg",
+      "source_sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "reports/verification/formal-reservation-stable-20261031/negative/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "out-of-scope",
+      "reason": "Historical verifier output model/config snapshot, including generated counterexample trace. tests/verify-review-reservation.py copies current fixture models to output baseline/negative and mutates only output config. These snapshots are retained original evidence, not imported as current model source."
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.tla",
+      "source_sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+      "state": "reviewed",
+      "reason": "Current model read in full: finite actors1/2, acquire/check/publish/release transitions, OneAccepted cardinality invariant; config names Spec and invariant with lock enabled. No external code execution in the model. Actual source mapping and existing negative/baseline evidence are explicit and bounded."
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg",
+      "source_sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6",
+      "state": "reviewed",
+      "reason": "Current model read in full: finite actors1/2, acquire/check/publish/release transitions, OneAccepted cardinality invariant; config names Spec and invariant with lock enabled. No external code execution in the model. Actual source mapping and existing negative/baseline evidence are explicit and bounded."
+    }
+  ]
+}

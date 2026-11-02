@@ -31,6 +31,7 @@ def pilot(output):
         capture_output=True,
         text=True,
         check=True,
+        timeout=30,
     ).stdout.strip()
     dirty = bool(
         subprocess.run(
@@ -38,6 +39,7 @@ def pilot(output):
             capture_output=True,
             text=True,
             check=True,
+            timeout=30,
         ).stdout
     )
     protocol = {

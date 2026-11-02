@@ -1017,7 +1017,8 @@ function killSwitchTripped() {
       const stat = fs.statSync(candidate);
       if (stat.isFile()) return true;
     } catch (e) {
-      // not found or inaccessible — continue
+      if (!e || !['ENOENT', 'ENOTDIR'].includes(e.code)) throw e;
+      // A missing path cannot be a regular stop-marker file.
     }
   }
   return false;
@@ -1129,9 +1130,11 @@ function sudoActive() {
       return false;
     }
 
-    const expires = parseInt(fields['expires-epoch'], 10);
-    const issued = parseInt(fields['issued-epoch'], 10);
-    if (isNaN(expires) || isNaN(issued)) return false;
+    // Reject trailing text before canonicalization can erase it with parseInt.
+    if (!/^[+-]?[0-9]+$/.test(fields['expires-epoch']) || !/^[+-]?[0-9]+$/.test(fields['issued-epoch'])) return false;
+    const expires = Number(fields['expires-epoch']);
+    const issued = Number(fields['issued-epoch']);
+    if (!Number.isSafeInteger(expires) || !Number.isSafeInteger(issued)) return false;
 
     const now = Math.floor(Date.now() / 1000);
     // C-02: issued-epoch <= now < expires-epoch AND TTL <= 86400
@@ -1899,12 +1902,12 @@ function parseArgs(argv) {
 function readStdin() {
   // If stdin is a TTY, treat as empty (don't hang waiting for input).
   if (process.stdin.isTTY) return Promise.resolve('');
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const chunks = [];
     process.stdin.setEncoding('utf8');
     process.stdin.on('data', (chunk) => chunks.push(chunk));
     process.stdin.on('end', () => resolve(chunks.join('')));
-    process.stdin.on('error', () => resolve(''));
+    process.stdin.on('error', reject);
   });
 }
 
@@ -1916,8 +1919,11 @@ async function main() {
   }
 
   // Check 1: kill switch runs regardless of payload validity.
-  if (killSwitchTripped()) {
-    emitDecision('deny', KILL_MSG, mode);
+  try {
+    if (killSwitchTripped()) emitDecision('deny', KILL_MSG, mode);
+  } catch (_) {
+    emitDecision('deny', 'SDD deterministic gate: unable to inspect the stop marker; tool use denied.', mode);
+    return;
   }
 
   let raw = process.env.PAYLOAD;
@@ -1925,7 +1931,8 @@ async function main() {
     try {
       raw = await readStdin();
     } catch (e) {
-      raw = '';
+      emitDecision('deny', 'SDD deterministic gate: unable to read the hook payload; tool use denied.', mode);
+      return;
     }
   }
 

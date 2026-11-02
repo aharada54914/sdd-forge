@@ -1333,7 +1333,11 @@ validate_passed_stage() {
   [[ -d "$root" && ! -L "$root" ]] ||
     diagnostic "$feature" stage-provenance "$stage PASS has no review report root"
   local best="" best_attempt=0 best_round=0 candidate relative attempt round
+  local candidates
+  candidates=$(find "$root" -name integrated-verdict.json -print) ||
+    diagnostic "$feature" stage-provenance "$stage review evidence cannot be enumerated completely"
   while IFS= read -r candidate; do
+    [[ -n "$candidate" ]] || continue
     [[ ! -L "$candidate" && -f "$candidate" ]] ||
       diagnostic "$feature" stage-provenance "$stage verdict evidence is linked or unreadable"
     relative="${candidate#"$root/"}"
@@ -1343,7 +1347,7 @@ validate_passed_stage() {
     if ((attempt > best_attempt || (attempt == best_attempt && round > best_round))); then
       best="$candidate"; best_attempt="$attempt"; best_round="$round"
     fi
-  done < <(find "$root" -name integrated-verdict.json -print)
+  done <<< "$candidates"
   # Verify --opening's slot for THIS stage now, unconditionally -- not only
   # when this stage's own verdict later turns out to need excusing. A
   # re-review opened after an already-valid PASS (--provenance-rereview)
@@ -1356,8 +1360,8 @@ validate_passed_stage() {
   local snapshot_dir='' verified_adr_bindings='[]'
   local contract_identity="$root/attempt-$best_attempt/round-$best_round/${stage}-review-contract.json"
   [[ -n "$best" ]] || diagnostic "$feature" stage-provenance "$stage PASS has no integrated verdict"
-  local contract="$(dirname "$best")/${stage}-review-contract.json"
-  local round_dir="$(dirname "$best")"
+  local round_dir="${best%/*}"
+  local contract="$round_dir/${stage}-review-contract.json"
   local reviewer_a="$round_dir/reviewer-a.json"
   local reviewer_b="$round_dir/reviewer-b.json"
   local summary="$round_dir/integrated-summary.json"

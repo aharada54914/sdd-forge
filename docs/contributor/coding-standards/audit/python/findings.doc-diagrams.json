@@ -1,0 +1,30 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PY-067",
+      "rule_id": "CS-023",
+      "path": "tests/doc-diagrams.tests.py",
+      "line": 125,
+      "source_sha256": "9138acc186ccba2f6adb8ca22fc19d11d7ac51355cdfe8a44322adf667cfcdd7",
+      "flow": {
+        "input": "temporary npm install directory",
+        "transformation": "mkdtemp without success-path cleanup; subprocess timeout escapes before cleanup",
+        "sink": "filesystem scratch lifetime"
+      },
+      "impact": "Each ordinary run retains an installed dependency tree; timeout/spawn failure also leaks owned scratch. Directory symlink additionally imposed an unnecessary host privilege requirement.",
+      "reproduction": "reports/verification/coding-standards-doc-diagrams-20261102/lifecycle-controls.py.txt",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        {
+          "path": "tests/doc-diagrams.tests.py",
+          "sha256": "6cea69023ea3bc1e0836bec17b3b3f761a6d5bf299e2c1cbdc93e19e94423190"
+        },
+        "reports/verification/coding-standards-doc-diagrams-20261102/controls.log"
+      ],
+      "resolution": "Clean owned dependencies in parser finally and install spawn/timeout handling; preserve externally supplied dependencies; invoke fixed ESM helper from dependency cwd with JSON stdin, avoiding symlink creation.",
+      "reuse": null
+    }
+  ]
+}

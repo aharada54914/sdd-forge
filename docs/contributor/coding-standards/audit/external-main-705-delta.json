@@ -1,0 +1,77 @@
+{
+  "schema": "coding-standards-external-main-guidance-delta/v1",
+  "merged_main": "c4dd6264",
+  "integration_revision": "e1d19cf3",
+  "before_revision": "8b4c6fdf",
+  "method": "Explicit source-bound review of all eight main documentation changes and narrow verification-scope clarification. Runtime sources remain unchanged; rejected prototype is evidence data, not executable coverage.",
+  "entries": [
+    {
+      "path": "docs/adr/0047-cloud-deploy-command-guard.md",
+      "source_sha256": "1d085a918422e9418d57d905822a4e34d87fc686b2ce7fcd0808a1daf9200913",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence."
+    },
+    {
+      "path": "docs/adr/README.md",
+      "source_sha256": "993202bd3e806f0aba03648be8aae7904909abdf812c7216ed5a59edba7290da",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "before_source_sha256": "2fc3a48361c728805995d9f8414f75f5438306f84218c141d20db4e7c4b31600",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence."
+    },
+    {
+      "path": "docs/cloud/README.md",
+      "source_sha256": "596d546a4d06f3a20b0cca761bb0ac9b91d2c10d62689d4ebfe854e6fc6a8f62",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "before_source_sha256": "e7680df868c6829a5914f318053403782f247ece981dd0f1f792d29c016d2726",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence. Clarified direct Python guard invocation versus still-unverified host hook paths and real cloud API calls; no behavioral assertion broadened."
+    },
+    {
+      "path": "docs/cloud/aws.md",
+      "source_sha256": "2b54721fdc27cb8327a49708eeffd89483b2fd99071b9a0073357e5169fbdf12",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "before_source_sha256": "727831d669e2f667ae3ee8790f2e864a6acafe7c7ce94e1600f1138db111469c",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence."
+    },
+    {
+      "path": "docs/cloud/ci-deploy-pattern.md",
+      "source_sha256": "f0437d795e1c474b65f55e2396356d45802bc0aca0d522b711130b591df10e49",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence."
+    },
+    {
+      "path": "docs/cloud/least-privilege.md",
+      "source_sha256": "3850f53882c2087a141c98c0d09b2807db58c55a3d0961654472aacbcb2199ae",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence. Clarified direct Python guard invocation versus still-unverified host hook paths and real cloud API calls; no behavioral assertion broadened."
+    },
+    {
+      "path": "docs/cloud/prototypes/guard-deploy-commands.patch",
+      "source_sha256": "150e23b7e234838722beee062fedc7b3ff6f95ef1173c94f64318f472629b134",
+      "state": "out-of-scope",
+      "review_scope": "record_role",
+      "reason": "Complete retained prototype diff inspected as rejected design evidence. ADR-0047 explicitly forbids applying it unless superseded; current tests/scripts/workflows/plugins do not reference it. Patch targets Python guard but is not applied, distributed as runtime, or newly certified as safe code. Its stale Proposed comment is preserved as original prototype history; no native parity or cloud-call prevention is inferred."
+    },
+    {
+      "path": "docs/cloud/verification-plan.md",
+      "source_sha256": "ae7dc0f26032eb6f56626c6708257d6e6e7c3befad219fe4984a6ec0402c56fc",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read complete new document or all existing-document changed hunks with prior exact guidance baseline. Rejected ADR status and external cloud IAM/CI ownership are explicit; no new guard, runtime adapter, permission or deploy authority is introduced. Mermaid is explanatory data; inline cloud commands describe externally chosen operations, not source interpolation or dispatched workflow code. Verification plans separate offline/static, online/credentialed, deployment and actual-runtime claims. GHES3.10 source limit and unverified AWS/Azure permission details remain explicit. External source quotations/measurements are inherited narrative, not newly reacquired source-byte or runtime evidence."
+    }
+  ],
+  "limits": [
+    "No prototype application, direct cloud operation, new cloud account permission or source-webpage acquisition.",
+    "Upstream prototype measurements are preserved historical statements; this reconciliation did not rerun the rejected guard."
+  ],
+  "validation": {
+    "command": "DOC_DIAGRAMS_REQUIRE_MERMAID=1 python3 tests/doc-diagrams.tests.py",
+    "exit_code": 0,
+    "result": "232 Markdown files, 19 Mermaid blocks; links, pinned anchors and negative controls passed. Actual parser required; no optional skip."
+  }
+}

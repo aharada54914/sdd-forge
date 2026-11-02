@@ -1,0 +1,408 @@
+{
+  "schema": "coding-native-comparison/v2",
+  "baseline": {
+    "revision": "82b536954626e73b36853711b264cbf5df400d22",
+    "status": "violations",
+    "population_count": 11501,
+    "selected_count": 857,
+    "inspected_count": 856,
+    "finding_count": 285,
+    "manual_review": "unknown",
+    "manual_unreviewed_count": 11501,
+    "tools": [
+      {
+        "language": "bash",
+        "status": "executed",
+        "version": "0.11.0",
+        "target_count": 273
+      },
+      {
+        "language": "javascript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 16
+      },
+      {
+        "language": "powershell",
+        "status": "executed",
+        "version": "7.6.7",
+        "target_count": 225
+      },
+      {
+        "language": "python",
+        "status": "executed",
+        "version": "ruff 0.13.3",
+        "target_count": 221
+      },
+      {
+        "language": "typescript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 121
+      }
+    ],
+    "rules": {
+      "SC2086": 10,
+      "SC2155": 8,
+      "PSAvoidAssignmentToAutomaticVariable": 19,
+      "F401": 9,
+      "E741": 3,
+      "E702": 144,
+      "E701": 60,
+      "F841": 1,
+      "F541": 15,
+      "E731": 6,
+      "explicit-any": 10
+    },
+    "elapsed_seconds": 70.05578062598943
+  },
+  "current": {
+    "revision": "e1d19cf35b0ebd4037474b59f40d2585df9f4382",
+    "status": "complete",
+    "population_count": 11815,
+    "selected_count": 885,
+    "inspected_count": 884,
+    "finding_count": 0,
+    "manual_review": "unknown",
+    "manual_unreviewed_count": 11815,
+    "tools": [
+      {
+        "language": "bash",
+        "status": "executed",
+        "version": "0.11.0",
+        "target_count": 276
+      },
+      {
+        "language": "javascript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 19
+      },
+      {
+        "language": "powershell",
+        "status": "executed",
+        "version": "7.6.7",
+        "target_count": 231
+      },
+      {
+        "language": "python",
+        "status": "executed",
+        "version": "ruff 0.13.3",
+        "target_count": 231
+      },
+      {
+        "language": "typescript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 127
+      }
+    ],
+    "rules": {},
+    "elapsed_seconds": 74.35963305799851
+  },
+  "checker_sha256": "29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5",
+  "comparison": "Task baseline82b53695 versus final integrated source; identical checker, pinned native tools/config and Linux host; independently enumerated tracked populations. Source bytes verified at completion.",
+  "token_cost": "Native tool calls do not consume model tokens; evaluator tokens not measured.",
+  "manual_review": "unknown in native scan; contextual review and full census recorded separately in audit artifacts",
+  "native_hosts": "Linux native tools only; does not establish Claude/Codex/Copilot or Windows/macOS execution",
+  "timing_comparability": "One measured run per revision, no repeated performance/cost experiment; duration is observation only.",
+  "aborted_run": {
+    "elapsed_seconds": 65.95970140000281,
+    "exit_code": 2,
+    "checker_sha256": "29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5",
+    "input_commit": "061cce4fe33f1d8025a79663bd56c2cc5b7b451f",
+    "production_freeze": "0ab2a50e",
+    "stderr": "{\"schema\": \"coding-standards-scan/v1\", \"status\": \"error\", \"reason\": \"source changed during native scan: 'plugins/sdd-bootstrap/scripts/design-sync-scan.ps1'\", \"finding_count\": null, \"inspected_count\": null, \"unexecuted_count\": null}\n",
+    "token_cost": "not applicable to native tools; evaluator tokens not measured"
+  },
+  "historical_555_comparison": {
+    "baseline": {
+      "revision": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "status": "violations",
+      "population_count": 11353,
+      "selected_count": 854,
+      "inspected_count": 853,
+      "finding_count": 285,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11353,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 273
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 16
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 225
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 218
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 121
+        }
+      ],
+      "rules": {
+        "SC2086": 10,
+        "SC2155": 8,
+        "PSAvoidAssignmentToAutomaticVariable": 19,
+        "F401": 9,
+        "E741": 3,
+        "E702": 144,
+        "E701": 60,
+        "F841": 1,
+        "F541": 15,
+        "E731": 6,
+        "explicit-any": 10
+      },
+      "elapsed_seconds": "unknown"
+    },
+    "current": {
+      "revision": "e72813ab658b3d9a3d79d18c0c6b8251c0b2529a",
+      "status": "complete",
+      "population_count": 11545,
+      "selected_count": 874,
+      "inspected_count": 873,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11545,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 273
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 227
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 228
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 126
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 64.981205
+    },
+    "checker_revision": "86fc49554614fb842d937147595baa6ef66fd63c",
+    "comparison": "Same checker, tool versions, config and host; independently enumerated full tracked populations. Baseline tools/config copied untracked only; baseline product source untouched.",
+    "token_cost": "unknown",
+    "manual_review": "unknown",
+    "native_hosts": "Linux only; Claude/Codex/Copilot invocation not evaluated",
+    "timing_comparability": "Baseline duration not instrumented; no speed or cost improvement claim."
+  },
+  "historical_task_scans": [
+    {
+      "revision": "bd94f8645801d44f4084abe2a3a938311757d827",
+      "status": "complete",
+      "population_count": 11788,
+      "selected_count": 885,
+      "inspected_count": 884,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11788,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 276
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 231
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 231
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 127
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 70.15019716099982,
+      "later_ci_outcome": "Native scan completed with zero findings; subsequent macOS CI exposed false directory-cycle detection for an alias of the same physical root in evidence-path.ps1. This revision is superseded by the current comparison after that fix."
+    },
+    {
+      "revision": "7d53b1bf2ffb79ed1c96acdff8ba119067f1afd8",
+      "status": "complete",
+      "population_count": 11797,
+      "selected_count": 885,
+      "inspected_count": 884,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11797,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 276
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 231
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 231
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 127
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 70.25044515699983,
+      "later_ci_outcome": "Native scan completed with zero findings; subsequent macOS CI exposed BSD wc leading-space formatting in prepare-panelist-input.sh. This revision is superseded by the current comparison after checked byte-count repair in both twins."
+    },
+    {
+      "revision": "d6b66e6d327cbd9fee8130bb2a3f42117b5fb5f0",
+      "status": "complete",
+      "population_count": 11805,
+      "selected_count": 885,
+      "inspected_count": 884,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11805,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 276
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 231
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 231
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 127
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 69.40345573000013,
+      "later_ci_outcome": "Native scan completed with zero findings; subsequent Claude audit identified max-cap argument guard gaps (ROOT011/012). This revision is superseded by the current comparison after the argument-guard repairs; native selected rules had not detected those contextual defects."
+    },
+    {
+      "revision": "5533762d4b93c06825cdbec6dab0ca63e352fb4d",
+      "status": "complete",
+      "population_count": 11810,
+      "selected_count": 885,
+      "inspected_count": 884,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11810,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 276
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 231
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 231
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 127
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 71.30373431499993,
+      "later_ci_outcome": "Native scan completed with zero findings. A later main merge changed documentation and audit metadata without changing native-selected source inputs. Superseded only to record the current complete tracked population; see native-source-equivalence.json."
+    }
+  ]
+}

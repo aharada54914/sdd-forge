@@ -19,6 +19,22 @@ New-Item -ItemType Directory -Path $Work -Force | Out-Null
 $Work = (Resolve-Path -LiteralPath $Work).Path
 
 try {
+    $validSummary = '{"schema":"sdd-capability-summary/v1","feature":"demo","track":"lite","capabilities":[],"required_lite_checks":[],"full_upgrade_required":false}'
+    $shapeCases = @(
+        ('[' + $validSummary + ']'),
+        $validSummary.Replace('"schema":', '"Schema":'),
+        $validSummary.Replace('sdd-capability-summary/v1', 'SDD-CAPABILITY-SUMMARY/V1'),
+        $validSummary.Replace('"track":"lite"', '"track":["lite"]'),
+        $validSummary.Replace('"capabilities":[]', '"capabilities":"not-an-array"'),
+        $validSummary.Replace('"required_lite_checks":[]', '"required_lite_checks":"lint"')
+    )
+    foreach ($shape in $shapeCases) {
+        $shapePath = Join-Path $Work 'shape.json'
+        [IO.File]::WriteAllText($shapePath, $shape)
+        $r = Invoke-LiteGateStep2Simulation -SummaryPath $shapePath -Enforcement 'required' -RepoRoot $Work
+        if ($r.Verdict -ceq 'FAIL') { Ok 'synthetic summary boundary rejects malformed shape/case' }
+        else { Bad 'synthetic summary boundary accepted malformed shape/case' }
+    }
     Write-Host '=== TEST-012a: wrong schema constant is VERDICT: FAIL ==='
     Set-Content -LiteralPath (Join-Path $Work 'wrong-schema.json') -Value '{"schema":"not-the-right-schema","feature":"demo","track":"lite","capabilities":[],"required_lite_checks":[],"full_upgrade_required":false}' -NoNewline
     $r = Invoke-LiteGateStep2Simulation -SummaryPath (Join-Path $Work 'wrong-schema.json') -Enforcement 'required' -RepoRoot $Work

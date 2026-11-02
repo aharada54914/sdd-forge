@@ -65,7 +65,7 @@ def admitted_raw_hashes(root, data, fixed_inputs=None):
             command.extend(['--fixed-input-record', fixed_inputs['record'],
                             '--fixed-input-snapshot', fixed_inputs['snapshot']])
         result = subprocess.run(command, cwd=root,
-            text=True, capture_output=True, timeout=600)
+            text=True, capture_output=True, timeout=600, encoding="utf-8")
         require(result.returncode == 0, 'canonical normalized task verification failed')
         require(all(sha(source(e['path'])) == actual[e['path']] for e in entries),
                 'inputs changed during normalized task verification')
@@ -118,7 +118,7 @@ def claude_command(root, session, role_name, role, permissions, settings_path,
             'session guard settings or policy mismatch')
     relative = invocation.relative_to(root).as_posix()
     require(permissions == (['Read'] if fixed_inputs else
-            receipt_control(data, receipt.read_text(), relative, root=root)['exact_permission_rules']),
+            receipt_control(data, receipt.read_text(encoding="utf-8"), relative, root=root)['exact_permission_rules']),
             'permission rules mismatch')
     if fixed_inputs:
         require(fixed_input_binding(root, data, fixed_inputs['record'], fixed_inputs['snapshot']) == fixed_inputs,
@@ -141,7 +141,7 @@ def claude_command(root, session, role_name, role, permissions, settings_path,
     if data['stage'] in JSON_REVIEW_STAGES:
         command += ['--json-schema', json.dumps(review_output_schema(data['stage'], role_name))]
     help_result = subprocess.run(['rtk', 'proxy', executable, '--help'],
-                                 capture_output=True, text=True, cwd=root, timeout=30)
+                                 capture_output=True, text=True, cwd=root, timeout=30, encoding="utf-8")
     require(help_result.returncode == 0, 'Claude help failed')
     declarations = '\n'.join(line.split('  ', 1)[0] for line in
                              (line.strip() for line in help_result.stdout.splitlines())
@@ -682,7 +682,7 @@ def review_read_paths(root, invocation, data, fixed_inputs=None):
 def launch_policy(root, invocation, receipt, policy_path, *, fixed_inputs=None):
     data, _ = manifest(root, invocation)
     invocation_relative = invocation.relative_to(root).as_posix()
-    control = receipt_control(data, receipt.read_text(), invocation_relative,
+    control = receipt_control(data, receipt.read_text(encoding="utf-8"), invocation_relative,
                               root=None if fixed_inputs else root)
     paths = review_read_paths(root, invocation, data, fixed_inputs)
     for path in paths:
@@ -841,7 +841,7 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
             'reserved identity absent or repeated')
     meta_turn_seen = False
     if enforced:
-        control = receipt_control(data, receipt.read_text(), invocation.relative_to(root).as_posix(),
+        control = receipt_control(data, receipt.read_text(encoding="utf-8"), invocation.relative_to(root).as_posix(),
                                   root=None if fixed_inputs else root)
         record = next(record for record in ledger['records']
                       if record.get('run_id') == session and
@@ -862,7 +862,7 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
     result = load(wrapper)
     require(result.get('session_id') == session and result.get('is_error') is False and
             result.get('type') == 'result', 'host result did not accept proposed session')
-    rows = [json.loads(line) for line in transcript.read_text().splitlines() if line.strip()]
+    rows = [json.loads(line) for line in transcript.read_text(encoding="utf-8").splitlines() if line.strip()]
     messages = native_messages(rows, session)
     if enforced:
         allowed_reads = {p.resolve() for p in review_read_paths(root, invocation, data, fixed_inputs)}

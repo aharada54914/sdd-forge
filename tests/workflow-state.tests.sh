@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -27,8 +28,7 @@ make_full_fixture() {
   cp -R "$ROOT/reports/impl-review/workflow-state-integrity" "$target/reports/impl-review/"
   cp -R "$ROOT/reports/task-review/workflow-state-integrity" "$target/reports/task-review/"
   while IFS= read -r evidence; do
-    sed -i.bak "s#$ROOT#$target#g" "$evidence"
-    rm "$evidence.bak"
+    replace_file_literal "$evidence" "$ROOT" "$target"
   done < <(find "$target/reports" -type f \
     \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
   # Force a "full" profile for the isolated fixture regardless of the real
@@ -236,10 +236,117 @@ latest_task_round_dir() {
 valid="$(make_full_fixture valid)"
 expect_valid "$valid"
 
+# JSON provenance is case-sensitive and typed in both runtimes. In particular,
+# PowerShell must not turn null/false into zero or numeric strings into counts.
+while IFS='|' read -r stage evidence mutation; do
+  provenance="$(make_full_fixture provenance-scalar)"
+  if [[ "$stage" == spec ]]; then
+    provenance_round="$provenance/reports/spec-review/workflow-state-integrity/attempt-1/round-2"
+  else
+    provenance_round="$(latest_task_round_dir "$provenance")"
+  fi
+  jq "$mutation" "$provenance_round/$evidence.json" > "$provenance/scalar.tmp"
+  mv "$provenance/scalar.tmp" "$provenance_round/$evidence.json"
+  if [[ "$mutation" == *'.Path='* ]]; then
+    # Bash currently exits from jq before its named diagnostic on this malformed
+    # manifest. Require rejection in both; do not claim diagnostic parity here.
+    set +e
+    bash "$CHECKER" --registry "$provenance/specs/workflow-state-registry.json" > "$provenance/bash.log" 2>&1
+    scalar_bash_status=$?
+    pwsh -NoProfile -File "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+      --registry "$provenance/specs/workflow-state-registry.json" > "$provenance/ps.log" 2>&1
+    scalar_ps_status=$?
+    set -e
+    [[ $scalar_bash_status -ne 0 && $scalar_ps_status -ne 0 ]] || fail "noncanonical manifest member was admitted"
+    [[ "$(cat "$provenance/ps.log")" == *': stage-provenance:'* ]] || fail "PowerShell manifest rejection lost its diagnostic"
+  else
+    expect_rule "$provenance" stage-provenance
+  fi
+  rm -rf "$provenance"
+done <<'PROVENANCE_MUTATIONS'
+spec|integrated-verdict|[.]
+spec|spec-review-contract|[.]
+spec|reviewer-a|[.]
+spec|integrated-summary|[.]
+task|reviewer-b|[.]
+spec|spec-review-contract|.Requirements_sha256=.requirements_sha256 | del(.requirements_sha256)
+spec|spec-review-contract|.requirements_sha256 |= ascii_upcase
+task|task-review-contract|.acceptance_sha256 |= ascii_upcase
+spec|integrated-verdict|.verdict="pass"
+spec|integrated-verdict|.feature="WORKFLOW-STATE-INTEGRITY"
+spec|integrated-verdict|.attempt="1"
+spec|integrated-verdict|.attempt=1.4
+spec|integrated-verdict|.attempt=true
+spec|integrated-verdict|.Schema=.schema | del(.schema)
+spec|integrated-verdict|.Finding_counts=.finding_counts | del(.finding_counts)
+spec|spec-review-contract|.Reviewers=.reviewers | del(.reviewers)
+spec|spec-review-contract|.reviewers[0].allowed_input_manifest[0] |= (.Path=.path | del(.path))
+spec|reviewer-a|.Checks=.checks | del(.checks)
+spec|reviewer-a|.checks[0] |= (.Result=.result | del(.result))
+spec|integrated-summary|.Reviewer_a_checks=.reviewer_a_checks | del(.reviewer_a_checks)
+task|reviewer-b|.manifest |= (.Allowed_inputs=.allowed_inputs | del(.allowed_inputs))
+spec|spec-review-contract|.warningCount=null
+spec|spec-review-contract|.warningCount=false
+spec|spec-review-contract|.run_id=123
+spec|spec-review-contract|.reviewers[0].role |= ascii_upcase
+spec|reviewer-a|.schema |= ascii_upcase
+spec|reviewer-a|.run_id |= ascii_upcase
+spec|integrated-summary|.round="2"
+spec|integrated-summary|.reviewer_a_checks |= (sort_by(.id) | [.[0] + {id: ([.[0].id, .[1].id] | join("\n"))}] + .[2:])
+task|task-review-contract|.schema="TASK-REVIEW-CONTRACT/V1"
+task|task-review-contract|.findings_critical=null
+task|reviewer-a|.round="2"
+task|reviewer-a|.verdict="pass"
+task|integrated-summary|.reviewer_a_pass_count |= tostring
+PROVENANCE_MUTATIONS
+
+# JSON numeric 1.0 is equal to 1, and run IDs differing only in case really
+# are distinct identities; exact matching must not become blanket rejection.
+scalar_positive="$(make_full_fixture provenance-scalar-positive)"
+scalar_spec="$scalar_positive/reports/spec-review/workflow-state-integrity/attempt-1/round-2"
+jq '.reviewer_a_run_id="CaseRun" | .reviewer_b_run_id="caserun"' \
+  "$scalar_spec/integrated-verdict.json" > "$scalar_positive/scalar.tmp"
+mv "$scalar_positive/scalar.tmp" "$scalar_spec/integrated-verdict.json"
+jq '(.reviewers[] | select(.role=="spec-reviewer-a") | .run_id)="CaseRun" |
+    (.reviewers[] | select(.role=="spec-reviewer-b") | .run_id)="caserun"' \
+  "$scalar_spec/spec-review-contract.json" > "$scalar_positive/scalar.tmp"
+mv "$scalar_positive/scalar.tmp" "$scalar_spec/spec-review-contract.json"
+for scalar_reviewer in a b; do
+  scalar_id=CaseRun
+  [[ "$scalar_reviewer" == b ]] && scalar_id=caserun
+  jq --arg id "$scalar_id" '.run_id=$id' "$scalar_spec/reviewer-$scalar_reviewer.json" > "$scalar_positive/scalar.tmp"
+  mv "$scalar_positive/scalar.tmp" "$scalar_spec/reviewer-$scalar_reviewer.json"
+done
+jq '.run_id="2026-11-01T00:00:00Z" | .Design_sha256="unconsumed extension"' "$scalar_spec/spec-review-contract.json" > "$scalar_positive/scalar.tmp"
+mv "$scalar_positive/scalar.tmp" "$scalar_spec/spec-review-contract.json"
+for scalar_file in integrated-verdict spec-review-contract; do
+  sed 's/"attempt": 1,/"attempt": 1.0,/' "$scalar_spec/$scalar_file.json" > "$scalar_positive/scalar.tmp"
+  mv "$scalar_positive/scalar.tmp" "$scalar_spec/$scalar_file.json"
+  grep -Fq '"attempt": 1.0,' "$scalar_spec/$scalar_file.json" || fail "numeric format control was normalized away"
+done
+expect_valid "$scalar_positive"
+
+# Registry/lifecycle enums are protocol data, including the explicitly bounded
+# noncanonical states in the migration registry; casing is not an OS path rule.
+for registry_mutation in '.schema_version=true' '.schema_version="1"' '.entries[0].profile="FULL"' '.entries[0].feature="WORKFLOW-STATE-INTEGRITY"'; do
+  typed_registry="$(make_full_fixture typed-registry)"
+  jq "$registry_mutation" "$typed_registry/specs/workflow-state-registry.json" > "$typed_registry/registry.tmp"
+  mv "$typed_registry/registry.tmp" "$typed_registry/specs/workflow-state-registry.json"
+  expect_rule "$typed_registry" registry-malformed
+  rm -rf "$typed_registry"
+done
+for lifecycle_mutation in 'Spec-Review-Status: Passed|Spec-Review-Status: passed|requirements.md|stage-status' 'Status: Done|Status: done|tasks.md|task-lifecycle'; do
+  IFS='|' read -r old_token new_token lifecycle_file lifecycle_rule <<< "$lifecycle_mutation"
+  typed_lifecycle="$(make_full_fixture typed-lifecycle)"
+  sed "s/^$old_token/$new_token/" "$typed_lifecycle/specs/workflow-state-integrity/$lifecycle_file" > "$typed_lifecycle/lifecycle.tmp"
+  mv "$typed_lifecycle/lifecycle.tmp" "$typed_lifecycle/specs/workflow-state-integrity/$lifecycle_file"
+  expect_rule "$typed_lifecycle" "$lifecycle_rule"
+  rm -rf "$typed_lifecycle"
+done
+
 relocated="$(make_full_fixture sdd-forge)"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$relocated#/opt/ci-agent/sdd-forge#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$relocated" "/opt/ci-agent/sdd-forge"
 done < <(find "$relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 expect_valid "$relocated"
@@ -259,8 +366,7 @@ expect_valid "$windows_relocated"
 mixed_relocated="$(make_full_fixture mixed-relocated)"
 contract="$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$mixed_relocated#/opt/ci-agent/mixed-relocated#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$mixed_relocated" "/opt/ci-agent/mixed-relocated"
 done < <(find "$mixed_relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 jq '
@@ -1821,3 +1927,48 @@ run_investigation_twin "$inv_task" task-stage-grows
   fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
 
 printf 'ok: Shell workflow-state validation fixtures passed\n'
+
+# An inaccessible newer round cannot silently leave the older PASS selected.
+enumeration_fixture="$(make_full_fixture enumeration-denied)"
+python3 - "$CHECKER" "$enumeration_fixture" "$TMP" <<'PY_ENUMERATION'
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+checker, fixture, outer = sys.argv[1:]
+if os.name == 'nt':
+    print('SKIP: POSIX traversal permissions unavailable on Windows')
+    sys.exit(0)
+Path(outer).chmod(0o755)
+root = Path(fixture)
+command = ['bash', checker, '--registry', str(root / 'specs/workflow-state-registry.json')]
+def unprivileged():
+    if os.getuid() == 0:
+        os.setgroups([])
+        os.setgid(1000)
+        os.setuid(1000)
+control = subprocess.run(command, preexec_fn=unprivileged, capture_output=True, text=True)
+assert control.returncode == 0, control
+blocked = root / 'reports/spec-review/workflow-state-integrity/attempt-99/round-1'
+blocked.mkdir(parents=True)
+(blocked / 'integrated-verdict.json').write_text('{"verdict":"BLOCKED"}', encoding='utf-8')
+blocked.chmod(0)
+try:
+    result = subprocess.run(command, preexec_fn=unprivileged, capture_output=True, text=True)
+    assert result.returncode != 0 and 'cannot be enumerated completely' in result.stderr, result
+    print('ok: inaccessible newer review round fails closed')
+    common = Path(checker).parents[2] / 'sdd-review-loop/scripts/lib/review-precheck-common.sh'
+    harness = r'''repo_root=$1; FEATURE=workflow-state-integrity
+fail() { printf '%s\n' "$*" >&2; exit 1; }
+sha256() { shasum -a 256 "$1" | awk '{print $1}'; }
+. "$2"
+require_persisted_pass "$repo_root/reports/spec-review/$FEATURE" spec '' '' '' '' ''
+'''
+    result = subprocess.run(['bash', '-c', harness, '_', str(root), str(common)],
+                            preexec_fn=unprivileged, capture_output=True, text=True)
+    assert result.returncode != 0 and 'cannot be enumerated completely' in result.stderr, result
+    print('ok: predecessor review enumeration fails closed')
+finally:
+    blocked.chmod(0o755)
+PY_ENUMERATION

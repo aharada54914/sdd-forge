@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- 本体の言語別コーディング規約、追跡対象の全体棚卸し、固定版 native 検査を既存検証カタログ・CIへ接続。Full/Lite/legacy は既存の必須 check と証跡の所有元を保ち、導入先の lint preset は変更しない。native 成功と文脈レビュー・全体監査完了を区別する。
+
 ## v1.21.1 (2026-11-01)
 
 ### Changed

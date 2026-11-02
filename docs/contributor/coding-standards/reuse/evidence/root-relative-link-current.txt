@@ -1,0 +1,42 @@
+ok: native adapter preserves argv, byte streams and nonzero status
+ok: native adapter enforces its process deadline
+ok: native adapter reaps its timed-out child
+ok: fixture repository initialized
+ok: generator preserves literal ordinary repository/report/output paths
+ok: generator records all ordinary artifacts
+ok: evidence consumer accepts the generated literal-path bundle: Verification contract passed for task T-001. WARNING: evidence bundle for task T-001 was generated with a dirty working tree Evidence bundle passed for task T-001.
+ok: generator preserves ordinary hardlinked artifacts
+ok: evidence consumer accepts ordinary hardlinked artifacts
+ok: generator rejects evidence linked outside repository
+ok: generator preserves in-repository evidence links
+ok: legacy Target fallback resolves real in-repository links
+ok: legacy Target fallback exposes the actual external target for caller containment
+ok: legacy Target fallback resolves a root-level relative directory link
+ok: evidence consumer preserves the stricter contract gate policy for in-repository links
+ok: generator rejects malformed contract shape before publication
+ok: generator rejects malformed contract shape before publication
+ok: generator rejects malformed contract shape before publication
+ok: fixture repository initialized
+ok: generator preserves literal literal[ab] repository/report/output paths
+ok: generator records all ordinary artifacts
+ok: evidence consumer accepts the generated literal-path bundle: Verification contract passed for task T-001. WARNING: evidence bundle for task T-001 was generated with a dirty working tree Evidence bundle passed for task T-001.
+ok: generator preserves ordinary hardlinked artifacts
+ok: evidence consumer accepts ordinary hardlinked artifacts
+ok: generator rejects evidence linked outside repository
+ok: generator preserves in-repository evidence links
+ok: legacy Target fallback resolves real in-repository links
+ok: legacy Target fallback exposes the actual external target for caller containment
+ok: legacy Target fallback resolves a root-level relative directory link
+ok: evidence consumer preserves the stricter contract gate policy for in-repository links
+ok: generator rejects malformed contract shape before publication
+ok: generator rejects malformed contract shape before publication
+ok: generator rejects malformed contract shape before publication
+ok: shared key loader strips only BOM and trailing ASCII whitespace
+ok: shared key loader preserves environment precedence
+ok: generator accepts a BOM-prefixed key file with trailing whitespace
+ok: generator records key-file signing provenance
+ok: consumer verifies producer signature using the same normalized key file
+ok: consumer rejects the same signature with a different higher-priority environment key
+ok: bootstrap advisory scan preserves literal bracket root paths
+ok: risk gate inspects the literal target instead of a clean wildcard neighbor
+ok: risk task filter preserves exact identity case

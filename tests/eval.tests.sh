@@ -320,9 +320,10 @@ generate_bundle_passes "$contract5" "$report5" "$S5"
 bundle5="${S5}/verification/T-005.evidence.json"
 
 # Replace git_commit with 40 f's (will never exist in this repo)
-python3 - <<PYEOF
+python3 - "${bundle5}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${bundle5}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["git_commit"] = "f" * 40
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")

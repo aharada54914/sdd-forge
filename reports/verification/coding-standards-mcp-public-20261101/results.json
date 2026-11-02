@@ -1,0 +1,156 @@
+{
+  "schema": "coding-standards-mcp-public-entry/v1",
+  "node": "v24.19.0",
+  "platform": "linux",
+  "boundary": "Actual standalone distribution child processes over MCP stdio; SDK initialize, tools/list and tools/call. No module-level handler substitution.",
+  "results": [
+    {
+      "package": "sdd-forge-mcp",
+      "bundle_sha256": "dbf84d137a5aaae57dc835f9a874fe2232cd68bb83df10c803dd70566012ea12",
+      "tool_count": 14,
+      "tools": [
+        "list_active_specs",
+        "get_spec_status",
+        "get_task_state",
+        "list_approved_tasks",
+        "list_blocked_tasks",
+        "list_review_tickets",
+        "get_quality_gate_summary",
+        "get_next_sdd_command",
+        "evidence_get_bundle",
+        "evidence_validate_paths",
+        "evidence_find_missing",
+        "evidence_summarize_contract_checks",
+        "evidence_compare_to_traceability",
+        "evidence_deep_verify"
+      ],
+      "call": {
+        "name": "get_spec_status",
+        "arguments": {
+          "feature": "demo"
+        }
+      },
+      "response": {
+        "ok": true,
+        "data": {
+          "kind": "spec-status",
+          "feature": "demo",
+          "artifacts": [
+            {
+              "name": "requirements",
+              "exists": true,
+              "reviewStatus": "Pending"
+            },
+            {
+              "name": "acceptance-tests",
+              "exists": false
+            },
+            {
+              "name": "design",
+              "exists": false
+            },
+            {
+              "name": "tasks",
+              "exists": false
+            },
+            {
+              "name": "traceability",
+              "exists": false
+            },
+            {
+              "name": "ux-spec",
+              "exists": false
+            },
+            {
+              "name": "frontend-spec",
+              "exists": false
+            },
+            {
+              "name": "infra-spec",
+              "exists": false
+            },
+            {
+              "name": "security-spec",
+              "exists": false
+            }
+          ]
+        }
+      },
+      "stdout": "MCP initialize/listTools/callTool framing accepted by the SDK client; no diagnostic contamination",
+      "stderr_json_lines": 1,
+      "standalone": true,
+      "server_node_modules": false,
+      "filesystem_unchanged": true,
+      "child_closed": true,
+      "network": "No credentials supplied; CI auth-missing short-circuits before GitHub transport. Other calls use local filesystem/OS only."
+    },
+    {
+      "package": "local-env-mcp",
+      "bundle_sha256": "0d13434ef434a7ddde6779613ffa76b403b27d71f26053d39d540189bb7ef1eb",
+      "tool_count": 3,
+      "tools": [
+        "get_os_info",
+        "get_toolchain_versions",
+        "list_available_clis"
+      ],
+      "call": {
+        "name": "get_os_info",
+        "arguments": {}
+      },
+      "response": {
+        "ok": true,
+        "data": {
+          "kind": "os-info",
+          "platform": "linux",
+          "arch": "x64",
+          "osType": "Linux",
+          "osRelease": "6.18.57",
+          "cpuCount": 5,
+          "totalMemBytes": 18882662400,
+          "nodeRuntime": "v24.19.0"
+        }
+      },
+      "stdout": "MCP initialize/listTools/callTool framing accepted by the SDK client; no diagnostic contamination",
+      "stderr_json_lines": 1,
+      "standalone": true,
+      "server_node_modules": false,
+      "filesystem_unchanged": true,
+      "child_closed": true,
+      "network": "No credentials supplied; CI auth-missing short-circuits before GitHub transport. Other calls use local filesystem/OS only."
+    },
+    {
+      "package": "ci-mcp",
+      "bundle_sha256": "a99e8e8f6212c83356e6c19dfe2c670f2e4a3d6bae3c5e4116e6baecef923b55",
+      "tool_count": 5,
+      "tools": [
+        "list_workflow_runs",
+        "get_workflow_run",
+        "list_run_jobs",
+        "list_run_artifacts",
+        "get_job_log"
+      ],
+      "call": {
+        "name": "list_workflow_runs",
+        "arguments": {
+          "owner": "example",
+          "repo": "example",
+          "perPage": 1
+        }
+      },
+      "response": {
+        "ok": false,
+        "error": {
+          "code": "auth-missing",
+          "message": "No GitHub token found. Set one of CI_MCP_GITHUB_TOKEN, GH_READONLY_TOKEN, or GITHUB_TOKEN."
+        }
+      },
+      "stdout": "MCP initialize/listTools/callTool framing accepted by the SDK client; no diagnostic contamination",
+      "stderr_json_lines": 1,
+      "standalone": true,
+      "server_node_modules": false,
+      "filesystem_unchanged": true,
+      "child_closed": true,
+      "network": "No credentials supplied; CI auth-missing short-circuits before GitHub transport. Other calls use local filesystem/OS only."
+    }
+  ]
+}

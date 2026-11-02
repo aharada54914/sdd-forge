@@ -1,0 +1,33 @@
+exit=0
+{
+  "records": [
+    {
+      "raw_path": "src/a",
+      "normalized_path": "src/a",
+      "classification": "SHARED_CROSS_CUTTING",
+      "owning_components": [],
+      "evidence": {
+        "excluded_match": null
+      }
+    }
+  ],
+  "affected_components": [],
+  "ownership_input": {
+    "components": [],
+    "shared_paths": [
+      {
+        "pattern": "src/**",
+        "components": null,
+        "classification": "cross-cutting"
+      }
+    ],
+    "matcher_semantics_version": "1.0.0"
+  },
+  "context_binding": {
+    "ownership_digest": "sha256:a5b1b9974788170da3e4cd292579d8f67eae04550b6ef2754bb843ac3bb914b9"
+  },
+  "resolver": {
+    "version": "1.1.0",
+    "rule_set_revision": "sha256:187cbe313ee5d533070598ed525a66a146cef9463dc72d3d5c2225cfa316b6f0"
+  }
+}

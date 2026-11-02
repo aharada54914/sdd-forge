@@ -130,3 +130,11 @@ test("error message strings are fixed and non-sensitive (never echo header/body 
   assert.ok(!result.error.message.includes(secretLikeHeader));
   assert.ok(!JSON.stringify(result.error.details ?? {}).includes(secretLikeHeader));
 });
+
+ test("oversized rate-limit times preserve the normalized envelope", () => {
+  for (const header of ["x-ratelimit-reset", "retry-after"]) {
+    const result = normalizeUpstreamResponse({ status: 429, getHeader: (name) => name === header ? "1e300" : null });
+    assert.equal(result?.error.code, "rate-limited");
+    assert.deepEqual(result?.error.details, { status: 429 });
+  }
+});

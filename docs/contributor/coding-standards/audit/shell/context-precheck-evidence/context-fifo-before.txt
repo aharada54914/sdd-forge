@@ -1,0 +1,3 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+fifo bash=1 powershell=124 (124=timeout)

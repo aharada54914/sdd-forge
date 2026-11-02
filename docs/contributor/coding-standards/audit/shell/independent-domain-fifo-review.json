@@ -1,0 +1,54 @@
+{
+  "schema": "independent-domain-fifo-review/v1",
+  "reviewed_worktree": "/workspace/scratch/standards-685/integration",
+  "source": [
+    {
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+      "sha256": "3c5825b605465564a8f2f7c6a3aa4a915b2ce68853a09b68a9bc16effb85f450"
+    },
+    {
+      "path": "tests/sdd-domain/contract-v2-schema.Tests.ps1",
+      "sha256": "d97d7c0df961b3f6d8d4f5288e59794289995d2bbf78282daaba32fd937fb20f"
+    }
+  ],
+  "native_runtime": "PowerShell7.6.7 Linux",
+  "method": "Independently read production file-acquisition delta and test process helper; expand existing trusted structural fixture tokens; run real regular/FIFO files and both symlink targets through native CLI with five-second outer deadline.",
+  "cases": [
+    {
+      "case": "regular.json",
+      "exit_code": 0,
+      "elapsed_seconds": 0.641,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "file-link.json",
+      "exit_code": 0,
+      "elapsed_seconds": 0.55,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "pipe.json",
+      "exit_code": 1,
+      "elapsed_seconds": 0.336,
+      "stdout": "",
+      "stderr": "V2-INPUT-NOT-FILE: input path is not a regular file: <fixture>/pipe.json\n"
+    },
+    {
+      "case": "fifo-link.json",
+      "exit_code": 1,
+      "elapsed_seconds": 0.337,
+      "stdout": "",
+      "stderr": "V2-INPUT-NOT-FILE: input path is not a regular file: <fixture>/fifo-link.json\n"
+    }
+  ],
+  "conclusions": [
+    "No new external executable dependency or production writes; regular-file symlinks preserve target-size check and verdict.",
+    "Windows branch does not evaluate UnixStat or ResolveLinkTarget; APIs in that branch use existing FileInfo/FileAttributes members. Syntax review is not native Windows PowerShell5.1 execution.",
+    "Non-Windows UnixStat property and ResolveLinkTarget runtime capability are required. Older Unix runtimes without them are not certified and may reject valid regular/link inputs; source-bound root record now states this limitation.",
+    "Check/read is not atomic against a concurrent filesystem type replacement; this is stable-input FIFO rejection, not an all-race acquisition guarantee.",
+    "Test helper timeout kills/reaps direct child and disposes handle; stream Result remains potentially unbounded for a descendant retaining inherited pipes. Present validator inputs have no such child-producing path; do not describe this helper as universal descendant supervision."
+  ],
+  "result": "Targeted four-case native behavior accepted with explicit capability/platform/race scope; no three-minute suite rerun."
+}

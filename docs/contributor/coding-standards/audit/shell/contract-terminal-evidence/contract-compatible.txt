@@ -1,0 +1,16 @@
+valid 0 Verification contract passed for task T-001.
+root-array 1 Verification contract FAILED: contract must be a JSON object
+schema-array 1 Verification contract FAILED: contract schema must be a string
+task_id-array 1 Verification contract FAILED: contract task_id must be a string
+evidence-array 1 Verification contract FAILED: check evidence must be a string
+id-array 1 Verification contract FAILED: check id must be a string
+wrongcase-id 1 Verification contract FAILED for task T-001:
+ - check removed from contract: 'lint' is a required baseline check id
+wrongcase-mode 1 Verification contract FAILED for task T-001:
+ - contract cross_model is invalid: LEGACY
+literal bracket root:0
+valid 0
+array 1
+upper 1
+root-array 1
+wrong-key 1

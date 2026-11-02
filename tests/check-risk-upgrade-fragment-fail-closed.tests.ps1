@@ -41,6 +41,9 @@ try {
     Set-Content -LiteralPath (Join-Path $Work 'malformed.json') -Value 'not valid json {{{ at all' -NoNewline
     Assert-FragmentInvalid 'TEST-013b' (Join-Path $Work 'malformed.json')
 
+    Set-Content -LiteralPath (Join-Path $Work 'array-envelope.json') -Value '[{"capabilities": []}]' -NoNewline
+    Assert-FragmentInvalid 'singleton array fragment envelope' (Join-Path $Work 'array-envelope.json')
+
     Write-Host "=== TEST-013c: shape-invalid -- missing 'capabilities' key ==="
     Set-Content -LiteralPath (Join-Path $Work 'no-capabilities-key.json') -Value '{"not_capabilities": []}' -NoNewline
     Assert-FragmentInvalid 'TEST-013c' (Join-Path $Work 'no-capabilities-key.json')

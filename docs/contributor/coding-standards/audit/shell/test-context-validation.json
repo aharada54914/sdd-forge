@@ -1,0 +1,474 @@
+{
+  "schema": "coding-standards-test-shell-validation/v1",
+  "scope": "Linux Bash and native PowerShell7; platform-specific source-only limitations remain explicit in test-context-review.md.",
+  "commands": [
+    {
+      "command": [
+        "bash",
+        "tests/install.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 56.3,
+      "log": "/tmp/ts-shell-install.tests.sh.log",
+      "source_sha256": "bcac4e146812c176b379376633e9d9041ace36995e11dbfef27aeec2935be4b7",
+      "log_sha256": "bf2f86b3b7afc4026cc1a6e246756e28d0abfef81e42014acc2921edab00c0cf"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/uninstall.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 3.3,
+      "log": "/tmp/boundary-uninstall.tests.sh.log",
+      "source_sha256": "d4d7a48a64fa242cd99cbeb3c7c7d3a3d8a10333a9b15fc82b5d7eb40b022020",
+      "log_sha256": "521655778d8933e849c841cd28ea0124856cab49adc3bcad6421c5dae8a92644"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/install-uninstall-matrix.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 9.3,
+      "log": "/tmp/ts-shell-install-uninstall-matrix.tests.sh.log",
+      "source_sha256": "b88cf25c6fa2b96773c6e57d249589b891a0aec22fdf666b92729eb5530b67ac",
+      "log_sha256": "4e2ac834ca70463990293622b593bb736585e5e7517f4840aa376f8c1aadd6c1"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/collection-layer.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 8.8,
+      "log": "/tmp/ts-shell-collection-layer.tests.sh.log",
+      "source_sha256": "126e04de715f96c037165b9287e9ad78d0a7dcec153921b05a07b094faf93cc2",
+      "log_sha256": "f40eab983465eb600c8a9c6d881e0676ebe437fb611151134c69729060b790aa"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/run-panelist-effort.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 7.4,
+      "log": "/tmp/ts-shell-run-panelist-effort.tests.sh.log",
+      "source_sha256": "6da25fcb88fbf6f8ed4993936188ae4fa9585a6259764b86965dbb4778696061",
+      "log_sha256": "c4f1f2b29a01832b159d7d0f4c3f8b6b9d31b8a7da8b564d964727a79c60504d"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/loop-escalation.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 4.9,
+      "log": "/tmp/ts-shell-loop-escalation.tests.sh.log",
+      "source_sha256": "7c8d75d25376affa3cd5aa4630ce19c11e58ae5e039bea6f1139bec401ebecd6",
+      "log_sha256": "01079c34a189458902acbd8a3a62774afc3bb2998e44041f2d372a075b530f1c"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/cross-model.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 150.8,
+      "log": "/tmp/ts-shell-cross-model.tests.sh.log",
+      "source_sha256": "dc489b46974174b31cf8ef89ab219d22beadbd17fefc7c70026fdfb46cdd3c59",
+      "log_sha256": "2ebf30c18c193547bea7b812502d17738fd0751ce7d3e4be53e20c8bc10d590f"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/collection-layer.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 41.3,
+      "log": "/tmp/boundary-collection-layer.tests.ps1.log",
+      "source_sha256": "67782d2b8b202775b0c74de7b6917537c36ba2fa004915876b9c978a53d241ef",
+      "log_sha256": "fa8ee48390f9cfc7956feaf8746a9c90df9621b706509d8fe1fabee65b606701"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/scenario.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 23.4,
+      "log": "/tmp/ts-shell-scenario.tests.ps1.log",
+      "source_sha256": "a20c48b6ec2348d9865b665cd94436f736841975cda48af69c9bfdcade9d5130",
+      "log_sha256": "e218362dc3a58bc222bd4c207cac5c07b9d0cfa9d6fff09da3202a94c2764f24"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/generate-registry-digest.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 9.5,
+      "log": "/tmp/ts-shell-generate-registry-digest.tests.ps1.log",
+      "source_sha256": "7a5868b44048252878cf92eea5bdd6d18bd81431fc4cb44b2055970ea5819ee5",
+      "log_sha256": "5066bb43d3b1a45aef9dbc94900cb7e67f69d558a77baba56771e962afc40ff6"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/capability-registry-parity.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 10.7,
+      "log": "/tmp/ts-shell-capability-registry-parity.tests.ps1.log",
+      "source_sha256": "a9a5cba713930618fb454e2eb6b4ea20c8bf7585803a0046af5c8c431ba9b771",
+      "log_sha256": "20f7f7be4a5d448070f0286f3619d6636221002d2b51e64c74b8af3c852e37dc"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/check-risk-upgrade-byte-identical.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 7.8,
+      "log": "/tmp/ts-shell-check-risk-upgrade-byte-identical.tests.ps1.log",
+      "source_sha256": "606dd0a8172f298fd5e5318785b133f6fc316ab9070ac06ed98588ce59f23858",
+      "log_sha256": "d59590162dfc430bd7a0a458845d649e429969e1b9f6b6fa72d1d6d34fa34686"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/task-layer-full-profile.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 12.8,
+      "log": "/tmp/boundary-task-layer-full-profile.tests.sh.log",
+      "source_sha256": "3583dbf2f71852912fc4e0590a029a5b1bf6ec96a6d36096c5b3d13822c46b03",
+      "log_sha256": "4116e8209b27006d6129c3acd41bb0df9c26e29ee178ea7a8093b8a9e1c2923a"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/task-plan-binding-durability.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 16.3,
+      "log": "/tmp/boundary-task-plan-binding-durability.tests.sh.log",
+      "source_sha256": "4d3aba0c52f1815cd46bd7441234b693ca014c4abebbfade88fc5bc41c19c01e",
+      "log_sha256": "58dff322b7c6379041aa3c53d2739bfbfca16cb55781b4c006cb4965ffd236d1"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/workflow-state-parity.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 5.3,
+      "log": "/tmp/boundary-workflow-state-parity.tests.sh.log",
+      "source_sha256": "bad1a5dc52715874cc30e829b9c87c72a9d9bd71b10232df482e134b70793e09",
+      "log_sha256": "ced6c6fef79b0fde0918fb9309c671c43efbe91d0a85088dc61dbead79db20b0"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/workflow-state.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 341.1,
+      "log": "/tmp/boundary-workflow-state.tests.sh.log",
+      "source_sha256": "13ae0a305f018b5814512366637fd03ad657dff08bbbb6e942e5235d74330a66",
+      "log_sha256": "059a5e8ac80090e8e05d030fd3445067601ceaa3e432d7b4eaa89b17e16ca1be"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/structure-check-feature-mode.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.3,
+      "log": "/tmp/boundary-structure-check-feature-mode.tests.sh.log",
+      "source_sha256": "8be3829d4723d88fe3baeb09f1f7101abe702c8b248ae2ae291a19e823b6c470",
+      "log_sha256": "9de2834f1255325894a4184078662487d8fc96954585d5f57e77f67408a1913c"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/component-path-ownership-parity.tests.sh"
+      ],
+      "exit": 0,
+      "seconds": 13.5,
+      "log": "/tmp/boundary-component-path-ownership-parity.tests.sh.log",
+      "source_sha256": "198bccd9f62fac678e9bbd48b6c67b2b6eea1bbbf80b45c5e59f2a9fbbe1c694",
+      "log_sha256": "c601cd3e4d64348076c85a0430a9cbec23e2cd5ff7d11b5866d55eb16a3e98da"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "exit": 0,
+      "seconds": 7.6,
+      "log": "/tmp/boundary-cli-hook-enforcement.ps1.log",
+      "source_sha256": "91b4b5db08e87db8aeb0e01c6d2f9fbac86f5cda22c22f9bc100f7afb65eec3b",
+      "log_sha256": "053e04eaa4aacc96f23cdfe6c993c648fe1bced5ae14a625574239c8c5815e4d"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/phase2-contract-path-helper.tests.ps1"
+      ],
+      "exit": 1,
+      "seconds": 0.8,
+      "log": "/tmp/boundary-phase2-contract-path-helper.tests.ps1.log",
+      "source_sha256": "65bfa4bb83c17e25a5edf1570103b10ca2b44c91a2f983870440bb3e68afe519",
+      "log_sha256": "c8216002469d22e171be78e0ce5992708d4317c017f833cf03d1156fe8e8e89d"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/canonicalize-sdd-yaml.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 55.9,
+      "log": "/tmp/boundary-canonicalize-sdd-yaml.tests.ps1.log",
+      "source_sha256": "cb49abbf6a54fb5a8aae7adc467291f61533a2d542592a016f9cb66cd0bf7239",
+      "log_sha256": "0a41e99f3369b586e6a8ce6879dffe5662f42d8f130411ba276aeee3996da544"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/detect-policy-weakening.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 25.7,
+      "log": "/tmp/boundary-detect-policy-weakening.tests.ps1.log",
+      "source_sha256": "287de6d04896c052c82b3fec114c99fc79183ba3a0da0e08e1bde3ca9fbfb579",
+      "log_sha256": "5bf952190eb51bf34b131ab0b4e4284b86bed57712b139b1564435876c0ffe13"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/generate-approval-sidecar.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 21.5,
+      "log": "/tmp/boundary-generate-approval-sidecar.tests.ps1.log",
+      "source_sha256": "e6162463d66dd67a986d0b3d3ee713aa6eaeeb03b18be2d547a61550e1b1df56",
+      "log_sha256": "99e505f35c0a138a55f20cda4edffaaa4b6a8913ae71d39fd428d15f550f8cb5"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/facet-manifest-staleness.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 5.5,
+      "log": "/tmp/boundary-facet-manifest-staleness.tests.ps1.log",
+      "source_sha256": "6c6ddd891fe2f2f6c9834963fadc4b1a0951cdac926a792e0616ed7dffb28a68",
+      "log_sha256": "2c34045346f86a05859ebc6bd9dcc95092e65067038e987cd24317553150c8c3"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/validate-approval-sidecar.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 39.5,
+      "log": "/tmp/boundary-validate-approval-sidecar.tests.ps1.log",
+      "source_sha256": "c3b5fb3349e9cf29b9fe5f8e07f5f6c599d02dce326cdee8e510edaa8f32a183",
+      "log_sha256": "03b087dd809490c6d8eaa90d2c9d930266f7f00024e5c893275f6cfdf0cc9a0b"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/downstream-review-precheck.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 58.4,
+      "log": "/tmp/boundary-downstream-review-precheck.tests.ps1.log",
+      "source_sha256": "cccfcadcc962d955373cbf4199343acfa5ef7fbe41580b2cbafbff0f97a7e9bc",
+      "log_sha256": "ce15646f54590d4a7ce4e346a08d829bc76da755fbb6247b75634ca31f024ef0"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/claude-registration.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 10.9,
+      "log": "/tmp/boundary-claude-registration.tests.ps1.log",
+      "source_sha256": "e1f620b7de40c3611215042d254e144e2c86c7fecdbced48187a1b6964592c9f",
+      "log_sha256": "1e1628c81f16811ca59ad80bff692205e3d9b95b486e08f31c77865fac0fdd52"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/capability-registry-schema.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 1.7,
+      "log": "/tmp/boundary-capability-registry-schema.tests.ps1.log",
+      "source_sha256": "7bab5ff8f937d112b65247bf1697eb55c2890a51e1958e421f9d4d23a2abd00c",
+      "log_sha256": "aea85443e56954fe51a1998ce6d80651edec4f4a13d5332143b3a2a68561452f"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/check-component-coverage.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 83.2,
+      "log": "/tmp/boundary-check-component-coverage.tests.ps1.log",
+      "source_sha256": "cc4913f65c292ca20b8cf8ceba479f49b90acc88db101bde6e9a7660d1006b30",
+      "log_sha256": "7f84bce45eb3e7bb28f24bc7216fe7b3476a44fd75ce5090ce0250dc3aaee60b"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/design-system-contract.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 1.1,
+      "log": "/tmp/boundary-design-system-contract.tests.ps1.log",
+      "source_sha256": "aa5aec16b1f3fc96b4ef725e526a20460955f48d007dd2bdeba483c3a4888981",
+      "log_sha256": "28cbd9d34bd4ff51ba22f643c72bbfef43ce29bd519e614ce7650b59b89fdf1b"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/human-copy-runner-contract.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 33.4,
+      "log": "/tmp/boundary-human-copy-runner-contract.tests.ps1.log",
+      "source_sha256": "30a89c645d270f883d3ae28c3ebdd0b495a75d3cc32de5bb29e506d870b3525c",
+      "log_sha256": "f306e13cd715ca13fe6dc1b2d2bc310e6fbbcbb2a70553dca681a509824679a6"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/lite-gate-cli-chain.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 3.7,
+      "log": "/tmp/boundary-lite-gate-cli-chain.tests.ps1.log",
+      "source_sha256": "de0a483fb9df981f2a9550a306514ad1ec37b2fbc3eafe0e81be8689ed2971ca",
+      "log_sha256": "c620f970cad91a2a07b766eb96cc772d576988a82b7c1de8ac7cd9d2655230ec"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/review-contract-foundation.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 1.2,
+      "log": "/tmp/boundary-review-contract-foundation.tests.ps1.log",
+      "source_sha256": "b3f3d169a518ea3d7b8fd8f7fc29c696447a2b5dc6e5cbab44863f81271e0ee4",
+      "log_sha256": "b7e702563fc54fb5709c939de839c2c45e992a8a25e13540014c9c66eb52fa9c"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/guard-invariants-epic-a1.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 2.8,
+      "log": "/tmp/boundary-guard-invariants-epic-a1.tests.ps1.log",
+      "source_sha256": "1473245ef79f8f2b32641193c7f73761eef576745f67e232f5afb01f5704e963",
+      "log_sha256": "85b5e6c51cc89e655ba71b3e8a9fd556e69c5771bbc16ce096b20acdbf0cdf1b"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/impl-layer-review-inputs.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 19.8,
+      "log": "/tmp/boundary-impl-layer-review-inputs.tests.ps1.log",
+      "source_sha256": "172b62c043d876bbed4aa35a5d1701e67f09bb2bd21fd070d2f5b54fb117bf4a",
+      "log_sha256": "67d9cb90425e8c08876a012fccb4e487fff135a769c863239d60f5201faa0a61"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/prepare-panelist.tests.ps1"
+      ],
+      "exit": 0,
+      "seconds": 56.6,
+      "log": "/tmp/boundary-prepare-panelist.tests.ps1.log",
+      "source_sha256": "4cfa62dd79cab2c28bcd49bd7b0eb7d2c8f4332ec9d6d0709fc045948e108b55",
+      "log_sha256": "18f695ec9ce5ca6ed039c434f22c9195a2b4d8d211946a483ebd1bc094afa021"
+    }
+  ],
+  "focused_controls": {
+    "domain_v2_pester": {
+      "passed": 319,
+      "failed": 0,
+      "log_sha256": "a2e7fc11d19f7b5f32cc17f4e6d42b64914c9922f78785468587847578ddced3"
+    },
+    "native_argv": "Existing cross-model actual Python argv capture block passed independently: empty, spaces, single/double quotes, trailing backslash, backslash+quote, newline, dollar/backtick/leading dash.",
+    "hostile_path": "routing hostile path 0 openai/gpt-5.2-codex strong\n \nmatrix hostile TMPDIR 0",
+    "literal_installer": "ok: bracketed install path preserves neighbors through rollback and upgrade\nok: bracketed uninstall removes its exact target and preserves the neighboring tree",
+    "lite_simulator_baseline": "Singleton-array summary returns PASS before5dd9506b; six malformed-shape/case controls added and fixed suite12/12.",
+    "domain_v1_pester": {
+      "passed": 8,
+      "failed": 0
+    },
+    "phase2_guard_invariants": {
+      "passed": 55,
+      "failed": 0,
+      "skipped": 1,
+      "skip_reason": "Existing install-path assertions require applying the reviewed staged refresh candidate; frozen predecessor condition is preserved, not counted as runtime coverage."
+    }
+  },
+  "syntax": {
+    "bash": 195,
+    "powershell": 153,
+    "kind": "native parse only, not semantic validation"
+  }
+}

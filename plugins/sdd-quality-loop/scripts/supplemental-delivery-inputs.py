@@ -16,6 +16,8 @@ spec.loader.exec_module(safe)
 
 def resolve(root, manifest, verify_manifest_citation=False):
     document = json.loads(Path(manifest).read_bytes(), object_pairs_hook=safe.unique_object)
+    if not isinstance(document, dict) or not isinstance(document.get('allowed_input_manifest'), list):
+        raise ValueError('delivery invocation requires an input manifest array')
     feature, task = document['feature'], document['task_id']
     if document['stage'] != 'quality' or document['role'] != 'sdd-evaluator':
         raise ValueError('supplemental declaration is evaluator-only')

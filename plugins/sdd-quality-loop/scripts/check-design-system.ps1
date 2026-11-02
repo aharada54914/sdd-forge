@@ -36,10 +36,13 @@ if (-not (Test-Path -LiteralPath $tokensPath)) {
     $findings += "design-tokens.json missing"
 } else {
     try {
-        $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
-        if ($tokens.meta.schema -ne 'design-system-contract/v1') { $findings += "design-tokens.json: meta.schema is not design-system-contract/v1" }
-        if ([string]$tokens.meta.version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') { $findings += "design-tokens.json: meta.version is not semver" }
-        if ([string]::IsNullOrEmpty([string]$tokens.meta.generated_by)) { $findings += "design-tokens.json: meta.generated_by missing" }
+        $tokenText = Get-Content -Raw -Encoding Utf8 -LiteralPath $tokensPath
+        if ($tokenText -notmatch '^\s*\{') { throw 'design-tokens root must be an object' }
+        $tokens = $tokenText | ConvertFrom-Json
+        if ($tokens.meta -isnot [PSCustomObject]) { throw 'design-tokens meta must be an object' }
+        if ($tokens.meta.schema -isnot [string] -or $tokens.meta.schema -cne 'design-system-contract/v1') { $findings += "design-tokens.json: meta.schema is not design-system-contract/v1" }
+        if ($tokens.meta.version -isnot [string] -or $tokens.meta.version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') { $findings += "design-tokens.json: meta.version is not semver" }
+        if ($tokens.meta.generated_by -isnot [string] -or [string]::IsNullOrEmpty($tokens.meta.generated_by)) { $findings += "design-tokens.json: meta.generated_by missing" }
         foreach ($group in @('color', 'typography', 'spacing')) {
             if ($null -eq $tokens.PSObject.Properties[$group]) { $findings += "design-tokens.json: token group $group missing" }
         }

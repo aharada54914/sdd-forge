@@ -1,0 +1,133 @@
+{
+  "schema": "coding-standards-external-main-delta/v1",
+  "before_commit": "50c12f27",
+  "merged_main": "f6fba8b6",
+  "method": "Review external main documentation and record delta, not attribution to this coding-standards task. Existing source owners remain responsible for executable tests/catalog.",
+  "entries": [
+    {
+      "path": "README.md",
+      "source_sha256": "f09682400b9906e29662bfc2836e10288722ed38d15eb95141409c77816830e5",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review.",
+      "before_source_sha256": "7714f5d525438c5bb4782b615fd52d5842d2178f01cffc5dbe744429143e0243"
+    },
+    {
+      "path": "docs/README.md",
+      "source_sha256": "a2767e1a0fee3962c9301c6e33bc2798fe90f5fa6fb732d8225b5c5d9ff8f5a2",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review."
+    },
+    {
+      "path": "docs/THREAT-MODEL.md",
+      "source_sha256": "a18d17b760f73a4a10af9c2c16f6730479baed6b5a9a1dc764840d2b5dd62039",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review.",
+      "before_source_sha256": "2c9a2315a0dca24e4b7bcc09d753e346934b48fa4122c7558161b41c4abb4b16"
+    },
+    {
+      "path": "docs/architecture/overview.md",
+      "source_sha256": "8ed9f8411c9fb56193fd1de8de95bf9d4eaa24ca73510917fdecd637cbf8a0e1",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review.",
+      "before_source_sha256": "2c6640ea84ac173e080095d6511407d3c0c10ec0e13614d8bad5e723b3756309"
+    },
+    {
+      "path": "docs/workflow-guide.md",
+      "source_sha256": "12c528c5434116b27f3dc425cbacfc53d403cd72dbf19695ebc17db5dd145491",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review.",
+      "before_source_sha256": "24bc650ee35b50698f3e4449f9e342987d164f2be0f900f72652ebd1eaa96631"
+    },
+    {
+      "path": "docs/adr/README.md",
+      "source_sha256": "2fc3a48361c728805995d9f8414f75f5438306f84218c141d20db4e7c4b31600",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review.",
+      "before_source_sha256": "731dc5479451d6b119937a781ec0830e0ab141f5e938d3b499defbd343d135eb"
+    },
+    {
+      "path": "docs/adr/0046-vendor-agent-toolkit-coexistence.md",
+      "source_sha256": "4252f6be6074e2f24b282e4ef3a4a7dee15716adf1955a2b7fc11ad21883fc07",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review."
+    },
+    {
+      "path": "docs/cloud/README.md",
+      "source_sha256": "e7680df868c6829a5914f318053403782f247ece981dd0f1f792d29c016d2726",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review."
+    },
+    {
+      "path": "docs/cloud/aws.md",
+      "source_sha256": "727831d669e2f667ae3ee8790f2e864a6acafe7c7ce94e1600f1138db111469c",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review."
+    },
+    {
+      "path": "docs/cloud/azure.md",
+      "source_sha256": "ee18805244aee727b2b59f83a02584b74d01c8fc9c5d80d9cd8e1db111cb4d3e",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Read new document or complete changed hunks with enclosing owner policy. Mermaid diagrams are explanatory data: no dynamic executable source, external command dispatch, credentials or new authorization. Cloud plans and proposed ADR remain explicitly unimplemented/unaccepted; OIDC/tool examples describe external workflows and do not claim live host verification. Existing implementation gates, human approval and cloud IAM remain separate. Vendor statements are inherited source-attributed narrative, not newly verified original-byte research claims. Unchanged executable fences retain prior guidance owner review."
+    },
+    {
+      "path": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
+      "source_sha256": "73d2b66ceaec082a66ad0a0742b85052fa47cfb64bdb8e34df19d89bcdfd7f24",
+      "state": "out-of-scope",
+      "review_scope": "record_role",
+      "reason": "Externally merged #678 report/provenance data preserved exactly. Diff adds explicit zero severity headers and absence-of-run-id note; JSON pins the amended report SHA. No execution, new independent review or invented run identity inferred from this format amendment. Actual consumers continue to validate evidence under their own contracts."
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/operational/mcp-report-lookup-cache/verification/T-678.evidence.json",
+      "source_sha256": "6b4a4bbb22c5e79e6dd6729c368e5ddc6cf2124603a12bea0756e107c078575c",
+      "state": "out-of-scope",
+      "review_scope": "record_role",
+      "reason": "Externally merged #678 report/provenance data preserved exactly. Diff adds explicit zero severity headers and absence-of-run-id note; JSON pins the amended report SHA. No execution, new independent review or invented run identity inferred from this format amendment. Actual consumers continue to validate evidence under their own contracts."
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/independent-review-provenance.json",
+      "source_sha256": "c4d8f207d56dfa0900c0ded10a1efc677fa0ddd7b25951ef5c45dd28098d0c13",
+      "state": "out-of-scope",
+      "review_scope": "record_role",
+      "reason": "Externally merged #678 report/provenance data preserved exactly. Diff adds explicit zero severity headers and absence-of-run-id note; JSON pins the amended report SHA. No execution, new independent review or invented run identity inferred from this format amendment. Actual consumers continue to validate evidence under their own contracts."
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/mapping.json",
+      "source_sha256": "07048253b825352f22d4ec8401b1f9bdd995942757a61251727cc995ef601502",
+      "state": "out-of-scope",
+      "review_scope": "record_role",
+      "reason": "Formal mapping is a bounded property/assumption fixture, not proof of the entire implementation. Parsed all fields; current source SHA matches actual validator bytes. Refresh preserves atomic mkdir/same-directory rename/all-writers-lock/hash/no-hostile-filesystem/two-contender assumptions and explicit crash/network/Windows exclusions. CI owner actual six reservation controls remain separate; this reconciliation does not rerun TLC or assert new formal proof. Independently recomputed exact lock block from if-reserve through closing fi: stored099073aa tail hash matches after identity diagnostic change.",
+      "evidence": [
+        "reports/verification/coding-standards-ci-20261102/results.json"
+      ]
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "before_source_sha256": "a297163d2c96b0cc8dfe478ecbe82e54e962c800294c25abd6cc49e62c67a01f",
+      "source_sha256": "d4c89b3e211b7ec6959109a2904b8d4a916c4c0eb85d0a416c908f9b95e27537",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read actual joined delta from0ad68533, retaining main doc-diagram routes. Only adds codex-mcp-config Python suite to local-posix and existing posix-regression metadata, plus static matching workflow step after required-checks failure controls. Existing job provisions native pwsh; no permission/trigger/conditions/required-checks change. Test invokes actual function extraction and independent tomllib controls as documented by installer owner; source filename and selected runtime agree. This is task registration after external-main integration, not attribution to external main."
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "before_source_sha256": "35b6052ed903f67cc4d6109d95a177cc78affd530e3e58e3594c980be218454e",
+      "source_sha256": "ee79edf2a4e2787aa87f6ba9864dd2b97ee74ab53d8bf5a7c5209bb453de597c",
+      "state": "reviewed",
+      "review_scope": "changed_hunks",
+      "judgment": "Read actual joined delta from0ad68533, retaining main doc-diagram routes. Only adds codex-mcp-config Python suite to local-posix and existing posix-regression metadata, plus static matching workflow step after required-checks failure controls. Existing job provisions native pwsh; no permission/trigger/conditions/required-checks change. Test invokes actual function extraction and independent tomllib controls as documented by installer owner; source filename and selected runtime agree. This is task registration after external-main integration, not attribution to external main."
+    }
+  ],
+  "limits": [
+    "No live vendor toolkit, cloud API or IAM execution. External linked webpage original bytes were not acquired by this reconciliation."
+  ]
+}

@@ -19,7 +19,7 @@ $patternCi = 'not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary 
 $findings = @()
 
 foreach ($path in $Paths) {
-    if (-not (Test-Path $path)) {
+    if (-not (Test-Path -LiteralPath $path)) {
         # issue #127 parity: a missing scan target must fail closed, not be
         # silently skipped. Skipping reported a false pass when the caller
         # passed a bad or moved path -- the PowerShell twin of the .sh grep
@@ -28,10 +28,10 @@ foreach ($path in $Paths) {
         [Console]::Error.WriteLine("check-placeholders: cannot scan a nonexistent path; failing closed instead of reporting a false pass.")
         exit 2
     }
-    $files = if ((Get-Item $path).PSIsContainer) {
-        Get-ChildItem $path -Recurse -File | Where-Object { $_.FullName -notmatch '[\\/](\.git|node_modules|bin|obj|dist)[\\/]' }
+    $files = if ((Get-Item -LiteralPath $path).PSIsContainer) {
+        Get-ChildItem -LiteralPath $path -Recurse -File | Where-Object { $_.FullName -notmatch '[\\/](\.git|node_modules|bin|obj|dist)[\\/]' }
     } else {
-        Get-Item $path
+        Get-Item -LiteralPath $path
     }
     foreach ($file in $files) {
         $matched = @()
@@ -39,8 +39,8 @@ foreach ($path in $Paths) {
         # through -ErrorAction SilentlyContinue and was reported clean. Surface
         # it and fail closed, mirroring the .sh grep exit>=2 handling.
         try {
-            $matched += Select-String -Path $file.FullName -Pattern $patternCs -CaseSensitive -AllMatches -ErrorAction Stop
-            $matched += Select-String -Path $file.FullName -Pattern $patternCi -AllMatches -ErrorAction Stop
+            $matched += Select-String -LiteralPath $file.FullName -Pattern $patternCs -CaseSensitive -AllMatches -ErrorAction Stop
+            $matched += Select-String -LiteralPath $file.FullName -Pattern $patternCi -AllMatches -ErrorAction Stop
         } catch {
             [Console]::Error.WriteLine("check-placeholders: FATAL could not scan file: $($file.FullName)")
             [Console]::Error.WriteLine("check-placeholders: $($_.Exception.Message)")

@@ -1,0 +1,61 @@
+{
+  "schema": "coding-standards-renderer-template-context-review/v1",
+  "revision": "a88b9cc1ab9b1acd7fd6ac89f91397ffa583ffae",
+  "method": "Whole source read, traced input-to-rendering/status flow and disposable-target/interactive-input controls. Explicit wrapper errors, exact types/enum fields, native literal paths and check-only versus write behavior assessed. No asynchronous service/retry/SQL/HTML operation; subprocess ownership and process statuses remain explicit.",
+  "entries": [
+    {
+      "path": "render-agent-frontmatter.sh",
+      "source_sha256": "c68ed293631b097ad028a32e698f7aaf276c39d14070e9656140e2cb4c11eb08",
+      "state": "reviewed",
+      "judgment": "Renderer reads exact consumed registry fields/types, finite role enums and target bool/kind before rendering; unrelated extension data preserved. Protected targets route to staging; Check only compares. Root Python heredoc literal, argv transport explicit. PowerShell provider probes literal. SHA utility disposed and UTF8 producers explicit. Output template transforms remain narrow two-format ownership, not a new generic rendering abstraction. Actual Bash31/0 and PowerShell49/0, with retained baseline red logs and unchanged live protected hashes. Follow-up actual model newline/NUL reproduction repaired by control-character boundary. Final Bash31/0 and PowerShell51/0.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/findings.json",
+        "reports/verification/coding-standards-renderer-20261101/"
+      ],
+      "previous_source_sha256": "a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434"
+    },
+    {
+      "path": "render-agent-frontmatter.ps1",
+      "source_sha256": "0d5a7ffe22eaec3f3563ae8f1bcfb22d1bc3153914b60e246463adae116ef847",
+      "state": "reviewed",
+      "judgment": "Renderer reads exact consumed registry fields/types, finite role enums and target bool/kind before rendering; unrelated extension data preserved. Protected targets route to staging; Check only compares. Root Python heredoc literal, argv transport explicit. PowerShell provider probes literal. SHA utility disposed and UTF8 producers explicit. Output template transforms remain narrow two-format ownership, not a new generic rendering abstraction. Actual Bash31/0 and PowerShell49/0, with retained baseline red logs and unchanged live protected hashes. Follow-up actual model newline/NUL reproduction repaired by control-character boundary. Final Bash31/0 and PowerShell51/0.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/findings.json",
+        "reports/verification/coding-standards-renderer-20261101/"
+      ],
+      "previous_source_sha256": "98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+      "source_sha256": "8e496d89e3dd293a1b8c2e9c5a5d1637a6bdf4bb990c627b5c60c29c98eab849",
+      "state": "reviewed",
+      "judgment": "HITL template validates bounded iteration count, EOF and CHECK0/1/error status before success. Existing actual shell25/0+PS twin16/0 after red controls; no unavailable observation becomes green.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/findings.json",
+        "tests/hitl-wfi-terminal.tests.sh"
+      ]
+    },
+    {
+      "path": "tests/render-agent-frontmatter.tests.sh",
+      "source_sha256": "d56c14d90a1f35a623aced0c2485388d30167a39b6010150099f4b541c64e460",
+      "state": "reviewed",
+      "previous_owner_source_sha256": "c51330aea654902585770f4775303e54457ccbb8bb4311ab375554aec23e1d7c",
+      "judgment": "Existing whole-test contextual owner judgment plus inspected renderer changes: exact scalar/enum/target controls, literal bracket paths, selected-model newline/NUL mutations. Python test body is literal, inputs travel argv/JSON; subprocess deadline30s; all write cases disposable, protected live hashes checked unchanged. PowerShell parser cases use synthetic registry copies and explicit diagnostic/status assertions. Actual final Bash31/0 and PowerShell51/0; no platform beyond Linux PowerShell7 inferred.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+        "reports/verification/coding-standards-renderer-20261101/"
+      ]
+    },
+    {
+      "path": "tests/render-agent-frontmatter.tests.ps1",
+      "source_sha256": "3b74a29afe5e214535ea48f32d93e606a3b84f6ecb126c17b7d544fe72410504",
+      "state": "reviewed",
+      "previous_owner_source_sha256": "aee0863cfaaf3a16fbaf6d82822442d1a03529a73cab58267b976bc54f308a6d",
+      "judgment": "Existing whole-test contextual owner judgment plus inspected renderer changes: exact scalar/enum/target controls, literal bracket paths, selected-model newline/NUL mutations. Python test body is literal, inputs travel argv/JSON; subprocess deadline30s; all write cases disposable, protected live hashes checked unchanged. PowerShell parser cases use synthetic registry copies and explicit diagnostic/status assertions. Actual final Bash31/0 and PowerShell51/0; no platform beyond Linux PowerShell7 inferred.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+        "reports/verification/coding-standards-renderer-20261101/"
+      ]
+    }
+  ]
+}

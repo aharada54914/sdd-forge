@@ -79,7 +79,7 @@ function New-Verdict {
         consent      = $consentObj
     }
 
-    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $Path
+    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 -LiteralPath $Path
 }
 
 function Get-MonotonicMilliseconds {
@@ -210,6 +210,7 @@ $python = Get-Command $pythonName -ErrorAction Stop
 if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the panelist fixture' }
 $panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
 @'
+import base64
 import json
 import os
 import subprocess
@@ -228,8 +229,10 @@ def receipt(name, value):
 receipt('STUB_START_FILE', now())
 receipt('STUB_DEADLINE_FILE', os.environ.get('SDD_PANELIST_DEADLINE_EPOCH_MS', ''))
 receipt('STUB_CALLED_FILE', 'called')
+receipt('STUB_ARGV_FILE', json.dumps(sys.argv[1:]))
 receipt('STUB_PID_FILE', os.getpid())
-sys.stdin.read()
+stdin_bytes = sys.stdin.buffer.read()
+receipt('STUB_STDIN_BASE64_FILE', base64.b64encode(stdin_bytes).decode('ascii'))
 if os.environ.get('STUB_MODE') == 'hang':
     child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -248,6 +251,10 @@ response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
     feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
     findings=[], blind=True, input_digest='a' * 64,
     consent=dict(kind='human-flag', ref='test fixture')), separators=(',', ':'))
+if os.environ.get('STUB_VERDICT_PATCH'):
+    patched = json.loads(response)
+    patched.update(json.loads(os.environ['STUB_VERDICT_PATCH']))
+    response = json.dumps(patched)
 phase_path = os.environ.get('STUB_PHASE_FILE')
 # Open diagnostic files before the near-deadline wait, not on the exit path.
 phase_handle = open(phase_path, 'w', encoding='utf-8') if phase_path else None
@@ -1080,6 +1087,122 @@ $panelistRunners = @(
     } else {
         Fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
     }
+
+    foreach ($runner in $panelistRunners) {
+        $caseIndex = 0
+        foreach ($patch in @(
+            @{ schema = @('cross-model-verdict/v1') },
+            @{ blind = 'true' }, @{ blind = 1 }, @{ blind = @($true) },
+            @{ verdict = 'pass' }, @{ verdict = @('PASS') },
+            @{ input_digest = @(('a' * 64)) }
+        )) {
+            $caseRoot = Join-Path $workDir "schema-$($runner.Name)-$caseIndex"
+            Invoke-PanelistRunner -Runner $runner -SpecRoot $caseRoot `
+                -TimeoutMode set -TimeoutValue '10' -StubEnvironment @{
+                    STUB_VERDICT_PATCH = ($patch | ConvertTo-Json -Depth 5 -Compress)
+                }
+            if ($script:panelistExit -eq 1 -and -not (Test-Path (Join-Path $caseRoot "timeout-test/verification/$($runner.VerdictName)"))) {
+                Ok "runner $($runner.Name) rejects noncanonical scalar case $caseIndex"
+            } else { Fail "runner $($runner.Name) accepted noncanonical scalar case $caseIndex" }
+            $caseIndex++
+        }
+    }
+
+    # Capture actual native argv, rather than accepting a stub's mere exit.
+    . (Join-Path $scriptsDir 'lib/native-arguments.ps1')
+    $argvProgram = Join-Path $workDir 'capture argv.py'
+    'import json,sys; open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(sys.argv[2:]))' |
+        Set-Content -LiteralPath $argvProgram -Encoding utf8
+    $argvReceipt = Join-Path $workDir 'native argv.json'
+    $atoms = @('', 'space value', 'quote"value', "single'value", 'trailing\', 'back\"quote', "line`nnext", '$`-value')
+    $captureProcess = Start-Process -FilePath $python.Source -ArgumentList (
+        ConvertTo-SddNativeArgumentString (@($argvProgram, $argvReceipt) + $atoms)) -Wait -PassThru -NoNewWindow
+    $receivedAtoms = @(Get-Content -Raw -LiteralPath $argvReceipt | ConvertFrom-Json)
+    if ($captureProcess.ExitCode -eq 0 -and
+        (($receivedAtoms | ConvertTo-Json -Compress) -ceq ($atoms | ConvertTo-Json -Compress))) {
+        Ok 'native argument encoder preserves empty, quotes, backslashes and newlines'
+    } else { Fail 'native argument encoder changed argv data' }
+    $spacedTemp = Join-Path $workDir 'temporary directory with spaces'
+    New-Item -ItemType Directory -Path $spacedTemp | Out-Null
+    foreach ($runner in $panelistRunners) {
+        $receipt = Join-Path $workDir ($runner.Name + '-argv.json')
+        $stdinReceipt = Join-Path $workDir ($runner.Name + '-stdin.base64')
+        Invoke-PanelistRunner -Runner $runner -SpecRoot (Join-Path $workDir ($runner.Name + '-argv')) `
+            -TimeoutMode set -TimeoutValue '10' -StubEnvironment @{
+                STUB_ARGV_FILE = $receipt; STUB_STDIN_BASE64_FILE = $stdinReceipt; TMPDIR = $spacedTemp; TEMP = $spacedTemp; TMP = $spacedTemp
+            }
+        $actual = @(Get-Content -Raw -LiteralPath $receipt | ConvertFrom-Json)
+        if ($runner.Name -eq 'gemini') {
+            $promptAst = [Management.Automation.Language.Parser]::ParseFile($runner.Path, [ref]$null, [ref]$null)
+            $prompt = @($promptAst.FindAll({ param($node)
+                $node -is [Management.Automation.Language.StringConstantExpressionAst] -and
+                $node.StringConstantType -eq 'SingleQuotedHereString'
+            }, $true))[0].Value
+            $expectedStdin = $prompt + "`n`n## Sanitized Input Bundle`n`n" + (Get-Content -Raw -Encoding Utf8 -LiteralPath $script:panelistInput)
+            # Start-Process on Unix copies through WriteLine; Windows uses
+            # the input file handle directly. Keep the complete body exact
+            # and account only for that measured Unix transport terminator.
+            if (-not $IsWindows) { $expectedStdin += [Environment]::NewLine }
+            $expectedBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($expectedStdin))
+            $actualBase64 = Get-Content -Raw -LiteralPath $stdinReceipt
+            if ($script:panelistExit -eq 0 -and $actual.Count -eq 4 -and $actual[2] -ceq '-p' -and
+                $actual[3] -ceq 'Review the complete instructions and sanitized input on stdin.' -and
+                $actualBase64 -ceq $expectedBase64) {
+                Ok 'Gemini receives fixed prompt argument and exact multiline instructions plus bundle on stdin'
+            } else {
+                $receivedBytes = [Convert]::FromBase64String($actualBase64)
+                $expectedBytes = [Text.Encoding]::UTF8.GetBytes($expectedStdin)
+                $firstDifference = 0
+                while ($firstDifference -lt [Math]::Min($receivedBytes.Length, $expectedBytes.Length) -and $receivedBytes[$firstDifference] -eq $expectedBytes[$firstDifference]) { $firstDifference++ }
+                Fail "Gemini prompt argv or stdin bytes changed: exit=$script:panelistExit argc=$($actual.Count) expectedBytes=$($expectedBytes.Length) actualBytes=$($receivedBytes.Length) firstDifference=$firstDifference"
+            }
+        } else {
+            $cwdIndex = [Array]::IndexOf($actual, '-C')
+            if ($script:panelistExit -eq 0 -and $cwdIndex -ge 0 -and
+                $actual[$cwdIndex + 1].StartsWith($spacedTemp) -and $actual[-1] -ceq '-') {
+                Ok 'Codex receives scratch directory with spaces as one argument'
+            } else { Fail 'Codex scratch directory argument is split or changed' }
+        }
+    }
+
+    # Exact boolean/string types and verdict casing match the Bash gate.
+    $parityFeature = 'literal[brackets]'
+    $parityDir = Join-Path $workDir "specs/$parityFeature/verification"
+    $parityA = Join-Path $parityDir 'T-002.panelist-anthropic.verdict.json'
+    $parityB = Join-Path $parityDir 'T-002.panelist-openai.verdict.json'
+    New-Verdict -Path $parityA -Vendor anthropic
+    New-Verdict -Path $parityB -Vendor openai
+    $parityArgs = @('--task', 'T-002', '--feature', $parityFeature, '--spec-root', (Join-Path $workDir 'specs'))
+    Assert-ExitCode 'literal brackets in feature path' (Invoke-CrossModel -Arguments $parityArgs) 0
+    foreach ($case in @(
+        @{ field = 'blind'; value = 'true'; expected = 2 },
+        @{ field = 'blind'; value = 1; expected = 2 },
+        @{ field = 'vendor'; value = 123; expected = 2 },
+        @{ field = 'verdict'; value = 'pass'; expected = 1 },
+        @{ field = 'verdict'; value = @('PASS'); expected = 1 },
+        @{ field = 'input_digest'; value = @($DIGEST); expected = 2 },
+        @{ field = 'input_digest'; value = ($DIGEST + "`n"); expected = 2 },
+        @{ field = 'consent'; value = @{kind=@('human-flag')}; expected = 2 },
+        @{ field = 'findings'; value = $null; expected = 2 },
+        @{ field = 'findings'; value = @('Critical'); expected = 2 },
+        @{ field = 'findings'; value = @{severity='Critical'}; expected = 2 }
+    )) {
+        $document = Get-Content -Raw -LiteralPath $parityB | ConvertFrom-Json
+        $document.($case.field) = $case.value
+        $json = $document | ConvertTo-Json -Depth 5
+        [IO.File]::WriteAllText($parityB, $json)
+        Assert-ExitCode "reject noncanonical $($case.field) $($case.value)" (Invoke-CrossModel -Arguments $parityArgs) $case.expected
+        New-Verdict -Path $parityB -Vendor openai
+    }
+    $validJson = Get-Content -Raw -LiteralPath $parityB
+    [IO.File]::WriteAllText($parityB, "[$validJson]")
+    Assert-ExitCode 'reject singleton array verdict envelope' (Invoke-CrossModel -Arguments $parityArgs) 2
+    New-Verdict -Path $parityB -Vendor openai
+    $withoutFindings = Get-Content -Raw -LiteralPath $parityB | ConvertFrom-Json
+    $withoutFindings.PSObject.Properties.Remove('findings')
+    [IO.File]::WriteAllText($parityB, ($withoutFindings | ConvertTo-Json -Depth 5))
+    Assert-ExitCode 'omitted optional findings remains supported' (Invoke-CrossModel -Arguments $parityArgs) 0
+    Assert-ExitCode 'lowercase evaluator diverges' (Invoke-CrossModel -Arguments ($parityArgs + @('--evaluator', 'pass'))) 1
 
     # ============================================================================
     # Summary

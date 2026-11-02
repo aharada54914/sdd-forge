@@ -102,10 +102,11 @@ def _find_git_root(start_dir):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
+            timeout=30,
         )
         if result.returncode == 0:
             return result.stdout.decode("utf-8").strip()
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         pass
     # Fall back to a manual .git-directory walk.
     current = start_dir

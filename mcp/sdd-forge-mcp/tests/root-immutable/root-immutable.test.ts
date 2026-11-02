@@ -7,6 +7,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { resolveRoot } from "../../src/root.js";
 import { makeTempSddRoot } from "../test-helpers.js";
 
@@ -104,4 +106,18 @@ test("falls back to cwd when neither --root nor SDD_FORGE_ROOT is set", () => {
   } finally {
     cwdRoot.cleanup();
   }
+});
+
+ test("unknown CLI options and missing root values fail before cwd fallback", () => {
+  for (const args of [["--unknown"], ["positional"], ["--root"], ["--root", "--status-ui"]]) {
+    assert.throws(() => resolveRoot(args, {}, process.cwd()));
+  }
+});
+
+ test("stdio entry rejects unknown options without protocol stdout", () => {
+  const entry = fileURLToPath(new URL("../../../dist/index.js", import.meta.url));
+  const result = spawnSync(process.execPath, [entry, "--unknown"], { encoding: "utf8", timeout: 5000 });
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /Unknown option/);
 });

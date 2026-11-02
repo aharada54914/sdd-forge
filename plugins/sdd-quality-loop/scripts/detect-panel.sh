@@ -12,7 +12,7 @@
 #
 # Liveness probe: a CLI is only reported available if it answers `--version`
 # successfully (binary presence alone is not proof it can actually run --
-# e.g. a CLI with no valid auth still resolves via `command -v`). For
+# this is executable liveness, not an authentication check). For
 # codex, a `codex` that resolves to the `codex-sync` wrapper (git sync +
 # banner side effects, not the panelist CLI) is never reported available
 # either, even if `codex-sync --version` would happen to succeed.
@@ -41,6 +41,32 @@ done
 
 found=""
 
+# Discovery remains POSIX-shell-only. Bound and reap the directly launched
+# --version child; this is not process-tree supervision for model execution.
+_dp_version() (
+    _dp_probe_pid=""
+    trap 'if [ -n "$_dp_probe_pid" ]; then kill -KILL "$_dp_probe_pid" 2>/dev/null || :; wait "$_dp_probe_pid" 2>/dev/null || :; fi' 0
+    "$1" --version >/dev/null 2>&1 &
+    _dp_probe_pid=$!
+    _dp_deadline=$(( $(date +%s) + 5 ))
+    while kill -0 "$_dp_probe_pid" 2>/dev/null; do
+        if [ "$(date +%s)" -ge "$_dp_deadline" ]; then
+            kill -TERM "$_dp_probe_pid" 2>/dev/null || :
+            sleep 1
+            kill -KILL "$_dp_probe_pid" 2>/dev/null || :
+            wait "$_dp_probe_pid" 2>/dev/null || :
+            _dp_probe_pid=""
+            return 1
+        fi
+        sleep 1
+    done
+    _dp_probe_status=0
+    wait "$_dp_probe_pid" || _dp_probe_status=$?
+    _dp_probe_pid=""
+    return "$_dp_probe_status"
+)
+
+
 # ── Detect: GPT panelist via codex CLI ─────────────────────────────────────
 # The codex CLI is the standard way to invoke OpenAI models (GPT-4o, GPT-5.5)
 # locally via Codex. Check for both `codex` and `openai` (fallback alias).
@@ -56,17 +82,17 @@ if [ -n "$_dp_codex" ]; then
         *codex-sync*) _dp_codex="" ;;
     esac
 fi
-if [ -n "$_dp_codex" ] && "$_dp_codex" --version >/dev/null 2>&1; then
+if [ -n "$_dp_codex" ] && _dp_version "$_dp_codex"; then
     found="${found}gpt
 "
-elif command -v openai >/dev/null 2>&1 && openai --version >/dev/null 2>&1; then
+elif command -v openai >/dev/null 2>&1 && _dp_version openai; then
     found="${found}gpt
 "
 fi
 
 # ── Detect: Gemini panelist via gemini CLI ──────────────────────────────────
 # `--version` is a cheap liveness probe (never invokes a model).
-if command -v gemini >/dev/null 2>&1 && gemini --version >/dev/null 2>&1; then
+if command -v gemini >/dev/null 2>&1 && _dp_version gemini; then
     found="${found}gemini
 "
 fi

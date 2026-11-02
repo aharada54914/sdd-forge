@@ -357,14 +357,15 @@ if should_run TEST-049; then
   is_shallow="$(git -C "$REPO_ROOT" rev-parse --is-shallow-repository 2>/dev/null || echo unknown)"
   if [ "$is_shallow" = true ]; then
     version_state="$(python3 -c "
+import sys
 import glob, json
 values = sorted({json.load(open(path))['version']
                  for pattern in ('plugins/*/.claude-plugin/plugin.json',
                                  'plugins/*/.codex-plugin/plugin.json',
                                  'plugins/*/.plugin/plugin.json')
-                 for path in glob.glob('${REPO_ROOT}/' + pattern)})
+                 for path in glob.glob(sys.argv[1] + pattern)})
 print(str(len(values)) + ':' + ','.join(values))
-")"
+" "${REPO_ROOT}/")"
     if is_mutated TEST-049; then version_state='2:1.14.0,mutated'; printf 'MUTATION: TEST-049 desynchronizes the shallow checkout version surface\n'; fi
     result=0; [ "${version_state%%:*}" = 1 ] && result=1
   else

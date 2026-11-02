@@ -98,7 +98,7 @@ try {
     $precheck = Get-Content (Join-Path $ImplReport 'attempt-1/round-1/precheck-result.json') -Raw | ConvertFrom-Json
     foreach ($name in $LayerFiles) {
         $hashValue = $precheck.layer_sha256.$name
-        if ($hashValue -notmatch '^[0-9a-f]{64}$') { throw "FAIL: missing hash for $name" }
+        if ($hashValue -cnotmatch '^[0-9a-f]{64}$') { throw "FAIL: missing hash for $name" }
     }
     Write-Host 'PASS: PowerShell complete layer input set is hash-bound'
 

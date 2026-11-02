@@ -1,0 +1,34 @@
+control bash=0 powershell=0
+spec-verdict-case bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec integrated verdict is not a valid PASS
+workflow-state: ok
+spec-attempt-string bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec integrated verdict is not a valid PASS
+workflow-state: ok
+spec-warning-null bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec reviewer outputs or integrated summary contradict the final PASS
+workflow-state: ok
+spec-run-number bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec review contract identity is invalid
+workflow-state: ok
+spec-summary-null bash=1 powershell=1
+task-attempt-bool bash=1 powershell=1
+task-schema-case bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: task review contract identity is invalid
+workflow-state: ok
+task-reviewer-round-string bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: task reviewer outputs or integrated summary contradict the final PASS
+workflow-state: ok
+task-summary-pass-string bash=1 powershell=1
+spec-array-root bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec integrated verdict is not a valid PASS
+workflow-state: ok
+spec-hash-key bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec top-level contract hashes are stale
+workflow-state: ok
+spec-hash-value bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: spec top-level contract hashes are stale
+workflow-state: ok
+task-hash-value bash=1 powershell=0
+workflow-state: workflow-state-integrity: stage-provenance: task top-level contract hashes are stale
+workflow-state: ok

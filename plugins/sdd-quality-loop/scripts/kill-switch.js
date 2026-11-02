@@ -53,7 +53,11 @@ for (const base of bases) {
   try {
     isFile = fs.statSync(path.join(base, 'AGENT_STOP')).isFile();
   } catch (e) {
-    // not found or inaccessible
+    if (!e || !['ENOENT', 'ENOTDIR'].includes(e.code)) {
+      process.stderr.write('SDD kill switch: unable to inspect the stop marker; tool use denied.\n');
+      process.exit(2);
+    }
+    // A missing path cannot be a regular stop-marker file.
   }
   if (isFile) {
     process.stderr.write(KILL_MSG);

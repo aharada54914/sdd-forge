@@ -1,0 +1,552 @@
+{
+  "schema": "coding-standards-asset-role-review/v1",
+  "revision": "21ff9550af39f783412c43b632ec3f570444f290",
+  "method": "Read declarative repository assets, inspect every staged diff target header, inspect intentional symlink consumer normal/negative controls, inspect executable outliers and current source references. These are role/applicability judgments, not automatic directory exemptions. Reintroduction as a current runtime input requires source review.",
+  "entries": [
+    {
+      "path": ".gitattributes",
+      "source_sha256": "e3aa8c0ce2986c9727f46a89a4ff9892f82e6f541d561cfd2e40b54ac48f9ee8",
+      "state": "reviewed",
+      "reason": "Reviewed fixed LF normalization policy, including shell/PowerShell/Python/JSON sources; no executable interpolation or secret. Git owns application of these declarative rules.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": ".gitignore",
+      "source_sha256": "06ad48c0f81282b296634ce7bf9bc8614c8894f16af90a4249401f645e046d98",
+      "state": "reviewed",
+      "reason": "Reviewed ignore rules for dependencies/cache/local tokens and verification-log exceptions. mcp dist remains tracked by design; patterns do not execute code or act as evidence of verification success.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "CODEOWNERS",
+      "source_sha256": "939cd93d7106084189cb3dfb2c327011601dd74031fba44f1da47cf257ba2a33",
+      "state": "reviewed",
+      "reason": "Reviewed four literal owner rules and explicit absence of catch-all. Ownership is GitHub policy data; comments accurately distinguish covered and uncovered paths. No implicit repository-wide authorization inferred.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "LICENSE",
+      "source_sha256": "ab09558408ac1e09d45f003064c6773fca017efaa5f53f76781775b47aefc2a3",
+      "state": "out-of-scope",
+      "reason": "License text is legal attribution data, not executable code or a runtime acceptance oracle.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "docs/adr/.gitkeep",
+      "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "state": "out-of-scope",
+      "reason": "Whitespace-only directory retention marker; no program, input transformation or executable contract.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "docs/ci-staging/MANIFEST.sha256",
+      "source_sha256": "1837b2a2177de33bb6f5a43bbd3a31ada69da5dc4cd7a0738645b2b8e8672e47",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "docs/ci-staging/investigation-nogit-tolerance.patch",
+      "source_sha256": "c08cac8c74d8366953864a63e06853f294c1dd06e5995b7a6723ec4b0e6b591c",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/loops-routing-fetch-depth.patch",
+      "source_sha256": "637028bf73200459f2bb941eba7ea3b28d5f5e482cbc3c221883b2c34778ef68",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/.github/workflows/test.yml",
+        "+++ b/.github/workflows/test.yml"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/node22-runtime-baseline.patch",
+      "source_sha256": "a237cca87fa2bbd6f4fbdaab6e374541cf552f44c6f80f0358e67752e96be3f3",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml",
+        "--- a/.github/workflows/test.yml",
+        "+++ b/.github/workflows/test.yml"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/round-advance-investigation.patch",
+      "source_sha256": "15e4f17378b01a246d5a23372034c6f4176266d3f3436ac406d48ad5ebf2256a",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+        "+++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+        "--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+        "+++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-001b-design-four-fields.patch",
+      "source_sha256": "23b983c5c8d041719e81e3ccbdd500fdfb186a6c5b159f18a8bcafc93a193cfa",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/risk-adaptive-layer/design.md",
+        "+++ b/specs/risk-adaptive-layer/design.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-002-req010-reconcile.patch",
+      "source_sha256": "ff92f428b21b6d8a144cb27243d8093e002839b737fbdd967e504b17d1fb14be",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/risk-adaptive-layer/requirements.md",
+        "+++ b/specs/risk-adaptive-layer/requirements.md",
+        "--- a/specs/risk-adaptive-layer/tasks.md",
+        "+++ b/specs/risk-adaptive-layer/tasks.md",
+        "--- a/specs/risk-adaptive-layer/traceability.md",
+        "+++ b/specs/risk-adaptive-layer/traceability.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-002b-req010-residual.patch",
+      "source_sha256": "1e508a788071d80948fa8f360d10a3239fa1410ba4c27d6da032ac40efb3faa4",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/risk-adaptive-layer/design.md",
+        "+++ b/specs/risk-adaptive-layer/design.md",
+        "--- a/specs/risk-adaptive-layer/tasks.md",
+        "+++ b/specs/risk-adaptive-layer/tasks.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-004-ci-register-config-lock.patch",
+      "source_sha256": "4c45434f11fcbe57c4113c261cd82e81dc6bb96d36564c766934a8535f208b7b",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/.github/workflows/test.yml",
+        "+++ b/.github/workflows/test.yml"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-005-contract-schema-v2.patch",
+      "source_sha256": "4f31aa43de10722a6311da774dd7c472c9cc279f0d7dadd2bac81492564c32ec",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "--- a/tests/gates.tests.sh",
+        "+++ b/tests/gates.tests.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-005b-checks-telemetry-pins.patch",
+      "source_sha256": "c5c1540b06b9575c7da6732fb494402b34e39407c3dffe0e4df259fc40837c3b",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/tests/gates.tests.sh",
+        "+++ b/tests/gates.tests.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-005c-check-contract-ps1-raw-timestamp.patch",
+      "source_sha256": "bf7e0daf4073f3c82853ecac9bdcd24b44c98c4b0f0ebdb41a863557e61054e3",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "--- a/tests/scripts.tests.ps1",
+        "+++ b/tests/scripts.tests.ps1"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-006-gates-tests.patch",
+      "source_sha256": "c7d88a2f01b2b75e4ee26a6b42b0fef808719cbb027c07df2911dd60825720c4",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/tests/gates.tests.sh",
+        "+++ b/tests/gates.tests.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-007b-risk-empty-legacy-clarification.patch",
+      "source_sha256": "d5cd9c50810d253e3616eb1fe29b07f0d2d2a217aa3f5228d8632fc4844d3000",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/risk-adaptive-layer/design.md",
+        "+++ b/specs/risk-adaptive-layer/design.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-009b-fallback-rank-docs.patch",
+      "source_sha256": "85b65b993312909caf72b3814f2ee5704d44735df7e0f3d665b2cb58db3fbf04",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/agent-cost-context-isolation/design.md",
+        "+++ b/specs/agent-cost-context-isolation/design.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-014-stack-spec-amendment.patch",
+      "source_sha256": "a3f080f9027c7921b9707831476bb554b51b7dd469a902b5994416cb954ccca2",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/risk-adaptive-layer/acceptance-tests.md",
+        "+++ b/specs/risk-adaptive-layer/acceptance-tests.md",
+        "--- a/specs/risk-adaptive-layer/design.md",
+        "+++ b/specs/risk-adaptive-layer/design.md",
+        "--- a/specs/risk-adaptive-layer/requirements.md",
+        "+++ b/specs/risk-adaptive-layer/requirements.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-018-t005-criterion-amendment.patch",
+      "source_sha256": "48658cb71450058d4be44a678ab391109464c16ff533c928c9a180febbf29355",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/agent-cost-context-isolation/tasks.md",
+        "+++ b/specs/agent-cost-context-isolation/tasks.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260821-check-contract-family.patch",
+      "source_sha256": "b31bc14a5c53b2c7166eb31c92367ae418dee1485bbb4d5b66f64b39f0caf26d",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "--- a/tests/gates.tests.sh",
+        "+++ b/tests/gates.tests.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260828-002-check-state-bash.patch",
+      "source_sha256": "e7d5cc4e9eb150ecc5e9e2b138ff7ae83ae814adef754bc22aa4f397831e5840",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.sh b/plugins/sdd-quality-loop/scripts/check-task-state.sh",
+        "--- a/plugins/sdd-quality-loop/scripts/check-task-state.sh",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-task-state.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260828-002-check-state-pwsh.patch",
+      "source_sha256": "a3ef35fa52a26600cb3c308efa606b9991270548376691794457abaa9ff488ed",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+        "--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/rt-20260828-002-gates-test.patch",
+      "source_sha256": "ba46618a58768c6897604398b902672a7df05e051773634b8051a3fdbb654b8b",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "diff --git a/tests/gates.tests.sh b/tests/gates.tests.sh",
+        "--- a/tests/gates.tests.sh",
+        "+++ b/tests/gates.tests.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-029-round2-contract-suite.patch",
+      "source_sha256": "8b32c3f089724b24c0b2693595f1dab99f5bb757bcfac4547268160b77e394d9",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml",
+        "--- a/.github/workflows/test.yml",
+        "+++ b/.github/workflows/test.yml"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-041-installer-idempotency-ci.patch",
+      "source_sha256": "21d99d3fbc25e9e944bd874179f0e7b14de4b303316890157ba3429ac7cfa3ca",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/.github/workflows/test.yml",
+        "+++ b/.github/workflows/test.yml"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-046-percheck-execution-fields-gate.patch",
+      "source_sha256": "260ee76e8506f0101b954ec039c0c9d7c72083acda615982527f8f15dd27d3ab",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.py"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-046-percheck-execution-fields-spec.patch",
+      "source_sha256": "7afaf6546b1de7c5ec914290b7294afb9a0fba2031e526ff0b86badbdd7fa36b",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/specs/risk-adaptive-layer/design.md",
+        "+++ b/specs/risk-adaptive-layer/design.md",
+        "--- a/specs/risk-adaptive-layer/design.md",
+        "+++ b/specs/risk-adaptive-layer/design.md"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-046b-ps1-twin-and-fixtures.patch",
+      "source_sha256": "094e0ad0bdb1d6a4a8cfbb4b2f4124394012d7227f33f6a677d819a22d4c18ec",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "--- a/tests/gates.tests.sh",
+        "+++ b/tests/gates.tests.sh"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-050-validity-precedes-authorization.patch",
+      "source_sha256": "babc4c6f005c429040622c558b573fede5d32ae46cced2cfdb871a41b9234e54",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "+++ b/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "+++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+        "+++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-058-outputs-section-anchor.patch",
+      "source_sha256": "279ab2c95094777c4dad7d8b539b8a0245f9355a8c0b29db42d20a3374ab2efc",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\t2026-09-04 11:21:53",
+        "+++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\t2026-09-04 11:21:53",
+        "--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1\t2026-09-04 11:21:53",
+        "+++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1\t2026-09-04 11:21:53"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-059-evidence-project-root.patch",
+      "source_sha256": "e16f0131ffaa41175af7041c38ce9070793ce565e3b66ffc16b8b0b3dce2643f",
+      "state": "out-of-scope",
+      "reason": "Preserved human-application patch/digest evidence, not a sourced current script. Parsed diff headers identify proposed targets; no current scripts/tests/workflows invoke this patch path. The ci-staging README distinguishes superseded combined snapshots and current-base review before application. This classification does not assert patch correctness or authorize applying it.",
+      "evidence": [
+        "docs/ci-staging/README.md"
+      ],
+      "diff_targets_or_link": [
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.py\t2026-09-04 15:00:57",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.py\t2026-09-04 15:00:57",
+        "--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1\t2026-09-04 15:00:57",
+        "+++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1\t2026-09-04 15:00:57",
+        "--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\t2026-09-04 15:00:57",
+        "+++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\t2026-09-04 15:00:57",
+        "--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1\t2026-09-04 15:00:57",
+        "+++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1\t2026-09-04 15:00:57"
+      ]
+    },
+    {
+      "path": "docs/review-tickets/.gitkeep",
+      "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "state": "out-of-scope",
+      "reason": "Whitespace-only directory retention marker; no program, input transformation or executable contract.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "mcp/ci-mcp/.gitignore",
+      "source_sha256": "5f53393590d7326ce0c12ca7335818ce83dde724c9e5f54b7da5d5b7ed6f3db7",
+      "state": "reviewed",
+      "reason": "Reviewed ignore rules for dependencies/cache/local tokens and verification-log exceptions. mcp dist remains tracked by design; patterns do not execute code or act as evidence of verification success.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "mcp/local-env-mcp/.gitignore",
+      "source_sha256": "5f53393590d7326ce0c12ca7335818ce83dde724c9e5f54b7da5d5b7ed6f3db7",
+      "state": "reviewed",
+      "reason": "Reviewed ignore rules for dependencies/cache/local tokens and verification-log exceptions. mcp dist remains tracked by design; patterns do not execute code or act as evidence of verification success.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/.gitignore",
+      "source_sha256": "f62ff394250ef785348e959cfa2e4fe22c1fe2efae8b45396c14849b922293e8",
+      "state": "reviewed",
+      "reason": "Reviewed ignore rules for dependencies/cache/local tokens and verification-log exceptions. mcp dist remains tracked by design; patterns do not execute code or act as evidence of verification success.",
+      "evidence": [],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py",
+      "source_sha256": "552ea99fc208dca5b48b938cb05441fbea0fa919e118bda214c185b54e0da676",
+      "state": "justified-exception",
+      "reason": "Intentional identity-bidirectional registry fixture symlink to check-registered.py. tests/validate-capability-registry.tests.sh checks symlink registration alongside normal master and collision negative cases; target text is data for identity resolution, not a hidden additional runtime program.",
+      "evidence": [
+        "tests/validate-capability-registry.tests.sh:78-99"
+      ],
+      "diff_targets_or_link": [
+        "check-registered.py"
+      ]
+    },
+    {
+      "path": "docs/ci-staging/issue566-restoration.tests.rb",
+      "source_sha256": "0f64cb622fd6ac86a472284d6cd45251be1446d1aa9928e2fdcc18820df4e086",
+      "state": "out-of-scope",
+      "reason": "Isolated historical two-step CI proposal validator. Whole source inspected: fixed two target jobs, copied YAML trees, fourteen rejecting mutations, optional baseline structural equality. Its dated consumer explicitly says local review aid, not ongoing registration guard. No current catalog/workflow call found. Ruby unavailable here (exit127); no current syntax/runtime claim.",
+      "evidence": [
+        "docs/ci-staging/issue566-restoration.md:110-125"
+      ],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "reports/verification/issue359-grep-regression-20260908.cjs",
+      "source_sha256": "0b82561526bbd47919317dc564d678bab379f1ff6834e49d57cf0c18140af6be",
+      "state": "out-of-scope",
+      "reason": "Dated one-off regression reproducer reads the old exact CL-021b source line and refuses unexpected source shape; fixed bounded 30s child execution. No current registered invocation; retained evidence, not current test coverage.",
+      "evidence": [
+        "reports/verification/issue359-grep-regression-20260908.cjs"
+      ],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "reports/verification/pr513-node14-runtime-check.cjs",
+      "source_sha256": "d55010735366326c4d00440ff1fbd6b988e748706634f9ed7924e6b36add01af",
+      "state": "out-of-scope",
+      "reason": "Historical Node14.21.3 compatibility reproducer explicitly asserts that exact runtime and old host envelope contract. No current registered invocation; preserved original evidence, not proof on the current runtime.",
+      "evidence": [
+        "reports/verification/pr513-node14-runtime-check.cjs"
+      ],
+      "diff_targets_or_link": []
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/bundle-a/scripts/generated/guard-invariants.generated.js",
+      "source_sha256": "e4f42841fd1eecc9da299fabcad4edeaead6e99813b39ec79ea2ba1762e4709f",
+      "state": "out-of-scope",
+      "reason": "Generated draft snapshot with original invariant digest; current runtime module is plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js. No current source imports this draft. Retain provenance, not semantic PASS for old bytes.",
+      "evidence": [
+        "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js"
+      ],
+      "diff_targets_or_link": []
+    }
+  ]
+}

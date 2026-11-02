@@ -21,7 +21,11 @@ if (-not (Test-Path -LiteralPath $TracePath)) {
 }
 
 try {
-    $traceability = Get-Content -Raw -Encoding Utf8 $TracePath | ConvertFrom-Json
+    $json = Get-Content -Raw -Encoding Utf8 -LiteralPath $TracePath
+    $traceability = $json | ConvertFrom-Json
+    if ($json.TrimStart() -notmatch '^\{' -or $traceability -isnot [PSCustomObject]) {
+        throw 'traceability must be a JSON object'
+    }
 } catch {
     Write-Error "check-traceability: invalid JSON"
     exit 1
@@ -30,7 +34,7 @@ try {
 $failures = @()
 
 # Resolve repo root to an absolute path for traversal checks
-$absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+$absRoot = (Resolve-Path -LiteralPath $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
 # RT-20260821-008: the python twin containment-checks pathlib resolve() -
 # i.e. with every symlink followed. GetFullPath is lexical only, so an
@@ -55,8 +59,8 @@ function Resolve-RealEvidencePath([string]$Base, [string]$Relative) {
 }
 
 # Validate structure
-$feature = ([string]($traceability.feature)).Trim()
-if ([string]::IsNullOrWhiteSpace($feature)) {
+$feature = $traceability.feature
+if ($feature -isnot [string] -or [string]::IsNullOrWhiteSpace($feature)) {
     $failures += "missing feature"
 }
 
@@ -73,21 +77,27 @@ if ($null -eq $links -or -not ($links -is [array]) -or $links.Count -eq 0) {
 # Validate each link
 for ($i = 0; $i -lt $links.Count; $i++) {
     $link = $links[$i]
-    $req = ([string]($link.req)).Trim()
-    if ([string]::IsNullOrWhiteSpace($req)) {
-        $req = "link $i"
+    if ($link -isnot [PSCustomObject]) {
+        $failures += "link $i must be an object"
+        continue
     }
+    $req = $link.req
+    if ($req -isnot [string] -or [string]::IsNullOrWhiteSpace($req)) {
+        $failures += "link $i has no requirement (req)"
+        continue
+    }
+    $req = $req.Trim()
 
     # Check acs: must be an array with >=1 non-empty entry
     $acs = $link.acs
-    if (-not ($acs -is [array]) -or @($acs | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count -lt 1) {
+    if (-not ($acs -is [array]) -or @($acs | Where-Object { $_ -isnot [string] }).Count -gt 0 -or @($acs | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count -lt 1) {
         $failures += "$req has no acceptance criteria (acs)"
         continue
     }
 
     # Check tests: must be an array with >=1 non-empty entry
     $tests = $link.tests
-    if (-not ($tests -is [array]) -or @($tests | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count -lt 1) {
+    if (-not ($tests -is [array]) -or @($tests | Where-Object { $_ -isnot [string] }).Count -gt 0 -or @($tests | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count -lt 1) {
         $failures += "$req has no tests"
         continue
     }
@@ -113,6 +123,10 @@ for ($i = 0; $i -lt $links.Count; $i++) {
         }
 
         foreach ($evFile in $evidence) {
+            if ($null -ne $evFile -and $evFile -isnot [string]) {
+                $failures += "$req evidence entries must be strings"
+                continue
+            }
             $evPath = ([string]($evFile)).Trim()
             if ([string]::IsNullOrWhiteSpace($evPath)) {
                 continue

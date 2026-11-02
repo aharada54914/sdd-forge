@@ -503,8 +503,9 @@ for (const [schema, value, expected] of cases) {
                     with self.subTest(stage=stage, raw=raw[:20], structured=structured), \
                             mock.patch.object(transport, 'native_delivery', return_value=(
                                 data, {'result': raw, 'structured_output': structured}, [])):
-                        invoke = lambda: transport.postflight(root, root / 'invocation', transcript,
-                                                              prompt, wrapper, root / 'receipt', strict=True)
+                        def invoke():
+                            return transport.postflight(root, root / 'invocation', transcript,
+                                                      prompt, wrapper, root / 'receipt', strict=True)
                         if accepted:
                             self.assertEqual(invoke()['status'], 'DELIVERY_OK')
                         else:

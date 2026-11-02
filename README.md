@@ -265,6 +265,7 @@ flowchart LR
 | 困ったとき | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | 変更履歴・移行 | [CHANGELOG.md](CHANGELOG.md) |
 | Azure / AWS での開発 | [docs/cloud/README.md](docs/cloud/README.md)（現行機能と未実装の境界を先に確認） |
+| 本体のコーディング規約 | [言語別規約・監査範囲](docs/contributor/coding-standards.md)（導入先には採用済み規約を適用） |
 
 ## 週次セルフ改善 (自動運用)
 

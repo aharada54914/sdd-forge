@@ -112,7 +112,7 @@ test("AC-003: a job with no steps at all yields failedStep: null", async () => {
 test("runId is required: missing runId is rejected with invalid-input", async () => {
   const { fetchImpl, calls } = fakeFetch({ jobs: [] });
 
-  const result = await listRunJobs({ owner: "acme", repo: "widgets" } as never, { env: TOKEN_ENV, fetchImpl });
+  const result = await listRunJobs({ owner: "acme", repo: "widgets" }, { env: TOKEN_ENV, fetchImpl });
 
   assert.equal(result.ok, false);
   if (!result.ok) {

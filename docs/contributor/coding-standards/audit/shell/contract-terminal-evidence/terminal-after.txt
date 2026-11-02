@@ -1,0 +1,11 @@
+Risk check passed for 1 task(s).
+Risk check FAILED:
+ - T-001 Risk: low is inconsistent with its structured risk fields (policy floor: high)
+ok: selector rejects non-scalar registry-root
+ok: selector rejects non-scalar schema
+ok: selector rejects non-scalar model-name
+ok: selector rejects non-scalar default-effort
+ok: selector rejects non-scalar control
+ok: selector rejects non-scalar candidate-name
+ok: selector rejects non-scalar candidate-effort
+ok: turn-first model routing structure is defined (PowerShell twin)

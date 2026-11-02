@@ -22,6 +22,7 @@ REQUIRED = (
     'version-gates-windows-bump', 'version-gates-windows-lanes', 'mcp-tests',
     'local-env-mcp-tests', 'ci-mcp-tests', 'cli-hook-enforcement',
     'posix-regression', 'posix-unwired-sharded', 'a9-advisory-inputs', 'a9-advisory',
+    'coding-standards',
 )
 
 

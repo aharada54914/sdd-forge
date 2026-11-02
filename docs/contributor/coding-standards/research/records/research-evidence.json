@@ -1,0 +1,742 @@
+{
+  "claims": [
+    {
+      "citations": [
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-001",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-004",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-006",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-007",
+          "source_record_revision": 1
+        }
+      ],
+      "claim_id": "CLM-001",
+      "evidence_status": "unreachable",
+      "record_revision": 1,
+      "search_record": {
+        "scope": "Issue-provided primary URLs and connected web official/citation-trail queries; body inspection; original acquisition unavailable.",
+        "searched_at": "2026-11-01T04:43:35Z"
+      },
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "semantic_status": "unassessed",
+      "statement": "CS-015/016/017 address reported excessive structure and abandoned edits; source evidence is model/setting-specific, not an AI-author detector.",
+      "uncertainty": "Original bytes unavailable; body observations support bounded design rationale, not statistical prevalence or a gate PASS."
+    },
+    {
+      "citations": [
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-003",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-008",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-009",
+          "source_record_revision": 1
+        }
+      ],
+      "claim_id": "CLM-002",
+      "evidence_status": "unreachable",
+      "record_revision": 1,
+      "search_record": {
+        "scope": "Issue-provided primary URLs and connected web official/citation-trail queries; body inspection; original acquisition unavailable.",
+        "searched_at": "2026-11-01T04:43:35Z"
+      },
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "semantic_status": "unassessed",
+      "statement": "CS-001/002/003/004/005/009/010 address interpreter and data boundaries; argument arrays alone do not eliminate CLI-option or Windows bat/cmd risks.",
+      "uncertainty": "Original bytes unavailable; body observations support bounded design rationale, not statistical prevalence or a gate PASS."
+    },
+    {
+      "citations": [
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-002",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-005",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-006",
+          "source_record_revision": 1
+        },
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-010",
+          "source_record_revision": 1
+        }
+      ],
+      "claim_id": "CLM-003",
+      "evidence_status": "unreachable",
+      "record_revision": 1,
+      "search_record": {
+        "scope": "Issue-provided primary URLs and connected web official/citation-trail queries; body inspection; original acquisition unavailable.",
+        "searched_at": "2026-11-01T04:43:35Z"
+      },
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "semantic_status": "unassessed",
+      "statement": "CS-027/028/029/030 distinguish useful tests from evidence of actual live happy-path acceptance; passing mock tests cannot establish a boundary they did not execute.",
+      "uncertainty": "Original bytes unavailable; body observations support bounded design rationale, not statistical prevalence or a gate PASS."
+    },
+    {
+      "citations": [
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-010",
+          "source_record_revision": 1
+        }
+      ],
+      "claim_id": "CLM-004",
+      "evidence_status": "unreachable",
+      "record_revision": 1,
+      "search_record": {
+        "scope": "Issue-provided primary URLs and connected web official/citation-trail queries; body inspection; original acquisition unavailable.",
+        "searched_at": "2026-11-01T04:43:35Z"
+      },
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "semantic_status": "unassessed",
+      "statement": "既存違反も直せ: whole tracked-population intake and native checks are necessary but do not by themselves establish zero current violations or zero unreviewed files.",
+      "uncertainty": "Original bytes unavailable; body observations support bounded design rationale, not statistical prevalence or a gate PASS."
+    },
+    {
+      "citations": [
+        {
+          "anchor": null,
+          "quote_status": "not-checkable",
+          "quote_verified_at": "2026-11-01T04:43:35Z",
+          "relation": "context",
+          "source_id": "SRC-010",
+          "source_record_revision": 1
+        }
+      ],
+      "claim_id": "CLM-005",
+      "evidence_status": "unreachable",
+      "record_revision": 1,
+      "search_record": {
+        "scope": "Issue-provided primary URLs and connected web official/citation-trail queries; body inspection; original acquisition unavailable.",
+        "searched_at": "2026-11-01T04:43:35Z"
+      },
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "semantic_status": "unassessed",
+      "statement": "CS-013/014 require compatible invariant contracts for infrastructure reuse; different feature policies and strict versus historical parsers may legitimately remain separate.",
+      "uncertainty": "Original bytes unavailable; body observations support bounded design rationale, not statistical prevalence or a gate PASS."
+    }
+  ],
+  "feature": "coding-standards",
+  "schema": "research-evidence/v1",
+  "sources": [
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "6581"
+      ],
+      "content_sha256": null,
+      "currency_note": "2026-10-26; supplements 2026-10-27 and 2026-10-29",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-001",
+      "source_revision": "2026-10-26; supplements 2026-10-27 and 2026-10-29",
+      "source_type": "article",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "V2EX: 虽然 AI 编码很厉害，但是这些问题怎么办呢？",
+      "uncertainty": "Chinese-language firsthand report; verbosity and constraints; uncontrolled personal experience. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://v2ex.com/t/1251827",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "Gejigeji"
+      ],
+      "content_sha256": null,
+      "currency_note": "2026-03-17",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-002",
+      "source_revision": "2026-03-17",
+      "source_type": "article",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "LINUX DO: 全自动AI编码存在普遍的测试不全面问题",
+      "uncertainty": "Chinese-language firsthand report; many tests/high claimed coverage with failing visible happy paths; no supplied reproducible repository. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://linux.do/t/topic/1769057",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "腾讯悟空团队"
+      ],
+      "content_sha256": null,
+      "currency_note": "2024-11-27",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-003",
+      "source_revision": "2024-11-27",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "腾讯: 大模型应用实践（一）：AI助力Code Review安全漏洞发现",
+      "uncertainty": "Chinese company author report on AI-assisted review: SQL concatenation, hardcoded credentials, variable-versus-literal false positives. Not evidence that these defects were AI-generated. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://security.tencent.com/index.php/blog/msg/210",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "yuvrajangads"
+      ],
+      "content_sha256": null,
+      "currency_note": "Publication exact date unknown; page displays seven months ago as observed 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-004",
+      "source_revision": "Publication exact date unknown; page displays seven months ago as observed 2026-11-01",
+      "source_type": "author-implementation",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Show HN: Vibecheck – lint for AI-generated code smells",
+      "uncertainty": "US-hosted community, author account; regex limitations acknowledged. User nationality unknown. Quoted third-party incidence statistics are not independently verified and not adopted. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://news.ycombinator.com/item?id=47398197",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "Philosopher_Mechanic"
+      ],
+      "content_sha256": null,
+      "currency_note": "2026-08-19; follow-up 2026-09-08",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-005",
+      "source_revision": "2026-08-19; follow-up 2026-09-08",
+      "source_type": "issue-tracker",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Codex Desktop repeatedly loses the original acceptance goal after compaction",
+      "uncertainty": "US vendor community, firsthand report with private raw history; mock/live conflation and complexity growth. No causal controlled experiment; author nationality unknown. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://community.openai.com/t/codex-desktop-repeatedly-loses-the-original-acceptance-goal-after-compaction-and-enters-endless-subagent-test-loops/1391211",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "Anthropic"
+      ],
+      "content_sha256": null,
+      "currency_note": "Rolling documentation; publication/update date not exposed in inspected body; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-006",
+      "source_revision": "Rolling documentation; publication/update date not exposed in inspected body; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Anthropic prompting best practices",
+      "uncertainty": "US vendor advice explicitly names Opus 4.5/4.6 overengineering and cautions against test-specific hardcoding; not a universal model frequency estimate. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "Alex Mathai",
+        "Shobini Iyer",
+        "Aleksandr Nogikh",
+        "Petros Maniatis",
+        "Franjo Ivancic",
+        "Junfeng Yang",
+        "Baishakhi Ray"
+      ],
+      "content_sha256": null,
+      "currency_note": "Submitted 2026-07-20; abstract page inspected",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-007",
+      "source_revision": "Submitted 2026-07-20; abstract page inspected",
+      "source_type": "paper",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "TRIM: Reducing AI-Generated CodeSlop via Agent Trajectory Minimization",
+      "uncertainty": "Research authors report speculative/abandoned edits persisting in final patches. Only abstract inspected here; effect sizes and full methodology not independently reproduced. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://arxiv.org/abs/2607.18161",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "GitHub"
+      ],
+      "content_sha256": null,
+      "currency_note": "Rolling documentation; date/version not exposed; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-008",
+      "source_revision": "Rolling documentation; date/version not exposed; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "GitHub Actions secure use reference",
+      "uncertainty": "US vendor security advice: use action arguments or intermediate env values to avoid source injection; not evidence of AI causation. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://docs.github.com/en/actions/reference/security/secure-use",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "Python Software Foundation"
+      ],
+      "content_sha256": null,
+      "currency_note": "Page heading Python 3.15.2; checked 2026-11-01; runtime compatibility must use installed supported version",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-009",
+      "source_revision": "Page heading Python 3.15.2; checked 2026-11-01; runtime compatibility must use installed supported version",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Python subprocess documentation",
+      "uncertainty": "Official security semantics: shell opt-in; Windows bat/cmd may invoke shell even with argument sequences. Document version observed, not claim about installed runtime. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://docs.python.org/3/library/subprocess.html",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:43:35Z",
+      "authors": [
+        "sdd-forge contributors"
+      ],
+      "content_sha256": null,
+      "currency_note": "Git revision 82b536954626e73b36853711b264cbf5df400d22",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-010",
+      "source_revision": "Git revision 82b536954626e73b36853711b264cbf5df400d22",
+      "source_type": "repository",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Issue 601 structural prevention",
+      "uncertainty": "Repository inspection: existing mirror classifier, BOM/case regressions and execution-evidence limitations; closed issue does not prove all platforms or all recurrence resolved. Original acquisition refused inherited proxy (proxy-adapter-required). Connected web-reader body inspected separately; no original hash, extraction or exact-quote verification is claimed.",
+      "url": "https://github.com/aharada54914/sdd-forge/blob/82b536954626e73b36853711b264cbf5df400d22/docs/contributor/issue-601-structural-prevention.md",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:47:26Z",
+      "authors": [
+        "Python Software Foundation"
+      ],
+      "content_sha256": null,
+      "currency_note": "Python 3.15.2 page; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-011",
+      "source_revision": "Python 3.15.2 page; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Python re.escape",
+      "uncertainty": "Pattern literal escaping; expressly not the replacement-string escaping API. Connected web body inspected. Existing original acquisition reports proxy-adapter-required; no original hash or quote verification claimed.",
+      "url": "https://docs.python.org/3/library/re.html",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:47:26Z",
+      "authors": [
+        "Python Software Foundation"
+      ],
+      "content_sha256": null,
+      "currency_note": "Python 3.15.2 page; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-012",
+      "source_revision": "Python 3.15.2 page; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Python JSON encoding",
+      "uncertainty": "json.dumps preserves JSON quoting; external parse resource limits still apply. Connected web body inspected. Existing original acquisition reports proxy-adapter-required; no original hash or quote verification claimed.",
+      "url": "https://docs.python.org/3/library/json.html",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:47:26Z",
+      "authors": [
+        "Python Software Foundation"
+      ],
+      "content_sha256": null,
+      "currency_note": "Python 3.15.2 page; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-013",
+      "source_revision": "Python 3.15.2 page; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "Python urllib.parse",
+      "uncertainty": "urlencode encodes query keys/values independently; parsing alone does not validate a destination. Connected web body inspected. Existing original acquisition reports proxy-adapter-required; no original hash or quote verification claimed.",
+      "url": "https://docs.python.org/3/library/urllib.parse.html",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:47:26Z",
+      "authors": [
+        "MDN contributors"
+      ],
+      "content_sha256": null,
+      "currency_note": "Last modified 2025-10-28; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-014",
+      "source_revision": "Last modified 2025-10-28; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "MDN Node.textContent",
+      "uncertainty": "textContent is the text API; innerHTML invokes markup parsing and can expose XSS. Connected web body inspected. Existing original acquisition reports proxy-adapter-required; no original hash or quote verification claimed.",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:47:26Z",
+      "authors": [
+        "Microsoft"
+      ],
+      "content_sha256": null,
+      "currency_note": "View PowerShell 7.5; last updated 2026-07-02; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-015",
+      "source_revision": "View PowerShell 7.5; last updated 2026-07-02; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "PowerShell comparison operators",
+      "uncertainty": "String operators default case-insensitive; c-prefixed variants request case sensitivity. Does not establish cmdlet defaults. Connected web body inspected. Existing original acquisition reports proxy-adapter-required; no original hash or quote verification claimed.",
+      "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.5",
+      "verification_at": null,
+      "verification_status": "unverified"
+    },
+    {
+      "access_scope": "none",
+      "access_scope_label": null,
+      "attempted_at": "2026-11-01T04:47:26Z",
+      "authors": [
+        "Microsoft"
+      ],
+      "content_sha256": null,
+      "currency_note": "View PowerShell 7.5; last updated 2024-01-19; checked 2026-11-01",
+      "currency_status": "unknown",
+      "extraction": null,
+      "final_url": null,
+      "inherited_from": null,
+      "license_or_permission_basis": {
+        "asserted_by": null,
+        "basis": null,
+        "status": "unknown"
+      },
+      "media_type": null,
+      "record_revision": 1,
+      "retention_or_expiry": null,
+      "retrieval_status": "unreachable",
+      "retrieved_at": null,
+      "source_id": "SRC-016",
+      "source_revision": "View PowerShell 7.5; last updated 2024-01-19; checked 2026-11-01",
+      "source_type": "official-doc",
+      "storage_location_class": "none",
+      "storage_mode": "reference_only",
+      "title": "PowerShell character encoding",
+      "uncertainty": "Windows PowerShell output defaults vary; UTF8 implies BOM there, unlike PowerShell 6+. Script-source requirements differ from JSON output. Connected web body inspected. Existing original acquisition reports proxy-adapter-required; no original hash or quote verification claimed.",
+      "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_character_encoding?view=powershell-7.5",
+      "verification_at": null,
+      "verification_status": "unverified"
+    }
+  ]
+}

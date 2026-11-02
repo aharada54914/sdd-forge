@@ -12,6 +12,7 @@
  */
 
 import { load, YAMLException } from "js-yaml";
+import { isJsonObject } from "./json-object.js";
 import { err, ok, type ErrorInfo, type Result } from "../envelope.js";
 import { guardedRead, listGuardedFiles } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
@@ -29,20 +30,6 @@ export interface ReviewTicketEntry {
   task?: string;
   summary?: string;
   file: string;
-}
-
-interface RawReviewTicketTarget {
-  feature?: unknown;
-  task?: unknown;
-}
-
-interface RawReviewTicket {
-  ticket_id?: unknown;
-  status?: unknown;
-  severity?: unknown;
-  type?: unknown;
-  summary?: unknown;
-  target?: RawReviewTicketTarget;
 }
 
 /** Returns `value` if it is a non-empty string, else `undefined`. */
@@ -80,14 +67,15 @@ export function parseReviewTicket(root: SddRoot, relFilePath: string): Result<Re
     });
   }
 
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+  if (!isJsonObject(parsed)) {
     return err("cannot-parse", `Review ticket is not a YAML mapping: ${relFilePath}`, {
       file: relFilePath,
       rule: "not-a-mapping",
     });
   }
 
-  const raw = parsed as RawReviewTicket;
+  const raw = parsed;
+  const target = isJsonObject(raw.target) ? raw.target : undefined;
   const ticketId = asNonEmptyString(raw.ticket_id);
   const status = asNonEmptyString(raw.status);
   const severity = asNonEmptyString(raw.severity);
@@ -120,9 +108,9 @@ export function parseReviewTicket(root: SddRoot, relFilePath: string): Result<Re
   };
   const type = asNonEmptyString(raw.type);
   if (type !== undefined) entry.type = type;
-  const feature = asNonEmptyString(raw.target?.feature);
+  const feature = asNonEmptyString(target?.feature);
   if (feature !== undefined) entry.feature = feature;
-  const task = asNonEmptyString(raw.target?.task);
+  const task = asNonEmptyString(target?.task);
   if (task !== undefined) entry.task = task;
   const summary = asNonEmptyString(raw.summary);
   if (summary !== undefined) entry.summary = summary;

@@ -1,0 +1,52 @@
+{
+  "schema": "coding-standards-context-delta/v1",
+  "files": [
+    {
+      "path": "tests/downstream-review-precheck.tests.ps1",
+      "before_sha256": "61bae995798236137f1a1d97dc27813cf8bdbddb737ca587d8b994a965016827",
+      "sha256": "0c9a032ab56bd34fb43284bb10ff3bb65f8b59f01c6a5161ccc6c65cfb921439"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "before_sha256": "8a772ec5e9815327aa7eb4eba37e092c4271e4247eb202520ad4e1fab1568158",
+      "sha256": "35b6052ed903f67cc4d6109d95a177cc78affd530e3e58e3594c980be218454e"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+      "before_sha256": "1dc2339b49bd518e039ec8fe884b2b0e911d5a4daaef45e00aa899beefd56bc3",
+      "sha256": "b97080bd500fbe39f040f33b6fe291b858049ee2ef0b37d237077b8ee877a3e5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
+      "before_sha256": "db45ff97d6212cf6bbc36a293a8dbaaa2000479f35e809aec4944c4251e901db",
+      "sha256": "a20bcb35fe19bbf89f6543cfe944dd142f00dbd2e475847fe629bd15c501b0e5"
+    }
+  ],
+  "changes": [
+    {
+      "path": "tests/downstream-review-precheck.tests.ps1",
+      "rule_id": "CS-028",
+      "actual_failure": "Windows job124782742779, run41284404030, head4b0981ea: expected lowercase blocker rejection but fixture mutation was a no-op under CRLF. Native .NET regex replay independently reproduces old LF mutation=true and CRLF=false. Production already rejects actual lowercase tokens.",
+      "repair": "Use end-of-line lookahead accepting optional CR without consuming it; assert changed bytes before invoking gate. Preserve all existing assertions and production logic.",
+      "validation": "Full existing downstream-review-precheck.tests.ps1 passes native Linux PowerShell with LF. Same existing suite passes when only task fixture line endings are forced CRLF before mutation. Independent LF/CRLF regex control proves exact remainder/newline bytes preserved.",
+      "limit": "Native repaired Windows outcome awaits integration CI; Linux CRLF replay is not Windows host execution."
+    },
+    {
+      "paths": [
+        ".github/workflows/test.yml",
+        "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+        "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate"
+      ],
+      "rule_id": "CS-029",
+      "repair": "Change coding-standards job display name from complete coding standards audit to native coding standards checks. Identical one-line change in current epic190 workflow candidate and only its own manifest hash.",
+      "scope": "Display-only; job ID, native profile command, needs, required-check guard, permissions, conditions, all run bodies and unrelated pending candidate bytes remain unchanged. Existing full workflow contextual review remains applicable; its source hash updated to exact final bytes.",
+      "validation": "Existing required-checks-posix suite18/18; candidate manifest target hash matches new candidate bytes."
+    }
+  ],
+  "evidence": [
+    "docs/contributor/coding-standards/audit/shell/windows-fixture-evidence/mutation-proof.txt",
+    "docs/contributor/coding-standards/audit/shell/windows-fixture-evidence/native-crlf.txt",
+    "docs/contributor/coding-standards/audit/shell/windows-fixture-evidence/native-lf.txt",
+    "docs/contributor/coding-standards/audit/shell/windows-fixture-evidence/required-checks.txt"
+  ]
+}

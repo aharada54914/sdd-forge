@@ -6,8 +6,8 @@
 #   plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh
 #   with a CHECK stub and mocked stdin -- never-reproduces (5 iterations,
 #   exit 0, AC-001) and reproduces-on-iteration-3 (exit 1 canary, AC-002).
-#   export -f CHECK closes the "CHECK: command not found" (exit 127) false
-#   green gap the requirements.md Edge Cases section describes.
+#   Missing checks, tool errors, invalid iteration bounds and closed manual
+#   input are unavailable observations; they must not turn green.
 # WFI-audit leg (TEST-003): pins the documented one-directional rule --
 #   Audit-Attempt >= 3 implies Audit-Status: Human-Blocked -- transcribed
 #   from wfi-audit-cycle/SKILL.md precondition 4 (lines 44-50) and STEP 4 /
@@ -150,12 +150,11 @@ else
   HITL_COPY="${HITL_ROOT}/hitl-loop.template.sh"
   cp "$HITL_TEMPLATE_REAL" "$HITL_COPY"
 
-  HITL_STDIN_5="$(printf '\n%.0s' 1 2 3 4 5)"
 
   # TEST-001 (AC-001): CHECK never returns true -> 5 iterations, exit 0.
   CHECK() { return 1; }
   export -f CHECK
-  if HITL_OUT_1="$(printf '%s' "$HITL_STDIN_5" | bash "$HITL_COPY" 5 2>&1)"; then
+  if HITL_OUT_1="$(printf '\n%.0s' 1 2 3 4 5 | bash "$HITL_COPY" 5 2>&1)"; then
     HITL_RC_1=0
   else
     HITL_RC_1=$?
@@ -166,6 +165,39 @@ else
     ok "TEST-001 (AC-001): never-reproducing CHECK completes exactly 5 iterations, exits 0, prints the terminal string"
   else
     fail "TEST-001 (AC-001): expected 5 iterations/exit 0/terminal string, got rc=${HITL_RC_1} iterations=${HITL_ITER_COUNT_1}"
+  fi
+
+  # Missing CHECK and execution errors are unavailable observations, never green.
+  unset -f CHECK
+  for check_status in missing 2 127; do
+    if [[ "$check_status" != missing ]]; then
+      CHECK() { return "$HITL_CHECK_STATUS"; }
+      export HITL_CHECK_STATUS="$check_status"
+      export -f CHECK
+    fi
+    if output="$(printf '\n%.0s' 1 2 3 4 5 | bash "$HITL_COPY" 5 2>&1)"; then rc=0; else rc=$?; fi
+    if [[ "$rc" -eq 2 ]] && ! grep -q '^green:' <<< "$output"; then
+      ok "unavailable CHECK ($check_status) is not a green observation"
+    else
+      fail "unavailable CHECK ($check_status) produced rc=$rc"
+    fi
+    unset -f CHECK
+  done
+  CHECK() { return 1; }
+  export -f CHECK
+  for invalid in abc 0 -1 01 9223372036854775808; do
+    if output="$(bash "$HITL_COPY" "$invalid" </dev/null 2>&1)"; then rc=0; else rc=$?; fi
+    if [[ "$rc" -eq 2 ]] && ! grep -q '^green:' <<< "$output"; then
+      ok "invalid iteration cap rejected: $invalid"
+    else
+      fail "invalid iteration cap accepted: $invalid rc=$rc"
+    fi
+  done
+  if output="$(bash "$HITL_COPY" 5 </dev/null 2>&1)"; then rc=0; else rc=$?; fi
+  if [[ "$rc" -eq 2 ]] && ! grep -q '^green:' <<< "$output"; then
+    ok "closed manual input cannot produce a green observation"
+  else
+    fail "closed manual input produced rc=$rc"
   fi
 
   # TEST-002 (AC-002): CHECK returns true on iteration 3 -> immediate exit 1.
@@ -180,7 +212,7 @@ else
     [ "$n" -eq 3 ]
   }
   export -f CHECK
-  if HITL_OUT_2="$(printf '%s' "$HITL_STDIN_5" | bash "$HITL_COPY" 5 2>&1)"; then
+  if HITL_OUT_2="$(printf '\n%.0s' 1 2 3 4 5 | bash "$HITL_COPY" 5 2>&1)"; then
     HITL_RC_2=0
   else
     HITL_RC_2=$?

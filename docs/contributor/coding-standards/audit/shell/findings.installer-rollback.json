@@ -1,0 +1,105 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PS-SHELL-061",
+      "rule_id": "CS-004",
+      "path": "scripts/rollback-1.5.0.ps1",
+      "line": 165,
+      "source_sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc",
+      "flow": {
+        "input": "Rollback contract JSON",
+        "transformation": "PowerShell JSON pipeline enumerates root arrays; comparisons permit container coercion",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Malformed contract containers can pass the closed-contract boundary",
+      "reproduction": "tests/rollback-1.5.0.tests.ps1",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.ps1",
+        {
+          "path": "scripts/rollback-1.5.0.ps1",
+          "sha256": "c0c6dbbde682c08dc1e6ef07df7206b6ed306a018756e7386aeaa3e8ba456a21"
+        }
+      ],
+      "resolution": "Preserve root JSON container with NoEnumerate; require object root/entries, array files and string schema before property consumption",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-062",
+      "rule_id": "CS-023",
+      "path": "scripts/rollback-1.5.0.ps1",
+      "line": 81,
+      "source_sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc",
+      "flow": {
+        "input": "Git object stdout/stderr",
+        "transformation": "Synchronous stdout hashing leaves redirected stderr undrained and waits without deadline",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Noisy or stalled Git blocks rollback before mutation",
+      "reproduction": "tests/rollback-1.5.0.tests.ps1",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.ps1",
+        {
+          "path": "scripts/rollback-1.5.0.ps1",
+          "sha256": "c0c6dbbde682c08dc1e6ef07df7206b6ed306a018756e7386aeaa3e8ba456a21"
+        }
+      ],
+      "resolution": "Stream stdout into CryptoStream and stderr into Stream.Null concurrently, await both and process within one 30-second deadline, kill owned process tree on timeout",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-063",
+      "rule_id": "CS-023",
+      "path": "install.sh",
+      "line": 383,
+      "source_sha256": "dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+      "flow": {
+        "input": "Authenticated archive download",
+        "transformation": "curl has no configured request deadline",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Network stall can indefinitely block installation",
+      "reproduction": "tests/install.tests.sh",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        {
+          "path": "install.sh",
+          "sha256": "926836f31a2a6362ab62f33474384f9130e2cd306e40b32d32fc15d4002fadb6"
+        }
+      ],
+      "resolution": "Set curl --max-time 300; remote installer shim requires exact bound",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-064",
+      "rule_id": "CS-023",
+      "path": "install.ps1",
+      "line": 568,
+      "source_sha256": "b281bdcc09371e36fef6fc81e12382ab7a4c1b7666d9ed707d01dfe867ddb3c2",
+      "flow": {
+        "input": "Authenticated archive download",
+        "transformation": "Invoke-WebRequest has no configured timeout",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Network stall can indefinitely block installation",
+      "reproduction": "tests/install.tests.ps1",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.ps1",
+        {
+          "path": "install.ps1",
+          "sha256": "5649ade71027df0a20667d3276e1673a575c9f98898f13da5cdf9f73e541c18f"
+        }
+      ],
+      "resolution": "Set Invoke-WebRequest -TimeoutSec 300; remote installer shim requires exact bound",
+      "reuse": null
+    }
+  ]
+}

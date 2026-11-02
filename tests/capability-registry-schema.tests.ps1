@@ -112,7 +112,7 @@ function Test-Gate($g) {
   if (Test-HasAll $g @('implementation_ref')) {
     if (-not ($g.implementation_ref -is [string] -and $g.implementation_ref.Length -gt 0)) { return $false }
   }
-  if ($g.stage -eq 'implementation') {
+  if ($g.stage -ceq 'implementation') {
     if (-not (Test-HasAll $g @('implementation_ref'))) { return $false }
   }
   return $true
@@ -178,7 +178,7 @@ function Test-StrictSchema($schemaRoot) {
   if (-not (Test-IsObject $schemaRoot)) { return $false }
   if (-not (Test-KeysWithin $schemaRoot @('schema', 'gates', 'capabilities'))) { return $false }
   if (-not (Test-HasAll $schemaRoot @('schema', 'gates', 'capabilities'))) { return $false }
-  if ($schemaRoot.schema -ne 'capability-registry/v1') { return $false }
+  if ($schemaRoot.schema -cne 'capability-registry/v1') { return $false }
   if (-not (Test-IsArray $schemaRoot.gates)) { return $false }
   foreach ($g in $schemaRoot.gates) { if (-not (Test-Gate $g)) { return $false } }
   if (-not (Test-IsArray $schemaRoot.capabilities)) { return $false }

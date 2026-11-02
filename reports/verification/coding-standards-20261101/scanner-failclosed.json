@@ -1,0 +1,79 @@
+{
+  "scope": "Linux POSIX real permission/grep/filename controls; no product fixture override",
+  "sources": [
+    {
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+      "sha256": "158faf13d84516e1311a20b00e3a4814c0ab4f381cbf9d2501af8f483f3e187e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "sha256": "14268ffb871ce3b17f99575db6c0c7d5e342fe058d9cf3cc467f5932b1ce9bc5"
+    },
+    {
+      "path": "tests/design-sync-scan.tests.sh",
+      "sha256": "4be88482bd362a85b79b3d4b0d8334f5511a291abb19896212b06803830e756c"
+    },
+    {
+      "path": "tests/check-placeholders.tests.sh",
+      "sha256": "14bc5f80f10b79d80ebcc966e1a59ad68107b3b13bb64b45f3a9e9bc28016959"
+    }
+  ],
+  "results": [
+    {
+      "case": "unreadable directory",
+      "variant": "baseline",
+      "exit_code": 0,
+      "stdout": "Design-Sync Scan passed (0 findings).\n",
+      "stderr": ""
+    },
+    {
+      "case": "unreadable directory",
+      "variant": "current",
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "design-sync-scan: cannot enumerate target directory\n"
+    },
+    {
+      "case": "actual grep invalid regex",
+      "variant": "baseline",
+      "exit_code": 0,
+      "stdout": "Design-Sync Scan passed (0 findings).\n",
+      "stderr": ""
+    },
+    {
+      "case": "actual grep invalid regex",
+      "variant": "current",
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "design-sync-scan: pattern scan did not complete\n"
+    },
+    {
+      "case": "literal grep option filename",
+      "variant": "baseline",
+      "exit_code": 0,
+      "stdout": "Placeholder scan passed.\n",
+      "stderr": ""
+    },
+    {
+      "case": "literal grep option filename",
+      "variant": "current",
+      "exit_code": 1,
+      "stdout": "Placeholder scan FAILED (2 finding(s)):\n - --exclude=*:1:TODO\n - normal.txt:1:TODO\nEach finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.\n",
+      "stderr": ""
+    }
+  ],
+  "regressions": {
+    "design-sync-scan": {
+      "passed": 102,
+      "failed": 0
+    },
+    "check-placeholders": {
+      "passed": 9,
+      "failed": 0
+    },
+    "shellcheck": "warning severity clean",
+    "catalog": "15 tests OK,1 skipped"
+  },
+  "oracle_repair": "Existing T046 printf|grep-q could SIGPIPE under pipefail; same exact baseline row and named PASS predicates now feed grep using here-strings. Baseline evidence unchanged.",
+  "limits": "Newline HTML paths explicitly rejected as tool errors; Windows permission behavior not inferred; root owns applied mirrors."
+}

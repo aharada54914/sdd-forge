@@ -7,13 +7,13 @@ import tempfile
 import unittest
 
 SPEC = importlib.util.spec_from_file_location('impact', Path(__file__).with_name('verification-impact.py'))
-I = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(I)
+IMPACT = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(IMPACT)
 
 
 class ImpactTests(unittest.TestCase):
     def setUp(self):
-        self.full = sorted(I.README_SUITES) + ['tests/guards.tests.sh']
+        self.full = sorted(IMPACT.README_SUITES) + ['tests/guards.tests.sh']
         self.hashes = dict.fromkeys(self.full, 'source-digest')
 
     def receipt(self, statuses):
@@ -24,7 +24,7 @@ class ImpactTests(unittest.TestCase):
                      'source_sha256': 'source-digest'} for suite, status in statuses.items()]}
 
     def compare(self, receipts):
-        return I.compare(receipts, self.full, sorted(I.README_SUITES),
+        return IMPACT.compare(receipts, self.full, sorted(IMPACT.README_SUITES),
                          'head', 'catalog', self.hashes, ('head', True))
 
     def test_unknown_sensitive_and_empty_changes_keep_full(self):
@@ -32,14 +32,14 @@ class ImpactTests(unittest.TestCase):
                       {'.github/workflows/test.yml'}, {'skills/foo/SKILL.md'},
                       {'README.md', 'old.md'}, {'tests/verification-catalog.json'}):
             with self.subTest(paths=paths):
-                self.assertEqual(I.propose(paths, self.full)[0], self.full)
+                self.assertEqual(IMPACT.propose(paths, self.full)[0], self.full)
 
     def test_readme_hypothesis_requires_all_contract_suites(self):
-        selected, reason = I.propose({'README.md'}, self.full)
-        self.assertEqual(set(selected), I.README_SUITES)
+        selected, reason = IMPACT.propose({'README.md'}, self.full)
+        self.assertEqual(set(selected), IMPACT.README_SUITES)
         self.assertEqual(reason, 'readme-only-hypothesis')
         reduced = self.full[1:]
-        self.assertEqual(I.propose({'README.md'}, reduced)[0], reduced)
+        self.assertEqual(IMPACT.propose({'README.md'}, reduced)[0], reduced)
 
     def test_complete_receipts_expose_missed_failure(self):
         statuses = dict.fromkeys(self.full, 'passed')
@@ -84,7 +84,7 @@ class ImpactTests(unittest.TestCase):
             receipt = self.receipt(dict.fromkeys(self.full, 'passed'))
             receipt.update(revision=head, revision_after=head)
             def compare():
-                return I.compare([receipt], self.full, self.full, head, 'catalog',
+                return IMPACT.compare([receipt], self.full, self.full, head, 'catalog',
                                  self.hashes, repository_state(root))
             self.assertEqual(compare()['status'], 'complete')
             (root / 'production.py').write_text('answer = 0\n')
@@ -97,7 +97,7 @@ class ImpactTests(unittest.TestCase):
             (root / 'untracked.py').unlink()
             self.assertEqual(compare()['status'], 'complete')
             for state in ((None, None), (head, None), ('different-head', True)):
-                self.assertEqual(I.compare([receipt], self.full, self.full, head, 'catalog',
+                self.assertEqual(IMPACT.compare([receipt], self.full, self.full, head, 'catalog',
                                            self.hashes, state)['status'], 'incomplete')
 
     def test_git_renames_deletes_and_invalid_base(self):
@@ -118,13 +118,13 @@ class ImpactTests(unittest.TestCase):
             (root / 'removed.py').unlink()
             git('add', '-A')
             git('commit', '-m', 'rename and delete')
-            paths, status = I.changed_paths(root, base, 'HEAD')
+            paths, status = IMPACT.changed_paths(root, base, 'HEAD')
             self.assertEqual(paths, {'old.md', 'README.md', 'removed.py'})
             self.assertEqual(status, 'diff-available')
-            self.assertEqual(I.propose(paths, self.full)[0], self.full)
-            self.assertIsNone(I.changed_paths(root, 'nonexistent', 'HEAD')[0])
-            self.assertEqual(I.changed_paths(root, None, 'HEAD')[1], 'base-unavailable')
-            self.assertEqual(I.changed_paths(root, 'HEAD', 'HEAD')[0], set())
+            self.assertEqual(IMPACT.propose(paths, self.full)[0], self.full)
+            self.assertIsNone(IMPACT.changed_paths(root, 'nonexistent', 'HEAD')[0])
+            self.assertEqual(IMPACT.changed_paths(root, None, 'HEAD')[1], 'base-unavailable')
+            self.assertEqual(IMPACT.changed_paths(root, 'HEAD', 'HEAD')[0], set())
 
 
 if __name__ == '__main__':

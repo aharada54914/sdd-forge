@@ -1,0 +1,6 @@
+literal bracket root:0
+valid 0
+array 1
+upper 1
+root-array 1
+wrong-key 1

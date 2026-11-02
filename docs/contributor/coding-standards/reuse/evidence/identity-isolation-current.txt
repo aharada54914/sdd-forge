@@ -1,0 +1,128 @@
+ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained
+ok: bash helper-intact: exit=0, expected=0
+ok: bash helper-intact: snapshot, unchanged verification, changed-root refusal
+ok: bash helper-intact: omitted bound root refused
+ok: bash helper-missing: rejected before ledger/snapshot mutation
+ok: bash helper-invalid: rejected before ledger/snapshot mutation
+ok: bash clean: exit=0, expected=0
+ok: bash clean: snapshot, unchanged verification, changed-root refusal
+ok: bash clean: omitted bound root refused
+ok: bash other-equal: exit=1, expected=1
+ok: bash other-child: exit=1, expected=1
+ok: bash other-parent: exit=1, expected=1
+ok: bash other-prefix: exit=0, expected=0
+ok: bash other-prefix: snapshot, unchanged verification, changed-root refusal
+ok: bash other-prefix: omitted bound root refused
+ok: bash prior-equal: exit=1, expected=1
+ok: bash prior-child: exit=1, expected=1
+ok: bash prior-parent: exit=1, expected=1
+ok: bash prior-prefix: exit=0, expected=0
+ok: bash prior-prefix: snapshot, unchanged verification, changed-root refusal
+ok: bash prior-prefix: omitted bound root refused
+ok: bash prior-missing: exit=1, expected=1
+ok: bash legacy-missing: exit=0, expected=0
+ok: bash legacy-missing: snapshot, unchanged verification, changed-root refusal
+ok: bash legacy-missing: omitted bound root refused
+ok: bash snapshot-tampered: exit=0, expected=0
+ok: bash snapshot-tampered: snapshot, unchanged verification, changed-root refusal
+ok: bash snapshot-tampered: omitted bound root refused
+ok: bash snapshot-tampered: later reuse exit=1, expected=1
+ok: bash snapshot-deleted: exit=0, expected=0
+ok: bash snapshot-deleted: snapshot, unchanged verification, changed-root refusal
+ok: bash snapshot-deleted: omitted bound root refused
+ok: bash snapshot-deleted: later reuse exit=1, expected=1
+ok: bash display-plain: exit=0, expected=0
+ok: bash display-plain: snapshot, unchanged verification, changed-root refusal
+ok: bash display-plain: omitted bound root refused
+ok: bash display-quoted: exit=0, expected=0
+ok: bash display-quoted: snapshot, unchanged verification, changed-root refusal
+ok: bash display-quoted: omitted bound root refused
+ok: bash display-crlf: exit=0, expected=0
+ok: bash display-crlf: snapshot, unchanged verification, changed-root refusal
+ok: bash display-crlf: omitted bound root refused
+ok: bash display-open: exit=1, expected=1
+ok: bash display-close: exit=1, expected=1
+ok: bash display-double: exit=1, expected=1
+ok: bash display-inner: exit=1, expected=1
+ok: bash display-control: exit=1, expected=1
+ok: bash display-cr: exit=1, expected=1
+ok: bash display-nul: exit=1, expected=1
+ok: bash display-relative: exit=1, expected=1
+ok: bash display-parent: exit=1, expected=1
+ok: bash display-duplicate: exit=1, expected=1
+ok: bash history-cr: exit=1, expected=1
+ok: bash history-nul: exit=1, expected=1
+ok: bash history-duplicate: exit=1, expected=1
+ok: bash history-crlf: exit=0, expected=0
+ok: bash history-crlf: snapshot, unchanged verification, changed-root refusal
+ok: bash history-crlf: omitted bound root refused
+ok: bash quoted-other-equal: exit=1, expected=1
+ok: bash quoted-other-child: exit=1, expected=1
+ok: bash quoted-other-parent: exit=1, expected=1
+ok: bash quoted-other-prefix: exit=0, expected=0
+ok: bash quoted-other-prefix: snapshot, unchanged verification, changed-root refusal
+ok: bash quoted-other-prefix: omitted bound root refused
+ok: pwsh helper-intact: exit=0, expected=0
+ok: pwsh helper-intact: snapshot, unchanged verification, changed-root refusal
+ok: pwsh helper-intact: omitted bound root refused
+ok: pwsh helper-missing: rejected before ledger/snapshot mutation
+ok: pwsh helper-invalid: rejected before ledger/snapshot mutation
+ok: pwsh clean: exit=0, expected=0
+ok: pwsh clean: snapshot, unchanged verification, changed-root refusal
+ok: pwsh clean: omitted bound root refused
+ok: pwsh other-equal: exit=1, expected=1
+ok: pwsh other-child: exit=1, expected=1
+ok: pwsh other-parent: exit=1, expected=1
+ok: pwsh other-prefix: exit=0, expected=0
+ok: pwsh other-prefix: snapshot, unchanged verification, changed-root refusal
+ok: pwsh other-prefix: omitted bound root refused
+ok: pwsh prior-equal: exit=1, expected=1
+ok: pwsh prior-child: exit=1, expected=1
+ok: pwsh prior-parent: exit=1, expected=1
+ok: pwsh prior-prefix: exit=0, expected=0
+ok: pwsh prior-prefix: snapshot, unchanged verification, changed-root refusal
+ok: pwsh prior-prefix: omitted bound root refused
+ok: pwsh prior-missing: exit=1, expected=1
+ok: pwsh legacy-missing: exit=0, expected=0
+ok: pwsh legacy-missing: snapshot, unchanged verification, changed-root refusal
+ok: pwsh legacy-missing: omitted bound root refused
+ok: pwsh snapshot-tampered: exit=0, expected=0
+ok: pwsh snapshot-tampered: snapshot, unchanged verification, changed-root refusal
+ok: pwsh snapshot-tampered: omitted bound root refused
+ok: pwsh snapshot-tampered: later reuse exit=1, expected=1
+ok: pwsh snapshot-deleted: exit=0, expected=0
+ok: pwsh snapshot-deleted: snapshot, unchanged verification, changed-root refusal
+ok: pwsh snapshot-deleted: omitted bound root refused
+ok: pwsh snapshot-deleted: later reuse exit=1, expected=1
+ok: pwsh display-plain: exit=0, expected=0
+ok: pwsh display-plain: snapshot, unchanged verification, changed-root refusal
+ok: pwsh display-plain: omitted bound root refused
+ok: pwsh display-quoted: exit=0, expected=0
+ok: pwsh display-quoted: snapshot, unchanged verification, changed-root refusal
+ok: pwsh display-quoted: omitted bound root refused
+ok: pwsh display-crlf: exit=0, expected=0
+ok: pwsh display-crlf: snapshot, unchanged verification, changed-root refusal
+ok: pwsh display-crlf: omitted bound root refused
+ok: pwsh display-open: exit=1, expected=1
+ok: pwsh display-close: exit=1, expected=1
+ok: pwsh display-double: exit=1, expected=1
+ok: pwsh display-inner: exit=1, expected=1
+ok: pwsh display-control: exit=1, expected=1
+ok: pwsh display-cr: exit=1, expected=1
+ok: pwsh display-nul: exit=1, expected=1
+ok: pwsh display-relative: exit=1, expected=1
+ok: pwsh display-parent: exit=1, expected=1
+ok: pwsh display-duplicate: exit=1, expected=1
+ok: pwsh history-cr: exit=1, expected=1
+ok: pwsh history-nul: exit=1, expected=1
+ok: pwsh history-duplicate: exit=1, expected=1
+ok: pwsh history-crlf: exit=0, expected=0
+ok: pwsh history-crlf: snapshot, unchanged verification, changed-root refusal
+ok: pwsh history-crlf: omitted bound root refused
+ok: pwsh quoted-other-equal: exit=1, expected=1
+ok: pwsh quoted-other-child: exit=1, expected=1
+ok: pwsh quoted-other-parent: exit=1, expected=1
+ok: pwsh quoted-other-prefix: exit=0, expected=0
+ok: pwsh quoted-other-prefix: snapshot, unchanged verification, changed-root refusal
+ok: pwsh quoted-other-prefix: omitted bound root refused
+PASS: 74; FAIL: 0

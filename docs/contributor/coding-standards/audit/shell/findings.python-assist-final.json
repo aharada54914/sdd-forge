@@ -1,0 +1,225 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PS-AUX-015",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+      "line": 250,
+      "source_sha256": "ec72d99136d0747a4113fe6f32bde63c2651e7409fa8a8e22a0bb1ce896f7cc6",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+      },
+      "impact": "Malformed previous hash or singleton-array terminal verdict could authorize a transition.",
+      "reproduction": "Real malformed prior/reset cases admitted before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Require object and exact consumed string fields; preserve literal comparison.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-016",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "line": 217,
+      "source_sha256": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      },
+      "impact": "Malformed prior hash was considered different from current input and admitted an unchanged round.",
+      "reproduction": "Real null/list/non-hash receipt values admitted before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Validate object and64lowerhex string before comparing.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-017",
+      "rule_id": "CS-022",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+      "line": 272,
+      "source_sha256": "ec72d99136d0747a4113fe6f32bde63c2651e7409fa8a8e22a0bb1ce896f7cc6",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+      },
+      "impact": "Write failure after lock acquisition leaked the transition lock.",
+      "reproduction": "Real non-root chmod denial left .domain-review.lock before repair; final control removes it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Wrap lock-owned transition in finally cleanup.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-018",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "line": 174,
+      "source_sha256": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      },
+      "impact": "Literal aggregate filenames broke fingerprint JSON/TSV/checksum transport.",
+      "reproduction": "Quoted/newline aggregate Approved fixture failed before repair; final fingerprint and repeat checks pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Serialize keys with jq, readJSON entries, hash file stdin.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-019",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "line": 40,
+      "source_sha256": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      },
+      "impact": "Positive integer arithmetic overflow rewrote attempt identity.",
+      "reproduction": "Actual18446744073709551617 attempt succeeded through arithmetic wrap before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Enforce int64 range before Bash arithmetic; preserve exact positive integer grammar in both twins.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-020",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.ps1",
+      "line": 102,
+      "source_sha256": "33ecdaab4f9bb797106d79aff7e0ae36adcc1083b2f85776abae546d3d044a75",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.ps1"
+      },
+      "impact": "Git show failure was treated as a missing blob, allowing mixed criterion changes.",
+      "reproduction": "Actual fake git show exit91 produced exit0 before repair; final returns2.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Establish absence by checked literal ls-tree; check every existing blob read; use bounded raw Git helper.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-066",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 133,
+      "source_sha256": "508e9275a82640f45b39a696a2bf4a94402aa2dc75e06fdf8dff16d4147b465f",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "Git show failure was treated as a missing blob, allowing mixed criterion changes.",
+      "reproduction": "Actual fake git show exit91 produced exit0 before repair; final returns2.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Establish absence by checked literal ls-tree and require successful show; NUL-frame paths and classify UTF-8 failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-021",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 136,
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1"
+      },
+      "impact": "Malformed manifest affected_components was coerced rather than reported as a hard schema error.",
+      "reproduction": "Actual scalar,numeric-item and singleton-root-array fixtures yielded violation1 instead of hard error2; final typed controls pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Require object with actual string array, including null-item rejection.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-022",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 210,
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1"
+      },
+      "impact": "Provider join conflated component A and a and triggered an unrelated Fail-6.",
+      "reproduction": "Actual uppercase binding joined lowercase owned path before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Use ordinal dictionary for component identities.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-023",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 107,
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1"
+      },
+      "impact": "Singleton-list enforcement was coerced to required instead of documented invalid-value disabled-legacy.",
+      "reproduction": "Actual parsed YAML array value emitted missing-manifest error instead of disabled legacy.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Inspect the raw string type before exact enum comparison.",
+      "reuse": null
+    }
+  ]
+}

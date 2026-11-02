@@ -1,0 +1,8 @@
+valid 0 Verification contract passed for task T-001.
+root-array 1 
+schema-array 0 Verification contract passed for task T-001.
+task_id-array 0 Verification contract passed for task T-001.
+evidence-array 0 Verification contract passed for task T-001.
+id-array 0 Verification contract passed for task T-001.
+wrongcase-id 0 Verification contract passed for task T-001.
+wrongcase-mode 0 Verification contract passed for task T-001.

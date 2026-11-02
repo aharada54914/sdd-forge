@@ -325,8 +325,8 @@ def run_test_023(counts):
         detail = evidence["diagnostics"][0]["detail"] if isinstance(evidence, dict) and evidence.get("diagnostics") else None
         counts.check(
             detail == "sdd\\project-context.yaml",
-            f"TEST-023 windows-style-path non-vacuity: the published diagnostic detail genuinely embeds a raw "
-            f"backslash byte, unmutated (AC-023)",
+            "TEST-023 windows-style-path non-vacuity: the published diagnostic detail genuinely embeds a raw "
+            "backslash byte, unmutated (AC-023)",
             parse_error or repr(detail),
         )
 
@@ -498,20 +498,20 @@ def run_test_024_facet_manifest_sort_whitebox(counts):
 
     counts.check(
         manifest["capabilities"] == sorted(declared_order),
-        f"TEST-024 white-box: Facet Manifest capabilities[] is stable-sorted regardless of Registry declaration "
-        f"order or fed capability_evaluations order (AC-024)",
+        "TEST-024 white-box: Facet Manifest capabilities[] is stable-sorted regardless of Registry declaration "
+        "order or fed capability_evaluations order (AC-024)",
         repr(manifest["capabilities"]),
     )
     counts.check(
         manifest["required_facets"] == ["facet-a", "facet-m", "facet-z"],
-        f"TEST-024 white-box: Facet Manifest required_facets[] is stable-sorted (AC-024, Epic-A4-mandated array)",
+        "TEST-024 white-box: Facet Manifest required_facets[] is stable-sorted (AC-024, Epic-A4-mandated array)",
         repr(manifest["required_facets"]),
     )
     gate_ids_in_order = [gate["id"] for gate in manifest["resolved_gates"]]
     counts.check(
         gate_ids_in_order == ["gate-a", "gate-z"],
-        f"TEST-024 white-box: Facet Manifest resolved_gates[] is stable-sorted by id, deduplicated across "
-        f"contributing Capabilities (AC-024, Epic-A4-mandated array)",
+        "TEST-024 white-box: Facet Manifest resolved_gates[] is stable-sorted by id, deduplicated across "
+        "contributing Capabilities (AC-024, Epic-A4-mandated array)",
         repr(manifest["resolved_gates"]),
     )
 
@@ -630,21 +630,21 @@ def run_test_025(counts):
     clean_hits = _scan_nondeterminism(FIXTURES / "nondeterminism-clean.py.txt")
     counts.check(
         not clean_hits,
-        f"TEST-025 false-positive control: the clean fixture (benign English prose about time/networking, no "
-        f"literal forbidden API call) is not flagged",
+        "TEST-025 false-positive control: the clean fixture (benign English prose about time/networking, no "
+        "literal forbidden API call) is not flagged",
         repr(clean_hits),
     )
     dirty_provider_hits = _scan_provider_terms(FIXTURES / "provider-term-dirty.txt")
     counts.check(
         bool(dirty_provider_hits),
-        f"TEST-025 non-vacuity canary: the dirty provider-term fixture is flagged",
+        "TEST-025 non-vacuity canary: the dirty provider-term fixture is flagged",
         repr(dirty_provider_hits),
     )
     clean_provider_hits = _scan_provider_terms(FIXTURES / "provider-term-clean.txt")
     counts.check(
         not clean_provider_hits,
-        f"TEST-025 false-positive control: the clean provider-term fixture (this feature's own vocabulary plus "
-        f"near-miss substrings) is not flagged",
+        "TEST-025 false-positive control: the clean provider-term fixture (this feature's own vocabulary plus "
+        "near-miss substrings) is not flagged",
         repr(clean_provider_hits),
     )
 

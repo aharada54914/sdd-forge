@@ -1,0 +1,189 @@
+{
+  "schema": "coding-standards-context-review/v1",
+  "owner_issue": 688,
+  "reviewer": "finish_ts",
+  "baseline": "dc02c572",
+  "files": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "before_sha256": "0371deae4ff90edf3cc91bcaca0e93331a42c854d7ee53b699bf4d580221760c",
+      "sha256": "e06855b7f57b584e1cf66f0a54612f30fb5791a7ca8ea1bc575236ce90187668",
+      "lines": 704,
+      "review": "Complete production module with caller/twin contracts"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "before_sha256": "eef6c101c5995cc550df36d3e833d26fb85b823b48bd54f6172e0704d9fb39e4",
+      "sha256": "20ecfa49681d7e423bd183b5f5f667cf7e2d557b86f214545d0fcb22f99e17a5",
+      "lines": 188,
+      "review": "Complete production module with caller/twin contracts"
+    },
+    {
+      "path": "tests/scripts.tests.ps1",
+      "before_sha256": "d74df4a8211b6cc82af0a9f9323efb4dd0006b0abfb057aa21693e59e7f63675",
+      "sha256": "e6ac1b1fc59f7b7b123dafb57422c58db47a0648b831c6f0e62b01172b0c7d46",
+      "lines": 2808,
+      "review": "Added boundary controls reviewed against actual entrypoints; malformed JSON uses serializer, task hashes are recomputed only to reach the independent approval decision, expected accept/reject comes from protocol contract."
+    },
+    {
+      "path": "tests/agent-model-routing.tests.ps1",
+      "before_sha256": "141ec62074705bdf973eeba1dfe3956a6a17414cce176a332353a9fcb05cda27",
+      "sha256": "537f81d3867d6948fa6bc90c9a4af059221cb8e2d56870cc42a6f22303bf09d1",
+      "lines": 1179,
+      "review": "Added boundary controls reviewed against actual entrypoints; malformed JSON uses serializer, task hashes are recomputed only to reach the independent approval decision, expected accept/reject comes from protocol contract."
+    }
+  ],
+  "coverage": [
+    {
+      "source": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "sections": [
+        "initial parse and research delegation",
+        "Get-RawCheckTimestamp document lifetime",
+        "risk/stack/baseline constants and capability activation",
+        "Get-ContractProjectRoot and evidence path/reparse helpers",
+        "pass1 exact duplicate IDs",
+        "pass2 boolean, telemetry, waiver and evidence checks",
+        "pass3 baseline IDs",
+        "pass4 risk/stack/workflow requirements",
+        "pass5 red/green evidence",
+        "pass6 cross-model required/waived descriptor",
+        "pass7 producer JSON and live digest",
+        "failure aggregation and final exit"
+      ],
+      "reasoning": "Reviewed all branches and external boundaries. Legacy optional fields and default code stack remain allowed. Required boolean failures remain failures; schema/check string fields cannot be coerced before decisions. Exact keys/tokens align with Python twin. Evidence paths remain project-root-relative, traversal/reparse paths denied, literal caller paths preserved; optional project posture remains presence-owned. Research opt-in delegates only exact source-evidence string through existing argv dispatch. Producer digest is compared to independently read live sibling bytes, not trusted record claims; hash resource now disposed. Errors never publish passing result."
+    },
+    {
+      "source": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "sections": [
+        "parameters and Fail",
+        "exact object-name validation",
+        "canonical repository path and per-component symlink rejection",
+        "evidence schema/task/hash",
+        "trusted blocked-state file identity/hash and state fields",
+        "diagnosis file digest",
+        "human authority/timestamp",
+        "selected task section hash",
+        "approval/status/diagnosis/reapproval text binding",
+        "success output"
+      ],
+      "reasoning": "Reviewed full module with Bash embedded Python twin and actual routing caller. No writes or native subprocess. Explicit trusted repository/blocked/task paths stay caller inputs. Every referenced descendant must be canonical and link-free. All object/scalar protocol fields now checked before PowerShell enumeration/casts. Exact task tokens, hashes, timestamps, Approval and Status match producer case; task hash is still bound only to selected section and surrounding task changes remain valid. Existing lexical timestamp format retained, not changed to calendar validation."
+    }
+  ],
+  "rule_applicability": [
+    {
+      "rules": [
+        "CS-001",
+        "CS-002",
+        "CS-003",
+        "CS-005",
+        "CS-006",
+        "CS-008"
+      ],
+      "review": "Neither module constructs shell/embedded/SQL/Actions/HTML/URL source. The sole research delegation uses existing py-dispatch argv; no new subprocess boundary."
+    },
+    {
+      "rules": [
+        "CS-004",
+        "CS-007",
+        "CS-009",
+        "CS-014",
+        "CS-025",
+        "CS-026"
+      ],
+      "review": "JSON consumer shape and case boundaries repaired; fixture mutations serialize JSON. Regex task interpolation uses Escape; other regexes are fixed grammar. Literal filesystem operations and containment/reparse behavior reviewed. Existing UTF8 text/hash semantics and frozen evidence remain unchanged."
+    },
+    {
+      "rules": [
+        "CS-010",
+        "CS-011",
+        "CS-012",
+        "CS-013",
+        "CS-015",
+        "CS-016",
+        "CS-017"
+      ],
+      "review": "No credentials or logs added. Existing baseline/risk constants retain documented policy owners. Script-local state and shared research dispatch ownership retained. Repairs use existing parsers/collections and no speculative APIs; no acceptance code or failure path removed."
+    },
+    {
+      "rules": [
+        "CS-018",
+        "CS-019",
+        "CS-022",
+        "CS-023",
+        "CS-024"
+      ],
+      "review": "GetContent/JSON/hash errors remain terminating or accumulated failure; null diagnostics no longer dereference null. Dispatch status uses established helper. No async/retry loops introduced; finite input iteration and no externally launched new work. JsonDocument and SHA resources disposed. No invented whole-file size limit changes public artifact compatibility."
+    },
+    {
+      "rules": [
+        "CS-020",
+        "CS-021"
+      ],
+      "review": "Language-specific Python/TypeScript rules do not directly apply to these PowerShell bytes; Python twin was consulted only for contract parity."
+    },
+    {
+      "rules": [
+        "CS-027",
+        "CS-028",
+        "CS-029",
+        "CS-030"
+      ],
+      "review": "General object/scalar and exact-token operations, no fixture-specific product branches. Native negatives use malformed inputs reaching actual modules. Recomputed fixture hashes permit the target semantic branch rather than deciding expected result; expected rejection is independent. Baseline replay establishes14terminal false accepts and6contract false accepts. Existing positive/negative suites retained; Linux results are not Windows-host claims."
+    }
+  ],
+  "findings": [
+    {
+      "id": "PS-CONTRACT-SHAPE",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "state": "fixed",
+      "baseline": "Native baseline accepted schema/task/evidence/id singleton arrays; present null bool dereferenced null. Consumer validation was later than implicit PowerShell coercion.",
+      "resolution": "Validate object/check array/member scalar shapes before casts and research opt-in; preserve legacy optional nulls; clean boolean diagnostics."
+    },
+    {
+      "id": "PS-CONTRACT-CASE",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "state": "fixed",
+      "baseline": "Native baseline accepted LINT as required lint baseline and LEGACY as exact legacy cross_model.",
+      "resolution": "Ordinal ID set, exact baseline/cross-model/TDD tokens and consumed key names; exact producer object/string/lowercase live digest."
+    },
+    {
+      "id": "PS-RESUME-SHAPE",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "state": "fixed",
+      "baseline": "Actual old module accepted singleton evidence root/schema/path and blocked schema/task/tier/reason/hash arrays.",
+      "resolution": "Preserve JSON root with NoEnumerate, assert object shape, assert all consumed scalar values before comparison/path calls."
+    },
+    {
+      "id": "PS-RESUME-CASE",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "state": "fixed",
+      "baseline": "Actual old module accepted lowercase blocked timestamp and lowercase Approval/Status in correctly rehashed task section. Both twins also permitted final newline in blocked timestamp/paired contract hash under ^...$ anchors.",
+      "resolution": "Case-sensitive regexes for protocol tokens, format/hash grammar and task approval/status. Absolute anchors reject trailing newline; Bash counterpart uses fullmatch."
+    }
+  ],
+  "validation": {
+    "terminal": "Full tests/agent-model-routing.tests.ps1 exit0, including14newnegative controls; old PS module accepts all14 same controls. Two trailing-newline cases also invoke actual Bash twin and reject after Python-owner fullmatch repair.",
+    "contract": "Full tests/scripts.tests.ps1 final run exit0, including9newshape/case controls and5producer controls. Independent8case shape probe and6case literal-path/producer probe pass.",
+    "limitations": "Actual Linux PowerShell7 only in this record; parent owns all3OS host/CI evidence.",
+    "compatibility_followup": "After replacing contract NoEnumerate with raw object-root guards, all8shape and6literal/producer native cases pass; valid inputs0, malformed inputs1."
+  },
+  "paired_bash_dependency": {
+    "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
+    "sha256": "7af6f2e22c85fcd73fd48e60973b3d12b261d1633c30e8ad86c4a4458e8834c8",
+    "owner": "finish_python",
+    "review": "Exact seven match\u2192fullmatch substitutions preserve grammar and disallow trailing newline. Python-owner source was temporarily copied into this worktree for paired actual runtime replay; source fix commits separately."
+  },
+  "evidence": [
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-after.txt",
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-before.txt",
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-literal-producer.txt",
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/terminal-after.txt",
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/terminal-before.txt",
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-compatible.txt"
+  ],
+  "compatibility": "check-contract.ps1 preserves its explicit Windows PowerShell5.1 API contract: raw leading object delimiter guard prevents singleton-array unwrapping before original ConvertFrom-Json. No -NoEnumerate introduced there. Terminal resume already used modern -DateKind String. Actual PS5.1 host is not available here; this record claims API/context review and native PS7 replay only."
+}

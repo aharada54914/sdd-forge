@@ -1101,14 +1101,15 @@ fi
 #   bump-version run keeps it green.
 if [ "$is_shallow" = "true" ]; then
   version_sync=$(python3 -c "
+import sys
 import json, glob
 vals = sorted({json.load(open(p))['version']
                for pat in ('plugins/*/.claude-plugin/plugin.json',
                            'plugins/*/.codex-plugin/plugin.json',
                            'plugins/*/.plugin/plugin.json')
-               for p in glob.glob('${REPO_ROOT}/' + pat)})
+               for p in glob.glob(sys.argv[1] + pat)})
 print(str(len(vals)) + ':' + ','.join(vals))
-")
+" "${REPO_ROOT}/")
   if [ "${version_sync%%:*}" = "1" ]; then
     ok "AC-049-SELFCHECK: (shallow checkout) all plugin.json version fields carry one identical value (${version_sync#*:}) — the bump-version-synchronized surface set is not desynchronized by a stray mutation"
   else

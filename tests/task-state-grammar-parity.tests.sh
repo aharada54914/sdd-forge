@@ -212,6 +212,72 @@ check_verdict_case "verdict-key-lower" "verdict: PASS" "T-001" 1
 # Mis-cased task id in the report: the report no longer mentions the task.
 check_verdict_case "task-id-lower" "VERDICT: PASS" "t-001" 1
 
+# Exercise awk's real subprocess boundary with hostile path data. The Full
+# and Lite policies stay separate; both must transport values literally.
+if python3 - "$FULL_SH" "$LITE_SH" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    odd = root / 'quote\'" $` \\ 日本語\n$(touch SENTINEL)'
+    odd.mkdir()
+    tasks = odd / 'tasks.md'
+    reports = odd / 'reports'
+    reports.mkdir()
+    (reports / 'impl.md').write_text('T-001\n')
+    tasks.write_text('## T-001\nApproval: Approved\nStatus: Implementation Complete\n')
+    for script in sys.argv[1:]:
+        result = subprocess.run(['sh', script, str(tasks), str(reports), str(reports), str(root)],
+            cwd=root, capture_output=True, text=True, timeout=10)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert not (root / 'SENTINEL').exists(), 'path data was executed'
+    tasks.write_text('## T-001\nApproval: Approved\nStatus: Done\nRisk: low\n')
+    (odd / 'verification').mkdir()
+    (odd / 'verification/T-001.contract.json').write_text(json.dumps({'task_id': 'T-001', 'risk': 'low'}))
+    result = subprocess.run(['sh', sys.argv[1], str(tasks), str(reports), str(reports), str(root)],
+        cwd=root, capture_output=True, text=True, timeout=10)
+    assert result.returncode == 1, 'absent evidence must still fail closed'
+    assert 'mismatched task_id' not in result.stdout, result.stdout
+    assert not (root / 'SENTINEL').exists()
+PY
+then
+    ok 'Full/Lite task-state subprocesses preserve path data and reject absent evidence'
+else
+    fail 'task-state subprocess data boundary regression'
+fi
+
+# Root and discovered report filenames are data, even when brackets form a glob.
+if [ "$HAVE_PWSH" -eq 1 ]; then
+    mkdir -p "$WORK/impl[x]" "$WORK/implx" "$WORK/qg[x]" "$WORK/qgx"
+    printf '## T-001\nApproval: Approved\nStatus: Implementation Complete\n' > "$WORK/tasks[x].md"
+    printf 'unrelated task\n' > "$WORK/impl[x]/report[x].md"
+    printf 'T-001\n' > "$WORK/implx/reportx.md"
+    for checker in "$FULL_PS1" "$LITE_PS1"; do
+        code=0
+        output="$(pwsh -NoProfile -File "$checker" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+        if [ "$code" -eq 1 ]; then ok "$(basename "$checker") ignores wildcard sibling report roots";
+        else fail "$(basename "$checker") accepted unrelated literal reports: $code $output"; fi
+    done
+    printf 'T-001\n' > "$WORK/impl[x]/report[x].md"
+    for checker in "$FULL_PS1" "$LITE_PS1"; do
+        code=0
+        output="$(pwsh -NoProfile -File "$checker" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+        if [ "$code" -eq 0 ]; then ok "$(basename "$checker") reads literal bracket report filenames";
+        else fail "$(basename "$checker") rejected valid literal report: $code $output"; fi
+    done
+    printf '## T-001\nApproval: Approved\nStatus: Done\n' > "$WORK/tasks[x].md"
+    printf 'T-001\nVERDICT: FAIL\n' > "$WORK/qg[x]/report[x].md"
+    printf 'T-001\nVERDICT: PASS\n' > "$WORK/qgx/reportx.md"
+    code=0
+    output="$(pwsh -NoProfile -File "$LITE_PS1" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+    if [ "$code" -eq 1 ]; then ok 'Lite Done cannot borrow PASS from wildcard sibling root';
+    else fail "Lite Done accepted sibling report: $code $output"; fi
+fi
+
 echo ""
 echo "task-state-grammar-parity.tests.sh: ${PASS} passed, ${FAIL} failed"
 [ "$FAIL" -eq 0 ] || exit 1

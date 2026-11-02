@@ -1,6 +1,6 @@
 {
   "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
-  "source_sha256": "543aa0cc568fe54fdc6f95d8a218ec1e55b58277836fc5aef340404b131666d4",
+  "source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
   "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
   "mapping": {
     "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
@@ -22,7 +22,7 @@
     "Windows behavior",
     "entire application correctness"
   ],
-  "previous_source_sha256": "8d4397f7120d07b6eb0513049c519367de7e9cd1d61ea2814c1b8ffcd28dedcf",
+  "previous_source_sha256": "a02118e32da650aefbaf7461b4af467adcd773c146fd0d4c1ea63dd5140cbe43",
   "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
-  "mapping_recheck": "Implementation allowed_inputs validation was strengthened before reservation. Compared with main 2cea5aec8cdf77ae624ebd7d09b099a9b68940f0, the lock/hash-check/append/release reservation tail is byte-identical and its stored SHA-256 is unchanged. The pinned TLC negative/baseline and real two-process lock-removal/baseline replays passed; see reports/verification/formal-reservation-rt002-20261101/."
+  "mapping_recheck": "Compared with integration5192f8fa: identity control-byte rejection moves from CONTRACT to IDENTITY before shell extraction, preserving rejection and diagnostic parity. No ledger writer or transaction-tail change; reservation_tail_sha256 remains byte-identical. Ordinary six-test suite checks actual two-process baseline and lock-removal mutation; no new TLC/native Windows claim."
 }

@@ -1,0 +1,16 @@
+param([string]$Source,[switch]$Baseline)
+$ErrorActionPreference='Stop'
+if ($Baseline) {
+    $ast=[Management.Automation.Language.Parser]::ParseFile($Source,[ref]$null,[ref]$null)
+    $function=$ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Resolve-EvidenceKey'},$true)
+    . ([scriptblock]::Create($function.Extent.Text))
+} else { . $Source }
+$file=Join-Path ([IO.Path]::GetTempPath()) ('key-paired-'+[Guid]::NewGuid().ToString('N'))
+$oldKey=$env:SDD_EVIDENCE_KEY; $oldFile=$env:SDD_EVIDENCE_KEY_FILE
+try {
+ [IO.File]::WriteAllBytes($file,[byte[]]@(239,187,191,0,255,9,32,13,10))
+ $env:SDD_EVIDENCE_KEY=''; $env:SDD_EVIDENCE_KEY_FILE=$file
+ $result=Resolve-EvidenceKey
+ if ($null -eq $result -or $result.key -isnot [byte[]] -or $result.key.Length -ne 2 -or $result.key[0] -ne 0 -or $result.key[1] -ne 255) { Write-Output 'FAIL: valid key file not returned as exact normalized binary bytes'; exit 1 }
+ Write-Output 'PASS: same valid file returned as exact normalized binary bytes'
+} finally {$env:SDD_EVIDENCE_KEY=$oldKey; $env:SDD_EVIDENCE_KEY_FILE=$oldFile; Remove-Item -LiteralPath $file -Force}

@@ -42,6 +42,27 @@ class ContextSigningEnvironmentTests(unittest.TestCase):
                 with self.assertRaises((ValueError, TypeError)):
                     guard.validate_configuration(environment, self.policies)
 
+    def test_malformed_api_shapes_and_boolean_counts_rejected(self):
+        for malformed in (None, [], 1, "environment"):
+            with self.subTest(malformed=malformed), self.assertRaises(ValueError):
+                guard.validate_configuration(malformed, self.policies)
+            with self.subTest(policies=malformed), self.assertRaises(ValueError):
+                guard.validate_configuration(self.environment, malformed)
+        mutations = [lambda e: e.update(protection_rules=[None]),
+                     lambda e: e['protection_rules'][0].update(reviewers=[None]),
+                     lambda e: e['protection_rules'][0]['reviewers'][0].update(reviewer=None),
+                     lambda e: e.update(deployment_branch_policy={
+                         'protected_branches': 0, 'custom_branch_policies': 1})]
+        for mutate in mutations:
+            environment = copy.deepcopy(self.environment)
+            mutate(environment)
+            with self.assertRaises(ValueError):
+                guard.validate_configuration(environment, self.policies)
+        for policies in ({'total_count': True, 'branch_policies': self.policies['branch_policies']},
+                         {'total_count': 1, 'branch_policies': [None]}):
+            with self.assertRaises(ValueError):
+                guard.validate_configuration(self.environment, policies)
+
     def test_wildcard_tag_extra_and_unpaginated_rules_rejected(self):
         for policies in ({'total_count': 1, 'branch_policies': [{'name': '*', 'type': 'branch'}]},
                          {'total_count': 1, 'branch_policies': [{'name': 'main', 'type': 'tag'}]},

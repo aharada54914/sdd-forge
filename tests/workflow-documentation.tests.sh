@@ -31,7 +31,7 @@ grep -Fq 'P --> W[workflow-retrospective' "${ROOT}/docs/workflow-guide.md" || \
 workflow_guide="${ROOT}/docs/workflow-guide.md"
 assert_section_review_order() {
   local name="$1" start="$2" end="$3" section spec_line impl_line task_line
-  section="$(sed -n "/^### ${start} /,/^### ${end} /p" "$workflow_guide")"
+  section="$(awk -v start="$start" -v end="$end" 'index($0, "### " start " ") == 1 { active=1 } active { print } active && index($0, "### " end " ") == 1 { exit }' "$workflow_guide")"
   spec_line="$(grep -n -m1 -F 'spec-review-loop' <<<"$section" | cut -d: -f1 || true)"
   impl_line="$(grep -n -m1 -F 'impl-review-loop' <<<"$section" | cut -d: -f1 || true)"
   task_line="$(grep -n -m1 -F 'task-review-loop' <<<"$section" | cut -d: -f1 || true)"

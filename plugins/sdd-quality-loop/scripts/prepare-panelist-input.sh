@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Collection layer: prepare sanitized panelist input bundle with consent gate.
 # Usage:
 #   prepare-panelist-input.sh --task T-NNN --feature <f> --input <path|dir>
@@ -77,8 +77,10 @@ spec_root="specs"
 project_root=""
 effort=""
 max_bytes=""
+max_bytes_set=0
 
 while [ $# -gt 0 ]; do
+    [ "$#" -ge 2 ] || { printf 'prepare-panelist-input: missing option value: %s\n' "$1" >&2; exit 2; }
     case "$1" in
         --task)         task_id="$2";       shift 2 ;;
         --feature)      feature="$2";       shift 2 ;;
@@ -88,10 +90,37 @@ while [ $# -gt 0 ]; do
         --spec-root)    spec_root="$2";     shift 2 ;;
         --project-root) project_root="$2";  shift 2 ;;
         --effort)       effort="$2";        shift 2 ;;
-        --max-bytes)    max_bytes="$2";     shift 2 ;;
+        --max-bytes)    max_bytes="$2"; max_bytes_set=1; shift 2 ;;
         *) printf 'prepare-panelist-input: unknown argument: %s\n' "$1" >&2; exit 2 ;;
     esac
 done
+
+# --max-bytes, when supplied, must be an ASCII decimal integer in 0..2^63-1
+# (leading zeros allowed). Validate by characters/length, never by shell
+# arithmetic on user text, then normalize away leading zeros.
+if [ "$max_bytes_set" -eq 1 ]; then
+    case "$max_bytes" in
+        ''|*[!0123456789]*)
+            printf 'prepare-panelist-input: --max-bytes must be a nonnegative decimal integer\n' >&2
+            exit 2 ;;
+    esac
+    while :; do
+        case "$max_bytes" in
+            0?*) max_bytes="${max_bytes#0}" ;;
+            *) break ;;
+        esac
+    done
+    if [ "${#max_bytes}" -gt 19 ] || \
+       { [ "${#max_bytes}" -eq 19 ] && [ "$max_bytes" \> "9223372036854775807" ]; }; then
+        printf 'prepare-panelist-input: --max-bytes exceeds 9223372036854775807\n' >&2
+        exit 2
+    fi
+fi
+
+_ppi_io_error() {
+    printf 'prepare-panelist-input: cannot read or write review input\n' >&2
+    exit 2
+}
 
 # ── Validate required arguments ──────────────────────────────────────────────
 
@@ -366,6 +395,9 @@ fi
 # check_declared_outputs_completeness further down (Outputs-table rows) —
 # both need the identical containment discipline applied to a path taken
 # from repo content, not from a trusted caller.
+_ppi_tmpdir=$(mktemp -d) || _ppi_io_error
+trap 'rm -rf "$_ppi_tmpdir"' EXIT
+
 _ppi_is_canonical_declared_path() {
     case "$1" in
         '') return 1 ;;
@@ -392,11 +424,9 @@ _ppi_resolve_row_under_root() {
 
     _rr_current="${_rr_root%/}"
     _rr_escaped=0
-    _rr_old_ifs="$IFS"
-    IFS='/'
-    set -- $_rr_row_path
-    IFS="$_rr_old_ifs"
-    for _rr_component in "$@"; do
+    local -a _rr_components
+    IFS=/ read -r -d '' -a _rr_components < <(printf '%s\0' "$_rr_row_path")
+    for _rr_component in "${_rr_components[@]}"; do
         _rr_current="${_rr_current}/${_rr_component}"
         if [ -L "$_rr_current" ]; then
             _rr_escaped=1
@@ -434,7 +464,10 @@ import json, sys
 try:
     with open(sys.argv[1], encoding="utf-8") as f:
         contract = json.load(f)
-except Exception:
+except OSError as exc:
+    print("prepare-panelist-input: cannot read evidence contract: {}".format(exc), file=sys.stderr)
+    sys.exit(2)
+except (ValueError, UnicodeError):
     sys.exit(0)
 
 checks = contract.get("checks", [])
@@ -541,17 +574,26 @@ _ppi_is_seen() {
 _ppi_elide_lines=40
 _ppi_tab="$(printf '\t')"
 
+# Count stdin bytes without hiding wc failure behind a formatting filter.
+_ppi_count_bytes() {
+    local count
+    count=$(wc -c) || return 1
+    count=${count//[[:space:]]/}
+    case "$count" in ''|*[!0-9]*) return 1 ;; esac
+    printf '%s\n' "$count"
+}
+
 # One file's content, elided to its first/last $_ppi_elide_lines lines
 # plus a marker. Callers only invoke this for a file the budget loop below
 # has already decided to elide — it is not itself threshold-gated.
 _ppi_elide_content() {
     _pec_file="$1"
     _pec_label="$2"
-    _pec_total=$(wc -c < "$_pec_file" | tr -d ' ')
-    _pec_head=$(head -n "$_ppi_elide_lines" "$_pec_file")
-    _pec_tail=$(tail -n "$_ppi_elide_lines" "$_pec_file")
-    _pec_head_bytes=$(printf '%s\n' "$_pec_head" | wc -c | tr -d ' ')
-    _pec_tail_bytes=$(printf '%s\n' "$_pec_tail" | wc -c | tr -d ' ')
+    _pec_total=$(_ppi_count_bytes < "$_pec_file") || return 1
+    _pec_head=$(head -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
+    _pec_tail=$(tail -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
+    _pec_head_bytes=$(printf '%s\n' "$_pec_head" | _ppi_count_bytes) || return 1
+    _pec_tail_bytes=$(printf '%s\n' "$_pec_tail" | _ppi_count_bytes) || return 1
     _pec_elided=$((_pec_total - _pec_head_bytes - _pec_tail_bytes))
     [ "$_pec_elided" -lt 0 ] && _pec_elided=0
     printf '%s\n' "$_pec_head"
@@ -567,14 +609,13 @@ _ppi_elide_content() {
 # only the step-3 rebuild function below ever passes it.
 _ppi_append_content() {
     if [ "${3:-0}" = "1" ]; then
-        raw_content="${raw_content}# ---- ${2} ----
-$(_ppi_elide_content "$1" "$2")
-"
+        _pac_content=$(_ppi_elide_content "$1" "$2") || _ppi_io_error
     else
-        raw_content="${raw_content}# ---- ${2} ----
-$(cat "$1")
-"
+        _pac_content=$(cat -- "$1") || _ppi_io_error
     fi
+    raw_content="${raw_content}# ---- ${2} ----
+${_pac_content}
+"
 }
 
 raw_content=""
@@ -657,16 +698,17 @@ elif [ -d "$input_path" ]; then
     _ppi_task_verif_dir="${_ppi_verif_dir}/${task_id}"
     _ppi_elidable_index=""
     if [ -d "$_ppi_task_verif_dir" ] && [ ! -L "$_ppi_task_verif_dir" ]; then
+        _ppi_task_files=$(find "$_ppi_task_verif_dir" -type f \
+            ! -name '*.panelist-input.txt' ! -name '*.verdict.json' ! -name '*.cross-model.json') || _ppi_io_error
+        _ppi_task_files=$(printf '%s\n' "$_ppi_task_files" | sort) || _ppi_io_error
         while IFS= read -r _ppi_tf; do
+            [ -n "$_ppi_tf" ] || continue
             _ppi_tf_rel="${spec_root}/${feature}/verification/${task_id}/${_ppi_tf#"${_ppi_task_verif_dir}"/}"
-            _ppi_tf_bytes=$(wc -c < "$_ppi_tf" | tr -d ' ')
+            _ppi_tf_bytes=$(_ppi_count_bytes < "$_ppi_tf") || _ppi_io_error
             _ppi_elidable_index="${_ppi_elidable_index}${_ppi_tf_bytes}${_ppi_tab}${_ppi_tf}${_ppi_tab}${_ppi_tf_rel}
 "
             _ppi_mark_seen "$_ppi_tf_rel"
-        done < <(find "$_ppi_task_verif_dir" -type f \
-            ! -name '*.panelist-input.txt' \
-            ! -name '*.verdict.json' \
-            ! -name '*.cross-model.json' | sort)
+        done <<< "$_ppi_task_files"
     fi
 
     # 3b. Every path the reviewed task's own contract.json names in an
@@ -689,6 +731,7 @@ elif [ -d "$input_path" ]; then
     # "unreadable claim" defect this step exists to fix.
     _ppi_contract_path="${_ppi_verif_dir}/${task_id}.contract.json"
     if [ -f "$_ppi_contract_path" ] && [ ! -L "$_ppi_contract_path" ]; then
+        _ppi_dependencies=$(_ppi_extract_contract_evidence_paths "$_ppi_contract_path") || _ppi_io_error
         while IFS= read -r _ppi_dep; do
             [ -n "$_ppi_dep" ] || continue
             _ppi_is_seen "$_ppi_dep" && continue
@@ -703,7 +746,7 @@ elif [ -d "$input_path" ]; then
 
             _ppi_resolve_row_under_root "$_ppi_dep" "$project_root"
             if [ "$_ppi_row_state" = "matched" ]; then
-                _ppi_dep_bytes=$(wc -c < "$_ppi_row_candidate" | tr -d ' ')
+                _ppi_dep_bytes=$(_ppi_count_bytes < "$_ppi_row_candidate") || _ppi_io_error
                 _ppi_elidable_index="${_ppi_elidable_index}${_ppi_dep_bytes}${_ppi_tab}${_ppi_row_candidate}${_ppi_tab}${_ppi_dep}
 "
             else
@@ -717,7 +760,7 @@ elif [ -d "$input_path" ]; then
 "
             fi
             _ppi_mark_seen "$_ppi_dep"
-        done < <(_ppi_extract_contract_evidence_paths "$_ppi_contract_path")
+        done <<< "$_ppi_dependencies"
     fi
 
     # 4. The reviewed task's own implementation report.
@@ -730,7 +773,7 @@ elif [ -d "$input_path" ]; then
     _ppi_content_suffix="$raw_content"
     raw_content=""
 else
-    _ppi_content_prefix="$(cat "$input_path")"
+    _ppi_content_prefix="$(cat -- "$input_path")" || _ppi_io_error
     _ppi_content_suffix=""
     _ppi_elidable_index=""
 fi
@@ -748,12 +791,14 @@ _ppi_build_step3_content() {
     while IFS="$_ppi_tab" read -r _pbs_bytes _pbs_abspath _pbs_relpath; do
         [ -n "$_pbs_relpath" ] || continue
         if printf '%s\n' "$_pbs_elide_set" | grep -qxF -- "$_pbs_relpath"; then
+            _pbs_content=$(_ppi_elide_content "$_pbs_abspath" "$_pbs_relpath") || _ppi_io_error
             _ppi_step3_content="${_ppi_step3_content}# ---- ${_pbs_relpath} ----
-$(_ppi_elide_content "$_pbs_abspath" "$_pbs_relpath")
+${_pbs_content}
 "
         else
+            _pbs_content=$(cat -- "$_pbs_abspath") || _ppi_io_error
             _ppi_step3_content="${_ppi_step3_content}# ---- ${_pbs_relpath} ----
-$(cat "$_pbs_abspath")
+${_pbs_content}
 "
         fi
     done < <(printf '%s\n' "$_ppi_elidable_index")
@@ -987,7 +1032,7 @@ _ppi_verify_at_declaration_commit() {
     # PowerShell twin (which checks its own exit code) rejects it. Writing the
     # bytes out first keeps the two twins agreeing for the same reason rather
     # than by coincidence.
-    _vdc_blob="${TMPDIR:-/tmp}/ppi-decl-$$"
+    _vdc_blob=$(mktemp "$_ppi_tmpdir/declaration.XXXXXX") || return 1
     if ! git -C "$project_root" show "${_ppi_decl_commit}:${_vdc_row_path}" \
             >"$_vdc_blob" 2>/dev/null; then
         rm -f "$_vdc_blob"
@@ -1057,7 +1102,7 @@ _ppi_capture_declared_output_content() {
 "
 
     if [ -n "$_cdo_candidate" ]; then
-        _cdo_bytes=$(wc -c < "$_cdo_candidate" | tr -d ' ')
+        _cdo_bytes=$(_ppi_count_bytes < "$_cdo_candidate") || _ppi_io_error
         _ppi_declared_elidable_index="${_ppi_declared_elidable_index}${_cdo_bytes}${_ppi_tab}${_cdo_candidate}${_ppi_tab}${_cdo_row_path}
 "
     fi
@@ -1101,12 +1146,14 @@ _ppi_build_declared_content() {
 [no current content: this declared output does not exist in the worktree]
 "
         elif printf '%s\n' "$_pbd_elide_set" | grep -qxF -- "$_pbd_row_path"; then
+            _pbd_content=$(_ppi_elide_content "$_pbd_candidate_f" "$_pbd_row_path") || _ppi_io_error
             declared_content="${declared_content}${_pbd_header}
-$(_ppi_elide_content "$_pbd_candidate_f" "$_pbd_row_path")
+${_pbd_content}
 "
         else
+            _pbd_content=$(cat -- "$_pbd_candidate_f") || _ppi_io_error
             declared_content="${declared_content}${_pbd_header}
-$(cat "$_pbd_candidate_f")
+${_pbd_content}
 "
         fi
     done < <(printf '%s\n' "$_ppi_declared_rows")
@@ -1153,8 +1200,9 @@ import re, sys
 try:
     with open(sys.argv[1], encoding="utf-8", errors="replace") as f:
         lines = f.read().splitlines()
-except Exception:
-    sys.exit(0)
+except OSError as exc:
+    print("prepare-panelist-input: cannot read implementation report: {}".format(exc), file=sys.stderr)
+    sys.exit(2)
 
 # Neither cell boundary is anchored tight against the backtick that closes
 # it: real annotated rows put the free text in either position -- AFTER
@@ -1195,6 +1243,7 @@ check_declared_outputs_completeness() {
 
     _ppi_tab="$(printf '\t')"
     _gaps=""
+    _ppi_output_rows=$(_ppi_extract_declared_output_rows "$_impl_report") || _ppi_io_error
     while IFS="$_ppi_tab" read -r _row_kind _row_path _row_hash; do
         [ -n "$_row_kind" ] || continue
 
@@ -1275,7 +1324,7 @@ check_declared_outputs_completeness() {
         else
             _ppi_capture_declared_output_content "$_row_path" "$_candidate" "$_row_project_relative"
         fi
-    done < <(_ppi_extract_declared_output_rows "$_impl_report")
+    done <<< "$_ppi_output_rows"
 
     if [ -n "$_gaps" ]; then
         printf '%s' "$_gaps" >&2
@@ -1299,12 +1348,12 @@ fi
 
 # Sanitizes $1, setting globals $_ppi_sanitized_digest/$_ppi_sanitized_content.
 _ppi_sanitize_content() {
-    _psc_raw_tmp="$(mktemp)"
+    _psc_raw_tmp="$_ppi_tmpdir/sanitize-input"
     _psc_py_tmp="${_psc_raw_tmp}.py"
 
-    printf '%s' "$1" > "$_psc_raw_tmp"
+    printf '%s' "$1" > "$_psc_raw_tmp" || _ppi_io_error
 
-    cat > "$_psc_py_tmp" << 'PYEOF'
+    cat > "$_psc_py_tmp" << 'PYEOF' || _ppi_io_error
 import re, hashlib, sys
 
 raw_file = sys.argv[1]
@@ -1392,7 +1441,7 @@ PYEOF
 # $_ppi_sanitized_digest/$_ppi_sanitized_content would occupy on disk —
 # header included, since that is what --max-bytes is measured against.
 _ppi_measure_bundle_bytes() {
-    _ppi_bundle_preview=$(
+    {
         printf '# Panelist Input Bundle\n'
         printf '# task_id: %s\n' "$task_id"
         printf '# feature: %s\n' "$feature"
@@ -1402,8 +1451,7 @@ _ppi_measure_bundle_bytes() {
         printf '#          Do not include secrets, absolute paths, or private URLs.\n'
         printf '\n'
         printf '%s\n' "$_ppi_sanitized_content"
-    )
-    printf '%s' "$_ppi_bundle_preview" | wc -c | tr -d ' '
+    } | _ppi_count_bytes
 }
 
 # ── Size guard (fail-closed, --max-bytes only) — two-tier budget-driven
@@ -1419,11 +1467,11 @@ _ppi_build_step3_content "$_ppi_elide_set"
 _ppi_declared_elide_set=""
 _ppi_build_declared_content "$_ppi_declared_elide_set"
 _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
-_ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+_ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
 
 _ppi_elided_count=0
 _ppi_declared_elided_count=0
-if [ -n "$max_bytes" ] && [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
+if [ "$max_bytes_set" -eq 1 ] && [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
     # Tier one: the task's own verification/<task_id>/ evidence plus
     # contract-declared evidence. Elide candidates one at a time, LARGEST
     # FIRST, recomputing the actual sanitized bundle size after each (never
@@ -1436,7 +1484,7 @@ ${_ppi_cand_relpath}"
             _ppi_elided_count=$((_ppi_elided_count + 1))
             _ppi_build_step3_content "$_ppi_elide_set"
             _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
-            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
             [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null || break
         done < <(printf '%s\n' "$_ppi_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
     fi
@@ -1457,7 +1505,7 @@ ${_ppi_dcand_relpath}"
             _ppi_declared_elided_count=$((_ppi_declared_elided_count + 1))
             _ppi_build_declared_content "$_ppi_declared_elide_set"
             _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
-            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
             [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null || break
         done < <(printf '%s\n' "$_ppi_declared_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
     fi
@@ -1505,7 +1553,7 @@ mkdir -p "$out_dir" || {
     printf '#          Do not include secrets, absolute paths, or private URLs.\n'
     printf '\n'
     printf '%s\n' "$sanitized_content"
-} > "$out_path"
+} > "$out_path" || _ppi_io_error
 
 # ── Emit digest (and threaded effort, if supplied) to stdout ────────────────
 # AC-036: --effort is threaded through verbatim on a second stdout line, so

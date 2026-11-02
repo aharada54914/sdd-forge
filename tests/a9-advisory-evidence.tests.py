@@ -3,7 +3,6 @@
 import copy
 import contextlib
 import io
-import hashlib
 import importlib.util
 import json
 import os
@@ -35,29 +34,38 @@ def fixture(root):
     shutil.copy2(ROOT / '.gitignore', root / '.gitignore')
     config = ROOT / 'specs/epic-197-a9-dogfood/candidate/project-context.yaml'
     for relative in ('sdd/project-context.yaml', 'sdd/.approved-context/project-context.approved.yaml'):
-        path = root / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(config.read_bytes())
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(config.read_bytes())
     context = observer.document(observer.artifact(config.read_bytes()))
     # Deliberately not an authentic approval. The collector must retain authorization_checked:false.
     (root / 'sdd/project-context.approval.json').write_text(json.dumps({
         'schema': 'sdd-project-context-approval/v1',
         'context_sha256': observer.ownership.canonical_digest(context), 'hmac': '0' * 64}))
-    directory = root / 'specs/fixture/verification/T-001'; directory.mkdir(parents=True)
-    proof = directory / 'evidence.log'; proof.write_bytes(b'Synthetic test observation only.\n')
+    directory = root / 'specs/fixture/verification/T-001'
+    directory.mkdir(parents=True)
+    proof = directory / 'evidence.log'
+    proof.write_bytes(b'Synthetic test observation only.\n')
     contract = {'schema': 'verification-contract/v2', 'task_id': 'T-001', 'risk': 'medium',
                 'stack': 'spec', 'required_workflow': 'acceptance-first', 'checks': [
         {'id': name, 'required': True, 'passes': True, 'exit_code': 0,
          'evidence': 'specs/fixture/verification/T-001/evidence.log', 'command': 'synthetic-verifier',
          'started_at': '2026-10-17T00:00:00Z', 'finished_at': '2026-10-17T00:00:01Z'}
         for name in sorted(observer.plans.legacy.RISK_TIERS['medium'])]}
-    path = directory / 'contract.json'; path.write_text(json.dumps(contract))
+    path = directory / 'contract.json'
+    path.write_text(json.dumps(contract))
     def git(*args):
         return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE).decode().strip()
-    git('init', '-q'); git('config', 'core.autocrlf', 'false'); git('add', '.')
+    git('init', '-q')
+    git('config', 'core.autocrlf', 'false')
+    git('add', '.')
     git('-c', 'user.name=Synthetic Fixture', '-c', 'user.email=fixture@example.invalid',
         '-c', 'commit.gpgsign=false', 'commit', '-qm', 'synthetic baseline')
     base = git('rev-parse', 'HEAD')
-    changed = root / 'plugins/sdd-bootstrap/fixture.txt'; changed.write_bytes(b'synthetic code change\n')
-    git('add', '.'); git('-c', 'user.name=Synthetic Fixture', '-c', 'user.email=fixture@example.invalid',
+    changed = root / 'plugins/sdd-bootstrap/fixture.txt'
+    changed.write_bytes(b'synthetic code change\n')
+    git('add', '.')
+    git('-c', 'user.name=Synthetic Fixture', '-c', 'user.email=fixture@example.invalid',
         '-c', 'commit.gpgsign=false', 'commit', '-qm', 'synthetic PR')
     return base, git('rev-parse', 'HEAD'), path
 
@@ -90,15 +98,21 @@ class ObservationTests(unittest.TestCase):
                        lambda r:r.update(authorization_checked=True), lambda r:r.pop('trusted_tooling_sha256'),
                        lambda r:r.update(trusted_tooling_sha256='invalid'), lambda r:r['operations'].pop(),
                        lambda r:r['operations'][0].update(exit_code=1)):
-            record=copy.deepcopy(self.record); mutate(record)
-            with self.subTest(mutation=mutate): self.assertTrue(self.check(record))
+            record=copy.deepcopy(self.record)
+            mutate(record)
+            with self.subTest(mutation=mutate):
+                self.assertTrue(self.check(record))
 
     def test_missing_corrupted_rebound_artifacts_reject(self):
         for name in observer.ARTIFACTS:
-            record=copy.deepcopy(self.record); record['artifacts'].pop(name)
-            with self.subTest(missing=name): self.assertTrue(self.check(record))
-            record=copy.deepcopy(self.record); record['artifacts'][name]['contents']+=' '
-            with self.subTest(corrupt=name): self.assertTrue(self.check(record))
+            record=copy.deepcopy(self.record)
+            record['artifacts'].pop(name)
+            with self.subTest(missing=name):
+                self.assertTrue(self.check(record))
+            record=copy.deepcopy(self.record)
+            record['artifacts'][name]['contents']+=' '
+            with self.subTest(corrupt=name):
+                self.assertTrue(self.check(record))
         record=copy.deepcopy(self.record)
         # Rehashing a changed publication does not make it the committed approved-content input.
         raw=record['artifacts']['context']['contents'].replace('advisory', 'required').encode()
@@ -121,7 +135,8 @@ class ObservationTests(unittest.TestCase):
             else:
                 plan['checks'][0].update(blocking=False, obligation='optional')
             record['artifacts']['selected_plan'] = observer.artifact(json.dumps(plan).encode())
-            with self.subTest(mode=mode): self.assertTrue(self.check(record))
+            with self.subTest(mode=mode):
+                self.assertTrue(self.check(record))
 
     def test_coherently_rehashed_false_ownership_and_projection_are_rejected(self):
         for field in ('ownership_digest', 'projection_sha256', 'dependency_pointers'):
@@ -135,16 +150,21 @@ class ObservationTests(unittest.TestCase):
             plan = observer.document(record['artifacts']['selected_plan'])
             plan['bindings']['facet_manifest_sha256'] = record['artifacts']['facet_manifest']['sha256']
             record['artifacts']['selected_plan'] = observer.artifact(json.dumps(plan).encode())
-            with self.subTest(field=field): self.assertTrue(self.check(record))
+            with self.subTest(field=field):
+                self.assertTrue(self.check(record))
 
     def test_verification_files_missing_tampered_or_traversing_reject(self):
         for mode in ('missing', 'tamper', 'traversal'):
             record = copy.deepcopy(self.record)
             name = next(iter(record['verification_evidence']))
-            if mode == 'missing': record['verification_evidence'].pop(name)
-            elif mode == 'tamper': record['verification_evidence'][name]['contents'] += 'changed'
-            else: record['verification_evidence']['../outside'] = record['verification_evidence'].pop(name)
-            with self.subTest(mode=mode): self.assertTrue(self.check(record))
+            if mode == 'missing':
+                record['verification_evidence'].pop(name)
+            elif mode == 'tamper':
+                record['verification_evidence'][name]['contents'] += 'changed'
+            else:
+                record['verification_evidence']['../outside'] = record['verification_evidence'].pop(name)
+            with self.subTest(mode=mode):
+                self.assertTrue(self.check(record))
 
     def test_disabled_coverage_cannot_become_advisory_evidence(self):
         record=copy.deepcopy(self.record)
@@ -156,7 +176,8 @@ class ObservationTests(unittest.TestCase):
     def test_collection_rejects_mutated_policy_failed_contract_and_input_symlink(self):
         for mode in ('policy', 'failed-contract', 'symlink'):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix='a9-input-negative-') as raw:
-                root = Path(raw); base, head, contract = fixture(root)
+                root = Path(raw)
+                base, head, contract = fixture(root)
                 if mode == 'policy':
                     (root / 'sdd/project-context.yaml').write_text('changed')
                 elif mode == 'failed-contract':
@@ -171,10 +192,13 @@ class ObservationTests(unittest.TestCase):
                     contract = untracked
                 else:
                     proof = contract.with_name('evidence.log')
-                    target = root / 'private-target'; target.write_bytes(proof.read_bytes())
+                    target = root / 'private-target'
+                    target.write_bytes(proof.read_bytes())
                     proof.unlink()
-                    try: proof.symlink_to(target)
-                    except OSError: self.skipTest('symlink privilege unavailable')
+                    try:
+                        proof.symlink_to(target)
+                    except OSError:
+                        self.skipTest('symlink privilege unavailable')
                 with self.assertRaises((ValueError, OSError)):
                     observer.collect(root, base, head, 'fixture', contract)
 
@@ -209,7 +233,8 @@ class ObservationTests(unittest.TestCase):
     def test_public_cli_diagnostic_does_not_print_private_path_or_error_payload(self):
         output = io.StringIO()
         with tempfile.TemporaryDirectory(prefix='a9-private-diagnostic-') as raw:
-            root = Path(raw) / 'repo'; root.mkdir()
+            root = Path(raw) / 'repo'
+            root.mkdir()
             args = ['observe-a9-advisory.py', '--repo-root', str(root), '--contract', str(root/'absent'),
                     '--output', str(Path(raw)/'observation.json'), '--base-sha', 'a'*40,
                     '--head-sha', 'b'*40, '--feature', 'fixture']
@@ -225,10 +250,13 @@ class ObservationTests(unittest.TestCase):
 
     def test_cli_absent_context_is_not_a_successful_gate(self):
         with tempfile.TemporaryDirectory(prefix='a9-inactive-') as raw:
-            root=Path(raw)/'repo'; root.mkdir(); subprocess.run(['git','init','-q',str(root)],check=True)
+            root=Path(raw)/'repo'
+            root.mkdir()
+            subprocess.run(['git','init','-q',str(root)],check=True)
             subprocess.run(['git','-c','user.name=Fixture','-c','user.email=fixture@example.invalid',
                             '-c','commit.gpgsign=false','commit','--allow-empty','-qm','fixture'],cwd=root,check=True)
-            head=observer.git(root,'rev-parse','HEAD').decode().strip(); out=Path(raw)/'observation.json'
+            head=observer.git(root,'rev-parse','HEAD').decode().strip()
+            out=Path(raw)/'observation.json'
             result=subprocess.run([sys.executable,str(ROOT/'scripts/observe-a9-advisory.py'),
                 '--repo-root',str(root),'--base-sha',head,'--head-sha',head,'--feature','fixture',
                 '--contract',str(root/'absent.json'),'--output',str(out)],capture_output=True,text=True)
@@ -263,11 +291,14 @@ class RequestAndWorkflowTests(unittest.TestCase):
 
     def test_exact_head_request_executes_real_consumers_and_keeps_raw_output_private(self):
         with tempfile.TemporaryDirectory(prefix='a9-request-') as raw:
-            root = Path(raw)/'repo'; root.mkdir(); base, head, contract = self.request_fixture(root, poison=True)
+            root = Path(raw)/'repo'
+            root.mkdir()
+            base, head, contract = self.request_fixture(root, poison=True)
             output = Path(raw)/'private.json'
             result = self.invoke_request(root, base, head, output)
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
-            summary = json.loads(result.stdout); record = json.loads(output.read_text())
+            summary = json.loads(result.stdout)
+            record = json.loads(output.read_text())
             self.assertEqual(summary['advisory_observation_sha256'], observer.ownership.canonical_digest(record))
             self.assertFalse(summary['authorization_checked'])
             self.assertEqual(record['request']['verification_contract'], contract.relative_to(root).as_posix())
@@ -275,12 +306,14 @@ class RequestAndWorkflowTests(unittest.TestCase):
             self.assertNotIn('contents', result.stdout)
             self.assertFalse((root/'CONTRACT_COMMAND_EXECUTED').exists())
             self.assertNotIn('PR_SOURCE_EXECUTED', result.stdout + result.stderr)
-            if os.name != 'nt': self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+            if os.name != 'nt':
+                self.assertEqual(output.stat().st_mode & 0o777, 0o600)
 
     def test_private_reconstruction_matches_whole_observation_across_directories(self):
         with tempfile.TemporaryDirectory(prefix='a9-reconstruction-') as raw:
             directory = Path(raw)
-            first = directory/'original'; first.mkdir()
+            first = directory/'original'
+            first.mkdir()
             base, head, _ = self.request_fixture(first)
             second = directory/'independent-checkout'
             # Checkout filters must not alter the committed fixture bytes on Windows.
@@ -310,14 +343,16 @@ class RequestAndWorkflowTests(unittest.TestCase):
     def test_changed_trusted_tooling_cannot_reconstruct_original_observation(self):
         with tempfile.TemporaryDirectory(prefix='a9-reconstruction-tooling-') as raw:
             directory = Path(raw)
-            root = directory/'repo'; root.mkdir()
+            root = directory/'repo'
+            root.mkdir()
             base, head, _ = self.request_fixture(root)
             original = directory/'original.json'
             result = self.invoke_request(root, base, head, original)
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
             before = json.loads(original.read_text())
             digest = json.loads(result.stdout)['observation_sha256']
-            tooling = directory/'different-trusted-tooling'; tooling.mkdir()
+            tooling = directory/'different-trusted-tooling'
+            tooling.mkdir()
             observer.git(tooling, 'init', '-q')
             for relative in ('plugins', 'contracts'):
                 shutil.copytree(ROOT/relative, tooling/relative,
@@ -340,8 +375,11 @@ class RequestAndWorkflowTests(unittest.TestCase):
 
     def test_missing_inputs_are_named_without_paths_and_uncommitted_request_rejects(self):
         with tempfile.TemporaryDirectory(prefix='a9-request-missing-') as raw:
-            root = Path(raw)/'repo'; root.mkdir(); base, head, contract = self.request_fixture(root)
-            request = root/'sdd/a9-advisory-request.json'; original=request.read_bytes()
+            root = Path(raw)/'repo'
+            root.mkdir()
+            base, head, contract = self.request_fixture(root)
+            request = root/'sdd/a9-advisory-request.json'
+            original=request.read_bytes()
             request.unlink()
             result=self.invoke_request(root, base, head, Path(raw)/'absent.json')
             self.assertEqual(result.returncode, 1)
@@ -352,7 +390,8 @@ class RequestAndWorkflowTests(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertFalse((Path(raw)/'modified.json').exists())
             request.write_bytes(original)
-            original_contract = contract.read_bytes(); contract.unlink()
+            original_contract = contract.read_bytes()
+            contract.unlink()
             result = self.invoke_request(root, base, head, Path(raw)/'no-contract.json')
             self.assertEqual(json.loads(result.stdout)['missing_inputs'], ['verification_contract'])
             contract.write_bytes(original_contract)
@@ -362,7 +401,8 @@ class RequestAndWorkflowTests(unittest.TestCase):
 
     def test_optional_advisory_finding_is_preserved_without_blocking_delivery(self):
         with tempfile.TemporaryDirectory(prefix='a9-advisory-finding-') as raw:
-            root=Path(raw);base,head,contract=self.request_fixture(root)
+            root=Path(raw)
+            base,head,contract=self.request_fixture(root)
             registry_path=root/'contracts/capability-registry.json'
             registry=json.loads(registry_path.read_text())
             next(gate for gate in registry['gates'] if gate['id']=='check-installed-plugin-drift')['blocking']=False
@@ -372,7 +412,8 @@ class RequestAndWorkflowTests(unittest.TestCase):
             finding=copy.deepcopy(doc['checks'][0])
             finding.update(id='check-installed-plugin-drift',required=False,passes=False,exit_code=1,
                 waiver_reason='Advisory finding retained for triage; Registry marks this check nonblocking.')
-            doc['checks'].append(finding);contract.write_text(json.dumps(doc))
+            doc['checks'].append(finding)
+            contract.write_text(json.dumps(doc))
             observer.git(root,'add','.')
             observer.git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid',
                          '-c','commit.gpgsign=false','commit','-qm','synthetic optional finding')
@@ -388,7 +429,9 @@ class RequestAndWorkflowTests(unittest.TestCase):
 
     def test_required_phase_executes_but_cannot_count_as_advisory_cycle(self):
         with tempfile.TemporaryDirectory(prefix='a9-required-phase-') as raw:
-            root=Path(raw)/'repo';root.mkdir();base, head, contract=self.request_fixture(root)
+            root=Path(raw)/'repo'
+            root.mkdir()
+            base, head, contract=self.request_fixture(root)
             context=root/'sdd/project-context.yaml'
             value=observer.document(observer.artifact(context.read_bytes()))
             value['workflow'].update(artifact_layout='facet-hybrid', capability_enforcement='required')
@@ -396,7 +439,8 @@ class RequestAndWorkflowTests(unittest.TestCase):
             context.write_bytes(data)
             (root/'sdd/.approved-context/project-context.approved.yaml').write_bytes(data)
             approval=root/'sdd/project-context.approval.json'
-            doc=json.loads(approval.read_text());doc['context_sha256']=observer.ownership.canonical_digest(value)
+            doc=json.loads(approval.read_text())
+            doc['context_sha256']=observer.ownership.canonical_digest(value)
             approval.write_text(json.dumps(doc))
             observer.git(root, 'add', '.')
             observer.git(root, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
@@ -422,13 +466,17 @@ class RequestAndWorkflowTests(unittest.TestCase):
     def test_active_context_removal_and_mixed_tuple_fail_closed(self):
         for mode in ('missing', 'mixed', 'malformed'):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix='a9-active-negative-') as raw:
-                root=Path(raw)/'repo';root.mkdir();base,head,contract=self.request_fixture(root)
+                root=Path(raw)/'repo'
+                root.mkdir()
+                base,head,contract=self.request_fixture(root)
                 context=root/'sdd/project-context.yaml'
-                if mode=='missing': context.unlink()
+                if mode=='missing':
+                    context.unlink()
                 elif mode=='mixed':
                     context.write_bytes(context.read_bytes().replace(b'capability_enforcement: "advisory"',
                                                                    b'capability_enforcement: "required"'))
-                else: context.write_text('malformed: [')
+                else:
+                    context.write_text('malformed: [')
                 observer.git(root,'add','sdd/project-context.yaml')
                 observer.git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid',
                              '-c','commit.gpgsign=false','commit','-qm','synthetic invalid activation')
@@ -440,7 +488,8 @@ class RequestAndWorkflowTests(unittest.TestCase):
 
     def test_diverged_pr_base_uses_actual_merge_base_changed_paths(self):
         with tempfile.TemporaryDirectory(prefix='a9-diverged-base-') as raw:
-            root=Path(raw); base, head, contract=self.request_fixture(root)
+            root=Path(raw)
+            base, head, contract=self.request_fixture(root)
             observer.git(root, 'checkout', '--detach', base)
             (root/'plugins/sdd-ship/base-only.txt').write_text('base-only change')
             observer.git(root, 'add', '.')
@@ -517,7 +566,9 @@ class RequestAndWorkflowTests(unittest.TestCase):
             with self.subTest(existing=existing,event=event), tempfile.TemporaryDirectory() as raw:
                 root=Path(raw)
                 for directory in existing:
-                    path=root/directory/'sdd/project-context.yaml';path.parent.mkdir(parents=True);path.write_text('DATA ONLY')
+                    path=root/directory/'sdd/project-context.yaml'
+                    path.parent.mkdir(parents=True)
+                    path.write_text('DATA ONLY')
                 output=root/'outputs'
                 result=self.run_workflow_body(body,root,
                     {'A9_EVENT_NAME':event,'GITHUB_OUTPUT':str(output)})
@@ -528,7 +579,9 @@ class RequestAndWorkflowTests(unittest.TestCase):
     def test_actual_collection_body_missing_trusted_tool_fails_without_using_pr_code(self):
         body=self.workflow_body('Collect actual advisory consumers with explicit request')
         with tempfile.TemporaryDirectory() as raw:
-            root=Path(raw); subject=root/'subject/scripts';subject.mkdir(parents=True)
+            root=Path(raw)
+            subject=root/'subject/scripts'
+            subject.mkdir(parents=True)
             (subject/'observe-a9-advisory.py').write_text("raise RuntimeError('PR_CODE_MUST_NOT_RUN')")
             result=self.run_workflow_body(body,root,{'RUNNER_TEMP':raw})
             self.assertEqual(result.returncode,1)

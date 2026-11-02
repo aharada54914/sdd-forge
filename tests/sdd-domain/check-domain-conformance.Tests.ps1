@@ -415,7 +415,7 @@ Test feature.
 
 Describe "domain conformance JSON semantics and exact identifiers" {
     $cases = foreach ($runtime in @('ps1', 'sh')) {
-        foreach ($scenario in @('canonical', 'json-whitespace', 'relation-key-order', 'term-case', 'context-case', 'aggregate-case', 'relation-case', 'warn-term-case', 'invalid-json')) {
+        foreach ($scenario in @('canonical', 'json-whitespace', 'relation-key-order', 'term-case', 'context-case', 'aggregate-case', 'relation-case', 'warn-term-case', 'invalid-json', 'literal-context')) {
             @{ Runtime = $runtime; Scenario = $scenario }
         }
     }
@@ -432,11 +432,15 @@ Describe "domain conformance JSON semantics and exact identifiers" {
                 $contract.relations = @([ordered]@{ to = 'shipping'; pattern = 'customer-supplier'; from = 'orders' })
             }
             if ($Scenario -eq 'relation-case') { $contract.relations[0].from = 'ORDERS' }
+            if ($Scenario -eq 'literal-context') {
+                $contract.contexts[0].name = '*'
+                $contract.relations[0].from = '*'
+            }
             $json = $contract | ConvertTo-Json -Depth 10
             if ($Scenario -eq 'json-whitespace') { $json = $json.Replace(': ', ":`n") }
             if ($Scenario -eq 'invalid-json') { $json = '{' }
             [IO.File]::WriteAllText($contractPath, $json, [Text.UTF8Encoding]::new($false))
-            $context = if ($Scenario -eq 'context-case') { 'ORDERS' } else { 'orders' }
+            $context = if ($Scenario -eq 'context-case') { 'ORDERS' } elseif ($Scenario -eq 'literal-context') { '*' } else { 'orders' }
             $term = if ($Scenario -in @('term-case', 'warn-term-case')) { 'order' } else { 'Order' }
             $req = Join-Path $fixture.SpecsDir 'requirements.md'
             [IO.File]::WriteAllText($req, "Bounded-Context: $context, shipping`n## [[term:$term]]`n")

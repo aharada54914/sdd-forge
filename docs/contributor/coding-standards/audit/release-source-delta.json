@@ -1,0 +1,60 @@
+{
+  "schema": "coding-standards-context-delta/v1",
+  "revision": "fccb8830",
+  "files": [
+    {
+      "path": ".github/scripts/generate-sbom.py",
+      "before_sha256": "31900f6d8e672de8eaa78eab05c8dfadaa90b313595eca2e47d5673c29fa6f40",
+      "sha256": "fb9267d25d16c3af29ad9cdfde9b6838c1a53a2646457d6fedca4d54e0ad4aef"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "before_sha256": "3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9",
+      "sha256": "d3fc87b7fdb9de39ee043ef4e3c8300dc9a4aff5934b5c801c65eabae46a69e7"
+    },
+    {
+      "path": "tests/release-loop-gate.tests.sh",
+      "before_sha256": "f7351e93b2f2ccb20495e8232e80aa26f3e587bd2ad6fd27432c8116d958ab8b",
+      "sha256": "c7afee63a311d4486cac8636d33585f80b8ce69ad7e73168d0e93d50d3fd2748"
+    }
+  ],
+  "script_review": "generate-sbom.py retains its default checkout root, adds explicit --source-root passed through source-reading functions, validates the directory, and fails present unreadable/malformed source input with a fixed diagnostic. JSON serialization, no-shell calls, version and repo arguments unchanged. Missing optional directories remain allowed. No external secret or network used. All old CLI usages remain valid.",
+  "findings": [
+    {
+      "id": "WF-RELEASE-COUNT",
+      "rule_id": "CS-019",
+      "path": ".github/workflows/release.yml",
+      "state": "fixed",
+      "input": "gh API successful workflow run count",
+      "sink": "Bash if [ COUNT -lt1 ] gate",
+      "impact": "Malformed null count made test return2 inside if; CI-green printed success and exited0.",
+      "resolution": "Positive decimal count regex plus exact SHA/ref-type validation.",
+      "baseline": "Actual original step with mocked gh response null exits0 and prints CI green confirmed.",
+      "validation": "Actual corrected step accepts1/2 and rejects0/null/empty/text/negative/multiline; invalidSHA cases reject."
+    },
+    {
+      "id": "WF-RELEASE-SBOM-SOURCE",
+      "rule_id": "CS-029",
+      "path": ".github/workflows/release.yml",
+      "state": "fixed",
+      "input": "Manual dispatch branch differs from selected tag",
+      "sink": "SBOM root derived from generator checkout",
+      "impact": "Tagged archive described dispatch-branch dependencies instead of published bytes.",
+      "resolution": "Extract exact generated tarball, pass --source-root to generator, trap scratch cleanup.",
+      "baseline": "Two-commit real Git fixture emits only dispatch-only-dependency.",
+      "validation": "Corrected actual workflow body emits tagged-dependency only."
+    },
+    {
+      "id": "WF-SBOM-INCOMPLETE",
+      "rule_id": "CS-018",
+      "path": ".github/scripts/generate-sbom.py",
+      "state": "fixed",
+      "input": "Present corrupt/unreadable dependency lock or workflow source",
+      "sink": "catch then continue during SBOM enumeration",
+      "impact": "Release could attest incomplete dependency inventory with success status.",
+      "resolution": "Refuse present invalid/unreadable inputs; root/packages JSON must be objects; fixed diagnostic and nonzero.",
+      "baseline": "Malformed { lock produces exit0 SBOM with no dependency components.",
+      "validation": "Malformed JSON, array root and array packages map produce nonzero, fixed diagnostic and no output."
+    }
+  ]
+}

@@ -145,7 +145,9 @@ When `/sdd-sudo` is invoked with a duration:
    ```powershell
    $sddDir = Join-Path $env:USERPROFILE ".sdd"
    if (-not (Test-Path $sddDir)) { New-Item -ItemType Directory -Path $sddDir | Out-Null }
-   $keyBytes = [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)
+   $keyBytes = New-Object byte[] 32
+   $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+   try { $rng.GetBytes($keyBytes) } finally { $rng.Dispose() }
    $keyHex = -join ($keyBytes | ForEach-Object { $_.ToString("x2") })
    # Write WITHOUT a BOM: Set-Content -Encoding Utf8 on Windows PowerShell 5.1
    # prepends a UTF-8 BOM, which the Node/Python guards would fold into the HMAC
@@ -171,12 +173,28 @@ When `/sdd-sudo` is invoked with a duration:
    (Five values joined by a single LF `\n`; NO trailing newline. Epoch values are
    decimal integer strings with no leading zeros.)
 
-   **POSIX (openssl):**
+   **POSIX (Python; key precedence matches the guard):**
+   Keep the key inside the process. Command-line arguments such as OpenSSL's
+   `-hmac KEY` expose it to process inspection.
    ```sh
    CANONICAL="$(printf '%s\n%s\n%s\n%s\n%s' "$ISSUER" "$NONCE" "$REPO" "$ISSUED" "$EXPIRES")"
-   SIG=$(printf '%s' "$CANONICAL" | openssl dgst -sha256 -hmac "$KEY" -hex | awk '{print $2}')
-   # Or using Python with the default ~/.sdd/sudo-key (no key overrides):
-   SIG=$(printf '%s' "$CANONICAL" | python3 -c "import os,hmac,hashlib,sys; key=open(os.path.expanduser('~/.sdd/sudo-key')).read().strip().encode(); msg=sys.stdin.buffer.read(); print(hmac.new(key, msg, hashlib.sha256).hexdigest())")
+   SIG=$(printf '%s' "$CANONICAL" | python3 -c '
+import hashlib, hmac, os, pathlib, sys
+value = os.environ.get("SDD_SUDO_KEY")
+if value:
+    key = value.encode("utf-8")
+else:
+    key_path = os.environ.get("SDD_SUDO_KEY_FILE")
+    if not key_path:
+        home = os.environ.get("HOME") or os.environ.get("USERPROFILE")
+        if not home:
+            raise SystemExit("No signing key location")
+        key_path = str(pathlib.Path(home) / ".sdd" / "sudo-key")
+    key = pathlib.Path(key_path).read_bytes().removeprefix(b"\xef\xbb\xbf").rstrip(b" \t\r\n")
+if not key:
+    raise SystemExit("Empty signing key")
+print(hmac.new(key, sys.stdin.buffer.read(), hashlib.sha256).hexdigest())
+') || exit 1
    ```
 
    **PowerShell:**

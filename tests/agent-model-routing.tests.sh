@@ -1194,7 +1194,7 @@ fb_lex="$(bash "$SELECTOR_SH" --risk high \
 [[ "$fb_lex" == "anthropic/opus strong" ]] ||
   fail "lexical tie-break among non-fallback peers changed: $fb_lex"
 if command -v pwsh >/dev/null 2>&1; then
-  fb_ps="$(pwsh -NoProfile -Command "& '$SELECTOR_PS' -Risk high -Candidate @('openai/gpt-5.1-codex-max:strong:0.090','openai/gpt-5.2-codex:strong:0.090')")"
+  fb_ps="$(SDD_TEST_SELECTOR="$SELECTOR_PS" pwsh -NoProfile -Command '& $env:SDD_TEST_SELECTOR -Risk high -Candidate @("openai/gpt-5.1-codex-max:strong:0.090","openai/gpt-5.2-codex:strong:0.090")')"
   [[ "$fb_ps" == "openai/gpt-5.2-codex strong" ]] ||
     fail "PowerShell selector let the fallback win the equal-cost tie: $fb_ps"
 fi
@@ -1215,7 +1215,7 @@ fb_sel_v2="$(bash "$SELECTOR_SH" --risk high --registry "$REGISTRY_V2" \
 [[ "$fb_sel_v2" == "openai/gpt-5.2-codex strong" ]] ||
   fail "fallback model won an equal-cost tie against its primary on the v2 registry: $fb_sel_v2"
 if command -v pwsh >/dev/null 2>&1; then
-  fb_ps_v2="$(pwsh -NoProfile -Command "& '$SELECTOR_PS' -Risk high -Registry '$REGISTRY_V2' -Candidate @('openai/gpt-5.1-codex-max:strong:0.090','openai/gpt-5.2-codex:strong:0.090')")"
+  fb_ps_v2="$(SDD_TEST_SELECTOR="$SELECTOR_PS" SDD_TEST_REGISTRY="$REGISTRY_V2" pwsh -NoProfile -Command '& $env:SDD_TEST_SELECTOR -Risk high -Registry $env:SDD_TEST_REGISTRY -Candidate @("openai/gpt-5.1-codex-max:strong:0.090","openai/gpt-5.2-codex:strong:0.090")')"
   [[ "$fb_ps_v2" == "openai/gpt-5.2-codex strong" ]] ||
     fail "PowerShell selector let the fallback win the equal-cost tie on the v2 registry: $fb_ps_v2"
 fi

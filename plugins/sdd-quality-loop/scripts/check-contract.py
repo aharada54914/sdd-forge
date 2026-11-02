@@ -425,7 +425,7 @@ def _pass7_producer_digest(checks, root, failures):
         try:
             with open(evidence_path, "r", encoding="utf-8") as fh:
                 record = json.load(fh)
-        except (OSError, json.JSONDecodeError) as exc:
+        except (OSError, ValueError) as exc:
             failures.append(
                 f"check '{PRODUCER_DIGEST_CHECK_ID}' evidence could not be read/parsed "
                 f"for producer-digest verification: {exc}"
@@ -464,8 +464,13 @@ def run(contract_path, root):
             contract = json.load(f)
     except FileNotFoundError:
         return "?", [f"contract file not found: {contract_path}"]
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, UnicodeError) as exc:
         return "?", [f"contract JSON parse error: {exc}"]
+    except OSError as exc:
+        return "?", [f"contract file could not be read: {exc}"]
+
+    if not isinstance(contract, dict):
+        return "?", ["contract must be a JSON object"]
 
     checks_raw = contract.get("checks", [])
     failures = []
@@ -478,7 +483,7 @@ def run(contract_path, root):
     # chain with an uncaught traceback (exit code was correct, the diagnostic
     # was not). Fail closed with a proper message and skip the passes.
     non_string = [
-        name for name in ("risk", "stack", "required_workflow", "spec_revision", "cross_model")
+        name for name in ("risk", "stack", "required_workflow", "spec_revision", "cross_model", "schema", "task_id")
         if contract.get(name) is not None and not isinstance(contract.get(name), str)
     ]
     if non_string:
@@ -498,6 +503,13 @@ def run(contract_path, root):
     if non_dict_indices:
         failures.append(f"contract 'checks' has non-dict elements at indices: {non_dict_indices}")
     checks = [c for c in checks_raw if isinstance(c, dict)]
+
+    for index, check in enumerate(checks):
+        for name in ("id", "evidence", "waiver_reason", "red_evidence", "green_evidence"):
+            if check.get(name) is not None and not isinstance(check[name], str):
+                failures.append(f"check at index {index} {name} must be a string")
+    if failures:
+        return contract.get("task_id", "?"), failures
 
     # WFI-059: every evidence path resolves from the project root, never from
     # whatever base the caller happened to pass. _pass4_risk_tier keeps the

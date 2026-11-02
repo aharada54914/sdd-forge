@@ -1,0 +1,243 @@
+{
+  "issue": 689,
+  "base": "82b53695",
+  "implementation_commits": [
+    "4c13e073",
+    "bb868407",
+    "5037ae6d"
+  ],
+  "environment": "Linux uid1000; pwsh via /workspace/.tools/sdd-forge-dev/bin/pwsh; pinned Python/rtk/Ruby tools; existing ci-mcp dependencies temporarily linked for Ajv tests then link removed",
+  "checks": {
+    "ruff": "E4/E7/E9/F all active plugins/scripts/tests/.github;238 baseline findings repaired;1 deliberate invalid-syntax fixture excluded exactly",
+    "mypy": "existing7 configured files pass without reducing scope",
+    "new_boundary_tests": "5 pass, actual CLI malformed inputs, actual child UTF8 under ASCII locale, actual unprivileged permission error and marker controls",
+    "compound_statement_changes": "204 E701/E702 fixes checked against identical AST before writing"
+  },
+  "logs": [
+    {
+      "log": "python-gates.log",
+      "full_log_sha256": "2042b8bd14d9fe5a45e60a048cef171ffc5105d6dd0997261cf468af681d4974",
+      "tail": [
+        "ok: CSG.3: config present (required): the same contract fails, naming check-component-coverage",
+        "ok: CSG.4: config present (advisory): contract declaring the check with a genuine producer record passes",
+        "ok: CSG.5: critical, config present: contract without check-component-coverage fails",
+        "",
+        "====== Test Summary ======",
+        "PASS: 163",
+        "FAIL: 0",
+        "=========================="
+      ]
+    },
+    {
+      "log": "python-guards.log",
+      "full_log_sha256": "025f9596b34e4a077b3ca9acbd6bba91d343689baed526914d822fb07b2c8ae0",
+      "tail": [
+        "ok: py sudo: primary Approval WITH valid sudo -> allow (exit 0)",
+        "ok: py: Second Approval edit denied (not bypassed by primary guard)",
+        "ok: node: edit adds Second Approval to tasks.md -> deny (exit 2)",
+        "ok: node sudo: Second Approval denied even with valid sudo (exit 2) \u2014 sudo does NOT bypass",
+        "ok: node sudo: primary Approval WITH valid sudo -> allow (exit 0)",
+        "ok: node: Second Approval edit denied (not bypassed by primary guard)",
+        "",
+        "Results: 135 passed, 0 failed."
+      ]
+    },
+    {
+      "log": "python-fixed-review.log",
+      "full_log_sha256": "1aea6f931bb7aecfe369ed8277f2b6cc5f4d218c8ff1a8ed12d67502a1b6a5cd",
+      "tail": [
+        "....................................",
+        "----------------------------------------------------------------------",
+        "Ran 36 tests in 1.790s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "log": "python-fixed-launch.log",
+      "full_log_sha256": "6fa3d259b29343eb4da21350261c085f01d77a6a06ff0f785189472bc6ade6f5",
+      "tail": [
+        "..................................................",
+        "----------------------------------------------------------------------",
+        "Ran 50 tests in 5.911s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "log": "python-traceability.log",
+      "full_log_sha256": "65e8515598a556b9cc7a3193fc8a811f8450d5c94b03863eda186ceb0577719a",
+      "tail": [
+        "ok: persisted twins Implementation Complete",
+        "ok: persisted twins Done",
+        "ok: persisted twins Blocked",
+        "ok: persisted twins reject Delivered",
+        "ok: persisted twins reject done",
+        "ok: persisted twins reject Done (verified)",
+        "ok: persisted twins reject body change",
+        "ok: persisted twins reject Evidence change"
+      ]
+    },
+    {
+      "log": "python-quality-nontty-transport-corrected.log",
+      "full_log_sha256": "7ed6b12d3d4ad203d6829381229a1471f65bbe057db07ef319ccab753691dec3",
+      "tail": [
+        ".................s..",
+        "----------------------------------------------------------------------",
+        "Ran 20 tests in 1.511s",
+        "",
+        "OK (skipped=1)"
+      ]
+    },
+    {
+      "log": "python-task-structured-output-configured.log",
+      "full_log_sha256": "6ea8438d14537c142084393d5e798dff40a30fa37a6bbd7040940c11f8802b85",
+      "tail": [
+        "...............",
+        "----------------------------------------------------------------------",
+        "Ran 15 tests in 0.493s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "log": "python-cross-runtime-live-driver-bash-corrected.log",
+      "full_log_sha256": "dc3666281e2972e013ac91bd042d3dd0e432c83c75e805f8839c2081743e6e89",
+      "tail": [
+        "ok: bash auto;echo good",
+        "ok: bash active proof valid-signed",
+        "ok: bash active proof explicit-valid",
+        "ok: bash active proof stale-consumer",
+        "ok: bash active proof missing-record",
+        "ok: bash active proof unsigned-record",
+        "ok: bash active proof invalid-issuer",
+        "ok: bash active proof untrusted-signer"
+      ]
+    },
+    {
+      "log": "python-cross-runtime-pwsh-configured.log",
+      "full_log_sha256": "3baff616a91a7c4051258f09c4964e6aa8535827ba49b6e6bf0371118f73b876",
+      "tail": [
+        "ok: pwsh auto;echo good",
+        "ok: pwsh active proof valid-signed",
+        "ok: pwsh active proof explicit-valid",
+        "ok: pwsh active proof stale-consumer",
+        "ok: pwsh active proof missing-record",
+        "ok: pwsh active proof unsigned-record",
+        "ok: pwsh active proof invalid-issuer",
+        "ok: pwsh active proof untrusted-signer"
+      ]
+    },
+    {
+      "log": "python-lite-cli.log",
+      "full_log_sha256": "955a4470980ccf45283856073da56e8c8d00507b2e8bada99bd10cd6333c721a",
+      "tail": [
+        "ok: nonzero child exit fails the gate",
+        "ok: timed-out child fails closed",
+        "ok: full upgrade blocks child execution",
+        "ok: explicit checks execute once and evidence matches actual output",
+        "ok: discovery failure preserves prior execution evidence and fails closed",
+        "ok: evidence write failure fails closed",
+        "ok: source observations distinguish clean, dirty, untracked and unknown; receipts are not reusable",
+        "Results: 8 passed, 0 failed"
+      ]
+    },
+    {
+      "log": "python-lite-summary-final.log",
+      "full_log_sha256": "a501d1127ca5dc28250cff5827c6025c119b16a2dd665c4206d753c891ace428",
+      "tail": [
+        "=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ===",
+        "ok: TEST-016f: SKILL.md's own unmapped-id clause still reads VERDICT: FAIL",
+        "=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ===",
+        "ok: TEST-016g: SKILL.md's check-id grammar rule is present and still FAILs on a grammar mismatch",
+        "=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===",
+        "ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding evidence-bundle/cross-model/second-approval machinery, and introduces none",
+        "",
+        "Results: 15 passed, 0 failed"
+      ]
+    },
+    {
+      "log": "python-validate-registry.log",
+      "full_log_sha256": "696a462065aae9b4de356333e948cdce23b2fe4fbb3f0699038a531b58efefc9",
+      "tail": [
+        ".............",
+        "----------------------------------------------------------------------",
+        "Ran 13 tests in 1.515s",
+        "",
+        "OK",
+        "ok: Lite Registry contract: schema, catalog, opt-in and CLI boundaries",
+        "---- summary: pass=26 fail=2 ----",
+        "validate-capability-registry suite FAILED (26 passed, 2 failed)"
+      ]
+    },
+    {
+      "log": "python-generate-capabilities.log",
+      "full_log_sha256": "ccf29cf070a634c9fe04214e48443f8d38fe6a43612b492cce11e5d69d6da3d4",
+      "tail": [
+        "ok: candidate bundle mutation duplicate rejected with expected diagnostic",
+        "ok: candidate bundle mutation malformed rejected with expected diagnostic",
+        "ok: candidate bundle mutation hash rejected with expected diagnostic",
+        "ok: QG-fix: rebuilt CI workflow candidate is a job-set superset of live (structural, not just a step-name grep)",
+        "ok: historical workflow preserved; current candidate supersedes it with strict job/aggregation checks and negative controls",
+        "ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)",
+        "---- summary: pass=31 fail=1 designed-red=0 ----",
+        "generate-gate-capabilities suite FAILED (31 passed, 1 failed, 0 designed-red)"
+      ]
+    },
+    {
+      "log": "python-run-measurement.tests.py.log",
+      "full_log_sha256": "2ae03e05e4d27a443b4cacd3dabfe7773e2e7ec926aaef004cd5c2236808746a",
+      "tail": [
+        "....................",
+        "----------------------------------------------------------------------",
+        "Ran 20 tests in 0.144s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "log": "python-research-evidence.tests.py.log",
+      "full_log_sha256": "e3187b29bab3b2e69938f8c6254b907b7b8114def06ac9c234996ff3b3ae4a90",
+      "tail": [
+        ".....................",
+        "----------------------------------------------------------------------",
+        "Ran 21 tests in 0.206s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "log": "python-domain-review-finalize.tests.py.log",
+      "full_log_sha256": "2e064a0a1fa9221a4afd0a27b9b71e817bdb0f78af76a0f5cb66cbba5291302f",
+      "tail": [
+        "....................s",
+        "----------------------------------------------------------------------",
+        "Ran 21 tests in 69.444s",
+        "",
+        "OK (skipped=1)"
+      ]
+    },
+    {
+      "log": "python-validate-live-host-proof.tests.sh.log",
+      "full_log_sha256": "d13f0b7c4f684e449bc0e9650e6a1b901eb8fa8b4617ea654b1c79941a7ceca4",
+      "tail": [
+        "ok - issuer-replace-failure-atomic",
+        "ok - issuer-fsync-failure-atomic",
+        "ok - issuer-expired-receipt-rejected",
+        "ok - issuer-future-receipt-rejected",
+        "ok - issuer-duplicate-json-rejected",
+        "ok - issuer-symbolic-ledger-rejected",
+        "ok - issuer-hard-ledger-rejected",
+        "live-host-proof: 184 passed, 0 failed"
+      ]
+    }
+  ],
+  "limitations": [
+    "Registry validator/generator self-registration checks fail until #687 registers new boundary test. Their behavioral assertions pass.",
+    "Initial missing pwsh/rtk/Ruby/Ajv dependencies and incorrect cross-runtime arguments were corrected, never counted as passes.",
+    "One quality transport native-host-dependent test skips in this environment.",
+    "Windows and macOS native runtime behavior not executed.",
+    "Lint/AST census does not certify every context-sensitive rule; global population review remains owned by final audit.",
+    "Frozen report/spec Python copies and pending mirrors unchanged except explicitly applied mirrors refreshed through established policy."
+  ]
+}

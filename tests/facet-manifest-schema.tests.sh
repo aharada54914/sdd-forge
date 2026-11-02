@@ -57,8 +57,8 @@ expect_invalid() {
 }
 
 # --- TEST-001: $id / draft-07 existence -------------------------------------
-schema_id="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$id',''))")"
-schema_dollar_schema="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$schema',''))")"
+schema_id="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$id',''))" "$SCHEMA")"
+schema_dollar_schema="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$schema',''))" "$SCHEMA")"
 if [ "$schema_dollar_schema" = "http://json-schema.org/draft-07/schema#" ]; then
   ok "TEST-001: \$schema is draft-07"
 else

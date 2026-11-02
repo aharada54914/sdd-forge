@@ -1,0 +1,40 @@
+{
+  "schema": "resolve-component-paths-diagnose/v1",
+  "findings": [
+    {
+      "id": "Fail-1",
+      "triggered": false,
+      "detail": {
+        "unowned_paths": []
+      }
+    },
+    {
+      "id": "Fail-3",
+      "triggered": false,
+      "detail": {
+        "overlap_paths": []
+      }
+    },
+    {
+      "id": "Fail-5",
+      "triggered": false,
+      "detail": {
+        "excluded_match_paths": []
+      }
+    },
+    {
+      "id": "Fail-6",
+      "triggered": true,
+      "detail": {
+        "matches": [
+          {
+            "component": "A",
+            "path": "lower/file",
+            "pattern": "lower/**"
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": []
+}

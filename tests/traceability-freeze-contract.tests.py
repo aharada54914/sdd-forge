@@ -96,7 +96,8 @@ printf 'ok: persisted twins reject Evidence change\n'
                                         "| REQ-001 | ux-spec.md#fixture | baseline | Planned |\n")
             for name, content in files.items():
                 (spec / name).write_text(content)
-            digest = lambda name: hashlib.sha256((spec / name).read_bytes()).hexdigest()
+            def digest(name):
+                return hashlib.sha256((spec / name).read_bytes()).hexdigest()
             (root / "specs/workflow-state-registry.json").write_text(json.dumps(
                 {"entries": [{"feature": feature, "profile": "full"}]}))
             report = root / "reports/task-review" / feature / "attempt-1/round-1"
