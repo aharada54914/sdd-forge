@@ -4,7 +4,7 @@ function ConvertTo-SddNativeArgumentString {
     param([string[]]$Arguments)
     $quoted = foreach ($argument in $Arguments) {
         $escaped = [regex]::Replace($argument, '(\\*)"', '$1$1\"')
-        $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
+        $escaped = [regex]::Replace($escaped, '(\\+)\z', '$1$1')
         '"' + $escaped + '"'
     }
     $quoted -join ' '

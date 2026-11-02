@@ -8,7 +8,9 @@ $expected = $env:SDD_EXPECTED_POWERSHELL
 if ($expected -notin @('5.1', '7.6')) { throw 'Expected PowerShell version must be 5.1 or 7.6' }
 if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) { throw 'Native Windows is required' }
 if (-not [Environment]::Is64BitProcess) { throw 'A 64-bit PowerShell host is required' }
-if ($PSVersionTable.PSVersion.ToString(2) -cne $expected) { throw 'Unexpected parent PowerShell version' }
+if (('{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor) -cne $expected) {
+    throw 'Unexpected parent PowerShell version'
+}
 $edition = if ($expected -eq '5.1') { 'Desktop' } else { 'Core' }
 if ($PSVersionTable.PSEdition -cne $edition) { throw 'Unexpected PowerShell edition' }
 $hostPath = (Get-Process -Id $PID).Path

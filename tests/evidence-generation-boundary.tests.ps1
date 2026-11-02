@@ -15,7 +15,7 @@ function Assert([bool]$Condition, [string]$Message) {
 try {
     $python = Get-Command python3 -ErrorAction SilentlyContinue
     if (-not $python) { $python = Get-Command python -ErrorAction Stop }
-    $atoms = @('', 'space atom', 'quote"atom', 'trailing\', "line`nnext")
+    $atoms = @('', 'space atom', 'quote"atom', 'trailing\', "line`nnext", ('backslash\' + "`n"))
     $native = Invoke-SddNativeRaw -FileName $python.Source -Arguments (@('-c', 'import json,sys;sys.stdout.write(json.dumps(sys.argv[1:]));sys.stderr.write("diagnostic");sys.exit(7)') + $atoms)
     $received = [Text.Encoding]::UTF8.GetString($native.Stdout) | ConvertFrom-Json
     Assert ($native.ExitCode -eq 7 -and [Text.Encoding]::UTF8.GetString($native.Stderr) -ceq 'diagnostic' -and (ConvertTo-Json -InputObject $received -Compress) -ceq (ConvertTo-Json -InputObject $atoms -Compress)) 'native adapter preserves argv, byte streams and nonzero status'
