@@ -1,4 +1,4 @@
-# Collection layer: prepare sanitized panelist input bundle with consent gate.
+﻿# Collection layer: prepare sanitized panelist input bundle with consent gate.
 # Usage:
 #   prepare-panelist-input.ps1 --task T-NNN --feature <f> --input <path|dir>
 #                              [--tasks-file specs/<f>/tasks.md]
