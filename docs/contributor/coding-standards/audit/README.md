@@ -41,7 +41,7 @@ limits. `scope-review.json` records positive historical references and active
 classification corrections. Its absence-of-literal result is not exclusion
 evidence; dynamic consumers and actual staged executables remain in scope.
 
-## Working reconciliation
+## Historical working reconciliation
 
 At snapshot `78a72054`, the census contains 11,639 entries: 1,467 context-reviewed,
 10,065 scoped non-program/historical inputs, one intentional symlink-fixture
@@ -66,3 +66,24 @@ inventory do not close the referenced program. Partial boundary reviews must be
 combined with remaining owner coverage; stale pins remain unknown until a
 contextual change review binds the new bytes. Machine ledgers use compact entry
 rows; lossless compaction was checked by parsed JSON equality.
+
+## Final source-bound reconciliation
+
+The final census snapshots clean commit `b0c131121d5b3bc9875d4424f9f46a11dc5c53c7`:
+11,792 tracked entries, with 1,586 reviewed, one fixed, 10,204 scoped data or
+historical exclusions, and one bounded symlink-fixture exception. There are zero
+unreviewed, needs-review or confirmed-violation entries **at that snapshot**.
+Exclusions are not code PASS. Exact whole-source owner reviews or verified
+baseline-plus-delta chains support the source judgments; nested dependency pins
+and native lint success do not establish them.
+
+The canonical finding ledger separately records 245 findings: 244 fixed and
+PY-003's bounded invalid-Python fixture exception. That finding exception and
+the population's symlink exception are different records. The finite review
+establishes recorded coverage, not proof that no further defect can exist.
+
+See [final verification](verification.md#final-source-bound-reconciliation) for
+checks, post-snapshot artifact semantics, native comparison and remaining
+platform/source-acquisition limits. Earlier reports and earlier sections retain
+their historical scope, including then-unknown contextual coverage. Native scan
+results are narrower than this reconciliation and final PR CI remains separate.

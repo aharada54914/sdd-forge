@@ -3,7 +3,7 @@
   "findings": [
     {
       "finding_id": "PS-SHELL-061",
-      "rule_id": "CS-014",
+      "rule_id": "CS-004",
       "path": "scripts/rollback-1.5.0.ps1",
       "line": 165,
       "source_sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc",

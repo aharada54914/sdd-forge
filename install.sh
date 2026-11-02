@@ -508,7 +508,7 @@ register_codex_mcp() {
         echo "Warning: ${config_toml} was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)." >&2
         return 0
     fi
-    local name entry_point block_file tmp_config
+    local name entry_point entry_point_toml tmp_config control escaped_control octal_control code
     for name in "${MCP_SELECTION[@]}"; do
         entry_point="${install_root_path}/mcp/${name}/dist/index.js"
         [[ -f "$entry_point" ]] || continue
@@ -517,16 +517,30 @@ register_codex_mcp() {
         tmp_config="$(mktemp)"
         # Strip any prior block for this MCP (idempotent re-registration),
         # then append a fresh block.
-        awk -v begin="$marker_begin" -v end="$marker_end" '
-            $0 == begin { skip = 1; next }
-            $0 == end { skip = 0; next }
+        if ! awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { if (skip) { invalid = 1; exit 1 }; skip = 1; next }
+            $0 == end { if (!skip) { invalid = 1; exit 1 }; skip = 0; next }
             skip { next }
             { print }
-        ' "$config_toml" > "$tmp_config"
+            END { if (skip || invalid) exit 1 }
+        ' "$config_toml" > "$tmp_config"; then
+            rm -f "$tmp_config"
+            echo "Malformed managed MCP markers in $config_toml; file unchanged for $name." >&2
+            return 1
+        fi
+        # TOML basic strings share JSON escapes; escape every forbidden control.
+        entry_point_toml="${entry_point//\\/\\\\}"
+        entry_point_toml="${entry_point_toml//\"/\\\"}"
+        for code in {1..31} 127; do
+            printf -v escaped_control '\\u%04x' "$code"
+            printf -v octal_control '%03o' "$code"
+            printf -v control '%b' "\\$octal_control"
+            entry_point_toml="${entry_point_toml//$control/$escaped_control}"
+        done
         {
             cat "$tmp_config"
             printf '\n%s\n[mcp_servers.%s]\ncommand = "node"\nargs = ["%s"]\n%s\n' \
-                "$marker_begin" "$name" "$entry_point" "$marker_end"
+                "$marker_begin" "$name" "$entry_point_toml" "$marker_end"
         } > "${tmp_config}.new"
         mv "${tmp_config}.new" "$config_toml"
         rm -f "$tmp_config"

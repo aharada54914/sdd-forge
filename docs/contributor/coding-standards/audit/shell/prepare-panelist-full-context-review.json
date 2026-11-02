@@ -1,0 +1,43 @@
+{
+  "schema": "coding-standards-test-shell-context/v1",
+  "revision": "2fb7a2adce9b6ec348c46d7488371ec91e6f672b",
+  "scope": "Full current prepare-panelist PowerShell test source and all in-file helpers/control oracles. No production-code coverage inferred from this test receipt.",
+  "method": "Read source in complete sequential ranges and follow fixture/native/serialization/oracle/cleanup contracts; exact current bytes pinned.",
+  "files": [
+    {
+      "path": "tests/prepare-panelist.tests.ps1",
+      "sha256": "f4ca8d3943abb981b912ec17e8b7f991a3995bf8e7c171d807c5ba6a8651e0ee",
+      "lines": 3062,
+      "state": "reviewed",
+      "evidence_kind": "whole-file-contextual-review",
+      "reviewed_ranges": [
+        [
+          1,
+          3062
+        ]
+      ],
+      "boundaries": [
+        "Complete 3062-line current source read, including all helper bodies, PP001-013, TEST013-017/032-077 and terminal literal-path/consent controls. This is a new complete source receipt, independent of the previously disconnected delta hash.",
+        "Invoke-Prepare launches the real prepare-panelist-input.ps1 with ProcessStartInfo.ArgumentList, preserving every path and option atom; stdout/stderr are drained asynchronously, native ExitCode captured, exceptional launch failure assigned99, and Process disposed in finally. No dynamic command source or provider/model service is invoked.",
+        "Fixture ownership starts at one random temporary root and ends in outer finally recursive cleanup; Git init/add/commit stays inside disposable scratch repositories. Commit failures throw; autocrlf=false pins worktree/blob bytes for historical hash controls. Fixed test paths are fixture inputs, not product exceptions.",
+        "Consent fixtures independently construct Markdown flags and real HMAC-SHA256 payloads from public test keys. PP001 overrides ambient key/skip-signature state and restores it; signature tests cover positive, tampered field, malformed nonce, expired/overlong token and wrong repository. Terminal controls require exact case for consent/repository identity. Skip-signature-only PP007 is explicitly identified and is not cryptographic proof.",
+        "Literal secret examples, URLs and paths are inert here-string content. Sanitization assertions search both forbidden sample fragments and preserved normal content. The suite neither fetches URLs nor logs live credentials; fixture diagnostic output contains only synthetic test values.",
+        "Write-PpiContract uses ConvertTo-Json with explicit array materialization; Markdown reports intentionally render fixture grammar, including bad row and annotation shapes. Test values reach the real parser as files. Regex assertions are fixed or escape dynamic sentinel/path literals; output content checks use Contains when exact literal text is intended.",
+        "Completeness/path controls pair existing matching outputs with missing/hash-mismatched counterparts; failure checks cover exits, missing digest and unpublished bundle. Traversal and symlink cases use sentinel absence and no bundle, including history that otherwise hash-matches. Symlink creation capability skips are printed explicitly.",
+        "Historical-declaration tests independently create v1/v2/delete/untracked report histories and use Get-FileHash over fixture bytes. Positive acceptance is separated from content assertions: current v2 bytes and stale notices required, historical/deleted sentinel bytes forbidden. Positive undrifted controls ensure warnings are conditional.",
+        "Task composition assertions distinguish own evidence from sibling task/panel output, require each spec marker, and check contract evidence/red/green paths plus dedup counts. Empty optional fields remain valid; missing contract evidence must be named and explained. TEST061 intentionally asserts stable explanatory prefix; exact base wording belongs to the separate WFI059 test.",
+        "Budget/elision controls construct deterministic500/20-line fixtures, independently compute UTF8 head/tail byte counts and assert first/last/middle markers and occurrence counts. Generous caps retain whole content; tight caps exercise largest-first selection, first-tier-before-second-tier ordering and unchanged no-publication when both tiers are exhausted. Stale-plus-elided control demands both notices and only current bytes.",
+        "CRLF digest controls now anchor entire output to lowercase64hex with optional LF/CRLF terminator. Final literal bracket inputs/outputs have sibling counterexamples; evidence symlink sentinel cannot leak. Final fail counter yields exit1 and successful suite explicitly exits0."
+      ],
+      "limitations": [
+        "Read-only review, not a new execution claim. Existing checks-owner current-source185/0 execution evidence remains separate.",
+        "PowerShell7 ArgumentList APIs establish the harness runtime; fallback executable lookup alone does not prove WindowsPowerShell5.1 compatibility.",
+        "The finite local test child inherits suite/CI lifetime; Invoke-Prepare itself has no timeout. This receipt does not claim process deadline or arbitrary oversized-output resistance.",
+        "Some historical capability skips increment ok while printing skip; pass totals alone must not be interpreted as executed symlink or authorization controls. Digest-pattern checks and selected marker checks establish their named properties, not whole-output byte equivalence."
+      ],
+      "evidence": [
+        "reports/verification/coding-standards-20261101/test-catalog-context-delta.json"
+      ]
+    }
+  ]
+}

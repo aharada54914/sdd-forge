@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent-resumed-review",
+  "source_commit": "cfa610c22949f4b2514a8ebc929d8d23a354ba60",
+  "entries": [
+    {
+      "path": "scripts/rollback-1.5.0.ps1",
+      "review_scope": "delta",
+      "before_source_sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc",
+      "source_sha256": "c0c6dbbde682c08dc1e6ef07df7206b6ed306a018756e7386aeaa3e8ba456a21",
+      "judgment": "Raw argv preserved; concurrent stdout CryptoStream hashing and stderr-to-Null drain avoid full buffering and stderr deadlock. One deadline covers drains and exit; nonzero rejects before returning hash, finally terminates live process tree and disposes owned sinks. NoEnumerate preserves root shape, object root/entry, string schema and nonempty files array gates precede staging or mutation. Existing per-entry hash/path/order and backup/restoration flow retained. Other Git calls remain unbounded; descendants after parent exit are not guaranteed; process APIs already required modern runtime before this delta."
+    },
+    {
+      "path": "install.sh",
+      "review_scope": "delta",
+      "before_source_sha256": "dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+      "source_sha256": "926836f31a2a6362ab62f33474384f9130e2cd306e40b32d32fc15d4002fadb6",
+      "judgment": "Only configured curl max-time300 added. Existing HTTPS URL/ref encoding, stdin credential config, fail/status flags, output filename and caller error path retained. Bounds this curl operation, not entire install; no retry or auth-policy change."
+    },
+    {
+      "path": "install.ps1",
+      "review_scope": "delta",
+      "before_source_sha256": "b281bdcc09371e36fef6fc81e12382ab7a4c1b7666d9ed707d01dfe867ddb3c2",
+      "source_sha256": "5649ade71027df0a20667d3276e1673a575c9f98898f13da5cdf9f73e541c18f",
+      "judgment": "Only Invoke-WebRequest TimeoutSec300 added, keeping URI, header credentials, output and ErrorAction Stop failure flow. Runtime timeout semantics bound request; no total install or real300-second stall claim."
+    },
+    {
+      "path": "tests/rollback-1.5.0.tests.ps1",
+      "review_scope": "delta",
+      "before_source_sha256": "957746c3468adcd5c54789d97512fbaef2ad763324f3674519fa376ddd839166",
+      "source_sha256": "502a6269a479f478df27da6d3f9376fce203140c1935fcbfa4419b000b83eac8",
+      "judgment": "Malformed root-array/files-object/schema-array independently invoke actual runner in clean disposable clones and check category plus unchanged release-file hash. AST extracts production hash function instead of duplicate implementation. Noisy stderr normal hash, nonzero and250ms stall are bounded controls; POSIX fixture explicitly skipped Windows. Existing success and partial/final verification restoration controls retained. Does not prove child-tree termination after parent exit."
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "review_scope": "delta",
+      "before_source_sha256": "a82dbf8fab391576ab2a7267c8d35633e5413b33a19066d1ce0a68b5332f1035",
+      "source_sha256": "b48f4c500a112753eeb899a433096d80093f4ea55b17c2cbafb955ea6b3c3243",
+      "judgment": "Remote curl recorder additionally rejects omitted max-time300 while retaining existing authentication/output checks. This verifies configured bound, not a live300-second timeout."
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "review_scope": "delta",
+      "before_source_sha256": "7967da30abb520ba24537b721ab8064eb4864c966c534fba30f72119eec840f7",
+      "source_sha256": "628c8b14d0c15dad60c2fda05ad4f7c0378aa9ad37f8c4b42ccd916e3f1f169c",
+      "judgment": "Remote Invoke-WebRequest mock requires integer TimeoutSec exactly300 while preserving auth/output checks. Scope is request configuration, not live transport timing."
+    }
+  ],
+  "execution": "Reviewed owner actual controls in audit/shell/installer-rollback-test-delta.json; no duplicate full-suite execution asserted.",
+  "limits": [
+    "Installer subsequent TOML/marker delta is separate owner review.",
+    "No native Windows/macOS or full rollback/process-tree deadline claim."
+  ]
+}
