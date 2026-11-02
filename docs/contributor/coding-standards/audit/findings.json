@@ -5689,6 +5689,105 @@
       ],
       "resolution": "Track normalized pending path states, allowing repeated aliases with different remaining suffixes while retaining repeated-state rejection and the 64-resolution cap. Repaired source SHA256 167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274.",
       "reuse": null
+    },
+    {
+      "finding_id": "ROOT-009",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 560,
+      "source_sha256": "13f5471e18587214241b0986aa184bfd171f6cb7ecd0c1dcc53939dd0b161e83",
+      "flow": {
+        "input": "BSD wc byte-count stdout",
+        "transformation": "raw padded count is interpolated as the original-size field",
+        "sink": "panelist bundle elision marker"
+      },
+      "impact": "BSD wc leading whitespace changes the public exact elision marker despite correct byte arithmetic.",
+      "reproduction": "reports/verification/panelist-byte-count-20261102/results.json",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/panelist-byte-count-20261102/context-delta.json",
+        "reports/verification/panelist-byte-count-20261102/results.json",
+        "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh repaired SHA256 5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+        "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1 repaired SHA256 4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+        "docs/contributor/coding-standards/audit/shell/findings.panelist-byte-count.json"
+      ],
+      "resolution": "Shared checked count normalizes native whitespace and validates decimal output before marker serialization; exact marker oracle remains unchanged. Private helper rationale: Shared private checked-count mechanism; no new config or public API.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-010",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 1439,
+      "source_sha256": "13f5471e18587214241b0986aa184bfd171f6cb7ecd0c1dcc53939dd0b161e83",
+      "flow": {
+        "input": "native count status and bundle preview",
+        "transformation": "unchecked Bash wc/filter status produces empty count; Bash preview loses trailing LF; PowerShell preview omits writer newline/BOM",
+        "sink": "max-bytes admission before output publication"
+      },
+      "impact": "Failed/malformed Bash counts bypass --max-bytes and both twins undercount final emitted serialization bytes, allowing oversized bundles.",
+      "reproduction": "reports/verification/panelist-byte-count-20261102/results.json",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/panelist-byte-count-20261102/context-delta.json",
+        "reports/verification/panelist-byte-count-20261102/results.json",
+        "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh repaired SHA256 5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+        "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1 repaired SHA256 4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+        "docs/contributor/coding-standards/audit/shell/findings.panelist-byte-count.json",
+        "Affected PowerShell twin plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1 original SHA256 b8e78b0f53762d55f799639bb6ab89923f15e484d5d7ff34ed9b4a1d6bd33b49; exact source and test delta in context-delta.json."
+      ],
+      "resolution": "Every Bash admission count now checks status and numeric shape; measurement streams actual final header/content bytes. PowerShell counts unchanged writer host newline and Desktop UTF8 preamble at all three measurement sites. Both twins reject cap-minus1 and accept exact actual file length for populated/empty inputs. Private helper rationale: Shared private checked-count mechanism; no new config or public API.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-011",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 92,
+      "source_sha256": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+      "flow": {
+        "input": "CLI --max-bytes value or missing value",
+        "transformation": "Unvalidated numeric comparison / optional-value truthiness",
+        "sink": "Size guard and output publication"
+      },
+      "impact": "Nondecimal and overflowing --max-bytes values let integer comparisons fail and publish an uncapped bundle.",
+      "reproduction": "Bash abc/overflow returned0 and published303B before; after both return2 without output; normal10000 remains0/303B.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/claude-cap-audit-20261102/argument-before.json",
+        "reports/verification/claude-cap-audit-20261102/argument-after.json",
+        "reports/verification/claude-cap-audit-20261102/context-delta.json",
+        "reports/verification/claude-cap-audit-20261102/test-logs.zip"
+      ],
+      "resolution": "69fd8cbe; repaired source SHA256 e7cb8c5f7624a38e476093ba8d94a2f08a59de799afd960a438235b853657b1f; supplied flag distinguished from omission, strict ASCII decimal and signed64 range validated before guard, explicit zero preserved.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-012",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 92,
+      "source_sha256": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+      "flow": {
+        "input": "CLI --max-bytes value or missing value",
+        "transformation": "Unvalidated numeric comparison / optional-value truthiness",
+        "sink": "Size guard and output publication"
+      },
+      "impact": "A supplied max-bytes option without a value became false/unset and skipped admission.",
+      "reproduction": "PowerShell missing final --max-bytes returned0 and published304B before; after returns2 without output; normal10000 remains0/304B. Explicit in-process numeric0 is separately exercised as a zero cap.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/claude-cap-audit-20261102/argument-before.json",
+        "reports/verification/claude-cap-audit-20261102/argument-after.json",
+        "reports/verification/claude-cap-audit-20261102/context-delta.json",
+        "reports/verification/claude-cap-audit-20261102/test-logs.zip"
+      ],
+      "resolution": "69fd8cbe; repaired source SHA256 838bdb82cd315a76863b7f5d69d5db1c89d6a51d8b1ffd8d12d58c516d62189f; supplied flag distinguished from omission, strict ASCII decimal and signed64 range validated before guard, explicit zero preserved.",
+      "reuse": null
     }
   ]
 }
