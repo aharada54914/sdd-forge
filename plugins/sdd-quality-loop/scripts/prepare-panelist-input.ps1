@@ -76,10 +76,15 @@ $SpecRoot    = "specs"
 $ProjectRoot = ""
 $Effort      = ""
 $MaxBytes    = ""
+$MaxBytesSet = $false
 
 $argIdx = 0
 $passedArgs = $args
 while ($argIdx -lt $passedArgs.Count) {
+    if ($argIdx + 1 -ge $passedArgs.Count) {
+        [Console]::Error.WriteLine("prepare-panelist-input: missing option value: $($passedArgs[$argIdx])")
+        exit 2
+    }
     switch ($passedArgs[$argIdx]) {
         "--task"         { $TaskId      = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--feature"      { $Feature     = $passedArgs[$argIdx+1]; $argIdx += 2 }
@@ -89,12 +94,35 @@ while ($argIdx -lt $passedArgs.Count) {
         "--spec-root"    { $SpecRoot    = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--project-root" { $ProjectRoot = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--effort"       { $Effort      = $passedArgs[$argIdx+1]; $argIdx += 2 }
-        "--max-bytes"    { $MaxBytes    = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--max-bytes"    { $MaxBytes    = $passedArgs[$argIdx+1]; $MaxBytesSet = $true; $argIdx += 2 }
         default {
             [Console]::Error.WriteLine("prepare-panelist-input: unknown argument: $($passedArgs[$argIdx])")
             exit 2
         }
     }
+}
+
+# --max-bytes, when supplied, must be an ASCII decimal integer in 0..2^63-1
+# (leading zeros allowed). In-process callers may pass an integral numeric.
+if ($MaxBytesSet) {
+    $maxText = $null
+    if ($MaxBytes -is [string]) { $maxText = $MaxBytes }
+    elseif ($MaxBytes -is [int] -or $MaxBytes -is [long] -or $MaxBytes -is [uint32] -or $MaxBytes -is [uint64] -or
+            $MaxBytes -is [int16] -or $MaxBytes -is [uint16] -or $MaxBytes -is [byte] -or $MaxBytes -is [sbyte]) {
+        $maxText = $MaxBytes.ToString([Globalization.CultureInfo]::InvariantCulture)
+    }
+    # \z (not $) so a trailing newline is not tolerated.
+    if ($null -eq $maxText -or -not [regex]::IsMatch($maxText, '\A[0-9]+\z')) {
+        [Console]::Error.WriteLine("prepare-panelist-input: --max-bytes must be a nonnegative decimal integer")
+        exit 2
+    }
+    $maxText = $maxText.TrimStart('0')
+    if ($maxText.Length -eq 0) { $maxText = '0' }
+    if ($maxText.Length -gt 19 -or ($maxText.Length -eq 19 -and [string]::CompareOrdinal($maxText, '9223372036854775807') -gt 0)) {
+        [Console]::Error.WriteLine("prepare-panelist-input: --max-bytes exceeds 9223372036854775807")
+        exit 2
+    }
+    $MaxBytes = $maxText
 }
 
 # ── Validate required arguments ──────────────────────────────────────────────
@@ -1218,8 +1246,8 @@ $bundleBytes = Get-PpiBundleByteCount $bundle
 
 $elidedCount = 0
 $declaredElidedCount = 0
-if ($MaxBytes) {
-    $maxBytesInt = [long]$MaxBytes
+if ($MaxBytesSet) {
+    $maxBytesInt = [long]::Parse($MaxBytes, [Globalization.CultureInfo]::InvariantCulture)
 
     if ($bundleBytes -gt $maxBytesInt) {
         # Tier one: the task's own verification/<task_id>/ evidence plus
