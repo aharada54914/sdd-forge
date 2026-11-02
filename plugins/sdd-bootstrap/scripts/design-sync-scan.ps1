@@ -92,7 +92,12 @@ if (-not (Test-Path -LiteralPath $targetDir -PathType Container)) {
 # outside the scan entirely -- no finding, no block, even with matching
 # content.
 # ---------------------------------------------------------------------------
-$files = @(Get-ChildItem -LiteralPath $targetDir -Recurse -File -Filter '*.html' -ErrorAction SilentlyContinue | Sort-Object -Property FullName)
+try {
+    $files = @(Get-ChildItem -LiteralPath $targetDir -Recurse -Force -File -Filter '*.html' -ErrorAction Stop | Sort-Object -Property FullName)
+} catch {
+    [Console]::Error.WriteLine('design-sync-scan: cannot enumerate target directory')
+    exit 2
+}
 
 # Fail closed: every selected file must be readable before scanning begins
 # (AC-007 branch 4) -- an unreadable file is a tool error, not silently
@@ -208,9 +213,9 @@ function Invoke-ScanRule {
     param([string]$Category, [string]$Path, [string]$Pattern,
           [bool]$CaseSensitive, [string]$Display)
     $hits = if ($CaseSensitive) {
-        Select-String -LiteralPath $Path -Pattern $Pattern -CaseSensitive -AllMatches -ErrorAction SilentlyContinue
+        Select-String -LiteralPath $Path -Pattern $Pattern -CaseSensitive -AllMatches -ErrorAction Stop
     } else {
-        Select-String -LiteralPath $Path -Pattern $Pattern -AllMatches -ErrorAction SilentlyContinue
+        Select-String -LiteralPath $Path -Pattern $Pattern -AllMatches -ErrorAction Stop
     }
     foreach ($m in $hits) {
         foreach ($mm in $m.Matches) {
@@ -233,14 +238,19 @@ function Invoke-ScanRule {
 # The detection table: the six rules were previously six copy-pasted scan
 # blocks; each row's semantics (pattern, case-sensitivity, display) are
 # unchanged, and row order preserves the emitted finding order.
-foreach ($f in $files) {
-    $path = $f.FullName
-    Invoke-ScanRule 'placeholder' $path $placeholderPatternCs $true  'match'
-    Invoke-ScanRule 'placeholder' $path $placeholderPatternCi $false 'match'
-    Invoke-ScanRule 'secret'      $path $secretPatternCs      $true  'redact'
-    Invoke-ScanRule 'secret'      $path $secretPatternS7      $false 'redact'
-    Invoke-ScanRule 'PII'         $path $piiPatternP1         $false 'email-filter'
-    Invoke-ScanRule 'PII'         $path $piiPatternP2         $false 'redact'
+try {
+    foreach ($f in $files) {
+        $path = $f.FullName
+        Invoke-ScanRule 'placeholder' $path $placeholderPatternCs $true  'match'
+        Invoke-ScanRule 'placeholder' $path $placeholderPatternCi $false 'match'
+        Invoke-ScanRule 'secret'      $path $secretPatternCs      $true  'redact'
+        Invoke-ScanRule 'secret'      $path $secretPatternS7      $false 'redact'
+        Invoke-ScanRule 'PII'         $path $piiPatternP1         $false 'email-filter'
+        Invoke-ScanRule 'PII'         $path $piiPatternP2         $false 'redact'
+    }
+} catch {
+    [Console]::Error.WriteLine("design-sync-scan: cannot complete file scan")
+    exit 2
 }
 
 # ---------------------------------------------------------------------------
