@@ -52,7 +52,7 @@ AWS は、コーディングエージェント向けに [Agent Toolkit for AWS](
 | 位置づけ | 従来の AWS Labs の MCP サーバーや skills の後継です。発表ページと README では、一般提供（GA）とされています。 |
 | 構成 | マネージドの AWS MCP サーバー、skills（CDK / CloudFormation、サーバーレス、コンテナなど）、それらを束ねるプラグイン。 |
 | 対応ホスト | Claude Code、Codex、Cursor のプラグインに対応します。その他のエージェントは、MCP サーバーの設定と skills の導入で使います。README に GitHub Copilot の記載はありません。 |
-| 権限の絞り込み | エージェントによる操作を人間の操作と区別できる IAM 条件キーがあります。これにより、エージェントは読み取り専用、といったポリシーを書けます。 |
+| 権限の絞り込み | AWS MCP Server を経由したリクエストには、IAM の条件キー `aws:ViaAWSMCPService`（MCP サーバー経由なら `true`）と `aws:CalledViaAWSMCP`（経由した MCP サーバーのサービスプリンシパル）が付きます。これらで、MCP 経由の呼び出しだけを対象にした Deny などを書けます。ただし、これらが示すのは**リクエストの経路**であり、呼び出した主体ではありません。人間が MCP 経由で呼ぶこともあり、エージェントが AWS CLI や SDK で直接呼ぶ場合には付きません。出典: [How AWS MCP Server works with IAM](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/security_iam_service-with-iam.html) |
 | 監査 | リクエストを CloudTrail に記録でき、CloudWatch のメトリクスも出ます。 |
 | 費用 | 追加料金はなく、エージェントが使う AWS リソース分のみ課金されます。 |
 
