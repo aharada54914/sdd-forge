@@ -3048,6 +3048,32 @@ if ([IO.Path]::DirectorySeparatorChar -eq '/') {
     }
 }
 
+# The byte cap covers the writer's newline and host-specific UTF-8 preamble.
+$boundaryRoot = Join-Path $Work 'size-boundary'
+$boundaryTasks = Join-Path $boundaryRoot 'tasks.md'
+Write-TasksWithConsent -Path $boundaryTasks -TaskId T-004
+foreach ($contentCase in @('populated', 'empty')) {
+    $boundaryInput = Join-Path $boundaryRoot 'input.txt'
+    $content = if ($contentCase -eq 'empty') { '' } else { "complete review input`n" }
+    [IO.File]::WriteAllText($boundaryInput, $content)
+    $boundaryOutput = Join-Path $boundaryRoot 'bundle.txt'
+    $boundaryArgs = @('--task','T-004','--feature','cross-model-verification',
+        '--input',$boundaryInput,'--tasks-file',$boundaryTasks,'--project-root',$boundaryRoot,'--out',$boundaryOutput)
+    Invoke-Prepare -ArgList $boundaryArgs
+    if ($script:PP_Exit -ne 0) { throw "size-boundary-$contentCase baseline failed: $($script:PP_Output)" }
+    $publishedBytes = (Get-Item -LiteralPath $boundaryOutput).Length
+    Remove-Item -LiteralPath $boundaryOutput
+    Invoke-Prepare -ArgList ($boundaryArgs + @('--max-bytes', [string]($publishedBytes - 1)))
+    if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $boundaryOutput)) {
+        ok "size-boundary-${contentCase}: one byte below actual bundle size rejects without publication"
+    } else { fail "size-boundary-${contentCase}: cap below actual bytes admitted an oversized bundle" }
+    Remove-Item -LiteralPath $boundaryOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($boundaryArgs + @('--max-bytes', [string]$publishedBytes))
+    if ($script:PP_Exit -eq 0 -and (Get-Item -LiteralPath $boundaryOutput).Length -eq $publishedBytes) {
+        ok "size-boundary-${contentCase}: exact actual bundle size remains accepted"
+    } else { fail "size-boundary-${contentCase}: exact cap unexpectedly rejected or changed bytes" }
+}
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
