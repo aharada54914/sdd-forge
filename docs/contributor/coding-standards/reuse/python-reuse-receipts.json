@@ -1,0 +1,24 @@
+{
+  "scope": "R-006/R-008 component execution, not final native matrix",
+  "receipts": [
+    {
+      "test": "tests/shared-launch-build.tests.py",
+      "test_sha256": "8eb686b2b30ad5a258155f4ff635874d195098ffeafa2d05f3e2086a32f18b04",
+      "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH python3 tests/shared-launch-build.tests.py",
+      "exit": 0,
+      "output": "reuse/evidence/shared-launch-current.txt"
+    },
+    {
+      "test": "tests/research-acquire.tests.py",
+      "test_sha256": "db36f4d66e9a834892cbdbf13643e3bc3d83acfed353fbc32890e1438fca7af0",
+      "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH python3 tests/research-acquire.tests.py",
+      "exit": 0,
+      "output": "reuse/evidence/research-acquire-current.txt"
+    }
+  ],
+  "limits": [
+    "Research has 1 skipped test out of 32; no live-provider guarantee.",
+    "Initial shared-launch invocation without pwsh on PATH failed; rerun with configured runtime passed Bash and PowerShell installed FilesOnly cases.",
+    "762ea27c changes criterion-freeze shell and domain-review-finalize Python tests only; not used as evidence of shared-launch/research completion."
+  ]
+}

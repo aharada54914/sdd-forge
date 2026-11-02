@@ -1,0 +1,43 @@
+import hashlib,json,os,pathlib,subprocess,tempfile
+root=pathlib.Path.cwd()
+script='plugins/sdd-review-loop/scripts/review-contract-validate.ps1'
+before=subprocess.check_output(['git','show','537a50b2:'+script]);after=(root/script).read_bytes()
+sh=(root/script.replace('.ps1','.sh')).read_bytes();fixture=(root/'tests/fixtures/review-contract/utf8-contract.json').read_bytes();results=[]
+with tempfile.TemporaryDirectory() as temporary:
+ repo=pathlib.Path(temporary)/'repo';scripts=repo/'plugins/sdd-review-loop/scripts';scripts.mkdir(parents=True);(repo/'reports').mkdir()
+ (scripts/'review-contract-validate.sh').write_bytes(sh)
+ contract=repo/'contract.json';contract.write_bytes(fixture)
+ array=repo/'array.json';array.write_bytes(b'['+fixture+b']')
+ fifo=repo/'fifo';os.mkfifo(fifo)
+ symbolic=repo/'symbolic.json';symbolic.symlink_to(contract)
+ hard=repo/'hard.json';os.link(contract,hard)
+ for state,data in [('before',before),('after',after)]:
+  (scripts/'review-contract-validate.ps1').write_bytes(data)
+  for case,path in [('object',contract),('singleton-root',array),('fifo',fifo),('symbolic',symbolic),('hardlink',hard)]:
+   for runtime in ['ps1','sh']:
+    if runtime=='ps1':cmd=['/workspace/.tools/sdd-forge-dev/bin/pwsh','-NoProfile','-File',str(scripts/'review-contract-validate.ps1'),'-Feature','utf8-feature','-Attempt','1','-Round','2','-Stage','spec','-ReportRoot',str(repo/'reports/new-round'),'-Contract',str(path)]
+    else:cmd=['bash',str(scripts/'review-contract-validate.sh'),'--feature','utf8-feature','--attempt','1','--round','2','--stage','spec','--report-root',str(repo/'reports/new-round'),'--contract',str(path)]
+    try:
+     p=subprocess.run(cmd,capture_output=True,text=True,timeout=3);record={'exit':p.returncode,'stdout':p.stdout,'stderr':p.stderr.replace(temporary,'<private-fixture>')}
+    except subprocess.TimeoutExpired:record={'timeout_seconds':3}
+    results.append(dict(state=state,case=case,runtime=runtime,**record))
+ # Exercise the actual Target branch by suppressing only capability detection.
+ (repo/'reports/actual').mkdir()
+ (repo/'reports/internal').symlink_to('actual',target_is_directory=True)
+ (repo/'outside').mkdir()
+ (repo/'reports/external').symlink_to('../outside',target_is_directory=True)
+ fallback=[]
+ for mode,data in [('native',after),('missing-method',after.replace(b"if ($item.PSObject.Methods['ResolveLinkTarget'])",b"if ($false)"))]:
+  (scripts/'review-contract-validate.ps1').write_bytes(data)
+  for link,expected in [('internal',0),('external',1)]:
+   cmd=['/workspace/.tools/sdd-forge-dev/bin/pwsh','-NoProfile','-File',str(scripts/'review-contract-validate.ps1'),'-Feature','utf8-feature','-Attempt','1','-Round','2','-Stage','spec','-ReportRoot',str(repo/'reports'/link/'new-round'),'-Contract',str(contract)]
+   p=subprocess.run(cmd,capture_output=True,text=True,timeout=5)
+   assert p.returncode==expected,(mode,link,p.stderr)
+   fallback.append(dict(mode=mode,link=link,exit=p.returncode,stdout=p.stdout,stderr=p.stderr.replace(temporary,'<private-fixture>')))
+for r in results:
+ if r['state']=='before' and r['runtime']=='ps1' and r['case']=='fifo': assert r.get('timeout_seconds')==3
+ else:
+  expected=1 if r['case'] in ['fifo','singleton-root'] else 0
+  if r['state']=='before' and r['runtime']=='ps1' and r['case']=='singleton-root':expected=0
+  assert r.get('exit')==expected,r
+print(json.dumps({'before_sha256':hashlib.sha256(before).hexdigest(),'after_sha256':hashlib.sha256(after).hexdigest(),'runs':results,'report_parent_controls':fallback},indent=2))
