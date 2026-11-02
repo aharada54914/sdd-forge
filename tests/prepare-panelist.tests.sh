@@ -3157,6 +3157,65 @@ for content_case in populated empty; do
     fi
 done
 
+# --max-bytes argument boundary: invalid values exit 2 with no publication;
+# valid forms (leading zeros, int64 max, explicit 0) keep their meaning.
+printf 'complete review input\n' > "$WC_FIXTURE/boundary-input.txt"
+cap_output="$WC_FIXTURE/cap-output.txt"
+run_cap() {
+    rm -f "$cap_output"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$WC_FIXTURE/boundary-input.txt" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$cap_output" "$@"
+}
+NL=$'\n'
+cap_n=0
+for bad_cap in abc "" " 10" "10 " "10${NL}" "${NL}10" "+10" "-1" "-0" "1e3" "1.5" "0x10" "١٢" \
+               9223372036854775808 99999999999999999999 999999999999999999999999999; do
+    cap_n=$((cap_n+1))
+    run_cap --max-bytes "$bad_cap"
+    if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$cap_output" ]; then
+        ok "max-bytes-invalid-$cap_n: rejected with exit 2 and no output"
+    else
+        fail "max-bytes-invalid-$cap_n: expected exit 2/no output, got $PP_EXIT"
+    fi
+done
+run_cap --max-bytes
+if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$cap_output" ]; then
+    ok "max-bytes-missing: final --max-bytes without value exits 2"
+else
+    fail "max-bytes-missing: expected exit 2/no output, got $PP_EXIT"
+fi
+for good_cap in 10000 000010000 9223372036854775807 0009223372036854775807 00000000000000000000010000; do
+    run_cap --max-bytes "$good_cap"
+    if [ "$PP_EXIT" -eq 0 ] && [ -s "$cap_output" ]; then
+        ok "max-bytes-valid-$good_cap: accepted"
+    else
+        fail "max-bytes-valid-$good_cap: expected success, got $PP_EXIT"
+    fi
+done
+for zero_cap in 0 000; do
+    run_cap --max-bytes "$zero_cap"
+    if [ "$PP_EXIT" -eq 1 ] && [ ! -e "$cap_output" ]; then
+        ok "max-bytes-zero-$zero_cap: real zero-byte cap rejects as oversize"
+    else
+        fail "max-bytes-zero-$zero_cap: expected exit 1/no output, got $PP_EXIT"
+    fi
+done
+run_cap
+published_bytes=$(wc -c < "$cap_output")
+run_cap --max-bytes "0000$((published_bytes))"
+if [ "$PP_EXIT" -eq 0 ] && [ "$(wc -c < "$cap_output")" -eq "$published_bytes" ]; then
+    ok "max-bytes-boundary: zero-padded exact cap accepted"
+else
+    fail "max-bytes-boundary: zero-padded exact cap rejected (exit $PP_EXIT)"
+fi
+run_cap --max-bytes "00$((published_bytes - 1))"
+if [ "$PP_EXIT" -eq 1 ] && [ ! -e "$cap_output" ]; then
+    ok "max-bytes-boundary: zero-padded cap one below rejects"
+else
+    fail "max-bytes-boundary: one-below zero-padded cap got $PP_EXIT"
+fi
+
 # Real POSIX I/O failures cannot yield a successful empty review bundle.
 if python3 - "${SCRIPTS_DIR}/prepare-panelist-input.sh" <<'PY_IO'
 import os

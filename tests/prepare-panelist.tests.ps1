@@ -3074,6 +3074,68 @@ foreach ($contentCase in @('populated', 'empty')) {
     } else { fail "size-boundary-${contentCase}: exact cap unexpectedly rejected or changed bytes" }
 }
 
+# --max-bytes argument boundary: invalid values exit 2 with no publication;
+# valid forms (leading zeros, int64 max, explicit 0) keep their meaning.
+$capInput = Join-Path $boundaryRoot 'input.txt'
+[IO.File]::WriteAllText($capInput, "complete review input`n")
+$capOutput = Join-Path $boundaryRoot 'cap-bundle.txt'
+$capBase = @('--task','T-004','--feature','cross-model-verification',
+    '--input',$capInput,'--tasks-file',$boundaryTasks,'--project-root',$boundaryRoot,'--out',$capOutput)
+$capN = 0
+foreach ($badCap in @('abc','',' 10','10 ',"10`n","`n10",'+10','-1','-0','1e3','1.5','0x10',
+        ([string][char]0x0661 + [char]0x0662),'9223372036854775808','99999999999999999999','999999999999999999999999999')) {
+    $capN++
+    Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($capBase + @('--max-bytes', $badCap))
+    if ($script:PP_Exit -eq 2 -and -not (Test-Path -LiteralPath $capOutput)) {
+        ok "max-bytes-invalid-${capN}: rejected with exit 2 and no output"
+    } else { fail "max-bytes-invalid-${capN}: expected exit 2/no output, got $($script:PP_Exit)" }
+}
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+Invoke-Prepare -ArgList ($capBase + @('--max-bytes'))
+if ($script:PP_Exit -eq 2 -and -not (Test-Path -LiteralPath $capOutput)) {
+    ok "max-bytes-missing: final --max-bytes without value exits 2"
+} else { fail "max-bytes-missing: expected exit 2/no output, got $($script:PP_Exit)" }
+foreach ($goodCap in @('10000','000010000','9223372036854775807','0009223372036854775807')) {
+    Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($capBase + @('--max-bytes', $goodCap))
+    if ($script:PP_Exit -eq 0 -and (Test-Path -LiteralPath $capOutput)) {
+        ok "max-bytes-valid-${goodCap}: accepted"
+    } else { fail "max-bytes-valid-${goodCap}: expected success, got $($script:PP_Exit)" }
+}
+foreach ($zeroCap in @('0','000')) {
+    Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+    Invoke-Prepare -ArgList ($capBase + @('--max-bytes', $zeroCap))
+    if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
+        ok "max-bytes-zero-${zeroCap}: real zero-byte cap rejects as oversize"
+    } else { fail "max-bytes-zero-${zeroCap}: expected exit 1/no output, got $($script:PP_Exit)" }
+}
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+Invoke-Prepare -ArgList $capBase
+$capBytes = (Get-Item -LiteralPath $capOutput).Length
+Remove-Item -LiteralPath $capOutput
+Invoke-Prepare -ArgList ($capBase + @('--max-bytes', ('0000' + $capBytes)))
+if ($script:PP_Exit -eq 0 -and (Get-Item -LiteralPath $capOutput).Length -eq $capBytes) {
+    ok "max-bytes-boundary: zero-padded exact cap accepted"
+} else { fail "max-bytes-boundary: zero-padded exact cap rejected (exit $($script:PP_Exit))" }
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+Invoke-Prepare -ArgList ($capBase + @('--max-bytes', ('00' + ($capBytes - 1))))
+if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
+    ok "max-bytes-boundary: zero-padded cap one below rejects"
+} else { fail "max-bytes-boundary: one-below zero-padded cap got $($script:PP_Exit)" }
+
+# In-process numeric 0 is a real zero cap, not omitted (child pwsh, script invoked directly).
+Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
+$q = { param($v) "'" + ($v -replace "'", "''") + "'" }
+$inprocCmd = "& " + (& $q (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) +
+    " --task T-004 --feature cross-model-verification --input " + (& $q $capInput) +
+    " --tasks-file " + (& $q $boundaryTasks) + " --project-root " + (& $q $boundaryRoot) +
+    " --out " + (& $q $capOutput) + " --max-bytes 0 *> `$null; exit `$LASTEXITCODE"
+& $PowerShellHost -NoLogo -NoProfile -Command $inprocCmd
+if ($LASTEXITCODE -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
+    ok "max-bytes-inprocess-zero: in-process numeric 0 is a real zero cap"
+} else { fail "max-bytes-inprocess-zero: expected exit 1/no output, got $LASTEXITCODE" }
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }

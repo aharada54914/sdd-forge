@@ -77,6 +77,7 @@ spec_root="specs"
 project_root=""
 effort=""
 max_bytes=""
+max_bytes_set=0
 
 while [ $# -gt 0 ]; do
     [ "$#" -ge 2 ] || { printf 'prepare-panelist-input: missing option value: %s\n' "$1" >&2; exit 2; }
@@ -89,10 +90,32 @@ while [ $# -gt 0 ]; do
         --spec-root)    spec_root="$2";     shift 2 ;;
         --project-root) project_root="$2";  shift 2 ;;
         --effort)       effort="$2";        shift 2 ;;
-        --max-bytes)    max_bytes="$2";     shift 2 ;;
+        --max-bytes)    max_bytes="$2"; max_bytes_set=1; shift 2 ;;
         *) printf 'prepare-panelist-input: unknown argument: %s\n' "$1" >&2; exit 2 ;;
     esac
 done
+
+# --max-bytes, when supplied, must be an ASCII decimal integer in 0..2^63-1
+# (leading zeros allowed). Validate by characters/length, never by shell
+# arithmetic on user text, then normalize away leading zeros.
+if [ "$max_bytes_set" -eq 1 ]; then
+    case "$max_bytes" in
+        ''|*[!0123456789]*)
+            printf 'prepare-panelist-input: --max-bytes must be a nonnegative decimal integer\n' >&2
+            exit 2 ;;
+    esac
+    while :; do
+        case "$max_bytes" in
+            0?*) max_bytes="${max_bytes#0}" ;;
+            *) break ;;
+        esac
+    done
+    if [ "${#max_bytes}" -gt 19 ] || \
+       { [ "${#max_bytes}" -eq 19 ] && [ "$max_bytes" \> "9223372036854775807" ]; }; then
+        printf 'prepare-panelist-input: --max-bytes exceeds 9223372036854775807\n' >&2
+        exit 2
+    fi
+fi
 
 _ppi_io_error() {
     printf 'prepare-panelist-input: cannot read or write review input\n' >&2
@@ -1448,7 +1471,7 @@ _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
 
 _ppi_elided_count=0
 _ppi_declared_elided_count=0
-if [ -n "$max_bytes" ] && [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
+if [ "$max_bytes_set" -eq 1 ] && [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
     # Tier one: the task's own verification/<task_id>/ evidence plus
     # contract-declared evidence. Elide candidates one at a time, LARGEST
     # FIRST, recomputing the actual sanitized bundle size after each (never
