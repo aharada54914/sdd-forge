@@ -499,8 +499,8 @@ jq -e '
   .read_only == true and
   (.stage | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
   (.role | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
-  (.run_id | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
-  (.host_session_id | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
+  (.run_id | type == "string") and
+  (.host_session_id | type == "string") and
   (.feature | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._-]*$")) and
   (.sequence | type == "number" and floor == . and . >= 2) and
   (.identity_ledger_path == "reports/review-context/identity-ledger.json") and
@@ -517,6 +517,12 @@ jq -e '
     (.allowed_input_manifest | length)
 ' "$manifest" >/dev/null 2>&1 ||
   fail CONTRACT 'required fields, file-manifest input, read-only mode, or no-fallback contract is invalid'
+
+# Reject identity controls before shell extraction can remove CR/newline bytes.
+jq -e '
+  [.run_id, .host_session_id] | all(.[]; explode | all(.[]; . >= 32 and . != 127))
+' "$manifest" >/dev/null 2>&1 ||
+  fail IDENTITY 'run and host-session IDs must be nonblank canonical identifiers'
 
 stage=$(jq -r '.stage' "$manifest" | tr -d '\r')
 role=$(jq -r '.role' "$manifest" | tr -d '\r')
