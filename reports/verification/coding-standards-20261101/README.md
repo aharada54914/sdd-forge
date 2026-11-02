@@ -1,12 +1,14 @@
 # Scoped native comparison and held-out controls
 
-Current task comparison: baseline `82b53695` versus integration `5533762d` used identical checker SHA256 `29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5` and native tools on Linux. Baseline: 11,501 tracked files, 856 inspected inputs, 285 findings in 70.06s. Final: 11,810 tracked files, 884 inspected inputs, 0 findings in 71.30s. Each excludes one exact-content invalid-source fixture. `task-native-evidence.zip` retains both complete scans and timings plus the prior `bd94f864`, `7d53b1bf` and `d6b66e6d` completed scans; `native-comparison.json` records the current comparison and the separate historical comparison below.
+Current task comparison: baseline `82b53695` versus integration `e1d19cf3` used identical checker SHA256 `29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5` and native tools on Linux. Baseline: 11,501 tracked files, 856 inspected inputs, 285 findings in 70.06s. Final: 11,815 tracked files, 884 inspected inputs, 0 findings in 74.36s. Each excludes one exact-content invalid-source fixture. `task-native-evidence.zip` retains both complete scans and timings plus the prior `bd94f864`, `7d53b1bf`, `d6b66e6d` and `5533762d` completed scans; `native-comparison.json` records the current comparison and the separate historical comparison below.
 
 The prior `bd94f864` native zero was followed by a macOS CI failure: an alias of the same physical root was mistaken for a directory cycle. That scan is retained as historical evidence and superseded by the current result after the helper repair.
 
 The prior `7d53b1bf` native zero was followed by a macOS CI failure from BSD `wc` leading-space formatting in the panelist byte count. It is retained as historical evidence; the current comparison follows the checked byte-count repair in both twins.
 
 The prior `d6b66e6d` native zero was followed by Claude audit findings ROOT011/012 concerning max-cap argument guards. It is retained as historical evidence; the current comparison follows those guard repairs. This illustrates the limits of the configured native rule subset.
+
+The prior `5533762d` native zero is retained after the later main documentation merge. `native-source-equivalence.json` compares every selected path/hash pair between that scan and the current scan; the selected inputs are identical, while the tracked population reflects the merged documentation and audit metadata.
 
 The earlier final attempt aborted after65.96s with exit2 because a selected source changed mid-scan; it remains an error record, never a PASS. A native zero covers only configured rules and selected inputs. Whole-context review, embedded-fragment coverage and the final census are separate audit evidence. Model token cost was not measured; one native run per revision does not establish a speed/cost improvement.
 
