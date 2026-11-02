@@ -219,7 +219,7 @@ reconciliation neither reacquires them nor upgrades those claims. No historical
 report, pending mirror, task approval or external-main record was rewritten to
 manufacture acceptance.
 
-## Final source-bound reconciliation
+## Prior source-bound reconciliation (c259c736)
 
 This section supersedes the prior b0c13112 snapshot after native macOS job
 125310019228 (run 41455000330, head aeaf22d0) exposed ROOT-008. Previously reviewed
@@ -276,3 +276,90 @@ Final required native CI must pass PR #697's exact final head; Linux paired
 controls do not retroactively make the failed macOS run pass. Earlier research
 original-byte acquisition limits, historical evidence and protected mirrors
 remain unchanged. No source-acquisition or all-platform guarantee is added.
+
+## Final source-bound reconciliation
+
+Clean snapshot `c35176a068f42ec417feb4e3e213fc926e6ad084` supersedes the prior snapshots.
+Actual native CI and subsequent public-CLI controls found ROOT-009–012 after
+the earlier reviews. Earlier source-bound coverage remains historical; its
+zero-unresolved count is not evidence that those bugs could never exist.
+
+The census has 11,810 entries: reviewed=1,586; fixed=1; out-of-scope=10,222;
+justified-exception=1; unreviewed=0; needs-review=0; confirmed-violation=0.
+Repeated checks verified unique exact Git tree paths, each path's actual Git
+blob binding, every blob SHA-256, terminal evidence and both JSON schemas.
+Compaction was checked by parsed-JSON equality. Canonical IDs are unique:
+250 finding records, 249 fixed and PY-003's bounded invalid-source exception.
+The population's intentional symlink-fixture exception remains a separate
+record. Original ROOT-009/010 hashes match 4c1aef08 Git bytes; ROOT-011/012
+hashes match e3f74664. All four final source/test hashes match their explicit
+reviewed delta chains, beginning with the prior whole-source owners.
+
+The panelist follow-up preserves distinct causes and evidence:
+
+- ROOT-009: valid BSD wc padding changed the exact elision marker. Actual
+  padded output is normalized only after native status succeeds. Its canonical
+  rule is CS-027 for supported input-domain handling.
+- ROOT-010: unchecked wc/filter failures could bypass admission; Bash command
+  substitution dropped final LF from measurement; PowerShell preview omitted
+  the unchanged writer's host newline and, on Desktop, UTF-8 preamble. The
+  grouped record explicitly binds both twins. Failing/malformed counts now
+  stop publication; populated and empty bundles reject one byte below actual
+  serialized size and accept exact size. These are finding records, not a
+  defect-frequency or independent-manifestation count.
+- ROOT-011/012: the requested Claude audit found additional malformed/overflow
+  Bash cap and missing PowerShell value/presence problems. Independent public
+  CLI reproduction confirmed them before repair. Four-file Claude changes
+  retain strict argument presence, numeric range and guarded publication.
+
+`reports/verification/panelist-byte-count-20261102/context-delta.json` binds
+both implementation/test pairs before and after the counting repair. Actual
+final tests against old production fail (Bash 194 passed/7 failed, PowerShell
+187 passed/2 failed); repaired Bash 5 and Bash 3.2 each pass 201, PowerShell 7
+passes 189. An independent Astra delegate reviewed every changed count caller,
+final serialization, test oracle and cleanup and checked source/log hashes;
+no duplicate execution is claimed. Raw owner finding data remains unchanged;
+canonical import converts structured evidence pins to strings and preserves
+private-helper rationale in resolution, with null reuse rather than an invalid
+string. This is schema normalization, not new source coverage.
+
+`reports/verification/claude-cap-audit-20261102/context-delta.json` records the
+actual Claude audit/implementation runs, model identity, reported usage/cost,
+precise reviewed scope and dispositions. Claude's review was limited to the
+patched count/parser/guard/writer areas, not every inventory function or test
+helper. Conditional atomic-publication suggestions do not become a guarantee;
+secondary diagnostics already run after rejection. The independent oracle
+uses actual output-file length, not the internal measurement helper.
+
+The Claude repair's final actual suites pass 227 Bash 5, 227 Bash 3.2 and 215
+PowerShell 7 assertions. Eight separate root public-CLI cases record before and
+after behavior. The Astra delegate independently reviewed the Claude delta and
+checked actual logs and source hashes. Provider-reported costs are per-run
+observations, not controlled cross-model comparisons. No raw model transcripts,
+credentials or unrelated responses are published. Native WindowsPowerShell5.1
+BOM behavior remains unexecuted locally and is not claimed as verified.
+
+The latest same-checker native comparison uses source `5533762d`: 884 inspected
+of 885 selected, zero findings, 71.30 seconds. Task baseline `82b53695` remains
+856 inspected, 285 findings, 70.06 seconds. Intermediate head results are
+retained in the eleven-JSON archive; no earlier failed native CI run is relabeled
+as passing. Selected native checks remain narrower than contextual coverage.
+
+There are 171 source-bound role receipts for changed/new audit evidence.
+JSON/text and ZIP integrity inspection establishes stored evidence roles only;
+role exclusions are never code PASS. Original research byte-acquisition limits
+and protected/historical records remain intact.
+
+Executable source is frozen at `5533762d`. The changes between that source
+commit and this clean snapshot are only the four native comparison artifacts
+(verification README, SHA256SUMS, native-comparison.json, task-native-evidence.zip)
+and audit findings.json/final-record-role-review.json. The publication delta
+after this snapshot contains only audit population.json, README.md and this
+verification.md. Snapshot entries bind their prior committed bytes; enclosing
+Git commits bind the newly emitted artifacts, without self-hash circularity.
+Further independent review or CI evidence must identify its later head.
+
+Required native CI must pass PR #697's exact final head. This publication does
+not assert that outcome in advance or convert Linux/simulated controls into
+native macOS/Windows receipts. Finite contextual coverage is not universal
+correctness, complete web-source acquisition or all-platform proof.

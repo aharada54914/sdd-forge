@@ -88,7 +88,7 @@ platform/source-acquisition limits. Earlier reports and earlier sections retain
 their historical scope, including then-unknown contextual coverage. Native scan
 results are narrower than this reconciliation and final PR CI remains separate.
 
-## Final source-bound reconciliation
+## Prior source-bound reconciliation (c259c736)
 
 This supersedes the preceding snapshot after native macOS CI exposed ROOT-008,
 a valid-path rejection in evidence link-cycle detection. Snapshot `c259c73610119a5ceafad79634fd8c38918c6a03`
@@ -101,3 +101,20 @@ Exact helper/test deltas, paired failing/passing controls, renewed native scan,
 full blob checks and post-snapshot publication limits are recorded in the latest
 [verification section](verification.md#final-source-bound-reconciliation).
 Final-head native CI remains separately required by PR #697.
+
+## Final source-bound reconciliation
+
+Snapshot `c35176a068f42ec417feb4e3e213fc926e6ad084` supersedes the preceding snapshots
+following actual BSD byte-count, size-admission and cap-argument defects.
+It contains 11,810 entries: reviewed=1,586; fixed=1; out-of-scope=10,222;
+justified-exception=1; unresolved review states=0. Canonical findings are now
+250 records: 249 fixed and the separate PY-003 invalid-source exception.
+Finding-record counts do not measure defect frequency; ROOT-010 explicitly
+retains several causes and both affected runtime implementations.
+
+The user-requested Claude audit and implementation are recorded with their
+precise scope, actual before/after tests and separate Astra delta review.
+They do not claim a Claude whole-repository review. See the latest
+[verification section](verification.md#final-source-bound-reconciliation) for
+source bindings, evidence limits and the three-file derived publication delta.
+Exact-final-head PR #697 CI remains separately required.
