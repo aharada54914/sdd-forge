@@ -1,0 +1,159 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request",
+    "context",
+    "observations",
+    "verification",
+    "classification",
+    "provenance",
+    "saved_receipt_authorizes_nothing"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cloud-observation-evidence/v1"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "observation",
+          "result"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "enum": [
+              "resource",
+              "network",
+              "identity",
+              "monitoring",
+              "workload",
+              "backup"
+            ]
+          },
+          "observation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+                "maxLength": 1024
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+              }
+            }
+          },
+          "result": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+                "maxLength": 1024
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+        }
+      }
+    },
+    "classification": {
+      "type": "string",
+      "enum": [
+        "synthetic",
+        "native"
+      ]
+    },
+    "provenance": {
+      "type": "string",
+      "enum": [
+        "fresh-authenticated-collection",
+        "synthetic-transport"
+      ]
+    },
+    "saved_receipt_authorizes_nothing": {
+      "const": true
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
