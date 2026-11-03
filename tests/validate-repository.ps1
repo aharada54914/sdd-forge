@@ -5,7 +5,7 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $workflowStateValidator = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
 $workflowStateArguments = @("-NoProfile", "-File", $workflowStateValidator)
 & (Get-Process -Id $PID).Path @workflowStateArguments
-if ($LASTEXITCODE -ne 0) {
+if ($LASTEXITCODE -cne 0) {
     throw "Workflow-state validation failed with exit code $LASTEXITCODE."
 }
 
@@ -21,20 +21,22 @@ if ($LASTEXITCODE -ne 0) {
 $renderAgentFrontmatterValidator = Join-Path $repositoryRoot "render-agent-frontmatter.ps1"
 $renderAgentFrontmatterArguments = @("-NoProfile", "-File", $renderAgentFrontmatterValidator, "-Check")
 & (Get-Process -Id $PID).Path @renderAgentFrontmatterArguments
-if ($LASTEXITCODE -ne 0) {
+if ($LASTEXITCODE -cne 0) {
     throw "render-agent-frontmatter --check reported drift with exit code $LASTEXITCODE (see output above; if this is only the four protected reviewer targets, a human maintainer has not yet applied specs/epic-159-pillar-c/human-copy/)."
 }
 
-$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
-$expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test")
+$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
+$expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.22.0"
-    "sdd-implementation" = "1.22.0"
-    "sdd-quality-loop"   = "1.22.0"
-    "sdd-lite"           = "1.22.0"
-    "sdd-review-loop"    = "1.22.0"
-    "sdd-ship"           = "1.22.0"
-    "sdd-domain"         = "1.22.0"
+    "sdd-bootstrap"      = "1.22.1"
+    "sdd-implementation" = "1.22.1"
+    "sdd-quality-loop"   = "1.22.1"
+    "sdd-lite"           = "1.22.1"
+    "sdd-review-loop"    = "1.22.1"
+    "sdd-ship"           = "1.22.1"
+    "sdd-domain"         = "1.22.1"
+    "sdd-azure-cloud"    = "1.22.1"
+    "sdd-aws-cloud"      = "1.22.1"
 }
 $releasePlugins = $expectedPlugins
 
@@ -52,43 +54,43 @@ $readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md"
 $readmeCurrentRelease = $readmeLines |
     Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
     Select-Object -First 1
-if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.22\.0(?:\s|$)") {
-    throw "README.md current release must be v1.22.0."
+if ($null -ceq $readmeCurrentRelease -or $readmeCurrentRelease -cnotmatch "^v1\.22\.1(?:\s|$)") {
+    throw "README.md current release must be v1.22.1."
 }
 
 $changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
-$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.22\.0(?:\s|$)")
-if ($currentReleaseHeadings.Count -ne 1) {
-    throw "CHANGELOG.md must contain exactly one v1.22.0 release heading."
+$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.22\.1(?:\s|$)")
+if ($currentReleaseHeadings.Count -cne 1) {
+    throw "CHANGELOG.md must contain exactly one v1.22.1 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"
 $claudeMarketplace = Read-JsonFile ".claude-plugin/marketplace.json"
 
 foreach ($name in $expectedPlugins) {
-    if ($name -notin $codexMarketplace.plugins.name) {
+    if ($name -cnotin $codexMarketplace.plugins.name) {
         throw "Codex marketplace does not contain $name."
     }
-    if ($name -notin $claudeMarketplace.plugins.name) {
+    if ($name -cnotin $claudeMarketplace.plugins.name) {
         throw "Claude marketplace does not contain $name."
     }
 
     $codexManifest = Read-JsonFile "plugins/$name/.codex-plugin/plugin.json"
     $claudeManifest = Read-JsonFile "plugins/$name/.claude-plugin/plugin.json"
     $copilotManifest = Read-JsonFile "plugins/$name/.plugin/plugin.json"
-    if ($codexManifest.name -ne $name -or $claudeManifest.name -ne $name -or $copilotManifest.name -ne $name) {
+    if ($codexManifest.name -cne $name -or $claudeManifest.name -cne $name -or $copilotManifest.name -cne $name) {
         throw "Plugin directory and manifest names differ for $name."
     }
     $expectedVersion = $expectedVersions[$name]
-    if ($codexManifest.version -ne $expectedVersion -or $claudeManifest.version -ne $expectedVersion -or $copilotManifest.version -ne $expectedVersion) {
+    if ($codexManifest.version -cne $expectedVersion -or $claudeManifest.version -cne $expectedVersion -or $copilotManifest.version -cne $expectedVersion) {
         throw "Plugin version differs from $expectedVersion for $name."
     }
 }
 
 foreach ($plugin in $claudeMarketplace.plugins) {
-    if ($plugin.name -notin $expectedVersions.Keys) { continue }
+    if ($plugin.name -cnotin $expectedVersions.Keys) { continue }
     $expectedVersion = $expectedVersions[$plugin.name]
-    if ($plugin.version -ne $expectedVersion) {
+    if ($plugin.version -cne $expectedVersion) {
         throw "Claude marketplace version differs from $expectedVersion for $($plugin.name)."
     }
 }
@@ -97,12 +99,12 @@ foreach ($plugin in $claudeMarketplace.plugins) {
 # marketplaces so cache recovery and host discovery are unambiguous.
 foreach ($name in $releasePlugins) {
     $expectedVersion = $expectedVersions[$name]
-    $codexEntry = @($codexMarketplace.plugins | Where-Object { $_.name -eq $name })
-    $claudeEntry = @($claudeMarketplace.plugins | Where-Object { $_.name -eq $name })
-    if ($codexEntry.Count -ne 1 -or $claudeEntry.Count -ne 1) {
+    $codexEntry = @($codexMarketplace.plugins | Where-Object { $_.name -ceq $name })
+    $claudeEntry = @($claudeMarketplace.plugins | Where-Object { $_.name -ceq $name })
+    if ($codexEntry.Count -cne 1 -or $claudeEntry.Count -cne 1) {
         throw "Expected exactly one marketplace entry for release plugin $name."
     }
-    if ($codexEntry[0].version -ne $expectedVersion -or $claudeEntry[0].version -ne $expectedVersion) {
+    if ($codexEntry[0].version -cne $expectedVersion -or $claudeEntry[0].version -cne $expectedVersion) {
         throw "Marketplace version differs from $expectedVersion for $name."
     }
     if ([version]$expectedVersion -le [version]"1.1.0") {
@@ -110,19 +112,80 @@ foreach ($name in $releasePlugins) {
     }
 }
 
-$skillFiles = Get-ChildItem (Join-Path $repositoryRoot "plugins") -Recurse -Filter "SKILL.md"
+# Cloud plugins are explicit public entries. Host caches may contain only one
+# provider directory, so their runtime mirrors must be byte-identical to the
+# canonical shared dependency, including the protected registry and schemas.
+foreach ($name in @("sdd-azure-cloud", "sdd-aws-cloud")) {
+    foreach ($hostDirectory in @(".claude-plugin", ".codex-plugin", ".plugin")) {
+        $manifest = Read-JsonFile "plugins/$name/$hostDirectory/plugin.json"
+        $expectedSkillsPath = if ($hostDirectory -ceq ".plugin") { "skills/" } else { "./skills/" }
+        $skillPaths = @($manifest.skills)
+        if ($skillPaths.Count -cne 1 -or $skillPaths[0] -cne $expectedSkillsPath) {
+            throw "Cloud skill export differs for $name/$hostDirectory."
+        }
+        if ($hostDirectory -ceq ".claude-plugin" -and $manifest.skills -isnot [array]) {
+            throw "Cloud Claude skills must be an array for $name."
+        }
+        if ($hostDirectory -cne ".claude-plugin" -and $manifest.skills -isnot [string]) {
+            throw "Cloud skills must be a string for $name/$hostDirectory."
+        }
+    }
+    $codexEntry = @($codexMarketplace.plugins | Where-Object { $_.name -ceq $name })[0]
+    $claudeEntry = @($claudeMarketplace.plugins | Where-Object { $_.name -ceq $name })[0]
+    if ($codexEntry.source.source -cne "local" -or
+        $codexEntry.source.path -cne "./plugins/$name" -or
+        $claudeEntry.source -cne "./plugins/$name" -or
+        $codexEntry.policy.installation -cne "AVAILABLE" -or
+        $codexEntry.policy.authentication -cne "ON_INSTALL") {
+        throw "Cloud marketplace source or opt-cin policy differs for $name."
+    }
+    $runtimeSources = @{}
+    foreach ($module in @("cloud_contracts.py", "cloud_authorization.py", "cloud_verification.py", "cloud_dependencies.py")) {
+        $runtimeSources["scripts/$module"] = "plugins/sdd-quality-loop/scripts/$module"
+    }
+    $runtimeSources["references/cloud-verification-registry.json"] = "plugins/sdd-quality-loop/references/cloud-verification-registry.json"
+    foreach ($schemaFile in Get-ChildItem -LiteralPath (Join-Path $repositoryRoot "contracts") -File |
+        Where-Object { $_.Name -cmatch '^cloud-.*\.schema\.json$' }) {
+        $runtimeSources["contracts/$($schemaFile.Name)"] = "contracts/$($schemaFile.Name)"
+    }
+    foreach ($schemaName in @("verification-contract-v3.schema.json", "selected-verification-plan-v2.schema.json")) {
+        $runtimeSources["contracts/$schemaName"] = "plugins/sdd-quality-loop/contracts/$schemaName"
+    }
+    foreach ($relativePath in $runtimeSources.Keys) {
+        $canonical = Join-Path $repositoryRoot $runtimeSources[$relativePath]
+        $packaged = Join-Path $repositoryRoot "plugins/$name/runtime/$relativePath"
+        if (-not (Test-Path -LiteralPath $canonical -PathType Leaf)) {
+            throw "Cloud canonical runtime is missing: $canonical"
+        }
+        # Source trees carry canonical inputs; installers materialize runtime/.
+        # When checking an installed/exported tree, every mirror is mandatory.
+        if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot "plugins/$name/runtime"))) { continue }
+        if (-not (Test-Path -LiteralPath $packaged -PathType Leaf) -or
+            (Get-Item -LiteralPath $packaged).Attributes -band [IO.FileAttributes]::ReparsePoint -or
+            (Get-FileHash -LiteralPath $canonical -Algorithm SHA256).Hash -cne
+            (Get-FileHash -LiteralPath $packaged -Algorithm SHA256).Hash) {
+            throw "Cloud runtime mirror differs: plugins/$name/runtime/$relativePath"
+        }
+    }
+}
+
+# Pinned upstream reference trees are data, not exported public skills.
+$skillFiles = foreach ($pluginName in $expectedPlugins) {
+    Get-ChildItem -LiteralPath (Join-Path $repositoryRoot "plugins/$pluginName/skills") -Recurse -File |
+        Where-Object { $_.Name -ceq "SKILL.md" }
+}
 $skillNames = foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
-    if ($content -notmatch "(?m)^name:\s*(.+)$") {
+    if ($content -cnotmatch "(?m)^name:\s*(.+)$") {
         throw "Skill has no name: $($skillFile.FullName)"
     }
     $Matches[1].Trim()
 }
-if (@($skillNames).Count -ne $expectedSkills.Count) {
+if (@($skillNames).Count -cne $expectedSkills.Count) {
     throw "Expected $($expectedSkills.Count) public skills but found $(@($skillNames).Count): $($skillNames -join ', ')"
 }
 foreach ($name in $expectedSkills) {
-    if ($name -notin $skillNames) {
+    if ($name -cnotin $skillNames) {
         throw "Missing public skill: $name"
     }
 }
@@ -211,33 +274,33 @@ foreach ($relativePath in $requiredFiles) {
 
 $reviewTicketTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/templates/review-ticket.template.yml")
 foreach ($field in @("ticket_id:", "status:", "type:", "severity:", "target:", "summary:", "problem:", "expected_fix:", "references:", "auto_fix_allowed:", "requires_human_decision:", "review_cycles:")) {
-    if ($reviewTicketTemplate -notmatch [regex]::Escape($field)) {
+    if ($reviewTicketTemplate -cnotmatch [regex]::Escape($field)) {
         throw "Review-ticket template is missing required field: $field"
     }
 }
 
 $tasksTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md")
 foreach ($field in @("Source Issue:", "Approval:", "Status:", "Goal", "Must Read", "Scope", "Done When", "Out of Scope", "Blockers")) {
-    if ($tasksTemplate -notmatch [regex]::Escape($field)) {
+    if ($tasksTemplate -cnotmatch [regex]::Escape($field)) {
         throw "Task template is missing required field: $field"
     }
 }
 foreach ($status in @("Draft", "Approved", "In Progress", "Blocked", "Implementation Complete", "Done")) {
-    if ($tasksTemplate -notmatch [regex]::Escape($status)) {
+    if ($tasksTemplate -cnotmatch [regex]::Escape($status)) {
         throw "Task template is missing lifecycle status: $status"
     }
 }
 
 $implementationSkill = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/implement-task/SKILL.md")
 foreach ($rule in @("Approved", "In Progress", "Blocked", "Implementation Complete", "git status", "git diff")) {
-    if ($implementationSkill -notmatch [regex]::Escape($rule)) {
+    if ($implementationSkill -cnotmatch [regex]::Escape($rule)) {
         throw "Implement-task skill is missing required rule: $rule"
     }
 }
 
 $qualitySkill = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
 foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability", "check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state", "sdd-evaluator")) {
-    if ($qualitySkill -notmatch [regex]::Escape($rule)) {
+    if ($qualitySkill -cnotmatch [regex]::Escape($rule)) {
         throw "Quality-gate skill is missing required rule: $rule"
     }
 }
@@ -282,27 +345,27 @@ if (-not (Test-Path $agentSourceDir)) {
 }
 foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "*.toml")) {
     # The installers only copy sdd-*.toml; anything else would silently not install.
-    if ($tomlFile.Name -notmatch '^sdd-.*\.toml$') {
+    if ($tomlFile.Name -cnotmatch '^sdd-.*\.toml$') {
         throw "Codex agent role file would not be installed (must be named sdd-*.toml): $($tomlFile.Name)"
     }
     $bytes = [System.IO.File]::ReadAllBytes($tomlFile.FullName)
-    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+    if ($bytes.Length -ge 3 -and $bytes[0] -ceq 0xEF -and $bytes[1] -ceq 0xBB -and $bytes[2] -ceq 0xBF) {
         throw "Codex agent role file has UTF-8 BOM (must not): $($tomlFile.Name)"
     }
     $content = [System.Text.Encoding]::UTF8.GetString($bytes)
     if ($content -match "`r") {
         throw "Codex agent role file contains CR characters (must be LF-only): $($tomlFile.Name)"
     }
-    if ($content -notmatch '(?m)^name\s*=') {
+    if ($content -cnotmatch '(?m)^name\s*=') {
         throw "Codex agent role file lacks required 'name =' line: $($tomlFile.Name)"
     }
-    if ($content -notmatch '(?m)^description\s*=') {
+    if ($content -cnotmatch '(?m)^description\s*=') {
         throw "Codex agent role file lacks required 'description =' line: $($tomlFile.Name)"
     }
-    if ($content -notmatch '(?m)^developer_instructions\s*=\s*"""') {
+    if ($content -cnotmatch '(?m)^developer_instructions\s*=\s*"""') {
         throw "Codex agent role file lacks a developer_instructions multiline string: $($tomlFile.Name)"
     }
-    if ($content -notmatch '(?s)developer_instructions\s*=\s*"""\s*\S.*?"""') {
+    if ($content -cnotmatch '(?s)developer_instructions\s*=\s*"""\s*\S.*?"""') {
         throw "Codex agent role file has empty developer_instructions: $($tomlFile.Name)"
     }
 }
@@ -311,10 +374,10 @@ foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "*.toml")) {
 $agentPolicyFile = Join-Path $repositoryRoot "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
 if (Test-Path $agentPolicyFile) {
     $agentPolicyContent = Get-Content -Raw -Encoding Utf8 $agentPolicyFile
-    if ($agentPolicyContent -notmatch [regex]::Escape("Agent Role File Rules (Codex)")) {
+    if ($agentPolicyContent -cnotmatch [regex]::Escape("Agent Role File Rules (Codex)")) {
         throw "agent-delegation-policy.md missing required text: 'Agent Role File Rules (Codex)'"
     }
-    if ($agentPolicyContent -notmatch [regex]::Escape("developer_instructions")) {
+    if ($agentPolicyContent -cnotmatch [regex]::Escape("developer_instructions")) {
         throw "agent-delegation-policy.md missing required text: 'developer_instructions'"
     }
 }
@@ -322,7 +385,7 @@ if (Test-Path $agentPolicyFile) {
 $qualityGateFile = Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
 if (Test-Path $qualityGateFile) {
     $qualityGateContent = Get-Content -Raw -Encoding Utf8 $qualityGateFile
-    if ($qualityGateContent -notmatch [regex]::Escape("do not create new agent role files")) {
+    if ($qualityGateContent -cnotmatch [regex]::Escape("do not create new agent role files")) {
         throw "quality-gate SKILL.md missing required text: 'do not create new agent role files'"
     }
 }
@@ -330,10 +393,10 @@ if (Test-Path $qualityGateFile) {
 $installPsFile = Join-Path $repositoryRoot "install.ps1"
 if (Test-Path $installPsFile) {
     $installPsContent = Get-Content -Raw -Encoding Utf8 $installPsFile
-    if ($installPsContent -notmatch [regex]::Escape("SDD_CODEX_HOME")) {
+    if ($installPsContent -cnotmatch [regex]::Escape("SDD_CODEX_HOME")) {
         throw "install.ps1 missing required text: 'SDD_CODEX_HOME'"
     }
-    if ($installPsContent -notmatch [regex]::Escape("developer_instructions")) {
+    if ($installPsContent -cnotmatch [regex]::Escape("developer_instructions")) {
         throw "install.ps1 missing required text: 'developer_instructions'"
     }
 }
@@ -341,10 +404,10 @@ if (Test-Path $installPsFile) {
 $installShFile = Join-Path $repositoryRoot "install.sh"
 if (Test-Path $installShFile) {
     $installShContent = Get-Content -Raw -Encoding Utf8 $installShFile
-    if ($installShContent -notmatch [regex]::Escape("SDD_CODEX_HOME")) {
+    if ($installShContent -cnotmatch [regex]::Escape("SDD_CODEX_HOME")) {
         throw "install.sh missing required text: 'SDD_CODEX_HOME'"
     }
-    if ($installShContent -notmatch [regex]::Escape("developer_instructions")) {
+    if ($installShContent -cnotmatch [regex]::Escape("developer_instructions")) {
         throw "install.sh missing required text: 'developer_instructions'"
     }
 }
@@ -375,7 +438,7 @@ if (-not $hasShellMatcher) {
 
 # copilot-hooks.json must parse and have expected structure.
 $copilotHooks = Read-JsonFile "plugins/sdd-quality-loop/hooks/copilot-hooks.json"
-if ($copilotHooks.version -ne 1) {
+if ($copilotHooks.version -cne 1) {
     throw "copilot-hooks.json version must be 1."
 }
 foreach ($entry in $copilotHooks.hooks.preToolUse) {
@@ -385,10 +448,10 @@ foreach ($entry in $copilotHooks.hooks.preToolUse) {
     if (-not $entry.powershell) {
         throw "copilot-hooks.json preToolUse entry is missing 'powershell' field."
     }
-    if ($entry.bash -notmatch '"permissionDecision":"deny"') {
+    if ($entry.bash -cnotmatch '"permissionDecision":"deny"') {
         throw "copilot-hooks.json bash fallback must deny when the guard is unavailable."
     }
-    if ($entry.powershell -notmatch '"permissionDecision":"deny"') {
+    if ($entry.powershell -cnotmatch '"permissionDecision":"deny"') {
         throw "copilot-hooks.json powershell fallback must deny when the guard is unavailable."
     }
 }
@@ -400,10 +463,10 @@ if (-not $claudeHooks.hooks.PreToolUse) {
 }
 $claudeHookEntries = $claudeHooks.hooks.PreToolUse | ForEach-Object { $_.hooks } | Where-Object { $_ }
 foreach ($entry in $claudeHookEntries) {
-    if ($entry.command -ne "node") {
+    if ($entry.command -cne "node") {
         throw "claude-hooks.json hook entry must have command = 'node' (found '$($entry.command)')."
     }
-    if (-not $entry.args -or $entry.args.Count -eq 0) {
+    if (-not $entry.args -or $entry.args.Count -ceq 0) {
         throw "claude-hooks.json hook entry must have a non-empty 'args' array."
     }
     $firstArg = [string]$entry.args[0]
@@ -414,13 +477,13 @@ foreach ($entry in $claudeHookEntries) {
 
 # .claude-plugin/plugin.json for sdd-quality-loop must reference claude-hooks.json.
 $claudePluginManifest = Read-JsonFile "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
-if ($claudePluginManifest.hooks -ne "./hooks/claude-hooks.json") {
+if ($claudePluginManifest.hooks -cne "./hooks/claude-hooks.json") {
     throw ".claude-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/claude-hooks.json' (found '$($claudePluginManifest.hooks)')."
 }
 
 # .codex-plugin/plugin.json for sdd-quality-loop must have a hooks field pointing at hooks/hooks.json.
 $codexPluginManifest = Read-JsonFile "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
-if ($codexPluginManifest.hooks -ne "./hooks/hooks.json") {
+if ($codexPluginManifest.hooks -cne "./hooks/hooks.json") {
     throw ".codex-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/hooks.json' (found '$($codexPluginManifest.hooks)')."
 }
 
@@ -439,13 +502,13 @@ foreach ($check in $contractTemplate.checks) {
     }
 }
 foreach ($checkId in @("lint", "unit-tests", "build", "placeholder-scan", "task-state-check")) {
-    if ($checkId -notin $contractTemplate.checks.id) {
+    if ($checkId -cnotin $contractTemplate.checks.id) {
         throw "Verification contract template is missing check: $checkId"
     }
 }
 foreach ($check in $contractTemplate.checks) {
     $props = $check | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
-    if ("waiver_reason" -notin $props) {
+    if ("waiver_reason" -cnotin $props) {
         throw "Verification contract template check '$($check.id)' is missing 'waiver_reason' property."
     }
 }
@@ -453,7 +516,7 @@ foreach ($check in $contractTemplate.checks) {
 # CI template must fail closed until its project-command replacement marker is resolved.
 $ciTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml")
 $projectCommandMarker = "TO" + "DO_REPLACE_WITH_PROJECT_COMMANDS"
-if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
+if ($ciTemplate -cnotmatch [regex]::Escape($projectCommandMarker)) {
     throw "ci-github.template.yml does not contain the required project-command replacement marker."
 }
 
@@ -467,10 +530,10 @@ if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
 # The forbidden state is both flags together -- disable-model-invocation: true
 # with user-invocable: false refuses the model AND the human, which left
 # sixteen skills unreachable by anyone until 2026-08-25.
-$userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "domain-model")
+$userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "domain-model", "orchestrate")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
-    if ($content -notmatch "(?m)^name:\s*(.+)$") {
+    if ($content -cnotmatch "(?m)^name:\s*(.+)$") {
         throw "Skill has no name: $($skillFile.FullName)"
     }
     $skillName = $Matches[1].Trim()
@@ -483,7 +546,7 @@ foreach ($skillFile in $skillFiles) {
     if ($hasDisableModelTrue -and $hasUserInvocableFalse) {
         throw "Unreachable skill (disable-model-invocation: true AND user-invocable: false refuses every caller, WFI-054): $($skillFile.FullName)"
     }
-    if ($skillName -in $userVisibleSkills) {
+    if ($skillName -cin $userVisibleSkills) {
         if (-not $hasDisableModelTrue) {
             throw "User-facing entry skill must set disable-model-invocation: true: $($skillFile.FullName)"
         }

@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれるスキルの詳細リファレンスです。`plugins/` 外の単独スキル1件、[`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)も扱います。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれるスキルの詳細リファレンスです。`plugins/` 外の単独スキル1件、[`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)も扱います。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -10,6 +10,7 @@
 |---|---|---|---|---|
 | **bootstrap** | **sdd-bootstrap** | **[公開] 仕様化フェーズのエントリーポイント（`/sdd-bootstrap:bootstrap`）。investigate/adopt/feature/bugfix/refactor/project モードをルーティング** | **—** | **ship** |
 | **ship** | **sdd-ship** | **[公開] 実装・品質保証フェーズのオーケストレーター（`/sdd-ship:ship`）。implement-tasks → quality-gate (or lite-gate) → workflow-retrospective を順次実行** | **bootstrap** | **—** |
+| **orchestrate** | **sdd-azure-cloud / sdd-aws-cloud** | **[公開・明示導入] 1 Bicep / CDK deployment unit のローカル準備、保護 CI の操作、認証付き観測・検証。実クラウド受入は未完了** | **明示依頼** | **専用 CLI** |
 | **domain-model** | **sdd-domain** | **[公開] DDD 上流レーンのエントリーポイント（`/sdd-domain:domain-model`）。`new`（既定）/ `update` / `reverse` を domain-interviewer・update モードの限定再インタビュー・domain-reverse へルーティングし、`domain/` 成果物セットを sdd-bootstrap Phase 1 の手前で生成・維持する** | **—** | **domain-interviewer, domain-reverse, domain-review-loop** |
 | domain-interviewer | sdd-domain | 7段階の DDD インタビュー（Domain Story → Event Storming → Concept Model → Ubiquitous Language → Context Map → Domain Model (集約) → Domain Message Flow）を実行。各段階を次段階の開始前にディスクへチェックポイントし、段階ごとに `domain/domain-contract.json` を再生成。`domain/` 配下の唯一の書き込み者で、中断後は再開可能 | domain-model, domain-reverse (seed 経由) | domain-review-loop |
 | domain-reverse | sdd-domain | 既存コードベースに investigate-codebase を実行し、その investigation.md を候補ドメインモデル seed（候補 Bounded Context・ユビキタス言語用語・イベント/集約のヒント）へ変換。中間生成物のみで `domain/` には書き込まない | domain-model (`reverse` モード) | domain-interviewer |
@@ -36,9 +37,9 @@
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 6 本だけが `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
+**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 8 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間による明示依頼が起点）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
 
-ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
+ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 
@@ -125,6 +126,17 @@ Use the ship skill for specs/<feature>/tasks.md
 > 内部スキル（sdd-adopt、investigate-codebase、implement-task 等）の詳細仕様は [`docs/contributor/skill-reference-detail.md`](contributor/skill-reference-detail.md) を参照してください。
 
 ---
+
+### orchestrate（Azure / AWS の明示導入エントリ）
+
+`sdd-azure-cloud` / `sdd-aws-cloud` は、既存の 1 deployment unit への操作を扱います。
+通常の bootstrap / ship の導入には含まれず、リポジトリのインストーラーで明示指定します。
+同じ `cloud-run-request/v1` を、選択したプロバイダーの CLI へ渡します。
+
+`route` / `plan` / `validate` はローカルで実行します。`prepare` / `apply` は固定した保護 CI と別の承認・OIDC が必要です。
+`reconcile` / `observe` は元の ID と対象を絞った認証を要求し、`verify` は認証付き観測を検査します。
+実クラウドの受入 TEST-003/005/009 は BLOCKED のままです。入力契約、対応する Linux x64 ツール、Windows の実行制限、復旧条件は
+[クラウド実行契約](cloud-orchestration.md)と各プラグインの `skills/orchestrate/SKILL.md` に従います。
 
 ### skills/adversarial-review（`plugins/` 外の単独スキル）
 
@@ -307,9 +319,9 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 ## 5. 決定論的スクリプト
 
-### スクリプト一覧（`plugins/` 配下 52本）
+### 共通 SDD のスクリプト一覧
 
-ワークフローが呼び出す決定論的スクリプトは **`plugins/` 配下**に異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
+以下は共通 SDD ワークフローのスクリプト一覧です。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。クラウド専用 CLI と共有 module の入出力は [クラウド実行契約](cloud-orchestration.md)で扱います。
 
 この 52本には `plugins/` 外のリポジトリ運用スクリプトは含みません。別途、`scripts/`（`apply-branch-protection` / `bump-version` / `check-sdd-structure` / `rollback-1.5.0`）とリポジトリ直下の `render-agent-frontmatter.{sh,ps1}` があります。後者は生成されるエージェント定義ファイルの単一の真実源として `contracts/agent-model-capabilities.*` の `role_defaults` を参照するもので、独立した契約節が [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) に置かれています。
 

@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "import_resources"
+      ],
+      "properties": {
+        "schema": {
+          "const": "aws-local-config/v1"
+        },
+        "import_resources": {
+          "const": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "import_resources",
+        "entrypoint",
+        "parameters",
+        "upstream_root",
+        "output_directory",
+        "private_management",
+        "cost",
+        "evidence"
+      ],
+      "properties": {
+        "schema": {
+          "const": "aws-local-config/v1"
+        },
+        "import_resources": {
+          "const": false
+        },
+        "entrypoint": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "parameters": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "upstream_root": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "output_directory": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "private_management": {
+          "const": true
+        },
+        "cost": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "estimated_minor_units",
+            "currency",
+            "duration_hours"
+          ],
+          "properties": {
+            "estimated_minor_units": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$(?![\\s\\S])"
+            },
+            "duration_hours": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "residency",
+            "retention_days",
+            "access"
+          ],
+          "properties": {
+            "residency": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$(?![\\s\\S])"
+            },
+            "retention_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "access": {
+              "const": "restricted"
+            }
+          }
+        },
+        "observation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "instance_logical_id",
+            "vpc_id",
+            "subnet_id",
+            "security_group_logical_ids",
+            "instance_profile_arn",
+            "role_arn",
+            "guard_policy_name",
+            "alarm_logical_id",
+            "workload_metric"
+          ],
+          "properties": {
+            "vpc_id": {
+              "type": "string",
+              "pattern": "^(?:vpc-[a-f0-9]{8,17})$(?![\\s\\S])"
+            },
+            "subnet_id": {
+              "type": "string",
+              "pattern": "^(?:subnet-[a-f0-9]{8,17})$(?![\\s\\S])"
+            },
+            "instance_profile_arn": {
+              "type": "string",
+              "pattern": "^(?:arn:aws:[a-z0-9-]+:(?:[a-z0-9-]+)?:[0-9]{12}:[A-Za-z0-9_./:-]+)$(?![\\s\\S])"
+            },
+            "role_arn": {
+              "type": "string",
+              "pattern": "^(?:arn:aws:[a-z0-9-]+:(?:[a-z0-9-]+)?:[0-9]{12}:[A-Za-z0-9_./:-]+)$(?![\\s\\S])"
+            },
+            "guard_policy_name": {
+              "type": "string",
+              "pattern": "^(?:[A-Za-z0-9_-]{1,128})$(?![\\s\\S])"
+            },
+            "workload_metric": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "namespace",
+                "name",
+                "minimum",
+                "maximum"
+              ],
+              "properties": {
+                "namespace": {
+                  "type": "string",
+                  "pattern": "^(?:[A-Za-z][A-Za-z0-9_./-]{0,127})$(?![\\s\\S])"
+                },
+                "name": {
+                  "type": "string",
+                  "pattern": "^(?:[A-Za-z][A-Za-z0-9_]{0,127})$(?![\\s\\S])"
+                },
+                "minimum": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "maximum": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              }
+            },
+            "backup": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "plan_id",
+                "selection_logical_id",
+                "vault_name",
+                "role_arn"
+              ],
+              "properties": {
+                "plan_id": {
+                  "type": "string",
+                  "pattern": "^(?:[A-Za-z0-9_-]{1,128})$(?![\\s\\S])"
+                },
+                "vault_name": {
+                  "type": "string",
+                  "pattern": "^(?:[A-Za-z0-9_-]{1,128})$(?![\\s\\S])"
+                },
+                "role_arn": {
+                  "type": "string",
+                  "pattern": "^(?:arn:aws:[a-z0-9-]+:(?:[a-z0-9-]+)?:[0-9]{12}:[A-Za-z0-9_./:-]+)$(?![\\s\\S])"
+                },
+                "selection_logical_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9]{0,254}$"
+                }
+              }
+            },
+            "instance_logical_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9]{0,254}$"
+            },
+            "security_group_logical_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9]{0,254}$"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "alarm_logical_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9]{0,254}$"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "Observation is optional for local v1 compatibility. Observe/verify require it. Runtime additionally validates same-scope native resource joins, metric bounds, exact service resource types and collector provenance."
+}

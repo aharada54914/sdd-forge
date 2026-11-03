@@ -1,0 +1,33 @@
+{
+  "repository": "https://github.com/microsoft/azure-skills",
+  "commit": "cf79ce8778ad063eeac19dbe8bf982d71b466ce0",
+  "entrypoints": [
+    "skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+    "LICENSE"
+  ],
+  "files": [
+    {
+      "path": "skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+      "sha256": "ab54837a3cde78093ebb59875c0cb1f471c57ee786d8b7d417f808cf94b56439",
+      "references": [
+        "skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+        "skills/azure-compute/workflows/vm-creator/examples/bicep/README.md"
+      ]
+    },
+    {
+      "path": "skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+      "sha256": "6fa0bd982a36436cc4a6929ce5a8bb2fff748248d2865000110de0a18ef51b5f",
+      "references": []
+    },
+    {
+      "path": "skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+      "sha256": "61a52989ee67dfe4ee30aeb88a06bd15460d3d61d9f1101f3d0d58c19d1e4852",
+      "references": []
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5",
+      "references": []
+    }
+  ]
+}

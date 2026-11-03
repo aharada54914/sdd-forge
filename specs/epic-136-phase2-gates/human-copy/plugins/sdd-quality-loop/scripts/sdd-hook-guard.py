@@ -1701,19 +1701,30 @@ def _command_references_protected_path(cmd, directories=()):
         for kind, text in tokens)
     inputs = _readonly_input_indices(tokens, list(directories)) if literal_context else set()
     position, verb, first_command = 0, "", True
+    cloud_prefix = False
     for index, (kind, text) in enumerate(tokens):
         if kind != "word":
-            if position:
+            if position or cloud_prefix:
                 first_command = False
             position, verb = 0, ""
             continue
-        script_input = (literal_context and first_command and position == 1 and not text.startswith(("-", "~"))
+        script_input = (literal_context and first_command and position == 1
+                        and (not cloud_prefix or verb in ("python", "python3")) and not text.startswith(("-", "~"))
                         and ((verb in ("python", "python3") and text.endswith(".py"))
                              or (verb in ("bash", "sh") and text.endswith(".sh")))
                         and ">" not in text and "<" not in text)
-        if position == 0:
-            verb = text
-        position += 1
+        # Only literal cloud metadata and Python's no-bytecode flag preserve
+        # the existing first-command script-input rule; still scan every token.
+        cloud_assignment = (literal_context and first_command and position == 0
+                            and re.fullmatch(r"CLOUD_(?:WORKSPACE_ROOT|SHARED_RUNTIME_ROOT)=[^=<>]+", text))
+        no_bytecode = (literal_context and first_command and position == 1
+                       and verb in ("python", "python3") and text == "-B")
+        if cloud_assignment:
+            cloud_prefix = True
+        elif not no_bytecode:
+            if position == 0:
+                verb = text
+            position += 1
         if script_input or index in inputs:
             continue
         candidate = text

@@ -12,14 +12,14 @@ set -euo pipefail
 INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
 MARKETPLACE_NAME="sdd-plugins"
 TARGET="All"
-PLUGINS="sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain"
+PLUGINS="sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud"
 KEEP_FILES=0
 SKIP_PLUGIN_UNINSTALL=0
 SKIP_AGENT_UNINSTALL=0
 MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
 SKIP_MCP_UNINSTALL=0
 
-VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # Role files this project installs into ~/.codex/agents. Used as a fallback when
 # the install root (the manifest source) is no longer present.
@@ -36,7 +36,7 @@ Usage: uninstall.sh [options]
   --marketplace-name <name>      Registered marketplace name. Default: sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: all plugins
   --keep-files                   Unregister from CLI tools but keep the installed files
   --skip-plugin-uninstall        Skip unregistering plugins/marketplace from CLI tools

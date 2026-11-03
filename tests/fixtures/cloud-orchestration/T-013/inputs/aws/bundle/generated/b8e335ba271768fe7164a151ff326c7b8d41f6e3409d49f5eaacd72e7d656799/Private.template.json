@@ -1,0 +1,116 @@
+{
+ "Resources": {
+  "PrivateGroup": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Private workload; private management endpoints required",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "10.0.0.0/16",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "SecurityGroupIngress": [],
+    "VpcId": "vpc-11111111"
+   }
+  },
+  "Workload": {
+   "Type": "AWS::EC2::Instance",
+   "Properties": {
+    "BlockDeviceMappings": [
+     {
+      "DeviceName": "/dev/xvda",
+      "Ebs": {
+       "DeleteOnTermination": false,
+       "Encrypted": true,
+       "VolumeSize": 16,
+       "VolumeType": "gp3"
+      }
+     }
+    ],
+    "IamInstanceProfile": "synthetic-profile",
+    "ImageId": {
+     "Ref": "Image"
+    },
+    "InstanceType": "t3.small",
+    "MetadataOptions": {
+     "HttpEndpoint": "enabled",
+     "HttpTokens": "required"
+    },
+    "Monitoring": true,
+    "NetworkInterfaces": [
+     {
+      "AssociatePublicIpAddress": false,
+      "DeleteOnTermination": true,
+      "DeviceIndex": "0",
+      "GroupSet": [
+       {
+        "Fn::GetAtt": [
+         "PrivateGroup",
+         "GroupId"
+        ]
+       }
+      ],
+      "SubnetId": "subnet-11111111"
+     }
+    ]
+   }
+  },
+  "Health": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "InstanceId",
+      "Value": {
+       "Ref": "Workload"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "StatusCheckFailed",
+    "Namespace": "AWS/EC2",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Threshold": 0,
+    "TreatMissingData": "breaching"
+   }
+  },
+  "Protection": {
+   "Type": "AWS::Backup::BackupSelection",
+   "Properties": {
+    "BackupPlanId": "synthetic-plan",
+    "BackupSelection": {
+     "IamRoleArn": "arn:aws:iam::111111111111:role/synthetic-backup",
+     "Resources": [
+      {
+       "Fn::Join": [
+        "",
+        [
+         "arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":ec2:us-east-1:111111111111:instance/",
+         {
+          "Ref": "Workload"
+         }
+        ]
+       ]
+      }
+     ],
+     "SelectionName": "private-workload"
+    }
+   }
+  }
+ },
+ "Parameters": {
+  "Image": {
+   "Type": "AWS::EC2::Image::Id",
+   "Default": "ami-11111111111111111"
+  }
+ }
+}

@@ -44,7 +44,15 @@ function Assert-ContractFieldCase($Object, [string[]]$Names) {
     }
 }
 if ($contract -isnot [pscustomobject]) { Stop-InvalidContract 'contract must be a JSON object' }
-Assert-ContractFieldCase $contract @('checks','schema','task_id','risk','stack','required_workflow','spec_revision','cross_model')
+Assert-ContractFieldCase $contract @('checks','schema','task_id','risk','stack','required_workflow','spec_revision','cross_model','profile')
+# Only the explicit cloud schema loads the Python runtime; legacy validation stays native.
+if (($contract.schema -is [string]) -and $contract.schema -ceq 'verification-contract/v3') {
+    . (Join-Path $PSScriptRoot 'lib/py-dispatch.ps1')
+    Invoke-SddPyDispatch -Master (Join-Path $PSScriptRoot 'check-contract.py') -DiagnosticPrefix 'cloud-profile' -Arguments @($ContractPath, $RepoRoot)
+}
+if (@($contract.PSObject.Properties.Name) -ccontains 'profile') {
+    Stop-InvalidContract 'cloud profile requires verification-contract/v3'
+}
 if ($contract.checks -isnot [array]) { Stop-InvalidContract "contract checks must be an array" }
 foreach ($field in @('schema','task_id','risk','stack','required_workflow','spec_revision','cross_model')) {
     if ($null -ne $contract.$field -and $contract.$field -isnot [string]) {

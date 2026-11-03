@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.22.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.22.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
 [research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
@@ -70,6 +70,25 @@ flowchart TD
 調査・性能確認・隔離試作・引き継ぎには、bootstrap の用途別プレイブックと
 [判断資料](plugins/sdd-bootstrap/references/decision-packet.md)を利用できます。
 比較案の選択と、通常のタスク承認・品質ゲートは別に扱います。
+
+### Azure / AWS のクラウド操作
+
+Azure Bicep と AWS CDK / CloudFormation の専用プラグインは、明示指定で導入します。
+レビュー済みの checkout で次を実行してください。
+
+```bash
+bash install.sh --source-directory "$PWD" --target Codex --plugins sdd-azure-cloud,sdd-aws-cloud
+```
+
+入口は `/sdd-azure-cloud:orchestrate` / `/sdd-aws-cloud:orchestrate` です。
+共有 runtime はこのリポジトリのインストーラーが組み立てるため、marketplace だけの直接導入では動作しません。
+既定の bootstrap / ship の導入構成は変わりません。
+
+ローカルの `route` / `plan` / `validate` と、保護された CI の `prepare` / `apply` は権限が異なります。
+実クラウドの受入 TEST-003/005/009 は sandbox 未提供のため BLOCKED のままです。
+現在のツール固定値は Linux x64 用で、Windows の導入成功はクラウド実行対応を意味しません。
+使う前に [クラウド対応ガイド](docs/cloud/README.md)と
+[実行契約・導入・復旧手順](docs/cloud-orchestration.md)を確認してください。
 
 `install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
 
@@ -161,7 +180,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
 | `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
 
-`--plugins` に指定できる名前は次の 7 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain`。
+`--plugins` に指定できる名前は次の 9 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud`。
 
 **依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます。自動追加された分は警告として表示されます。
 
@@ -171,8 +190,9 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 | `sdd-domain` | `sdd-bootstrap` / `sdd-quality-loop` / `sdd-review-loop` |
 | `sdd-lite` | `sdd-bootstrap` / `sdd-implementation` / `sdd-quality-loop` |
 | `sdd-ship` | `sdd-bootstrap` / `sdd-review-loop` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` |
+| `sdd-azure-cloud` / `sdd-aws-cloud` | `sdd-quality-loop` |
 
-したがって既定の `sdd-bootstrap,sdd-ship` を指定した場合、`sdd-domain` を除く 6 プラグインが登録されます。
+したがって既定の `sdd-bootstrap,sdd-ship` を指定した場合、6 プラグインが登録されます。`sdd-domain` とクラウド用の 2 プラグインは明示指定で導入します。
 
 > **`sdd-domain` は明示指定で導入できます。** Bash は `./install.sh --plugins sdd-domain`、PowerShell は `./install.ps1 -Plugins sdd-domain` を実行してください。必要な `sdd-bootstrap`・`sdd-quality-loop` と、bootstrap の依存先 `sdd-review-loop` も自動登録されます。既定のインストール構成には含まれません。全体アンインストールでは登録解除され、domain だけを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使います（依存プラグインと共有ファイルは保持）。
 
@@ -209,7 +229,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 | `--install-root <path>` | 削除対象のインストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
 | `--marketplace-name <name>` | 登録済み marketplace 名。既定は `sdd-plugins` |
 | `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
-| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` から小文字で選択。既定はこの 7 件すべて |
+| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud` から小文字で選択。既定はこの 9 件すべて |
 | `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
 | `--skip-plugin-uninstall` | CLI からのプラグイン／marketplace 登録解除をスキップ |
 | `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |
@@ -264,7 +284,7 @@ flowchart LR
 | スキル・エージェントを調べる | [docs/skill-reference.md](docs/skill-reference.md) |
 | 困ったとき | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | 変更履歴・移行 | [CHANGELOG.md](CHANGELOG.md) |
-| Azure / AWS での開発 | [docs/cloud/README.md](docs/cloud/README.md)（現行機能と未実装の境界を先に確認） |
+| Azure / AWS での開発 | [docs/cloud/README.md](docs/cloud/README.md)（明示導入するクラウド操作と受入の制限）、[実行契約・復旧手順](docs/cloud-orchestration.md) |
 | 本体のコーディング規約 | [言語別規約・監査範囲](docs/contributor/coding-standards.md)（導入先には採用済み規約を適用） |
 
 ## 週次セルフ改善 (自動運用)

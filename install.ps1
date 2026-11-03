@@ -5,7 +5,7 @@ param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", IgnoreCase = $false)]
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
@@ -26,15 +26,17 @@ $dependenciesChanged = $true
 while ($dependenciesChanged) {
     $dependenciesChanged = $false
     foreach ($plugin in @($Plugins)) {
-        $dependencies = switch ($plugin) {
+        $dependencies = switch -CaseSensitive ($plugin) {
             "sdd-bootstrap" { @("sdd-review-loop"); break }
+            "sdd-azure-cloud" { @("sdd-quality-loop"); break }
+            "sdd-aws-cloud" { @("sdd-quality-loop"); break }
             "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
             "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
             "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
             default { @() }
         }
         foreach ($dependency in $dependencies) {
-            if ($Plugins -notcontains $dependency) {
+            if ($Plugins -cnotcontains $dependency) {
                 $Plugins += $dependency
                 $autoIncluded.Add($dependency)
                 $dependenciesChanged = $true
@@ -576,6 +578,8 @@ function Download-AuthenticatedArchive {
     Invoke-WebRequest -TimeoutSec 300 -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
 }
 
+$cloudEntryFiles = @(".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
+
 function Get-RequiredPaths {
     $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
     $paths = @(
@@ -591,7 +595,36 @@ function Get-RequiredPaths {
         $paths += "plugins/$plugin/.claude-plugin/plugin.json"
         $paths += "plugins/$plugin/.plugin/plugin.json"
     }
+    foreach ($plugin in @($Plugins | Where-Object { $_ -cin @("sdd-azure-cloud", "sdd-aws-cloud") })) {
+        foreach ($file in $cloudEntryFiles + @("scripts/$($plugin.Split('-')[1])_local.py")) {
+            $paths += "plugins/$plugin/$file"
+        }
+    }
     return $paths
+}
+
+function Assert-CloudPayloadFile {
+    param([Parameter(Mandatory)][string]$Root, [Parameter(Mandatory)][string]$RelativePath)
+
+    if ($RelativePath -cnotmatch '^(plugins/sdd-(azure|aws)-cloud/|plugins/sdd-quality-loop/scripts/cloud_.*\.py$|plugins/sdd-quality-loop/references/cloud-verification-registry\.json$|contracts/cloud-.*\.schema\.json$|plugins/sdd-quality-loop/contracts/(verification-contract-v3|selected-verification-plan-v2)\.schema\.json$)') {
+        return
+    }
+    $walk = $Root
+    foreach ($segment in $RelativePath.Split('/')) {
+        $walk = Join-Path $walk $segment
+        try {
+            $attributes = [System.IO.File]::GetAttributes($walk)
+        }
+        catch {
+            throw "Required cloud payload file is missing: $RelativePath"
+        }
+        if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Refusing cloud payload symlink/reparse point: $RelativePath"
+        }
+    }
+    if (-not (Test-Path -LiteralPath $walk -PathType Leaf)) {
+        throw "Required cloud payload file is missing: $RelativePath"
+    }
 }
 
 function Write-InstallSummary {
@@ -778,6 +811,7 @@ try {
         # preserves file modes just as Copy-Item does.
         $createdDirectories = New-Object 'System.Collections.Generic.HashSet[string]'
         foreach ($relativePath in $trackedFiles) {
+            Assert-CloudPayloadFile -Root $sourceRoot -RelativePath $relativePath
             $sourcePath = Join-Path $sourceRoot $relativePath
             $sourceItem = [System.IO.FileInfo]::new($sourcePath)
             if (-not $sourceItem.Exists) {
@@ -799,8 +833,69 @@ try {
         # untracked state. Preserve its complete layout, excluding .git and
         # mcp/ (MCP payload placement is handled exclusively by
         # Install-McpServerPayloads, gated by -SkipMcp / -Mcp / Node >= 22.19.0).
+        $pendingCloudDirectories = [System.Collections.Generic.Stack[string]]::new()
+        foreach ($relativeDirectory in @("plugins/sdd-azure-cloud", "plugins/sdd-aws-cloud")) {
+            if (Test-Path -LiteralPath (Join-Path $sourceRoot $relativeDirectory)) {
+                $pendingCloudDirectories.Push($relativeDirectory)
+            }
+        }
+        while ($pendingCloudDirectories.Count -gt 0) {
+            $relativeDirectory = $pendingCloudDirectories.Pop()
+            $directoryPath = Join-Path $sourceRoot $relativeDirectory
+            if (([System.IO.File]::GetAttributes($directoryPath) -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Refusing cloud payload symlink/reparse point: $relativeDirectory"
+            }
+            foreach ($cloudEntry in [System.IO.DirectoryInfo]::new($directoryPath).EnumerateFileSystemInfos()) {
+                $relativePath = "$relativeDirectory/$($cloudEntry.Name)"
+                if (($cloudEntry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                    throw "Refusing cloud payload symlink/reparse point: $relativePath"
+                }
+                if (($cloudEntry.Attributes -band [System.IO.FileAttributes]::Directory) -ne 0) {
+                    $pendingCloudDirectories.Push($relativePath)
+                }
+                else {
+                    Assert-CloudPayloadFile -Root $sourceRoot -RelativePath $relativePath
+                }
+            }
+        }
         foreach ($entry in (Get-ChildItem -LiteralPath $sourceRoot -Force | Where-Object { $_.Name -ne ".git" -and $_.Name -ne "mcp" })) {
             Copy-Item -LiteralPath $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
+        }
+    }
+
+    # Rebuild selected and previously materialized runtimes before replacing the tree.
+    # Prior payload presence retains availability, never registration or executable bytes.
+    # Copy only the already staged tracked/archive bytes (no source-tree fallback).
+    foreach ($plugin in @("sdd-azure-cloud", "sdd-aws-cloud")) {
+        if ($Plugins -cnotcontains $plugin -and -not (Test-Path -LiteralPath (Join-Path $InstallRoot "plugins/$plugin/runtime") -PathType Container)) {
+            continue
+        }
+        foreach ($file in $cloudEntryFiles + @("scripts/$($plugin.Split('-')[1])_local.py")) {
+            Assert-CloudPayloadFile -Root $stagingRoot -RelativePath "plugins/$plugin/$file"
+            if (-not (Test-Path -LiteralPath (Join-Path $stagingRoot "plugins/$plugin/$file") -PathType Leaf)) {
+                throw "Required staged cloud entry file is missing: plugins/$plugin/$file"
+            }
+        }
+        $runtime = Join-Path $stagingRoot "plugins/$plugin/runtime"
+        foreach ($directory in @("scripts", "references", "contracts")) {
+            New-Item -ItemType Directory -Path (Join-Path $runtime $directory) -Force | Out-Null
+        }
+        foreach ($module in @("cloud_contracts.py", "cloud_authorization.py", "cloud_verification.py", "cloud_dependencies.py")) {
+            Assert-CloudPayloadFile -Root $stagingRoot -RelativePath "plugins/sdd-quality-loop/scripts/$module"
+            Copy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/$module") -Destination (Join-Path $runtime "scripts/$module")
+        }
+        Assert-CloudPayloadFile -Root $stagingRoot -RelativePath "plugins/sdd-quality-loop/references/cloud-verification-registry.json"
+        Copy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-quality-loop/references/cloud-verification-registry.json") -Destination (Join-Path $runtime "references")
+        $cloudSchemas = @(Get-ChildItem -LiteralPath (Join-Path $stagingRoot "contracts") -File |
+            Where-Object { $_.Name -cmatch '^cloud-.*\.schema\.json$' })
+        if ($cloudSchemas.Count -eq 0) { throw "Cloud schemas are missing from staged payload." }
+        foreach ($schema in $cloudSchemas) {
+            Assert-CloudPayloadFile -Root $stagingRoot -RelativePath "contracts/$($schema.Name)"
+            Copy-Item -LiteralPath $schema.FullName -Destination (Join-Path $runtime "contracts")
+        }
+        foreach ($schema in @("verification-contract-v3.schema.json", "selected-verification-plan-v2.schema.json")) {
+            Assert-CloudPayloadFile -Root $stagingRoot -RelativePath "plugins/sdd-quality-loop/contracts/$schema"
+            Copy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-quality-loop/contracts/$schema") -Destination (Join-Path $runtime "contracts")
         }
     }
 

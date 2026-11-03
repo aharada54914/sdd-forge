@@ -13,6 +13,12 @@ SDD のワークフロー手順・Skill の選び方・トラブルシューテ�
 [research-sources の説明](docs/skill-reference.md#research-sources内部スキル)と
 [取得・引用照合・保存期限・レビュー連携の手順](plugins/sdd-bootstrap/references/research-workflow.md)を参照してください。MCP に書き込み権限を追加する機能ではありません。
 
+Azure Bicep / AWS CDK の操作は、明示導入する `sdd-azure-cloud` / `sdd-aws-cloud` が扱います。
+このリポジトリのインストーラーで共有 runtime を配置し、各 `orchestrate` スキルから使います。
+ローカル準備、保護された CI の書込み、認証付きの観測は別の権限境界です。
+[導入と対応範囲](docs/cloud/README.md)、[入力契約・実行・復旧の詳細](docs/cloud-orchestration.md)を参照してください。
+実クラウドの受入 TEST-003/005/009 は BLOCKED のままで、プラグインの導入やローカル検証だけで本番対応とはしません。
+
 ## エージェントモデルルーティング — Effort Policy
 
 `select-agent-model` の `--effort-policy` は T-007 (Issue #155,

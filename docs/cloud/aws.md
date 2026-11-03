@@ -7,32 +7,34 @@ AWS 上のシステムを SDD Forge で開発するときの進め方です。�
 | 区分 | 内容 |
 |---|---|
 | **現行でできること** | アプリケーションや CDK / CloudFormation のコードを実装タスクとして SDD の通常フロー（仕様化 → 3 段レビュー → 人間の承認 → 実装 → `quality-gate`）で進めること。 |
-| **設計済み・未実装** | AWS 向けの Provider Adapter、AWS 固有の検証、`artifact` / `promotion` Gate。Step Functions を扱う durable-workflow Pack も未実装です（[決定書 v2](../ai-dlc-foundation-decision-v2.md)）。 |
-| **参考（sdd-forge 未対応）** | 下記の AWS の各ツール。SDD Forge が自動で実行・検証するものではなく、人間または CI が実行します。 |
+| **明示導入でできること** | `sdd-aws-cloud:orchestrate` による 1 CDK deployment unit のローカル準備・検証、保護 CI の `prepare` / `apply`、元の stack / token による復旧・認証付き観測。共有 runtime をリポジトリのインストーラーで配置します。 |
+| **受入未完了・対応制限** | 実クラウドの TEST-003/005/009 は sandbox 未提供のため BLOCKED。ツール固定値は Linux x64 用で、ネイティブ Windows でのクラウド操作は非対応です。対応するアセットは 1 stack の JSON テンプレートのみで、Docker / ZIP などは拒否します。[実行契約](../cloud-orchestration.md)を参照してください。 |
+| **設計済み・未実装** | `artifact` / `promotion` Gate。Step Functions を扱う durable-workflow Pack も未実装です（[決定書 v2](../ai-dlc-foundation-decision-v2.md)）。 |
+| **参考（一般的なツール）** | 下記の AWS の各ツール。専用プラグインの許可された経路と、一般的な CLI の使い方を区別してください。 |
 
 ## 開発プロセス
 
-点線の枠は AWS 側のツールで、SDD Forge 未対応です。
+通常の SDD フローと、明示導入する CDK 操作を示します。クラウド側の権限設定と CI の承認は運用者が整えます。
 
 ```mermaid
 flowchart TD
     A["要件・アーキテクチャ設計"] --> B["SDD の仕様・レビュー・タスク承認"]
     B --> C["アプリと CDK の実装<br/>quality-gate で Done 判定"]
-    C --> D["cdk diff または変更セットで<br/>変更をプレビュー"]
+    C --> D["明示依頼: route / plan / validate"]
     D --> E["権限・コストなどの確認"]
     E --> F["人間がデプロイを承認"]
-    F --> G["GitHub Actions から OIDC でデプロイ"]
-    G --> H["動作確認と証跡の記録"]
+    F --> G["保護 CI: prepare / apply<br/>変更セットと OIDC による実行"]
+    G --> H["元の stack / token で<br/>reconcile / observe / verify"]
 
     classDef external stroke-dasharray: 5 5
-    class D,E,G,H external
+    class E,F external
 ```
 
-`quality-gate` の `Done` はデプロイの完了を意味しません。点線の工程は、現状は SDD Forge の外で行います。
+`quality-gate` の `Done` はデプロイの完了を意味しません。専用プラグインの操作は明示依頼が必要で、実クラウド受入は未完了です。
 
 ## 参考: AWS の各ツール
 
-以下は AWS と GitHub の公式ドキュメントで確認した内容です。SDD Forge がこれらを実行・検証する機能は、現時点ではありません。
+以下は AWS と GitHub の公式ドキュメントで確認した一般的な使い方です。専用プラグインは CDK の固定された assembly と、保護 CI の限定された変更セット / apply を扱います。任意の `cdk diff` や `cdk deploy` を自動実行する機能ではありません。
 
 | 目的 | ツール | 要点 | 出典 |
 |---|---|---|---|

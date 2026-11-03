@@ -1,0 +1,24 @@
+{
+  "schema": "cloud-verification-registry/v1",
+  "profiles": [
+    {
+      "id": "cloud-compute",
+      "version": "2",
+      "required_check_ids": [
+        "resource",
+        "network",
+        "identity",
+        "monitoring",
+        "workload"
+      ],
+      "conditional_check_ids": [
+        "backup"
+      ],
+      "preflight_check_ids": [
+        "iac-validate",
+        "policy-validation",
+        "iac-preview"
+      ]
+    }
+  ]
+}
