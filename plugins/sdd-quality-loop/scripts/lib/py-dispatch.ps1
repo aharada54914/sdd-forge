@@ -42,8 +42,14 @@ function Invoke-SddPyDispatch {
 
     $psi = [System.Diagnostics.ProcessStartInfo]::new()
     $psi.FileName = $python.Source
-    $psi.ArgumentList.Add($Master)
-    foreach ($a in $Arguments) { $psi.ArgumentList.Add([string]$a) }
+    if ($null -ne $psi.PSObject.Properties['ArgumentList']) {
+        $psi.ArgumentList.Add($Master)
+        foreach ($a in $Arguments) { $psi.ArgumentList.Add([string]$a) }
+    } else {
+        . (Join-Path $PSScriptRoot 'native-arguments.ps1')
+        $nativeArguments = @($Master) + @($Arguments | ForEach-Object { [string]$_ })
+        $psi.Arguments = ConvertTo-SddNativeArgumentString -Arguments $nativeArguments
+    }
     $psi.UseShellExecute = $false
     $psi.RedirectStandardOutput = $false
     $psi.RedirectStandardError = $false

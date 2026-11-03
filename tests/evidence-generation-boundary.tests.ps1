@@ -14,6 +14,11 @@ function Invoke-EvidenceChild {
     $global:LASTEXITCODE = $result.ExitCode
     [Text.Encoding]::UTF8.GetString($result.Stdout) + [Text.Encoding]::UTF8.GetString($result.Stderr)
 }
+function New-EvidenceLink([string]$Type, [string]$Path, [string]$Target) {
+    # 5.1 expands wildcards in link targets, unlike newer FileSystem providers.
+    if ($PSVersionTable.PSVersion.Major -lt 6) { $Target = [WildcardPattern]::Escape($Target) }
+    New-Item -ItemType $Type -Path $Path -Target $Target | Out-Null
+}
 function Assert([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
     Write-Host "ok: $Message"
@@ -69,7 +74,7 @@ try {
         $consumerOutput = Invoke-EvidenceChild (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
         Assert ($LASTEXITCODE -eq 0) "evidence consumer accepts the generated literal-path bundle: $($consumerOutput -join ' ')"
 
-        New-Item -ItemType HardLink -Path (Join-Path $repo 'hardlink.txt') -Target (Join-Path $repo 'evidence.txt') | Out-Null
+        New-EvidenceLink HardLink (Join-Path $repo 'hardlink.txt') (Join-Path $repo 'evidence.txt')
         $contract.checks[0].evidence = 'hardlink.txt'
         [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
         Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
@@ -81,7 +86,7 @@ try {
             $outside = Join-Path $work 'outside-directory'
             New-Item -ItemType Directory -Path $outside -Force | Out-Null
             [IO.File]::WriteAllText((Join-Path $outside 'evidence.txt'), 'outside fixture')
-            New-Item -ItemType Junction -Path (Join-Path $repo 'outside-junction') -Target $outside | Out-Null
+            New-EvidenceLink Junction (Join-Path $repo 'outside-junction') $outside
             $contract.checks[0].evidence = 'outside-junction/evidence.txt'
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
             Remove-Item -LiteralPath $bundle
@@ -90,7 +95,7 @@ try {
             $inside = Join-Path $repo 'inside-directory'
             New-Item -ItemType Directory -Path $inside | Out-Null
             [IO.File]::WriteAllText((Join-Path $inside 'evidence.txt'), 'inside fixture')
-            New-Item -ItemType Junction -Path (Join-Path $repo 'inside-junction') -Target $inside | Out-Null
+            New-EvidenceLink Junction (Join-Path $repo 'inside-junction') $inside
             $contract.checks[0].evidence = 'inside-junction/evidence.txt'
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
             Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
@@ -173,6 +178,27 @@ try {
             Assert ($LASTEXITCODE -ne 0 -and -not (Test-Path -LiteralPath $bundle)) 'generator rejects malformed contract shape before publication'
             [IO.File]::WriteAllText($bundle, 'reset fixture')
         }
+    }
+    if ($PSVersionTable.PSEdition -eq 'Desktop') {
+        # The 7.x timestamp cases already run in scripts.tests.ps1; cover the Framework parser here.
+        $contract.checks[0].evidence = 'evidence.txt'
+        foreach ($case in @(
+            @{ Field = 'started_at'; Value = '2026-08-24T10:00:00Z'; Exit = 0 },
+            @{ Field = 'started_at'; Value = '2026-08-24T10:00:00z'; Exit = 1 },
+            @{ Field = 'started_at'; Value = 42; Exit = 1 },
+            @{ Field = 'finished_at'; Value = $true; Exit = 1 },
+            @{ Field = 'finished_at'; Value = $null; Exit = 0 },
+            @{ Field = 'finished_at'; Value = '2026-08-24T10:00:00.125Z'; Exit = 0 }
+        )) {
+            $contract.checks[0].Remove('started_at')
+            $contract.checks[0].Remove('finished_at')
+            $contract.checks[0][$case.Field] = $case.Value
+            [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
+            $validation = Invoke-EvidenceChild (Join-Path $scripts 'check-contract.ps1') $contractPath -RepoRoot $repo
+            Assert ($LASTEXITCODE -eq $case.Exit -and ($case.Exit -eq 0 -or $validation -match ('invalid ' + $case.Field))) "Framework raw timestamp validation: $($case.Field) expects exit $($case.Exit)"
+        }
+        $contract.checks[0].Remove('started_at')
+        $contract.checks[0].Remove('finished_at')
     }
     $savedKey = $env:SDD_EVIDENCE_KEY
     $savedKeyFile = $env:SDD_EVIDENCE_KEY_FILE

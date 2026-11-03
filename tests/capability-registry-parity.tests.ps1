@@ -124,7 +124,7 @@ STAGED_SCRIPTS = [
     # The shared python-master dispatcher every .sh/.ps1 wrapper above
     # sources; an installed plugin ships it beside the wrappers, and
     # without it every wrapper denies RUNTIME_UNAVAILABLE (exit 3).
-    "lib/py-dispatch.sh", "lib/py-dispatch.ps1",
+    "lib/py-dispatch.sh", "lib/py-dispatch.ps1", "lib/native-arguments.ps1",
 ]
 
 

@@ -24,7 +24,9 @@ Common product contracts stay in the existing required PowerShell 7 jobs. The ne
 FilesOnly install/reinstall/uninstall in temporary directories, the existing
 panelist suite's focused runtime boundaries (including BOM/newline byte limits),
 and native argument/timeout, evidence producer/consumer and Windows junction
-containment checks. Cross-model encoding already tests both native producers in
+containment checks. The 5.1 cases also cover raw timestamp validation and the
+Python dispatcher's argument, byte-stream and exit-code contracts. Cross-model
+encoding already tests both native producers in
 the existing cross-model suite and is not duplicated here. Each matrix artifact retains runtime,
 OS/image, tested commit and per-suite results, including failures. These checks
 do not certify desktop interaction, authenticated host registration, every

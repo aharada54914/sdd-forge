@@ -85,10 +85,25 @@ function Get-RawCheckTimestamp {
         [Parameter(Mandatory = $true)][string]$Field
     )
     $absent = @{ Present = $false; IsString = $false; Text = '' }
+    if ($PSVersionTable.PSVersion.Major -lt 6) {
+        # The inbox Framework parser preserves ISO strings; System.Text.Json is absent.
+        try {
+            Add-Type -AssemblyName System.Web.Extensions -ErrorAction Stop
+            $parser = [System.Web.Script.Serialization.JavaScriptSerializer]::new()
+            $parser.MaxJsonLength = [int]::MaxValue
+            $rawChecks = $parser.DeserializeObject($Json)['checks']
+            if ($Index -ge $rawChecks.Count -or -not $rawChecks[$Index].ContainsKey($Field) -or
+                $null -eq $rawChecks[$Index][$Field]) { return $absent }
+            $value = $rawChecks[$Index][$Field]
+            return @{ Present = $true; IsString = $value -is [string]; Text = $(if ($value -is [string]) { $value } else { '' }) }
+        } catch {
+            Stop-InvalidContract 'cannot inspect raw timestamp fields'
+        }
+    }
     try {
         $document = [System.Text.Json.JsonDocument]::Parse($Json)
     } catch {
-        return $absent
+        Stop-InvalidContract 'cannot inspect raw timestamp fields'
     }
     try {
         $checks = $null

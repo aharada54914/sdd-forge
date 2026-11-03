@@ -286,7 +286,7 @@ for f in \
   validate-capability-summary.py validate-capability-summary.sh validate-capability-summary.ps1 \
   validate-context-projection.py validate-context-projection.sh validate-context-projection.ps1 \
   compare-facet-manifest-staleness.py compare-facet-manifest-staleness.sh compare-facet-manifest-staleness.ps1 \
-  lib/py-dispatch.sh lib/py-dispatch.ps1
+  lib/py-dispatch.sh lib/py-dispatch.ps1 lib/native-arguments.ps1
 do
   if [ -f "$SCRIPTS/$f" ]; then
     mkdir -p "$INSTALLED/scripts/$(dirname "$f")"

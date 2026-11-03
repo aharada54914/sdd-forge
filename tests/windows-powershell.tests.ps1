@@ -66,6 +66,25 @@ $work = Join-Path ([IO.Path]::GetTempPath()) ('sdd native install ' + [guid]::Ne
 $installRoot = Join-Path $work 'installed'
 New-Item -ItemType Directory -Path $work | Out-Null
 try {
+    $master = Join-Path $work 'dispatch master.py'
+    [IO.File]::WriteAllText($master, @'
+import sys
+if sys.argv[1:] != ["space atom", 'quote"atom', "trailing\\", ""]:
+    raise SystemExit(99)
+sys.stdout.buffer.write(b"raw\x00bytes\n")
+sys.stderr.buffer.write(b"diagnostic")
+raise SystemExit(7)
+'@)
+    $dispatchCode = @'
+. '__DISPATCH__'
+Invoke-SddPyDispatch -Master '__MASTER__' -DiagnosticPrefix fixture -Arguments @('space atom', 'quote"atom', 'trailing\', '')
+'@
+    $dispatchCode = $dispatchCode.Replace('__DISPATCH__', (Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1').Replace("'", "''")).Replace('__MASTER__', $master.Replace("'", "''"))
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($dispatchCode))
+    $dispatch = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
+    if ($dispatch.ExitCode -ne 7 -or [Convert]::ToBase64String($dispatch.Stdout) -cne 'cmF3AGJ5dGVzCg==' -or
+        [Text.Encoding]::UTF8.GetString($dispatch.Stderr) -cne 'diagnostic') { throw 'Framework Python dispatch changed argv, raw bytes or exit status' }
+    Write-Host 'ok: Framework Python dispatch preserves argv, raw streams and nonzero status'
     foreach ($attempt in 1..2) {
         $result = Invoke-SddNativeRaw -FileName $hostPath -Arguments @(
             '-NoProfile', '-NonInteractive', '-File', (Join-Path $repositoryRoot 'install.ps1'),
