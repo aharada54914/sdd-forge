@@ -19,7 +19,12 @@ try {
     $atoms = @('', 'space atom', 'quote"atom', 'trailing\', "line`nnext", ('backslash\' + "`n"))
     $native = Invoke-SddNativeRaw -FileName $python.Source -Arguments (@('-c', 'import json,sys;sys.stdout.write(json.dumps(sys.argv[1:]));sys.stderr.write("diagnostic");sys.exit(7)') + $atoms)
     $received = [Text.Encoding]::UTF8.GetString($native.Stdout) | ConvertFrom-Json
-    Assert ($native.ExitCode -eq 7 -and [Text.Encoding]::UTF8.GetString($native.Stderr) -ceq 'diagnostic' -and (ConvertTo-Json -InputObject $received -Compress) -ceq (ConvertTo-Json -InputObject $atoms -Compress)) "native adapter preserves argv, byte streams and nonzero status (exit=$($native.ExitCode); argv=$(ConvertTo-Json -InputObject $received -Compress); stderr=$([Text.Encoding]::UTF8.GetString($native.Stderr)))"
+    # Windows PowerShell adds serialization metadata to a parsed JSON array.
+    $sameArguments = $received.Count -eq $atoms.Count
+    for ($index = 0; $sameArguments -and $index -lt $atoms.Count; $index++) {
+        $sameArguments = $received[$index] -is [string] -and $received[$index] -ceq $atoms[$index]
+    }
+    Assert ($native.ExitCode -eq 7 -and [Text.Encoding]::UTF8.GetString($native.Stderr) -ceq 'diagnostic' -and $sameArguments) "native adapter preserves argv, byte streams and nonzero status (exit=$($native.ExitCode); argv=$(ConvertTo-Json -InputObject $received -Compress); stderr=$([Text.Encoding]::UTF8.GetString($native.Stderr)))"
     $pidFile = Join-Path $work 'child.pid'
     $sleeper = Join-Path $work 'sleep child.ps1'
     [IO.File]::WriteAllText($sleeper, 'param($Receipt); [IO.File]::WriteAllText($Receipt, [string]$PID); Start-Sleep -Seconds 30')
