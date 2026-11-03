@@ -14,6 +14,11 @@ both engines are installed. The runtime check rejects another version, edition,
 architecture or OS; PowerShell 7 patch versions follow the hosted image and are
 recorded rather than assumed.
 
+The step shell also uses the selected engine. Starting 5.1 through Python from
+a PowerShell 7 shell can inherit incompatible module search paths and break
+autoloading of standard commands such as `Get-FileHash`; see Microsoft's
+[module path guidance](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath#starting-windows-powershell-from-powershell-7).
+
 Common product contracts stay in the existing required PowerShell 7 jobs. The new
 7.6 profile only records native parent/child identity. The 5.1 profile adds
 FilesOnly install/reinstall/uninstall in temporary directories, the existing

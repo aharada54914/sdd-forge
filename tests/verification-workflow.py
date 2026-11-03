@@ -139,7 +139,7 @@ def command_suites(command, catalog, shell='bash'):
     runtime = rows[path]['runtime']
     if runtime == 'python' and interpreter not in ('python', 'python3'):
         return None
-    if runtime == 'powershell' and (interpreter is not None or shell != 'pwsh'):
+    if runtime == 'powershell' and (interpreter is not None or shell not in ('pwsh', 'powershell')):
         return None
     if runtime == 'bash' and (interpreter not in ('bash', None) or (interpreter is None and shell != 'bash')):
         return None
@@ -155,13 +155,14 @@ def command_suites(command, catalog, shell='bash'):
 
 def step_suites(step, catalog, row, shell):
     body = step.get('run')
-    if not isinstance(body, str) or shell not in ('bash', 'pwsh'):
+    shell = expand_matrix(shell, row)
+    if not isinstance(body, str) or shell not in ('bash', 'pwsh', 'powershell'):
         return set()
     lines = [line for line in expand_matrix(body, row).splitlines()
              if line.strip() and not line.lstrip().startswith('#')]
-    # GitHub pwsh propagates only the final native exit code. Multiple suites
+    # GitHub PowerShell shells propagate only the final native exit code. Multiple suites
     # must use the runner, which aggregates every result, or separate steps.
-    if shell == 'pwsh' and len(lines) != 1:
+    if shell in ('pwsh', 'powershell') and len(lines) != 1:
         return set()
     found = set()
     for line in lines:

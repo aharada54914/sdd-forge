@@ -1592,7 +1592,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Run native Windows compatibility contracts
-        shell: pwsh
+        shell: ${{ matrix.executable }}
         env:
           SDD_POWERSHELL_RECEIPT: ${{ runner.temp }}/powershell-runtime.json
         run: python tests/verification.py --profile ${{ matrix.profile }} --powershell ${{ matrix.executable }} --run --receipt "${{ runner.temp }}/powershell-verification.json"
