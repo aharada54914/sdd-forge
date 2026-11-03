@@ -83,7 +83,7 @@ Invoke-SddPyDispatch -Master '__MASTER__' -DiagnosticPrefix fixture -Arguments @
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($dispatchCode))
     $dispatch = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
     if ($dispatch.ExitCode -ne 7 -or [Convert]::ToBase64String($dispatch.Stdout) -cne 'cmF3AGJ5dGVzCg==' -or
-        [Text.Encoding]::UTF8.GetString($dispatch.Stderr) -cne 'diagnostic') { throw 'Framework Python dispatch changed argv, raw bytes or exit status' }
+        [Text.Encoding]::UTF8.GetString($dispatch.Stderr) -cne 'diagnostic') { throw "Framework Python dispatch changed argv, raw bytes or exit status (exit=$($dispatch.ExitCode); stdout64=$([Convert]::ToBase64String($dispatch.Stdout)); stderr=$([Text.Encoding]::UTF8.GetString($dispatch.Stderr)))" }
     Write-Host 'ok: Framework Python dispatch preserves argv, raw streams and nonzero status'
     foreach ($attempt in 1..2) {
         $result = Invoke-SddNativeRaw -FileName $hostPath -Arguments @(
