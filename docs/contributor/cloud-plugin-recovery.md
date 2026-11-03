@@ -61,14 +61,15 @@ v1.20.0に含まれていた `sdd-azure-cloud` と `sdd-aws-cloud` を、現行�
 | A9の候補・所有・昇格境界 | 35テスト成功 |
 | 署名済みContextによる復旧パスの実CLI分類 | 上記の `UNOWNED`／advisoryを確認 |
 
-導入・更新・解除と、固定Bicep／CDKによるローカル準備の結果、および最終CIの記録は、
-実行結果の確定後に追記します。
+最終コミットのCI結果は[PR #708のチェック](https://github.com/aharada54914/sdd-forge/pull/708/checks)で確認できます。
+公開後の配布物と検証結果は、v1.22.1のReleaseに記録します。
 
 ## 追加のローカル検証
 
 - Cloud verification: 109件成功。保存済み証跡だけでは認可・成功にせず、freshな収集と契約を検査した。
 - 固定Bicep 0.48.1／Node 24.19.0／CDK 2.1145.0を実行したrouting: 96件成功、skipなし。実際のcompile／synthと、誤pin・asset・出力の拒否を確認した。
 - インストール既存回帰: Bash 63件、PowerShellの全シナリオ成功。解除: Bash 25件、PowerShellの全シナリオ成功。cloud固有の導入・更新・cache・破損時保持・symlink拒否も検証した。
+- Gitに保存した復旧snapshotでの導入matrix: Bash 20件／PowerShell 21件成功。All／Codex／Claude／Copilotで再導入の同一性と全9件の解除・残骸なしを確認した。
 - Foundation: 55件成功。共有MCP GET処理への現行アダプターと、GET・delegate改変の拒否を検査した。
 - applied mirrorだけを同期。PENDING／frozen関連59ファイルは変更せず、mirror freshnessとPhase 2のBash／PowerShell回帰が成功した。
 
