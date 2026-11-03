@@ -77,7 +77,7 @@ class RequiredChecksTests(unittest.TestCase):
                          if set(profile) == WF.step_suites(step, self.catalog, row, step.get('shell', 'bash'))]
             self.assertEqual(len(consumers), 1)
             self.assertTrue(unconditional(consumers[0]))
-            self.assertEqual(WF.expand_matrix(consumers[0]['shell'], row), row['executable'])
+            self.assertEqual(consumers[0]['shell'], 'cmd')
             command = WF.expand_matrix(consumers[0]['run'], row)
             self.assertIn('--powershell ' + row['executable'] + ' ', command)
         self.assertEqual(job['env']['SDD_EXPECTED_POWERSHELL'], '${{ matrix.version }}')
