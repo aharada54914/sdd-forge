@@ -8,6 +8,12 @@ $hostPath = (Get-Process -Id $PID).Path
 $isWindowsPlatform = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
 $work = Join-Path ([IO.Path]::GetTempPath()) ('evidence boundary ' + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $work | Out-Null
+# Capture expected native failures as bytes; 5.1 turns redirected stderr into errors.
+function Invoke-EvidenceChild {
+    $result = Invoke-SddNativeRaw -FileName $hostPath -Arguments (@('-NoProfile', '-File') + $args)
+    $global:LASTEXITCODE = $result.ExitCode
+    [Text.Encoding]::UTF8.GetString($result.Stdout) + [Text.Encoding]::UTF8.GetString($result.Stderr)
+}
 function Assert([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
     Write-Host "ok: $Message"
@@ -53,23 +59,23 @@ try {
         $contractJson = $contract | ConvertTo-Json -Depth 5
         [IO.File]::WriteAllText($contractPath, $contractJson)
         $bundle = Join-Path $repo 'bundle[ab].json'
-        & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+        Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
         Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) "generator preserves literal $name repository/report/output paths"
         $document = Get-Content -Raw -LiteralPath $bundle | ConvertFrom-Json
         Assert ($document.artifacts.Count -eq 3 -and $document.task_id -ceq 'T-001') 'generator records all ordinary artifacts'
         Assert ($document.spec_revision -ceq 'eaf600209602bb55fa4552b500c5afc9a234de65c81bd95cf159348e98f94daf') 'generator hashes actual specification bytes under the selected runtime'
         $checkedBundle = Join-Path $repo 'T-001.evidence.json'
         Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
-        $consumerOutput = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+        $consumerOutput = Invoke-EvidenceChild (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
         Assert ($LASTEXITCODE -eq 0) "evidence consumer accepts the generated literal-path bundle: $($consumerOutput -join ' ')"
 
         New-Item -ItemType HardLink -Path (Join-Path $repo 'hardlink.txt') -Target (Join-Path $repo 'evidence.txt') | Out-Null
         $contract.checks[0].evidence = 'hardlink.txt'
         [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
-        & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+        Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
         Assert ($LASTEXITCODE -eq 0) 'generator preserves ordinary hardlinked artifacts'
         Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
-        $consumerOutput = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+        $consumerOutput = Invoke-EvidenceChild (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
         Assert ($LASTEXITCODE -eq 0) 'evidence consumer accepts ordinary hardlinked artifacts'
         if ($isWindowsPlatform) {
             $outside = Join-Path $work 'outside-directory'
@@ -79,7 +85,7 @@ try {
             $contract.checks[0].evidence = 'outside-junction/evidence.txt'
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
             Remove-Item -LiteralPath $bundle
-            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
             Assert ($LASTEXITCODE -ne 0 -and -not (Test-Path -LiteralPath $bundle)) 'generator rejects Windows junctions outside repository'
             $inside = Join-Path $repo 'inside-directory'
             New-Item -ItemType Directory -Path $inside | Out-Null
@@ -87,7 +93,7 @@ try {
             New-Item -ItemType Junction -Path (Join-Path $repo 'inside-junction') -Target $inside | Out-Null
             $contract.checks[0].evidence = 'inside-junction/evidence.txt'
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
-            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
             Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) 'generator preserves in-repository Windows junctions'
         }
         if (-not $isWindowsPlatform) {
@@ -97,12 +103,12 @@ try {
             $contract.checks[0].evidence = 'outside-link.txt'
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
             Remove-Item -LiteralPath $bundle
-            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
             Assert ($LASTEXITCODE -ne 0 -and -not (Test-Path -LiteralPath $bundle)) 'generator rejects evidence linked outside repository'
             New-Item -ItemType SymbolicLink -Path (Join-Path $repo 'inside-link.txt') -Target (Join-Path $repo 'evidence.txt') | Out-Null
             $contract.checks[0].evidence = 'inside-link.txt'
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
-            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
             Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) 'generator preserves in-repository evidence links'
             $linkFixture = Join-Path $repo 'link-fixture'
             New-Item -ItemType Directory -Path $linkFixture | Out-Null
@@ -156,14 +162,14 @@ try {
             } finally { Remove-Item Function:\Get-Item }
 
             Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
-            $consumerOutput = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+            $consumerOutput = Invoke-EvidenceChild (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
             Assert ($LASTEXITCODE -eq 1 -and ($consumerOutput -join ' ') -match 'reparse point') 'evidence consumer preserves the stricter contract gate policy for in-repository links'
 
         }
         foreach ($invalid in @("[$contractJson]", '{"task_id":"T-001","checks":{}}', '{"task_id":"T-001","checks":[7]}')) {
             [IO.File]::WriteAllText($contractPath, $invalid)
             Remove-Item -LiteralPath $bundle
-            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
             Assert ($LASTEXITCODE -ne 0 -and -not (Test-Path -LiteralPath $bundle)) 'generator rejects malformed contract shape before publication'
             [IO.File]::WriteAllText($bundle, 'reset fixture')
         }
@@ -182,30 +188,30 @@ try {
         $contract.risk = 'critical'
         $contract.checks = @(@{id='test'; passes=$true; evidence='evidence.txt'})
         [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
-        & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+        Invoke-EvidenceChild (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
         Assert ($LASTEXITCODE -eq 0) 'generator accepts a BOM-prefixed key file with trailing whitespace'
         $signed = Get-Content -Raw -LiteralPath $bundle | ConvertFrom-Json
         Assert ($signed.signature.alg -ceq 'hmac-sha256' -and $signed.signature.key_ref -ceq "file:$env:SDD_EVIDENCE_KEY_FILE") 'generator records key-file signing provenance'
         Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
-        $signedConsumer = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+        $signedConsumer = Invoke-EvidenceChild (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
         # This deliberately minimal critical fixture fails other provenance gates;
         # isolate HMAC interoperability, then prove that its negative oracle fires.
         Assert (($signedConsumer -join ' ') -notmatch 'no evidence key available|HMAC mismatch') 'consumer verifies producer signature using the same normalized key file'
         $env:SDD_EVIDENCE_KEY = 'different-verification-key'
-        $wrongKeyConsumer = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+        $wrongKeyConsumer = Invoke-EvidenceChild (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
         Assert ($LASTEXITCODE -ne 0 -and ($wrongKeyConsumer -join ' ') -match 'HMAC mismatch') 'consumer rejects the same signature with a different higher-priority environment key'
     } finally {
         $env:SDD_EVIDENCE_KEY = $savedKey
         $env:SDD_EVIDENCE_KEY_FILE = $savedKeyFile
     }
     New-Item -ItemType Directory -Path (Join-Path $repo 'specs/fixture/adr') -Force | Out-Null
-    $structureOutput = & $hostPath -NoProfile -File (Join-Path $repositoryRoot 'plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1') -Root $repo 2>&1
+    $structureOutput = Invoke-EvidenceChild (Join-Path $repositoryRoot 'plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1') -Root $repo 2>&1
     Assert (($structureOutput -join ' ') -match 'drift: specs/fixture/adr') 'bootstrap advisory scan preserves literal bracket root paths'
     $riskPath = Join-Path $work 'tasks[ab].md'
     [IO.File]::WriteAllText($riskPath, "## T-001`nRisk: high`nRisk Rationale: sensitive`n")
     [IO.File]::WriteAllText((Join-Path $work 'tasksa.md'), "## T-001`nRisk: low`nRisk Rationale: limited`n")
-    & $hostPath -NoProfile -File (Join-Path $scripts 'check-risk.ps1') $riskPath *> $null
+    Invoke-EvidenceChild (Join-Path $scripts 'check-risk.ps1') $riskPath *> $null
     Assert ($LASTEXITCODE -eq 1) 'risk gate inspects the literal target instead of a clean wildcard neighbor'
-    & $hostPath -NoProfile -File (Join-Path $scripts 'check-risk.ps1') (Join-Path $work 'tasksa.md') -TaskId t-001 *> $null
+    Invoke-EvidenceChild (Join-Path $scripts 'check-risk.ps1') (Join-Path $work 'tasksa.md') -TaskId t-001 *> $null
     Assert ($LASTEXITCODE -eq 1) 'risk task filter preserves exact identity case'
 } finally { Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue }
