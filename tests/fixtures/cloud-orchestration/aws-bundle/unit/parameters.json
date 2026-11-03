@@ -1,0 +1,1 @@
+{"account": "111111111111", "backupPlanId": "synthetic-plan", "backupRoleArn": "arn:aws:iam::111111111111:role/synthetic-backup", "imageId": "ami-11111111111111111", "instanceProfile": "synthetic-profile", "instanceType": "t3.small", "region": "us-east-1", "stackName": "SyntheticPrivate", "subnetId": "subnet-11111111", "vpcId": "vpc-11111111"}

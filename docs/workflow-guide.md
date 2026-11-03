@@ -314,7 +314,7 @@ D6 テンプレートインタビューのいずれか）したうえで、ト�
 
 Phase 1（仕様・設計）のさらに前段、Issue受領の直後に位置づけられる任意のオプトインレーン。`sdd-bootstrap` が起動する前に、プロジェクト全体で共有する承認済みドメインモデルを1回用意しておくためのものです。`domain/` が存在しない場合は本レーンの影響はゼロで、既存フローはバイト同一の成果物を生成します。
 
-> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` を使うと、依存する `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録されます。既定のインストールには含みません。全体アンインストールは domain を含む全 7 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
+> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` を使うと、依存する `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録されます。既定のインストールには含みません。全体アンインストールは domain とクラウド用を含む全 9 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
 
 ### 位置づけ
 

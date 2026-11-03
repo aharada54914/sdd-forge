@@ -30,6 +30,7 @@ OWNERSHIP = load("resolve-component-paths")
 RESOLVER = load("resolve-project-context")
 PLUGIN_IDS = {"sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop",
               "sdd-ship", "sdd-lite", "sdd-domain"}
+CLOUD_PLUGIN_IDS = {"sdd-azure-cloud", "sdd-aws-cloud"}
 
 
 def validate(document, tracked_paths, phase="phase1"):
@@ -44,15 +45,18 @@ def validate(document, tracked_paths, phase="phase1"):
         errors.append("candidate must use the exact " + phase + " workflow tuple")
     components = document.get("components", [])
     identities = [c["id"] for c in components]
-    if len(identities) != 9 or set(identities) != PLUGIN_IDS | {"mcp", "installer"}:
-        errors.append("candidate must contain exactly the nine approved components")
+    core_ids = PLUGIN_IDS | {"mcp", "installer"}
+    restored_cloud = bool(set(identities) & CLOUD_PLUGIN_IDS)
+    expected_ids = core_ids | CLOUD_PLUGIN_IDS if restored_cloud else core_ids
+    if len(identities) != len(expected_ids) or set(identities) != expected_ids:
+        errors.append("candidate must contain exactly the nine core or eleven restored-cloud components")
     overrides = []
     for component in components:
         identity = component["id"]
-        if identity in PLUGIN_IDS:
+        if identity in PLUGIN_IDS | CLOUD_PLUGIN_IDS:
             expected = (["plugin_package"], ["host_cli_plugin"], ["github_release", "multi_runtime_plugin_install"],
                         ["repository_content"] + (["workflow_evidence"] if identity != "sdd-bootstrap" else []) +
-                        (["credential_material"] if identity == "sdd-quality-loop" else []))
+                        (["credential_material"] if identity in {"sdd-quality-loop"} | CLOUD_PLUGIN_IDS else []))
         elif identity == "mcp":
             expected = (["mcp_server"], ["local_mcp_server"], ["github_release", "multi_runtime_plugin_install"],
                         ["repository_content", "host_metadata", "ci_metadata", "credential_material"])
@@ -61,7 +65,7 @@ def validate(document, tracked_paths, phase="phase1"):
                         ["repository_content", "host_configuration"])
         else:
             continue
-        expected_include = ["plugins/" + identity + "/**"] if identity in PLUGIN_IDS else ["mcp/**"] if identity == "mcp" else None
+        expected_include = ["plugins/" + identity + "/**"] if identity in PLUGIN_IDS | CLOUD_PLUGIN_IDS else ["mcp/**"] if identity == "mcp" else None
         paths = component.get("paths", {})
         if expected_include is not None and paths != {"include": expected_include}:
             errors.append(identity + ": ownership must retain its exact component subtree")
@@ -79,8 +83,12 @@ def validate(document, tracked_paths, phase="phase1"):
     shared = document.get("shared_paths", [])
     if not growing <= {entry["pattern"] for entry in shared if entry.get("classification") == "cross-cutting"}:
         errors.append("all seven approved growing paths must remain cross-cutting")
+    cloud_shared = {"pattern": "templates/cloud/**", "components": ["sdd-azure-cloud", "sdd-aws-cloud"]}
+    cloud_rules = [entry for entry in shared if entry["pattern"] == "templates/cloud/**"]
+    if cloud_rules != ([cloud_shared] if restored_cloud else []):
+        errors.append("restored cloud templates must retain exact bounded provider ownership")
     for entry in shared:
-        if "*" in entry["pattern"] and entry["pattern"] not in growing:
+        if "*" in entry["pattern"] and entry["pattern"] not in growing and not (restored_cloud and entry == cloud_shared):
             errors.append("unapproved broad shared rule: " + entry["pattern"])
         overrides.extend((entry["pattern"], item["scope"], item["characteristic"], item["value"])
                          for item in entry.get("characteristic_overrides", []))
@@ -240,7 +248,7 @@ def release_commits(cycle):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml")
+    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml")
     parser.add_argument("--phase", choices=("phase1", "phase2"), default="phase1")
     for name in ("baseline", "registry", "resolver-evidence", "manifest", "release-evidence"):
         parser.add_argument("--" + name, type=Path)

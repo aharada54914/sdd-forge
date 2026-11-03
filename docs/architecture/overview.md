@@ -34,6 +34,8 @@ flowchart TD
         PQ["sdd-quality-loop<br/>品質ゲート・強制レイヤ"]
         PL["sdd-lite<br/>軽量トラック"]
         PD["sdd-domain<br/>DDD 上流レーン"]
+        PAZ["sdd-azure-cloud<br/>明示導入する Bicep 操作"]
+        PAW["sdd-aws-cloud<br/>明示導入する CDK 操作"]
     end
 
     M1 --> plugins
@@ -79,25 +81,29 @@ flowchart TD
 図の読み方:
 
 - **実線** は起動・生成の経路、**点線** は助言・拒否といった非生成的な作用を表します。
-- marketplace は 2 ファイルあり、Claude Code は `.claude-plugin/marketplace.json` を、Codex CLI / Copilot CLI は `.agents/plugins/marketplace.json` を参照します。**marketplace に登録されているプラグインの集合**は両者で同一（7 プラグイン）です。ただしこれは「インストーラで導入できる集合」とは一致しません（下の注記を参照）。
+- marketplace は 2 ファイルあり、Claude Code は `.claude-plugin/marketplace.json` を、Codex CLI / Copilot CLI は `.agents/plugins/marketplace.json` を参照します。**marketplace に登録されているプラグインの集合**は両者で同一（9 プラグイン）です。既定で導入するのは、このうち bootstrap / ship と依存先の 6 プラグインです。クラウド用の 2 プラグインは、共有 runtime の配置を伴うためリポジトリのインストーラーで明示導入します。
 - Codex CLI 用のエージェントロール定義は marketplace とは別に `.codex/agents/sdd-*.toml`（4 ファイル）としてリポジトリ直下に置かれ、インストーラが `~/.codex/agents/` へ配置します。
 - `skills/adversarial-review/` は `plugins/` の外にある単独スキルで、どのプラグインマニフェストにも同梱されず、インストーラの配置対象外です（利用するには手動コピーが必要）。
 
 ---
 
-## 2. プラグイン 7 種の責務
+## 2. プラグイン 9 種の責務
 
 | プラグイン | 責務 | スキル | エージェント | スクリプト | フック |
 |---|---|---|---|---|---|
-| `sdd-bootstrap` | 仕様化フェーズ。調査・インタビュー・仕様生成・タスク生成をルーティングし、デザインシステム同期ループも持つ | 8 | 1（`investigator`）+ Copilot ツイン 1 | 2 | なし |
+| `sdd-bootstrap` | 仕様化フェーズ。調査・インタビュー・仕様生成・タスク生成をルーティングし、デザインシステム同期ループも持つ | 8 | 1（`investigator`）+ Copilot ツイン 1 | 12 | なし |
 | `sdd-ship` | 実装・品質保証フェーズのエントリ。`implement-tasks` → `quality-gate`（または `lite-gate`）→ `workflow-retrospective` を順に呼ぶだけの **純粋オーケストレータ** | 1 | 0 | 0 | なし |
-| `sdd-review-loop` | spec / impl / task の 3 レビューゲート。**レビュアー 6 体**（各ステージ A/B の 2 体編成）で、ブラインドレビューを最大 3 ラウンド実施する | 3 | 6 | 5 | なし |
+| `sdd-review-loop` | spec / impl / task の 3 レビューゲート。**レビュアー 6 体**（各ステージ A/B の 2 体編成）で、ブラインドレビューを最大 3 ラウンド実施する | 3 | 6 | 13 | なし |
 | `sdd-implementation` | 承認済みタスクの実装レーン。単発実装・一括実装・バグ診断・視覚検証 | 4 | 0 | 5 | なし |
-| `sdd-quality-loop` | 独立検証と Done 判定、レビューチケット修正、クロスモデル検証、WFI 監査、ワークフロー回顧。**強制レイヤの本体** | 6 | 5 | 37 | **あり（3ホスト分）** |
+| `sdd-quality-loop` | 独立検証と Done 判定、レビューチケット修正、クロスモデル検証、WFI 監査、ワークフロー回顧。**強制レイヤの本体** | 6 | 5 | 69 | **あり（3ホスト分）** |
 | `sdd-lite` | 社内・部署内アプリ向けの軽量トラック（要件/設計/タスクの 3 ファイル + 軽量ゲート） | 2 | 0 | 2 | なし |
-| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**明示指定で導入**、下記注記） | 6 | 2（`domain-reviewer-a/b`） | 1 | なし |
+| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**明示指定で導入**、下記注記） | 6 | 2（`domain-reviewer-a/b`） | 5 | なし |
+| `sdd-azure-cloud` | 既存の 1 Bicep unit のローカル準備、保護 CI の操作、認証付き観測・検証（**明示指定で導入**） | 1 | 0 | 7 | なし |
+| `sdd-aws-cloud` | 既存の 1 CDK unit のローカル準備、保護 CI の操作、認証付き観測・検証（**明示指定で導入**） | 1 | 0 | 8 | なし |
 
-> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` は `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録します。既定のインストールには含みません。全体アンインストールは domain を含む全 7 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
+> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` は `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録します。既定のインストールには含みません。全体アンインストールは domain とクラウド用を含む全 9 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
+
+クラウド実装の存在は、本番対応や実クラウド受入の完了を意味しません。TEST-003/005/009 は sandbox 未提供のため BLOCKED です。[導入・入力契約・対応プラットフォーム](../cloud-orchestration.md)を参照してください。
 
 ### プラグイン間の依存
 
@@ -112,27 +118,31 @@ flowchart TD
     IM["sdd-implementation<br/>実装レーン"]
     RV["sdd-review-loop<br/>3 レビューゲート"]
     QL["sdd-quality-loop<br/>品質ゲート・強制レイヤ"]
+    AZ["sdd-azure-cloud<br/>明示導入"]
+    AW["sdd-aws-cloud<br/>明示導入"]
 
     SH --> BS & RV & IM & QL & LT
     LT --> BS & IM & QL
     DM --> BS & QL
     BS --> RV
+    AZ --> QL
+    AW --> QL
 ```
 
 図の読み方: 矢印は「導入時に自動登録される」関係であり、実行時の呼び出し順ではありません。実行時の流れは [workflow-guide.md](../workflow-guide.md) の全体フロー図を参照してください。
 
-合計: スキル **30**（各プラグインの `skills/*/SKILL.md` を数えた値。`plugins/` の外にある単独スキル `skills/adversarial-review/` は含まない）、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は `.sh` / `.ps1` / `.py` / `.js` の実装を 1 つに数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。
+合計: スキル **32**（各プラグインの `skills/*/SKILL.md` を数えた値。`plugins/` の外にある単独スキル `skills/adversarial-review/` や `references/upstream` は含まない）、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は各プラグインの `scripts/` 直下にある `.sh` / `.ps1` / `.py` / `.js` を、同名の実装は 1 つとして数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。`lib/` や生成ファイルは含みません。
 
 押さえておくべきプラグインごとの構造の違い:
 
 - **`sdd-ship` は agents / scripts / hooks / templates を一切持たない。** スキル 1 個（`ship`）だけの純粋オーケストレータであり、実行能力はすべて他プラグインへ委譲します。トラック解決とハンドシェイク以外のロジックをここに実装しないことが設計上の約束です。
 - **フックを持つのは `sdd-quality-loop` だけ。** リポジトリ全体で `hooks/` ディレクトリを持つプラグインは 1 つしかなく、そこに `claude-hooks.json` / `hooks.json` / `copilot-hooks.json` の 3 ホスト分が同居します。したがって「フックによる強制」は常にこのプラグインが提供している、と読んで構いません。
-- **決定論的スクリプトも `sdd-quality-loop` に偏在する**（37 / 全体の大半）。他プラグインのスクリプトは precheck・構造チェックなどレーン固有の前処理が中心です。
+- **共通の検証スクリプトは `sdd-quality-loop` に集まる**（69 ベース名）。クラウド用プラグインは各プロバイダーの操作・観測処理を持ち、4 つの共有 cloud module と契約・registry を導入時に `runtime/` へ配置します。
 - **`sdd-review-loop` はレビュアー 6 体を持つ唯一のプラグイン。** `spec-reviewer-a/b`、`impl-reviewer-a/b`、`task-reviewer-a/b` が 2 体ずつのブラインド編成を作ります。
 
 ### スキルの可視性
 
-入口 6 スキルが `disable-model-invocation: true` を持ち、モデルが勝手に起動することはありません（人間による入力が起点）。内部スキルは `user-invocable: false` でメニューに現れず、`disable-model-invocation: false` で ship / bootstrap の委譲からのみ起動されます（WFI-054）。**ユーザーに見える公開コマンドは次の 6 つだけ**です。
+入口 8 スキルが `disable-model-invocation: true` を持ち、モデルが勝手に起動することはありません（人間による入力が起点）。内部スキルは `user-invocable: false` でメニューに現れず、`disable-model-invocation: false` で ship / bootstrap の委譲からのみ起動されます（WFI-054）。**ユーザーに見える公開コマンドは次の 8 つ**です。
 
 | 公開コマンド | 役割 |
 |---|---|
@@ -142,6 +152,8 @@ flowchart TD
 | `/sdd-implementation:diagnose` | バグ診断の独立エントリ |
 | `/sdd-quality-loop:fix-by-review-ticket` | BLOCKED 後の人間による再開点 |
 | `/sdd-quality-loop:sdd-sudo` | 人間専用の期限付きトグル |
+| `/sdd-azure-cloud:orchestrate` | 明示導入する Azure Bicep 操作の入口 |
+| `/sdd-aws-cloud:orchestrate` | 明示導入する AWS CDK 操作の入口 |
 
 ### スキル・エージェント・MCP の連携
 
@@ -163,6 +175,8 @@ flowchart LR
 ```
 
 図に載せていない呼び出しもあります。`investigate-codebase` は `investigator` を、`quality-gate` は条件に応じて `panelist-gpt` も使います。実線は呼び出し、点線は助言（決定権なし）です。
+
+クラウド用の `orchestrate` は、固定した request を専用 CLI へ渡します。標準のレビュー・実装フローから自動でデプロイを進めるものではありません（[クラウド操作の構成](../cloud/README.md)）。
 
 ---
 
@@ -192,7 +206,7 @@ flowchart LR
 3. **Codex 版だけが `interface{}` ブロックを持つ。** Codex CLI のプラグインカタログ表示（表示名・カテゴリ・能力一覧・既定プロンプト）に使われるメタデータで、他の 2 ホストには対応するフィールドがありません。
 4. **エージェントの供給経路も違う。** Copilot CLI 版だけが `agents` を明示し、Copilot 専用に書き下ろした `copilot-agents/` を指します。Copilot 用ツインが存在するのは `sdd-investigator` と `sdd-evaluator` の 2 体だけです。
 
-7 プラグイン × 3 マニフェスト = **21 ファイル**がバージョン同期の対象で、`scripts/bump-version.sh` がこの 21 ファイルに加えて 2 つの marketplace、README の現行リリース行、バージョンを直書きしているテスト資産をまとめて書き換え、最後に旧バージョン文字列が残っていないかを検証します。
+9 プラグイン × 3 マニフェスト = **27 ファイル**がバージョン同期の対象で、`scripts/bump-version.sh` がこの 27 ファイルに加えて 2 つの marketplace、README の現行リリース行、バージョンを直書きしているテスト資産をまとめて書き換え、最後に旧バージョン文字列が残っていないかを検証します。
 
 ---
 

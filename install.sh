@@ -17,7 +17,7 @@ SOURCE_DIRECTORY=""
 SKIP_MCP=0
 MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
 
-VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # The ~/.codex/config.toml block for each selected MCP is delimited by a
 # per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
@@ -37,7 +37,7 @@ Usage: install.sh [options]
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: sdd-bootstrap,sdd-ship
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
@@ -127,6 +127,7 @@ while [[ $dependencies_changed -eq 1 ]]; do
         dependencies=()
         case "$plugin" in
             sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+            sdd-azure-cloud|sdd-aws-cloud) dependencies=(sdd-quality-loop) ;;
             sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
             sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
             sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
@@ -746,6 +747,37 @@ rollback() {
 
 trap 'rc=$?; if [[ $rc -ne 0 ]]; then rollback; fi; cleanup; exit $rc' EXIT
 
+# Cloud runtime copies never follow links from the source or staged payload.
+require_cloud_file() {
+    local root="$1" rel="$2" walk="" part remaining="$2"
+    while [[ -n "$remaining" ]]; do
+        part="${remaining%%/*}"
+        if [[ "$remaining" == */* ]]; then remaining="${remaining#*/}"; else remaining=""; fi
+        walk="${walk:+${walk}/}${part}"
+        if [[ -L "${root}/${walk}" ]]; then
+            echo "Error: Refusing cloud payload symlink: ${walk}" >&2
+            return 1
+        fi
+    done
+    if [[ ! -f "${root}/${rel}" ]]; then
+        echo "Error: Required cloud payload file is missing: ${rel}" >&2
+        return 1
+    fi
+}
+
+validate_cloud_payload_paths() {
+    local rel
+    while IFS= read -r -d '' rel; do
+        rel="${rel#./}"
+        case "$rel" in
+            plugins/sdd-azure-cloud/*|plugins/sdd-aws-cloud/*|plugins/sdd-quality-loop/scripts/cloud_*.py|plugins/sdd-quality-loop/references/cloud-verification-registry.json|contracts/cloud-*.schema.json|plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json|plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json)
+                require_cloud_file "$SOURCE_ROOT" "$rel" || return 1
+                ;;
+        esac
+        printf '%s\0' "$rel"
+    done
+}
+
 # ---------------------------------------------------------------------------
 # Resolve source
 # ---------------------------------------------------------------------------
@@ -801,6 +833,18 @@ REQUIRED_PATHS=(
     ".codex/agents/sdd-investigator.toml"
     ".codex/agents/sdd-evaluator.toml"
 )
+CLOUD_ENTRY_FILES=(.claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
+# Source precheck covers explicit selections; retained entries are checked in staging.
+for plugin in "${PLUGIN_LIST[@]}"; do
+    case "$plugin" in
+        sdd-azure-cloud|sdd-aws-cloud)
+            provider="${plugin#sdd-}"
+            for rel in "${CLOUD_ENTRY_FILES[@]}" "scripts/${provider%-cloud}_local.py"; do
+                REQUIRED_PATHS+=("plugins/$plugin/$rel")
+            done
+            ;;
+    esac
+done
 for rel in "${REQUIRED_PATHS[@]}"; do
     if [[ ! -e "${SOURCE_ROOT}/${rel}" ]]; then
         echo "Error: Required file is missing: ${rel}" >&2
@@ -1035,9 +1079,12 @@ if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
     # untracked files still never leak in, and extraction recreates the
     # parent directories itself.
     git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**' ':!tests/fixtures/**' \
+        | validate_cloud_payload_paths \
         | (cd "$SOURCE_ROOT" && tar --null -T - -cf -) \
         | (cd "$STAGING_ROOT" && tar -xf -)
 else
+    (cd "$SOURCE_ROOT" && find . -mindepth 1 \( -type f -o -type l \) -print0) \
+        | validate_cloud_payload_paths > /dev/null
     for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
         [[ -e "$entry" ]] || continue
         case "$(basename "$entry")" in
@@ -1046,6 +1093,36 @@ else
         cp -R "$entry" "${STAGING_ROOT}/"
     done
 fi
+
+# Rebuild selected and previously materialized runtimes before replacing the tree.
+# Prior payload presence retains availability, never registration or executable bytes.
+# Read only staged (tracked/archive) bytes, never untracked source files.
+for plugin in sdd-azure-cloud sdd-aws-cloud; do
+    case ",$PLUGINS," in
+        *,"$plugin",*) ;;
+        *) [[ -d "$INSTALL_ROOT/plugins/$plugin/runtime" ]] || continue ;;
+    esac
+    provider="${plugin#sdd-}"
+    for rel in "${CLOUD_ENTRY_FILES[@]}" "scripts/${provider%-cloud}_local.py"; do
+        require_cloud_file "$STAGING_ROOT" "plugins/$plugin/$rel" || exit 1
+    done
+    runtime="$STAGING_ROOT/plugins/$plugin/runtime"
+    mkdir -p "$runtime/scripts" "$runtime/references" "$runtime/contracts"
+    for module in cloud_contracts.py cloud_authorization.py cloud_verification.py cloud_dependencies.py; do
+        require_cloud_file "$STAGING_ROOT" "plugins/sdd-quality-loop/scripts/$module" || exit 1
+        cp "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/$module" "$runtime/scripts/$module"
+    done
+    require_cloud_file "$STAGING_ROOT" "plugins/sdd-quality-loop/references/cloud-verification-registry.json" || exit 1
+    cp "$STAGING_ROOT/plugins/sdd-quality-loop/references/cloud-verification-registry.json" "$runtime/references/"
+    for schema in "$STAGING_ROOT"/contracts/cloud-*.schema.json; do
+        require_cloud_file "$STAGING_ROOT" "${schema#"$STAGING_ROOT/"}" || exit 1
+        cp "$schema" "$runtime/contracts/"
+    done
+    for schema in verification-contract-v3.schema.json selected-verification-plan-v2.schema.json; do
+        require_cloud_file "$STAGING_ROOT" "plugins/sdd-quality-loop/contracts/$schema" || exit 1
+        cp "$STAGING_ROOT/plugins/sdd-quality-loop/contracts/$schema" "$runtime/contracts/"
+    done
+done
 
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.

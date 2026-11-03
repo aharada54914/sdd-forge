@@ -1,0 +1,19 @@
+{
+  "Name": "Cloud apply scoped deployment admission",
+  "IsCustom": true,
+  "Description": "Owner must separately review exact resource permissions; never substitute Contributor. No role assignment or arbitrary role passing.",
+  "Actions": [
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/operations/read",
+    "Microsoft.Resources/deployments/whatIf/action",
+    "Microsoft.Resources/deployments/validate/action",
+    "Microsoft.Resources/deployments/write"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/REPLACE_AZURE_SUBSCRIPTION_ID/resourceGroups/REPLACE_RESOURCE_GROUP"
+  ]
+}

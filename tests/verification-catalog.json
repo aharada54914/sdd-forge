@@ -1,6 +1,12 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+    {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+    {"path": "tests/cloud-orchestration-execution.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+    {"path": "tests/cloud-orchestration-verification.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+    {"path": "tests/install-cloud.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+    {"path": "tests/sdd-domain-multitarget-foundation.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/windows-powershell.tests.ps1", "runtime": "powershell", "ci_jobs": ["windows-powershell"]},
     {"path": "tests/codex-mcp-config.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/kill-switch-inspection.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
@@ -393,6 +399,14 @@
     {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
   ],
   "profiles": {
+    "ci-cloud": [
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/install-cloud.tests.py",
+      "tests/sdd-domain-multitarget-foundation.tests.py"
+    ],
     "ci-windows-powershell51": [
       "tests/windows-powershell.tests.ps1",
       "tests/evidence-generation-boundary.tests.ps1"
@@ -402,6 +416,12 @@
     ],
     "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/install-cloud.tests.py",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
       "tests/codex-mcp-config.tests.py",
       "tests/kill-switch-inspection.tests.sh",
       "tests/spec-review-interrupted-recovery.tests.sh",
@@ -613,6 +633,12 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/install-cloud.tests.py",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
       "tests/evidence-generation-boundary.tests.ps1",
       "tests/spec-review-interrupted-recovery.tests.ps1",
       "tests/benchmark-gates.tests.py",

@@ -4,8 +4,8 @@ param(
     [string]$MarketplaceName = "sdd-plugins",
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", IgnoreCase = $false)]
-    [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain"),
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
+    [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud"),
     [switch]$KeepFiles,
     [switch]$SkipPluginUninstall,
     [switch]$SkipAgentUninstall,
@@ -27,14 +27,14 @@ if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
     throw "InstallRoot must not be empty."
 }
 
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
 # Role files this project installs into ~/.codex/agents. Used as a fallback when
 # the install root (the manifest source) is no longer present.
 $shippedAgents = @("sdd-investigator.toml", "sdd-evaluator.toml", "sdd-panelist-gpt.toml", "sdd-panelist-gemini.toml")
 
 # A full uninstall selects every known plugin. Only then is it safe to remove the
 # marketplace, since removing it also uninstalls any plugins still registered.
-$isFullUninstall = -not ($allPlugins | Where-Object { $Plugins -notcontains $_ })
+$isFullUninstall = -not ($allPlugins | Where-Object { $Plugins -cnotcontains $_ })
 
 # Shared payload, agents and MCPs must remain usable by unselected plugins.
 if (-not $isFullUninstall) {

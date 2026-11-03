@@ -1,0 +1,260 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "unit_id",
+    "provider",
+    "operation",
+    "state",
+    "result",
+    "error_code",
+    "message",
+    "input_manifest_sha256",
+    "evidence_manifest_path"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cloud-operation-result/v1"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+    },
+    "unit_id": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "azure",
+        "aws"
+      ]
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "route",
+        "plan",
+        "validate",
+        "prepare",
+        "apply",
+        "reconcile",
+        "observe",
+        "verify"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "ROUTED",
+        "PLANNED",
+        "LOCAL_VALIDATED",
+        "PREPARE_AUTHORIZED",
+        "PREVIEW_READY",
+        "APPLY_AUTHORIZED",
+        "EXECUTING",
+        "OBSERVED",
+        "VERIFIED",
+        "EVIDENCE_COMPLETE",
+        "NO_CHANGE",
+        "BLOCKED",
+        "FAILED",
+        "UNKNOWN"
+      ]
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "NO_CHANGE",
+        "BLOCKED",
+        "FAIL",
+        "UNKNOWN"
+      ]
+    },
+    "error_code": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        }
+      ]
+    },
+    "message": {
+      "type": "string",
+      "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
+    },
+    "input_manifest_sha256": {
+      "type": "string",
+      "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+    },
+    "evidence_manifest_path": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "native_operation_id": {
+      "type": "string",
+      "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sdd-forge.local/contracts/cloud-operation-result.schema.json",
+  "title": "Cloud operation-result v1",
+  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency.",
+  "oneOf": [
+    {
+      "properties": {
+        "result": {
+          "const": "PASS"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "ROUTED",
+            "PLANNED",
+            "LOCAL_VALIDATED",
+            "PREPARE_AUTHORIZED",
+            "PREVIEW_READY",
+            "APPLY_AUTHORIZED",
+            "EXECUTING",
+            "OBSERVED",
+            "VERIFIED",
+            "EVIDENCE_COMPLETE"
+          ]
+        },
+        "error_code": {
+          "type": "null"
+        },
+        "evidence_manifest_path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        }
+      }
+    },
+    {
+      "properties": {
+        "result": {
+          "const": "NO_CHANGE"
+        },
+        "state": {
+          "const": "NO_CHANGE"
+        },
+        "error_code": {
+          "type": "null"
+        },
+        "native_operation_id": {
+          "type": "null"
+        },
+        "evidence_manifest_path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        }
+      }
+    },
+    {
+      "properties": {
+        "result": {
+          "const": "BLOCKED"
+        },
+        "state": {
+          "const": "BLOCKED"
+        },
+        "error_code": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "evidence_manifest_path": {
+              "type": "string",
+              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "properties": {
+            "evidence_manifest_path": {
+              "type": "null"
+            },
+            "native_operation_id": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "properties": {
+        "result": {
+          "const": "FAIL"
+        },
+        "state": {
+          "const": "FAILED"
+        },
+        "error_code": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "evidence_manifest_path": {
+              "type": "string",
+              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "properties": {
+            "evidence_manifest_path": {
+              "type": "null"
+            },
+            "native_operation_id": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "properties": {
+        "result": {
+          "const": "UNKNOWN"
+        },
+        "state": {
+          "const": "UNKNOWN"
+        },
+        "error_code": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        },
+        "evidence_manifest_path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        }
+      }
+    }
+  ]
+}

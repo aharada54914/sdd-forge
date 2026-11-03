@@ -69,7 +69,10 @@ class Fixture:
             self.write(relative, (proof_fixture.root / relative).read_bytes())
         references = 'plugins/sdd-review-loop/references/'
         self.write(references + 'a8-expected-hook-config-digests.json', proof_fixture.manifest.read_bytes())
-        baseline = CORE.PREFLIGHT.read_document(self.root / CORE.TARGETS[0])
+        # The copied plugin tree includes both restored providers. Only the
+        # disposable fixture signs this matching, otherwise unsigned candidate.
+        baseline = CORE.PREFLIGHT.read_document(
+            ROOT / 'specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml')
         existing = {x['pattern'] for x in baseline['shared_paths']}
         for path in list(CORE.TARGETS) + [CORE.FIXED['approvers']]:
             if path not in existing:
@@ -249,6 +252,16 @@ class PromotionTests(unittest.TestCase):
         self.assertEqual(result['result'], 'ADMISSIBLE')
         self.assertFalse(result['applied'])
         self.assertEqual(before, [(self.f.root / p).read_bytes() for p in CORE.TARGETS])
+    def test_nine_component_context_cannot_cover_restored_cloud_inventory(self):
+        tracked = self.f.git('ls-files').splitlines()
+        old = CORE.PREFLIGHT.read_document(
+            ROOT / 'specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml')
+        errors, _ = CORE.PREFLIGHT.validate(old, tracked)
+        for provider in ('azure', 'aws'):
+            self.assertIn('UNOWNED: plugins/sdd-' + provider + '-cloud/scripts/cloud.py', errors)
+        current = CORE.PREFLIGHT.read_document(self.f.root / CORE.TARGETS[0])
+        self.assertEqual(len(current['components']), 11)
+        self.assertEqual(CORE.PREFLIGHT.validate(current, tracked)[0], [])
     def test_actual_existing_publisher_applies_only_three_bound_files(self):
         result = CORE.run(self.f.args('--apply'))
         self.assertEqual(result['result'], 'APPLIED')

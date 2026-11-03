@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::REPLACE_AWS_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:REPLACE_ORG/REPLACE_CONTROL_REPO:environment:sandbox-prepare:workflow_ref:REPLACE_ORG/REPLACE_CONTROL_REPO/.github/workflows/cloud-aws.yml@refs/heads/main:workflow_sha:REPLACE_REVIEWED_40_HEX_CONTROL_COMMIT"
+        }
+      }
+    }
+  ]
+}

@@ -53,6 +53,9 @@ ARTIFACTS = (
     "capability-summary.schema.json",
     "context-projection.schema.json",
     "selected-verification-plan.schema.json",
+    "verification-contract-v3.schema.json",
+    "selected-verification-plan-v2.schema.json",
+    "cloud-verification-registry.schema.json",
 )
 
 

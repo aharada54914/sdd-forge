@@ -278,6 +278,43 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-bootstrap/scripts/project-skill.py',
     'plugins/sdd-bootstrap/scripts/research-sources.py',
 )
+# Explicit cloud recovery extension: retain the T-003 unrelated baseline hash.
+# Includes the provider import closure and trusted tool pins reviewed with it.
+CLOUD_PROTECTIONS = (
+    'plugins/sdd-quality-loop/references/cloud-verification-registry.json',
+    QUALITY_SCRIPTS + 'cloud_verification.py',
+    QUALITY_SCRIPTS + 'cloud_contracts.py',
+    'plugins/sdd-azure-cloud/scripts/azure_observation.py',
+    'plugins/sdd-aws-cloud/scripts/aws_observation.py',
+    'contracts/verification-contract-v3.schema.json',
+    'plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',
+    'contracts/selected-verification-plan-v2.schema.json',
+    'plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json',
+    'contracts/cloud-verification-registry.schema.json',
+    'plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json',
+    'plugins/sdd-azure-cloud/scripts/cloud.py',
+    'plugins/sdd-aws-cloud/scripts/cloud.py',
+    'plugins/sdd-azure-cloud/scripts/governed-setup.md',
+    'plugins/sdd-aws-cloud/scripts/governed-setup.md',
+    'plugins/sdd-bootstrap/scripts/cloud-routing.py',
+    'plugins/sdd-aws-cloud/scripts/aws_control.py',
+    'plugins/sdd-aws-cloud/scripts/aws_execution.py',
+    'plugins/sdd-aws-cloud/scripts/aws_governed.py',
+    'plugins/sdd-aws-cloud/scripts/aws_graph.py',
+    'plugins/sdd-aws-cloud/scripts/aws_local.py',
+    'plugins/sdd-aws-cloud/scripts/aws_native.py',
+    'plugins/sdd-azure-cloud/scripts/azure_arm.py',
+    'plugins/sdd-azure-cloud/scripts/azure_execution.py',
+    'plugins/sdd-azure-cloud/scripts/azure_governed.py',
+    'plugins/sdd-azure-cloud/scripts/azure_graph.py',
+    'plugins/sdd-azure-cloud/scripts/azure_local.py',
+    QUALITY_SCRIPTS + 'cloud_authorization.py',
+    QUALITY_SCRIPTS + 'cloud_dependencies.py',
+    'plugins/sdd-azure-cloud/references/upstream-lock.json',
+    'plugins/sdd-aws-cloud/references/upstream-lock.json',
+    'plugins/sdd-aws-cloud/references/toolchain-lock.json',
+)
+REVIEWED_PROTECTIONS = ENTRYPOINTS + ADDITIONAL_PROTECTIONS + CLOUD_PROTECTIONS
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',
@@ -387,19 +424,21 @@ class ProtectedEntrypointTests(unittest.TestCase):
                                     str(self.root / name))
 
     def assert_unrelated_unchanged(self, data):
-        for path in ADDITIONAL_PROTECTIONS:
+        for path in REVIEWED_PROTECTIONS:
             self.assertEqual(data['protected_gate_suffixes'].count(path), 1,
                              'reviewed additive protection missing or duplicated: ' + path)
         unrelated = dict(data)
         unrelated['protected_gate_suffixes'] = [
             path for path in data['protected_gate_suffixes']
-            if path not in ENTRYPOINTS + ADDITIONAL_PROTECTIONS]
+            if path not in REVIEWED_PROTECTIONS]
         digest = hashlib.sha256(json.dumps(unrelated, sort_keys=True,
                                separators=(',', ':')).encode()).hexdigest()
         self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
 
     def test_012d_unrelated_membership_unchanged(self):
         data = json.loads((self.root / CANONICAL).read_bytes())
+        self.assertEqual(len(CLOUD_PROTECTIONS), 32)
+        self.assertEqual(len(REVIEWED_PROTECTIONS), len(set(REVIEWED_PROTECTIONS)))
         self.assert_unrelated_unchanged(data)
         for path in ENTRYPOINTS + (
                 'plugins/sdd-review-loop/scripts/review-hash-normalization.ps1',
@@ -421,14 +460,17 @@ class ProtectedEntrypointTests(unittest.TestCase):
         mutated['protected_gate_suffixes'].append('unreviewed-extra.py')
         with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
             self.assert_unrelated_unchanged(mutated)
-        for path in ADDITIONAL_PROTECTIONS:
-            for change in ('remove', 'duplicate'):
+        for path in REVIEWED_PROTECTIONS:
+            for change in ('remove', 'duplicate', 'case'):
                 with self.subTest(path=path, change=change):
                     mutated = json.loads(json.dumps(data))
                     if change == 'remove':
                         mutated['protected_gate_suffixes'].remove(path)
-                    else:
+                    elif change == 'duplicate':
                         mutated['protected_gate_suffixes'].append(path)
+                    else:
+                        index = mutated['protected_gate_suffixes'].index(path)
+                        mutated['protected_gate_suffixes'][index] = path.upper()
                     with self.assertRaisesRegex(AssertionError, 'reviewed additive protection missing or duplicated'):
                         self.assert_unrelated_unchanged(mutated)
         self.assert_unrelated_unchanged(data)

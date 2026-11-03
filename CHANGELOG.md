@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.22.1 (2026-11-03)
+
+### Fixed
+- v1.20.0の別系統に残っていたAzure Bicep／AWS CDKの明示導入プラグインを復旧。共有runtime、導入・更新・解除、保護CIテンプレート、検証契約、bootstrapの明示handoffを現行修正と統合した。
+- AWSのネットワーク観測をコンパイル時と同じRFC1918 CIDR方針へ統一。サンプルの`10.0.0.0/16`以外の対応範囲を誤って不健全と判定する問題を修正。
+- クラウドの実行・認証・依存モジュールと固定上流pinを保護対象へ追加。共有runtime入力のsymlink／reparse差替えを拒否し、既存インストールを保持する。
+- 共通テストの重複を抑えたWindows PowerShell 5.1／7の必須CIを追加し、5.1の引数・文字コード・パス・timestamp検証・Python委譲の互換性を修正した（#707）。
+
+### Verification and release limits
+- 復旧したクラウド実装の実クラウド受入TEST-003/005/009は引き続き未完了。ローカルコンパイルやfixtureの成功をデプロイ成功と扱わない。
+- 署名済み9コンポーネントContextは維持し、クラウドを含む11コンポーネントは未署名候補として検証する。現行advisoryは復旧パスの未所有を警告する。[復旧記録](docs/contributor/cloud-plugin-recovery.md)を参照。
+
+
 ## v1.22.0 (2026-11-03)
 
 ### Added

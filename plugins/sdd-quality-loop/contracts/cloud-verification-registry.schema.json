@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profiles"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cloud-verification-registry/v1"
+    },
+    "profiles": {
+      "const": [
+        {
+          "id": "cloud-compute",
+          "version": "2",
+          "required_check_ids": [
+            "resource",
+            "network",
+            "identity",
+            "monitoring",
+            "workload"
+          ],
+          "conditional_check_ids": [
+            "backup"
+          ],
+          "preflight_check_ids": [
+            "iac-validate",
+            "policy-validation",
+            "iac-preview"
+          ]
+        }
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/cloud-verification-registry.schema.json"
+}

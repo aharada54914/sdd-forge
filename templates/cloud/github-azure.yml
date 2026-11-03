@@ -1,0 +1,156 @@
+{
+  "name": "azure protected cloud (T-003 template; requires reviewed T-012/T-013 adapter)",
+  "run-name": "cloud:${{ inputs.request_sha256 }}:${{ inputs.preview_sha256 }}",
+  "on": {
+    "workflow_dispatch": {
+      "inputs": {
+        "operation": {
+          "description": "Fresh dispatch for one protected stage; never rerun a write",
+          "required": true,
+          "type": "choice",
+          "options": [
+            "prepare",
+            "apply"
+          ]
+        },
+        "request_sha256": {
+          "description": "Exact reviewed request manifest SHA-256 (shown before environment approval)",
+          "required": true,
+          "type": "string"
+        },
+        "preview_sha256": {
+          "description": "Exact preview SHA-256 for apply; literal none for prepare",
+          "required": true,
+          "type": "string"
+        },
+        "artifact_run_id": {
+          "description": "Immutable data-only artifact producer run ID; not executor code",
+          "required": true,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "permissions": {},
+  "concurrency": {
+    "group": "cloud-azure-REPLACE_AZURE_SUBSCRIPTION_ID-REPLACE_AZURE_REGION",
+    "cancel-in-progress": false
+  },
+  "env": {
+    "TEMPLATE_PREREQUISITE": "External exclusive-writer repository IAM and protected workflow/ref are mandatory; see templates/cloud/iam/README.md"
+  },
+  "jobs": {
+    "prepare": {
+      "if": "${{ inputs.operation == 'prepare' && github.run_attempt == 1 }}",
+      "runs-on": "ubuntu-24.04",
+      "environment": {
+        "name": "sandbox-prepare"
+      },
+      "permissions": {
+        "contents": "read",
+        "actions": "read",
+        "id-token": "write"
+      },
+      "timeout-minutes": 30,
+      "steps": [
+        {
+          "name": "Trusted executor only (never checkout deployment source here)",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "repository": "REPLACE_TRUSTED_EXECUTOR_REPOSITORY",
+            "ref": "REPLACE_REVIEWED_40_HEX_EXECUTOR_COMMIT",
+            "path": "trusted-executor",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Download data-only immutable deployment bundle",
+          "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+          "with": {
+            "name": "cloud-input",
+            "path": "deployment-input",
+            "repository": "REPLACE_INPUT_REPOSITORY",
+            "run-id": "${{ inputs.artifact_run_id }}",
+            "github-token": "${{ secrets.INPUT_ARTIFACT_READ_TOKEN }}"
+          }
+        },
+        {
+          "name": "Check displayed exact hashes before provider entry (integrity, not authority)",
+          "env": {
+            "REQUEST_SHA256": "${{ inputs.request_sha256 }}",
+            "PREVIEW_SHA256": "${{ inputs.preview_sha256 }}"
+          },
+          "shell": "bash",
+          "run": "set -euo pipefail\npython3 - <<'PY'\nimport hashlib, os, pathlib, re\nfor name, expected in [('request.json', os.environ['REQUEST_SHA256']), ('preview.json', os.environ['PREVIEW_SHA256'])]:\n    if name == 'preview.json' and expected == 'none':\n        continue\n    if not re.fullmatch('[a-f0-9]{64}', expected):\n        raise SystemExit('Invalid digest')\n    p = pathlib.Path('deployment-input') / name\n    if p.is_symlink() or hashlib.sha256(p.read_bytes()).hexdigest() != expected:\n        raise SystemExit('Artifact mismatch')\nPY"
+        },
+        {
+          "name": "Governed prepare via pinned provider adapter; no untrusted executable inputs",
+          "env": {
+            "GH_TOKEN": "${{ github.token }}",
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": "",
+            "CLOUD_POLICY_PATH": "${{ github.workspace }}/trusted-executor/operator-policy/azure-prepare.py"
+          },
+          "shell": "bash",
+          "run": "set -euo pipefail\nmkdir -p \"$RUNNER_TEMP/cloud-evidence\"\npython3 -E -s trusted-executor/plugins/sdd-azure-cloud/scripts/cloud.py prepare --request \"$GITHUB_WORKSPACE/deployment-input/request.json\" --output \"$RUNNER_TEMP/cloud-evidence/result.json\""
+        }
+      ]
+    },
+    "apply": {
+      "if": "${{ inputs.operation == 'apply' && github.run_attempt == 1 }}",
+      "runs-on": "ubuntu-24.04",
+      "environment": {
+        "name": "sandbox-apply"
+      },
+      "permissions": {
+        "contents": "read",
+        "actions": "read",
+        "id-token": "write"
+      },
+      "timeout-minutes": 30,
+      "steps": [
+        {
+          "name": "Trusted executor only (never checkout deployment source here)",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "repository": "REPLACE_TRUSTED_EXECUTOR_REPOSITORY",
+            "ref": "REPLACE_REVIEWED_40_HEX_EXECUTOR_COMMIT",
+            "path": "trusted-executor",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Download data-only immutable deployment bundle",
+          "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+          "with": {
+            "name": "cloud-input",
+            "path": "deployment-input",
+            "repository": "REPLACE_INPUT_REPOSITORY",
+            "run-id": "${{ inputs.artifact_run_id }}",
+            "github-token": "${{ secrets.INPUT_ARTIFACT_READ_TOKEN }}"
+          }
+        },
+        {
+          "name": "Check displayed exact hashes before provider entry (integrity, not authority)",
+          "env": {
+            "REQUEST_SHA256": "${{ inputs.request_sha256 }}",
+            "PREVIEW_SHA256": "${{ inputs.preview_sha256 }}"
+          },
+          "shell": "bash",
+          "run": "set -euo pipefail\npython3 - <<'PY'\nimport hashlib, os, pathlib, re\nfor name, expected in [('request.json', os.environ['REQUEST_SHA256']), ('preview.json', os.environ['PREVIEW_SHA256'])]:\n    if name == 'preview.json' and expected == 'none':\n        continue\n    if not re.fullmatch('[a-f0-9]{64}', expected):\n        raise SystemExit('Invalid digest')\n    p = pathlib.Path('deployment-input') / name\n    if p.is_symlink() or hashlib.sha256(p.read_bytes()).hexdigest() != expected:\n        raise SystemExit('Artifact mismatch')\nPY"
+        },
+        {
+          "name": "Governed apply via pinned provider adapter; no untrusted executable inputs",
+          "env": {
+            "GH_TOKEN": "${{ github.token }}",
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": "",
+            "CLOUD_POLICY_PATH": "${{ github.workspace }}/trusted-executor/operator-policy/azure-apply.py"
+          },
+          "shell": "bash",
+          "run": "set -euo pipefail\nmkdir -p \"$RUNNER_TEMP/cloud-evidence\"\npython3 -E -s trusted-executor/plugins/sdd-azure-cloud/scripts/cloud.py apply --request \"$GITHUB_WORKSPACE/deployment-input/request.json\" --output \"$RUNNER_TEMP/cloud-evidence/result.json\""
+        }
+      ]
+    }
+  }
+}
