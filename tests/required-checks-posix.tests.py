@@ -22,7 +22,7 @@ REQUIRED = (
     'version-gates-windows-bump', 'version-gates-windows-lanes', 'mcp-tests',
     'local-env-mcp-tests', 'ci-mcp-tests', 'cli-hook-enforcement',
     'posix-regression', 'posix-unwired-sharded', 'a9-advisory-inputs', 'a9-advisory',
-    'coding-standards',
+    'coding-standards', 'windows-powershell',
 )
 
 
@@ -58,6 +58,35 @@ class RequiredChecksTests(unittest.TestCase):
         step = next(step for step in self.job['steps'] if 'run' in step)
         self.assertTrue(unconditional(step))
         self.assertEqual(step.get('shell', 'bash'), 'bash')
+
+    def test_windows_powershell_engines_are_explicit_required_and_recorded(self):
+        job = self.workflow['jobs']['windows-powershell']
+        self.assertEqual(job['runs-on'], 'windows-2022')
+        self.assertIs(job['strategy']['fail-fast'], False)
+        self.assertEqual(WF.matrix_rows(job), [
+            {'version': '5.1', 'executable': 'powershell', 'profile': 'ci-windows-powershell51'},
+            {'version': '7.6', 'executable': 'pwsh', 'profile': 'ci-windows-powershell7'},
+        ])
+        self.assertTrue(unconditional(job))
+        self.assertEqual(self.catalog['profiles']['ci-windows-powershell51'], [
+            'tests/windows-powershell.tests.ps1', 'tests/evidence-generation-boundary.tests.ps1'])
+        self.assertEqual(self.catalog['profiles']['ci-windows-powershell7'], ['tests/windows-powershell.tests.ps1'])
+        for row in WF.matrix_rows(job):
+            profile = self.catalog['profiles'][row['profile']]
+            consumers = [step for step in job['steps']
+                         if set(profile) == WF.step_suites(step, self.catalog, row, step.get('shell', 'bash'))]
+            self.assertEqual(len(consumers), 1)
+            self.assertTrue(unconditional(consumers[0]))
+            self.assertEqual(consumers[0]['shell'], 'cmd')
+            command = WF.expand_matrix(consumers[0]['run'], row)
+            self.assertIn('--powershell ' + row['executable'] + ' ', command)
+        self.assertEqual(job['env']['SDD_EXPECTED_POWERSHELL'], '${{ matrix.version }}')
+        uploads = [step for step in job['steps'] if step.get('uses', '').startswith('actions/upload-artifact@')]
+        self.assertEqual(len(uploads), 1)
+        self.assertEqual(uploads[0]['if'], 'always()')
+        self.assertEqual(uploads[0]['with']['if-no-files-found'], 'error')
+        self.assertIn('powershell-runtime.json', uploads[0]['with']['path'])
+        self.assertIn('powershell-verification.json', uploads[0]['with']['path'])
 
     def test_previously_missing_suites_have_unconditional_steps(self):
         suites = (

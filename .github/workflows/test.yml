@@ -1570,15 +1570,56 @@ jobs:
         shell: bash
         run: bash ./tests/spec-review-interrupted-recovery.tests.sh
 
+  windows-powershell:
+    name: Windows PowerShell ${{ matrix.version }}
+    runs-on: windows-2022
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: "5.1"
+            executable: powershell
+            profile: ci-windows-powershell51
+          - version: "7.6"
+            executable: pwsh
+            profile: ci-windows-powershell7
+    env:
+      SDD_EXPECTED_POWERSHELL: ${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run native Windows compatibility contracts
+        shell: cmd
+        env:
+          SDD_POWERSHELL_RECEIPT: ${{ runner.temp }}/powershell-runtime.json
+        run: python tests/verification.py --profile ${{ matrix.profile }} --powershell ${{ matrix.executable }} --run --receipt "${{ runner.temp }}/powershell-verification.json"
+      - name: Retain runtime identity and verification results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-powershell-${{ matrix.version }}
+          path: |
+            ${{ runner.temp }}/powershell-runtime.json
+            ${{ runner.temp }}/powershell-verification.json
+          if-no-files-found: error
+          retention-days: 14
+
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory, coding-standards]
+    needs: [windows-powershell, test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory, coding-standards]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Check all required tests passed
         run: |
+          if [ "${{ needs.windows-powershell.result }}" != "success" ]; then
+            echo "windows-powershell job failed"
+            exit 1
+          fi
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test job failed"
             exit 1

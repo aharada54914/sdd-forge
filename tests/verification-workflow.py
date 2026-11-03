@@ -121,11 +121,13 @@ def command_suites(command, catalog, shell='bash'):
                 return None
             if key == '--run':
                 options[key] = True
-            elif key in ('--profile', '--suite', '--receipt') and args:
+            elif key in ('--profile', '--suite', '--receipt', '--powershell') and args:
                 options[key] = args.pop(0)
             else:
                 return None
         if not options.get('--run') or ('--profile' in options) == ('--suite' in options):
+            return None
+        if '--powershell' in options and options['--powershell'] not in ('powershell', 'pwsh'):
             return None
         if '--profile' in options:
             members = catalog['profiles'].get(options['--profile'])
@@ -153,13 +155,13 @@ def command_suites(command, catalog, shell='bash'):
 
 def step_suites(step, catalog, row, shell):
     body = step.get('run')
-    if not isinstance(body, str) or shell not in ('bash', 'pwsh'):
+    if not isinstance(body, str) or shell not in ('bash', 'pwsh', 'cmd'):
         return set()
     lines = [line for line in expand_matrix(body, row).splitlines()
              if line.strip() and not line.lstrip().startswith('#')]
-    # GitHub pwsh propagates only the final native exit code. Multiple suites
+    # PowerShell and cmd propagate only the final native exit code. Multiple suites
     # must use the runner, which aggregates every result, or separate steps.
-    if shell == 'pwsh' and len(lines) != 1:
+    if shell in ('pwsh', 'cmd') and len(lines) != 1:
         return set()
     found = set()
     for line in lines:
@@ -176,7 +178,8 @@ def workflow_coverage(workflow, catalog):
         found = set()
         for row in matrix_rows(job):
             target = expand_matrix(job.get('runs-on', ''), row)
-            runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows', 'macos-latest': 'macOS'}.get(target)
+            runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows',
+                      'windows-2022': 'Windows', 'macos-latest': 'macOS'}.get(target)
             if not runner or not enabled(job.get('if'), row, runner) or job.get('continue-on-error', False) is not False:
                 continue
             defaults = dict(workflow.get('defaults', {}).get('run', {}))

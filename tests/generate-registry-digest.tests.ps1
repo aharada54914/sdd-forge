@@ -21,7 +21,7 @@ foreach ($name in @(
   'generate-registry-digest.py', 'generate-registry-digest.sh',
   'generate-registry-digest.ps1', 'generate-registry-digest.js',
   'registry_discovery.py', 'canonicalize-sdd-yaml.py',
-  'lib/py-dispatch.sh', 'lib/py-dispatch.ps1'
+  'lib/py-dispatch.sh', 'lib/py-dispatch.ps1', 'lib/native-arguments.ps1'
 )) {
   $source = Join-Path $sourceDir $name
   if (Test-Path -LiteralPath $source) {
