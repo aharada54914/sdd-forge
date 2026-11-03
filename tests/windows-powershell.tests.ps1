@@ -25,6 +25,8 @@ $identityCode = @'
 } | ConvertTo-Json -Compress
 '@
 $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($identityCode))
+Write-Host "Native identity probe: $hostPath ($($PSVersionTable.PSVersion))"
+Write-Host "Serialized probe switches: $(ConvertTo-SddNativeArgumentString -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand'))"
 $child = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
 if ($child.ExitCode -ne 0) { throw 'Child runtime probe failed' }
 $identity = [Text.Encoding]::UTF8.GetString($child.Stdout) | ConvertFrom-Json
