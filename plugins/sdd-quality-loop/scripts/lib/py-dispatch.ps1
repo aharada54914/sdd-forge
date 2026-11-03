@@ -30,6 +30,8 @@ function Invoke-SddPyDispatch {
         [Parameter(Mandatory = $true)][string]$DiagnosticPrefix,
         [object[]]$Arguments = @()
     )
+    # First-use module progress in 5.1 must not contaminate the raw stderr contract.
+    $ProgressPreference = 'SilentlyContinue'
 
     $python = Get-Command python3 -ErrorAction SilentlyContinue
     if (-not $python) {
