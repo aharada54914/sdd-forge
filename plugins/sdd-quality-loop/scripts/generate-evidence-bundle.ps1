@@ -209,10 +209,11 @@ $gitGeneratedDirty = (-not [string]::IsNullOrWhiteSpace(($statusResult | Out-Str
 
 function Get-SpecRevision {
     param([Parameter(Mandatory)][string]$FeatureSlug, [Parameter(Mandatory)][string]$AbsRoot)
+    $specRoot = Join-Path (Join-Path $AbsRoot 'specs') $FeatureSlug
     $specFiles = @(
-        (Join-Path $AbsRoot "specs" $FeatureSlug "requirements.md"),
-        (Join-Path $AbsRoot "specs" $FeatureSlug "design.md"),
-        (Join-Path $AbsRoot "specs" $FeatureSlug "acceptance-tests.md")
+        (Join-Path $specRoot 'requirements.md'),
+        (Join-Path $specRoot 'design.md'),
+        (Join-Path $specRoot 'acceptance-tests.md')
     )
     $hasher = [System.Security.Cryptography.SHA256]::Create()
     $foundAny = $false

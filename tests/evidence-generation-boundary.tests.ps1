@@ -42,6 +42,9 @@ try {
         & git -C $repo init -q
         & git -C $repo -c user.name=Fixture -c user.email=fixture@example.invalid commit --allow-empty -qm initial
         Assert ($LASTEXITCODE -eq 0) 'fixture repository initialized'
+        $specRoot = Join-Path $repo 'specs/fixture'
+        New-Item -ItemType Directory -Path $specRoot -Force | Out-Null
+        [IO.File]::WriteAllText((Join-Path $specRoot 'requirements.md'), 'actual specification')
         $contractPath = Join-Path $repo 'T-001.contract.json'
         $report = Join-Path $repo 'report[ab].md'
         [IO.File]::WriteAllText($report, "Task ID: T-001`nFeature: fixture`nVERDICT: PASS`nCritical: 0`nMajor: 0`nMinor: 0`n")
@@ -54,6 +57,7 @@ try {
         Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) "generator preserves literal $name repository/report/output paths"
         $document = Get-Content -Raw -LiteralPath $bundle | ConvertFrom-Json
         Assert ($document.artifacts.Count -eq 3 -and $document.task_id -ceq 'T-001') 'generator records all ordinary artifacts'
+        Assert ($document.spec_revision -ceq 'eaf600209602bb55fa4552b500c5afc9a234de65c81bd95cf159348e98f94daf') 'generator hashes actual specification bytes under the selected runtime'
         $checkedBundle = Join-Path $repo 'T-001.evidence.json'
         Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
         $consumerOutput = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
