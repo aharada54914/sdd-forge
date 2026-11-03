@@ -958,7 +958,7 @@ class AzureExecution(unittest.TestCase):
         self.root = Path(self.tmp.name).resolve()
         source = (
             ROOT
-            / "tests/fixtures/cloud-orchestration/T-012/inputs/native-workspace/bundle"
+            / "tests/fixtures/cloud-orchestration/azure-bundle"
         )
         shutil.copytree(source, self.root / "bundle")
         locked = next((self.root / "bundle/generated").glob("*.request.json"))
@@ -2147,7 +2147,7 @@ class AwsExecution(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name).resolve()
         shutil.copytree(
-            ROOT / "tests/fixtures/cloud-orchestration/T-013/inputs/aws/bundle",
+            ROOT / "tests/fixtures/cloud-orchestration/aws-bundle",
             self.root / "bundle",
         )
         locked = next((self.root / "bundle/generated").glob("*.request.json"))
@@ -2489,7 +2489,7 @@ class AwsExecution(unittest.TestCase):
     ):
         import aws_native
 
-        source = ROOT / "tests/fixtures/cloud-orchestration/T-013/inputs/external"
+        source = ROOT / "tests/fixtures/cloud-orchestration/aws-model"
         model = json.loads(
             next(source.glob("*/aws-cloudformation-2010-05-15.json")).read_bytes()
         )

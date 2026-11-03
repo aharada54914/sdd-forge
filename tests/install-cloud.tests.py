@@ -27,9 +27,9 @@ MARKETS = ('.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json'
 
 
 def fixture_environment(home: Path, *, path: str | None = None) -> dict[str, str]:
-    # Windows executable discovery needs PATHEXT and the OS directory; never
+    # Preserve executable discovery and macOS's runtime IPC directory. Never
     # inherit credentials, profiles, Git configuration or ambient cloud settings.
-    env = {key: os.environ[key] for key in ('PATH', 'PATHEXT', 'SystemRoot', 'WINDIR', 'COMSPEC')
+    env = {key: os.environ[key] for key in ('PATH', 'PATHEXT', 'SystemRoot', 'WINDIR', 'COMSPEC', 'TMPDIR')
            if key in os.environ}
     if path is not None:
         env['PATH'] = path
@@ -115,7 +115,8 @@ def validate(root: Path, skills: bool = False) -> subprocess.CompletedProcess[st
 class FixtureEnvironment(unittest.TestCase):
     def test_platform_keys_without_ambient_credentials(self) -> None:
         platform = dict(PATH='fixture-path', PATHEXT='.COM;.EXE;.BAT;.CMD',
-                        SystemRoot='fixture-windows', WINDIR='fixture-windows', COMSPEC='fixture-cmd')
+                        SystemRoot='fixture-windows', WINDIR='fixture-windows', COMSPEC='fixture-cmd',
+                        TMPDIR='fixture-runtime-temp')
         with patch.dict(os.environ, dict(platform, AWS_PROFILE='not-inherited',
                                        AZURE_CONFIG_DIR='not-inherited', GIT_CONFIG_COUNT='1'), clear=True):
             env = fixture_environment(Path('fixture-home'))
@@ -123,6 +124,29 @@ class FixtureEnvironment(unittest.TestCase):
             self.assertEqual(set(env), set(platform) | {'HOME', 'USERPROFILE', 'TEMP', 'TMP', 'PYTHONDONTWRITEBYTECODE'})
             self.assertEqual(env['HOME'], env['USERPROFILE'])
             self.assertEqual(fixture_environment(Path('fixture-home'), path=os.defpath)['PATH'], os.defpath)
+
+    def test_named_mutex_with_isolated_environment(self) -> None:
+        with tempfile.TemporaryDirectory(prefix='cloud-runtime-mutex-') as temp:
+            home = Path(temp).resolve()
+            script = home / 'mutex.ps1'
+            script.write_text(r'''param([string]$MutexName)
+$ErrorActionPreference = "Stop"
+$mutex = New-Object System.Threading.Mutex($false, $MutexName)
+$acquired = $false
+try {
+    $acquired = $mutex.WaitOne([TimeSpan]::FromSeconds(2))
+    if (-not $acquired) { throw "Fixture mutex acquisition timed out." }
+    [ordered]@{ mutex = "acquired"; tmpdir = $env:TMPDIR } | ConvertTo-Json -Compress
+}
+finally {
+    if ($acquired) { $mutex.ReleaseMutex() }
+    $mutex.Dispose()
+}
+''', encoding='utf-8')
+            name = 'Global\\sdd-cloud-fixture-' + hashlib.sha256(str(home).encode()).hexdigest()
+            result = run([PWSH, '-NoProfile', '-File', str(script), '-MutexName', name], home)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(json.loads(result.stdout), dict(mutex='acquired', tmpdir=os.environ.get('TMPDIR')))
 
 
 class ManifestBoundary(unittest.TestCase):

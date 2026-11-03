@@ -343,7 +343,7 @@ class AzureNativePreparation(AzureRouting):
     def setUp(self):
         super().setUp()
         self.binary = Path(os.environ.get("CLOUD_BICEP_BIN", "/workspace/.tools/cloud/bicep/0.48.1/bicep"))
-        preserved = ROOT / "tests/fixtures/cloud-orchestration/T-004/attempt-2/evidence/native-workspace/bundle/upstream"
+        preserved = ROOT / "tests/fixtures/cloud-orchestration/azure-upstream"
         self.upstream = Path(os.environ.get("CLOUD_AZURE_UPSTREAM_ROOT", str(preserved)))
         self.env = {"CLOUD_BICEP_BIN": str(self.binary)}
         prefix = "/subscriptions/" + self.req["scope"]["account_id"] + "/resourceGroups/synthetic-group/providers/"
