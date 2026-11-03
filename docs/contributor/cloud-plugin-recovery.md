@@ -74,3 +74,15 @@ v1.20.0に含まれていた `sdd-azure-cloud` と `sdd-aws-cloud` を、現行�
 - applied mirrorだけを同期。PENDING／frozen関連59ファイルは変更せず、mirror freshnessとPhase 2のBash／PowerShell回帰が成功した。
 
 fixtureの各ファイルは`tests/fixtures/cloud-orchestration/source-manifest.json`に出自とSHAを記録し、元タグのバイト列との一致を確認した。これらの結果は実クラウド受入を意味しない。
+
+## AWSのプライベートCIDR判定
+
+復旧時の独立レビューで、AWSの観測処理がサンプルの`10.0.0.0/16`だけを受け入れ、
+コンパイル時に対応する他のRFC1918 CIDRを拒否する不整合を確認しました。
+観測でも既存のCIDR検査を共有し、3つのRFC1918範囲へ整合します。
+ポート・プロトコル・公開IP・受信規則・リソースID等の既存検査は維持します。
+
+CIDRのQuery/XML回帰で、旧実装の誤拒否と例外を再現してから修正を確認しました。
+許容CIDR、公開・IPv6・不正形式・範囲跨ぎ・混在規則と、既存のポート・ID制約を検査しています。
+全112件のスイートが成功し、PATH未設定で省略されたPowerShell経路は指定runtimeで個別に成功しました。
+追加修正の独立レビューと、59対象の静的検査（指摘0件）も完了しています。

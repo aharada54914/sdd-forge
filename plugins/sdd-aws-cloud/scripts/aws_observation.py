@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import copy
 from decimal import Decimal, InvalidOperation
-import ipaddress
 import re
 from typing import Callable
 import urllib.parse
@@ -25,6 +24,7 @@ from cloud import (
     safe_publication,
 )
 from aws_native import HttpsTransport, sign, xml
+from aws_graph import private_cidr
 from cloud_verification import (
     decode,
     digest,
@@ -421,10 +421,9 @@ class Collector:
                     "NETWORK_CONTEXT_UNSUPPORTED",
                 )
                 for cidr in rule["ipRanges"]:
-                    network = ipaddress.ip_network(cidr["cidrIp"])
-                    if not isinstance(
-                        network, ipaddress.IPv4Network
-                    ) or not network.subnet_of(ipaddress.IPv4Network("10.0.0.0/16")):
+                    try:
+                        private_cidr(cidr["cidrIp"])
+                    except c.ContractError:
                         return False, utc(self.clock())
         return True, utc(self.clock())
 

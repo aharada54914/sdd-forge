@@ -1236,6 +1236,80 @@ class AzureMetricContextCases(unittest.TestCase):
                 collector.workload()
 
 
+class AwsNetworkPolicyCases(unittest.TestCase):
+    def observe_network(self, cidrs, mutate=None):
+        from urllib.parse import parse_qs
+        import xml.etree.ElementTree as ET
+
+        collector, fixture = FreshnessCases().collector(
+            "aws", "network", "healthy", "2026-10-18T06:00:00Z")
+        original = fixture.request
+        namespace = "{http://ec2.amazonaws.com/doc/2016-11-15/}"
+
+        def response(method, url, headers, body=None):
+            result = original(method, url, headers, body)
+            if parse_qs(body.decode())["Action"] == ["DescribeSecurityGroups"]:
+                root = ET.fromstring(result.body)
+                group = root.find(namespace + "securityGroupInfo/" + namespace + "item")
+                rule = group.find(namespace + "ipPermissionsEgress/" + namespace + "item")
+                ranges = rule.find(namespace + "ipRanges")
+                ranges.clear()
+                for cidr in cidrs:
+                    item = ET.SubElement(ranges, namespace + "item")
+                    ET.SubElement(item, namespace + "cidrIp").text = cidr
+                if mutate:
+                    mutate(group, rule, namespace)
+                result.body = ET.tostring(root)
+            return result
+
+        with patch.object(fixture, "request", side_effect=response):
+            result = collector.network()
+        self.assertEqual([parse_qs(body.decode())["Action"][0]
+                          for _, _, body in fixture.calls],
+                         ["DescribeInstances", "DescribeSecurityGroups"])
+        return result
+
+    def test_private_egress_uses_the_supported_graph_policy(self):
+        for cidr in ("10.0.0.0/16", "10.0.0.0/8", "10.1.0.0/16", "10.255.255.0/24",
+                     "172.16.0.0/12", "172.16.4.0/24", "172.31.255.0/24",
+                     "192.168.0.0/16", "192.168.1.0/24"):
+            with self.subTest(cidr=cidr):
+                self.assertTrue(self.observe_network([cidr])[0])
+
+    def test_public_malformed_ipv6_and_straddling_egress_are_unhealthy(self):
+        for cidr in ("0.0.0.0/0", "8.8.8.0/24", "100.64.0.0/10", "172.32.0.0/12",
+                     "192.169.0.0/16", "10.0.0.0/7", "172.0.0.0/11", "192.168.0.0/15",
+                     "fc00::/7", "::/0", "::ffff:10.1.0.0/112", "not-a-cidr",
+                     "10.0.0.0/33", "10.1.0.1/16", ""):
+            with self.subTest(cidr=cidr):
+                self.assertFalse(self.observe_network([cidr])[0])
+        self.assertFalse(self.observe_network(["10.1.0.0/16", "8.8.8.0/24"])[0])
+
+    def test_protocol_port_ingress_and_identity_restrictions_remain(self):
+        import xml.etree.ElementTree as ET
+
+        for field, value in (("ipProtocol", "udp"), ("fromPort", "80"), ("toPort", "444")):
+            with self.subTest(field=field):
+                def changed(group, rule, namespace):
+                    rule.find(namespace + field).text = value
+                self.assertFalse(self.observe_network(["172.16.4.0/24"], changed)[0])
+        for field in ("groups", "ipv6Ranges", "prefixListIds"):
+            with self.subTest(field=field):
+                def unsupported(group, rule, namespace):
+                    ET.SubElement(rule.find(namespace + field), namespace + "item").text = "unsupported"
+                with self.assertRaisesRegex(ValueError, "NETWORK_CONTEXT_UNSUPPORTED"):
+                    self.observe_network(["172.16.4.0/24"], unsupported)
+        for field, value in (("ownerId", "999999999999"), ("vpcId", "vpc-ffffffff")):
+            with self.subTest(field=field):
+                def wrong_identity(group, rule, namespace):
+                    group.find(namespace + field).text = value
+                with self.assertRaisesRegex(ValueError, "NETWORK_ID_MISMATCH"):
+                    self.observe_network(["172.16.4.0/24"], wrong_identity)
+        def ingress(group, rule, namespace):
+            ET.SubElement(group.find(namespace + "ipPermissions"), namespace + "item").text = "inbound"
+        self.assertFalse(self.observe_network(["172.16.4.0/24"], ingress)[0])
+
+
 class NativeFixture:
     """Native response transport double; NEVER native evidence provenance."""
 
