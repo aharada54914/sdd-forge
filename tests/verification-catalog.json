@@ -1,5 +1,49 @@
 {
   "schema": "verification-catalog/v1",
+  "impact": {
+    "schema": "verification-impact-rules/v1",
+    "categories": [
+      {
+        "id": "readme-contract",
+        "paths": [
+          "README.md"
+        ],
+        "prefixes": [],
+        "suites": [],
+        "groups": [
+          "a9-advisory",
+          "a9-advisory-inputs",
+          "ci-mcp-tests",
+          "ci-plan",
+          "cloud-native",
+          "coding-standards",
+          "installers",
+          "interrupted-recovery",
+          "local-env-mcp-tests",
+          "loops-routing",
+          "mcp-tests",
+          "posix-regression",
+          "posix-unwired-sharded",
+          "test",
+          "test-windows-heavy",
+          "version-gates",
+          "version-gates-windows-bump",
+          "version-gates-windows-lanes",
+          "windows-powershell"
+        ],
+        "active": false,
+        "evidence": null
+      }
+    ],
+    "dependencies": {},
+    "non_suite_steps": [
+      {
+        "job": "cli-hook-enforcement",
+        "step": "Install Claude Code CLI",
+        "kind": "setup"
+      }
+    ]
+  },
   "suites": [
     {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},

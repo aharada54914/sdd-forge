@@ -46,28 +46,31 @@ Even an observed successful comparison is not a reason to disable a required
 test automatically. Broader selection needs evidence from representative changes
 and review of shared dependencies first.
 
-### CI planning tools before activation
+### Revision-bound CI planning
 
-The explicit `--plan` mode of `tests/verification-impact.py`, the contracts in
-`contracts/verification-ci-*.schema.json`, and `tests/verification-ci.py` restore
-revision-bound planning and observation validation. The current workflow still
-runs its full required checks; it does not use these tools to omit work or replace
-`required-checks`. No selection categories are activated in the current catalog.
+`ci-plan` invokes the trusted base planner for pull requests. Its generated outputs
+select the existing job groups; the three native `test` contexts remain present.
+`required-checks` downloads that run's original plan, collects Actions job results
+and execution receipts, and validates their revisions, attempts and identities.
+Only this collector job adds `actions: read`; no write permission is needed.
+A9 activation and the distinct Windows 5.1/7 profiles remain required contracts.
 
-The restored tests cover the planner, same-run API collection, attempt and receipt
-binding, and pinned dependency acquisition with local fixtures. The historical
-planner dispatcher under `tests/fixtures/verification-ci/` is a test input, not an
-active workflow or evidence of hosted execution. The Pester cache helper is also
-available before workflow integration; it rehashes package bytes on every reuse
-and validates the archive before installing a fresh module tree.
+The README-only category is defined but inactive. Unknown changes and missing or
+invalid evidence keep full execution. `SDD_CI_FORCE_FULL` must be literal `false`
+before a proven pull-request category can omit work; absent, invalid and `true`
+values retain full execution. Main, merge, release and manual events stay full.
+A variable-setting failure is not permission to replace this default or simulate
+a pull-request event.
 
-Workflow integration must follow adoption of compatible tools on the trusted base.
-The collector requires `actions: read` only in its consuming job. Until actual
-plan, observation and result artifacts have been compared on the new revision,
-these changes establish neither selective CI activation nor measured time savings.
-An absent or invalid force-full value keeps full planning; literal `false` alone
-cannot activate an unproven category. Main, merge, release and manual events stay
-full.
+Pester caching retains pinned package bytes, rehashes every hit and installs a
+fresh validated module tree. npm caches contain download bytes keyed by runtime,
+lockfile and event trust scope; every job still runs `npm ci`. Cache hits are not
+reused test results.
+
+Local protocol tests and the historical dispatcher fixture establish no hosted
+execution or timing improvement. Follow [CI selection recovery](contributor/ci-selection-recovery.md)
+to collect current full and mutation evidence, validate category activation, and
+compare selected execution against full execution at the same tested revision.
 
 ## Using Lite
 

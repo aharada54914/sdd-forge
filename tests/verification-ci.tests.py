@@ -324,6 +324,35 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(observations['properties']['api_version']['const'], self.ci.API_VERSION)
 
 
+    def test_live_receipt_uploads_bind_current_job_names_and_actual_output_paths(self):
+        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        identities = self.ci.expanded_jobs(workflow)
+        obligations = [row for row in W.plan_obligations(workflow, catalog) if row['receipt_required']]
+        import fnmatch
+        import shlex
+        for obligation in obligations:
+            job = workflow['jobs'][obligation['job']]
+            binding = [step for step in job['steps'] if step.get('id') == 'receipt-artifact']
+            self.assertEqual(len(binding), 1)
+            name = W.expand_matrix(binding[0]['env']['RECEIPT_JOB_NAME'], obligation['matrix'])
+            self.assertEqual(identities[name]['job'], obligation['job'])
+            self.assertEqual(identities[name]['matrix'], obligation['matrix'])
+            uploads = [step for step in job['steps'] if step.get('with', {}).get('name', '').startswith('verification-receipts-')]
+            self.assertEqual(len(uploads), 1)
+            upload = uploads[0]
+            self.assertEqual(upload['uses'], 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9')
+            self.assertEqual(upload['with']['name'], 'verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}')
+            self.assertEqual(upload['with']['if-no-files-found'], 'error')
+            self.assertTrue(upload['if'].startswith('always()'))
+            consumers = [step for step in job['steps'] if W.expand_matrix(step.get('name', ''), obligation['matrix']) == obligation['step']]
+            self.assertEqual(len(consumers), 1)
+            tokens = shlex.split(W.expand_matrix(consumers[0]['run'], obligation['matrix']))
+            self.assertIn('--receipt', tokens)
+            receipt = tokens[tokens.index('--receipt') + 1].rsplit('/', 1)[-1]
+            patterns = [line.rsplit('/', 1)[-1] for line in upload['with']['path'].splitlines()]
+            self.assertTrue(any(fnmatch.fnmatchcase(receipt, pattern) for pattern in patterns), receipt)
+
     def test_current_workflow_all_receipt_callers_match_existing_profiles(self):
         workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
         catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
@@ -1474,10 +1503,10 @@ PlanFixture = module(ROOT / 'tests/verification-ci-plan.tests.py', 't003_plan_fi
 
 
 class WorkflowPlanIntegrationTests(PlanFixture):  # type: ignore[misc, valid-type]  # Runtime-loaded filename contains hyphens.
-    """Run the historical planner dispatcher fixture; live CI remains full."""
+    """Run the live planner dispatcher against isolated histories; no hosted proof."""
     def actual_body(self):
-        workflow = W.load_workflow(ROOT / 'tests/fixtures/verification-ci/planner-workflow.json')
-        self.assertTrue('ci-plan' in workflow['jobs'], 'dispatcher fixture does not invoke the planner')
+        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the planner')
         steps = [s for s in workflow['jobs']['ci-plan']['steps'] if s.get('id') == 'plan']
         self.assertEqual(len(steps), 1)
         step = steps[0]
