@@ -117,6 +117,9 @@ jobs:
         env:
           RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+      - name: Validate release source
+        shell: bash
+        run: bash ./tests/validate-repository.sh
       - name: Test loop consistency suite
         shell: bash
         run: bash ./tests/loop-consistency.tests.sh

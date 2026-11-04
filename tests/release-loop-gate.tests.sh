@@ -331,6 +331,7 @@ for name in ('loop-gate', 'release'):
     assert 'ref: ${{ needs.ci-green.outputs.sha }}' in section, name
     assert 'persist-credentials: false' in section, name
 assert 'needs: ci-green' in job('loop-gate')
+assert 'run: bash ./tests/validate-repository.sh' in job('loop-gate')
 assert 'contents: read' in job('loop-gate')
 assert 'id-token: write' not in job('loop-gate')
 assert 'sha: ${{ steps.source.outputs.sha }}' in job('ci-green')
@@ -427,7 +428,7 @@ with tempfile.TemporaryDirectory() as temporary:
     git('config', 'user.name', 'Release test')
     git('config', 'user.email', 'release-test@example.invalid')
     (root / 'tests').mkdir()
-    scripts = ('loop-consistency.tests.sh', 'loop-inventory.tests.sh', 'release-host-smoke.sh')
+    scripts = ('validate-repository.sh', 'loop-consistency.tests.sh', 'loop-inventory.tests.sh', 'release-host-smoke.sh')
     for name in scripts:
         path = root / 'tests' / name
         path.write_text('#!/usr/bin/env bash\nprintf "tagged ' + name + '\\n" >> "$RUNNER_TEMP/executed"\n')
@@ -458,7 +459,7 @@ with tempfile.TemporaryDirectory() as temporary:
     # may select the loops, optional smoke, archive and SBOM generator.
     git('tag', '-f', 'v1', dispatch)
     git('checkout', '-q', '--detach', tagged)
-    for step in ('Verify loop checkout', 'Test loop consistency suite', 'Test loop inventory suite',
+    for step in ('Verify loop checkout', 'Validate release source', 'Test loop consistency suite', 'Test loop inventory suite',
                  'Build reproducible source tarball', 'Release-only real host smoke',
                  'Generate CycloneDX SBOM', 'Record immutable build inputs'):
         result = invoke(body(step), env, root)
@@ -489,6 +490,13 @@ with tempfile.TemporaryDirectory() as temporary:
                         {**env, 'CURRENT_TAG_SHA': 'c' * 40, 'CURRENT_TAG_TYPE': 'tag',
                          'CURRENT_PEELED_SHA': peeled, 'CURRENT_PEELED_TYPE': kind}, root)
         assert (result.returncode == 0) == accepted, (kind, peeled, result.stderr)
+    # The release job needs the gate's success. An actual validator failure
+    # therefore stops the dependent build, even with a previously admitted SHA.
+    package = root / env['PKG']
+    package.unlink()
+    (root / 'tests/validate-repository.sh').write_text('#!/usr/bin/env bash\nexit 93\n')
+    result = invoke(body('Validate release source') + '\n' + body('Build reproducible source tarball'), env, root)
+    assert result.returncode == 93 and not package.exists(), 'source validation failure reached the release build'
     # A present corrupt lock remains an error, not zero dependency evidence.
     for invalid in ('{', '[]', '{"packages":[]}'):
         lock.write_text(invalid)
