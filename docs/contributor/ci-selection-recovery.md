@@ -68,6 +68,17 @@ Exit 2 is an invalid or unavailable input. Retain genuine prior attempts; do not
 rename copied receipts or erase failed history. The collector validates these
 boundaries independently of a green job summary.
 
+GitHub may update the nested `run.pull_requests[].base.sha` and `head.sha` when
+branches advance, even though `run.head_sha` still identifies the original run.
+The hosted collector preserves fixed original-event context and checks it against
+the run, PR/repository identity and tested merge parents. Offline collection
+without that context must happen while both source and base refs are frozen,
+before branch updates or PR retargeting. Preserve collected observations and
+original context; never reconstruct the context from a plan's revision fields.
+A late collection with moved refs must fail rather than claim the old execution
+belongs to a newer commit. Forks remain full-only even with a populated PR array
+or context-free observations whose API repository IDs identify a fork.
+
 ## Construct and validate the activation packet
 
 Store proof JSON under `reports/verification/ci-selection/`. The current tools have
