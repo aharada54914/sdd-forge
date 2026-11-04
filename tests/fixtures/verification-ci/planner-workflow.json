@@ -1,0 +1,86 @@
+{
+  "jobs": {
+    "ci-plan": {
+      "name": "ci-plan",
+      "runs-on": "ubuntu-latest",
+      "permissions": {
+        "contents": "read"
+      },
+      "outputs": {
+        "run_a9_advisory": "${{ steps.plan.outputs.run_a9_advisory }}",
+        "run_a9_advisory_inputs": "${{ steps.plan.outputs.run_a9_advisory_inputs }}",
+        "run_ci_mcp_tests": "${{ steps.plan.outputs.run_ci_mcp_tests }}",
+        "run_ci_plan": "${{ steps.plan.outputs.run_ci_plan }}",
+        "run_cli_hook_enforcement": "${{ steps.plan.outputs.run_cli_hook_enforcement }}",
+        "run_cloud_native": "${{ steps.plan.outputs.run_cloud_native }}",
+        "run_installers": "${{ steps.plan.outputs.run_installers }}",
+        "run_local_env_mcp_tests": "${{ steps.plan.outputs.run_local_env_mcp_tests }}",
+        "run_loops_routing": "${{ steps.plan.outputs.run_loops_routing }}",
+        "run_mcp_tests": "${{ steps.plan.outputs.run_mcp_tests }}",
+        "run_posix_regression": "${{ steps.plan.outputs.run_posix_regression }}",
+        "run_posix_unwired_sharded": "${{ steps.plan.outputs.run_posix_unwired_sharded }}",
+        "run_test": "${{ steps.plan.outputs.run_test }}",
+        "run_test_windows_heavy": "${{ steps.plan.outputs.run_test_windows_heavy }}",
+        "run_version_gates": "${{ steps.plan.outputs.run_version_gates }}",
+        "run_version_gates_windows_bump": "${{ steps.plan.outputs.run_version_gates_windows_bump }}",
+        "run_version_gates_windows_lanes": "${{ steps.plan.outputs.run_version_gates_windows_lanes }}",
+        "plan_artifact_name": "${{ steps.plan.outputs.plan_artifact_name }}"
+      },
+      "steps": [
+        {
+          "name": "Checkout tested plan inputs",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.sha }}",
+            "path": "subject",
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Checkout trusted base planner",
+          "if": "github.event_name == 'pull_request'",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.event.pull_request.base.sha }}",
+            "path": "trusted",
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Install pinned structural parser dependencies",
+          "shell": "bash",
+          "run": "set -euo pipefail\nnpm ci --prefix subject/mcp/sdd-forge-mcp --ignore-scripts\nif [[ -f trusted/mcp/sdd-forge-mcp/package-lock.json ]]; then\n  npm ci --prefix trusted/mcp/sdd-forge-mcp --ignore-scripts\nfi",
+          "env": {
+            "npm_config_fetch_retries": "2",
+            "npm_config_loglevel": "http"
+          }
+        },
+        {
+          "name": "Generate revision-bound plan",
+          "id": "plan",
+          "shell": "bash",
+          "env": {
+            "CI_EVENT": "${{ github.event_name }}",
+            "CI_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+            "CI_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
+            "CI_TESTED_SHA": "${{ github.sha }}",
+            "CI_API_HEAD_SHA": "${{ github.event.pull_request.head.sha || github.sha }}",
+            "CI_FORCE_FULL": "${{ vars.SDD_CI_FORCE_FULL }}"
+          },
+          "run": "set -euo pipefail\nsubject=\"$GITHUB_WORKSPACE/subject\"\ntrusted=\"$GITHUB_WORKSPACE/trusted\"\nplanner=\"$subject/tests/verification-impact.py\"\nif [[ \"$CI_EVENT\" == pull_request && -f \"$trusted/tests/verification-impact.py\" ]] &&\n  grep -Fq 'verification-ci-plan/v1' \"$trusted/tests/verification-impact.py\" &&\n  grep -Fq 'def plan_main(' \"$trusted/tests/verification-impact.py\"; then\n  planner=\"$trusted/tests/verification-impact.py\"\nfi\nif [[ \"$CI_EVENT\" != pull_request ]]; then\n  trusted=\"$subject\"\nfi\nmkdir -p \"$RUNNER_TEMP/verification-plan\"\npython3 -I -B \"$planner\" --plan --root \"$subject\" --trusted-root \"$trusted\" --event \"$CI_EVENT\" --run-id \"$GITHUB_RUN_ID\" --run-attempt \"$GITHUB_RUN_ATTEMPT\" --api-head-sha \"$CI_API_HEAD_SHA\" --tested-revision \"$CI_TESTED_SHA\" --base \"$CI_BASE_SHA\" --head \"$CI_HEAD_SHA\" --force-full \"$CI_FORCE_FULL\" --output \"$RUNNER_TEMP/verification-plan/plan.json\" --github-output \"$GITHUB_OUTPUT\"\nprintf 'plan_artifact_name=verification-plan-%s-%s\\n' \"$GITHUB_RUN_ID\" \"$GITHUB_RUN_ATTEMPT\" >> \"$GITHUB_OUTPUT\"\n"
+        },
+        {
+          "name": "Upload original planning-attempt artifact",
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "with": {
+            "name": "${{ steps.plan.outputs.plan_artifact_name }}",
+            "path": "${{ runner.temp }}/verification-plan/plan.json",
+            "if-no-files-found": "error"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -379,6 +379,8 @@
     {"path": "tests/validate-resolver-evidence.tests.ps1", "runtime": "powershell"},
     {"path": "tests/validate-resolver-evidence.tests.sh", "runtime": "bash"},
     {"path": "tests/verification-catalog.tests.py", "runtime": "python", "delegated_to": "tests/ci-suite-wiring.tests.sh", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/verification-ci-plan.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/verification-ci.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/verification-impact.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/wfi-034-scratch-metric.tests.sh", "runtime": "bash"},
     {"path": "tests/wfi-058-outputs-anchor.tests.ps1", "runtime": "powershell"},
@@ -630,7 +632,9 @@
       "tests/task-structured-output.tests.py",
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
-      "tests/verification-impact.tests.py"
+      "tests/verification-impact.tests.py",
+      "tests/verification-ci-plan.tests.py",
+      "tests/verification-ci.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -906,7 +910,9 @@
       "tests/unified-task-launch.tests.py",
       "tests/task-structured-output.tests.py",
       "tests/supplemental-delivery-declaration.tests.py",
-      "tests/t001-evaluation-preparation.tests.py"
+      "tests/t001-evaluation-preparation.tests.py",
+      "tests/verification-ci-plan.tests.py",
+      "tests/verification-ci.tests.py"
     ],
     "ci-a7-native": [
       "tests/golden-baseline-contract.tests.ps1",
