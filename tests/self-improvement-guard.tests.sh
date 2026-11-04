@@ -406,5 +406,82 @@ done
 
 fi
 
+# Restored model-control boundaries remain protected from automated session PRs.
+for protected in \
+  plugins/sdd-implementation/scripts/managed-model-entry.py \
+  plugins/sdd-implementation/scripts/model-policy.py \
+  plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1 \
+  plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1 \
+  contracts/model-policy.v1.json contracts/model-policy.schema.json \
+  contracts/model-launch-controls.schema.json contracts/model-adoption/claude.yaml \
+  contracts/agent-model-capabilities.v2.json; do
+  printf '%s\n' "$protected" > "$WORK/model-boundary-paths"
+  run_guard "$WORK/model-boundary-paths"
+  if [[ "$GUARD_CODE" == 1 ]] && printf '%s' "$GUARD_OUT" | grep -Fq "$protected"; then
+    ok "model boundary: session PR cannot change $protected"
+  else
+    fail "model boundary: session PR admitted $protected"
+  fi
+done
+
+# Execute the maintained preparation body in an isolated directory; a failed
+# managed prepare must emit no action outputs and cannot silently become legacy.
+if python3 - "$TARGET_YML" <<'PYMODELROUTE'
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
+
+workflow = Path(sys.argv[1]).read_text()
+def step(name):
+    marker = '      - name: ' + name + '\n'
+    return workflow.split(marker, 1)[1].split('\n      - name:', 1)[0]
+
+prepare = step('Prepare managed self-improvement session')
+install = step('Install native Claude for managed action')
+action = step('Run Claude self-improvement session')
+condition = "        if: ${{ vars.SDD_SELF_IMPROVEMENT_REQUEST != '' }}"
+assert condition in prepare and condition in install
+assert 'continue-on-error:' not in prepare + install + action
+assert '        if:' not in action, 'action must retain the default success() gate'
+assert "vars.SDD_SELF_IMPROVEMENT_REQUEST == '' && '--model claude-sonnet-5'" in action
+assert "format('--model {0} --effort {1} --session-id {2}', steps.managed_self_improvement.outputs.model, steps.managed_self_improvement.outputs.effort, steps.managed_self_improvement.outputs.session_id)" in action
+assert 'path_to_claude_code_executable: ${{ steps.managed_self_improvement.outputs.executable }}' in action
+assert 'anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6' in action
+script = '\n'.join(line[10:] for line in prepare.split('        run: |\n', 1)[1].splitlines())
+with tempfile.TemporaryDirectory(prefix='self-improvement-route-') as temporary:
+    root = Path(temporary)
+    entry = root / 'entry.py'
+    entry.write_text('import json,os,sys\nfrom pathlib import Path\nPath(os.environ["ARGV_RECORD"]).write_text(json.dumps(sys.argv[1:]))\nif os.environ["PREPARE_EXIT"] != "0": sys.exit(int(os.environ["PREPARE_EXIT"]))\nprint(json.dumps({"selection":{"resolved":{"native_id":"fixture-model-1","effort":"high"}}}))\n')
+    request = 'request with spaces; $(must-not-execute).json'
+    for code in (0, 23):
+        output = root / f'github-output-{code}'
+        record = root / f'argv-{code}.json'
+        env = dict(os.environ, SDD_MANAGED_ENTRY=str(entry), SDD_SELF_IMPROVEMENT_REQUEST=request,
+                   SDD_SELF_IMPROVEMENT_REGISTRY='registry.json', GITHUB_RUN_ID='123', GITHUB_RUN_ATTEMPT='1',
+                   GITHUB_OUTPUT=str(output), CLAUDE_NATIVE_EXECUTABLE='/fixture/claude',
+                   ARGV_RECORD=str(record), PREPARE_EXIT=str(code))
+        result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', script], cwd=root, env=env,
+                                capture_output=True, text=True, timeout=20)
+        assert result.returncode == code, (code, result.stderr)
+        argv = json.loads(record.read_text())
+        assert argv[0] == 'claude-action-prepare' and argv[argv.index('--request') + 1] == request
+        if code:
+            assert not output.exists(), 'failed preparation emitted action/legacy outputs'
+        else:
+            values = dict(line.split('=', 1) for line in output.read_text().splitlines())
+            assert values['model'] == 'fixture-model-1' and values['effort'] == 'high'
+            assert re.fullmatch(r'[0-9a-f-]{36}', values['session_id'])
+            assert values['executable'].startswith(str(root))
+PYMODELROUTE
+then
+  ok 'managed action: explicit route, exact argv, output forwarding and no failure fallback'
+else
+  fail 'managed action route/preparation contract'
+fi
+
 printf '\nTEST-010/011/014 + ISSUE-478-RECOVERY + ISSUE-559 results: %d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

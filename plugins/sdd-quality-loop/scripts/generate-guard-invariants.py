@@ -228,6 +228,10 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-bootstrap/scripts/workflow-playbook.py",
     "plugins/sdd-bootstrap/scripts/research-sources.py",
     "plugins/sdd-quality-loop/scripts/workflow-state-session.py",
+    "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "plugins/sdd-implementation/scripts/model-policy.py",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

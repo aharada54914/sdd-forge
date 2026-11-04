@@ -106,7 +106,9 @@ A read-only summary of agent roles, tool scopes, and which actions are enforced 
 Turn-first routing optimizes expected implementation/review iteration count
 before token price. Expected iterations are optimized first, then the weakest sufficient tier, then token price.
 Concrete model IDs are examples only; check availability at invocation and
-record the selected provider/model.
+record the selected provider/model. The tables below describe legacy
+registry-based routing (explicit candidate input and pinned IDs). Managed
+selection is described in [Managed model policy](#managed-model-policy).
 
 ### Predicted Attempts Matrix
 
@@ -135,13 +137,13 @@ the lexicographically smaller provider/model identifier.
 | strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
 | lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
 | standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
-| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh | 未確認 | OpenAI developers docs (Codex) |
+| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 現在の可用性は未確認 | contracts/agent-model-capabilities.v2.json（候補の登録情報） |
 
-Codex agent model selection is a runtime control (`--model` / `--effort` flags
-passed to the Codex CLI at invocation), not a field in the role TOML. The
-`.codex/agents/*.toml` files intentionally do not pin a `model` key because the
-role schema has historically rejected malformed role definitions. Routing
-therefore happens at the call site after model availability is checked.
+For legacy routing, Codex agent model selection is a runtime control (`--model`
+/ `--effort` flags passed to the Codex CLI at invocation). Legacy reference
+rendering writes only `# x-sdd-model:` / `# x-sdd-effort:` comments into
+`.codex/agents/*.toml`, not a `model` key; routing happens at the call site
+after model availability is checked. Managed rendering differs; see below.
 The caller filters candidates through the host capability registry. A
 substitute is eligible only when the registry assigns it to the same canonical
 tier; the canonical tier does not change and the concrete provider/model is
@@ -149,6 +151,53 @@ recorded. If no available candidate satisfies an exact tier or role floor,
 routing fails closed as `model-tier-unavailable`. For strong Codex routing,
 high effort is the default. Xhigh is used only when the capability registry or
 a task-specific evaluator contract requires it, with the reason recorded.
+
+### Managed model policy
+
+Managed routing is explicit. `select-agent-model` selects this mode with
+`--policy-input` (`-PolicyInput` in PowerShell); without it, legacy candidate
+routing remains available. The renderer and panelist wrappers enter managed
+mode when any of their managed controls/identity flags is supplied. Partial or
+conflicting managed input is an error, never a request to fall back to legacy.
+The managed entry's `prepare`, `claude-entry`, and `claude-batch-definition`
+commands are explicit managed routes. Once selected, all affected allocations
+retain the managed binding and refusal rules in their skill instructions.
+
+Shared managed policy selects a model per role, risk and host from the shared
+policy, observed availability and project configuration. A request's model
+policy is `latest-compatible` (an eligible observed candidate in registered policy preference order) or
+`pinned` (an explicit model ID); role and effort restrictions still apply.
+Observations are dated and scoped to a host and CLI version; a policy
+`source_date` or an old trial is not perpetual availability.
+
+The restored `contracts/model-adoption/ci-model-modernization-20261021.json`
+is a historical adoption record, not a fresh availability observation or a new
+adoption decision. Its withheld candidates remain withheld. Restoring the
+record, the policy or a successful fixture does not prove a current native
+workload, actual backend identity, or permission to use an unadopted model.
+Current execution still needs the scoped observation and controls required by
+the policy.
+
+For Codex, `render-agent-frontmatter.sh` managed mode (`--model-controls`,
+`--model-controls-sha256`, `--run-id`, `--session-id`, `--managed-target`)
+writes native top-level `model` and `model_reasoning_effort` keys before any
+table, from validated controls. Without those flags, legacy reference
+rendering is unchanged.
+
+Selection records configured and resolved values only; it does not verify the
+model that served a turn. When actual identity is not required, a delivery may
+be accepted with `actual_id: null` and `proof: unverified`; this is configuration
+evidence only. A request with `require_actual_id: true` stops before launch as
+`actual-id-unavailable`, and an observed reroute of a pinned model is blocked
+as `actual-id-mismatch`. Neither accepted configuration nor a reroute event
+proves an actual backend model ID. Failures are one `model-policy-error/v1` object whose `reason`
+comes from the schema enum: `config-invalid`, `config-conflict`,
+`native-precedence-conflict`, `discovery-unavailable`, `discovery-incomplete`,
+`discovery-stale`, `scope-mismatch`, `model-unavailable`, `model-unverified`,
+`model-tier-unavailable`, `effort-unavailable`, `budget-unverifiable`,
+`resume-conflict`, `actual-id-unavailable`, `actual-id-mismatch`,
+`input-invalid`. Unsupported carriers stop before any work starts. Reviewer
+independence and external-send consent boundaries are unchanged.
 
 ### Effort Policy: `welded` vs. `matrix`
 
@@ -181,7 +230,7 @@ computation at all.
 | spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
 | impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
 | task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |
+| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |
 
 ### Escalation
 
@@ -293,3 +342,13 @@ The two layers work together: the hook guard catches direct attempts to set appr
 - **sdd-investigator role** (TOML + developer_instructions): [`.codex/agents/sdd-investigator.toml`](../.codex/agents/sdd-investigator.toml)
 - **sdd-evaluator role** (TOML + developer_instructions): [`.codex/agents/sdd-evaluator.toml`](../.codex/agents/sdd-evaluator.toml)
 - **Sudo Mode Policy** (approval guard bypass rules): [`plugins/sdd-quality-loop/references/sudo-mode-policy.md`](../plugins/sdd-quality-loop/references/sudo-mode-policy.md)
+
+### Registered GPT-6 route
+
+The authority for repository eligibility is `contracts/agent-model-capabilities.v2.json`,
+not a fixed GPT-5.2 primary. Its `gpt-6-astra` entry is strong with
+low/medium/high/xhigh efforts and default high; evaluator role floors still apply.
+The earlier documentation cited isolated cloud trials from 2026-10-18. Those
+historical observations do not establish current availability, comparative
+quality, backend identity or pricing. Check the actual host and scoped policy
+observation at invocation; do not convert planning allowances to measured billing.
