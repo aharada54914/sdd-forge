@@ -6,6 +6,7 @@ import importlib.util
 import io
 import lzma
 import math
+import os
 from pathlib import Path
 import re
 import shlex
@@ -71,8 +72,54 @@ def reference(row, artifact=False):
         raise ValueError('invalid artifact source execution')
 
 
+def validate_event_context(value):
+    """GitHub event fields captured separately from the untrusted source plan."""
+    P.exact_fields(value, 'event repository repository_id head_repository head_repository_id '
+                   'run_id run_attempt pr_number base_sha head_sha tested_sha')
+    if (value['event'] != 'pull_request' or not repository_identity(value['repository'])
+            or not repository_identity(value['head_repository']) or not run_identity(value['run_id'])
+            or any(not positive(value[k]) for k in ('repository_id', 'head_repository_id', 'run_attempt', 'pr_number'))
+            or value['run_attempt'] > MAX_ATTEMPTS
+            or any(not P.hash_value(value[k], 40) for k in ('base_sha', 'head_sha', 'tested_sha'))):
+        raise ValueError('invalid independent GitHub event identity')
+
+
+def event_context_from_environment(run):
+    # Read only the fixed caller's explicit env values, never plan or PR body JSON.
+    if os.environ.get('CI_EVENT') != run.get('event'):
+        raise ValueError('event differs from actual run')
+    if run['event'] != 'pull_request':
+        return None
+    names = ('event repository repository_id head_repository head_repository_id run_id '
+             'run_attempt pr_number base_sha head_sha tested_sha').split()
+    value = {name: os.environ.get('CI_' + name.upper(), '') for name in names}
+    for name in ('repository_id', 'head_repository_id', 'run_attempt', 'pr_number'):
+        if not run_identity(value[name]):
+            raise ValueError('missing GitHub event identity')
+        value[name] = int(value[name])
+    bind_event_context(value, run)
+    return value
+
+
+def bind_event_context(value, run):
+    validate_event_context(value)
+    if (value['event'] != run.get('event') or value['run_id'] != str(run.get('id'))
+            or value['run_attempt'] != run.get('run_attempt') or value['head_sha'] != run.get('head_sha')):
+        raise ValueError('event identity differs from observed run')
+    for name in ('repository', 'head_repository'):
+        observed = run.get(name)
+        if (not isinstance(observed, dict) or observed.get('full_name') != value[name]
+                or not positive(observed.get('id')) or observed['id'] != value[name + '_id']):
+            raise ValueError('event repository differs from observed run')
+
+
 def validate_collection(value):
-    P.exact_fields(value, 'schema repository run_id api_head_sha collected_at api_version run jobs artifacts')
+    if not isinstance(value, dict):
+        raise ValueError('invalid collection object')
+    P.exact_fields({k: v for k, v in value.items() if k != 'event_context'},
+                   'schema repository run_id api_head_sha collected_at api_version run jobs artifacts')
+    if 'event_context' in value:
+        validate_event_context(value['event_context'])
     if (value['schema'] != 'verification-ci-observations/v1' or not repository_identity(value['repository'])
             or not run_identity(value['run_id']) or not P.hash_value(value['api_head_sha'], 40)
             or value['api_version'] != API_VERSION):
@@ -280,7 +327,7 @@ def artifact_identity(name, run_id):
     return int(match[2]), match[3]
 
 
-def collect(repository, run_id, output_dir):
+def collect(repository, run_id, output_dir, github_event_context=False):
     if not repository_identity(repository) or not run_identity(run_id) or output_dir.exists():
         raise ValueError('invalid collection arguments or existing destination')
     prefix = f'/repos/{repository}/actions'
@@ -292,10 +339,13 @@ def collect(repository, run_id, output_dir):
             or not isinstance(run.get('repository'), dict)
             or run['repository'].get('full_name') != repository):
         raise ValueError('run identity mismatch')
+    context = event_context_from_environment(run) if github_event_context else None
     output_dir.mkdir(parents=True)
     manifest = dict(schema='verification-ci-observations/v1', repository=repository, run_id=run_id,
                     api_head_sha=run['head_sha'], collected_at=dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
                     api_version=API_VERSION, run=write_json(output_dir / 'run.json', run), jobs=[], artifacts=[])
+    if context is not None:
+        manifest['event_context'] = context
     jobs = []
     for attempt in range(1, attempts + 1):
         records = pages(prefix + f'/runs/{run_id}/attempts/{attempt}/jobs?per_page=100', 'jobs')
@@ -423,7 +473,7 @@ def source_job(history):
     return latest, origin
 
 
-def rebuild_plan(root, run, plan):
+def rebuild_plan(root, run, plan, event_context=None):
     tested = P.git(root, 'rev-parse', 'HEAD').decode().strip()
     if P.git(root, 'status', '--porcelain', '--untracked-files=no'):
         raise ValueError('tracked checkout bytes differ from tested revision')
@@ -435,9 +485,25 @@ def rebuild_plan(root, run, plan):
                      api_head_sha=run['head_sha'], tested_revision=tested)
     if run['event'] == 'pull_request':
         prs = run.get('pull_requests')
-        if not isinstance(prs, list) or len(prs) != 1:
-            raise ValueError('missing or ambiguous API PR revision identity')
-        base, head = prs[0]['base']['sha'], prs[0]['head']['sha']
+        fork_fallback = prs == [] and isinstance(prs, list)
+        if fork_fallback:
+            bind_event_context(event_context, run)
+            if (event_context['repository_id'] == event_context['head_repository_id']
+                    or event_context['repository'] == event_context['head_repository']
+                    or run['head_repository'].get('fork') is not True
+                    or plan['mode'] != 'full' or plan['omissions'] or plan['activation_evidence']
+                    or tested != event_context['tested_sha']):
+                raise ValueError('empty PR metadata requires independently bound full fork execution')
+            base, head = event_context['base_sha'], event_context['head_sha']
+            parents = P.git(root, 'show', '-s', '--format=%P', tested).decode().strip().split()
+            if parents != [base, head]:
+                raise ValueError('fork tested merge does not bind original event parent order')
+            if W.verifier_job(P.read_workflow(root / '.github/workflows/test.yml')) is not True:
+                raise ValueError('fork context requires the fixed event-bound collector caller')
+        else:
+            if not isinstance(prs, list) or len(prs) != 1:
+                raise ValueError('missing or ambiguous API PR revision identity')
+            base, head = prs[0]['base']['sha'], prs[0]['head']['sha']
         if not P.hash_value(base, 40) or not P.hash_value(head, 40) or head != run['head_sha']:
             raise ValueError('invalid API PR revisions')
         with tempfile.TemporaryDirectory(prefix='ci-trusted-') as directory:
@@ -455,7 +521,8 @@ def rebuild_plan(root, run, plan):
                 shutil.copytree(parser, trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml')
             normal = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='false', **arguments)
             forced = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='true', **arguments)
-            if P.canonical(plan) not in (P.canonical(normal), P.canonical(forced)):
+            admitted = (forced,) if fork_fallback else (normal, forced)
+            if P.canonical(plan) not in tuple(P.canonical(item) for item in admitted):
                 raise ValueError('plan disagrees with independent trusted reconstruction')
     else:
         expected = P.make_plan(trusted_root=root, **arguments)
@@ -584,7 +651,7 @@ def aggregate(root, plan, observations, run_id, api_head_sha):
                 or not isinstance(run.get('repository'), dict)
                 or run['repository'].get('full_name') != manifest['repository']):
             raise ValueError('run observation binding mismatch')
-        workflow, catalog = rebuild_plan(root, run, plan)
+        workflow, catalog = rebuild_plan(root, run, plan, manifest.get('event_context'))
         jobs = validate_jobs(manifest, observations, run)
         identities = expanded_jobs(workflow)
         histories = {name: [j for j in jobs if j['name'] == name] for name in identities}
@@ -658,6 +725,7 @@ def main(argv=None):
     collect_parser.add_argument('--repository', required=True)
     collect_parser.add_argument('--run-id', required=True)
     collect_parser.add_argument('--output-dir', type=Path, required=True)
+    collect_parser.add_argument('--github-event-context', action='store_true')
     aggregate_parser = sub.add_parser('aggregate')
     for name in ('root', 'plan', 'observations'):
         aggregate_parser.add_argument('--' + name, type=Path, required=True)
@@ -667,7 +735,7 @@ def main(argv=None):
     try:
         args = parser.parse_args(argv)
         if args.command == 'collect':
-            collect(args.repository, args.run_id, args.output_dir)
+            collect(args.repository, args.run_id, args.output_dir, args.github_event_context)
             return 0
         if args.output and args.output.exists():
             raise ValueError('output must be create-only')

@@ -315,7 +315,9 @@ class BoundaryTests(unittest.TestCase):
     def test_schema_enums_and_all_properties_match_producers(self):
         observations = json.loads((ROOT / 'contracts/verification-ci-observations.schema.json').read_text())
         result = json.loads((ROOT / 'contracts/verification-ci-result.schema.json').read_text())
-        for node in (observations, result['$defs']['result'], result['$defs']['error'],
+        self.assertEqual(set(observations['required']), set(observations['properties']) - {'event_context'})
+        self.assertFalse(observations['additionalProperties'])
+        for node in (observations['properties']['event_context'], result['$defs']['result'], result['$defs']['error'],
                      result['$defs']['result']['properties']['results']['items']):
             self.assertEqual(set(node['required']), set(node['properties']))
             self.assertFalse(node['additionalProperties'])
@@ -1117,7 +1119,7 @@ sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(response
         self.original_jobs = copy.deepcopy(self.jobs)
         self.original_receipts = copy.deepcopy(self.receipts)
 
-    def collect_cli(self, mutate=None, expected=0):
+    def collect_cli(self, mutate=None, expected=0, github_event_context=False):
         self.serial += 1
         target = self.scratch / ('collected-' + str(self.serial))
         prefix = '/repos/owner/repo/actions'
@@ -1141,6 +1143,8 @@ sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(response
         (self.bin / 'responses.json').write_text(json.dumps(wire))
         command = [sys.executable, '-B', str(SCRIPT), 'collect', '--repository', 'owner/repo',
                    '--run-id', '123', '--output-dir', str(target)]
+        if github_event_context:
+            command.append('--github-event-context')
         result = subprocess.run(command, env=self.environment, capture_output=True, text=True)
         self.assertNotIn('Traceback', result.stdout + result.stderr)
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
@@ -1981,6 +1985,141 @@ class PesterCliTests(PesterInstallFixture):
 
 
 
+
+
+class ForkEventContextTests(unittest.TestCase):
+    """Real Git merge and public CLIs; Actions transport/event values are fixtures."""
+
+    def setUp(self):
+        self.f = f = Cycle1RegressionTests()
+        f.setUp()
+        self.addCleanup(f.doCleanups)
+        helper = module(ROOT / 'tests/verification-ci-plan.tests.py', 'fork_caller_fixture')
+        f.workflow['jobs']['ci-plan'] = {'runs-on': 'ubuntu-latest', 'steps': [{
+            'name': 'Generate revision-bound plan',
+            'run': 'python3 -B tests/verification-impact.py --plan --root . --trusted-root . --event pull_request '
+                   '--run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" '
+                   '--api-head-sha "$GITHUB_SHA" --tested-revision "$GITHUB_SHA" --force-full true'}]}
+        f.workflow['jobs']['required-checks'] = helper.prepared_verifier(['test', 'ci-plan'])
+        f.write('.github/workflows/test.yml', json.dumps(f.workflow))
+        self.base = f.commit('fixed event-bound collector baseline')
+        f.write('docs/change.txt', 'fork change\n')
+        self.head = f.commit('fork fixture head')
+        self.merge = f.git('commit-tree', 'HEAD^{tree}', '-p', self.base, '-p', self.head, '-m', 'tested PR merge')
+        f.git('checkout', '-q', '--detach', self.merge)
+        trusted = f.scratch / 'trusted'
+        subprocess.run(['git', 'clone', '-q', '--no-checkout', str(f.root), str(trusted)], check=True)
+        subprocess.run(['git', '-C', str(trusted), 'checkout', '-q', '--detach', self.base], check=True)
+        f.plan = P.make_plan(f.root, trusted, 'pull_request', '123', 1, self.head, self.merge,
+                            base=self.base, head=self.head, force_full='true')
+        self.assertEqual(f.plan['reason'], 'force-full')
+        f.api_run.update(event='pull_request', head_sha=self.head, pull_requests=[],
+                         repository={'id': 10, 'full_name': 'owner/repo'},
+                         head_repository={'id': 20, 'full_name': 'fork/repo', 'fork': True})
+        for job in f.jobs:
+            job['head_sha'] = self.head
+        planner = copy.deepcopy(f.jobs[0])
+        planner.update(id=199, name='ci-plan')
+        planner['steps'] = [{**planner['steps'][0], 'name': 'Generate revision-bound plan'}]
+        f.jobs.append(planner)
+        with contextlib.redirect_stdout(io.StringIO()):
+            receipt, code = R.execute(R.load_catalog(f.root / 'tests/verification-catalog.json', f.root),
+                                      [f.suite], f.root, 'fixture')
+        self.assertEqual(code, 0)
+        f.receipts = [(j['id'], 1, copy.deepcopy(receipt), 'test', {'os': j['labels'][0]}) for j in f.jobs if j['id'] != 199]
+        self.context = dict(event='pull_request', repository='owner/repo', repository_id=10,
+                            head_repository='fork/repo', head_repository_id=20, run_id='123', run_attempt=1,
+                            pr_number=7, base_sha=self.base, head_sha=self.head, tested_sha=self.merge)
+        f.environment.update({'CI_' + k.upper(): str(v) for k, v in self.context.items()})
+
+    def test_empty_api_fork_runs_require_separate_fixed_event_binding(self):
+        f = self.f
+        absent = f.collect_cli()
+        f.aggregate_cli(absent, expected=1)
+        observed = f.collect_cli(github_event_context=True)
+        manifest = json.loads((observed / 'collection.json').read_text())
+        self.assertEqual(manifest['event_context'], self.context)
+        schema = json.loads((ROOT / 'contracts/verification-ci-observations.schema.json').read_text())
+        context_schema = schema['properties']['event_context']
+        self.assertEqual(set(context_schema['required']), set(self.context))
+        self.assertFalse(context_schema['additionalProperties'])
+        f.aggregate_cli(observed)
+        self.assertEqual(f.plan['mode'], 'full')
+        self.assertFalse(f.plan['omissions'] or f.plan['activation_evidence'])
+
+    def test_collector_rejects_missing_malformed_and_api_mismatched_event_fields(self):
+        f = self.f
+        original = dict(f.environment)
+        for field in self.context:
+            with self.subTest(missing=field):
+                f.environment = dict(original)
+                del f.environment['CI_' + field.upper()]
+                f.collect_cli(expected=2, github_event_context=True)
+        for field, bad in [('event', 'push'), ('repository', 'other/repo'), ('repository_id', '11'),
+                           ('head_repository', 'other/fork'), ('head_repository_id', '21'), ('run_id', '124'),
+                           ('run_attempt', '2'), ('head_sha', 'a' * 40), ('base_sha', 'bad'),
+                           ('pr_number', '0'), ('tested_sha', 'bad')]:
+            with self.subTest(field=field):
+                f.environment = {**original, 'CI_' + field.upper(): bad}
+                f.collect_cli(expected=2, github_event_context=True)
+
+    def test_fallback_rejects_nonfork_ambiguous_metadata_and_rebound_api(self):
+        f = self.f
+        original = copy.deepcopy(f.api_run)
+        variants = [
+            {'head_repository': {'id': 10, 'full_name': 'owner/repo', 'fork': False}},
+            {'head_repository': {'id': 20, 'full_name': 'fork/repo', 'fork': False}},
+            {'pull_requests': None},
+            {'pull_requests': [{'base': {'sha': self.base}, 'head': {'sha': self.head}}] * 2},
+        ]
+        for change in variants:
+            with self.subTest(change=change):
+                f.api_run = {**original, **change}
+                observed = f.collect_cli()
+                manifest = json.loads((observed / 'collection.json').read_text())
+                manifest['event_context'] = self.context
+                (observed / 'collection.json').write_bytes(P.canonical(manifest))
+                f.aggregate_cli(observed, expected=1)
+
+    def test_event_merge_parents_and_source_plan_are_independently_checked(self):
+        f = self.f
+        original = dict(f.environment)
+        for field, bad in [('base_sha', self.head), ('tested_sha', self.head)]:
+            with self.subTest(field=field):
+                f.environment = {**original, 'CI_' + field.upper(): bad}
+                observed = f.collect_cli(github_event_context=True)
+                f.aggregate_cli(observed, expected=1)
+        f.environment = original
+        observed = f.collect_cli(github_event_context=True)
+        saved = copy.deepcopy(f.plan)
+        f.plan['reason'] = 'shared-change'
+        f.plan['plan_sha256'] = sha(P.canonical({k: v for k, v in f.plan.items() if k != 'plan_sha256'}))
+        f.aggregate_cli(observed, expected=1)
+        f.plan = saved
+        omitted = f.plan['obligations'].pop()
+        f.plan['omissions'] = [{'id': omitted['id'], 'reason': 'unrelated-category'}]
+        f.plan['plan_sha256'] = sha(P.canonical({k: v for k, v in f.plan.items() if k != 'plan_sha256'}))
+        # A full plan with omissions is invalid even before execution is considered.
+        f.aggregate_cli(observed, expected=2)
+        f.plan.update(mode='affected', reason='classified-change', activation_evidence=[{
+            'category': 'fixture', 'path': 'proof.json', 'sha256': 'a' * 64,
+            'rule_sha256': 'b' * 64, 'baseline_revision': self.base}])
+        f.plan['plan_sha256'] = sha(P.canonical({k: v for k, v in f.plan.items() if k != 'plan_sha256'}))
+        P.validate_plan(f.plan)
+        f.aggregate_cli(observed, expected=1)
+
+    def test_matching_single_api_pr_retains_existing_path_without_context(self):
+        f = self.f
+        f.api_run['pull_requests'] = [{'base': {'sha': self.base}, 'head': {'sha': self.head}}]
+        f.aggregate_cli(f.collect_cli())
+
+    def test_full_fork_still_requires_every_executed_receipt_and_success(self):
+        f = self.f
+        f.jobs[0]['conclusion'] = 'cancelled'
+        f.aggregate_cli(f.collect_cli(github_event_context=True), expected=1)
+        f.jobs[0]['conclusion'] = 'success'
+        f.receipts.pop()
+        f.aggregate_cli(f.collect_cli(github_event_context=True), expected=1)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
