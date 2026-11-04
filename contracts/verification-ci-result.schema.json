@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/result"
+    },
+    {
+      "$ref": "#/$defs/error"
+    }
+  ],
+  "$defs": {
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "reason",
+        "run_id",
+        "api_head_sha",
+        "tested_revision",
+        "plan_sha256",
+        "results"
+      ],
+      "properties": {
+        "schema": {
+          "const": "verification-ci-result/v1"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "input-invalid",
+            "binding-invalid",
+            "diff-unavailable",
+            "base-planner-unavailable",
+            "force-full",
+            "event-full",
+            "unknown-path",
+            "shared-change",
+            "unproven-category",
+            "evidence-missing",
+            "evidence-mismatch",
+            "execution-failed",
+            "verified",
+            "unrelated-category",
+            "advisory-inactive"
+          ]
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "api_head_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tested_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "plan_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "obligation_id",
+              "status",
+              "reason",
+              "job_id",
+              "source_attempt"
+            ],
+            "properties": {
+              "obligation_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "NOT_SELECTED",
+                  "EXPECTED_SKIP"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "input-invalid",
+                  "binding-invalid",
+                  "diff-unavailable",
+                  "base-planner-unavailable",
+                  "force-full",
+                  "event-full",
+                  "unknown-path",
+                  "shared-change",
+                  "unproven-category",
+                  "evidence-missing",
+                  "evidence-mismatch",
+                  "execution-failed",
+                  "verified",
+                  "unrelated-category",
+                  "advisory-inactive"
+                ]
+              },
+              "job_id": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "source_attempt": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "PASS"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "job_id": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "source_attempt": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "NOT_SELECTED"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "job_id": {
+                      "type": "null"
+                    },
+                    "source_attempt": {
+                      "type": "null"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "EXPECTED_SKIP"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "reason": {
+                      "const": "advisory-inactive"
+                    },
+                    "job_id": {
+                      "type": "null"
+                    },
+                    "source_attempt": {
+                      "type": "null"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "reason": {
+                      "const": "advisory-inactive"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "status": {
+                      "const": "EXPECTED_SKIP"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "reason",
+        "message"
+      ],
+      "properties": {
+        "schema": {
+          "const": "verification-ci-error/v1"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "input-invalid",
+            "binding-invalid",
+            "diff-unavailable",
+            "base-planner-unavailable",
+            "force-full",
+            "event-full",
+            "unknown-path",
+            "shared-change",
+            "unproven-category",
+            "evidence-missing",
+            "evidence-mismatch",
+            "execution-failed",
+            "verified",
+            "unrelated-category",
+            "advisory-inactive"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -46,6 +46,62 @@ Even an observed successful comparison is not a reason to disable a required
 test automatically. Broader selection needs evidence from representative changes
 and review of shared dependencies first.
 
+### CI planning tools before activation
+
+The explicit `--plan` mode of `tests/verification-impact.py`, the contracts in
+`contracts/verification-ci-*.schema.json`, and `tests/verification-ci.py` restore
+revision-bound planning and observation validation. The current workflow still
+runs its full required checks; it does not use these tools to omit work or replace
+`required-checks`. No selection categories are activated in the current catalog.
+
+The restored tests cover the planner, same-run API collection, attempt and receipt
+binding, and pinned dependency acquisition with local fixtures. The historical
+planner dispatcher under `tests/fixtures/verification-ci/` is a test input, not an
+active workflow or evidence of hosted execution. The Pester cache helper is also
+available before workflow integration; it rehashes package bytes on every reuse
+and validates the archive before installing a fresh module tree.
+
+Workflow integration must follow adoption of compatible tools on the trusted base.
+The collector requires `actions: read` only in its consuming job. Until actual
+plan, observation and result artifacts have been compared on the new revision,
+these changes establish neither selective CI activation nor measured time savings.
+An absent or invalid force-full value keeps full planning; literal `false` alone
+cannot activate an unproven category. Main, merge, release and manual events stay
+full.
+
+### Fork observations and rerun recovery
+
+GitHub can return an empty `pull_requests` array for a successful fork PR run.
+The collector can preserve the original GitHub event fields with
+`--github-event-context`; the workflow supplies only fixed event expressions.
+These fields are separate from the plan and contain no token or PR body. The
+fallback requires an actual fork, matching API repository IDs, head SHA and
+attempt, and a checkout whose two merge parents are the original event base and
+head in that order. It accepts only an independently reconstructed full plan
+without omissions or activation evidence. Missing or ambiguous identity fails.
+For ordinary PRs, the same original-event context also binds revisions when the
+API's nested PR base or head SHA has changed after the run started. The immutable
+run head, event head, tested merge parents, PR number and repository IDs must
+still agree. Current nested PR SHAs are validated as metadata, not used as the
+original revisions. The existing context-free single-PR path remains strict and
+fails if those API revisions no longer describe the tested run.
+
+The event fields rely on the trusted GitHub workflow environment, just as API
+observations rely on their collector. They are not signed evidence that an
+arbitrary offline author can create. Preserve original context and observations
+before PR or base refs advance. Manual recollection without that trusted context
+cannot recover an empty-array fork run or a PR whose API revisions have moved;
+never synthesize the context from the plan. For context-free proof collection,
+freeze the source and base refs and collect before any branch update or retarget. Compatibility tests
+use actual Git merges and simulated Actions transport; the observed public API
+shape does not establish a successful fork run of this repository.
+
+If `ci-plan` creates a new planning attempt, rerun **all jobs**. A failed-only
+rerun may retain an A9 detector or workload executed before that planning epoch;
+the aggregate correctly rejects those stale executions. An unchanged original
+plan may reuse eligible execution history, subject to the existing attempt and
+receipt checks. Never edit timestamps or relabel inherited attempts to pass.
+
 ## Using Lite
 
 For bounded application fixes, select the existing Lite track when the project's
