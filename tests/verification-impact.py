@@ -253,7 +253,7 @@ def validate_plan(plan, expected=None):
         if row['id'] in ids or row['job'] not in plan['groups']:
             raise ValueError('duplicate or unselected obligation')
         ids.add(row['id'])
-        if (row['runner'] not in ('ubuntu-latest', 'macos-latest', 'windows-latest', 'windows-2022')
+        if (row['runner'] not in ('ubuntu-latest', 'macos-latest', 'macos-26-intel', 'windows-latest', 'windows-2022')
                 or not hash_value(row['command_sha256']) or type(row['receipt_required']) is not bool
                 or not isinstance(row['matrix'], dict)
                 or any(not isinstance(k, str) or not k or type(v) not in (str, int, float, bool)
@@ -498,7 +498,7 @@ def selected_obligations(categories, catalog, workflow, obligations):
             expression = engine.PLAN_TERM.sub('true', expression)
         return engine.condition_value(expression, matrix, runner)
     mandatory = set()
-    runners = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows', 'windows-2022': 'Windows'}
+    runners = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'macos-26-intel': 'macOS', 'windows-latest': 'Windows', 'windows-2022': 'Windows'}
     for obligation in obligations:
         job = workflow['jobs'][obligation['job']]
         steps = [s for s in job['steps'] if engine.expand_matrix(s.get('name', ''), obligation['matrix']) == obligation['step']]

@@ -118,7 +118,12 @@ class RequiredChecksTests(unittest.TestCase):
     def test_selected_plan_full_suite_runs_on_all_native_platforms(self):
         job = self.workflow['jobs']['test']
         platforms = {WF.expand_matrix(job['runs-on'], row) for row in WF.matrix_rows(job)}
-        self.assertEqual(platforms, {'windows-latest', 'macos-latest', 'ubuntu-latest'})
+        self.assertEqual(platforms, {'windows-latest', 'macos-26-intel', 'ubuntu-latest'})
+        contexts = {WF.expand_matrix(job['name'], row): WF.expand_matrix(job['runs-on'], row)
+                    for row in WF.matrix_rows(job)}
+        self.assertEqual(contexts, {'test (windows-latest)': 'windows-latest',
+                                    'test (macos-latest)': 'macos-26-intel',
+                                    'test (ubuntu-latest)': 'ubuntu-latest'})
         consumers = self.consumers('test', 'tests/sdd-domain-multitarget-T-003.tests.py')
         self.assertEqual(len(consumers), 1)
         self.assertTrue(unconditional(consumers[0]))
