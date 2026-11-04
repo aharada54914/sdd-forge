@@ -94,7 +94,7 @@ jobs:
           # merge. Admit only events whose tested checkout is this exact source.
           COUNT="$(gh api \
             "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=100" \
-            --paginate --slurp | jq -er --arg sha "$SHA" --arg repo "$GITHUB_REPOSITORY" '
+            --paginate | jq -ser --arg sha "$SHA" --arg repo "$GITHUB_REPOSITORY" '
               if type != "array" then error("invalid workflow run pages")
               elif any(.[]; type != "object" or (.workflow_runs | type) != "array") then
                 error("invalid workflow run page")

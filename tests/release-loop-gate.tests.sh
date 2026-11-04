@@ -400,7 +400,7 @@ with tempfile.TemporaryDirectory() as temporary:
                      'status': 'completed', 'conclusion': 'success', 'path': '.github/workflows/test.yml',
                      'repository': {'full_name': 'owner/repo'}, 'head_repository': {'full_name': 'owner/repo'}}, **changes)
     def run_pages(rows, total=1):
-        return json.dumps([{'total_count': total, 'workflow_runs': rows}])
+        return json.dumps({'total_count': total, 'workflow_runs': rows})
     def run_gate(**changes):
         output.unlink(missing_ok=True)
         log.unlink(missing_ok=True)
@@ -433,15 +433,16 @@ with tempfile.TemporaryDirectory() as temporary:
         if not accepted:
             assert not output.exists(), 'failed CI gate emitted admitted source: ' + label
     for response in ('', 'null', 'not-json', '{}', run_pages([], total=99),
-                     json.dumps([{'workflow_runs': {}}]), run_pages([None])):
+                     json.dumps({'workflow_runs': {}}), run_pages([None])):
         result = run_gate(FAKE_RUN_PAGES=response)
         assert result.returncode != 0 and not output.exists(), response
     # A valid source-exact run may be beyond a page of newer PR-only successes.
-    paginated = json.dumps([{'total_count': 101, 'workflow_runs': [test_run(event='pull_request', id=n + 1) for n in range(100)]},
-                            {'total_count': 101, 'workflow_runs': [test_run()]}])
+    paginated = '\n'.join(json.dumps(page) for page in (
+        {'total_count': 101, 'workflow_runs': [test_run(event='pull_request', id=n + 1) for n in range(100)]},
+        {'total_count': 101, 'workflow_runs': [test_run()]}))
     result = run_gate(FAKE_RUN_PAGES=paginated)
     assert result.returncode == 0, result.stderr
-    assert '--paginate --slurp' in log.read_text(), 'all run pages must be searched'
+    assert '--paginate' in log.read_text() and '--slurp' not in log.read_text(), 'use portable gh pagination; jq collects pages'
     result = run_gate(FAKE_API_ERROR='7')
     assert result.returncode != 0 and not output.exists(), 'API failure must not emit admitted source'
     for changes in ({'FAKE_SHA': 'null'}, {'FAKE_SHA': 'A' * 40}, {'FAKE_TYPE': 'tree'},
