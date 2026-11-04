@@ -33,6 +33,7 @@ mkdir -p "$fixture_root"
 cp "$fixture_root/README.md" "$temporary_root/README.md"
 cp "$fixture_root/CHANGELOG.md" "$temporary_root/CHANGELOG.md"
 
+checks=0
 validators=(
     "bash:$fixture_root/tests/validate-repository.sh"
     "pwsh:$fixture_root/tests/validate-repository.ps1"
@@ -60,6 +61,7 @@ expect_success() {
         cat "$output" >&2
         return 1
     fi
+    checks=$((checks + 1))
 }
 
 expect_failure() {
@@ -79,6 +81,7 @@ expect_failure() {
         cat "$output" >&2
         return 1
     fi
+    checks=$((checks + 1))
 }
 
 for validator in "${validators[@]}"; do
@@ -113,8 +116,53 @@ for validator in "${validators[@]}"; do
 done
 
 cp "$temporary_root/CHANGELOG.md" "$fixture_root/CHANGELOG.md"
+# The Bash entry execs this same PowerShell validator; exercise each structural
+# mutation once, while the surrounding release-version cases cover both entries.
+for scenario in managed-entry policy-engine ci-cache cloud-entry role-reference ci-plan ci-observations ci-result cloud-marketplace payload-contracts model-schema-id ci-result-id; do
+    case "$scenario" in
+        managed-entry) relative="plugins/sdd-implementation/scripts/managed-model-entry.py"; diagnostic="Missing required file:" ;;
+        policy-engine) relative="plugins/sdd-implementation/scripts/model-policy.py"; diagnostic="Missing required file:" ;;
+        ci-cache) relative="tests/ci-dependency-cache.py"; diagnostic="Missing required file:" ;;
+        cloud-entry) relative="plugins/sdd-azure-cloud/scripts/cloud.py"; diagnostic="Missing required file:" ;;
+        role-reference) relative="contracts/model-policy.v1.json"; diagnostic="Model policy role references an unknown registry role:" ;;
+        ci-plan) relative="contracts/verification-ci-plan.schema.json"; diagnostic="Missing required file:" ;;
+        ci-observations) relative="contracts/verification-ci-observations.schema.json"; diagnostic="Missing required file:" ;;
+        ci-result) relative="contracts/verification-ci-result.schema.json"; diagnostic="Missing required file:" ;;
+        cloud-marketplace) relative=".agents/plugins/marketplace.json"; diagnostic="Cloud marketplace source or opt-cin policy differs" ;;
+        payload-contracts) relative="install-payload.txt"; diagnostic="Install payload excludes required runtime:" ;;
+        model-schema-id) relative="contracts/model-launch-controls.schema.json"; diagnostic="Schema identity differs:" ;;
+        ci-result-id) relative="contracts/verification-ci-result.schema.json"; diagnostic="Schema identity differs:" ;;
+    esac
+    cp "$fixture_root/$relative" "$temporary_root/feature-original"
+    python3 - "$fixture_root/$relative" "$scenario" <<'PY_MUTATE'
+import json
+from pathlib import Path
+import sys
+path, scenario = Path(sys.argv[1]), sys.argv[2]
+if scenario in {'managed-entry', 'policy-engine', 'ci-cache', 'cloud-entry', 'ci-plan', 'ci-observations', 'ci-result'}:
+    path.unlink()
+elif scenario == 'payload-contracts':
+    text = path.read_text(encoding='utf-8')
+    assert '\ncontracts/\n' in text
+    path.write_text(text.replace('\ncontracts/\n', '\n'), encoding='utf-8')
+else:
+    data = json.loads(path.read_text(encoding='utf-8'))
+    if scenario == 'role-reference':
+        data['roles']['diagnosis']['capability_role'] = 'missing-release-role'
+    elif scenario == 'cloud-marketplace':
+        entry = next(item for item in data['plugins'] if item['name'] == 'sdd-azure-cloud')
+        entry['source']['path'] = './plugins/missing-cloud'
+    elif scenario == 'model-schema-id':
+        data['properties']['schema']['const'] = 'model-launch-controls/v999'
+    else:
+        data['$defs']['result']['properties']['schema']['const'] = 'verification-ci-result/v999'
+    path.write_text(json.dumps(data) + '\n', encoding='utf-8')
+PY_MUTATE
+    expect_failure "$scenario" "$diagnostic" "${validators[0]}"
+    cp "$temporary_root/feature-original" "$fixture_root/$relative"
+done
 for validator in "${validators[@]}"; do
     expect_success "restored-valid-tree" "$validator"
 done
 
-printf 'Repository release validation parity tests passed: 8/8 checks.\n'
+printf 'Repository release validation tests passed: %s checks.\n' "$checks"

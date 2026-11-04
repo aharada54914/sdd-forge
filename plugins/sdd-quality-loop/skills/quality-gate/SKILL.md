@@ -12,6 +12,50 @@ user-invocable: false
 
 Use after `implement-task` has set a task to `Implementation Complete`.
 
+## Managed allocation boundary
+
+Affected policy roles: `evaluator`.
+
+Apply this boundary only when the caller explicitly selects managed routing
+with a policy request or model controls, or this allocation continues that
+managed workflow. With no managed input, retain the legacy invocation and model
+hints below. Once managed is selected, do not switch that workflow to legacy
+because selection, validation or launch fails. No new environment toggle is
+required, and this boundary does not grant delegation or execution permission.
+
+For a managed allocation, apply in the allocating parent before an unbound
+forked Skill/Agent, native role, or fresh context receives work, and before any
+identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply before evaluator allocation or reservation. Keep the admitted managed Claude review/delivery route and the fixed generated native Codex configuration entry. The later Codex candidates-file/comment startup guidance is reference-only: selector output and x-sdd reference comments do not prove loaded native model/effort. A zero-turn configuration entry does not prove a substantive evaluator workload; an unbound workload stops here.
+
+
 ## Preconditions
 
 If `AGENTS.md` is absent at the repository root, stop immediately and direct
@@ -167,15 +211,14 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    `design-system-checklist.md` (user-facing UI in projects carrying a
    `design-system/` contract).
    Load a checklist only when its domain is in scope, to keep review context lean.
-   On Claude Code use the `sdd-evaluator` subagent. Claude Code has no
-   per-invocation effort control (REQ-008, INV-013): the evaluator's effort
-   stays whatever `render-agent-frontmatter` last recorded in
-   `evaluator.md`'s `x-sdd-effort:` comment (record-only,
-   `effort_applied=null`); any `emit-run-record` call for this run passes
-   `--effort-control-main frontmatter` (no `--effort-applied-main`) so the
-   resulting run record shows the degradation explicitly, keyed on the
-   resolved `effort_control` value, never as a silent drop (AC-039, sharing
-   the AC-024/AC-051 field-population rule).
+   On Claude Code use the `sdd-evaluator` subagent. The managed non-TTY
+   route below applies the selected model and effort through validated native
+   flags and its generated agent definition. This establishes configuration,
+   not actual backend identity. For legacy routes that only record the
+   `x-sdd-effort:` comment, retain `effort_applied=null` and pass
+   `--effort-control-main frontmatter` (no `--effort-applied-main`) to
+   `emit-run-record`, exposing the degradation through the resolved
+   `effort_control` value (AC-039, AC-024/AC-051).
 
    On Codex use the shipped `sdd-evaluator` (or `sdd-investigator`) TOML
    agent; do not create new agent role files under `~/.codex/agents/`.
@@ -282,10 +325,40 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    `rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py
    <repository-root> <invocation> <reports/quality-gate/launch-SESSION>
    --manifest-sha256 <caller-pin>`.
-   The canonical Claude evaluator and its generator must both select Sonnet;
+   In this legacy route the canonical Claude evaluator and its generator select Sonnet;
    this does not change the Codex evaluator tier or authorize a host switch to
    bypass a refusal. This route requires a fresh declared scratch projection.
-   It checks the external raw pin, common required-input/path admission, and
+   When managed routing is explicitly selected for the authorized Claude Code
+   non-TTY route, prepare the
+   evaluator policy selection and forward its validated controls to the shared
+   caller. Use repository-root-relative request, registry and fresh output
+   paths. The launcher output is absolute under the repository root.
+   The policy role is `evaluator`; the invocation's transport role stays
+   `sdd-evaluator`. The run and session IDs must equal the invocation's fresh
+   UUID, and the attempt must match its task attempt. Read the controls SHA
+   from `validation.json`; do not substitute an unchecked rehash.
+
+   ```bash
+   cd "<repository-root>" || exit $?
+   output="<output-dir>"
+   python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare \
+     --role evaluator --host claude-code --request "<policy-request>" --registry "<registry>" \
+     --run-id <run-id> --session-id <session-id> --attempt <attempt> \
+     --output-dir "$output" --require-actual-id false > /dev/null || exit $?
+   controls_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["controls"]["sha256"])' "$output/validation.json") || exit $?
+   rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py \
+     "<repository-root>" "<invocation>" "<repository-root>/<reports/quality-gate/launch-SESSION>" \
+     --manifest-sha256 <caller-pin> \
+     --model-controls "$output/controls.json" --model-controls-sha256 "$controls_sha"
+   ```
+
+   Stop on preparation or launch failure; never retry the legacy route.
+   With these controls the canonical Claude evaluator and its generated role
+   both use the trusted selected native model and effort. A standalone legacy
+   launch without controls retains Sonnet. This does not change the Codex
+   evaluator tier or authorize a host switch to bypass a refusal. This route
+   requires a fresh declared scratch projection.
+   Both routes check the external raw pin, common required-input/path admission, and
    this plugin's `preflight-evaluator-delivery.py` scratch readback before
    creating launch output. It then pins dependencies, checks live CLI argv,
    and runs the shared native permission probe before reservation. Missing or

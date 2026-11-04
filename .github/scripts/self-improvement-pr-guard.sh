@@ -29,6 +29,12 @@ is_enforcement_chain() {
     plugins/*/scripts/kill-switch.*)    return 0 ;;
     plugins/*/scripts/check-*)          return 0 ;;
     plugins/*/hooks/*.json)             return 0 ;;
+    plugins/sdd-implementation/scripts/managed-model-entry.py) return 0 ;;
+    plugins/sdd-implementation/scripts/model-policy.py) return 0 ;;
+    plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1) return 0 ;;
+    plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1) return 0 ;;
+    contracts/model-*)                  return 0 ;;
+    contracts/agent-model-capabilities.v2.json) return 0 ;;
     reports/*)                          return 0 ;;
     docs/workflow-improvements/*)       return 0 ;;
     .github/workflows/*)                return 0 ;;

@@ -17,7 +17,55 @@ approved task scope.
 - Accept only the conclusion back into the main context; discard intermediate
   reasoning.
 
+### Managed investigation delegation (opt-in)
+
+When the calling workflow explicitly selected managed routing, replace the
+legacy Explore handoff above with this entry. A managed parent does not bind a
+new helper automatically; each secondary unit needs its own admitted binding.
+
+- Allocate each distinct investigation unit through the managed `investigator`
+  entry below, run from this parent orchestrator. Do not spawn an unmanaged
+  Explore, Skill, or other Agent call for it. The entry loads the complete
+  original investigator role and procedure into one fresh context and
+  preserves native settings, hooks, and normal permission checks.
+- One delegation = one purpose. Do not reuse a helper or its session across
+  purposes.
+- Before allocating any helper, write a prompt file under `<repository-root>`
+  containing only this unit's task Scope, Done When, and the required file
+  paths. Do not pass the conversation history. Compute its raw SHA-256 as
+  `<prompt-sha256>`.
+- Use a fresh canonical UUID for `<session-id>` and a new `<output-dir>` for
+  each attempt. Supply the current policy request, registry, and existing
+  verified configuration observation unchanged, without altering their scope
+  or time, and the explicit installed Claude executable as
+  `<claude-executable>`.
+
+```bash
+cd "<repository-root>" || exit 1
+python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
+  --request "<policy-request>" --registry "<registry>" \
+  --role investigator --host claude-code --run-id "<run-id>" \
+  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
+  --require-actual-id false --executable "<claude-executable>" \
+  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
+```
+
+- Accept only the conclusion back into the main context; discard intermediate
+  reasoning. Immediately persist the conclusion in the Working Notes section of
+  `reports/implementation/<feature>/<task-id>.md`.
+- A typed failure stops this handoff. Do not retry through an unmanaged Explore,
+  Skill, or Agent call, and do not reallocate the implementing context as the
+  helper.
+- The parent orchestrator alone retains `tasks.md` status, `Blocked`
+  judgments, and the final scoped self-review (see "What Must Not Be
+  Delegated").
+
 ## Codex / Copilot / No-Subagent Environments
+
+These are the legacy entry routes. In a managed workflow, require the selected
+model/effort to be bound to the actual native carrier before allocating a helper.
+If that binding is unavailable, follow the implement-task allocation boundary
+and stop; these routes are not fallback paths after a managed failure.
 
 - On Codex CLI, use the `sdd-investigator` TOML agent (`.codex/agents/sdd-investigator.toml`)
   for investigation units. The installer copies it to `~/.codex/agents/` for
@@ -84,8 +132,13 @@ Claude hosts, or OpenAI/Codex `gpt-5.1-codex-mini` with low reasoning effort.
 Specification, implementation-policy, and task reviewers use at least the
 `standard` tier: Anthropic Sonnet or OpenAI/Codex `gpt-5.1-codex` with medium
 or stronger effort. The Done evaluator uses Anthropic Sonnet (`standard`) on Claude
-hosts, or the `strong` tier on Codex: `gpt-5.2-codex` with high or xhigh effort, falling back to
-`gpt-5.1-codex-max` when the primary strong model is unavailable.
+hosts, or an available registered `strong` model on Codex. The capability registry
+includes `gpt-6-astra` as well as legacy strong candidates; it is not limited to
+`gpt-5.2-codex`. Respect the selected role effort floor and record the actual model.
+The model names in this section are legacy examples of each tier, not fixed
+choices: the actual model and effort for a delegated unit, including the
+managed investigator handoff, come from the shared routing selection and the
+resolved native configuration, not from this document.
 
 Before selection, filter candidates through the host capability registry.
 Substitution is allowed only for a model registered in the same canonical
