@@ -31,6 +31,26 @@ Timing estimates affect placement only: stale estimates can make a run slower,
 but cannot remove a test. The independent Windows compatibility, gate, and A9
 lanes remain dependencies of `required-checks`.
 
+### Native macOS runner
+
+Required macOS jobs use GitHub's standard `macos-26-intel` runner. This keeps
+native macOS and Bash 3.2 compatibility checks running during the observed
+ARM64 runner capacity shortage, without a paid runner or removing test steps.
+The main test lane retains its 40-minute timeout. Planning and collection still
+admit `macos-latest` as well as the explicit Intel label; neither label is an
+alias for recorded evidence from the other.
+
+Branch protection still requires the historical display context
+`test (macos-latest)`. That display name is stable; the test matrix's separate
+`os` field, `runs-on`, plan obligations and collected runner labels identify
+`macos-26-intel`. The Windows and Linux display contexts are also unchanged.
+A display name does not assert the runner architecture.
+
+Report completed runs as Intel macOS 26 coverage. This change does not establish
+ARM64 execution or compatibility, and queued ARM64 jobs are not passing checks.
+Workflow changes require new baseline and mutation runs before selective CI
+activation; observations from earlier runner definitions cannot be reused.
+
 ## Selection experiment
 
 `tests/verification-impact.py` proposes a selection and reports its basis. It is
