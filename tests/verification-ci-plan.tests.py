@@ -394,6 +394,23 @@ class PlanningTests(GitFixture):
         selected, evidence, reason = IMPACT.classify({'README.md'}, catalog, live, obligations, ROOT, 'a' * 40)
         self.assertEqual((selected, evidence, reason), (obligations, [], 'unproven-category'))
 
+    def test_cancelable_native_wrapper_keeps_workload_without_assuming_execution(self):
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
+        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
+        expected = W.workflow_coverage(live, catalog)
+        obligations = W.plan_obligations(live, catalog)
+        for condition in ('always()', '${{ !cancelled() }}'):
+            changed = copy.deepcopy(live)
+            changed['jobs']['test']['if'] = condition
+            self.assertEqual(W.workflow_coverage(changed, catalog), expected)
+            self.assertEqual(W.plan_obligations(changed, catalog), obligations)
+            self.assertIsNone(W.condition_value(condition, {}, 'Windows'))
+        for condition in ('!cancelled()', '${{ !cancelled() || true }}', '${{ failure() }}'):
+            changed = copy.deepcopy(live)
+            changed['jobs']['test']['if'] = condition
+            self.assertTrue(W.coverage_errors(changed, catalog))
+        self.assertEqual(live['jobs']['required-checks']['if'], 'always()')
+
     def test_control_verifier_is_not_its_own_completed_workload(self):
         live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
         catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
