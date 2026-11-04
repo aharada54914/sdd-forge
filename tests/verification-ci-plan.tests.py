@@ -368,7 +368,7 @@ class PlanningTests(GitFixture):
         live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
         catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
         obligations = W.plan_obligations(live, catalog)
-        native = [row for row in obligations if row['job'] == 'windows-powershell']
+        native = [row for row in obligations if row['job'] == 'windows-powershell' and row['suites']]
         self.assertEqual(len(native), 2)
         self.assertEqual({row['matrix']['executable'] for row in native}, {'powershell', 'pwsh'})
         for row in native:
@@ -382,7 +382,17 @@ class PlanningTests(GitFixture):
         standards = [row for row in obligations if row['job'] == 'coding-standards' and row['suites']]
         self.assertEqual(len(standards), 1)
         self.assertEqual(standards[0]['suites'], sorted(catalog['profiles']['coding-standards']))
-        self.assertEqual(IMPACT.rules(catalog, live)['categories'], [])
+
+    def test_current_readme_candidate_without_evidence_never_omits_work(self):
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
+        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
+        obligations = W.plan_obligations(live, catalog)
+        categories = IMPACT.rules(catalog, live)['categories']
+        self.assertTrue(categories)
+        for category in categories:
+            category.update(active=False, evidence=None)
+        selected, evidence, reason = IMPACT.classify({'README.md'}, catalog, live, obligations, ROOT, 'a' * 40)
+        self.assertEqual((selected, evidence, reason), (obligations, [], 'unproven-category'))
 
     def test_cancelable_native_wrapper_keeps_workload_without_assuming_execution(self):
         live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
@@ -407,7 +417,8 @@ class PlanningTests(GitFixture):
         workload = W.plan_obligations(live, catalog)
         controls = W.control_dispositions(live, catalog)
         self.assertEqual([row['step'] for row in controls], [
-            'Check all required tests passed'])
+            'Install structural YAML parser', 'Download original same-run CI plan',
+            'Collect actual same-run execution observations', 'Check all required tests passed'])
         self.assertTrue(all(row['job'] == 'required-checks' and
                             row['disposition'] == 'orchestration-verifier' for row in controls))
         self.assertNotIn('required-checks', {r['job'] for r in workload})
