@@ -378,7 +378,13 @@ stub = '''gh() {
   case "$2" in
     */git/refs/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$FAKE_SHA" "$FAKE_TYPE" ;;
     */git/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$PEELED_SHA" "$PEELED_TYPE" ;;
-    *actions/workflows/*) printf '%s' "$FAKE_COUNT" ;;
+    *actions/workflows/*)
+      if [[ "${FAKE_API_ERROR:-0}" != 0 ]]; then return "$FAKE_API_ERROR"; fi
+      if [[ "$*" == *"--jq .total_count"* ]]; then
+        printf '%s' "$FAKE_COUNT"
+      else
+        printf '%s' "$FAKE_RUN_PAGES"
+      fi ;;
     *) return 99 ;;
   esac
 }
@@ -389,15 +395,55 @@ with tempfile.TemporaryDirectory() as temporary:
     env = dict(os.environ, INPUT_TAG='v1.2.3', GITHUB_REF_NAME='main', GITHUB_REPOSITORY='owner/repo',
                GITHUB_OUTPUT=output.as_posix(), API_LOG=log.as_posix(), FAKE_SHA='a' * 40,
                FAKE_TYPE='commit', PEELED_SHA='b' * 40, PEELED_TYPE='commit', FAKE_COUNT='1')
+    def test_run(**changes):
+        return dict({'id': 101, 'head_sha': 'a' * 40, 'event': 'push', 'head_branch': 'main',
+                     'status': 'completed', 'conclusion': 'success', 'path': '.github/workflows/test.yml',
+                     'repository': {'full_name': 'owner/repo'}, 'head_repository': {'full_name': 'owner/repo'}}, **changes)
+    def run_pages(rows, total=1):
+        return json.dumps([{'total_count': total, 'workflow_runs': rows}])
     def run_gate(**changes):
         output.unlink(missing_ok=True)
         log.unlink(missing_ok=True)
-        return invoke(stub + gate, {**env, **changes})
-    for count in ('1', '2', '0', 'null', '', 'not-a-number', '-1', '1\n2'):
-        result = run_gate(FAKE_COUNT=count)
-        assert (result.returncode == 0) == (count in ('1', '2')), (count, result.stderr)
-        if result.returncode:
-            assert not output.exists(), 'failed CI gate emitted admitted source'
+        values = {**env, **changes}
+        source_sha = values['PEELED_SHA'] if values['FAKE_TYPE'] == 'tag' else values['FAKE_SHA']
+        values.setdefault('FAKE_RUN_PAGES', run_pages([test_run(head_sha=source_sha)]))
+        return invoke(stub + gate, values)
+    # PR API head_sha names the PR head, while checkout tests its synthetic merge.
+    # Aggregate success must not admit that untested head as a release tree.
+    cases = [
+        ('PR-only success', test_run(event='pull_request'), False),
+        ('PR target success', test_run(event='pull_request_target'), False),
+        ('merge queue success', test_run(event='merge_group'), False),
+        ('main push', test_run(), True),
+        ('other branch push', test_run(head_branch='feature'), False),
+        ('manual main', test_run(event='workflow_dispatch'), True),
+        ('manual tag', test_run(event='workflow_dispatch', head_branch='v1.2.3'), True),
+        ('different SHA', test_run(head_sha='c' * 40), False),
+        ('unfinished run', test_run(status='in_progress'), False),
+        ('failed run', test_run(conclusion='failure'), False),
+        ('skipped run', test_run(conclusion='skipped'), False),
+        ('different workflow', test_run(path='.github/workflows/other.yml'), False),
+        ('different repository', test_run(repository={'full_name': 'other/repo'}), False),
+        ('fork source', test_run(head_repository={'full_name': 'other/repo'}), False),
+        ('missing source repository', test_run(head_repository=None), False),
+    ]
+    for label, candidate, accepted in cases:
+        result = run_gate(FAKE_RUN_PAGES=run_pages([candidate], total=99))
+        assert (result.returncode == 0) == accepted, (label, result.stderr)
+        if not accepted:
+            assert not output.exists(), 'failed CI gate emitted admitted source: ' + label
+    for response in ('', 'null', 'not-json', '{}', run_pages([], total=99),
+                     json.dumps([{'workflow_runs': {}}]), run_pages([None])):
+        result = run_gate(FAKE_RUN_PAGES=response)
+        assert result.returncode != 0 and not output.exists(), response
+    # A valid source-exact run may be beyond a page of newer PR-only successes.
+    paginated = json.dumps([{'total_count': 101, 'workflow_runs': [test_run(event='pull_request', id=n + 1) for n in range(100)]},
+                            {'total_count': 101, 'workflow_runs': [test_run()]}])
+    result = run_gate(FAKE_RUN_PAGES=paginated)
+    assert result.returncode == 0, result.stderr
+    assert '--paginate --slurp' in log.read_text(), 'all run pages must be searched'
+    result = run_gate(FAKE_API_ERROR='7')
+    assert result.returncode != 0 and not output.exists(), 'API failure must not emit admitted source'
     for changes in ({'FAKE_SHA': 'null'}, {'FAKE_SHA': 'A' * 40}, {'FAKE_TYPE': 'tree'},
                     {'FAKE_TYPE': 'tag', 'PEELED_TYPE': 'blob'},
                     {'FAKE_TYPE': 'tag', 'PEELED_TYPE': 'tag'}):

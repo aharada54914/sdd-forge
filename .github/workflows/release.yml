@@ -90,14 +90,27 @@ jobs:
             exit 1
           fi
           echo "Release commit for ${TAG}: ${SHA}"
+          # PR API head_sha names the PR head, but its tests check out a synthetic
+          # merge. Admit only events whose tested checkout is this exact source.
           COUNT="$(gh api \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=1" \
-            --jq '.total_count')"
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=100" \
+            --paginate --slurp | jq -er --arg sha "$SHA" --arg repo "$GITHUB_REPOSITORY" '
+              if type != "array" then error("invalid workflow run pages")
+              elif any(.[]; type != "object" or (.workflow_runs | type) != "array") then
+                error("invalid workflow run page")
+              else [.[].workflow_runs[] |
+                if type != "object" then error("invalid workflow run")
+                else select(.head_sha == $sha and .status == "completed" and .conclusion == "success" and
+                  .path == ".github/workflows/test.yml" and .repository.full_name == $repo and
+                  .head_repository.full_name == $repo and
+                  ((.event == "push" and .head_branch == "main") or .event == "workflow_dispatch"))
+                end] | length
+              end')"
           if [[ ! "$COUNT" =~ ^[1-9][0-9]*$ ]]; then
-            echo "No successful test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
+            echo "No successful source-exact push/main or manual test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
             exit 1
           fi
-          echo "CI green confirmed for ${SHA} (${COUNT} successful run(s))"
+          echo "CI green confirmed for ${SHA} (${COUNT} source-exact successful run(s))"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
           echo "pkg=sdd-forge-${TAG}.tar.gz" >> "$GITHUB_OUTPUT"
