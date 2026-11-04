@@ -1,0 +1,28 @@
+{
+  "baseline_revision": "aa7ba8d3b59399f0c69a6cfa59c3d35a65b1414a",
+  "category": "readme-contract",
+  "consumer_inventory": {
+    "path": "reports/verification/ci-selection/consumers.json",
+    "sha256": "cfc695a4049a3bf28a7bb388a0f4a4c59a60309d60bb1fb384a891e8cca890cc"
+  },
+  "full_plan": {
+    "path": "reports/verification/ci-selection/full-plan.json",
+    "sha256": "b81c3fff5c31fd6ae353291128bba017e855a8be391f254072b5edb8a406070c"
+  },
+  "full_result": {
+    "path": "reports/verification/ci-selection/full-result.json",
+    "sha256": "c5fffecbac2769ed841f179c1ce433717c4cccc3cff5ff954c245e8a7c487e04"
+  },
+  "mutation_evidence": {
+    "path": "reports/verification/ci-selection/mutations.json",
+    "sha256": "c7027ac96de221277aa5e248070f85b6eafc35e4abcf28adb3e24bc2d78c81f2"
+  },
+  "rule_sha256": "5c880ad17ee6ad6d9c642d22f6f9babefdf476f6318dbaef7b79644723471f49",
+  "schema": "verification-ci-activation/v1",
+  "supporting_evidence": [
+    {
+      "path": "reports/verification/ci-selection/consumer-trace.md",
+      "sha256": "d7a34a9b3e354258158eda266870cbb4e8f8731ffe3fca1f4ba901f20f3dbfc0"
+    }
+  ]
+}

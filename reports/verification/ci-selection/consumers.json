@@ -1,0 +1,242 @@
+{
+  "baseline_revision": "aa7ba8d3b59399f0c69a6cfa59c3d35a65b1414a",
+  "consumers": [
+    {
+      "groups": [
+        "a9-advisory",
+        "a9-advisory-inputs",
+        "ci-mcp-tests",
+        "ci-plan",
+        "cloud-native",
+        "coding-standards",
+        "installers",
+        "interrupted-recovery",
+        "local-env-mcp-tests",
+        "loops-routing",
+        "mcp-tests",
+        "posix-regression",
+        "posix-unwired-sharded",
+        "test",
+        "test-windows-heavy",
+        "version-gates",
+        "version-gates-windows-bump",
+        "version-gates-windows-lanes",
+        "windows-powershell"
+      ],
+      "input": "README.md",
+      "sources": [
+        {
+          "path": ".github/workflows/test.yml",
+          "sha256": "daabafdc8ac7250ee83ed2714489954da6997c7cbd63484a3ae231ef98e8aa2e"
+        },
+        {
+          "path": "tests/verification-catalog.json",
+          "sha256": "2c1e50d04450bdfd0ee1c26660895e38b210f0b4e63238e4826437b2c423ab36"
+        },
+        {
+          "path": "tests/verification.py",
+          "sha256": "374d6314eaa4a0c4e22f12935e84a40b6a3d5adbc885aebceba56bc89f734fb1"
+        },
+        {
+          "path": "tests/verification-impact.py",
+          "sha256": "02ac6bcc536f8f235c9f0dc4014e4d000b9c6170b2db523a10321b040b1bece6"
+        },
+        {
+          "path": "tests/verification-workflow.py",
+          "sha256": "b2c81a4a3c00d646b4a8adbc2281027d1b6e70e9c9736cd81f80e557f55cfd4c"
+        },
+        {
+          "path": "tests/verification-ci.py",
+          "sha256": "85927e4c71d7ffb4a39399622cc0d20f0bc0f26e6b6b8666349efa4a05cdf513"
+        },
+        {
+          "path": "tests/run-ci-unwired.sh",
+          "sha256": "c738721d6eb682a2cb1bdb41b40768a14a1d994713e42c4f46983c8d870eafac"
+        },
+        {
+          "path": "tests/run-all.sh",
+          "sha256": "e1d58fcae258fedcc4e0e3d78588f7fec2501bd6ff1e5a70e1f97feea9a79b14"
+        },
+        {
+          "path": "tests/run-all.ps1",
+          "sha256": "abb3b0c8e5e8b33495376bd30130969709dc8f15e04204c0de0455744bd49bf9"
+        },
+        {
+          "path": "tests/validate-repository.ps1",
+          "sha256": "c6cf6585ca6bccae56f495fd5e4591d98714ca95b038f000940816ef79994b26"
+        },
+        {
+          "path": "tests/validate-repository.sh",
+          "sha256": "ae21742a61b0e24117c47f1127d3bf799d351400e717e6dc50ff5d96c6c73092"
+        },
+        {
+          "path": "tests/repository-release-validation.tests.sh",
+          "sha256": "a893fbb9fa1433bb888bfc1f59b9ce5db69dce7aa13b773fc9cc3edc7f4ebaa2"
+        },
+        {
+          "path": "scripts/bump-version.sh",
+          "sha256": "38fe83a94026d5b472ec6a7cca907ec4ac897e7eae4034d260d5f78d8e0d199a"
+        },
+        {
+          "path": "tests/bump-version-gate.tests.sh",
+          "sha256": "824bc7b8c7a3a0406315d5a9492d54da84dffcc5444df35724b7180a15c2eadc"
+        },
+        {
+          "path": "tests/bump-version-gate.tests.ps1",
+          "sha256": "279eec78a2c08798daf3852e46aa44cdb17bdab1ddbf530f060504728cc6ec73"
+        },
+        {
+          "path": "tests/component-path-ownership-parity.tests.sh",
+          "sha256": "198bccd9f62fac678e9bbd48b6c67b2b6eea1bbbf80b45c5e59f2a9fbbe1c694"
+        },
+        {
+          "path": "tests/component-path-ownership-parity.tests.ps1",
+          "sha256": "035b0d014f5aa7a81cf636f463455557aa7ca5b233d1df1dfa30b91bae6f3f9d"
+        },
+        {
+          "path": "tests/workflow-documentation.tests.sh",
+          "sha256": "e9f6668941bae127289d56fa64e7c7e0078ac3ef7fb85fcbd1885883352d71c1"
+        },
+        {
+          "path": "tests/design-system-contract.tests.sh",
+          "sha256": "50d5d4204499fa78e0afa516826337299c57f2d7f3a7d8eb7806f80db755f64b"
+        },
+        {
+          "path": "tests/design-system-contract.tests.ps1",
+          "sha256": "aa5aec16b1f3fc96b4ef725e526a20460955f48d007dd2bdeba483c3a4888981"
+        },
+        {
+          "path": "tests/doc-diagrams.tests.py",
+          "sha256": "6cea69023ea3bc1e0836bec17b3b3f761a6d5bf299e2c1cbdc93e19e94423190"
+        },
+        {
+          "path": "tests/doc-diagrams.tests.sh",
+          "sha256": "e7441894b563fe56e91c9ba6c9a80e3e54608228ee8e6d9edfca5c46d0113e86"
+        },
+        {
+          "path": "tests/doc-diagrams.tests.ps1",
+          "sha256": "c96a1adc66f3925d698a9158c6e9824da4aac524387c45ce2c15831eb7993974"
+        },
+        {
+          "path": "tests/spec-review-loop.tests.sh",
+          "sha256": "461b19506327866e7db23f91e7d6561c2cfa3f52d04517617ee8671cb7cfa2bc"
+        },
+        {
+          "path": "install-payload.txt",
+          "sha256": "a332aa5a4c11c42379a8557e6b7a0b8bd5a67bd7de693083898914a699cad7dd"
+        },
+        {
+          "path": "install.sh",
+          "sha256": "bf7b8441b7e2ce6ab6f06736b89379b9a2d98e1f2590a71b385b4fb7d80067b9"
+        },
+        {
+          "path": "install.ps1",
+          "sha256": "350520d15f7d70df5811e23c4a62feeba346ffca449c4d41af1294192aaa87ca"
+        },
+        {
+          "path": "tests/install.tests.sh",
+          "sha256": "5a7ae709f83b30ca9e2c1e5fb4a6c3528d8e27e4c780616a2617ade5356663f8"
+        },
+        {
+          "path": "tests/install.tests.ps1",
+          "sha256": "f4135b06d68dcaa2cfa589a431840d73581659c185f9be1b61892df9c33b6e14"
+        },
+        {
+          "path": "tests/lib/install-payload-check.py",
+          "sha256": "713e0ac5c61cdbefa0fdc18416e1c008a895d098583c7679a2933767b2c5dfb7"
+        },
+        {
+          "path": "tests/installer-idempotency.tests.ps1",
+          "sha256": "c4849e1d35ff7b04e9dda4fcd524f3c0cf70e8a83936a5550188c28d0a7b8db6"
+        },
+        {
+          "path": "tests/install-cloud.tests.py",
+          "sha256": "88b7c830525169c180c090863070149136dec6881dde60afd3fb3e84945fb9e0"
+        },
+        {
+          "path": "tests/windows-powershell.tests.ps1",
+          "sha256": "7b61eafcdf1fb8d94e7b7483c43a44b426faa6a2a524c8a7c887fe8eba33e4e6"
+        },
+        {
+          "path": "tests/lib/current-byte-capture.py",
+          "sha256": "88ca540e883f507abf6cfeec5557b51eae26a1f7ca1b06e7ea5bcaffbbaa0dde"
+        },
+        {
+          "path": "tests/current-byte-capture.tests.py",
+          "sha256": "a34d7e8d9c4175b23f74cdf740c5deabdf62a18bc5d6c5e486b3f2e0c12882c9"
+        },
+        {
+          "path": "tests/compatibility-byte-identical.tests.sh",
+          "sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6"
+        },
+        {
+          "path": "tests/compatibility-byte-identical.tests.ps1",
+          "sha256": "9a2f11a04f49a618934192ff2264d0686d89a5ca3bc2876ea3a80b2f97e9878d"
+        },
+        {
+          "path": "tests/cli-hook-enforcement.ps1",
+          "sha256": "91b4b5db08e87db8aeb0e01c6d2f9fbac86f5cda22c22f9bc100f7afb65eec3b"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+          "sha256": "ebce7bd87bcf6ce53bed5167a295cb627697e7f67085fbe59e99ab833ea1c7e6"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+          "sha256": "7164b4a73c0b9cb64ee1a783fde4a68c75c4dd29ad63f7e532fa92098dbfa52b"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+          "sha256": "f3560f24e2389deecf7c8cd5025660779209b5dc14cf62fd7f79cb0789453c6c"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+          "sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+          "sha256": "3de96f9ca3d80986bc3e2f24b91796f1a0e29fa0fb0324cba6d055fe280f3d03"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+          "sha256": "be3c1893c10b74af3133953623d648f6047648d290f70a65eaf123f90c4c4f21"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+          "sha256": "bdb7d581e97616b4b605a9ea56dd1c662d8ae8e055cfbd2b7db8d9cdc399eacf"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+          "sha256": "5127a5f4ab922ef88a792f2c041ee62a5ef2126af4b0e027788c3044038d8933"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+          "sha256": "fb2aefd266afe23a650cf643d8c6d6bbc04c104ae6cdd00dc3afd2260d3a5f58"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+          "sha256": "f1b36e26e78ab75153a0b43cc40895c87291bd3913c1f054fac010fb63ad37e5"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+          "sha256": "09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+          "sha256": "9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+          "sha256": "6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
+        },
+        {
+          "path": "tests/model-policy-installed.tests.py",
+          "sha256": "5c6c900eab199475c2e99ae6dc5c2c9ad1d05eb1c054499c596c6e33845ad7cd"
+        }
+      ],
+      "suites": []
+    }
+  ],
+  "rule_sha256": "5c880ad17ee6ad6d9c642d22f6f9babefdf476f6318dbaef7b79644723471f49",
+  "schema": "verification-ci-consumers/v1"
+}

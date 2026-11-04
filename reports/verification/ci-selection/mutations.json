@@ -1,0 +1,18 @@
+{
+  "baseline_revision": "aa7ba8d3b59399f0c69a6cfa59c3d35a65b1414a",
+  "cases": [
+    {
+      "input": "README.md",
+      "plan": {
+        "path": "reports/verification/ci-selection/mutation-plan.json",
+        "sha256": "ebc8ce8a055c721037c46f95e886d0e59127c0d757bad44948f8e031acef164f"
+      },
+      "result": {
+        "path": "reports/verification/ci-selection/mutation-result.json",
+        "sha256": "e6324d7c4eba139389927f7241b7838cc92f1f1880bd07291e05f9e337e1f6a8"
+      }
+    }
+  ],
+  "rule_sha256": "5c880ad17ee6ad6d9c642d22f6f9babefdf476f6318dbaef7b79644723471f49",
+  "schema": "verification-ci-mutations/v1"
+}
