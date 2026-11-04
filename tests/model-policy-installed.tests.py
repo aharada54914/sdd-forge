@@ -3733,7 +3733,9 @@ class InstalledPanelistCallerTests(unittest.TestCase):
                     controls[kind] = {'path': alias, 'sha256': launch.sha_file(f.root / alias)}
                 else:
                     alias = launch.TRUSTED_POLICY
-                    (f.root / alias).write_bytes((f.root / 'policy.json').read_bytes())
+                    # Keep policy authority equivalent, but collide with the trusted snapshot's raw bytes.
+                    (f.root / alias).write_bytes((f.root / 'policy.json').read_bytes() + b'\n')
+                    self.assertNotEqual((f.root / alias).read_bytes(), (installed / alias).read_bytes())
                     request = json.loads((f.root / 'request.json').read_bytes())
                     request['policy_path'] = alias
                     (f.root / 'request.json').write_bytes(launch.canonical(request))
