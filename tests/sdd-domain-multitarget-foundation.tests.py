@@ -107,7 +107,7 @@ class CurrentAnchorTests(unittest.TestCase):
         job = "cloud-native"  # the catalog's ci-cloud profile runs this suite
         for os_name in ("windows-latest", "macos-latest", "ubuntu-latest"):
             one = copy.deepcopy(data)
-            one["jobs"] = {job: one["jobs"][job]}
+            # Keep the live planner producer while isolating the native matrix row.
             one["jobs"][job]["strategy"]["matrix"]["os"] = [os_name]
             self.assertIn(path, workflow.workflow_coverage(one, catalog)[job])
         # The real YAML consumer must detect removed execution, not find prose.
