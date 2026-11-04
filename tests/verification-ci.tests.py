@@ -2137,6 +2137,90 @@ class ForkEventContextTests(unittest.TestCase):
         P.validate_plan(f.plan)
         f.aggregate_cli(observed, expected=1)
 
+    def use_same_repository_event_with_moved_api_base(self):
+        f = self.f
+        f.api_run['head_repository'] = {'id': 10, 'full_name': 'owner/repo', 'fork': False}
+        f.api_run['pull_requests'] = [{'number': 7,
+            'base': {'sha': self.head, 'repo': {'id': 10}},
+            'head': {'sha': self.base, 'repo': {'id': 10}}}]
+        self.context.update(head_repository='owner/repo', head_repository_id=10)
+        f.environment.update({'CI_' + k.upper(): str(v) for k, v in self.context.items()})
+
+    def test_original_event_revisions_survive_current_api_base_and_head_advancing(self):
+        self.use_same_repository_event_with_moved_api_base()
+        f = self.f
+        # Without original event evidence, the newer mutable API base must fail.
+        f.aggregate_cli(f.collect_cli(), expected=1)
+        f.aggregate_cli(f.collect_cli(github_event_context=True))
+        self.assertNotEqual(f.api_run['pull_requests'][0]['base']['sha'], self.context['base_sha'])
+        self.assertNotEqual(f.api_run['pull_requests'][0]['head']['sha'], self.context['head_sha'])
+
+    def test_moved_base_does_not_relax_pr_head_or_repository_identity(self):
+        self.use_same_repository_event_with_moved_api_base()
+        f = self.f
+        original = copy.deepcopy(f.api_run['pull_requests'][0])
+        mutations = [('number', 8), ('head-sha', 'malformed'), ('head-repo', 20), ('base-repo', 20),
+                     ('base-sha', 'malformed'), ('missing-head-repo', None)]
+        for field, value in mutations:
+            with self.subTest(field=field):
+                pr = copy.deepcopy(original)
+                if field == 'number':
+                    pr['number'] = value
+                elif field == 'missing-head-repo':
+                    del pr['head']['repo']
+                else:
+                    side, key = field.split('-')
+                    pr[side][key] = {'id': value} if key == 'repo' else value
+                f.api_run['pull_requests'] = [pr]
+                f.aggregate_cli(f.collect_cli(github_event_context=True), expected=1)
+        for malformed in (None, 'not-a-pr', 1, []):
+            with self.subTest(malformed=malformed):
+                f.api_run['pull_requests'] = [malformed]
+                f.aggregate_cli(f.collect_cli(github_event_context=True), expected=1)
+
+    def test_context_bound_selection_is_same_repository_only_even_with_api_pr(self):
+        helper = module(ROOT / 'tests/verification-ci-plan.tests.py', 'original_event_proof')
+
+        class EventProof(helper.ProofTests):
+            def commit(proof, message):
+                if message == 'inactive category definition':
+                    proof.workflow['jobs']['ci-plan'] = copy.deepcopy(self.f.workflow['jobs']['ci-plan'])
+                    proof.workflow['jobs']['required-checks'] = helper.prepared_verifier(list(proof.workflow['jobs']))
+                    proof.write('.github/workflows/test.yml', json.dumps(proof.workflow))
+                return super().commit(message)
+
+        proof = EventProof()
+        proof.setUp()
+        self.addCleanup(proof.doCleanups)
+        _, tested = proof.verified_merge()
+        selected = proof.plan(tested_revision=tested)
+        self.assertEqual(selected['mode'], 'affected')
+        self.assertTrue(selected['omissions'] and selected['activation_evidence'])
+        run = dict(id=123, run_attempt=1, event='pull_request', head_sha=proof.head,
+                   path='.github/workflows/test.yml', repository={'id': 10, 'full_name': 'owner/repo'},
+                   head_repository={'id': 10, 'full_name': 'owner/repo', 'fork': False},
+                   pull_requests=[{'number': 7, 'base': {'sha': proof.head, 'repo': {'id': 10}},
+                                   'head': {'sha': proof.base, 'repo': {'id': 10}}}])
+        context = dict(event='pull_request', repository='owner/repo', repository_id=10,
+                       head_repository='owner/repo', head_repository_id=10, run_id='123', run_attempt=1,
+                       pr_number=7, base_sha=proof.base, head_sha=proof.head, tested_sha=tested)
+        # This is an actual admitted proof/selected plan, not just schema-valid JSON.
+        self.f.ci.rebuild_plan(proof.root, run, selected, context)
+        run['head_repository'] = {'id': 20, 'full_name': 'fork/repo', 'fork': True}
+        run['pull_requests'][0]['head']['repo']['id'] = 20
+        context.update(head_repository='fork/repo', head_repository_id=20)
+        with self.assertRaises(ValueError):
+            self.f.ci.rebuild_plan(proof.root, run, selected, context)
+        full = proof.plan(tested_revision=tested, force_full='true')
+        self.assertEqual(full['mode'], 'full')
+        self.f.ci.rebuild_plan(proof.root, run, full, context)
+        # Context-free legacy input still cannot turn a known fork into selection.
+        run['pull_requests'][0]['base']['sha'] = proof.base
+        run['pull_requests'][0]['head']['sha'] = proof.head
+        with self.assertRaises(ValueError):
+            self.f.ci.rebuild_plan(proof.root, run, selected)
+        self.f.ci.rebuild_plan(proof.root, run, full)
+
     def test_matching_single_api_pr_retains_existing_path_without_context(self):
         f = self.f
         f.api_run['pull_requests'] = [{'base': {'sha': self.base}, 'head': {'sha': self.head}}]

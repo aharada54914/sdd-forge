@@ -473,6 +473,17 @@ def source_job(history):
     return latest, origin
 
 
+def original_event_revisions(root, run, context, tested):
+    bind_event_context(context, run)
+    base, head = context['base_sha'], context['head_sha']
+    parents = P.git(root, 'show', '-s', '--format=%P', tested).decode().strip().split()
+    if tested != context['tested_sha'] or parents != [base, head]:
+        raise ValueError('tested merge does not bind original event parent order')
+    if W.verifier_job(P.read_workflow(root / '.github/workflows/test.yml')) is not True:
+        raise ValueError('original event requires the fixed event-bound collector caller')
+    return base, head
+
+
 def rebuild_plan(root, run, plan, event_context=None):
     tested = P.git(root, 'rev-parse', 'HEAD').decode().strip()
     if P.git(root, 'status', '--porcelain', '--untracked-files=no'):
@@ -487,23 +498,38 @@ def rebuild_plan(root, run, plan, event_context=None):
         prs = run.get('pull_requests')
         fork_fallback = prs == [] and isinstance(prs, list)
         if fork_fallback:
-            bind_event_context(event_context, run)
+            base, head = original_event_revisions(root, run, event_context, tested)
             if (event_context['repository_id'] == event_context['head_repository_id']
                     or event_context['repository'] == event_context['head_repository']
                     or run['head_repository'].get('fork') is not True
-                    or plan['mode'] != 'full' or plan['omissions'] or plan['activation_evidence']
-                    or tested != event_context['tested_sha']):
+                    or plan['mode'] != 'full' or plan['omissions'] or plan['activation_evidence']):
                 raise ValueError('empty PR metadata requires independently bound full fork execution')
-            base, head = event_context['base_sha'], event_context['head_sha']
-            parents = P.git(root, 'show', '-s', '--format=%P', tested).decode().strip().split()
-            if parents != [base, head]:
-                raise ValueError('fork tested merge does not bind original event parent order')
-            if W.verifier_job(P.read_workflow(root / '.github/workflows/test.yml')) is not True:
-                raise ValueError('fork context requires the fixed event-bound collector caller')
         else:
             if not isinstance(prs, list) or len(prs) != 1:
                 raise ValueError('missing or ambiguous API PR revision identity')
-            base, head = prs[0]['base']['sha'], prs[0]['head']['sha']
+            pr = prs[0]
+            if event_context is None:
+                base, head = pr['base']['sha'], pr['head']['sha']
+            else:
+                base, head = original_event_revisions(root, run, event_context, tested)
+                if (not isinstance(pr, dict) or not positive(pr.get('number'))
+                        or pr['number'] != event_context['pr_number']):
+                    raise ValueError('API PR identity differs from original event')
+                # GitHub refreshes these nested SHAs when the PR/base branch moves.
+                # Their repository/PR identity is useful; original revisions come
+                # only from the fixed event, immutable run head and tested parents.
+                for side, repository in (('base', 'repository'), ('head', 'head_repository')):
+                    if (not P.hash_value(pr[side]['sha'], 40)
+                            or not positive(pr[side]['repo']['id'])
+                            or pr[side]['repo']['id'] != event_context[repository + '_id']):
+                        raise ValueError('API PR repository differs from original event')
+        repositories = [run.get(name) for name in ('repository', 'head_repository')]
+        api_fork = (all(isinstance(repo, dict) and positive(repo.get('id')) for repo in repositories)
+                    and repositories[0]['id'] != repositories[1]['id'])
+        fork_full = fork_fallback or api_fork or (event_context is not None
+                     and event_context['repository_id'] != event_context['head_repository_id'])
+        if fork_full and (plan['mode'] != 'full' or plan['omissions'] or plan['activation_evidence']):
+            raise ValueError('original fork event requires full execution')
         if not P.hash_value(base, 40) or not P.hash_value(head, 40) or head != run['head_sha']:
             raise ValueError('invalid API PR revisions')
         with tempfile.TemporaryDirectory(prefix='ci-trusted-') as directory:
@@ -521,7 +547,7 @@ def rebuild_plan(root, run, plan, event_context=None):
                 shutil.copytree(parser, trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml')
             normal = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='false', **arguments)
             forced = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='true', **arguments)
-            admitted = (forced,) if fork_fallback else (normal, forced)
+            admitted = (forced,) if fork_full else (normal, forced)
             if P.canonical(plan) not in tuple(P.canonical(item) for item in admitted):
                 raise ValueError('plan disagrees with independent trusted reconstruction')
     else:
