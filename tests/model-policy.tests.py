@@ -942,8 +942,10 @@ class PolicySelection(unittest.TestCase):
                                           ('[Text.UnicodeEncoding]::new($false, $true)', False),
                                           ('[Text.UnicodeEncoding]::new($false, $true)', True)):
             with self.subTest(encoding=encoding, missing_runtime=missing_runtime):
+                # Desktop serializes first-use module progress on stderr for EncodedCommand.
                 code = (
-                    "$ErrorActionPreference='Stop'; [Console]::InputEncoding=" + encoding + "; "
+                    "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; "
+                    "[Console]::InputEncoding=" + encoding + "; "
                     "$before=[Console]::InputEncoding; " + ("$env:PATH=''; " if missing_runtime else "") +
                     "& '" + selector + "' -PolicyInput '入力.json' -Registry '登録.json'; "
                     "$status=$LASTEXITCODE; "
