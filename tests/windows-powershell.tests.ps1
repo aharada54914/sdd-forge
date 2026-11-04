@@ -77,6 +77,54 @@ if ($focused.ExitCode -ne 0) {
     throw ('Panelist runtime boundaries failed: ' + [Text.Encoding]::UTF8.GetString($focused.Stderr))
 }
 
+# Only Desktop repeats these transport boundaries: Core already runs the full
+# policy/renderer contracts. Pin every child to the host identity checked above.
+$previousPolicyPwsh = $env:SDD_TEST_PWSH
+$previousPolicyBackend = $env:SDD_TEST_POLICY_BACKEND
+try {
+    $env:SDD_TEST_PWSH = $hostPath
+    $env:SDD_TEST_POLICY_BACKEND = 'powershell'
+    & $payloadPython.Source -B (Join-Path $PSScriptRoot 'model-policy.tests.py') PolicySelection.test_wrapper_policy_smoke
+    if ($LASTEXITCODE -ne 0) { throw 'Desktop managed selector bridge smoke failed.' }
+} finally {
+    $env:SDD_TEST_PWSH = $previousPolicyPwsh
+    $env:SDD_TEST_POLICY_BACKEND = $previousPolicyBackend
+}
+$managedScratch = Join-Path ([IO.Path]::GetTempPath()) ('sdd managed Desktop ' + [guid]::NewGuid())
+[void][IO.Directory]::CreateDirectory($managedScratch)
+$managedTarget = Join-Path $repositoryRoot 'plugins/sdd-quality-loop/agents/evaluator.md'
+$managedTargetHash = (Get-FileHash -LiteralPath $managedTarget -Algorithm SHA256).Hash
+try {
+    $selectorPath = (Join-Path $repositoryRoot 'plugins/sdd-implementation/scripts/select-agent-model.ps1').Replace("'", "''")
+    $rendererPath = (Join-Path $repositoryRoot 'render-agent-frontmatter.ps1').Replace("'", "''")
+    foreach ($case in @(
+        @{ Name = 'empty policy input'; Message = 'Policy input'; Code = "& '$selectorPath' -PolicyInput ''" },
+        @{ Name = 'empty managed root'; Message = '--root'; Code = "& '$rendererPath' -RepoRoot '' -ModelControls fixture.json -ModelControlsSha256 $('a' * 64) -RunId fixture-run -SessionId fixture-session -ManagedTarget plugins/sdd-quality-loop/agents/evaluator.md" }
+    )) {
+        # EncodedCommand preserves explicitly empty script parameters on Desktop;
+        # the renderer must then preserve that empty value in its Python argv.
+        $code = "Set-Location -LiteralPath '" + $managedScratch.Replace("'", "''") + "'; " + $case.Code
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($code))
+        $boundary = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
+        $stderr = [Text.Encoding]::UTF8.GetString($boundary.Stderr)
+        if ($boundary.ExitCode -ne 2 -or $boundary.Stdout.Length -ne 0) {
+            throw "Desktop $($case.Name) did not fail closed: $stderr"
+        }
+        $errorRecord = $stderr | ConvertFrom-Json
+        if ($errorRecord.schema -cne 'model-policy-error/v1' -or $errorRecord.reason -cne 'input-invalid' -or
+            -not $errorRecord.message.Contains($case.Message)) {
+            throw "Desktop $($case.Name) did not return its typed boundary error: $stderr"
+        }
+        if (@(Get-ChildItem -LiteralPath $managedScratch -Force).Count -ne 0 -or
+            (Get-FileHash -LiteralPath $managedTarget -Algorithm SHA256).Hash -cne $managedTargetHash) {
+            throw "Desktop $($case.Name) modified the working directory or managed target"
+        }
+        Write-Host "ok: Desktop $($case.Name) preserves typed refusal without writes"
+    }
+} finally {
+    Remove-Item -LiteralPath $managedScratch -Recurse -Force
+}
+
 $work = Join-Path ([IO.Path]::GetTempPath()) ('sdd native install ' + [guid]::NewGuid())
 $installRoot = Join-Path $work 'installed'
 New-Item -ItemType Directory -Path $work | Out-Null

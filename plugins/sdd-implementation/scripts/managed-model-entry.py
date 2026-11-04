@@ -2186,8 +2186,8 @@ def main(argv):
     if argv[:1] == ['prepare']:
         return prepare(argv[1:])
     try:
-        _require_safe_primitives()
         options, check = _parse(argv)
+        _require_safe_primitives()
         rel = options['--managed-target']
         if rel not in TARGETS:
             raise _invalid('--managed-target must be one exact canonical managed target path.')
