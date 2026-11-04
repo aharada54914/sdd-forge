@@ -581,7 +581,7 @@ def write_launch_text(path, text, *, exclusive=False, unchanged=False):
             with path.open('x', encoding='utf-8') as stream:
                 stream.write(text)
         else:
-            path.write_text(text)
+            path.write_text(text, encoding='utf-8')
         return
     write_launch_bytes(path, text.encode(), exclusive=exclusive, unchanged=unchanged)
 
