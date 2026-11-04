@@ -2,29 +2,6 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$workflowStateValidator = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
-$workflowStateArguments = @("-NoProfile", "-File", $workflowStateValidator)
-& (Get-Process -Id $PID).Path @workflowStateArguments
-if ($LASTEXITCODE -cne 0) {
-    throw "Workflow-state validation failed with exit code $LASTEXITCODE."
-}
-
-# render-agent-frontmatter --check (T-003, #151, AC-016/AC-020): read-only
-# drift detection between rendered Claude .md/Codex .toml agent targets and
-# the current contracts/agent-model-capabilities.v2.json role_defaults,
-# including (read-only) the four R-10 protected review-loop reviewer
-# targets. A non-zero exit here means either an unprotected target has
-# drifted from role_defaults (a real defect) or a human maintainer has not
-# yet applied the staged specs/epic-159-pillar-c/human-copy/ candidates for
-# the four protected reviewer files (an expected, documented pending-action
-# state until that human step occurs -- design.md Protected-File Statement).
-$renderAgentFrontmatterValidator = Join-Path $repositoryRoot "render-agent-frontmatter.ps1"
-$renderAgentFrontmatterArguments = @("-NoProfile", "-File", $renderAgentFrontmatterValidator, "-Check")
-& (Get-Process -Id $PID).Path @renderAgentFrontmatterArguments
-if ($LASTEXITCODE -cne 0) {
-    throw "render-agent-frontmatter --check reported drift with exit code $LASTEXITCODE (see output above; if this is only the four protected reviewer targets, a human maintainer has not yet applied specs/epic-159-pillar-c/human-copy/)."
-}
-
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
 $expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
 $expectedVersions = @{
@@ -44,10 +21,10 @@ function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
 
     $path = Join-Path $repositoryRoot $RelativePath
-    if (-not (Test-Path $path)) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         throw "Missing required file: $RelativePath"
     }
-    return Get-Content -Raw -Encoding Utf8 $path | ConvertFrom-Json
+    return Get-Content -Raw -Encoding Utf8 -LiteralPath $path | ConvertFrom-Json
 }
 
 $readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md")
@@ -158,7 +135,8 @@ foreach ($name in @("sdd-azure-cloud", "sdd-aws-cloud")) {
             throw "Cloud canonical runtime is missing: $canonical"
         }
         # Source trees carry canonical inputs; installers materialize runtime/.
-        # When checking an installed/exported tree, every mirror is mandatory.
+        # This validator needs the full source tree; any materialized mirror in
+        # that tree must also match. Installed-payload tests run separately.
         if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot "plugins/$name/runtime"))) { continue }
         if (-not (Test-Path -LiteralPath $packaged -PathType Leaf) -or
             (Get-Item -LiteralPath $packaged).Attributes -band [IO.FileAttributes]::ReparsePoint -or
@@ -208,6 +186,49 @@ foreach ($relativePath in $forbiddenPaths) {
 }
 
 $requiredFiles = @(
+    # Released features must remain present in the full source tree.
+    "install-payload.txt",
+    "install.sh",
+    "install.ps1",
+    "render-agent-frontmatter.sh",
+    "render-agent-frontmatter.ps1",
+    "plugins/sdd-implementation/scripts/model-policy.py",
+    "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+    "contracts/agent-model-capabilities.v2.json",
+    "contracts/model-policy.v1.json",
+    "contracts/model-adoption/ci-model-modernization-20261021.json",
+    "contracts/model-policy.schema.json",
+    "contracts/model-policy-request.schema.json",
+    "contracts/model-policy-error.schema.json",
+    "contracts/model-observation.schema.json",
+    "contracts/model-selection.schema.json",
+    "contracts/model-launch-controls.schema.json",
+    "contracts/model-delivery.schema.json",
+    "contracts/model-role-config.schema.json",
+    "contracts/verification-ci-plan.schema.json",
+    "contracts/verification-ci-observations.schema.json",
+    "contracts/verification-ci-result.schema.json",
+    "docs/adr/0036-thin-cloud-orchestration.md",
+    "docs/adr/0037-conservative-ci-selection.md",
+    "docs/adr/0038-current-model-role-policy.md",
+    "tests/verification-impact.py",
+    "tests/verification-ci.py",
+    "tests/model-identity.tests.py",
+    "tests/model-observation.tests.py",
+    "tests/model-policy.tests.py",
+    "tests/model-policy-launch.tests.py",
+    "tests/model-policy-launch-platform.tests.py",
+    "tests/model-policy-installed.tests.py",
+    "tests/verification-ci-plan.tests.py",
+    "tests/verification-ci.tests.py",
     "USERGUIDE.md",
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml",
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml",
@@ -267,9 +288,115 @@ $requiredFiles = @(
     "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
 )
 foreach ($relativePath in $requiredFiles) {
-    if (-not (Test-Path (Join-Path $repositoryRoot $relativePath))) {
+    if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $relativePath) -PathType Leaf)) {
         throw "Missing required file: $relativePath"
     }
+}
+
+# These are source-release completeness checks, not schema validation or installed
+# execution proof. The model/CI suites and installed-runtime tests own behavior.
+$schemaIdentities = @{
+    "contracts/model-policy.schema.json" = "model-policy/v1"
+    "contracts/model-policy-request.schema.json" = "model-policy-request/v1"
+    "contracts/model-policy-error.schema.json" = "model-policy-error/v1"
+    "contracts/model-observation.schema.json" = "model-observation/v1"
+    "contracts/model-selection.schema.json" = "model-selection/v1"
+    "contracts/model-launch-controls.schema.json" = "model-launch-controls/v1"
+    "contracts/model-delivery.schema.json" = "model-delivery/v1"
+    "contracts/model-role-config.schema.json" = "model-role-config/v1"
+    "contracts/verification-ci-plan.schema.json" = "verification-ci-plan/v1"
+    "contracts/verification-ci-observations.schema.json" = "verification-ci-observations/v1"
+}
+foreach ($relativePath in $schemaIdentities.Keys) {
+    $schema = Read-JsonFile $relativePath
+    if ($schema.'$schema' -cne "https://json-schema.org/draft/2020-12/schema" -or
+        $schema.properties.schema.const -cne $schemaIdentities[$relativePath]) {
+        throw "Schema identity differs: $relativePath"
+    }
+}
+$ciResult = Read-JsonFile "contracts/verification-ci-result.schema.json"
+if ($ciResult.'$schema' -cne "https://json-schema.org/draft/2020-12/schema" -or
+    $ciResult.'$defs'.result.properties.schema.const -cne "verification-ci-result/v1" -or
+    $ciResult.'$defs'.error.properties.schema.const -cne "verification-ci-error/v1") {
+    throw "Schema identity differs: contracts/verification-ci-result.schema.json"
+}
+$policy = Read-JsonFile "contracts/model-policy.v1.json"
+$registry = Read-JsonFile "contracts/agent-model-capabilities.v2.json"
+$adoption = Read-JsonFile "contracts/model-adoption/ci-model-modernization-20261021.json"
+if ($policy.schema -cne "model-policy/v1" -or $registry.schema -cne "agent-model-capabilities/v2" -or
+    $adoption.schema -cne "t010-role-decisions/v1") {
+    throw "Model policy, capability registry or adoption record identity differs."
+}
+$policySchema = Read-JsonFile "contracts/model-policy.schema.json"
+$policyRoles = @($policy.roles.PSObject.Properties.Name)
+if ((($policyRoles | Sort-Object) -join "`n") -cne
+    ((@($policySchema.properties.roles.required) | Sort-Object) -join "`n")) {
+    throw "Model policy roles differ from the policy contract."
+}
+foreach ($role in $policy.roles.PSObject.Properties) {
+    $capabilityRole = $role.Value.capability_role
+    if ($null -cne $capabilityRole -and
+        $capabilityRole -cnotin @($registry.role_defaults.PSObject.Properties.Name)) {
+        throw "Model policy role references an unknown registry role: $($role.Name) -> $capabilityRole"
+    }
+    if ($capabilityRole -cne $policySchema.properties.roles.properties.($role.Name).properties.capability_role.const) {
+        throw "Model policy capability role differs from its contract: $($role.Name)"
+    }
+}
+
+# CI planning tools/tests are required in this checkout, but deliberately excluded
+# from product installation. Check admission only for the bundled runtime closure.
+$manifestPath = Join-Path $repositoryRoot "install-payload.txt"
+if ((Get-Item -LiteralPath $manifestPath).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+    throw "Install payload manifest must not be a link."
+}
+$payloadEntries = @(foreach ($line in Get-Content -LiteralPath $manifestPath -Encoding Utf8) {
+    $entry = $line.Trim()
+    if (-not $entry -or $entry.StartsWith("#")) { continue }
+    if ($entry -cnotmatch '^[A-Za-z0-9._@+-]+(/[A-Za-z0-9._@+-]+)*/?$' -or
+        $entry -cmatch '(^|/)\.+(/|$)') {
+        throw "Invalid install payload entry: $entry"
+    }
+    $entry
+})
+if ($payloadEntries.Count -eq 0) { throw "Install payload manifest is empty." }
+$runtimeFiles = @($requiredFiles | Where-Object {
+    $_ -cmatch '^(plugins/|\.codex/|contracts/)' -and $_ -cnotmatch '^contracts/verification-ci-'
+}) + @("install-payload.txt", "install.sh", "install.ps1", "render-agent-frontmatter.sh", "render-agent-frontmatter.ps1",
+    ".agents/plugins/marketplace.json", ".claude-plugin/marketplace.json")
+foreach ($relativePath in $runtimeFiles) {
+    $admitted = $false
+    foreach ($entry in $payloadEntries) {
+        if ($relativePath -ceq $entry -or
+            ($entry.EndsWith("/") -and $relativePath.StartsWith($entry, [StringComparison]::Ordinal))) {
+            $admitted = $true
+            break
+        }
+    }
+    if (-not $admitted) { throw "Install payload excludes required runtime: $relativePath" }
+}
+
+$workflowStateValidator = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
+$workflowStateArguments = @("-NoProfile", "-File", $workflowStateValidator)
+& (Get-Process -Id $PID).Path @workflowStateArguments
+if ($LASTEXITCODE -cne 0) {
+    throw "Workflow-state validation failed with exit code $LASTEXITCODE."
+}
+
+# render-agent-frontmatter --check (T-003, #151, AC-016/AC-020): read-only
+# drift detection between rendered Claude .md/Codex .toml agent targets and
+# the current contracts/agent-model-capabilities.v2.json role_defaults,
+# including (read-only) the four R-10 protected review-loop reviewer
+# targets. A non-zero exit here means either an unprotected target has
+# drifted from role_defaults (a real defect) or a human maintainer has not
+# yet applied the staged specs/epic-159-pillar-c/human-copy/ candidates for
+# the four protected reviewer files (an expected, documented pending-action
+# state until that human step occurs -- design.md Protected-File Statement).
+$renderAgentFrontmatterValidator = Join-Path $repositoryRoot "render-agent-frontmatter.ps1"
+$renderAgentFrontmatterArguments = @("-NoProfile", "-File", $renderAgentFrontmatterValidator, "-Check")
+& (Get-Process -Id $PID).Path @renderAgentFrontmatterArguments
+if ($LASTEXITCODE -cne 0) {
+    throw "render-agent-frontmatter --check reported drift with exit code $LASTEXITCODE (see output above; if this is only the four protected reviewer targets, a human maintainer has not yet applied specs/epic-159-pillar-c/human-copy/)."
 }
 
 $reviewTicketTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/templates/review-ticket.template.yml")
