@@ -591,16 +591,20 @@ import sys
 
 script, work = sys.argv[1:]
 root = Path(work)
-feature = 'metadata-quotes'
-(root / 'specs' / feature).mkdir(parents=True)
-(root / 'specs' / feature / 'tasks.md').write_text('## T-001\nStatus: Done\n')
 value = '"single\' 日本語\n$`\\end'
-for extra in ([], ['--effort-main', value]):
+for version, extra in enumerate(([], ['--effort-main', value]), start=1):
+    # Separate outputs so timestamp boundaries and directory order cannot select the other schema.
+    feature = f'metadata-quotes-v{version}'
+    (root / 'specs' / feature).mkdir(parents=True)
+    (root / 'specs' / feature / 'tasks.md').write_text('## T-001\nStatus: Done\n')
     result = subprocess.run(['sh', script, feature, '--model-main', value,
         '--model-reviewers', value, '--plugin-version', value, '--track', value, *extra],
         cwd=root, capture_output=True, text=True, timeout=10)
     assert result.returncode == 0, result.stderr
-    record = json.loads(next((root / 'reports/runs').glob('*-' + feature + '.json')).read_text())
+    outputs = list((root / 'reports/runs').glob('*-' + feature + '.json'))
+    assert len(outputs) == 1, outputs
+    record = json.loads(outputs[0].read_text())
+    assert record['schema'] == f'sdd-run-record/v{version}'
     assert record['model_ids'] == {'main': value, 'reviewers': value}
     assert record['plugin_version'] == value
     assert record['track'] == value
