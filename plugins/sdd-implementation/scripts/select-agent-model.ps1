@@ -55,7 +55,21 @@ function Invoke-PolicyBridge([string]$CommandName, [string]$InputJson) {
   $errors = [IO.MemoryStream]::new()
   $started = $false
   try {
-    $started = $process.Start()
+    $utf8 = [Text.UTF8Encoding]::new($false)
+    if ($null -ne $start.PSObject.Properties['StandardInputEncoding']) {
+      $start.StandardInputEncoding = $utf8
+      $started = $process.Start()
+    } else {
+      # .NET Framework constructs redirected stdin with Console.InputEncoding.
+      # Its StreamWriter writes a BOM before even a raw BaseStream write.
+      $originalInputEncoding = [Console]::InputEncoding
+      try {
+        [Console]::InputEncoding = $utf8
+        $started = $process.Start()
+      } finally {
+        [Console]::InputEncoding = $originalInputEncoding
+      }
+    }
     $outTask = $process.StandardOutput.BaseStream.CopyToAsync($output)
     $errTask = $process.StandardError.BaseStream.CopyToAsync($errors)
     $inputBytes = [Text.Encoding]::UTF8.GetBytes($InputJson)

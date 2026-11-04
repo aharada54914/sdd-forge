@@ -84,7 +84,9 @@ $previousPolicyBackend = $env:SDD_TEST_POLICY_BACKEND
 try {
     $env:SDD_TEST_PWSH = $hostPath
     $env:SDD_TEST_POLICY_BACKEND = 'powershell'
-    & $payloadPython.Source -B (Join-Path $PSScriptRoot 'model-policy.tests.py') PolicySelection.test_wrapper_policy_smoke
+    & $payloadPython.Source -B (Join-Path $PSScriptRoot 'model-policy.tests.py') `
+        PolicySelection.test_wrapper_policy_smoke `
+        PolicySelection.test_powershell_bridge_preserves_unicode_paths_and_caller_input_encoding
     if ($LASTEXITCODE -ne 0) { throw 'Desktop managed selector bridge smoke failed.' }
 } finally {
     $env:SDD_TEST_PWSH = $previousPolicyPwsh
