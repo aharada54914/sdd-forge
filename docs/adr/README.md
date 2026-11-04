@@ -263,6 +263,9 @@ must never rely on a bare legacy number.
 | 0030 | Component Path Ownership Resolver Semantics | Accepted |
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
 | 0032 | Concept Design Layer — Phased Introduction | Accepted |
+| 0036 | [Thin Azure/AWS orchestration with CI authorization](0036-thin-cloud-orchestration.md) | Proposed |
+| 0037 | [Conservative dependency-based CI selection](0037-conservative-ci-selection.md) | Proposed |
+| 0038 | [Role policy with live model availability and immutable run selection](0038-current-model-role-policy.md) | Proposed |
 | 0045 | Bounded full workflow-state batch reuse | Proposed |
 | 0046 | Vendor agent toolkits coexist; SDD Forge does not own cloud adapters | Proposed |
 | 0047 | Deny cloud deploy commands in shell tools (accident prevention) | Rejected |
