@@ -166,6 +166,17 @@ class CurrentCaptureTests(unittest.TestCase):
         self.edit(name, text + mutation)
         self.assertIn('install-result', self.capture())
 
+    def test_runtime_manifest_mutation_cannot_redefine_expected_payload(self):
+        # The generator runs before installation. Adding a tracked development
+        # directory there must not update the independent preexecution oracle.
+        self.inject_generator('Path("install-payload.txt").write_bytes('
+                              'Path("install-payload.txt").read_bytes() + b"\\n.github/\\n")')
+        self.assertIn('install-result', self.capture())
+        installed = (self.destination / 'targets/install-result.sha256').read_text()
+        expected = (self.destination / 'expected/targets/install-result.sha256').read_text()
+        self.assertIn('  .github/workflows/test.yml\n', installed)
+        self.assertNotIn('  .github/workflows/test.yml\n', expected)
+
     def test_copy_and_generated_listing_use_preexecution_source_oracles(self):
         template = next(name for name in CAPTURE.indexed_source(self.product) if name.startswith('plugins/') and '/templates/' in name)
         plugin = next(name for name in CAPTURE.indexed_source(self.product) if '/.claude-plugin/plugin.json' in name)

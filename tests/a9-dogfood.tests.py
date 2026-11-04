@@ -31,9 +31,9 @@ CLOUD_ROOTS = ("plugins/sdd-azure-cloud/", "plugins/sdd-aws-cloud/", "templates/
 
 
 def historical_core_paths():
-    """The preserved nine-component candidate predates these restored roots."""
+    """The preserved nine-component candidate predates cloud and payload restoration."""
     paths = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
-    return [path for path in paths if not path.startswith(CLOUD_ROOTS)]
+    return [path for path in paths if not path.startswith(CLOUD_ROOTS) and path != "install-payload.txt"]
 
 
 def context():
@@ -186,6 +186,9 @@ class CandidatePackTests(unittest.TestCase):
         reconstructed = copy.deepcopy(restored)
         reconstructed["components"] = [item for item in restored["components"] if item["id"] not in cloud_ids]
         reconstructed["shared_paths"] = [item for item in restored["shared_paths"] if item["pattern"] != "templates/cloud/**"]
+        installer = next(item for item in reconstructed["components"] if item["id"] == "installer")
+        self.assertEqual(installer["paths"]["include"].count("install-payload.txt"), 1)
+        installer["paths"]["include"].remove("install-payload.txt")
         self.assertEqual(reconstructed, core)
         tracked = historical_core_paths() + ["plugins/sdd-azure-cloud/scripts/cloud.py",
             "plugins/sdd-aws-cloud/scripts/cloud.py", "templates/cloud/github-azure.yml"]
@@ -209,6 +212,18 @@ class CandidatePackTests(unittest.TestCase):
             component["data_classification"].remove("credential_material")
             with self.subTest(component=identity):
                 self.assertTrue(checker.validate(changed, tracked)[0])
+
+    def test_payload_manifest_has_exact_unsigned_installer_ownership(self):
+        candidate = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml").read_text())
+        live = OWNERSHIP.parse_minimal_yaml((ROOT / "sdd/project-context.yaml").read_text())
+        for document, expected in ((candidate, ["installer"]), (live, [])):
+            result = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(document), ["install-payload.txt"])
+            self.assertEqual(result["affected_components"], expected)
+            self.assertEqual(result["records"][0]["owning_components"], expected)
+        installer = next(item for item in candidate["components"] if item["id"] == "installer")
+        installer["paths"]["include"].remove("install-payload.txt")
+        result = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(candidate), ["install-payload.txt"])
+        self.assertEqual(result["records"][0]["classification"], "UNOWNED")
 
     def test_signed_core_context_reports_restored_cloud_paths_as_unowned(self):
         # Classification never substitutes the unsigned successor for live policy.
