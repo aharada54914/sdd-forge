@@ -429,6 +429,8 @@
     {"path": "tests/validate-resolver-evidence.tests.ps1", "runtime": "powershell"},
     {"path": "tests/validate-resolver-evidence.tests.sh", "runtime": "bash"},
     {"path": "tests/verification-catalog.tests.py", "runtime": "python", "delegated_to": "tests/ci-suite-wiring.tests.sh", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/verification-ci-plan.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/verification-ci.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/verification-impact.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/wfi-034-scratch-metric.tests.sh", "runtime": "bash"},
     {"path": "tests/wfi-058-outputs-anchor.tests.ps1", "runtime": "powershell"},
@@ -446,9 +448,7 @@
     {"path": "tests/workflow-state-registry.tests.sh", "runtime": "bash"},
     {"path": "tests/workflow-state-repository-integration.tests.ps1", "runtime": "powershell"},
     {"path": "tests/workflow-state.tests.ps1", "runtime": "powershell"},
-    {"path": "tests/workflow-state.tests.sh", "runtime": "bash"},
-    {"path": "tests/verification-ci-plan.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
-    {"path": "tests/verification-ci.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]}
+    {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
   ],
   "profiles": {
     "ci-cloud": [
