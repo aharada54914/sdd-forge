@@ -412,7 +412,7 @@ class PlanningTests(GitFixture):
                             row['disposition'] == 'orchestration-verifier' for row in controls))
         self.assertNotIn('required-checks', {r['job'] for r in workload})
         self.assertEqual({r['runner'] for r in workload if r['job'] == 'test'},
-                         {'ubuntu-latest', 'macos-latest', 'windows-latest'})
+                         {'ubuntu-latest', 'macos-26-intel', 'windows-latest'})
         aggregate = 'python3 -B tests/verification-ci.py aggregate --root . --plan plan.json --observations observations --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA"'
         future = copy.deepcopy(live)
         future['jobs']['required-checks']['steps'] = [
@@ -452,6 +452,40 @@ class PlanningTests(GitFixture):
         self.assertEqual(sorted(s for r in shards for s in r['suites']), self.suites)
         self.assertTrue(all(r['receipt_required'] for r in shards))
         self.assertTrue(all(not r['suites'] for r in rows if r['step'] == 'opaque'))
+
+    def test_native_macos_labels_preserve_os_selection_and_reject_unknown_runners(self):
+        schema = json.loads((ROOT / 'contracts/verification-ci-plan.schema.json').read_text())
+        allowed = schema['properties']['obligations']['items']['properties']['runner']['enum']
+        for label in ('macos-latest', 'macos-26-intel', 'macos-26-unknown'):
+            with self.subTest(runner=label):
+                workflow = {'jobs': {'test': {'runs-on': label, 'steps': [
+                    {'name': 'native macOS', 'if': "runner.os == 'macOS'",
+                     'run': 'python3 tests/a.tests.py'},
+                    {'name': 'Linux only', 'if': "runner.os == 'Linux'",
+                     'run': 'python3 tests/b.tests.py'}]}}}
+                if label == 'macos-26-unknown':
+                    self.assertNotIn(label, allowed)
+                    with self.assertRaisesRegex(ValueError, 'unsupported workflow runner'):
+                        W.plan_obligations(workflow, self.catalog)
+                    plan = sample_plan()
+                    plan['obligations'][0]['runner'] = label
+                    plan['plan_sha256'] = digest(plan)
+                    with self.assertRaisesRegex(ValueError, 'invalid command or matrix obligation'):
+                        IMPACT.validate_plan(plan)
+                    continue
+                self.assertIn(label, allowed)
+                rows = W.plan_obligations(workflow, self.catalog)
+                self.assertEqual([(row['runner'], row['step'], row['suites']) for row in rows],
+                                 [(label, 'native macOS', ['tests/a.tests.py'])])
+                self.assertEqual(W.workflow_coverage(workflow, self.catalog)['test'],
+                                 {'tests/a.tests.py'})
+                category = {'suites': ['tests/a.tests.py'], 'groups': []}
+                self.assertEqual(IMPACT.selected_obligations(
+                    [category], self.catalog, workflow, rows), rows)
+                plan = sample_plan()
+                plan['obligations'] = rows
+                plan['plan_sha256'] = digest(plan)
+                IMPACT.validate_plan(plan)
 
     def test_dependency_and_indivisible_step_fixed_point(self):
         obligations = W.plan_obligations(self.workflow, self.catalog)
@@ -1349,7 +1383,7 @@ class PreparedVerifierTests(unittest.TestCase):
             self.assertEqual(row['command_sha256'], digest({'run': step['run'], 'shell': 'bash',
                 'env': {**live.get('env', {}), **step.get('env', {})}}))
         self.assertEqual({o['runner'] for o in after if o['job'] == 'test'},
-                         {'ubuntu-latest', 'macos-latest', 'windows-latest'})
+                         {'ubuntu-latest', 'macos-26-intel', 'windows-latest'})
 
     def test_every_preparation_field_order_and_hidden_work_mutation_is_rejected(self):
         def leaves(value, trail=()):

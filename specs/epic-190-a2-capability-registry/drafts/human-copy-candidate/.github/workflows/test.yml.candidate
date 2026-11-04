@@ -116,10 +116,100 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - name: Install contract validator
-        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
+
+      - name: Test Codex MCP config preservation and escaping
+        run: python3 tests/codex-mcp-config.tests.py
+      - name: Test verification catalog and shadow selection
+        shell: bash
+        run: |
+          python3 tests/verification-catalog.tests.py
+          python3 tests/verification-impact.tests.py
+      - name: Observe impact selection without skipping required checks
+        shell: bash
+        env:
+          VERIFICATION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          VERIFICATION_HEAD: ${{ github.sha }}
+        run: |
+          python3 tests/verification-impact.py --base "$VERIFICATION_BASE" --head "$VERIFICATION_HEAD" > "$RUNNER_TEMP/verification-impact.json"
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          result = json.loads((Path(os.environ['RUNNER_TEMP']) / 'verification-impact.json').read_text())
+          summary = {key: result[key] for key in ('mode', 'required_checks', 'reason', 'full_count')}
+          summary['selected_count'] = len(result['selected'])
+          summary['comparison'] = result['comparison']['status']
+          print(json.dumps(summary))
+          PYCODE
+      - name: Install pinned RTK
+        shell: bash
+        run: |
+          set -euo pipefail
+          rtk_dir=$(mktemp -d "$RUNNER_TEMP/rtk.XXXXXX")
+          curl --fail --silent --show-error --location https://github.com/rtk-ai/rtk/releases/download/v0.51.0/rtk-x86_64-unknown-linux-musl.tar.gz --output "$rtk_dir/rtk.tar.gz"
+          printf '%s  %s\n' 5028d3b19a8f0990d30fec9fbb07e32782bc5698e618fb1861aad8a9ccba4eb5 "$rtk_dir/rtk.tar.gz" | sha256sum --check --strict
+          tar -xzf "$rtk_dir/rtk.tar.gz" -C "$rtk_dir" rtk
+          "$rtk_dir/rtk" --version
+          printf '%s\n' "$rtk_dir" >> "$GITHUB_PATH"
+      - name: Test evaluator scratch isolation (Bash and PowerShell)
+        shell: bash
+        run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test evaluator implementation binding (Bash and PowerShell)
+        shell: bash
+        run: python3 tests/review-implementation-binding.tests.py --repo .
+      - name: Test shared quality non-TTY transport contracts
+        shell: bash
+        run: python3 -B tests/quality-nontty-transport.tests.py
+      - name: Check shared launch Python and FilesOnly distribution
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/shared-launch-python"
+          "$RUNNER_TEMP/shared-launch-python/bin/pip" install -r tests/shared-launch-python-requirements.txt
+          "$RUNNER_TEMP/shared-launch-python/bin/python" - <<'PY'
+          import pathlib, subprocess, sys, tomllib
+          config = pathlib.Path('tests/shared-launch-python/pyproject.toml')
+          files = tomllib.loads(config.read_text())['tool']['mypy']['files']
+          subprocess.run([sys.executable, '-m', 'ruff', 'check', '--config', str(config), *files], check=True)
+          subprocess.run([sys.executable, '-m', 'mypy', '--config-file', str(config)], check=True)
+          PY
+      - name: Test shared launch FilesOnly distribution
+        shell: bash
+        run: python3 -B tests/shared-launch-build.tests.py
+      - name: Test traceability freeze normalization
+        shell: bash
+        run: python3 -B tests/traceability-freeze-contract.tests.py
+      - name: Test POSIX kill-switch permission failures
+        shell: bash
+        run: python3 tests/verification.py --suite tests/kill-switch-inspection.tests.sh --run
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Prepare private research-store fixture parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture_parent=$(sudo mktemp -d /var/lib/sdd-research-ci.XXXXXXXX)
+          sudo chown "$(id -u):$(id -g)" "$fixture_parent"
+          printf 'SDD_TEST_SHARED_STORE_PARENT=%s\n' "$fixture_parent" >> "$GITHUB_ENV"
+      - name: Test shared review launch and conditional input contracts
+        shell: bash
+        run: |
+          python3 tests/verification.py --profile ci-shared-python --run --receipt "$RUNNER_TEMP/verification-shared-python.json"
+      - name: Remove private research-store fixture parent
+        if: always()
+        shell: bash
+        run: |
+          case "${SDD_TEST_SHARED_STORE_PARENT:-}" in
+            /var/lib/sdd-research-ci.*) sudo rmdir "$SDD_TEST_SHARED_STORE_PARENT" ;;
+          esac
+      - name: Install pinned domain regression test runner
+        shell: pwsh
+        run: Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
+      - name: Test domain concept modeling and review contracts
+        shell: pwsh
+        run: ./tests/sdd-domain.tests.ps1
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -145,9 +235,8 @@ jobs:
         shell: pwsh
         run: ./tests/design-sync-standing-consent.tests.ps1
 
-  # The inventory remains the source of truth, but otherwise-unwired suites
-  # run as independent shards so the longest POSIX lane is bounded by one
-  # shard instead of the full serial inventory.
+  # Measured suite costs balance the catalog partitions; every partition
+  # remains mandatory and together they execute the complete fallback set.
   posix-unwired-sharded:
     name: POSIX unwired shard (${{ matrix.shard }})
     strategy:
@@ -160,20 +249,31 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Run POSIX inventory shard
         shell: bash
-        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4
+        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4 --receipt "$RUNNER_TEMP/verification-shard.json"
 
   test:
+    # Branch protection keeps stable OS context names; os is the actual runner.
+    name: test (${{ matrix.check }})
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            check: windows-latest
+          - os: macos-26-intel
+            check: macos-latest
+          - os: ubuntu-latest
+            check: ubuntu-latest
     runs-on: ${{ matrix.os }}
     # Native macOS regression runs can exceed 30 minutes while making progress.
-    timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}
+    timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 40 || 30 }}
     steps:
       # eval-lane: (none yet)
       - name: "[deterministic] Setup step 1"
@@ -182,6 +282,25 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
+      - name: "[deterministic] Install structural YAML parser"
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
+      - name: "[deterministic] Test measurement clocks on native platforms"
+        shell: pwsh
+        run: python -B tests/run-measurement.tests.py
+
+      - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
+        shell: pwsh
+        run: python -B tests/sdd-domain-multitarget-T-003.tests.py
+
+      - name: "[deterministic] Test Concept Test gate on native Windows"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python -B tests/concept-test.tests.py
+
+      - name: "[deterministic] Test domain review finalization on native platforms"
+        shell: pwsh
+        run: python -B tests/domain-review-finalize.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows'
@@ -288,10 +407,12 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
+          python tests/verification.py --profile ci-portable-prechecks --run
+
+      - name: "[deterministic] Test task prior-pass receipt (pwsh)"
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
 
       - name: "[deterministic] Test cross-model gate (pwsh)"
         if: runner.os != 'Windows'
@@ -316,6 +437,19 @@ jobs:
       - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
         shell: pwsh
         run: ./tests/scenario.tests.ps1
+      - name: "[deterministic] Test review hash normalization (pwsh)"
+        shell: pwsh
+        run: ./tests/review-hash-normalization.tests.ps1
+
+      # Epic A7's PowerShell compatibility suites are already part of the
+      # runner inventory, but must also execute on the native Windows leg.
+      # Keep the two expensive capture suites in separate required Windows
+      # jobs so their independent assertions run in parallel.
+      - name: "[deterministic] Test Epic A7 compatibility suites (pwsh)"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python tests/verification.py --profile ci-a7-native --run
 
       - name: "[deterministic] Test guards (bash)"
         if: runner.os != 'Windows'
@@ -389,7 +523,7 @@ jobs:
 
       - name: "[deterministic] Upload test logs"
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-logs-${{ matrix.os }}
           path: ${{ runner.temp }}/*.log
@@ -415,7 +549,7 @@ jobs:
             lane: clients
           - os: windows-latest
             lane: context
-          - os: macos-latest
+          - os: macos-26-intel
             lane: all
           - os: ubuntu-latest
             lane: all
@@ -437,7 +571,9 @@ jobs:
       - name: Install recorded Claude Code CLI
         if: matrix.lane == 'all' || matrix.lane == 'clients'
         shell: bash
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          claude --version
 
       - name: Validate Claude plugin manifests (real CLI)
         if: matrix.lane == 'all' || matrix.lane == 'clients'
@@ -447,6 +583,11 @@ jobs:
       - name: Test installer (pwsh)
         shell: pwsh
         run: ./tests/install.tests.ps1 -Lane ${{ matrix.lane }}
+
+      - name: Test installer idempotency (pwsh; WFI-041)
+        if: matrix.lane == 'all' || matrix.lane == 'core'
+        shell: pwsh
+        run: ./tests/installer-idempotency.tests.ps1
 
       - name: Test uninstaller (pwsh)
         if: matrix.lane == 'all' || matrix.lane == 'context'
@@ -487,7 +628,7 @@ jobs:
 
       - name: Upload installer test logs
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: installer-test-logs-${{ matrix.os }}-${{ matrix.lane }}
           path: ${{ runner.temp }}/*.log
@@ -495,17 +636,25 @@ jobs:
 
   # loops-routing -- loop inventory/driver/consistency/escalation plus the
   # agent-model routing, capabilities, frontmatter and placeholder suites.
-  # Pure file/manifest assertions with no git-history or CLI dependency.
+  # Pure file/manifest assertions with no git-history or CLI dependency. The
+  # matrix intentionally covers both runtime families: Windows exercises
+  # native PowerShell plus Git Bash, while Ubuntu exercises native Bash plus
+  # PowerShell. macOS-specific behavior remains covered by the platform
+  # sensitive test, version-gate, installer, MCP, and hook jobs, so repeating
+  # this platform-neutral lane on macOS adds runner cost without new coverage.
   loops-routing:
     name: loops-routing
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install template YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
       - name: Test template-validator parity (bash)
         shell: bash
@@ -516,6 +665,10 @@ jobs:
       - name: Test template-validator parity (pwsh)
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
+
+      - name: Test boundary-reference authorization parity (pwsh, WFI-037)
+        shell: pwsh
+        run: ./tests/boundary-reference-authorization-parity.tests.ps1
 
       - name: Test loop inventory registration forcing (bash)
         shell: bash
@@ -590,6 +743,12 @@ jobs:
         shell: pwsh
         run: ./tests/agent-model-routing.tests.ps1
 
+      - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
+        run: bash ./tests/release-config-lock.tests.sh
+
+      - name: Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)
+        run: bash ./tests/criterion-freeze.tests.sh
+
       - name: Test HITL/WFI-audit terminal-behavior suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
@@ -627,7 +786,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
@@ -679,6 +838,11 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
+
+      - name: Test A9 unpublished candidate and Pack (pwsh)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
 
       - name: Test approver-registry-schema suite (bash)
         if: runner.os != 'Windows'
@@ -747,29 +911,14 @@ jobs:
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
-      # These suites use isolated temporary trees. Run both POSIX variants
-      # concurrently; Windows keeps the existing skip behavior.
-      - name: Test apply-human-copy publisher suites (POSIX parallel)
-        if: runner.os == 'macOS' || runner.os == 'Linux'
+      - name: Test apply-human-copy publisher (Bash)
+        if: runner.os != 'Windows'
         shell: bash
-        run: |
-          set -uo pipefail
-          bash_log="$RUNNER_TEMP/apply-human-copy-bash.log"
-          pwsh_log="$RUNNER_TEMP/apply-human-copy-pwsh.log"
-          bash ./tests/apply-human-copy.tests.sh >"$bash_log" 2>&1 &
-          bash_pid=$!
-          pwsh -NoProfile -File ./tests/apply-human-copy.tests.ps1 >"$pwsh_log" 2>&1 &
-          pwsh_pid=$!
-          bash_status=0
-          pwsh_status=0
-          wait "$bash_pid" || bash_status=$?
-          wait "$pwsh_pid" || pwsh_status=$?
-          cat "$bash_log"
-          cat "$pwsh_log"
-          if [ "$bash_status" -ne 0 ] || [ "$pwsh_status" -ne 0 ]; then
-            printf 'apply-human-copy parallel failure: bash=%s pwsh=%s\n' "$bash_status" "$pwsh_status" >&2
-            exit 1
-          fi
+        run: bash ./tests/apply-human-copy.tests.sh
+      - name: Test apply-human-copy publisher (PowerShell)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/apply-human-copy.tests.ps1
 
       - name: Test hook-activation handshake suite (bash)
         if: runner.os != 'Windows'
@@ -1166,74 +1315,24 @@ jobs:
   # Windows version gates use separate runners so the four deterministic
   # lanes do not contend for one runner's CPU.
   version-gates-windows-bump:
-    name: version-gates-windows-bump
+    name: version-gates-windows-bump (${{ matrix.runtime }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runtime: bash
+            suite: tests/bump-version-gate.tests.sh
+          - runtime: powershell
+            suite: tests/bump-version-gate.tests.ps1
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)
+      - name: Test bump-version loop-gate prerequisite
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $workDir = (Get-Location).Path
-          $logRoot = Join-Path $env:RUNNER_TEMP 'bump-version-gate-parallel'
-          $bashOut = "$logRoot-bash.out"
-          $bashErr = "$logRoot-bash.err"
-          $pwshOut = "$logRoot-pwsh.out"
-          $pwshErr = "$logRoot-pwsh.err"
-          $processes = @()
-          $bash = $null
-          $pwsh = $null
-          $launchError = $null
-          $deadline = [DateTime]::UtcNow.AddMinutes(20)
-          try {
-            $bashPath = (Get-Command bash -ErrorAction Stop).Path
-            $bash = Start-Process -FilePath $bashPath `
-              -ArgumentList @('./tests/bump-version-gate.tests.sh') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $bashOut `
-              -RedirectStandardError $bashErr `
-              -PassThru
-            $processes += $bash
-            $pwshPath = (Get-Command pwsh -ErrorAction Stop).Path
-            $pwsh = Start-Process -FilePath $pwshPath `
-              -ArgumentList @('-NoProfile', '-NonInteractive', '-File', './tests/bump-version-gate.tests.ps1') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $pwshOut `
-              -RedirectStandardError $pwshErr `
-              -PassThru
-            $processes += $pwsh
-            while (@($processes | Where-Object { -not $_.HasExited }).Count -gt 0) {
-              if ([DateTime]::UtcNow -ge $deadline) {
-                throw 'bump-version-gate timed out after 20 minutes'
-              }
-              Start-Sleep -Seconds 1
-            }
-          } catch {
-            $launchError = $_
-          } finally {
-            foreach ($process in $processes) {
-              if (-not $process.HasExited) {
-                try { $process.Kill($true) } catch { $process.Kill() }
-                $process.WaitForExit()
-              }
-            }
-          }
-          Write-Host '=== bump-version-gate Bash output ==='
-          if (Test-Path -LiteralPath $bashOut) { Get-Content -LiteralPath $bashOut }
-          if (Test-Path -LiteralPath $bashErr) { Get-Content -LiteralPath $bashErr }
-          Write-Host '=== bump-version-gate PowerShell output ==='
-          if (Test-Path -LiteralPath $pwshOut) { Get-Content -LiteralPath $pwshOut }
-          if (Test-Path -LiteralPath $pwshErr) { Get-Content -LiteralPath $pwshErr }
-          if ($launchError) { throw $launchError }
-          $bashExit = if ($bash) { $bash.ExitCode } else { 'not-started' }
-          $pwshExit = if ($pwsh) { $pwsh.ExitCode } else { 'not-started' }
-          if (-not $bash -or -not $pwsh -or $bashExit -ne 0 -or $pwshExit -ne 0) {
-            throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
-          }
-
+        run: python tests/verification.py --suite "${{ matrix.suite }}" --run
       - name: Test release.yml required loop-gate job (bash)
+        if: matrix.runtime == 'bash'
         shell: bash
         run: bash ./tests/release-loop-gate.tests.sh
 
@@ -1263,7 +1362,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -1278,7 +1377,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
@@ -1324,7 +1423,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -1334,7 +1433,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
@@ -1376,7 +1475,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -1386,7 +1485,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
@@ -1425,7 +1524,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
@@ -1433,7 +1532,9 @@ jobs:
 
       - name: Install Claude Code CLI
         shell: bash
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          claude --version
 
       - name: Install Codex CLI (best-effort)
         shell: bash
@@ -1451,12 +1552,14 @@ jobs:
         shell: pwsh
         run: ./tests/cli-hook-enforcement.ps1
 
+  # Recovery uses an independent native matrix so its process-heavy negative
+  # corpus does not consume the existing regression jobs' time budgets.
   interrupted-recovery:
     name: interrupted recovery (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
@@ -1509,6 +1612,95 @@ jobs:
           path: |
             ${{ runner.temp }}/powershell-runtime.json
             ${{ runner.temp }}/powershell-verification.json
+          if-no-files-found: error
+          retention-days: 14
+
+  cloud-native:
+    name: Cloud contracts and local tools (${{ matrix.os }})
+    timeout-minutes: 30
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - macos-26-intel
+          - ubuntu-latest
+    steps:
+      - name: Checkout cloud assertions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: '[deterministic] Install pinned local cloud compilation tools (Linux only)'
+        if: runner.os == 'Linux'
+        shell: bash
+        run: >
+          set -euo pipefail
+
+          tools=$(mktemp -d "$RUNNER_TEMP/cloud-native.XXXXXX")
+
+          tools=$(cd "$tools" && pwd -P)
+
+          curl --retry 2 --retry-all-errors --retry-delay 1 --fail --silent --show-error --location --connect-timeout 30 --max-time 180
+          https://github.com/Azure/bicep/releases/download/v0.48.1/bicep-linux-x64 --output "$tools/bicep"
+
+          printf '%s  %s\n' b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e "$tools/bicep" | sha256sum --check --strict
+
+          chmod +x "$tools/bicep"
+
+          curl --retry 2 --retry-all-errors --retry-delay 1 --fail --silent --show-error --location --connect-timeout 30 --max-time 180
+          https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz --output "$tools/node.tar.xz"
+
+          printf '%s  %s\n' 14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647 "$tools/node.tar.xz" | sha256sum --check
+          --strict
+
+          tar -xJf "$tools/node.tar.xz" -C "$tools"
+
+          export PATH="$tools/node-v24.19.0-linux-x64/bin:$PATH"
+
+          test "$(node --version)" = v24.19.0
+
+          test "$(npm --version)" = 11.17.0
+
+          mkdir "$tools/cdk"
+
+          cp plugins/sdd-aws-cloud/examples/private-ec2/package.json plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json
+          "$tools/cdk/"
+
+          npm ci --prefix "$tools/cdk" --ignore-scripts --no-audit --no-fund
+
+          echo "CLOUD_BICEP_BIN=$tools/bicep" >> "$GITHUB_ENV"
+
+          echo "CLOUD_NODE_BIN=$tools/node-v24.19.0-linux-x64/bin/node" >> "$GITHUB_ENV"
+
+          echo "CLOUD_CDK_ROOT=$tools/cdk" >> "$GITHUB_ENV"
+
+          echo "CLOUD_REQUIRE_NATIVE=1" >> "$GITHUB_ENV"
+        env:
+          npm_config_fetch_retries: '2'
+          npm_config_loglevel: http
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+      - name: Install pinned workflow parser dependencies
+        shell: bash
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+        env:
+          npm_config_fetch_retries: '2'
+          npm_config_loglevel: http
+      - name: '[deterministic] Test cloud suites, installed packages and current multitarget boundaries'
+        env:
+          CLOUD_REQUIRE_NATIVE: ${{ runner.os == 'Linux' && '1' || '0' }}
+        shell: pwsh
+        run: python -B tests/verification.py --profile ci-cloud --run --receipt "${{ runner.temp }}/verification-cloud.json"
+      - name: Retain cloud verification results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cloud-verification-${{ matrix.os }}
+          path: ${{ runner.temp }}/verification-cloud.json
           if-no-files-found: error
           retention-days: 14
 
@@ -1601,33 +1793,76 @@ jobs:
   # Keep the Windows-only deterministic suites in a parallel job.
   # Their assertions remain required by required-checks.
   test-windows-heavy:
-    name: test-windows-heavy
+    name: test-windows-heavy (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [compatibility, gates, a9]
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     steps:
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      # A7 executes current working-tree payload in independent F1/F2 fixtures.
+      # It remains a required native-Windows assertion, but runs in parallel
+      # with the golden-baseline suite in the main Windows test job.
+      - name: "[deterministic] Test A7 byte-identical compatibility (pwsh)"
+        if: matrix.lane == 'compatibility'
+        shell: pwsh
+        run: ./tests/compatibility-byte-identical.tests.ps1
+
+      - name: "[deterministic] Test A7 current-product reachability"
+        if: matrix.lane == 'compatibility'
+        shell: pwsh
+        run: python -B tests/current-byte-capture.tests.py
+
       - name: "[deterministic] Test deterministic gate scripts"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
       - name: "[deterministic] Test portable review-loop prechecks"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
+          python tests/verification.py --profile ci-portable-prechecks --run
+      - name: "[deterministic] Test task prior-pass receipt"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
+      - name: "[deterministic] Test A9 unpublished candidate and Pack"
+        if: matrix.lane == 'a9'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
       - name: "[deterministic] Test cross-model gate"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
       - name: "[deterministic] Test hook guards"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
       - name: "[deterministic] Test panelist-input consent gate"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/prepare-panelist.tests.ps1
+
+      # epic-196-a8-integration T-001 (REQ-001, AC-001..006): offline
+      # cross-runtime handoff contract and activation-gate fixture. The live
+      # CLI path is opt-in inside the suite and is never used by CI.
+      - name: "[deterministic] Test cross-runtime handoff fixture (pwsh)"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/cross-runtime-handoff.tests.ps1
+
+      # epic-196-a8-integration T-002 (REQ-005, AC-022..AC-023): read-only
+      # installed-plugin drift comparison in both wrapper runtimes.
+      - name: "[deterministic] Test installed-plugin drift check (pwsh)"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/check-installed-plugin-drift.tests.ps1
 
   coding-standards:
     name: native coding standards checks
@@ -1655,92 +1890,3 @@ jobs:
       - name: Run native controls and complete tracked-source audit
         shell: bash
         run: python3 tests/verification.py --profile coding-standards --run --receipt "$RUNNER_TEMP/coding-standards-receipt.json"
-
-  cloud-native:
-    name: Cloud contracts and local tools (${{ matrix.os }})
-    timeout-minutes: 30
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - windows-latest
-          - macos-latest
-          - ubuntu-latest
-    steps:
-      - name: Checkout cloud assertions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: '[deterministic] Install pinned local cloud compilation tools (Linux only)'
-        if: runner.os == 'Linux'
-        shell: bash
-        run: >
-          set -euo pipefail
-
-          tools=$(mktemp -d "$RUNNER_TEMP/cloud-native.XXXXXX")
-
-          tools=$(cd "$tools" && pwd -P)
-
-          curl --retry 2 --retry-all-errors --retry-delay 1 --fail --silent --show-error --location --connect-timeout 30 --max-time 180
-          https://github.com/Azure/bicep/releases/download/v0.48.1/bicep-linux-x64 --output "$tools/bicep"
-
-          printf '%s  %s\n' b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e "$tools/bicep" | sha256sum --check --strict
-
-          chmod +x "$tools/bicep"
-
-          curl --retry 2 --retry-all-errors --retry-delay 1 --fail --silent --show-error --location --connect-timeout 30 --max-time 180
-          https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz --output "$tools/node.tar.xz"
-
-          printf '%s  %s\n' 14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647 "$tools/node.tar.xz" | sha256sum --check
-          --strict
-
-          tar -xJf "$tools/node.tar.xz" -C "$tools"
-
-          export PATH="$tools/node-v24.19.0-linux-x64/bin:$PATH"
-
-          test "$(node --version)" = v24.19.0
-
-          test "$(npm --version)" = 11.17.0
-
-          mkdir "$tools/cdk"
-
-          cp plugins/sdd-aws-cloud/examples/private-ec2/package.json plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json
-          "$tools/cdk/"
-
-          npm ci --prefix "$tools/cdk" --ignore-scripts --no-audit --no-fund
-
-          echo "CLOUD_BICEP_BIN=$tools/bicep" >> "$GITHUB_ENV"
-
-          echo "CLOUD_NODE_BIN=$tools/node-v24.19.0-linux-x64/bin/node" >> "$GITHUB_ENV"
-
-          echo "CLOUD_CDK_ROOT=$tools/cdk" >> "$GITHUB_ENV"
-
-          echo "CLOUD_REQUIRE_NATIVE=1" >> "$GITHUB_ENV"
-        env:
-          npm_config_fetch_retries: '2'
-          npm_config_loglevel: http
-      - name: Set up Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
-        with:
-          node-version: '22'
-      - name: Install pinned workflow parser dependencies
-        shell: bash
-        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
-        env:
-          npm_config_fetch_retries: '2'
-          npm_config_loglevel: http
-      - name: '[deterministic] Test cloud suites, installed packages and current multitarget boundaries'
-        env:
-          CLOUD_REQUIRE_NATIVE: ${{ runner.os == 'Linux' && '1' || '0' }}
-        shell: pwsh
-        run: python -B tests/verification.py --profile ci-cloud --run --receipt "${{ runner.temp }}/verification-cloud.json"
-      - name: Retain cloud verification results
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: cloud-verification-${{ matrix.os }}
-          path: ${{ runner.temp }}/verification-cloud.json
-          if-no-files-found: error
-          retention-days: 14
