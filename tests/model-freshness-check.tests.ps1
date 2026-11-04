@@ -24,6 +24,8 @@
 # row in acceptance-tests.md mandates the stubbing MECHANISM, only that the
 # same fixture-driven assertions are exercised natively -- recorded here and
 # in the implementation report's Specification Differences.
+# Shared-policy publication/deprecation checks run against the canonical Bash
+# product in model-freshness-check.tests.sh; do not duplicate that parser here.
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot

@@ -44,7 +44,7 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
     data = json.loads(raw)
     require(isinstance(data, dict), 'invocation must be a JSON object')
     require(data.get('schema') == 'review-context-invocation/v2' and
-            data.get('stage') in ('spec', 'impl', 'task', 'quality') and
+            data.get('stage') in ('spec', 'impl', 'task', 'quality', 'domain') and
             data.get('read_only') is True, 'unsupported invocation')
     launcher = load_module('review_launcher', Path(__file__).with_name('launch-impl-review.py'))
     fixed_inputs = launcher.transport.fixed_input_binding(
@@ -80,6 +80,9 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
                         require(not path.is_symlink(), 'scratch path is a symlink')
                     require(path.is_file() and sha(path) == entry['sha256'],
                             'scratch input missing or changed: ' + entry['path'])
+    elif stage == 'domain':
+        require(fixed_inputs is None, 'domain review has no fixed-input route')
+        launcher.domain_admission(root, data, admitted, runtime)
     else:
         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')

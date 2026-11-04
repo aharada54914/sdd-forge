@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "model-policy-error/v1",
+  "description": "Common model-policy error envelope. Messages are actionable local explanations, never raw native error text or credentials.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "reason", "message"],
+  "properties": {
+    "schema": {
+      "const": "model-policy-error/v1"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "config-invalid",
+        "config-conflict",
+        "native-precedence-conflict",
+        "discovery-unavailable",
+        "discovery-incomplete",
+        "discovery-stale",
+        "scope-mismatch",
+        "model-unavailable",
+        "model-unverified",
+        "model-tier-unavailable",
+        "effort-unavailable",
+        "budget-unverifiable",
+        "resume-conflict",
+        "actual-id-unavailable",
+        "actual-id-mismatch",
+        "input-invalid"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    }
+  }
+}

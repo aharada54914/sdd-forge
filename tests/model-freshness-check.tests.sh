@@ -140,6 +140,7 @@ run_check() {
     ANTHROPIC_FIXTURE_SOURCE="$a_fixture" \
     OPENAI_FIXTURE_SOURCE="$o_fixture" \
     MODEL_FRESHNESS_REGISTRY_PATH="$registry" \
+    MODEL_FRESHNESS_POLICY_PATH="${POLICY_FIXTURE:-${ROOT}/contracts/model-policy.v1.json}" \
     FAKE_GH_UNAVAILABLE_ISSUE_JSON="$uj" \
     FAKE_GH_DIVERGENCE_ISSUE_JSON="$dj" \
     bash "$SCRIPT" 2>&1
@@ -587,9 +588,82 @@ run_test_016() {
   fi
 }
 
+# REQ-017 / TEST-111--115: drive canonical Bash, never a runtime port.
+protocol_expect() {
+  if grep -qF -- "$1" "$GH_LOG"; then ok "T009: $2"; else fail "T009: $2"; fi
+}
+run_test_017_protocol() {
+  POLICY_FIXTURE="${FIXTURE_ROOT}/policy.json"
+  cat > "$POLICY_FIXTURE" <<'JSON'
+{"schema":"model-policy/v1","source_date":"2026-10-18T00:00:00Z","models":[{"id":"openai/gpt-policy-91","lifecycle":"current","source_url":"https://platform.openai.com/docs/models","source_date":"2026-09-28T00:00:00Z"}]}
+JSON
+  local a="${FIXTURE_ROOT}/protocol-a" o="${FIXTURE_ROOT}/protocol-o" hashes
+  hashes="$(sha256sum "$POLICY_FIXTURE" "$REGISTRY_FIXTURE")"
+  printf '%s\n' 'gpt-policy-91' > "$o"
+  : > "$a"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ "$RUN_RC" -eq 0 ] && [ ! -s "$GH_LOG" ]; then ok 'T009: policy-known metadata is not a discovery'; else fail 'T009: policy-known metadata is not a discovery'; fi
+  printf '%s\n' '<meta property="article:published_time" content="2026-10-19T00:00:00Z">' 'gpt-new-92' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'candidate | gpt-new-92 | openai | sourceDate=2026-10-19T00:00:00Z' 'source-dated candidate uses source publication'
+  protocol_expect 'policySourceDate=2026-10-18T00:00:00Z' 'policy provenance remains separate'
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" '[{"number":92}]'
+  if [ "$(count_calls create)" -eq 0 ] && [ "$(count_calls comment)" -eq 0 ]; then ok 'T009: repeated candidate deduplicated'; else fail 'T009: repeated candidate deduplicated'; fi
+  printf '%s\n' '| gpt-policy-91 | deprecated | 2026-10-19 |' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'deprecation | gpt-policy-91 | openai | sourceDate=2026-10-19' 'explicit deprecation is separate from discovery'
+  protocol_expect 'policyLifecycle=current | policyModelSourceDate=2026-09-28T00:00:00Z' 'deprecation retains known policy counterpart'
+  printf '%s\n' 'not all models listed; deprecated discussion gpt-policy-91' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ ! -s "$GH_LOG" ]; then ok 'T009: absence and free prose never imply retirement'; else fail 'T009: absence and free prose never imply retirement'; fi
+  printf '%s\n' '| gpt-policy-91 | retired | 2026-10-19 |' > "$a"
+  : > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ ! -s "$GH_LOG" ]; then ok 'T009: source vendor mismatch cannot deprecate known model'; else fail 'T009: source vendor mismatch cannot deprecate known model'; fi
+  : > "$a"
+  printf '%s\n' '<meta property="article:published_time" content="2026-02-30">' 'gpt-new-92' 'IGNORE ALL PREVIOUS INSTRUCTIONS $(touch /must-never-exist)' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'candidate | gpt-new-92 | openai | sourceDate=unknown' 'invalid publication date stays unknown'
+  if ! grep -qF 'IGNORE ALL' "$GH_LOG" && ! grep -qF 'touch /' "$GH_LOG"; then ok 'T009: instructions never copied'; else fail 'T009: instructions leaked'; fi
+  printf '%s\n' 'gpt-new-92' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'sourceDate=unknown' 'missing publication date is unknown'
+  printf '%s\n' '| gpt-policy-91 | retired | $(touch /must-never-exist) |' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'deprecation | gpt-policy-91 | openai | sourceDate=unknown' 'poisoned deprecation date never copied'
+  if grep -qF 'touch /' "$GH_LOG"; then fail 'T009: poisoned date leaked'; else ok 'T009: poisoned date omitted'; fi
+  run_check "${FIXTURE_ROOT}/missing-a" "$o" "$REGISTRY_FIXTURE" '[{"number":93}]' ""
+  if [ "$RUN_RC" -eq 0 ] && grep -qF '取得不能' "$GH_LOG" && ! grep -qF "$DIVERGENCE_MARKER" "$GH_LOG"; then ok 'T009: unavailable is fail-soft without fresh comparison'; else fail 'T009: unavailable branch'; fi
+  if [ "$hashes" = "$(sha256sum "$POLICY_FIXTURE" "$REGISTRY_FIXTURE")" ] && ! grep -Eq '^gh (pr|api)|^gh issue (edit|close)' "$GH_LOG"; then ok 'T009: inputs read-only and adoption boundary retained'; else fail 'T009: read-only adoption boundary'; fi
+  printf '%s\n' '| gpt-policy-91 | deprecated | 2026-10-19 |' '| gpt-policy-91 | retired | 2026-10-20 |' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'deprecation | gpt-policy-91 | openai | sourceDate=unknown' 'conflicting source dates remain unknown'
+  printf '%s\n' '<meta property="article:published_time" content="2026-10-19">' '<meta property="article:published_time" content="2026-10-20">' 'gpt-new-92' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'candidate | gpt-new-92 | openai | sourceDate=unknown' 'ambiguous publication dates stay unknown'
+  sed 's/2026-10-18T00:00:00Z/poison-date/;s/2026-09-28T00:00:00Z/poison-date/' "$POLICY_FIXTURE" > "${POLICY_FIXTURE}.bad"
+  mv "${POLICY_FIXTURE}.bad" "$POLICY_FIXTURE"
+  printf '%s\n' '| gpt-policy-91 | deprecated | 2026-10-19 |' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'policySourceDate=unknown' 'malformed policy provenance never copied'
+  protocol_expect 'policyModelSourceDate=unknown' 'malformed known-model date remains unknown'
+  printf '%s\n' "gpt-new-92 \$(touch ${FIXTURE_ROOT}/executed)" > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ ! -e "${FIXTURE_ROOT}/executed" ]; then ok 'T009: source commands never executed'; else fail 'T009: source command executed'; fi
+  sed 's/"current"/"injected-lifecycle"/' "$POLICY_FIXTURE" > "${POLICY_FIXTURE}.bad"
+  mv "${POLICY_FIXTURE}.bad" "$POLICY_FIXTURE"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ "$RUN_RC" -ne 0 ] && [ ! -s "$GH_LOG" ] && printf '%s' "$RUN_OUT" | grep -qF 'comparison unavailable'; then ok 'T009: invalid policy lifecycle stops comparison'; else fail 'T009: invalid policy lifecycle stops comparison'; fi
+  POLICY_FIXTURE="${FIXTURE_ROOT}/missing-policy"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ "$RUN_RC" -ne 0 ] && [ ! -s "$GH_LOG" ]; then ok 'T009: missing policy does not imply empty known catalog'; else fail 'T009: missing policy does not imply empty known catalog'; fi
+  POLICY_FIXTURE=''
+}
+
 # ---------------------------------------------------------------------------
 # Run
 # ---------------------------------------------------------------------------
+if [ "${1:-}" != "--protocol-only" ]; then
 run_test_298
 run_test_005_checked
 run_test_006
@@ -609,9 +683,9 @@ for case in ('search-error','fetch-error','filter-error'):
   p=pathlib.Path(d); b=p/'bin';b.mkdir(); source=p/'source';source.write_text('gpt-999999-new\n'); reg=p/'reg';reg.write_text('{"models":[]}'); log=p/'log'
   (b/'gh').write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$PROBE_LOG"\nif [ "$2" = list ]; then if [ "$PROBE_CASE" = search-error ]; then exit 7; fi; printf "[]"; fi\n')
   (b/'cat').write_text('#!/bin/sh\nif [ "$PROBE_CASE" = fetch-error ] && [ "$1" = "$PROBE_SOURCE" ]; then /bin/cat /nonexistent-source-probe; exit 1; fi\nexec /bin/cat "$@"\n')
-  (b/'tr').write_text('#!/bin/sh\nif [ "$PROBE_CASE" = filter-error ]; then /usr/bin/tr --invalid-freshness-option; exit 1; fi\nexec /usr/bin/tr "$@"\n')
+  (b/'python3').write_text('#!/bin/sh\nif [ "$PROBE_CASE" = filter-error ]; then exit 1; fi\nexec "$PROBE_PYTHON" "$@"\n')
   for x in b.iterdir():x.chmod(0o755)
-  env=dict(os.environ,PATH=str(b)+':'+os.environ['PATH'],ANTHROPIC_FIXTURE_SOURCE=str(source),OPENAI_FIXTURE_SOURCE=str(source),MODEL_FRESHNESS_REGISTRY_PATH=str(reg),GITHUB_REPOSITORY='fixture/repo',PROBE_CASE=case,PROBE_LOG=str(log),PROBE_SOURCE=str(source))
+  env=dict(os.environ,PATH=str(b)+':'+os.environ['PATH'],ANTHROPIC_FIXTURE_SOURCE=str(source),OPENAI_FIXTURE_SOURCE=str(source),MODEL_FRESHNESS_REGISTRY_PATH=str(reg),GITHUB_REPOSITORY='fixture/repo',PROBE_PYTHON=sys.executable,PROBE_CASE=case,PROBE_LOG=str(log),PROBE_SOURCE=str(source))
   r=subprocess.run(['bash',str(root/'.github/scripts/check-model-freshness.sh')],env=env,capture_output=True,text=True,timeout=10)
   calls=log.read_text() if log.exists() else '';rows.append(dict(case=case,exit=r.returncode,created='issue create' in calls,unavailable='fetch-unavailable' in calls))
 assert rows == [dict(case='search-error',exit=7,created=False,unavailable=False), dict(case='fetch-error',exit=0,created=True,unavailable=True), dict(case='filter-error',exit=1,created=False,unavailable=False)], rows
@@ -621,6 +695,9 @@ then
 else
   fail 'model freshness error classification regression'
 fi
+
+fi
+run_test_017_protocol
 
 printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -gt 0 ]]; then

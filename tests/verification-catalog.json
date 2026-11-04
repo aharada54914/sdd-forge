@@ -273,6 +273,12 @@
     {"path": "tests/loop-escalation.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
     {"path": "tests/loop-inventory.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
     {"path": "tests/loop-inventory.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+    {"path": "tests/model-observation.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+    {"path": "tests/model-identity.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+    {"path": "tests/model-policy.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["test", "test-windows-heavy"]},
+    {"path": "tests/model-policy-launch-platform.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+    {"path": "tests/model-policy-launch.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/model-policy-installed.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["posix-regression"]},
     {"path": "tests/model-freshness-check.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
     {"path": "tests/model-freshness-check.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
     {"path": "tests/ownership-digest.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
@@ -677,6 +683,12 @@
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
       "tests/verification-impact.tests.py",
+      "tests/model-observation.tests.py",
+      "tests/model-identity.tests.py",
+      "tests/model-policy.tests.py",
+      "tests/model-policy-launch-platform.tests.py",
+      "tests/model-policy-launch.tests.py",
+      "tests/model-policy-installed.tests.py",
       "tests/verification-ci-plan.tests.py",
       "tests/verification-ci.tests.py"
     ],
@@ -827,7 +839,11 @@
       "tests/quality-nontty-transport.tests.py",
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
-      "tests/verification-impact.tests.py"
+      "tests/verification-impact.tests.py",
+      "tests/model-observation.tests.py",
+      "tests/model-identity.tests.py",
+      "tests/model-policy.tests.py",
+      "tests/model-policy-launch-platform.tests.py"
     ],
     "ci-posix-fallback": [
       "tests/ci-suite-wiring.tests.sh",
@@ -955,6 +971,8 @@
       "tests/task-structured-output.tests.py",
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
+      "tests/model-policy-launch.tests.py",
+      "tests/model-policy-installed.tests.py",
       "tests/verification-ci-plan.tests.py",
       "tests/verification-ci.tests.py"
     ],
@@ -969,7 +987,11 @@
       "tests/review-contract-foundation.tests.ps1",
       "tests/downstream-review-precheck.tests.ps1",
       "tests/impl-layer-review-inputs.tests.ps1",
-      "tests/task-layer-review-inputs.tests.ps1"
+      "tests/task-layer-review-inputs.tests.ps1",
+      "tests/model-observation.tests.py",
+      "tests/model-identity.tests.py",
+      "tests/model-policy.tests.py",
+      "tests/model-policy-launch-platform.tests.py"
     ]
   }
 }

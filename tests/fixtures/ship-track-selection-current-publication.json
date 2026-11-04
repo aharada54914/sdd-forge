@@ -6,15 +6,15 @@
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "3d5055472da1ad160d2e1f6756c49a1f41a875edd0b15678c4b1e5b5115857bf",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative."
+      "live_sha256": "443803f2a4b8c13ffc2dfdba1632fd40d65da9ab6e16cca3e68e2bd4e09b801d",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back."
     },
     {
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "3d5055472da1ad160d2e1f6756c49a1f41a875edd0b15678c4b1e5b5115857bf",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative."
+      "live_sha256": "443803f2a4b8c13ffc2dfdba1632fd40d65da9ab6e16cca3e68e2bd4e09b801d",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back."
     }
   ]
 }
