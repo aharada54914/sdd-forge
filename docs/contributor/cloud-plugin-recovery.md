@@ -22,6 +22,18 @@ v1.20.0に含まれていた `sdd-azure-cloud` と `sdd-aws-cloud` を、現行�
 へ移しました。旧レビュー・承認・実行成功の記録を、新しい成功証跡として作り直してはいません。
 同梱する上流資料のライセンス・NOTICEと固定ハッシュも保持します。
 
+## 後続復旧の進捗
+
+第1段階のinstaller復旧は [PR #709](https://github.com/aharada54914/sdd-forge/pull/709) で
+統合済みです。配布物のallowlistと必須ファイルの検証、WindowsのZIP展開を復旧し、
+現行の入力検証とBash／PowerShell互換性の修正を保持しました。
+[CI実行 41812062954](https://github.com/aharada54914/sdd-forge/actions/runs/41812062954)
+は全51チェックが成功しました。これは第1段階の検証結果です。
+
+第2段階のモデル選択ポリシー復旧は検証中です。managedの明示選択、共有policyの権限検証、
+拒否時の診断記録の扱いは下記に記録しています。第1段階のCI成功を、
+モデル復旧の最終CIや実モデル採用の証拠としては扱いません。
+
 ## 後続のモデル選択ポリシー復旧
 
 v1.20.0のモデル選択ポリシー、managed entry、契約、ADR 0038、16スキルの
@@ -53,6 +65,22 @@ controlsは選択結果と実行コードのハッシュを結びます。今回
 `actual_id: null`／`proof: unverified`は設定の証拠として区別し、実モデルの証明にしません。
 Windowsへの導入成功とmanaged runtimeの実行対応も別です。POSIXの安全なファイル操作を
 必要とする経路は、未対応環境での拒否を保持します。
+Windowsでpolicy selectorを使う場合、その内部の選択再演にはPowerShell 7 (`pwsh`) が
+必要です。Windows PowerShell 5.1の入口検証と、再演エンジンの実行環境は区別します。
+
+復旧時の独立監査では、呼び出し側のpolicyだけでcandidateをcurrentへ変更し、任意の採用記録を
+付けても起動できる欠落を、記録用CLIで再現しました。共有policy全体をインストール済みの
+trusted policyと構造比較するよう修正しています。lifecycle、採用記録、鮮度制限、役割の優先順を
+呼び出し側で書き換えて権限を増やすことはできません。候補を減らしたpolicyの写しも別の共有policyとして
+拒否します。通常の選択制限には既存のCLI、環境変数、project設定を使います。これらによる
+モデル・policy選択は、従来の優先順位と許可範囲内で引き続き使えます。本番のClaude候補を
+採用済みへ変更してはいません。正方向のテストだけが、隔離したtrusted fixtureに合成の採用条件を設定します。
+
+拒否時の成果物も確認しました。終了コード2・成功stdoutなしで残るselectionやcontrolsは、
+診断用の入力記録です。出力ディレクトリ名は再利用できませんが、run/session/attemptの
+全体予約やモデル作業の成功を意味しません。Action準備で残る`validation.json`も設定検証の
+receiptであり、SDK wrapperや実行結果ではありません。Codexの失敗時にも実行成功のvalidationは
+発行されません。捕捉や拒否の調査に使う記録は一律に削除しない方針です。
 
 役割・tier・起動時の設定の違いは [モデルとエージェントの対応表](../agent-capability-matrix.md#managed-model-policy)
 を参照してください。旧版の全新規割当への強制を戻すのではなく、明示選択されたmanaged処理の

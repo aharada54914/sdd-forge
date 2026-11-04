@@ -1729,14 +1729,11 @@ def _policy_mappings(policy):
 
 
 def _launch_authority(registry_raw, policy, trusted_registry_raw, trusted_policy_raw):
-    """Caller registry and model/native mappings must equal the trusted installed contracts; labels confer nothing."""
+    """Bind shared authority to the installed contracts; request/project overrides remain separate inputs."""
     if canonical(strict_json(registry_raw)) != canonical(strict_json(trusted_registry_raw)):
         raise PolicyError('config-conflict', 'Supplied capability registry differs from the trusted registry.')
-    supplied_mappings = _policy_mappings(policy)
-    trusted_mappings = _policy_mappings(strict_json(trusted_policy_raw))
-    if any(name not in trusted_mappings or canonical(hosts) != canonical(trusted_mappings[name])
-           for name, hosts in supplied_mappings.items()):
-        raise PolicyError('config-conflict', 'Supplied policy model IDs or native host mappings differ from trusted.')
+    if canonical(policy) != canonical(strict_json(trusted_policy_raw)):
+        raise PolicyError('config-conflict', 'Supplied shared model policy differs from the trusted policy.')
 
 
 def _write_snapshot(root, captured, paths):

@@ -4,7 +4,7 @@
 Portable stdlib unittest. Real helper CLI, real selector subprocesses and real paired
 builders. The trusted helper, selectors and shipped contracts are copied into a temporary
 repository at their installed relative locations so the trusted registry/policy resolve
-there. Caller policy differs from the trusted policy only in fixture lifecycle/adoption.
+there. Isolated trusted and caller policies share explicitly authorized synthetic fixture adoption.
 Fixture adoption files and verified-configuration observations are typed fixture data only;
 they never claim live access, model behavior or provider authorization. No native model is
 executed: PATH shims record any accidental claude/codex/gemini invocation.
@@ -215,8 +215,10 @@ class LaunchFixture(unittest.TestCase):
         self.environment['PATH'] = str(shims) + os.pathsep + os.environ.get('PATH', '')
         self.trusted_registry_raw = (self.root / TRUSTED_REGISTRY).read_bytes()
         self.trusted_policy = json.loads((self.root / TRUSTED_POLICY).read_bytes())
+        self._trusted_policy_root = self.root
         self.registry_raw = self.trusted_registry_raw
         self.policy = self.fixture_policy()
+        self.authorize_fixture_policy()
         self.observation = self.fresh_observation()
         self.request = self.fresh_request('spec-reviewer-a')
         self.project = {'schema': 'model-role-config/v1', 'default_policy': None, 'roles': {}}
@@ -227,7 +229,7 @@ class LaunchFixture(unittest.TestCase):
     # ---- typed fixture documents -------------------------------------------------------------
 
     def fixture_policy(self):
-        """Trusted policy; ONLY fixture lifecycle/adoption differ. Native mappings stay trusted."""
+        """Create synthetic policy/evidence; callers must separately authorize it in the isolated runtime."""
         policy = copy.deepcopy(self.trusted_policy)
         roles = list(policy['roles'])
         for model in policy['models']:
@@ -242,6 +244,19 @@ class LaunchFixture(unittest.TestCase):
                 # This caller policy is a synthetic Anthropic fixture, not live adoption evidence.
                 model['adoption'] = []
         return policy
+
+    def authorize_fixture_policy(self, policy=None):
+        """Explicit synthetic authority update, only inside this isolated installed-runtime fixture.
+
+        Caller edits never invoke this automatically. Production contracts are not modified and
+        fixture-only adoption is not evidence of a real model, account, or operator decision.
+        """
+        self.trusted_policy = copy.deepcopy(self.policy if policy is None else policy)
+        self._authorized_policy_raw = canonical(self.trusted_policy)
+        (self._trusted_policy_root / TRUSTED_POLICY).write_bytes(self._authorized_policy_raw)
+
+    def trusted_policy_raw(self):
+        return self._authorized_policy_raw
 
     def policy_model(self, name):
         return next(item for item in self.policy['models'] if item['id'] == name)
@@ -433,7 +448,8 @@ class LaunchFixture(unittest.TestCase):
         self.assertEqual([entry['path'] for entry in value['trusted']], TRUSTED_PATHS)
         for entry in value['trusted']:
             self.assertEqual(set(entry), {'path', 'sha256'})
-            self.assertEqual(entry['sha256'], sha_file(ROOT / entry['path']))
+            self.assertEqual(entry['sha256'], sha_bytes(self.trusted_policy_raw())
+                             if entry['path'] == TRUSTED_POLICY else sha_file(ROOT / entry['path']))
         self.assertEqual((value['role'], value['host']), (role, HOST))
         self.assertEqual((value['run_id'], value['session_id']), (run_id or self.run_id, session_id or self.session_id))
         self.assertIs(type(value['attempt']), int)
@@ -466,6 +482,56 @@ class LaunchControls(LaunchFixture):
                 self.assertEqual(candidate['adoption'], [])
         self.assertFalse((self.root / 'uncopied-live-adoption.json').exists())
 
+
+    def test_shared_policy_authority_cannot_be_replaced_by_coherently_pinned_caller_metadata(self):
+        self.baseline_accepts('spec-reviewer-a')
+        trusted = self.trusted_policy_raw()
+        baseline = copy.deepcopy(self.policy)
+        for kind in ('adoption', 'lifecycle', 'freshness', 'preferences', 'source-date'):
+            with self.subTest(authority=kind):
+                self.policy = copy.deepcopy(baseline)
+                self.request = self.fresh_request('spec-reviewer-a')
+                self.observation = self.fresh_observation()
+                if kind == 'adoption':
+                    raw = b'caller-authored claim, not an installed adoption decision'
+                    (self.root / 'caller-adoption.txt').write_bytes(raw)
+                    self.policy_model('anthropic/opus')['adoption'] = [
+                        {'role': 'spec-reviewer-a', 'path': 'caller-adoption.txt', 'sha256': sha_bytes(raw)}]
+                elif kind == 'lifecycle':
+                    self.policy_model('anthropic/opus')['lifecycle'] = 'historical'
+                    self.request['cli'] = {'policy': 'pinned', 'model_id': 'anthropic/opus'}
+                elif kind == 'freshness':
+                    self.policy['observation_max_age_seconds'] = 7200
+                    self.observation = self.fresh_observation(utc_now(timedelta(hours=-1)))
+                elif kind == 'preferences':
+                    self.policy['roles']['spec-reviewer-a']['preferences'].reverse()
+                else:
+                    self.policy['source_date'] = '2026-10-19T00:00:00Z'
+                # Recompute every caller pin and selection: rejection must come from installed authority.
+                self.select('spec-reviewer-a')
+                self.rejected(self.cli(sha=self.controls()), 'config-conflict')
+                self.assertEqual((self.root / TRUSTED_POLICY).read_bytes(), trusted)
+                self.assertFalse(self.marker.exists(), 'caller policy reached a native client')
+
+    def test_cli_environment_and_project_overrides_preserve_installed_shared_policy(self):
+        trusted = self.trusted_policy_raw()
+        for source in ('cli', 'environment', 'project-role'):
+            with self.subTest(source=source):
+                self.request = self.fresh_request('spec-reviewer-a', 'medium')
+                environment = {}
+                if source == 'cli':
+                    self.request['cli'] = {'model_id': 'anthropic/sonnet', 'policy': 'pinned'}
+                elif source == 'environment':
+                    environment = {'SDD_MODEL_SPEC_REVIEWER_A': 'anthropic/sonnet'}
+                else:
+                    self.request['project_config_path'] = 'project.json'
+                    self.project['roles'] = {'spec-reviewer-a': {'model_id': 'anthropic/sonnet', 'policy': 'pinned'}}
+                selection = self.select('spec-reviewer-a', risk='medium', env=environment)
+                self.assertEqual(selection['requested']['model_source'], source)
+                self.assertEqual(selection['resolved']['native_id'], 'sonnet')
+                sha = self.controls()
+                self.assert_validation(self.accepted(self.cli(sha=sha, env=environment)), sha=sha, selection=selection)
+                self.assertEqual((self.root / TRUSTED_POLICY).read_bytes(), trusted)
 
     def test_controls_cli_binds_valid_role_selection(self):
         env = {'SDD_MODEL_SPEC_REVIEWER_A': 'anthropic/sonnet'}
@@ -938,7 +1004,7 @@ class LaunchControls(LaunchFixture):
     def test_controls_trusted_native_mapping_cannot_be_resealed(self):
         self.baseline_accepts('spec-reviewer-a')
         baseline = copy.deepcopy(self.policy)
-        with self.subTest(policy='valid-restricted-subset'):
+        with self.subTest(policy='caller-policy-subset-is-not-installed-authority'):
             self.policy['models'] = [copy.deepcopy(self.policy_model('anthropic/opus'))]
             self.assertEqual(self.policy['models'][0]['successor_of'], [])
             for role in self.policy['roles'].values():
@@ -946,7 +1012,7 @@ class LaunchControls(LaunchFixture):
             selection = self.select('spec-reviewer-a')
             sha = self.controls()
             self.assertEqual(selection['resolved']['catalog_id'], 'anthropic/opus')
-            self.assert_validation(self.accepted(self.cli(sha=sha)), sha=sha, selection=selection)
+            self.rejected(self.cli(sha=sha), 'config-conflict')
         swaps = [('strong-to-light', {'anthropic/opus': 'haiku', 'anthropic/haiku': 'opus'}),
                  ('strong-to-standard', {'anthropic/opus': 'sonnet', 'anthropic/sonnet': 'opus'})]
         for label, mapping in swaps:
@@ -1062,6 +1128,7 @@ class LaunchControls(LaunchFixture):
         with self.subTest(case='historical-pin-keeps-trusted-mapping'):
             self.policy = self.fixture_policy()
             self.policy_model('anthropic/opus')['lifecycle'] = 'historical'
+            self.authorize_fixture_policy()
             self.request = self.fresh_request('evaluator')
             self.request['cli'] = {'model_id': 'anthropic/opus', 'policy': 'pinned'}
             selection = self.select('evaluator')
@@ -1107,7 +1174,7 @@ class LaunchControls(LaunchFixture):
         value = self.accepted(result)
         self.assert_validation(value, sha=sha, selection=selection)
         self.assertEqual(value['trusted'], [{'path': p, 'sha256': sha_file(self.root / p)} for p in TRUSTED_PATHS])
-        self.assertEqual(value['trusted'], [{'path': p, 'sha256': sha_file(ROOT / p)} for p in TRUSTED_PATHS])
+        self.assertEqual(value['trusted'], [{'path': p, 'sha256': sha_bytes(self.trusted_policy_raw()) if p == TRUSTED_POLICY else sha_file(ROOT / p)} for p in TRUSTED_PATHS])
         pinned = {entry['path'] for entry in value['pins']}
         self.assertFalse(pinned & set(TRUSTED_PATHS))
         self.assertNotIn('controls.json', pinned)
