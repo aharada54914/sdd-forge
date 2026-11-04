@@ -79,12 +79,20 @@ fallback requires an actual fork, matching API repository IDs, head SHA and
 attempt, and a checkout whose two merge parents are the original event base and
 head in that order. It accepts only an independently reconstructed full plan
 without omissions or activation evidence. Missing or ambiguous identity fails.
-The existing single-PR API path remains available without this optional context.
+For ordinary PRs, the same original-event context also binds revisions when the
+API's nested PR base or head SHA has changed after the run started. The immutable
+run head, event head, tested merge parents, PR number and repository IDs must
+still agree. Current nested PR SHAs are validated as metadata, not used as the
+original revisions. The existing context-free single-PR path remains strict and
+fails if those API revisions no longer describe the tested run.
 
 The event fields rely on the trusted GitHub workflow environment, just as API
 observations rely on their collector. They are not signed evidence that an
-arbitrary offline author can create. Manual recollection without the original
-trusted event context cannot recover an empty-array fork run. Compatibility tests
+arbitrary offline author can create. Preserve original context and observations
+before PR or base refs advance. Manual recollection without that trusted context
+cannot recover an empty-array fork run or a PR whose API revisions have moved;
+never synthesize the context from the plan. For context-free proof collection,
+freeze the source and base refs and collect before any branch update or retarget. Compatibility tests
 use actual Git merges and simulated Actions transport; the observed public API
 shape does not establish a successful fork run of this repository.
 
