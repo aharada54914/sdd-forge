@@ -14,6 +14,9 @@ if (('{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Min
 $edition = if ($expected -eq '5.1') { 'Desktop' } else { 'Core' }
 if ($PSVersionTable.PSEdition -cne $edition) { throw 'Unexpected PowerShell edition' }
 $hostPath = (Get-Process -Id $PID).Path
+# Desktop serializes first-use module progress for EncodedCommand. Keep it out
+# of fixture byte channels without suppressing product diagnostics or errors.
+$encodedCommandPreamble = '$ProgressPreference = "SilentlyContinue"; '
 $identityCode = @'
 [pscustomobject]@{
     version = $PSVersionTable.PSVersion.ToString()
@@ -24,7 +27,7 @@ $identityCode = @'
     clr = [Environment]::Version.ToString()
 } | ConvertTo-Json -Compress
 '@
-$encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($identityCode))
+$encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($encodedCommandPreamble + $identityCode))
 Write-Host "Native identity probe: $hostPath ($($PSVersionTable.PSVersion))"
 $child = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
 if ($child.ExitCode -ne 0) { throw 'Child runtime probe failed' }
@@ -106,13 +109,15 @@ try {
         # EncodedCommand preserves explicitly empty script parameters on Desktop;
         # the renderer must then preserve that empty value in its Python argv.
         $code = "Set-Location -LiteralPath '" + $managedScratch.Replace("'", "''") + "'; " + $case.Code + '; exit $LASTEXITCODE'
-        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($code))
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($encodedCommandPreamble + $code))
         $boundary = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
         $stderr = [Text.Encoding]::UTF8.GetString($boundary.Stderr)
         if ($boundary.ExitCode -ne 2 -or $boundary.Stdout.Length -ne 0) {
             throw "Desktop $($case.Name) did not fail closed: $stderr"
         }
-        $errorRecord = $stderr | ConvertFrom-Json
+        try { $errorRecord = $stderr | ConvertFrom-Json } catch {
+            throw "Desktop $($case.Name) emitted non-JSON stderr: $stderr"
+        }
         if ($errorRecord.schema -cne 'model-policy-error/v1' -or $errorRecord.reason -cne 'input-invalid' -or
             -not $errorRecord.message.Contains($case.Message)) {
             throw "Desktop $($case.Name) did not return its typed boundary error: $stderr"
@@ -145,7 +150,7 @@ raise SystemExit(7)
 Invoke-SddPyDispatch -Master '__MASTER__' -DiagnosticPrefix fixture -Arguments @('space atom', 'quote"atom', 'trailing\', '')
 '@
     $dispatchCode = $dispatchCode.Replace('__DISPATCH__', (Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1').Replace("'", "''")).Replace('__MASTER__', $master.Replace("'", "''"))
-    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($dispatchCode))
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($encodedCommandPreamble + $dispatchCode))
     $dispatch = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
     if ($dispatch.ExitCode -ne 7 -or [Convert]::ToBase64String($dispatch.Stdout) -cne 'cmF3AGJ5dGVzCg==' -or
         [Text.Encoding]::UTF8.GetString($dispatch.Stderr) -cne 'diagnostic') { throw "Framework Python dispatch changed argv, raw bytes or exit status (exit=$($dispatch.ExitCode); stdout64=$([Convert]::ToBase64String($dispatch.Stdout)); stderr=$([Text.Encoding]::UTF8.GetString($dispatch.Stderr)))" }
