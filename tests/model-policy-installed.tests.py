@@ -188,6 +188,33 @@ class ManagedFixture(LaunchFixture):
 
 class ManagedClaudeRoles(ManagedFixture):
 
+    def test_explicit_empty_root_is_rejected_before_any_installed_target_write(self):
+        target = next(iter(CLAUDE))
+        self.bind(CLAUDE[target])
+        before = tree(self.root)
+        for shell in SHELLS:
+            command = ([launch.BASH, str(self.root / 'render-agent-frontmatter.sh'), '--root', '']
+                       if shell == 'bash' else
+                       [PWSH, '-NoProfile', '-File', str(self.root / 'render-agent-frontmatter.ps1'), '-RepoRoot', ''])
+            flags = (['--model-controls', '--model-controls-sha256', '--run-id', '--session-id', '--managed-target']
+                     if shell == 'bash' else
+                     ['-ModelControls', '-ModelControlsSha256', '-RunId', '-SessionId', '-ManagedTarget'])
+            for name, value in zip(flags, ['controls.json', self.sha, self.run_id, self.session_id, target]):
+                command.extend([name, value])
+            with self.subTest(shell=shell):
+                # Deliberately separate cwd from the installed runtime. Dropping an
+                # explicitly empty root used to write to the installed target on PS.
+                result = subprocess.run(command, cwd=self.base, env=self.environment,
+                                        text=True, capture_output=True, timeout=60, check=False)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertEqual(result.stdout, '')
+                error = json.loads(result.stderr)
+                self.assertEqual(error['schema'], 'model-policy-error/v1')
+                self.assertEqual(error['reason'], 'input-invalid')
+                self.assertIn('--root', error['message'])
+                self.assertEqual(tree(self.root), before)
+                self.assertFalse(self.marker.exists())
+
     def test_frontmatter_runtime_fields_follow_bound_selection_for_each_role(self):
         # TEST-134/135/139/144/145 renderer portion and TEST-096/162 alignment through generated files.
         for rel, role in CLAUDE.items():

@@ -117,6 +117,19 @@ if ($policyMode) {
       $policyContext.request_path -cne $PolicyInput -or $policyContext.registry_path -cne $Registry)) {
     Stop-PolicySelection 'input-invalid' 'Engine-only context must match its fixed invocation.'
   }
+  if ($PolicyEngineOnly) {
+    $preparedOptions = $policyContext.selector_options
+    if ($preparedOptions -isnot [pscustomobject] -or
+        @($preparedOptions.PSObject.Properties).Count -ne $policyOptions.Count) {
+      Stop-PolicySelection 'input-invalid' 'Engine-only context must match its fixed invocation.'
+    }
+    foreach ($entry in $preparedOptions.PSObject.Properties) {
+      if (-not $policyOptions.ContainsKey($entry.Name) -or $entry.Value -isnot [string] -or
+          $entry.Value -cne $policyOptions[$entry.Name]) {
+        Stop-PolicySelection 'input-invalid' 'Engine-only context must match its fixed invocation.'
+      }
+    }
+  }
   $Risk = $policyContext.request.risk
   $HostName = $policyContext.request.host
   $Role = [string]$policyContext.capability_role

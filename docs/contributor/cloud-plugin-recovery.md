@@ -37,11 +37,16 @@ v1.20.0のモデル選択ポリシー、managed entry、契約、ADR 0038、16�
 | `render-agent-frontmatter` | `--model-controls`、ハッシュ、run/session、managed-targetの引数群 | 従来のfrontmatter／参照コメント |
 | GPT/Gemini runner | controls、ハッシュ、run/sessionの引数群 | 従来の同意付きrunner |
 | managed entry | `prepare`、`claude-entry`、`claude-batch-definition`の明示呼び出し | 自動では起動しない |
+| 週次self-improvement | 既存の `SDD_SELF_IMPROVEMENT_REQUEST` repository variable | 従来のAction設定 |
 
 managed用引数の一部だけを渡しても、legacyへ戻りません。不完全・不整合な入力は拒否します。
 managedを選んだ処理では、子の役割・host・run/session・workloadごとに有効なselectionと
 controlsの対応が必要です。親の認可や成功だけで新しい子を認可せず、選択・検証・起動が
 失敗した場合もlegacyや別hostへ自動退避しません。必要なbindingがなければ、作業や予約の前に停止します。
+
+controlsは選択結果と実行コードのハッシュを結びます。今回追加したPowerShell共通ヘルパーも
+検証対象です。旧実行コード用のcontrolsは復旧後の起動へ転用せず、現在の可用性観測と
+採用条件を検証して再生成してください。過去の記録を上書きする手順ではありません。
 
 復旧した採用記録は当時の記録です。現在のモデル可用性、実際に応答したbackendのID、
 未採用候補の利用許可、実運用の成功を新たに示すものではありません。

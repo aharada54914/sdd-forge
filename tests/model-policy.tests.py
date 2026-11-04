@@ -711,6 +711,34 @@ class PolicySelection(unittest.TestCase):
         self.blocked(self.bridge('complete-selection', {'context': context, 'winner': winner}),
                      {'input-invalid', 'config-conflict', 'resume-conflict'})
 
+    def test_engine_only_context_binds_exact_selector_options_in_both_backends(self):
+        self.save()
+        options = {'minimum_tier': 'strong'}
+        prepared = self.bridge('prepare-selection', {
+            'request_path': 'request.json', 'registry_path': 'registry.json',
+            'selector_options': options})
+        self.assertEqual(prepared.returncode, 0, output(prepared))
+        context = json.loads(prepared.stdout)
+        for backend in ('bash', 'powershell'):
+            command = ([PWSH, '-NoProfile', '-File', str(SCRIPTS / 'select-agent-model.ps1'),
+                        '-PolicyInput', 'request.json', '-Registry', 'registry.json',
+                        '-PolicyEngineOnly', '-MinimumTier', 'strong'] if backend == 'powershell' else
+                       bash_command(SCRIPTS / 'select-agent-model.sh',
+                                    ['--policy-input', 'request.json', '--registry', 'registry.json',
+                                     '--policy-engine-only', '--minimum-tier', 'strong']))
+            for candidate in (options, {}, {'minimum_tier': 'standard'}, {'Minimum_tier': 'strong'},
+                              {'minimum_tier': ['strong']}, {'minimum_tier': 'strong', 'extra': ''}):
+                with self.subTest(backend=backend, options=candidate):
+                    supplied = {**context, 'selector_options': candidate}
+                    result = subprocess.run(command, cwd=self.work, input=json.dumps(supplied),
+                                            capture_output=True, text=True, env=self.environment,
+                                            timeout=45, check=False)
+                    if candidate == options:
+                        self.assertEqual(result.returncode, 0, output(result))
+                        self.assertEqual(json.loads(result.stdout)['canonical_tier'], 'strong')
+                    else:
+                        self.blocked(result, 'input-invalid')
+
     def test_direct_completion_cannot_bypass_risk_effort_or_escalation(self):
         cases = [
             ('high-risk-tier', 'implementer', 'high', {}, LIGHT, 'lightweight', 'low'),

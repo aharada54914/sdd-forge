@@ -70,7 +70,7 @@ if ($managedArgs.Count -gt 0) {
     }
     # Unknown/unbound tokens must reach the same strict parser, never disappear.
     foreach ($unbound in $args) { $managedArgs.Add([string]$unbound) }
-    if ($RepoRoot) {
+    if ($PSBoundParameters.ContainsKey('RepoRoot')) {
         $managedArgs.Add('--root')
         $managedArgs.Add($RepoRoot)
     }

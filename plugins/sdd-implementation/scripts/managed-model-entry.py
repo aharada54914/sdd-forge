@@ -164,6 +164,8 @@ def _parse(argv):
     if not all(options.get(name) for name in MANAGED_OPTIONS):
         raise _invalid('Managed rendering requires nonempty --model-controls, --model-controls-sha256, --run-id, '
                        '--session-id and --managed-target.')
+    if '--root' in options and not options['--root']:
+        raise _invalid('--root must name a nonempty existing directory.')
     return options, check
 
 
