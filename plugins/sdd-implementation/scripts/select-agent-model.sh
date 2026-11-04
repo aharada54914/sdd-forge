@@ -5,14 +5,20 @@ policy_input=""
 policy_input_present="false"
 policy_engine_only="false"
 explicit_keys=""
-helper_path="$(cd "$(dirname "$0")" && pwd)/model-policy.py"
+# Reach the typed runtime check even when PATH has no external utilities.
+# Keep the invoked script's directory (including symlink spelling), as dirname did.
+case "$0" in
+  */*) script_directory="${0%/*}"; [[ -n "$script_directory" ]] || script_directory=/ ;;
+  *) script_directory=. ;;
+esac
+helper_path="$(cd -- "$script_directory" && pwd)/model-policy.py"
 risk=""
 candidates=()
 failure_class=""
 failure_history=""
 previous_tier=""
 consecutive_failures="0"
-registry="$(cd "$(dirname "$0")/../../.." && pwd)/contracts/agent-model-capabilities.json"
+registry="$(cd -- "$script_directory/../../.." && pwd)/contracts/agent-model-capabilities.json"
 candidates_file=""
 required_tier=""
 minimum_tier=""
