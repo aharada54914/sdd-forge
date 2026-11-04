@@ -101,11 +101,28 @@ can the following README-only PR use the category.
 
 ## Compare selected and full execution
 
-`SDD_CI_FORCE_FULL` must be the literal string `false` for PR selection. An absent,
-invalid or `true` value keeps full execution. Repository-variable API access is a
-separate operational prerequisite: an HTTP 403 does not mean the variable was set.
-Use an authorized repository settings session when available. Do not hardcode
-`false`, add write permissions, or relabel a manual run as a pull-request event.
+`SDD_CI_FORCE_FULL` must be the literal string `false` for same-repository PR
+selection. An absent, invalid or `true` value keeps full execution. Fork PRs always
+force full execution using the GitHub event's head-repository ID, even if this
+variable is `false`. The observed PR #712 planning job used `CI_FORCE_FULL=false`;
+no repository-setting change was needed. A settings API 403 alone does not reveal
+the variable's value. Do not hardcode `false`, add write permissions, or relabel a
+manual run as a pull-request event.
+
+For fork runs with empty API `pull_requests`, the required verifier captures fixed
+original-event fields separately from the source plan. It matches API repository
+IDs, head SHA and attempt, checks the tested merge's ordered base/head parents,
+and reconstructs all full-plan obligations. Missing event context, ambiguous API
+metadata, selection or stale execution is rejected. These event values rely on
+the trusted workflow environment; they are not signatures or information to
+invent during offline recollection. See [fork observations and rerun recovery](../verification.md#fork-observations-and-rerun-recovery) for the trust boundary.
+The compatibility regression uses real Git merges with simulated Actions
+observations; the independently observed public fork API shape is not a hosted
+fork acceptance run of this repository.
+
+When `ci-plan` produces a new planning attempt, use **Re-run all jobs** so A9's
+independent detector and selected workload executions belong to that epoch.
+Do not use edited timestamps or copied attempt IDs to recover a failed-only rerun.
 
 Create a representative README-only PR **D** against C. Verify that its uploaded
 plan says `affected` / `classified-change`, then aggregate the actual run and

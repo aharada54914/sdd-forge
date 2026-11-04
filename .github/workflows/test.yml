@@ -1965,8 +1965,19 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          CI_EVENT: ${{ github.event_name }}
+          CI_REPOSITORY: ${{ github.repository }}
+          CI_REPOSITORY_ID: ${{ github.event.pull_request.base.repo.id }}
+          CI_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          CI_HEAD_REPOSITORY_ID: ${{ github.event.pull_request.head.repo.id }}
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+          CI_PR_NUMBER: ${{ github.event.pull_request.number }}
+          CI_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          CI_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_TESTED_SHA: ${{ github.sha }}
         run: >-
-          python3 -B tests/verification-ci.py collect --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --output-dir
+          python3 -B tests/verification-ci.py collect --github-event-context --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --output-dir
           "$RUNNER_TEMP/verification-observations"
       - name: Check all required tests passed
         shell: bash
@@ -2183,7 +2194,7 @@ jobs:
           CI_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           CI_TESTED_SHA: ${{ github.sha }}
           CI_API_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          CI_FORCE_FULL: ${{ vars.SDD_CI_FORCE_FULL }}
+          CI_FORCE_FULL: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.id != github.repository_id && 'true' || vars.SDD_CI_FORCE_FULL }}
         run: >
           set -euo pipefail
 

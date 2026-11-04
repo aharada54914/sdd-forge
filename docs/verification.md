@@ -72,6 +72,31 @@ execution or timing improvement. Follow [CI selection recovery](contributor/ci-s
 to collect current full and mutation evidence, validate category activation, and
 compare selected execution against full execution at the same tested revision.
 
+### Fork observations and rerun recovery
+
+GitHub can return an empty `pull_requests` array for a successful fork PR run.
+The collector can preserve the original GitHub event fields with
+`--github-event-context`; the workflow supplies only fixed event expressions.
+These fields are separate from the plan and contain no token or PR body. The
+fallback requires an actual fork, matching API repository IDs, head SHA and
+attempt, and a checkout whose two merge parents are the original event base and
+head in that order. It accepts only an independently reconstructed full plan
+without omissions or activation evidence. Missing or ambiguous identity fails.
+The existing single-PR API path remains available without this optional context.
+
+The event fields rely on the trusted GitHub workflow environment, just as API
+observations rely on their collector. They are not signed evidence that an
+arbitrary offline author can create. Manual recollection without the original
+trusted event context cannot recover an empty-array fork run. Compatibility tests
+use actual Git merges and simulated Actions transport; the observed public API
+shape does not establish a successful fork run of this repository.
+
+If `ci-plan` creates a new planning attempt, rerun **all jobs**. A failed-only
+rerun may retain an A9 detector or workload executed before that planning epoch;
+the aggregate correctly rejects those stale executions. An unchanged original
+plan may reuse eligible execution history, subject to the existing attempt and
+receipt checks. Never edit timestamps or relabel inherited attempts to pass.
+
 ## Using Lite
 
 For bounded application fixes, select the existing Lite track when the project's
