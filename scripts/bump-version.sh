@@ -73,7 +73,7 @@ OLD_PLAIN_RE="${OLD//./\\.}"          # sed pattern matching the plain form
 OLD_ESCAPED_RE="${OLD//./\\\\.}"      # sed pattern matching the regex-escaped form
 NEW_ESCAPED="${NEW//./\\\\.}"         # sed replacement emitting a regex-escaped form
 
-# 1. Plugin manifests (18 files) + both marketplaces.
+# 1. Every plugin's three host manifests + both marketplaces.
 for manifest in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.plugin/plugin.json \
