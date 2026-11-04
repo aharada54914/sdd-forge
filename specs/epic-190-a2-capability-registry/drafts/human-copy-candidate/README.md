@@ -2,7 +2,8 @@
 
 ## CI planning recovery update — 2026-11-04
 
-The workflow candidate now matches the live workflow at `92300ee2` byte for byte.
+The workflow candidate now matches the integrated live workflow byte for byte,
+including CI planning recovery and the standard Intel macOS runner update.
 It retains `ci-plan`, each job's selection condition and dependencies, native
 Windows 5.1/7 validation, execution-receipt uploads, and the always-running
 collector/aggregate verifier. Its manifest entry was recalculated from those
@@ -14,6 +15,17 @@ post-archive job and verifier definitions. Its negative control now also rejects
 bypassing the collector-based verifier, while preserving the legacy verifier
 control. Recheck all seven manifest entries and the current live workflow before
 using this candidate; the dated status below describes older recovery work.
+
+## Standard Intel macOS runner update — 2026-11-04
+
+The current workflow candidate matches the live workflow after pinning its
+macOS matrices to the standard `macos-26-intel` runner. All 138 native macOS
+workload steps and the main lane's 40-minute timeout are retained. The workflow
+manifest hash was updated; the six other candidate files and the historical
+`human-copy/` archive are unchanged. Hosted results must identify actual Intel
+execution and do not establish ARM64 coverage. The main test job preserves the
+branch-protection display context `test (macos-latest)` through a separate
+matrix `check` field; its actual `os` and `runs-on` remain `macos-26-intel`.
 
 ## Recovery update — 2026-09-08
 

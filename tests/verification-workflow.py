@@ -232,7 +232,7 @@ def workflow_coverage(workflow, catalog):
         found = set()
         for row in matrix_rows(job):
             target = expand_matrix(job.get('runs-on', ''), row)
-            runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows', 'windows-2022': 'Windows', 'macos-latest': 'macOS'}.get(target)
+            runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows', 'windows-2022': 'Windows', 'macos-latest': 'macOS', 'macos-26-intel': 'macOS'}.get(target)
             wrapper = name == 'test' and job.get('if') in ('always()', '${{ !cancelled() }}')
             if not runner or not (wrapper or enabled(job.get('if'), row, runner, outputs)) or job.get('continue-on-error', False) is not False:
                 continue
@@ -568,7 +568,7 @@ def plan_inventory(workflow, catalog, weights=None):
     prepared = verifier_job(workflow)
     obligations, controls = [], []
     seen = set()
-    targets = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows', 'windows-2022': 'Windows'}
+    targets = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'macos-26-intel': 'macOS', 'windows-latest': 'Windows', 'windows-2022': 'Windows'}
     for job_id, job in workflow['jobs'].items():
         rows = matrix_rows(job)
         if not rows:
