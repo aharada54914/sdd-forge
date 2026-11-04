@@ -19,6 +19,50 @@ internal -- may be invoked by the model's own judgment; every invocation is
 either a human-typed slash command or an explicit skill-to-skill call
 documented in another skill's own SKILL.md).
 
+## Managed allocation boundary
+
+Affected policy roles: `investigator`.
+
+Apply this boundary only when the caller explicitly selects managed routing
+with a policy request or model controls, or this allocation continues that
+managed workflow. With no managed input, retain the legacy invocation and model
+hints below. Once managed is selected, do not switch that workflow to legacy
+because selection, validation or launch fails. No new environment toggle is
+required, and this boundary does not grant delegation or execution permission.
+
+For a managed allocation, apply in the allocating parent before an unbound
+forked Skill/Agent, native role, or fresh context receives work, and before any
+identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+This router allocates no investigator itself. In reverse mode relay this boundary to domain-reverse before its investigation handoff; delegate exactly once and retain seed-failure handling. New/update modes do not create an investigation merely to run this check.
+
+
 ## Invocation
 
 Claude Code:

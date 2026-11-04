@@ -13,13 +13,45 @@ v1.20.0に含まれていた `sdd-azure-cloud` と `sdd-aws-cloud` を、現行�
 
 復旧対象は、両プラグイン、共有の契約・認可・検証処理、導入と更新・解除、
 明示的なbootstrapの委譲、保護対象、CIテンプレート、関連テストと利用文書です。
-旧系統にあるモデル選択ポリシーとCI再構成全体は移植せず、クラウド検証を現行CIへ接続します。
+このクラウド復旧の時点ではモデル選択ポリシーとCI再構成全体を移植せず、
+クラウド検証を現行CIへ接続しました。後続の復旧範囲と互換条件は下記を参照してください。
 現行の入力検証、リテラルパス、Bash 3.2／PowerShell互換性の修正を保持します。
 
 テストが参照していた旧 `specs/cloud-orchestration/verification/` の必要な入力だけを、
 原文バイトのまま [tests/fixtures/cloud-orchestration](../../tests/fixtures/cloud-orchestration/README.md)
 へ移しました。旧レビュー・承認・実行成功の記録を、新しい成功証跡として作り直してはいません。
 同梱する上流資料のライセンス・NOTICEと固定ハッシュも保持します。
+
+## 後続のモデル選択ポリシー復旧
+
+v1.20.0のモデル選択ポリシー、managed entry、契約、ADR 0038、16スキルの
+`Managed allocation boundary` と関連する起動手順を現行コードへ復旧します。
+調査、診断、単一・一括実装、レビュー、監査、外部パネリストの呼び出しが対象です。
+入力検証、リテラルパス、固定入力、クラウドの権限境界など、復旧後に加わった修正は保持します。
+
+旧版との差は、managedを明示的に選ぶ点です。通常の呼び出しには既存のlegacy経路を残します。
+
+| 呼び出し | managedを選ぶ入力 | 入力がない場合 |
+|---|---|---|
+| `select-agent-model` | `--policy-input`／`-PolicyInput` | 従来の候補・tier選択 |
+| `render-agent-frontmatter` | `--model-controls`、ハッシュ、run/session、managed-targetの引数群 | 従来のfrontmatter／参照コメント |
+| GPT/Gemini runner | controls、ハッシュ、run/sessionの引数群 | 従来の同意付きrunner |
+| managed entry | `prepare`、`claude-entry`、`claude-batch-definition`の明示呼び出し | 自動では起動しない |
+
+managed用引数の一部だけを渡しても、legacyへ戻りません。不完全・不整合な入力は拒否します。
+managedを選んだ処理では、子の役割・host・run/session・workloadごとに有効なselectionと
+controlsの対応が必要です。親の認可や成功だけで新しい子を認可せず、選択・検証・起動が
+失敗した場合もlegacyや別hostへ自動退避しません。必要なbindingがなければ、作業や予約の前に停止します。
+
+復旧した採用記録は当時の記録です。現在のモデル可用性、実際に応答したbackendのID、
+未採用候補の利用許可、実運用の成功を新たに示すものではありません。
+`actual_id: null`／`proof: unverified`は設定の証拠として区別し、実モデルの証明にしません。
+Windowsへの導入成功とmanaged runtimeの実行対応も別です。POSIXの安全なファイル操作を
+必要とする経路は、未対応環境での拒否を保持します。
+
+役割・tier・起動時の設定の違いは [モデルとエージェントの対応表](../agent-capability-matrix.md#managed-model-policy)
+を参照してください。旧版の全新規割当への強制を戻すのではなく、明示選択されたmanaged処理の
+境界を維持する互換変更です。承認、レビューの独立性、外部送信の同意は変更しません。
 
 ## 実行と承認の境界
 

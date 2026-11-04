@@ -1,0 +1,273 @@
+{
+  "schema": "t010-role-decisions/v1",
+  "source_date": "2026-10-21T12:57:21.574569+00:00",
+  "scope": "limited frozen toy-project workload; no universal quality or actual backend attestation",
+  "trial_manifest_sha256": "352f5ebefb66bd8156e8e850b85b82eb591e5648a781e9ce7325965cd0955617",
+  "frozen_rubric_sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+  "trial_output_manifest_sha256": "77777c9c424504df2dc2a0d8e19d4e3e552dd29ac5d8a4ca08620ba9466bf2af",
+  "judge_output_manifest_sha256": "712988f6ce2103e5a9aeb4362a80d9652e1b2a131ed905a387a7e518f4a607ee",
+  "policy_before_sha256": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+  "capability_registry_sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+  "groups": [
+    {
+      "case": "harbor",
+      "configured_model": "gpt-6.1-sol",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2"
+        }
+      ],
+      "registered_capability": false,
+      "both_repetitions_pass": true
+    },
+    {
+      "case": "harbor",
+      "configured_model": "gpt-6-astra",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2"
+        }
+      ],
+      "registered_capability": true,
+      "both_repetitions_pass": true
+    },
+    {
+      "case": "orchard",
+      "configured_model": "gpt-6.1-sol",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2"
+        }
+      ],
+      "registered_capability": false,
+      "both_repetitions_pass": false
+    },
+    {
+      "case": "orchard",
+      "configured_model": "gpt-6-astra",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2"
+        }
+      ],
+      "registered_capability": true,
+      "both_repetitions_pass": false
+    },
+    {
+      "case": "meadow",
+      "configured_model": "gpt-6.1-sol",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2"
+        }
+      ],
+      "registered_capability": false,
+      "both_repetitions_pass": true
+    },
+    {
+      "case": "meadow",
+      "configured_model": "gpt-6-astra",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2"
+        }
+      ],
+      "registered_capability": true,
+      "both_repetitions_pass": true
+    },
+    {
+      "case": "willow",
+      "configured_model": "gpt-6-luna",
+      "effort": "low",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": true,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": true,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2"
+        }
+      ],
+      "registered_capability": false,
+      "both_repetitions_pass": false
+    },
+    {
+      "case": "willow",
+      "configured_model": "gpt-6-astra",
+      "effort": "low",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": true,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": true,
+          "semantic_pass": true,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2"
+        }
+      ],
+      "registered_capability": true,
+      "both_repetitions_pass": false
+    },
+    {
+      "case": "cedar",
+      "configured_model": "gpt-6-astra",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": true,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": true,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2"
+        }
+      ],
+      "registered_capability": true,
+      "both_repetitions_pass": false
+    },
+    {
+      "case": "maple",
+      "configured_model": "gpt-6-astra",
+      "effort": "high",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1"
+        },
+        {
+          "repetition": 2,
+          "deterministic_pass": false,
+          "semantic_pass": false,
+          "material_regression": false,
+          "output_path": "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2"
+        }
+      ],
+      "registered_capability": true,
+      "both_repetitions_pass": false
+    }
+  ],
+  "role_decisions": {
+    "implementer_sol": {
+      "experimental_result": "both repetitions pass all deterministic and semantic gates; no material regression against Astra",
+      "policy_result": "withheld: not registered capability or trusted policy/host mapping",
+      "model": "gpt-6.1-sol",
+      "capability_changes_authorized_in_T010": false
+    },
+    "implementer_astra": {
+      "experimental_result": "both baseline repetitions pass all gates; no material regression",
+      "policy_result": "eligible existing registered model for implementer-only metadata proposal, pending Root review",
+      "model": "gpt-6-astra"
+    },
+    "review_sol": {
+      "result": "withheld: both dirty-case repetitions fail unchanged duplicate-finding hard gate; clean controls pass"
+    },
+    "investigator_luna": {
+      "result": "withheld: first repetition citation failure; second observed unauthorized builtin webSearch and no completed answer"
+    },
+    "skill_current_maple": {
+      "result": "withheld: both repetitions fail unchanged identity-limitation hard gate; command-plan scope only",
+      "source_sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0"
+    }
+  },
+  "limits": [
+    "Configured IDs and native UserInput.skill input acceptance are recorded; actual backend IDs remain unverified.",
+    "Skill input acceptance does not establish installed-loop activation or execution quality.",
+    "Astra fixed judge retains residual model/self-preference bias despite blinded labels.",
+    "Original two rejected native judge schema requests and original narrow-validator records are retained; final validation resolves exact original contracts and supplied field paths, without response edits.",
+    "All failed candidate attempts retained. No candidate rerun, selector/capability/authorization change, synthetic trial price or billing claim."
+  ]
+}
