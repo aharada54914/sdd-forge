@@ -88,6 +88,10 @@ build_fixture() {
     return 1
   }
   tar -xf "$archive" -C "$fixture_root"
+  # Exercise the working-tree gate/validator while the remaining fixture stays
+  # pinned to the tracked snapshot; never invoke the real repository's bump.
+  cp "$ROOT/scripts/bump-version.sh" "$fixture_root/scripts/bump-version.sh"
+  cp "$ROOT/tests/validate-repository.ps1" "$fixture_root/tests/validate-repository.ps1"
   fixture_root="$(cd "$fixture_root" && pwd -P)"
   git -C "$fixture_root" init -q
   printf '%s' "$fixture_root"
@@ -216,11 +220,12 @@ run_test_001() {
   local fixture_root output
   fixture_root="$SHARED_FIXTURE_ROOT"
   reset_fixture_case "$fixture_root"
+  stub_suite "$fixture_root" "tests/validate-repository.sh" 0
   stub_suite "$fixture_root" "tests/loop-consistency.tests.sh" 0
   stub_suite "$fixture_root" "tests/loop-inventory.tests.sh" 0
   rename_changelog_heading "$fixture_root" "$VERSION"
   commit_fixture_case "$fixture_root" \
-    tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
+    tests/validate-repository.sh tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
@@ -267,10 +272,11 @@ run_test_002() {
   local fixture_root output porcelain
   fixture_root="$SHARED_FIXTURE_ROOT"
   reset_fixture_case "$fixture_root"
+  stub_suite "$fixture_root" "tests/validate-repository.sh" 0
   stub_suite "$fixture_root" "tests/loop-consistency.tests.sh" 1
   rename_changelog_heading "$fixture_root" "$VERSION"
   commit_fixture_case "$fixture_root" \
-    tests/loop-consistency.tests.sh CHANGELOG.md
+    tests/validate-repository.sh tests/loop-consistency.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
@@ -297,11 +303,12 @@ run_test_003() {
   local fixture_root output porcelain
   fixture_root="$SHARED_FIXTURE_ROOT"
   reset_fixture_case "$fixture_root"
+  stub_suite "$fixture_root" "tests/validate-repository.sh" 0
   pass_suite_with_marker "$fixture_root" "tests/loop-consistency.tests.sh"
   fail_suite_after_marker "$fixture_root" "tests/loop-inventory.tests.sh"
   rename_changelog_heading "$fixture_root" "$VERSION"
   commit_fixture_case "$fixture_root" \
-    tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
+    tests/validate-repository.sh tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
@@ -322,6 +329,48 @@ run_test_003() {
   else
     fail "TEST-003 (AC-003): git status --porcelain is non-empty after the run: ${porcelain}"
   fi
+}
+
+# The real repository validator owns source completeness. Loop tests above stub
+# it to avoid repeating its scan; here two independent source defects must stop
+# the actual bump before either loops or any release surface changes.
+run_test_007() {
+  local fixture_root="$SHARED_FIXTURE_ROOT" scenario relative output porcelain
+  if ! command -v pwsh >/dev/null 2>&1; then
+    echo "SKIP: release-source bump prerequisite requires pwsh"
+    return
+  fi
+  for scenario in missing-managed-entry stale-current-readme; do
+    reset_fixture_case "$fixture_root"
+    pass_suite_with_marker "$fixture_root" "tests/loop-consistency.tests.sh"
+    stub_suite "$fixture_root" "tests/loop-inventory.tests.sh" 0
+    rename_changelog_heading "$fixture_root" "$VERSION"
+    if [[ "$scenario" == missing-managed-entry ]]; then
+      relative="plugins/sdd-implementation/scripts/managed-model-entry.py"
+      rm "$fixture_root/$relative"
+    else
+      relative="README.md"
+      sed -i.bak 's/^v[0-9][0-9.]* /v0.0.0 /' "$fixture_root/$relative"
+      rm "$fixture_root/$relative.bak"
+    fi
+    commit_fixture_case "$fixture_root" "$relative" \
+      tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
+    output="$(mktemp)"
+    if run_bump_version "$fixture_root" "$VERSION" "$output"; then
+      fail "TEST-007: ${scenario} passed the release-source prerequisite"
+    elif grep -Fq 'repository validation failed; no release surface was modified.' "$output"; then
+      ok "TEST-007: ${scenario} stopped at the real repository validator"
+    else
+      fail "TEST-007: ${scenario} failed for an unrelated reason: $(cat "$output")"
+    fi
+    porcelain="$(git -C "$fixture_root" status --porcelain)"
+    if [[ -z "$porcelain" && ! -e "$fixture_root/.bump-gate-loop-consistency-pass" ]]; then
+      ok "TEST-007: ${scenario} left release surfaces unchanged and did not run loops"
+    else
+      fail "TEST-007: ${scenario} changed the fixture or ran loops: ${porcelain}"
+    fi
+    rm -f "$output"
+  done
 }
 
 # ---------------------------------------------------------------------------
@@ -516,6 +565,7 @@ run_test_003
 run_test_004
 run_test_005
 run_test_006
+run_test_007
 check_registration_controls
 
 printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"
