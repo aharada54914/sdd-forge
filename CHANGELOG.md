@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.23.0 (2026-11-04)
+
+### Restored
+- v1.20.0の別系統に残っていた配布許可リスト、MCPの最小配置、WindowsのZIP展開を復旧。現行のクラウドruntime、更新・解除、入力・リンク検証を保持した。
+- モデル選択ポリシーのエンジン、契約、呼出元、16スキルの割当境界を復旧。明示指定でmanaged経路を選び、無指定の従来経路を保持する。managedの検証・起動失敗時に従来経路へ切り替えない。
+- CIの計画・実行記録・集約と依存cache、3つのschemaを復旧。現行の必須検証を保持し、実行記録を対象コミット・run・attemptに結び付ける。証明のない分類では全件実行する。
+- ADR 0036・0037・0038を出自と元のProposed状態を保って復旧した。
+
+### Fixed
+- 呼出側が独自policyでモデルの採用記録を作り、起動できる問題を修正。共有policy全体を導入済みの信頼元と照合し、既存のCLI・環境・project override契約は保持する。
+- Windows PowerShell 5.1のPythonへのJSON引渡しをBOMなしUTF-8へ統一し、呼出元のencodingを復元する。
+- バージョン変更と公開の前に、復旧機能・契約・配布入口の欠落を検出する。リリース検証・配布物・SBOMをCI確認済みの同一コミットへ固定し、公開直前のタグ移動を拒否する。
+
+### Verification limits
+- Claude候補の採用記録は0件のまま。復旧とfixture検証は、新しい実モデルの採用・実行成功を意味しない。
+- 実クラウド受入TEST-003/005/009は未完了のまま。CI選択の有効化と性能評価には、固定baselineでの実行・故障注入・比較の証拠が別途必要。[復旧記録](docs/contributor/release-parity-recovery.md)と[CI評価手順](docs/contributor/ci-selection-recovery.md)を参照。
+
 ## v1.22.1 (2026-11-03)
 
 ### Fixed

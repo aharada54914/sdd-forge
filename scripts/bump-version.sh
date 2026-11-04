@@ -41,6 +41,18 @@ if ! grep -Eq "^## v${NEW//./\\.}( |\$)" "${ROOT}/CHANGELOG.md"; then
     exit 1
 fi
 
+# Validate the current source release before changing any versioned surface.
+# The old README/version/changelog assertions still apply; the new changelog
+# heading above is additional release intent, not a replacement for the old one.
+repository_log="$(mktemp)"
+if ! "${ROOT}/tests/validate-repository.sh" >"${repository_log}" 2>&1; then
+    echo "Error: repository validation failed; no release surface was modified." >&2
+    cat "${repository_log}" >&2
+    rm -f "${repository_log}"
+    exit 1
+fi
+rm -f "${repository_log}"
+
 # Loop-suite prerequisite (issue #148): both suites must pass before any
 # release surface is mutated. Fail closed; no bypass.
 for suite in tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh; do
@@ -61,7 +73,7 @@ OLD_PLAIN_RE="${OLD//./\\.}"          # sed pattern matching the plain form
 OLD_ESCAPED_RE="${OLD//./\\\\.}"      # sed pattern matching the regex-escaped form
 NEW_ESCAPED="${NEW//./\\\\.}"         # sed replacement emitting a regex-escaped form
 
-# 1. Plugin manifests (18 files) + both marketplaces.
+# 1. Every plugin's three host manifests + both marketplaces.
 for manifest in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.plugin/plugin.json \
