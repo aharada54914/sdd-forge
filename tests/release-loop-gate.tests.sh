@@ -326,10 +326,19 @@ def job(name):
                 and lines[i].endswith(':')), len(lines))
     return '\n'.join(lines[start:end])
 
+def checkout(name):
+    steps = job(name).split('      - ')
+    checkouts = [step for step in steps if step.startswith('uses: actions/checkout@')]
+    assert len(checkouts) == 1, name + ' must have exactly one source checkout'
+    return checkouts[0]
+
 for name in ('loop-gate', 'release'):
-    section = job(name)
+    section = checkout(name)
     assert 'ref: ${{ needs.ci-green.outputs.sha }}' in section, name
     assert 'persist-credentials: false' in section, name
+# Source validation resolves history-bound evidence. Checkout's default depth=1
+# makes valid manifests appear stale; the actual loop checkout must retain history.
+assert '          fetch-depth: 0' in checkout('loop-gate').splitlines(), 'release source validation requires full history'
 assert 'needs: ci-green' in job('loop-gate')
 assert 'run: bash ./tests/validate-repository.sh' in job('loop-gate')
 assert 'contents: read' in job('loop-gate')
