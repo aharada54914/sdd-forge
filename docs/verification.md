@@ -36,9 +36,20 @@ lanes remain dependencies of `required-checks`.
 Required macOS jobs use GitHub's standard `macos-26-intel` runner. This keeps
 native macOS and Bash 3.2 compatibility checks running during the observed
 ARM64 runner capacity shortage, without a paid runner or removing test steps.
-The main test lane retains its 40-minute timeout. Planning and collection still
-admit `macos-latest` as well as the explicit Intel label; neither label is an
-alias for recorded evidence from the other.
+The PowerShell-heavy `test`, `installers`, `version-gates`, and `cloud-native`
+jobs have a bounded 90-minute timeout only on Intel macOS. Their other OS lanes
+keep the existing 30-minute limits (45 minutes for `version-gates`). Recovery
+keeps its measured 45-minute limit, and lighter jobs keep their existing limits.
+
+The [observed Intel cloud run](https://github.com/aharada54914/sdd-forge/actions/runs/41863408248/job/126692099781)
+exhausted its 30-minute limit while passing assertions in only the fourth of six
+suites; the [main lane](https://github.com/aharada54914/sdd-forge/actions/runs/41863408248/job/126692099338)
+was still making progress after 33 minutes with substantial work remaining.
+The larger budget provides more time for the same work; it is neither a
+performance guarantee nor a passing result. Commands, assertions and required jobs remain unchanged.
+
+Planning and collection still admit `macos-latest` as well as the explicit Intel
+label; neither label is an alias for recorded evidence from the other.
 
 Branch protection still requires the historical display context
 `test (macos-latest)`. That display name is stable; the test matrix's separate
