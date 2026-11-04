@@ -17,8 +17,8 @@ CI成功・配布物の署名・タグとの一致は、旧版の全機能の維
 | 1 | 導入payload | install-payload.txtと両installerの許可リスト処理が欠落 | local/archiveで必要な実行ファイルを配置し、開発資料・cacheを除外。更新・解除と現行cloud runtimeを検証 | 完了（PR #709、CI全51ジョブ成功） |
 | 1 | MCP配置 | 最小2ファイル配置とsymlink/reparse拒否が欠落 | source/targetの各境界を拒否し、失敗時に既存内容を保持する回帰を確認 | 完了（PR #709、CI全51ジョブ成功） |
 | 1 | Windows ZIP | zipball/.NET展開と名前・リンク検査が欠落 | Windows PowerShell 5.1/7の実行環境でarchive境界を確認。共通仕様の重複を抑える | 完了（PR #709、Windows 5.1/7を含むCI成功） |
-| 2 | managedモデル制御 | エンジン2本、契約10本、既存契約のrole_defaults、16スキルと起動検証等が欠落 | エンジンから呼出元まで統合し、実設定・失敗境界・互換経路を検証。採用と既定有効化を明示する | PR #710でCI検証中。Windows 5.1向け修正を反映し、CI確認待ち |
-| 3 | CI計画 | schema 3本、planner/collector/cache、workflow配線等が欠落 | 現行必須検証を保持し、fullと選択の比較・失敗欠落検知を確認。未証明の分類はfullを維持 | PR #711・#712でツールと配線を検証。分類はinactive |
+| 2 | managedモデル制御 | エンジン2本、契約10本、既存契約のrole_defaults、16スキルと起動検証等が欠落 | エンジンから呼出元まで統合し、実設定・失敗境界・互換経路を検証。採用と既定有効化を明示する | 完了（PR #710、Windows 5.1/7を含むCI全51ジョブ成功） |
+| 3 | CI計画 | schema 3本、planner/collector/cache、workflow配線等が欠落 | 現行必須検証を保持し、fullと選択の比較・失敗欠落検知を確認。未証明の分類はfullを維持 | ツールはPR #711で統合済み。配線はPR #712で検証中。分類はinactive |
 | 4 | ADR | 0036/0037/0038が欠落 | 原文のProposed状態と出自を保持し、現在の適用範囲・参照を明示 | ローカル検証済み。統合待ち |
 | 4 | リリース退行検査 | 前版の機能維持を検査していない | 旧機能・契約・起動入口・導入内容の対応を検証し、未説明の欠落を公開前に検出 | ローカル検証済み。統合と実リリースでの検証待ち |
 
@@ -63,13 +63,20 @@ Windows PowerShell 5.1/7を含む全51ジョブが成功しました。
 
 ## 後続段階の準備状況
 
-モデル制御は[PR #710](https://github.com/aharada54914/sdd-forge/pull/710)で検証中です。
+モデル制御は[PR #710](https://github.com/aharada54914/sdd-forge/pull/710)で統合済みです。
 公開されたpolicyとroleを最終的な選択の根拠にする修正を含めています。
-Windows PowerShell 5.1の標準入力エンコーディングと追加検証の修正を反映しました。
-CIでの確認は残っており、モデル制御全体の統合完了・全CI成功とは記録しません。
+Windows PowerShell 5.1の標準入力エンコーディングも修正し、
+[CI run 41832595519](https://github.com/aharada54914/sdd-forge/actions/runs/41832595519)の全51ジョブが成功しました。
+この検証は新しいモデルの採用や実クラウドへのデプロイを証明するものではありません。
 
-CI計画のschema、planner、collector、cacheとテストは[PR #711](https://github.com/aharada54914/sdd-forge/pull/711)、
-現行CIへの配線は[PR #712](https://github.com/aharada54914/sdd-forge/pull/712)で検証します。
+CI計画のschema、planner、collector、cacheとテストは[PR #711](https://github.com/aharada54914/sdd-forge/pull/711)で統合済みです。
+[CI run 41836084749](https://github.com/aharada54914/sdd-forge/actions/runs/41836084749)の全51ジョブが成功しました。
+現行CIへの配線は[PR #712](https://github.com/aharada54914/sdd-forge/pull/712)で検証中です。
+macOS ARM64のランナー取得障害を受け、[PR #714](https://github.com/aharada54914/sdd-forge/pull/714)で
+標準Intel macOS 26へ切り替え、全検証項目と必須チェック名を維持します。
+Intel実行では検査途中の30分・40分の時間切れを観測したため、重い4ジョブだけ上限を90分としました。
+時間切れの実行は成功扱いにせず、変更後の全件実行で確認します。
+この対応はARM64での全件成功を意味しません。
 fullとの実比較と故障注入による検出確認は[CI評価手順](ci-selection-recovery.md)に従います。
 fixtureでの成功を運用時の時間短縮や実CIでの受入完了とは扱いません。
 
