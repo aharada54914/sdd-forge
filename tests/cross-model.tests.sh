@@ -458,7 +458,26 @@ case "\${3:-}" in
         if [ -n "\${STUB_STATUS_PATH_FILE:-}" ]; then
             printf '%s\n' "\$3" > "\$STUB_STATUS_PATH_FILE"
         fi
-        sleep "\${STUB_SUPERVISOR_DELAY:-0}" ;;
+        if [ -n "\${STUB_SUPERVISOR_SLACK_MS:-}" ]; then
+            $(shell_literal "$PANELIST_REAL_PYTHON") - <<'PY_SUPERVISOR'
+import os, pathlib, time
+deadline_file = pathlib.Path(os.environ['STUB_DEADLINE_FILE'])
+wait_limit = time.monotonic() + 10
+while True:
+    try:
+        deadline_text = deadline_file.read_text()
+    except FileNotFoundError:
+        deadline_text = ''
+    if deadline_text:
+        break
+    if time.monotonic() >= wait_limit:
+        raise SystemExit('missing runner clock receipt before supervisor startup')
+    time.sleep(0.01)
+target = int(deadline_text) - int(os.environ['STUB_SUPERVISOR_SLACK_MS'])
+time.sleep(max(0, (target - time.time_ns() // 1_000_000) / 1000))
+PY_SUPERVISOR
+            [ "\$?" -eq 0 ] || exit 1
+        fi ;;
 esac
 exec $(shell_literal "$PANELIST_REAL_PYTHON") "\$@"
 EOF
@@ -740,15 +759,15 @@ for runner_kind in gpt gemini; do
     done
 done
 
-# TEST-004(c-startup): a deliberately slow supervisor consumes the target wait.
-# Absolute scheduling still finishes before expiry; the old relative 2s wait
-# plus 500ms output delay completes after the real 4s..5s helper deadline.
+# TEST-004(c-startup): start the supervisor with 1900ms left on the real clock,
+# after the stub's target wait. This retains output slack despite clock rounding;
+# the old relative 2s wait plus 500ms output delay still exceeds the deadline.
 for runner_kind in gpt gemini; do
     case_dir="${WORK}/slow-start-${runner_kind}"
     mkdir -p "$case_dir"
     run_panelist "$(runner_path "$runner_kind")" set 4 "$case_dir" \
         STUB_CALLED_FILE="$case_dir/called" STUB_MODE=success STUB_OUTPUT_DELAY=0.5 \
-        STUB_SUPERVISOR_DELAY=3 STUB_DEADLINE_FILE="$case_dir/deadline" \
+        STUB_SUPERVISOR_SLACK_MS=1900 STUB_DEADLINE_FILE="$case_dir/deadline" \
         STUB_EXPIRY_FILE="$case_dir/expiry" STUB_PHASE_FILE="$case_dir/phases" \
         STUB_PID_FILE="$case_dir/stub.pid"
     if assert_panelist_completion "$case_dir" "$runner_kind" slow-start; then
