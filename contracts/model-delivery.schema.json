@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "model-delivery/v1",
+  "description": "Configured identity is separate from actual per-turn telemetry. The contextual runtime validator compares every field to the bound selection and admitted host events. Current adapters cannot attest a positive actual ID; schema-valid host-reported text alone is never accepted evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "selection_sha256",
+    "run_id",
+    "session_id",
+    "turn_id",
+    "configured_id",
+    "actual_id",
+    "proof",
+    "source",
+    "reroutes",
+    "status",
+    "reason"
+  ],
+  "properties": {
+    "schema": {
+      "const": "model-delivery/v1"
+    },
+    "selection_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "run_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "session_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "turn_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "configured_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "actual_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/identifier"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proof": {
+      "type": "string",
+      "enum": [
+        "host-reported",
+        "unverified"
+      ]
+    },
+    "source": {
+      "$ref": "#/$defs/text"
+    },
+    "reroutes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "thread_id",
+          "turn_id",
+          "from_model",
+          "to_model",
+          "reason"
+        ],
+        "properties": {
+          "thread_id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "turn_id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "from_model": {
+            "$ref": "#/$defs/identifier"
+          },
+          "to_model": {
+            "$ref": "#/$defs/identifier"
+          },
+          "reason": {
+            "$ref": "#/$defs/text"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "blocked"
+      ]
+    },
+    "reason": {
+      "$ref": "#/$defs/text"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}(?![\\s\\S])"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    }
+  }
+}

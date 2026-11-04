@@ -635,17 +635,15 @@ $cloudEntryFiles = @(".claude-plugin/plugin.json", ".codex-plugin/plugin.json", 
 function Get-RequiredPaths {
     $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
     $paths = @(
-        ".agents/plugins/marketplace.json",
-        ".claude-plugin/marketplace.json",
-        ".codex/agents/sdd-investigator.toml",
-        ".codex/agents/sdd-evaluator.toml",
-        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
-        "plugins/sdd-ship/skills/ship/SKILL.md",
-        "install-payload.txt",
-        # Existing selector/launch runtime closure; keep in sync with install.sh.
+        # Managed prepare/launch runtime closure read by the installed entry and helper.
+        "plugins/sdd-implementation/scripts/managed-model-entry.py",
+        "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",
+        "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
         "contracts/agent-model-capabilities.v2.json",
+        "contracts/model-policy.v1.json",
+        "contracts/model-launch-controls.schema.json",
         "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
         "plugins/sdd-quality-loop/agents/wfi-auditor-a.md",
         "plugins/sdd-quality-loop/agents/wfi-auditor-b.md",
@@ -669,7 +667,15 @@ function Get-RequiredPaths {
         "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md",
         "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
         "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md"
+        "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md",
+        ".agents/plugins/marketplace.json",
+        ".claude-plugin/marketplace.json",
+        ".codex/agents/sdd-investigator.toml",
+        ".codex/agents/sdd-evaluator.toml",
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "install-payload.txt"
+        # Existing selector/launch runtime closure; keep in sync with install.sh.
     )
     foreach ($plugin in $allPluginNames) {
         $paths += "plugins/$plugin/.codex-plugin/plugin.json"

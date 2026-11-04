@@ -121,8 +121,8 @@ Assert-Literal $Matrix '| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | lo
     'lightweight Codex mapping must name gpt-5.1-codex-mini'
 Assert-Literal $Matrix '| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |' `
     'standard Codex mapping must name gpt-5.1-codex'
-Assert-Literal $Matrix '| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh |' `
-    'strong Codex mapping must name gpt-5.2-codex and its fallback'
+Assert-Literal $Matrix '| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies |' `
+    'strong Codex mapping must use the available registry and preserve the role floor'
 
 Assert-Literal $Matrix '| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |' `
     'investigator must be lightweight/Haiku with Codex low equivalent'
@@ -132,7 +132,7 @@ Assert-Literal $Matrix '| impl-reviewer-a/b | standard minimum | Anthropic Sonne
     'implementation reviewers must be at least standard/Sonnet'
 Assert-Literal $Matrix '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' `
     'task reviewers must be at least standard/Sonnet'
-Assert-Literal $Matrix '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' `
+Assert-Literal $Matrix '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |' `
     'evaluator must use Claude Sonnet and retain Codex strong high/xhigh'
 
 Assert-Contains $Investigator '^model: haiku$' 'Claude investigator must be downgraded to Haiku'
@@ -1173,6 +1173,16 @@ foreach ($reviewerDecl in @(
 
     }
 
+}
+
+# T-006 policy entrypoint integration: positive selection and separate case hazards.
+$t006PriorBackend = $env:SDD_TEST_POLICY_BACKEND
+try {
+    $env:SDD_TEST_POLICY_BACKEND = 'powershell'
+    & python3 -B (Join-Path $root 'tests/model-policy.tests.py') PolicySelection.test_wrapper_policy_smoke
+    if ($LASTEXITCODE -ne 0) { Fail 'T-006 policy selection integration failed' }
+} finally {
+    $env:SDD_TEST_POLICY_BACKEND = $t006PriorBackend
 }
 
 Write-Output 'ok: turn-first model routing structure is defined (PowerShell twin)'

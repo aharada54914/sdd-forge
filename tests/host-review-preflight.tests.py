@@ -314,7 +314,13 @@ CLOUD_PROTECTIONS = (
     'plugins/sdd-aws-cloud/references/upstream-lock.json',
     'plugins/sdd-aws-cloud/references/toolchain-lock.json',
 )
-REVIEWED_PROTECTIONS = ENTRYPOINTS + ADDITIONAL_PROTECTIONS + CLOUD_PROTECTIONS
+MODEL_PROTECTIONS = (
+    'plugins/sdd-implementation/scripts/model-policy.py',
+    'plugins/sdd-implementation/scripts/managed-model-entry.py',
+    QUALITY_SCRIPTS + 'run-panelist-gpt.ps1',
+    QUALITY_SCRIPTS + 'run-panelist-gemini.ps1',
+)
+REVIEWED_PROTECTIONS = ENTRYPOINTS + ADDITIONAL_PROTECTIONS + CLOUD_PROTECTIONS + MODEL_PROTECTIONS
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',

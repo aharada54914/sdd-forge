@@ -595,13 +595,9 @@ fi
 BASH_BIN="$(command -v bash)"
 RESTRICTED_DIR="$(mktemp -d "${TMPDIR:-/tmp}/loop-escalation-restricted-path.XXXXXX")"
 CLEANUP_ROOTS+=("$RESTRICTED_DIR")
-# RESTRICTED_DIR carries only the minimal coreutils these two scripts need
-# to reach their own runtime-availability check (select-agent-model.sh
-# unconditionally computes a `dirname`-based default registry path before
-# it ever parses --risk/--candidate) -- no python3 (or python3-adjacent)
-# binary is placed on it, so `command -v python3` fails inside the driven
-# script exactly as it would on a host without python3 installed.
-ln -s "$(command -v dirname)" "${RESTRICTED_DIR}/dirname"
+# No runtime or external utilities are installed here. Selector path setup
+# must use shell builtins so this failure is reported by its availability gate,
+# including on Git Bash where a copied/symlinked dirname may not execute.
 
 if OUT="$(PATH="$RESTRICTED_DIR" "$BASH_BIN" "$RESUME_SH" \
   --evidence x --blocked-state x --tasks x --repo-root x --expected-task "$RESUME_TASK" 2>&1)"; then RC=0; else RC=$?; fi
@@ -616,6 +612,13 @@ if [[ "$RC" -eq 0 && "$OUT" == "BLOCKED deterministic-runtime-unavailable" ]]; t
   echo "SKIP: TEST-013.2: select-agent-model.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation"
 else
   fail "TEST-013.2: select-agent-model.sh did not report deterministic-runtime-unavailable when python3 was absent (silent green or unrelated failure: rc=${RC}, out=${OUT})"
+fi
+
+if OUT="$(cd "${SELECT_MODEL_SH%/*}" && PATH="$RESTRICTED_DIR" "$BASH_BIN" "${SELECT_MODEL_SH##*/}" --risk low 2>&1)"; then RC=0; else RC=$?; fi
+if [[ "$RC" -eq 0 && "$OUT" == "BLOCKED deterministic-runtime-unavailable" ]]; then
+  ok "TEST-013.3: selector invoked without a slash reaches its missing-runtime gate with no external utilities"
+else
+  fail "TEST-013.3: basename selector invocation failed before its runtime gate (rc=${RC}, out=${OUT})"
 fi
 
 # =============================================================================

@@ -45,6 +45,17 @@ param()
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
 
+# Selected-control runs are owned by the shared Python driver (validation, typed errors).
+$selectedControlFlags = @("--model-controls", "--model-controls-sha256", "--run-id", "--session-id")
+if (@($args | Where-Object { $selectedControlFlags -ccontains $_ }).Count -gt 0) {
+    $selectedDriver = Join-Path $PSScriptRoot "../../sdd-review-loop/scripts/validate-nontty-spec-launch.py"
+    # Start-Process uses the shared encoder on 5.1 as well as 7. The driver owns
+    # the configured panelist timeout, so this adapter must not cap it again.
+    $selectedArgs = @($selectedDriver, 'model-panelist-run', '--vendor', 'gpt', '--shell', 'powershell') + $args
+    $selectedProcess = Start-Process -FilePath 'python3' -ArgumentList (ConvertTo-SddNativeArgumentString $selectedArgs) -NoNewWindow -PassThru -Wait
+    exit $selectedProcess.ExitCode
+}
+
 $TaskId      = ""
 $Feature     = ""
 $InputPath   = ""
