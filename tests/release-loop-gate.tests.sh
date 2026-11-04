@@ -351,6 +351,18 @@ for ref, accepted in (('refs/heads/main', True), ('refs/tags/v1', True), ('refs/
     assert (result.returncode == 0) == accepted, (ref, result.stderr)
 
 gate = body('Verify CI success for the release commit')
+upload_stub = '''gh() {
+  if [ "$1" = api ]; then
+    case "$2" in
+      */git/refs/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$CURRENT_TAG_SHA" "${CURRENT_TAG_TYPE:-commit}" ;;
+      */git/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$CURRENT_PEELED_SHA" "${CURRENT_PEELED_TYPE:-commit}" ;;
+      *) return 99 ;;
+    esac
+  else
+    printf '%s\\0' "$@"
+  fi
+}
+'''
 stub = '''gh() {
   printf '%s\\n' "$*" >> "$API_LOG"
   case "$2" in
@@ -394,8 +406,9 @@ with tempfile.TemporaryDirectory() as temporary:
     # Tag fallback and option boundaries stay data-only.
     assert run_gate(INPUT_TAG='', GITHUB_REF_NAME='v2').returncode == 0
     assert output.read_text().startswith('tag=v2\n')
-    result = invoke('gh() { printf \'%s\\0\' "$@"; };\n' + body('Upload release assets'),
-                    dict(os.environ, TAG='--help', PKG='sdd-forge-test.tar.gz'))
+    result = invoke(upload_stub + body('Upload release assets'),
+                    dict(os.environ, TAG='--help', PKG='sdd-forge-test.tar.gz',
+                         GITHUB_REPOSITORY='owner/repo', RELEASE_SHA='a' * 40, CURRENT_TAG_SHA='a' * 40))
     assert result.returncode == 0, result.stderr
     assert result.stdout.split(b'\0')[:5] == [b'release', b'upload', b'--clobber', b'--', b'--help']
 
@@ -456,11 +469,26 @@ with tempfile.TemporaryDirectory() as temporary:
     assert not list(root.glob('release-sbom.*')), 'source export scratch was not cleaned'
     predicate = json.loads((root / 'release-provenance.json').read_text())
     dependencies = predicate['buildDefinition']['resolvedDependencies']
-    assert dependencies[0] == {'uri': 'git+https://github.com/owner/repo@' + tagged,
+    assert dependencies[0] == {'uri': 'git+https://github.com/owner/repo@refs/tags/v1',
                                'digest': {'gitCommit': tagged}}
     assert dependencies[1]['digest'] == {'gitCommit': dispatch}
     assert predicate['buildDefinition']['externalParameters']['workflow']['ref'] == 'refs/heads/main'
     assert predicate['runDetails']['metadata']['invocationId'].endswith('/runs/123/attempts/2')
+    # A later tag read can reject publication, but must never choose new input
+    # bytes. API responses here use the actual moved fixture ref.
+    for current in (git('rev-parse', 'refs/tags/v1'), 'null', 'A' * 40):
+        result = invoke(upload_stub + body('Upload release assets'), {**env, 'CURRENT_TAG_SHA': current}, root)
+        assert result.returncode != 0 and b'release\0upload\0' not in result.stdout
+    git('tag', '-f', 'v1', tagged)
+    result = invoke(upload_stub + body('Upload release assets'),
+                    {**env, 'CURRENT_TAG_SHA': git('rev-parse', 'refs/tags/v1')}, root)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split(b'\0')[:5] == [b'release', b'upload', b'--clobber', b'--', b'v1']
+    for kind, peeled, accepted in (('commit', tagged, True), ('commit', dispatch, False), ('tree', tagged, False)):
+        result = invoke(upload_stub + body('Upload release assets'),
+                        {**env, 'CURRENT_TAG_SHA': 'c' * 40, 'CURRENT_TAG_TYPE': 'tag',
+                         'CURRENT_PEELED_SHA': peeled, 'CURRENT_PEELED_TYPE': kind}, root)
+        assert (result.returncode == 0) == accepted, (kind, peeled, result.stderr)
     # A present corrupt lock remains an error, not zero dependency evidence.
     for invalid in ('{', '[]', '{"packages":[]}'):
         lock.write_text(invalid)

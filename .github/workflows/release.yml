@@ -197,7 +197,7 @@ jobs:
                       'ref': workflow_ref}},
                   'internalParameters': {'github': {'event_name': env['GITHUB_EVENT_NAME']}},
                   'resolvedDependencies': [
-                      {'uri': f'git+{repository}@{env["RELEASE_SHA"]}',
+                      {'uri': f'git+{repository}@refs/tags/{env["TAG"]}',
                        'digest': {'gitCommit': env['RELEASE_SHA']}},
                       {'uri': f'{server}/{env["GITHUB_WORKFLOW_REF"]}',
                        'digest': {'gitCommit': env['GITHUB_WORKFLOW_SHA']}}]},
@@ -212,6 +212,8 @@ jobs:
         with:
           # The OIDC signer still identifies the actual workflow invocation;
           # this predicate separately records the checked-out build input.
+          # gh --source-ref/--source-digest constrain that signer certificate,
+          # so manual main dispatch retains main identity even for another tag.
           predicate-type: https://slsa.dev/provenance/v1
           predicate-path: release-provenance.json
           subject-path: |
@@ -223,6 +225,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # This is a final equality check, not a new build input. Never publish
+          # the admitted bytes under a tag that now names another source commit.
+          CURRENT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}")"
+          for ((depth = 0; depth < 10; depth++)); do
+            CURRENT_SHA="$(printf '%s' "$CURRENT_JSON" | jq -r '.object.sha')"
+            CURRENT_TYPE="$(printf '%s' "$CURRENT_JSON" | jq -r '.object.type')"
+            if [[ ! "$CURRENT_SHA" =~ ^[0-9a-f]{40}$ ]]; then exit 1; fi
+            case "$CURRENT_TYPE" in
+              commit) break ;;
+              tag) CURRENT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${CURRENT_SHA}")" ;;
+              *) echo "Invalid release tag object before upload" >&2; exit 1 ;;
+            esac
+          done
+          if [ "$CURRENT_TYPE" != commit ] || [ "$CURRENT_SHA" != "$RELEASE_SHA" ]; then
+            echo "Release tag moved after CI admission; refusing asset upload" >&2
+            exit 1
+          fi
           gh release upload --clobber -- "$TAG" \
             "$PKG" \
             "sdd-forge-sbom.cdx.json" \
