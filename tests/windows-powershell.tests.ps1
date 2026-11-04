@@ -78,7 +78,7 @@ if ($focused.ExitCode -ne 0) {
 }
 
 # Only Desktop repeats these transport boundaries: Core already runs the full
-# policy/renderer contracts. Pin every child to the host identity checked above.
+# policy/renderer contracts. Pin the test entrypoints to the host checked above.
 $previousPolicyPwsh = $env:SDD_TEST_PWSH
 $previousPolicyBackend = $env:SDD_TEST_POLICY_BACKEND
 try {
@@ -103,7 +103,7 @@ try {
     )) {
         # EncodedCommand preserves explicitly empty script parameters on Desktop;
         # the renderer must then preserve that empty value in its Python argv.
-        $code = "Set-Location -LiteralPath '" + $managedScratch.Replace("'", "''") + "'; " + $case.Code
+        $code = "Set-Location -LiteralPath '" + $managedScratch.Replace("'", "''") + "'; " + $case.Code + '; exit $LASTEXITCODE'
         $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($code))
         $boundary = Invoke-SddNativeRaw -FileName $hostPath -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
         $stderr = [Text.Encoding]::UTF8.GetString($boundary.Stderr)

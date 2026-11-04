@@ -53,6 +53,8 @@ controlsは選択結果と実行コードのハッシュを結びます。今回
 `actual_id: null`／`proof: unverified`は設定の証拠として区別し、実モデルの証明にしません。
 Windowsへの導入成功とmanaged runtimeの実行対応も別です。POSIXの安全なファイル操作を
 必要とする経路は、未対応環境での拒否を保持します。
+Windowsでpolicy selectorを使う場合、その内部の選択再演にはPowerShell 7 (`pwsh`) が
+必要です。Windows PowerShell 5.1の入口検証と、再演エンジンの実行環境は区別します。
 
 役割・tier・起動時の設定の違いは [モデルとエージェントの対応表](../agent-capability-matrix.md#managed-model-policy)
 を参照してください。旧版の全新規割当への強制を戻すのではなく、明示選択されたmanaged処理の
