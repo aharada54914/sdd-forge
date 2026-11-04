@@ -1521,7 +1521,7 @@ class WorkflowPlanIntegrationTests(PlanFixture):  # type: ignore[misc, valid-typ
             'CI_HEAD_SHA': '${{ github.event.pull_request.head.sha }}',
             'CI_TESTED_SHA': '${{ github.sha }}',
             'CI_API_HEAD_SHA': '${{ github.event.pull_request.head.sha || github.sha }}',
-            'CI_FORCE_FULL': '${{ vars.SDD_CI_FORCE_FULL }}'})
+            'CI_FORCE_FULL': "${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.id != github.repository_id && 'true' || vars.SDD_CI_FORCE_FULL }}"})
         return step['run']
 
     def invoke_workflow(self, event='pull_request', force='false', body=None, tested=None, expected_exit=0):
