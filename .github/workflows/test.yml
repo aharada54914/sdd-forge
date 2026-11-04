@@ -352,7 +352,7 @@ jobs:
         run: python -B tests/sdd-domain-multitarget-T-003.tests.py
 
       - name: "[deterministic] Test Concept Test gate on native Windows"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python -B tests/concept-test.tests.py
 
@@ -362,12 +362,12 @@ jobs:
         run: python -B tests/domain-review-finalize.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
       - name: "[deterministic] Verify generated guard invariants (POSIX)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
@@ -376,12 +376,12 @@ jobs:
       # invariants --check steps immediately above (design.md Deployment / CI
       # Plan; infra-spec.md CI/CD Sequence).
       - name: "[deterministic] Verify generated gate-capabilities projection (Windows)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
 
       - name: "[deterministic] Verify generated gate-capabilities projection (POSIX)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
 
@@ -410,12 +410,12 @@ jobs:
       # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
       # each of the two independently for exactly that reason.
       - name: "[deterministic] Verify vendored contracts copy (Windows)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
 
       - name: "[deterministic] Verify vendored contracts copy (POSIX)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
 
@@ -428,7 +428,7 @@ jobs:
         run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
 
       - name: "[deterministic] Validate workflow state (POSIX)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
 
@@ -438,17 +438,17 @@ jobs:
         run: ./tests/validate-repository.ps1
 
       - name: "[deterministic] Validate repository (POSIX)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: ./tests/validate-repository.sh
 
       - name: "[deterministic] Test repository release validation parity"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
 
       - name: "[deterministic] Test deterministic gate scripts"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
@@ -468,33 +468,33 @@ jobs:
         run: bash ./tests/quality-gate-cycle-limit.tests.sh
 
       - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: |
           python tests/verification.py --profile ci-portable-prechecks --run --receipt "${{ runner.temp }}/verification-restored-1.json"
 
       - name: "[deterministic] Test task prior-pass receipt (pwsh)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/task-prior-pass-receipt.tests.ps1
 
       - name: "[deterministic] Test cross-model gate (pwsh)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
 
       - name: "[deterministic] Test Phase 2 guard invariants (pwsh)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/phase2-guard-invariants.tests.ps1
 
       - name: "[deterministic] Test Phase 2 guard invariants (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: bash ./tests/phase2-guard-invariants.tests.sh
 
       - name: "[deterministic] Test hook guards"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
@@ -512,38 +512,38 @@ jobs:
       # Keep the two expensive capture suites in separate required Windows
       # jobs so their independent assertions run in parallel.
       - name: "[deterministic] Test Epic A7 compatibility suites (pwsh)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: |
           python tests/verification.py --profile ci-a7-native --run --receipt "${{ runner.temp }}/verification-restored-2.json"
 
       - name: "[deterministic] Test guards (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
 
       - name: "[deterministic] Test approval boundary (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
 
       - name: "[deterministic] Test deterministic gates (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
 
       - name: "[deterministic] Test panelist-input consent gate (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
 
 
       - name: "[deterministic] Test portable review-loop prechecks (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/review-contract-foundation.tests.sh
@@ -558,31 +558,31 @@ jobs:
           bash tests/review-agent-isolation.tests.sh
 
       - name: "[deterministic] Test cross-model gate (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
 
       - name: "[deterministic] Test outcome-based eval suite (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
 
       - name: "[deterministic] Test CRLF line-ending parity (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
 
       - name: "[deterministic] Test cross-runtime scenario suite (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
 
       - name: "[deterministic] Test branch-protection script (bash)"
-        if: needs.ci-plan.outputs.run_test == 'true' && runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
@@ -615,7 +615,7 @@ jobs:
           path: ${{ runner.temp }}/verification-restored-*.json
           if-no-files-found: error
     needs: [ci-plan]
-    if: always()
+    if: ${{ !cancelled() }}
 
 
   # installers -- the install/uninstall suites clone a source fixture and

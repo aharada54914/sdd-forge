@@ -60,6 +60,13 @@ class RequiredChecksTests(unittest.TestCase):
         self.assertTrue(unconditional(step))
         self.assertEqual(step.get('shell', 'bash'), 'bash')
 
+    def test_native_matrix_can_cancel_but_required_verifier_always_runs(self):
+        job = self.workflow['jobs']['test']
+        self.assertEqual(job.get('if'), '${{ !cancelled() }}')
+        self.assertEqual(job.get('needs'), ['ci-plan'])
+        self.assertEqual(self.job.get('if'), 'always()')
+        self.assertIs(job.get('continue-on-error', False), False)
+
     def test_windows_powershell_engines_are_explicit_required_and_recorded(self):
         job = self.workflow['jobs']['windows-powershell']
         self.assertEqual(job['runs-on'], 'windows-2022')
