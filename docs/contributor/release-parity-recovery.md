@@ -39,3 +39,16 @@ Windowsでの同一ケース、および非ASCII/PAX archiveの実機検証は�
 
 既存の入力検証、リテラルパス、通信期限、Bash 3.2とPowerShell 5.1/7の互換性修正、
 クラウド認可境界、現行の必須CIを復旧先の条件として保持します。
+
+## 導入経路の復旧検証
+
+両installerへ同じpayload許可リストと既存runtimeの必須ファイル検査を戻しました。
+MCPはindex.js/package.jsonのみを配置し、ソース階層のリンクを追跡しません。
+WindowsではZIPの名前とリンク属性を展開前に検査し、.NETで展開します。
+
+Linux上のBashとPowerShellで、local/archive、旧配置からの更新、欠落・不正入力時の
+既存配置保持を含む13テストが成功しました。各実行のWindows専用2件はskipです。
+改行を含む親ディレクトリのリンク拒否は、修正前の失敗と修正後の成功を確認しました。
+既存Bash installer suiteは63成功、PowerShell core suiteも成功しています。
+Windows PowerShell 5.1ではZIP/.NETに関わる3ケースのみを繰り返し、
+共通仕様は既存PowerShell 7 suiteで検証します。実際のWindows CI結果は確認後に追記します。
