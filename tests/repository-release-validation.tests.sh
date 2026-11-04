@@ -118,10 +118,12 @@ done
 cp "$temporary_root/CHANGELOG.md" "$fixture_root/CHANGELOG.md"
 # The Bash entry execs this same PowerShell validator; exercise each structural
 # mutation once, while the surrounding release-version cases cover both entries.
-for scenario in managed-entry policy-engine role-reference ci-plan ci-observations ci-result cloud-marketplace payload-contracts model-schema-id ci-result-id; do
+for scenario in managed-entry policy-engine ci-cache cloud-entry role-reference ci-plan ci-observations ci-result cloud-marketplace payload-contracts model-schema-id ci-result-id; do
     case "$scenario" in
         managed-entry) relative="plugins/sdd-implementation/scripts/managed-model-entry.py"; diagnostic="Missing required file:" ;;
         policy-engine) relative="plugins/sdd-implementation/scripts/model-policy.py"; diagnostic="Missing required file:" ;;
+        ci-cache) relative="tests/ci-dependency-cache.py"; diagnostic="Missing required file:" ;;
+        cloud-entry) relative="plugins/sdd-azure-cloud/scripts/cloud.py"; diagnostic="Missing required file:" ;;
         role-reference) relative="contracts/model-policy.v1.json"; diagnostic="Model policy role references an unknown registry role:" ;;
         ci-plan) relative="contracts/verification-ci-plan.schema.json"; diagnostic="Missing required file:" ;;
         ci-observations) relative="contracts/verification-ci-observations.schema.json"; diagnostic="Missing required file:" ;;
@@ -137,7 +139,7 @@ import json
 from pathlib import Path
 import sys
 path, scenario = Path(sys.argv[1]), sys.argv[2]
-if scenario in {'managed-entry', 'policy-engine', 'ci-plan', 'ci-observations', 'ci-result'}:
+if scenario in {'managed-entry', 'policy-engine', 'ci-cache', 'cloud-entry', 'ci-plan', 'ci-observations', 'ci-result'}:
     path.unlink()
 elif scenario == 'payload-contracts':
     text = path.read_text(encoding='utf-8')
