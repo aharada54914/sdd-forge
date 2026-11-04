@@ -1471,7 +1471,7 @@ class NormalDriverRegistration(unittest.TestCase):
                          "${{ runner.os == 'Linux' && '1' || '0' }}")
         for os_name in ("ubuntu-latest", "macos-latest", "windows-latest"):
             isolated = copy.deepcopy(data)
-            isolated["jobs"] = {job: isolated["jobs"][job]}
+            # Retain the planner producer so generated conditions remain verifiable.
             isolated["jobs"][job]["strategy"]["matrix"]["os"] = [os_name]
             self.assertTrue(expected <= workflow.workflow_coverage(isolated, catalog)[job], os_name)
         # Removed execution must not pass on prose alone.

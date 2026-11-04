@@ -22,6 +22,13 @@ def jobs(raw):
                           else len(text)].rstrip() for index, match in enumerate(matches)}
 
 
+def planner_projection(block):
+    # Existing jobs may add feature steps, but must preserve their live planner
+    # references (including step conditions) and job-level execution condition.
+    return [line for line in block.splitlines() if not line.lstrip().startswith('#')
+            and ('ci-plan' in line or line.startswith('    if:'))]
+
+
 def validate(archived, manifest, live, candidate):
     digest = hashlib.sha256(archived).hexdigest()
     rows = [line.split('  ', 1) for line in manifest.decode('utf-8').splitlines() if line]
@@ -33,6 +40,9 @@ def validate(archived, manifest, live, candidate):
         raise ValueError('live workflow drops historical jobs')
     if not current.keys() <= proposed.keys():
         raise ValueError('current candidate drops live jobs')
+    for name in current.keys() & old.keys():
+        if planner_projection(current[name]) != planner_projection(proposed[name]):
+            raise ValueError('current candidate changes live planner wiring or job condition')
     # Every post-archive job needs its actual current definition, not just its name.
     for name in (current.keys() - old.keys()) | {'required-checks'}:
         # A comment at job-key indentation belongs to neither executable job.
@@ -53,6 +63,11 @@ def self_test(archived, manifest, live, candidate):
     proposed = jobs(candidate)
     new_block = proposed[added].encode()
     aggregate = proposed['required-checks'].encode()
+    collector = b'python3 -B tests/verification-ci.py aggregate'
+    weakened_aggregate = (aggregate.replace(b'"$RUNNER_TEMP/verification-result.json"',
+                                             b'"$RUNNER_TEMP/verification-result.json" || true', 1)
+                          if collector in aggregate else
+                          aggregate.replace(b'!= "success"', b'== "success"', 1))
     # Commentary at job indentation may move or change without altering CI.
     for comments in (b'', b'  # Different wording\n', b'  # First line\n  # Second line\n'):
         changed = re.sub(rb'^  #[^\n]*\n?', b'', candidate, flags=re.M)
@@ -77,8 +92,26 @@ def self_test(archived, manifest, live, candidate):
         ('aggregate dependency removal', archived, manifest, live,
          candidate.replace(aggregate, aggregate.replace(b', ' + added.encode(), b'', 1), 1)),
         ('aggregate result weakening', archived, manifest, live,
-         candidate.replace(aggregate, aggregate.replace(b'!= "success"', b'== "success"', 1), 1)),
+         candidate.replace(aggregate, weakened_aggregate, 1)),
     ]
+    if 'ci-plan' in current:
+        historical_planned = sorted(name for name in jobs(archived) if name in current
+                                    and 'needs: [ci-plan]' in current[name])
+        if not historical_planned:
+            raise ValueError('planner mutation controls require an existing planned job')
+        block = proposed[historical_planned[0]].encode()
+        weak_condition = re.sub(rb'^(    if: [^\n]+)', rb'\1 || true', block, count=1, flags=re.M)
+        cases.extend([
+            ('existing job planner dependency removal', archived, manifest, live,
+             candidate.replace(block, block.replace(b'    needs: [ci-plan]\n', b'', 1), 1)),
+            ('existing job condition weakening', archived, manifest, live,
+             candidate.replace(block, weak_condition, 1)),
+        ])
+        test_block = proposed['test'].encode()
+        without_step_condition = re.sub(rb'^        if: [^\n]*needs\.ci-plan\.outputs[^\n]*\n',
+                                        b'', test_block, count=1, flags=re.M)
+        cases.append(('existing step planner condition removal', archived, manifest, live,
+                      candidate.replace(test_block, without_step_condition, 1)))
     for label, old, index, actual, proposed in cases:
         if (old, index, actual, proposed) == (archived, manifest, live, candidate):
             raise AssertionError('mutation did not change input: ' + label)
