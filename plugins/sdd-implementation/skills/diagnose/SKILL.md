@@ -79,8 +79,13 @@ Use the diagnose skill. Symptom: <...>
 Use this route only when managed routing was explicitly selected. Without
 managed inputs, retain the legacy procedure; never use it after a managed failure.
 
-On Claude Code, this skill is the parent dispatcher. Before starting any
-reproduction, investigation or diagnostic phase, prepare the scoped policy
+The `model: sonnet` frontmatter is the legacy Skill entry's default. For managed
+routing, the allocating parent calls `claude-entry` directly before invoking the
+diagnose Skill. The entry passes this complete skill as workload text to the
+fresh child; its validated native model and effort flags control that child.
+The child does not invoke Skill again or reload the legacy model hint.
+
+Before starting any reproduction, investigation or diagnostic phase, prepare the scoped policy
 request/registry with the existing verified configuration observation unchanged.
 Write the user's symptom, issue/source and reproduction instructions to
 `<prompt-file>` beneath `<repository-root>` and compute its raw SHA-256 as

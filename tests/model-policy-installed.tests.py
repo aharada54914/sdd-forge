@@ -2161,7 +2161,10 @@ class InstalledClaudeDiagnosisTests(unittest.TestCase):
 
     def fence(self, installed, output):
         source = (installed / DIAGNOSIS_SOURCES[0]).read_text()
-        self.assertNotRegex(source.split('---', 2)[1], r'(?m)^model:', 'static model overrides selection before dispatch')
+        self.assertRegex(source.split('---', 2)[1], r'(?m)^model: sonnet$',
+                         'the legacy diagnosis Skill default must remain compatible')
+        self.assertIn('allocating parent calls `claude-entry` directly before invoking the', source)
+        self.assertIn('child does not invoke Skill again or reload the legacy model hint.', source)
         fences = [b for b in re.findall(r'```bash\n(.*?)```', source, re.S) if 'claude-entry' in b]
         self.assertEqual(len(fences), 1, 'diagnose lacks one maintained pre-work managed dispatcher')
         script = fences[0]

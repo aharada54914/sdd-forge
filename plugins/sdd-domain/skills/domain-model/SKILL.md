@@ -122,13 +122,9 @@ this plugin (never guess which of the three the human meant).
 1. Invoke `domain-reverse` with the target project (defaulting to the
    current repository root when no target is given):
 
-   ```txt
-   /sdd-bootstrap:investigate-codebase feature <target>
-   ```
-
-   (per `domain-reverse`'s own documented invocation of
-   `investigate-codebase`; this skill calls `domain-reverse`, not
-   `investigate-codebase` directly):
+   `domain-reverse` owns the investigation handoff, including the managed
+   Claude investigator entry when explicitly selected. This router delegates
+   once to `domain-reverse`; it does not allocate a separate investigation context:
 
    ```txt
    Use the domain-reverse skill.
