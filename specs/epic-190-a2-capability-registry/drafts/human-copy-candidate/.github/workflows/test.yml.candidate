@@ -116,10 +116,116 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - name: Install contract validator
-        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
+
+      - name: Test Codex MCP config preservation and escaping
+        run: python3 tests/codex-mcp-config.tests.py
+      - name: Test verification catalog and shadow selection
+        shell: bash
+        run: |
+          python3 tests/verification-catalog.tests.py
+          python3 tests/verification-impact.tests.py
+      - name: Observe impact selection without skipping required checks
+        shell: bash
+        env:
+          VERIFICATION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          VERIFICATION_HEAD: ${{ github.sha }}
+        run: |
+          python3 tests/verification-impact.py --base "$VERIFICATION_BASE" --head "$VERIFICATION_HEAD" > "$RUNNER_TEMP/verification-impact.json"
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          result = json.loads((Path(os.environ['RUNNER_TEMP']) / 'verification-impact.json').read_text())
+          summary = {key: result[key] for key in ('mode', 'required_checks', 'reason', 'full_count')}
+          summary['selected_count'] = len(result['selected'])
+          summary['comparison'] = result['comparison']['status']
+          print(json.dumps(summary))
+          PYCODE
+      - name: Install pinned RTK
+        shell: bash
+        run: |
+          set -euo pipefail
+          rtk_dir=$(mktemp -d "$RUNNER_TEMP/rtk.XXXXXX")
+          curl --fail --silent --show-error --location https://github.com/rtk-ai/rtk/releases/download/v0.51.0/rtk-x86_64-unknown-linux-musl.tar.gz --output "$rtk_dir/rtk.tar.gz"
+          printf '%s  %s\n' 5028d3b19a8f0990d30fec9fbb07e32782bc5698e618fb1861aad8a9ccba4eb5 "$rtk_dir/rtk.tar.gz" | sha256sum --check --strict
+          tar -xzf "$rtk_dir/rtk.tar.gz" -C "$rtk_dir" rtk
+          "$rtk_dir/rtk" --version
+          printf '%s\n' "$rtk_dir" >> "$GITHUB_PATH"
+      - name: Test evaluator scratch isolation (Bash and PowerShell)
+        shell: bash
+        run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test evaluator implementation binding (Bash and PowerShell)
+        shell: bash
+        run: python3 tests/review-implementation-binding.tests.py --repo .
+      - name: Test shared quality non-TTY transport contracts
+        shell: bash
+        run: python3 -B tests/quality-nontty-transport.tests.py
+      - name: Check shared launch Python and FilesOnly distribution
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/shared-launch-python"
+          "$RUNNER_TEMP/shared-launch-python/bin/pip" install -r tests/shared-launch-python-requirements.txt
+          "$RUNNER_TEMP/shared-launch-python/bin/python" - <<'PY'
+          import pathlib, subprocess, sys, tomllib
+          config = pathlib.Path('tests/shared-launch-python/pyproject.toml')
+          files = tomllib.loads(config.read_text())['tool']['mypy']['files']
+          subprocess.run([sys.executable, '-m', 'ruff', 'check', '--config', str(config), *files], check=True)
+          subprocess.run([sys.executable, '-m', 'mypy', '--config-file', str(config)], check=True)
+          PY
+      - name: Test shared launch FilesOnly distribution
+        shell: bash
+        run: python3 -B tests/shared-launch-build.tests.py
+      - name: Test traceability freeze normalization
+        shell: bash
+        run: python3 -B tests/traceability-freeze-contract.tests.py
+      - name: Test POSIX kill-switch permission failures
+        shell: bash
+        run: python3 tests/verification.py --suite tests/kill-switch-inspection.tests.sh --run --receipt "${{ runner.temp }}/verification-restored-1.json"
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Prepare private research-store fixture parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture_parent=$(sudo mktemp -d /var/lib/sdd-research-ci.XXXXXXXX)
+          sudo chown "$(id -u):$(id -g)" "$fixture_parent"
+          printf 'SDD_TEST_SHARED_STORE_PARENT=%s\n' "$fixture_parent" >> "$GITHUB_ENV"
+      - name: Test shared review launch and conditional input contracts
+        shell: bash
+        run: |
+          python3 tests/verification.py --profile ci-shared-python --run --receipt "$RUNNER_TEMP/verification-shared-python.json"
+      - name: Remove private research-store fixture parent
+        if: always()
+        shell: bash
+        run: |
+          case "${SDD_TEST_SHARED_STORE_PARENT:-}" in
+            /var/lib/sdd-research-ci.*) sudo rmdir "$SDD_TEST_SHARED_STORE_PARENT" ;;
+          esac
+      - name: Bind Pester cache to actual PowerShell runtime
+        id: pester-runtime
+        shell: pwsh
+        run: '"version=$($PSVersionTable.PSVersion.ToString())" >> $env:GITHUB_OUTPUT'
+      - name: Reuse pinned Pester package bytes
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/pester-package-cache/*.nupkg
+          key: >-
+            pester-${{ runner.os }}-pwsh-${{ steps.pester-runtime.outputs.version
+            }}-4.10.1-898210e1a30c52cd46ba317c2278a9324345214213aa2f7d6b7dfa7b98f37ac9-${{ github.event_name }}-${{
+            github.event.pull_request.number || 'trusted' }}
+      - name: Install pinned domain regression test runner
+        shell: pwsh
+        run: >-
+          python3 -B tests/ci-dependency-cache.py pester --cache-dir "$env:RUNNER_TEMP/pester-package-cache" --module-root
+          "$env:HOME/.local/share/powershell/Modules"
+
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test domain concept modeling and review contracts
+        shell: pwsh
+        run: ./tests/sdd-domain.tests.ps1
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -144,10 +250,34 @@ jobs:
       - name: Test design sync standing consent (PowerShell)
         shell: pwsh
         run: ./tests/design-sync-standing-consent.tests.ps1
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: complete POSIX regression inventory
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: |
+            ${{ runner.temp }}/verification-restored-1.json
+            ${{ runner.temp }}/verification-shared-python.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_posix_regression == 'true'
 
-  # The inventory remains the source of truth, but otherwise-unwired suites
-  # run as independent shards so the longest POSIX lane is bounded by one
-  # shard instead of the full serial inventory.
+
+  # Measured suite costs balance the catalog partitions; every partition
+  # remains mandatory and together they execute the complete fallback set.
   posix-unwired-sharded:
     name: POSIX unwired shard (${{ matrix.shard }})
     strategy:
@@ -160,11 +290,36 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Run POSIX inventory shard
         shell: bash
-        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4
+        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4 --receipt "$RUNNER_TEMP/verification-shard.json"
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: POSIX unwired shard (${{ matrix.shard }})
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-shard.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_posix_unwired_sharded == 'true'
 
   test:
     strategy:
@@ -182,14 +337,37 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
+      - name: "[deterministic] Install structural YAML parser"
+        if: needs.ci-plan.outputs.run_test == 'true'
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
+      - name: "[deterministic] Test measurement clocks on native platforms"
+        if: needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: python -B tests/run-measurement.tests.py
+
+      - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
+        if: needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: python -B tests/sdd-domain-multitarget-T-003.tests.py
+
+      - name: "[deterministic] Test Concept Test gate on native Windows"
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: python -B tests/concept-test.tests.py
+
+      - name: "[deterministic] Test domain review finalization on native platforms"
+        if: needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: python -B tests/domain-review-finalize.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
       - name: "[deterministic] Verify generated guard invariants (POSIX)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
@@ -198,12 +376,12 @@ jobs:
       # invariants --check steps immediately above (design.md Deployment / CI
       # Plan; infra-spec.md CI/CD Sequence).
       - name: "[deterministic] Verify generated gate-capabilities projection (Windows)"
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
 
       - name: "[deterministic] Verify generated gate-capabilities projection (POSIX)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
 
@@ -232,12 +410,12 @@ jobs:
       # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
       # each of the two independently for exactly that reason.
       - name: "[deterministic] Verify vendored contracts copy (Windows)"
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
 
       - name: "[deterministic] Verify vendored contracts copy (POSIX)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
 
@@ -245,105 +423,127 @@ jobs:
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
       # log already captures their output.
       - name: "[deterministic] Validate workflow state (PowerShell)"
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
 
       - name: "[deterministic] Validate workflow state (POSIX)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
 
       - name: "[deterministic] Validate repository"
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/validate-repository.ps1
 
       - name: "[deterministic] Validate repository (POSIX)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: ./tests/validate-repository.sh
 
       - name: "[deterministic] Test repository release validation parity"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
 
       - name: "[deterministic] Test deterministic gate scripts"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
       - name: "[deterministic] Test run-record feature scope and CRLF identity"
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/emit-run-record-feature-scope.tests.ps1
 
       - name: "[deterministic] Test selected-feature structure validation"
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/structure-check-feature-mode.tests.ps1
 
       - name: "[deterministic] Test quality-gate cycle-limit suite (bash)"
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: bash ./tests/quality-gate-cycle-limit.tests.sh
 
       - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
+          python tests/verification.py --profile ci-portable-prechecks --run --receipt "${{ runner.temp }}/verification-restored-1.json"
+
+      - name: "[deterministic] Test task prior-pass receipt (pwsh)"
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
 
       - name: "[deterministic] Test cross-model gate (pwsh)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
 
       - name: "[deterministic] Test Phase 2 guard invariants (pwsh)"
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/phase2-guard-invariants.tests.ps1
 
       - name: "[deterministic] Test Phase 2 guard invariants (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: bash ./tests/phase2-guard-invariants.tests.sh
 
       - name: "[deterministic] Test hook guards"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
       - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/scenario.tests.ps1
+      - name: "[deterministic] Test review hash normalization (pwsh)"
+        if: needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: ./tests/review-hash-normalization.tests.ps1
+
+      # Epic A7's PowerShell compatibility suites are already part of the
+      # runner inventory, but must also execute on the native Windows leg.
+      # Keep the two expensive capture suites in separate required Windows
+      # jobs so their independent assertions run in parallel.
+      - name: "[deterministic] Test Epic A7 compatibility suites (pwsh)"
+        if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: |
+          python tests/verification.py --profile ci-a7-native --run --receipt "${{ runner.temp }}/verification-restored-2.json"
 
       - name: "[deterministic] Test guards (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
 
       - name: "[deterministic] Test approval boundary (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
 
       - name: "[deterministic] Test deterministic gates (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
 
       - name: "[deterministic] Test panelist-input consent gate (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
 
 
       - name: "[deterministic] Test portable review-loop prechecks (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/review-contract-foundation.tests.sh
@@ -358,42 +558,65 @@ jobs:
           bash tests/review-agent-isolation.tests.sh
 
       - name: "[deterministic] Test cross-model gate (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
 
       - name: "[deterministic] Test outcome-based eval suite (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
 
       - name: "[deterministic] Test CRLF line-ending parity (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
 
       - name: "[deterministic] Test cross-runtime scenario suite (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
 
       - name: "[deterministic] Test branch-protection script (bash)"
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: bash
         run: |
           bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
 
       - name: "[deterministic] Upload test logs"
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-logs-${{ matrix.os }}
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
+      - name: "[deterministic] Bind receipt artifact to actual job identity"
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: test (${{ matrix.os }})
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: "[deterministic] Upload source-attempt execution receipts"
+        if: always() && needs.ci-plan.outputs.run_test == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-restored-*.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: ${{ !cancelled() }}
+
 
   # installers -- the install/uninstall suites clone a source fixture and
   # perform real filesystem installs per scenario, which dominated the old
@@ -437,7 +660,9 @@ jobs:
       - name: Install recorded Claude Code CLI
         if: matrix.lane == 'all' || matrix.lane == 'clients'
         shell: bash
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          claude --version
 
       - name: Validate Claude plugin manifests (real CLI)
         if: matrix.lane == 'all' || matrix.lane == 'clients'
@@ -447,6 +672,11 @@ jobs:
       - name: Test installer (pwsh)
         shell: pwsh
         run: ./tests/install.tests.ps1 -Lane ${{ matrix.lane }}
+
+      - name: Test installer idempotency (pwsh; WFI-041)
+        if: matrix.lane == 'all' || matrix.lane == 'core'
+        shell: pwsh
+        run: ./tests/installer-idempotency.tests.ps1
 
       - name: Test uninstaller (pwsh)
         if: matrix.lane == 'all' || matrix.lane == 'context'
@@ -487,25 +717,36 @@ jobs:
 
       - name: Upload installer test logs
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: installer-test-logs-${{ matrix.os }}-${{ matrix.lane }}
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_installers == 'true'
+
 
   # loops-routing -- loop inventory/driver/consistency/escalation plus the
   # agent-model routing, capabilities, frontmatter and placeholder suites.
-  # Pure file/manifest assertions with no git-history or CLI dependency.
+  # Pure file/manifest assertions with no git-history or CLI dependency. The
+  # matrix intentionally covers both runtime families: Windows exercises
+  # native PowerShell plus Git Bash, while Ubuntu exercises native Bash plus
+  # PowerShell. macOS-specific behavior remains covered by the platform
+  # sensitive test, version-gate, installer, MCP, and hook jobs, so repeating
+  # this platform-neutral lane on macOS adds runner cost without new coverage.
   loops-routing:
-    name: loops-routing
+    name: loops-routing (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install template YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
       - name: Test template-validator parity (bash)
         shell: bash
@@ -516,6 +757,10 @@ jobs:
       - name: Test template-validator parity (pwsh)
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
+
+      - name: Test boundary-reference authorization parity (pwsh, WFI-037)
+        shell: pwsh
+        run: ./tests/boundary-reference-authorization-parity.tests.ps1
 
       - name: Test loop inventory registration forcing (bash)
         shell: bash
@@ -590,6 +835,12 @@ jobs:
         shell: pwsh
         run: ./tests/agent-model-routing.tests.ps1
 
+      - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
+        run: bash ./tests/release-config-lock.tests.sh
+
+      - name: Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)
+        run: bash ./tests/criterion-freeze.tests.sh
+
       - name: Test HITL/WFI-audit terminal-behavior suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
@@ -620,10 +871,13 @@ jobs:
       - name: Test run-panelist-effort suite (pwsh)
         shell: pwsh
         run: ./tests/run-panelist-effort.tests.ps1
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_loops_routing == 'true'
+
 
   # version-gates keeps the Bash/PowerShell twins on the POSIX matrix.
   version-gates:
-    name: version-gates
+    name: version-gates (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -679,6 +933,11 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
+
+      - name: Test A9 unpublished candidate and Pack (pwsh)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
 
       - name: Test approver-registry-schema suite (bash)
         if: runner.os != 'Windows'
@@ -747,29 +1006,14 @@ jobs:
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
-      # These suites use isolated temporary trees. Run both POSIX variants
-      # concurrently; Windows keeps the existing skip behavior.
-      - name: Test apply-human-copy publisher suites (POSIX parallel)
-        if: runner.os == 'macOS' || runner.os == 'Linux'
+      - name: Test apply-human-copy publisher (Bash)
+        if: runner.os != 'Windows'
         shell: bash
-        run: |
-          set -uo pipefail
-          bash_log="$RUNNER_TEMP/apply-human-copy-bash.log"
-          pwsh_log="$RUNNER_TEMP/apply-human-copy-pwsh.log"
-          bash ./tests/apply-human-copy.tests.sh >"$bash_log" 2>&1 &
-          bash_pid=$!
-          pwsh -NoProfile -File ./tests/apply-human-copy.tests.ps1 >"$pwsh_log" 2>&1 &
-          pwsh_pid=$!
-          bash_status=0
-          pwsh_status=0
-          wait "$bash_pid" || bash_status=$?
-          wait "$pwsh_pid" || pwsh_status=$?
-          cat "$bash_log"
-          cat "$pwsh_log"
-          if [ "$bash_status" -ne 0 ] || [ "$pwsh_status" -ne 0 ]; then
-            printf 'apply-human-copy parallel failure: bash=%s pwsh=%s\n' "$bash_status" "$pwsh_status" >&2
-            exit 1
-          fi
+        run: bash ./tests/apply-human-copy.tests.sh
+      - name: Test apply-human-copy publisher (PowerShell)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/apply-human-copy.tests.ps1
 
       - name: Test hook-activation handshake suite (bash)
         if: runner.os != 'Windows'
@@ -1162,80 +1406,55 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_version_gates == 'true'
+
 
   # Windows version gates use separate runners so the four deterministic
   # lanes do not contend for one runner's CPU.
   version-gates-windows-bump:
-    name: version-gates-windows-bump
+    name: version-gates-windows-bump (${{ matrix.runtime }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runtime: bash
+            suite: tests/bump-version-gate.tests.sh
+          - runtime: powershell
+            suite: tests/bump-version-gate.tests.ps1
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)
+      - name: Test bump-version loop-gate prerequisite
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $workDir = (Get-Location).Path
-          $logRoot = Join-Path $env:RUNNER_TEMP 'bump-version-gate-parallel'
-          $bashOut = "$logRoot-bash.out"
-          $bashErr = "$logRoot-bash.err"
-          $pwshOut = "$logRoot-pwsh.out"
-          $pwshErr = "$logRoot-pwsh.err"
-          $processes = @()
-          $bash = $null
-          $pwsh = $null
-          $launchError = $null
-          $deadline = [DateTime]::UtcNow.AddMinutes(20)
-          try {
-            $bashPath = (Get-Command bash -ErrorAction Stop).Path
-            $bash = Start-Process -FilePath $bashPath `
-              -ArgumentList @('./tests/bump-version-gate.tests.sh') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $bashOut `
-              -RedirectStandardError $bashErr `
-              -PassThru
-            $processes += $bash
-            $pwshPath = (Get-Command pwsh -ErrorAction Stop).Path
-            $pwsh = Start-Process -FilePath $pwshPath `
-              -ArgumentList @('-NoProfile', '-NonInteractive', '-File', './tests/bump-version-gate.tests.ps1') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $pwshOut `
-              -RedirectStandardError $pwshErr `
-              -PassThru
-            $processes += $pwsh
-            while (@($processes | Where-Object { -not $_.HasExited }).Count -gt 0) {
-              if ([DateTime]::UtcNow -ge $deadline) {
-                throw 'bump-version-gate timed out after 20 minutes'
-              }
-              Start-Sleep -Seconds 1
-            }
-          } catch {
-            $launchError = $_
-          } finally {
-            foreach ($process in $processes) {
-              if (-not $process.HasExited) {
-                try { $process.Kill($true) } catch { $process.Kill() }
-                $process.WaitForExit()
-              }
-            }
-          }
-          Write-Host '=== bump-version-gate Bash output ==='
-          if (Test-Path -LiteralPath $bashOut) { Get-Content -LiteralPath $bashOut }
-          if (Test-Path -LiteralPath $bashErr) { Get-Content -LiteralPath $bashErr }
-          Write-Host '=== bump-version-gate PowerShell output ==='
-          if (Test-Path -LiteralPath $pwshOut) { Get-Content -LiteralPath $pwshOut }
-          if (Test-Path -LiteralPath $pwshErr) { Get-Content -LiteralPath $pwshErr }
-          if ($launchError) { throw $launchError }
-          $bashExit = if ($bash) { $bash.ExitCode } else { 'not-started' }
-          $pwshExit = if ($pwsh) { $pwsh.ExitCode } else { 'not-started' }
-          if (-not $bash -or -not $pwsh -or $bashExit -ne 0 -or $pwshExit -ne 0) {
-            throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
-          }
-
+        run: python tests/verification.py --suite "${{ matrix.suite }}" --run --receipt "${{ runner.temp }}/verification-restored-1.json"
       - name: Test release.yml required loop-gate job (bash)
+        if: matrix.runtime == 'bash'
         shell: bash
         run: bash ./tests/release-loop-gate.tests.sh
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: version-gates-windows-bump (${{ matrix.runtime }})
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-restored-1.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_version_gates_windows_bump == 'true'
 
   version-gates-windows-lanes:
     name: version-gates-windows-lanes (${{ matrix.lane }})
@@ -1250,6 +1469,9 @@ jobs:
       - name: Test Windows version-gates lane
         shell: pwsh
         run: ./tests/run-version-gates-windows.ps1 -Lane ${{ matrix.lane }}
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_version_gates_windows_lanes == 'true'
+
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
@@ -1259,7 +1481,7 @@ jobs:
   # execute the real shell scripts; on Windows they compare against recorded
   # fixtures (process.platform branch inside the test suite itself).
   mcp-tests:
-    name: mcp-tests
+    name: mcp-tests (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -1278,12 +1500,25 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
+      - name: Bind npm cache to actual Node runtime
+        id: node-runtime
+        shell: bash
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
+      - name: Reuse integrity-checked npm download bytes
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/npm-cache/_cacache
+          key: >-
+            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/sdd-forge-mcp/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
 
@@ -1306,6 +1541,9 @@ jobs:
       - name: Audit production dependencies
         if: matrix.os == 'ubuntu-latest'
         run: npm audit --omit=dev --audit-level=high
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_mcp_tests == 'true'
+
 
   # B2 — exercise the SDD hook guard with the REAL CLI toolchains installed on
   # each OS, through the exact command line each CLI's hook config invokes. This
@@ -1320,7 +1558,7 @@ jobs:
   # same shape as sdd-forge-mcp). Exercised across the same 3-OS matrix as
   # sdd-forge-mcp's mcp-tests job.
   local-env-mcp-tests:
-    name: local-env-mcp-tests
+    name: local-env-mcp-tests (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -1334,12 +1572,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: mcp/local-env-mcp/package-lock.json
 
+      - name: Bind npm cache to actual Node runtime
+        id: node-runtime
+        shell: bash
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
+      - name: Reuse integrity-checked npm download bytes
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/npm-cache/_cacache
+          key: >-
+            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/local-env-mcp/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
 
@@ -1363,6 +1614,9 @@ jobs:
       - name: Audit production dependencies
         if: matrix.os == 'ubuntu-latest'
         run: npm audit --omit=dev --audit-level=high
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_local_env_mcp_tests == 'true'
+
 
   # ci-mcp-tests — ci-mcp (mcp/ci-mcp/) is a read-only MCP server exposing
   # GitHub Actions CI state (workflow runs, jobs, job logs, artifacts
@@ -1372,7 +1626,7 @@ jobs:
   # network call, so CI stays outbound-connection-free (design.md
   # "Deployment / CI Plan").
   ci-mcp-tests:
-    name: ci-mcp-tests
+    name: ci-mcp-tests (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -1386,12 +1640,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: mcp/ci-mcp/package-lock.json
 
+      - name: Bind npm cache to actual Node runtime
+        id: node-runtime
+        shell: bash
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
+      - name: Reuse integrity-checked npm download bytes
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/npm-cache/_cacache
+          key: >-
+            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/ci-mcp/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
 
@@ -1419,9 +1686,11 @@ jobs:
       - name: Audit production dependencies
         if: matrix.os == 'ubuntu-latest'
         run: npm audit --omit=dev --audit-level=high
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_ci_mcp_tests == 'true'
 
   cli-hook-enforcement:
-    name: cli-hook-enforcement
+    name: cli-hook-enforcement (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -1433,7 +1702,9 @@ jobs:
 
       - name: Install Claude Code CLI
         shell: bash
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          claude --version
 
       - name: Install Codex CLI (best-effort)
         shell: bash
@@ -1450,7 +1721,12 @@ jobs:
       - name: CLI hook enforcement (real toolchain present)
         shell: pwsh
         run: ./tests/cli-hook-enforcement.ps1
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_cli_hook_enforcement == 'true'
 
+
+  # Recovery uses an independent native matrix so its process-heavy negative
+  # corpus does not consume the existing regression jobs' time budgets.
   interrupted-recovery:
     name: interrupted recovery (${{ matrix.os }})
     strategy:
@@ -1474,6 +1750,8 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: bash ./tests/spec-review-interrupted-recovery.tests.sh
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_interrupted_recovery == 'true'
 
   windows-powershell:
     name: Windows PowerShell ${{ matrix.version }}
@@ -1511,150 +1789,28 @@ jobs:
             ${{ runner.temp }}/powershell-verification.json
           if-no-files-found: error
           retention-days: 14
-
-  required-checks:
-    name: required-checks
-    if: always()
-    needs: [cloud-native, windows-powershell, test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory, coding-standards]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Check all required tests passed
-        run: |
-          if [ "${{ needs.cloud-native.result }}" != "success" ]; then
-            echo "cloud-native job failed"
-            exit 1
-          fi
-          if [ "${{ needs.windows-powershell.result }}" != "success" ]; then
-            echo "windows-powershell job failed"
-            exit 1
-          fi
-          if [ "${{ needs.test.result }}" != "success" ]; then
-            echo "test job failed"
-            exit 1
-          fi
-          if [ "${{ needs.interrupted-recovery.result }}" != "success" ]; then
-            echo "interrupted-recovery job failed"
-            exit 1
-          fi
-          if [ "${{ needs.test-windows-heavy.result }}" != "success" ]; then
-            echo "test-windows-heavy job failed"
-            exit 1
-          fi
-          if [ "${{ needs.installers.result }}" != "success" ]; then
-            echo "installers job failed"
-            exit 1
-          fi
-          if [ "${{ needs.loops-routing.result }}" != "success" ]; then
-            echo "loops-routing job failed"
-            exit 1
-          fi
-          if [ "${{ needs.version-gates.result }}" != "success" ]; then
-            echo "version-gates job failed"
-            exit 1
-          fi
-          if [ "${{ needs.version-gates-windows-bump.result }}" != "success" ]; then
-            echo "version-gates-windows-bump job failed"
-            exit 1
-          fi
-          if [ "${{ needs.version-gates-windows-lanes.result }}" != "success" ]; then
-            echo "version-gates-windows-lanes job failed"
-            exit 1
-          fi
-          if [ "${{ needs.mcp-tests.result }}" != "success" ]; then
-            echo "mcp-tests job failed"
-            exit 1
-          fi
-          if [ "${{ needs.local-env-mcp-tests.result }}" != "success" ]; then
-            echo "local-env-mcp-tests job failed"
-            exit 1
-          fi
-          if [ "${{ needs.ci-mcp-tests.result }}" != "success" ]; then
-            echo "ci-mcp-tests job failed"
-            exit 1
-          fi
-          if [ "${{ needs.cli-hook-enforcement.result }}" != "success" ]; then
-            echo "cli-hook-enforcement job failed"
-            exit 1
-          fi
-          if [ "${{ needs.coding-standards.result }}" != "success" ]; then
-            echo "coding-standards job failed"
-            exit 1
-          fi
-          if [ "${{ needs.posix-regression.result }}" != "success" ]; then
-            echo "posix-regression job failed"
-            exit 1
-          fi
-          if [ "${{ needs.posix-unwired-sharded.result }}" != "success" ]; then
-            echo "posix-unwired-sharded job failed"
-            exit 1
-          fi
-          if [ "${{ needs.a9-advisory-inputs.result }}" != "success" ]; then
-            echo "A9 activation detection failed"
-            exit 1
-          fi
-          case "${{ needs.a9-advisory-inputs.outputs.active }}:${{ needs.a9-advisory.result }}" in
-            true:success|false:skipped) ;;
-            *) echo "A9 advisory result does not match activation state"; exit 1 ;;
-          esac
-          echo "all required checks passed"
-  # Keep the Windows-only deterministic suites in a parallel job.
-  # Their assertions remain required by required-checks.
-  test-windows-heavy:
-    name: test-windows-heavy
-    runs-on: windows-latest
-    timeout-minutes: 15
-    steps:
-      - name: "[deterministic] Setup step 1"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: "[deterministic] Test deterministic gate scripts"
-        shell: pwsh
-        run: ./tests/scripts.tests.ps1
-      - name: "[deterministic] Test portable review-loop prechecks"
-        shell: pwsh
-        run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
-      - name: "[deterministic] Test cross-model gate"
-        shell: pwsh
-        run: ./tests/cross-model.tests.ps1
-      - name: "[deterministic] Test hook guards"
-        shell: pwsh
-        run: ./tests/hooks.tests.ps1
-      - name: "[deterministic] Test panelist-input consent gate"
-        shell: pwsh
-        run: ./tests/prepare-panelist.tests.ps1
-
-  coding-standards:
-    name: native coding standards checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24.19.0"
-      - name: Install locked TypeScript compiler
-        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
-      - name: Install pinned native analyzers
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
         shell: bash
-        run: |
-          set -euo pipefail
-          python3 -m venv "$RUNNER_TEMP/coding-standards"
-          "$RUNNER_TEMP/coding-standards/bin/pip" install -r tests/coding-standards/requirements.txt
-          printf '%s\n' "$RUNNER_TEMP/coding-standards/bin" >> "$GITHUB_PATH"
-      - name: Install pinned PowerShell analyzer
-        shell: pwsh
-        run: Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -ErrorAction Stop
-      - name: Run native controls and complete tracked-source audit
-        shell: bash
-        run: python3 tests/verification.py --profile coding-standards --run --receipt "$RUNNER_TEMP/coding-standards-receipt.json"
+        env:
+          RECEIPT_JOB_NAME: Windows PowerShell ${{ matrix.version }}
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/powershell-verification.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_windows_powershell == 'true'
 
   cloud-native:
     name: Cloud contracts and local tools (${{ matrix.os }})
@@ -1725,6 +1881,19 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '22'
+      - name: Bind npm cache to actual Node runtime
+        id: node-runtime
+        shell: bash
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
+      - name: Reuse integrity-checked npm download bytes
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/npm-cache/_cacache
+          key: >-
+            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/sdd-forge-mcp/package-lock.json') }}
       - name: Install pinned workflow parser dependencies
         shell: bash
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
@@ -1744,3 +1913,318 @@ jobs:
           path: ${{ runner.temp }}/verification-cloud.json
           if-no-files-found: error
           retention-days: 14
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: Cloud contracts and local tools (${{ matrix.os }})
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-cloud.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_cloud_native == 'true'
+
+  required-checks:
+    name: required-checks
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [a9-advisory-inputs, a9-advisory, posix-regression, posix-unwired-sharded, test, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, interrupted-recovery, windows-powershell, cloud-native, test-windows-heavy, coding-standards, ci-plan]
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout exact tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install structural YAML parser
+        shell: bash
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+      - name: Download original same-run CI plan
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLAN_ARTIFACT_NAME: ${{ needs.ci-plan.outputs.plan_artifact_name }}
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$PLAN_ARTIFACT_NAME" --dir "$RUNNER_TEMP/verification-plan"
+      - name: Collect actual same-run execution observations
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_EVENT: ${{ github.event_name }}
+          CI_REPOSITORY: ${{ github.repository }}
+          CI_REPOSITORY_ID: ${{ github.event.pull_request.base.repo.id }}
+          CI_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          CI_HEAD_REPOSITORY_ID: ${{ github.event.pull_request.head.repo.id }}
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+          CI_PR_NUMBER: ${{ github.event.pull_request.number }}
+          CI_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          CI_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_TESTED_SHA: ${{ github.sha }}
+        run: >-
+          python3 -B tests/verification-ci.py collect --github-event-context --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --output-dir
+          "$RUNNER_TEMP/verification-observations"
+      - name: Check all required tests passed
+        shell: bash
+        env:
+          API_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python3 -B tests/verification-ci.py aggregate --root . --plan "$RUNNER_TEMP/verification-plan/plan.json" --observations
+          "$RUNNER_TEMP/verification-observations" --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA" --output
+          "$RUNNER_TEMP/verification-result.json"
+
+  test-windows-heavy:
+    name: test-windows-heavy (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [compatibility, gates, a9]
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: "[deterministic] Setup step 1"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # A7 executes current working-tree payload in independent F1/F2 fixtures.
+      # It remains a required native-Windows assertion, but runs in parallel
+      # with the golden-baseline suite in the main Windows test job.
+      - name: "[deterministic] Test A7 byte-identical compatibility (pwsh)"
+        if: matrix.lane == 'compatibility'
+        shell: pwsh
+        run: ./tests/compatibility-byte-identical.tests.ps1
+
+      - name: "[deterministic] Test A7 current-product reachability"
+        if: matrix.lane == 'compatibility'
+        shell: pwsh
+        run: python -B tests/current-byte-capture.tests.py
+
+      - name: "[deterministic] Test deterministic gate scripts"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/scripts.tests.ps1
+      - name: "[deterministic] Test portable review-loop prechecks"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: |
+          python tests/verification.py --profile ci-portable-prechecks --run --receipt "${{ runner.temp }}/verification-restored-1.json"
+      - name: "[deterministic] Test task prior-pass receipt"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
+      - name: "[deterministic] Test A9 unpublished candidate and Pack"
+        if: matrix.lane == 'a9'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
+      - name: "[deterministic] Test cross-model gate"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/cross-model.tests.ps1
+      - name: "[deterministic] Test hook guards"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
+      - name: "[deterministic] Test panelist-input consent gate"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/prepare-panelist.tests.ps1
+
+      # epic-196-a8-integration T-001 (REQ-001, AC-001..006): offline
+      # cross-runtime handoff contract and activation-gate fixture. The live
+      # CLI path is opt-in inside the suite and is never used by CI.
+      - name: "[deterministic] Test cross-runtime handoff fixture (pwsh)"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/cross-runtime-handoff.tests.ps1
+
+      # epic-196-a8-integration T-002 (REQ-005, AC-022..AC-023): read-only
+      # installed-plugin drift comparison in both wrapper runtimes.
+      - name: "[deterministic] Test installed-plugin drift check (pwsh)"
+        if: matrix.lane == 'gates'
+        shell: pwsh
+        run: ./tests/check-installed-plugin-drift.tests.ps1
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: test-windows-heavy (${{ matrix.lane }})
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always() && matrix.lane == 'gates'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-restored-1.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_test_windows_heavy == 'true'
+
+  coding-standards:
+    name: native coding standards checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.19.0"
+      - name: Install locked TypeScript compiler
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+      - name: Install pinned native analyzers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/coding-standards"
+          "$RUNNER_TEMP/coding-standards/bin/pip" install -r tests/coding-standards/requirements.txt
+          printf '%s\n' "$RUNNER_TEMP/coding-standards/bin" >> "$GITHUB_PATH"
+      - name: Install pinned PowerShell analyzer
+        shell: pwsh
+        run: Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -ErrorAction Stop
+      - name: Run native controls and complete tracked-source audit
+        shell: bash
+        run: python3 tests/verification.py --profile coding-standards --run --receipt "$RUNNER_TEMP/coding-standards-receipt.json"
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: native coding standards checks
+        run: |-
+          python - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/coding-standards-receipt.json
+          if-no-files-found: error
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_coding_standards == 'true'
+
+  ci-plan:
+    name: ci-plan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      run_a9_advisory: ${{ steps.plan.outputs.run_a9_advisory }}
+      run_a9_advisory_inputs: ${{ steps.plan.outputs.run_a9_advisory_inputs }}
+      run_ci_mcp_tests: ${{ steps.plan.outputs.run_ci_mcp_tests }}
+      run_ci_plan: ${{ steps.plan.outputs.run_ci_plan }}
+      run_cli_hook_enforcement: ${{ steps.plan.outputs.run_cli_hook_enforcement }}
+      run_cloud_native: ${{ steps.plan.outputs.run_cloud_native }}
+      run_coding_standards: ${{ steps.plan.outputs.run_coding_standards }}
+      run_installers: ${{ steps.plan.outputs.run_installers }}
+      run_interrupted_recovery: ${{ steps.plan.outputs.run_interrupted_recovery }}
+      run_local_env_mcp_tests: ${{ steps.plan.outputs.run_local_env_mcp_tests }}
+      run_loops_routing: ${{ steps.plan.outputs.run_loops_routing }}
+      run_mcp_tests: ${{ steps.plan.outputs.run_mcp_tests }}
+      run_posix_regression: ${{ steps.plan.outputs.run_posix_regression }}
+      run_posix_unwired_sharded: ${{ steps.plan.outputs.run_posix_unwired_sharded }}
+      run_test: ${{ steps.plan.outputs.run_test }}
+      run_test_windows_heavy: ${{ steps.plan.outputs.run_test_windows_heavy }}
+      run_version_gates: ${{ steps.plan.outputs.run_version_gates }}
+      run_version_gates_windows_bump: ${{ steps.plan.outputs.run_version_gates_windows_bump }}
+      run_version_gates_windows_lanes: ${{ steps.plan.outputs.run_version_gates_windows_lanes }}
+      run_windows_powershell: ${{ steps.plan.outputs.run_windows_powershell }}
+      plan_artifact_name: ${{ steps.plan.outputs.plan_artifact_name }}
+    steps:
+      - name: Checkout tested plan inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: subject
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout trusted base planner
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install pinned structural parser dependencies
+        shell: bash
+        run: |-
+          set -euo pipefail
+          npm ci --prefix subject/mcp/sdd-forge-mcp --ignore-scripts
+          if [[ -f trusted/mcp/sdd-forge-mcp/package-lock.json ]]; then
+            npm ci --prefix trusted/mcp/sdd-forge-mcp --ignore-scripts
+          fi
+        env:
+          npm_config_fetch_retries: '2'
+          npm_config_loglevel: http
+      - name: Generate revision-bound plan
+        id: plan
+        shell: bash
+        env:
+          CI_EVENT: ${{ github.event_name }}
+          CI_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          CI_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_TESTED_SHA: ${{ github.sha }}
+          CI_API_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          CI_FORCE_FULL: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.id != github.repository_id && 'true' || vars.SDD_CI_FORCE_FULL }}
+        run: >
+          set -euo pipefail
+
+          subject="$GITHUB_WORKSPACE/subject"
+
+          trusted="$GITHUB_WORKSPACE/trusted"
+
+          planner="$subject/tests/verification-impact.py"
+
+          if [[ "$CI_EVENT" == pull_request && -f "$trusted/tests/verification-impact.py" ]] &&
+            grep -Fq 'verification-ci-plan/v1' "$trusted/tests/verification-impact.py" &&
+            grep -Fq 'def plan_main(' "$trusted/tests/verification-impact.py"; then
+            planner="$trusted/tests/verification-impact.py"
+          fi
+
+          if [[ "$CI_EVENT" != pull_request ]]; then
+            trusted="$subject"
+          fi
+
+          mkdir -p "$RUNNER_TEMP/verification-plan"
+
+          python3 -I -B "$planner" --plan --root "$subject" --trusted-root "$trusted" --event "$CI_EVENT" --run-id "$GITHUB_RUN_ID"
+          --run-attempt "$GITHUB_RUN_ATTEMPT" --api-head-sha "$CI_API_HEAD_SHA" --tested-revision "$CI_TESTED_SHA" --base "$CI_BASE_SHA"
+          --head "$CI_HEAD_SHA" --force-full "$CI_FORCE_FULL" --output "$RUNNER_TEMP/verification-plan/plan.json" --github-output
+          "$GITHUB_OUTPUT"
+
+          printf 'plan_artifact_name=verification-plan-%s-%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+      - name: Upload original planning-attempt artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: ${{ steps.plan.outputs.plan_artifact_name }}
+          path: ${{ runner.temp }}/verification-plan/plan.json
+          if-no-files-found: error

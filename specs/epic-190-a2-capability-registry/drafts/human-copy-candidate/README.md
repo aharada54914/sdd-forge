@@ -1,5 +1,20 @@
 # T-006 protected-file registration bundle -- regenerated candidate (quality-gate remediation)
 
+## CI planning recovery update — 2026-11-04
+
+The workflow candidate now matches the live workflow at `92300ee2` byte for byte.
+It retains `ci-plan`, each job's selection condition and dependencies, native
+Windows 5.1/7 validation, execution-receipt uploads, and the always-running
+collector/aggregate verifier. Its manifest entry was recalculated from those
+bytes. The other six candidate files and the applied `human-copy/` archive remain
+unchanged; the archive still has its independent historical hash check.
+
+The structural test requires the complete live job set and exact current
+post-archive job and verifier definitions. Its negative control now also rejects
+bypassing the collector-based verifier, while preserving the legacy verifier
+control. Recheck all seven manifest entries and the current live workflow before
+using this candidate; the dated status below describes older recovery work.
+
 ## Recovery update — 2026-09-08
 
 This dated update supersedes the historical counts and pending-apply claims
