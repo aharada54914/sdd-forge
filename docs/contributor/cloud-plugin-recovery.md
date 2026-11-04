@@ -56,6 +56,19 @@ Windowsへの導入成功とmanaged runtimeの実行対応も別です。POSIX�
 Windowsでpolicy selectorを使う場合、その内部の選択再演にはPowerShell 7 (`pwsh`) が
 必要です。Windows PowerShell 5.1の入口検証と、再演エンジンの実行環境は区別します。
 
+復旧時の独立監査では、呼び出し側のpolicyだけでcandidateをcurrentへ変更し、任意の採用記録を
+付けても起動できる欠落を、記録用CLIで再現しました。共有policy全体をインストール済みの
+trusted policyと構造比較するよう修正しています。lifecycle、採用記録、鮮度制限、役割の優先順を
+呼び出し側で書き換えて権限を増やすことはできません。CLI、環境変数、project設定による
+モデル・policy選択は、従来の優先順位と許可範囲内で引き続き使えます。本番のClaude候補を
+採用済みへ変更してはいません。正方向のテストだけが、隔離したtrusted fixtureに合成の採用条件を設定します。
+
+拒否時の成果物も確認しました。終了コード2・成功stdoutなしで残るselectionやcontrolsは、
+診断用の入力記録です。出力ディレクトリ名は再利用できませんが、run/session/attemptの
+全体予約やモデル作業の成功を意味しません。Action準備で残る`validation.json`も設定検証の
+receiptであり、SDK wrapperや実行結果ではありません。Codexの失敗時にも実行成功のvalidationは
+発行されません。捕捉や拒否の調査に使う記録は一律に削除しない方針です。
+
 役割・tier・起動時の設定の違いは [モデルとエージェントの対応表](../agent-capability-matrix.md#managed-model-policy)
 を参照してください。旧版の全新規割当への強制を戻すのではなく、明示選択されたmanaged処理の
 境界を維持する互換変更です。承認、レビューの独立性、外部送信の同意は変更しません。

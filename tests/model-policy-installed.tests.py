@@ -722,6 +722,13 @@ def runtime_tree(root):
     return {path: digest for path, digest in tree(root).items() if '__pycache__' not in path.split('/')}
 
 
+def fixture_runtime_bytes(fixture, relative):
+    """Only the isolated policy authority is synthetic; other runtime bytes stay current."""
+    if relative == launch.TRUSTED_POLICY:
+        return fixture.trusted_policy_raw()
+    return (ROOT / relative).read_bytes()
+
+
 class InstalledEntryTests(LaunchFixture):
     """Installed prepare entry from an unrelated cwd plus the installers' managed runtime closure."""
 
@@ -770,7 +777,7 @@ class InstalledEntryTests(LaunchFixture):
             if rel == omit or not (ROOT / rel).is_file():
                 continue  # an absent installer-required file is the installer's own rejection to report
             (package / rel).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / rel, package / rel)
+            (package / rel).write_bytes(fixture_runtime_bytes(self, rel))
         for command in (['init', '-q'], ['add', '-A'],
                         ['-c', 'user.name=Installer Test', '-c', 'user.email=installer-test@example.invalid',
                          '-c', 'gc.auto=0', 'commit', '-qm', 'T-008 installed entry fixture']):
@@ -801,8 +808,8 @@ class InstalledEntryTests(LaunchFixture):
         self.assertIn('SDD plugins installed at: ' + str(install_root), result.stdout)
         for rel in MANAGED_RUNTIME + sorted(CODEX) + list(getattr(self, 'extra_runtime', ())):
             self.assertTrue((install_root / rel).is_file(), 'installed package lacks ' + rel)
-            self.assertEqual(launch.sha_file(install_root / rel), launch.sha_file(ROOT / rel),
-                             'installed bytes must be the current-byte overlay: ' + rel)
+            self.assertEqual(launch.sha_file(install_root / rel), launch.sha_bytes(fixture_runtime_bytes(self, rel)),
+                             'installed bytes must match the explicit fixture authority/current runtime: ' + rel)
         self.poison_source(package)
         return install_root
 
@@ -869,7 +876,8 @@ class InstalledEntryTests(LaunchFixture):
         self.assertEqual(value['trusted'], [{'path': path, 'sha256': launch.sha_file(install_root / path)}
                                             for path in launch.TRUSTED_PATHS], 'trusted runtime is the installed copy')
         for entry in value['trusted']:
-            self.assertEqual(entry['sha256'], launch.sha_file(ROOT / entry['path']), 'installed bytes are current')
+            self.assertEqual(entry['sha256'], launch.sha_bytes(fixture_runtime_bytes(self, entry['path'])),
+                             'installed bytes match the explicit fixture authority/current runtime')
         self.assertEqual([value[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt')],
                          [role, host, self.run_id, self.session_id, attempt])
         self.assertIs(type(value['attempt']), int)
@@ -1932,6 +1940,39 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
             self.assertNotIn('result', json.loads(legacy_result.stdout))
             self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
 
+    def test_caller_adoption_cannot_promote_production_candidates_into_installed_work(self):
+        case = self.case
+        production_raw = (ROOT / launch.TRUSTED_POLICY).read_bytes()
+        production = json.loads(production_raw)
+        claude_models = [model for model in production['models'] if 'claude-code' in model['hosts']]
+        self.assertTrue(claude_models)
+        self.assertTrue(all(model['lifecycle'] == 'candidate' and not model['adoption']
+                            for model in claude_models), 'this regression uses the unadopted production policy')
+        # Restore production authority ONLY in the disposable trusted package.
+        # The caller still supplies its forged current/adoption fixture policy.
+        case.authorize_fixture_policy(production)
+        self.assertNotEqual(case.trusted_policy_raw(), launch.canonical(case.policy))
+        for shell in SHELLS:
+            with self.subTest(installer=shell):
+                installed = self.prep.install(shell)
+                self.assertEqual((installed / launch.TRUSTED_POLICY).read_bytes(), case.trusted_policy_raw())
+                self.fresh_session()
+                self.prep.reset_calls()
+                output = self.prep.output()
+                self.reset_events()
+                case.rejected(self.invoke(installed, output), 'config-conflict')
+                self.assertEqual([event for event in self.events() if event['event'] == 'work'], [],
+                                 'untrusted adoption reached native model work')
+                self.assertLessEqual({event['event'] for event in self.events()}, {'help', 'version'})
+                self.prep.assert_discovery_only()
+                for artifact in ('native-result.json', 'validation.json'):
+                    self.assertFalse((case.root / output / artifact).exists())
+                self.assertEqual({name: (case.root / name).read_bytes() for name in self.initial_inputs},
+                                 self.initial_inputs, 'rejected caller policy or work inputs changed')
+                self.prep.assert_unchanged_world()
+        self.assertEqual((ROOT / launch.TRUSTED_POLICY).read_bytes(), production_raw,
+                         'fixture setup or execution changed the production policy')
+
     def test_investigator_entry_blocks_invalid_bound_inputs_before_work(self):
         # Installer omissions have independent actual Red even before the new work command exists.
         installed: dict[str, Path] = {}
@@ -2882,7 +2923,8 @@ class InstalledNativeEntryTests(LaunchFixture):
         self.assertEqual(value['trusted'], [{'path': path, 'sha256': launch.sha_file(install_root / path)}
                                             for path in launch.TRUSTED_PATHS], 'trusted runtime is the installed copy')
         for entry in value['trusted']:
-            self.assertEqual(entry['sha256'], launch.sha_file(ROOT / entry['path']), 'installed bytes are current')
+            self.assertEqual(entry['sha256'], launch.sha_bytes(fixture_runtime_bytes(self, entry['path'])),
+                             'installed bytes match the explicit fixture authority/current runtime')
         self.assertEqual([value[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt')],
                          ['evaluator', NATIVE_HOST, self.run_id, run.session_id, 1])
         self.assertIs(type(value['attempt']), int)
@@ -3221,7 +3263,7 @@ class InstalledPanelistCallerTests(unittest.TestCase):
             source, target = ROOT / relative, package / relative
             self.assertTrue(source.is_file(), 'Admitted package input missing: ' + relative)
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, target)
+            target.write_bytes(fixture_runtime_bytes(f, relative))
         for args in (['init', '-q', '--template=' + str(empty)], ['add', '--all'],
                      ['-c', 'user.name=Caller Fixture', '-c', 'user.email=caller@example.invalid',
                       '-c', 'gc.auto=0', 'commit', '-qm', 'Explicit current caller package']):
@@ -3232,7 +3274,7 @@ class InstalledPanelistCallerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, 'Installer setup failed: ' + result.stderr[-1600:])
         for relative in sorted(set(MANAGED_RUNTIME) | set(CALLER_RUNTIME)):
             self.assertTrue((installed / relative).is_file(), 'Installed caller runtime is missing: ' + relative)
-            self.assertEqual(launch.sha_file(installed / relative), launch.sha_file(ROOT / relative))
+            self.assertEqual(launch.sha_file(installed / relative), launch.sha_bytes(fixture_runtime_bytes(f, relative)))
         # The installed consent authorities are original product bytes, not the T-007 audit forwarding wrappers.
         InstalledEntryTests.poison_source(f, package)
         f.scripts = installed / CALLER_SCRIPTS
@@ -3869,6 +3911,8 @@ class InstalledSpecCallerTests(unittest.TestCase):
             self.assertTrue(source.is_file(), 'Admitted package input missing (setup failure): ' + relative)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(source, target)  # bytes plus the tracked executable bit the precheck relies on
+            if relative == launch.TRUSTED_POLICY:
+                target.write_bytes(f.trusted_policy_raw())
         for args in (['init', '-q', '--template=' + str(empty)], ['add', '--all'],
                      ['-c', 'user.name=Spec Caller Fixture', '-c', 'user.email=spec-caller@example.invalid',
                       '-c', 'gc.auto=0', 'commit', '-qm', 'Explicit current spec caller package']):
@@ -3879,7 +3923,7 @@ class InstalledSpecCallerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, 'Installer setup failed: ' + result.stderr[-1600:])
         for relative in sorted(set(MANAGED_RUNTIME) | set(SPEC_CALLER_RUNTIME) | set(extra_runtime)):
             self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
-            self.assertEqual(launch.sha_file(project / relative), launch.sha_file(ROOT / relative))
+            self.assertEqual(launch.sha_file(project / relative), launch.sha_bytes(fixture_runtime_bytes(f, relative)))
         self.assertTrue(os.access(project / 'plugins/sdd-review-loop/scripts/review-contract-validate.sh', os.X_OK),
                         'Installed precheck foundation is not executable (setup failure)')
         self.assertFalse((project / 'tests').exists(), 'Test fixtures must never be installed runtime')
@@ -4158,8 +4202,9 @@ class InstalledSpecCallerTests(unittest.TestCase):
         self.assertEqual(validation['pins'], sorted([controls['selection'], controls['request'], controls['registry'],
                                                     *controls['inputs']], key=lambda item: item['path']))
         self.assertEqual(validation['trusted'], [ref(path) for path in launch.TRUSTED_PATHS])
-        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_file(ROOT / path)}
-                                                 for path in launch.TRUSTED_PATHS], 'trusted runtime is current bytes')
+        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_bytes(fixture_runtime_bytes(f, path))}
+                                                 for path in launch.TRUSTED_PATHS],
+                         'trusted runtime matches the fixture authority and current implementation')
         self.assertEqual([validation[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id')],
                          [role, launch.HOST, session, session, 1, False])
         self.assertEqual(validation['selection'], selection)
@@ -4778,8 +4823,9 @@ class InstalledQualityCallerTests(unittest.TestCase):
         self.assertEqual(validation['controls'], ref(case['output_rel'] + '/controls.json'))
         self.assertEqual(validation['pins'], sorted([controls['selection'], controls['request'], controls['registry'],
                                                     *controls['inputs']], key=lambda item: item['path']))
-        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_file(ROOT / path)}
-                                                 for path in launch.TRUSTED_PATHS], 'trusted runtime is current bytes')
+        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_bytes(fixture_runtime_bytes(f, path))}
+                                                 for path in launch.TRUSTED_PATHS],
+                         'trusted runtime matches the fixture authority and current implementation')
         self.assertEqual([validation[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id')],
                          [role, launch.HOST, session, session, 1, False])
         self.assertEqual(validation['selection'], selection)
@@ -6266,8 +6312,9 @@ class InstalledDomainCallerTests(unittest.TestCase):
         self.assertEqual(validation['controls'], ref(case['output_rel'] + '/controls.json'))
         self.assertEqual(validation['pins'], sorted([controls['selection'], controls['request'], controls['registry'],
                                                     *controls['inputs']], key=lambda item: item['path']))
-        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_file(ROOT / path)}
-                                                 for path in launch.TRUSTED_PATHS], 'trusted runtime is current bytes')
+        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_bytes(fixture_runtime_bytes(f, path))}
+                                                 for path in launch.TRUSTED_PATHS],
+                         'trusted runtime matches the fixture authority and current implementation')
         self.assertEqual([validation[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id')],
                          [role, launch.HOST, session, session, 1, False])
         self.assertEqual(validation['selection'], selection)
@@ -7171,8 +7218,8 @@ class InstalledClaudeBatchTests(unittest.TestCase):
                 host = model.get('hosts', {}).get('claude-code')
                 if host in mapping:
                     model['hosts']['claude-code'] = mapping[host]
-        trusted_raw = _batch_fixture.launch.canonical(f.trusted_policy)
-        (f.fixture_repo / _batch_fixture.launch.TRUSTED_POLICY).write_bytes(trusted_raw)
+        f.authorize_fixture_policy()
+        trusted_raw = f.trusted_policy_raw()
         for model in f.observation['models']:
             model['native_id'] = mapping[model['native_id']]
         fixture_source = f.build_package('trusted-full-id-fixture')
