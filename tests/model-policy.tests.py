@@ -5,6 +5,7 @@ Uses unittest/stdlib and real selector subprocesses. Fixture adoption files esta
 only deterministic reference validation, never real model behavior or provider access.
 Actual draft-2020-12 schema validation is separate task-local verification.
 """
+import base64
 import copy
 from datetime import datetime, timedelta, timezone
 import hashlib
@@ -629,9 +630,9 @@ class PolicySelection(unittest.TestCase):
     def test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths(self):
         self.save()
         for raw in ['{"schema":"model-policy-request/v1","schema":"model-policy-request/v1"}',
-                    '{"amount":NaN}', '{"amount":1e999}', '[]']:
+                    '{"amount":NaN}', '{"amount":1e999}', '[]', '\ufeff{}']:
             with self.subTest(raw=raw):
-                (self.work / 'request.json').write_text(raw)
+                (self.work / 'request.json').write_bytes(raw.encode('utf-8'))
                 self.blocked(self.invoke(save=False), 'config-invalid')
         for path in ['../policy.json', '/policy.json', 'C:/policy.json', 'x\\policy.json']:
             with self.subTest(path=path):
@@ -719,7 +720,11 @@ class PolicySelection(unittest.TestCase):
             'selector_options': options})
         self.assertEqual(prepared.returncode, 0, output(prepared))
         context = json.loads(prepared.stdout)
-        for backend in ('bash', 'powershell'):
+        # This private worker is selected by _replay_policy_winner, which uses
+        # PowerShell on Windows. Git Bash's fd 3 is not a native Windows Python
+        # stdin transport; the public Bash policy wrapper remains covered below.
+        backends = ('powershell',) if sys.platform == 'win32' else ('bash', 'powershell')
+        for backend in backends:
             command = ([PWSH, '-NoProfile', '-File', str(SCRIPTS / 'select-agent-model.ps1'),
                         '-PolicyInput', 'request.json', '-Registry', 'registry.json',
                         '-PolicyEngineOnly', '-MinimumTier', 'strong'] if backend == 'powershell' else
@@ -927,6 +932,33 @@ class PolicySelection(unittest.TestCase):
                 result = subprocess.run(command, cwd=self.work, env=self.environment, text=True,
                                         capture_output=True, timeout=45, check=False)
                 self.blocked(result, 'input-invalid')
+
+    def test_powershell_bridge_preserves_unicode_paths_and_caller_input_encoding(self):
+        self.save()
+        (self.work / '入力.json').write_bytes((self.work / 'request.json').read_bytes())
+        (self.work / '登録.json').write_bytes((self.work / 'registry.json').read_bytes())
+        selector = str(SCRIPTS / 'select-agent-model.ps1').replace("'", "''")
+        for encoding, missing_runtime in (('[Text.UTF8Encoding]::new($true)', False),
+                                          ('[Text.UnicodeEncoding]::new($false, $true)', False),
+                                          ('[Text.UnicodeEncoding]::new($false, $true)', True)):
+            with self.subTest(encoding=encoding, missing_runtime=missing_runtime):
+                code = (
+                    "$ErrorActionPreference='Stop'; [Console]::InputEncoding=" + encoding + "; "
+                    "$before=[Console]::InputEncoding; " + ("$env:PATH=''; " if missing_runtime else "") +
+                    "& '" + selector + "' -PolicyInput '入力.json' -Registry '登録.json'; "
+                    "$status=$LASTEXITCODE; "
+                    "if ([Console]::InputEncoding.CodePage -ne $before.CodePage -or "
+                    "[Convert]::ToBase64String([Console]::InputEncoding.GetPreamble()) -cne "
+                    "[Convert]::ToBase64String($before.GetPreamble())) { throw 'Caller input encoding changed.' }; "
+                    "exit $status")
+                result = subprocess.run([PWSH, '-NoProfile', '-NonInteractive', '-EncodedCommand',
+                                         base64.b64encode(code.encode('utf-16-le')).decode('ascii')],
+                                        cwd=self.work, env=self.environment, text=True,
+                                        capture_output=True, timeout=45, check=False)
+                if missing_runtime:
+                    self.blocked(result, 'input-invalid')
+                else:
+                    self.selected(result, CURRENT)
 
     def test_wrapper_policy_smoke(self):
         backend = os.environ.get('SDD_TEST_POLICY_BACKEND', 'bash')
