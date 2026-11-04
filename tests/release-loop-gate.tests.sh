@@ -291,54 +291,8 @@ if [[ "$FAIL" -gt 0 ]]; then
 fi
 printf 'ok: release-loop-gate suite passed (%d checks)\n' "$PASS"
 
-# Execute Resolve tag exactly as Actions runs it, with values bound through env.
-python3 - "$RELEASE_YML" "$BASH" <<'PY'
-import os
-from pathlib import Path
-import subprocess
-import sys
-import tempfile
-
-lines = Path(sys.argv[1]).read_text().splitlines()
-# The parent may be Git Bash while PATH resolves bash to WSL on Windows.
-bash = sys.argv[2]
-start = lines.index('      - name: Resolve tag')
-run = lines.index('        run: |', start) + 1
-body = []
-for line in lines[run:]:
-    if line and not line.startswith('          '):
-        break
-    body.append(line[10:])
-script = '\n'.join(body)
-assert '${{' not in script, 'Actions values must enter through env'
-# A leading hyphen remains a tag value at the gh argument boundary.
-upload_start = lines.index('      - name: Upload release assets')
-upload_run = lines.index('        run: |', upload_start) + 1
-upload_body = '\n'.join(line[10:] for line in lines[upload_run:])
-result = subprocess.run([bash, '-c', 'gh() { printf \'%s\\0\' "$@"; };\n' + upload_body],
-    env=dict(os.environ, TAG='--help', PKG='sdd-forge-test.tar.gz'),
-    capture_output=True, timeout=10)
-assert result.returncode == 0, result.stderr
-assert result.stdout.split(b'\0')[:5] == [b'release', b'upload', b'--clobber', b'--', b'--help']
-
-with tempfile.TemporaryDirectory() as temporary:
-    root = Path(temporary)
-    output = root / 'output'
-    sentinel = root / 'sentinel'
-    env = dict(os.environ, INPUT_TAG='v1.2.3', GITHUB_REF_NAME='v0.0.0', GITHUB_OUTPUT=output.as_posix())
-    result = subprocess.run([bash, '-c', script], env=env, capture_output=True, timeout=10)
-    assert result.returncode == 0, result.stderr
-    assert output.read_text().splitlines() == ['tag=v1.2.3', 'pkg=sdd-forge-v1.2.3.tar.gz']
-    for value in ('$(touch ' + str(sentinel) + ')', 'bad"tag', 'bad\ntag', 'bad\\tag'):
-        output.unlink(missing_ok=True)
-        env['INPUT_TAG'] = value
-        result = subprocess.run([bash, '-c', script], env=env, capture_output=True, timeout=10)
-        assert result.returncode != 0
-        assert not sentinel.exists()
-        assert not output.exists(), 'invalid tag was emitted as workflow output'
-PY
-
-# Execute release provenance boundaries with real Git archives and SBOM generation.
+# Execute the real release steps over distinct tag/dispatch commits. Network,
+# signing and publication are replaced by record-only API boundaries.
 python3 - "$RELEASE_YML" "$BASH" <<'PY'
 import json
 import os
@@ -350,37 +304,170 @@ import tempfile
 
 workflow = Path(sys.argv[1])
 lines = workflow.read_text().splitlines()
-bash = sys.argv[2]
+bash = sys.argv[2]  # Preserve Git Bash rather than selecting WSL through PATH.
 repo = workflow.resolve().parents[2]
 
 def body(name):
     start = lines.index('      - name: ' + name)
-    run = lines.index('        run: |', start) + 1
+    run = next(i for i in range(start, len(lines)) if lines[i].startswith('        run:'))
+    if lines[run] != '        run: |':
+        return lines[run].removeprefix('        run: ')
     result = []
-    for line in lines[run:]:
+    for line in lines[run + 1:]:
         if line and not line.startswith('          '):
             break
         result.append(line[10:])
     return '\n'.join(result)
 
+def job(name):
+    start = lines.index('  ' + name + ':', lines.index('jobs:'))
+    end = next((i for i in range(start + 1, len(lines))
+                if lines[i].startswith('  ') and not lines[i].startswith('   ')
+                and lines[i].endswith(':')), len(lines))
+    return '\n'.join(lines[start:end])
+
+def checkout(name):
+    steps = job(name).split('      - ')
+    checkouts = [step for step in steps if step.startswith('uses: actions/checkout@')]
+    assert len(checkouts) == 1, name + ' must have exactly one source checkout'
+    return checkouts[0]
+
+for name in ('loop-gate', 'release'):
+    section = checkout(name)
+    assert 'ref: ${{ needs.ci-green.outputs.sha }}' in section, name
+    assert 'persist-credentials: false' in section, name
+# Source validation resolves history-bound evidence. Checkout's default depth=1
+# makes valid manifests appear stale; the actual loop checkout must retain history.
+assert '          fetch-depth: 0' in checkout('loop-gate').splitlines(), 'release source validation requires full history'
+assert 'needs: ci-green' in job('loop-gate')
+assert 'run: bash ./tests/validate-repository.sh' in job('loop-gate')
+assert 'contents: read' in job('loop-gate')
+assert 'id-token: write' not in job('loop-gate')
+assert 'sha: ${{ steps.source.outputs.sha }}' in job('ci-green')
+for key, output in (('TAG', 'tag'), ('RELEASE_SHA', 'sha'), ('PKG', 'pkg')):
+    assert key + ': ${{ needs.ci-green.outputs.' + output + ' }}' in job('release')
+assert 'predicate-type: https://slsa.dev/provenance/v1' in job('release')
+assert 'predicate-path: release-provenance.json' in job('release')
+assert 'GITHUB_SHA:' not in job('release'), 'do not forge the workflow identity'
+
+def invoke(script, env, cwd=None):
+    assert '${{' not in script, 'Actions values must enter through environment'
+    return subprocess.run([bash, '-e', '-o', 'pipefail', '-c', script], cwd=cwd,
+                          env=env, capture_output=True, timeout=20)
+
+restriction = body('Restrict manual dispatch to main or a tag ref')
+for ref, accepted in (('refs/heads/main', True), ('refs/tags/v1', True), ('refs/heads/other', False)):
+    result = invoke(restriction, dict(os.environ, GITHUB_REF=ref))
+    assert (result.returncode == 0) == accepted, (ref, result.stderr)
+
 gate = body('Verify CI success for the release commit')
+upload_stub = '''gh() {
+  if [ "$1" = api ]; then
+    case "$2" in
+      */git/refs/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$CURRENT_TAG_SHA" "${CURRENT_TAG_TYPE:-commit}" ;;
+      */git/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$CURRENT_PEELED_SHA" "${CURRENT_PEELED_TYPE:-commit}" ;;
+      *) return 99 ;;
+    esac
+  else
+    printf '%s\\0' "$@"
+  fi
+}
+'''
 stub = '''gh() {
-  case "$*" in
-    *git/refs/tags/*) printf '{"object":{"sha":"%s","type":"commit"}}' "$FAKE_SHA" ;;
-    *actions/workflows/*) printf '%s' "$FAKE_COUNT" ;;
+  printf '%s\\n' "$*" >> "$API_LOG"
+  case "$2" in
+    */git/refs/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$FAKE_SHA" "$FAKE_TYPE" ;;
+    */git/tags/*) printf '{"object":{"sha":"%s","type":"%s"}}' "$PEELED_SHA" "$PEELED_TYPE" ;;
+    *actions/workflows/*)
+      if [[ "${FAKE_API_ERROR:-0}" != 0 ]]; then return "$FAKE_API_ERROR"; fi
+      if [[ "$*" == *"--jq .total_count"* ]]; then
+        printf '%s' "$FAKE_COUNT"
+      else
+        printf '%s' "$FAKE_RUN_PAGES"
+      fi ;;
     *) return 99 ;;
   esac
 }
 '''
-for count in ('1', '2', '0', 'null', '', 'not-a-number', '-1', '1\n2'):
-    env = dict(os.environ, INPUT_TAG='v1', GITHUB_REF_NAME='main',
-               GITHUB_REPOSITORY='owner/repo', FAKE_SHA='a' * 40, FAKE_COUNT=count)
-    result = subprocess.run([bash, '-c', stub + gate], env=env, capture_output=True, timeout=10)
-    assert (result.returncode == 0) == (count in ('1', '2')), (count, result.stdout, result.stderr)
-for sha in ('null', 'abc', 'A' * 40):
-    env.update(FAKE_SHA=sha, FAKE_COUNT='1')
-    result = subprocess.run([bash, '-c', stub + gate], env=env, capture_output=True, timeout=10)
-    assert result.returncode != 0, 'invalid release SHA was accepted'
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    output, log, sentinel = (root / name for name in ('output', 'api.log', 'sentinel'))
+    env = dict(os.environ, INPUT_TAG='v1.2.3', GITHUB_REF_NAME='main', GITHUB_REPOSITORY='owner/repo',
+               GITHUB_OUTPUT=output.as_posix(), API_LOG=log.as_posix(), FAKE_SHA='a' * 40,
+               FAKE_TYPE='commit', PEELED_SHA='b' * 40, PEELED_TYPE='commit', FAKE_COUNT='1')
+    def test_run(**changes):
+        return dict({'id': 101, 'head_sha': 'a' * 40, 'event': 'push', 'head_branch': 'main',
+                     'status': 'completed', 'conclusion': 'success', 'path': '.github/workflows/test.yml',
+                     'repository': {'full_name': 'owner/repo'}, 'head_repository': {'full_name': 'owner/repo'}}, **changes)
+    def run_pages(rows, total=1):
+        return json.dumps({'total_count': total, 'workflow_runs': rows})
+    def run_gate(**changes):
+        output.unlink(missing_ok=True)
+        log.unlink(missing_ok=True)
+        values = {**env, **changes}
+        source_sha = values['PEELED_SHA'] if values['FAKE_TYPE'] == 'tag' else values['FAKE_SHA']
+        values.setdefault('FAKE_RUN_PAGES', run_pages([test_run(head_sha=source_sha)]))
+        return invoke(stub + gate, values)
+    # PR API head_sha names the PR head, while checkout tests its synthetic merge.
+    # Aggregate success must not admit that untested head as a release tree.
+    cases = [
+        ('PR-only success', test_run(event='pull_request'), False),
+        ('PR target success', test_run(event='pull_request_target'), False),
+        ('merge queue success', test_run(event='merge_group'), False),
+        ('main push', test_run(), True),
+        ('other branch push', test_run(head_branch='feature'), False),
+        ('manual main', test_run(event='workflow_dispatch'), True),
+        ('manual tag', test_run(event='workflow_dispatch', head_branch='v1.2.3'), True),
+        ('different SHA', test_run(head_sha='c' * 40), False),
+        ('unfinished run', test_run(status='in_progress'), False),
+        ('failed run', test_run(conclusion='failure'), False),
+        ('skipped run', test_run(conclusion='skipped'), False),
+        ('different workflow', test_run(path='.github/workflows/other.yml'), False),
+        ('different repository', test_run(repository={'full_name': 'other/repo'}), False),
+        ('fork source', test_run(head_repository={'full_name': 'other/repo'}), False),
+        ('missing source repository', test_run(head_repository=None), False),
+    ]
+    for label, candidate, accepted in cases:
+        result = run_gate(FAKE_RUN_PAGES=run_pages([candidate], total=99))
+        assert (result.returncode == 0) == accepted, (label, result.stderr)
+        if not accepted:
+            assert not output.exists(), 'failed CI gate emitted admitted source: ' + label
+    for response in ('', 'null', 'not-json', '{}', run_pages([], total=99),
+                     json.dumps({'workflow_runs': {}}), run_pages([None])):
+        result = run_gate(FAKE_RUN_PAGES=response)
+        assert result.returncode != 0 and not output.exists(), response
+    # A valid source-exact run may be beyond a page of newer PR-only successes.
+    paginated = '\n'.join(json.dumps(page) for page in (
+        {'total_count': 101, 'workflow_runs': [test_run(event='pull_request', id=n + 1) for n in range(100)]},
+        {'total_count': 101, 'workflow_runs': [test_run()]}))
+    result = run_gate(FAKE_RUN_PAGES=paginated)
+    assert result.returncode == 0, result.stderr
+    assert '--paginate' in log.read_text() and '--slurp' not in log.read_text(), 'use portable gh pagination; jq collects pages'
+    result = run_gate(FAKE_API_ERROR='7')
+    assert result.returncode != 0 and not output.exists(), 'API failure must not emit admitted source'
+    for changes in ({'FAKE_SHA': 'null'}, {'FAKE_SHA': 'A' * 40}, {'FAKE_TYPE': 'tree'},
+                    {'FAKE_TYPE': 'tag', 'PEELED_TYPE': 'blob'},
+                    {'FAKE_TYPE': 'tag', 'PEELED_TYPE': 'tag'}):
+        assert run_gate(**changes).returncode != 0, changes
+        assert not output.exists()
+    for kind, expected in (('commit', 'a' * 40), ('tag', 'b' * 40)):
+        result = run_gate(FAKE_TYPE=kind)
+        assert result.returncode == 0, result.stderr
+        assert output.read_text().splitlines() == ['tag=v1.2.3', 'sha=' + expected,
+                                                   'pkg=sdd-forge-v1.2.3.tar.gz']
+        assert log.read_text().count('/git/refs/tags/') == 1
+        assert 'head_sha=' + expected + '&status=success' in log.read_text()
+    for value in ('$(touch ' + str(sentinel) + ')', 'bad"tag', 'bad\ntag', 'bad\\tag'):
+        assert run_gate(INPUT_TAG=value).returncode != 0
+        assert not sentinel.exists() and not output.exists()
+    # Tag fallback and option boundaries stay data-only.
+    assert run_gate(INPUT_TAG='', GITHUB_REF_NAME='v2').returncode == 0
+    assert output.read_text().startswith('tag=v2\n')
+    result = invoke(upload_stub + body('Upload release assets'),
+                    dict(os.environ, TAG='--help', PKG='sdd-forge-test.tar.gz',
+                         GITHUB_REPOSITORY='owner/repo', RELEASE_SHA='a' * 40, CURRENT_TAG_SHA='a' * 40))
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split(b'\0')[:5] == [b'release', b'upload', b'--clobber', b'--', b'--help']
 
 with tempfile.TemporaryDirectory() as temporary:
     root = Path(temporary)
@@ -391,27 +478,82 @@ with tempfile.TemporaryDirectory() as temporary:
     def write_lock(name):
         lock.write_text(json.dumps({'packages': {'node_modules/' + name: {'version': '1.0.0'}}}))
     def git(*args):
-        subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, timeout=10)
+        return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True,
+                              timeout=10, text=True).stdout.strip()
     git('init', '-q')
     git('config', 'user.name', 'Release test')
     git('config', 'user.email', 'release-test@example.invalid')
+    (root / 'tests').mkdir()
+    scripts = ('validate-repository.sh', 'loop-consistency.tests.sh', 'loop-inventory.tests.sh', 'release-host-smoke.sh')
+    for name in scripts:
+        path = root / 'tests' / name
+        path.write_text('#!/usr/bin/env bash\nprintf "tagged ' + name + '\\n" >> "$RUNNER_TEMP/executed"\n')
+        path.chmod(0o755)
     write_lock('tagged-dependency')
     git('add', '.')
     git('commit', '-qm', 'tagged source')
+    tagged = git('rev-parse', 'HEAD')
     git('tag', 'v1')
     write_lock('dispatch-only-dependency')
+    for name in scripts:
+        (root / 'tests' / name).write_text('#!/usr/bin/env bash\nexit 91\n')
+    (root / '.github/scripts/generate-sbom.py').write_text('raise SystemExit(92)\n')
     git('add', '.')
     git('commit', '-qm', 'different dispatch source')
-    env = dict(os.environ, TAG='v1', PKG='sdd-forge-v1.tar.gz',
-               GITHUB_REPOSITORY='owner/repo', RUNNER_TEMP=root.as_posix())
-    for step in ('Build reproducible source tarball', 'Generate CycloneDX SBOM'):
-        result = subprocess.run([bash, '-c', body(step)], cwd=root, env=env,
-                                capture_output=True, timeout=20)
+    dispatch = git('rev-parse', 'HEAD')
+    assert tagged != dispatch
+    env = dict(os.environ, TAG='v1', PKG='sdd-forge-v1.tar.gz', RELEASE_SHA=tagged,
+               GITHUB_SHA=dispatch, GITHUB_WORKFLOW_SHA=dispatch, GITHUB_REF_NAME='main',
+               GITHUB_WORKFLOW_REF='owner/repo/.github/workflows/release.yml@refs/heads/main',
+               GITHUB_REPOSITORY='owner/repo', GITHUB_SERVER_URL='https://github.com',
+               GITHUB_EVENT_NAME='workflow_dispatch', GITHUB_RUN_ID='123', GITHUB_RUN_ATTEMPT='2',
+               RUNNER_TEMP=root.as_posix())
+    for step in ('Verify loop checkout', 'Build reproducible source tarball'):
+        result = invoke(body(step), env, root)
+        assert result.returncode != 0, 'dispatch checkout was accepted: ' + step
+    # The mutable tag now names another commit. Only the prior admitted SHA
+    # may select the loops, optional smoke, archive and SBOM generator.
+    git('tag', '-f', 'v1', dispatch)
+    git('checkout', '-q', '--detach', tagged)
+    for step in ('Verify loop checkout', 'Validate release source', 'Test loop consistency suite', 'Test loop inventory suite',
+                 'Build reproducible source tarball', 'Release-only real host smoke',
+                 'Generate CycloneDX SBOM', 'Record immutable build inputs'):
+        result = invoke(body(step), env, root)
         assert result.returncode == 0, (step, result.stdout, result.stderr)
+    assert (root / 'executed').read_text().splitlines() == ['tagged ' + name for name in scripts]
     names = {entry['name'] for entry in json.loads((root / 'sdd-forge-sbom.cdx.json').read_text())['components']}
-    assert 'tagged-dependency' in names and 'dispatch-only-dependency' not in names, names
+    assert names == {'tagged-dependency'}, names
     assert not list(root.glob('release-sbom.*')), 'source export scratch was not cleaned'
-    # A present corrupt lock is an error, not evidence of zero dependencies.
+    predicate = json.loads((root / 'release-provenance.json').read_text())
+    dependencies = predicate['buildDefinition']['resolvedDependencies']
+    assert dependencies[0] == {'uri': 'git+https://github.com/owner/repo@refs/tags/v1',
+                               'digest': {'gitCommit': tagged}}
+    assert dependencies[1]['digest'] == {'gitCommit': dispatch}
+    assert predicate['buildDefinition']['externalParameters']['workflow']['ref'] == 'refs/heads/main'
+    assert predicate['runDetails']['metadata']['invocationId'].endswith('/runs/123/attempts/2')
+    # A later tag read can reject publication, but must never choose new input
+    # bytes. API responses here use the actual moved fixture ref.
+    for current in (git('rev-parse', 'refs/tags/v1'), 'null', 'A' * 40):
+        result = invoke(upload_stub + body('Upload release assets'), {**env, 'CURRENT_TAG_SHA': current}, root)
+        assert result.returncode != 0 and b'release\0upload\0' not in result.stdout
+    git('tag', '-f', 'v1', tagged)
+    result = invoke(upload_stub + body('Upload release assets'),
+                    {**env, 'CURRENT_TAG_SHA': git('rev-parse', 'refs/tags/v1')}, root)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split(b'\0')[:5] == [b'release', b'upload', b'--clobber', b'--', b'v1']
+    for kind, peeled, accepted in (('commit', tagged, True), ('commit', dispatch, False), ('tree', tagged, False)):
+        result = invoke(upload_stub + body('Upload release assets'),
+                        {**env, 'CURRENT_TAG_SHA': 'c' * 40, 'CURRENT_TAG_TYPE': 'tag',
+                         'CURRENT_PEELED_SHA': peeled, 'CURRENT_PEELED_TYPE': kind}, root)
+        assert (result.returncode == 0) == accepted, (kind, peeled, result.stderr)
+    # The release job needs the gate's success. An actual validator failure
+    # therefore stops the dependent build, even with a previously admitted SHA.
+    package = root / env['PKG']
+    package.unlink()
+    (root / 'tests/validate-repository.sh').write_text('#!/usr/bin/env bash\nexit 93\n')
+    result = invoke(body('Validate release source') + '\n' + body('Build reproducible source tarball'), env, root)
+    assert result.returncode == 93 and not package.exists(), 'source validation failure reached the release build'
+    # A present corrupt lock remains an error, not zero dependency evidence.
     for invalid in ('{', '[]', '{"packages":[]}'):
         lock.write_text(invalid)
         output = root / 'invalid-sbom.json'
@@ -421,5 +563,5 @@ with tempfile.TemporaryDirectory() as temporary:
         assert result.returncode != 0 and not output.exists(), result.stderr
         assert b'SBOM_SOURCE_INVALID' in result.stderr
 
-print('ok: release CI gate rejects malformed responses and SBOM describes the published tag bytes')
+print('ok: release consumers retain the admitted SHA across dispatch/tag drift; workflow identity stays distinct')
 PY
