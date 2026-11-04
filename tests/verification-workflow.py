@@ -233,7 +233,8 @@ def workflow_coverage(workflow, catalog):
         for row in matrix_rows(job):
             target = expand_matrix(job.get('runs-on', ''), row)
             runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows', 'windows-2022': 'Windows', 'macos-latest': 'macOS'}.get(target)
-            if not runner or not (job.get('if') == 'always()' and name == 'test' or enabled(job.get('if'), row, runner, outputs)) or job.get('continue-on-error', False) is not False:
+            wrapper = name == 'test' and job.get('if') in ('always()', '${{ !cancelled() }}')
+            if not runner or not (wrapper or enabled(job.get('if'), row, runner, outputs)) or job.get('continue-on-error', False) is not False:
                 continue
             defaults = dict(workflow.get('defaults', {}).get('run', {}))
             defaults.update(job.get('defaults', {}).get('run', {}))
