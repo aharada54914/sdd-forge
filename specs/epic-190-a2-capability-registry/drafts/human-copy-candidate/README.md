@@ -4,7 +4,11 @@
 
 The current workflow candidate matches the live workflow after pinning its
 macOS matrices to the standard `macos-26-intel` runner. All 138 native macOS
-workload steps and the main lane's 40-minute timeout are retained. The workflow
+workload steps are retained. Following observed Intel timeouts during continuing
+successful work, the PowerShell-heavy `test`, `installers`, `version-gates` and
+`cloud-native` jobs have Intel-only 90-minute limits. Other OS limits, recovery's
+45-minute limit and lighter jobs are unchanged. These bounded budgets do not
+promise performance or turn a timeout into a passing result. The workflow
 manifest hash was updated; the six other candidate files and the historical
 `human-copy/` archive are unchanged. Hosted results must identify actual Intel
 execution and do not establish ARM64 coverage. The main test job preserves the
