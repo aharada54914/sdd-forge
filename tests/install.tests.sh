@@ -6,6 +6,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
+python3 "${REPO_ROOT}/tests/lib/install-payload-check.py" --runtime bash
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
 ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
@@ -49,6 +50,7 @@ for relative_path in \
     ".agents/plugins/marketplace.json" \
     "install.sh" \
     "install.ps1" \
+    "install-payload.txt" \
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json" \
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json" \
     "plugins/sdd-quality-loop/scripts/initialize-review-identity.py" \
@@ -70,6 +72,7 @@ git -C "$SOURCE_FIXTURE" add \
     .agents/plugins/marketplace.json \
     install.sh \
     install.ps1 \
+    install-payload.txt \
     plugins/sdd-bootstrap/.claude-plugin/plugin.json \
     plugins/sdd-quality-loop/.claude-plugin/plugin.json \
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py \

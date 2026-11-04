@@ -816,8 +816,7 @@ select_payload_paths() {
     # stdout: the NUL-delimited admitted subset. An admitted path that is a
     # symlink, or that sits below a symlinked directory, fails the install
     # instead of being followed out of the source.
-    local rel dir walk part last_dir=""
-    local -a parts
+    local rel dir walk part remaining last_dir=""
     while IFS= read -r -d '' rel; do
         rel="${rel#./}"
         payload_admits "$rel" || continue
@@ -832,8 +831,10 @@ select_payload_paths() {
         dir="${rel%/*}"
         if [[ "$dir" != "$rel" && "$dir" != "$last_dir" ]]; then
             walk=""
-            IFS=/ read -r -a parts <<< "$dir"
-            for part in "${parts[@]}"; do
+            remaining="$dir"
+            while [[ -n "$remaining" ]]; do
+                part="${remaining%%/*}"
+                if [[ "$remaining" == */* ]]; then remaining="${remaining#*/}"; else remaining=""; fi
                 walk="${walk:+${walk}/}${part}"
                 if [[ -L "${SOURCE_ROOT}/${walk}" ]]; then
                     echo "Error: Refusing to install through a symlinked directory: ${walk}" >&2
@@ -932,6 +933,40 @@ REQUIRED_PATHS=(
     "plugins/sdd-domain/.plugin/plugin.json"
     ".codex/agents/sdd-investigator.toml"
     ".codex/agents/sdd-evaluator.toml"
+    # Core entry points and the existing selector/launch runtime closure.
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
+    "plugins/sdd-ship/skills/ship/SKILL.md"
+    "plugins/sdd-bootstrap/.claude-plugin/plugin.json"
+    "plugins/sdd-implementation/.claude-plugin/plugin.json"
+    "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
+    "plugins/sdd-lite/.claude-plugin/plugin.json"
+    "plugins/sdd-implementation/scripts/select-agent-model.sh"
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1"
+    "contracts/agent-model-capabilities.v2.json"
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py"
+    "plugins/sdd-quality-loop/agents/wfi-auditor-a.md"
+    "plugins/sdd-quality-loop/agents/wfi-auditor-b.md"
+    "plugins/sdd-quality-loop/references/wfi-category-guide.md"
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs"
+    "plugins/sdd-implementation/skills/diagnose/SKILL.md"
+    "plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md"
+    "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh"
+    "plugins/sdd-implementation/templates/diagnosis-report.template.md"
+    "plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md"
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md"
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
+    "plugins/sdd-quality-loop/references/sudo-mode-policy.md"
+    "plugins/sdd-quality-loop/references/debugging-recovery-policy.md"
+    "plugins/sdd-implementation/templates/implementation-report.template.md"
+    "plugins/sdd-bootstrap/agents/investigator.md"
+    "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md"
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md"
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md"
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md"
+    "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md"
+    "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md"
 )
 CLOUD_ENTRY_FILES=(.claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
 # Source precheck covers explicit selections; retained entries are checked in staging.

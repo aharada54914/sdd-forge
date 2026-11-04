@@ -8,6 +8,12 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
 if ($Lane -in @('all', 'core')) {
+    # Registered black-box payload checks with isolated local/archive fixtures.
+    $payloadPython = Get-Command python3 -ErrorAction SilentlyContinue
+    if (-not $payloadPython) { $payloadPython = Get-Command python -ErrorAction Stop }
+    & $payloadPython.Source (Join-Path $repositoryRoot 'tests/lib/install-payload-check.py') --runtime powershell
+    if ($LASTEXITCODE -ne 0) { throw 'Installer payload regression failed.' }
+
 # Exercise the production archive-download branch without network or host install
 # writes. A failed tar may still leave a marketplace-shaped partial directory.
 & {
@@ -15,39 +21,59 @@ if ($Lane -in @('all', 'core')) {
     $parseErrors = $null
     $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $repositoryRoot 'install.ps1'), [ref]$tokens, [ref]$parseErrors)
     if ($parseErrors.Count) { throw 'Installer parse failed' }
-    $tarCalls = @($ast.FindAll({ param($node)
+    $downloadCalls = @($ast.FindAll({ param($node)
         $node -is [Management.Automation.Language.CommandAst] -and
-        $node.GetCommandName() -ceq 'tar' -and $node.Extent.Text.Contains('-xzf')
+        $node.GetCommandName() -ceq 'Download-AuthenticatedArchive'
     }, $true))
-    if ($tarCalls.Count -ne 1) { throw 'Expected one production archive extraction' }
-    $block = $tarCalls[0].Parent
+    if ($downloadCalls.Count -ne 1) { throw 'Expected one production archive download' }
+    $block = $downloadCalls[0].Parent
     while ($block -and $block -isnot [Management.Automation.Language.StatementBlockAst]) { $block = $block.Parent }
     if (-not $block) { throw 'Archive branch not found' }
     $body = [scriptblock]::Create($block.Extent.Text.Substring(1, $block.Extent.Text.Length - 2))
+    # This isolated block tests extraction dispatch/status; metadata is covered
+    # by the black-box payload cases above, using the real implementation.
+    function Test-PlainItem { param([string]$Path) return $true }
     function Download-AuthenticatedArchive {
         param($RepositoryName, $RefName, $ArchivePath)
         $partial = Join-Path (Split-Path $ArchivePath) 'partial/.agents/plugins'
         New-Item -ItemType Directory -Path $partial -Force | Out-Null
         Set-Content -LiteralPath (Join-Path $partial 'marketplace.json') -Value '{}'
     }
-    function tar { $global:LASTEXITCODE = $script:archiveTestExit }
+    function tar {
+        $script:archiveTarCalls++
+        $global:LASTEXITCODE = $script:archiveTestExit
+    }
+    function Expand-DownloadedZipArchive {
+        param($ArchivePath, $DestinationPath)
+        $script:archiveZipCalls++
+        if ($script:archiveTestExit -ne 0) { throw 'Downloaded archive extraction failed in ZIP fixture.' }
+    }
     $Repository = 'fixture/only'
     $Ref = 'fixture'
-    foreach ($code in @(0, 2)) {
-        $script:archiveTestExit = $code
-        $temporaryRoot = $null
-        $caught = $null
-        try { . $body } catch { $caught = $_ }
-        finally {
-            if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
-                Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
+    foreach ($useZipArchive in @($false, $true)) {
+        foreach ($code in @(0, 2)) {
+            $script:archiveTestExit = $code
+            $script:archiveTarCalls = 0
+            $script:archiveZipCalls = 0
+            $temporaryRoot = $null
+            $caught = $null
+            try { . $body } catch { $caught = $_ }
+            finally {
+                if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
+                    Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
+                }
             }
+            $expectedTarCalls = if ($useZipArchive) { 0 } else { 1 }
+            $expectedZipCalls = if ($useZipArchive) { 1 } else { 0 }
+            if ($script:archiveTarCalls -ne $expectedTarCalls -or $script:archiveZipCalls -ne $expectedZipCalls) {
+                throw "Archive mode selected the wrong extractor: ZIP=$useZipArchive"
+            }
+            if ($code -eq 0 -and $caught) { throw "Successful extraction rejected: $caught" }
+            if ($code -ne 0 -and (-not $caught -or "$caught" -cnotmatch 'archive extraction failed')) {
+                throw 'Failed extraction with partial marketplace must stop with extraction diagnostic'
+            }
+            Write-Host "ok: archive extraction ZIP=$useZipArchive exit $code handled"
         }
-        if ($code -eq 0 -and $caught) { throw "Successful extraction rejected: $caught" }
-        if ($code -ne 0 -and (-not $caught -or "$caught" -cnotmatch 'archive extraction failed')) {
-            throw 'Failed tar with partial marketplace must stop with extraction diagnostic'
-        }
-        Write-Host "ok: archive extraction exit $code handled"
     }
     $global:LASTEXITCODE = 0
 }
@@ -105,6 +131,7 @@ foreach ($relativePath in @(
     ".agents/plugins/marketplace.json",
     "install.sh",
     "install.ps1",
+    "install-payload.txt",
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
@@ -128,6 +155,7 @@ foreach ($relativePath in @(
     .agents/plugins/marketplace.json `
     install.sh `
     install.ps1 `
+    install-payload.txt `
     plugins/sdd-bootstrap/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py `

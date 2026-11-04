@@ -53,6 +53,21 @@ if ($env:SDD_POWERSHELL_RECEIPT) {
 
 # Common product contracts already run in the required PowerShell 7 jobs.
 if ($expected -eq '7.6') { exit 0 }
+# ZIP extraction uses different .NET implementations on Desktop and Core.
+# Core coverage comes from the existing installer suite; only these transport
+# boundaries are repeated on Desktop, using this exact native host for children.
+$payloadPython = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $payloadPython) { $payloadPython = Get-Command python -ErrorAction Stop }
+$previousPwsh = $env:PWSH
+try {
+    $env:PWSH = $hostPath
+    & $payloadPython.Source (Join-Path $PSScriptRoot 'lib/install-payload-check.py') --runtime powershell `
+        PayloadChecks.test_tracked_special_names_survive_local_and_archive `
+        PayloadChecks.test_windows_zip_metadata_and_containment `
+        PayloadChecks.test_windows_zip_directory_link_metadata
+    if ($LASTEXITCODE -ne 0) { throw 'Native Windows ZIP boundaries failed.' }
+}
+finally { $env:PWSH = $previousPwsh }
 $focused = Invoke-SddNativeRaw -FileName $hostPath -Arguments @(
     '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'prepare-panelist.tests.ps1'),
     '-RuntimeBoundariesOnly'

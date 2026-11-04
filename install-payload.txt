@@ -37,6 +37,7 @@ README.md
 USERGUIDE.md
 PLUGIN-CONTRACTS.md
 CHANGELOG.md
+docs/README.md
 docs/THREAT-MODEL.md
 docs/agent-capability-matrix.md
 docs/ai-dlc-foundation-decision-v2.md
