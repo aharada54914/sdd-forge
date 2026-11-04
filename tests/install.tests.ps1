@@ -269,19 +269,27 @@ function New-ArchiveFixture {
     )
 
     $archiveRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-archive-" + [guid]::NewGuid())
-    $archivePath = Join-Path $archiveRoot "source.tar.gz"
+    $archiveFormat = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { "zip" } else { "tar.gz" }
+    $archivePath = Join-Path $archiveRoot "source.$archiveFormat"
     New-Item -ItemType Directory -Path $archiveRoot -Force | Out-Null
 
     # Let Git write the archive so path quoting/encoding never crosses a
     # PowerShell string boundary (notably for decomposed Unicode names on
     # Windows). Keep archive creation and extraction as separate checked
     # steps; a failed archive must not be mistaken for an empty fixture.
-    & git -C $SourceRoot archive --format=tar.gz "--prefix=repo/" "--output=$archivePath" HEAD
+    & git -C $SourceRoot archive "--format=$archiveFormat" "--prefix=repo/" "--output=$archivePath" HEAD
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
         throw "Unable to create tracked fixture archive."
     }
-    & tar -xzf $archivePath -C $archiveRoot
-    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $archiveRoot "repo") -PathType Container)) {
+    if ($archiveFormat -eq "zip") {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [IO.Compression.ZipFile]::ExtractToDirectory($archivePath, $archiveRoot)
+    }
+    else {
+        & tar -xzf $archivePath -C $archiveRoot
+        if ($LASTEXITCODE -ne 0) { throw "Unable to extract tracked fixture archive." }
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $archiveRoot "repo") -PathType Container)) {
         throw "Unable to extract tracked fixture archive."
     }
     return $archivePath
@@ -431,6 +439,7 @@ function Invoke-RemoteInstallerScenario {
     $originalPath = $env:PATH
     $originalCodexHome = $env:SDD_CODEX_HOME
     $originalGhToken = $env:GH_TOKEN
+    $archiveKind = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { "zipball" } else { "tarball" }
     $global:SddInstallerFixtureArchivePath = New-ArchiveFixture -SourceRoot $installerSourceRoot
 
     function global:Invoke-WebRequest {
@@ -446,7 +455,7 @@ function Invoke-RemoteInstallerScenario {
         if ($Headers.Authorization -ne "Bearer fake-gh-token") {
             throw "missing GitHub auth header"
         }
-        if ($Uri -cne "https://api.github.com/repos/aharada54914/sdd-forge/tarball/$ExpectedRef") {
+        if ($Uri -cne "https://api.github.com/repos/aharada54914/sdd-forge/$archiveKind/$ExpectedRef") {
             throw "unexpected remote download URL: $Uri"
         }
         if ($Uri -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
@@ -477,7 +486,7 @@ function Invoke-RemoteInstallerScenario {
         }
 
         $log = Get-Content -Raw $commandLog
-        if (-not $log.Contains("Invoke-WebRequest https://api.github.com/repos/aharada54914/sdd-forge/tarball/$ExpectedRef")) {
+        if (-not $log.Contains("Invoke-WebRequest https://api.github.com/repos/aharada54914/sdd-forge/$archiveKind/$ExpectedRef")) {
             throw "Authenticated remote install did not use the GitHub API archive URL"
         }
         if ($log -match 'raw\.githubusercontent\.com|codeload\.github\.com') {

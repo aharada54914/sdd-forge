@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import struct
 import subprocess
@@ -64,6 +65,29 @@ def indexed_source(root):
     return files
 
 
+def files_only_payload(source):
+    """Independent expected bytes for the declared allowlist with SkipMcp.
+
+    Read the public manifest from the preexecution source snapshot, never from
+    the installed tree or installer functions. MCP placement is disabled in
+    this capture; its enabled two-file layout has separate installer tests.
+    """
+    if 'install-payload.txt' not in source:
+        raise ValueError('source is missing the public install-payload.txt contract')
+    entries = [line.strip() for line in source['install-payload.txt'].decode('utf-8').splitlines()
+               if line.strip() and not line.strip().startswith('#')]
+    if not entries or any(not re.fullmatch(r'[A-Za-z0-9._@+-]+(?:/[A-Za-z0-9._@+-]+)*/?', entry)
+                          or any(part and set(part) == {'.'} for part in entry.split('/'))
+                          for entry in entries):
+        raise ValueError('invalid public install-payload.txt contract')
+    excluded = {'.git', 'node_modules', '__pycache__', '.pytest_cache', '.mypy_cache',
+                '.ruff_cache', '.cache', '.venv', '.private', '.learnings', '.DS_Store'}
+    return {name: data for name, data in source.items()
+            if not name.startswith('mcp/') and not excluded.intersection(name.split('/'))
+            and not name.endswith(('.pyc', '.pyo'))
+            and any(name.startswith(entry) if entry.endswith('/') else name == entry for entry in entries)}
+
+
 def capture(product, fixture, destination, canonical, runtime):
     product, fixture = product.resolve(), fixture.resolve()
     if product == fixture or product in fixture.parents or fixture in product.parents:
@@ -74,6 +98,7 @@ def capture(product, fixture, destination, canonical, runtime):
     if set(p.name for p in fixture.iterdir()) - {'AGENTS.md'}:
         raise ValueError('expected fresh F1/F2 fixture')
     source = indexed_source(product)  # independent expected bytes BEFORE execution
+    payload = files_only_payload(source)
     targets = json.loads((canonical / 'manifest.json').read_text(encoding='utf-8'))['targets']
     if len(targets) != 9 or len({row['name'] for row in targets}) != 9:
         raise ValueError('expected all nine canonical categories')
@@ -170,10 +195,8 @@ def capture(product, fixture, destination, canonical, runtime):
                 install = ['bash', str(fixture / 'install.sh'), '--source-directory', str(fixture), '--install-root', str(install_root), '--target', 'FilesOnly', '--skip-agent-install', '--skip-mcp']
                 uninstall = ['bash', str(fixture / 'uninstall.sh'), '--install-root', str(install_root), '--target', 'FilesOnly', '--skip-agent-uninstall', '--skip-mcp-uninstall']
             success(install, 'current install')
-            # FilesOnly public layout: indexed release files at install root,
-            # with MCP payload excluded by SkipMcp. Never read installer output
-            # or invoke installer logic to construct this expected manifest.
-            payload = {name: data for name, data in source.items() if not name.startswith('mcp/')}
+            # Compare against the authorized payload and indexed bytes captured
+            # before execution, including absence of MCP under SkipMcp.
             write('install-result', actual_manifest(install_root), manifest(payload))
             success(uninstall, 'current uninstall')
             write('uninstall-result', actual_manifest(install_root))
