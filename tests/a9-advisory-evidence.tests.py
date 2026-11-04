@@ -57,6 +57,9 @@ def fixture(root):
     def git(*args):
         return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE).decode().strip()
     git('init', '-q')
+    # Fixture teardown must not race detached writers started by Git commits.
+    for key, value in (('gc.auto', '0'), ('gc.autoDetach', 'false'), ('maintenance.auto', 'false')):
+        git('config', key, value)
     git('config', 'core.autocrlf', 'false')
     git('add', '.')
     git('-c', 'user.name=Synthetic Fixture', '-c', 'user.email=fixture@example.invalid',
@@ -68,6 +71,31 @@ def fixture(root):
     git('-c', 'user.name=Synthetic Fixture', '-c', 'user.email=fixture@example.invalid',
         '-c', 'commit.gpgsign=false', 'commit', '-qm', 'synthetic PR')
     return base, git('rev-parse', 'HEAD'), path
+
+
+class FixtureLifecycleTests(unittest.TestCase):
+    def test_fixture_commits_do_not_start_background_maintenance(self):
+        with tempfile.TemporaryDirectory(prefix='a9-git-lifecycle-') as raw:
+            directory = Path(raw)
+            root = directory / 'repo'
+            root.mkdir()
+            config = directory / 'gitconfig'
+            config.write_text('[gc]\n\tauto = 1\n\tautoDetach = true\n'
+                              '[maintenance]\n\tauto = true\n', encoding='utf-8')
+            trace = directory / 'git-trace.jsonl'
+            with patch.dict(os.environ, {
+                'GIT_CONFIG_GLOBAL': str(config), 'GIT_CONFIG_NOSYSTEM': '1',
+                'GIT_CONFIG_COUNT': '0', 'GIT_TRACE2_EVENT': str(trace),
+            }):
+                os.environ.pop('GIT_CONFIG_PARAMETERS', None)
+                fixture(root)
+            events = [json.loads(line) for line in trace.read_text(encoding='utf-8').splitlines()]
+            self.assertTrue(any(event['event'] == 'start' for event in events))
+            maintenance = [event['argv'] for event in events
+                           if event['event'] == 'child_start'
+                           and any(arg in ('maintenance', 'gc', 'repack', 'pack-objects')
+                                   for arg in event.get('argv', []))]
+            self.assertEqual(maintenance, [], 'fixture commits must not leave background Git writers')
 
 
 class ObservationTests(unittest.TestCase):
