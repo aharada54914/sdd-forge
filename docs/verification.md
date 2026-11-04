@@ -31,6 +31,37 @@ Timing estimates affect placement only: stale estimates can make a run slower,
 but cannot remove a test. The independent Windows compatibility, gate, and A9
 lanes remain dependencies of `required-checks`.
 
+### Native macOS runner
+
+Required macOS jobs use GitHub's standard `macos-26-intel` runner. This keeps
+native macOS and Bash 3.2 compatibility checks running during the observed
+ARM64 runner capacity shortage, without a paid runner or removing test steps.
+The PowerShell-heavy `test`, `installers`, `version-gates`, and `cloud-native`
+jobs have a bounded 90-minute timeout only on Intel macOS. Their other OS lanes
+keep the existing 30-minute limits (45 minutes for `version-gates`). Recovery
+keeps its measured 45-minute limit, and lighter jobs keep their existing limits.
+
+The [observed Intel cloud run](https://github.com/aharada54914/sdd-forge/actions/runs/41863408248/job/126692099781)
+exhausted its 30-minute limit while passing assertions in only the fourth of six
+suites; the [main lane](https://github.com/aharada54914/sdd-forge/actions/runs/41863408248/job/126692099338)
+was still making progress after 33 minutes with substantial work remaining.
+The larger budget provides more time for the same work; it is neither a
+performance guarantee nor a passing result. Commands, assertions and required jobs remain unchanged.
+
+Planning and collection still admit `macos-latest` as well as the explicit Intel
+label; neither label is an alias for recorded evidence from the other.
+
+Branch protection still requires the historical display context
+`test (macos-latest)`. That display name is stable; the test matrix's separate
+`os` field, `runs-on`, plan obligations and collected runner labels identify
+`macos-26-intel`. The Windows and Linux display contexts are also unchanged.
+A display name does not assert the runner architecture.
+
+Report completed runs as Intel macOS 26 coverage. This change does not establish
+ARM64 execution or compatibility, and queued ARM64 jobs are not passing checks.
+Workflow changes require new baseline and mutation runs before selective CI
+activation; observations from earlier runner definitions cannot be reused.
+
 ## Selection experiment
 
 `tests/verification-impact.py` proposes a selection and reports its basis. It is

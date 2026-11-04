@@ -259,13 +259,21 @@ jobs:
         run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4 --receipt "$RUNNER_TEMP/verification-shard.json"
 
   test:
+    # Branch protection keeps stable OS context names; os is the actual runner.
+    name: test (${{ matrix.check }})
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            check: windows-latest
+          - os: macos-26-intel
+            check: macos-latest
+          - os: ubuntu-latest
+            check: ubuntu-latest
     runs-on: ${{ matrix.os }}
-    # Native macOS regression runs can exceed 30 minutes while making progress.
-    timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}
+    # Bound PowerShell-heavy Intel work without shortening other platforms' coverage.
+    timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 30 }}
     steps:
       # eval-lane: (none yet)
       - name: "[deterministic] Setup step 1"
@@ -541,12 +549,12 @@ jobs:
             lane: clients
           - os: windows-latest
             lane: context
-          - os: macos-latest
+          - os: macos-26-intel
             lane: all
           - os: ubuntu-latest
             lane: all
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 30 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -778,9 +786,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 45 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -1354,7 +1362,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -1415,7 +1423,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -1467,7 +1475,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -1516,7 +1524,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
@@ -1551,7 +1559,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-26-intel, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
@@ -1609,14 +1617,14 @@ jobs:
 
   cloud-native:
     name: Cloud contracts and local tools (${{ matrix.os }})
-    timeout-minutes: 30
+    timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 30 }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os:
           - windows-latest
-          - macos-latest
+          - macos-26-intel
           - ubuntu-latest
     steps:
       - name: Checkout cloud assertions

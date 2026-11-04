@@ -1,5 +1,20 @@
 # T-006 protected-file registration bundle -- regenerated candidate (quality-gate remediation)
 
+## Standard Intel macOS runner update — 2026-11-04
+
+The current workflow candidate matches the live workflow after pinning its
+macOS matrices to the standard `macos-26-intel` runner. All 138 native macOS
+workload steps are retained. Following observed Intel timeouts during continuing
+successful work, the PowerShell-heavy `test`, `installers`, `version-gates` and
+`cloud-native` jobs have Intel-only 90-minute limits. Other OS limits, recovery's
+45-minute limit and lighter jobs are unchanged. These bounded budgets do not
+promise performance or turn a timeout into a passing result. The workflow
+manifest hash was updated; the six other candidate files and the historical
+`human-copy/` archive are unchanged. Hosted results must identify actual Intel
+execution and do not establish ARM64 coverage. The main test job preserves the
+branch-protection display context `test (macos-latest)` through a separate
+matrix `check` field; its actual `os` and `runs-on` remain `macos-26-intel`.
+
 ## Recovery update — 2026-09-08
 
 This dated update supersedes the historical counts and pending-apply claims
