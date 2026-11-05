@@ -62,6 +62,7 @@ make_fake_cli() {
         cat > "${bin_dir}/${command}" <<EOF
 #!/bin/sh
 printf '%s %s\\n' '${command}' "\$*" >> $(shell_literal "$log")
+if [ "${command}" = claude ] && [ "\$1" = --version ]; then echo "2.1.317 (Claude Code)"; exit 0; fi
 exit 0
 EOF
         chmod +x "${bin_dir}/${command}"

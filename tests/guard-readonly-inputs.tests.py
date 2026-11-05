@@ -169,6 +169,148 @@ class ReaderInputs(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertEqual(json.loads(result.stdout)['permissionDecision'], 'deny')
 
+    def test_literal_backup_copy_and_filesystem_boundaries(self):
+        fixture = self.root.resolve() / 'backup-fixture'
+        source_dir = fixture / '.claude'
+        destination_dir = fixture / 'backup space'
+        source_dir.mkdir(parents=True)
+        destination_dir.mkdir()
+        source = source_dir / 'settings.json'
+        original = b'{"fixture": "protected settings"}\n'
+        source.write_bytes(original)
+        self.environ = {**self.environ, 'HOME': fixture.as_posix()}
+        prefix = 'BK="' + destination_dir.as_posix() + '"; cp -a ~/.claude/settings.json '
+        allowed = (
+            prefix + '"$BK/claude-settings.json.bak"',
+            prefix + '"${BK}/claude-settings.json.bak"',
+            'cp -- ~/.claude/settings.json "$HOME/backup space/claude-settings.json.bak"',
+        )
+        for command in allowed:
+            self.decision(command, 'allow')
+        existing = destination_dir / 'existing.bak'
+        existing.write_text('keep')
+        for command in (
+            'cp ~/.claude/settings.json "$UNBOUND/backup.bak"',
+            prefix + "'$BK/claude-settings.json.bak'",
+            prefix + '"$BK/existing.bak"',
+            prefix + '"$BK"',
+            prefix + '"$BK/../.claude/settings.json"',
+            prefix + '"${BK:-/tmp}/new.bak"',
+            prefix + '"$(printf /tmp)/new.bak"',
+            prefix + '"$BK/new.bak"; rm ~/.claude/settings.json',
+            prefix.replace('cp -a', 'cp -t') + '"$BK/new.bak"',
+            prefix.replace('BK=', 'PATH=') + '"$PATH/new.bak"',
+            'BK="' + destination_dir.as_posix() + '\\"; cp -a ~/.claude/settings.json "$BK/new.bak"',
+            prefix + '"$BK/new.bak\\"',
+        ):
+            self.decision(command, 'deny')
+        source.unlink()
+        source.mkdir()
+        try:
+            self.decision(prefix + '"$BK/directory.bak"', 'deny')
+        finally:
+            source.rmdir()
+            source.write_bytes(original)
+        known_home = self.environ
+        self.environ = {key: value for key, value in known_home.items() if key != 'HOME'}
+        try:
+            self.decision(prefix + '"$BK/no-home.bak"', 'deny')
+            self.decision(prefix.replace('~/.claude/settings.json', '"' + source.as_posix() + '"') + '"$BK/absolute.bak"', 'allow')
+        finally:
+            self.environ = known_home
+        if os.name != 'nt':
+            # Exercise actual admitted argv and effects, not just the classifier.
+            result = subprocess.run(['bash', '-c', allowed[0]], cwd=fixture, env=self.environ,
+                                    text=True, capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((destination_dir / 'claude-settings.json.bak').read_bytes(), original)
+            self.assertEqual(source.read_bytes(), original)
+            os.link(source, destination_dir / 'linked.bak')
+            self.decision(prefix + '"$BK/linked.bak"', 'deny')
+            (destination_dir / 'symlink.bak').symlink_to(source)
+            self.decision(prefix + '"$BK/symlink.bak"', 'deny')
+            (destination_dir / 'dangling.bak').symlink_to(source_dir / 'absent.json')
+            self.decision(prefix + '"$BK/dangling.bak"', 'deny')
+            (fixture / 'alias').symlink_to(destination_dir, target_is_directory=True)
+            self.decision(prefix.replace(destination_dir.as_posix(), (fixture / 'alias').as_posix()) + '"$BK/new.bak"', 'deny')
+            # Bash collapses a double-quoted escaped backslash. Never inspect
+            # the two-backslash path while cp writes into the one-backslash dir.
+            modeled = fixture / 'two\\\\slashes'
+            actual = fixture / 'two\\slashes'
+            modeled.mkdir()
+            (actual / '.claude').mkdir(parents=True)
+            victim = actual / '.claude/settings.json'
+            victim.write_text('unchanged')
+            escaped_assignment = 'BK="' + modeled.as_posix() + '"; cp -a ~/.claude/settings.json "$BK/.claude"'
+            self.decision(escaped_assignment, 'deny')
+            self.assertEqual(victim.read_text(), 'unchanged')
+            subprocess.run(['bash', '-c', escaped_assignment], cwd=fixture, env=self.environ,
+                           text=True, capture_output=True, check=True, timeout=10)
+            self.assertEqual(victim.read_bytes(), original, 'fixture must reproduce Bash path decoding')
+        if os.name == 'nt':
+            # Native drive spelling and Git Bash's /c/... spelling share policy.
+            native = str(destination_dir)
+            self.decision('BK="' + native + '"; cp -a ~/.claude/settings.json "$BK/native.bak"', 'allow')
+            self.decision("BK='" + native + "'; cp -a ~/.claude/settings.json \"$BK/single-quote.bak\"", 'allow')
+            msys = '/' + destination_dir.drive[0].lower() + destination_dir.as_posix()[2:]
+            self.decision('BK="' + msys + '"; cp -a ~/.claude/settings.json "$BK/msys.bak"', 'allow')
+            for suffix in ('stream.bak:settings.json', 'trailing.bak.', 'trailing.bak '):
+                self.decision(prefix + '"$BK/' + suffix + '"', 'deny')
+            self.decision('BK=/tmp; cp -a ~/.claude/settings.json "$BK/unmapped.bak"', 'deny')
+
+    def test_read_only_glob_loop_with_line_continuations(self):
+        command = 'for item in ./*.md; do \\\n cat -- "$item"; head -n 1 -- "${item}"; wc -l -- "$item"; done'
+        self.decision(command, 'allow')
+        for mutation in (
+            command.replace('cat --', 'cat'),
+            command.replace('cat -- "$item"', 'eval "$item"'),
+            command.replace('cat -- "$item"', 'cat -- "$item" > ~/.claude/settings.json'),
+            command.replace('cat -- "$item"', 'rg --pre=evil "$item"'),
+            command.replace('./*.md', '$(touch ~/.claude/settings.json)'),
+            command.replace('item', 'PATH'),
+            command.replace('item', 'SECONDS'),
+            command.replace('item', 'RANDOM'),
+            command.replace('item', 'BASH_ALIASES'),
+            command.replace('done', 'done; rm ~/.claude/settings.json'),
+            'for item in ./*.md; do cat -- \\\r\n"$item"; done',
+        ):
+            self.decision(mutation, 'deny')
+        if os.name != 'nt':
+            fixture = self.root / 'loop-fixture'
+            fixture.mkdir()
+            (fixture / 'one.md').write_text('one\ntwo\n')
+            (fixture / '--pre=evil.md').write_text('option-looking name\n')
+            before = {file.name: file.read_bytes() for file in fixture.iterdir()}
+            result = subprocess.run(['bash', '-c', command], cwd=fixture, env=self.environ,
+                                    text=True, capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('option-looking name', result.stdout)
+            self.assertEqual({file.name: file.read_bytes() for file in fixture.iterdir()}, before)
+
+    @unittest.skipIf(os.name == 'nt', 'Bash effect fixtures run once on POSIX, not on both PowerShell hosts')
+    def test_loop_special_variables_and_crlf_have_real_write_effects(self):
+        fixture = self.root / 'loop-special-variable-fixture'
+        protected = fixture / '.claude'
+        protected.mkdir(parents=True)
+        victim = protected / 'settings.json'
+        victim.write_text('unchanged')
+        (protected / 'a[$(printf HACKED > settings.json)]').write_text('')
+        integer_loop = 'for SECONDS in *; \\\n do cat -- "$SECONDS"; done'
+        self.decision(integer_loop, 'deny', cwd=protected)
+        self.assertEqual(victim.read_text(), 'unchanged')
+        subprocess.run(['bash', '-c', integer_loop], cwd=protected, env=self.environ,
+                       text=True, capture_output=True, timeout=10)
+        self.assertEqual(victim.read_text(), 'HACKED', 'fixture must exercise implicit Bash arithmetic')
+        victim.write_text('unchanged')
+        executable = fixture / 'run.md'
+        executable.write_text('#!/usr/bin/env bash\nprintf CRLF > .claude/settings.json\n')
+        executable.chmod(0o755)
+        crlf_loop = 'for item in ./*.md; do cat -- \\\r\n"$item"; done'
+        self.decision(crlf_loop, 'deny', cwd=fixture)
+        subprocess.run(['bash', '-c', crlf_loop], cwd=fixture, env=self.environ,
+                       text=True, capture_output=True, timeout=10)
+        self.assertEqual(victim.read_text(), 'CRLF', 'CRLF is not a Bash line continuation')
+
 
 if __name__ == '__main__':
     unittest.main(argv=[__file__] + REMAINING)

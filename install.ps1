@@ -10,6 +10,7 @@ param(
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
     [switch]$RequireClaude,
+    [string]$ClaudeCommand,
     [string]$SourceDirectory,
     [switch]$SkipMcp,
     [ValidateSet("sdd-forge-mcp", "local-env-mcp", "ci-mcp")]
@@ -70,6 +71,71 @@ function Invoke-PluginCommand {
     if ($LASTEXITCODE -ne 0) {
         throw "'$Command $($Arguments -join ' ')' failed with exit code $LASTEXITCODE."
     }
+}
+
+function Invoke-VersionPreflight {
+    param(
+        [Parameter(Mandatory)][string]$Command,
+        [Parameter(Mandatory)][string]$Label,
+        [ValidateRange(1, 300)][int]$TimeoutSeconds = 30
+    )
+
+    # Use the current PowerShell engine so .cmd npm shims, .ps1 launchers and
+    # native binaries share the same invocation semantics on 5.1 and 7. Only
+    # encoded, literal arguments cross the process boundary. Files avoid pipe
+    # deadlocks when a broken launcher leaves descendants holding stdout open.
+    $outFile = [IO.Path]::GetTempFileName()
+    $errFile = [IO.Path]::GetTempFileName()
+    $process = $null
+    try {
+        $quotedCommand = $Command.Replace("'", "''")
+        $quotedOut = $outFile.Replace("'", "''")
+        $quotedErr = $errFile.Replace("'", "''")
+        $probe = "`$ErrorActionPreference = 'Continue'; `$ProgressPreference = 'SilentlyContinue'; `$LASTEXITCODE = 0; & '$quotedCommand' --version > '$quotedOut' 2> '$quotedErr'; `$succeeded = `$?; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; if (-not `$succeeded) { exit 1 }; exit 0"
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($probe))
+        $engineName = if ($PSVersionTable.PSEdition -eq 'Desktop') { 'powershell.exe' } elseif ([IO.Path]::DirectorySeparatorChar -eq '\') { 'pwsh.exe' } else { 'pwsh' }
+        $start = New-Object Diagnostics.ProcessStartInfo
+        $start.FileName = Join-Path $PSHOME $engineName
+        $start.Arguments = "-NoProfile -NonInteractive -EncodedCommand $encoded"
+        $start.UseShellExecute = $false
+        $start.CreateNoWindow = $true
+        $process = [Diagnostics.Process]::Start($start)
+        if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
+            if ([IO.Path]::DirectorySeparatorChar -eq '\') {
+                # Process.Kill(bool) is unavailable on Windows PowerShell 5.1.
+                & (Join-Path $env:SystemRoot 'System32/taskkill.exe') /PID $process.Id /T /F *> $null
+            } else {
+                $process.Kill($true)
+            }
+            throw "$Label preflight timed out after $TimeoutSeconds seconds ('$Command --version'). Installation was not changed."
+        }
+        $output = [IO.File]::ReadAllText($outFile) + [IO.File]::ReadAllText($errFile)
+        if ($process.ExitCode -ne 0) {
+            throw "$Label preflight failed ('$Command --version', exit $($process.ExitCode)): $($output.Trim()). Installation was not changed."
+        }
+        return $output.Trim()
+    }
+    finally {
+        if ($process) { $process.Dispose() }
+        Remove-Item -LiteralPath $outFile, $errFile -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Initialize-ClaudeCommand {
+    $script:ResolvedClaudeCommand = $null
+    $script:ClaudeVersionOutput = $null
+    if ($Target -notin @('All', 'Claude')) { return }
+    $requested = if (-not [string]::IsNullOrWhiteSpace($ClaudeCommand)) { $ClaudeCommand } elseif (-not [string]::IsNullOrWhiteSpace($env:SDD_CLAUDE_BIN)) { $env:SDD_CLAUDE_BIN } else { 'claude' }
+    $explicitCommand = -not [string]::IsNullOrWhiteSpace($ClaudeCommand) -or -not [string]::IsNullOrWhiteSpace($env:SDD_CLAUDE_BIN)
+    $resolved = Get-Command $requested -CommandType Application, ExternalScript -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $resolved) {
+        if ($explicitCommand -or $Target -eq 'Claude' -or $RequireClaude) {
+            throw "Claude Code CLI was not found: '$requested'. Set -ClaudeCommand or SDD_CLAUDE_BIN to a working executable, or make 'claude' available on PATH."
+        }
+        return
+    }
+    $script:ResolvedClaudeCommand = $resolved.Source
+    $script:ClaudeVersionOutput = Invoke-VersionPreflight -Command $script:ResolvedClaudeCommand -Label 'Claude Code CLI'
 }
 
 # External CLIs report an already-present marketplace, MCP server, or plugin as
@@ -135,10 +201,10 @@ function Update-ClaudePlugins {
     # nothing is distinguishable from one that upgraded.
     param([Parameter(Mandatory)][string[]]$PluginNames)
 
-    Invoke-PluginCommand "claude" @("plugin", "marketplace", "update", "sdd-plugins")
+    Invoke-PluginCommand $script:ResolvedClaudeCommand @("plugin", "marketplace", "update", "sdd-plugins")
     $upgraded = 0
     foreach ($plugin in $PluginNames) {
-        $result = Invoke-CapturedCommand -Command "claude" -Arguments @("plugin", "update", "$plugin@sdd-plugins")
+        $result = Invoke-CapturedCommand -Command $script:ResolvedClaudeCommand -Arguments @("plugin", "update", "$plugin@sdd-plugins")
         if ($result.ExitCode -ne 0) {
             throw "'claude plugin update $plugin@sdd-plugins' failed with exit code $($result.ExitCode)."
         }
@@ -211,10 +277,7 @@ function Install-ClaudePlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
     $script:ClaudeRegistrationStatus = "requested"
-    if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
-        if ($Target -eq "Claude" -or $RequireClaude) {
-            throw "Claude Code CLI was not found in PATH. Install Claude Code, make sure 'claude' is on PATH, or rerun without -RequireClaude."
-        }
+    if (-not $script:ResolvedClaudeCommand) {
         $script:ClaudeRegistrationStatus = "skipped: Claude Code CLI was not found in PATH"
         Write-Warning "Claude Code CLI was not found. Claude registration was skipped."
         return
@@ -223,9 +286,9 @@ function Install-ClaudePlugins {
     # Validate before registration so an invalid selected manifest cannot leave
     # the marketplace registered as a successful Claude installation.
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "claude" @("plugin", "validate", (Join-Path $MarketplaceRoot "plugins/$plugin"))
+        Invoke-PluginCommand $script:ResolvedClaudeCommand @("plugin", "validate", (Join-Path $MarketplaceRoot "plugins/$plugin"))
     }
-    Invoke-IdempotentPluginCommand "the Claude sdd-plugins marketplace" "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
+    Invoke-IdempotentPluginCommand "the Claude sdd-plugins marketplace" $script:ResolvedClaudeCommand @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
     if ($SkipPluginInstall) {
         $script:ClaudeRegistrationStatus = "marketplace registered; plugin install skipped"
         return
@@ -236,7 +299,7 @@ function Install-ClaudePlugins {
     # update path below.
     $alreadyInstalled = [System.Collections.Generic.List[string]]::new()
     foreach ($plugin in $Plugins) {
-        $result = Invoke-CapturedCommand -Command "claude" -Arguments @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
+        $result = Invoke-CapturedCommand -Command $script:ResolvedClaudeCommand -Arguments @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
         if ($result.ExitCode -ne 0) {
             throw "'claude plugin install $plugin@sdd-plugins --scope user' failed with exit code $($result.ExitCode)."
         }
@@ -286,6 +349,30 @@ function Install-CodexAgents {
 # ---------------------------------------------------------------------------
 # MCP: Node version check, placement, and Claude/Codex/Cursor/VS Code registration
 # ---------------------------------------------------------------------------
+function Test-ClaudeHookRuntime {
+    if ($Target -notin @('All', 'Claude') -or $SkipPluginInstall -or
+        'sdd-quality-loop' -notin $Plugins -or -not $script:ResolvedClaudeCommand) { return }
+
+    $claudeMatch = [regex]::Match($script:ClaudeVersionOutput, '^([0-9]+\.[0-9]+\.[0-9]+)(?:\s|$)')
+    $claudeVersion = $null
+    if (-not $claudeMatch.Success -or
+        -not [version]::TryParse($claudeMatch.Groups[1].Value, [ref]$claudeVersion) -or
+        $claudeVersion -lt [version]'2.1.295') {
+        throw 'Claude Code >= 2.1.295 is required for fail-closed quality-loop hooks. Installation was not changed.'
+    }
+    $node = Get-Command node -CommandType Application, ExternalScript -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $node) {
+        throw 'Claude quality-loop hooks require Node.js >= 22.19.0 on PATH, even with -SkipMcp. Install Node.js and restart the host before retrying. Installation was not changed.'
+    }
+    $output = Invoke-VersionPreflight -Command $node.Source -Label 'Node.js for Claude quality-loop hooks'
+    $nodeVersion = $null
+    if ($output -notmatch '^v?([0-9]+\.[0-9]+\.[0-9]+)$' -or
+        -not [version]::TryParse($Matches[1], [ref]$nodeVersion) -or
+        $nodeVersion -lt [version]'22.19.0') {
+        throw "Claude quality-loop hooks require working Node.js >= 22.19.0 (found '$output'), even with -SkipMcp. Installation was not changed."
+    }
+}
+
 function Test-NodeVersionOk {
     if (-not (Get-Command "node" -ErrorAction SilentlyContinue)) {
         Write-Warning "Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)."
@@ -364,14 +451,14 @@ function Install-McpServerPayloads {
 function Register-ClaudeMcp {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
-    if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
+    if (-not $script:ResolvedClaudeCommand) {
         Write-Warning "Claude Code CLI was not found. Claude MCP registration was skipped."
         return
     }
     foreach ($name in $Mcp) {
         $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
         if (-not (Test-Path -LiteralPath $entryPoint)) { continue }
-        Invoke-IdempotentPluginCommand "MCP server '$name'" "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
+        Invoke-IdempotentPluginCommand "MCP server '$name'" $script:ResolvedClaudeCommand @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
     }
 }
 
@@ -870,7 +957,7 @@ try {
 
     foreach ($relativePath in (Get-RequiredPaths)) {
         if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot $relativePath))) {
-            throw "Required file is missing: $relativePath"
+            throw "Required file is missing: $relativePath. The source checkout or archive may be incomplete. On Windows, path-length limits are one possible cause: clone into a short directory (for example C:\src\sdd-forge) using 'git -c core.longpaths=true clone <repository> <short-directory>', and verify checkout completed before retrying."
         }
     }
 
@@ -919,6 +1006,10 @@ try {
     if ($InstallRoot.TrimEnd("\", "/") -eq ([System.IO.Path]::GetFullPath($sourceRoot)).TrimEnd("\", "/")) {
         throw "InstallRoot must differ from SourceDirectory."
     }
+
+    # Fail before creating parents, staging, or replacing an existing root.
+    Initialize-ClaudeCommand
+    Test-ClaudeHookRuntime
 
     $installParent = Split-Path -Parent $InstallRoot
     if (-not (Test-Path -LiteralPath $installParent)) {

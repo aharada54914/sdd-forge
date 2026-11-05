@@ -205,6 +205,7 @@ SHIM
             cat > "$shim" <<SHIM
 #!/bin/sh
 echo "${cmd} \$*" >> $(shell_literal "$log_path")
+if [ "${cmd}" = claude ] && [ "\$1" = --version ]; then echo "2.1.317 (Claude Code)"; exit 0; fi
 echo "\$*" | grep -qF $(shell_literal "$fail_pattern") && exit 9
 exit 0
 SHIM
@@ -212,6 +213,7 @@ SHIM
             cat > "$shim" <<SHIM
 #!/bin/sh
 echo "${cmd} \$*" >> $(shell_literal "$log_path")
+if [ "${cmd}" = claude ] && [ "\$1" = --version ]; then echo "2.1.317 (Claude Code)"; exit 0; fi
 exit 0
 SHIM
         fi
@@ -1670,7 +1672,7 @@ printf '{\n  "servers": {}\n}\n' > "${_w2_root}/vscode-user/mcp.json"
 cp "${_w2_root}/cursor/mcp.json" "${_w2_root}/cursor-before.json"
 cp "${_w2_root}/vscode-user/mcp.json" "${_w2_root}/vscode-before.json"
 _w2_failed=0
-_w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install 2>&1)" || _w2_failed=1
+_w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install --plugins sdd-bootstrap 2>&1)" || _w2_failed=1
 export PATH="$_w2_orig_path"
 if [[ -z "$_w2_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_w2_orig_codex_home"; fi
 if [[ -z "$_w2_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_w2_orig_cursor_dir"; fi
@@ -1985,6 +1987,88 @@ else
 fi
 _fixture_matrix_cleanup "$_t003_absent"
 _fixture_matrix_cleanup "$_t003_present"
+
+# Claude guard prerequisites must fail before creating or replacing an install,
+# including --skip-mcp. FilesOnly keeps its separate optional MCP behavior above.
+_hook_root="$(mktemp -d)"
+_hook_bin="${_hook_root}/bin"
+make_fake_commands "$_hook_bin" "${_hook_root}/commands.log"
+# A bounded PATH makes the absent-Node case independent of the runner's Node.
+for _hook_tool in bash sh git dirname basename mktemp rm cat sleep grep sed sort realpath readlink uname; do
+    _hook_path="$(command -v "$_hook_tool" || true)"
+    [[ -z "$_hook_path" ]] || ln -s "$_hook_path" "${_hook_bin}/${_hook_tool}"
+done
+# Apple git invokes xcrun; only git's child environment needs system PATH.
+rm "${_hook_bin}/git"
+printf '#!/bin/sh\nPATH="/usr/bin:/bin:$PATH" exec %s "$@"\n' "$(shell_literal "$(command -v git)")" > "${_hook_bin}/git"
+chmod +x "${_hook_bin}/git"
+for _hook_case in missing broken old invalid hanging claude-old valid; do
+    rm -f "${_hook_bin}/node"
+    _hook_node='echo v22.19.0'
+    case "$_hook_case" in
+        broken) _hook_node='exit 127' ;;
+        old) _hook_node='echo v22.18.0' ;;
+        invalid) _hook_node='echo v22.19.0-rc.1' ;;
+        hanging) _hook_node="sleep 120 & child=\$!; echo \"\$child\" > $(shell_literal "${_hook_root}/child.pid"); wait \"\$child\"" ;;
+    esac
+    if [[ "$_hook_case" != missing ]]; then
+        printf '#!/bin/sh\n%s\n' "$_hook_node" > "${_hook_bin}/node"
+        chmod +x "${_hook_bin}/node"
+    fi
+    _hook_claude='2.1.317'
+    [[ "$_hook_case" != claude-old ]] || _hook_claude='2.1.294'
+    [[ "$_hook_case" != valid ]] || _hook_claude='2.1.295'
+    printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "%s (Claude Code)"; fi\n' "$_hook_claude" > "${_hook_bin}/claude"
+    chmod +x "${_hook_bin}/claude"
+    _hook_install="${_hook_root}/${_hook_case}/installed"
+    mkdir -p "$_hook_install"
+    printf 'preserve me\n' > "${_hook_install}/old.marker"
+    _hook_failed=0
+    # Valid install needs the normal staging utilities as well as the shims.
+    _hook_path="$_hook_bin"
+    [[ "$_hook_case" != valid ]] || _hook_path="$_hook_bin:$PATH"
+    _hook_started=$SECONDS
+    _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
+    if [[ "$_hook_case" == valid ]]; then
+        if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" ]]; then
+            ok "Claude hooks: supported runtime installs with --skip-mcp"
+        else
+            fail "Claude hooks: supported runtime failed: $_hook_out"
+        fi
+    elif [[ $_hook_failed -ne 0 && "$(cat "${_hook_install}/old.marker" 2>/dev/null)" == 'preserve me' && "$_hook_out" == *'Installation was not changed.'* && "$_hook_out" == *'quality-loop hooks'* ]]; then
+        ok "Claude hooks: $_hook_case runtime leaves existing install untouched"
+    else
+        fail "Claude hooks: $_hook_case did not fail before mutation: $_hook_out"
+    fi
+    if [[ "$_hook_case" == hanging ]]; then
+        if (( SECONDS - _hook_started < 45 )); then
+            ok "Claude hooks: hanging runtime is bounded to the preflight deadline"
+        else
+            fail "Claude hooks: hanging runtime exceeded 45 seconds"
+        fi
+        _hook_child="$(cat "${_hook_root}/child.pid")"
+        # A killed child can remain a zombie until the OS reaps it; it must
+        # never still execute after the preflight deadline.
+        _hook_state="$(ps -o stat= -p "$_hook_child" 2>/dev/null || true)"
+        if [[ -z "$_hook_state" || "$_hook_state" == Z* ]]; then
+            ok "Claude hooks: timeout stops the launcher and its child"
+        else
+            fail "Claude hooks: timeout left child $_hook_child running ($_hook_state)"
+            kill -KILL "$_hook_child" 2>/dev/null || true
+        fi
+    fi
+    rm -rf "$_hook_install"
+    if [[ "$_hook_case" != valid && "$_hook_case" != hanging ]]; then
+        _hook_failed=0
+        _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
+        if [[ $_hook_failed -ne 0 && ! -e "$_hook_install" && "$_hook_out" == *'Installation was not changed.'* ]]; then
+            ok "Claude hooks: $_hook_case runtime does not create a new install"
+        else
+            fail "Claude hooks: $_hook_case created a new install or wrong failure: $_hook_out"
+        fi
+    fi
+done
+rm -rf "$_hook_root"
 
 # ---------------------------------------------------------------------------
 # Summary

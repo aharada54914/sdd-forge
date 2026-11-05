@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.23.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.23.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
 [research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
@@ -165,6 +165,18 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 ./install.ps1 -SkipMcp
 ```
 
+**Windows で手元のクローンから導入する場合**: 書き込み可能な短いパスを使い、最初のチェックアウトから Git の長いパス対応を有効にしてください。次の例では、まだ存在しない `C:\src\sdd-forge` に取得します。
+
+```powershell
+git -c core.longpaths=true clone https://github.com/aharada54914/sdd-forge.git C:\src\sdd-forge
+if ($LASTEXITCODE -ne 0) { throw 'clone に失敗しました。導入せず、エラーを確認してください。' }
+Set-Location C:\src\sdd-forge
+git config core.longpaths true
+.\install.ps1 -SourceDirectory .
+```
+
+最初の `-c` は clone 中に適用し、その後の `git config` はこのリポジトリだけに設定を保存します。ユーザー全体の Git 設定は変更しません。Git の設定だけでは Windows や各アプリのパス長制限は解除されないため、深い `%APPDATA%` 配下などは避けてください。`Filename too long` などでチェックアウトに失敗したソースは、`-SourceDirectory` に渡さないでください。既存の作業や未コミット変更を残したまま、別の短い空きパスへ取得し直します。設定を後から変えるだけでは、欠けたファイルは復元されません。
+
 主なオプションは次のとおりです。`.sh` / `.ps1` で共通ですが、PowerShell では `-CamelCase` で指定します。
 
 | オプション | 説明 |
@@ -179,6 +191,14 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 | `--source-directory <path>` | ダウンロードの代わりにローカルディレクトリを使用 |
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
 | `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
+
+**PowerShell で Claude の実行先を指定する場合**: `-ClaudeCommand`、環境変数 `SDD_CLAUDE_BIN`、PATH 上の `claude` の順に選択します。PATH の先頭に古い shim などが残る場合は、実際に利用できる CLI を明示してください。値は実行ファイル・スクリプトのパスまたはコマンド名で、追加引数を含むコマンドラインは指定できません。
+
+```powershell
+.\install.ps1 -Target Claude -ClaudeCommand 'C:\tools\claude.exe' -SourceDirectory .
+```
+
+`All` / `Claude` を対象にする場合、選択した CLI の `--version` を 30 秒以内に確認してからインストール先を更新します。起動失敗・非ゼロ終了・タイムアウト時は、インストール先を変更せず終了します。`-SkipPluginInstall` でも marketplace 登録は行うため、この確認は必要です。`FilesOnly` / `Codex` / `Copilot` では Claude の検出・確認は行いません。`All` で CLI が見つからず、実行先の明示や `-RequireClaude` もない場合は、従来どおり Claude への登録をスキップします。この実行先指定は `install.ps1` のオプションです。
 
 `--plugins` に指定できる名前は次の 9 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud`。
 
@@ -196,7 +216,11 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 > **`sdd-domain` は明示指定で導入できます。** Bash は `./install.sh --plugins sdd-domain`、PowerShell は `./install.ps1 -Plugins sdd-domain` を実行してください。必要な `sdd-bootstrap`・`sdd-quality-loop` と、bootstrap の依存先 `sdd-review-loop` も自動登録されます。既定のインストール構成には含まれません。全体アンインストールでは登録解除され、domain だけを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使います（依存プラグインと共有ファイルは保持）。
 
-**Node.js の要件**: 同梱の MCP サーバー（`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`）はいずれも `engines.node >= 22.19.0` を要求します。`node` が PATH に無い場合やバージョンが 22.19.0 未満の場合、**MCP の配置・登録のみが警告付きでスキップされ、プラグイン本体のインストールは継続します**。
+**Node.js の要件**: 同梱の MCP サーバーと Claude 用の安全フックには **Node.js >= 22.19.0** が必要です。`All` / `Claude` で、依存を含む対象に `sdd-quality-loop` があり、実際に Claude へプラグインを登録する場合、インストーラは `node --version` を 30 秒以内に確認します。未検出・古いバージョン・起動失敗の場合は、インストール先を変更せず終了します。`-SkipPluginInstall` / `--skip-plugin-install` や `FilesOnly` など、安全フックを登録しない場合の MCP は任意です。Node の要件を満たさなければ MCP の配置・登録のみ警告付きでスキップします。
+
+**Claude の安全フックを有効にするには**: **Claude Code >= 2.1.295** を使ってください。安全フックを登録する際は Claude のバージョンも確認し、要件を満たさなければインストール先を変更せず終了します。対応版では `onFailure: block` により、Node が見つからないなどのフック起動失敗時も対象の操作を止めます。旧版のこの動作は保証できないため、先に更新してください。フックと MCP は実行時に `node` を起動するので、インストール時だけでなく **Claude を起動する環境の PATH** にも Node が必要です。
+
+インストール成功だけでは、実際のホストでフックが動いた証明にはなりません。bootstrap の[有効化確認](plugins/sdd-bootstrap/skills/bootstrap/SKILL.md#track-selection)で、そのセッション自身のツール呼び出しと毎回新しいチャレンジを使って `HOOK_ACTIVE` を確認します。それ以外の結果は `CAPABILITY_RUNTIME_UNAVAILABLE` として作業を停止し、Node・PATH・ホスト設定を復旧してから確認し直してください。Node の削除・更新や実行環境の変更後も再確認が必要です。起動エラーや単なるコマンド失敗を、フックが操作を拒否した証拠として扱わないでください。
 
 **その他の前提**: リモートからのインストールには GitHub CLI で認証済みのセッション（`gh auth login`）が必要です。`--source-directory` を使う場合は不要です。環境変数 `SDD_CODEX_HOME` / `SDD_CURSOR_DIR` / `SDD_VSCODE_USER_DIR` で、それぞれ `~/.codex` / `~/.cursor` / VS Code ユーザープロファイルの位置を上書きできます。
 

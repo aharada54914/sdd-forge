@@ -428,6 +428,55 @@ mcp_selected() {
     return 1
 }
 
+# Bound probes before install-root changes, including broken executable shims.
+read_command_version() (
+    local output pid status=0 tick
+    output="$(mktemp)" || return 1
+    # A broken shim may wait on another process. Give the probe its own group
+    # so the deadline also stops descendants, without changing caller options.
+    set -m
+    "$1" --version >"$output" 2>&1 &
+    pid=$!
+    set +m
+    trap 'kill -KILL -- "-$pid" 2>/dev/null || true; rm -f "$output"' EXIT
+    for ((tick=0; tick<300; tick++)); do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+        kill -KILL -- "-$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+        echo "Runtime --version preflight timed out after 30 seconds." >&2
+        return 1
+    fi
+    wait "$pid" || status=$?
+    cat "$output"
+    return "$status"
+)
+
+preflight_claude_hook_runtime() {
+    [[ "$TARGET" == All || "$TARGET" == Claude ]] || return 0
+    [[ "$SKIP_PLUGIN_INSTALL" -eq 0 ]] || return 0
+    case ",$PLUGINS," in *,sdd-quality-loop,*) ;; *) return 0 ;; esac
+    command -v claude >/dev/null 2>&1 || return 0
+    local version major minor patch
+    version="$(read_command_version claude)" || version=""
+    if [[ ! "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)([[:space:]]|$) ]] ||
+       (( ${#BASH_REMATCH[1]} > 9 || ${#BASH_REMATCH[2]} > 9 || ${#BASH_REMATCH[3]} > 9 )); then
+        echo "Error: Could not verify Claude Code >= 2.1.295, required for fail-closed quality-loop hooks. Installation was not changed." >&2
+        return 1
+    fi
+    major=$((10#${BASH_REMATCH[1]})); minor=$((10#${BASH_REMATCH[2]})); patch=$((10#${BASH_REMATCH[3]}))
+    if (( major < 2 || (major == 2 && minor < 1) || (major == 2 && minor == 1 && patch < 295) )); then
+        echo "Error: Claude Code >= 2.1.295 is required for fail-closed quality-loop hooks (found $version). Installation was not changed." >&2
+        return 1
+    fi
+    if ! node_version_ok >/dev/null 2>&1; then
+        echo "Error: Claude quality-loop hooks require working Node.js >= 22.19.0 on PATH, even with --skip-mcp. Install Node.js and restart the host before retrying. Installation was not changed." >&2
+        return 1
+    fi
+}
+
 node_version_ok() {
     # Returns 0 if `node` is on PATH and its version is >= 22.19.0.
     if ! command -v node >/dev/null 2>&1; then
@@ -436,7 +485,7 @@ node_version_ok() {
     fi
     local version major minor patch
     local minimum_major=22 minimum_minor=19 minimum_patch=0
-    version="$(node --version 2>/dev/null)" || version=""
+    version="$(read_command_version node)" || version=""
     # Stable Node releases report vNN.N.N. Fail closed on any other shape.
     if [[ ! "$version" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
         echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
@@ -1099,6 +1148,8 @@ fi
 # ---------------------------------------------------------------------------
 # Stage, swap, register
 # ---------------------------------------------------------------------------
+preflight_claude_hook_runtime
+
 INSTALL_PARENT="$(dirname "$INSTALL_ROOT")"
 mkdir -p "$INSTALL_PARENT"
 
