@@ -190,8 +190,12 @@ def exercise(f, directory):
     f.check('Flyway records failed nontransactional version', sql(
         "SELECT version,success FROM flyway_schema_history WHERE version='3';", database='faults').stdout.strip() == '3\t0')
     retry = migration(database='faults', location=failed_migrations)
-    f.check('owner refuses blindly retrying failed migration', retry.returncode != 0 and
-            sql('SELECT COUNT(*) FROM partial_probe;', database='faults').stdout.strip() == '1')
+    retry_error = json.loads(retry.stdout).get('error', {})
+    f.check('owner refuses blindly retrying failed migration', retry.returncode != 0
+            and retry_error.get('errorCode') == 'VALIDATE_ERROR'
+            and 'Detected failed migration to version 3 (partial probe).' in retry_error.get('message', '')
+            and sql('SELECT COUNT(*) FROM partial_probe;', database='faults').stdout.strip() == '1',
+            {'exit_code': retry.returncode, 'error': retry_error})
     sql('ROLLBACK;', database='faults', label='observe rollback cannot undo committed DDL')
     f.check('rollback cannot erase implicitly committed partial migration', sql(
         'SELECT id FROM partial_probe;', database='faults').stdout.strip() == '1')

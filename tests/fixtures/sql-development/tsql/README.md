@@ -37,3 +37,9 @@ Evidence includes generated deployment report/script hashes and redacted
 commands, source/input hashes, tool versions, actual data/permission/timeout
 observations and cleanup. The result does not certify Azure SQL Database,
 Managed Instance, live-cloud authentication, or production performance.
+
+The pinned ODBC `sqlcmd -t 1` reports `Timeout expired` with process exit 0 in
+this fixture. The timeout check requires that exact diagnostic, the bounded
+elapsed interval, a committed start marker, absence of the transactional row,
+and absence of the old SQLCMD session. Exit code alone cannot establish either
+successful execution or completed rollback.

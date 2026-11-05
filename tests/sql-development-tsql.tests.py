@@ -279,16 +279,24 @@ def main():
             fixture.check('roll-forward-after-observation', scalar("SELECT Label FROM dbo.Account WHERE Id=9") == 'recovered')
 
             started = time.monotonic()
-            timed = sql("BEGIN TRANSACTION; INSERT dbo.Account(Id,Label,Amount) VALUES(10,N'timeout',10); "
+            timed = sql("INSERT dbo.Account(Id,Label,Amount) VALUES(11,N'timeout-started',0); "
+                        "BEGIN TRANSACTION; INSERT dbo.Account(Id,Label,Amount) VALUES(10,N'timeout',10); "
                         "WAITFOR DELAY '00:00:06'; COMMIT;", expected=None, query_timeout=1)
             elapsed = time.monotonic() - started
-            # Observe the server after cancellation; process exit alone is not proof of rollback.
+            # This pinned ODBC sqlcmd can report a query timeout with exit 0.
+            # The committed marker distinguishes query execution from a connection failure.
+            timeout_reported = timed.stderr.strip() == 'Timeout expired' and not timed.stdout.strip()
+            query_started = scalar("SELECT COUNT(*) FROM dbo.Account WHERE Id=11 AND Label=N'timeout-started'") == '1'
             no_row = scalar('SELECT COUNT(*) FROM dbo.Account WHERE Id=10') == '0'
             no_other_session = scalar("SELECT COUNT(*) FROM sys.dm_exec_sessions WHERE is_user_process=1 "
                                       "AND program_name='SQLCMD' AND session_id<>@@SPID") == '0'
             fixture.check('timeout-cancel-observed-on-server',
-                          timed.returncode != 0 and elapsed < 15 and no_row and no_other_session,
-                          {'elapsed_seconds': round(elapsed, 3), 'row_absent': no_row, 'session_closed': no_other_session})
+                          timed.returncode in (0, 1) and timeout_reported and 0.5 <= elapsed < 15
+                          and query_started and no_row and no_other_session,
+                          {'exit_code': timed.returncode, 'timeout_diagnostic': timeout_reported,
+                           'elapsed_seconds': round(elapsed, 3), 'query_started': query_started,
+                           'row_absent': no_row, 'session_closed': no_other_session})
+            sql('DELETE dbo.Account WHERE Id=11;')
 
             with ThreadPoolExecutor(max_workers=1) as pool:
                 holding = pool.submit(sql, "BEGIN TRANSACTION; UPDATE dbo.Account SET Amount=99 WHERE Id=1; "
