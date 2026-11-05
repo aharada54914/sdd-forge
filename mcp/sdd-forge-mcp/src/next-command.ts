@@ -1,3 +1,4 @@
+import type { ReportLookup } from './parsers/report-lookup.js';
 /**
  * `get_next_sdd_command`'s deterministic state -> next-command mapping
  * (design.md "Architecture" / "API / Contract Plan", REQ-011, AC-012).
@@ -137,7 +138,7 @@ function phaseFromTasks(
  * Required Workflow steps 1-8 in order, stopping at the first gate that has
  * not yet passed.
  */
-function nextCommandForFeature(root: SddRoot, feature: string): Result<NextCommandData> {
+function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportLookup): Result<NextCommandData> {
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
@@ -226,7 +227,7 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
     });
   }
 
-  const taskStateResult = parseTaskState(root, feature, tasksPath);
+  const taskStateResult = parseTaskState(root, feature, tasksPath, undefined, undefined, reports);
   if (!taskStateResult.ok) {
     return taskStateResult;
   }
@@ -301,14 +302,14 @@ function autoSelectFeature(root: SddRoot): Result<string> {
  * single active feature first (sdd-ship:run's zero-argument rule) and then
  * applies the same gate walk.
  */
-export function getNextSddCommand(root: SddRoot, feature?: string): Result<NextCommandData> {
+export function getNextSddCommand(root: SddRoot, feature?: string, reports?: ReportLookup): Result<NextCommandData> {
   if (feature !== undefined) {
-    return nextCommandForFeature(root, feature);
+    return nextCommandForFeature(root, feature, reports);
   }
 
   const selected = autoSelectFeature(root);
   if (!selected.ok) {
     return selected;
   }
-  return nextCommandForFeature(root, selected.data);
+  return nextCommandForFeature(root, selected.data, reports);
 }

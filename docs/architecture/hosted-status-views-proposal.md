@@ -1,6 +1,10 @@
 # 親サービスに応じた読み取り専用の6ビュー
 
-Status: Proposal — 未実装・実サービス接続未検証
+Status: Implemented for local/Sites; native Claude Artifacts verification pending
+
+実装・運用は `docs/hosted-status-views.md`、検証記録は
+`reports/verification/hosted-status-views-20261105/README.md` を参照。
+以下は着手前に記録した要求・設計案。未解決欄は当時の調査状況。
 
 ## ユーザーが指定した範囲
 

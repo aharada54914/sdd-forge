@@ -23,7 +23,10 @@ export interface SddRoot {
 function readCliRootArg(argv: readonly string[]): string | undefined {
   const { values } = parseArgs({
     args: [...argv],
-    options: { root: { type: "string" }, "status-ui": { type: "boolean" } },
+    options: { root: { type: "string" }, "status-ui": { type: "boolean" },
+      dashboard: { type: "boolean" }, "dashboard-snapshot": { type: "boolean" },
+      "dashboard-stream": { type: "boolean" },
+      "dashboard-html": { type: "boolean" }, "parent-service": { type: "string" } },
     strict: true,
     allowPositionals: false,
   });

@@ -11,6 +11,16 @@ bug fix, refactor, or new project. This skill orchestrates investigation,
 Phase 1 specification, implementation-policy review, Phase 2 task decomposition,
 and task-decomposition review.
 
+## Requested status dashboard
+
+When a dashboard is requested, the initiating parent follows
+`<installed-root>/plugins/sdd-ship/skills/status/SKILL.md` before delegating
+presentation work. Bind ChatGPT to Sites or Claude to Artifacts using the
+parent service, retain the selected presentation identity, and never change it
+because a child uses another service/model. Read-only display never advances a
+workflow gate. Missing presentation capability is reported independently of the
+already-authorized development work.
+
 ## Managed allocation boundary
 
 Affected policy roles: `investigator`.

@@ -28616,7 +28616,15 @@ import { parseArgs } from "node:util";
 function readCliRootArg(argv) {
   const { values } = parseArgs({
     args: [...argv],
-    options: { root: { type: "string" }, "status-ui": { type: "boolean" } },
+    options: {
+      root: { type: "string" },
+      "status-ui": { type: "boolean" },
+      dashboard: { type: "boolean" },
+      "dashboard-snapshot": { type: "boolean" },
+      "dashboard-stream": { type: "boolean" },
+      "dashboard-html": { type: "boolean" },
+      "parent-service": { type: "string" }
+    },
     strict: true,
     allowPositionals: false
   });
@@ -40661,7 +40669,7 @@ function phaseFromTasks(feature, tasks) {
     rationale: `specs/${feature}/tasks.md's Approved tasks are in an unrecognized mixture of statuses that does not map to a single next command.`
   };
 }
-function nextCommandForFeature(root, feature) {
+function nextCommandForFeature(root, feature, reports) {
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
@@ -40732,7 +40740,7 @@ function nextCommandForFeature(root, feature) {
       rationale: `${tasksPath}'s Task-Review-Status is ${taskReviewStatus === void 0 ? "missing" : `"${taskReviewStatus}"`}, not Passed (AGENTS.md Required Workflow step 4).`
     });
   }
-  const taskStateResult = parseTaskState(root, feature, tasksPath);
+  const taskStateResult = parseTaskState(root, feature, tasksPath, void 0, void 0, reports);
   if (!taskStateResult.ok) {
     return taskStateResult;
   }
@@ -40785,15 +40793,15 @@ function autoSelectFeature(root) {
   }
   return ok(selected);
 }
-function getNextSddCommand(root, feature) {
+function getNextSddCommand(root, feature, reports) {
   if (feature !== void 0) {
-    return nextCommandForFeature(root, feature);
+    return nextCommandForFeature(root, feature, reports);
   }
   const selected = autoSelectFeature(root);
   if (!selected.ok) {
     return selected;
   }
-  return nextCommandForFeature(root, selected.data);
+  return nextCommandForFeature(root, selected.data, reports);
 }
 
 // src/tools/core.ts
@@ -40870,12 +40878,12 @@ function getSpecStatus(root, feature) {
   });
   return ok({ kind: "spec-status", feature, artifacts });
 }
-function getTaskState(root, feature) {
+function getTaskState(root, feature, reports) {
   const featureResult = validateFeature(feature);
   if (!featureResult.ok) {
     return featureResult;
   }
-  return parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+  return parseTaskState(root, feature, `specs/${feature}/tasks.md`, void 0, void 0, reports);
 }
 function isApprovedShape3(approval) {
   return approval === "Approved" || approval.startsWith("Approved (");
@@ -40912,14 +40920,14 @@ function getQualityGateSummary(root) {
   const scan = listQualityReports(root);
   return ok({ kind: "quality-gate-summary", reports: scan.reports });
 }
-function getNextSddCommand2(root, feature) {
+function getNextSddCommand2(root, feature, reports) {
   if (feature !== void 0) {
     const featureResult = validateFeature(feature);
     if (!featureResult.ok) {
       return featureResult;
     }
   }
-  return getNextSddCommand(root, feature);
+  return getNextSddCommand(root, feature, reports);
 }
 
 // src/resources.ts
@@ -40984,8 +40992,116 @@ function registerResources(server, root) {
   );
 }
 
-// src/tools/evidence.ts
+// src/dashboard/snapshot.ts
 import { createHash as createHash2 } from "node:crypto";
+import { basename } from "node:path";
+var SCHEMA = "sdd-dashboard/v1";
+function selectPresentation(parentService) {
+  if (parentService === "chatgpt") return "sites";
+  if (parentService === "claude") return "artifacts";
+  throw new Error("\u89AA\u30B5\u30FC\u30D3\u30B9\u3092 chatgpt \u307E\u305F\u306F claude \u3068\u3057\u3066\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5B50\u306E\u30E2\u30C7\u30EB\u304B\u3089\u306F\u9078\u629E\u3057\u307E\u305B\u3093\u3002");
+}
+function readData(root) {
+  const specs = parseActiveSpecDirectories(root);
+  if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
+  const data = { project: basename(root.path), features: [], tasks: [] };
+  const reports = createReportLookup();
+  const hash2 = createHash2("sha256").update(JSON.stringify(specs.data));
+  for (const { feature } of specs.data) {
+    const source = `specs/${feature}/tasks.md`;
+    const file2 = guardedRead(root, source);
+    const spec = getSpecStatus(root, feature);
+    const next = getNextSddCommand2(root, feature, reports);
+    const warnings = [];
+    if (!spec.ok) warnings.push("\u4ED5\u69D8\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093: " + spec.error.code);
+    if (!next.ok) warnings.push("\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: " + next.error.code);
+    data.features.push({ id: feature, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
+    hash2.update(JSON.stringify(spec));
+    if (!file2.ok) {
+      if (file2.error.code !== "not-found") throw new Error(`${source}: ${file2.error.code}`);
+      warnings.push("\u30BF\u30B9\u30AF\u672A\u4F5C\u6210");
+      hash2.update(source + ":missing");
+      continue;
+    }
+    hash2.update(source).update(file2.data.contents);
+    const state = getTaskState(root, feature, reports);
+    if (!state.ok) throw new Error(`${source}: ${state.error.code}`);
+    const sections = [...file2.data.contents.matchAll(/^##\s+(T-\d+)\b([^\n]*)\n([\s\S]*?)(?=^##\s+T-\d+\b|(?![\s\S]))/gm)];
+    if (!sections.length || !state.data.tasks.length) throw new Error(`${source}: \u30BF\u30B9\u30AF\u5F62\u5F0F\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
+    for (const task of state.data.tasks) {
+      const section = sections.find((s) => s[1] === task.id);
+      if (!section) throw new Error(`${source}: \u30BF\u30B9\u30AF\u672C\u6587\u304C\u4E0D\u6574\u5408\u3067\u3059`);
+      const body = section[3] ?? "";
+      const release = body.match(/^Release:[ \t]*(\S[^\r\n]*)\r?$/m)?.[1]?.trim() || null;
+      data.tasks.push({
+        key: `${feature}/${task.id}`,
+        feature,
+        id: task.id,
+        title: (section[2] ?? "").replace(/^\s*[:—-]\s*/, "").trim() || task.id,
+        body,
+        source,
+        status: task.status,
+        approval: task.approval,
+        risk: task.risk ?? "unknown",
+        release,
+        failures: state.data.failures.filter((f) => !f.taskId || f.taskId === task.id).map((f) => f.message)
+      });
+    }
+  }
+  hash2.update(JSON.stringify(data));
+  return { data, digest: hash2.digest("hex") };
+}
+var DashboardReader = class {
+  constructor(root, read = readData) {
+    this.root = root;
+    this.read = read;
+  }
+  root;
+  read;
+  previous;
+  sample(now = /* @__PURE__ */ new Date()) {
+    const attemptedAt = now.toISOString();
+    try {
+      let before = this.read(this.root);
+      let stable;
+      for (let retry = 0; retry < 2; retry++) {
+        const after = this.read(this.root);
+        if (before.digest === after.digest) {
+          stable = after;
+          break;
+        }
+        before = after;
+      }
+      if (!stable) throw new Error("\u66F4\u65B0\u9014\u4E2D\u306E\u305F\u3081\u6574\u5408\u6027\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093");
+      this.previous = {
+        schema: SCHEMA,
+        revision: stable.digest,
+        checkedAt: attemptedAt,
+        changedAt: this.previous?.revision === stable.digest ? this.previous.changedAt : attemptedAt,
+        lastSuccessAt: attemptedAt,
+        attemptedAt,
+        error: null,
+        data: stable.data
+      };
+    } catch (error62) {
+      this.previous = {
+        schema: SCHEMA,
+        revision: "",
+        checkedAt: null,
+        changedAt: null,
+        lastSuccessAt: null,
+        data: null,
+        ...this.previous,
+        attemptedAt,
+        error: error62 instanceof Error ? error62.message : "\u53D6\u5F97\u306B\u5931\u6557\u3057\u307E\u3057\u305F"
+      };
+    }
+    return this.previous;
+  }
+};
+
+// src/tools/evidence.ts
+import { createHash as createHash3 } from "node:crypto";
 
 // src/parsers/evidence.ts
 var REQUIRED_BUNDLE_FIELDS = [
@@ -41562,7 +41678,7 @@ function evidenceCompareToTraceability(root, feature) {
 var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;
 var GIT_COMMIT_PATTERN = /^[0-9a-f]{40}$/;
 function sha256OfContents(contents) {
-  return createHash2("sha256").update(contents, "utf-8").digest("hex");
+  return createHash3("sha256").update(contents, "utf-8").digest("hex");
 }
 function escapeRegExp2(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -41609,7 +41725,7 @@ function recomputeSpecRevision(root, feature, bundle) {
     `specs/${feature}/design.md`,
     `specs/${feature}/acceptance-tests.md`
   ];
-  const hasher = createHash2("sha256");
+  const hasher = createHash3("sha256");
   const filesHashed = [];
   let foundAny = false;
   for (const relPath of specFiles) {
@@ -41926,12 +42042,326 @@ function buildServer(root) {
     ({ feature, taskId }) => toCallToolResult(evidenceDeepVerify(root, feature, taskId))
   );
   registerResources(server, root);
+  const dashboard = new DashboardReader(root);
+  server.registerTool("get_dashboard_snapshot", {
+    title: "Read dashboard snapshot",
+    description: "Read-only six-view dashboard data with source freshness and last-good failure state. Never changes approval or task state.",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true }
+  }, () => toCallToolResult({ ok: true, data: { kind: "dashboard-snapshot", snapshot: dashboard.sample() } }));
   return server;
 }
 
 // src/status-view.ts
 import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
+
+// ui/dashboard-page.ts
+function dashboardPage(mode = "http") {
+  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 Project overview</title><style>
+:root{font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172b4d;background:#fff;--line:#dfe1e6;--blue:#0052cc;--muted:#5e6c84}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2684ff;outline-offset:2px}header{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:24px}.logo{font-size:20px;font-weight:750;color:#0747a6}.readonly{color:var(--muted);font-size:12px;margin-left:auto}.shell{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100vh - 62px)}aside.sidebar{padding:30px 20px;background:#f4f5f7;border-right:1px solid var(--line)}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:40px;height:40px;font-weight:800;margin-bottom:12px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}.project{font-weight:650;overflow-wrap:anywhere;margin:4px 0 24px}label{display:block;font-size:12px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:5px;padding:9px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:7px}.side-note{font-size:12px;color:var(--muted);margin-top:30px}main{padding:26px 34px;min-width:0}.breadcrumb{color:var(--muted);font-size:12px}h1{font-size:27px;letter-spacing:-.025em;margin:10px 0 20px}nav{display:flex;gap:24px;border-bottom:2px solid #ebecf0;overflow-x:auto}nav a{color:var(--muted);text-decoration:none;padding:11px 1px;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:650}.toolbar{display:flex;gap:12px;margin:24px 0;flex-wrap:wrap}.toolbar input{width:260px}.refresh{background:#0052cc;color:white;border:0;border-radius:5px;padding:9px 16px;margin-left:auto}.banner{border:1px solid #b3dfcc;background:#eefaf4;color:#216e4e;border-radius:5px;padding:10px 14px;margin:20px 0 0;font-size:12px}.banner[data-state=stale]{background:#fff8e6;border-color:#ffe380;color:#7f5f01}.banner[data-state=error]{background:#fff1f0;border-color:#ffbdad;color:#ae2a19}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:8px;padding:20px}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:20px}h2{font-size:17px;margin:0 0 16px}h3{font-size:14px;margin:0 0 12px}.board{display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:14px;overflow-x:auto;padding-bottom:14px}.column{background:#f4f5f7;border-radius:7px;padding:12px;min-height:280px}.column h2{font-size:12px;color:var(--muted);margin:4px 0 16px}.card{display:block;text-align:left;background:white;border:1px solid #ebecf0;border-radius:5px;padding:14px;width:100%;margin-bottom:10px;box-shadow:0 1px 2px #091e4214;color:inherit}.card:hover{border-color:#85b8ff}.card-title{display:block;margin:7px 0 12px;font-size:13px;overflow-wrap:anywhere}.key{font-size:11px;color:var(--muted)}.badge{display:inline-block;font-size:11px;font-weight:650;padding:2px 7px;border-radius:4px;background:#ebecf0;white-space:nowrap}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}th{font-size:11px;color:var(--muted);font-weight:650}th,td{padding:12px 10px;border-bottom:1px solid #ebecf0}td button{border:0;background:none;color:#0052cc;text-align:left;min-height:32px}.empty{padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}.phase{display:grid;grid-template-columns:minmax(150px,1fr) minmax(180px,2fr);gap:20px;padding:12px 0;border-bottom:1px solid #ebecf0}.phase small{display:block}.track{display:flex;gap:3px;align-items:center}.segment{height:14px;flex:1;background:#ebecf0;border-radius:3px}.segment.active{background:#579dff}.segment.done{background:#4bce97}progress{width:100%;accent-color:#0052cc}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(640px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:28px;box-shadow:-8px 0 30px #091e4226}dialog::backdrop{background:#091e4244}dialog .close{float:right;border:0;background:#f4f5f7;border-radius:5px;padding:8px 12px}dialog h2{padding-top:20px;font-size:22px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:6px}.issue-warning{color:#ae2a19;font-size:12px}footer{margin-top:28px;font-size:11px;color:var(--muted)}@media(max-width:760px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:20px 16px}.metrics{grid-template-columns:repeat(2,1fr)}nav{gap:20px}.toolbar input{width:100%}.refresh{margin-left:0}.phase{grid-template-columns:1fr}.mobile-feature{display:block!important}}.mobile-feature{display:none}[hidden]{display:none!important}
+</style></head><body><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">Software project</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u6A5F\u80FD<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u6A5F\u80FD</option></select></label><p class="side-note">\u6B63\u672C\u306E\u30BF\u30B9\u30AF\u3068\u4ED5\u69D8\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u627F\u8A8D\u3068\u54C1\u8CEA\u30B2\u30FC\u30C8\u306F\u65E2\u5B58\u306E\u30EF\u30FC\u30AF\u30D5\u30ED\u30FC\u306B\u5F93\u3044\u307E\u3059\u3002</p></aside><main><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" role="status" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div class="toolbar"><input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u6A5F\u80FD"><option value="">\u3059\u3079\u3066\u306E\u6A5F\u80FD</option></select><button class="refresh" id="refresh">\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><footer>\u8868\u793A\u5185\u5BB9\u306F\u89B3\u6E2C\u7D50\u679C\u3067\u3059\u3002\u5B9F\u88C5\u5B8C\u4E86\u3068Done\u3001Done\u3068\u30EA\u30EA\u30FC\u30B9\u6E08\u307F\u306F\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+const MODE = ${JSON.stringify(mode)};
+const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9" };
+const STATES = ["Planned", "In Progress", "Blocked", "Implementation Complete", "Done"];
+const LABELS = { "Planned": "\u4E88\u5B9A", "In Progress": "\u9032\u884C\u4E2D", "Blocked": "\u30D6\u30ED\u30C3\u30AF\u4E2D", "Implementation Complete": "\u5B9F\u88C5\u5B8C\u4E86", "Done": "Done", "unknown": "\u672A\u78BA\u8A8D" };
+const $ = (id) => document.getElementById(id);
+const el = (tag, text, cls) => {
+  const n = document.createElement(tag);
+  if (text !== void 0) n.textContent = text;
+  if (cls) n.className = cls;
+  return n;
+};
+let snapshot = null, transportError = "", inFlight = false, detailKey = null;
+const prefsKey = "sdd-dashboard:" + location.pathname;
+let prefs = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(prefsKey) || "{}");
+  prefs = saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+} catch {
+}
+let feature = typeof prefs.feature === "string" ? prefs.feature : "", filter = typeof prefs.filter === "string" ? prefs.filter : "", query = typeof prefs.query === "string" ? prefs.query : "";
+$("search").value = query;
+function save() {
+  try {
+    localStorage.setItem(prefsKey, JSON.stringify({ feature, filter, query }));
+  } catch {
+  }
+}
+function view() {
+  const v = location.hash.slice(1);
+  return Object.hasOwn(VIEWS, v) ? v : "overview";
+}
+function badge(status) {
+  const b = el("span", LABELS[status] || status, "badge");
+  b.dataset.status = status;
+  return b;
+}
+function filtered() {
+  return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && (!query || (t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
+}
+function freshness() {
+  const s = snapshot;
+  const date = (value) => value ? new Date(value).toLocaleString("ja-JP") : "\u672A\u78BA\u8A8D";
+  const stale = !s?.checkedAt || Date.now() - Date.parse(s.checkedAt) > 6e4;
+  const error = transportError || s?.error;
+  const b = $("freshness");
+  b.dataset.state = error ? "error" : stale ? "stale" : "live";
+  b.textContent = (error ? "\u53D6\u5F97\u5931\u6557: " + error : stale ? "\u66F4\u65B0\u78BA\u8A8D\u304C\u505C\u6B62\u3057\u3066\u3044\u307E\u3059" : "\u63A5\u7D9A\u4E2D\u30FB\u6B63\u672C\u3092\u78BA\u8A8D\u6E08\u307F") + " \uFF5C \u6700\u7D42\u78BA\u8A8D " + date(s?.checkedAt) + " \uFF5C \u5185\u5BB9\u66F4\u65B0 " + date(s?.changedAt) + (error ? " \uFF5C \u6700\u5F8C\u306E\u6B63\u5E38\u53D6\u5F97 " + date(s?.lastSuccessAt) : "");
+}
+function options(node, items, selected, all) {
+  node.replaceChildren();
+  const first = el("option", all);
+  first.value = "";
+  node.append(first);
+  for (const item of items) {
+    const o = el("option", LABELS[item] || item);
+    o.value = item;
+    node.append(o);
+  }
+  node.value = selected;
+}
+function syncFilters() {
+  const features = (snapshot?.data?.features || []).map((f) => f.id);
+  if (feature && !features.includes(feature)) feature = "";
+  const states = [...new Set((snapshot?.data?.tasks || []).filter((t) => !feature || t.feature === feature).map((t) => t.status))];
+  if (filter && !states.includes(filter)) filter = "";
+  options($("feature"), features, feature, "\u3059\u3079\u3066\u306E\u6A5F\u80FD");
+  options($("mobile-feature"), features, feature, "\u3059\u3079\u3066\u306E\u6A5F\u80FD");
+  options($("filter"), states, filter, "\u3059\u3079\u3066\u306E\u72B6\u614B");
+  save();
+}
+function openDetail(key) {
+  detailKey = key;
+  renderDetail();
+  if (!$("detail").open) $("detail").showModal();
+}
+function renderDetail() {
+  const box = $("detail-content");
+  box.replaceChildren();
+  const task = snapshot?.data?.tasks.find((t) => t.key === detailKey);
+  if (!task) {
+    const title = el("h2", "\u8AB2\u984C\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093");
+    title.id = "detail-title";
+    box.append(title);
+    return;
+  }
+  box.append(el("div", task.key, "key"));
+  const title = el("h2", task.title);
+  title.id = "detail-title";
+  box.append(title, badge(task.status), el("p", "\u627F\u8A8D: " + task.approval + " / \u30EA\u30B9\u30AF: " + task.risk), el("p", "\u6B63\u672C: " + task.source, "muted"));
+  for (const failure of task.failures) box.append(el("p", failure, "issue-warning"));
+  box.append(el("pre", task.body));
+}
+function card(task) {
+  const b = el("button", void 0, "card");
+  b.append(el("span", task.key, "key"), el("span", task.title, "card-title"), badge(task.status));
+  if (task.failures.length) b.append(el("div", "\u72B6\u614B\u30FB\u8A3C\u62E0\u306B\u8981\u78BA\u8A8D\u4E8B\u9805\u3042\u308A", "issue-warning"));
+  b.onclick = () => openDetail(task.key);
+  return b;
+}
+function list(tasks) {
+  const wrap = el("div", void 0, "table-wrap");
+  const table = el("table");
+  const head = el("tr");
+  for (const label of ["\u8AB2\u984C", "\u6982\u8981", "\u72B6\u614B", "\u627F\u8A8D", "\u30EA\u30B9\u30AF"]) head.append(el("th", label));
+  const thead = el("thead");
+  thead.append(head);
+  table.append(thead);
+  const body = el("tbody");
+  for (const t of tasks) {
+    const row = el("tr");
+    const key = el("td");
+    const link = el("button", t.id);
+    link.onclick = () => openDetail(t.key);
+    key.append(link);
+    row.append(key, el("td", t.title));
+    const state = el("td");
+    state.append(badge(t.status));
+    row.append(state, el("td", t.approval), el("td", t.risk));
+    body.append(row);
+  }
+  table.append(body);
+  wrap.append(table);
+  return wrap;
+}
+function render() {
+  const v = view();
+  $("title").textContent = VIEWS[v];
+  for (const a of $("tabs").children) a.setAttribute("aria-current", a.hash === "#" + v ? "page" : "false");
+  const c = $("content");
+  c.replaceChildren();
+  freshness();
+  if (!snapshot?.data) {
+    c.append(el("div", "\u307E\u3060\u30C7\u30FC\u30BF\u3092\u53D6\u5F97\u3067\u304D\u3066\u3044\u307E\u305B\u3093\u3002\u63A5\u7D9A\u3068\u53CE\u96C6\u30D7\u30ED\u30BB\u30B9\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "empty"));
+    return;
+  }
+  const data = snapshot.data;
+  const tasks = filtered();
+  $("project").textContent = data.project;
+  $("crumb").textContent = data.project;
+  if (v === "overview") {
+    const metrics = el("div", void 0, "metrics");
+    for (const [label, count] of [["\u8AB2\u984C", tasks.length], ["\u627F\u8A8D\u5F85\u3061", tasks.filter((t) => t.approval === "Draft").length], ["\u30D6\u30ED\u30C3\u30AF\u4E2D", tasks.filter((t) => t.status === "Blocked").length], ["Done", tasks.filter((t) => t.status === "Done").length]]) {
+      const m = el("div", void 0, "metric");
+      m.append(el("span", label, "muted"), el("strong", String(count)));
+      metrics.append(m);
+    }
+    c.append(metrics);
+    const p = el("section", void 0, "panel");
+    p.append(el("h2", "\u6A5F\u80FD\u3054\u3068\u306E\u73FE\u5728\u5730"));
+    for (const f of data.features.filter((f2) => !feature || f2.id === feature)) {
+      const r = el("div", void 0, "phase");
+      r.append(el("div", f.id));
+      const next = el("div", f.phase);
+      next.append(el("small", f.nextCommand || "\u6B21\u306E\u30B3\u30DE\u30F3\u30C9\u306F\u672A\u78BA\u8A8D", "muted"));
+      for (const w of f.warnings) next.append(el("small", w, "issue-warning"));
+      r.append(next);
+      p.append(r);
+    }
+    c.append(p);
+  } else if (v === "board") {
+    const board = el("div", void 0, "board");
+    for (const state of [...STATES, ...new Set(tasks.map((t) => t.status).filter((s) => !STATES.includes(s)))]) {
+      const column = el("section", void 0, "column");
+      const items = tasks.filter((t) => t.status === state);
+      column.append(el("h2", (LABELS[state] || state) + " \xB7 " + items.length));
+      for (const t of items) column.append(card(t));
+      board.append(column);
+    }
+    c.append(board);
+  } else if (v === "list") c.append(tasks.length ? list(tasks) : el("div", "\u6761\u4EF6\u306B\u4E00\u81F4\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "empty"));
+  else if (v === "backlog") {
+    for (const [label, predicate] of [["\u627F\u8A8D\u5F85\u3061", (t) => t.approval === "Draft"], ["\u4E88\u5B9A", (t) => t.approval !== "Draft" && t.status === "Planned"], ["\u9032\u884C\u4E2D\u30FB\u8981\u5BFE\u5FDC", (t) => t.approval !== "Draft" && !["Planned", "Done"].includes(t.status)]]) {
+      const p = el("section", void 0, "panel");
+      const items = tasks.filter(predicate);
+      p.append(el("h2", label + " \xB7 " + items.length));
+      p.append(items.length ? list(items) : el("p", "\u8A72\u5F53\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "muted"));
+      c.append(p);
+    }
+  } else if (v === "timeline") {
+    c.append(el("p", "\u65E5\u4ED8\u8EF8\u3092\u4F7F\u308F\u305A\u3001\u4E88\u5B9A \u2192 \u9032\u884C\u4E2D \u2192 \u5B9F\u88C5\u5B8C\u4E86 \u2192 Done \u306E\u6BB5\u968E\u3092\u8868\u793A\u3057\u307E\u3059\u3002", "muted"));
+    for (const t of tasks) {
+      const r = el("div", void 0, "phase");
+      const b = el("button", t.id + " " + t.title, "card");
+      b.onclick = () => openDetail(t.key);
+      r.append(b);
+      const right = el("div");
+      right.append(badge(t.status));
+      const track = el("div", void 0, "track");
+      const steps = ["Planned", "In Progress", "Implementation Complete", "Done"];
+      const current = steps.indexOf(t.status);
+      steps.forEach((step, i) => {
+        const s = el("span", void 0, "segment" + (i <= current ? t.status === "Done" ? " done" : " active" : ""));
+        s.title = LABELS[step];
+        track.append(s);
+      });
+      right.append(track);
+      r.append(right);
+      c.append(r);
+    }
+    if (!tasks.length) c.append(el("p", "\u8868\u793A\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "empty"));
+  } else if (v === "releases") {
+    const groups = [...new Set(tasks.map((t) => t.release).filter(Boolean))];
+    if (!groups.length) c.append(el("div", "\u30EA\u30EA\u30FC\u30B9\u672A\u5B9A\u7FA9\u3002\u6B63\u672C\u306E\u30BF\u30B9\u30AF\u306B Release: \u304C\u6307\u5B9A\u3055\u308C\u308B\u3068\u8868\u793A\u3055\u308C\u307E\u3059\u3002", "empty"));
+    for (const name of groups) {
+      const items = tasks.filter((t) => t.release === name);
+      const done = items.filter((t) => t.status === "Done").length;
+      const p = el("section", void 0, "panel");
+      p.append(el("h2", name), el("p", done + " / " + items.length + " Done \xB7 \u516C\u958B\u72B6\u6CC1\u306F\u672A\u78BA\u8A8D", "muted"));
+      const bar = el("progress");
+      bar.max = items.length;
+      bar.value = done;
+      bar.setAttribute("aria-label", name + "\u306E\u30BF\u30B9\u30AF\u9032\u6357");
+      p.append(bar, list(items));
+      c.append(p);
+    }
+    const unassigned = tasks.filter((t) => !t.release).length;
+    c.append(el("p", "\u30EA\u30EA\u30FC\u30B9\u672A\u5272\u308A\u5F53\u3066: " + unassigned + "\u4EF6", "muted"));
+  }
+  if ($("detail").open) renderDetail();
+}
+function validSnapshot(s) {
+  if (!s || s.schema !== "sdd-dashboard/v1" || typeof s.revision !== "string" || !Number.isFinite(Date.parse(s.attemptedAt)) || Date.parse(s.attemptedAt) > Date.now() + 3e4 || !(s.error === null || typeof s.error === "string")) return false;
+  for (const k of ["checkedAt", "changedAt", "lastSuccessAt"]) if (s[k] !== null && (!Number.isFinite(Date.parse(s[k])) || Date.parse(s[k]) > Date.parse(s.attemptedAt))) return false;
+  if (s.data === null) return typeof s.error === "string" && s.checkedAt === null;
+  if (!s.checkedAt || !s.lastSuccessAt || !s.changedAt || typeof s.data?.project !== "string" || !Array.isArray(s.data.features) || !Array.isArray(s.data.tasks)) return false;
+  if (s.data.features.length > 1e3 || s.data.tasks.length > 1e4) return false;
+  return s.data.features.every((f) => f && ["id", "phase", "nextCommand"].every((k) => typeof f[k] === "string") && Array.isArray(f.warnings) && f.warnings.every((w) => typeof w === "string")) && s.data.tasks.every((t) => t && ["key", "id", "feature", "title", "body", "status", "approval", "risk", "source"].every((k) => typeof t[k] === "string") && (t.release === null || typeof t.release === "string") && Array.isArray(t.failures) && t.failures.every((f) => typeof f === "string"));
+}
+async function readArtifact() {
+  let timer;
+  try {
+    return await Promise.race([window.sddDashboardRead(), new Promise((_, reject) => {
+      timer = setTimeout(() => reject(Error("\u30B3\u30CD\u30AF\u30BF\u306E\u5FDC\u7B54\u304C\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8\u3057\u307E\u3057\u305F")), 15e3);
+    })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function refresh() {
+  if (inFlight) return;
+  inFlight = true;
+  $("refresh").disabled = true;
+  try {
+    let next;
+    if (MODE === "artifacts") {
+      if (typeof window.sddDashboardRead !== "function") throw Error("Artifacts\u306E\u8AAD\u53D6\u30B3\u30CD\u30AF\u30BF\u304C\u672A\u63A5\u7D9A\u3067\u3059");
+      next = await readArtifact();
+    } else {
+      const response = await fetch("api/dashboard", { cache: "no-store", signal: AbortSignal.timeout(15e3) });
+      if (!response.ok) throw Error("HTTP " + response.status);
+      next = await response.json();
+    }
+    if (!validSnapshot(next)) throw Error("\u8868\u793A\u30C7\u30FC\u30BF\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    if (snapshot && Date.parse(next.attemptedAt) < Date.parse(snapshot.attemptedAt)) return;
+    snapshot = next;
+    transportError = "";
+    syncFilters();
+    render();
+  } catch (e) {
+    transportError = e.message || "\u63A5\u7D9A\u3067\u304D\u307E\u305B\u3093";
+    freshness();
+    if (!snapshot) render();
+  } finally {
+    inFlight = false;
+    $("refresh").disabled = false;
+  }
+}
+for (const [id, title] of Object.entries(VIEWS)) {
+  const a = el("a", title);
+  a.href = "#" + id;
+  $("tabs").append(a);
+}
+$("search").oninput = () => {
+  query = $("search").value;
+  save();
+  render();
+};
+$("filter").onchange = () => {
+  filter = $("filter").value;
+  save();
+  render();
+};
+for (const id of ["feature", "mobile-feature"]) $(id).onchange = () => {
+  feature = $(id).value;
+  syncFilters();
+  render();
+};
+$("refresh").onclick = refresh;
+$("close").onclick = () => $("detail").close();
+window.addEventListener("hashchange", render);
+document.addEventListener("visibilitychange", () => {
+  freshness();
+  if (!document.hidden) refresh();
+});
+setInterval(freshness, 1e3);
+setInterval(refresh, 5e3);
+render();
+refresh();
+</script></body></html>`;
+}
+
+// src/status-view.ts
 var PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730 | sdd-forge</title><style>
 :root{font-family:system-ui,-apple-system,sans-serif;color:#172c38;background:#f3f6f8;line-height:1.75}*{box-sizing:border-box}body{margin:0}header{background:white;border-bottom:1px solid #dce4e9}header div,main{max-width:850px;margin:auto;padding:20px 24px}h1{font-size:clamp(26px,5vw,36px)}h2{font-size:22px}section{background:white;border:1px solid #dce4e9;border-radius:14px;padding:24px;margin:20px 0}select,button{font:inherit;min-height:48px;border:1px solid #8b9da9;border-radius:8px;padding:10px;background:white;color:#172c38}select{width:100%;margin-top:8px}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #1269ce;outline-offset:3px}.next{background:#eef5fc;border-radius:10px;padding:20px}.muted{color:#526675}ul{padding:0;list-style:none}li{border-bottom:1px solid #e7edf1;padding:12px 0;display:flex;justify-content:space-between;gap:12px}li span:last-child{text-align:right}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:20em;overflow:auto;background:#f3f6f8;padding:12px}summary{cursor:pointer;min-height:48px}code{overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:540px){main,header div{padding-left:20px;padding-right:20px}section{padding:20px}}
 </style></head><body><header><div><strong>sdd-forge</strong> <span class="muted">\u30FB\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></div></header><main><h1>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730</h1><p>\u3069\u3053\u307E\u3067\u9032\u3093\u3060\u304B\u3001\u6B21\u306B\u4F55\u3092\u3059\u308C\u3070\u3088\u3044\u304B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002</p><p class="muted">\u73FE\u5728\u306E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u304B\u3089\u53D6\u5F97\u3057\u307E\u3059\u3002\u66F4\u65B0\u30DC\u30BF\u30F3\u3067\u518D\u53D6\u5F97\u3067\u304D\u307E\u3059\u3002</p><label for="feature">\u78BA\u8A8D\u3059\u308B\u6A5F\u80FD</label><select id="feature" disabled><option>\u8AAD\u307F\u8FBC\u307F\u4E2D</option></select><p><button id="refresh" type="button">\u72B6\u614B\u3092\u66F4\u65B0</button></p><p id="error" role="alert"></p><section id="result" hidden><h2 id="headline"></h2><p id="reason"></p><div class="next"><strong>\u6B21\u306B\u3059\u308B\u3053\u3068</strong><p id="next"></p><p><code id="command"></code></p><button id="copy" type="button">\u30B3\u30DE\u30F3\u30C9\u3092\u30B3\u30D4\u30FC</button><p id="copy-result" role="status"></p><p class="muted">\u30B3\u30DE\u30F3\u30C9\u306F\u3053\u306E\u753B\u9762\u304B\u3089\u5B9F\u884C\u3055\u308C\u307E\u305B\u3093\u3002</p></div></section><section id="progress" hidden><h2>\u5DE5\u7A0B\u3054\u3068\u306E\u72B6\u614B</h2><p class="muted">\u72B6\u614B\u672A\u78BA\u8A8D\u306F\u3001\u53D6\u5F97\u30C7\u30FC\u30BF\u3060\u3051\u3067\u306F\u5B9F\u65BD\u72B6\u6CC1\u304C\u5206\u304B\u3089\u306A\u3044\u3053\u3068\u3092\u793A\u3057\u307E\u3059\u3002\u632F\u308A\u8FD4\u308A\u306F\u6761\u4EF6\u306B\u5FDC\u3058\u3066\u5B9F\u65BD\u3057\u307E\u3059\u3002</p><ul id="steps"></ul><details><summary>\u5224\u65AD\u306E\u6839\u62E0\u3092\u898B\u308B</summary><pre id="raw"></pre></details></section><p class="muted">\u8868\u793A\u306F\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3067\u3059\u3002\u30BF\u30B9\u30AF\u3084\u627F\u8A8D\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002</p></main><script>
@@ -41941,8 +42371,13 @@ const phases={'phase1-not-started':'\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u
 function row(name,value){const li=document.createElement('li');for(const text of [name,value]){const span=document.createElement('span');span.textContent=text;li.append(span)}$('steps').append(li)}
 async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';$('headline').textContent=phases[p]||'\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044';$('reason').textContent=explanations[p]||'MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
 async function start(){const id=++requestId;try{const r=await api('api/features');if(id!==requestId)return;if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='\u8868\u793A\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u305B\u3093\u3002'}catch(e){if(id!==requestId)return;$('error').textContent='\u6A5F\u80FD\u4E00\u89A7\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002\u958B\u767A\u74B0\u5883\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u304F\u3060\u3055\u3044\u3002'}catch{$('copy-result').textContent='\u81EA\u52D5\u30B3\u30D4\u30FC\u3067\u304D\u307E\u305B\u3093\u3002\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}};start();</script></body></html>`;
-async function startStatusView(root) {
+async function startStatusView(root, dashboard = false) {
   const token = randomBytes(32).toString("hex");
+  const reader = new DashboardReader(root);
+  let snapshot = dashboard ? reader.sample() : void 0;
+  const timer = dashboard ? setInterval(() => {
+    snapshot = reader.sample();
+  }, 5e3) : void 0;
   let host = "";
   const server = createServer((req, res) => {
     const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" };
@@ -41962,7 +42397,8 @@ async function startStatusView(root) {
     const expected = Buffer.from(token);
     if (given.length !== expected.length || !timingSafeEqual(given, expected)) return send(404, "text/plain; charset=utf-8", "Not found");
     const route = parts.slice(2).join("/");
-    if (route === "") return send(200, "text/html; charset=utf-8", PAGE);
+    if (route === "") return send(200, "text/html; charset=utf-8", dashboard ? dashboardPage() : PAGE);
+    if (route === "api/dashboard" && dashboard) return send(200, "application/json; charset=utf-8", JSON.stringify(snapshot));
     if (route === "api/features") return send(200, "application/json; charset=utf-8", JSON.stringify(listActiveSpecs(root)));
     if (route === "api/status") {
       const feature = url2.searchParams.get("feature") ?? "";
@@ -41970,6 +42406,12 @@ async function startStatusView(root) {
       return send(200, "application/json; charset=utf-8", JSON.stringify({ spec: getSpecStatus(root, feature), tasks: getTaskState(root, feature), next: getNextSddCommand2(root, feature) }));
     }
     return send(404, "text/plain; charset=utf-8", "Not found");
+  });
+  server.once("close", () => {
+    if (timer) clearInterval(timer);
+  });
+  server.once("error", () => {
+    if (timer) clearInterval(timer);
   });
   await new Promise((resolve3, reject) => {
     server.once("error", reject);
@@ -42008,8 +42450,22 @@ async function main() {
   };
   process.stderr.write(`${JSON.stringify(startupInfo)}
 `);
-  if (process.argv.slice(2).includes("--status-ui")) {
-    const view = await startStatusView(root);
+  const args = process.argv.slice(2);
+  if (args.includes("--dashboard-snapshot") || args.includes("--dashboard-stream")) {
+    const reader = new DashboardReader(root);
+    const emit = () => process.stdout.write(JSON.stringify(reader.sample()) + "\n");
+    emit();
+    if (args.includes("--dashboard-stream")) setInterval(emit, 5e3);
+    return;
+  }
+  if (args.includes("--dashboard-html")) {
+    const parent = args[args.indexOf("--parent-service") + 1];
+    if (!args.includes("--parent-service") || !parent) throw new Error("--parent-service is required");
+    process.stdout.write(dashboardPage(selectPresentation(parent) === "artifacts" ? "artifacts" : "http"));
+    return;
+  }
+  if (args.includes("--status-ui") || args.includes("--dashboard")) {
+    const view = await startStatusView(root, args.includes("--dashboard"));
     process.stderr.write(`Read-only status view: ${view.url}
 `);
     return;

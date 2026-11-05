@@ -12,6 +12,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { isSddRoot, resolveRoot, type SddRoot } from "./root.js";
 import { buildServer } from "./server.js";
 import { startStatusView } from "./status-view.js";
+import { DashboardReader, selectPresentation } from './dashboard/snapshot.js';
+import { dashboardPage } from '../ui/dashboard-page.js';
 
 async function main(): Promise<void> {
   let root: SddRoot;
@@ -36,8 +38,22 @@ async function main(): Promise<void> {
   };
   process.stderr.write(`${JSON.stringify(startupInfo)}\n`);
 
-  if (process.argv.slice(2).includes("--status-ui")) {
-    const view = await startStatusView(root);
+  const args = process.argv.slice(2);
+  if (args.includes('--dashboard-snapshot') || args.includes('--dashboard-stream')) {
+    const reader = new DashboardReader(root);
+    const emit = () => process.stdout.write(JSON.stringify(reader.sample()) + '\n');
+    emit();
+    if (args.includes('--dashboard-stream')) setInterval(emit, 5000);
+    return;
+  }
+  if (args.includes('--dashboard-html')) {
+    const parent = args[args.indexOf('--parent-service') + 1];
+    if (!args.includes('--parent-service') || !parent) throw new Error('--parent-service is required');
+    process.stdout.write(dashboardPage(selectPresentation(parent) === 'artifacts' ? 'artifacts' : 'http'));
+    return;
+  }
+  if (args.includes("--status-ui") || args.includes('--dashboard')) {
+    const view = await startStatusView(root, args.includes('--dashboard'));
     process.stderr.write(`Read-only status view: ${view.url}\n`);
     return;
   }

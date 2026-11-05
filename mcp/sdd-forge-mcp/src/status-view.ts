@@ -3,6 +3,8 @@ import { createServer, type Server } from 'node:http';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import type { SddRoot } from './root.js';
 import { getNextSddCommand, getSpecStatus, getTaskState, listActiveSpecs, validateFeature } from './tools/core.js';
+import { DashboardReader } from './dashboard/snapshot.js';
+import { dashboardPage } from '../ui/dashboard-page.js';
 
 const PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>仕様とタスクの現在地 | sdd-forge</title><style>
 :root{font-family:system-ui,-apple-system,sans-serif;color:#172c38;background:#f3f6f8;line-height:1.75}*{box-sizing:border-box}body{margin:0}header{background:white;border-bottom:1px solid #dce4e9}header div,main{max-width:850px;margin:auto;padding:20px 24px}h1{font-size:clamp(26px,5vw,36px)}h2{font-size:22px}section{background:white;border:1px solid #dce4e9;border-radius:14px;padding:24px;margin:20px 0}select,button{font:inherit;min-height:48px;border:1px solid #8b9da9;border-radius:8px;padding:10px;background:white;color:#172c38}select{width:100%;margin-top:8px}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #1269ce;outline-offset:3px}.next{background:#eef5fc;border-radius:10px;padding:20px}.muted{color:#526675}ul{padding:0;list-style:none}li{border-bottom:1px solid #e7edf1;padding:12px 0;display:flex;justify-content:space-between;gap:12px}li span:last-child{text-align:right}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:20em;overflow:auto;background:#f3f6f8;padding:12px}summary{cursor:pointer;min-height:48px}code{overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:540px){main,header div{padding-left:20px;padding-right:20px}section{padding:20px}}
@@ -15,8 +17,11 @@ async function show(){const f=$('feature').value;if(!f)return;const id=++request
 async function start(){const id=++requestId;try{const r=await api('api/features');if(id!==requestId)return;if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='表示できる機能がありません。'}catch(e){if(id!==requestId)return;$('error').textContent='機能一覧を取得できませんでした。プロジェクトの設定を確認してください。'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='コピーしました。開発環境に貼り付けてください。'}catch{$('copy-result').textContent='自動コピーできません。コマンドを選択してコピーしてください。'}};start();</script></body></html>`;
 
 /** Bind only to loopback, with an unguessable session path and DNS-rebinding protection. */
-export async function startStatusView(root: SddRoot): Promise<{server: Server; url: string}> {
+export async function startStatusView(root: SddRoot, dashboard = false): Promise<{server: Server; url: string}> {
   const token = randomBytes(32).toString('hex');
+  const reader = new DashboardReader(root);
+  let snapshot = dashboard ? reader.sample() : undefined;
+  const timer = dashboard ? setInterval(() => { snapshot = reader.sample(); }, 5000) : undefined;
   let host = '';
   const server = createServer((req, res) => {
     const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'no-referrer', 'Content-Security-Policy':"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" };
@@ -29,7 +34,8 @@ export async function startStatusView(root: SddRoot): Promise<{server: Server; u
     const given = Buffer.from(parts[1] ?? ''); const expected = Buffer.from(token);
     if (given.length !== expected.length || !timingSafeEqual(given,expected)) return send(404,'text/plain; charset=utf-8','Not found');
     const route = parts.slice(2).join('/');
-    if (route === '') return send(200,'text/html; charset=utf-8',PAGE);
+    if (route === '') return send(200,'text/html; charset=utf-8',dashboard ? dashboardPage() : PAGE);
+    if (route === 'api/dashboard' && dashboard) return send(200,'application/json; charset=utf-8',JSON.stringify(snapshot));
     if (route === 'api/features') return send(200,'application/json; charset=utf-8',JSON.stringify(listActiveSpecs(root)));
     if (route === 'api/status') {
       const feature = url.searchParams.get('feature') ?? '';
@@ -38,6 +44,8 @@ export async function startStatusView(root: SddRoot): Promise<{server: Server; u
     }
     return send(404,'text/plain; charset=utf-8','Not found');
   });
+  server.once('close', () => { if (timer) clearInterval(timer); });
+  server.once('error', () => { if (timer) clearInterval(timer); });
   await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>{server.off('error',reject);resolve()})});
   const address=server.address(); if (!address || typeof address === 'string') throw new Error('Unable to determine status view port');
   host=`127.0.0.1:${address.port}`;

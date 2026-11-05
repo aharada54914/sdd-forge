@@ -23,6 +23,7 @@ function collect(dir) {
 }
 
 const files = collect(testsRoot).sort();
+files.push(join(dirname(fileURLToPath(import.meta.url)), '../../../tests/hosted-status-worker.tests.mjs'));
 if (files.length === 0) {
   console.error(`No compiled test files found under ${testsRoot}; run the pretest compile first.`);
   process.exit(1);
