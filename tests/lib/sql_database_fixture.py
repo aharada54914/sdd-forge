@@ -197,10 +197,11 @@ class DockerFixture:
             try:
                 self._owned("network", self.network)
                 self.docker(["network", "rm", self.network], label="remove owned network")
-                absent = self.docker(["network", "inspect", self.network], expected=None,
+                absent = self.docker(["network", "ls", "--filter",
+                                      f"label={LABEL}={self.run_id}", "--quiet"],
                                      label="confirm network removed")
-                if absent.returncode != 1 or "No such network" not in absent.stderr:
-                    raise RuntimeError("could not confirm owned network removal")
+                if absent.stdout.strip():
+                    raise RuntimeError("owned network remains")
             except Exception as exc:
                 cleanup_errors.append(self.redact(str(exc)))
         success = (error is None and not cleanup_errors and bool(self.checks)

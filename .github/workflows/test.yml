@@ -2089,11 +2089,11 @@ jobs:
     if: needs.ci-plan.outputs.run_sql_tsql == 'true'
     timeout-minutes: 25
     env:
-      DOTNET_INSTALL_DIR: ${{ runner.temp }}/sdd-sql-dotnet
-      DOTNET_CLI_HOME: ${{ runner.temp }}/sdd-sql-dotnet-home
+      DOTNET_INSTALL_DIR: ${{ github.workspace }}/../sdd-sql-dotnet
+      DOTNET_CLI_HOME: ${{ github.workspace }}/../sdd-sql-dotnet-home
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
       DOTNET_NOLOGO: '1'
-      NUGET_PACKAGES: ${{ runner.temp }}/sdd-sql-nuget
+      NUGET_PACKAGES: ${{ github.workspace }}/../sdd-sql-nuget
     steps:
       - name: Checkout exact tested revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

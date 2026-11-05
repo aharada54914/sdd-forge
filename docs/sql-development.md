@@ -68,6 +68,18 @@ SQL側はDB内部の変更、データ、アプリ互換性を担当します。
 [Azure](cloud/azure.md)／[AWS](cloud/aws.md)側はDB基盤・ネットワーク・クラウドIDを担当します。
 同じPostgreSQLのSQL手順をクラウドごとに複製せず、製品固有の認証・機能・復元条件を追加で確認します。
 
+例えば、注文に任意の備考欄を追加する場合、次のように担当を分けます。
+これは設計と引き継ぎの例で、実サービスに適用した記録ではありません。
+
+| 配置先 | 基盤の担当 | DB内部の担当 | アプリの担当と引き継ぎ |
+|---|---|---|---|
+| Azure SQL Database | 既存AzureフローでDB基盤・private endpoint・Entra IDを管理 | 既存ownerがSQL Database ProjectsならAzure SQL向けtargetで追加列を設計し、計画をレビュー。移行用DB権限をアプリから分離 | managed identityとDBロールの対応を運用へ渡す。旧アプリの読み書きを維持し、復元時は別DBへの復元と接続切替を確認する |
+| RDS for PostgreSQL | 既存AWSフローでRDS・VPC・security group・cloud IDを管理 | 既存ownerがFlywayなら既存履歴を維持。ローカルと共通のPostgreSQL手順で追加列・drift・失敗復旧を検証 | IAM DB認証の対応可否、移行用とアプリ用のDBロール、TLSを個別確認。復元先と接続切替を運用へ渡す |
+
+Azure Database for PostgreSQLでも、DB内部は同じPostgreSQL手順を使い、Azure側の
+認証・ネットワーク・復元条件を別途記録します。基盤の作成完了、DB移行、アプリ切替を
+別々の依存タスクにし、新旧アプリの互換性確認前に撤去タスクを進めません。
+
 初版は、共有・本番DBへの接続や適用を行いません。本番を扱う設計・移行、PII、権限／RLS、
 テナント分離、破壊的変更はFullで仕様化し、実装は隔離試験と運用引き継ぎまでに限定します。
 ガードをDBアクセス制御の代わりにはできません。
