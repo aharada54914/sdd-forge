@@ -1349,11 +1349,15 @@ def _shell_is_literal_backup_copy(cmd):
                     or any(re.search(r"[ .]$", part) for part in normalized[3:].split("/"))):
                 return False
     source, destination = args
+    if not destination.endswith('.bak'):
+        return False
     if (not all(os.path.isabs(p) for p in args) or not _is_protected_gate_file(source)
             or _is_protected_gate_file(destination)):
         return False
     try:
-        if not stat.S_ISREG(os.lstat(source).st_mode):
+        source_stat = os.lstat(source)
+        if (not stat.S_ISREG(source_stat.st_mode)
+                or getattr(source_stat, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
             return False
         try:
             os.lstat(destination)
@@ -1362,8 +1366,10 @@ def _shell_is_literal_backup_copy(cmd):
             pass
         parent = os.path.dirname(destination)
         while True:
-            mode = os.lstat(parent).st_mode
-            if not stat.S_ISDIR(mode) or stat.S_ISLNK(mode):
+            parent_stat = os.lstat(parent)
+            mode = parent_stat.st_mode
+            if (not stat.S_ISDIR(mode) or stat.S_ISLNK(mode)
+                    or getattr(parent_stat, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
                 return False
             next_parent = os.path.dirname(parent)
             if next_parent == parent:
@@ -1834,7 +1840,7 @@ def _command_references_protected_path(cmd, directories=()):
     return False
 
 
-def _shell_targets_protected_gate_file(cmd, directories=()):
+def _shell_targets_protected_gate_file(cmd, directories=(), bash_semantics=False):
     """R-10: Deny shell commands that WRITE to protected gate files.
     Uses a token-based pre-filter (a protected path appears as a shell token
     or redirect target) combined with
@@ -1868,7 +1874,7 @@ def _shell_targets_protected_gate_file(cmd, directories=()):
         return False
     if not has_write:
         return False
-    return not _shell_write_targets_are_safe(cmd) and not _shell_is_literal_backup_copy(cmd)
+    return not _shell_write_targets_are_safe(cmd) and not (bash_semantics and _shell_is_literal_backup_copy(cmd))
 
 
 def _shell_read_segments(cmd):
@@ -1929,8 +1935,8 @@ def _reader_glob_can_add_options(words, has_glob, expands):
     return False
 
 
-def _shell_has_globbed_reader_options(cmd):
-    if _shell_is_read_only_for_loop(cmd):
+def _shell_has_globbed_reader_options(cmd, bash_semantics=False):
+    if bash_semantics and _shell_is_read_only_for_loop(cmd):
         return False
     parsed = _shell_read_segments(cmd)
     return bool(parsed and (parsed["ambiguous"] or parsed["unknown_glob"] or any(
@@ -1951,9 +1957,9 @@ def _shell_is_read_only_for_loop(cmd):
     return all(body.fullmatch(command.strip()) for command in loop[3].split(";"))
 
 
-def _shell_is_read_only(cmd):
+def _shell_is_read_only(cmd, bash_semantics=False):
     """Classify every command; quoted patterns are data, expansions are not argv."""
-    if _shell_is_read_only_for_loop(cmd):
+    if bash_semantics and _shell_is_read_only_for_loop(cmd):
         return True
     parsed = _shell_read_segments(cmd)
     if parsed is None or not parsed["read_safe"] or parsed["ambiguous"] or parsed["unknown_glob"]:
@@ -2232,12 +2238,12 @@ def main():
 
         # Reject unknown argv before the legacy write scanners can miss glob-added options.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
-                and _shell_has_globbed_reader_options(tool_input.get("command"))):
+                and _shell_has_globbed_reader_options(tool_input.get("command"), tool_name.lower() == "bash")):
             emit("deny", "SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).", mode)
             return
         # Read-only shell inspection cannot change protected files or grant approvals.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
-                and _shell_is_read_only(tool_input.get("command"))):
+                and _shell_is_read_only(tool_input.get("command"), tool_name.lower() == "bash")):
             emit("allow", None, mode)
             return
 
@@ -2277,7 +2283,7 @@ def main():
         if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
             tool_input.get("command"), str
         ):
-            if _shell_targets_protected_gate_file(tool_input["command"], directories):
+            if _shell_targets_protected_gate_file(tool_input["command"], directories, tool_name.lower() == "bash"):
                 emit("deny", _GATE_PROTECT_MSG, mode)
                 return
 

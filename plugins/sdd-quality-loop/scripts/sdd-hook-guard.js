@@ -482,6 +482,9 @@ function shellIsLiteralBackupCopy(cmd) {
       normalized.slice(3).split('/').some(part => /[ .]$/.test(part));
   })) return false;
   const [source, destination] = paths;
+  // Do not turn the backup exception into a way to create approval documents
+  // or executable/configuration files whose contents other gates cannot inspect.
+  if (!destination.endsWith('.bak')) return false;
   if (!paths.every(p => path.isAbsolute(p)) || !isProtectedGateFile(source) || isProtectedGateFile(destination)) return false;
   try {
     if (!fs.lstatSync(source).isFile()) return false;
@@ -925,7 +928,7 @@ function commandReferencesProtectedPath(cmd, directories = []) {
   return false;
 }
 
-function shellTargetsProtectedGateFile(cmd, directories = []) {
+function shellTargetsProtectedGateFile(cmd, directories = [], bashSemantics = false) {
   // R-10: Deny shell commands that WRITE to protected gate files.
   // Token-based pre-filter (a protected path appears as a shell token or
   // redirect target) combined with
@@ -951,7 +954,7 @@ function shellTargetsProtectedGateFile(cmd, directories = []) {
   if (!hasWrite) return false;
   // Issue #62: deny only when a write target is (or cannot be proven not to
   // be) a protected gate file — fail-close on anything unmodeled.
-  return !shellWriteTargetsAreSafe(cmd) && !shellIsLiteralBackupCopy(cmd);
+  return !shellWriteTargetsAreSafe(cmd) && !(bashSemantics && shellIsLiteralBackupCopy(cmd));
 }
 
 function countApprovals(text) {
@@ -1377,8 +1380,8 @@ function readerGlobCanAddOptions(words, hasGlob, expands) {
   return false;
 }
 
-function shellHasGlobbedReaderOptions(cmd) {
-  if (shellIsReadOnlyForLoop(cmd)) return false;
+function shellHasGlobbedReaderOptions(cmd, bashSemantics = false) {
+  if (bashSemantics && shellIsReadOnlyForLoop(cmd)) return false;
   const parsed = shellReadSegments(cmd);
   return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => readerGlobCanAddOptions(words, glob, expands)));
 }
@@ -1397,8 +1400,8 @@ function shellIsReadOnlyForLoop(cmd) {
   return loop[3].split(';').every(command => body.test(command.trim()));
 }
 
-function shellIsReadOnly(cmd) {
-  if (shellIsReadOnlyForLoop(cmd)) return true;
+function shellIsReadOnly(cmd, bashSemantics = false) {
+  if (bashSemantics && shellIsReadOnlyForLoop(cmd)) return true;
   // Quoted patterns are data; expansions are not the final argv.
   const parsed = shellReadSegments(cmd);
   if (parsed === null || !parsed.readSafe || parsed.ambiguous || parsed.unknownGlob) return false;
@@ -2146,12 +2149,12 @@ async function main() {
     const toolInput = payload.tool_input || {};
     const filePath = (toolInput.file_path || '').toLowerCase();
     // Reject unknown argv before legacy write scanners can miss glob-added options.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command)) {
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command, toolName === 'bash')) {
       emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).', mode);
       return;
     }
     // Read-only inspection cannot change protected files or grant approvals.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command)) {
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command, toolName === 'bash')) {
       emitDecision('allow', null, mode);
       return;
     }
@@ -2195,7 +2198,7 @@ async function main() {
     }
 
     if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
-      if (shellTargetsProtectedGateFile(toolInput.command, directories)) {
+      if (shellTargetsProtectedGateFile(toolInput.command, directories, toolName === 'bash')) {
         emitDecision('deny', GATE_PROTECT_MSG, mode);
         return;
       }

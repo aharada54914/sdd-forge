@@ -134,7 +134,7 @@
     {"path": "tests/ci-qcd-candidate.tests.sh", "runtime": "bash", "excluded": "Historical CI candidate patch diagnostic; not registered by the previous runners."},
     {"path": "tests/ci-suite-wiring.tests.sh", "runtime": "bash"},
     {"path": "tests/claude-bash-matcher.tests.sh", "runtime": "bash"},
-    {"path": "tests/claude-hook-runtime.tests.py", "runtime": "python", "ci_jobs": ["cli-hook-enforcement"]},
+    {"path": "tests/claude-hook-runtime.tests.py", "runtime": "python", "args": ["--output", "claude-hook-runtime-proof.json"], "ci_jobs": ["cli-hook-enforcement"]},
     {"path": "tests/claude-manifest-validation.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
     {"path": "tests/claude-registration.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
     {"path": "tests/cli-hook-enforcement.ps1", "runtime": "powershell", "ci_jobs": ["cli-hook-enforcement"]},

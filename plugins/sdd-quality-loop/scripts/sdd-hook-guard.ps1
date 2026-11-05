@@ -333,8 +333,8 @@ function Test-ReaderGlobCanAddOptions {
 }
 
 function Test-ShellHasGlobbedReaderOptions {
-    param([string]$Cmd)
-    if (Test-ShellReadOnlyForLoop $Cmd) { return $false }
+    param([string]$Cmd, [bool]$BashSemantics = $false)
+    if ($BashSemantics -and (Test-ShellReadOnlyForLoop $Cmd)) { return $false }
     $parsed = Get-ShellReadSegments $Cmd
     if ($null -eq $parsed) { return $false }
     if ($parsed.Ambiguous -or $parsed.UnknownGlob) { return $true }
@@ -362,8 +362,8 @@ function Test-ShellReadOnlyForLoop {
 }
 
 function Test-ShellReadOnly {
-    param([string]$Cmd)
-    if (Test-ShellReadOnlyForLoop $Cmd) { return $true }
+    param([string]$Cmd, [bool]$BashSemantics = $false)
+    if ($BashSemantics -and (Test-ShellReadOnlyForLoop $Cmd)) { return $true }
     # Quoted patterns are data; expansions are not the final argv.
     $parsed = Get-ShellReadSegments $Cmd
     if ($null -eq $parsed -or -not $parsed.ReadSafe -or $parsed.Ambiguous -or $parsed.UnknownGlob) { return $false }
@@ -975,6 +975,7 @@ function Test-ShellLiteralBackupCopy {
     }
     $source = $copyArgs[0]
     $destination = $copyArgs[1]
+    if (-not $destination.EndsWith('.bak', [System.StringComparison]::Ordinal)) { return $false }
     # IsPathRooted alone accepts drive-relative C:foo on .NET Framework.
     foreach ($candidate in $copyArgs) {
         if (-not [System.IO.Path]::IsPathRooted($candidate)) { return $false }
@@ -1528,7 +1529,7 @@ function Test-ShellTargetsProtectedGateFile {
     # compound operators, command starts with a read-only verb, and no write
     # verb/redirect appears anywhere. REQ-002 (issue #110): a working-directory-
     # aware pass additionally resolves write targets across cd/pushd transitions.
-    param([string]$Cmd, $Directories = @())
+    param([string]$Cmd, $Directories = @(), [bool]$BashSemantics = $false)
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
     # REQ-002: cd/pushd-aware resolution catches protected writes that never spell
     # the full protected path literally. Read-only segments never hit, so this is
@@ -1544,7 +1545,7 @@ function Test-ShellTargetsProtectedGateFile {
     $isReadOnlyStart = [regex]::IsMatch($Cmd, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     if ((-not $hasCompound) -and $isReadOnlyStart -and (-not $hasWrite)) { return $false }
     if (-not $hasWrite) { return $false }
-    return (-not (Test-ShellWriteTargetsAreSafe $Cmd) -and -not (Test-ShellLiteralBackupCopy $Cmd))
+    return (-not (Test-ShellWriteTargetsAreSafe $Cmd) -and -not ($BashSemantics -and (Test-ShellLiteralBackupCopy $Cmd)))
 }
 
 function Test-DesignMd {
@@ -2299,11 +2300,11 @@ try {
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
     # Reject unknown argv before legacy write scanners can miss glob-added options.
-    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command)) {
+    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command ($toolName -eq 'bash'))) {
         Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).'
     }
     # Read-only inspection cannot change protected files or grant approvals.
-    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command)) {
+    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command ($toolName -eq 'bash'))) {
         Emit-Decision 'allow' $null
     }
 
@@ -2334,7 +2335,7 @@ try {
     }
 
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
-        if (Test-ShellTargetsProtectedGateFile $command $executionDirectories) { Emit-Decision "deny" $GateProtectMsg }
+        if (Test-ShellTargetsProtectedGateFile $command $executionDirectories ($toolName -eq 'bash')) { Emit-Decision "deny" $GateProtectMsg }
     }
 
     if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {

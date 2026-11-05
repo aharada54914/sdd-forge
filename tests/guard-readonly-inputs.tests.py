@@ -60,6 +60,19 @@ class ReaderInputs(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(json.loads(result.stdout).get('permissionDecision'), expected)
 
+    def unknown_shell_denies(self, command):
+        # Bash quoting/assignment semantics cannot be inferred for generic exec.
+        for tool in ('shell', 'exec_command', 'exec'):
+            self.canonical_decision(command, 2, tool=tool)
+
+    def canonical_decision(self, command, expected, *, tool='Bash'):
+        payload = {'tool_name': tool, 'tool_input': {'command': command}}
+        for runtime in RUNTIMES:
+            with self.subTest(runtime=runtime, tool=tool):
+                result = subprocess.run(self.commands[runtime] + ['--emit', 'exit'], input=json.dumps(payload),
+                                        text=True, capture_output=True, cwd=self.root, env=self.environ, timeout=15)
+                self.assertEqual(result.returncode, expected, result.stderr)
+
     def test_public_reader_contracts(self):
         for command in (
             self.approval,
@@ -187,13 +200,20 @@ class ReaderInputs(unittest.TestCase):
         )
         for command in allowed:
             self.decision(command, 'allow')
+        self.unknown_shell_denies(allowed[0])
+        self.canonical_decision(allowed[0], 0)
         existing = destination_dir / 'existing.bak'
         existing.write_text('keep')
+        (destination_dir / 'directory.bak').mkdir()
         for command in (
             'cp ~/.claude/settings.json "$UNBOUND/backup.bak"',
             prefix + "'$BK/claude-settings.json.bak'",
             prefix + '"$BK/existing.bak"',
+            prefix + '"$BK/directory.bak"',
             prefix + '"$BK"',
+            prefix + '"$BK/tasks.md"',
+            prefix + '"$BK/SDD_SUDO"',
+            prefix + '"$BK/active-config.json"',
             prefix + '"$BK/../.claude/settings.json"',
             prefix + '"${BK:-/tmp}/new.bak"',
             prefix + '"$(printf /tmp)/new.bak"',
@@ -257,10 +277,19 @@ class ReaderInputs(unittest.TestCase):
             for suffix in ('stream.bak:settings.json', 'trailing.bak.', 'trailing.bak '):
                 self.decision(prefix + '"$BK/' + suffix + '"', 'deny')
             self.decision('BK=/tmp; cp -a ~/.claude/settings.json "$BK/unmapped.bak"', 'deny')
+            junction = fixture / 'junction'
+            subprocess.run(['cmd', '/c', 'mklink', '/J', str(junction), str(destination_dir)],
+                           text=True, capture_output=True, check=True, timeout=10)
+            try:
+                self.decision(prefix.replace(destination_dir.as_posix(), junction.as_posix()) + '"$BK/junction.bak"', 'deny')
+            finally:
+                junction.rmdir()
 
     def test_read_only_glob_loop_with_line_continuations(self):
         command = 'for item in ./*.md; do \\\n cat -- "$item"; head -n 1 -- "${item}"; wc -l -- "$item"; done'
         self.decision(command, 'allow')
+        self.unknown_shell_denies(command)
+        self.canonical_decision(command, 0)
         for mutation in (
             command.replace('cat --', 'cat'),
             command.replace('cat -- "$item"', 'eval "$item"'),
