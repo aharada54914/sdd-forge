@@ -55,6 +55,8 @@ CLOSURE = [
     "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
     "plugins/sdd-ship/skills/status/SKILL.md",
     "plugins/sdd-ship/scripts/publish-dashboard.py",
+    "plugins/sdd-ship/scripts/dashboard-runtime.py",
+    "plugins/sdd-ship/status-site/observations.js",
     "plugins/sdd-ship/status-site/build.mjs",
     "plugins/sdd-ship/status-site/worker.mjs",
     "plugins/sdd-ship/status-site/service/sdd-dashboard.service",

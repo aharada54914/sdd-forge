@@ -9,7 +9,7 @@
  *      judged by their real target, not the link path).
  *   c. Allowlist prefix match against the resolved root: `specs/`, `reports/`,
  *      `docs/review-tickets/`, `docs/workflow-improvements/` directories, and
- *      the single file `AGENTS.md`.
+ *      the files `AGENTS.md` and optional `dashboard-labels.json`.
  *   d. Denylist: the flag file, evidence signing key material, and `.env`
  *      files are always denied — even when reached through an allowlisted
  *      directory via a symlink.
@@ -35,8 +35,8 @@ const ALLOWLISTED_DIRECTORIES = [
   "docs/workflow-improvements",
 ] as const;
 
-/** The only single-file allowlist entry. */
-const ALLOWLISTED_FILES = ["AGENTS.md"] as const;
+/** Explicit project metadata files; no other root files are readable. */
+const ALLOWLISTED_FILES = ["AGENTS.md", "dashboard-labels.json"] as const;
 
 /**
  * Base names that are always denied, regardless of which allowlisted

@@ -88,3 +88,15 @@ test('empty Release field does not consume the next line', () => {
     assert.equal(new DashboardReader(f.root).sample().data?.tasks[0]?.release, null);
   } finally { f.cleanup(); }
 });
+
+test('project-owned display names affect revision and malformed metadata retains last-good', () => {
+  const f=fixture();
+  try {
+    const reader=new DashboardReader(f.root);const initial=reader.sample();
+    assert.equal(initial.data?.features[0]?.displayName,undefined);
+    writeFile(f.dir,'dashboard-labels.json',JSON.stringify({schema:'sdd-dashboard-labels/v1',features:{demo:'経費申請の改善'}}));
+    const renamed=reader.sample();assert.equal(renamed.data?.features[0]?.displayName,'経費申請の改善');assert.notEqual(renamed.revision,initial.revision);
+    writeFile(f.dir,'dashboard-labels.json','{"schema":"sdd-dashboard-labels/v1","features":{"demo":""}}');
+    const bad=reader.sample();assert.ok(bad.error);assert.deepEqual(bad.data,renamed.data);assert.equal(bad.checkedAt,renamed.checkedAt);
+  } finally {f.cleanup();}
+});

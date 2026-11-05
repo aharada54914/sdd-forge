@@ -10,6 +10,35 @@ Use when the user requests a status board or dashboard, including during bootstr
 or ship. The initiating parent owns presentation; do not delegate host selection,
 creation, publication, credentials or the active presentation identity to workers.
 
+## Independent local runtime (every entry/resume)
+
+Use the bundled supervisor for this project's environment; do not request a
+separate permanent host, SSH account or external repository mirror:
+
+```sh
+python3 <installed-root>/plugins/sdd-ship/scripts/dashboard-runtime.py start --root <project> --entry <entry>
+```
+
+Use the available Python 3 launcher (`python` on Windows when appropriate).
+Run this idempotent step on status entry and resume, and when bootstrap/ship
+resumes a requested dashboard. It starts a detached loopback-only reader and
+restarts failed readers. Repeated start reuses it; changed runtime bytes replace
+an older supervisor. `status` inspects it; `stop` stops only that project runtime.
+Check exit status and `state: running`; never treat a starting/failed service as ready.
+State is private to the OS user, canonical project path and environment hostname,
+under `$XDG_STATE_HOME` or `~/.local/state`. Give containers distinct hostnames or
+state homes when they share the same home directory. Do not copy runtime state
+or localhost bearer URLs between installations. History survives reader/supervisor
+restarts while that environment's storage survives. An erased container cannot
+recover local history without its persistent volume.
+
+This runtime needs no account or external host. OS/container shutdown stops
+execution; the next plugin entry/resume runs `start` again. This is not an OS boot
+service installation. Do not promise observations while the machine is off.
+The local URL is a diagnostic surface, not a replacement for parent-owned
+Sites/Artifacts publication. Each environment uses its own source and runtime;
+never reuse another project's Site identity or credentials by default.
+
 ## Parent routing
 
 1. Capture the initiating user-facing service before dispatching any worker:
@@ -61,20 +90,29 @@ Use Sites' standard source helper when available. If unavailable, native Git
 source synchronization and archive-backed publication must retain the same
 identity/provenance and keep credentials in process memory only.
 
-Start `plugins/sdd-ship/scripts/publish-dashboard.py` with `--entry`, `--root`,
-`--url <https-site-origin>`. After its readiness message, deliver one stdin JSON
-object containing `serviceToken` (the existing Site service-access token) and
-`publisherToken`. Never place tokens in argv, source, logs or the browser. A
-missing service credential is a setup failure, not permission to publish publicly
-or rotate a token. Use `--once` for an explicit single sample, not live mode.
+Attach publishing to this environment's daemon using
+`python3 <installed-root>/plugins/sdd-ship/scripts/dashboard-runtime.py publish
+--root <project> --url <https-site-origin>`. After its readiness message, deliver
+one stdin JSON object containing `serviceToken` (the existing Site service-access
+token) and `publisherToken`. Credentials pass only through protected stdin and
+loopback authenticated control into process memory. The daemon supervises the
+publisher as well as its local reader. `publisherState: running` means a process
+is running; confirm actual delivery via the Site health and source timestamps.
+Never place tokens in argv, source, logs or the browser. Missing native
+credentials are setup failure, not permission to publish publicly. The direct
+`publish-dashboard.py --once` path is a single-sample diagnostic, not live mode.
 
 The publisher supervises and restarts its collector, bounds collection waits,
 keeps only the latest observation, and backs off on transient failures. Authentication
 or rejected-data failures exit 78 for operator correction. It publishes separate
 private health metadata without changing the task snapshot.
 
-Keep the publisher running under the user's existing process supervisor if
-available; otherwise clearly state its execution-environment lifetime. Do not
+Keep the publisher attached to the local daemon (or an existing user supervisor). On each resume, restore the selected private Site's publisher
+with native credentials in memory. The local daemon does not store hosted tokens.
+If a dedicated publisher token is unavailable, provision a fresh dedicated
+`SDD_PUBLISHER_TOKEN` through the same Site's runtime secrets and apply the
+environment before starting its publisher; do not rotate the Site service token.
+Clearly state its execution-environment lifetime. Do not
 claim persistence across workspace shutdown. A stopped collector must visibly
 become stale even if the Site and its cached data remain reachable.
 
@@ -124,3 +162,22 @@ separately. A fixture callback is only adapter testing.
 No control changes task Approval/Status or evidence. `Implementation Complete`
 and `Done` remain separate. Release membership is read only from `Release:` in
 the task body; membership is not a release publication verdict.
+
+## Names, notifications and observation history
+
+Use optional `<project>/dashboard-labels.json` with
+`{"schema":"sdd-dashboard-labels/v1","features":{"feature-id":"管理者向けの日本語名称"}}`.
+Generate accurate project-specific labels from actual requirements when needed;
+never ship this repository's label catalog as defaults for unrelated projects.
+An invalid label file is a source failure; do not hide it behind an empty board.
+
+HTTP views read private `GET api/observations` from the same runtime as the
+snapshot. The page exposes notifications, observed changes and continuous
+observed dwell (not actual status-entry time). Retain at most 200 events over
+30 days. A source gap resets dwell; errors freeze it. Notification acknowledgment
+is browser-local and never approves tasks or changes workflow gates. There is
+no email/Slack dispatch. In Artifacts, an optional
+`window.sddDashboardObservations: () => Promise<Observations>` adapter can bind
+the same authorized runtime's history endpoint through a real native connector;
+if it is not reachable/declared, show history unavailable. Do not invent an MCP
+tool or claim full history support from the snapshot-only connector.

@@ -15,6 +15,7 @@ export function validSnapshot(s) {
   const features = new Set(); const keys = new Set();
   for (const f of s.data.features) {
     if (!f || ['id','phase','nextCommand'].some(k => typeof f[k] !== 'string') || !Array.isArray(f.warnings) || f.warnings.some(w => typeof w !== 'string') || features.has(f.id)) return false;
+    if (f.displayName !== undefined && (typeof f.displayName !== 'string' || !f.displayName.trim() || f.displayName.length>200)) return false;
     features.add(f.id);
   }
   for (const t of s.data.tasks) {
@@ -24,6 +25,7 @@ export function validSnapshot(s) {
   return true;
 }
 
+__OBSERVATION_CODE__
 const HEALTH_STATES = ['starting','running','collection-failed','source-failed','auth-failed','data-rejected','conflict','http-failed','transport-failed'];
 export function validHealth(h) {
   if (!h || Object.keys(h).some(k => !['schema','observedAt','state','publisherVersion','collectorVersion','lastPublishAt','lastSourceAt','consecutiveFailures','collectorRestarts','collectionMs','lastError'].includes(k)) || h.schema !== 'sdd-monitor/v1' || !validTime(h.observedAt) || Date.parse(h.observedAt) > Date.now()+30000 || !HEALTH_STATES.includes(h.state)) return false;
@@ -78,24 +80,30 @@ export default {
       const result = await env.BUCKET.put('health.json',JSON.stringify(h),{onlyIf:old?{etagMatches:old.etag}:{etagDoesNotMatch:'*'},httpMetadata:{contentType:'application/json'}});
       return result ? json({ok:true}) : json({error:'concurrent-update'},409);
     }
+    if (request.method === 'GET' && url.pathname === '/api/observations') {
+      const current = await env.BUCKET.get('snapshot.json');
+      return json(observationView(current ? await current.json() : null));
+    }
     if (request.method === 'GET' && url.pathname === '/api/dashboard') {
       const current = await env.BUCKET.get('snapshot.json');
       if (!current) return json({ schema: 'sdd-dashboard/v1', revision: '', attemptedAt: new Date().toISOString(), checkedAt: null, changedAt: null, lastSuccessAt: null, data: null, error: '収集プロセスからのデータを待っています' });
-      return new Response(await current.text(), { headers: { ...headers, 'Content-Type': 'application/json' } });
+      return json(publicSnapshot(await current.json()));
     }
     if (request.method !== 'PUT' || url.pathname !== '/api/snapshot') return json({ error: 'not-found' }, 404);
     if (!isPublisher || origin) return json({ error: 'publisher-required' }, 403);
     let next;
     try { next = JSON.parse(await boundedBody(request)); } catch (e) { return json({ error: e.message === 'too-large' ? 'too-large' : 'invalid-json' }, e.message === 'too-large' ? 413 : 400); }
     if (!validSnapshot(next)) return json({ error: 'invalid-snapshot' }, 400);
+    if (Object.hasOwn(next,'_observations')) return json({error:'reserved-field'},400);
     const current = await env.BUCKET.get('snapshot.json');
     const old = current ? await current.json() : null;
     if (old && Date.parse(old.attemptedAt) >= Date.parse(next.attemptedAt)) return json({ error: 'older-snapshot' }, 409);
     if (old?.data && next.data && old.data.project !== next.data.project) return json({ error: 'project-mismatch' }, 409);
-    if (old?.data && next.error && !next.data) next = { ...old, attemptedAt: next.attemptedAt, error: next.error };
+    if (old?.data && next.error && !next.data) next = { ...publicSnapshot(old), attemptedAt: next.attemptedAt, error: next.error };
     // Retain content age across collector restarts; successful reads still advance checkedAt.
     if (old?.revision && old.revision === next.revision) next.changedAt = old.changedAt;
-    const written = await env.BUCKET.put('snapshot.json', JSON.stringify(next), { onlyIf: current ? { etagMatches: current.etag } : { etagDoesNotMatch: '*' }, httpMetadata: { contentType: 'application/json' } });
+    const stored = {...next,_observations:observe(old,next)};
+    const written = await env.BUCKET.put('snapshot.json', JSON.stringify(stored), { onlyIf: current ? { etagMatches: current.etag } : { etagDoesNotMatch: '*' }, httpMetadata: { contentType: 'application/json' } });
     if (!written) return json({ error: 'concurrent-update' }, 409);
     return json({ ok: true, revision: next.revision, checkedAt: next.checkedAt });
   }

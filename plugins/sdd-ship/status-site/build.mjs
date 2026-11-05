@@ -7,7 +7,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const output = resolve(process.argv[2] || '.');
 const project = resolve(process.argv[3] || '.');
 const html = execFileSync(process.execPath, [resolve(here, '../../../mcp/sdd-forge-mcp/dist/index.js'), '--root', project, '--dashboard-html', '--parent-service', 'chatgpt'], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024, stdio: ['ignore','pipe','ignore'] });
-const worker = readFileSync(resolve(here, 'worker.mjs'), 'utf8').replace('__DASHBOARD_PAGE__', JSON.stringify(html));
+const worker = readFileSync(resolve(here, 'worker.mjs'), 'utf8').replace('__DASHBOARD_PAGE__', JSON.stringify(html)).replace('__OBSERVATION_CODE__', readFileSync(resolve(here, 'observations.js'), 'utf8'));
 mkdirSync(resolve(output, 'worker'), { recursive: true });
 writeFileSync(resolve(output, 'worker/index.js'), worker);
 writeFileSync(resolve(output, 'package.json'), JSON.stringify({ name: 'sdd-forge-dashboard', private: true, type: 'module' }, null, 2) + '\n');

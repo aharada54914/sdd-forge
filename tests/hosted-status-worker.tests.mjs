@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-const source = readFileSync(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8').replace('__DASHBOARD_PAGE__',JSON.stringify('<html>test</html>'));
+const source = readFileSync(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8').replace('__DASHBOARD_PAGE__',JSON.stringify('<html>test</html>')).replace('__OBSERVATION_CODE__',readFileSync(new URL('../plugins/sdd-ship/status-site/observations.js',import.meta.url),'utf8'));
 const {default:worker, validSnapshot, validHealth} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const snapshot = () => ({schema:'sdd-dashboard/v1',revision:'a'.repeat(64),attemptedAt:'2026-01-01T00:00:00Z',checkedAt:'2026-01-01T00:00:00Z',lastSuccessAt:'2026-01-01T00:00:00Z',changedAt:'2026-01-01T00:00:00Z',error:null,data:{project:'test',features:[],tasks:[]}});
 function env() { let body=null;let etag=0;return { SDD_PUBLISHER_TOKEN:'test-only', BUCKET:{async get(){return body===null?null:{etag:String(etag),text:async()=>body,json:async()=>JSON.parse(body)}},async put(key,value,options){if(options.onlyIf.etagMatches!==undefined&&options.onlyIf.etagMatches!==String(etag))return null;body=value;etag++;return {etag:String(etag)}}} }; }
@@ -52,4 +52,17 @@ test('health publication is private, ordered and separate from task data', async
  assert.equal((await(await worker.fetch(request('/api/dashboard'),e)).json()).data,null);
  const visitor=new Request('https://example.test/api/health',{method:'PUT',headers:{'oai-authenticated-user-id':'viewer'},body:JSON.stringify(h)});
  assert.equal((await worker.fetch(visitor,e)).status,403);
+});
+
+test('observations share snapshot CAS, remain private and cannot be supplied by publishers',async()=>{
+ const e=env();const now=new Date().toISOString();const s={...snapshot(),attemptedAt:now,checkedAt:now,lastSuccessAt:now,changedAt:now};
+ s.data.features=[{id:'demo',phase:'blocked',nextCommand:'',warnings:[]}];
+ s.data.tasks=[{key:'demo:T-1',id:'T-1',feature:'demo',title:'Observed',body:'',source:'specs/demo/tasks.md',status:'Blocked',approval:'Approved',risk:'low',release:null,failures:[]}];
+ assert.equal((await worker.fetch(request('/api/snapshot','PUT',{...s,_observations:{}}),e)).status,400);
+ assert.equal((await worker.fetch(request('/api/snapshot','PUT',s),e)).status,200);
+ const observations=await(await worker.fetch(request('/api/observations'),e)).json();assert.equal(observations.events.length,1);assert.equal(observations.events[0].notify,true);
+ assert.equal((await worker.fetch(request('/api/observations','GET',null,false),e)).status,401);
+ assert.equal((await worker.fetch(request('/api/snapshot','PUT',s),e)).status,409);
+ assert.deepEqual((await(await worker.fetch(request('/api/observations'),e)).json()).events,observations.events);
+ assert.equal('_observations' in await(await worker.fetch(request('/api/dashboard'),e)).json(),false);
 });

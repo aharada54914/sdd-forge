@@ -115,6 +115,11 @@
                             "items": {
                               "type": "string"
                             }
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
                           }
                         }
                       }

@@ -36966,7 +36966,7 @@ var ALLOWLISTED_DIRECTORIES = [
   "docs/review-tickets",
   "docs/workflow-improvements"
 ];
-var ALLOWLISTED_FILES = ["AGENTS.md"];
+var ALLOWLISTED_FILES = ["AGENTS.md", "dashboard-labels.json"];
 var DENYLISTED_BASENAMES = /* @__PURE__ */ new Set([
   ["SDD", "SUDO"].join("_"),
   ".env"
@@ -41003,6 +41003,18 @@ function selectPresentation(parentService) {
   throw new Error("\u89AA\u30B5\u30FC\u30D3\u30B9\u3092 chatgpt \u307E\u305F\u306F claude \u3068\u3057\u3066\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5B50\u306E\u30E2\u30C7\u30EB\u304B\u3089\u306F\u9078\u629E\u3057\u307E\u305B\u3093\u3002");
 }
 function readData(root) {
+  const labelsFile = guardedRead(root, "dashboard-labels.json");
+  let labels = {};
+  if (labelsFile.ok) {
+    const value = JSON.parse(labelsFile.data.contents);
+    if (!value || typeof value !== "object") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    const config2 = value;
+    if (config2.schema !== "sdd-dashboard-labels/v1" || !config2.features || typeof config2.features !== "object" || Array.isArray(config2.features) || Object.keys(value).some((k) => !["schema", "features"].includes(k))) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    for (const [key, label] of Object.entries(config2.features)) {
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(key) || typeof label !== "string" || !label.trim() || label.length > 200) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5024\u304C\u4E0D\u6B63\u3067\u3059");
+    }
+    labels = config2.features;
+  } else if (labelsFile.error.code !== "not-found") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u3092\u8AAD\u3081\u307E\u305B\u3093: " + labelsFile.error.code);
   const specs = parseActiveSpecDirectories(root);
   if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
   const data = { project: basename(root.path), features: [], tasks: [] };
@@ -41016,7 +41028,7 @@ function readData(root) {
     const warnings = [];
     if (!spec.ok) warnings.push("\u4ED5\u69D8\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093: " + spec.error.code);
     if (!next.ok) warnings.push("\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: " + next.error.code);
-    data.features.push({ id: feature, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
+    data.features.push({ id: feature, ...Object.hasOwn(labels, feature) ? { displayName: labels[feature] } : {}, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
     hash2.update(JSON.stringify(spec));
     if (!file2.ok) {
       if (file2.error.code !== "not-found") throw new Error(`${source}: ${file2.error.code}`);
@@ -42054,6 +42066,78 @@ function buildServer(root) {
 
 // src/status-view.ts
 import { createServer } from "node:http";
+import { readFileSync as readFileSync2, lstatSync, existsSync as existsSync2 } from "node:fs";
+import { join as join2 } from "node:path";
+
+// src/dashboard/observations.js
+var RETENTION_MS = 30 * 24 * 60 * 60 * 1e3;
+var EVENT_LIMIT = 200;
+function observe(old, next) {
+  const previous = old?._observations;
+  const at = next.attemptedAt;
+  const cutoff = Date.parse(at) - RETENTION_MS;
+  const events = (previous?.events || []).filter((e) => Date.parse(e.observedAt) >= cutoff).slice(-EVENT_LIMIT);
+  const tracking = /* @__PURE__ */ Object.create(null);
+  function emit(kind, task, field, before, after, notify = false) {
+    events.push({
+      id: at + ":" + kind + ":" + (task?.key || "") + ":" + field,
+      observedAt: at,
+      kind,
+      key: task?.key || null,
+      feature: task?.feature || null,
+      title: task ? task.title.slice(0, 300) : "",
+      field,
+      before,
+      after,
+      notify
+    });
+    if (events.length > EVENT_LIMIT) events.shift();
+  }
+  if (Boolean(old?.error) !== Boolean(next.error)) emit(next.error ? "source-failed" : "source-recovered", null, "source", old?.error ? "failed" : "ok", next.error ? "failed" : "ok", true);
+  if (next.error || !next.data) return { events, tracking: previous?.tracking || {}, startedAt: previous?.startedAt || at };
+  const oldTasks = new Map((old?.data?.tasks || []).map((t) => [t.key, t]));
+  const gap = !!old?.checkedAt && (Date.parse(next.checkedAt) - Date.parse(old.checkedAt) > 6e4 || !!old.error);
+  if (gap) emit("observation-gap", null, "continuity", "unknown", "resumed", true);
+  for (const task of next.data.tasks) {
+    const prior = oldTasks.get(task.key);
+    const remembered = previous?.tracking?.[task.key];
+    const changed = !prior || prior.status !== task.status;
+    tracking[task.key] = {
+      since: !gap && !changed && remembered ? remembered.since : next.checkedAt,
+      lastObservedAt: next.checkedAt,
+      reason: gap ? "gap" : changed && prior ? "status-change" : remembered?.reason || "first-observation"
+    };
+    if (!prior) {
+      emit(old?.data ? "added" : "first-observed", task, "status", null, task.status, task.status === "Blocked" || task.approval === "Draft" || task.status === "Implementation Complete" || task.failures.length > 0);
+    } else {
+      for (const field of ["status", "approval", "risk", "release"]) {
+        if (prior[field] !== task[field]) emit("changed", task, field, prior[field], task[field], field === "status" || field === "approval");
+      }
+      if (JSON.stringify(prior.failures) !== JSON.stringify(task.failures)) emit("changed", task, "validation", prior.failures.length, task.failures.length, true);
+    }
+    oldTasks.delete(task.key);
+  }
+  for (const task of oldTasks.values()) emit("removed", task, "status", task.status, null, true);
+  return { events, tracking, startedAt: previous?.startedAt || at };
+}
+function observationView(stored, now = Date.now()) {
+  const state = stored?._observations;
+  const events = (state?.events || []).filter((e) => Date.parse(e.observedAt) >= now - RETENTION_MS);
+  return {
+    schema: "sdd-observations/v1",
+    snapshotRevision: stored?.revision || "",
+    observedAt: stored?.attemptedAt || null,
+    startedAt: state?.startedAt || null,
+    retentionDays: 30,
+    eventLimit: EVENT_LIMIT,
+    events,
+    tracking: state?.tracking || {},
+    sourceStale: !stored?.checkedAt || now - Date.parse(stored.checkedAt) > 6e4,
+    sourceError: !!stored?.error
+  };
+}
+
+// src/status-view.ts
 import { randomBytes, timingSafeEqual } from "node:crypto";
 
 // ui/dashboard-page.ts
@@ -42062,7 +42146,7 @@ function dashboardPage(mode = "http") {
   const page = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
 :root{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#172b4d;background:#fff;--line:#767676;--blue:#0031d8;--muted:#505f79;--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--radius-control:8px;--radius-panel:12px;--success:#216e4e;--warning:#705400;--error:#ae2a19}
 *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button,a,input,select,summary{scroll-margin:16px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:4px solid #000;outline-offset:3px;box-shadow:0 0 0 3px #ffd43d}button{min-height:44px}a,summary{min-height:44px}summary{cursor:pointer;padding:8px 0}a{display:inline-flex;align-items:center}header{min-height:72px;border-bottom:1px solid #dfe1e6;display:flex;align-items:center;padding:16px 24px;gap:24px;flex-wrap:wrap}.logo{font-size:24px;font-weight:700;color:#0747a6}.readonly{color:var(--muted);font-size:14px;margin-left:auto}.shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);min-height:calc(100vh - 72px)}aside.sidebar{padding:32px 24px;background:#f4f5f7;border-right:1px solid #dfe1e6}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:48px;height:48px;font-weight:700;margin-bottom:16px}.eyebrow{font-size:14px;font-weight:700;color:var(--muted)}.project{font-weight:700;overflow-wrap:anywhere;margin:8px 0 24px}label{display:block;font-size:16px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:var(--radius-control);padding:8px;min-height:44px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:8px}.side-note{font-size:14px;color:var(--muted);margin-top:32px}main{padding:24px 32px;min-width:0}.breadcrumb{color:var(--muted);font-size:14px;overflow-wrap:anywhere}h1{font-size:32px;margin:8px 0 24px}nav{display:flex;gap:24px;border-bottom:2px solid #dfe1e6;flex-wrap:wrap}nav a{color:var(--muted);text-decoration:none;padding:8px 0;border-bottom:3px solid transparent}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:700}.toolbar{display:flex;gap:16px;margin:24px 0;flex-wrap:wrap;align-items:end}.toolbar input{width:100%}.toolbar label{flex:1;min-width:min(240px,100%)}.refresh,.pause{background:var(--blue);color:white;border:1px solid var(--blue);border-radius:var(--radius-control);padding:8px 16px}.pause{background:white;color:var(--blue)}.banner{border:1px solid #216e4e;background:#eefaf4;color:var(--success);border-radius:8px;padding:16px;margin-top:24px;font-size:16px;overflow-wrap:anywhere}.banner[data-state=stale],.banner[data-state=paused]{background:#fff8e6;border-color:#705400;color:var(--warning)}.banner[data-state=error]{background:#fff1f0;border-color:#ae2a19;color:var(--error)}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:12px;padding:16px;background:white;color:inherit;text-align:left}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid #dfe1e6;border-radius:12px;padding:24px;margin-bottom:24px}h2{font-size:24px;margin:0 0 16px}h3{font-size:20px;margin:0 0 16px}.board{display:grid;grid-template-columns:repeat(5,minmax(240px,1fr));gap:32px;overflow-x:auto;padding:8px 8px 16px}.column{background:#f4f5f7;border-radius:12px;padding:16px;min-height:160px}.column h2{font-size:16px;color:var(--muted);margin:0 0 16px}.card{display:block;text-align:left;background:white;border:1px solid var(--line);border-radius:8px;padding:16px;width:100%;margin-bottom:16px;color:inherit}.card:hover{border-color:var(--blue)}.card-title{display:block;margin:8px 0 16px;font-size:16px;overflow-wrap:anywhere}.key{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-block;font-size:14px;font-weight:700;padding:4px 8px;border-radius:8px;background:#ebecf0;overflow-wrap:anywhere}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:16px}th{font-size:16px;color:var(--muted);font-weight:700}th,td{padding:16px;border-bottom:1px solid #dfe1e6}td button{border:0;background:none;color:var(--blue);text-align:left;text-decoration:underline;min-height:44px;min-width:44px}.empty{padding:32px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.phase{display:grid;grid-template-columns:minmax(160px,1fr) minmax(240px,2fr);gap:32px;padding:16px 0;border-bottom:1px solid #dfe1e6;overflow-wrap:anywhere}.phase small{display:block;font-size:14px}.track{display:flex;gap:4px;align-items:center}.segment{height:16px;flex:1;background:#ebecf0;border-radius:4px}.segment.active{background:#0052cc}.segment.done{background:#216e4e}progress{width:100%;accent-color:#0031d8}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(720px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:24px;box-shadow:-8px 0 32px #091e4240}dialog::backdrop{background:#091e4266}dialog .close{float:right;border:1px solid var(--line);background:#f4f5f7;border-radius:8px;padding:8px 16px}dialog h2{padding-top:24px;font-size:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:8px}.issue-warning{color:var(--error);font-size:14px}footer{margin-top:32px;font-size:14px;color:var(--muted)}.skip{position:absolute;left:16px;top:-100px;background:white;z-index:10;padding:8px}.skip:focus{top:8px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.monitor{font-size:14px;overflow-wrap:anywhere}.mobile-feature{display:none}[hidden]{display:none!important}@media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:24px 16px}.mobile-feature{display:block}.phase{grid-template-columns:1fr;gap:16px}.board{grid-template-columns:1fr;overflow:visible;padding:0}.column{min-height:0}.toolbar{align-items:stretch}.toolbar>*{max-width:100%}header{gap:16px;padding:16px}.metrics{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}.panel{padding:16px}h1{font-size:28px}}
-</style></head><body><a class="skip" href="#main">\u672C\u6587\u3078\u79FB\u52D5</a><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>\u8AB2\u984C\u3092\u691C\u7D22<input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"></label><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="pause" id="pause" aria-pressed="false">\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62</button><button class="refresh" id="refresh">\u4ECA\u3059\u3050\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><details class="monitor"><summary>\u89B3\u6E2C\u57FA\u76E4\u306E\u7A3C\u50CD\u72B6\u6CC1</summary><p id="monitor-status">\u7A3C\u50CD\u60C5\u5831\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p></details><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+</style></head><body><a class="skip" href="#main">\u672C\u6587\u3078\u79FB\u52D5</a><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>\u8AB2\u984C\u3092\u691C\u7D22<input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"></label><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="pause" id="pause" aria-pressed="false">\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62</button><button class="refresh" id="refresh">\u4ECA\u3059\u3050\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><details id="activity" class="panel"><summary id="activity-summary">\u901A\u77E5\u30FB\u5909\u66F4\u5C65\u6B74</summary><p id="activity-state" role="status">\u5C65\u6B74\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p><p>\u89B3\u6E2C\u3067\u304D\u305F\u5909\u5316\u3092\u8A18\u9332\u3057\u307E\u3059\u3002\u5B9F\u969B\u306E\u64CD\u4F5C\u6642\u523B\u30FB\u64CD\u4F5C\u3057\u305F\u4EBA\u306F\u63A8\u6E2C\u3057\u307E\u305B\u3093\u3002\u76F4\u8FD130\u65E5\u30FB\u6700\u5927200\u4EF6\u3067\u3059\u3002</p><button id="acknowledge" class="pause">\u8868\u793A\u4E2D\u306E\u901A\u77E5\u3092\u78BA\u8A8D\u6E08\u307F\u306B\u3059\u308B</button><ol id="activity-events"></ol></details><details class="monitor"><summary>\u89B3\u6E2C\u57FA\u76E4\u306E\u7A3C\u50CD\u72B6\u6CC1</summary><p id="monitor-status">\u7A3C\u50CD\u60C5\u5831\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p></details><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
 const PAGE_VERSION = "__SDD_PAGE_VERSION__";
 const MODE = ${JSON.stringify(mode)};
 const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9" };
@@ -42084,58 +42168,8 @@ const PHASES = {
   "cannot-determine": ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u8A18\u9332\u306E\u4E0D\u8DB3\u3084\u4E0D\u6574\u5408\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
   "unknown": ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093\u3002\u8A18\u9332\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"]
 };
-const FEATURE_NAMES = {
-  "a9-interrupted-review-recovery": "\u4E2D\u65AD\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u306E\u518D\u958B",
-  "agent-cost-context-isolation": "AI\u306E\u9078\u5B9A\u8CBB\u7528\u3068\u4F5C\u696D\u60C5\u5831\u306E\u5206\u96E2",
-  "bootstrap-interviewer-enhancement": "\u8981\u4EF6\u30D2\u30A2\u30EA\u30F3\u30B0\u3068\u8A2D\u8A08\u8CC7\u6599\u306E\u5145\u5B9F",
-  "ci-mcp": "\u81EA\u52D5\u30C6\u30B9\u30C8\u306E\u5B9F\u884C\u7D50\u679C\u306E\u78BA\u8A8D",
-  "claude-workflow-compatibility": "Claude\u3067\u306E\u958B\u767A\u624B\u9806\u306E\u4E92\u63DB\u6027\u6539\u5584",
-  "cross-model-verification": "\u8907\u6570\u306EAI\u306B\u3088\u308B\u72EC\u7ACB\u691C\u8A3C",
-  "design-sync-consent": "\u30C7\u30B6\u30A4\u30F3\u5171\u6709\u6642\u306E\u627F\u8A8D",
-  "design-sync-scan": "\u30C7\u30B6\u30A4\u30F3\u5171\u6709\u524D\u306E\u6A5F\u5BC6\u60C5\u5831\u30C1\u30A7\u30C3\u30AF",
-  "design-sync-standing-consent": "\u30C7\u30B6\u30A4\u30F3\u5171\u6709\u306E\u627F\u8A8D\u65B9\u91DD\u8A2D\u5B9A",
-  "epic-136-phase1-guards": "\u4FDD\u8B77\u5BFE\u8C61\u3078\u306E\u4E0D\u6B63\u306A\u5909\u66F4\u306E\u9632\u6B62",
-  "epic-136-phase1-rce": "\u627F\u8A8D\u60C5\u5831\u3092\u60AA\u7528\u3057\u305F\u30B3\u30FC\u30C9\u5B9F\u884C\u306E\u9632\u6B62",
-  "epic-136-phase2-gates": "\u627F\u8A8D\u30FB\u54C1\u8CEA\u78BA\u8A8D\u30EB\u30FC\u30EB\u306E\u7D71\u4E00",
-  "epic-136-phase3": "\u81EA\u52D5\u30C6\u30B9\u30C8\u3068\u7D99\u7D9A\u7684\u691C\u8A3C\u306E\u5F37\u5316",
-  "epic-136-phase4-docs": "\u691C\u8A3C\u306E\u5931\u6557\u6642\u5BFE\u5FDC\u3068\u904B\u7528\u6587\u66F8\u306E\u6574\u5099",
-  "epic-136-phase4-mcp": "\u89B3\u6E2C\u30C7\u30FC\u30BF\u306E\u53D6\u5F97\u5931\u6557\u306E\u660E\u78BA\u5316",
-  "epic-159-pillar-a": "\u30EC\u30D3\u30E5\u30FC\u53CD\u5FA9\u56DE\u6570\u306E\u5236\u5FA1\u3068\u691C\u8A3C",
-  "epic-159-pillar-a2": "\u30EC\u30D3\u30E5\u30FC\u505C\u6B62\u6761\u4EF6\u3068\u691C\u8A3C\u7BC4\u56F2\u306E\u88DC\u5B8C",
-  "epic-159-pillar-b": "\u516C\u958B\u524D\u306E\u30C6\u30B9\u30C8\u5408\u683C\u78BA\u8A8D",
-  "epic-159-pillar-c": "AI\u306E\u80FD\u529B\u3068\u63A8\u8AD6\u91CF\u306E\u500B\u5225\u8A2D\u5B9A",
-  "epic-159-pillar-d": "AI\u306E\u80FD\u529B\u60C5\u5831\u306E\u66F4\u65B0",
-  "epic-189-a1-project-context": "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u8A2D\u5B9A\u3068\u627F\u8A8D\u8A18\u9332\u306E\u6574\u5099",
-  "epic-190-a2-capability-registry": "\u5FC5\u8981\u306A\u958B\u767A\u80FD\u529B\u30FB\u78BA\u8A8D\u57FA\u6E96\u306E\u4E00\u5143\u7BA1\u7406",
-  "epic-191-a3-path-ownership": "\u5909\u66F4\u30D5\u30A1\u30A4\u30EB\u306E\u62C5\u5F53\u7BC4\u56F2\u3068\u78BA\u8A8D\u6F0F\u308C\u306E\u691C\u51FA",
-  "epic-192-a4-facet-manifest": "\u5FC5\u8981\u306A\u78BA\u8A8D\u9805\u76EE\u306E\u4E00\u89A7\u5316",
-  "epic-193-a5-capability-resolver": "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u5FC5\u8981\u306A\u78BA\u8A8D\u9805\u76EE\u306E\u5224\u5B9A",
-  "epic-194-a6-lite-integration": "\u7C21\u6613\u958B\u767A\u30D5\u30ED\u30FC\u3078\u306E\u78BA\u8A8D\u57FA\u6E96\u306E\u9069\u7528",
-  "epic-195-a7-compatibility": "\u65E2\u5B58\u306E\u958B\u767A\u624B\u9806\u3068\u306E\u4E92\u63DB\u6027\u691C\u8A3C",
-  "epic-196-a8-integration": "\u8907\u6570\u306E\u5B9F\u884C\u74B0\u5883\u3067\u306E\u7D50\u5408\u691C\u8A3C",
-  "epic-197-a9-dogfood": "\u958B\u767A\u57FA\u76E4\u306E\u81EA\u793E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u306E\u8A66\u7528",
-  "evidence-deep-verify": "\u5B8C\u4E86\u3092\u88CF\u4ED8\u3051\u308B\u8A3C\u62E0\u306E\u8A73\u7D30\u78BA\u8A8D",
-  "local-env-mcp": "\u30ED\u30FC\u30AB\u30EB\u958B\u767A\u74B0\u5883\u306E\u72B6\u614B\u78BA\u8A8D",
-  "mcp-readonly-preflight": "\u89B3\u6E2C\u6A5F\u80FD\u306E\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u52D5\u4F5C\u306E\u4E8B\u524D\u78BA\u8A8D",
-  "p0-hardening": "\u6700\u512A\u5148\u306E\u904B\u7528\u4E0A\u306E\u554F\u984C\u306E\u4FEE\u6B63",
-  "quality-loop-fixes": "\u54C1\u8CEA\u78BA\u8A8D\u30D5\u30ED\u30FC\u306E\u4E0D\u5177\u5408\u4FEE\u6B63",
-  "review-cross-critique": "\u30EC\u30D3\u30E5\u30FC\u62C5\u5F53\u8005\u9593\u306E\u76F8\u4E92\u691C\u8A3C",
-  "risk-adaptive-layer": "\u30EA\u30B9\u30AF\u306B\u5FDC\u3058\u305F\u691C\u8A3C\u5F37\u5EA6\u306E\u8ABF\u6574",
-  "sdd-diagnose": "\u4E0D\u5177\u5408\u306E\u539F\u56E0\u8ABF\u67FB\u3068\u4FEE\u6B63\u8A08\u753B",
-  "sdd-domain": "\u696D\u52D9\u306E\u69CB\u9020\u3068\u7528\u8A9E\u306E\u6574\u7406",
-  "sdd-domain-concept-contract": "\u696D\u52D9\u6982\u5FF5\u306E\u5B9A\u7FA9\u3068\u5883\u754C\u306E\u6574\u7406",
-  "sdd-domain-concept-test": "\u65B0\u3057\u3044\u6A5F\u80FD\u3068\u696D\u52D9\u6982\u5FF5\u306E\u6574\u5408\u78BA\u8A8D",
-  "sdd-domain-multitarget": "\u958B\u767A\u624B\u9806\u306E\u5BFE\u8C61\u30B7\u30B9\u30C6\u30E0\u62E1\u5F35",
-  "sdd-forge-mcp": "\u958B\u767A\u72B6\u6CC1\u3092\u8AAD\u307F\u53D6\u308B\u89B3\u6E2C\u6A5F\u80FD",
-  "sdd-forge-refactor": "\u958B\u767A\u57FA\u76E4\u306E\u5185\u90E8\u69CB\u9020\u306E\u6574\u7406",
-  "sdd-lite": "\u5C0F\u898F\u6A21\u306A\u5909\u66F4\u5411\u3051\u306E\u7C21\u6613\u958B\u767A",
-  "second-approval-mask": "\u91CD\u8981\u306A\u5909\u66F4\u306E\u4E8C\u91CD\u627F\u8A8D\u3078\u306E\u5BFE\u5FDC",
-  "shared-review-launch-repair": "\u30EC\u30D3\u30E5\u30FC\u5B9F\u884C\u74B0\u5883\u306E\u4E0D\u5177\u5408\u4FEE\u6B63",
-  "uninstall-workflow": "\u958B\u767A\u57FA\u76E4\u306E\u524A\u9664\u624B\u9806\u306E\u6574\u5099",
-  "workflow-state-integrity": "\u5DE5\u7A0B\u30FB\u627F\u8A8D\u8A18\u9332\u306E\u6574\u5408\u6027\u78BA\u8A8D",
-};
 function featureName(id) {
-  return snapshot?.data?.project === "sdd-forge" && Object.hasOwn(FEATURE_NAMES, id) ? FEATURE_NAMES[id] : id;
+  return snapshot?.data?.features.find(f => f.id === id)?.displayName || id;
 }
 function valueLabel(value) {
   if (Object.hasOwn(LABELS, value)) return LABELS[value];
@@ -42149,6 +42183,10 @@ const el = (tag, text, cls) => {
   return n;
 };
 let latest = null, paused = false, attention = "", detailSignature = "", announcedState = "", health = null, healthError = "", lastContact = null;
+let observations = null, observationError = "", activitySignature = "";
+let acknowledged = new Set();
+const ackKey = "sdd-notifications:" + location.pathname;
+try { const saved = JSON.parse(localStorage.getItem(ackKey) || "[]"); if (Array.isArray(saved)) acknowledged = new Set(saved.filter(x => typeof x === "string").slice(-200)); } catch {}
 let snapshot = null, transportError = "", inFlight = false, detailKey = null;
 const prefsKey = "sdd-dashboard:" + location.pathname;
 let prefs = {};
@@ -42227,7 +42265,8 @@ function openDetail(key) {
 function renderDetail() {
   const box = $("detail-content");
   const task = snapshot?.data?.tasks.find((t) => t.key === detailKey);
-  const signature = JSON.stringify(task);
+  const tracking = observations?.snapshotRevision === snapshot?.revision ? observations?.tracking?.[detailKey] : null;
+  const signature = JSON.stringify([task,tracking]);
   if (detailSignature === signature) return;
   detailSignature = signature;
   const oldScroll = $("detail").scrollTop;
@@ -42242,6 +42281,7 @@ function renderDetail() {
   const title = el("h2", task.title);
   title.id = "detail-title";
   box.append(title, badge(task.status), el("p", "\u627F\u8A8D: " + valueLabel(task.approval) + " / \u30EA\u30B9\u30AF: " + valueLabel(task.risk)), el("p", "\u6B63\u672C: " + task.source, "muted"));
+  if (tracking) box.append(el("p", "\u3053\u306E\u72B6\u614B\u3092\u9023\u7D9A\u89B3\u6E2C: " + Math.max(0,Math.floor((Date.parse(tracking.lastObservedAt)-Date.parse(tracking.since))/60000)) + "\u5206\uFF08" + new Date(tracking.since).toLocaleString("ja-JP") + "\u304B\u3089\u6700\u7D42\u78BA\u8A8D\u307E\u3067\uFF09\u3002\u89B3\u6E2C\u4E2D\u65AD\u6642\u306F\u8A08\u6E2C\u3092\u518D\u958B\u3057\u307E\u3059\u3002", "muted"));
   for (const failure of task.failures) box.append(el("p", failure, "issue-warning"));
   box.append(el("pre", task.body));
   $("detail").scrollTop = oldScroll;
@@ -42455,6 +42495,7 @@ async function refresh() {
       snapshot = next;
       if (changed) { syncFilters(); render(); }
     }
+    await readObservations();
     freshness();
   } catch (e) {
     transportError = e.message || "\u63A5\u7D9A\u3067\u304D\u307E\u305B\u3093";
@@ -42489,9 +42530,62 @@ $("refresh").onclick = refresh;
 $("pause").onclick = () => {
   paused = !paused;
   $("pause").setAttribute("aria-pressed",String(paused));
+  if (paused) $("acknowledge").disabled = true;
   $("pause").textContent = paused ? "\u8868\u793A\u66F4\u65B0\u3092\u518D\u958B" : "\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62";
-  if (!paused && latest) { snapshot = latest; syncFilters(); render(); }
+  if (!paused && latest) { snapshot = latest; syncFilters(); render(); renderActivity(); }
   freshness();
+};
+const EVENT_LABELS = {"first-observed":"\u89B3\u6E2C\u3092\u958B\u59CB","added":"\u8AB2\u984C\u3092\u8FFD\u52A0\u78BA\u8A8D","changed":"\u5909\u66F4\u3092\u78BA\u8A8D","removed":"\u8AB2\u984C\u306E\u524A\u9664\u3092\u78BA\u8A8D","source-failed":"\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5931\u6557","source-recovered":"\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5FA9\u65E7","observation-gap":"\u89B3\u6E2C\u4E2D\u65AD\u5F8C\u306B\u518D\u958B"};
+const FIELD_LABELS = {status:"\u72B6\u614B",approval:"\u627F\u8A8D",risk:"\u30EA\u30B9\u30AF",release:"\u30EA\u30EA\u30FC\u30B9",validation:"\u691C\u8A3C\u30A8\u30E9\u30FC\u4EF6\u6570",source:"\u6B63\u672C",continuity:"\u89B3\u6E2C"};
+function validObservations(o) {
+  return o?.schema === "sdd-observations/v1" && typeof o.snapshotRevision === "string" && Array.isArray(o.events) && o.events.length <= 200 && o.tracking && typeof o.tracking === "object" && o.events.every(e => e && typeof e.id === "string" && Object.hasOwn(EVENT_LABELS,e.kind) && Object.hasOwn(FIELD_LABELS,e.field) && Number.isFinite(Date.parse(e.observedAt)) && typeof e.title === "string" && typeof e.notify === "boolean" && [e.before,e.after].every(v => v === null || typeof v === "string" || typeof v === "number")) && Object.values(o.tracking).every(t => t && Number.isFinite(Date.parse(t.since)) && Number.isFinite(Date.parse(t.lastObservedAt)) && Date.parse(t.lastObservedAt) >= Date.parse(t.since));
+}
+function renderActivity() {
+  if (paused) return;
+  const ready = observations && observations.snapshotRevision === snapshot?.revision;
+  $("activity-state").textContent = observationError || (!ready ? "\u73FE\u5728\u306E\u8868\u793A\u306B\u5BFE\u5FDC\u3059\u308B\u5C65\u6B74\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059" : observations.sourceError ? "\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5931\u6557\u4E2D\u3002\u7D4C\u904E\u6642\u9593\u306E\u8A08\u6E2C\u306F\u505C\u6B62\u3057\u3066\u3044\u307E\u3059\u3002" : (observations.sourceStale || !snapshot?.checkedAt || Date.now()-Date.parse(snapshot.checkedAt)>60000) ? "\u6700\u7D42\u78BA\u8A8D\u304C\u53E4\u304F\u306A\u3063\u3066\u3044\u307E\u3059\u3002\u672A\u89B3\u6E2C\u306E\u5909\u5316\u306F\u5206\u304B\u308A\u307E\u305B\u3093\u3002" : "\u6700\u7D42\u89B3\u6E2C: " + new Date(observations.observedAt).toLocaleString("ja-JP"));
+  $("activity-events").hidden = !ready || !!observationError;
+  if (!ready || observationError) { $("acknowledge").disabled = true; return; }
+  const events = observations.events;
+  const unread = events.filter(e => e.notify && !acknowledged.has(e.id));
+  $("activity-summary").textContent = "\u901A\u77E5\u30FB\u5909\u66F4\u5C65\u6B74\uFF08\u672A\u78BA\u8A8D " + unread.length + "\u4EF6\uFF09";
+  $("acknowledge").disabled = !unread.length;
+  const signature = JSON.stringify([events,[...acknowledged]]);
+  if (activitySignature !== signature) {
+    activitySignature = signature;
+    $("activity-events").replaceChildren();
+    for (const event of [...events].reverse()) {
+      const label = v => v === null ? "\u306A\u3057" : ({ok:"\u6B63\u5E38",failed:"\u5931\u6557",unknown:"\u4E0D\u660E",resumed:"\u518D\u958B"}[v] || valueLabel(String(v)));
+      const li = el("li", (event.notify && !acknowledged.has(event.id) ? "\u672A\u78BA\u8A8D\u30FB" : "") + new Date(event.observedAt).toLocaleString("ja-JP") + " \u2014 " + EVENT_LABELS[event.kind] + " / " + FIELD_LABELS[event.field] + ": " + label(event.before) + " \u2192 " + label(event.after) + (event.title ? " / " + event.title : ""));
+      if (event.key && snapshot.data?.tasks.some(t => t.key === event.key)) { const button = el("button","\u8AB2\u984C\u306E\u8A73\u7D30"); button.onclick = () => openDetail(event.key); li.append(button); }
+      $("activity-events").append(li);
+    }
+    if (!events.length) $("activity-events").append(el("li","\u3053\u306E\u4FDD\u6301\u671F\u9593\u306E\u5909\u66F4\u8A18\u9332\u306F\u3042\u308A\u307E\u305B\u3093\u3002"));
+  }
+  if ($("detail").open) renderDetail();
+}
+async function readObservations() {
+  try {
+    let o;
+    if (MODE === "artifacts") {
+      if (typeof window.sddDashboardObservations !== "function") throw Error("\u3053\u306EArtifacts\u63A5\u7D9A\u306F\u5C65\u6B74\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u305B\u3093");
+      let timer; try { o = await Promise.race([window.sddDashboardObservations(),new Promise((_,reject) => {timer=setTimeout(() => reject(Error("\u5C65\u6B74\u306E\u53D6\u5F97\u304C\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8\u3057\u307E\u3057\u305F")),10000)})]); } finally {clearTimeout(timer);}
+    } else {
+      const r = await fetch("api/observations",{cache:"no-store",signal:AbortSignal.timeout(10000)});
+      if (!r.ok) throw Error("\u5909\u66F4\u5C65\u6B74\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093");
+      o = await r.json();
+    }
+    if (!validObservations(o)) throw Error("\u5909\u66F4\u5C65\u6B74\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    observations = o; observationError = "";
+  } catch (e) { observationError = e.message || "\u5909\u66F4\u5C65\u6B74\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093"; }
+  renderActivity();
+}
+$("acknowledge").onclick = () => {
+  if (paused || observationError || observations?.snapshotRevision !== snapshot?.revision) return;
+  for (const e of observations?.events || []) if (e.notify) acknowledged.add(e.id);
+  acknowledged = new Set([...acknowledged].slice(-200));
+  try {localStorage.setItem(ackKey,JSON.stringify([...acknowledged]));} catch {}
+  renderActivity();
 };
 async function readHealth() {
   if (MODE !== "http") { healthError = "\u3053\u306E\u63A5\u7D9A\u65B9\u5F0F\u3067\u306F\u53CE\u96C6\u30D7\u30ED\u30BB\u30B9\u306E\u7A3C\u50CD\u60C5\u5831\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u305B\u3093"; return; }
@@ -42517,7 +42611,7 @@ document.addEventListener("visibilitychange", () => {
   freshness();
   if (!document.hidden) refresh();
 });
-setInterval(freshness, 1e3);
+setInterval(() => {freshness();renderActivity();}, 1e3);
 setInterval(refresh, 5e3);
 render();
 refresh();
@@ -42538,9 +42632,35 @@ async function start(){const id=++requestId;try{const r=await api('api/features'
 async function startStatusView(root, dashboard = false) {
   const token = randomBytes(32).toString("hex");
   const reader = new DashboardReader(root);
-  let snapshot = dashboard ? reader.sample() : void 0;
+  const directory = dashboard ? process.env.SDD_DASHBOARD_STATE : void 0;
+  let stored = null;
+  if (directory) {
+    const info = lstatSync(directory);
+    if (!info.isDirectory() || info.isSymbolicLink() || process.platform !== "win32" && info.mode & 63) throw new Error("Dashboard state directory must be private");
+    const file2 = join2(directory, "observations.json");
+    if (existsSync2(file2)) {
+      const stat = lstatSync(file2);
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16 * 1024 * 1024) throw new Error("Invalid dashboard state file");
+      stored = JSON.parse(readFileSync2(file2, "utf8"));
+      if (stored.schema !== "sdd-dashboard/v1" || !stored._observations) throw new Error("Invalid dashboard state");
+    }
+  }
+  function sample() {
+    const next = reader.sample();
+    if (stored?.data && next.error && !next.data) {
+      next.data = stored.data;
+      next.revision = stored.revision;
+      next.checkedAt = stored.checkedAt;
+      next.lastSuccessAt = stored.lastSuccessAt;
+      next.changedAt = stored.changedAt;
+    }
+    if (stored?.revision === next.revision && stored?.changedAt) next.changedAt = stored.changedAt;
+    stored = { ...next, _observations: observe(stored, next) };
+    return next;
+  }
+  let snapshot = dashboard ? sample() : void 0;
   const timer = dashboard ? setInterval(() => {
-    snapshot = reader.sample();
+    snapshot = sample();
   }, 5e3) : void 0;
   let host = "";
   const server = createServer((req, res) => {
@@ -42562,6 +42682,8 @@ async function startStatusView(root, dashboard = false) {
     if (given.length !== expected.length || !timingSafeEqual(given, expected)) return send(404, "text/plain; charset=utf-8", "Not found");
     const route = parts.slice(2).join("/");
     if (route === "") return send(200, "text/html; charset=utf-8", dashboard ? dashboardPage() : PAGE);
+    if (route === "api/runtime-state" && dashboard && directory) return send(200, "application/json; charset=utf-8", JSON.stringify(stored));
+    if (route === "api/observations" && dashboard) return send(200, "application/json; charset=utf-8", JSON.stringify(observationView(stored)));
     if (route === "api/dashboard" && dashboard) return send(200, "application/json; charset=utf-8", JSON.stringify(snapshot));
     if (route === "api/features") return send(200, "application/json; charset=utf-8", JSON.stringify(listActiveSpecs(root)));
     if (route === "api/status") {

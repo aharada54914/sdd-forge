@@ -1,9 +1,12 @@
 /** Optional local, read-only status view. Uses the same guarded operations as MCP. */
 import { createServer, type Server } from 'node:http';
+import { readFileSync, lstatSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { observe, observationView } from './dashboard/observations.js';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import type { SddRoot } from './root.js';
 import { getNextSddCommand, getSpecStatus, getTaskState, listActiveSpecs, validateFeature } from './tools/core.js';
-import { DashboardReader } from './dashboard/snapshot.js';
+import { DashboardReader, type Snapshot } from './dashboard/snapshot.js';
 import { dashboardPage } from '../ui/dashboard-page.js';
 
 const PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>仕様とタスクの現在地 | sdd-forge</title><style>
@@ -20,8 +23,28 @@ async function start(){const id=++requestId;try{const r=await api('api/features'
 export async function startStatusView(root: SddRoot, dashboard = false): Promise<{server: Server; url: string}> {
   const token = randomBytes(32).toString('hex');
   const reader = new DashboardReader(root);
-  let snapshot = dashboard ? reader.sample() : undefined;
-  const timer = dashboard ? setInterval(() => { snapshot = reader.sample(); }, 5000) : undefined;
+  const directory = dashboard ? process.env.SDD_DASHBOARD_STATE : undefined;
+  let stored: (Snapshot & {_observations: ReturnType<typeof observe>}) | null = null;
+  if (directory) {
+    const info = lstatSync(directory);
+    if (!info.isDirectory() || info.isSymbolicLink() || (process.platform !== 'win32' && (info.mode & 0o077))) throw new Error('Dashboard state directory must be private');
+    const file = join(directory,'observations.json');
+    if (existsSync(file)) {
+      const stat = lstatSync(file);
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16*1024*1024) throw new Error('Invalid dashboard state file');
+      stored = JSON.parse(readFileSync(file,'utf8'));
+      if (stored.schema !== 'sdd-dashboard/v1' || !stored._observations) throw new Error('Invalid dashboard state');
+    }
+  }
+  function sample() {
+    const next = reader.sample();
+    if (stored?.data && next.error && !next.data) { next.data=stored.data; next.revision=stored.revision; next.checkedAt=stored.checkedAt; next.lastSuccessAt=stored.lastSuccessAt; next.changedAt=stored.changedAt; }
+    if (stored?.revision === next.revision && stored?.changedAt) next.changedAt = stored.changedAt;
+    stored = {...next,_observations:observe(stored,next)};
+    return next;
+  }
+  let snapshot = dashboard ? sample() : undefined;
+  const timer = dashboard ? setInterval(() => { snapshot = sample(); }, 5000) : undefined;
   let host = '';
   const server = createServer((req, res) => {
     const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'no-referrer', 'Content-Security-Policy':"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" };
@@ -35,6 +58,8 @@ export async function startStatusView(root: SddRoot, dashboard = false): Promise
     if (given.length !== expected.length || !timingSafeEqual(given,expected)) return send(404,'text/plain; charset=utf-8','Not found');
     const route = parts.slice(2).join('/');
     if (route === '') return send(200,'text/html; charset=utf-8',dashboard ? dashboardPage() : PAGE);
+    if (route === 'api/runtime-state' && dashboard && directory) return send(200,'application/json; charset=utf-8',JSON.stringify(stored));
+    if (route === 'api/observations' && dashboard) return send(200,'application/json; charset=utf-8',JSON.stringify(observationView(stored)));
     if (route === 'api/dashboard' && dashboard) return send(200,'application/json; charset=utf-8',JSON.stringify(snapshot));
     if (route === 'api/features') return send(200,'application/json; charset=utf-8',JSON.stringify(listActiveSpecs(root)));
     if (route === 'api/status') {

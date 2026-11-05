@@ -198,3 +198,78 @@ Here the publisher runs with in-memory stdin credentials and supervises Node;
 workspace shutdown or termination of the Python supervisor still stops updates.
 The service unit is supplied for a persistent host, not falsely reported as
 installed here. No history store or notification channel (phase 3) is added.
+
+## Per-environment runtime and stage 3
+
+No separate permanent host is required. The status skill runs
+`python3 plugins/sdd-ship/scripts/dashboard-runtime.py start --root <project>`
+(with `--entry <installed-bundle>` if needed). `status` returns its state and
+private loopback URL; `stop` stops only that project's service. `start` is
+idempotent, replaces obsolete runtime bytes, and is repeated on plugin resume.
+The supervisor restarts a dead/unresponsive reader with bounded backoff. It uses
+standard Python 3 and the installed Node bundle, without Docker or a task DB.
+
+User + canonical project path + hostname scope private state under
+`$XDG_STATE_HOME/sdd-forge/dashboard/<identity>` (default `~/.local/state`).
+Containers sharing home and identical hostnames must set distinct state homes.
+State files are mode 0600 in a mode 0700 directory on POSIX; Windows uses the
+user profile's ACL. Windows lifecycle/ACL behavior requires native verification.
+The daemon's control API is loopback, token protected and rejects browser Origins.
+Use the CLI to stop it; do not kill a PID from an unverified stale file.
+
+History and last-good data survive process restarts. OS/container shutdown stops
+observation; the next plugin invocation resumes it. There is no promise of an
+OS boot service, history during downtime, or recovery after storage deletion.
+The Sites publisher still needs its native credentials on session resume;
+plaintext hosted tokens are never placed in the local runtime state.
+
+`dashboard-labels.json` in the project root maps feature IDs to plain-language
+Japanese names. Example:
+
+```json
+{"schema":"sdd-dashboard-labels/v1","features":{"billing":"請求処理の改善"}}
+```
+
+Missing configuration falls back to IDs; malformed metadata retains last-good
+state with a visible source error. The repository's label file describes only
+this project and is excluded from the plugin installation payload.
+
+The six views now have a shared **通知・変更履歴** section. It records observed
+status/approval/risk/release/validation changes, additions/removals, read failures,
+recovery and gaps. No operator identity or actual edit time is inferred. The task
+detail shows continuous observed dwell only through the last successful sample;
+a gap over 60 seconds or a read failure resets continuity on recovery.
+Notifications are in-app, with browser-local acknowledgment. They never change
+Approval, task Status, gates or evidence; no external messages are sent.
+
+Private `GET /api/observations` returns `sdd-observations/v1` with snapshotRevision,
+events, tracking, observedAt, sourceError and sourceStale. Consumers must match
+the revision to their displayed snapshot. At most 200 events from 30 days are
+returned. Expired events are removed on the next successful persistence write;
+this is logical read retention, not a guaranteed physical purge while offline.
+Sites commits derived history and canonical snapshot in one conditional R2 write
+so rejected/concurrent publications cannot append orphan events. Local state
+uses private temporary files and atomic replacement. These derived records are
+not audit-grade evidence and never become the workflow source of truth.
+
+Artifacts accepts optional `window.sddDashboardObservations()` only through a
+real declared connector to that runtime. Snapshot-only MCP integrations still
+show the six views but explicitly say history is unavailable. Native Claude
+publication and connector behavior must be validated in a Claude session.
+
+For Sites, attach the publisher to the daemon with
+`python3 plugins/sdd-ship/scripts/dashboard-runtime.py publish --root <project>
+--url <existing-private-site-origin>`, supplying the existing two credentials as
+one protected stdin JSON line. The command exits after handing credentials to
+the daemon's memory. The daemon restarts a failed publisher and retains the
+credentials only in memory; exit 78 enters `configuration-required` instead of
+retrying bad authentication forever. Runtime status distinguishes process state
+from the remote `/api/health` delivery evidence. No per-agent service dependency
+is introduced. Supervisor/OS shutdown discards credentials, so the initiating
+parent reattaches the publisher with native credentials on resume.
+
+The Node MCP distribution retains its no-filesystem-write contract. Only the
+Python daemon persists the private derived observation checkpoint, reading a
+single token-protected `api/runtime-state` response every five seconds. A crash
+can lose observations since the last checkpoint; this is operational monitoring,
+not a lossless audit log. The local server never writes canonical project files.

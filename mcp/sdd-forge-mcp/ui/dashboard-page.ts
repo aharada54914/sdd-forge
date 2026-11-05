@@ -5,7 +5,7 @@ export function dashboardPage(mode: 'http' | 'artifacts' = 'http'): string {
   const page = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge — 開発状況</title><style>
 :root{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#172b4d;background:#fff;--line:#767676;--blue:#0031d8;--muted:#505f79;--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--radius-control:8px;--radius-panel:12px;--success:#216e4e;--warning:#705400;--error:#ae2a19}
 *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button,a,input,select,summary{scroll-margin:16px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:4px solid #000;outline-offset:3px;box-shadow:0 0 0 3px #ffd43d}button{min-height:44px}a,summary{min-height:44px}summary{cursor:pointer;padding:8px 0}a{display:inline-flex;align-items:center}header{min-height:72px;border-bottom:1px solid #dfe1e6;display:flex;align-items:center;padding:16px 24px;gap:24px;flex-wrap:wrap}.logo{font-size:24px;font-weight:700;color:#0747a6}.readonly{color:var(--muted);font-size:14px;margin-left:auto}.shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);min-height:calc(100vh - 72px)}aside.sidebar{padding:32px 24px;background:#f4f5f7;border-right:1px solid #dfe1e6}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:48px;height:48px;font-weight:700;margin-bottom:16px}.eyebrow{font-size:14px;font-weight:700;color:var(--muted)}.project{font-weight:700;overflow-wrap:anywhere;margin:8px 0 24px}label{display:block;font-size:16px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:var(--radius-control);padding:8px;min-height:44px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:8px}.side-note{font-size:14px;color:var(--muted);margin-top:32px}main{padding:24px 32px;min-width:0}.breadcrumb{color:var(--muted);font-size:14px;overflow-wrap:anywhere}h1{font-size:32px;margin:8px 0 24px}nav{display:flex;gap:24px;border-bottom:2px solid #dfe1e6;flex-wrap:wrap}nav a{color:var(--muted);text-decoration:none;padding:8px 0;border-bottom:3px solid transparent}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:700}.toolbar{display:flex;gap:16px;margin:24px 0;flex-wrap:wrap;align-items:end}.toolbar input{width:100%}.toolbar label{flex:1;min-width:min(240px,100%)}.refresh,.pause{background:var(--blue);color:white;border:1px solid var(--blue);border-radius:var(--radius-control);padding:8px 16px}.pause{background:white;color:var(--blue)}.banner{border:1px solid #216e4e;background:#eefaf4;color:var(--success);border-radius:8px;padding:16px;margin-top:24px;font-size:16px;overflow-wrap:anywhere}.banner[data-state=stale],.banner[data-state=paused]{background:#fff8e6;border-color:#705400;color:var(--warning)}.banner[data-state=error]{background:#fff1f0;border-color:#ae2a19;color:var(--error)}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:12px;padding:16px;background:white;color:inherit;text-align:left}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid #dfe1e6;border-radius:12px;padding:24px;margin-bottom:24px}h2{font-size:24px;margin:0 0 16px}h3{font-size:20px;margin:0 0 16px}.board{display:grid;grid-template-columns:repeat(5,minmax(240px,1fr));gap:32px;overflow-x:auto;padding:8px 8px 16px}.column{background:#f4f5f7;border-radius:12px;padding:16px;min-height:160px}.column h2{font-size:16px;color:var(--muted);margin:0 0 16px}.card{display:block;text-align:left;background:white;border:1px solid var(--line);border-radius:8px;padding:16px;width:100%;margin-bottom:16px;color:inherit}.card:hover{border-color:var(--blue)}.card-title{display:block;margin:8px 0 16px;font-size:16px;overflow-wrap:anywhere}.key{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-block;font-size:14px;font-weight:700;padding:4px 8px;border-radius:8px;background:#ebecf0;overflow-wrap:anywhere}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:16px}th{font-size:16px;color:var(--muted);font-weight:700}th,td{padding:16px;border-bottom:1px solid #dfe1e6}td button{border:0;background:none;color:var(--blue);text-align:left;text-decoration:underline;min-height:44px;min-width:44px}.empty{padding:32px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.phase{display:grid;grid-template-columns:minmax(160px,1fr) minmax(240px,2fr);gap:32px;padding:16px 0;border-bottom:1px solid #dfe1e6;overflow-wrap:anywhere}.phase small{display:block;font-size:14px}.track{display:flex;gap:4px;align-items:center}.segment{height:16px;flex:1;background:#ebecf0;border-radius:4px}.segment.active{background:#0052cc}.segment.done{background:#216e4e}progress{width:100%;accent-color:#0031d8}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(720px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:24px;box-shadow:-8px 0 32px #091e4240}dialog::backdrop{background:#091e4266}dialog .close{float:right;border:1px solid var(--line);background:#f4f5f7;border-radius:8px;padding:8px 16px}dialog h2{padding-top:24px;font-size:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:8px}.issue-warning{color:var(--error);font-size:14px}footer{margin-top:32px;font-size:14px;color:var(--muted)}.skip{position:absolute;left:16px;top:-100px;background:white;z-index:10;padding:8px}.skip:focus{top:8px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.monitor{font-size:14px;overflow-wrap:anywhere}.mobile-feature{display:none}[hidden]{display:none!important}@media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:24px 16px}.mobile-feature{display:block}.phase{grid-template-columns:1fr;gap:16px}.board{grid-template-columns:1fr;overflow:visible;padding:0}.column{min-height:0}.toolbar{align-items:stretch}.toolbar>*{max-width:100%}header{gap:16px;padding:16px}.metrics{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}.panel{padding:16px}h1{font-size:28px}}
-</style></head><body><a class="skip" href="#main">本文へ移動</a><header><span class="logo">▰ SDD Forge</span><span class="muted">プロジェクト</span><span class="readonly">読み取り専用</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">開発プロジェクト</div><div class="project" id="project">接続待ち</div><label>開発テーマ<select id="feature"><option value="">すべての開発テーマ</option></select></label><p class="side-note">プロジェクトに登録された仕様・タスクを表示します。<br>実装が終わっても、品質確認が済むまでは完了になりません。</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">プロジェクト / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">概要</h1><nav aria-label="プロジェクトのビュー" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">データを確認しています…</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>課題を検索<input id="search" type="search" aria-label="課題を検索" placeholder="課題キー・タイトル・本文で検索"></label><select id="filter" aria-label="状態で絞り込み"><option value="">すべての状態</option></select><select id="mobile-feature" class="mobile-feature" aria-label="開発テーマ"><option value="">すべての開発テーマ</option></select><button class="pause" id="pause" aria-pressed="false">表示更新を一時停止</button><button class="refresh" id="refresh">今すぐ更新</button></div><div id="content" aria-live="polite"></div><details class="monitor"><summary>観測基盤の稼働状況</summary><p id="monitor-status">稼働情報を確認しています</p></details><footer>表示内容は記録に基づきます。実装済み・検証待ち、完了、公開済みはそれぞれ別の状態です。</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">閉じる ×</button><div id="detail-content"></div></dialog><script>
+</style></head><body><a class="skip" href="#main">本文へ移動</a><header><span class="logo">▰ SDD Forge</span><span class="muted">プロジェクト</span><span class="readonly">読み取り専用</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">開発プロジェクト</div><div class="project" id="project">接続待ち</div><label>開発テーマ<select id="feature"><option value="">すべての開発テーマ</option></select></label><p class="side-note">プロジェクトに登録された仕様・タスクを表示します。<br>実装が終わっても、品質確認が済むまでは完了になりません。</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">プロジェクト / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">概要</h1><nav aria-label="プロジェクトのビュー" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">データを確認しています…</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>課題を検索<input id="search" type="search" aria-label="課題を検索" placeholder="課題キー・タイトル・本文で検索"></label><select id="filter" aria-label="状態で絞り込み"><option value="">すべての状態</option></select><select id="mobile-feature" class="mobile-feature" aria-label="開発テーマ"><option value="">すべての開発テーマ</option></select><button class="pause" id="pause" aria-pressed="false">表示更新を一時停止</button><button class="refresh" id="refresh">今すぐ更新</button></div><div id="content" aria-live="polite"></div><details id="activity" class="panel"><summary id="activity-summary">通知・変更履歴</summary><p id="activity-state" role="status">履歴を確認しています</p><p>観測できた変化を記録します。実際の操作時刻・操作した人は推測しません。直近30日・最大200件です。</p><button id="acknowledge" class="pause">表示中の通知を確認済みにする</button><ol id="activity-events"></ol></details><details class="monitor"><summary>観測基盤の稼働状況</summary><p id="monitor-status">稼働情報を確認しています</p></details><footer>表示内容は記録に基づきます。実装済み・検証待ち、完了、公開済みはそれぞれ別の状態です。</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">閉じる ×</button><div id="detail-content"></div></dialog><script>
 const PAGE_VERSION = "__SDD_PAGE_VERSION__";
 const MODE = ${JSON.stringify(mode)};
 const VIEWS = { overview: "概要", timeline: "タイムライン", backlog: "バックログ", board: "ボード", list: "一覧", releases: "リリース" };
@@ -27,58 +27,8 @@ const PHASES = {
   "cannot-determine": ["状況の確認が必要", "記録の不足や不整合を確認してください"],
   "unknown": ["状況の確認が必要", "工程を判断できません。記録を確認してください"]
 };
-const FEATURE_NAMES = {
-  "a9-interrupted-review-recovery": "中断したレビューの再開",
-  "agent-cost-context-isolation": "AIの選定費用と作業情報の分離",
-  "bootstrap-interviewer-enhancement": "要件ヒアリングと設計資料の充実",
-  "ci-mcp": "自動テストの実行結果の確認",
-  "claude-workflow-compatibility": "Claudeでの開発手順の互換性改善",
-  "cross-model-verification": "複数のAIによる独立検証",
-  "design-sync-consent": "デザイン共有時の承認",
-  "design-sync-scan": "デザイン共有前の機密情報チェック",
-  "design-sync-standing-consent": "デザイン共有の承認方針設定",
-  "epic-136-phase1-guards": "保護対象への不正な変更の防止",
-  "epic-136-phase1-rce": "承認情報を悪用したコード実行の防止",
-  "epic-136-phase2-gates": "承認・品質確認ルールの統一",
-  "epic-136-phase3": "自動テストと継続的検証の強化",
-  "epic-136-phase4-docs": "検証の失敗時対応と運用文書の整備",
-  "epic-136-phase4-mcp": "観測データの取得失敗の明確化",
-  "epic-159-pillar-a": "レビュー反復回数の制御と検証",
-  "epic-159-pillar-a2": "レビュー停止条件と検証範囲の補完",
-  "epic-159-pillar-b": "公開前のテスト合格確認",
-  "epic-159-pillar-c": "AIの能力と推論量の個別設定",
-  "epic-159-pillar-d": "AIの能力情報の更新",
-  "epic-189-a1-project-context": "プロジェクト設定と承認記録の整備",
-  "epic-190-a2-capability-registry": "必要な開発能力・確認基準の一元管理",
-  "epic-191-a3-path-ownership": "変更ファイルの担当範囲と確認漏れの検出",
-  "epic-192-a4-facet-manifest": "必要な確認項目の一覧化",
-  "epic-193-a5-capability-resolver": "プロジェクトに必要な確認項目の判定",
-  "epic-194-a6-lite-integration": "簡易開発フローへの確認基準の適用",
-  "epic-195-a7-compatibility": "既存の開発手順との互換性検証",
-  "epic-196-a8-integration": "複数の実行環境での結合検証",
-  "epic-197-a9-dogfood": "開発基盤の自社プロジェクトでの試用",
-  "evidence-deep-verify": "完了を裏付ける証拠の詳細確認",
-  "local-env-mcp": "ローカル開発環境の状態確認",
-  "mcp-readonly-preflight": "観測機能の読み取り専用動作の事前確認",
-  "p0-hardening": "最優先の運用上の問題の修正",
-  "quality-loop-fixes": "品質確認フローの不具合修正",
-  "review-cross-critique": "レビュー担当者間の相互検証",
-  "risk-adaptive-layer": "リスクに応じた検証強度の調整",
-  "sdd-diagnose": "不具合の原因調査と修正計画",
-  "sdd-domain": "業務の構造と用語の整理",
-  "sdd-domain-concept-contract": "業務概念の定義と境界の整理",
-  "sdd-domain-concept-test": "新しい機能と業務概念の整合確認",
-  "sdd-domain-multitarget": "開発手順の対象システム拡張",
-  "sdd-forge-mcp": "開発状況を読み取る観測機能",
-  "sdd-forge-refactor": "開発基盤の内部構造の整理",
-  "sdd-lite": "小規模な変更向けの簡易開発",
-  "second-approval-mask": "重要な変更の二重承認への対応",
-  "shared-review-launch-repair": "レビュー実行環境の不具合修正",
-  "uninstall-workflow": "開発基盤の削除手順の整備",
-  "workflow-state-integrity": "工程・承認記録の整合性確認",
-};
 function featureName(id) {
-  return snapshot?.data?.project === "sdd-forge" && Object.hasOwn(FEATURE_NAMES, id) ? FEATURE_NAMES[id] : id;
+  return snapshot?.data?.features.find(f => f.id === id)?.displayName || id;
 }
 function valueLabel(value) {
   if (Object.hasOwn(LABELS, value)) return LABELS[value];
@@ -92,6 +42,10 @@ const el = (tag, text, cls) => {
   return n;
 };
 let latest = null, paused = false, attention = "", detailSignature = "", announcedState = "", health = null, healthError = "", lastContact = null;
+let observations = null, observationError = "", activitySignature = "";
+let acknowledged = new Set();
+const ackKey = "sdd-notifications:" + location.pathname;
+try { const saved = JSON.parse(localStorage.getItem(ackKey) || "[]"); if (Array.isArray(saved)) acknowledged = new Set(saved.filter(x => typeof x === "string").slice(-200)); } catch {}
 let snapshot = null, transportError = "", inFlight = false, detailKey = null;
 const prefsKey = "sdd-dashboard:" + location.pathname;
 let prefs = {};
@@ -170,7 +124,8 @@ function openDetail(key) {
 function renderDetail() {
   const box = $("detail-content");
   const task = snapshot?.data?.tasks.find((t) => t.key === detailKey);
-  const signature = JSON.stringify(task);
+  const tracking = observations?.snapshotRevision === snapshot?.revision ? observations?.tracking?.[detailKey] : null;
+  const signature = JSON.stringify([task,tracking]);
   if (detailSignature === signature) return;
   detailSignature = signature;
   const oldScroll = $("detail").scrollTop;
@@ -185,6 +140,7 @@ function renderDetail() {
   const title = el("h2", task.title);
   title.id = "detail-title";
   box.append(title, badge(task.status), el("p", "承認: " + valueLabel(task.approval) + " / リスク: " + valueLabel(task.risk)), el("p", "正本: " + task.source, "muted"));
+  if (tracking) box.append(el("p", "この状態を連続観測: " + Math.max(0,Math.floor((Date.parse(tracking.lastObservedAt)-Date.parse(tracking.since))/60000)) + "分（" + new Date(tracking.since).toLocaleString("ja-JP") + "から最終確認まで）。観測中断時は計測を再開します。", "muted"));
   for (const failure of task.failures) box.append(el("p", failure, "issue-warning"));
   box.append(el("pre", task.body));
   $("detail").scrollTop = oldScroll;
@@ -398,6 +354,7 @@ async function refresh() {
       snapshot = next;
       if (changed) { syncFilters(); render(); }
     }
+    await readObservations();
     freshness();
   } catch (e) {
     transportError = e.message || "接続できません";
@@ -432,9 +389,62 @@ $("refresh").onclick = refresh;
 $("pause").onclick = () => {
   paused = !paused;
   $("pause").setAttribute("aria-pressed",String(paused));
+  if (paused) $("acknowledge").disabled = true;
   $("pause").textContent = paused ? "表示更新を再開" : "表示更新を一時停止";
-  if (!paused && latest) { snapshot = latest; syncFilters(); render(); }
+  if (!paused && latest) { snapshot = latest; syncFilters(); render(); renderActivity(); }
   freshness();
+};
+const EVENT_LABELS = {"first-observed":"観測を開始","added":"課題を追加確認","changed":"変更を確認","removed":"課題の削除を確認","source-failed":"正本の読み込み失敗","source-recovered":"正本の読み込み復旧","observation-gap":"観測中断後に再開"};
+const FIELD_LABELS = {status:"状態",approval:"承認",risk:"リスク",release:"リリース",validation:"検証エラー件数",source:"正本",continuity:"観測"};
+function validObservations(o) {
+  return o?.schema === "sdd-observations/v1" && typeof o.snapshotRevision === "string" && (o.observedAt === null || Number.isFinite(Date.parse(o.observedAt))) && typeof o.sourceError === "boolean" && typeof o.sourceStale === "boolean" && Array.isArray(o.events) && o.events.length <= 200 && o.tracking && typeof o.tracking === "object" && o.events.every(e => e && typeof e.id === "string" && Object.hasOwn(EVENT_LABELS,e.kind) && Object.hasOwn(FIELD_LABELS,e.field) && Number.isFinite(Date.parse(e.observedAt)) && typeof e.title === "string" && typeof e.notify === "boolean" && [e.before,e.after].every(v => v === null || typeof v === "string" || typeof v === "number")) && Object.values(o.tracking).every(t => t && Number.isFinite(Date.parse(t.since)) && Number.isFinite(Date.parse(t.lastObservedAt)) && Date.parse(t.lastObservedAt) >= Date.parse(t.since));
+}
+function renderActivity() {
+  if (paused) return;
+  const ready = observations && observations.observedAt && observations.snapshotRevision === snapshot?.revision;
+  $("activity-state").textContent = observationError || (!ready ? "現在の表示に対応する履歴を確認しています" : observations.sourceError ? "正本の読み込み失敗中。経過時間の計測は停止しています。" : (observations.sourceStale || !snapshot?.checkedAt || Date.now()-Date.parse(snapshot.checkedAt)>60000) ? "最終確認が古くなっています。未観測の変化は分かりません。" : "最終観測: " + new Date(observations.observedAt).toLocaleString("ja-JP"));
+  $("activity-events").hidden = !ready || !!observationError;
+  if (!ready || observationError) { $("acknowledge").disabled = true; return; }
+  const events = observations.events;
+  const unread = events.filter(e => e.notify && !acknowledged.has(e.id));
+  $("activity-summary").textContent = "通知・変更履歴（未確認 " + unread.length + "件）";
+  $("acknowledge").disabled = !unread.length;
+  const signature = JSON.stringify([events,[...acknowledged]]);
+  if (activitySignature !== signature) {
+    activitySignature = signature;
+    $("activity-events").replaceChildren();
+    for (const event of [...events].reverse()) {
+      const label = v => v === null ? "なし" : ({ok:"正常",failed:"失敗",unknown:"不明",resumed:"再開"}[v] || valueLabel(String(v)));
+      const li = el("li", (event.notify && !acknowledged.has(event.id) ? "未確認・" : "") + new Date(event.observedAt).toLocaleString("ja-JP") + " — " + EVENT_LABELS[event.kind] + " / " + FIELD_LABELS[event.field] + ": " + label(event.before) + " → " + label(event.after) + (event.title ? " / " + event.title : ""));
+      if (event.key && snapshot.data?.tasks.some(t => t.key === event.key)) { const button = el("button","課題の詳細"); button.onclick = () => openDetail(event.key); li.append(button); }
+      $("activity-events").append(li);
+    }
+    if (!events.length) $("activity-events").append(el("li","この保持期間の変更記録はありません。"));
+  }
+  if ($("detail").open) renderDetail();
+}
+async function readObservations() {
+  try {
+    let o;
+    if (MODE === "artifacts") {
+      if (typeof window.sddDashboardObservations !== "function") throw Error("このArtifacts接続は履歴を提供していません");
+      let timer; try { o = await Promise.race([window.sddDashboardObservations(),new Promise((_,reject) => {timer=setTimeout(() => reject(Error("履歴の取得がタイムアウトしました")),10000)})]); } finally {clearTimeout(timer);}
+    } else {
+      const r = await fetch("api/observations",{cache:"no-store",signal:AbortSignal.timeout(10000)});
+      if (!r.ok) throw Error("変更履歴を取得できません");
+      o = await r.json();
+    }
+    if (!validObservations(o)) throw Error("変更履歴の形式が不正です");
+    observations = o; observationError = "";
+  } catch (e) { observationError = e.message || "変更履歴を取得できません"; }
+  renderActivity();
+}
+$("acknowledge").onclick = () => {
+  if (paused || observationError || observations?.snapshotRevision !== snapshot?.revision) return;
+  for (const e of observations?.events || []) if (e.notify) acknowledged.add(e.id);
+  acknowledged = new Set([...acknowledged].slice(-200));
+  try {localStorage.setItem(ackKey,JSON.stringify([...acknowledged]));} catch {}
+  renderActivity();
 };
 async function readHealth() {
   if (MODE !== "http") { healthError = "この接続方式では収集プロセスの稼働情報を提供していません"; return; }
@@ -460,7 +470,7 @@ document.addEventListener("visibilitychange", () => {
   freshness();
   if (!document.hidden) refresh();
 });
-setInterval(freshness, 1e3);
+setInterval(() => {freshness();renderActivity();}, 1e3);
 setInterval(refresh, 5e3);
 render();
 refresh();

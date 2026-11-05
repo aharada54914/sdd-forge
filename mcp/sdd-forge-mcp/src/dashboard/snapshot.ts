@@ -14,7 +14,7 @@ export interface DashboardTask {
 }
 export interface DashboardData {
   project: string;
-  features: { id: string; phase: string; nextCommand: string; warnings: string[] }[];
+  features: { id: string; displayName?: string; phase: string; nextCommand: string; warnings: string[] }[];
   tasks: DashboardTask[];
 }
 export interface Snapshot {
@@ -28,6 +28,18 @@ export function selectPresentation(parentService: string): 'sites' | 'artifacts'
   throw new Error('親サービスを chatgpt または claude として指定してください。子のモデルからは選択しません。');
 }
 function readData(root: SddRoot): { data: DashboardData; digest: string } {
+  const labelsFile = guardedRead(root, 'dashboard-labels.json');
+  let labels: Record<string, string> = {};
+  if (labelsFile.ok) {
+    const value: unknown = JSON.parse(labelsFile.data.contents);
+    if (!value || typeof value !== 'object') throw new Error('表示名設定の形式が不正です');
+    const config = value as {schema?: unknown; features?: unknown};
+    if (config.schema !== 'sdd-dashboard-labels/v1' || !config.features || typeof config.features !== 'object' || Array.isArray(config.features) || Object.keys(value).some(k => !['schema','features'].includes(k))) throw new Error('表示名設定の形式が不正です');
+    for (const [key, label] of Object.entries(config.features)) {
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(key) || typeof label !== 'string' || !label.trim() || label.length > 200) throw new Error('表示名設定の値が不正です');
+    }
+    labels = config.features as Record<string,string>;
+  } else if (labelsFile.error.code !== 'not-found') throw new Error('表示名設定を読めません: ' + labelsFile.error.code);
   const specs = parseActiveSpecDirectories(root);
   if (!specs.ok) throw new Error('機能一覧を読み込めません: ' + specs.error.code);
   const data: DashboardData = { project: basename(root.path), features: [], tasks: [] };
@@ -41,7 +53,7 @@ function readData(root: SddRoot): { data: DashboardData; digest: string } {
     const warnings: string[] = [];
     if (!spec.ok) warnings.push('仕様の状態を確認できません: ' + spec.error.code);
     if (!next.ok) warnings.push('次の工程を判断できません: ' + next.error.code);
-    data.features.push({ id: feature, phase: next.ok ? next.data.phase : 'unknown', nextCommand: next.ok ? next.data.nextCommand : '', warnings });
+    data.features.push({ id: feature, ...(Object.hasOwn(labels,feature) ? {displayName:labels[feature]!} : {}), phase: next.ok ? next.data.phase : 'unknown', nextCommand: next.ok ? next.data.nextCommand : '', warnings });
     hash.update(JSON.stringify(spec));
     if (!file.ok) {
       if (file.error.code !== 'not-found') throw new Error(`${source}: ${file.error.code}`);
