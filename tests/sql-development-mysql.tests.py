@@ -111,7 +111,8 @@ def exercise(f, directory):
     original = v2.read_bytes()
     v2.write_bytes(original + b'\nSELECT 1;\n')
     bad = migration('validate')
-    f.check('applied migration mutation rejected', bad.returncode != 0 and 'checksum' in (bad.stdout + bad.stderr).lower())
+    f.check('applied migration mutation rejected', bad.returncode != 0 and 'checksum' in (bad.stdout + bad.stderr).lower(),
+            {'exit_code': bad.returncode, 'stdout': bad.stdout, 'stderr': bad.stderr})
     v2.write_bytes(original)
     f.check('restored source validates without repair', migration('validate').returncode == 0)
     schema = ("SELECT CONCAT(column_name,':',column_type) FROM information_schema.columns "

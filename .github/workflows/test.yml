@@ -2007,14 +2007,6 @@ jobs:
       - name: Test isolated postgres migration and recovery
         shell: bash
         run: python3 tests/verification.py --suite tests/sql-development-postgres.tests.py --run --receipt "${{ runner.temp }}/verification-sql-postgres.json"
-      - name: Preserve isolated SQL evidence
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: sql-postgres-proof-${{ github.run_attempt }}
-          path: ../sql-postgres-proof.json
-          if-no-files-found: error
-          retention-days: 14
       - name: Bind receipt artifact to actual job identity
         id: receipt-artifact
         if: always()
@@ -2024,10 +2016,20 @@ jobs:
         run: |-
           python3 - <<'PY_RECEIPT'
           import hashlib, json, os
+          from pathlib import Path
           name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
               output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+              output.write('proof_path=' + str(Path('../sql-postgres-proof.json').resolve()) + '\n')
           PY_RECEIPT
+      - name: Preserve isolated SQL evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sql-postgres-proof-${{ github.run_attempt }}
+          path: ${{ steps.receipt-artifact.outputs.proof_path }}
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload source-attempt execution receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -2052,14 +2054,6 @@ jobs:
       - name: Test isolated mysql migration and recovery
         shell: bash
         run: python3 tests/verification.py --suite tests/sql-development-mysql.tests.py --run --receipt "${{ runner.temp }}/verification-sql-mysql.json"
-      - name: Preserve isolated SQL evidence
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: sql-mysql-proof-${{ github.run_attempt }}
-          path: ../sql-mysql-proof.json
-          if-no-files-found: error
-          retention-days: 14
       - name: Bind receipt artifact to actual job identity
         id: receipt-artifact
         if: always()
@@ -2069,10 +2063,20 @@ jobs:
         run: |-
           python3 - <<'PY_RECEIPT'
           import hashlib, json, os
+          from pathlib import Path
           name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
               output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+              output.write('proof_path=' + str(Path('../sql-mysql-proof.json').resolve()) + '\n')
           PY_RECEIPT
+      - name: Preserve isolated SQL evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sql-mysql-proof-${{ github.run_attempt }}
+          path: ${{ steps.receipt-artifact.outputs.proof_path }}
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload source-attempt execution receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -2110,16 +2114,6 @@ jobs:
       - name: Test isolated tsql migration and recovery
         shell: bash
         run: python3 tests/verification.py --suite tests/sql-development-tsql.tests.py --run --receipt "${{ runner.temp }}/verification-sql-tsql.json"
-      - name: Preserve isolated SQL evidence
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: sql-tsql-proof-${{ github.run_attempt }}
-          path: |
-            ../sql-tsql-proof.json
-            ../tsql-artifacts/
-          if-no-files-found: error
-          retention-days: 14
       - name: Bind receipt artifact to actual job identity
         id: receipt-artifact
         if: always()
@@ -2129,10 +2123,23 @@ jobs:
         run: |-
           python3 - <<'PY_RECEIPT'
           import hashlib, json, os
+          from pathlib import Path
           name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
               output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+              output.write('proof_path=' + str(Path('../sql-tsql-proof.json').resolve()) + '\n')
+              output.write('artifacts_path=' + str(Path('../tsql-artifacts').resolve()) + '\n')
           PY_RECEIPT
+      - name: Preserve isolated SQL evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sql-tsql-proof-${{ github.run_attempt }}
+          path: |
+            ${{ steps.receipt-artifact.outputs.proof_path }}
+            ${{ steps.receipt-artifact.outputs.artifacts_path }}
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload source-attempt execution receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

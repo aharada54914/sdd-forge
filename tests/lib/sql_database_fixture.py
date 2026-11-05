@@ -219,5 +219,9 @@ class DockerFixture:
         }
         self.output.parent.mkdir(parents=True, exist_ok=True)
         self.output.write_text(self.redact(json.dumps(proof, indent=2, ensure_ascii=False)) + "\n")
+        if error is not None:
+            print(self.redact(f"Failure: {error}"), flush=True)
+        for cleanup_error in cleanup_errors:
+            print(f"Cleanup failure: {cleanup_error}", flush=True)
         print(f"{proof['result']}: {self.output}", flush=True)
         return 0 if success else 1
