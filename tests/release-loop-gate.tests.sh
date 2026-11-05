@@ -528,10 +528,10 @@ with tempfile.TemporaryDirectory() as temporary:
     assert not list(root.glob('release-sbom.*')), 'source export scratch was not cleaned'
     predicate = json.loads((root / 'release-provenance.json').read_text())
     dependencies = predicate['buildDefinition']['resolvedDependencies']
-    assert dependencies[0] == {'uri': 'git+https://github.com/owner/repo@refs/tags/v1',
-                               'digest': {'gitCommit': tagged}}
-    assert dependencies[1] == {'uri': 'git+https://github.com/owner/repo@refs/heads/main',
+    assert dependencies[0] == {'uri': 'git+https://github.com/owner/repo@refs/heads/main',
                                'digest': {'gitCommit': dispatch}}
+    assert dependencies[1] == {'uri': 'git+https://github.com/owner/repo@refs/tags/v1',
+                               'digest': {'gitCommit': tagged}}
     assert predicate['buildDefinition']['externalParameters']['workflow']['ref'] == 'refs/heads/main'
     assert predicate['buildDefinition']['internalParameters']['github'] == {
         'event_name': 'workflow_dispatch', 'repository_id': '123456',
@@ -547,7 +547,7 @@ with tempfile.TemporaryDirectory() as temporary:
     result = invoke(body('Record immutable build inputs'), release_env, root)
     assert result.returncode == 0, result.stderr
     release_predicate = json.loads((root / 'release-provenance.json').read_text())
-    assert release_predicate['buildDefinition']['resolvedDependencies'] == [dependencies[0]]
+    assert release_predicate['buildDefinition']['resolvedDependencies'] == [dependencies[1]]
     assert release_predicate['runDetails']['builder']['id'].endswith('@refs/tags/v1')
     # A later tag read can reject publication, but must never choose new input
     # bytes. API responses here use the actual moved fixture ref.

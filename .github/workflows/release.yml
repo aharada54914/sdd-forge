@@ -205,12 +205,13 @@ jobs:
           server, repo = env['GITHUB_SERVER_URL'], env['GITHUB_REPOSITORY']
           workflow, workflow_ref = env['GITHUB_WORKFLOW_REF'].rsplit('@', 1)
           repository = f'{server}/{repo}'
-          dependencies = [{'uri': f'git+{repository}@refs/tags/{env["TAG"]}',
-                           'digest': {'gitCommit': env['RELEASE_SHA']}}]
-          workflow_source = {'uri': f'git+{repository}@{workflow_ref}',
-                             'digest': {'gitCommit': env['GITHUB_WORKFLOW_SHA']}}
-          if workflow_source not in dependencies:
-              dependencies.append(workflow_source)
+          # GitHub validates the first dependency against the workflow's OIDC identity.
+          dependencies = [{'uri': f'git+{repository}@{workflow_ref}',
+                           'digest': {'gitCommit': env['GITHUB_WORKFLOW_SHA']}}]
+          release_source = {'uri': f'git+{repository}@refs/tags/{env["TAG"]}',
+                            'digest': {'gitCommit': env['RELEASE_SHA']}}
+          if release_source not in dependencies:
+              dependencies.append(release_source)
           predicate = {
               'buildDefinition': {
                   'buildType': 'https://actions.github.io/buildtypes/workflow/v1',
