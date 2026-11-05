@@ -506,6 +506,8 @@ with tempfile.TemporaryDirectory() as temporary:
                GITHUB_SHA=dispatch, GITHUB_WORKFLOW_SHA=dispatch, GITHUB_REF_NAME='main',
                GITHUB_WORKFLOW_REF='owner/repo/.github/workflows/release.yml@refs/heads/main',
                GITHUB_REPOSITORY='owner/repo', GITHUB_SERVER_URL='https://github.com',
+               GITHUB_REPOSITORY_ID='123456', GITHUB_REPOSITORY_OWNER_ID='654321',
+               RUNNER_ENVIRONMENT='github-hosted',
                GITHUB_EVENT_NAME='workflow_dispatch', GITHUB_RUN_ID='123', GITHUB_RUN_ATTEMPT='2',
                RUNNER_TEMP=root.as_posix())
     for step in ('Verify loop checkout', 'Build reproducible source tarball'):
@@ -528,9 +530,25 @@ with tempfile.TemporaryDirectory() as temporary:
     dependencies = predicate['buildDefinition']['resolvedDependencies']
     assert dependencies[0] == {'uri': 'git+https://github.com/owner/repo@refs/tags/v1',
                                'digest': {'gitCommit': tagged}}
-    assert dependencies[1]['digest'] == {'gitCommit': dispatch}
+    assert dependencies[1] == {'uri': 'git+https://github.com/owner/repo@refs/heads/main',
+                               'digest': {'gitCommit': dispatch}}
     assert predicate['buildDefinition']['externalParameters']['workflow']['ref'] == 'refs/heads/main'
+    assert predicate['buildDefinition']['internalParameters']['github'] == {
+        'event_name': 'workflow_dispatch', 'repository_id': '123456',
+        'repository_owner_id': '654321', 'runner_environment': 'github-hosted'}
+    assert predicate['runDetails']['builder']['id'] == 'https://github.com/owner/repo/.github/workflows/release.yml@refs/heads/main'
     assert predicate['runDetails']['metadata']['invocationId'].endswith('/runs/123/attempts/2')
+    for required in ('GITHUB_REPOSITORY_ID', 'GITHUB_REPOSITORY_OWNER_ID', 'RUNNER_ENVIRONMENT'):
+        incomplete = {key: value for key, value in env.items() if key != required}
+        result = invoke(body('Record immutable build inputs'), incomplete, root)
+        assert result.returncode != 0, 'missing GitHub provenance identity accepted: ' + required
+    release_env = {**env, 'GITHUB_EVENT_NAME': 'release', 'GITHUB_WORKFLOW_SHA': tagged,
+                   'GITHUB_WORKFLOW_REF': 'owner/repo/.github/workflows/release.yml@refs/tags/v1'}
+    result = invoke(body('Record immutable build inputs'), release_env, root)
+    assert result.returncode == 0, result.stderr
+    release_predicate = json.loads((root / 'release-provenance.json').read_text())
+    assert release_predicate['buildDefinition']['resolvedDependencies'] == [dependencies[0]]
+    assert release_predicate['runDetails']['builder']['id'].endswith('@refs/tags/v1')
     # A later tag read can reject publication, but must never choose new input
     # bytes. API responses here use the actual moved fixture ref.
     for current in (git('rev-parse', 'refs/tags/v1'), 'null', 'A' * 40):
