@@ -55,3 +55,7 @@ flowchart TD
 | [AGENTS.md](../AGENTS.md) | エージェント向けのリポジトリ規約 |
 | [contributor/](contributor/) | 貢献者向け詳細（[workflow-detail.md](contributor/workflow-detail.md) / [skill-reference-detail.md](contributor/skill-reference-detail.md) / [release-runbook.md](contributor/release-runbook.md)） |
 | [CHANGELOG.md](../CHANGELOG.md) | 変更履歴と版移行ガイド |
+
+## SQL開発
+
+[SQL開発ガイド](sql-development.md) — Microsoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求整理、既存フローとの接続、隔離DB検証と運用引き継ぎ。

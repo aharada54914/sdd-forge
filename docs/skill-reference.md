@@ -25,6 +25,7 @@
 | **impl-review-loop** | **sdd-review-loop** | **design.md の実装方針を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 1]** | **sdd-bootstrap-interviewer [Phase 2] (Impl-Review-Status: Passed後)** |
 | **task-review-loop** | **sdd-review-loop** | **tasks.md のタスク分解を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 2]** | **implement-task, implement-tasks (承認ゲート後)** |
 | diagnose | sdd-implementation | ハードなバグ・リグレッション・フレーキーテスト・性能退行の診断規律（再現→計装→根本原因→最小修正）。`reports/diagnosis/<id>.md` を出力し、軽量トラック（lite-spec）への入口を兼ねる | — | lite-spec（診断結果を入力に要件/設計/タスクを生成） |
+| **sql-develop** | **sdd-implementation** | **[公開] SQL案件の対象・データ契約・変更影響を整理し、既存仕様化へ渡す。DB接続・実装は行わない** | **明示依頼** | **bootstrap feature** |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
 | visual-verify-loop | sdd-implementation | UI タスク実装後の視覚検証ループ（Claude Preview / wpf-visual-verify、advisory・最大5回、証跡を `reports/visual-evidence/` に保存） | implement-task | — |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
@@ -37,9 +38,9 @@
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 8 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間による明示依頼が起点）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
+**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 9 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間による明示依頼が起点）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
 
-ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
+ユーザーに見えるコマンドは次の9つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-implementation:sql-develop`（SQL入力整理）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 
@@ -70,6 +71,14 @@ Source: https://github.com/example/repo/issues/42
 ```
 
 **詳細は** `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md` **を参照。**
+
+---
+
+### sql-develop（SQL開発の入力整理）
+
+`/sdd-implementation:sql-develop <要求または既存仕様>` で、DBエンジン・版、変更内容、管理主体、データ分類、アプリ互換性を整理します。SQL Server／Azure SQLを含むT-SQL、PostgreSQL、MySQLの手順を用意しています。入口はDBに接続せず、承認や実装も行いません。既存のbootstrapで仕様化し、人間の承認後はshipで実装します。
+
+[SQL開発ガイド](sql-development.md)に対応範囲・例・検証の境界を記載しています。
 
 ---
 

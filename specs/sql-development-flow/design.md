@@ -1,6 +1,6 @@
 # 設計（lite）: SQL開発フロー
 
-提案・未実装。2026-11-05 UTCに公式資料を調査した。以下の「採用方針」は資料を踏まえた本プラグインへの提案であり、各社がSDD Forgeの構成を推奨しているという意味ではない。
+T-001〜T-005はユーザー承認済み、実装・受入検証中。2026-11-05 UTCに公式資料を調査した。以下の「採用方針」は資料を踏まえた本プラグインへの提案であり、各社がSDD Forgeの構成を推奨しているという意味ではない。
 
 ## 方針
 
@@ -18,7 +18,7 @@
 
 ## 利用フロー
 
-予定する入口は `/sdd-implementation:sql-develop <要求または既存仕様>`。Codexなどでは同名スキルを明示して呼ぶ。新しい汎用CLIやSQL実行APIではない。
+入口は `/sdd-implementation:sql-develop <要求または既存仕様>`。Codexなどでは同名スキルを明示して呼ぶ。新しい汎用CLIやSQL実行APIではない。
 
 ```mermaid
 flowchart TD
@@ -122,7 +122,7 @@ flowchart TD
 | [S14 Microsoft: Azure SQL restore](https://learn.microsoft.com/en-us/azure/azure-sql/database/recovery-using-backups?view=azuresql)。復元は別DBを作成し、既存DBへ上書きしない | rollback SQLだけでなく復元先・接続切替・RPO／RTOの確認を引き継ぐ |
 | [S15 dbt: Unit tests](https://docs.getdbt.com/docs/build/unit-tests)／[model contracts](https://docs.getdbt.com/docs/mesh/govern/model-contracts)。変換ロジックの試験とモデル出力の契約を扱う | 分析SQLは後続のanalytics profileへ分ける。OLTP migrationの成功をdbt／warehouseの検証へ流用しない |
 
-## 変更／新規ファイル（承認後）
+## 変更／新規ファイル
 
 | 場所 | 責務 |
 |---|---|

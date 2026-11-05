@@ -1,10 +1,10 @@
 # タスク（lite）: SQL開発フロー
 
-提案・未承認。以下は仕様承認後の実装タスクであり、今回実施済みの調査・文書作成を実装完了には数えない。承認対象は [要件](requirements.md) と [設計](design.md) に示した初版の範囲。共有・本番DBの実行は含まない。
+ユーザーが「初版仕様（T-001〜T-005）の実装を承認する」と明示承認したため実装を開始する。承認範囲は [要件](requirements.md) と [設計](design.md) に示した初版の範囲。共有・本番DBの実行は含まない。
 
 ## T-001 SQL入力整理と既存仕様化への入口
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: In Progress
 
 ### Scope
 
@@ -19,11 +19,11 @@ Status: Planned
 
 ### Blockers
 
-- 本提案へのユーザー承認待ち。
+- None — ユーザー承認済み。
 
 ## T-002 SQL実装・安全な検証の共通手順
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: In Progress
 
 ### Scope
 
@@ -38,11 +38,11 @@ Status: Planned
 
 ### Blockers
 
-- 本提案へのユーザー承認、T-001。
+- T-001。
 
 ## T-003 3エンジンの参照案件を実DBで検証
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: In Progress
 
 ### Scope
 
@@ -58,11 +58,11 @@ Status: Planned
 
 ### Blockers
 
-- 本提案へのユーザー承認、T-002。実DBの実行環境・利用条件は実装時に確認。
+- T-002。実DBの実行環境・利用条件は実装時に確認。
 
 ## T-004 Azure・AWS・ソフト開発との導線と配布
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: In Progress
 
 ### Scope
 
@@ -78,11 +78,11 @@ Status: Planned
 
 ### Blockers
 
-- 本提案へのユーザー承認、T-001／T-002。
+- T-001／T-002。
 
 ## T-005 独立レビューと初版の受入
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: In Progress
 
 ### Scope
 
@@ -98,4 +98,4 @@ Status: Planned
 
 ### Blockers
 
-- 本提案へのユーザー承認、T-001〜T-004。
+- T-001〜T-004。

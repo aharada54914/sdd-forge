@@ -2,6 +2,14 @@
 
 内部スキルの詳細仕様です。ユーザー向けリファレンスは [../skill-reference.md](../skill-reference.md) を参照してください。
 
+### SQLタスクの共通参照
+
+公開入口は `sdd-implementation:sql-develop` です。内部の仕様化、implement-task、lite-gate／quality-gateは、SQLタスクの場合にスキル同梱の参照手順を読みます。公開入口を再起動せず、対象・承認・状態の既存の所有者を維持してください。
+
+新しいSQL実行MCP、migration runner、Registryやモデルroleは追加しません。参照DB試験のDocker helperは開発用テストであり、導入先のDB実行基盤ではありません。配布先から読める正本は `plugins/sdd-implementation/skills/sql-develop/` で、リポジトリの `docs/` を実行時依存にしません。[利用ガイド](../sql-development.md)を参照してください。
+
+---
+
 ### sdd-adopt
 
 **目的**
