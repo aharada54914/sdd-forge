@@ -1,0 +1,36 @@
+{
+  "baseline_commit": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+  "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+  "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
+  "predecessor_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+  "only_change": "14-line SQL reference section inserted before Process",
+  "removed_sql_section_matches_entire_predecessor": true,
+  "preservation": [
+    {
+      "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged_unchanged_from_base": true,
+      "manifest_unchanged_from_base": true,
+      "exact_predecessor_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570"
+    },
+    {
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged_unchanged_from_base": true,
+      "manifest_unchanged_from_base": true,
+      "exact_predecessor_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570"
+    },
+    {
+      "staged": "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged_unchanged_from_base": true,
+      "manifest_unchanged_from_base": true,
+      "exact_predecessor_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570"
+    }
+  ],
+  "authorization_effect": "No approval or database authority granted. Exact successor classified PENDING; missing/stale/duplicated pins and edited predecessor still rejected.",
+  "checks": {
+    "ship_track_bash": "164 passed / 0 failed",
+    "ship_track_pwsh": "170 passed / 0 failed",
+    "phase2_bash": "42 passed / 0 failed",
+    "phase2_pwsh": "55 passed / 0 failed / 1 preexisting runner-install-path skip",
+    "human_copy_classification": "passed including existing 133-case mutation matrix and all real fixture record checks"
+  }
+}
