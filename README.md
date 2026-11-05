@@ -284,6 +284,7 @@ flowchart LR
 | スキル・エージェントを調べる | [docs/skill-reference.md](docs/skill-reference.md) |
 | 困ったとき | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | 変更履歴・移行 | [CHANGELOG.md](CHANGELOG.md) |
+| 互換性と復旧後の検証範囲を確認する | [復旧記録](https://github.com/aharada54914/sdd-forge/blob/aa7ba8d3b59399f0c69a6cfa59c3d35a65b1414a/docs/contributor/release-parity-recovery.md) |
 | Azure / AWS での開発 | [docs/cloud/README.md](docs/cloud/README.md)（明示導入するクラウド操作と受入の制限）、[実行契約・復旧手順](docs/cloud-orchestration.md) |
 | 本体のコーディング規約 | [言語別規約・監査範囲](docs/contributor/coding-standards.md)（導入先には採用済み規約を適用） |
 
