@@ -6,14 +6,39 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'lib'))
+from sql_database_fixture import DockerFixture
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = Path('plugins/sdd-implementation/skills/sql-develop')
 
 
 class SqlSkillDistributionTests(unittest.TestCase):
+    def test_locked_database_images_pass_before_any_daemon_operation(self):
+        with tempfile.TemporaryDirectory(prefix='sql-image-contract-') as folder:
+            fixture = DockerFixture('contract', Path(folder) / 'proof.json', [])
+            lock = ROOT / 'tests/fixtures/sql-development'
+            images = [json.loads((lock / 'tsql/lock.json').read_text())['sql_server_image']]
+            for engine in ('postgres', 'mysql'):
+                pins = json.loads((lock / engine / 'images.json').read_text())
+                images.extend(pins[key]['image'] for key in ('database', 'flyway'))
+            with patch.object(fixture, 'docker') as daemon:
+                for image in images:
+                    with self.subTest(image=image):
+                        fixture.pull(image)
+                self.assertEqual(set(fixture.images), set(images))
+                daemon.reset_mock()
+                for mutable in ('postgres:latest', images[0].split('@')[0],
+                                'mysql:8.4@sha256:not-a-digest'):
+                    with self.subTest(mutable=mutable), self.assertRaises(AssertionError):
+                        fixture.pull(mutable)
+                daemon.assert_not_called()
+
     def test_installed_resources_are_reachable_from_each_host_manifest(self):
         files = sorted(path for path in (ROOT / SKILL).rglob('*') if path.is_file())
         self.assertTrue(files, 'SQL skill payload is missing')

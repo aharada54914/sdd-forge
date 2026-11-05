@@ -1,0 +1,22 @@
+2026-11-05T22:20:06.607540Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:43a0401c8330f525171925273ba3fbef
+*** End Patch
+
+2026-11-05T22:20:21.090984Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: python3 - <<'PY'
+import json,pathlib
+p=pathlib.Path('.run-temp/ship-T-001-AGaVPsKG')
+raw="""Script error:
+Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:43a0401c8330f525171925273ba3fbef
+*** End Patch"""
+(p/'handshake.json').write_text(json.dumps(dict(schema='sdd-codex-host-denial/v1',runtime='codex-cli',nonce='43a0401c8330f525171925273ba3fbef',executed=False,raw_result=raw),ensure_ascii=False))
+(p/'risk-input.txt').write_text(pathlib.Path('specs/orders-note/tasks.md').read_text().split('## T-001',1)[1].join(['## T-001',''])+'\n'+pathlib.Path('specs/orders-note/requirements.md').read_text())
+PY
+python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce 43a0401c8330f525171925273ba3fbef --recorded-result .run-temp/ship-T-001-AGaVPsKG/handshake.json --runtime codex-cli
+bash <installed-cache>/sdd-lite/1.23.1/scripts/check-risk-upgrade.sh .run-temp/ship-T-001-AGaVPsKG/risk-input.txt
+test ! -e sdd/project-context.yaml

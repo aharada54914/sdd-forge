@@ -1,0 +1,5 @@
+2026-11-05T22:19:14.422961Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: <verification-projects>/ship-untrusted-target/sdd/.hook-canary-sentinel
++sdd-hook-challenge:9f5d3a3404f2137fdb172b4fb084ed40
+*** End Patch

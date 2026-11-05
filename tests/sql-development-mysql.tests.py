@@ -55,6 +55,13 @@ def exercise(f, directory):
         url = f'jdbc:mysql://db:3306/{database}?allowPublicKeyRetrieval=true&useSSL=false&permitMysqlScheme=true'
         return f.flyway(flyway_image, url, 'migrator', password, location, operation, options)
 
+    def validate_success(name):
+        result = migration('validate')
+        data = json.loads(result.stdout)
+        f.check(name, result.returncode == 0 and data.get('operation') == 'validate'
+                and data.get('validationSuccessful') is True and data.get('invalidMigrations') == [],
+                {'exit_code': result.returncode, 'response': data, 'stderr': result.stderr})
+
     def migrated(database, options=()):
         result = migration(database=database, options=options)
         f.check(f'Flyway migrate {database} {options}', result.returncode == 0, result.stderr)
@@ -111,15 +118,25 @@ def exercise(f, directory):
     original = v2.read_bytes()
     v2.write_bytes(original + b'\nSELECT 1;\n')
     bad = migration('validate')
-    f.check('applied migration mutation rejected', bad.returncode != 0 and 'checksum' in (bad.stdout + bad.stderr).lower(),
-            {'exit_code': bad.returncode, 'stdout': bad.stdout, 'stderr': bad.stderr})
+    # Flyway 13.12.1 JSON validate returns exit 0 for a validation failure.
+    # Require the semantic failure and exact changed version, not a process error.
+    validation = json.loads(bad.stdout)
+    invalid = validation.get('invalidMigrations')
+    f.check('applied migration mutation rejected', bad.returncode == 0
+            and validation.get('operation') == 'validate'
+            and validation.get('validationSuccessful') is False
+            and validation.get('errorDetails', {}).get('errorCode') == 'VALIDATE_ERROR'
+            and isinstance(invalid, list) and len(invalid) == 1
+            and invalid[0].get('version') == '2'
+            and invalid[0].get('errorDetails', {}).get('errorCode') == 'CHECKSUM_MISMATCH',
+            {'exit_code': bad.returncode, 'response': validation, 'stderr': bad.stderr})
     v2.write_bytes(original)
-    f.check('restored source validates without repair', migration('validate').returncode == 0)
+    validate_success('restored source validates without repair')
     schema = ("SELECT CONCAT(column_name,':',column_type) FROM information_schema.columns "
               "WHERE table_schema='upgrade' AND table_name='accounts' ORDER BY ordinal_position;")
     baseline = sql(schema).stdout
     sql('ALTER TABLE accounts ADD COLUMN untracked text;', label='inject isolated schema drift')
-    f.check('history validation alone does not detect schema drift', migration('validate').returncode == 0)
+    validate_success('history validation alone does not detect schema drift')
     f.check('actual schema comparison detects untracked change', sql(schema).stdout != baseline)
     sql('ALTER TABLE accounts DROP COLUMN untracked;', label='remove only injected drift')
     f.check('schema baseline restored', sql(schema).stdout == baseline)

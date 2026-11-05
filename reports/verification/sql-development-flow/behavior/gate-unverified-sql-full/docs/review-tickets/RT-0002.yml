@@ -1,0 +1,27 @@
+{
+  "ticket_id": "RT-0002",
+  "status": "open",
+  "type": "risk-approval",
+  "severity": "major",
+  "target": {
+    "feature": "orders-note",
+    "task": "T-001",
+    "files": [
+      "specs/orders-note/tasks.md",
+      "reports/implementation/T-001.md"
+    ]
+  },
+  "summary": "Risk classification needs human confirmation",
+  "problem": "Data migration is high risk under policy, conflicting with approved low/test-after. Full track promotion does not resolve risk approval.",
+  "expected_fix": [
+    "Return to specification approval for high/tdd confirmation and genuine Red/Green requirements. Do not self-approve."
+  ],
+  "references": [
+    ".run-temp/ship-Ji5HdLez/checks.json",
+    ".run-temp/ship-Ji5HdLez/observations.md",
+    "specs/orders-note/design.md"
+  ],
+  "auto_fix_allowed": false,
+  "requires_human_decision": true,
+  "review_cycles": 1
+}

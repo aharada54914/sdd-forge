@@ -60,6 +60,9 @@ SQLキーワードや「low risk」という自己申告だけで許可を出さ
 5. **履歴と実スキーマを別に確認する。** ownerの履歴／checksumを検証し、対象オブジェクトのschemaを
    期待する前版と比較する。履歴が同じでも手動DDLによるdriftはあり得る。比較範囲を記録し、
    比較手段が利用できなければ未確認とする。適用済みの版付きmigrationを書き換えない。
+   CLIの終了コードだけで成功にしない。例えばFlyway 13.12.1のJSON `validate` は、
+   検証失敗でも終了コード0を返す。`validationSuccessful` と `invalidMigrations` を確認し、
+   checksum不一致などの実際の結果を保存する。適用ツールの版と出力形式に合わせて判定する。
 6. **適用と回復を試す。** ownerの排他と適用履歴を使い、同じ版を二重適用しない。
    backfillは安定したキー・処理済み境界・冪等な更新条件を定める。
    `repair`、`clean`、`baseline`、down migrationで失敗を自動的に消さない。
