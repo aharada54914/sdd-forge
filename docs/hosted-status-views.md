@@ -76,6 +76,16 @@ Claude publication or consent evidence; see the verification report for limits.
 
 ## Data and failure semantics
 
+The management UI uses Japanese stage names and next-action descriptions.
+Internal phase IDs and executable commands remain available under
+`技術情報（担当者向け）`; display translation does not change workflow state.
+For the `sdd-forge` project, a presentation-only catalog names its 48 registered
+development themes in Japanese. Other projects and newly added unknown themes
+retain their source identifiers until a display alias is defined; unknown phases
+show `状況の確認が必要` rather than implying a successful stage.
+Search accepts both Japanese theme names and original identifiers. Approval
+attribution is retained, and `実装済み・検証待ち` is distinct from `完了（台帳上）`.
+
 - `checkedAt` / `lastSuccessAt`: successful source reads, never HTTP reachability.
 - `changedAt`: content revision change, retained across successful heartbeats.
 - `attemptedAt`: latest attempted source read, including failures.

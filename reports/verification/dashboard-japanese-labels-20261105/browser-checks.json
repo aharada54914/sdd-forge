@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "japanese-phases-theme-search-and-preserved-technical-details",
+    "view:overview",
+    "view:timeline",
+    "view:backlog",
+    "view:board",
+    "view:list",
+    "view:releases",
+    "detail-safe-text-and-keyboard",
+    "search",
+    "reload-selection",
+    "corrupt-preferences-recovery",
+    "live-update-and-removed-filter",
+    "parse-failure-retains-last-good",
+    "recovery",
+    "mobile",
+    "stale-source-with-live-http",
+    "artifact-adapter-not-native-host:missing-connected-malformed",
+    "disconnect-keeps-data"
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "board-desktop.png",
+    "detail-mobile.png"
+  ]
+}

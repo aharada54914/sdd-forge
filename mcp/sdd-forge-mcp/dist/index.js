@@ -42057,13 +42057,85 @@ import { randomBytes, timingSafeEqual } from "node:crypto";
 
 // ui/dashboard-page.ts
 function dashboardPage(mode = "http") {
-  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 Project overview</title><style>
+  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
 :root{font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172b4d;background:#fff;--line:#dfe1e6;--blue:#0052cc;--muted:#5e6c84}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2684ff;outline-offset:2px}header{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:24px}.logo{font-size:20px;font-weight:750;color:#0747a6}.readonly{color:var(--muted);font-size:12px;margin-left:auto}.shell{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100vh - 62px)}aside.sidebar{padding:30px 20px;background:#f4f5f7;border-right:1px solid var(--line)}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:40px;height:40px;font-weight:800;margin-bottom:12px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}.project{font-weight:650;overflow-wrap:anywhere;margin:4px 0 24px}label{display:block;font-size:12px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:5px;padding:9px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:7px}.side-note{font-size:12px;color:var(--muted);margin-top:30px}main{padding:26px 34px;min-width:0}.breadcrumb{color:var(--muted);font-size:12px}h1{font-size:27px;letter-spacing:-.025em;margin:10px 0 20px}nav{display:flex;gap:24px;border-bottom:2px solid #ebecf0;overflow-x:auto}nav a{color:var(--muted);text-decoration:none;padding:11px 1px;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:650}.toolbar{display:flex;gap:12px;margin:24px 0;flex-wrap:wrap}.toolbar input{width:260px}.refresh{background:#0052cc;color:white;border:0;border-radius:5px;padding:9px 16px;margin-left:auto}.banner{border:1px solid #b3dfcc;background:#eefaf4;color:#216e4e;border-radius:5px;padding:10px 14px;margin:20px 0 0;font-size:12px}.banner[data-state=stale]{background:#fff8e6;border-color:#ffe380;color:#7f5f01}.banner[data-state=error]{background:#fff1f0;border-color:#ffbdad;color:#ae2a19}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:8px;padding:20px}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:20px}h2{font-size:17px;margin:0 0 16px}h3{font-size:14px;margin:0 0 12px}.board{display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:14px;overflow-x:auto;padding-bottom:14px}.column{background:#f4f5f7;border-radius:7px;padding:12px;min-height:280px}.column h2{font-size:12px;color:var(--muted);margin:4px 0 16px}.card{display:block;text-align:left;background:white;border:1px solid #ebecf0;border-radius:5px;padding:14px;width:100%;margin-bottom:10px;box-shadow:0 1px 2px #091e4214;color:inherit}.card:hover{border-color:#85b8ff}.card-title{display:block;margin:7px 0 12px;font-size:13px;overflow-wrap:anywhere}.key{font-size:11px;color:var(--muted)}.badge{display:inline-block;font-size:11px;font-weight:650;padding:2px 7px;border-radius:4px;background:#ebecf0;white-space:nowrap}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}th{font-size:11px;color:var(--muted);font-weight:650}th,td{padding:12px 10px;border-bottom:1px solid #ebecf0}td button{border:0;background:none;color:#0052cc;text-align:left;min-height:32px}.empty{padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}.phase{display:grid;grid-template-columns:minmax(150px,1fr) minmax(180px,2fr);gap:20px;padding:12px 0;border-bottom:1px solid #ebecf0}.phase small{display:block}.track{display:flex;gap:3px;align-items:center}.segment{height:14px;flex:1;background:#ebecf0;border-radius:3px}.segment.active{background:#579dff}.segment.done{background:#4bce97}progress{width:100%;accent-color:#0052cc}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(640px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:28px;box-shadow:-8px 0 30px #091e4226}dialog::backdrop{background:#091e4244}dialog .close{float:right;border:0;background:#f4f5f7;border-radius:5px;padding:8px 12px}dialog h2{padding-top:20px;font-size:22px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:6px}.issue-warning{color:#ae2a19;font-size:12px}footer{margin-top:28px;font-size:11px;color:var(--muted)}@media(max-width:760px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:20px 16px}.metrics{grid-template-columns:repeat(2,1fr)}nav{gap:20px}.toolbar input{width:100%}.refresh{margin-left:0}.phase{grid-template-columns:1fr}.mobile-feature{display:block!important}}.mobile-feature{display:none}[hidden]{display:none!important}
-</style></head><body><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">Software project</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u6A5F\u80FD<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u6A5F\u80FD</option></select></label><p class="side-note">\u6B63\u672C\u306E\u30BF\u30B9\u30AF\u3068\u4ED5\u69D8\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u627F\u8A8D\u3068\u54C1\u8CEA\u30B2\u30FC\u30C8\u306F\u65E2\u5B58\u306E\u30EF\u30FC\u30AF\u30D5\u30ED\u30FC\u306B\u5F93\u3044\u307E\u3059\u3002</p></aside><main><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" role="status" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div class="toolbar"><input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u6A5F\u80FD"><option value="">\u3059\u3079\u3066\u306E\u6A5F\u80FD</option></select><button class="refresh" id="refresh">\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><footer>\u8868\u793A\u5185\u5BB9\u306F\u89B3\u6E2C\u7D50\u679C\u3067\u3059\u3002\u5B9F\u88C5\u5B8C\u4E86\u3068Done\u3001Done\u3068\u30EA\u30EA\u30FC\u30B9\u6E08\u307F\u306F\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+</style></head><body><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" role="status" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div class="toolbar"><input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="refresh" id="refresh">\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
 const MODE = ${JSON.stringify(mode)};
 const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9" };
 const STATES = ["Planned", "In Progress", "Blocked", "Implementation Complete", "Done"];
-const LABELS = { "Planned": "\u4E88\u5B9A", "In Progress": "\u9032\u884C\u4E2D", "Blocked": "\u30D6\u30ED\u30C3\u30AF\u4E2D", "Implementation Complete": "\u5B9F\u88C5\u5B8C\u4E86", "Done": "Done", "unknown": "\u672A\u78BA\u8A8D" };
+const LABELS = { "Planned": "\u4E88\u5B9A", "In Progress": "\u9032\u884C\u4E2D", "Blocked": "\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", "Implementation Complete": "\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061", "Done": "\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", "Draft": "\u627F\u8A8D\u5F85\u3061", "Approved": "\u627F\u8A8D\u6E08\u307F", "Rejected": "\u5374\u4E0B", "low": "\u4F4E", "medium": "\u4E2D", "high": "\u9AD8", "critical": "\u6700\u91CD\u8981", "unknown": "\u672A\u78BA\u8A8D" };
+// Display aliases only: canonical phases, commands and identifiers stay unchanged.
+const PHASES = {
+  "phase1-not-started": ["\u8981\u4EF6\u30FB\u8A2D\u8A08\u306E\u4F5C\u6210\u524D", "\u5B9F\u73FE\u3057\u305F\u3044\u5185\u5BB9\u3068\u8A2D\u8A08\u3092\u6574\u7406\u3057\u307E\u3059"],
+  "spec-review": ["\u8981\u4EF6\u306E\u78BA\u8A8D", "\u8981\u4EF6\u306E\u629C\u3051\u30FB\u77DB\u76FE\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "impl-review": ["\u8A2D\u8A08\u30FB\u5B9F\u88C5\u65B9\u91DD\u306E\u78BA\u8A8D", "\u5B9F\u73FE\u65B9\u6CD5\u3068\u8A2D\u8A08\u306E\u59A5\u5F53\u6027\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "phase2-not-started": ["\u4F5C\u696D\u8A08\u753B\u306E\u4F5C\u6210\u524D", "\u4ED5\u69D8\u3092\u5B9F\u884C\u53EF\u80FD\u306A\u30BF\u30B9\u30AF\u306B\u5206\u3051\u307E\u3059"],
+  "task-review": ["\u4F5C\u696D\u8A08\u753B\u306E\u78BA\u8A8D", "\u4F5C\u696D\u7BC4\u56F2\u30FB\u9806\u5E8F\u30FB\u78BA\u8A8D\u65B9\u6CD5\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "approval-gate": ["\u7BA1\u7406\u8005\u306E\u627F\u8A8D\u5F85\u3061", "\u62C5\u5F53\u8005\u304C\u5185\u5BB9\u3092\u78BA\u8A8D\u3057\u3001\u7740\u624B\u3059\u308B\u30BF\u30B9\u30AF\u3092\u627F\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
+  "implementation": ["\u958B\u767A\u30FB\u5B9F\u88C5", "\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u3092\u9032\u3081\u307E\u3059"],
+  "quality-gate": ["\u54C1\u8CEA\u30FB\u5B8C\u4E86\u6761\u4EF6\u306E\u78BA\u8A8D", "\u30C6\u30B9\u30C8\u7D50\u679C\u3068\u8A3C\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u5B8C\u4E86\u3092\u5224\u5B9A\u3057\u307E\u3059"],
+  "blocked": ["\u554F\u984C\u306E\u89E3\u6D88\u5F85\u3061", "\u9032\u884C\u3092\u59A8\u3052\u3066\u3044\u308B\u554F\u984C\u306E\u89E3\u6D88\u304C\u5FC5\u8981\u3067\u3059"],
+  "done": ["\u5BFE\u8C61\u4F5C\u696D\u306E\u5B8C\u4E86", "\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u306F\u53F0\u5E33\u4E0A\u3059\u3079\u3066\u5B8C\u4E86\u3057\u3066\u3044\u307E\u3059"],
+  "cannot-determine": ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u8A18\u9332\u306E\u4E0D\u8DB3\u3084\u4E0D\u6574\u5408\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
+  "unknown": ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093\u3002\u8A18\u9332\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"]
+};
+const FEATURE_NAMES = {
+  "a9-interrupted-review-recovery": "\u4E2D\u65AD\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u306E\u518D\u958B",
+  "agent-cost-context-isolation": "AI\u306E\u9078\u5B9A\u8CBB\u7528\u3068\u4F5C\u696D\u60C5\u5831\u306E\u5206\u96E2",
+  "bootstrap-interviewer-enhancement": "\u8981\u4EF6\u30D2\u30A2\u30EA\u30F3\u30B0\u3068\u8A2D\u8A08\u8CC7\u6599\u306E\u5145\u5B9F",
+  "ci-mcp": "\u81EA\u52D5\u30C6\u30B9\u30C8\u306E\u5B9F\u884C\u7D50\u679C\u306E\u78BA\u8A8D",
+  "claude-workflow-compatibility": "Claude\u3067\u306E\u958B\u767A\u624B\u9806\u306E\u4E92\u63DB\u6027\u6539\u5584",
+  "cross-model-verification": "\u8907\u6570\u306EAI\u306B\u3088\u308B\u72EC\u7ACB\u691C\u8A3C",
+  "design-sync-consent": "\u30C7\u30B6\u30A4\u30F3\u5171\u6709\u6642\u306E\u627F\u8A8D",
+  "design-sync-scan": "\u30C7\u30B6\u30A4\u30F3\u5171\u6709\u524D\u306E\u6A5F\u5BC6\u60C5\u5831\u30C1\u30A7\u30C3\u30AF",
+  "design-sync-standing-consent": "\u30C7\u30B6\u30A4\u30F3\u5171\u6709\u306E\u627F\u8A8D\u65B9\u91DD\u8A2D\u5B9A",
+  "epic-136-phase1-guards": "\u4FDD\u8B77\u5BFE\u8C61\u3078\u306E\u4E0D\u6B63\u306A\u5909\u66F4\u306E\u9632\u6B62",
+  "epic-136-phase1-rce": "\u627F\u8A8D\u60C5\u5831\u3092\u60AA\u7528\u3057\u305F\u30B3\u30FC\u30C9\u5B9F\u884C\u306E\u9632\u6B62",
+  "epic-136-phase2-gates": "\u627F\u8A8D\u30FB\u54C1\u8CEA\u78BA\u8A8D\u30EB\u30FC\u30EB\u306E\u7D71\u4E00",
+  "epic-136-phase3": "\u81EA\u52D5\u30C6\u30B9\u30C8\u3068\u7D99\u7D9A\u7684\u691C\u8A3C\u306E\u5F37\u5316",
+  "epic-136-phase4-docs": "\u691C\u8A3C\u306E\u5931\u6557\u6642\u5BFE\u5FDC\u3068\u904B\u7528\u6587\u66F8\u306E\u6574\u5099",
+  "epic-136-phase4-mcp": "\u89B3\u6E2C\u30C7\u30FC\u30BF\u306E\u53D6\u5F97\u5931\u6557\u306E\u660E\u78BA\u5316",
+  "epic-159-pillar-a": "\u30EC\u30D3\u30E5\u30FC\u53CD\u5FA9\u56DE\u6570\u306E\u5236\u5FA1\u3068\u691C\u8A3C",
+  "epic-159-pillar-a2": "\u30EC\u30D3\u30E5\u30FC\u505C\u6B62\u6761\u4EF6\u3068\u691C\u8A3C\u7BC4\u56F2\u306E\u88DC\u5B8C",
+  "epic-159-pillar-b": "\u516C\u958B\u524D\u306E\u30C6\u30B9\u30C8\u5408\u683C\u78BA\u8A8D",
+  "epic-159-pillar-c": "AI\u306E\u80FD\u529B\u3068\u63A8\u8AD6\u91CF\u306E\u500B\u5225\u8A2D\u5B9A",
+  "epic-159-pillar-d": "AI\u306E\u80FD\u529B\u60C5\u5831\u306E\u66F4\u65B0",
+  "epic-189-a1-project-context": "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u8A2D\u5B9A\u3068\u627F\u8A8D\u8A18\u9332\u306E\u6574\u5099",
+  "epic-190-a2-capability-registry": "\u5FC5\u8981\u306A\u958B\u767A\u80FD\u529B\u30FB\u78BA\u8A8D\u57FA\u6E96\u306E\u4E00\u5143\u7BA1\u7406",
+  "epic-191-a3-path-ownership": "\u5909\u66F4\u30D5\u30A1\u30A4\u30EB\u306E\u62C5\u5F53\u7BC4\u56F2\u3068\u78BA\u8A8D\u6F0F\u308C\u306E\u691C\u51FA",
+  "epic-192-a4-facet-manifest": "\u5FC5\u8981\u306A\u78BA\u8A8D\u9805\u76EE\u306E\u4E00\u89A7\u5316",
+  "epic-193-a5-capability-resolver": "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u5FC5\u8981\u306A\u78BA\u8A8D\u9805\u76EE\u306E\u5224\u5B9A",
+  "epic-194-a6-lite-integration": "\u7C21\u6613\u958B\u767A\u30D5\u30ED\u30FC\u3078\u306E\u78BA\u8A8D\u57FA\u6E96\u306E\u9069\u7528",
+  "epic-195-a7-compatibility": "\u65E2\u5B58\u306E\u958B\u767A\u624B\u9806\u3068\u306E\u4E92\u63DB\u6027\u691C\u8A3C",
+  "epic-196-a8-integration": "\u8907\u6570\u306E\u5B9F\u884C\u74B0\u5883\u3067\u306E\u7D50\u5408\u691C\u8A3C",
+  "epic-197-a9-dogfood": "\u958B\u767A\u57FA\u76E4\u306E\u81EA\u793E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u306E\u8A66\u7528",
+  "evidence-deep-verify": "\u5B8C\u4E86\u3092\u88CF\u4ED8\u3051\u308B\u8A3C\u62E0\u306E\u8A73\u7D30\u78BA\u8A8D",
+  "local-env-mcp": "\u30ED\u30FC\u30AB\u30EB\u958B\u767A\u74B0\u5883\u306E\u72B6\u614B\u78BA\u8A8D",
+  "mcp-readonly-preflight": "\u89B3\u6E2C\u6A5F\u80FD\u306E\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u52D5\u4F5C\u306E\u4E8B\u524D\u78BA\u8A8D",
+  "p0-hardening": "\u6700\u512A\u5148\u306E\u904B\u7528\u4E0A\u306E\u554F\u984C\u306E\u4FEE\u6B63",
+  "quality-loop-fixes": "\u54C1\u8CEA\u78BA\u8A8D\u30D5\u30ED\u30FC\u306E\u4E0D\u5177\u5408\u4FEE\u6B63",
+  "review-cross-critique": "\u30EC\u30D3\u30E5\u30FC\u62C5\u5F53\u8005\u9593\u306E\u76F8\u4E92\u691C\u8A3C",
+  "risk-adaptive-layer": "\u30EA\u30B9\u30AF\u306B\u5FDC\u3058\u305F\u691C\u8A3C\u5F37\u5EA6\u306E\u8ABF\u6574",
+  "sdd-diagnose": "\u4E0D\u5177\u5408\u306E\u539F\u56E0\u8ABF\u67FB\u3068\u4FEE\u6B63\u8A08\u753B",
+  "sdd-domain": "\u696D\u52D9\u306E\u69CB\u9020\u3068\u7528\u8A9E\u306E\u6574\u7406",
+  "sdd-domain-concept-contract": "\u696D\u52D9\u6982\u5FF5\u306E\u5B9A\u7FA9\u3068\u5883\u754C\u306E\u6574\u7406",
+  "sdd-domain-concept-test": "\u65B0\u3057\u3044\u6A5F\u80FD\u3068\u696D\u52D9\u6982\u5FF5\u306E\u6574\u5408\u78BA\u8A8D",
+  "sdd-domain-multitarget": "\u958B\u767A\u624B\u9806\u306E\u5BFE\u8C61\u30B7\u30B9\u30C6\u30E0\u62E1\u5F35",
+  "sdd-forge-mcp": "\u958B\u767A\u72B6\u6CC1\u3092\u8AAD\u307F\u53D6\u308B\u89B3\u6E2C\u6A5F\u80FD",
+  "sdd-forge-refactor": "\u958B\u767A\u57FA\u76E4\u306E\u5185\u90E8\u69CB\u9020\u306E\u6574\u7406",
+  "sdd-lite": "\u5C0F\u898F\u6A21\u306A\u5909\u66F4\u5411\u3051\u306E\u7C21\u6613\u958B\u767A",
+  "second-approval-mask": "\u91CD\u8981\u306A\u5909\u66F4\u306E\u4E8C\u91CD\u627F\u8A8D\u3078\u306E\u5BFE\u5FDC",
+  "shared-review-launch-repair": "\u30EC\u30D3\u30E5\u30FC\u5B9F\u884C\u74B0\u5883\u306E\u4E0D\u5177\u5408\u4FEE\u6B63",
+  "uninstall-workflow": "\u958B\u767A\u57FA\u76E4\u306E\u524A\u9664\u624B\u9806\u306E\u6574\u5099",
+  "workflow-state-integrity": "\u5DE5\u7A0B\u30FB\u627F\u8A8D\u8A18\u9332\u306E\u6574\u5408\u6027\u78BA\u8A8D",
+};
+function featureName(id) {
+  return snapshot?.data?.project === "sdd-forge" && Object.hasOwn(FEATURE_NAMES, id) ? FEATURE_NAMES[id] : id;
+}
+function valueLabel(value) {
+  if (Object.hasOwn(LABELS, value)) return LABELS[value];
+  return value.replace(/^Approved(?=\\s|$)/, "\u627F\u8A8D\u6E08\u307F");
+}
 const $ = (id) => document.getElementById(id);
 const el = (tag, text, cls) => {
   const n = document.createElement(tag);
@@ -42097,7 +42169,7 @@ function badge(status) {
   return b;
 }
 function filtered() {
-  return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && (!query || (t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
+  return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && (!query || (featureName(t.feature) + " " + t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
 }
 function freshness() {
   const s = snapshot;
@@ -42108,13 +42180,13 @@ function freshness() {
   b.dataset.state = error ? "error" : stale ? "stale" : "live";
   b.textContent = (error ? "\u53D6\u5F97\u5931\u6557: " + error : stale ? "\u66F4\u65B0\u78BA\u8A8D\u304C\u505C\u6B62\u3057\u3066\u3044\u307E\u3059" : "\u63A5\u7D9A\u4E2D\u30FB\u6B63\u672C\u3092\u78BA\u8A8D\u6E08\u307F") + " \uFF5C \u6700\u7D42\u78BA\u8A8D " + date(s?.checkedAt) + " \uFF5C \u5185\u5BB9\u66F4\u65B0 " + date(s?.changedAt) + (error ? " \uFF5C \u6700\u5F8C\u306E\u6B63\u5E38\u53D6\u5F97 " + date(s?.lastSuccessAt) : "");
 }
-function options(node, items, selected, all) {
+function options(node, items, selected, all, label = valueLabel) {
   node.replaceChildren();
   const first = el("option", all);
   first.value = "";
   node.append(first);
   for (const item of items) {
-    const o = el("option", LABELS[item] || item);
+    const o = el("option", label(item));
     o.value = item;
     node.append(o);
   }
@@ -42125,8 +42197,8 @@ function syncFilters() {
   if (feature && !features.includes(feature)) feature = "";
   const states = [...new Set((snapshot?.data?.tasks || []).filter((t) => !feature || t.feature === feature).map((t) => t.status))];
   if (filter && !states.includes(filter)) filter = "";
-  options($("feature"), features, feature, "\u3059\u3079\u3066\u306E\u6A5F\u80FD");
-  options($("mobile-feature"), features, feature, "\u3059\u3079\u3066\u306E\u6A5F\u80FD");
+  options($("feature"), features, feature, "\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE", featureName);
+  options($("mobile-feature"), features, feature, "\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE", featureName);
   options($("filter"), states, filter, "\u3059\u3079\u3066\u306E\u72B6\u614B");
   save();
 }
@@ -42148,13 +42220,13 @@ function renderDetail() {
   box.append(el("div", task.key, "key"));
   const title = el("h2", task.title);
   title.id = "detail-title";
-  box.append(title, badge(task.status), el("p", "\u627F\u8A8D: " + task.approval + " / \u30EA\u30B9\u30AF: " + task.risk), el("p", "\u6B63\u672C: " + task.source, "muted"));
+  box.append(title, badge(task.status), el("p", "\u627F\u8A8D: " + valueLabel(task.approval) + " / \u30EA\u30B9\u30AF: " + valueLabel(task.risk)), el("p", "\u6B63\u672C: " + task.source, "muted"));
   for (const failure of task.failures) box.append(el("p", failure, "issue-warning"));
   box.append(el("pre", task.body));
 }
 function card(task) {
   const b = el("button", void 0, "card");
-  b.append(el("span", task.key, "key"), el("span", task.title, "card-title"), badge(task.status));
+  b.append(el("span", featureName(task.feature) + " / " + task.id, "key"), el("span", task.title, "card-title"), badge(task.status));
   if (task.failures.length) b.append(el("div", "\u72B6\u614B\u30FB\u8A3C\u62E0\u306B\u8981\u78BA\u8A8D\u4E8B\u9805\u3042\u308A", "issue-warning"));
   b.onclick = () => openDetail(task.key);
   return b;
@@ -42177,7 +42249,7 @@ function list(tasks) {
     row.append(key, el("td", t.title));
     const state = el("td");
     state.append(badge(t.status));
-    row.append(state, el("td", t.approval), el("td", t.risk));
+    row.append(state, el("td", valueLabel(t.approval)), el("td", valueLabel(t.risk)));
     body.append(row);
   }
   table.append(body);
@@ -42201,19 +42273,25 @@ function render() {
   $("crumb").textContent = data.project;
   if (v === "overview") {
     const metrics = el("div", void 0, "metrics");
-    for (const [label, count] of [["\u8AB2\u984C", tasks.length], ["\u627F\u8A8D\u5F85\u3061", tasks.filter((t) => t.approval === "Draft").length], ["\u30D6\u30ED\u30C3\u30AF\u4E2D", tasks.filter((t) => t.status === "Blocked").length], ["Done", tasks.filter((t) => t.status === "Done").length]]) {
+    for (const [label, count] of [["\u8AB2\u984C", tasks.length], ["\u627F\u8A8D\u5F85\u3061", tasks.filter((t) => t.approval === "Draft").length], ["\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", tasks.filter((t) => t.status === "Blocked").length], ["\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", tasks.filter((t) => t.status === "Done").length]]) {
       const m = el("div", void 0, "metric");
       m.append(el("span", label, "muted"), el("strong", String(count)));
       metrics.append(m);
     }
     c.append(metrics);
     const p = el("section", void 0, "panel");
-    p.append(el("h2", "\u6A5F\u80FD\u3054\u3068\u306E\u73FE\u5728\u5730"));
+    p.append(el("h2", "\u958B\u767A\u30C6\u30FC\u30DE\u3054\u3068\u306E\u9032\u6357\u3068\u6B21\u306E\u5BFE\u5FDC"));
     for (const f of data.features.filter((f2) => !feature || f2.id === feature)) {
       const r = el("div", void 0, "phase");
-      r.append(el("div", f.id));
-      const next = el("div", f.phase);
-      next.append(el("small", f.nextCommand || "\u6B21\u306E\u30B3\u30DE\u30F3\u30C9\u306F\u672A\u78BA\u8A8D", "muted"));
+      const name = el("div", featureName(f.id));
+      name.title = f.id;
+      r.append(name);
+      const phase = Object.hasOwn(PHASES, f.phase) ? PHASES[f.phase] : ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u672A\u5BFE\u5FDC\u306E\u5DE5\u7A0B\u3067\u3059\u3002\u62C5\u5F53\u8005\u306B\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"];
+      const next = el("div", phase[0]);
+      next.append(el("small", phase[1], "muted"));
+      const technical = el("details");
+      technical.append(el("summary", "\u6280\u8853\u60C5\u5831\uFF08\u62C5\u5F53\u8005\u5411\u3051\uFF09"), el("pre", "\u8B58\u5225\u5B50: " + f.id + "\\n\u5DE5\u7A0B: " + f.phase + "\\n\u64CD\u4F5C: " + (f.nextCommand || "\u672A\u78BA\u8A8D")));
+      next.append(technical);
       for (const w of f.warnings) next.append(el("small", w, "issue-warning"));
       r.append(next);
       p.append(r);
@@ -42239,7 +42317,7 @@ function render() {
       c.append(p);
     }
   } else if (v === "timeline") {
-    c.append(el("p", "\u65E5\u4ED8\u8EF8\u3092\u4F7F\u308F\u305A\u3001\u4E88\u5B9A \u2192 \u9032\u884C\u4E2D \u2192 \u5B9F\u88C5\u5B8C\u4E86 \u2192 Done \u306E\u6BB5\u968E\u3092\u8868\u793A\u3057\u307E\u3059\u3002", "muted"));
+    c.append(el("p", "\u65E5\u4ED8\u8EF8\u3092\u4F7F\u308F\u305A\u3001\u4E88\u5B9A \u2192 \u9032\u884C\u4E2D \u2192 \u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061 \u2192 \u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09 \u306E\u6BB5\u968E\u3092\u8868\u793A\u3057\u307E\u3059\u3002", "muted"));
     for (const t of tasks) {
       const r = el("div", void 0, "phase");
       const b = el("button", t.id + " " + t.title, "card");
@@ -42262,12 +42340,12 @@ function render() {
     if (!tasks.length) c.append(el("p", "\u8868\u793A\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "empty"));
   } else if (v === "releases") {
     const groups = [...new Set(tasks.map((t) => t.release).filter(Boolean))];
-    if (!groups.length) c.append(el("div", "\u30EA\u30EA\u30FC\u30B9\u672A\u5B9A\u7FA9\u3002\u6B63\u672C\u306E\u30BF\u30B9\u30AF\u306B Release: \u304C\u6307\u5B9A\u3055\u308C\u308B\u3068\u8868\u793A\u3055\u308C\u307E\u3059\u3002", "empty"));
+    if (!groups.length) c.append(el("div", "\u30EA\u30EA\u30FC\u30B9\u4E88\u5B9A\u306F\u672A\u767B\u9332\u3067\u3059\u3002\u30BF\u30B9\u30AF\u306B\u30EA\u30EA\u30FC\u30B9\u4E88\u5B9A\u304C\u767B\u9332\u3055\u308C\u308B\u3068\u8868\u793A\u3055\u308C\u307E\u3059\u3002", "empty"));
     for (const name of groups) {
       const items = tasks.filter((t) => t.release === name);
       const done = items.filter((t) => t.status === "Done").length;
       const p = el("section", void 0, "panel");
-      p.append(el("h2", name), el("p", done + " / " + items.length + " Done \xB7 \u516C\u958B\u72B6\u6CC1\u306F\u672A\u78BA\u8A8D", "muted"));
+      p.append(el("h2", name), el("p", done + " / " + items.length + " \u4EF6\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09\u30FB\u516C\u958B\u72B6\u6CC1\u306F\u672A\u78BA\u8A8D", "muted"));
       const bar = el("progress");
       bar.max = items.length;
       bar.value = done;

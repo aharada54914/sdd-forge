@@ -23,6 +23,23 @@ const browser=await chromium.launch({executablePath:process.env.SDD_CHROMIUM || 
 const page=await browser.newPage({viewport:{width:1440,height:950}});const errors=[];page.on('pageerror',e=>errors.push(e.message));const checks=[];
 try{
  await page.goto(url);await page.locator('#freshness[data-state=live]').waitFor();
+ assert.ok((await page.locator('#content').innerText()).includes('要件の確認'));
+ assert.ok(!(await page.locator('#content').innerText()).includes('/sdd-review-loop:'));
+ const original=await page.evaluate(async()=>await(await fetch('api/dashboard')).json());
+ const localized={...original,data:{...original.data,project:'sdd-forge',features:[
+  ...['phase1-not-started','spec-review','impl-review','phase2-not-started','task-review','approval-gate','implementation','quality-gate','blocked','done','cannot-determine','unknown','future-phase'].map((phase,i)=>({id:i===0?'shared-review-launch-repair':'test-'+phase,phase,nextCommand:'/internal:command',warnings:[]}))
+ ],tasks:original.data.tasks.map(t=>({...t,feature:'shared-review-launch-repair',approval:'Approved (manager)',status:'Implementation Complete'}))}};
+ await page.route('**/api/dashboard',route=>route.fulfill({json:{...localized,attemptedAt:new Date().toISOString()}}));
+ await page.locator('#refresh').click();await page.locator('.phase').filter({hasText:'管理者の承認待ち'}).waitFor();
+ const visible=await page.locator('#content').innerText();
+ for(const text of ['要件・設計の作成前','設計・実装方針の確認','作業計画の作成前','作業計画の確認','開発・実装','品質・完了条件の確認','問題の解消待ち','対象作業の完了','状況の確認が必要','レビュー実行環境の不具合修正'])assert.ok(visible.includes(text),text);
+ assert.ok(!visible.includes('/internal:command'));
+ await page.locator('details summary').first().click();assert.ok((await page.locator('details').first().innerText()).includes('/internal:command'));
+ assert.equal(await page.locator('#feature option[value="shared-review-launch-repair"]').innerText(),'レビュー実行環境の不具合修正');
+ await page.locator('nav a[href="#list"]').click();assert.ok((await page.locator('#content').innerText()).includes('承認済み (manager)'));assert.ok((await page.locator('#content').innerText()).includes('実装済み・検証待ち'));
+ await page.locator('#search').fill('レビュー実行環境');assert.equal(await page.locator('tbody tr').count(),1);await page.locator('#search').fill('');
+ checks.push('japanese-phases-theme-search-and-preserved-technical-details');
+ await page.unroute('**/api/dashboard');await page.reload();await page.locator('#freshness[data-state=live]').waitFor();
  for(const [v,label] of Object.entries({overview:'概要',timeline:'タイムライン',backlog:'バックログ',board:'ボード',list:'一覧',releases:'リリース'})){
   await page.locator('nav a[href="#'+v+'"]').click();await page.locator('#title').filter({hasText:label}).waitFor();assert.ok((await page.locator('#content').innerText()).length>0);checks.push('view:'+v);
  }
