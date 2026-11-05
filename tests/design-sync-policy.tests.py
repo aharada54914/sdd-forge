@@ -143,7 +143,7 @@ class PolicyTests(unittest.TestCase):
         for relative in ("plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
                          "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
                          "plugins/sdd-lite/skills/lite-spec/SKILL.md"):
-            text = (ROOT / relative).read_text()
+            text = (ROOT / relative).read_text(encoding="utf-8")
             self.assertIn("resolve-design-sync.py", text)
         skill = (ROOT / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md").read_text()
         self.assertIn("design-sync-request/v1", skill)
