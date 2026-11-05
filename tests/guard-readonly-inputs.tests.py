@@ -288,6 +288,23 @@ class ReaderInputs(unittest.TestCase):
     def test_read_only_glob_loop_with_line_continuations(self):
         command = 'for item in ./*.md; do \\\n cat -- "$item"; head -n 1 -- "${item}"; wc -l -- "$item"; done'
         self.decision(command, 'allow')
+        self.decision(command.replace('\\\n', ''), 'allow')
+        self.decision('printf "%s" \'for SECONDS in *; do cat -- "$SECONDS"; done\'', 'allow')
+        self.decision('cat -- README.md && printf "%s" \'for SECONDS in *\'', 'allow')
+        for nested in (
+            '(for SECONDS in *; do cat -- "$SECONDS"; done)',
+            'if true; then for RANDOM in *; do cat -- "$RANDOM"; done; fi',
+            'for item in *; do for SECONDS in *; do cat -- "$SECONDS"; done; done',
+            'if for SECONDS in *; do cat -- "$SECONDS"; done; then :; fi',
+            'while for SECONDS in *; do cat -- "$SECONDS"; done; do break; done',
+            'time -p for SECONDS in *; do cat -- "$SECONDS"; done',
+            'coproc for SECONDS in *; do cat -- "$SECONDS"; done; wait',
+            'coproc worker for SECONDS in *; do cat -- "$SECONDS"; done; wait',
+            'case x in x)for SECONDS in *; do cat -- "$SECONDS"; done;; esac',
+            'inspect(){ for SECONDS in *; do cat -- "$SECONDS"; done; }; inspect',
+            'for SECONDS; do cat -- "$SECONDS"; done',
+        ):
+            self.decision(nested, 'deny')
         self.unknown_shell_denies(command)
         self.canonical_decision(command, 0)
         for mutation in (
@@ -324,12 +341,15 @@ class ReaderInputs(unittest.TestCase):
         victim = protected / 'settings.json'
         victim.write_text('unchanged')
         (protected / 'a[$(printf HACKED > settings.json)]').write_text('')
-        integer_loop = 'for SECONDS in *; \\\n do cat -- "$SECONDS"; done'
-        self.decision(integer_loop, 'deny', cwd=protected)
-        self.assertEqual(victim.read_text(), 'unchanged')
-        subprocess.run(['bash', '-c', integer_loop], cwd=protected, env=self.environ,
-                       text=True, capture_output=True, timeout=10)
-        self.assertEqual(victim.read_text(), 'HACKED', 'fixture must exercise implicit Bash arithmetic')
+        for name in ('SECONDS', 'RANDOM'):
+            integer_loop = 'for ' + name + ' in *; \\\n do cat -- "$' + name + '"; done'
+            for variant in (integer_loop, integer_loop.replace('\\\n', '')):
+                victim.write_text('unchanged')
+                self.decision(variant, 'deny', cwd=protected)
+                self.assertEqual(victim.read_text(), 'unchanged')
+                subprocess.run(['bash', '-c', variant], cwd=protected, env=self.environ,
+                               text=True, capture_output=True, timeout=10)
+                self.assertEqual(victim.read_text(), 'HACKED', 'fixture must exercise implicit Bash arithmetic')
         victim.write_text('unchanged')
         executable = fixture / 'run.md'
         executable.write_text('#!/usr/bin/env bash\nprintf CRLF > .claude/settings.json\n')

@@ -1940,7 +1940,22 @@ def _shell_has_globbed_reader_options(cmd, bash_semantics=False):
         return False
     parsed = _shell_read_segments(cmd)
     return bool(parsed and (parsed["ambiguous"] or parsed["unknown_glob"] or any(
-        _reader_glob_can_add_options(words, glob, expands) for words, glob, expands in parsed["segments"])))
+        _shell_for_binding_is_unsafe(words) or _reader_glob_can_add_options(words, glob, expands)
+        for words, glob, expands in parsed["segments"])))
+
+
+def _shell_for_binding_is_unsafe(words):
+    """Bash integer/array bindings can execute filenames before a reader runs."""
+    # Token sequences cover compound prefixes without reimplementing Bash's
+    # grammar. Whole quoted phrases stay a single token; quote such data whole.
+    for index, word in enumerate(words):
+        binding = words[index + 1] if index + 1 < len(words) else ""
+        following = words[index + 2] if index + 2 < len(words) else None
+        if (re.search(r"(?:^|[({)])for$", word) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", binding)
+                and not re.fullmatch(r"[a-z][a-z0-9_]*", binding)
+                and (following is None or following == "in" or following.startswith("#"))):
+            return True
+    return False
 
 
 def _shell_is_read_only_for_loop(cmd):
@@ -2239,7 +2254,7 @@ def main():
         # Reject unknown argv before the legacy write scanners can miss glob-added options.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
                 and _shell_has_globbed_reader_options(tool_input.get("command"), tool_name.lower() == "bash")):
-            emit("deny", "SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).", mode)
+            emit("deny", "SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).", mode)
             return
         # Read-only shell inspection cannot change protected files or grant approvals.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")

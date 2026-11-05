@@ -339,7 +339,24 @@ function Test-ShellHasGlobbedReaderOptions {
     if ($null -eq $parsed) { return $false }
     if ($parsed.Ambiguous -or $parsed.UnknownGlob) { return $true }
     for ($index = 0; $index -lt $parsed.Segments.Count; $index++) {
+        if (Test-ShellForBindingIsUnsafe $parsed.Segments[$index]) { return $true }
         if (Test-ReaderGlobCanAddOptions $parsed.Segments[$index] $parsed.Globs[$index] $parsed.Expansions[$index]) { return $true }
+    }
+    return $false
+}
+
+function Test-ShellForBindingIsUnsafe {
+    param([string[]]$Words)
+    # Bash integer/array bindings can execute filenames before a reader runs.
+    if ($null -eq $Words -or $Words.Count -eq 0) { return $false }
+    # Cover compound prefixes without reimplementing Bash's grammar. Whole
+    # quoted phrases stay a single token; quote data containing this sequence.
+    for ($index = 0; $index -lt $Words.Count; $index++) {
+        $binding = if ($index + 1 -lt $Words.Count) { $Words[$index + 1] } else { '' }
+        $following = if ($index + 2 -lt $Words.Count) { $Words[$index + 2] } else { $null }
+        if ([regex]::IsMatch($Words[$index], '(?:^|[({)])for$') -and [regex]::IsMatch($binding, '^[A-Za-z_][A-Za-z0-9_]*$') -and
+            -not [regex]::IsMatch($binding, '^[a-z][a-z0-9_]*$') -and
+            ($null -eq $following -or $following -ceq 'in' -or $following.StartsWith('#'))) { return $true }
     }
     return $false
 }
@@ -2301,7 +2318,7 @@ try {
 
     # Reject unknown argv before legacy write scanners can miss glob-added options.
     if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command ($toolName -eq 'bash'))) {
-        Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).'
+        Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).'
     }
     # Read-only inspection cannot change protected files or grant approvals.
     if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command ($toolName -eq 'bash'))) {

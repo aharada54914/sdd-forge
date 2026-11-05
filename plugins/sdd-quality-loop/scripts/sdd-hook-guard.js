@@ -1383,7 +1383,22 @@ function readerGlobCanAddOptions(words, hasGlob, expands) {
 function shellHasGlobbedReaderOptions(cmd, bashSemantics = false) {
   if (bashSemantics && shellIsReadOnlyForLoop(cmd)) return false;
   const parsed = shellReadSegments(cmd);
-  return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => readerGlobCanAddOptions(words, glob, expands)));
+  return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => shellForBindingIsUnsafe(words) || readerGlobCanAddOptions(words, glob, expands)));
+}
+
+function shellForBindingIsUnsafe(words) {
+  // Reject at the deny boundary, even when the bounded read-loop recognizer
+  // declines the command. Bash integer/array variables can execute filename
+  // text while assigning it, before the otherwise read-only body runs.
+  // Inspect token sequences rather than trying to enumerate all compound
+  // prefixes (if/time/coproc/case/functions). Quoted whole phrases stay one
+  // token. Data spelling this sequence as separate words must quote the phrase.
+  return words.some((word, index) => {
+    const binding = words[index + 1] || '';
+    const next = words[index + 2];
+    return /(?:^|[({)])for$/.test(word) && /^[A-Za-z_][A-Za-z0-9_]*$/.test(binding) &&
+      !/^[a-z][a-z0-9_]*$/.test(binding) && (next === undefined || next === 'in' || next.startsWith('#'));
+  });
 }
 
 function shellIsReadOnlyForLoop(cmd) {
@@ -2150,7 +2165,7 @@ async function main() {
     const filePath = (toolInput.file_path || '').toLowerCase();
     // Reject unknown argv before legacy write scanners can miss glob-added options.
     if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command, toolName === 'bash')) {
-      emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).', mode);
+      emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).', mode);
       return;
     }
     // Read-only inspection cannot change protected files or grant approvals.
