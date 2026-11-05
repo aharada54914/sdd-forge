@@ -147,7 +147,7 @@ def run_case(cli, base, server, entry, observation, control=False):
             f'{label}: missing runtime must block the write'
         assert isinstance(native.get('content'), str) and all(text in native['content'] for text in (
             'PreToolUse:Write hook error:', 'blocking because onFailure is "block"',
-            str(missing), 'ENOENT')), \
+            str(missing), 'Executable not found in $PATH:' if sys.platform == 'win32' else 'ENOENT')), \
             f'{label}: unrecognized startup-failure denial: {native}'
     observation.update(status='PASS', native_result=native)
     del observation['api_tool_results']
