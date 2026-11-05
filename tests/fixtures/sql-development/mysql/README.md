@@ -30,3 +30,5 @@ those settings are not deployment recommendations. This does not test cloud
 products, production identities, TLS or application performance, and does not
 replace the agent's actual SQL workflow acceptance. Image and Flyway licensing
 remain governed by their upstream distributions.
+
+Driver configuration follows the [Flyway MySQL driver reference](https://documentation.red-gate.com/flyway/reference/database-driver-reference/mysql) and [Docker usage](https://documentation.red-gate.com/flyway/reference/usage/flyway-docker). The bundled MariaDB fallback needs `permitMysqlScheme=true`; the target server remains the pinned real MySQL image.

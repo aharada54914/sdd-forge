@@ -52,7 +52,7 @@ def exercise(f, directory):
 
     def migration(operation='migrate', database='upgrade', location=migrations, options=()):
         # TLS is not exercised by this internal, run-owned synthetic fixture.
-        url = f'jdbc:mysql://db:3306/{database}?allowPublicKeyRetrieval=true&sslMode=DISABLED'
+        url = f'jdbc:mysql://db:3306/{database}?allowPublicKeyRetrieval=true&useSSL=false&permitMysqlScheme=true'
         return f.flyway(flyway_image, url, 'migrator', password, location, operation, options)
 
     def migrated(database, options=()):
