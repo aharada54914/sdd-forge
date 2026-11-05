@@ -85,14 +85,12 @@ event pair inside a nonce-bound envelope:
   overridden by a contradictory denial claim elsewhere in the same file.
   When `executed: false`, each runtime additionally requires:
 
-    claude-code:  `"guard_emit_mode": "exit"` and a non-zero integer
-                  `"exit_code"` -- `sdd-hook-guard.py`'s own `--emit exit`
-                  deny convention (reason on stderr, exit 2), surfaced
-                  through the host's own tool-call-denial reporting (a
-                  non-zero exit from a Claude Code PreToolUse hook blocks
-                  the tool call; this check accepts ANY non-zero code,
-                  matching what the host itself observes -- "the hook
-                  exited non-zero" -- not a specific numeric value).
+    claude-code:  `"guard_emit_mode": "exit"` and integer `"exit_code": 2`
+                  -- the guard's policy-denial convention (reason on stderr).
+                  Other non-zero codes can be runtime startup errors or crashes;
+                  they do not prove activation. onFailure:block makes supported
+                  hosts block those failures, but that is still not a successful
+                  guard canary. Numeric status must be observed, never inferred.
     copilot-cli:  `"permissionDecision": "deny"` -- `sdd-hook-guard.py`'s
                   own `--emit copilot` JSON shape. An absent or
                   affirmatively-`"allow"` `permissionDecision` is the
@@ -362,13 +360,13 @@ def _verify_claude_code(obj):
         )
     emit_mode = obj.get("guard_emit_mode")
     exit_code = obj.get("exit_code")
-    exit_code_ok = isinstance(exit_code, int) and not isinstance(exit_code, bool) and exit_code != 0
+    exit_code_ok = isinstance(exit_code, int) and not isinstance(exit_code, bool) and exit_code == 2
     if emit_mode != "exit" or not exit_code_ok:
         raise HookHandshakeError(
             "UNRECOGNIZED_RESULT",
             "claude-code evidence does not carry the guard's documented "
             "--emit exit deny signature (guard_emit_mode: 'exit' plus a "
-            f"non-zero integer exit_code); got guard_emit_mode={emit_mode!r} "
+            f"integer exit_code: 2); got guard_emit_mode={emit_mode!r} "
             f"exit_code={exit_code!r}",
         )
 
