@@ -42,6 +42,9 @@ SQL Serverの一時publish profileは所有者のみ読める権限で作成す�
   sqlcmdのtimeoutはexit 0の場合もあるため、診断・開始マーカー・rollback・セッション終了・実測時間を合わせて確認する。
 - Windowsの既定文字コードに依存した既存テストは、UTF-8の文書を明示的にUTF-8で読むよう修正した。
   Lite仕様化の14行追加は既存の正確なsuccessor登録に反映し、過去の候補・MANIFEST・承認状態は変えていない。
+- 残るContext callerの見出し番号も6から7へ更新し、本文・契約ハッシュ・隣接条件の保持を確認した。
+  Windowsの一時cloneで証拠パスが長さ制限に達したため、証拠の内容を保ったまま梱包名を短縮した。
+  A2の現在のCI候補にはSQL 4ジョブと最新の集約を同期した。過去の固定候補は変更せず、同期を公開承認とは扱わない。
 
 ## 受入証拠
 
@@ -60,6 +63,10 @@ SQL Serverの一時publish profileは所有者のみ読める権限で作成す�
 - [公開状態の回帰検証](ci/publication-preservation.json)：既存候補とMANIFESTのバイト一致を確認。
   Bash／PowerShellのship-trackとphase2、既存133件mutation matrixが成功。既存runner-pathの1件はskipとして保持する。
   [文字コード回帰](ci/encoding-regression.json)はcp1252の失敗を再現後、5対象テストすべてが成功した記録。
+- [Context caller](ci/context-anchor-preservation.json)は旧契約ハッシュを保持して位置だけを更新。
+  [証拠パス](ci/evidence-path-compaction.json)は移動76ファイルの内容不変とmanifest142件の一致を確認。
+  [現在のCI候補](ci/candidate-workflow-preservation.json)はliveと完全一致、過去の固定成果物は不変。
+  候補生成のBash／PowerShell試験はそれぞれ32件成功し、ジョブ削除等の否定検査も維持した。
 
 ## 対象外・制限
 

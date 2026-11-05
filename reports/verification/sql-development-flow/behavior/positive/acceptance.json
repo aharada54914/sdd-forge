@@ -36,5 +36,5 @@
     "statement_seconds": 5,
     "lock_seconds": 1
   },
-  "implementation_complete_checkpoint": "implementation-complete-checkpoint/observation.json"
+  "implementation_complete_checkpoint": "ic/observation.json"
 }

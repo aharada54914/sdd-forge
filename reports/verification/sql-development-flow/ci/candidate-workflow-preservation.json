@@ -1,0 +1,94 @@
+{
+  "head_commit": "374b3e028e79bdb201c9ff9f76f35f2ed7dda268",
+  "workflow_old_sha256": "daabafdc8ac7250ee83ed2714489954da6997c7cbd63484a3ae231ef98e8aa2e",
+  "workflow_new_sha256": "768cdac93bd4ca9bdbce50350eabda86c42cb663319ad6e340d99ca6aec5ce16",
+  "candidate_exactly_matches_live": true,
+  "new_jobs": [
+    "sql-contract",
+    "sql-mysql",
+    "sql-postgres",
+    "sql-tsql"
+  ],
+  "other_preserved_update": "Existing live Claude hook runtime check and evidence upload (10 lines)",
+  "candidate_manifest_rows": [
+    {
+      "relative": ".github/workflows/test.yml",
+      "sha256": "768cdac93bd4ca9bdbce50350eabda86c42cb663319ad6e340d99ca6aec5ce16",
+      "unchanged_from_head": false
+    },
+    {
+      "relative": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+      "unchanged_from_head": true
+    },
+    {
+      "relative": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2",
+      "unchanged_from_head": true
+    },
+    {
+      "relative": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681",
+      "unchanged_from_head": true
+    },
+    {
+      "relative": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427",
+      "unchanged_from_head": true
+    },
+    {
+      "relative": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "unchanged_from_head": true
+    },
+    {
+      "relative": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "unchanged_from_head": true
+    }
+  ],
+  "historical_archive": [
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml",
+      "sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256",
+      "sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "unchanged_from_head": true
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681",
+      "unchanged_from_head": true
+    }
+  ],
+  "evolution_self_test": "PASS; checker and negative controls unchanged",
+  "authorization_effect": "None; current candidate synchronization grants no protected-file application approval."
+}
