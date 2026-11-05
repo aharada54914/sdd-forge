@@ -430,17 +430,18 @@ mcp_selected() {
 
 # Bound probes before install-root changes, including broken executable shims.
 read_command_version() (
-    local output pid status=0 tick
+    local output pid status=0 started
     output="$(mktemp)" || return 1
     # A broken shim may wait on another process. Give the probe its own group
     # so the deadline also stops descendants, without changing caller options.
+    started=$SECONDS
     set -m
     "$1" --version >"$output" 2>&1 &
     pid=$!
     set +m
     trap 'kill -KILL -- "-$pid" 2>/dev/null || true; rm -f "$output"' EXIT
-    for ((tick=0; tick<300; tick++)); do
-        kill -0 "$pid" 2>/dev/null || break
+    # Fork/scheduling overhead counts toward the deadline too (not 300 sleeps).
+    while kill -0 "$pid" 2>/dev/null && (( SECONDS - started < 30 )); do
         sleep 0.1
     done
     if kill -0 "$pid" 2>/dev/null; then

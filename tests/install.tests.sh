@@ -1994,7 +1994,7 @@ _hook_root="$(mktemp -d)"
 _hook_bin="${_hook_root}/bin"
 make_fake_commands "$_hook_bin" "${_hook_root}/commands.log"
 # A bounded PATH makes the absent-Node case independent of the runner's Node.
-for _hook_tool in bash sh git dirname basename mktemp rm cat sleep grep sed sort realpath readlink uname; do
+for _hook_tool in bash sh git dirname basename mktemp rm cat sleep date grep sed sort realpath readlink uname; do
     _hook_path="$(command -v "$_hook_tool" || true)"
     [[ -z "$_hook_path" ]] || ln -s "$_hook_path" "${_hook_bin}/${_hook_tool}"
 done
@@ -2002,14 +2002,24 @@ done
 rm "${_hook_bin}/git"
 printf '#!/bin/sh\nPATH="/usr/bin:/bin:$PATH" exec %s "$@"\n' "$(shell_literal "$(command -v git)")" > "${_hook_bin}/git"
 chmod +x "${_hook_bin}/git"
+_hook_real_sleep="$(command -v sleep)"
 for _hook_case in missing broken old invalid hanging claude-old valid; do
+    rm -f "${_hook_bin}/sleep"
+    ln -s "$_hook_real_sleep" "${_hook_bin}/sleep"
     rm -f "${_hook_bin}/node"
     _hook_node='echo v22.19.0'
     case "$_hook_case" in
         broken) _hook_node='exit 127' ;;
         old) _hook_node='echo v22.18.0' ;;
         invalid) _hook_node='echo v22.19.0-rc.1' ;;
-        hanging) _hook_node="sleep 120 & child=\$!; echo \"\$child\" > $(shell_literal "${_hook_root}/child.pid"); wait \"\$child\"" ;;
+        hanging)
+            # Deliberately slow each poll: iteration counts cannot stand in for
+            # elapsed time on a busy/macOS runner. The probe still gets 30s.
+            rm "${_hook_bin}/sleep"
+            printf '#!/bin/sh\nif [ "$1" = 0.1 ]; then set -- 0.25; fi\nexec %s "$@"\n' "$(shell_literal "$_hook_real_sleep")" > "${_hook_bin}/sleep"
+            chmod +x "${_hook_bin}/sleep"
+            _hook_node="date +%s > $(shell_literal "${_hook_root}/probe-start"); sleep 120 & child=\$!; echo \"\$child\" > $(shell_literal "${_hook_root}/child.pid"); wait \"\$child\""
+            ;;
     esac
     if [[ "$_hook_case" != missing ]]; then
         printf '#!/bin/sh\n%s\n' "$_hook_node" > "${_hook_bin}/node"
@@ -2027,7 +2037,6 @@ for _hook_case in missing broken old invalid hanging claude-old valid; do
     # Valid install needs the normal staging utilities as well as the shims.
     _hook_path="$_hook_bin"
     [[ "$_hook_case" != valid ]] || _hook_path="$_hook_bin:$PATH"
-    _hook_started=$SECONDS
     _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
     if [[ "$_hook_case" == valid ]]; then
         if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" ]]; then
@@ -2041,10 +2050,12 @@ for _hook_case in missing broken old invalid hanging claude-old valid; do
         fail "Claude hooks: $_hook_case did not fail before mutation: $_hook_out"
     fi
     if [[ "$_hook_case" == hanging ]]; then
-        if (( SECONDS - _hook_started < 45 )); then
-            ok "Claude hooks: hanging runtime is bounded to the preflight deadline"
+        # Measure the runtime probe, excluding source validation before it.
+        _hook_elapsed=$(( $(date +%s) - $(cat "${_hook_root}/probe-start") ))
+        if (( _hook_elapsed >= 25 && _hook_elapsed < 45 )); then
+            ok "Claude hooks: hanging runtime meets the preflight deadline (${_hook_elapsed}s despite slow polling)"
         else
-            fail "Claude hooks: hanging runtime exceeded 45 seconds"
+            fail "Claude hooks: expected a 30s probe (25-44s tolerance), got ${_hook_elapsed}s"
         fi
         _hook_child="$(cat "${_hook_root}/child.pid")"
         # A killed child can remain a zombie until the OS reaps it; it must
