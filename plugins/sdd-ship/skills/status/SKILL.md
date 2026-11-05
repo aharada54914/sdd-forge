@@ -68,10 +68,22 @@ object containing `serviceToken` (the existing Site service-access token) and
 missing service credential is a setup failure, not permission to publish publicly
 or rotate a token. Use `--once` for an explicit single sample, not live mode.
 
-Keep the collector running under the user's existing process supervisor if
+The publisher supervises and restarts its collector, bounds collection waits,
+keeps only the latest observation, and backs off on transient failures. Authentication
+or rejected-data failures exit 78 for operator correction. It publishes separate
+private health metadata without changing the task snapshot.
+
+Keep the publisher running under the user's existing process supervisor if
 available; otherwise clearly state its execution-environment lifetime. Do not
 claim persistence across workspace shutdown. A stopped collector must visibly
 become stale even if the Site and its cached data remain reachable.
+
+The optional systemd template at `status-site/service/sdd-dashboard.service`
+uses `LoadCredentialEncrypted` and a dedicated read-only user on a persistent
+Linux host. Configure actual paths, Node availability, service URL and credentials
+before enabling; do not claim installation merely because the template exists.
+Never persist unencrypted Sites tokens. The foreground mode retains credentials
+in memory from stdin.
 
 ## Claude parent
 

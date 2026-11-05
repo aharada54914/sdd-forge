@@ -26,6 +26,7 @@ function readCliRootArg(argv: readonly string[]): string | undefined {
     options: { root: { type: "string" }, "status-ui": { type: "boolean" },
       dashboard: { type: "boolean" }, "dashboard-snapshot": { type: "boolean" },
       "dashboard-stream": { type: "boolean" },
+      "dashboard-monitor-stream": { type: "boolean" },
       "dashboard-html": { type: "boolean" }, "parent-service": { type: "string" } },
     strict: true,
     allowPositionals: false,

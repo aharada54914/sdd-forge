@@ -123,3 +123,78 @@ another output directory. Tests mutate disposable fixtures only. They cover all
 six views, keyboard-compatible controls, responsive layout, live file changes,
 last-good retention, recovery, stale source with a live HTTP endpoint and the
 Artifact adapter boundary. Native hosted checks are reported separately.
+
+## Accessible live display and operational monitoring
+
+The shared page uses 16px primary text, 14px supporting text, semantic colors,
+contrasting control boundaries and a yellow/black focus treatment. At narrow
+widths the board becomes a vertical set of status sections. This adopts relevant
+DADS foundations, not a claim of certified DADS/WCAG conformance.
+
+Unchanged content revisions update freshness without rebuilding the view. Changed
+revisions retain expanded technical details, logical keyboard focus and scroll
+position. Display pause freezes the shown snapshot while collection continues;
+its original confirmation time remains visible. Resume applies the newest
+received snapshot. Live-region announcements occur on health-state transitions,
+not on each clock tick. The management summary links to approval, blocked,
+quality-review and inconsistent-record task lists, retaining the selected theme.
+
+`GET /api/health` exposes private `sdd-monitor/v1` health information independently
+of the canonical snapshot. `PUT /api/health` requires publisher authentication,
+rejects browser Origins, invalid/future observations and older writes. It records:
+
+- `observedAt`, `state`, `lastError`: observation time and bounded error category.
+- `lastPublishAt`, `lastSourceAt`: successful upload versus source confirmation.
+- `collectionMs`, `consecutiveFailures`, `collectorRestarts`: duration, errors and recovery.
+- `collectorVersion`, `publisherVersion`: SHA-256 prefixes of code loaded at start.
+
+The page displays its own template hash separately. Health information older than
+60 seconds is marked stopped/unknown; a live HTTP response does not renew it.
+A failed health upload cannot update its remote heartbeat. Health is supplementary;
+its absence does not prevent task viewing, including with local/Artifact adapters.
+The internal `--dashboard-monitor-stream` adds `_collectionMs` for the publisher,
+which removes it before snapshot publication. Existing snapshot, stream and MCP
+contracts remain unchanged.
+
+The publisher now supervises the Node collector. A dead or silent collector is
+terminated and replaced after a bounded wait (30-second sample timeout, 5-second
+termination grace). At most one pending observation is retained; transient
+failures use jittered exponential backoff from approximately 5 to at most 60
+seconds. Auth (401/403) and rejected payload (400/413) errors exit 78 and require
+operator correction. Conflicts and server/network failures retry with newer data.
+Errors contain categories, never credential values or remote response bodies.
+The UI receives source errors separately from this publisher health channel.
+
+### Persistent host service
+
+`plugins/sdd-ship/status-site/service/sdd-dashboard.service` is a systemd >=250
+example. It supervises the Python publisher itself and starts at host boot.
+Use a dedicated `sdd-dashboard` user with read/traverse access to the installed
+bundle and project evidence, and no workflow-write permission. Adjust `/opt/sdd-forge`,
+`/srv/sdd-project`, Python location, Node PATH and the actual private Site origin.
+Preserve any required outbound proxy/CA configuration on the deployment host.
+
+Create the credential named `sites-publisher` using the host's `systemd-creds`
+encrypted credential workflow. Supply the existing two-token JSON via protected
+stdin; never type it into shell arguments, history, source or a plaintext file.
+Store only the resulting encrypted credential at
+`/etc/credstore.encrypted/sdd-dashboard`, root-readable. The unit uses
+`LoadCredentialEncrypted`; Python reads systemd's private runtime credential
+through `CREDENTIALS_DIRECTORY`. Do not copy session tokens into a Docker image,
+unit Environment line, repository or browser storage.
+
+After configuring paths, credentials and read permissions, validate the unit,
+install it under `/etc/systemd/system/sdd-dashboard.service`, and enable/start it
+with the host's service manager. Verify a collector kill and then a publisher
+kill separately, reboot recovery, invalid-auth exit 78 without restart loops,
+and source/transport failure recovery before calling that host production-ready.
+`StartLimitBurst=5` bounds repeated publisher crashes; investigate exhausted limits
+before resetting them. For credential rotation, replace the encrypted credential
+and restart the service. No service or credential provisioning is implicit in
+installing the SDD plugin.
+
+This cloud workspace has no running systemd and no persistent secret binding.
+Here the publisher runs with in-memory stdin credentials and supervises Node;
+workspace shutdown or termination of the Python supervisor still stops updates.
+The service unit is supplied for a persistent host, not falsely reported as
+installed here. No history store or notification channel (phase 3) is added.

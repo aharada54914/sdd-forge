@@ -1,0 +1,18 @@
+test_archive_source_installs_the_same_payload (__main__.PayloadChecks.test_archive_source_installs_the_same_payload) ... ok
+test_core_required_files_fail_closed (__main__.PayloadChecks.test_core_required_files_fail_closed) ... ok
+test_local_mcp_links_are_skipped_without_following_them (__main__.PayloadChecks.test_local_mcp_links_are_skipped_without_following_them) ... ok
+test_local_source_installs_only_the_payload (__main__.PayloadChecks.test_local_source_installs_only_the_payload) ... ok
+test_manifest_entries_are_validated_and_crlf_accepted (__main__.PayloadChecks.test_manifest_entries_are_validated_and_crlf_accepted) ... ok
+test_manifest_is_required (__main__.PayloadChecks.test_manifest_is_required) ... ok
+test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package) ... ok
+test_newline_parent_symlink_is_refused_and_rolled_back (__main__.PayloadChecks.test_newline_parent_symlink_is_refused_and_rolled_back) ... ok
+test_symlink_in_admitted_path_is_refused_and_rolled_back (__main__.PayloadChecks.test_symlink_in_admitted_path_is_refused_and_rolled_back) ... ok
+test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) ... ok
+test_upgrade_removes_formerly_distributed_development_payload (__main__.PayloadChecks.test_upgrade_removes_formerly_distributed_development_payload) ... ok
+test_windows_zip_directory_link_metadata (__main__.PayloadChecks.test_windows_zip_directory_link_metadata) ... skipped 'Windows PowerShell ZIP transport'
+test_windows_zip_metadata_and_containment (__main__.PayloadChecks.test_windows_zip_metadata_and_containment) ... skipped 'Windows PowerShell ZIP transport'
+
+----------------------------------------------------------------------
+Ran 13 tests in 16.211s
+
+OK (skipped=2)

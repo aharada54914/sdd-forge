@@ -28622,6 +28622,7 @@ function readCliRootArg(argv) {
       dashboard: { type: "boolean" },
       "dashboard-snapshot": { type: "boolean" },
       "dashboard-stream": { type: "boolean" },
+      "dashboard-monitor-stream": { type: "boolean" },
       "dashboard-html": { type: "boolean" },
       "parent-service": { type: "string" }
     },
@@ -42056,15 +42057,19 @@ import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 
 // ui/dashboard-page.ts
+import { createHash as createHash4 } from "node:crypto";
 function dashboardPage(mode = "http") {
-  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
-:root{font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172b4d;background:#fff;--line:#dfe1e6;--blue:#0052cc;--muted:#5e6c84}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2684ff;outline-offset:2px}header{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:24px}.logo{font-size:20px;font-weight:750;color:#0747a6}.readonly{color:var(--muted);font-size:12px;margin-left:auto}.shell{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100vh - 62px)}aside.sidebar{padding:30px 20px;background:#f4f5f7;border-right:1px solid var(--line)}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:40px;height:40px;font-weight:800;margin-bottom:12px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}.project{font-weight:650;overflow-wrap:anywhere;margin:4px 0 24px}label{display:block;font-size:12px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:5px;padding:9px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:7px}.side-note{font-size:12px;color:var(--muted);margin-top:30px}main{padding:26px 34px;min-width:0}.breadcrumb{color:var(--muted);font-size:12px}h1{font-size:27px;letter-spacing:-.025em;margin:10px 0 20px}nav{display:flex;gap:24px;border-bottom:2px solid #ebecf0;overflow-x:auto}nav a{color:var(--muted);text-decoration:none;padding:11px 1px;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:650}.toolbar{display:flex;gap:12px;margin:24px 0;flex-wrap:wrap}.toolbar input{width:260px}.refresh{background:#0052cc;color:white;border:0;border-radius:5px;padding:9px 16px;margin-left:auto}.banner{border:1px solid #b3dfcc;background:#eefaf4;color:#216e4e;border-radius:5px;padding:10px 14px;margin:20px 0 0;font-size:12px}.banner[data-state=stale]{background:#fff8e6;border-color:#ffe380;color:#7f5f01}.banner[data-state=error]{background:#fff1f0;border-color:#ffbdad;color:#ae2a19}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:8px;padding:20px}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:20px}h2{font-size:17px;margin:0 0 16px}h3{font-size:14px;margin:0 0 12px}.board{display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:14px;overflow-x:auto;padding-bottom:14px}.column{background:#f4f5f7;border-radius:7px;padding:12px;min-height:280px}.column h2{font-size:12px;color:var(--muted);margin:4px 0 16px}.card{display:block;text-align:left;background:white;border:1px solid #ebecf0;border-radius:5px;padding:14px;width:100%;margin-bottom:10px;box-shadow:0 1px 2px #091e4214;color:inherit}.card:hover{border-color:#85b8ff}.card-title{display:block;margin:7px 0 12px;font-size:13px;overflow-wrap:anywhere}.key{font-size:11px;color:var(--muted)}.badge{display:inline-block;font-size:11px;font-weight:650;padding:2px 7px;border-radius:4px;background:#ebecf0;white-space:nowrap}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}th{font-size:11px;color:var(--muted);font-weight:650}th,td{padding:12px 10px;border-bottom:1px solid #ebecf0}td button{border:0;background:none;color:#0052cc;text-align:left;min-height:32px}.empty{padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}.phase{display:grid;grid-template-columns:minmax(150px,1fr) minmax(180px,2fr);gap:20px;padding:12px 0;border-bottom:1px solid #ebecf0}.phase small{display:block}.track{display:flex;gap:3px;align-items:center}.segment{height:14px;flex:1;background:#ebecf0;border-radius:3px}.segment.active{background:#579dff}.segment.done{background:#4bce97}progress{width:100%;accent-color:#0052cc}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(640px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:28px;box-shadow:-8px 0 30px #091e4226}dialog::backdrop{background:#091e4244}dialog .close{float:right;border:0;background:#f4f5f7;border-radius:5px;padding:8px 12px}dialog h2{padding-top:20px;font-size:22px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:6px}.issue-warning{color:#ae2a19;font-size:12px}footer{margin-top:28px;font-size:11px;color:var(--muted)}@media(max-width:760px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:20px 16px}.metrics{grid-template-columns:repeat(2,1fr)}nav{gap:20px}.toolbar input{width:100%}.refresh{margin-left:0}.phase{grid-template-columns:1fr}.mobile-feature{display:block!important}}.mobile-feature{display:none}[hidden]{display:none!important}
-</style></head><body><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" role="status" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div class="toolbar"><input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="refresh" id="refresh">\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+  const page = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
+:root{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#172b4d;background:#fff;--line:#767676;--blue:#0031d8;--muted:#505f79;--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--radius-control:8px;--radius-panel:12px;--success:#216e4e;--warning:#705400;--error:#ae2a19}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button,a,input,select,summary{scroll-margin:16px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:4px solid #000;outline-offset:3px;box-shadow:0 0 0 3px #ffd43d}button{min-height:44px}a,summary{min-height:44px}summary{cursor:pointer;padding:8px 0}a{display:inline-flex;align-items:center}header{min-height:72px;border-bottom:1px solid #dfe1e6;display:flex;align-items:center;padding:16px 24px;gap:24px;flex-wrap:wrap}.logo{font-size:24px;font-weight:700;color:#0747a6}.readonly{color:var(--muted);font-size:14px;margin-left:auto}.shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);min-height:calc(100vh - 72px)}aside.sidebar{padding:32px 24px;background:#f4f5f7;border-right:1px solid #dfe1e6}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:48px;height:48px;font-weight:700;margin-bottom:16px}.eyebrow{font-size:14px;font-weight:700;color:var(--muted)}.project{font-weight:700;overflow-wrap:anywhere;margin:8px 0 24px}label{display:block;font-size:16px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:var(--radius-control);padding:8px;min-height:44px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:8px}.side-note{font-size:14px;color:var(--muted);margin-top:32px}main{padding:24px 32px;min-width:0}.breadcrumb{color:var(--muted);font-size:14px;overflow-wrap:anywhere}h1{font-size:32px;margin:8px 0 24px}nav{display:flex;gap:24px;border-bottom:2px solid #dfe1e6;flex-wrap:wrap}nav a{color:var(--muted);text-decoration:none;padding:8px 0;border-bottom:3px solid transparent}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:700}.toolbar{display:flex;gap:16px;margin:24px 0;flex-wrap:wrap;align-items:end}.toolbar input{width:100%}.toolbar label{flex:1;min-width:min(240px,100%)}.refresh,.pause{background:var(--blue);color:white;border:1px solid var(--blue);border-radius:var(--radius-control);padding:8px 16px}.pause{background:white;color:var(--blue)}.banner{border:1px solid #216e4e;background:#eefaf4;color:var(--success);border-radius:8px;padding:16px;margin-top:24px;font-size:16px;overflow-wrap:anywhere}.banner[data-state=stale],.banner[data-state=paused]{background:#fff8e6;border-color:#705400;color:var(--warning)}.banner[data-state=error]{background:#fff1f0;border-color:#ae2a19;color:var(--error)}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:12px;padding:16px;background:white;color:inherit;text-align:left}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid #dfe1e6;border-radius:12px;padding:24px;margin-bottom:24px}h2{font-size:24px;margin:0 0 16px}h3{font-size:20px;margin:0 0 16px}.board{display:grid;grid-template-columns:repeat(5,minmax(240px,1fr));gap:32px;overflow-x:auto;padding:8px 8px 16px}.column{background:#f4f5f7;border-radius:12px;padding:16px;min-height:160px}.column h2{font-size:16px;color:var(--muted);margin:0 0 16px}.card{display:block;text-align:left;background:white;border:1px solid var(--line);border-radius:8px;padding:16px;width:100%;margin-bottom:16px;color:inherit}.card:hover{border-color:var(--blue)}.card-title{display:block;margin:8px 0 16px;font-size:16px;overflow-wrap:anywhere}.key{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-block;font-size:14px;font-weight:700;padding:4px 8px;border-radius:8px;background:#ebecf0;overflow-wrap:anywhere}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:16px}th{font-size:16px;color:var(--muted);font-weight:700}th,td{padding:16px;border-bottom:1px solid #dfe1e6}td button{border:0;background:none;color:var(--blue);text-align:left;text-decoration:underline;min-height:44px;min-width:44px}.empty{padding:32px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.phase{display:grid;grid-template-columns:minmax(160px,1fr) minmax(240px,2fr);gap:32px;padding:16px 0;border-bottom:1px solid #dfe1e6;overflow-wrap:anywhere}.phase small{display:block;font-size:14px}.track{display:flex;gap:4px;align-items:center}.segment{height:16px;flex:1;background:#ebecf0;border-radius:4px}.segment.active{background:#0052cc}.segment.done{background:#216e4e}progress{width:100%;accent-color:#0031d8}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(720px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:24px;box-shadow:-8px 0 32px #091e4240}dialog::backdrop{background:#091e4266}dialog .close{float:right;border:1px solid var(--line);background:#f4f5f7;border-radius:8px;padding:8px 16px}dialog h2{padding-top:24px;font-size:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:8px}.issue-warning{color:var(--error);font-size:14px}footer{margin-top:32px;font-size:14px;color:var(--muted)}.skip{position:absolute;left:16px;top:-100px;background:white;z-index:10;padding:8px}.skip:focus{top:8px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.monitor{font-size:14px;overflow-wrap:anywhere}.mobile-feature{display:none}[hidden]{display:none!important}@media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:24px 16px}.mobile-feature{display:block}.phase{grid-template-columns:1fr;gap:16px}.board{grid-template-columns:1fr;overflow:visible;padding:0}.column{min-height:0}.toolbar{align-items:stretch}.toolbar>*{max-width:100%}header{gap:16px;padding:16px}.metrics{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}.panel{padding:16px}h1{font-size:28px}}
+</style></head><body><a class="skip" href="#main">\u672C\u6587\u3078\u79FB\u52D5</a><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>\u8AB2\u984C\u3092\u691C\u7D22<input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"></label><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="pause" id="pause" aria-pressed="false">\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62</button><button class="refresh" id="refresh">\u4ECA\u3059\u3050\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><details class="monitor"><summary>\u89B3\u6E2C\u57FA\u76E4\u306E\u7A3C\u50CD\u72B6\u6CC1</summary><p id="monitor-status">\u7A3C\u50CD\u60C5\u5831\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p></details><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+const PAGE_VERSION = "__SDD_PAGE_VERSION__";
 const MODE = ${JSON.stringify(mode)};
 const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9" };
 const STATES = ["Planned", "In Progress", "Blocked", "Implementation Complete", "Done"];
 const LABELS = { "Planned": "\u4E88\u5B9A", "In Progress": "\u9032\u884C\u4E2D", "Blocked": "\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", "Implementation Complete": "\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061", "Done": "\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", "Draft": "\u627F\u8A8D\u5F85\u3061", "Approved": "\u627F\u8A8D\u6E08\u307F", "Rejected": "\u5374\u4E0B", "low": "\u4F4E", "medium": "\u4E2D", "high": "\u9AD8", "critical": "\u6700\u91CD\u8981", "unknown": "\u672A\u78BA\u8A8D" };
 // Display aliases only: canonical phases, commands and identifiers stay unchanged.
+const HEALTH_LABELS = {starting:"\u8D77\u52D5\u4E2D",running:"\u7A3C\u50CD\u4E2D", "collection-failed":"\u53CE\u96C6\u505C\u6B62\u30FB\u518D\u8D77\u52D5\u5F85\u3061", "source-failed":"\u6B63\u672C\u306E\u8AAD\u307F\u53D6\u308A\u5931\u6557", "auth-failed":"\u8A8D\u8A3C\u5931\u6557\u30FB\u8A2D\u5B9A\u78BA\u8A8D\u304C\u5FC5\u8981", "data-rejected":"\u9001\u4FE1\u30C7\u30FC\u30BF\u306E\u78BA\u8A8D\u304C\u5FC5\u8981",conflict:"\u66F4\u65B0\u306E\u7AF6\u5408", "http-failed":"\u9001\u4FE1\u5148\u306E\u5FDC\u7B54\u7570\u5E38", "transport-failed":"\u901A\u4FE1\u969C\u5BB3\u30FB\u518D\u8A66\u884C\u4E2D"};
 const PHASES = {
   "phase1-not-started": ["\u8981\u4EF6\u30FB\u8A2D\u8A08\u306E\u4F5C\u6210\u524D", "\u5B9F\u73FE\u3057\u305F\u3044\u5185\u5BB9\u3068\u8A2D\u8A08\u3092\u6574\u7406\u3057\u307E\u3059"],
   "spec-review": ["\u8981\u4EF6\u306E\u78BA\u8A8D", "\u8981\u4EF6\u306E\u629C\u3051\u30FB\u77DB\u76FE\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
@@ -42143,6 +42148,7 @@ const el = (tag, text, cls) => {
   if (cls) n.className = cls;
   return n;
 };
+let latest = null, paused = false, attention = "", detailSignature = "", announcedState = "", health = null, healthError = "", lastContact = null;
 let snapshot = null, transportError = "", inFlight = false, detailKey = null;
 const prefsKey = "sdd-dashboard:" + location.pathname;
 let prefs = {};
@@ -42168,19 +42174,29 @@ function badge(status) {
   b.dataset.status = status;
   return b;
 }
+function needs(t, kind) {
+  return kind === "approval" ? t.approval === "Draft" : kind === "blocked" ? t.status === "Blocked" : kind === "quality" ? t.status === "Implementation Complete" : kind === "inconsistent" ? t.failures.length > 0 : true;
+}
 function filtered() {
-  return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && (!query || (featureName(t.feature) + " " + t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
+  return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && needs(t, attention) && (!query || (featureName(t.feature) + " " + t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
 }
 function freshness() {
   const s = snapshot;
   const date = (value) => value ? new Date(value).toLocaleString("ja-JP") : "\u672A\u78BA\u8A8D";
   const stale = !s?.checkedAt || Date.now() - Date.parse(s.checkedAt) > 6e4;
-  const error = transportError || s?.error;
+  const error = transportError || latest?.error;
+  const state = error ? "error" : paused ? "paused" : stale ? "stale" : "live";
+  const headline = error ? "\xD7 \u53D6\u5F97\u5931\u6557: " + error : paused ? "\u2161 \u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62\u4E2D" : stale ? "! \u66F4\u65B0\u78BA\u8A8D\u304C\u505C\u6B62\u3057\u3066\u3044\u307E\u3059" : "\u2713 \u6B63\u672C\u306E\u53D6\u5F97\u306F\u6B63\u5E38\u3067\u3059";
   const b = $("freshness");
-  b.dataset.state = error ? "error" : stale ? "stale" : "live";
-  b.textContent = (error ? "\u53D6\u5F97\u5931\u6557: " + error : stale ? "\u66F4\u65B0\u78BA\u8A8D\u304C\u505C\u6B62\u3057\u3066\u3044\u307E\u3059" : "\u63A5\u7D9A\u4E2D\u30FB\u6B63\u672C\u3092\u78BA\u8A8D\u6E08\u307F") + " \uFF5C \u6700\u7D42\u78BA\u8A8D " + date(s?.checkedAt) + " \uFF5C \u5185\u5BB9\u66F4\u65B0 " + date(s?.changedAt) + (error ? " \uFF5C \u6700\u5F8C\u306E\u6B63\u5E38\u53D6\u5F97 " + date(s?.lastSuccessAt) : "");
+  b.dataset.state = state;
+  b.textContent = headline + " \uFF5C \u8868\u793A\u30C7\u30FC\u30BF\u306E\u78BA\u8A8D\u6642\u523B " + date(s?.checkedAt) + " \uFF5C \u5185\u5BB9\u66F4\u65B0 " + date(s?.changedAt) + " \uFF5C \u8868\u793A\u5148\u3068\u306E\u901A\u4FE1 " + (transportError ? "\u5931\u6557" : lastContact ? "\u63A5\u7D9A\u6E08\u307F" : "\u672A\u78BA\u8A8D") + (error ? " \uFF5C \u6700\u5F8C\u306E\u6B63\u5E38\u53D6\u5F97 " + date(s?.lastSuccessAt) : "");
+  if (announcedState !== state) { $("announcer").textContent = headline; announcedState = state; }
+  const healthStale = !health?.observedAt || Date.now() - Date.parse(health.observedAt) > 60000;
+  $("monitor-status").textContent = "\u753B\u9762\u7248: " + PAGE_VERSION + " \uFF5C " + (health ? "\u53CE\u96C6\u7248: " + health.collectorVersion + " \uFF5C \u9001\u4FE1\u7248: " + health.publisherVersion + " \uFF5C \u76E3\u7763: " + (healthStale ? "\u66F4\u65B0\u505C\u6B62\u30FB\u8981\u78BA\u8A8D" : HEALTH_LABELS[health.state] || "\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093") + " \uFF5C \u6700\u7D42\u9001\u4FE1\u6210\u529F: " + date(health.lastPublishAt) + " \uFF5C \u9023\u7D9A\u5931\u6557: " + health.consecutiveFailures + " \uFF5C \u53CE\u96C6\u6642\u9593: " + health.collectionMs + "ms \uFF5C \u53CE\u96C6\u518D\u8D77\u52D5: " + health.collectorRestarts + (healthError ? " \uFF5C " + healthError : "") : healthError || "\u7A3C\u50CD\u60C5\u5831\u306F\u672A\u53D6\u5F97\u3067\u3059");
 }
 function options(node, items, selected, all, label = valueLabel) {
+  if (node.dataset.options === JSON.stringify([items, all])) { node.value = selected; return; }
+  node.dataset.options = JSON.stringify([items, all]);
   node.replaceChildren();
   const first = el("option", all);
   first.value = "";
@@ -42204,13 +42220,18 @@ function syncFilters() {
 }
 function openDetail(key) {
   detailKey = key;
+  detailSignature = "";
   renderDetail();
   if (!$("detail").open) $("detail").showModal();
 }
 function renderDetail() {
   const box = $("detail-content");
-  box.replaceChildren();
   const task = snapshot?.data?.tasks.find((t) => t.key === detailKey);
+  const signature = JSON.stringify(task);
+  if (detailSignature === signature) return;
+  detailSignature = signature;
+  const oldScroll = $("detail").scrollTop;
+  box.replaceChildren();
   if (!task) {
     const title = el("h2", "\u8AB2\u984C\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093");
     title.id = "detail-title";
@@ -42223,11 +42244,13 @@ function renderDetail() {
   box.append(title, badge(task.status), el("p", "\u627F\u8A8D: " + valueLabel(task.approval) + " / \u30EA\u30B9\u30AF: " + valueLabel(task.risk)), el("p", "\u6B63\u672C: " + task.source, "muted"));
   for (const failure of task.failures) box.append(el("p", failure, "issue-warning"));
   box.append(el("pre", task.body));
+  $("detail").scrollTop = oldScroll;
 }
 function card(task) {
   const b = el("button", void 0, "card");
   b.append(el("span", featureName(task.feature) + " / " + task.id, "key"), el("span", task.title, "card-title"), badge(task.status));
   if (task.failures.length) b.append(el("div", "\u72B6\u614B\u30FB\u8A3C\u62E0\u306B\u8981\u78BA\u8A8D\u4E8B\u9805\u3042\u308A", "issue-warning"));
+  b.dataset.focusKey = task.key;
   b.onclick = () => openDetail(task.key);
   return b;
 }
@@ -42244,6 +42267,7 @@ function list(tasks) {
     const row = el("tr");
     const key = el("td");
     const link = el("button", t.id);
+    link.dataset.focusKey = t.key;
     link.onclick = () => openDetail(t.key);
     key.append(link);
     row.append(key, el("td", t.title));
@@ -42261,6 +42285,9 @@ function render() {
   $("title").textContent = VIEWS[v];
   for (const a of $("tabs").children) a.setAttribute("aria-current", a.hash === "#" + v ? "page" : "false");
   const c = $("content");
+  const activeKey = (document.activeElement?.dataset.focusKey || document.activeElement?.closest("details")?.dataset.focusKey);
+  const opened = new Set([...c.querySelectorAll("details[open]")].map(n => n.dataset.feature));
+  const scroll = {x:window.scrollX,y:window.scrollY,board:c.querySelector(".board")?.scrollLeft || 0};
   c.replaceChildren();
   freshness();
   if (!snapshot?.data) {
@@ -42272,6 +42299,17 @@ function render() {
   $("project").textContent = data.project;
   $("crumb").textContent = data.project;
   if (v === "overview") {
+    const actionPanel = el("section", undefined, "panel");
+    actionPanel.append(el("h2", "\u7BA1\u7406\u8005\u306E\u5BFE\u5FDC\u304C\u5FC5\u8981\u306A\u8AB2\u984C"));
+    const actions = el("div", undefined, "metrics");
+    const candidates = data.tasks.filter(t => !feature || t.feature === feature);
+    for (const [kind, label] of [["approval","\u627F\u8A8D\u5F85\u3061"],["blocked","\u9032\u884C\u505C\u6B62"],["quality","\u54C1\u8CEA\u78BA\u8A8D\u5F85\u3061"],["inconsistent","\u8A18\u9332\u306E\u4E0D\u6574\u5408"]]) {
+      const action = el("button", label + " \xB7 " + candidates.filter(t => needs(t,kind)).length, "metric");
+      action.dataset.focusKey = "action:" + kind;
+      action.onclick = () => { attention = kind; query = ""; filter = ""; $("search").value = ""; syncFilters(); location.hash = "list"; render(); };
+      actions.append(action);
+    }
+    actionPanel.append(actions); c.append(actionPanel);
     const metrics = el("div", void 0, "metrics");
     for (const [label, count] of [["\u8AB2\u984C", tasks.length], ["\u627F\u8A8D\u5F85\u3061", tasks.filter((t) => t.approval === "Draft").length], ["\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", tasks.filter((t) => t.status === "Blocked").length], ["\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", tasks.filter((t) => t.status === "Done").length]]) {
       const m = el("div", void 0, "metric");
@@ -42290,6 +42328,9 @@ function render() {
       const next = el("div", phase[0]);
       next.append(el("small", phase[1], "muted"));
       const technical = el("details");
+      technical.dataset.feature = f.id;
+      technical.open = opened.has(f.id);
+      technical.dataset.focusKey = "details:" + f.id;
       technical.append(el("summary", "\u6280\u8853\u60C5\u5831\uFF08\u62C5\u5F53\u8005\u5411\u3051\uFF09"), el("pre", "\u8B58\u5225\u5B50: " + f.id + "\\n\u5DE5\u7A0B: " + f.phase + "\\n\u64CD\u4F5C: " + (f.nextCommand || "\u672A\u78BA\u8A8D")));
       next.append(technical);
       for (const w of f.warnings) next.append(el("small", w, "issue-warning"));
@@ -42321,6 +42362,7 @@ function render() {
     for (const t of tasks) {
       const r = el("div", void 0, "phase");
       const b = el("button", t.id + " " + t.title, "card");
+      b.dataset.focusKey = t.key;
       b.onclick = () => openDetail(t.key);
       r.append(b);
       const right = el("div");
@@ -42356,6 +42398,19 @@ function render() {
     const unassigned = tasks.filter((t) => !t.release).length;
     c.append(el("p", "\u30EA\u30EA\u30FC\u30B9\u672A\u5272\u308A\u5F53\u3066: " + unassigned + "\u4EF6", "muted"));
   }
+  if (attention) {
+    const clear = el("button", "\u5BFE\u5FDC\u4E8B\u9805\u306E\u7D5E\u308A\u8FBC\u307F\u3092\u89E3\u9664", "pause");
+    clear.dataset.focusKey = "clear-attention";
+    clear.onclick = () => { attention = ""; render(); };
+    c.prepend(clear);
+  }
+  if (activeKey) {
+    const target = [...c.querySelectorAll("[data-focus-key]")].find(n => n.dataset.focusKey === activeKey);
+    if (target) (target.tagName === "DETAILS" ? target.querySelector("summary") : target).focus({preventScroll:true});
+    else $("title").focus({preventScroll:true});
+  }
+  if (c.querySelector(".board")) c.querySelector(".board").scrollLeft = scroll.board;
+  window.scrollTo(scroll.x,scroll.y);
   if ($("detail").open) renderDetail();
 }
 function validSnapshot(s) {
@@ -42392,10 +42447,15 @@ async function refresh() {
     }
     if (!validSnapshot(next)) throw Error("\u8868\u793A\u30C7\u30FC\u30BF\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
     if (snapshot && Date.parse(next.attemptedAt) < Date.parse(snapshot.attemptedAt)) return;
-    snapshot = next;
+    latest = next;
+    lastContact = new Date().toISOString();
     transportError = "";
-    syncFilters();
-    render();
+    if (!paused) {
+      const changed = !snapshot || snapshot.revision !== next.revision || Boolean(snapshot.data) !== Boolean(next.data);
+      snapshot = next;
+      if (changed) { syncFilters(); render(); }
+    }
+    freshness();
   } catch (e) {
     transportError = e.message || "\u63A5\u7D9A\u3067\u304D\u307E\u305B\u3093";
     freshness();
@@ -42426,6 +42486,26 @@ for (const id of ["feature", "mobile-feature"]) $(id).onchange = () => {
   render();
 };
 $("refresh").onclick = refresh;
+$("pause").onclick = () => {
+  paused = !paused;
+  $("pause").setAttribute("aria-pressed",String(paused));
+  $("pause").textContent = paused ? "\u8868\u793A\u66F4\u65B0\u3092\u518D\u958B" : "\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62";
+  if (!paused && latest) { snapshot = latest; syncFilters(); render(); }
+  freshness();
+};
+async function readHealth() {
+  if (MODE !== "http") { healthError = "\u3053\u306E\u63A5\u7D9A\u65B9\u5F0F\u3067\u306F\u53CE\u96C6\u30D7\u30ED\u30BB\u30B9\u306E\u7A3C\u50CD\u60C5\u5831\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u305B\u3093"; return; }
+  try {
+    const r = await fetch("api/health", {cache:"no-store",signal:AbortSignal.timeout(10000)});
+    if (!r.ok) throw Error("\u7A3C\u50CD\u60C5\u5831\u306F\u672A\u63D0\u4F9B\u307E\u305F\u306F\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093");
+    const h = await r.json();
+    if (h.schema !== "sdd-monitor/v1" || !Number.isFinite(Date.parse(h.observedAt)) || Date.parse(h.observedAt) > Date.now()+30000 || !Object.hasOwn(HEALTH_LABELS,h.state) || !["collectorVersion","publisherVersion"].every(k => typeof h[k] === "string" && /^[a-f0-9]{12}$/.test(h[k])) || !["consecutiveFailures","collectorRestarts","collectionMs"].every(k => Number.isSafeInteger(h[k]) && h[k]>=0)) throw Error("\u7A3C\u50CD\u60C5\u5831\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    health = h; healthError = "";
+  } catch { healthError = "\u7A3C\u50CD\u60C5\u5831\u306F\u672A\u63D0\u4F9B\u307E\u305F\u306F\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093"; }
+  freshness();
+}
+setInterval(readHealth,15000);
+readHealth();
 $("close").onclick = () => $("detail").close();
 window.addEventListener("hashchange", render);
 document.addEventListener("visibilitychange", () => {
@@ -42437,6 +42517,7 @@ setInterval(refresh, 5e3);
 render();
 refresh();
 </script></body></html>`;
+  return page.replace("__SDD_PAGE_VERSION__", createHash4("sha256").update(page).digest("hex").slice(0, 12));
 }
 
 // src/status-view.ts
@@ -42529,11 +42610,16 @@ async function main() {
   process.stderr.write(`${JSON.stringify(startupInfo)}
 `);
   const args = process.argv.slice(2);
-  if (args.includes("--dashboard-snapshot") || args.includes("--dashboard-stream")) {
+  if (args.includes("--dashboard-snapshot") || args.includes("--dashboard-stream") || args.includes("--dashboard-monitor-stream")) {
     const reader = new DashboardReader(root);
-    const emit = () => process.stdout.write(JSON.stringify(reader.sample()) + "\n");
+    const emit = () => {
+      const started = performance.now();
+      const snapshot = reader.sample();
+      const output2 = args.includes("--dashboard-monitor-stream") ? { ...snapshot, _collectionMs: Math.round(performance.now() - started) } : snapshot;
+      process.stdout.write(JSON.stringify(output2) + "\n");
+    };
     emit();
-    if (args.includes("--dashboard-stream")) setInterval(emit, 5e3);
+    if (args.includes("--dashboard-stream") || args.includes("--dashboard-monitor-stream")) setInterval(emit, 5e3);
     return;
   }
   if (args.includes("--dashboard-html")) {

@@ -39,11 +39,16 @@ async function main(): Promise<void> {
   process.stderr.write(`${JSON.stringify(startupInfo)}\n`);
 
   const args = process.argv.slice(2);
-  if (args.includes('--dashboard-snapshot') || args.includes('--dashboard-stream')) {
+  if (args.includes('--dashboard-snapshot') || args.includes('--dashboard-stream') || args.includes('--dashboard-monitor-stream')) {
     const reader = new DashboardReader(root);
-    const emit = () => process.stdout.write(JSON.stringify(reader.sample()) + '\n');
+    const emit = () => {
+      const started = performance.now();
+      const snapshot = reader.sample();
+      const output = args.includes('--dashboard-monitor-stream') ? { ...snapshot, _collectionMs: Math.round(performance.now() - started) } : snapshot;
+      process.stdout.write(JSON.stringify(output) + '\n');
+    };
     emit();
-    if (args.includes('--dashboard-stream')) setInterval(emit, 5000);
+    if (args.includes('--dashboard-stream') || args.includes('--dashboard-monitor-stream')) setInterval(emit, 5000);
     return;
   }
   if (args.includes('--dashboard-html')) {

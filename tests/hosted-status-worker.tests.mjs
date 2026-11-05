@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const source = readFileSync(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8').replace('__DASHBOARD_PAGE__',JSON.stringify('<html>test</html>'));
-const {default:worker, validSnapshot} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const {default:worker, validSnapshot, validHealth} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const snapshot = () => ({schema:'sdd-dashboard/v1',revision:'a'.repeat(64),attemptedAt:'2026-01-01T00:00:00Z',checkedAt:'2026-01-01T00:00:00Z',lastSuccessAt:'2026-01-01T00:00:00Z',changedAt:'2026-01-01T00:00:00Z',error:null,data:{project:'test',features:[],tasks:[]}});
 function env() { let body=null;let etag=0;return { SDD_PUBLISHER_TOKEN:'test-only', BUCKET:{async get(){return body===null?null:{etag:String(etag),text:async()=>body,json:async()=>JSON.parse(body)}},async put(key,value,options){if(options.onlyIf.etagMatches!==undefined&&options.onlyIf.etagMatches!==String(etag))return null;body=value;etag++;return {etag:String(etag)}}} }; }
 const request=(path,method='GET',body,authenticated=true)=>new Request('https://example.test'+path,{method,headers:authenticated?{'X-SDD-Publisher':'test-only'}:{},...(body?{body:JSON.stringify(body)}:{})});
@@ -38,4 +38,18 @@ test('dedicated snapshot contract and MCP envelope projection stay identical', (
  const envelope=JSON.parse(readFileSync(new URL('../contracts/sdd-forge-mcp-tools.v1.schema.json',import.meta.url),'utf8'));
  for(const field of ['$schema','$id','title']) delete standalone[field];
  assert.deepEqual(envelope.$defs.dashboardSnapshotData.properties.snapshot,standalone);
+});
+
+test('health publication is private, ordered and separate from task data', async () => {
+ const rows=new Map();const e={SDD_PUBLISHER_TOKEN:'test-only',BUCKET:{async get(k){const v=rows.get(k);return v?{etag:'1',json:async()=>JSON.parse(v),text:async()=>v}:null},async put(k,v){rows.set(k,v);return {etag:'1'}}}};
+ const h={schema:'sdd-monitor/v1',observedAt:'2026-01-01T00:00:00Z',state:'running',publisherVersion:'a'.repeat(12),collectorVersion:'b'.repeat(12),lastPublishAt:null,lastSourceAt:null,consecutiveFailures:0,collectorRestarts:0,collectionMs:123};h.lastError=null;
+ assert.equal(validHealth(h),true);assert.equal(validHealth({...h,state:'unknown'}),false);assert.equal(validHealth({...h,collectionMs:-1}),false);
+ assert.equal((await worker.fetch(request('/api/health','GET',null,false),e)).status,401);
+ assert.equal((await worker.fetch(request('/api/health'),e)).status,503);
+ assert.equal((await worker.fetch(request('/api/health','PUT',h),e)).status,200);
+ assert.equal((await worker.fetch(request('/api/health','PUT',h),e)).status,409);
+ assert.deepEqual(await(await worker.fetch(request('/api/health'),e)).json(),h);
+ assert.equal((await(await worker.fetch(request('/api/dashboard'),e)).json()).data,null);
+ const visitor=new Request('https://example.test/api/health',{method:'PUT',headers:{'oai-authenticated-user-id':'viewer'},body:JSON.stringify(h)});
+ assert.equal((await worker.fetch(visitor,e)).status,403);
 });

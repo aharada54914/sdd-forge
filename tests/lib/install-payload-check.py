@@ -57,6 +57,7 @@ CLOSURE = [
     "plugins/sdd-ship/scripts/publish-dashboard.py",
     "plugins/sdd-ship/status-site/build.mjs",
     "plugins/sdd-ship/status-site/worker.mjs",
+    "plugins/sdd-ship/status-site/service/sdd-dashboard.service",
     "contracts/sdd-dashboard.v1.schema.json",
     "docs/hosted-status-views.md",
 ]

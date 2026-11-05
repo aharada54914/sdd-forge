@@ -23,6 +23,16 @@ export function validSnapshot(s) {
   }
   return true;
 }
+
+const HEALTH_STATES = ['starting','running','collection-failed','source-failed','auth-failed','data-rejected','conflict','http-failed','transport-failed'];
+export function validHealth(h) {
+  if (!h || Object.keys(h).some(k => !['schema','observedAt','state','publisherVersion','collectorVersion','lastPublishAt','lastSourceAt','consecutiveFailures','collectorRestarts','collectionMs','lastError'].includes(k)) || h.schema !== 'sdd-monitor/v1' || !validTime(h.observedAt) || Date.parse(h.observedAt) > Date.now()+30000 || !HEALTH_STATES.includes(h.state)) return false;
+  if (!['publisherVersion','collectorVersion'].every(k => typeof h[k] === 'string' && /^[a-f0-9]{12}$/.test(h[k]))) return false;
+  if (!['lastPublishAt','lastSourceAt'].every(k => h[k] === null || validTime(h[k]) && Date.parse(h[k]) <= Date.parse(h.observedAt))) return false;
+  if (!['consecutiveFailures','collectorRestarts','collectionMs'].every(k => Number.isSafeInteger(h[k]) && h[k] >= 0 && h[k] <= 1e9)) return false;
+  return h.lastError === null || HEALTH_STATES.includes(h.lastError);
+}
+
 async function publisher(request, env) {
   const given = request.headers.get('X-SDD-Publisher') || '';
   if (!env.SDD_PUBLISHER_TOKEN || !given) return false;
@@ -55,6 +65,19 @@ export default {
     if (origin && origin !== url.origin) return json({ error: 'origin-denied' }, 403);
     if (request.method === 'GET' && url.pathname === '/') return new Response(page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'self'" } });
     if (!env.BUCKET) return json({ error: 'storage-unavailable' }, 503);
+    if (url.pathname === '/api/health') {
+      if (request.method === 'GET') {
+        const health = await env.BUCKET.get('health.json');
+        return health ? new Response(await health.text(), {headers:{...headers,'Content-Type':'application/json'}}) : json({error:'health-unavailable'},503);
+      }
+      if (request.method !== 'PUT' || !isPublisher || origin) return json({error:'publisher-required'},403);
+      let h; try { h = JSON.parse(await boundedBody(request)); } catch { return json({error:'invalid-health'},400); }
+      if (!validHealth(h)) return json({error:'invalid-health'},400);
+      const old = await env.BUCKET.get('health.json');
+      if (old && Date.parse((await old.json()).observedAt) >= Date.parse(h.observedAt)) return json({error:'older-health'},409);
+      const result = await env.BUCKET.put('health.json',JSON.stringify(h),{onlyIf:old?{etagMatches:old.etag}:{etagDoesNotMatch:'*'},httpMetadata:{contentType:'application/json'}});
+      return result ? json({ok:true}) : json({error:'concurrent-update'},409);
+    }
     if (request.method === 'GET' && url.pathname === '/api/dashboard') {
       const current = await env.BUCKET.get('snapshot.json');
       if (!current) return json({ schema: 'sdd-dashboard/v1', revision: '', attemptedAt: new Date().toISOString(), checkedAt: null, changedAt: null, lastSuccessAt: null, data: null, error: '収集プロセスからのデータを待っています' });
