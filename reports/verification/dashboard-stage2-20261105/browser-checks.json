@@ -15,6 +15,7 @@
     "reload-selection",
     "corrupt-preferences-recovery",
     "live-update-and-removed-filter",
+    "dialog-update-and-focus-return",
     "parse-failure-retains-last-good",
     "recovery",
     "mobile",

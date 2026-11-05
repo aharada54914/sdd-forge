@@ -42507,6 +42507,11 @@ async function readHealth() {
 setInterval(readHealth,15000);
 readHealth();
 $("close").onclick = () => $("detail").close();
+$("detail").addEventListener("close", () => {
+  // A source update may have replaced the button that originally opened the dialog.
+  const trigger = [...$("content").querySelectorAll("[data-focus-key]")].find(n => n.dataset.focusKey === detailKey);
+  (trigger || $("title")).focus({preventScroll:true});
+});
 window.addEventListener("hashchange", render);
 document.addEventListener("visibilitychange", () => {
   freshness();

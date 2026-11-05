@@ -175,6 +175,8 @@ def supervise(args, credentials):
 
 def credentials_from_stdin():
     saved = None
+    if sys.stdin.isatty() and os.name != 'posix':
+        raise ValueError('use-protected-piped-stdin-on-this-platform')
     if sys.stdin.isatty() and os.name == 'posix':
         import termios
         saved = termios.tcgetattr(sys.stdin)

@@ -13,6 +13,11 @@ spec.loader.exec_module(p)
 
 
 class PublisherTests(unittest.TestCase):
+    def test_unsupported_terminal_never_prompts_for_visible_secrets(self):
+        with patch.object(p.os, 'name', 'nt'), patch.object(p.sys.stdin, 'isatty', return_value=True):
+            with self.assertRaises(ValueError):
+                p.credentials_from_stdin()
+
     def test_failure_classification_and_bounded_backoff(self):
         for code, expected in [(401,'auth-failed'),(403,'auth-failed'),(400,'data-rejected'),(413,'data-rejected'),(409,'conflict'),(503,'http-failed')]:
             self.assertEqual(p.classify(urllib.error.HTTPError('https://example.test',code,'secret',{},None)),expected)
