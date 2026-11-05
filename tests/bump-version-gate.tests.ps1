@@ -90,6 +90,8 @@ function New-Fixture {
     $fixtureRoot = Join-Path $tempRoot "repository"
     New-Item -ItemType Directory -Path $fixtureRoot -Force | Out-Null
     Expand-FixtureArchive -Destination $fixtureRoot
+    Copy-Item -LiteralPath $bumpVersionSh -Destination (Join-Path $fixtureRoot "scripts/bump-version.sh") -Force
+    Copy-Item -LiteralPath (Join-Path $repoRoot "tests/validate-repository.ps1") -Destination (Join-Path $fixtureRoot "tests/validate-repository.ps1") -Force
 
     $fixtureRoot = (Resolve-Path -LiteralPath $fixtureRoot).Path
     # core.longpaths=true: the fixture root already sits under a generated
@@ -261,10 +263,13 @@ function Test-001 {
 
     $fixtureRoot = $script:fixtureRoot
     Reset-FixtureCase -FixtureRoot $fixtureRoot
+    # The shared Bash suite covers real source-validator refusal; isolate this loop leg.
+    Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/validate-repository.sh" -ExitCode 0
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh" -ExitCode 0
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh" -ExitCode 0
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
     Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/validate-repository.sh",
         "tests/loop-consistency.tests.sh",
         "tests/loop-inventory.tests.sh",
         "CHANGELOG.md"
@@ -324,9 +329,12 @@ function Test-002 {
 
     $fixtureRoot = $script:fixtureRoot
     Reset-FixtureCase -FixtureRoot $fixtureRoot
+    # The shared Bash suite covers real source-validator refusal; isolate this loop leg.
+    Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/validate-repository.sh" -ExitCode 0
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh" -ExitCode 1
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
     Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/validate-repository.sh",
         "tests/loop-consistency.tests.sh",
         "CHANGELOG.md"
     )
@@ -361,10 +369,13 @@ function Test-003 {
 
     $fixtureRoot = $script:fixtureRoot
     Reset-FixtureCase -FixtureRoot $fixtureRoot
+    # The shared Bash suite covers real source-validator refusal; isolate this loop leg.
+    Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/validate-repository.sh" -ExitCode 0
     Set-SuitePassStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh"
     Set-SuiteFailAfterMarker -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh"
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
     Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/validate-repository.sh",
         "tests/loop-consistency.tests.sh",
         "tests/loop-inventory.tests.sh",
         "CHANGELOG.md"

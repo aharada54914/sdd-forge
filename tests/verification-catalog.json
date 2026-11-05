@@ -31,8 +31,13 @@
           "version-gates-windows-lanes",
           "windows-powershell"
         ],
-        "active": false,
-        "evidence": null
+        "active": true,
+        "evidence": {
+          "baseline_revision": "aa7ba8d3b59399f0c69a6cfa59c3d35a65b1414a",
+          "path": "reports/verification/ci-selection/activation.json",
+          "rule_sha256": "5c880ad17ee6ad6d9c642d22f6f9babefdf476f6318dbaef7b79644723471f49",
+          "sha256": "bcb014979d12abb212bb66134fce2231457bb27b9874c03ae3cb45be0a755c46"
+        }
       }
     ],
     "dependencies": {},

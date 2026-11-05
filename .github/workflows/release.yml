@@ -23,9 +23,7 @@ on:
         type: boolean
 
 permissions:
-  contents: write      # upload release assets
-  id-token: write      # OIDC for keyless sigstore signing
-  attestations: write  # store build-provenance attestations
+  contents: read
 
 jobs:
   ci-green:
@@ -38,6 +36,10 @@ jobs:
       contents: read
       actions: read
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.source.outputs.tag }}
+      sha: ${{ steps.source.outputs.sha }}
+      pkg: ${{ steps.source.outputs.pkg }}
     steps:
       - name: Restrict manual dispatch to main or a tag ref
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -51,6 +53,7 @@ jobs:
               ;;
           esac
       - name: Verify CI success for the release commit
+        id: source
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_TAG: ${{ github.event.inputs.tag }}
@@ -68,38 +71,69 @@ jobs:
             echo "Tag refs/tags/${TAG} not found - cannot gate a nonexistent release" >&2
             exit 1
           }
-          SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
-          TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
-          case "$TYPE" in commit|tag) ;; *) echo "Invalid release ref type" >&2; exit 1 ;; esac
-          if [ "$TYPE" = "tag" ]; then
-            SHA="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${SHA}" --jq '.object.sha')"
-          fi
-          if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "Invalid release commit SHA" >&2
+          # Peel annotated tags by immutable object ID, never re-read the tag ref.
+          for ((depth = 0; depth < 10; depth++)); do
+            SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
+            TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
+            if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "Invalid release object SHA" >&2
+              exit 1
+            fi
+            case "$TYPE" in
+              commit) break ;;
+              tag) REF_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${SHA}")" ;;
+              *) echo "Invalid release ref type" >&2; exit 1 ;;
+            esac
+          done
+          if [ "$TYPE" != commit ]; then
+            echo "Release tag nesting exceeds the supported limit" >&2
             exit 1
           fi
           echo "Release commit for ${TAG}: ${SHA}"
+          # PR API head_sha names the PR head, but its tests check out a synthetic
+          # merge. Admit only events whose tested checkout is this exact source.
           COUNT="$(gh api \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=1" \
-            --jq '.total_count')"
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=100" \
+            --paginate | jq -ser --arg sha "$SHA" --arg repo "$GITHUB_REPOSITORY" '
+              if type != "array" then error("invalid workflow run pages")
+              elif any(.[]; type != "object" or (.workflow_runs | type) != "array") then
+                error("invalid workflow run page")
+              else [.[].workflow_runs[] |
+                if type != "object" then error("invalid workflow run")
+                else select(.head_sha == $sha and .status == "completed" and .conclusion == "success" and
+                  .path == ".github/workflows/test.yml" and .repository.full_name == $repo and
+                  .head_repository.full_name == $repo and
+                  ((.event == "push" and .head_branch == "main") or .event == "workflow_dispatch"))
+                end] | length
+              end')"
           if [[ ! "$COUNT" =~ ^[1-9][0-9]*$ ]]; then
-            echo "No successful test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
+            echo "No successful source-exact push/main or manual test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
             exit 1
           fi
-          echo "CI green confirmed for ${SHA} (${COUNT} successful run(s))"
+          echo "CI green confirmed for ${SHA} (${COUNT} source-exact successful run(s))"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "pkg=sdd-forge-${TAG}.tar.gz" >> "$GITHUB_OUTPUT"
 
   loop-gate:
-    # No elevated GitHub Actions permissions requested (REQ-002;
-    # security-spec.md B4/OWASP "Elevation of Privilege" row): without this
-    # override the job would silently inherit the workflow-level
-    # contents:write / id-token:write / attestations:write block above
-    # (release.yml:25-28), which it does not need -- it only checks out the
-    # repository and runs local scripts.
+    needs: ci-green
+    # Local release checks need no upload, attestation, or OIDC permissions.
     permissions:
       contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.ci-green.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify loop checkout
+        env:
+          RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
+        run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+      - name: Validate release source
+        shell: bash
+        run: bash ./tests/validate-repository.sh
       - name: Test loop consistency suite
         shell: bash
         run: bash ./tests/loop-consistency.tests.sh
@@ -109,43 +143,32 @@ jobs:
 
   release:
     needs: [ci-green, loop-gate]
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ needs.ci-green.outputs.tag }}
+      RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
+      PKG: ${{ needs.ci-green.outputs.pkg }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
-
-      - name: Resolve tag
-        id: meta
-        env:
-          INPUT_TAG: ${{ github.event.inputs.tag }}
-        run: |
-          set -euo pipefail
-          TAG="$INPUT_TAG"
-          if [ -z "$TAG" ]; then TAG="${GITHUB_REF_NAME}"; fi
-          case "$TAG" in
-            *[!A-Za-z0-9._-]*|'') echo "Invalid release tag" >&2; exit 1 ;;
-          esac
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "pkg=sdd-forge-${TAG}.tar.gz" >> "$GITHUB_OUTPUT"
+          ref: ${{ needs.ci-green.outputs.sha }}
+          persist-credentials: false
 
       - name: Build reproducible source tarball
-        env:
-          TAG: ${{ steps.meta.outputs.tag }}
-          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
-          # Archive the resolved TAG's tree, not $GITHUB_SHA. On a manual
-          # workflow_dispatch the run's ref (and $GITHUB_SHA) is the dispatch
-          # branch, which would otherwise package unrelated branch contents
-          # under the release tag. Fail closed if the tag does not exist.
-          if ! git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
-            echo "Tag refs/tags/${TAG} not found in the repository" >&2
+          # All consumers use the immutable commit admitted by ci-green. A tag
+          # moving after that decision must not change the tested/build inputs.
+          if [[ ! "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]] || [ "$(git rev-parse HEAD)" != "$RELEASE_SHA" ]; then
+            echo "Release checkout differs from the CI-verified commit" >&2
             exit 1
           fi
-          # git archive excludes .git and honors .gitattributes export-ignore.
-          git archive --format=tar.gz --prefix="sdd-forge-${TAG}/" -o "$PKG" "refs/tags/${TAG}"
-          echo "Built $PKG ($(du -h "$PKG" | cut -f1)) from refs/tags/${TAG}"
+          git archive --format=tar.gz --prefix="sdd-forge-${TAG}/" -o "$PKG" "$RELEASE_SHA"
+          echo "Built $PKG ($(du -h "$PKG" | cut -f1)) from ${RELEASE_SHA}"
 
       - name: Release-only real host smoke
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_host_smoke }}
@@ -154,9 +177,6 @@ jobs:
         run: ./tests/release-host-smoke.sh
 
       - name: Generate CycloneDX SBOM
-        env:
-          TAG: ${{ steps.meta.outputs.tag }}
-          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
           # Scan exactly the bytes being published, including manual tag dispatches.
@@ -170,27 +190,75 @@ jobs:
             --output "sdd-forge-sbom.cdx.json"
 
       - name: Publish SHA-256 checksums
-        env:
-          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
           sha256sum "$PKG" "sdd-forge-sbom.cdx.json" > SHA256SUMS
           cat SHA256SUMS
 
+      - name: Record immutable build inputs
+        run: |
+          set -euo pipefail
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          env = os.environ
+          server, repo = env['GITHUB_SERVER_URL'], env['GITHUB_REPOSITORY']
+          workflow, workflow_ref = env['GITHUB_WORKFLOW_REF'].rsplit('@', 1)
+          repository = f'{server}/{repo}'
+          predicate = {
+              'buildDefinition': {
+                  'buildType': 'https://actions.github.io/buildtypes/workflow/v1',
+                  'externalParameters': {'workflow': {
+                      'repository': repository,
+                      'path': workflow.removeprefix(repo + '/'),
+                      'ref': workflow_ref}},
+                  'internalParameters': {'github': {'event_name': env['GITHUB_EVENT_NAME']}},
+                  'resolvedDependencies': [
+                      {'uri': f'git+{repository}@refs/tags/{env["TAG"]}',
+                       'digest': {'gitCommit': env['RELEASE_SHA']}},
+                      {'uri': f'{server}/{env["GITHUB_WORKFLOW_REF"]}',
+                       'digest': {'gitCommit': env['GITHUB_WORKFLOW_SHA']}}]},
+              'runDetails': {
+                  'builder': {'id': 'https://github.com/actions/runner/github-hosted'},
+                  'metadata': {'invocationId': f'{repository}/actions/runs/{env["GITHUB_RUN_ID"]}/attempts/{env["GITHUB_RUN_ATTEMPT"]}'}}}
+          Path('release-provenance.json').write_text(json.dumps(predicate) + '\n')
+          PYCODE
+
       - name: Attest build provenance (sigstore keyless)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
+          # The OIDC signer still identifies the actual workflow invocation;
+          # this predicate separately records the checked-out build input.
+          # gh --source-ref/--source-digest constrain that signer certificate,
+          # so manual main dispatch retains main identity even for another tag.
+          predicate-type: https://slsa.dev/provenance/v1
+          predicate-path: release-provenance.json
           subject-path: |
-            ${{ steps.meta.outputs.pkg }}
+            ${{ needs.ci-green.outputs.pkg }}
             sdd-forge-sbom.cdx.json
 
       - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.meta.outputs.tag }}
-          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
+          # This is a final equality check, not a new build input. Never publish
+          # the admitted bytes under a tag that now names another source commit.
+          CURRENT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}")"
+          for ((depth = 0; depth < 10; depth++)); do
+            CURRENT_SHA="$(printf '%s' "$CURRENT_JSON" | jq -r '.object.sha')"
+            CURRENT_TYPE="$(printf '%s' "$CURRENT_JSON" | jq -r '.object.type')"
+            if [[ ! "$CURRENT_SHA" =~ ^[0-9a-f]{40}$ ]]; then exit 1; fi
+            case "$CURRENT_TYPE" in
+              commit) break ;;
+              tag) CURRENT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${CURRENT_SHA}")" ;;
+              *) echo "Invalid release tag object before upload" >&2; exit 1 ;;
+            esac
+          done
+          if [ "$CURRENT_TYPE" != commit ] || [ "$CURRENT_SHA" != "$RELEASE_SHA" ]; then
+            echo "Release tag moved after CI admission; refusing asset upload" >&2
+            exit 1
+          fi
           gh release upload --clobber -- "$TAG" \
             "$PKG" \
             "sdd-forge-sbom.cdx.json" \

@@ -2,7 +2,7 @@
 
 Status: Proposed
 Date: 2026-10-18
-Normative design: specs/ci-model-modernization/design.md. Initial direction approved by the user; formal implementation-policy review remains pending.
+Normative design: [specs/ci-model-modernization/design.md](https://github.com/aharada54914/sdd-forge/blob/96afb59fcceab422024d5f2d1abc1b478d7058cf/specs/ci-model-modernization/design.md). Initial direction approved by the user; formal implementation-policy review remains pending.
 
 ## Context
 
@@ -23,3 +23,17 @@ Environment variables alone cannot overcome higher-priority agent definitions or
 ## Consequences
 
 Host adapters and lifecycle metadata need maintenance, and explicit pins may become unavailable. Supported managed paths can select current verified models automatically after adoption without editing each role file. Unsupported metadata is reported honestly; parent ChatGPT UI and unmanaged direct native invocations remain outside product control. A newer model may increase cost or regress, so known budgets and actual adoption evidence remain necessary.
+
+## Restoration scope (2026-11-04)
+
+Restored from [v1.20.0](https://github.com/aharada54914/sdd-forge/blob/96afb59fcceab422024d5f2d1abc1b478d7058cf/docs/adr/0038-current-model-role-policy.md) with its Proposed status unchanged. The design
+reference above records the original proposal; it does not add historical
+specifications or evidence to current product acceptance requirements.
+
+Recovery targets explicit managed invocation while preserving ordinary unmanaged
+routes. It does not make managed selection mandatory for existing callers or
+adopt new Claude candidates. Historical adoption records and fixture results do
+not establish live availability or model execution on the current host.
+
+See [the recovery record](../contributor/release-parity-recovery.md) for current
+implementation and verification status.
