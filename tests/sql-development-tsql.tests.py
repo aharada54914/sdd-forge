@@ -18,7 +18,7 @@ import time
 import xml.etree.ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'lib'))
-from sql_database_fixture import DockerFixture
+from sql_database_fixture import DockerFixture, LABEL
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / 'tests/fixtures/sql-development/tsql'
@@ -30,9 +30,9 @@ def read_generated_text(path):
     return data.decode('utf-16' if data[:2] in (b'\xff\xfe', b'\xfe\xff') else 'utf-8-sig')
 
 
-def publish_profile(path, port, database, password):
+def publish_profile(path, database, password):
     """A generated target only: never take a user's connection string."""
-    if database not in DATABASES or not 1 <= port <= 65535:
+    if database not in DATABASES:
         raise ValueError('Only this fixture\'s generated loopback targets are allowed')
     root = ET.Element('Project', ToolsVersion='4.0',
                       xmlns='http://schemas.microsoft.com/developer/msbuild/2003')
@@ -40,7 +40,7 @@ def publish_profile(path, port, database, password):
     values = {
         'TargetDatabaseName': database,
         'TargetConnectionString': (
-            f'Server=tcp:127.0.0.1,{port};Initial Catalog={database};'
+            f'Server=tcp:127.0.0.1,1433;Initial Catalog={database};'
             f'User ID=sa;Password={password};Encrypt=True;TrustServerCertificate=True;'
             'Connection Timeout=10;Application Name=SDDSqlReference;'),
         'BlockOnPossibleDataLoss': 'True',
@@ -84,12 +84,21 @@ def main():
         fixture.check('pinned-sqlpackage', lock['sqlpackage'] in version, version)
         fixture.versions['sqlpackage'] = version
         fixture.versions['microsoft_build_sql'] = lock['microsoft_build_sql']
+        tools = {name: shutil.which(name) for name in ('sudo', 'nsenter', 'setpriv', 'env')}
+        fixture.check('host-network-namespace-tools', all(tools.values()))
+        fixture.check('unprivileged-host-client', os.getuid() > 0)
+        dotnet_root = str(Path(shutil.which('dotnet')).resolve().parent)
         fixture.create_network()
+        network = json.loads(fixture.docker(['network', 'inspect', fixture.network],
+                                           label='inspect-isolated-network').stdout)[0]
+        fixture.check('owned-internal-network', network['Id'] == fixture.network
+                      and network.get('Internal') is True
+                      and network.get('Labels', {}).get(LABEL) == fixture.run_id)
         password = fixture.secret()
         container = fixture.start_container(
             lock['sql_server_image'], env={'ACCEPT_EULA': 'Y', 'MSSQL_PID': 'Developer',
                                           'MSSQL_SA_PASSWORD': password},
-            publish=['127.0.0.1::1433'], memory='3g')
+            memory='3g')
 
         def sql(statement, database='reference_upgrade', *, expected=0, query_timeout=15):
             if database not in (*DATABASES, 'master'):
@@ -119,12 +128,35 @@ def main():
         fixture.versions['sql_server'] = observed
         client = fixture.docker(['exec', container, lock['sqlcmd'], '-?'], label='sqlcmd-version')
         fixture.versions['sqlcmd'] = '\n'.join(client.stdout.splitlines()[:3])
-        bindings = json.loads(fixture.docker(
-            ['inspect', '--format', '{{json .NetworkSettings.Ports}}', container],
-            label='inspect-loopback-binding').stdout)
-        binding = bindings['1433/tcp']
-        fixture.check('loopback-only-port', len(binding) == 1 and binding[0]['HostIp'] == '127.0.0.1')
-        port = int(binding[0]['HostPort'])
+        def in_database_network(argv, **kwargs):
+            info = json.loads(fixture.docker(['inspect', container],
+                                            label='verify-client-network-target').stdout)[0]
+            networks = list(info.get('NetworkSettings', {}).get('Networks', {}).values())
+            state = info.get('State', {})
+            pid = state.get('Pid')
+            fixture.check('owned-running-network-target', info.get('Id') == container
+                          and info.get('Config', {}).get('Labels', {}).get(LABEL) == fixture.run_id
+                          and state.get('Running') is True and type(pid) is int and pid > 1
+                          and info.get('HostConfig', {}).get('NetworkMode') in (fixture.network, network['Name'])
+                          and len(networks) == 1 and networks[0].get('NetworkID') == fixture.network
+                          and not info.get('HostConfig', {}).get('PortBindings'))
+            # Keep the host filesystem/tool installation, enter only the owned
+            # network namespace, then drop sudo privileges before any client runs.
+            command = [tools['sudo'], '-n', tools['nsenter'], '--target', str(pid), '--net', '--',
+                       tools['setpriv'], '--reuid', str(os.getuid()), '--regid', str(os.getgid()),
+                       '--clear-groups', '--no-new-privs', '--', *argv]
+            return fixture.run(command, **kwargs)
+
+        expected_network = fixture.docker(['exec', container, 'readlink', '/proc/self/ns/net'],
+                                          label='observe-database-network-namespace').stdout.strip()
+        observed_client = json.loads(in_database_network([
+            sys.executable, '-c',
+            "import json,os; print(json.dumps({'uid':os.getuid(),'gid':os.getgid(),"
+            "'network':os.readlink('/proc/self/ns/net')}))"],
+            label='verify-client-namespace-and-identity').stdout)
+        fixture.check('client-is-unprivileged-in-database-network',
+                      observed_client == {'uid': os.getuid(), 'gid': os.getgid(),
+                                          'network': expected_network}, observed_client)
 
         with tempfile.TemporaryDirectory(prefix='sdd-tsql-build-') as temporary:
             work = Path(temporary)
@@ -143,7 +175,7 @@ def main():
             profiles = {}
             for database in DATABASES:
                 profile = work / f'{database}.publish.xml'
-                publish_profile(profile, port, database, password)
+                publish_profile(profile, database, password)
                 profiles[database] = profile
 
             def deploy(action, stage='v2', database='reference_upgrade', *, target=None, expected=0):
@@ -151,8 +183,12 @@ def main():
                 argv.append(f'/SourceFile:{dacpacs[stage]}')
                 if target is not None:
                     argv.append(f'/OutputPath:{target}')
-                return fixture.run(argv, label=f'{action.lower()}-{stage}-{database}',
-                                   expected=expected, timeout=180)
+                # Pass only nonsecret runtime configuration through sudo's clean environment.
+                client = [tools['env'], f'DOTNET_ROOT={dotnet_root}',
+                          f'DOTNET_CLI_HOME={work / "dotnet-home"}',
+                          'DOTNET_CLI_TELEMETRY_OPTOUT=1', 'DOTNET_NOLOGO=1', *argv]
+                return in_database_network(client, label=f'{action.lower()}-{stage}-{database}',
+                                           expected=expected, timeout=180)
 
             def scalar(statement, database='reference_upgrade'):
                 return sql(statement, database).stdout.strip()

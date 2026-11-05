@@ -1,0 +1,20 @@
+{
+  "schema": "sql-caller-anchor-review/v1",
+  "base_revision": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+  "subject_revision": "1c2b3eba3a3663feab91950bda5461e6dcd521f2",
+  "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+  "old_window": [
+    145,
+    184
+  ],
+  "new_window": [
+    159,
+    198
+  ],
+  "old_heading_ordinal": 6,
+  "new_heading_ordinal": 7,
+  "heading": "### Full-Profile Layer Interview",
+  "window_byte_identical": true,
+  "window_sha256": "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823",
+  "reason": "One SQL reference section was inserted before the unchanged capability interview contract. The checker, fixed SHA256 and negative drift self-check remain unchanged."
+}

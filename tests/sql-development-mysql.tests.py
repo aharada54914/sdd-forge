@@ -178,11 +178,15 @@ def exercise(f, directory):
     failed_migrations = directory / 'failed-migrations'
     shutil.copytree(migrations, failed_migrations)
     v3 = failed_migrations / 'V3__partial_probe.sql'
+    # ALTER commits the preceding row; the following DML still rolls back on failure.
     v3.write_text('CREATE TABLE partial_probe(id integer PRIMARY KEY); '
-                  'INSERT INTO partial_probe VALUES(1); SELECT missing_column FROM partial_probe;\n')
+                  'INSERT INTO partial_probe VALUES(1); '
+                  'ALTER TABLE partial_probe ADD committed_marker integer NOT NULL DEFAULT 7; '
+                  'INSERT INTO partial_probe(id) VALUES(2); SELECT missing_column FROM partial_probe;\n')
     failed = migration(database='faults', location=failed_migrations)
-    f.check('Flyway DDL failure leaves committed object and row', failed.returncode != 0 and
-            sql('SELECT id FROM partial_probe;', database='faults').stdout.strip() == '1')
+    partial = sql('SELECT id,committed_marker FROM partial_probe ORDER BY id;', database='faults').stdout.strip()
+    f.check('Flyway failure preserves DDL commit but rolls back later DML', failed.returncode != 0 and
+            partial == '1\t7', {'exit_code': failed.returncode, 'observed_rows': partial})
     f.check('Flyway records failed nontransactional version', sql(
         "SELECT version,success FROM flyway_schema_history WHERE version='3';", database='faults').stdout.strip() == '3\t0')
     retry = migration(database='faults', location=failed_migrations)
