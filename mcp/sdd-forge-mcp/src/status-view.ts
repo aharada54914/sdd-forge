@@ -33,7 +33,7 @@ export async function startStatusView(root: SddRoot, dashboard = false): Promise
       const stat = lstatSync(file);
       if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16*1024*1024) throw new Error('Invalid dashboard state file');
       stored = JSON.parse(readFileSync(file,'utf8'));
-      if (stored.schema !== 'sdd-dashboard/v1' || !stored._observations) throw new Error('Invalid dashboard state');
+      if (!stored || stored.schema !== 'sdd-dashboard/v1' || !stored._observations) throw new Error('Invalid dashboard state');
     }
   }
   function sample() {

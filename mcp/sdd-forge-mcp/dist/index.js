@@ -42538,11 +42538,11 @@ $("pause").onclick = () => {
 const EVENT_LABELS = {"first-observed":"\u89B3\u6E2C\u3092\u958B\u59CB","added":"\u8AB2\u984C\u3092\u8FFD\u52A0\u78BA\u8A8D","changed":"\u5909\u66F4\u3092\u78BA\u8A8D","removed":"\u8AB2\u984C\u306E\u524A\u9664\u3092\u78BA\u8A8D","source-failed":"\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5931\u6557","source-recovered":"\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5FA9\u65E7","observation-gap":"\u89B3\u6E2C\u4E2D\u65AD\u5F8C\u306B\u518D\u958B"};
 const FIELD_LABELS = {status:"\u72B6\u614B",approval:"\u627F\u8A8D",risk:"\u30EA\u30B9\u30AF",release:"\u30EA\u30EA\u30FC\u30B9",validation:"\u691C\u8A3C\u30A8\u30E9\u30FC\u4EF6\u6570",source:"\u6B63\u672C",continuity:"\u89B3\u6E2C"};
 function validObservations(o) {
-  return o?.schema === "sdd-observations/v1" && typeof o.snapshotRevision === "string" && Array.isArray(o.events) && o.events.length <= 200 && o.tracking && typeof o.tracking === "object" && o.events.every(e => e && typeof e.id === "string" && Object.hasOwn(EVENT_LABELS,e.kind) && Object.hasOwn(FIELD_LABELS,e.field) && Number.isFinite(Date.parse(e.observedAt)) && typeof e.title === "string" && typeof e.notify === "boolean" && [e.before,e.after].every(v => v === null || typeof v === "string" || typeof v === "number")) && Object.values(o.tracking).every(t => t && Number.isFinite(Date.parse(t.since)) && Number.isFinite(Date.parse(t.lastObservedAt)) && Date.parse(t.lastObservedAt) >= Date.parse(t.since));
+  return o?.schema === "sdd-observations/v1" && typeof o.snapshotRevision === "string" && (o.observedAt === null || Number.isFinite(Date.parse(o.observedAt))) && typeof o.sourceError === "boolean" && typeof o.sourceStale === "boolean" && Array.isArray(o.events) && o.events.length <= 200 && o.tracking && typeof o.tracking === "object" && o.events.every(e => e && typeof e.id === "string" && Object.hasOwn(EVENT_LABELS,e.kind) && Object.hasOwn(FIELD_LABELS,e.field) && Number.isFinite(Date.parse(e.observedAt)) && typeof e.title === "string" && typeof e.notify === "boolean" && [e.before,e.after].every(v => v === null || typeof v === "string" || typeof v === "number")) && Object.values(o.tracking).every(t => t && Number.isFinite(Date.parse(t.since)) && Number.isFinite(Date.parse(t.lastObservedAt)) && Date.parse(t.lastObservedAt) >= Date.parse(t.since));
 }
 function renderActivity() {
   if (paused) return;
-  const ready = observations && observations.snapshotRevision === snapshot?.revision;
+  const ready = observations && observations.observedAt && observations.snapshotRevision === snapshot?.revision;
   $("activity-state").textContent = observationError || (!ready ? "\u73FE\u5728\u306E\u8868\u793A\u306B\u5BFE\u5FDC\u3059\u308B\u5C65\u6B74\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059" : observations.sourceError ? "\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5931\u6557\u4E2D\u3002\u7D4C\u904E\u6642\u9593\u306E\u8A08\u6E2C\u306F\u505C\u6B62\u3057\u3066\u3044\u307E\u3059\u3002" : (observations.sourceStale || !snapshot?.checkedAt || Date.now()-Date.parse(snapshot.checkedAt)>60000) ? "\u6700\u7D42\u78BA\u8A8D\u304C\u53E4\u304F\u306A\u3063\u3066\u3044\u307E\u3059\u3002\u672A\u89B3\u6E2C\u306E\u5909\u5316\u306F\u5206\u304B\u308A\u307E\u305B\u3093\u3002" : "\u6700\u7D42\u89B3\u6E2C: " + new Date(observations.observedAt).toLocaleString("ja-JP"));
   $("activity-events").hidden = !ready || !!observationError;
   if (!ready || observationError) { $("acknowledge").disabled = true; return; }
@@ -42642,7 +42642,7 @@ async function startStatusView(root, dashboard = false) {
       const stat = lstatSync(file2);
       if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16 * 1024 * 1024) throw new Error("Invalid dashboard state file");
       stored = JSON.parse(readFileSync2(file2, "utf8"));
-      if (stored.schema !== "sdd-dashboard/v1" || !stored._observations) throw new Error("Invalid dashboard state");
+      if (!stored || stored.schema !== "sdd-dashboard/v1" || !stored._observations) throw new Error("Invalid dashboard state");
     }
   }
   function sample() {

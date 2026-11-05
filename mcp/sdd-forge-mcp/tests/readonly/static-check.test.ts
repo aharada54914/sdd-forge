@@ -1,6 +1,6 @@
 /**
  * AC-011 (static part): src/ must never call a filesystem write API. This
- * walks every .ts file under src/ and asserts none of the denylisted API
+ * walks every .ts/.js file under src/ and asserts none of the denylisted API
  * names appear as a `fs.<name>` / destructured `<name>(` call. Enforced by
  * source-text inspection (no fs write side effects in this test itself).
  */
@@ -75,15 +75,15 @@ const DENYLISTED_FS_APIS = [
   "writevSync",
 ];
 
-function listTsFiles(dir: string): string[] {
+function listSourceFiles(dir: string): string[] {
   const entries = readdirSync(dir);
   const files: string[] = [];
   for (const entry of entries) {
     const fullPath = join(dir, entry);
     const stats = statSync(fullPath);
     if (stats.isDirectory()) {
-      files.push(...listTsFiles(fullPath));
-    } else if (entry.endsWith(".ts")) {
+      files.push(...listSourceFiles(fullPath));
+    } else if ((entry.endsWith(".ts") || entry.endsWith(".js"))) {
       files.push(fullPath);
     }
   }
@@ -106,7 +106,7 @@ function stripComments(source: string): string {
 }
 
 test("src/ contains no filesystem write API references", () => {
-  const files = listTsFiles(SRC_DIR);
+  const files = listSourceFiles(SRC_DIR);
   assert.ok(files.length > 0, "expected at least one .ts file under src/");
 
   const violations: string[] = [];
@@ -127,7 +127,7 @@ test("src/ contains no filesystem write API references", () => {
 });
 
 test("src/ contains no TODO/FIXME/stub/placeholder markers", () => {
-  const files = listTsFiles(SRC_DIR);
+  const files = listSourceFiles(SRC_DIR);
   const markerPattern = /\b(TODO|FIXME|stub|placeholder)\b/i;
   const violations: string[] = [];
   for (const file of files) {

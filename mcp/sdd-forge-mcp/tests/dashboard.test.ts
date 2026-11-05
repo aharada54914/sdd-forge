@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { readFileSync, statSync, utimesSync, writeFileSync, symlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { DashboardReader, selectPresentation } from '../src/dashboard/snapshot.js';
 import { makeTempSddRoot, writeFile } from './test-helpers.js';
@@ -98,5 +98,15 @@ test('project-owned display names affect revision and malformed metadata retains
     const renamed=reader.sample();assert.equal(renamed.data?.features[0]?.displayName,'経費申請の改善');assert.notEqual(renamed.revision,initial.revision);
     writeFile(f.dir,'dashboard-labels.json','{"schema":"sdd-dashboard-labels/v1","features":{"demo":""}}');
     const bad=reader.sample();assert.ok(bad.error);assert.deepEqual(bad.data,renamed.data);assert.equal(bad.checkedAt,renamed.checkedAt);
+  } finally {f.cleanup();}
+});
+
+
+test('display metadata cannot alias a denied root secret', () => {
+  const f=fixture();
+  try {
+    writeFile(f.dir,'.env','PRIVATE_SENTINEL');
+    symlinkSync(join(f.dir,'.env'),join(f.dir,'dashboard-labels.json'));
+    const result=new DashboardReader(f.root).sample();assert.ok(result.error);assert.equal(result.data,null);assert.ok(!JSON.stringify(result).includes('PRIVATE_SENTINEL'));
   } finally {f.cleanup();}
 });

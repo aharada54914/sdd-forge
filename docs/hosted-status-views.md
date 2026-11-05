@@ -41,14 +41,18 @@ Unknown fields and errors must not be converted into healthy empty results.
 3. Push the Site source and package that exact commit with
    `.openai/hosting.json` and `dist/server/index.js` (built from `worker/index.js`).
    Use Sites' supported source helper if installed, then native private publication.
-4. Run `python3 plugins/sdd-ship/scripts/publish-dashboard.py --entry <entry>
-   --root <project> --url <https-site-origin>`. After readiness, supply a single
-   stdin JSON line with `serviceToken` and `publisherToken`, using the existing
-   private Site service credential and the runtime secret. No secret goes in argv.
-5. Keep the collector under an existing user-approved supervisor for persistence
-   beyond an interactive session. The collector itself does not register an OS
-   service, store credentials, or survive workspace shutdown. `--once` verifies
-   one publication and exits; it is not continuous monitoring.
+4. Start the independent runtime with
+   `python3 plugins/sdd-ship/scripts/dashboard-runtime.py start --root <project>
+   --entry <entry>`. Attach the publisher with the same script's `publish`
+   command and `--root <project> --url <https-site-origin>`. After readiness,
+   supply one stdin JSON line with `serviceToken` and `publisherToken`, using
+   the existing private Site credential and dedicated runtime secret. No secret
+   goes in argv or persistent local state.
+5. The local daemon supervises both its reader and the attached publisher.
+   Confirm delivery via Site health, not just process presence. Resume repeats
+   the idempotent start and credential attachment. OS/container shutdown stops
+   execution and discards in-memory credentials. Direct `publish-dashboard.py
+   --once` remains a one-publication diagnostic, not continuous monitoring.
 
 `PUT /api/snapshot` requires publisher authentication and rejects browser Origin
 headers, invalid/big payloads, older observations and conflicting concurrent
