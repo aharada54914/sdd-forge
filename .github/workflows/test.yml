@@ -1729,6 +1729,16 @@ jobs:
       - name: CLI hook enforcement (real toolchain present)
         shell: pwsh
         run: ./tests/cli-hook-enforcement.ps1
+      - name: Claude host blocks missing hook executables (local API fixture)
+        shell: bash
+        run: python3 tests/claude-hook-runtime.tests.py --output claude-hook-runtime-proof.json
+      - name: Preserve Claude host runtime evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: claude-hook-runtime-${{ matrix.os }}-${{ github.run_attempt }}
+          path: claude-hook-runtime-proof.json
+          if-no-files-found: error
     needs: [ci-plan]
     if: needs.ci-plan.outputs.run_cli_hook_enforcement == 'true'
 

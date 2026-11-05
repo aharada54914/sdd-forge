@@ -426,6 +426,81 @@ function shellWriteTargetsAreSafe(cmd) {
   return true;
 }
 
+function shellIsLiteralBackupCopy(cmd) {
+  // A bounded exception for copying a protected regular file to a NEW backup.
+  // Never infer safety from a variable's basename: resolve only literal local
+  // assignments and HOME, then inspect the actual destination and its parents.
+  // Existing files (including hard links), directories, and symlinks are not
+  // admitted by this exception. Ordinary literal copies retain their old path.
+  const bindings = Object.create(null);
+  if (process.env.HOME) bindings.HOME = process.env.HOME;
+  let rest = cmd.trim();
+  const assignment = /^([A-Za-z_][A-Za-z0-9_]*)=(?:"([A-Za-z0-9_ ./:\\-]+)"|'([A-Za-z0-9_ ./:\\-]+)'|([A-Za-z0-9_./:-]+))\s*;\s*/;
+  while (true) {
+    const match = rest.match(assignment);
+    if (!match) break;
+    const name = match[1];
+    // Avoid shell special variables (including integer/array assignments).
+    if (!/^(?:BK|BACKUP(?:_[A-Z0-9]+)*|[a-z][a-z0-9_]*)$/.test(name)) return false;
+    if (match[2] && (match[2].includes('\\\\') || match[2].endsWith('\\'))) return false;
+    bindings[name] = match[2] || match[3] || match[4];
+    rest = rest.slice(match[0].length);
+  }
+  if (!rest.startsWith('cp ')) return false;
+  rest = rest.slice(3).trim();
+  const args = [];
+  while (rest) {
+    const match = rest.match(/^(?:"([^"`\r\n]*)"|'([^'\r\n]*)'|([A-Za-z0-9_./~:@%+=,-]+))(?:\s+|$)/);
+    if (!match) return false;
+    let value = match[1] !== undefined ? match[1] : match[2] !== undefined ? match[2] : match[3];
+    if (match[1] !== undefined) {
+      // Do not model escaped expansion/quotes, or parameter operators.
+      if (/\\[$`"\\]/.test(value) || value.endsWith('\\')) return false;
+      let unknown = false;
+      value = value.replace(/\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))/g, (_, braced, bare) => {
+        const name = braced || bare;
+        if (!Object.prototype.hasOwnProperty.call(bindings, name)) { unknown = true; return ''; }
+        return bindings[name];
+      });
+      if (unknown) return false;
+    } else if (match[3] && value.startsWith('~/') && bindings.HOME) {
+      value = bindings.HOME + value.slice(1);
+    }
+    if (/[$`*?\[\]{}\r\n]/.test(value)) return false;
+    args.push(value);
+    rest = rest.slice(match[0].length);
+  }
+  while (['-a', '-p', '--archive', '--preserve'].includes(args[0])) args.shift();
+  if (args[0] === '--') args.shift();
+  if (args.length !== 2 || args.some(arg => arg.startsWith('-'))) return false;
+  const paths = args.map(arg => process.platform === 'win32' ? arg.replace(/^\/([A-Za-z])\//, '$1:/') : arg);
+  if (process.platform === 'win32' && paths.some(p => {
+    const normalized = p.replace(/\\/g, '/');
+    // /tmp is an MSYS mount, not the Windows current drive's /tmp. Likewise,
+    // reject ADS and trailing-dot/space aliases instead of guessing Win32 paths.
+    return !/^[A-Za-z]:\//.test(normalized) || normalized.slice(2).includes(':') ||
+      normalized.slice(3).split('/').some(part => /[ .]$/.test(part));
+  })) return false;
+  const [source, destination] = paths;
+  // Do not turn the backup exception into a way to create approval documents
+  // or executable/configuration files whose contents other gates cannot inspect.
+  if (!destination.endsWith('.bak')) return false;
+  if (!paths.every(p => path.isAbsolute(p)) || !isProtectedGateFile(source) || isProtectedGateFile(destination)) return false;
+  try {
+    if (!fs.lstatSync(source).isFile()) return false;
+    try { fs.lstatSync(destination); return false; } catch (error) { if (error.code !== 'ENOENT') return false; }
+    let parent = path.dirname(destination);
+    while (true) {
+      const stat = fs.lstatSync(parent);
+      if (!stat.isDirectory() || stat.isSymbolicLink()) return false;
+      const next = path.dirname(parent);
+      if (next === parent) break;
+      parent = next;
+    }
+    return true;
+  } catch (_) { return false; }
+}
+
 function normDir(p) {
   // REQ-002: normalize a tracked directory (forward slashes, collapse ..).
   return path.posix.normalize(p.replace(/\\/g, '/'));
@@ -853,7 +928,7 @@ function commandReferencesProtectedPath(cmd, directories = []) {
   return false;
 }
 
-function shellTargetsProtectedGateFile(cmd, directories = []) {
+function shellTargetsProtectedGateFile(cmd, directories = [], bashSemantics = false) {
   // R-10: Deny shell commands that WRITE to protected gate files.
   // Token-based pre-filter (a protected path appears as a shell token or
   // redirect target) combined with
@@ -879,7 +954,7 @@ function shellTargetsProtectedGateFile(cmd, directories = []) {
   if (!hasWrite) return false;
   // Issue #62: deny only when a write target is (or cannot be proven not to
   // be) a protected gate file — fail-close on anything unmodeled.
-  return !shellWriteTargetsAreSafe(cmd);
+  return !shellWriteTargetsAreSafe(cmd) && !(bashSemantics && shellIsLiteralBackupCopy(cmd));
 }
 
 function countApprovals(text) {
@@ -1305,12 +1380,43 @@ function readerGlobCanAddOptions(words, hasGlob, expands) {
   return false;
 }
 
-function shellHasGlobbedReaderOptions(cmd) {
+function shellHasGlobbedReaderOptions(cmd, bashSemantics = false) {
+  if (bashSemantics && shellIsReadOnlyForLoop(cmd)) return false;
   const parsed = shellReadSegments(cmd);
-  return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => readerGlobCanAddOptions(words, glob, expands)));
+  return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => shellForBindingIsUnsafe(words) || readerGlobCanAddOptions(words, glob, expands)));
 }
 
-function shellIsReadOnly(cmd) {
+function shellForBindingIsUnsafe(words) {
+  // Reject at the deny boundary, even when the bounded read-loop recognizer
+  // declines the command. Bash integer/array variables can execute filename
+  // text while assigning it, before the otherwise read-only body runs.
+  // Inspect token sequences rather than trying to enumerate all compound
+  // prefixes (if/time/coproc/case/functions). Quoted whole phrases stay one
+  // token. Data spelling this sequence as separate words must quote the phrase.
+  return words.some((word, index) => {
+    const binding = words[index + 1] || '';
+    const next = words[index + 2];
+    return /(?:^|[({)])for$/.test(word) && /^[A-Za-z_][A-Za-z0-9_]*$/.test(binding) &&
+      !/^[a-z][a-z0-9_]*$/.test(binding) && (next === undefined || next === 'in' || next.startsWith('#'));
+  });
+}
+
+function shellIsReadOnlyForLoop(cmd) {
+  // Model this complete Bash grammar, not arbitrary ambiguous shell. Line
+  // continuations are safe here because the resulting loop has no executable
+  // expansion, redirect, nested command, or option-bearing file operand.
+  if (typeof cmd !== 'string') return false;
+  const text = cmd.replace(/\\\n/g, '').trim();
+  const loop = text.match(/^for[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]+in[ \t]+([A-Za-z0-9_./*?\[\]-]+(?:[ \t]+[A-Za-z0-9_./*?\[\]-]+)*)[ \t]*[;\n]\s*do\s+([\s\S]+);\s*done[ \t]*;?$/);
+  if (!loop || !/^[a-z][a-z0-9_]*$/.test(loop[1])) return false;
+  const operand = `"\\$(?:${loop[1]}|\\{${loop[1]}\\})"`;
+  const reader = '(?:cat|wc(?:[ \\t]+-[clmwL])?|(?:head|tail)(?:[ \\t]+-n[ \\t]+[0-9]+)?)';
+  const body = new RegExp(`^${reader}[ \\t]+--[ \\t]+${operand}$`);
+  return loop[3].split(';').every(command => body.test(command.trim()));
+}
+
+function shellIsReadOnly(cmd, bashSemantics = false) {
+  if (bashSemantics && shellIsReadOnlyForLoop(cmd)) return true;
   // Quoted patterns are data; expansions are not the final argv.
   const parsed = shellReadSegments(cmd);
   if (parsed === null || !parsed.readSafe || parsed.ambiguous || parsed.unknownGlob) return false;
@@ -2058,12 +2164,12 @@ async function main() {
     const toolInput = payload.tool_input || {};
     const filePath = (toolInput.file_path || '').toLowerCase();
     // Reject unknown argv before legacy write scanners can miss glob-added options.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command)) {
-      emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).', mode);
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command, toolName === 'bash')) {
+      emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).', mode);
       return;
     }
     // Read-only inspection cannot change protected files or grant approvals.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command)) {
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command, toolName === 'bash')) {
       emitDecision('allow', null, mode);
       return;
     }
@@ -2107,7 +2213,7 @@ async function main() {
     }
 
     if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
-      if (shellTargetsProtectedGateFile(toolInput.command, directories)) {
+      if (shellTargetsProtectedGateFile(toolInput.command, directories, toolName === 'bash')) {
         emitDecision('deny', GATE_PROTECT_MSG, mode);
         return;
       }

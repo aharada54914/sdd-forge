@@ -139,6 +139,7 @@ make_stubs() {
             printf '%s\n' '#!/bin/sh'
             printf 'echo "%s $*" >> "%s"\n' "$cmd" "$log_path"
             printf '%s\n' 'case "$*" in'
+            printf '%s\n' '  --version) echo "2.1.317 (Claude Code)"; exit 0 ;;'
             printf '  "plugin marketplace update"*) exit 0 ;;\n'
             printf '  "plugin marketplace add"*) %s ;;\n' "$marketplace_add_body"
             printf '  "plugin update"*) %s ;;\n' "$plugin_update_body"

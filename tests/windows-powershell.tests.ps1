@@ -56,6 +56,16 @@ if ($env:SDD_POWERSHELL_RECEIPT) {
 
 # Common product contracts already run in the required PowerShell 7 jobs.
 if ($expected -eq '7.6') { exit 0 }
+# Core exercises the same native launch contracts in claude-registration;
+# Desktop repeats only .cmd/.ps1 quoting, engine identity and timeout handling.
+$cliBoundaries = Invoke-SddNativeRaw -FileName $hostPath -Arguments @(
+    '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'claude-registration.tests.ps1'),
+    '-RuntimeBoundariesOnly'
+) -TimeoutMilliseconds 60000
+Write-Host ([Text.Encoding]::UTF8.GetString($cliBoundaries.Stdout))
+if ($cliBoundaries.ExitCode -ne 0) {
+    throw ('Installer CLI runtime boundaries failed: ' + [Text.Encoding]::UTF8.GetString($cliBoundaries.Stderr))
+}
 # ZIP extraction uses different .NET implementations on Desktop and Core.
 # Core coverage comes from the existing installer suite; only these transport
 # boundaries are repeated on Desktop, using this exact native host for children.

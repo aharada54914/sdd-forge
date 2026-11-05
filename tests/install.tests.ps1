@@ -242,6 +242,7 @@ function New-FakeCommands {
         if ($isWindowsPlatform) {
             $commandPath = Join-Path $BinRoot "$command.cmd"
             $failureLine = if ($FailPattern -and $command -ne "gh") { "@echo %*| findstr /c:`"$FailPattern`" >nul && exit /b 9`r`n" } else { "" }
+            if ($command -eq 'claude') { $failureLine = '@if "%~1"=="--version" (echo 2.1.317 ^(Claude Code^) & exit /b 0)' + "`r`n" + $failureLine }
             if ($command -eq "gh") {
                 "@echo gh %*>>`"$LogPath`"`r`n@if /i `"%~1`"==auth if /i `"%~2`"==token echo fake-gh-token`r`n@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
             }
@@ -252,6 +253,7 @@ function New-FakeCommands {
         else {
             $commandPath = Join-Path $BinRoot $command
             $failureLine = if ($FailPattern -and $command -ne "gh") { "echo `"`$*`" | grep -F `"$FailPattern`" >/dev/null && exit 9`n" } else { "" }
+            if ($command -eq 'claude') { $failureLine = "if [ `"`$1`" = --version ]; then echo '2.1.317 (Claude Code)'; exit 0; fi`n" + $failureLine }
             if ($command -eq "gh") {
                 "#!/bin/sh`necho `"$command `$*`" >> `"$LogPath`"`nif [ `"`$1`" = auth ] && [ `"`$2`" = token ]; then`n    printf '%s\n' fake-gh-token`n    exit 0`nfi`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
             }
@@ -520,6 +522,82 @@ function Invoke-RemoteInstallerScenario {
 }
 
 if ($Lane -in @('all', 'core')) {
+# Check the hook runtime before any placement, independently of optional MCP.
+$hookRoot = Join-Path ([IO.Path]::GetTempPath()) ("sdd-hook-runtime-" + [guid]::NewGuid())
+$hookBin = Join-Path $hookRoot 'bin'
+$hookOriginalPath = $env:PATH
+$hookGit = (Get-Command git -ErrorAction Stop).Source
+try {
+    New-FakeCommands -BinRoot $hookBin -LogPath (Join-Path $hookRoot 'commands.log')
+    if ($isWindowsPlatform) {
+        Set-Content -LiteralPath (Join-Path $hookBin 'git.cmd') -Encoding Ascii -Value "@echo off`r`n`"$hookGit`" %*`r`n@exit /b %ERRORLEVEL%"
+    } else {
+        $gitLiteral = $hookGit.Replace("'", "'\''")
+        Set-Content -LiteralPath (Join-Path $hookBin 'git') -Encoding Utf8NoBOM -Value "#!/bin/sh`nPATH='/usr/bin:/bin' exec '$gitLiteral' `"`$@`""
+        & chmod +x (Join-Path $hookBin 'git')
+    }
+    foreach ($hookCase in @('missing', 'broken', 'old', 'invalid', 'claude-old', 'valid')) {
+        # Restore Claude's version after the previous case.
+        New-FakeCommands -BinRoot $hookBin -LogPath (Join-Path $hookRoot 'commands.log')
+        $nodePath = Join-Path $hookBin $(if ($isWindowsPlatform) { 'node.cmd' } else { 'node' })
+        Remove-Item -LiteralPath $nodePath -Force -ErrorAction SilentlyContinue
+        if ($hookCase -ne 'missing') {
+            $nodeBody = switch ($hookCase) {
+                'broken' { if ($isWindowsPlatform) { 'exit /b 127' } else { 'exit 127' } }
+                'old' { 'echo v22.18.0' }
+                'invalid' { 'echo v22.19.0-rc.1' }
+                default { 'echo v22.19.0' }
+            }
+            if ($isWindowsPlatform) {
+                Set-Content -LiteralPath $nodePath -Encoding Ascii -Value "@echo off`r`n$nodeBody"
+            } else {
+                Set-Content -LiteralPath $nodePath -Encoding Utf8NoBOM -Value "#!/bin/sh`n$nodeBody"
+                & chmod +x $nodePath
+            }
+        }
+        if ($hookCase -in @('claude-old', 'valid')) {
+            $claudePath = Join-Path $hookBin $(if ($isWindowsPlatform) { 'claude.cmd' } else { 'claude' })
+            $claudeBody = (Get-Content -LiteralPath $claudePath -Raw).Replace('2.1.317', $(if ($hookCase -eq 'valid') { '2.1.295' } else { '2.1.294' }))
+            Set-Content -LiteralPath $claudePath -Encoding Ascii -Value $claudeBody
+        }
+        $hookInstall = Join-Path $hookRoot "$hookCase/installed"
+        New-Item -ItemType Directory -Path $hookInstall -Force | Out-Null
+        [IO.File]::WriteAllText((Join-Path $hookInstall 'old.marker'), 'preserve me')
+        $env:PATH = $hookBin
+        $caught = $null
+        try {
+            & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $hookInstall -Target Claude -Plugins sdd-quality-loop -SkipAgentInstall -SkipMcp
+        } catch { $caught = $_ }
+        finally { $env:PATH = $hookOriginalPath }
+        if ($hookCase -eq 'valid') {
+            if ($caught -or -not (Test-Path -LiteralPath (Join-Path $hookInstall 'plugins/sdd-quality-loop/.claude-plugin/plugin.json'))) {
+                throw "Supported hook runtimes failed with -SkipMcp: $caught"
+            }
+            Write-Host 'ok: Claude hooks supported runtimes install with -SkipMcp'
+        } else {
+            if (-not $caught -or "$caught" -notmatch 'quality-loop hooks' -or "$caught" -notmatch 'Installation was not changed' -or
+                [IO.File]::ReadAllText((Join-Path $hookInstall 'old.marker')) -cne 'preserve me') {
+                throw "Hook runtime $hookCase did not stop before replacing the install: $caught"
+            }
+            Write-Host "ok: Claude hooks $hookCase leaves existing install untouched"
+            Remove-Item -LiteralPath $hookInstall -Recurse -Force
+            $env:PATH = $hookBin
+            $caught = $null
+            try {
+                & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $hookInstall -Target Claude -Plugins sdd-quality-loop -SkipAgentInstall -SkipMcp
+            } catch { $caught = $_ }
+            finally { $env:PATH = $hookOriginalPath }
+            if (-not $caught -or "$caught" -notmatch 'Installation was not changed' -or (Test-Path -LiteralPath $hookInstall)) {
+                throw "Hook runtime $hookCase created a new install or failed for the wrong reason: $caught"
+            }
+            Write-Host "ok: Claude hooks $hookCase does not create a new install"
+        }
+    }
+} finally {
+    $env:PATH = $hookOriginalPath
+    if (Test-Path -LiteralPath $hookRoot) { Remove-Item -LiteralPath $hookRoot -Recurse -Force }
+}
+
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins @("sdd-lite")
@@ -1468,7 +1546,7 @@ try {
     $v18VSCodeBefore = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
 
     $warnings = $null
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpV18Install -Target All -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpV18Install -Target All -Plugins sdd-bootstrap -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
 
     if (Test-Path (Join-Path $mcpV18Install "mcp")) {
         throw "old Node v18 (w2): MCP was placed below Node 22.19.0"

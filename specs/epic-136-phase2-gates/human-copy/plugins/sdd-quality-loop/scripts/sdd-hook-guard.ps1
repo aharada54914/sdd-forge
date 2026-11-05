@@ -333,18 +333,54 @@ function Test-ReaderGlobCanAddOptions {
 }
 
 function Test-ShellHasGlobbedReaderOptions {
-    param([string]$Cmd)
+    param([string]$Cmd, [bool]$BashSemantics = $false)
+    if ($BashSemantics -and (Test-ShellReadOnlyForLoop $Cmd)) { return $false }
     $parsed = Get-ShellReadSegments $Cmd
     if ($null -eq $parsed) { return $false }
     if ($parsed.Ambiguous -or $parsed.UnknownGlob) { return $true }
     for ($index = 0; $index -lt $parsed.Segments.Count; $index++) {
+        if (Test-ShellForBindingIsUnsafe $parsed.Segments[$index]) { return $true }
         if (Test-ReaderGlobCanAddOptions $parsed.Segments[$index] $parsed.Globs[$index] $parsed.Expansions[$index]) { return $true }
     }
     return $false
 }
 
-function Test-ShellReadOnly {
+function Test-ShellForBindingIsUnsafe {
+    param([string[]]$Words)
+    # Bash integer/array bindings can execute filenames before a reader runs.
+    if ($null -eq $Words -or $Words.Count -eq 0) { return $false }
+    # Cover compound prefixes without reimplementing Bash's grammar. Whole
+    # quoted phrases stay a single token; quote data containing this sequence.
+    for ($index = 0; $index -lt $Words.Count; $index++) {
+        $binding = if ($index + 1 -lt $Words.Count) { $Words[$index + 1] } else { '' }
+        $following = if ($index + 2 -lt $Words.Count) { $Words[$index + 2] } else { $null }
+        if ([regex]::IsMatch($Words[$index], '(?:^|[({)])for$') -and [regex]::IsMatch($binding, '^[A-Za-z_][A-Za-z0-9_]*$') -and
+            -not [regex]::IsMatch($binding, '^[a-z][a-z0-9_]*$') -and
+            ($null -eq $following -or $following -ceq 'in' -or $following.StartsWith('#'))) { return $true }
+    }
+    return $false
+}
+
+function Test-ShellReadOnlyForLoop {
     param([string]$Cmd)
+    # Recognize the complete Bash loop. Unknown shell syntax still fails closed.
+    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
+    $text = [regex]::Replace($Cmd, '\\\n', '').Trim()
+    $loop = [regex]::Match($text, '^for[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]+in[ \t]+([A-Za-z0-9_./*?\[\]-]+(?:[ \t]+[A-Za-z0-9_./*?\[\]-]+)*)[ \t]*[;\n]\s*do\s+([\s\S]+);\s*done[ \t]*;?$')
+    if (-not $loop.Success -or -not [regex]::IsMatch($loop.Groups[1].Value, '^[a-z][a-z0-9_]*$')) { return $false }
+    $variable = $loop.Groups[1].Value
+    $operand = '"\$(?:' + $variable + '|\{' + $variable + '\})"'
+    $reader = '(?:cat|wc(?:[ \t]+-[clmwL])?|(?:head|tail)(?:[ \t]+-n[ \t]+[0-9]+)?)'
+    $body = '^' + $reader + '[ \t]+--[ \t]+' + $operand + '$'
+    foreach ($command in $loop.Groups[3].Value.Split(';')) {
+        if (-not [regex]::IsMatch($command.Trim(), $body)) { return $false }
+    }
+    return $true
+}
+
+function Test-ShellReadOnly {
+    param([string]$Cmd, [bool]$BashSemantics = $false)
+    if ($BashSemantics -and (Test-ShellReadOnlyForLoop $Cmd)) { return $true }
     # Quoted patterns are data; expansions are not the final argv.
     $parsed = Get-ShellReadSegments $Cmd
     if ($null -eq $parsed -or -not $parsed.ReadSafe -or $parsed.Ambiguous -or $parsed.UnknownGlob) { return $false }
@@ -895,6 +931,97 @@ function Test-ShellWriteTargetsAreSafe {
     return $true
 }
 
+function Test-ShellLiteralBackupCopy {
+    param([string]$Cmd)
+    # Match the Node/Python bounded exception: a protected regular source, a
+    # NEW absolute destination, literal bindings, and no symlink parent.
+    $bindings = New-Object 'System.Collections.Generic.Dictionary[string,string]' ([System.StringComparer]::Ordinal)
+    if ($env:HOME) { $bindings['HOME'] = $env:HOME }
+    $rest = $Cmd.Trim()
+    $assignment = '^([A-Za-z_][A-Za-z0-9_]*)=(?:"([A-Za-z0-9_ ./:\\-]+)"|''([A-Za-z0-9_ ./:\\-]+)''|([A-Za-z0-9_./:-]+))\s*;\s*'
+    while ($true) {
+        $match = [regex]::Match($rest, $assignment)
+        if (-not $match.Success) { break }
+        $name = $match.Groups[1].Value
+        if (-not [regex]::IsMatch($name, '^(?:BK|BACKUP(?:_[A-Z0-9]+)*|[a-z][a-z0-9_]*)$')) { return $false }
+        if ($match.Groups[2].Success -and ($match.Groups[2].Value.Contains('\\') -or $match.Groups[2].Value.EndsWith('\'))) { return $false }
+        foreach ($index in @(2, 3, 4)) {
+            if ($match.Groups[$index].Success) { $bindings[$name] = $match.Groups[$index].Value; break }
+        }
+        $rest = $rest.Substring($match.Length)
+    }
+    if (-not $rest.StartsWith('cp ', [System.StringComparison]::Ordinal)) { return $false }
+    $rest = $rest.Substring(3).Trim()
+    $copyArgs = New-Object System.Collections.Generic.List[string]
+    while ($rest) {
+        $match = [regex]::Match($rest, '^(?:"([^"`\r\n]*)"|''([^''\r\n]*)''|([A-Za-z0-9_./~:@%+=,-]+))(?:\s+|$)')
+        if (-not $match.Success) { return $false }
+        $value = ''
+        foreach ($index in @(1, 2, 3)) {
+            if ($match.Groups[$index].Success) { $value = $match.Groups[$index].Value; break }
+        }
+        if ($match.Groups[1].Success) {
+            if ([regex]::IsMatch($value, '\\[$`"\\]') -or $value.EndsWith('\')) { return $false }
+            $unknown = New-Object System.Collections.Generic.List[string]
+            $value = [regex]::Replace($value, '\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))', {
+                param($variableMatch)
+                $variable = if ($variableMatch.Groups[1].Success) { $variableMatch.Groups[1].Value } else { $variableMatch.Groups[2].Value }
+                if (-not $bindings.ContainsKey($variable)) { $unknown.Add($variable); return '' }
+                return $bindings[$variable]
+            })
+            if ($unknown.Count -gt 0) { return $false }
+        } elseif ($match.Groups[3].Success -and $value.StartsWith('~/') -and $bindings.ContainsKey('HOME')) {
+            $value = $bindings['HOME'] + $value.Substring(1)
+        }
+        if ([regex]::IsMatch($value, '[$`*?\[\]{}\r\n]')) { return $false }
+        $copyArgs.Add($value)
+        $rest = $rest.Substring($match.Length)
+    }
+    while ($copyArgs.Count -gt 0 -and @('-a', '-p', '--archive', '--preserve') -ccontains $copyArgs[0]) { $copyArgs.RemoveAt(0) }
+    if ($copyArgs.Count -gt 0 -and $copyArgs[0] -ceq '--') { $copyArgs.RemoveAt(0) }
+    if ($copyArgs.Count -ne 2 -or $copyArgs[0].StartsWith('-') -or $copyArgs[1].StartsWith('-')) { return $false }
+    if ([System.IO.Path]::DirectorySeparatorChar -eq '\') {
+        for ($index = 0; $index -lt $copyArgs.Count; $index++) {
+            $copyArgs[$index] = [regex]::Replace($copyArgs[$index], '^/([A-Za-z])/', '$1:/')
+            $normalized = $copyArgs[$index].Replace('\', '/')
+            if (-not [regex]::IsMatch($normalized, '^[A-Za-z]:/') -or $normalized.Substring(2).Contains(':')) { return $false }
+            foreach ($part in $normalized.Substring(3).Split('/')) {
+                if ([regex]::IsMatch($part, '[ .]$')) { return $false }
+            }
+        }
+    }
+    $source = $copyArgs[0]
+    $destination = $copyArgs[1]
+    if (-not $destination.EndsWith('.bak', [System.StringComparison]::Ordinal)) { return $false }
+    # IsPathRooted alone accepts drive-relative C:foo on .NET Framework.
+    foreach ($candidate in $copyArgs) {
+        if (-not [System.IO.Path]::IsPathRooted($candidate)) { return $false }
+        if ([System.IO.Path]::DirectorySeparatorChar -eq '\' -and $candidate -notmatch '^(?:[A-Za-z]:[/\\]|[/\\]{2})') { return $false }
+    }
+    if (-not (Test-IsProtectedGateFile $source) -or (Test-IsProtectedGateFile $destination)) { return $false }
+    try {
+        $attributes = [System.IO.File]::GetAttributes($source)
+        if (($attributes -band [System.IO.FileAttributes]::Directory) -or ($attributes -band [System.IO.FileAttributes]::ReparsePoint)) { return $false }
+        try {
+            $null = [System.IO.File]::GetAttributes($destination)
+            return $false
+        } catch {
+            $exception = $_.Exception
+            while ($exception.InnerException) { $exception = $exception.InnerException }
+            if ($exception -isnot [System.IO.FileNotFoundException] -and $exception -isnot [System.IO.DirectoryNotFoundException]) { return $false }
+        }
+        $parent = [System.IO.Path]::GetDirectoryName($destination)
+        while ($true) {
+            $attributes = [System.IO.File]::GetAttributes($parent)
+            if (-not ($attributes -band [System.IO.FileAttributes]::Directory) -or ($attributes -band [System.IO.FileAttributes]::ReparsePoint)) { return $false }
+            $nextParent = [System.IO.Path]::GetDirectoryName($parent)
+            if (-not $nextParent -or $nextParent -ceq $parent) { break }
+            $parent = $nextParent
+        }
+        return $true
+    } catch { return $false }
+}
+
 function Apply-CdTransition {
     # REQ-002: update the tracked working directory for a cd/pushd segment.
     # Returns @{ Dir; Known }. Unresolvable transitions taint the state
@@ -1419,7 +1546,7 @@ function Test-ShellTargetsProtectedGateFile {
     # compound operators, command starts with a read-only verb, and no write
     # verb/redirect appears anywhere. REQ-002 (issue #110): a working-directory-
     # aware pass additionally resolves write targets across cd/pushd transitions.
-    param([string]$Cmd, $Directories = @())
+    param([string]$Cmd, $Directories = @(), [bool]$BashSemantics = $false)
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
     # REQ-002: cd/pushd-aware resolution catches protected writes that never spell
     # the full protected path literally. Read-only segments never hit, so this is
@@ -1435,7 +1562,7 @@ function Test-ShellTargetsProtectedGateFile {
     $isReadOnlyStart = [regex]::IsMatch($Cmd, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     if ((-not $hasCompound) -and $isReadOnlyStart -and (-not $hasWrite)) { return $false }
     if (-not $hasWrite) { return $false }
-    return (-not (Test-ShellWriteTargetsAreSafe $Cmd))
+    return (-not (Test-ShellWriteTargetsAreSafe $Cmd) -and -not ($BashSemantics -and (Test-ShellLiteralBackupCopy $Cmd)))
 }
 
 function Test-DesignMd {
@@ -2190,11 +2317,11 @@ try {
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
     # Reject unknown argv before legacy write scanners can miss glob-added options.
-    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command)) {
-        Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).'
+    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command ($toolName -eq 'bash'))) {
+        Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).'
     }
     # Read-only inspection cannot change protected files or grant approvals.
-    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command)) {
+    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command ($toolName -eq 'bash'))) {
         Emit-Decision 'allow' $null
     }
 
@@ -2225,7 +2352,7 @@ try {
     }
 
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
-        if (Test-ShellTargetsProtectedGateFile $command $executionDirectories) { Emit-Decision "deny" $GateProtectMsg }
+        if (Test-ShellTargetsProtectedGateFile $command $executionDirectories ($toolName -eq 'bash')) { Emit-Decision "deny" $GateProtectMsg }
     }
 
     if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
