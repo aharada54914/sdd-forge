@@ -67,6 +67,9 @@ SQL Serverの一時publish profileは所有者のみ読める権限で作成す�
   [証拠パス](ci/evidence-path-compaction.json)は移動76ファイルの内容不変とmanifest142件の一致を確認。
   [現在のCI候補](ci/candidate-workflow-preservation.json)はliveと完全一致、過去の固定成果物は不変。
   候補生成のBash／PowerShell試験はそれぞれ32件成功し、ジョブ削除等の否定検査も維持した。
+- [CI証拠の登録回帰](ci/receipt-regression.json)：既存テストの期待数18にSQL 4系統を追加し、
+  合計22の登録と各SQLジョブ／単一suite／空matrixの対応を検証した。
+  元の失敗を再現後、証拠収集・照合に関する92件すべてが成功。producerや厳密な照合条件は変更していない。
 
 ## 対象外・制限
 
