@@ -2,7 +2,7 @@
 
 対象はユーザーが承認した [T-001〜T-005](../../../specs/sql-development-flow/tasks.md)。
 実装、3エンジンの実DB試験、実モデルによる利用評価、独立レビューを完了した。
-最終差分の全必須CIを確認中であり、T-005全体の完了判定は保留する。
+実装コミット `a032fea1` の全56ジョブと必須集約が成功し、T-001〜T-005を完了した。
 
 ## 実装した内容
 
@@ -12,7 +12,7 @@
 | T-002 | 共通SQL手順を仕様化・実装・独立gateから参照。既存承認・状態・managed routing・Contextを維持し、新規runner／parser／DB接続APIは追加しない |
 | T-003 | PostgreSQL 18.6、SQL Server 2025、MySQL 8.4.13のLinux隔離CIと実DB試験が成功。CLIとimage digestをfixtureに固定 |
 | T-004 | 3ホストmanifestと実installerによる配布・個別cache参照を検証。READMEから利用文書へ接続し、Azure SQL／RDSの担当分担と運用引き継ぎを追加 |
-| T-005 | 実装担当外のレビューで未解決指摘なし。分離Codex環境での実利用評価が成功。最終差分の全必須CIを確認中 |
+| T-005 | 実装担当外のレビューで未解決指摘なし。分離Codex環境での実利用評価が成功。全56ジョブと必須集約が成功 |
 
 実DB試験は生成した合成データだけを使い、ローカルDocker socketから作成した
 資源ID・所有labelを検証して片付ける。共有／本番のDSNは受け取らない。
@@ -48,15 +48,16 @@ SQL Serverの一時publish profileは所有者のみ読める権限で作成す�
 
 - run 42137234565ではSQL Server試験自体が成功しても、実行後の作業ツリーがdirtyとなり必須集約が拒否した。
   SqlPackageの作業場所を一時ビルド領域に揃え、前後のGit状態を証拠に含めて試験内でも一致を検査する。
-  元の生成ファイル名は旧証拠に記録されておらず、修正の有効性は再実行で確認する。
-  同runのmacOS復旧ジョブはキャンセルされており、全CI成功とは扱わない。
+  元の生成ファイル名は旧証拠に記録されていないが、修正後のrun 42145719843では前後ともGit状態が空で、
+  試験内の検査とreceiptのclean_before／clean_afterが成功した。独立レビューでも入力・実行場所・削除を照合した。
+  旧run 42137234565のmacOS復旧ジョブはキャンセルされており、この旧runを全CI成功とは扱わない。
 
 ## 受入証拠
 
-- [実DB CI](https://github.com/aharada54914/sdd-forge/actions/runs/42125948295)：PostgreSQL、MySQL、SQL Server、配布契約の4ジョブ成功。
+- [実DB CI](https://github.com/aharada54914/sdd-forge/actions/runs/42145719843)：PostgreSQL、MySQL、SQL Server、配布契約の4ジョブ成功。
   [保存した実測結果とハッシュ](ci/runtime/manifest.json)は、PR合成コミットと各入力のSHA-256を保持する。
-  DB試験の60／68／47レコードには準備・繰返し確認も含むため、独立した175件の利用シナリオとは数えない。
-  全DBで所有資源の削除成功・削除エラーなしを確認した。このrun全体には後述の既存テスト失敗があり、全CI成功の証拠ではない。
+  DB試験の60／68／48レコードには準備・繰返し確認も含むため、独立した176件の利用シナリオとは数えない。
+  全DBで所有資源の削除成功・削除エラーなしを確認した。同runの全56ジョブと[必須集約](ci/required-checks.json)も成功した。対象head・合成コミット・ジョブ一覧は[受入記録](ci/acceptance.json)に保存した。
 - [実モデルの入口・負例評価](behavior/README.md)：未指定・高影響・承認不足・未知対象・未信頼macroを確認。
   3エンジンの要求から公開bootstrap経由でDraft仕様を作り、入口でSQL実装・DB接続・承認の代作をしないことを確認した。
 - [正常系の実利用評価](behavior/positive/README.md)：固定した合成PostgreSQL案件で初期失敗を確認後、公開shipが比較条件を1か所修正。
@@ -85,3 +86,8 @@ Azure SQL Database／Managed Instance、RDS／Auroraの実サービス受入、�
 Claude／Codex／Copilotは3ホストの配布形式を検証する。実モデルの対話評価はCodexで行い、
 Claudeの既定プロファイルは未認証だったためClaude実モデル評価は未実施。
 単発の受入ケースであり、モデル間比較や統計的な成功率を示すものではない。
+
+## 完了判定
+
+[品質レポート](quality.md)に基づきT-001〜T-005をDoneとした。
+この判定は承認済み初版の実装・隔離受入を対象とし、実クラウド・共有／本番への適用やリリース承認を含まない。

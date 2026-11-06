@@ -1,10 +1,10 @@
 # タスク（lite）: SQL開発フロー
 
-ユーザーが「初版仕様（T-001〜T-005）の実装を承認する」と明示承認したため実装を開始する。承認範囲は [要件](requirements.md) と [設計](design.md) に示した初版の範囲。共有・本番DBの実行は含まない。
+ユーザーが「初版仕様（T-001〜T-005）の実装を承認する」と明示承認した範囲の実装・検証を完了した。承認範囲は [要件](requirements.md) と [設計](design.md) に示した初版の範囲。共有・本番DBの実行は含まない。
 
 ## T-001 SQL入力整理と既存仕様化への入口
 Approval: Approved
-Status: In Progress
+Status: Done
 
 ### Scope
 
@@ -19,11 +19,11 @@ Status: In Progress
 
 ### Blockers
 
-- None — ユーザー承認済み。
+- None — 実装・検証完了。
 
 ## T-002 SQL実装・安全な検証の共通手順
 Approval: Approved
-Status: In Progress
+Status: Done
 
 ### Scope
 
@@ -38,11 +38,11 @@ Status: In Progress
 
 ### Blockers
 
-- T-001。
+- None — 実装・検証完了。
 
 ## T-003 3エンジンの参照案件を実DBで検証
 Approval: Approved
-Status: In Progress
+Status: Done
 
 ### Scope
 
@@ -58,11 +58,11 @@ Status: In Progress
 
 ### Blockers
 
-- T-002。実DBの実行環境・利用条件は実装時に確認。
+- None — 実装・検証完了。
 
 ## T-004 Azure・AWS・ソフト開発との導線と配布
 Approval: Approved
-Status: In Progress
+Status: Done
 
 ### Scope
 
@@ -78,11 +78,11 @@ Status: In Progress
 
 ### Blockers
 
-- T-001／T-002。
+- None — 実装・検証完了。
 
 ## T-005 独立レビューと初版の受入
 Approval: Approved
-Status: In Progress
+Status: Done
 
 ### Scope
 
@@ -98,4 +98,8 @@ Status: In Progress
 
 ### Blockers
 
-- T-001〜T-004。
+- None — 実装・検証完了。
+
+## 完了証拠
+
+全5タスクの実装・隔離受入を完了。[実装記録](../../reports/verification/sql-development-flow/implementation.md)、[品質レポート](../../reports/verification/sql-development-flow/quality.md)、[全必須CI](../../reports/verification/sql-development-flow/ci/acceptance.json)を参照。
