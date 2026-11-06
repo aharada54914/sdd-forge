@@ -70,6 +70,9 @@ def main():
     fixture = DockerFixture('tsql', output, [p for p in inputs if p.is_file()])
     error = None
     try:
+        checkout_before = fixture.run(
+            ['git', 'status', '--porcelain', '--untracked-files=all'],
+            label='checkout-before').stdout
         artifacts.mkdir(parents=True, exist_ok=False)
         package = shutil.which(args.sqlpackage)
         if package is None and Path(args.sqlpackage).is_file():
@@ -188,7 +191,7 @@ def main():
                           f'DOTNET_CLI_HOME={work / "dotnet-home"}',
                           'DOTNET_CLI_TELEMETRY_OPTOUT=1', 'DOTNET_NOLOGO=1', *argv]
                 return in_database_network(client, label=f'{action.lower()}-{stage}-{database}',
-                                           expected=expected, timeout=180)
+                                           expected=expected, timeout=180, cwd=work)
 
             def scalar(statement, database='reference_upgrade'):
                 return sql(statement, database).stdout.strip()
@@ -316,6 +319,11 @@ def main():
             (artifacts / 'build-hashes.json').write_text(json.dumps(hashes, indent=2) + '\n')
             fixture.check('evidence-secret-free', all(password not in read_generated_text(path)
                                                     for path in artifacts.iterdir() if path.is_file()))
+        checkout_after = fixture.run(
+            ['git', 'status', '--porcelain', '--untracked-files=all'],
+            label='checkout-after').stdout
+        fixture.check('checkout-unchanged', checkout_before == checkout_after,
+                      {'before': checkout_before, 'after': checkout_after})
     except Exception as failure:
         error = failure
     return fixture.finish(error)

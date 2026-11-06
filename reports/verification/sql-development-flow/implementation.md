@@ -46,6 +46,11 @@ SQL Serverの一時publish profileは所有者のみ読める権限で作成す�
   Windowsの一時cloneで証拠パスが長さ制限に達したため、証拠の内容を保ったまま梱包名を短縮した。
   A2の現在のCI候補にはSQL 4ジョブと最新の集約を同期した。過去の固定候補は変更せず、同期を公開承認とは扱わない。
 
+- run 42137234565ではSQL Server試験自体が成功しても、実行後の作業ツリーがdirtyとなり必須集約が拒否した。
+  SqlPackageの作業場所を一時ビルド領域に揃え、前後のGit状態を証拠に含めて試験内でも一致を検査する。
+  元の生成ファイル名は旧証拠に記録されておらず、修正の有効性は再実行で確認する。
+  同runのmacOS復旧ジョブはキャンセルされており、全CI成功とは扱わない。
+
 ## 受入証拠
 
 - [実DB CI](https://github.com/aharada54914/sdd-forge/actions/runs/42125948295)：PostgreSQL、MySQL、SQL Server、配布契約の4ジョブ成功。
