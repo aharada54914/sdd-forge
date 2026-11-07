@@ -50,6 +50,28 @@ def receipt_name(run, attempt, job, matrix):
     return f'verification-receipts-{run}-{attempt}-{job_key(job, matrix)}'
 
 
+class TrustedParserTests(unittest.TestCase):
+    def test_dependency_updates_install_base_lock_without_scripts_and_fail_closed(self):
+        ci = module(SCRIPT, 'parser_reconstruction_ci')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'subject'
+            trusted = Path(directory) / 'base'
+            for target in (root, trusted):
+                package = target / 'mcp/sdd-forge-mcp'
+                package.mkdir(parents=True)
+                (package / 'package-lock.json').write_text(target.name)
+            (root / 'mcp/sdd-forge-mcp/node_modules/js-yaml').mkdir(parents=True)
+            with patch.object(ci, 'ROOT', root), patch.object(ci.subprocess, 'run') as run:
+                ci.prepare_trusted_parser(trusted)
+                run.assert_called_once_with(
+                    ['npm', 'ci', '--prefix', str(trusted / 'mcp/sdd-forge-mcp'),
+                     '--ignore-scripts', '--no-audit', '--no-fund'],
+                    capture_output=True, check=True, timeout=120)
+                run.side_effect = subprocess.CalledProcessError(1, 'npm')
+                with self.assertRaises(subprocess.CalledProcessError):
+                    ci.prepare_trusted_parser(trusted)
+
+
 class BoundaryTests(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')

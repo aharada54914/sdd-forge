@@ -6,7 +6,7 @@ import { join, delimiter } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { buildServer } from "../../src/server.js";
-import { probeEngine, __clearProbeCache } from "../../src/probe-engine.js";
+import { createProbeEngine, probeEngine, __clearProbeCache } from "../../src/probe-engine.js";
 import type { AllowlistEntry } from "../../src/allowlist.js";
 
 // Windows cannot exec script shims without a shell; failure/slot release runs on every platform below.
@@ -14,8 +14,9 @@ test("simultaneous registered tool calls share four probe slots", { skip: proces
   const dir = mkdtempSync(join(tmpdir(), "probe-concurrency-"));
   const log = join(dir, "events.jsonl");
   const groups = [["node", "npm", "pnpm", "yarn"], ["bun", "deno", "git", "gh"]];
-  const previousPath = process.env.PATH;
-  const server = buildServer();
+  const environment = { ...process.env, PATH: `${dir}${delimiter}${process.env.PATH ?? ""}` };
+  const engine = createProbeEngine({ environment: () => environment });
+  const server = buildServer({ probe: engine.probe });
   const client = new Client({ name: "concurrency-test", version: "1.0" });
   try {
     for (const name of groups.flat()) {
@@ -23,7 +24,6 @@ test("simultaneous registered tool calls share four probe slots", { skip: proces
       writeFileSync(file, `#!${process.execPath}\nconst fs=require('node:fs');const log=${JSON.stringify(log)};const record=event=>fs.appendFileSync(log,JSON.stringify({event,pid:process.pid})+'\\n');record('start');setTimeout(()=>{record('end');console.log('fixture 1.0');},500);\n`);
       chmodSync(file, 0o755);
     }
-    process.env.PATH = `${dir}${delimiter}${previousPath ?? ""}`;
     __clearProbeCache();
     const [a, b] = InMemoryTransport.createLinkedPair();
     await Promise.all([server.connect(a), client.connect(b)]);
@@ -47,7 +47,6 @@ test("simultaneous registered tool calls share four probe slots", { skip: proces
     await client.callTool({ name: "get_toolchain_versions", arguments: { names: groups[0] } });
     assert.equal(readFileSync(log, "utf8"), before, "completed cache hits must not spawn");
   } finally {
-    if (previousPath === undefined) delete process.env.PATH; else process.env.PATH = previousPath;
     await client.close(); await server.close(); __clearProbeCache();
     rmSync(dir, { recursive: true, force: true });
   }

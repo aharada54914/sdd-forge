@@ -459,6 +459,15 @@ else
     fail "CL-016b: stdin content did not match the bundle-only contract -- $(cat "${CL016_STDIN}" 2>/dev/null | head -c 200)"
 fi
 
+if PATH="${CL016_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gemini.sh" \
+    --task T-016 --feature feat --input "${WORK}/cl016/input.txt" \
+    --spec-root "${WORK}/cl016/specs" --digest "${ZERO_DIGEST_CL}" >/dev/null 2>&1 \
+    && [ "$(head -n 1 "${CL016_ARGV}")" = "-p" ]; then
+    ok "CL-016c: no model override delegates selection to the Gemini CLI"
+else
+    fail "CL-016c: default invocation failed or injected a model override"
+fi
+
 # ============================================================================
 # CL-017: detect-panel — CLI resolves via `command -v` but `--version` fails
 # (e.g. broken auth) → not reported available (liveness probe, not just

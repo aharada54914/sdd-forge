@@ -58,7 +58,8 @@ task_id=""
 feature=""
 input_path=""
 spec_root="specs"
-model="gemini-2.0-flash"
+# Use the CLI/account configuration unless an explicit model is selected.
+model=""
 input_digest=""
 consent_kind="human-flag"
 _panelist_timeout="${SDD_PANELIST_TIMEOUT:-600}"
@@ -180,11 +181,13 @@ _prompt_text="$(cat "$_prompt_file")" || {
     printf 'run-panelist-gemini: cannot read panelist prompt\n' >&2; exit 2
 }
 
-printf 'run-panelist-gemini: invoking gemini --model %s -p <prompt> (task=%s feature=%s)\n' \
-    "$model" "$task_id" "$feature" >&2
+printf 'run-panelist-gemini: invoking gemini (model=%s task=%s feature=%s)\n' \
+    "${model:-CLI default}" "$task_id" "$feature" >&2
+set -- gemini
+if [ -n "$model" ]; then set -- "$@" --model "$model"; fi
 
 _raw_output="${_scratch}/raw-output.txt"
-_sdd_run_bounded "$_panelist_timeout" gemini --model "$model" -p "$_prompt_text" \
+_sdd_run_bounded "$_panelist_timeout" "$@" -p "$_prompt_text" \
     < "$_stdin_bundle" > "$_raw_output" 2>&1
 _rc=$?
 if [ "$_rc" -ne 0 ]; then

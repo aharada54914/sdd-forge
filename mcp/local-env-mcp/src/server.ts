@@ -22,6 +22,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import type { Result } from "./envelope.js";
 import {
+  type ToolProbeOptions,
   getOsInfo,
   getToolchainVersions,
   listAvailableClis,
@@ -36,7 +37,7 @@ function toCallToolResult<T>(result: Result<T>): { content: Array<{ type: "text"
 }
 
 /** Builds the MCP server and registers the 3 read-only environment tools. */
-export function buildServer(): McpServer {
+export function buildServer(options: ToolProbeOptions = {}): McpServer {
   const server = new McpServer({
     name: "local-env-mcp",
     version: "0.1.0",
@@ -65,7 +66,7 @@ export function buildServer(): McpServer {
         "response stays ok:true. Accepts no command, argument, or path input.",
       inputSchema: TOOLCHAIN_TOOL_INPUT_SHAPE,
     },
-    async ({ names }) => toCallToolResult(await getToolchainVersions({ names })),
+    async ({ names }) => toCallToolResult(await getToolchainVersions({ names }, options)),
   );
 
   server.registerTool(
@@ -76,7 +77,7 @@ export function buildServer(): McpServer {
         "Reports availability (present/absent) for each CLI in the fixed " +
         "14-CLI allowlist, without version strings. Takes no input.",
     },
-    async () => toCallToolResult(await listAvailableClis()),
+    async () => toCallToolResult(await listAvailableClis(options)),
   );
 
   return server;

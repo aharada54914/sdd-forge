@@ -54,6 +54,7 @@ test("GET is the only HTTP method ever issued, host is fixed to api.github.com",
 
   assert.equal(calls.length, 1);
   assert.equal(calls[0]?.method, "GET");
+  assert.equal(calls[0]?.headers["X-GitHub-Api-Version"], "2022-11-28");
   assert.ok(calls[0]?.url.startsWith("https://api.github.com/"), `url was ${calls[0]?.url}`);
 });
 

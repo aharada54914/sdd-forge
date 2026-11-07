@@ -51,6 +51,7 @@ ENGINE = [
     "_type_matches",
     "_resolve_ref",
     "_schema_matches",
+    "_json_equal",
     "_validate",
 ]
 
@@ -81,7 +82,7 @@ PYEOF
 )" || { bad "engine extraction failed to run"; printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$PASS" "$FAIL"; exit 1; }
 
 for fn in _escape_pointer_token _ecma_anchor _compile_pattern _type_matches \
-          _resolve_ref _schema_matches _validate; do
+          _resolve_ref _schema_matches _json_equal _validate; do
     line="$(printf '%s\n' "$REPORT" | awk -F'\t' -v fn="$fn" '$2 == fn')"
     case "$line" in
         IDENTICAL*) ok "engine function $fn is byte-identical across all three validators" ;;
@@ -89,6 +90,43 @@ for fn in _escape_pointer_token _ecma_anchor _compile_pattern _type_matches \
         *)  bad "engine function $fn diverged or is missing: $(printf '%s' "$line" | tr '\n' ' ')" ;;
     esac
 done
+
+# Equality conformance is independent of the byte-identity check above.
+if PYTHONDONTWRITEBYTECODE=1 python3 - "$ROOT" <<'PYEOF'
+import importlib.util
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1])
+pairs = [
+    (True, 1, False), (False, 0, False), (1, 1.0, True),
+    (0, -0.0, True), (None, None, True), ("1", 1, False),
+    ([True], [1], False), ({"a": True}, {"a": 1}, False),
+    ({"a": [1, {"b": 0}]}, {"a": [1.0, {"b": -0.0}]}, True),
+    ({"a": 1, "b": 2}, {"b": 2, "a": 1.0}, True),
+    ([], {}, False), ([1], [1, 2], False), ({"a": 1}, {"b": 1}, False),
+    (9007199254740993, 9007199254740992, False),
+]
+for name in ("validate-facet-manifest", "validate-capability-summary", "validate-context-projection"):
+    spec = importlib.util.spec_from_file_location(name, root / "plugins/sdd-quality-loop/scripts" / (name + ".py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for left, right, equal in pairs:
+        for instance, schema, expected in (
+            (left, {"const": right}, equal),
+            (left, {"enum": [right]}, equal),
+            ([left, right], {"type": "array", "uniqueItems": True}, not equal),
+        ):
+            diagnostics = []
+            module._validate(instance, schema, schema, "", diagnostics)
+            assert (not diagnostics) == expected, (name, instance, schema, diagnostics)
+print("126 equality conformance cases passed")
+PYEOF
+then
+    ok "JSON Schema const, enum and uniqueItems equality conforms across all three engines"
+else
+    bad "JSON Schema equality conformance failed"
+fi
 
 # Non-vacuity: mutate one engine copy in a scratch tree and assert the same
 # extractor reports divergence — otherwise an extractor bug that never finds

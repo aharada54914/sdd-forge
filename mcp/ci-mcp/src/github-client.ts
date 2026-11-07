@@ -99,6 +99,8 @@ function buildGithubUrl(
   return url.toString();
 }
 
+// Keep the previously implicit API contract until a newer version is qualified.
+const GITHUB_API_VERSION = "2022-11-28";
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /** Provider transport only: body interpretation and endpoint policy stay with callers. */
@@ -108,7 +110,7 @@ async function requestGithub<Response extends Pick<GithubHttpResponse, "status" 
   fetchImpl: (url: string, init: Parameters<GithubFetch>[1]) => Promise<Response>,
 ): Promise<GithubGetOutcome<Response>> {
   const url = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers: Record<string, string> = { accept };
+  const headers: Record<string, string> = { accept, "X-GitHub-Api-Version": GITHUB_API_VERSION };
   if (request.token !== undefined && request.token.length > 0) {
     headers.authorization = `Bearer ${request.token}`;
   }

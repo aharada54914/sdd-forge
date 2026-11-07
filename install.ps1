@@ -362,14 +362,14 @@ function Test-ClaudeHookRuntime {
     }
     $node = Get-Command node -CommandType Application, ExternalScript -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $node) {
-        throw 'Claude quality-loop hooks require Node.js >= 22.19.0 on PATH, even with -SkipMcp. Install Node.js and restart the host before retrying. Installation was not changed.'
+        throw 'Claude quality-loop hooks require Node.js >= 26.13.0 on PATH, even with -SkipMcp. Install Node.js and restart the host before retrying. Installation was not changed.'
     }
     $output = Invoke-VersionPreflight -Command $node.Source -Label 'Node.js for Claude quality-loop hooks'
     $nodeVersion = $null
     if ($output -notmatch '^v?([0-9]+\.[0-9]+\.[0-9]+)$' -or
         -not [version]::TryParse($Matches[1], [ref]$nodeVersion) -or
-        $nodeVersion -lt [version]'22.19.0') {
-        throw "Claude quality-loop hooks require working Node.js >= 22.19.0 (found '$output'), even with -SkipMcp. Installation was not changed."
+        $nodeVersion -lt [version]'26.13.0') {
+        throw "Claude quality-loop hooks require working Node.js >= 26.13.0 (found '$output'), even with -SkipMcp. Installation was not changed."
     }
 }
 
@@ -398,8 +398,8 @@ function Test-NodeVersionOk {
         return $false
     }
     $parsedVersion = [version]::new($major, $minor, $patch)
-    if ($parsedVersion -lt [version]"22.19.0") {
-        Write-Warning "Node.js >= 22.19.0 is required for MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
+    if ($parsedVersion -lt [version]"26.13.0") {
+        Write-Warning "Node.js >= 26.13.0 is required for MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
         return $false
     }
     return $true
@@ -509,7 +509,7 @@ function Update-McpJson {
     # preserving all other entries and unknown top-level keys. The output is
     # stable 2-space JSON, so re-running produces a byte-identical file. To
     # guarantee byte-parity with install.sh, the JSON handling is done by the
-    # SAME Node one-liner install.sh uses (Node >= 22.19.0 is guaranteed here by the
+    # SAME Node one-liner install.sh uses (Node >= 26.13.0 is guaranteed here by the
     # MCP gate / McpNodeOk). Fail-safes (security-spec B3): a present-but-invalid
     # JSON file is never overwritten (error notice, installer continues with
     # other clients).
@@ -1054,7 +1054,7 @@ try {
     # development trees. The mcp/ tree is not in the manifest on purpose: MCP
     # payload placement is handled exclusively by Install-McpServerPayloads
     # (dist/index.js + package.json only, gated by -SkipMcp / -Mcp / the
-    # Node >= 22.19.0 check).
+    # Node >= 26.13.0 check).
     if ($isLocalSource) {
         # Read the NUL-delimited UTF-8 stream directly: PowerShell's native
         # pipeline splits lines, while Git's ordinary output quotes special names.

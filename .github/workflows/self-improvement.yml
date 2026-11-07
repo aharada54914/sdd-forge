@@ -71,6 +71,10 @@ jobs:
     outputs:
       audit_complete: ${{ steps.audit_completion.outputs.complete }}
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       # fail-fast: 認証情報の欠落はセッション起動前に検出し、
       # 失敗 Issue に人間が読める原因を残す(3週連続のサイレント失敗の再発防止)。
       - name: Preflight - verify required secrets

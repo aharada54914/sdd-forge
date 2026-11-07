@@ -161,29 +161,29 @@ Acquire the official [bicep-linux-x64 asset](https://github.com/Azure/bicep/rele
 verify the digest before execution, protect it from replacement, and explicitly set
 `CLOUD_BICEP_BIN` to its physical absolute executable path.
 
-Node 24.19.0 official archive contains npm **11.17.0** (not the earlier host npm
+Node 26.13.0 official archive contains npm **11.20.0** (not the earlier host npm
 11.9.0). Use an operator-selected tools directory, not a development /opt path:
 
 ```sh
 # Acquisition only; inspect/verify before executing downloaded binaries.
-curl --fail --location --output node-v24.19.0-linux-x64.tar.xz \
-  https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz
-printf '%s  %s\n' 14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647 \
-  node-v24.19.0-linux-x64.tar.xz | sha256sum -c -
-tar -xf node-v24.19.0-linux-x64.tar.xz -C "$TOOLS_ROOT"
-export CLOUD_NODE_BIN="$TOOLS_ROOT/node-v24.19.0-linux-x64/bin/node"
-printf '%s  %s\n' bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12 \
+curl --fail --location --output node-v26.13.0-linux-x64.tar.xz \
+  https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz
+printf '%s  %s\n' d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997 \
+  node-v26.13.0-linux-x64.tar.xz | sha256sum -c -
+tar -xf node-v26.13.0-linux-x64.tar.xz -C "$TOOLS_ROOT"
+export CLOUD_NODE_BIN="$TOOLS_ROOT/node-v26.13.0-linux-x64/bin/node"
+printf '%s  %s\n' 0adde40d1b7dfa57c8bc83cbc319758c3ec6ebba21363bb2fa752ea6b267ad1b \
   "$CLOUD_NODE_BIN" | sha256sum -c -
 # CLOUD_CDK_ROOT is a new physical directory with the shipped package/lock files.
 cp "$AWS_PLUGIN/examples/private-ec2/package.json" "$AWS_PLUGIN/examples/private-ec2/package-lock.json" "$CLOUD_CDK_ROOT/"
 (cd "$CLOUD_CDK_ROOT" && "$CLOUD_NODE_BIN" \
-  "$TOOLS_ROOT/node-v24.19.0-linux-x64/lib/node_modules/npm/bin/npm-cli.js" \
+  "$TOOLS_ROOT/node-v26.13.0-linux-x64/lib/node_modules/npm/bin/npm-cli.js" \
   ci --ignore-scripts --no-audit --no-fund)
 ```
 
-The official [SHA-256 list](https://nodejs.org/dist/v24.19.0/SHASUMS256.txt)
-and archive acquisition were checked separately from execution. Native T-011
-acquisition actually ran the bundled npm and reproduced the pinned 8,095-file
+The official [SHA-256 list](https://nodejs.org/dist/v26.13.0/SHASUMS256.txt)
+and archive acquisition were checked separately from execution. The 2026-11-07
+Node 26 requalification ran the bundled npm and reproduced the pinned 8,095-file
 CDK tree SHA-256 `34824a391a509c6907a9e6bb64f3a370a473bfbacd6e7f1cf1987ddd7431c1e1`.
 The lock enforces registry SRI and CDK 2.1145.0/library 2.273.0/constructs 10.5.0.
 `--offline` is optional **only with a populated cache**; a new user normally omits
