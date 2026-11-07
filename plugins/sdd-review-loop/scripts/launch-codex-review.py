@@ -335,10 +335,15 @@ def launch(args):
             (scratch / 'invocation.json').write_bytes(invocation.read_bytes())
             output_instruction = 'Return only the required JSON. Review findings honestly; do not assume PASS.'
             if stage == 'quality':
+                inspection_command = '/bin/cat ' + shlex.quote(next(iter(hashes)))
                 output_instruction = (
                     'Return the evaluator plaintext contract, including exactly this line:\nALLOWED_INPUT_MANIFEST: ' +
                     invocation.relative_to(root).as_posix() + ' ' + sha(invocation) +
-                    '\nRead the substantive admitted files yourself. Use /bin/cat with admitted paths for at least one observed file inspection. '
+                    '\nRead the substantive admitted files yourself. For the required observed inspection, '
+                    'execute this exact command as a standalone native command tool call from the current projection directory:\n' +
+                    inspection_command + '\nDo not put that inspection inside Python, subprocess, loops, pipes, '
+                    'command substitution, or a compound shell command: those do not satisfy the observed-inspection check. '
+                    'After that direct read, use the verified Python runtime for additional admitted-file/hash inspection as needed. '
                     'Do not claim to rerun tests that need writes, network, or undeclared dependencies; list tests not rerun. '
                     'Missing evidence means NEEDS_WORK, not PASS. The receipt is not product evidence.')
             started = rpc.request('turn/start', {'threadId': identity, 'permissions': PROFILE,
