@@ -1396,8 +1396,8 @@ class PreparedVerifierTests(unittest.TestCase):
     def test_runtime_and_installers_agree_on_node26_floor(self):
         live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
         for name, job in live['jobs'].items():
-            if name.startswith('a9-'):
-                continue  # Python-only advisory jobs do not consume Node packages.
+            if name.startswith('a9-') or name == 'required-checks':
+                continue  # Advisory jobs and the base-qualified aggregation job use runner tools.
             setups = [step for step in job['steps'] if step.get('uses', '').startswith('actions/setup-node@')]
             self.assertTrue(setups, name)
             self.assertTrue(all(step['with']['node-version'] == '26.13.0' for step in setups), name)

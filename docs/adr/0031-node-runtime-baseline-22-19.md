@@ -73,3 +73,9 @@ CI planning/aggregation tests (61 + 92); native AWS preparation (28); cloud
 execution (88, with the Windows-only case skipped); Bash and PowerShell
 installer and idempotency suites; coding standards tests and diff scan.
 Native Windows/macOS execution remains a CI check rather than local evidence.
+
+CI adoption is staged: the trusted base planner still requires the legacy Claude
+installation command in cli-hook-enforcement and the existing required-checks
+job shape. Their new exact forms are qualified by the validators in this change;
+activate those two workflow changes after the validators reach main. Product and
+workload runtimes already use Node 26.13.0.
