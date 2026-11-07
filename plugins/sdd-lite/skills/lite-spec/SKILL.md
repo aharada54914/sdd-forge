@@ -184,6 +184,11 @@ all) is the only condition that legitimately falls through to the
 one-argument call; every failure encountered once a Project Context is
 confirmed to exist is a Block, never a silent degrade.
 
+Preserve the complete source, including scope exclusions and workflow approval
+notes. The checker applies only the bounded non-requirement grammar documented
+in `references/risk-upgrade-policy.md`; never reword or remove a real risk to
+force lite eligibility. Conflicting positive requirements still require full.
+
 Run the platform-local checker against the resolved source file, passing the
 fragment path (when one was produced) as the second argument:
 

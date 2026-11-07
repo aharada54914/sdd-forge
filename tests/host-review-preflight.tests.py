@@ -143,8 +143,9 @@ class HostReviewPreflightTests(unittest.TestCase):
             preflight.preflight(root, invocation, preflight.sha(invocation), runtime='powershell')
         self.assertEqual(verify.call_args.kwargs['runtime'], 'powershell')
         calls = [call.args[0] for call in run.call_args_list]
-        self.assertEqual(calls[0][:5], ['rtk', 'proxy', 'pwsh', '-NoProfile', '-File'])
-        self.assertTrue(calls[0][5].endswith('validate-review-context-set.ps1'))
+        command = calls[0][2:] if calls[0][:2] == ['rtk', 'proxy'] else calls[0]
+        self.assertEqual(command[:3], ['pwsh', '-NoProfile', '-File'])
+        self.assertEqual(Path(command[3]), ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1')
         self.assertEqual(ledger.read_text(), 'unchanged')
 
     def test_cli_help_flags_and_unsupported_argument(self):
@@ -234,6 +235,9 @@ FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WOR
 # Keep the admitted T-003 baseline pinned. Later reviewed additions must be
 # explicit and present exactly once; they do not loosen unrelated membership.
 ADDITIONAL_PROTECTIONS = (
+    'plugins/sdd-review-loop/scripts/prepare-review-assets.py',
+    QUALITY_SCRIPTS + 'classify-evidence-write.py',
+    'plugins/sdd-review-loop/scripts/launch-codex-review.py',
     QUALITY_SCRIPTS + 'lib/native-arguments.ps1',
     'plugins/sdd-review-loop/scripts/fixed-review-inputs.py',
     QUALITY_SCRIPTS + 'validate-feature-scratch-history.py',

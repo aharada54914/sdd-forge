@@ -50,6 +50,12 @@
     ]
   },
   "suites": [
+    {"path": "tests/workflow-state-installed-root.tests.py", "runtime": "python"},
+    {"path": "tests/codex-review-identity.tests.py", "runtime": "python"},
+    {"path": "tests/risk-upgrade-context.tests.ps1", "runtime": "powershell"},
+    {"path": "tests/risk-upgrade-context.tests.sh", "runtime": "bash"},
+    {"path": "tests/installed-review-precheck.tests.py", "runtime": "python"},
+    {"path": "tests/guard-quoted-patch-evidence.tests.py", "runtime": "python"},
     {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-execution.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
@@ -205,6 +211,7 @@
     {"path": "tests/facet-manifest-staleness.tests.ps1", "runtime": "powershell"},
     {"path": "tests/facet-manifest-staleness.tests.sh", "runtime": "bash"},
     {"path": "tests/fixed-review-inputs.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/codex-review-launcher.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/fixed-review-launch.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/fixed-review-precheck-bash.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/fixed-review-precheck-ps.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -474,6 +481,11 @@
     ],
     "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
+      "tests/workflow-state-installed-root.tests.py",
+      "tests/codex-review-identity.tests.py",
+      "tests/risk-upgrade-context.tests.sh",
+      "tests/installed-review-precheck.tests.py",
+      "tests/guard-quoted-patch-evidence.tests.py",
       "tests/cloud-orchestration-contracts.tests.py",
       "tests/cloud-orchestration-routing.tests.py",
       "tests/cloud-orchestration-execution.tests.py",
@@ -677,6 +689,7 @@
       "tests/fixed-review-inputs.tests.py",
       "tests/fixed-review-state.tests.py",
       "tests/fixed-review-launch.tests.py",
+      "tests/codex-review-launcher.tests.py",
       "tests/fixed-review-precheck-ps.tests.py",
       "tests/fixed-review-precheck-bash.tests.py",
       "tests/review-conditional-inputs.tests.py",
@@ -699,6 +712,7 @@
       "tests/verification-ci.tests.py"
     ],
     "local-powershell": [
+      "tests/risk-upgrade-context.tests.ps1",
       "tests/cloud-orchestration-contracts.tests.py",
       "tests/cloud-orchestration-routing.tests.py",
       "tests/cloud-orchestration-execution.tests.py",
@@ -966,6 +980,7 @@
       "tests/fixed-review-inputs.tests.py",
       "tests/fixed-review-state.tests.py",
       "tests/fixed-review-launch.tests.py",
+      "tests/codex-review-launcher.tests.py",
       "tests/fixed-review-precheck-ps.tests.py",
       "tests/fixed-review-precheck-bash.tests.py",
       "tests/review-conditional-inputs.tests.py",

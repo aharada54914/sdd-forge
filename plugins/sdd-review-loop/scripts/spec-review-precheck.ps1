@@ -20,6 +20,7 @@ param(
   [switch]$VerifyInputs,
   [string]$FixedInputRecord = '',
   [string]$FixedInputSnapshot = '',
+  [string]$RepositoryRoot = '',
   [Parameter(ValueFromRemainingArguments=$true, Position=4)][string[]]$AdditionalArguments
 )
 
@@ -278,9 +279,21 @@ if ($VerifyInputs) {
   if (-not ($attemptInt -eq 1 -or $roundInt -gt 1)) { Fail 'a new attempt requires --reset' }
 }
 
-$root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+$pluginRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+if (-not $RepositoryRoot) {
+  $RepositoryRoot = (Get-Location).Path
+  if ($pluginRoot.Replace('\', '/') -cmatch '/plugins/sdd-review-loop$' -and (Test-Path -LiteralPath (Join-Path $pluginRoot '../../.git'))) {
+    $RepositoryRoot = (Resolve-Path -LiteralPath (Join-Path $pluginRoot '../..')).Path
+  }
+}
+$root = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 . (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
 $fixedSources = Get-FixedInputSources $root $FixedInputRecord $FixedInputSnapshot ([bool]$VerifyInputs)
+$assetOptions = @()
+if ($VerifyInputs) { $assetOptions += '--verify-only' }
+& python3 (Join-Path $PSScriptRoot 'prepare-review-assets.py') --root $root --stage spec @assetOptions | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail 'review reference projection failed' }
+
 $specsRoot = Join-Path $root 'specs'
 $reportsRoot = Join-Path $root 'reports'
 $reportsBase = Join-Path $reportsRoot 'spec-review'
@@ -976,7 +989,7 @@ function Test-InterruptedRecovery([string]$RecordPath) {
     if (-not (Test-ValidateContract (Join-Path $root "$prior/spec-review-contract.json") $n ($r-1) NEEDS_WORK (Join-Path $root "$prior/precheck-result.json"))) { return $false }
     $rawManifest = @($inv.allowed_input_manifest | ForEach-Object { [pscustomobject]@{path=(Get-ManifestLocalPath $_.path '');sha256=$_.sha256} } | Sort-Object path)
     if (-not (Test-ValidateReviewerOutput (Join-Path $root "$source/reviewer-a.json") 'spec-reviewer-a' $rawManifest $a.run_id $a.host_session_id '')) { return $false }
-    & (Join-Path $root 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1') -Manifest (Join-Path $root $invocationPath) -RepositoryRoot $root | Out-Null
+    & (Get-ReviewPluginFile 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1') -Manifest (Join-Path $root $invocationPath) -RepositoryRoot $root | Out-Null
     return $LASTEXITCODE -eq 0
   } catch { [Console]::Error.WriteLine($_.Exception.Message); return $false }
 }
@@ -1087,7 +1100,7 @@ try {
       run_id       = 'spec-precheck'
       verdict      = 'PASS'
     } | ConvertTo-Json -Compress | Set-Content -LiteralPath $foundationContract -Encoding utf8NoBOM
-    & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -Feature $Feature -Attempt $Attempt -Round $Round -Stage spec -ReportRoot $reportRoot -Contract $foundationContract | Out-Null
+    & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -RepositoryRoot $root -Feature $Feature -Attempt $Attempt -Round $Round -Stage spec -ReportRoot $reportRoot -Contract $foundationContract | Out-Null
   } finally {
     Remove-Item -LiteralPath $foundationContract -Force -ErrorAction SilentlyContinue
   }
