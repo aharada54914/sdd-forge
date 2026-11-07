@@ -25,3 +25,15 @@ Frozen human-copy predecessors are retained. Only applied mirrors are refreshed,
 The shipped Codex launcher now uses native named permissions and verifies inside read, outside-read denial, write denial and network denial before allocating/reserving a reviewer. Actual native fixture transport succeeded. Independent review found and fixed output path traversal and overbroad CLI-directory reads; only the CLI file is admitted. The transport returns a candidate, never an automatic gate PASS. Full is now using it for implementation review; SQLite has passed specification review. Quality-evaluator transport is the next integration step.
 
 Sites deployment succeeded with an explicitly timestamped saved snapshot of all three sessions. This does not claim continuous collection. Local source-backed browser checks passed; native deployment success is recorded separately from live visitor-browser verification.
+
+## Third checkpoint — cc09eee8
+
+The native transport now also launches the genuine independent quality evaluator using canonical implementation-manifest and scratch-history admission. Native permission probes, actual evaluator fixture execution, independent transport review, and focused integration checks passed; see `codex-native-launcher/` and `final-integration/`. These fixture results are not claimed as full app completion.
+
+#735 preserves canonical implementation-review verdicts across correction routing. #734 additionally fixes ADR declaration syntax, high-risk Red-test commit/reviewer prerequisites and a task completion instruction that required changing review-frozen traceability.
+
+Full and SQLite have now passed actual specification, implementation-design and task A/B reviews. Disposable task approval fixtures were applied only after real task-review adoption, with hashes and provenance. Full has five tasks and SQLite three. Both are entering implementation; an installed implementation selector dependency defect is being corrected before continuing with a registered model actually offered by the native host. No arbitrary model tier or fabricated completion is accepted.
+
+## Installed implementation selector follow-up
+
+The implementation package now includes exact canonical capability-registry mirrors and resolves its own assets in versioned/standalone installs. Both Bash and PowerShell reproduce the pre-fix failure and pass after correction; eight isolated package tests and the existing routing suites pass. No model tier or availability was invented. The native host discovery independently confirms registered `gpt-6-astra` with high effort is available; the isolated verification profile uses that actual configuration for subsequent implementation/evaluation. See `model-selector-package/`.

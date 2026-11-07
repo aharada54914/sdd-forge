@@ -288,6 +288,7 @@
     {"path": "tests/loop-inventory.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
     {"path": "tests/model-observation.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/model-identity.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+    {"path": "tests/model-selector-package.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/model-policy.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/model-policy-launch-platform.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/model-policy-launch.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -705,6 +706,7 @@
       "tests/model-observation.tests.py",
       "tests/model-identity.tests.py",
       "tests/model-policy.tests.py",
+      "tests/model-selector-package.tests.py",
       "tests/model-policy-launch-platform.tests.py",
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-installed.tests.py",
@@ -863,6 +865,7 @@
       "tests/model-observation.tests.py",
       "tests/model-identity.tests.py",
       "tests/model-policy.tests.py",
+      "tests/model-selector-package.tests.py",
       "tests/model-policy-launch-platform.tests.py"
     ],
     "ci-posix-fallback": [
@@ -1012,6 +1015,7 @@
       "tests/model-observation.tests.py",
       "tests/model-identity.tests.py",
       "tests/model-policy.tests.py",
+      "tests/model-selector-package.tests.py",
       "tests/model-policy-launch-platform.tests.py"
     ]
   }
