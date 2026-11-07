@@ -78,8 +78,13 @@ this file from its entry command:
     `concept-test` skill first. Its deterministic validator must return
     CONTINUE before domain-sync or any generation. BLOCK, DEFER, and REJECT
     stop this flow. Do not substitute an LLM verdict for evidence validation.
-1b. Run `domain-sync`'s detection logic (project root, feature slug) before
-    generating any Phase 1 artifact. If it reports a skip or warning line,
+1b. Before resolving the optional `domain-sync` skill, check whether `domain/`
+    physically exists at the project root. If absent, record exactly
+    `domain-sync skipped: no domain/ directory` once and continue to step 2;
+    do not require or install `sdd-domain` for this case. If `domain/` exists,
+    run `domain-sync`'s detection logic (project root, feature slug) before
+    generating any Phase 1 artifact. Do not invent injection or validation
+    results when that installed skill is unavailable. If it reports a skip or warning line,
     proceed exactly as if `domain/` were absent — record the line and
     continue to step 2 with no other change to this flow. If it reports an
     injection, carry its `Bounded-Context:` field text, canonical terms, and
