@@ -1,5 +1,7 @@
 # 3並行 UI / SDD フロー検証 — 2026-11-07
 
+外部デザイン連携の追加確認: [full/SQLiteの連携不足と合格条件](design-integration/README.md)。
+
 Sites表示の追加確認: [機能試験と本番同期の制約](sites-audit/README.md)。
 
 **更新:** ユーザーのdevice認証後に3セッションを再実行。認証は解消し、プラグイン停止バグ3件を登録。最新結果は [authenticated-retry](authenticated-retry/README.md) を参照。以下は最初の未認証試行の記録。
