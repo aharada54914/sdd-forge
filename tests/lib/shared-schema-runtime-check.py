@@ -61,7 +61,8 @@ class SharedSchemaRuntimeTests(unittest.TestCase):
 
     def test_malformed_schema_and_wrong_draft_rejected(self):
         for schema in ({'minLength': -1}, {'required': 'x'}, {'type': 'typo'}, {'maxLenght': 1},
-                       {'$schema': 'https://json-schema.org/draft/2020-12/schema', 'prefixItems': []}):
+                       {'$schema': 'https://json-schema.org/draft/2020-12/schema', 'prefixItems': []},
+                       {'$schema': 'https://json-schema.org/draft/2020-12/schema', '$defs': {'unused': []}}):
             with self.subTest(schema=schema), self.assertRaises(ValueError):
                 self.diagnostics({}, schema)
 

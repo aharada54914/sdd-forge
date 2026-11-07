@@ -50,7 +50,7 @@ def _schema_nodes(schema):
         if not isinstance(children, dict):
             raise ValueError(f'{key} must be an object')
         for child in children.values():
-            if not isinstance(child, list):
+            if key != "dependencies" or not isinstance(child, list):
                 yield from _schema_nodes(child)
     for key in ('allOf', 'anyOf', 'oneOf'):
         for child in schema.get(key, []):
