@@ -53,6 +53,9 @@ CLOSURE = [
     "contracts/agent-model-capabilities.v2.json",
     "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
     "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "plugins/sdd-quality-loop/scripts/sdd_schema.py",
+    "plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py",
+    "plugins/sdd-quality-loop/scripts/_schema_vendor/manifest.json",
 ]
 
 # Tracked development content that must never be installed (every value is FAKE).
@@ -514,6 +517,15 @@ class PayloadChecks(unittest.TestCase):
         result = run([sys.executable, "-I", str(script), "--help"], cwd=str(self.tmp), env=scenario_env(self.tmp))
         self.assertEqual(result.returncode, 0, describe(result))
         self.assertIn("usage:", result.stdout)
+        validator = root / "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+        fixture = REPO / "tests/fixtures/facet-manifest/schema/valid-base.json"
+        result = run([sys.executable, "-I", "-S", "-c",
+                      "import runpy,sys;sys.argv=sys.argv[1:];runpy.run_path(sys.argv[0],run_name='__main__')",
+                      str(validator), "--manifest", str(fixture)],
+                     cwd=str(self.tmp), env=scenario_env(self.tmp))
+        self.assertEqual(result.returncode, 0, describe(result))
+        self.assertEqual(result.stdout, "")
+
 
     def test_local_source_installs_only_the_payload(self):
         root = self.root_for("default")
