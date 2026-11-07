@@ -37,5 +37,17 @@
       "tests": 16,
       "skipped": 0
     }
-  ]
+  ],
+  "aws_native": {
+    "result": "PASS",
+    "tests": 28,
+    "skipped": 0,
+    "node": "26.13.0",
+    "node_sha256": "0adde40d1b7dfa57c8bc83cbc319758c3ec6ebba21363bb2fa752ea6b267ad1b",
+    "cdk": "2.1145.0",
+    "aws_cdk_lib": "2.273.0",
+    "constructs": "10.5.0",
+    "note": "Official Node archive checksum verified; npm ci --ignore-scripts from committed lock. Re-runs the initially skipped AWS synth cases."
+  },
+  "workflow_state": "PASS"
 }

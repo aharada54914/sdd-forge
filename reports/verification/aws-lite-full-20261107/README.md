@@ -21,6 +21,8 @@ Both installers now reject this conflict before plugin installation and explain 
 - Bash installer idempotency: 8 passed, 0 failed.
 - PowerShell installer idempotency: all scenarios passed, including source conflict.
 - Cloud contracts/routing/execution/verification and packaging: see results.json. These are offline fixtures, not live cloud evidence.
+- AWS native preparation: 28 passed, 0 skipped after installing locked Node 26.13.0 / CDK 2.1145.0 / aws-cdk-lib 2.273.0 / constructs 10.5.0. Official Node archive checksum verified; npm lifecycle scripts disabled. Actual synth, immutable validate, mutation denials and installed runtime boundary exercised. Azure native tools remain outside this AWS task.
+- Workflow state fixtures: passed, including inaccessible-review fail-closed checks.
 - Lite CLI chain: 8 passed, 0 failed.
 - Lite full-upgrade backstop: 5 passed, 0 failed.
 - Ship track selection: 161 passed, 0 failed.
