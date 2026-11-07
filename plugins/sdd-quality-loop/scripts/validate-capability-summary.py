@@ -291,6 +291,19 @@ def _schema_matches(instance, schema, root_schema):
     return not probe
 
 
+def _json_equal(left, right):
+    """JSON Schema equality distinguishes booleans and compares numbers by value."""
+    if type(left) in (int, float) and type(right) in (int, float):
+        return left == right
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, list):
+        return len(left) == len(right) and all(_json_equal(a, b) for a, b in zip(left, right))
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(_json_equal(left[k], right[k]) for k in left)
+    return left == right
+
+
 def _validate(instance, schema, root_schema, pointer, diags):
     if schema is True:
         return
@@ -306,12 +319,12 @@ def _validate(instance, schema, root_schema, pointer, diags):
         return
 
     if "const" in schema:
-        if instance != schema["const"]:
+        if not _json_equal(instance, schema["const"]):
             diags.append((pointer, f"expected const {schema['const']!r}, got {instance!r}"))
             return
 
     if "enum" in schema:
-        if instance not in schema["enum"]:
+        if not any(_json_equal(instance, option) for option in schema["enum"]):
             diags.append((pointer, f"expected one of {schema['enum']!r}, got {instance!r}"))
             return
 
@@ -370,13 +383,12 @@ def _validate(instance, schema, root_schema, pointer, diags):
             for index, element in enumerate(instance):
                 _validate(element, items_schema, root_schema, f"{pointer}/{index}", diags)
         if schema.get("uniqueItems"):
-            seen_canonical = []
+            seen_items = []
             for index, element in enumerate(instance):
-                canonical = json.dumps(element, sort_keys=True)
-                if canonical in seen_canonical:
+                if any(_json_equal(element, prior) for prior in seen_items):
                     diags.append((f"{pointer}/{index}", "duplicate item (uniqueItems violated)"))
                 else:
-                    seen_canonical.append(canonical)
+                    seen_items.append(element)
         if "minItems" in schema and len(instance) < schema["minItems"]:
             diags.append((pointer, f"array length {len(instance)} < minItems {schema['minItems']}"))
 
