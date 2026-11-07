@@ -1,0 +1,17 @@
+{
+  "site_title": "SDD Forge — プロジェクトの現在地",
+  "version": 7,
+  "source_commit": "aa00ae51602055e87d0cb60b9e759a1453f3740f",
+  "worker_sha256": "13fa6ff4336ec93857ef2a34cd1e7516e2aa98169ec53462915db71ece94016d",
+  "local_source_path": "/workspace/sites/sdd-forge-status-audit/.sites-checkout/worker/index.js",
+  "deployed_source_matches_checked_out_head": true,
+  "source_modified": false,
+  "local_backend_cases": 10,
+  "local_browser_cases": 19,
+  "production_snapshot_read": false,
+  "production_status": 401,
+  "production_error": "authentication-required",
+  "production_mutation": false,
+  "snapshot_source_scope": "synthetic local fixtures, not production data",
+  "private_source_code_republished": false
+}
