@@ -317,6 +317,11 @@ handshake first:
    with `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy
    behaviour silently.
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 Then resolve the track, checking physical presence FIRST and approval

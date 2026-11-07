@@ -55,6 +55,11 @@ Claude Code:
    する (ゲート G3/G4)。妥当な Context を持つプロジェクトから、レガシー動作へ
    黙ってフォールバックしてはならない。
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 **存在・妥当性プローブを実行する時点**: ハンドシェイク自身は Project Context
