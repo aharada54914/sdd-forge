@@ -303,6 +303,8 @@ foreach ($f in @(
         Copy-Item -LiteralPath $src -Destination $destination -Force
     }
 }
+Copy-Item (Join-Path $Scripts 'sdd_schema.py') (Join-Path $Installed 'scripts')
+Copy-Item (Join-Path $Scripts '_schema_vendor') (Join-Path $Installed 'scripts') -Recurse
 foreach ($schema in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json')) {
     $src = Join-Path $RepoRoot "contracts/$schema"
     if (Test-Path -LiteralPath $src) {

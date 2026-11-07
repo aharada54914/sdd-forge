@@ -1,0 +1,19 @@
+{
+  "wheel": "fastjsonschema-2.22.3-py3-none-any.whl",
+  "sha256": "f670b443830b75aca3f00b75949efa20f4b2a80302ec7a21505c28dd54cffd43",
+  "files": {
+    "LICENSE.fastjsonschema": "2c967a9122d3a85b03f277dc8bf2e7a8ea2ae984431ce78f496df61c72131d47",
+    "fastjsonschema/__init__.py": "23176d66f78c9a3823f391c1a992e453f871be63586ca19e14c4ffb57ed250ee",
+    "fastjsonschema/__main__.py": "e217dddb7a6bcf199073c5632f47d4b1bb2bbef03bde02761c334f80b2c57402",
+    "fastjsonschema/draft04.py": "a2996990106d80f8e4b5d0ad8e997a5684f38f50f23d094dd2c49fd449542dc6",
+    "fastjsonschema/draft06.py": "c1cfdaedb1870f777d374c2d77d677fa5b433cd1c814028ff57c7646e137de6e",
+    "fastjsonschema/draft07.py": "9ca0102a7bba3b3ca143eb5fd22a54214dc0648307f44cbcd90325f20b703cd8",
+    "fastjsonschema/draft2019.py": "28732d8a5b6866e3b86fd9c2a899b328c816d31c28f4f4ce291dd0670ca866a9",
+    "fastjsonschema/exceptions.py": "ac8a1a81ca495500f0640e2178282bc4221e6622dc5be26e8799d3de83232715",
+    "fastjsonschema/generator.py": "ca2d520bbdf51849b5ea96417c91785fbfc92077efae10189f19e0d5de9c30cb",
+    "fastjsonschema/indent.py": "6c2aaac7022acab03838c691440ee042d8cf93dc1ce2906b804f49bdb2aae31b",
+    "fastjsonschema/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fastjsonschema/ref_resolver.py": "5b7fe9beddf31838810384acee0e7ca90c5f61673969b7e226a9729c929ba10f",
+    "fastjsonschema/version.py": "ae1042b0ea2cbd5882f716c6647026acb2a274e4fa6477c3c194d52caffa17e4"
+  }
+}

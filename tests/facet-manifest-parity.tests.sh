@@ -294,6 +294,8 @@ do
     chmod +x "$INSTALLED/scripts/$f" 2>/dev/null || true
   fi
 done
+cp "$SCRIPTS/sdd_schema.py" "$INSTALLED/scripts/"
+cp -R "$SCRIPTS/_schema_vendor" "$INSTALLED/scripts/"
 for schema in facet-manifest.schema.json capability-summary.schema.json context-projection.schema.json; do
   if [ -f "$REPO_ROOT/contracts/$schema" ]; then
     cp "$REPO_ROOT/contracts/$schema" "$INSTALLED/contracts/$schema"

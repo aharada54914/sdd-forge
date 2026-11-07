@@ -38,7 +38,9 @@ def runtime_files(root, stage, fixed_inputs=False, model_policy=False):
                   quality + 'validate-approval-sidecar.py',
                   quality + 'supplemental-delivery-inputs.py'))
     names.update(quality + name for name in (
-        'review-conditional-inputs.py', 'validate-facet-manifest.py'))
+        'review-conditional-inputs.py', 'validate-facet-manifest.py', 'sdd_schema.py',
+        '_schema_vendor/__init__.py', '_schema_vendor/draft-07.json',
+        '_schema_vendor/fastjsonschema.whl'))
     names.update('contracts/domain-contract.' + version + '.schema.json'
                  for version in ('v1', 'v2'))
     names.update(('contracts/concept-test.v1.schema.json',
