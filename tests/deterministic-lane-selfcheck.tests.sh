@@ -178,7 +178,7 @@ else
 fi
 
 if command -v ruby >/dev/null 2>&1; then
-    if ruby -ryaml -e 'YAML.load_file(ARGV[0])' "$candidate" >/dev/null 2>&1; then
+    if ruby -ryaml -e 'YAML.safe_load(File.read(ARGV[0]), aliases: true)' "$candidate" >/dev/null 2>&1; then
         ok "TEST-016: the candidate parses as YAML (ruby/Psych)"
     else
         fail "TEST-016: the candidate does NOT parse as YAML (ruby/Psych) -- applying it would make the workflow unloadable"
