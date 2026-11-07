@@ -1,5 +1,10 @@
 # Security Specification: epic-192-a4-facet-manifest
 
+> 2026-11-07: INV-014's implementation-only dependency/import restriction is
+> superseded by [ADR 0048](../../docs/adr/0048-shared-schema-runtime.md).
+> Existing CLI, validation, consent and deterministic-output requirements remain.
+
+
 This document expands design.md's Security Boundaries, Protected-File
 Statement, External Integrations ("None"), the `compare-facet-manifest-
 staleness` contract, the YAML parse contract, and the Discovery contract,

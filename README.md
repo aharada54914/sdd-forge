@@ -216,6 +216,8 @@ git config core.longpaths true
 
 > **`sdd-domain` は明示指定で導入できます。** Bash は `./install.sh --plugins sdd-domain`、PowerShell は `./install.ps1 -Plugins sdd-domain` を実行してください。必要な `sdd-bootstrap`・`sdd-quality-loop` と、bootstrap の依存先 `sdd-review-loop` も自動登録されます。既定のインストール構成には含まれません。全体アンインストールでは登録解除され、domain だけを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使います（依存プラグインと共有ファイルは保持）。
 
+**Python の要件**: Facet Manifest・Capability Summary・Context Projection の検証には **Python >= 3.10** が必要です。JSON Schema 検証ライブラリは固定バージョンを同梱しており、利用時の `pip install` やネットワーク接続は不要です。
+
 **Node.js の要件**: 同梱の MCP サーバーと Claude 用の安全フックには **Node.js >= 26.13.0** が必要です。`All` / `Claude` で、依存を含む対象に `sdd-quality-loop` があり、実際に Claude へプラグインを登録する場合、インストーラは `node --version` を 30 秒以内に確認します。未検出・古いバージョン・起動失敗の場合は、インストール先を変更せず終了します。`-SkipPluginInstall` / `--skip-plugin-install` や `FilesOnly` など、安全フックを登録しない場合の MCP は任意です。Node の要件を満たさなければ MCP の配置・登録のみ警告付きでスキップします。
 
 **Claude の安全フックを有効にするには**: **Claude Code >= 2.1.295** を使ってください。安全フックを登録する際は Claude のバージョンも確認し、要件を満たさなければインストール先を変更せず終了します。対応版では `onFailure: block` により、Node が見つからないなどのフック起動失敗時も対象の操作を止めます。旧版のこの動作は保証できないため、先に更新してください。フックと MCP は実行時に `node` を起動するので、インストール時だけでなく **Claude を起動する環境の PATH** にも Node が必要です。

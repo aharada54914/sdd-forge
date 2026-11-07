@@ -73,3 +73,38 @@ test("queued probes continue after timeout, nonzero exit, output limit and spawn
   __clearProbeCache();
   assert.equal((await probeEngine([entry("node", "console.log('after 1.0')")]))[0].available, true);
 });
+
+test("default servers own separate probe caches", { skip: process.platform === "win32" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "server-cache-"));
+  const previousPath = process.env.PATH;
+  const servers = [buildServer(), buildServer()];
+  const clients = [0, 1].map(index => new Client({ name: `cache-${index}`, version: "1.0" }));
+  try {
+    process.env.PATH = `${dir}${delimiter}${previousPath ?? ""}`;
+    const executable = join(dir, "node");
+    const writeVersion = (version: string) => {
+      writeFileSync(executable, `#!${process.execPath}\nconsole.log(${JSON.stringify(version)});\n`);
+      chmodSync(executable, 0o755);
+    };
+    for (let i = 0; i < servers.length; i += 1) {
+      const [a, b] = InMemoryTransport.createLinkedPair();
+      await Promise.all([servers[i].connect(a), clients[i].connect(b)]);
+    }
+    const version = async (index: number) => {
+      const reply = await clients[index].callTool({ name: "get_toolchain_versions", arguments: { names: ["node"] } });
+      const content = reply.content as Array<{ text: string }>;
+      return JSON.parse(content[0].text).data.entries[0].version;
+    };
+    writeVersion("v26.13.0");
+    assert.equal(await version(0), "v26.13.0");
+    writeVersion("v26.14.0");
+    assert.equal(await version(0), "v26.13.0", "same server retains its TTL cache");
+    assert.equal(await version(1), "v26.14.0", "a second server must probe afresh");
+  } finally {
+    if (previousPath === undefined) delete process.env.PATH;
+    else process.env.PATH = previousPath;
+    await Promise.all(clients.map(client => client.close()));
+    await Promise.all(servers.map(server => server.close()));
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

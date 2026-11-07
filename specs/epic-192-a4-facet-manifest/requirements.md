@@ -1,5 +1,10 @@
 # Requirements: epic-192-a4-facet-manifest
 
+> 2026-11-07: INV-014's implementation-only dependency/import restriction is
+> superseded by [ADR 0048](../../docs/adr/0048-shared-schema-runtime.md).
+> Existing CLI, validation, consent and deterministic-output requirements remain.
+
+
 Spec-Review-Status: Passed
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/192,
 https://github.com/aharada54914/sdd-forge/issues/187
