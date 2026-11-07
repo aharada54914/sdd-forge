@@ -2,8 +2,8 @@
   "baseline": "08398f03",
   "issue": "https://github.com/aharada54914/sdd-forge/issues/732",
   "end_to_end": {
-    "lite": "BLOCKED: isolated Codex authentication returns 401",
-    "full": "BLOCKED: isolated Codex authentication returns 401"
+    "lite": "IN_PROGRESS: actual user approved T-001; normal ship executing",
+    "full": "IN_PROGRESS: native Full bootstrap generating specifications"
   },
   "live_aws": "NOT RUN: no configured AWS identity or protected CI approval",
   "cloud_suites": [
@@ -49,5 +49,37 @@
     "constructs": "10.5.0",
     "note": "Official Node archive checksum verified; npm ci --ignore-scripts from committed lock. Re-runs the initially skipped AWS synth cases."
   },
-  "workflow_state": "PASS"
+  "workflow_state": "PASS",
+  "authentication": "PASS: fresh device login; independent model returned READY",
+  "issues": [
+    "https://github.com/aharada54914/sdd-forge/issues/732",
+    "https://github.com/aharada54914/sdd-forge/issues/737",
+    "https://github.com/aharada54914/sdd-forge/issues/738"
+  ],
+  "integrated_existing_fixes": [
+    "6b2df273: workflow/runtime and regression changes excluding prior UI work",
+    "f996c4d0: native reviewer and review contract changes excluding prior reports"
+  ],
+  "new_regressions": {
+    "handshake": {
+      "pass": 985,
+      "fail": 0
+    },
+    "native_adapters": {
+      "pass": 13,
+      "fail": 0
+    },
+    "domain_sync_pester4": {
+      "pass": 25,
+      "fail": 0
+    },
+    "protected_boundary": {
+      "pass": 228,
+      "fail": 0
+    },
+    "ship_track": {
+      "pass": 162,
+      "fail": 0
+    }
+  }
 }
