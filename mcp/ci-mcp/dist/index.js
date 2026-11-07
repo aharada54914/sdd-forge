@@ -35861,6 +35861,15 @@ var McpServer = class {
     this._promptHandlersInitialized = false;
     this.server = new Server(serverInfo, options);
     this._maxToolInputElements = resolveMaxToolInputElements(options?.maxToolInputElements);
+    if (options?.capabilities?.tools) {
+      this.setToolRequestHandlers();
+    }
+    if (options?.capabilities?.resources) {
+      this.setResourceRequestHandlers();
+    }
+    if (options?.capabilities?.prompts) {
+      this.setPromptRequestHandlers();
+    }
   }
   /**
    * Access experimental features.
@@ -36816,10 +36825,11 @@ function buildGithubUrl(pathSegments, searchParams) {
   }
   return url2.toString();
 }
+var GITHUB_API_VERSION = "2022-11-28";
 var REQUEST_TIMEOUT_MS = 3e4;
 async function requestGithub(request, accept, fetchImpl) {
   const url2 = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers = { accept };
+  const headers = { accept, "X-GitHub-Api-Version": GITHUB_API_VERSION };
   if (request.token !== void 0 && request.token.length > 0) {
     headers.authorization = `Bearer ${request.token}`;
   }

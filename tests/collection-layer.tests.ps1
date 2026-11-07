@@ -469,6 +469,19 @@ if ([regex]::Matches($stdinContent16, "sanitized bundle body").Count -eq 1 -and 
     fail "CL-016b: stdin content did not match the instruction-and-bundle contract -- $stdinContent16"
 }
 
+Remove-Item -LiteralPath $cl016Argv -ErrorAction SilentlyContinue
+$defaultModelProc = Start-Process -FilePath "pwsh" `
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
+        "--task", "T-016", "--feature", "feat", "--input", "$cl016/input.txt",
+        "--spec-root", "$cl016/specs", "--digest", ("0" * 64))) `
+    -Environment @{ PATH = $cl016Path } -Wait -PassThru -NoNewWindow
+$defaultArgv = if (Test-Path $cl016Argv) { @(Get-Content $cl016Argv) } else { @() }
+if ($defaultModelProc.ExitCode -eq 0 -and $defaultArgv.Count -gt 0 -and $defaultArgv[0] -ceq "-p") {
+    ok "CL-016c: no model override delegates selection to the Gemini CLI"
+} else {
+    fail "CL-016c: default invocation failed or injected a model override"
+}
+
 # ============================================================================
 # CL-017: detect-panel -- CLI resolves but --version fails (e.g. broken
 # auth) -> not reported available (liveness probe, not just presence).

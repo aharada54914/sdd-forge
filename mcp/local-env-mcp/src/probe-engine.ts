@@ -63,13 +63,6 @@ interface CacheEntry {
   result: ProbeResult;
 }
 
-/**
- * Module-level per-entry TTL cache. Keyed by CLI name (the stable identity of
- * an allowlist entry). No invalidation API — entries simply expire after the
- * TTL, matching the design's "per-entry, no invalidation" note.
- */
-const cache = new Map<CliName, CacheEntry>();
-
 // Slots belong to the process, not to an individual MCP request.
 let activeProbes = 0;
 const waitingProbes: Array<() => void> = [];
@@ -88,131 +81,148 @@ function normalizeVersion(raw: string): string {
   return firstLine.trim().slice(0, MAX_VERSION_CHARS);
 }
 
-/**
- * Runs one probe with all safety limits. Never rejects — every failure mode is
- * mapped to a per-entry ProbeResult.
- */
-function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeResult> {
-  return new Promise<ProbeResult>((resolve) => {
-    const env = { ...process.env };
-    if (options.pathOverride !== undefined) {
-      const inherited = process.env.PATH ?? "";
-      env.PATH = inherited.length > 0
-        ? `${options.pathOverride}${path.delimiter}${inherited}`
-        : options.pathOverride;
-    }
+/** Trusted construction dependencies; never exposed as MCP tool inputs. */
+export interface ProbeDependencies {
+  run?: (...args: Parameters<typeof execFile>) => ReturnType<typeof execFile>;
+  now?: () => number;
+  environment?: () => NodeJS.ProcessEnv;
+}
 
-    let settled = false;
-    const finish = (result: ProbeResult): void => {
-      if (settled) {
-        return;
+/** Owns a cache while retaining the process-wide concurrency bound. */
+export function createProbeEngine(dependencies: ProbeDependencies = {}) {
+  const run = dependencies.run ?? execFile;
+  const now = dependencies.now ?? (() => performance.now());
+  const environment = dependencies.environment ?? (() => process.env);
+  const cache = new Map<CliName, CacheEntry>();
+
+  /**
+   * Runs one probe with all safety limits. Never rejects — every failure mode is
+   * mapped to a per-entry ProbeResult.
+   */
+  function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeResult> {
+    return new Promise<ProbeResult>((resolve) => {
+      const env = { ...environment() };
+      if (options.pathOverride !== undefined) {
+        const inherited = env.PATH ?? "";
+        env.PATH = inherited.length > 0
+          ? `${options.pathOverride}${path.delimiter}${inherited}`
+          : options.pathOverride;
       }
-      settled = true;
-      resolve(result);
-    };
 
-    // maxBuffer enforces the 8 KiB cap: execFile kills the child and reports an
-    // ERR_CHILD_PROCESS_STDIO_MAXBUFFER error once either stream exceeds it.
-    // timeout enforces the 2s bound: execFile sends `killSignal` on expiry.
-    let child: ReturnType<typeof execFile>;
-    try {
-      child = execFile(
-      entry.command,
-      [...entry.args],
-      {
-        env,
-        timeout: TIMEOUT_MS,
-        killSignal: "SIGKILL",
-        maxBuffer: MAX_OUTPUT_BYTES,
-        windowsHide: true,
-      },
-      (error, stdout, stderr) => {
-        if (error) {
-          const code = error.code;
-          if (code === "ENOENT") {
-            finish({ name: entry.name, available: false, probeError: "not-found" });
+      let settled = false;
+      const finish = (result: ProbeResult): void => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        resolve(result);
+      };
+
+      // maxBuffer enforces the 8 KiB cap: execFile kills the child and reports an
+      // ERR_CHILD_PROCESS_STDIO_MAXBUFFER error once either stream exceeds it.
+      // timeout enforces the 2s bound: execFile sends `killSignal` on expiry.
+      let child: ReturnType<typeof execFile>;
+      try {
+        child = run(
+        entry.command,
+        [...entry.args],
+        {
+          env,
+          timeout: TIMEOUT_MS,
+          killSignal: "SIGKILL",
+          maxBuffer: MAX_OUTPUT_BYTES,
+          windowsHide: true,
+        },
+        (error, stdout, stderr) => {
+          if (error) {
+            const code = error.code;
+            if (code === "ENOENT") {
+              finish({ name: entry.name, available: false, probeError: "not-found" });
+              return;
+            }
+            if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
+              finish({ name: entry.name, available: false, probeError: "output-too-large" });
+              return;
+            }
+            // execFile marks a timeout kill with `killed === true` (and/or a
+            // signal). Distinguish timeout from a plain nonzero exit.
+            const killed = error.killed === true;
+            const signal = error.signal;
+            if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
+              finish({ name: entry.name, available: false, probeError: "timeout" });
+              return;
+            }
+            if (typeof error.code === "number") {
+              finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
+              return;
+            }
+            finish({ name: entry.name, available: false, probeError: "spawn-error" });
             return;
           }
-          if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
-            finish({ name: entry.name, available: false, probeError: "output-too-large" });
-            return;
-          }
-          // execFile marks a timeout kill with `killed === true` (and/or a
-          // signal). Distinguish timeout from a plain nonzero exit.
-          const killed = error.killed === true;
-          const signal = error.signal;
-          if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
-            finish({ name: entry.name, available: false, probeError: "timeout" });
-            return;
-          }
-          if (typeof error.code === "number") {
+
+          const raw = entry.versionStream === "stderr" ? stderr : stdout;
+          const version = normalizeVersion(String(raw));
+          if (version.length === 0) {
             finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
             return;
           }
-          finish({ name: entry.name, available: false, probeError: "spawn-error" });
-          return;
-        }
-
-        const raw = entry.versionStream === "stderr" ? stderr : stdout;
-        const version = normalizeVersion(String(raw));
-        if (version.length === 0) {
-          finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
-          return;
-        }
-        finish({ name: entry.name, available: true, version });
-      },
-      );
-    } catch {
-      // On win32, spawn throws SYNCHRONOUSLY (EINVAL) when PATH resolution
-      // lands on a .bat/.cmd file and no shell is enabled (Node/libuv
-      // CVE-2024-27980 hardening; e.g. npm resolves to npm.cmd on Windows).
-      // Honor the per-entry contract: a probe failure is never thrown.
-      finish({ name: entry.name, available: false, probeError: "spawn-error" });
-      return;
-    }
-
-    // Spawn failures may arrive before the execFile callback.
-    child.on("error", (error) => {
-      const code = (error as NodeJS.ErrnoException).code;
-      if (code === "ENOENT") {
-        finish({ name: entry.name, available: false, probeError: "not-found" });
-      } else {
+          finish({ name: entry.name, available: true, version });
+        },
+        );
+      } catch {
+        // On win32, spawn throws SYNCHRONOUSLY (EINVAL) when PATH resolution
+        // lands on a .bat/.cmd file and no shell is enabled (Node/libuv
+        // CVE-2024-27980 hardening; e.g. npm resolves to npm.cmd on Windows).
+        // Honor the per-entry contract: a probe failure is never thrown.
         finish({ name: entry.name, available: false, probeError: "spawn-error" });
+        return;
       }
+
+      // Spawn failures may arrive before the execFile callback.
+      child.on("error", (error) => {
+        const code = (error as NodeJS.ErrnoException).code;
+        if (code === "ENOENT") {
+          finish({ name: entry.name, available: false, probeError: "not-found" });
+        } else {
+          finish({ name: entry.name, available: false, probeError: "spawn-error" });
+        }
+      });
     });
-  });
-}
+  }
 
-/**
- * Probes the given allowlist entries, honoring the TTL cache and the global
- * concurrency limit. Returns one ProbeResult per input entry, in input order.
- */
-export async function probeEngine(
-  entries: readonly AllowlistEntry[],
-  options: ProbeOptions = {},
-): Promise<ProbeResult[]> {
-  return Promise.all(entries.map(async (entry) => {
-    let cached = cache.get(entry.name);
-    if (cached !== undefined && Date.now() - cached.at < CACHE_TTL_MS) return cached.result;
-    await acquireProbeSlot();
-    try {
-      // A queued probe may have been cached while another request held its slot.
-      cached = cache.get(entry.name);
-      if (cached !== undefined && Date.now() - cached.at < CACHE_TTL_MS) {
-        return cached.result;
+  /**
+   * Probes the given allowlist entries, honoring the TTL cache and the global
+   * concurrency limit. Returns one ProbeResult per input entry, in input order.
+   */
+  async function probe(
+    entries: readonly AllowlistEntry[],
+    options: ProbeOptions = {},
+  ): Promise<ProbeResult[]> {
+    return Promise.all(entries.map(async (entry) => {
+      let cached = cache.get(entry.name);
+      if (cached !== undefined && now() - cached.at < CACHE_TTL_MS) return cached.result;
+      await acquireProbeSlot();
+      try {
+        // A queued probe may have been cached while another request held its slot.
+        cached = cache.get(entry.name);
+        if (cached !== undefined && now() - cached.at < CACHE_TTL_MS) {
+          return cached.result;
+        }
+        const result = await probeOne(entry, options);
+        cache.set(entry.name, { at: now(), result });
+        return result;
+      } finally {
+        const next = waitingProbes.shift();
+        if (next !== undefined) next();
+        else activeProbes -= 1;
       }
-      const result = await probeOne(entry, options);
-      cache.set(entry.name, { at: Date.now(), result });
-      return result;
-    } finally {
-      const next = waitingProbes.shift();
-      if (next !== undefined) next();
-      else activeProbes -= 1;
-    }
-  }));
+    }));
+  }
+
+  return { probe, clearCache: () => cache.clear() };
 }
 
-/** Clears the TTL cache. Intended for tests only; unused in production paths. */
-export function __clearProbeCache(): void {
-  cache.clear();
-}
+const defaultEngine = createProbeEngine();
+export const probeEngine = defaultEngine.probe;
+/** Clears the default cache for existing test callers. */
+export const __clearProbeCache = defaultEngine.clearCache;

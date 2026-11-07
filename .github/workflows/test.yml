@@ -633,6 +633,9 @@ jobs:
   # Shallow checkout suffices here -- the fixtures archive HEAD and the
   # remote-installer steps resolve $GITHUB_SHA through the GitHub API.
   installers:
+    env: &cli-toolchain-versions
+      CLAUDE_CLI_VERSION: "2.1.319"
+      CODEX_CLI_VERSION: "0.167.0"
     name: installers (${{ matrix.os }} / ${{ matrix.lane }})
     strategy:
       fail-fast: false
@@ -669,7 +672,7 @@ jobs:
         if: matrix.lane == 'all' || matrix.lane == 'clients'
         shell: bash
         run: |
-          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          npm install -g --allow-scripts=@anthropic-ai/claude-code "@anthropic-ai/claude-code@${{ env.CLAUDE_CLI_VERSION }}"
           claude --version
 
       - name: Validate Claude plugin manifests (real CLI)
@@ -1510,7 +1513,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22"
+          node-version: "22.19.0"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
@@ -1582,7 +1585,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22"
+          node-version: "22.19.0"
           cache: npm
           cache-dependency-path: mcp/local-env-mcp/package-lock.json
 
@@ -1650,7 +1653,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22"
+          node-version: "22.19.0"
           cache: npm
           cache-dependency-path: mcp/ci-mcp/package-lock.json
 
@@ -1698,6 +1701,7 @@ jobs:
     if: needs.ci-plan.outputs.run_ci_mcp_tests == 'true'
 
   cli-hook-enforcement:
+    env: *cli-toolchain-versions
     name: cli-hook-enforcement (${{ matrix.os }})
     strategy:
       fail-fast: false
@@ -1711,13 +1715,13 @@ jobs:
       - name: Install Claude Code CLI
         shell: bash
         run: |
-          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          npm install -g --allow-scripts=@anthropic-ai/claude-code "@anthropic-ai/claude-code@${{ env.CLAUDE_CLI_VERSION }}"
           claude --version
 
       - name: Install Codex CLI (best-effort)
         shell: bash
         continue-on-error: true
-        run: npm install -g @openai/codex
+        run: npm install -g "@openai/codex@${{ env.CODEX_CLI_VERSION }}"
 
       - name: Install Copilot CLI (best-effort)
         shell: bash

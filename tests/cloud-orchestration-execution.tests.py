@@ -2115,6 +2115,18 @@ class ArtifactFixture:
 class AwsExecution(unittest.TestCase):
     """T-013 native wire-contract tests; synthetic HTTPS only, NOT live IAM."""
 
+    def test_local_compiler_receipt_uses_verified_toolchain_version(self):
+        import aws_local as local
+        from subprocess import CompletedProcess
+
+        with patch.object(local.subprocess, "run", return_value=CompletedProcess([], 0, b"", b"")), \
+                patch.object(local.c, "_scan_unit", return_value=[]):
+            blobs, receipt = local.synthesize({}, {"entrypoint": "app.js"},
+                                              Path("/trusted/cdk"), Path("/trusted/node"), "9.8.7")
+        self.assertEqual(blobs, {})
+        self.assertEqual(receipt["version"], "9.8.7")
+        self.assertEqual(receipt["name"], "aws-cdk")
+
     def setUp(self):
         import shutil
 

@@ -1651,6 +1651,29 @@ class OmissionReadinessTests(unittest.TestCase):
         self.assertEqual(len([o for o in full if o['job'] == job]), 2)
         self.assertFalse(any(o['job'] == job for o in chosen))
 
+    def test_pinned_cli_setup_requires_a_literal_numeric_version(self):
+        for version in ('2.1.319', '3.0.0', None, '', 'latest', '2.1.319; echo unsafe',
+                        '$(echo unsafe)', '${{ github.event.pull_request.title }}', '2.1.319\n'):
+            catalog, workflow, job = self.fixture(raw=True)
+            catalog['impact']['non_suite_steps'] = [{'job': job, 'step': 'Install Claude Code CLI', 'kind': 'setup'}]
+            step = workflow['jobs'][job]['steps'][0]
+            step['run'] = ('npm install -g --allow-scripts=@anthropic-ai/claude-code '
+                           '"@anthropic-ai/claude-code@${{ env.CLAUDE_CLI_VERSION }}"\nclaude --version')
+            workflow['jobs'][job]['env'] = {'CLAUDE_CLI_VERSION': version}
+            with self.subTest(version=version):
+                if version in ('2.1.319', '3.0.0'):
+                    IMPACT.rules(catalog, workflow)
+                    step['env'] = {'CLAUDE_CLI_VERSION': '$(echo unsafe)'}
+                    with self.assertRaises(ValueError):
+                        IMPACT.rules(catalog, workflow)
+                    del step['env']
+                    step['run'] += '\necho unexpected'
+                    with self.assertRaises(ValueError):
+                        IMPACT.rules(catalog, workflow)
+                else:
+                    with self.assertRaises(ValueError):
+                        IMPACT.rules(catalog, workflow)
+
     def test_unknown_predicates_and_missing_matrix_keys_stay_mandatory(self):
         catalog, workflow, job = self.fixture()
         for condition in ("needs.external.outputs.ready == 'true'",

@@ -15,12 +15,12 @@
     "test": "node scripts/run-tests.mjs"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "2.10.1",
-    "@types/node": "^26.6.4",
+    "@types/node": "^22.20.5",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   }
