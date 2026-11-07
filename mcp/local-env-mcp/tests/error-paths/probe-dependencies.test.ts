@@ -1,5 +1,6 @@
 import { test, mock } from "node:test";
 import assert from "node:assert/strict";
+import path from "node:path";
 import { execFile } from "node:child_process";
 import { createProbeEngine } from "../../src/probe-engine.js";
 import type { AllowlistEntry } from "../../src/allowlist.js";
@@ -35,4 +36,17 @@ test("injected process launch failure remains a per-entry result and releases sl
   const results = await engine.probe(Array.from({ length: 8 }, () => entry));
   assert.equal(results.length, 8);
   assert.ok(results.every(result => result.probeError === "spawn-error" && !result.available));
+});
+
+test("PATH override preserves inherited Windows Path casing without duplicate keys", async () => {
+  const key = process.platform === "win32" ? "Path" : "PATH";
+  const environment = { [key]: "inherited-tools" };
+  const run = mock.fn(execFile);
+  const engine = createProbeEngine({ run, environment: () => environment });
+  await engine.probe([entry], { pathOverride: "fixture-tools" });
+  const passed = run.mock.calls[0]?.arguments[2];
+  assert.ok(passed && typeof passed === "object" && "env" in passed);
+  assert.equal(passed.env?.[key], `fixture-tools${path.delimiter}inherited-tools`);
+  assert.deepEqual(Object.keys(passed.env ?? {}).filter(name => name.toUpperCase() === "PATH"), [key]);
+  assert.deepEqual(environment, { [key]: "inherited-tools" });
 });

@@ -36714,8 +36714,9 @@ function createProbeEngine(dependencies = {}) {
     return new Promise((resolve) => {
       const env = { ...environment() };
       if (options.pathOverride !== void 0) {
-        const inherited = env.PATH ?? "";
-        env.PATH = inherited.length > 0 ? `${options.pathOverride}${path.delimiter}${inherited}` : options.pathOverride;
+        const pathKey = process.platform === "win32" ? Object.keys(env).sort().find((key) => key.toUpperCase() === "PATH") ?? "PATH" : "PATH";
+        const inherited = env[pathKey] ?? "";
+        env[pathKey] = inherited.length > 0 ? `${options.pathOverride}${path.delimiter}${inherited}` : options.pathOverride;
       }
       let settled = false;
       const finish = (result) => {

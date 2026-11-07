@@ -103,8 +103,12 @@ export function createProbeEngine(dependencies: ProbeDependencies = {}) {
     return new Promise<ProbeResult>((resolve) => {
       const env = { ...environment() };
       if (options.pathOverride !== undefined) {
-        const inherited = env.PATH ?? "";
-        env.PATH = inherited.length > 0
+        // process.env is case-insensitive on Windows; its copied object is not.
+        const pathKey = process.platform === "win32"
+          ? Object.keys(env).sort().find(key => key.toUpperCase() === "PATH") ?? "PATH"
+          : "PATH";
+        const inherited = env[pathKey] ?? "";
+        env[pathKey] = inherited.length > 0
           ? `${options.pathOverride}${path.delimiter}${inherited}`
           : options.pathOverride;
       }
