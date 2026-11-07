@@ -2010,6 +2010,10 @@ jobs:
     if: needs.ci-plan.outputs.run_sql_contract == 'true'
     timeout-minutes: 10
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Checkout exact tested revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -2047,6 +2051,10 @@ jobs:
     if: needs.ci-plan.outputs.run_sql_postgres == 'true'
     timeout-minutes: 15
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Checkout exact tested revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -2094,6 +2102,10 @@ jobs:
     if: needs.ci-plan.outputs.run_sql_mysql == 'true'
     timeout-minutes: 15
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Checkout exact tested revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -2147,6 +2159,10 @@ jobs:
       DOTNET_NOLOGO: '1'
       NUGET_PACKAGES: ${{ github.workspace }}/../sdd-sql-nuget
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Checkout exact tested revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
