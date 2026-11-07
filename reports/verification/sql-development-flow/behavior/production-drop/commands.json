@@ -1,0 +1,26 @@
+[
+  {
+    "command_sha256": "6db90fbfc2d7091226d72a6d18381fd5922c65d8ad64782de0eb3776482e3080",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/SKILL.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "c310fe8d34f8fa09c6a4f02827256747573f060e8eaeb2af09fa2e8dc533abbd",
+    "command": "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'REQUEST.md' -g '*.sql' -g '*.sqlproj' -g '*.md' -g '*.json'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "00153d696bf734632b264354a88ee0f25f9edab803d9e98ffc97699887dffe81",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/templates/sql-development-contract.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/sql-development-policy.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/tsql.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "24e1acb0b4e6831a4d09c11f3ac6fc477d5e8b5e3f152d3d4461504a62dc83ed",
+    "command": "/bin/bash -lc \"cat AGENTS.md REQUEST.md README.md CLAUDE.md db/schema.sql; rg --files --hidden -g '\"'!.git/**'\"'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  }
+]

@@ -189,10 +189,10 @@ class ConceptTests(unittest.TestCase):
         self.gate(1)
 
     def test_reachable_gate_and_manifests(self):
-        bootstrap = (ROOT / 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md').read_text()
+        bootstrap = (ROOT / 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md').read_text(encoding='utf-8')
         self.assertLess(bootstrap.index('`concept-test`'), bootstrap.index("Run `domain-sync`"))
         self.assertIn('BLOCK, DEFER, and REJECT', bootstrap)
-        skill = (ROOT / 'plugins/sdd-domain/skills/concept-test/SKILL.md').read_text()
+        skill = (ROOT / 'plugins/sdd-domain/skills/concept-test/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('Every\n   nonzero exit stops domain-sync and subsequent generation', skill)
         for directory in ['.claude-plugin', '.codex-plugin', '.plugin']:
             manifest = json.loads((ROOT / 'plugins/sdd-domain' / directory / 'plugin.json').read_bytes())

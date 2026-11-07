@@ -1059,7 +1059,8 @@ try {
         }
         $syncLiveHash = (Get-FileHash -LiteralPath $syncLive -Algorithm SHA256).Hash
         $syncStagedHash = (Get-FileHash -LiteralPath $syncStaged -Algorithm SHA256).Hash
-        if ($syncTarget -ceq 'plugins/sdd-ship/skills/ship/SKILL.md') {
+        if ($syncTarget -ceq 'plugins/sdd-ship/skills/ship/SKILL.md' -or
+            $syncTarget -ceq 'plugins/sdd-lite/skills/lite-spec/SKILL.md') {
             $fixture = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/fixtures/ship-track-selection-current-publication.json') | ConvertFrom-Json
             $entries = @($fixture.successors | Where-Object { $_.live -ceq $syncTarget -and $_.staged -ceq "specs/epic-136-phase2-gates/human-copy/$syncTarget" })
             if ($fixture.schema -ceq 'ship-track-selection-current-publication/v1' -and $entries.Count -eq 1 -and

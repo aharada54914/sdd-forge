@@ -1,0 +1,60 @@
+{
+  "mode": "full",
+  "reason": "shared-change",
+  "tested_revision": "d42e18aab53658a380a27fa5fd7de4a33a7568c9",
+  "base_revision": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+  "trusted_planner_sha256": "cf40c2a2b30b605cf43914ea6140f20e86565b9bc8218f04a62381512cc548ca",
+  "plan_sha256": "56f8a295807f3d2f28ed1ace84fa35404b9497ab9e68ec42d561c82d2920851f",
+  "obligations": 488,
+  "sql_suite_obligations": [
+    {
+      "id": "sql-contract:b63f0488c5dc8ad032a3fbac366ebab9cafb5fea444597e4f3f88c862c63a6ff",
+      "job": "sql-contract",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "Test SQL contracts and FilesOnly distribution",
+      "command_sha256": "6bbb5ce59a4095284220d86d7af60870d36aae23538da0f52b4a5bf1d55af746",
+      "suites": [
+        "tests/sql-development-contract.tests.py"
+      ],
+      "receipt_required": true
+    },
+    {
+      "id": "sql-postgres:9adfb6465a77dd2787695e91435ddf71555829d5c855fc7e5bd6840886d0978d",
+      "job": "sql-postgres",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "Test isolated postgres migration and recovery",
+      "command_sha256": "e6e18b5ddffa9358cf2c30257c38c875f6ba7ef55882914e475a7657c2f66d60",
+      "suites": [
+        "tests/sql-development-postgres.tests.py"
+      ],
+      "receipt_required": true
+    },
+    {
+      "id": "sql-mysql:ab1356e1d681e5fa76be5a7f8dbcf478cbc743f87fb4ad55c76d0609d383d1c7",
+      "job": "sql-mysql",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "Test isolated mysql migration and recovery",
+      "command_sha256": "295f98037702951278022531d2aefe08f5e2a6da23cc6c0c15917dd764b8a84d",
+      "suites": [
+        "tests/sql-development-mysql.tests.py"
+      ],
+      "receipt_required": true
+    },
+    {
+      "id": "sql-tsql:4257f5d7aa4d2608fc2d0e653819c8001ec0865625161ed4d3093e15f8f5c525",
+      "job": "sql-tsql",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "Test isolated tsql migration and recovery",
+      "command_sha256": "a9d7ad51ae7434f02ad332ad3078b85b008f51370f294b57031952537513c4f0",
+      "suites": [
+        "tests/sql-development-tsql.tests.py"
+      ],
+      "receipt_required": true
+    }
+  ],
+  "validation": "Local source-bound planning only; no database executions or GitHub run evidence. Synthetic run_id=1."
+}

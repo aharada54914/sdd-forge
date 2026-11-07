@@ -50,6 +50,10 @@ SUCCESSOR_PINS = {
     (SHIP, f"specs/{epic}/human-copy/{SHIP}"): ("ship-track-selection-current-publication.json", "ship-track-selection-current-publication/v1")
     for epic in ("epic-136-phase2-gates", "epic-189-a1-project-context")
 }
+LITE_SPEC = "plugins/sdd-lite/skills/lite-spec/SKILL.md"
+for epic in ("epic-136-phase2-gates", "epic-189-a1-project-context", "epic-194-a6-lite-integration"):
+    SUCCESSOR_PINS[(LITE_SPEC, f"specs/{epic}/human-copy/{LITE_SPEC}")] = (
+        "ship-track-selection-current-publication.json", "ship-track-selection-current-publication/v1")
 for name in ("generate-approval-sidecar.py", "validate-approval-sidecar.py"):
     rel = f"plugins/sdd-quality-loop/scripts/{name}"
     SUCCESSOR_PINS[(rel, f"specs/epic-189-a1-project-context/human-copy/{rel}")] = (

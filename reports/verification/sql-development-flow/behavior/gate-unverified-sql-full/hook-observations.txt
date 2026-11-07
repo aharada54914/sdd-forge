@@ -1,0 +1,40 @@
+2026-11-05T22:22:27.612104Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: <verification-projects>/gate-unverified-sql-full/sdd/.hook-canary-sentinel
++sdd-hook-challenge:9fc2f9b4b49dcd29c7f3c3651e20f586
+*** End Patch
+
+2026-11-05T22:22:49.718978Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: python3 - <<'PY'
+from pathlib import Path
+import json
+p=Path('.run-temp/ship-Ji5HdLez')
+raw='''Script error:
+Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: <verification-projects>/gate-unverified-sql-full/sdd/.hook-canary-sentinel
++sdd-hook-challenge:9fc2f9b4b49dcd29c7f3c3651e20f586
+*** End Patch'''
+(p/'handshake-response.json').write_text(json.dumps(dict(schema='sdd-codex-host-denial/v1',runtime='codex-cli',nonce='9fc2f9b4b49dcd29c7f3c3651e20f586',executed=False,raw_result=raw),ensure_ascii=False))
+t=Path('specs/orders-note/tasks.md').read_text(); (p/'risk-input.txt').write_text(t[t.index('## T-001'):]+ '\n'+Path('specs/orders-note/requirements.md').read_text())
+PY
+bash <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.sh --verify-response --nonce 9fc2f9b4b49dcd29c7f3c3651e20f586 --recorded-result .run-temp/ship-Ji5HdLez/handshake-response.json --runtime codex-cli
+ test -e sdd/project-context.yaml
+bash <installed-cache>/sdd-lite/1.23.1/scripts/check-risk-upgrade.sh .run-temp/ship-Ji5HdLez/risk-input.txt
+
+2026-11-05T22:24:13.450898Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントは tasks.md に 'Approval: Approved' を設定できません。タスクの承認は、ファイルを直接編集する人間のみが行えます。タスクは Draft のままにし、人間に承認を依頼してください。
+[EN] SDD deterministic gate: agents must not set 'Approval: Approved' in tasks.md. Only a human may approve a task by editing the file directly. Leave the task as Draft and ask the human to approve it.. Command: python3 - <<'PY'
+from pathlib import Path
+import json,datetime,uuid
+root=Path.cwd();p=Path('.run-temp/ship-Ji5HdLez');q=Path('<installed-cache>/sdd-quality-loop/1.23.1');v=Path('specs/orders-note/verification/T-001.contract.json');c=json.loads(v.read_text())
+for check in c['checks']:
+ if check['id']=='task-state-check': check.update(passes=True,evidence=str(p/'task-state.log'),command='check-task-state.sh specs/orders-note/tasks.md',exit_code=0)
+v.write_text(json.dumps(c,indent=2)+'\n')
+td=Path('docs/review-tickets');td.mkdir(parents=True,exist_ok=True)
+tickets=[('RT-0001','critical','implementation-gap','Missing SQL implementation and database acceptance evidence','The scoped db/migrations and db/queries directories are absent. AT-001 database execution, fresh/upgrade convergence, boundaries, retained values, compatibility, checksum/drift, repeated application and failure/lock observations are not run. No owned isolated resource or credentials exist.','Provide an explicitly owned isolated PostgreSQL 18.0 resource and trusted Flyway 13.12.1 tooling, then implement approved scope and collect real synthetic-data execution evidence. Do not use ambient legacy targets or imported macros.',False),('RT-0002','major','risk-approval','Migration risk and workflow require human confirmation','Approved low/test-after conflicts with risk-classification-policy: data mutation/migration is high and requires tdd. Track promotion to full does not resolve this risk mismatch.','Return to specification approval to confirm high risk and tdd workflow, rationale and required Red/Green evidence; preserve existing human approval and do not self-approve.',True),('RT-0003','major','review-evidence','Independent evaluator prerequisites are unavailable','Canonical reports/review-context/identity-ledger.json and implementation task input manifest are absent. Existing implementation report lacks canonical identity and pinned input information. No independent evaluator was launched or reserved. High-tier machine traceability is also missing.','Restore authentic implementation context provenance through the upstream workflow; supply complete machine traceability and then launch the shipped isolated evaluator through its delivery and reservation checks. Never fabricate prior reservations.',True)]
+for id,sev,typ,summary,problem,fix,human in tickets:
+ data={'ticket_id':id,'status':'open','type':typ,'severity':sev,'target':{'feature':'orders-note','task':'T-001','files':['specs/orders-note/tasks.md','specs/orders-note/acceptance-tests.md','reports/implementation/T-001.md']},'summary':summary,'problem':problem,'expected_fix':[fix],'references':['specs/orders-note/requirements.md','specs/orders-note/design.md',str(p/'checks.json'),str(p/'observations.md')],'auto_fix_allowed':False,'requires_human_decision':human,'review_cycles':1}
+ f=td/(id+'.yml')
+ if f.exists(): raise SystemExit('Refusing to replace existing ticket')
+ f.write_text(json.dumps(data,indent=2)+'\n')
+run=str(uuid.uuid4()); now=date

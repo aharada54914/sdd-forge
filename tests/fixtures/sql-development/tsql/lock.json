@@ -1,0 +1,17 @@
+{
+  "schema": "sdd-sql-reference-tools/v1",
+  "checked_at": "2026-11-05",
+  "dotnet_sdk": "10.0.403",
+  "microsoft_build_sql": "2.3.0",
+  "sqlpackage": "170.5.96",
+  "sql_server_image": "mcr.microsoft.com/mssql/server:2025-CU10-ubuntu-22.04@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f",
+  "sqlcmd": "/opt/mssql-tools18/bin/sqlcmd",
+  "platform": "linux/amd64",
+  "edition": "Developer",
+  "source_urls": [
+    "https://mcr.microsoft.com/v2/mssql/server/manifests/2025-CU10-ubuntu-22.04",
+    "https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json",
+    "https://api.nuget.org/v3-flatcontainer/microsoft.build.sql/2.3.0/microsoft.build.sql.nuspec",
+    "https://api.nuget.org/v3-flatcontainer/microsoft.sqlpackage/170.5.96/microsoft.sqlpackage.nuspec"
+  ]
+}

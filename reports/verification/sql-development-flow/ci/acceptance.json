@@ -1,0 +1,428 @@
+{
+  "run_id": 42145719843,
+  "run_attempt": 1,
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/42145719843",
+  "implementation_head": "a032fea171333637b6f0c171bd08f7bcf78a522b",
+  "tested_revision": "ee40807f7cdeceb08dd72bbfed313f49575f6d20",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 127656586488,
+      "name": "A9 advisory activation detection",
+      "started_at": "2026-11-06T01:43:34Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656586787,
+      "name": "ci-plan",
+      "started_at": "2026-11-06T01:43:34Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656681642,
+      "name": "capability-mode Gate",
+      "started_at": "2026-11-06T01:43:51Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789427,
+      "name": "local-env-mcp-tests (windows-latest)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789432,
+      "name": "test (windows-latest)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789437,
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789442,
+      "name": "test (ubuntu-latest)",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789447,
+      "name": "local-env-mcp-tests (macos-26-intel)",
+      "started_at": "2026-11-06T01:46:57Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789449,
+      "name": "loops-routing (windows-latest)",
+      "started_at": "2026-11-06T01:47:56Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789459,
+      "name": "loops-routing (ubuntu-latest)",
+      "started_at": "2026-11-06T01:48:18Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789491,
+      "name": "POSIX unwired shard (2)",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789502,
+      "name": "version-gates-windows-bump (powershell)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789518,
+      "name": "test (macos-latest)",
+      "started_at": "2026-11-06T01:44:58Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789520,
+      "name": "mcp-tests (ubuntu-latest)",
+      "started_at": "2026-11-06T01:49:41Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789521,
+      "name": "installers (ubuntu-latest / all)",
+      "started_at": "2026-11-06T01:45:15Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789522,
+      "name": "SQL Server 2025 isolated database",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789525,
+      "name": "installers (windows-latest / core)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789527,
+      "name": "installers (windows-latest / mcp)",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789531,
+      "name": "installers (macos-26-intel / all)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789533,
+      "name": "version-gates-windows-lanes (governance)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789539,
+      "name": "version-gates-windows-bump (bash)",
+      "started_at": "2026-11-06T01:44:18Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789552,
+      "name": "SQL development contracts and distribution",
+      "started_at": "2026-11-06T01:46:39Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789557,
+      "name": "complete POSIX regression inventory",
+      "started_at": "2026-11-06T01:54:01Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789564,
+      "name": "Windows PowerShell 5.1",
+      "started_at": "2026-11-06T01:47:14Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789567,
+      "name": "POSIX unwired shard (0)",
+      "started_at": "2026-11-06T01:50:17Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789573,
+      "name": "native coding standards checks",
+      "started_at": "2026-11-06T01:46:33Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789580,
+      "name": "version-gates-windows-lanes (ownership)",
+      "started_at": "2026-11-06T01:45:16Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789582,
+      "name": "test-windows-heavy (compatibility)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789592,
+      "name": "SQL MySQL 8.4 isolated database",
+      "started_at": "2026-11-06T01:48:50Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789593,
+      "name": "interrupted recovery (ubuntu-latest)",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789595,
+      "name": "test-windows-heavy (a9)",
+      "started_at": "2026-11-06T01:44:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789597,
+      "name": "POSIX unwired shard (1)",
+      "started_at": "2026-11-06T01:52:52Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789598,
+      "name": "Cloud contracts and local tools (ubuntu-latest)",
+      "started_at": "2026-11-06T01:44:44Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789599,
+      "name": "installers (windows-latest / context)",
+      "started_at": "2026-11-06T01:44:12Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789600,
+      "name": "SQL PostgreSQL 18 isolated database",
+      "started_at": "2026-11-06T01:50:31Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789602,
+      "name": "test-windows-heavy (gates)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789603,
+      "name": "version-gates-windows-lanes (capability)",
+      "started_at": "2026-11-06T01:53:27Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789605,
+      "name": "version-gates (macos-26-intel)",
+      "started_at": "2026-11-06T01:48:07Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789608,
+      "name": "cli-hook-enforcement (windows-latest)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789616,
+      "name": "mcp-tests (windows-latest)",
+      "started_at": "2026-11-06T01:52:17Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789619,
+      "name": "ci-mcp-tests (windows-latest)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789626,
+      "name": "Windows PowerShell 7.6",
+      "started_at": "2026-11-06T01:47:49Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789627,
+      "name": "ci-mcp-tests (macos-26-intel)",
+      "started_at": "2026-11-06T01:46:26Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789629,
+      "name": "mcp-tests (macos-26-intel)",
+      "started_at": "2026-11-06T01:51:51Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789634,
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "started_at": "2026-11-06T01:52:24Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789638,
+      "name": "interrupted recovery (windows-latest)",
+      "started_at": "2026-11-06T01:44:10Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789639,
+      "name": "POSIX unwired shard (3)",
+      "started_at": "2026-11-06T01:48:17Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789666,
+      "name": "Cloud contracts and local tools (macos-26-intel)",
+      "started_at": "2026-11-06T01:56:12Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789678,
+      "name": "interrupted recovery (macos-26-intel)",
+      "started_at": "2026-11-06T01:51:00Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789686,
+      "name": "version-gates-windows-lanes (lite)",
+      "started_at": "2026-11-06T01:54:11Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789691,
+      "name": "version-gates (ubuntu-latest)",
+      "started_at": "2026-11-06T01:50:42Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789698,
+      "name": "Cloud contracts and local tools (windows-latest)",
+      "started_at": "2026-11-06T01:53:51Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789717,
+      "name": "cli-hook-enforcement (macos-26-intel)",
+      "started_at": "2026-11-06T01:54:22Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789733,
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "started_at": "2026-11-06T01:53:33Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127656789801,
+      "name": "installers (windows-latest / clients)",
+      "started_at": "2026-11-06T01:54:09Z",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 127677285063,
+      "name": "required-checks",
+      "started_at": "2026-11-06T02:42:36Z",
+      "status": "completed"
+    }
+  ],
+  "obligations": {
+    "PASS": 488
+  },
+  "required_checks_sha256": "3d0caa53a4c835bbf7e24f21effc343fc6275059792da0b4ca5cbdc95e8e34a9",
+  "independent_review": {
+    "reviewer": "/root/sql_ci_final_review",
+    "unresolved_findings": [],
+    "scope": "Final TSQL cwd fix, 3 runtime archives/proofs/inputs/cleanup, receipt and CI count preservation; old-run wording corrected."
+  },
+  "completion_record_validation": {
+    "task_state": {
+      "command": "bash plugins/sdd-lite/scripts/check-task-state-lite.sh specs/sql-development-flow/tasks.md <isolated quality report dir> <isolated implementation report dir> .",
+      "exit_code": 0,
+      "result": "5 tasks passed",
+      "scope": "Directories contained only this feature quality.md and implementation.md; nested behavior fixture reports were not searched."
+    },
+    "repository": {
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/validate-repository.ps1",
+      "exit_code": 0,
+      "result": "Repository validation passed; 10 protected targets, 0 drift."
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  }
+}

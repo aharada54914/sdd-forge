@@ -1,0 +1,64 @@
+{
+  "run_id": "71c04120-8e92-4486-bd6b-a2eb0b72e284",
+  "isolation": "per-check-network-namespace-loopback",
+  "source_query_sha256": "add2d355c621614ec0a507c1af2ca0adc0f7711579049c6fe14cee25f3d3fd1c",
+  "psql_sha256": "01dec2b7da39893feb605908b93ad1aab0b1b8dc76276f7a9addd1cf618e924b",
+  "namespace": "net:[4026532280]",
+  "data_directory": "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-client-cap/.run-temp/owned-pg-ozg8vtwb/data",
+  "port": 34871,
+  "psql_client_timeout_seconds": 10,
+  "owned_pid": 34,
+  "checks": [
+    {
+      "minimum": 100,
+      "expected": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same"
+      ],
+      "observed": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same"
+      ]
+    },
+    {
+      "minimum": 0,
+      "expected": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same",
+        "1|0|zero"
+      ],
+      "observed": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same",
+        "1|0|zero"
+      ]
+    },
+    {
+      "minimum": 501,
+      "expected": [],
+      "observed": []
+    },
+    {
+      "minimum": -1,
+      "expected": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same",
+        "1|0|zero"
+      ],
+      "observed": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same",
+        "1|0|zero"
+      ]
+    }
+  ],
+  "error": null,
+  "cleanup": true,
+  "result": "PASS"
+}

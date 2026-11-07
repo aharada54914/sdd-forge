@@ -1,0 +1,27 @@
+{
+  "ticket_id": "RT-0003",
+  "status": "open",
+  "type": "review-evidence",
+  "severity": "major",
+  "target": {
+    "feature": "orders-note",
+    "task": "T-001",
+    "files": [
+      "specs/orders-note/tasks.md",
+      "reports/implementation/T-001.md"
+    ]
+  },
+  "summary": "Independent review prerequisites unavailable",
+  "problem": "No canonical identity ledger or implementation input manifest exists; machine traceability is absent. Evaluator launch blocked before reservation.",
+  "expected_fix": [
+    "Restore authentic implementation provenance and machine traceability through upstream workflow, then launch isolated evaluator through normal validated delivery. Never fabricate prior identities."
+  ],
+  "references": [
+    ".run-temp/ship-Ji5HdLez/checks.json",
+    ".run-temp/ship-Ji5HdLez/observations.md",
+    "specs/orders-note/design.md"
+  ],
+  "auto_fix_allowed": false,
+  "requires_human_decision": true,
+  "review_cycles": 1
+}

@@ -1,0 +1,45 @@
+2026-11-05T22:20:22.539435Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:ab421700c9bdc6745b3c0f1825b3f4b6
+*** End Patch
+
+2026-11-05T22:20:43.970381Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: cat > .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/record-canary.py <<'PY'
+import json
+from pathlib import Path
+raw='''Script error:
+Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:ab421700c9bdc6745b3c0f1825b3f4b6
+*** End Patch'''
+Path('.run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/canary-response.json').write_text(json.dumps(dict(schema='sdd-codex-host-denial/v1',runtime='codex-cli',nonce='ab421700c9bdc6745b3c0f1825b3f4b6',executed=False,raw_result=raw),ensure_ascii=False,indent=2)+'\n')
+PY
+python3 -B .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/record-canary.py
+python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce ab421700c9bdc6745b3c0f1825b3f4b6 --recorded-result .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/canary-response.json --runtime codex-cli
+
+2026-11-05T22:21:11.183092Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:744e2dd067e8b5b6ecd52bfa05a08c3d
+*** End Patch
+
+2026-11-05T22:23:26.868238Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: python3 -B - <<'PY'
+from pathlib import Path
+import json, hashlib
+root=Path('specs/orders-note-tsql-intake')
+assert {p.name for p in root.iterdir()}=={'requirements.md','design.md','tasks.md'}
+t=(root/'tasks.md').read_text()
+assert t.count('Approval: Draft')==3 and t.count('Status: Planned')==3
+assert 'Approval: Approved' not in t and '\nRisk:' not in t
+assert not Path('sdd/project-context.yaml').exists()
+assert not Path('sdd/.hook-canary-sentinel').exists()
+r=Path('.run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi')
+summary={'stage':'Draft specification only','structure':'OK','mcp_preflight':'get_next_sdd_command unavailable in current tool catalog; file flow used','project_context':'physically absent','track':'COMPATIBILITY_FALLBACK --lite','bootstrap_handshake':'HOOK_ACTIVE (exit 0, fresh nonce in canary-response.json)','lite_handshake':json.loads((r/'lite-handshake.json').read_text()),'risk_checker':(r/'risk-upgrade.txt').read_text().strip(),'artifacts':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.iterdir())},'source_artifacts':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path('db/schema.sql'),Path('db/Orders.sqlproj')]},'not_run':['implementation','DB connection','SQL execution','application tests'],'draft_contract_checks':'3 files; 3 Draft/Planned tasks; no Risk lines; canary absent'}
+(r/'intake-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps(summary,ensure_ascii=False,indent=2))
+PY
+cat db/schema.sql db/Orders.sqlproj
+ git status --short

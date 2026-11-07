@@ -1,0 +1,32 @@
+[
+  {
+    "command_sha256": "8d3ab7df0985975e7e3034c05ac0b437258d39dec1f3655ab154e8fd706395ea",
+    "command": "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'REQUEST.md' -g '*schema*' -g '*.sql' -g 'flyway*' -g 'tasks.md' -g 'design.md' -g 'requirements.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "6db90fbfc2d7091226d72a6d18381fd5922c65d8ad64782de0eb3776482e3080",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/SKILL.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "ff50ee369018d8a4c2050cd50f22a346aeb446867766614368af46fd28e0c801",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/templates/sql-development-contract.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/sql-development-policy.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/postgresql.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "cd77f114d3f8e46a6d7e362f022b92501ea0ca6f6229bd561b4da0e833deaf42",
+    "command": "/bin/bash -lc \"cat AGENTS.md REQUEST.md db/schema.sql; rg --files -g '\"'!node_modules'\"' -g '\"'!vendor'\"' -g '\"'!'\"\\\\.git'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "ecd9e06b71722755bbafab4e8705a464f82b5ccf1b2a53c8b235aaa955b454be",
+    "command": "/bin/bash -lc \"cat README.md CLAUDE.md; rg --files --hidden -g '\"'!.git/**'\"' -g '\"'!.agents/**'\"' -g '\"'!.codex/**'\"' -g '\"'!.aws/**'\"'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  }
+]

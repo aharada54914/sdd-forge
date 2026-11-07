@@ -50,6 +50,10 @@
     ]
   },
   "suites": [
+    {"path": "tests/sql-development-contract.tests.py", "runtime": "python", "ci_jobs": ["sql-contract"]},
+    {"path": "tests/sql-development-postgres.tests.py", "runtime": "python", "args": ["--output", "../sql-postgres-proof.json"], "ci_jobs": ["sql-postgres"]},
+    {"path": "tests/sql-development-mysql.tests.py", "runtime": "python", "args": ["--output", "../sql-mysql-proof.json"], "ci_jobs": ["sql-mysql"]},
+    {"path": "tests/sql-development-tsql.tests.py", "runtime": "python", "args": ["--output", "../sql-tsql-proof.json", "--sqlpackage", "../sql-tsql-tools/sqlpackage"], "ci_jobs": ["sql-tsql"]},
     {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-execution.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},

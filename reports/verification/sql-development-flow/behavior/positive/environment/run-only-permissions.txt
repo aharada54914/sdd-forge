@@ -1,0 +1,1 @@
+permissions.sql_positive={extends=":workspace",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}

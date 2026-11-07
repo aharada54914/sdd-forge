@@ -1,0 +1,62 @@
+[
+  {
+    "command_sha256": "6db90fbfc2d7091226d72a6d18381fd5922c65d8ad64782de0eb3776482e3080",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/SKILL.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "a60756894b0ccad4207092a83ae9b294f4691b309c724213708df1d9d23eabf3",
+    "command": "/bin/bash -lc \"pwd; rg --files -g '\"'!node_modules'\"' -g '\"'!vendor'\"' -g '\"'!.git'\"'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "5d32fb601bcb044649b0620d0b0ddbb3754d7a637c14d76b2ee9b677ba5014ae",
+    "command": "/bin/bash -lc \"cat 'REQUEST.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "adb7e305fbdd6d9f3c001a83d2bf2ca9653665e28473c18052b8218916541253",
+    "command": "/bin/bash -lc \"cat '<installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/sql-development-policy.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "9cd9c3ae5180a62c6c8c1c2ca91fc28d84ee56d0654fedc4ac30640d21dbec4c",
+    "command": "/bin/bash -lc \"cat '<installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/templates/sql-development-contract.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "5cd275f0c138d1e6effc48c8dacb27fc2a4e87cd1a65798c94f6cb5c46c149a2",
+    "command": "/bin/bash -lc \"cat 'db/schema.sql'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "daf47276f29bbfc2b946e412ba4f76ac27f9c2228617eb1e7e473f764ae695ea",
+    "command": "/bin/bash -lc \"cat '<installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/postgresql.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "13332438ba8b80453eb1964e2013fb401d8348b6e90c778fae8da4872bc787a2",
+    "command": "/bin/bash -lc \"cat 'README.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "36ddd0283111355628b04c540066060b3d6b07f0a4054133d4cbfbea441ea8a1",
+    "command": "/bin/bash -lc \"cat 'AGENTS.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "5c46e6eab0fcb8eec0cf94d13125a8a47511cd4d975b3d6299d9f3e9e5b09811",
+    "command": "/bin/bash -lc \"cat 'CLAUDE.md'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  }
+]

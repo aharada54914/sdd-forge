@@ -1,0 +1,11 @@
+2026-11-05T22:15:54.531556Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:b94cc58122d4f14c51b692bd6d09fb1f
+*** End Patch
+
+2026-11-05T22:16:20.829441Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++sdd-hook-challenge:b2857127ea3b9f3b78464f832a64bfd3
+*** End Patch

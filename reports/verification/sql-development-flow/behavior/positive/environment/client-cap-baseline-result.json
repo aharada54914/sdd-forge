@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/verify-codex",
+    "-c",
+    "permissions.sql_positive={extends=\":workspace\",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}",
+    "-c",
+    "features.network_proxy=true",
+    "sandbox",
+    "-P",
+    "sql_positive",
+    "--cd",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-client-cap",
+    "--",
+    "python3",
+    "checks/acceptance.py"
+  ],
+  "exit_code": 1,
+  "stdout": "DB check FAIL cleanup True run 776d21d4-bcd9-422a-8d20-51a068e3408a\n",
+  "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\ninclusive minimum=100: expected ['4|500|large', '2|100|\u6ce8\u6587', '3|100|same'], observed ['4|500|large']\n"
+}

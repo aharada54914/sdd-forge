@@ -514,10 +514,13 @@ fi
 # comparing to A5's own post-integration recorded citation (the live-suite
 # no-terminal-LF digest is sha256:
 # 5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823, ordinal
-# 6). The two managed-routing headings precede this unchanged anchor.
+# 7). The two managed-routing headings and the SQL reference heading
+# precede this unchanged anchor.
 # Once Epic A5's caller insertion point is present, this comparison is
 # active and gates pass/fail; the recorded window is the capability phase
-# through the adjacent full-profile heading (lines 145-184 after the reviewed managed-routing insertion).
+# through the adjacent full-profile heading (lines 159-198 after the SQL
+# reference insertion). The 40-line window remains byte-identical to main
+# 75c6919b:145-184; only its location and heading ordinal changed.
 # AC-036 is not
 # one of T-010's five fixed manifest entries, so its T-008-local probe remains
 # outside the shared allowlist contract (tasks.md T-008 Scope).
@@ -587,16 +590,16 @@ else
 fi
 
 A5_SKILL_MD="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 145 184 \
+A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 159 198 \
   "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" \
-  "### Full-Profile Layer Interview" 6 2>&1)" || true
+  "### Full-Profile Layer Interview" 7 2>&1)" || true
 # The live check activates only after A5's interviewer caller exists.  The
 # spec directory and resolver scripts may be staged before that insertion
 # point, so directory presence is not evidence that the live contract is wired.
 if [[ -f "$A5_SKILL_MD" ]] && grep -Fq 'resolve-project-context' "$A5_SKILL_MD"; then
-  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 145 184 \
+  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 159 198 \
       "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" \
-      "### Full-Profile Layer Interview" 6 >/dev/null; then
+      "### Full-Profile Layer Interview" 7 >/dev/null; then
     ok "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
   else
     fail "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"

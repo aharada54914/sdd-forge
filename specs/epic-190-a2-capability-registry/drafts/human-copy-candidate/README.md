@@ -1,5 +1,16 @@
 # T-006 protected-file registration bundle -- regenerated candidate (quality-gate remediation)
 
+## SQL development workflow update — 2026-11-05
+
+The workflow candidate again matches the live workflow byte for byte. It now
+retains all four SQL validation jobs, their planner conditions and execution
+receipts, and their required-checks dependencies and planner outputs. The
+existing Claude hook runtime check and evidence upload are also preserved.
+Only this current workflow candidate and its manifest entry were refreshed;
+the other six candidates and the historical `human-copy/` archive are unchanged.
+The historical hash check and current job/aggregation mutation controls remain
+in force. This refresh grants no approval to apply a protected-file candidate.
+
 ## CI planning recovery update — 2026-11-04
 
 The workflow candidate now matches the integrated live workflow byte for byte,

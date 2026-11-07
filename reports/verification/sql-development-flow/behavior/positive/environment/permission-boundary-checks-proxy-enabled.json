@@ -1,0 +1,67 @@
+[
+  {
+    "name": "allowed_db",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/verify-codex",
+      "-c",
+      "permissions.sql_positive={\"extends\" = \":workspace\", \"network\" = {\"enabled\" = true, \"unix_sockets\" = {\"/tmp/sql-flow-pg-positive-q3wc_i5b/socket/.s.PGSQL.65431\" = \"allow\"}, \"domains\" = {}, \"allow_local_binding\" = false, \"dangerously_allow_all_unix_sockets\" = false, \"dangerously_allow_non_loopback_proxy\" = false}}",
+      "-c",
+      "features.network_proxy=true",
+      "sandbox",
+      "-P",
+      "sql_positive",
+      "--cd",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-query",
+      "--",
+      "python3",
+      "checks/acceptance.py"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\nTraceback (most recent call last):\n  File \"/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-query/checks/acceptance.py\", line 20, in <module>\n    assert sql('SHOW server_version')==['18.6']\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-query/checks/acceptance.py\", line 12, in sql\n    if r.returncode: raise AssertionError(r.stderr)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: psql: error: \n\n"
+  },
+  {
+    "name": "unapproved_unix",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/verify-codex",
+      "-c",
+      "permissions.sql_positive={\"extends\" = \":workspace\", \"network\" = {\"enabled\" = true, \"unix_sockets\" = {\"/tmp/sql-flow-pg-positive-q3wc_i5b/socket/.s.PGSQL.65431\" = \"allow\"}, \"domains\" = {}, \"allow_local_binding\" = false, \"dangerously_allow_all_unix_sockets\" = false, \"dangerously_allow_non_loopback_proxy\" = false}}",
+      "-c",
+      "features.network_proxy=true",
+      "sandbox",
+      "-P",
+      "sql_positive",
+      "--cd",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-query",
+      "--",
+      "python3",
+      "-c",
+      "import socket,sys\ns=socket.socket(socket.AF_UNIX)\ntry:s.connect('/tmp/sql-flow-pg-positive-q3wc_i5b/socket/not-approved.sock')\nexcept OSError as e:print(type(e).__name__,e.errno);sys.exit(0)\nprint('UNEXPECTED_CONNECTED');sys.exit(1)"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\nTraceback (most recent call last):\n  File \"<string>\", line 2, in <module>\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py\", line 233, in __init__\n    _socket.socket.__init__(self, family, type, proto, fileno)\nPermissionError: [Errno 1] Operation not permitted\n"
+  },
+  {
+    "name": "default_denied_https",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/verify-codex",
+      "-c",
+      "permissions.sql_positive={\"extends\" = \":workspace\", \"network\" = {\"enabled\" = true, \"unix_sockets\" = {\"/tmp/sql-flow-pg-positive-q3wc_i5b/socket/.s.PGSQL.65431\" = \"allow\"}, \"domains\" = {}, \"allow_local_binding\" = false, \"dangerously_allow_all_unix_sockets\" = false, \"dangerously_allow_non_loopback_proxy\" = false}}",
+      "-c",
+      "features.network_proxy=true",
+      "sandbox",
+      "-P",
+      "sql_positive",
+      "--cd",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-query",
+      "--",
+      "python3",
+      "-c",
+      "import urllib.request,sys\ntry:r=urllib.request.urlopen('https://example.com',timeout=5)\nexcept Exception as e:print(type(e).__name__,str(e));sys.exit(0)\nprint('UNEXPECTED_RESPONSE',r.status);sys.exit(1)"
+    ],
+    "exit_code": 0,
+    "stdout": "URLError <urlopen error Tunnel connection failed: 403 Forbidden>\n",
+    "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\n"
+  }
+]

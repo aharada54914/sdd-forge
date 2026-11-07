@@ -1,0 +1,4 @@
+{
+  "exit_code": 1,
+  "expected": "FAIL boundary rows 2 and 3 are missing with > operator"
+}
