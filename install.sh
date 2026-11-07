@@ -473,19 +473,19 @@ preflight_claude_hook_runtime() {
         return 1
     fi
     if ! node_version_ok >/dev/null 2>&1; then
-        echo "Error: Claude quality-loop hooks require working Node.js >= 22.19.0 on PATH, even with --skip-mcp. Install Node.js and restart the host before retrying. Installation was not changed." >&2
+        echo "Error: Claude quality-loop hooks require working Node.js >= 26.13.0 on PATH, even with --skip-mcp. Install Node.js and restart the host before retrying. Installation was not changed." >&2
         return 1
     fi
 }
 
 node_version_ok() {
-    # Returns 0 if `node` is on PATH and its version is >= 22.19.0.
+    # Returns 0 if `node` is on PATH and its version is >= 26.13.0.
     if ! command -v node >/dev/null 2>&1; then
         echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     local version major minor patch
-    local minimum_major=22 minimum_minor=19 minimum_patch=0
+    local minimum_major=26 minimum_minor=13 minimum_patch=0
     version="$(read_command_version node)" || version=""
     # Stable Node releases report vNN.N.N. Fail closed on any other shape.
     if [[ ! "$version" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
@@ -503,7 +503,7 @@ node_version_ok() {
     if (( major < minimum_major ||
           (major == minimum_major && minor < minimum_minor) ||
           (major == minimum_major && minor == minimum_minor && patch < minimum_patch) )); then
-        echo "Warning: Node.js >= 22.19.0 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+        echo "Warning: Node.js >= 26.13.0 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     return 0
@@ -610,7 +610,7 @@ upsert_mcp_json() {
     # output is stable 2-space JSON, so re-running produces a byte-identical
     # file. Fail-safes (security-spec B3): a present-but-invalid JSON file is
     # never overwritten (error notice, installer continues with other
-    # clients). Node >= 22.19.0 is guaranteed here by the MCP gate (MCP_NODE_OK).
+    # clients). Node >= 26.13.0 is guaranteed here by the MCP gate (MCP_NODE_OK).
     local client_label="$1"
     local config_file="$2"
     local top_key="$3"
@@ -1264,7 +1264,7 @@ STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 # manifest, so both sources install the same product and neither carries
 # development trees. The mcp/ tree is not in the manifest on purpose: MCP
 # payload placement is handled exclusively by place_mcp_servers (dist/index.js +
-# package.json only, gated by --skip-mcp / --mcp / the Node >= 22.19.0 check).
+# package.json only, gated by --skip-mcp / --mcp / the Node >= 26.13.0 check).
 # One tar pipeline replaces a mkdir+cp process pair per file; extraction
 # recreates the parent directories and keeps file modes.
 if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then

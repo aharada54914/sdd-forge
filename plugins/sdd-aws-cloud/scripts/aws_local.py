@@ -15,7 +15,6 @@ import tempfile
 from cloud import c, decode, digest, encode, publish_bytes, safe_publication, read_bytes
 
 PLUGIN = Path(__file__).resolve().parents[1]
-VERSION = '2.1145.0'
 PARAMS = ('account', 'region', 'stackName', 'vpcId', 'subnetId', 'instanceProfile',
           'imageId', 'instanceType', 'backupPlanId', 'backupRoleArn')
 TYPES = ('AWS::EC2::Instance', 'AWS::EC2::SecurityGroup', 'AWS::CloudWatch::Alarm',
@@ -200,7 +199,7 @@ def assembly_policy(blobs: dict[str, bytes], parameters: dict, policy: dict, own
     return dict(template=template, assets=sorted(set(assets)), schema_version=manifest['version'])
 
 
-def synthesize(snapshot: dict[str, bytes], cfg: dict, toolroot: Path, node: Path) -> tuple[dict[str, bytes], dict]:
+def synthesize(snapshot: dict[str, bytes], cfg: dict, toolroot: Path, node: Path, cdk_version: str) -> tuple[dict[str, bytes], dict]:
     with tempfile.TemporaryDirectory(prefix='aws-local-cdk-') as tmp:
         scratch = Path(tmp).resolve()
         for path, data in snapshot.items():
@@ -222,7 +221,7 @@ def synthesize(snapshot: dict[str, bytes], cfg: dict, toolroot: Path, node: Path
         files = c._scan_unit(scratch, 'assembly')
         blobs = {p[len('assembly/'):]: read_bytes(scratch, p) for p in files}
         c._require(all(safe_publication(data) for data in blobs.values()), 'SECRET_SCAN_FAILED')
-    return blobs, dict(name='aws-cdk', version=VERSION, exit_code=proc.returncode,
+    return blobs, dict(name='aws-cdk', version=cdk_version, exit_code=proc.returncode,
                        stdout_sha256=digest(proc.stdout), diagnostics_sha256=digest(proc.stderr))
 
 
@@ -257,7 +256,8 @@ def prepare_local(root: Path, request: dict, files: list[str], phase: str, reque
         c._require(not compiled, 'PLAN_ALREADY_LOCKED')
         credential_preflight()
         toolroot, node, actual = toolchain()
-        blobs, compiler = synthesize(snapshot, cfg, toolroot, node)
+        cdk_version = next(tool['version'] for tool in actual['tools'] if tool['name'] == 'aws-cdk')
+        blobs, compiler = synthesize(snapshot, cfg, toolroot, node, cdk_version)
         details = assembly_policy(blobs, parameters, policy, owner)
         # Require installed runtime and original inputs unchanged after executing the app.
         c._require(toolchain()[2] == actual, 'CDK_RUNTIME_DRIFT')

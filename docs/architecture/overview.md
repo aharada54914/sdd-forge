@@ -352,7 +352,7 @@ Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd
 | `local-env-mcp` | ローカル環境情報（OS・CPU・メモリ・ツールチェーンのバージョン・CLI の可用性）。実行機能なし | tools 3 |
 | `ci-mcp` | GitHub Actions の CI 状態（ワークフロー実行・ジョブ・ジョブログ・成果物メタデータ）。`https://api.github.com` への GET のみ | tools 5 |
 
-3 サーバーとも **read-only** で、`package.json` の `engines.node` は **>= 22.19.0** です。ツール契約（入出力スキーマ）の正準ソースは `contracts/` 配下の `*-mcp-tools.v1.schema.json` です。
+3 サーバーとも **read-only** で、`package.json` の `engines.node` は **>= 26.13.0** です。ツール契約（入出力スキーマ）の正準ソースは `contracts/` 配下の `*-mcp-tools.v1.schema.json` です。
 
 **位置づけは一貫して「助言層（advisory）」です。** MCP が返す情報はエージェントの判断材料にはなりますが、それによって `tasks.md` の Approval / Status 判定や品質ゲートの合否確認といったファイルベースの手続きが自動的に進むことはなく、その判定を上書きすることもありません。SDD ワークフローの決定権は常にファイルベースの手続き側（§4 の 3 段）にあります。この位置づけを維持するため、状態を変更・作成・進行させる write tool をこれらのサーバーへ追加しない方針が継続されています。
 

@@ -180,7 +180,7 @@ if ($stagedDiff) {
 $mcpSourceDir = Join-Path $installerSourceRoot "mcp/sdd-forge-mcp"
 New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "dist") -Force | Out-Null
 Set-Content -Path (Join-Path $mcpSourceDir "dist/index.js") -Value "console.log('sdd-forge-mcp fixture stub');" -Encoding Utf8NoBOM
-Set-Content -Path (Join-Path $mcpSourceDir "package.json") -Value '{"name":"sdd-forge-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22.19.0"}}' -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "package.json") -Value '{"name":"sdd-forge-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=26.13.0"}}' -Encoding Utf8NoBOM
 # Files that must NOT be copied into the install root (node_modules/src/tests).
 New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "src") -Force | Out-Null
@@ -195,7 +195,7 @@ Set-Content -Path (Join-Path $mcpSourceDir "tests/index.test.ts") -Value "noise"
 $localEnvMcpSourceDir = Join-Path $installerSourceRoot "mcp/local-env-mcp"
 New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "dist") -Force | Out-Null
 Set-Content -Path (Join-Path $localEnvMcpSourceDir "dist/index.js") -Value "console.log('local-env-mcp fixture stub');" -Encoding Utf8NoBOM
-Set-Content -Path (Join-Path $localEnvMcpSourceDir "package.json") -Value '{"name":"local-env-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22.19.0"}}' -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $localEnvMcpSourceDir "package.json") -Value '{"name":"local-env-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=26.13.0"}}' -Encoding Utf8NoBOM
 # Files that must NOT be copied into the install root (node_modules/src/tests).
 New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "src") -Force | Out-Null
@@ -210,7 +210,7 @@ Set-Content -Path (Join-Path $localEnvMcpSourceDir "tests/index.test.ts") -Value
 $ciMcpSourceDir = Join-Path $installerSourceRoot "mcp/ci-mcp"
 New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "dist") -Force | Out-Null
 Set-Content -Path (Join-Path $ciMcpSourceDir "dist/index.js") -Value "console.log('ci-mcp fixture stub');" -Encoding Utf8NoBOM
-Set-Content -Path (Join-Path $ciMcpSourceDir "package.json") -Value '{"name":"ci-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22.19.0"}}' -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $ciMcpSourceDir "package.json") -Value '{"name":"ci-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=26.13.0"}}' -Encoding Utf8NoBOM
 # Files that must NOT be copied into the install root (node_modules/src/tests).
 New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "src") -Force | Out-Null
@@ -545,8 +545,8 @@ try {
             $nodeBody = switch ($hookCase) {
                 'broken' { if ($isWindowsPlatform) { 'exit /b 127' } else { 'exit 127' } }
                 'old' { 'echo v22.18.0' }
-                'invalid' { 'echo v22.19.0-rc.1' }
-                default { 'echo v22.19.0' }
+                'invalid' { 'echo v26.13.0-rc.1' }
+                default { 'echo v26.13.0' }
             }
             if ($isWindowsPlatform) {
                 Set-Content -LiteralPath $nodePath -Encoding Ascii -Value "@echo off`r`n$nodeBody"
@@ -1436,7 +1436,7 @@ try {
     & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpOldNodeInstall -Target FilesOnly -WarningVariable warnings -WarningAction SilentlyContinue
 
     if (Test-Path (Join-Path $mcpOldNodeInstall "mcp")) {
-        throw "old Node (w): MCP was placed below Node 22.19.0"
+        throw "old Node (w): MCP was placed below Node 26.13.0"
     }
     foreach ($plugin in $allPlugins) {
         if (-not (Test-Path (Join-Path $mcpOldNodeInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
@@ -1454,12 +1454,14 @@ finally {
 }
 
 # Scenario (w1): enforce the exact supported MCP runtime floor. Versions below
-# 22.19.0 and malformed output fail closed; 22.19.0 and Node 24 are accepted.
+# 26.13.0 and malformed output fail closed; 26.13.0 and newer stable releases are accepted.
 $nodeBoundaryCases = @(
-    @{ Version = "v22.18.0"; Accept = $false },
-    @{ Version = "v22.19.0"; Accept = $true },
-    @{ Version = "v24.0.0"; Accept = $true },
-    @{ Version = "v22.19.0-rc.1"; Accept = $false },
+    @{ Version = "v22.19.0"; Accept = $false },
+    @{ Version = "v24.19.0"; Accept = $false },
+    @{ Version = "v26.12.1"; Accept = $false },
+    @{ Version = "v26.13.0"; Accept = $true },
+    @{ Version = "v26.14.0"; Accept = $true },
+    @{ Version = "v26.13.0-rc.1"; Accept = $false },
     @{ Version = "v999999999999999999999.0.0"; Accept = $false },
     @{ Version = "not-a-version"; Accept = $false }
 )
@@ -1510,7 +1512,7 @@ foreach ($nodeBoundaryCase in $nodeBoundaryCases) {
 
 # Scenario (w2): an unsupported v18.x runtime for the DEFAULT multi-MCP install
 # under -Target All. The MCP gate skips placement and registration below
-# Node 22.19.0. A v18.x node shim ahead of
+# Node 26.13.0. A v18.x node shim ahead of
 # the real node must cause NO placement of EITHER MCP and NO Claude/Codex/
 # Cursor/VS Code registration, while a warning mentioning Node is raised.
 $mcpV18Root = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-v18-" + [guid]::NewGuid())
@@ -1549,23 +1551,23 @@ try {
     & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpV18Install -Target All -Plugins sdd-bootstrap -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
 
     if (Test-Path (Join-Path $mcpV18Install "mcp")) {
-        throw "old Node v18 (w2): MCP was placed below Node 22.19.0"
+        throw "old Node v18 (w2): MCP was placed below Node 26.13.0"
     }
     if (Test-Path $mcpV18Log) {
         $v18LogContent = Get-Content -Raw $mcpV18Log
         if ($v18LogContent -match [regex]::Escape("claude mcp add")) {
-            throw "old Node v18 (w2): claude mcp add was invoked below Node 22.19.0"
+            throw "old Node v18 (w2): claude mcp add was invoked below Node 26.13.0"
         }
     }
     $v18ConfigToml = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
     if ($v18ConfigToml -match "sdd-forge-mcp" -or $v18ConfigToml -match "local-env-mcp") {
-        throw "old Node v18 (w2): Codex config.toml was modified below Node 22.19.0"
+        throw "old Node v18 (w2): Codex config.toml was modified below Node 26.13.0"
     }
     if ((Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")) -ne $v18CursorBefore) {
-        throw "old Node v18 (w2): Cursor mcp.json was modified below Node 22.19.0"
+        throw "old Node v18 (w2): Cursor mcp.json was modified below Node 26.13.0"
     }
     if ((Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")) -ne $v18VSCodeBefore) {
-        throw "old Node v18 (w2): VS Code mcp.json was modified below Node 22.19.0"
+        throw "old Node v18 (w2): VS Code mcp.json was modified below Node 26.13.0"
     }
     if (-not ($warnings | Where-Object { $_.Message -match "(?i)node" })) {
         throw "old Node v18 (w2): expected warning mentioning Node was not raised"

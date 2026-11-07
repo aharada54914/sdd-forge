@@ -484,6 +484,21 @@ def original_event_revisions(root, run, context, tested):
     return base, head
 
 
+def prepare_trusted_parser(trusted):
+    parser = ROOT / 'mcp/sdd-forge-mcp/node_modules/js-yaml'
+    lock = 'mcp/sdd-forge-mcp/package-lock.json'
+    if not parser.exists() or not (trusted / lock).is_file():
+        return
+    if (ROOT / lock).read_bytes() == (trusted / lock).read_bytes():
+        shutil.copytree(parser, trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml')
+    else:
+        # Dependency-update PRs must reconstruct the base parser from its own lock.
+        # Never run lifecycle scripts or substitute the subject dependency tree.
+        subprocess.run(['npm', 'ci', '--prefix', str(trusted / 'mcp/sdd-forge-mcp'),
+                        '--ignore-scripts', '--no-audit', '--no-fund'],
+                       capture_output=True, check=True, timeout=120)
+
+
 def rebuild_plan(root, run, plan, event_context=None):
     tested = P.git(root, 'rev-parse', 'HEAD').decode().strip()
     if P.git(root, 'status', '--porcelain', '--untracked-files=no'):
@@ -538,13 +553,7 @@ def rebuild_plan(root, run, plan, event_context=None):
                            capture_output=True, check=True, timeout=60)
             subprocess.run(['git', '-C', str(trusted), '-c', 'core.hooksPath=/dev/null',
                             'checkout', '-q', '--detach', base], capture_output=True, check=True, timeout=60)
-            # Reuse the installed locked parser; never fetch or execute subject scripts.
-            parser = ROOT / 'mcp/sdd-forge-mcp/node_modules/js-yaml'
-            lock = 'mcp/sdd-forge-mcp/package-lock.json'
-            if parser.exists() and (trusted / lock).is_file():
-                if (ROOT / lock).read_bytes() != (trusted / lock).read_bytes():
-                    raise ValueError('trusted parser lock differs from installed parser')
-                shutil.copytree(parser, trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml')
+            prepare_trusted_parser(trusted)
             normal = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='false', **arguments)
             forced = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='true', **arguments)
             admitted = (forced,) if fork_full else (normal, forced)

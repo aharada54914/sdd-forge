@@ -43,7 +43,8 @@ $TaskId      = ""
 $Feature     = ""
 $InputPath   = ""
 $SpecRoot    = "specs"
-$Model       = "gemini-2.0-flash"
+# Use the CLI/account configuration unless an explicit model is selected.
+$Model       = ""
 $InputDigest = ""
 $ConsentKind = "human-flag"
 $PanelistTimeoutDefault = 600
@@ -155,7 +156,11 @@ Rules:
     $stdinBundleFile = Join-Path $scratch "stdin-bundle.txt"
     [IO.File]::WriteAllText($stdinBundleFile, $stdinContent, [Text.UTF8Encoding]::new($false))
 
-    [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model -p <prompt> (task=$TaskId feature=$Feature)")
+    $geminiArgs = @()
+    if ($Model) { $geminiArgs += @("--model", $Model) }
+    $geminiArgs += @("-p", $cliPrompt)
+    $modelLabel = if ($Model) { $Model } else { "CLI default" }
+    [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini (model=$modelLabel task=$TaskId feature=$Feature)")
 
     $rawOutput = Join-Path $scratch "raw-output.txt"
     try {
@@ -168,7 +173,7 @@ Rules:
         $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
         try {
             $proc = Start-Process -FilePath "gemini" `
-                -ArgumentList (ConvertTo-SddNativeArgumentString @("--model", $Model, "-p", $cliPrompt)) `
+                -ArgumentList (ConvertTo-SddNativeArgumentString $geminiArgs) `
                 -RedirectStandardInput  $stdinBundleFile `
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
