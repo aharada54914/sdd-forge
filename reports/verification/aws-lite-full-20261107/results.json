@@ -1,0 +1,41 @@
+{
+  "baseline": "08398f03",
+  "issue": "https://github.com/aharada54914/sdd-forge/issues/732",
+  "end_to_end": {
+    "lite": "BLOCKED: isolated Codex authentication returns 401",
+    "full": "BLOCKED: isolated Codex authentication returns 401"
+  },
+  "live_aws": "NOT RUN: no configured AWS identity or protected CI approval",
+  "cloud_suites": [
+    {
+      "suite": "cloud-orchestration-contracts.tests.py",
+      "result": "PASS",
+      "tests": 34,
+      "skipped": 1
+    },
+    {
+      "suite": "cloud-orchestration-execution.tests.py",
+      "result": "PASS",
+      "tests": 88,
+      "skipped": 1
+    },
+    {
+      "suite": "cloud-orchestration-routing.tests.py",
+      "result": "PASS",
+      "tests": 96,
+      "skipped": 14
+    },
+    {
+      "suite": "cloud-orchestration-verification.tests.py",
+      "result": "PASS",
+      "tests": 112,
+      "skipped": 1
+    },
+    {
+      "suite": "install-cloud.tests.py",
+      "result": "PASS",
+      "tests": 16,
+      "skipped": 0
+    }
+  ]
+}

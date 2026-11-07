@@ -139,14 +139,14 @@ function New-Stubs {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
         [Parameter(Mandatory)][string]$LogPath,
-        [Parameter(Mandatory)][ValidateSet("fresh", "installed", "current", "unrelated-failure")][string]$Mode
+        [Parameter(Mandatory)][ValidateSet("fresh", "installed", "current", "unrelated-failure", "source-conflict")][string]$Mode
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
 
     # Per-mode bodies, expressed once per shell dialect.
-    $marketplaceFails = $Mode -in @("installed", "current", "unrelated-failure")
-    $marketplaceMsg = if ($Mode -eq "unrelated-failure") { $MsgUnrelated } else { $MsgMarketplaceExists }
+    $marketplaceFails = $Mode -in @("installed", "current", "unrelated-failure", "source-conflict")
+    $marketplaceMsg = if ($Mode -eq "source-conflict") { "Error: marketplace already added from a different source" } elseif ($Mode -eq "unrelated-failure") { $MsgUnrelated } else { $MsgMarketplaceExists }
     $mcpFails = $Mode -in @("installed", "current")
     $claudeInstallMsg = if ($Mode -in @("installed", "current")) { $MsgPluginInstalled } else { "" }
     $otherInstallFails = $Mode -in @("installed", "current")
@@ -226,7 +226,7 @@ function New-Stubs {
 # ---------------------------------------------------------------------------
 function Invoke-IdempotencyScenario {
     param(
-        [Parameter(Mandatory)][ValidateSet("fresh", "installed", "current", "unrelated-failure")][string]$Mode,
+        [Parameter(Mandatory)][ValidateSet("fresh", "installed", "current", "unrelated-failure", "source-conflict")][string]$Mode,
         [switch]$SeedExistingInstall,
         [switch]$BreakPlacement
     )
@@ -534,6 +534,16 @@ try {
     Write-Host "ok: a registration-phase failure keeps the new version and names what failed"
 }
 finally { if (Test-Path $c7.TestRoot) { Remove-Item -Path $c7.TestRoot -Recurse -Force } }
+
+$conflict = Invoke-IdempotencyScenario -Mode source-conflict
+try {
+    if (-not $conflict.Failed) { throw "A different marketplace source must be fatal." }
+    if ($conflict.Output -notmatch 'Re-register it from the install root') {
+        throw "A source conflict must explain recovery."
+    }
+    Write-Host "ok: a different marketplace source is rejected"
+}
+finally { Remove-Item -Path $conflict.TestRoot -Recurse -Force }
 
 if (Test-Path $sourceFixtureRoot) { Remove-Item -Path $sourceFixtureRoot -Recurse -Force }
 
