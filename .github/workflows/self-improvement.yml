@@ -174,7 +174,7 @@ jobs:
         # to pick up upstream fixes; verify the SHA against the release tag.
         # NOTE: Generated PRs will be gated by required-checks from test.yml;
         # no auto-merge will bypass CI. Manual review & approval is required.
-        uses: anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6 # v1.0.259
+        uses: anthropics/claude-code-action@c0949c50a78c1ec8ce2647db36629b870e715d0c # v1.0.268
         env:
           # セッション内の gh CLI も PAT を使う(issue #173 remedy (b))。
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
