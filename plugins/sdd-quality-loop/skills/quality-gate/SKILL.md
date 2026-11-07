@@ -338,7 +338,9 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
    authorizes an evaluator input.
    Reverify every hash immediately before launch and bind the manifest path/hash,
-   a fresh run ID, and a distinct host-session ID into the evaluator result.
+   a fresh run ID and a host-session ID unused by every other context into the
+   evaluator result. These fields may be identical within this invocation;
+   never invent a second native identifier merely to make them unequal.
    Persist a one-role `review-context-invocation/v2` manifest for the evaluator.
    Set its `task_id` to the current T-NNN and require the sole implementation
    report path, report heading, and `Task ID` field to match that exact task.

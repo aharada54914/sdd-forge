@@ -183,7 +183,7 @@ class LaunchTests(unittest.TestCase):
             try:
                 module.initialize(rpc)
                 results = module.probe_permissions(rpc, scratch, outside)
-                self.assertEqual([item['exitCode'] == 0 for item in results], [True, False, False, False])
+                self.assertEqual([item['exitCode'] == 0 for item in results], [True, False, False, False, True])
                 self.assertNotIn('turn/start', (output / 'native-events.jsonl').read_text())
             finally:
                 rpc.close()

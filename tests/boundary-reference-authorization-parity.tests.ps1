@@ -121,6 +121,18 @@ foreach ($role in @('impl-reviewer-b', 'task-reviewer-b')) {
     else { Nope "F: $role contradicts current-round summary admission" }
 }
 
+# G. Reject contradictory introductory wording and output placeholders.
+foreach ($doc in @($roleDocs) + @('plugins/sdd-quality-loop/skills/quality-gate/SKILL.md', '.codex/agents/sdd-evaluator.toml', 'plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md')) {
+    $text = Get-Content -Raw -LiteralPath (Join-Path $Root $doc)
+    if ($text -match 'distinct nonblank|fresh distinct host|distinct-host-session-id|a distinct host-session ID') { Nope "G: $doc ambiguously demands unequal ID fields" }
+    else { Ok "G: $doc has no unequal-field wording" }
+}
+foreach ($doc in @('.codex/agents/sdd-evaluator.toml', 'plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md')) {
+    $text = Get-Content -Raw -LiteralPath (Join-Path $Root $doc)
+    if ($text.Contains('Never invent a second ID merely to make the two fields unequal.') -and $text.Contains('Each value must be unused by every other implementation')) { Ok "G: $doc preserves native equality and cross-context uniqueness" }
+    else { Nope "G: $doc lacks evaluator identity semantics" }
+}
+
 Write-Output "boundary-reference-authorization-parity.tests.ps1: $($script:Pass) passed, $($script:Fail) failed"
 if ($script:Fail -ne 0) { exit 1 }
 exit 0

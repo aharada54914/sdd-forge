@@ -24,7 +24,7 @@ conditions.
 
 # Inputs
 
-The orchestrator provides a fresh run ID, distinct nonblank host-session ID,
+The orchestrator provides a fresh run ID, a nonblank host-session ID unused by any other context,
 and an allowed-input manifest, as well as feature slug, attempt number, round
 number, and the path to precheck-result.json. Reject any invocation with a
 wrong stage/role, a raw reviewer report in the manifest, or a path outside this
@@ -333,7 +333,7 @@ The JSON must be valid and match this schema exactly:
   "attempt": <M>,
   "round": <N>,
   "run_id": "<fresh-run-id>",
-  "host_session_id": "<distinct-host-session-id>",
+  "host_session_id": "<reserved-native-host-session-id>",
   "manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
   "checks": [

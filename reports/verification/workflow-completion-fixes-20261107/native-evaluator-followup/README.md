@@ -1,0 +1,7 @@
+# Actual quality-evaluator delivery follow-up
+
+SQLite's genuine evaluator `01a1b5ed-794f-7ac1-8cc3-daf26e0313e7` rejected a valid native identity because its role still required the run/session fields to differ. The unchanged rejected output is preserved here. It inspected no substantive app files; this is a delivery failure, not an application finding or completed independent review. The identity and attempt history remain preserved in the original workspace.
+
+The same delivery reported bare `python3` and `sha256sum` unavailable in the model's isolated tool shell. The native preflight could already execute absolute `/usr/bin/python3`; an independent no-model diagnostic also confirmed that runtime under the same permission profile. The launcher now explicitly documents the verified absolute runtime tools and additionally performs a successful standard-library SHA-256 computation over admitted bytes before allocating a reviewer. It retains outside-read, write and network denial checks. No environment secrets, filesystem grants or network permissions were added.
+
+All 17 transport tests pass with native probes enabled, including admitted read/hash success and outside-read/write/network denial. The original diagnostic used native command/exec; it does not establish that the model tool shell has the same PATH. The absolute-path guidance addresses that distinction. Actual repaired app evaluation is recorded separately when it completes.

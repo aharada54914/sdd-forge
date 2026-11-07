@@ -37,3 +37,9 @@ Full and SQLite have now passed actual specification, implementation-design and 
 ## Installed implementation selector follow-up
 
 The implementation package now includes exact canonical capability-registry mirrors and resolves its own assets in versioned/standalone installs. Both Bash and PowerShell reproduce the pre-fix failure and pass after correction; eight isolated package tests and the existing routing suites pass. No model tier or availability was invented. The native host discovery independently confirms registered `gpt-6-astra` with high effort is available; the isolated verification profile uses that actual configuration for subsequent implementation/evaluation. See `model-selector-package/`.
+
+## Actual evaluator follow-up
+
+The real SQLite evaluator exposed a remaining #731 contradiction in the role introduction/output placeholder: the two ID fields of one native context were incorrectly required to differ. All evaluator runtime surfaces and related reviewer placeholders now distinguish same-context field equality from forbidden cross-context identity reuse. Bash/PowerShell role parity each pass 65 checks; implementation-binding tests pass 48 checks including equality acceptance and real reuse rejection. Repository validation and human-copy checks pass.
+
+The launcher also announces its verified absolute read/hash runtime paths and adds a positive SHA-256 probe without expanding reviewer permissions. All 17 native transport tests pass. Actual full evaluation reached substantive app findings about failure-path test coverage; those are being corrected normally. SQLite delivery is being retried with the repaired role and preserved attempt history. See `native-evaluator-followup/`. Sites v10 separately records the current saved progress snapshot; authenticated production browser viewing remains unverified because the browser tools are unavailable.

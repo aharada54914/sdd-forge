@@ -176,6 +176,22 @@ for role in impl-reviewer-b task-reviewer-b; do
     if grep -Fq 'required in every round, including round 1' "$doc" && ! grep -Eq 'only available when round N > 1|absent \(round 1\)' "$doc"; then ok "F: $role requires the current A summary in round 1"; else fail "F: $role contradicts current-round summary admission"; fi
 done
 
+# G. Introductory wording and output examples must not contradict equal native IDs.
+for doc in $ROLE_DOCS plugins/sdd-quality-loop/skills/quality-gate/SKILL.md .codex/agents/sdd-evaluator.toml plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md; do
+    if grep -Eq 'distinct nonblank|fresh distinct host|distinct-host-session-id|a distinct host-session ID' "$ROOT/$doc"; then
+        fail "G: $doc ambiguously demands unequal ID fields"
+    else
+        ok "G: $doc has no unequal-field wording"
+    fi
+done
+for doc in .codex/agents/sdd-evaluator.toml plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md; do
+    if grep -Fq 'Never invent a second ID merely to make the two fields unequal.' "$ROOT/$doc" && grep -Fq 'Each value must be unused by every other implementation' "$ROOT/$doc"; then
+        ok "G: $doc preserves native equality and cross-context uniqueness"
+    else
+        fail "G: $doc lacks evaluator identity semantics"
+    fi
+done
+
 echo "boundary-reference-authorization-parity.tests.sh: ${PASS} passed, ${FAIL} failed"
 [ "$FAIL" -eq 0 ] || exit 1
 exit 0

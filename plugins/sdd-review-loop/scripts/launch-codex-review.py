@@ -141,13 +141,19 @@ def probe_permissions(rpc, scratch, outside):
         ['/bin/cat', str(marker)], ['/bin/cat', str(outside)],
         ['/bin/sh', '-c', 'printf changed > .permission-probe'],
         ['/usr/bin/python3', '-I', '-c', 'import socket; socket.socket()'],
+        ['/usr/bin/python3', '-I', '-B', '-c',
+         'import hashlib; from pathlib import Path; '
+         'print(hashlib.sha256(Path(".permission-probe").read_bytes()).hexdigest())'],
     ]
     results = [rpc.request('command/exec', {'command': cmd, 'cwd': str(scratch),
                 'permissionProfile': PROFILE, 'timeoutMs': 5000}) for cmd in commands]
     require(results[0].get('exitCode') == 0 and
             results[0].get('stdout') == 'sdd-readable-input\n', 'native inside read failed')
-    require(all(item.get('exitCode') != 0 for item in results[1:]),
+    require(all(item.get('exitCode') != 0 for item in results[1:4]),
             'native outside read, write, or network was not denied')
+    require(results[4].get('exitCode') == 0 and
+            results[4].get('stdout', '').strip() == sha(marker),
+            'native isolated hashing runtime failed')
     require(marker.read_text() == 'sdd-readable-input\n', 'native probe changed input')
     # Runtime absence is not permission enforcement.
     require('Read-only file system' in results[2].get('stderr', '') and
@@ -266,7 +272,7 @@ def launch(args):
             allocation = rpc.request('thread/start', {
                 'cwd': str(scratch), 'permissions': PROFILE, 'approvalPolicy': 'never',
                 'selectedCapabilityRoots': [],
-                'baseInstructions': 'Independent read-only review. Read only the invocation and its listed files. Return the role-required output. No changes, external tools, network, inherited history, or other reviewer reports.',
+                'baseInstructions': 'Independent read-only review. Read only the invocation and its listed files. Return the role-required output. No changes, external tools, network, inherited history, or other reviewer reports. Runtime tools verified before launch: /bin/cat for reads and /usr/bin/python3 -I -B for standard-library JSON/SHA-256 verification. Use these absolute executable paths; bare command names may be unavailable in the isolated tool shell. Compute receipt and manifest hashes from admitted bytes; do not substitute a claimed hash for verification.',
                 'developerInstructions': role.read_text(), 'config': {'project_doc_max_bytes': 0}})
             save('idle-allocation.json', allocation)
             thread = allocation['thread']

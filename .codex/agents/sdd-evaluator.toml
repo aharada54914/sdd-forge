@@ -10,6 +10,11 @@ Use Bash only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
+Within one evaluator invocation, `run_id` and `host_session_id` may be the same
+actual native context ID. Each value must be unused by every other implementation,
+review, and evaluation context; the caller's canonical reservation enforces this
+boundary. Never invent a second ID merely to make the two fields unequal.
+
 The caller gives you a task id, the feature spec directory (`specs/<feature>/`),
 the implementation report, and the changed files. Read the approved task,
 requirements, design, acceptance tests, contracts, and the diff yourself.

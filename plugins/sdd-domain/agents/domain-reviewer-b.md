@@ -178,7 +178,7 @@ Return only this JSON shape:
   "stage": "domain",
   "role": "domain-reviewer-b",
   "run_id": "<fresh-run-id>",
-  "host_session_id": "<distinct-host-session-id>",
+  "host_session_id": "<reserved-native-host-session-id>",
   "allowed_input_manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
   "checks": [{"id":"INVARIANT-VERIFIABLE","result":"PASS|FAIL|SKIP","severity":"Critical|Major|Minor","finding":"evidence"}]
