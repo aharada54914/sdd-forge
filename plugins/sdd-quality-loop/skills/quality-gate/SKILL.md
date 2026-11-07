@@ -220,7 +220,14 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      current state, since no `project-context.yaml` exists yet),
      `advisory` (full six-Fail-condition evaluation and recording, always
      exit 0), `required` (identical evaluation, exit non-zero iff a Fail
-     condition triggers). This documented invocation is defense-in-depth,
+     condition triggers).
+     This is a required invocation with a legitimate applicability result, not
+     an optional waiver or a claim that coverage was substantively evaluated.
+     Preserve its actual command, exit status, configuration/input provenance and
+     producer-bound JSON in evaluator inputs. Do not force capability activation
+     solely because the contract check has `required: true`. Missing execution,
+     parse errors or enabled-mode missing coverage never qualify as this N/A.
+     This documented invocation is defense-in-depth,
      not the reachability guarantee — `check-component-coverage` is
      registered in `check-contract`'s own protected tier-minimum required-
      check-set (INV-017), which is what actually closes the gap were this

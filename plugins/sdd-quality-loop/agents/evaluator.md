@@ -121,6 +121,20 @@ file that is not listed in the manifest.
    evidence path, command, or inspection target. Cannot-verify is not PASS.
 8. Be skeptical by default. "It probably works" is NEEDS_WORK, not PASS.
 
+# Deterministic Gate Applicability
+
+A required check must actually run; its `required: true` flag does not force an
+optional project capability to become active. For `check-component-coverage`,
+an executed, producer-bound `not-applicable (disabled-legacy)` record with exit 0
+is legitimate when the canonical applicability rule derives that state, including
+an absent `project-context.yaml`. It proves invocation, not substantive coverage;
+do not require capability activation or an optional waiver for that result alone.
+Missing execution, an unsupported N/A claim, enabled-mode missing coverage, and
+configuration parse errors remain blocking evidence gaps or gate failures.
+Check the admitted policy and configuration/evidence binding; never infer N/A
+from missing manifest files or exit 0 alone. Evaluate an independently explicit
+active-coverage acceptance criterion separately, citing that criterion.
+
 # Severity
 
 - `Critical`: wrong or missing behavior, broken contract, security defect,
