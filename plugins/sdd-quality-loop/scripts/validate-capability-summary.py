@@ -27,6 +27,9 @@ import subprocess
 import sys
 from collections import namedtuple
 
+if sys.version_info < (3, 10):
+    raise SystemExit("capability-summary: schema-runtime-unavailable: Python >= 3.10 required")
+
 # importlib callers need the same packaged-module lookup as direct CLI execution.
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 from sdd_schema import _validate

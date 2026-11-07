@@ -77,6 +77,15 @@ class SharedSchemaRuntimeTests(unittest.TestCase):
             spec.loader.exec_module(module)
             self.assertIs(module._validate, sdd_schema._validate)
 
+    def test_old_python_fails_with_actionable_diagnostic(self):
+        entry = SCRIPTS / 'validate-facet-manifest.py'
+        result = subprocess.run([sys.executable, '-c',
+            "import runpy,sys;sys.version_info=(3,9);runpy.run_path(sys.argv[1],run_name='__main__')",
+            str(entry)], text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Python >= 3.10 required', result.stderr)
+        self.assertNotIn('Traceback', result.stderr)
+
     def test_vendor_integrity_and_lock(self):
         vendor = SCRIPTS / '_schema_vendor'
         manifest = json.loads((vendor / 'manifest.json').read_text())

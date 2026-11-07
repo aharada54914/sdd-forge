@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Reproduce the bundled pure-Python runtime from a hash-locked PyPI wheel."""
+from email.parser import BytesParser
 import hashlib
 import json
 import pathlib
@@ -16,8 +17,14 @@ with tempfile.TemporaryDirectory() as temporary:
                     '--no-deps', '--only-binary=:all:', '-r', str(destination / 'requirements.txt'),
                     '--dest', temporary], check=True)
     wheel, = pathlib.Path(temporary).glob('*.whl')
+    if not wheel.name.endswith('-py3-none-any.whl'):
+        raise ValueError('schema runtime must remain a platform-independent Python wheel')
     files = {}
     with zipfile.ZipFile(wheel) as archive:
+        metadata_name, = (name for name in archive.namelist() if name.endswith('.dist-info/METADATA'))
+        metadata = BytesParser().parsebytes(archive.read(metadata_name))
+        if metadata.get_all('Requires-Dist'):
+            raise ValueError('new transitive dependencies require an explicit distribution review')
         for name in archive.namelist():
             path = pathlib.PurePosixPath(name)
             if name.startswith('fastjsonschema/') and not name.endswith('/'):
