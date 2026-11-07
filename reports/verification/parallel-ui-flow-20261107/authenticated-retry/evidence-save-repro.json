@@ -1,0 +1,8 @@
+{
+  "test": "saving quoted canary denial to an ordinary evidence file",
+  "command_under_test": "python3 - <<'PY'\nfrom pathlib import Path\nraw='''*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:test-evidence-only\n*** End Patch'''\nPath('evidence/denial.txt').write_text(raw)\nPY",
+  "guard_exit_code": 2,
+  "stderr": "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n",
+  "stdout": "",
+  "shell_command_executed": false
+}

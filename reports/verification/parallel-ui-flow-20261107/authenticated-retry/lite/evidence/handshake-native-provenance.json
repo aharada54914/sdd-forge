@@ -1,0 +1,7 @@
+{
+  "source": "evidence/cli-stderr.log",
+  "byte_start": 1214,
+  "byte_end_exclusive": 1812,
+  "sha256": "133751f0f98de56eeb3036edb31fdf199df62f91e5c923e61fa29d9872f64d2b",
+  "extraction": "Exact bytes after router error= through end of the matching runtime-template patch; log record separator newline excluded. No normalization or Script error prefix added."
+}

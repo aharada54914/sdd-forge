@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2026-11-07T09:58:08.942Z",
+    "ordinal": 40,
+    "type": "response_item",
+    "payload": {
+      "type": "custom_tool_call_output",
+      "id": "ctco_01a1b571-af2e-76b3-9a97-cf49a827b4d6",
+      "call_id": "call_dfda40c3a4c849b78a4a04f4cc4c4484",
+      "output": [
+        {
+          "type": "input_text",
+          "text": "Script failed\nWall time 0.1 seconds\nOutput:\n"
+        },
+        {
+          "type": "input_text",
+          "text": "Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:0451c2c7300f299aeae8e1cd17a14ca0\n*** End Patch"
+        }
+      ],
+      "internal_chat_message_metadata_passthrough": {
+        "turn_id": "01a1b571-2a4a-7c00-82e6-87256d1bab79",
+        "create_time": 1794045488.9428537
+      }
+    },
+    "metadata": {
+      "client_authored": false,
+      "fallback_token_limit_override": 12000
+    }
+  },
+  {
+    "timestamp": "2026-11-07T09:58:21.891Z",
+    "ordinal": 49,
+    "type": "response_item",
+    "payload": {
+      "type": "custom_tool_call_output",
+      "id": "ctco_01a1b571-e1c3-7ee2-8576-a0e81f4a0c75",
+      "call_id": "call_8d92adba124943a19d7c483ba611c460",
+      "output": [
+        {
+          "type": "input_text",
+          "text": "Script failed\nWall time 0.1 seconds\nOutput:\n"
+        },
+        {
+          "type": "input_text",
+          "text": "Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: python3 - <<'PY'\nimport json\nfrom pathlib import Path\nraw='''Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:0451c2c7300f299aeae8e1cd17a14ca0\n*** End Patch'''\nPath('reports/workflow/handshake-response.json').write_text(json.dumps(dict(schema='sdd-codex-host-denial/v1',runtime='codex-cli',nonce='0451c2c7300f299aeae8e1cd17a14ca0',executed=False,raw_result=raw),ensure_ascii=False,indent=2)+'\\n')\nPY\npython3 /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce 0451c2c7300f299aeae8e1cd17a14ca0 --recorded-result reports/workflow/handshake-response.json --runtime codex-cli"
+        }
+      ],
+      "internal_chat_message_metadata_passthrough": {
+        "turn_id": "01a1b571-2a4a-7c00-82e6-87256d1bab79",
+        "create_time": 1794045501.891235
+      }
+    },
+    "metadata": {
+      "client_authored": false,
+      "fallback_token_limit_override": 12000
+    }
+  }
+]
