@@ -28,7 +28,7 @@
                 ]
               },
               "stackTraces": [
-                "<anonymous> (/tmp/aws-local-cdk-4maa8m3a/bundle/unit/app.js:15:17)\n...node internals..."
+                "<anonymous> (/tmp/aws-local-cdk-_8bxjbmy/bundle/unit/app.js:15:17)\n...node internals..."
               ]
             }
           ],

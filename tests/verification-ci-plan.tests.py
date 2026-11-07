@@ -1378,6 +1378,34 @@ class PreparedVerifierTests(unittest.TestCase):
                 'receipt_required': False, 'disposition': 'orchestration-verifier'})
         self.assertTrue(W.aggregate_command(self.workflow['jobs']['required-checks']['steps'][-1]['run']))
 
+    def test_node26_preparation_requires_exact_pinned_action_and_runtime(self):
+        setup = {'name': 'Set up Node.js 26',
+                 'uses': 'actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1',
+                 'with': {'node-version': '26.13.0'}}
+        self.workflow['jobs']['required-checks']['steps'].insert(1, setup)
+        W.verifier_job(self.workflow)
+        for field, value in (('uses', 'actions/setup-node@main'),
+                             ('with', {'node-version': '24'}),
+                             ('with', {'node-version': '26.13.0', 'registry-url': 'https://example.invalid'}),
+                             ('env', {'NODE_OPTIONS': '--require untrusted.js'})):
+            bad = copy.deepcopy(self.workflow)
+            bad['jobs']['required-checks']['steps'][1][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                W.verifier_job(bad)
+
+    def test_runtime_and_installers_agree_on_node26_floor(self):
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
+        for name, job in live['jobs'].items():
+            if name.startswith('a9-'):
+                continue  # Python-only advisory jobs do not consume Node packages.
+            setups = [step for step in job['steps'] if step.get('uses', '').startswith('actions/setup-node@')]
+            self.assertTrue(setups, name)
+            self.assertTrue(all(step['with']['node-version'] == '26.13.0' for step in setups), name)
+        for name in ('ci-mcp', 'local-env-mcp', 'sdd-forge-mcp'):
+            package = json.loads((ROOT / 'mcp' / name / 'package.json').read_text())
+            self.assertEqual(package['engines']['node'], '>=26.13.0')
+            self.assertTrue(package['devDependencies']['@types/node'].startswith('^26.'))
+
     def test_live_workload_and_a9_inventory_survives_preparation(self):
         live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
         catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())

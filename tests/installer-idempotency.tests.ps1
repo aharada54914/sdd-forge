@@ -209,14 +209,14 @@ function New-Stubs {
         }
     }
 
-    # Report a Node version that clears the >= 22.19.0 gate, so MCP placement
+    # Report a Node version that clears the >= 26.13.0 gate, so MCP placement
     # runs on every host regardless of the real toolchain.
     if ($isWindowsPlatform) {
-        Set-Content -Path (Join-Path $BinRoot "node.cmd") -Value "@echo off`r`necho v22.19.0`r`nexit /b 0" -Encoding Ascii
+        Set-Content -Path (Join-Path $BinRoot "node.cmd") -Value "@echo off`r`necho v26.13.0`r`nexit /b 0" -Encoding Ascii
     }
     else {
         $nodePath = Join-Path $BinRoot "node"
-        Set-Content -Path $nodePath -Value "#!/bin/sh`necho v22.19.0`n" -Encoding Utf8NoBOM
+        Set-Content -Path $nodePath -Value "#!/bin/sh`necho v26.13.0`n" -Encoding Utf8NoBOM
         & chmod +x $nodePath
     }
 }

@@ -493,13 +493,19 @@ def prepared_verifier_job(workflow, job):
             {'name': 'Check all required tests passed', 'shell': 'bash',
              'env': {'API_HEAD_SHA': '${{ github.event.pull_request.head.sha || github.sha }}'},
              'run': 'python3 -B tests/verification-ci.py aggregate --root . --plan "$RUNNER_TEMP/verification-plan/plan.json" --observations "$RUNNER_TEMP/verification-observations" --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA" --output "$RUNNER_TEMP/verification-result.json"'}]}
+    # Retain the previous exact shape for trusted-base adoption; qualify the new runtime explicitly.
+    node_setup = {'name': 'Set up Node.js 26',
+                  'uses': 'actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1',
+                  'with': {'node-version': '26.13.0'}}
+    with_node = {**expected, 'steps': [expected['steps'][0], node_setup, *expected['steps'][1:]]}
     inherited_env = {'GIT_CONFIG_COUNT': '1', 'GIT_CONFIG_KEY_0': 'core.longpaths',
                      'GIT_CONFIG_VALUE_0': 'true'}
     # JSON comparison preserves scalar types (False must not equal integer 0).
     if ('ci-plan' not in job['needs'] or 'defaults' in workflow
             or workflow.get('env', {}) not in ({}, inherited_env)
             or json.dumps(job, sort_keys=True, allow_nan=False)
-            != json.dumps(expected, sort_keys=True, allow_nan=False)):
+            not in (json.dumps(expected, sort_keys=True, allow_nan=False),
+                    json.dumps(with_node, sort_keys=True, allow_nan=False))):
         raise ValueError('unrecognized preparation in orchestration verifier')
     return True
 

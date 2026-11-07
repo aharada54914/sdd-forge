@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Read-only MCP server exposing SDD workflow state (sdd-forge).",
   "engines": {
-    "node": ">=22.19.0"
+    "node": ">=26.13.0"
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
@@ -20,8 +20,8 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "2.10.1",
-    "@types/node": "^22.20.5",
+    "@modelcontextprotocol/inspector": "2.14.0",
+    "@types/node": "^26.6.6",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "esbuild": "^0.28.2",

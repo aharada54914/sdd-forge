@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 let api;
 try {
   const [major, minor] = process.versions.node.split('.').map(Number);
-  if (major < 22 || (major === 22 && minor < 19)) throw new Error('Unsupported Node runtime');
+  if (major < 26 || (major === 26 && minor < 13)) throw new Error('Unsupported Node runtime');
   if (ts.version !== '7.0.2') throw new Error('Unsupported TypeScript compiler');
   const paths = JSON.parse(readFileSync(0, 'utf8'));
   if (!Array.isArray(paths) || paths.some(path => typeof path !== 'string')) {

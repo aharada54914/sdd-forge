@@ -113,6 +113,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -287,6 +291,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -338,6 +346,10 @@ jobs:
     # Bound PowerShell-heavy Intel work without shortening other platforms' coverage.
     timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 30 }}
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       # eval-lane: (none yet)
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -656,6 +668,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 30 }}
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Verify generated guard invariants (Windows)
@@ -754,6 +770,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install template YAML parser
@@ -896,6 +916,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.os == 'macos-26-intel' && 90 || 45 }}
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Test bump-version.sh loop-gate prerequisite (bash)
@@ -1436,6 +1460,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test bump-version loop-gate prerequisite
         shell: pwsh
@@ -1476,6 +1504,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 35
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test Windows version-gates lane
         shell: pwsh
@@ -1513,7 +1545,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22.19.0"
+          node-version: "26.13.0"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
@@ -1528,7 +1560,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/npm-cache/_cacache
           key: >-
-            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            npm-${{ runner.os }}-node26-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
             github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/sdd-forge-mcp/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
@@ -1585,7 +1617,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22.19.0"
+          node-version: "26.13.0"
           cache: npm
           cache-dependency-path: mcp/local-env-mcp/package-lock.json
 
@@ -1600,7 +1632,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/npm-cache/_cacache
           key: >-
-            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            npm-${{ runner.os }}-node26-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
             github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/local-env-mcp/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
@@ -1653,7 +1685,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22.19.0"
+          node-version: "26.13.0"
           cache: npm
           cache-dependency-path: mcp/ci-mcp/package-lock.json
 
@@ -1668,7 +1700,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/npm-cache/_cacache
           key: >-
-            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            npm-${{ runner.os }}-node26-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
             github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/ci-mcp/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
@@ -1710,6 +1742,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Claude Code CLI
@@ -1758,6 +1794,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Checkout complete history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1792,6 +1832,10 @@ jobs:
     env:
       SDD_EXPECTED_POWERSHELL: ${{ matrix.version }}
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -1869,18 +1913,18 @@ jobs:
           chmod +x "$tools/bicep"
 
           curl --retry 2 --retry-all-errors --retry-delay 1 --fail --silent --show-error --location --connect-timeout 30 --max-time 180
-          https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz --output "$tools/node.tar.xz"
+          https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz --output "$tools/node.tar.xz"
 
-          printf '%s  %s\n' 14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647 "$tools/node.tar.xz" | sha256sum --check
+          printf '%s  %s\n' d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997 "$tools/node.tar.xz" | sha256sum --check
           --strict
 
           tar -xJf "$tools/node.tar.xz" -C "$tools"
 
-          export PATH="$tools/node-v24.19.0-linux-x64/bin:$PATH"
+          export PATH="$tools/node-v26.13.0-linux-x64/bin:$PATH"
 
-          test "$(node --version)" = v24.19.0
+          test "$(node --version)" = v26.13.0
 
-          test "$(npm --version)" = 11.17.0
+          test "$(npm --version)" = 11.20.0
 
           mkdir "$tools/cdk"
 
@@ -1891,7 +1935,7 @@ jobs:
 
           echo "CLOUD_BICEP_BIN=$tools/bicep" >> "$GITHUB_ENV"
 
-          echo "CLOUD_NODE_BIN=$tools/node-v24.19.0-linux-x64/bin/node" >> "$GITHUB_ENV"
+          echo "CLOUD_NODE_BIN=$tools/node-v26.13.0-linux-x64/bin/node" >> "$GITHUB_ENV"
 
           echo "CLOUD_CDK_ROOT=$tools/cdk" >> "$GITHUB_ENV"
 
@@ -1902,7 +1946,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: '22'
+          node-version: "26.13.0"
       - name: Bind npm cache to actual Node runtime
         id: node-runtime
         shell: bash
@@ -1914,7 +1958,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/npm-cache/_cacache
           key: >-
-            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            npm-${{ runner.os }}-node26-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
             github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/sdd-forge-mcp/package-lock.json') }}
       - name: Install pinned workflow parser dependencies
         shell: bash
@@ -1974,6 +2018,10 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Install structural YAML parser
         shell: bash
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
@@ -2019,6 +2067,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -2114,7 +2166,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24.19.0"
+          node-version: "26.13.0"
       - name: Install locked TypeScript compiler
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
       - name: Install pinned native analyzers
@@ -2181,6 +2233,10 @@ jobs:
       run_windows_powershell: ${{ steps.plan.outputs.run_windows_powershell }}
       plan_artifact_name: ${{ steps.plan.outputs.plan_artifact_name }}
     steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Checkout tested plan inputs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

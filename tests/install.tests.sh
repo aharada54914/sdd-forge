@@ -102,7 +102,7 @@ cat > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/package.json" <<'MCPPKG'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.19.0" }
+  "engines": { "node": ">=26.13.0" }
 }
 MCPPKG
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -127,7 +127,7 @@ cat > "${SOURCE_FIXTURE}/mcp/local-env-mcp/package.json" <<'MCPPKG2'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.19.0" }
+  "engines": { "node": ">=26.13.0" }
 }
 MCPPKG2
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -152,7 +152,7 @@ cat > "${SOURCE_FIXTURE}/mcp/ci-mcp/package.json" <<'MCPPKG3'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.19.0" }
+  "engines": { "node": ">=26.13.0" }
 }
 MCPPKG3
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -1584,7 +1584,7 @@ _w_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root 
 export PATH="$_w_orig_path"
 _w_ok=1
 [[ $_w_failed -eq 0 ]] || { fail "old Node (w): installer exited non-zero despite MCP-only skip"; _w_ok=0; }
-[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed below Node 22.19.0"; _w_ok=0; }
+[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed below Node 26.13.0"; _w_ok=0; }
 for p in $ALL_PLUGINS; do
     [[ -f "${_w_install}/plugins/${p}/.codex-plugin/plugin.json" ]] || { fail "old Node (w): plugin not copied despite MCP-only skip: $p"; _w_ok=0; }
 done
@@ -1595,10 +1595,10 @@ fi
 rm -rf "$_w_root"
 [[ $_w_ok -eq 1 ]] && ok "unsupported Node warns and skips MCP only, plugin install continues"
 
-# Scenario (w1): enforce the exact supported MCP runtime floor. Node 22.18.x
+# Scenario (w1): enforce the exact supported MCP runtime floor. Node 26.12.x
 # and malformed output must fail closed, while
-# Node 22.19.0 and the current Node 24 LTS line remain supported.
-for _w1_case in "v22.18.0:reject" "v22.19.0:accept" "v24.0.0:accept" "v22.19.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
+# Node 26.13.0 and newer stable releases are supported; Node 22/24 are rejected.
+for _w1_case in "v22.19.0:reject" "v24.19.0:reject" "v26.12.1:reject" "v26.13.0:accept" "v26.14.0:accept" "v26.13.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
     _w1_version="${_w1_case%%:*}"
     _w1_expected="${_w1_case##*:}"
     _w1_root="$(mktemp -d)"
@@ -1635,7 +1635,7 @@ NODESHIM_BOUNDARY
 done
 
 # Scenario (w2): an unsupported v18.x runtime for the DEFAULT multi-MCP
-# install. The MCP gate skips placement and registration below Node 22.19.0.
+# install. The MCP gate skips placement and registration below Node 26.13.0.
 # A v18.x shim ahead of the
 # real node on PATH must cause NO placement of EITHER MCP and NO Claude/Codex
 # registration, while a warning mentioning Node is printed. --target All +
@@ -1663,7 +1663,7 @@ export PATH="${_w2_bin}:${_w2_orig_path}"
 export SDD_CODEX_HOME="${_w2_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
-# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 22.19.0.
+# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 26.13.0.
 export SDD_CURSOR_DIR="${_w2_root}/cursor"
 export SDD_VSCODE_USER_DIR="${_w2_root}/vscode-user"
 mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
@@ -1679,17 +1679,17 @@ if [[ -z "$_w2_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_C
 if [[ -z "$_w2_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_w2_orig_vscode_dir"; fi
 _w2_ok=1
 [[ $_w2_failed -eq 0 ]] || { fail "old Node v18 (w2): installer exited non-zero despite MCP-only skip"; _w2_ok=0; }
-[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed below Node 22.19.0"; _w2_ok=0; }
+[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed below Node 26.13.0"; _w2_ok=0; }
 if [[ -f "$_w2_log" ]] && grep -qF "claude mcp add" "$_w2_log"; then
-    fail "old Node v18 (w2): claude mcp add was invoked below Node 22.19.0"
+    fail "old Node v18 (w2): claude mcp add was invoked below Node 26.13.0"
     _w2_ok=0
 fi
 if grep -qE "sdd-forge-mcp|local-env-mcp|ci-mcp" "${_w2_root}/codex-home/config.toml" 2>/dev/null; then
-    fail "old Node v18 (w2): Codex config.toml was modified below Node 22.19.0"
+    fail "old Node v18 (w2): Codex config.toml was modified below Node 26.13.0"
     _w2_ok=0
 fi
-cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 22.19.0"; _w2_ok=0; }
-cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 22.19.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 26.13.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 26.13.0"; _w2_ok=0; }
 if ! echo "$_w2_out" | grep -qi "node"; then
     fail "old Node v18 (w2): expected warning mentioning Node was not printed"
     _w2_ok=0
@@ -2007,11 +2007,11 @@ for _hook_case in missing broken old invalid hanging claude-old valid; do
     rm -f "${_hook_bin}/sleep"
     ln -s "$_hook_real_sleep" "${_hook_bin}/sleep"
     rm -f "${_hook_bin}/node"
-    _hook_node='echo v22.19.0'
+    _hook_node='echo v26.13.0'
     case "$_hook_case" in
         broken) _hook_node='exit 127' ;;
         old) _hook_node='echo v22.18.0' ;;
-        invalid) _hook_node='echo v22.19.0-rc.1' ;;
+        invalid) _hook_node='echo v26.13.0-rc.1' ;;
         hanging)
             # Deliberately slow each poll: iteration counts cannot stand in for
             # elapsed time on a busy/macOS runner. The probe still gets 30s.

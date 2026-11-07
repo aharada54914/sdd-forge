@@ -261,7 +261,7 @@ must never rely on a bare legacy number.
 | 0027 | component-path-ownership-resolver-semantics — renumbered to ADR-0030 | (tombstone) |
 | 0029 | Registry Discovery Contract | Accepted |
 | 0030 | Component Path Ownership Resolver Semantics | Accepted |
-| 0031 | Node Runtime Baseline 22.19.0 | Accepted |
+| 0031 | Node Runtime Baseline (updated to 26.13.0) | Accepted |
 | 0032 | Concept Design Layer — Phased Introduction | Accepted |
 | 0036 | [Thin Azure/AWS orchestration with CI authorization](0036-thin-cloud-orchestration.md) | Proposed |
 | 0037 | [Conservative dependency-based CI selection](0037-conservative-ci-selection.md) | Proposed |

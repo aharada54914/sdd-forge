@@ -18,7 +18,7 @@ cloud observation, verification success or authorization.
 - `CLOUD_CDK_ROOT`: physical preinstalled toolchain root containing the exact
   example package.json/package-lock.json and their installed node_modules.
 - `CLOUD_NODE_BIN`: physical absolute operator-selected executable, **not PATH
-  lookup**. Exact Node 24.19.0 binary hash in toolchain-lock.json is required.
+  lookup**. Exact Node 26.13.0 binary hash in toolchain-lock.json is required.
   Relocation of identical bytes is supported; another Node build/OS binary
   needs a separately reviewed pin. No automatic download/install/update.
 - The source unit contains `cdk.json` (`{"app":"node app.js"}`), `app.js`,
