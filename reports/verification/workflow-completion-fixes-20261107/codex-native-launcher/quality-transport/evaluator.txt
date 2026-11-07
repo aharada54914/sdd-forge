@@ -1,0 +1,12 @@
+RUN_ID: 01a1b5cb-4f70-7ba2-a997-1927e541118e
+HOST_SESSION_ID: 01a1b5cb-4f70-7ba2-a997-1927e541118e
+ALLOWED_INPUT_MANIFEST: reports/product-evaluator-3/invocation.json 4e3a7caa172a3a5b8f0051d1fd037adb10c2589ceb9c6106fcb9ca28a88fa369
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation hash, reservation receipt hash and sequence linkage, and all 11 admitted file hashes.
+- Inspected admitted specifications, calibration, implementation report, source, tests, and saved evidence using /bin/cat; task and output bindings match T-001.
+- sum_values.py:1-2 implements REQ-001 using built-in sum, without placeholders or hardcoded results.
+- Ran /usr/bin/python3 -I -B tests/test_sum.py: exit 0; “2 acceptance checks passed,” covering AC-001 and AC-002.
+- Tests not rerun: none.

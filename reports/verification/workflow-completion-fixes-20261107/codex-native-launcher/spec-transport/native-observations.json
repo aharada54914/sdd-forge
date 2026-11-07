@@ -1,0 +1,169 @@
+{
+  "source_sha256": "b127c9f786944f34f83366ed292286373cb4fe0cc75c9507f6b35adcf4a8b73b",
+  "source_file": "/workspace/.tools/sdd-forge-dev/verification-workspace/native-launcher-integration/reports/product-launcher-5/native-events.jsonl",
+  "events": [
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "commandExecution",
+          "id": "exec-8fffb587-12b5-4dfc-934f-f6344a5013fb",
+          "pluginId": null,
+          "scriptPath": null,
+          "command": "/bin/bash -lc 'cat invocation.json'",
+          "cwd": "/tmp/sdd-codex-review-uvztxz9c/inputs",
+          "processId": "12309",
+          "source": "unifiedExecStartup",
+          "status": "failed",
+          "commandActions": [
+            {
+              "type": "read",
+              "command": "cat invocation.json",
+              "name": "invocation.json",
+              "path": "/tmp/sdd-codex-review-uvztxz9c/inputs/invocation.json"
+            }
+          ],
+          "aggregatedOutput": "/bin/bash: line 1: cat: command not found\n",
+          "exitCode": 127,
+          "durationMs": 0
+        },
+        "threadId": "01a1b5be-183c-7692-81f4-e7af8040198f",
+        "turnId": "01a1b5be-1a72-7c80-bf4b-5b5bd200653c",
+        "completedAtMs": 1794050499460
+      },
+      "emittedAtMs": 1794050499464
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "commandExecution",
+          "id": "exec-2ada8f55-9486-4397-80d3-1769d9023aa6",
+          "pluginId": null,
+          "scriptPath": null,
+          "command": "/bin/bash -lc '/bin/cat invocation.json'",
+          "cwd": "/tmp/sdd-codex-review-uvztxz9c/inputs",
+          "processId": "58703",
+          "source": "unifiedExecStartup",
+          "status": "completed",
+          "commandActions": [
+            {
+              "type": "unknown",
+              "command": "/bin/cat invocation.json"
+            }
+          ],
+          "aggregatedOutput": "{\n  \"schema\": \"review-context-invocation/v2\",\n  \"stage\": \"spec\",\n  \"role\": \"spec-reviewer-a\",\n  \"feature\": \"task-board\",\n  \"input_mode\": \"file-manifest\",\n  \"fallback_mode\": \"none\",\n  \"read_only\": true,\n  \"allowed_input_manifest\": [\n    {\n      \"path\": \"specs/task-board/requirements.md\",\n      \"sha256\": \"edce4a060201d53985d69c395b3789817699d6c05f2df53cd9e9db0c861de9b5\"\n    },\n    {\n      \"path\": \"specs/task-board/acceptance-tests.md\",\n      \"sha256\": \"48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94\"\n    },\n    {\n      \"path\": \"plugins/sdd-review-loop/references/spec-review-calibration.md\",\n      \"sha256\": \"f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad\"\n    },\n    {\n      \"path\": \"reports/spec-review/task-board/attempt-2/round-1/precheck-result.json\",\n      \"sha256\": \"31f3513d562f3506142de5e9b2eb4fb5a201e94fd8d3e5e29ad24d07280ab619\"\n    }\n  ],\n  \"run_id\": \"01a1b5be-183c-7692-81f4-e7af8040198f\",\n  \"host_session_id\": \"01a1b5be-183c-7692-81f4-e7af8040198f\",\n  \"identity_ledger_path\": \"reports/review-context/identity-ledger.json\",\n  \"identity_ledger_sha256\": \"b44fb8d61f14127123061ba7fcf9c0485b1cb9fedc4075f8c80513af45d99ef0\",\n  \"previous_record_sha256\": \"36ef6dc60c0b0568b7108984a1a07444dba3bbf34a9bad65b4623b7685683b5c\",\n  \"sequence\": 9\n}\n",
+          "exitCode": 0,
+          "durationMs": 0
+        },
+        "threadId": "01a1b5be-183c-7692-81f4-e7af8040198f",
+        "turnId": "01a1b5be-1a72-7c80-bf4b-5b5bd200653c",
+        "completedAtMs": 1794050501418
+      },
+      "emittedAtMs": 1794050501420
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "commandExecution",
+          "id": "exec-77176471-ca0e-4d2d-873b-1f818fd797a2",
+          "pluginId": null,
+          "scriptPath": null,
+          "command": "/bin/bash -lc \"/usr/bin/python3 - <<'PY'\nimport json,hashlib\nx=json.load(open('invocation.json'))\nd=hashlib.sha256('\\\\n'.join(e['path']+'\\\\t'+e['sha256'] for e in x['allowed_input_manifest']).encode()).hexdigest()\ns='|'.join(str(x[k]) for k in ['sequence','stage','role','run_id','host_session_id','previous_record_sha256'])+'|allowed-inputs-v1|'+d\nprint('record',hashlib.sha256(s.encode()).hexdigest())\nfor e in x['allowed_input_manifest']:\n b=open(e['path'],'rb').read();print(e['path'],hashlib.sha256(b).hexdigest()==e['sha256'])\nPY\"",
+          "cwd": "/tmp/sdd-codex-review-uvztxz9c/inputs",
+          "processId": "62538",
+          "source": "unifiedExecStartup",
+          "status": "completed",
+          "commandActions": [
+            {
+              "type": "unknown",
+              "command": "/usr/bin/python3 - <<'PY'\nimport json,hashlib\nx=json.load(open('invocation.json'))\nd=hashlib.sha256('\\n'.join(e['path']+'\\t'+e['sha256'] for e in x['allowed_input_manifest']).encode()).hexdigest()\ns='|'.join(str(x[k]) for k in ['sequence','stage','role','run_id','host_session_id','previous_record_sha256'])+'|allowed-inputs-v1|'+d\nprint('record',hashlib.sha256(s.encode()).hexdigest())\nfor e in x['allowed_input_manifest']:\n b=open(e['path'],'rb').read();print(e['path'],hashlib.sha256(b).hexdigest()==e['sha256'])\nPY"
+            }
+          ],
+          "aggregatedOutput": "record 41cf3a90038e8dc41f63472cac7fa734cf14b70c5ddb8f50f4b68c34f2b9fb3e\nspecs/task-board/requirements.md True\nspecs/task-board/acceptance-tests.md True\nplugins/sdd-review-loop/references/spec-review-calibration.md True\nreports/spec-review/task-board/attempt-2/round-1/precheck-result.json True\n",
+          "exitCode": 0,
+          "durationMs": 0
+        },
+        "threadId": "01a1b5be-183c-7692-81f4-e7af8040198f",
+        "turnId": "01a1b5be-1a72-7c80-bf4b-5b5bd200653c",
+        "completedAtMs": 1794050506454
+      },
+      "emittedAtMs": 1794050506455
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "commandExecution",
+          "id": "exec-2dc65664-e7aa-4dea-b10a-6fca554d1824",
+          "pluginId": null,
+          "scriptPath": null,
+          "command": "/bin/bash -lc '/bin/cat plugins/sdd-review-loop/references/spec-review-calibration.md specs/task-board/requirements.md specs/task-board/acceptance-tests.md reports/spec-review/task-board/attempt-2/round-1/precheck-result.json'",
+          "cwd": "/tmp/sdd-codex-review-uvztxz9c/inputs",
+          "processId": "48769",
+          "source": "unifiedExecStartup",
+          "status": "completed",
+          "commandActions": [
+            {
+              "type": "unknown",
+              "command": "/bin/cat plugins/sdd-review-loop/references/spec-review-calibration.md specs/task-board/requirements.md specs/task-board/acceptance-tests.md reports/spec-review/task-board/attempt-2/round-1/precheck-result.json"
+            }
+          ],
+          "aggregatedOutput": "# Specification Review Calibration\n\nCalibration rules for `spec-review-loop`. Apply these rules before emitting any\nfinding.\n\n## Source Lessons\n\n- Superpowers-style process discipline is useful here only as a specification\n  gate: clarify intent before implementation, require planned verification, and\n  keep review independent.\n- Everything Claude Code execution commands such as `/test-coverage`, `/e2e`,\n  Go-specific commands, and `/eval` are not live duties for this gate. Translate\n  them into inspectable acceptance criteria or future verification paths.\n- Everything Claude Code documentation, codemap, checkpoint, learning, and\n  evolution commands are source-of-truth or continuous-improvement workflows.\n  They are not requirements for passing a Phase 1 specification review.\n\n## Gate Responsibility\n\nThe specification review gate reviews only Phase 1 artifacts:\n\n- `specs/<feature>/requirements.md`\n- `specs/<feature>/acceptance-tests.md`\n- optional `specs/<feature>/investigation.md`\n- the current `precheck-result.json`\n- for reviewer B only, the sanitized `integrated-summary.json`\n\nDo not require design decisions, task decomposition, implementation commands,\ntest files, or quality-gate evidence. Those belong to later gates.\n\n## Phase 1 drafts and visual consent\n\nFull bootstrap creates `design.md`, the four layer specifications and proposed\nADRs during Phase 1; their existence or citation is not evidence that an\nimplementation-policy or task review passed. Likewise, `design-sync-loop`\napproves the visual design-system contract, tokens and UI patterns before\nmockup generation in Phase 1. That scoped visual approval, a supplied visual\nreference and its provenance are legitimate specification inputs, even while\n`Spec-Review-Status: Pending`. They do not require an Amendment Re-Review Context.\n\nDistinguish this visual consent from architecture/workflow authorization. Never\ninfer `Impl-Review-Status: Passed`, task `Approval: Approved`, permission to\nimplement, or a quality-gate verdict from approved visual assets. A claim that\nvisual consent authorizes any of those transitions remains an approval-boundary\nfinding under the ordinary severity rules. Actual implementation or executable\ntask approval ahead of the required reviews remains a phase-sequencing violation.\nWhen \"design approved\" is ambiguous, use the cited artifact and stated scope;\ndo not classify a documented design-system-only approval as later-phase work.\nThis distinction does not waive review, task approval, provenance or egress gates.\n\n## Finding Evidence Gate\n\nBefore emitting a FAIL finding, cite all of the following:\n\n1. The exact requirement, acceptance criterion, non-goal, constraint, or\n   investigation claim that exposes the issue.\n2. The downstream failure mode: what implementer, task author, or verifier\n   would be unable to decide.\n3. Why the issue belongs to specification review rather than implementation\n   review, task review, or quality-gate verification.\n4. Why the chosen severity is justified by the concrete ambiguity or\n   contradiction.\n\nIf any item is missing, do not emit a FAIL. Emit PASS or SKIP when the scoped\nsurface is absent and the check has a skip condition.\n\n## Severity Calibration\n\n- Critical: contradictory goals, impossible acceptance criteria, unsafe or\n  unauthorized workflow boundary, or missing approval boundary that makes the\n  specification unreviewable.\n- Major: ambiguous requirement, missing observable acceptance criterion, missing\n  constraint, unbounded scope, or high-risk claim with no planned validation\n  surface.\n- Minor: useful clarification that does not block design, task decomposition, or\n  later verification.\n\nDo not inflate severity because a best practice is absent. Severity follows the\ndownstream failure mode.\n\n## Amendment Re-Review Context\n\nA specification package can be legitimately re-reviewed after a human\napproved a post-implementation amendment (for example, correcting or\nextending Phase 1 artifacts once implementation, task, or quality-gate work\nalready exists for this feature). Ordinarily this gate treats the mere\nexistence or citing of actual later-phase work (excluding the Phase 1 drafts\nand scoped visual consent defined above) while `Spec-Review-Status` is\n`Pending` as an unsafe or unauthorized workflow-boundary violation -- a\n\"phase-sequencing\" finding -- because a spec package should not describe work\nfrom a phase it has not yet been approved to unlock. An amendment re-review\ninverts that: the later-phase work already exists, is being disclosed\nhonestly, and disclosure is precisely what makes the amendment reviewable.\nWithout an explicit exception the calibration classifies the honest\ndisclosure itself as the violation.\n\n### Recognizing a declared amendment re-review\n\nTreat this package as being in a declared amendment re-review context only\nwhen `specs/<feature>/investigation.md` contains a section with the exact\nheading `## Amendment Re-Review Context` whose body meets the same evidence\nbar the rest of a diligent investigation record applies to its own claims:\nevery citation is a file:line, a SHA-256 fingerprint, or a PR/commit\nreference -- never a bare, uncited path or an unqualified assertion. The\nsection body must include all of:\n\n1. The amendment commit hashes, given in full (not abbreviated, and not\n   described only as \"recent changes\").\n2. The SHA-256 of each amended document (`requirements.md`,\n   `acceptance-tests.md`, and this `investigation.md` itself, as applicable)\n   as of the amendment commit.\n3. A verbatim, dated quotation of the human's approval statement authorizing\n   the post-implementation amendment (not a paraphrase or summary). Because\n   this approval currently exists only in conversation, this entry -- once\n   committed into a hash-pinned, review-pinned document -- is itself the\n   durable, citable approval record; that is what makes it citable evidence\n   rather than a bare self-declaration.\n4. For every later-phase artifact the entry or the amended requirements/\n   acceptance-tests text references (design, tasks, traceability,\n   implementation, evidence, or quality-gate material): a commit reference or\n   a SHA-256 fingerprint for that artifact, never a bare path alone.\n\nIf the section heading is absent, or any of the four elements is missing,\nabbreviated where a full hash is required, given only as a bare path with no\ncommit or sha256, or the approval quotation is missing, paraphrased, or\nundated, the declaration does not apply: judge phase-sequencing exactly as\nthe default Phase-1 calibration above requires, with no benefit of the doubt.\nAn agent can write the heading and prose into `investigation.md` -- this gate\ndoes not independently verify the cited hashes or commits against any\nexternal source -- so it is the entry's conformance to this full evidence\nbar, not its mere existence, that is the safety property this rule relies on.\n\n### What the declaration suppresses\n\nWhen, and only when, a conforming entry (per the previous section, meeting\nthe full evidence bar) is present, do not emit a finding whose *sole* basis\nis that a later-phase artifact (design, tasks, traceability, implementation,\nevidence, or quality-gate material) exists, is referenced, or is quoted in\nthe reviewed specification package while `Spec-Review-Status` is `Pending`.\nThis is the phase-sequencing class only.\n\n- Suppressed example: the amended `requirements.md` states \"AC-010 was\n  clarified to match the constant name introduced in commit `a1b2c3d4e5f6`\"\n  and the `## Amendment Re-Review Context` entry cites that same full commit\n  hash, the SHA-256 of the amended `requirements.md`, the SHA-256 of the\n  referenced constant's file, and a verbatim dated human-approval quotation.\n  The sole issue is that a later-phase artifact is referenced pre-approval,\n  and every reference is fully cited -- suppressed.\n- NOT suppressed example (evidence bar unmet): the entry says only \"the human\n  approved this in chat\" with no quotation, or cites `tasks.md and\n  traceability.md exist` with a bare path and no commit or sha256, or gives\n  an abbreviated commit hash. The declaration does not apply, so the\n  phase-sequencing finding stands under the default calibration.\n- NOT suppressed example (other defect): the same amendment's AC-010 text is\n  internally contradicted by AC-004 elsewhere in `requirements.md`, or the\n  cited implementation artifact does not actually contain what the amendment\n  claims it contains, or the amendment leaves a goal without a matching\n  acceptance criterion. These findings do not rest solely on\n  phase-sequencing -- they stand on their own defect, so review and report\n  them exactly as usual even when the evidence bar above is met.\n\nEvery other check and severity class -- testability, goal/acceptance-criteria\ntraceability, observability, scope boundary, non-phase-sequencing\nconstraints, risk validation surface, domain conformance, ambiguity,\ncontradiction not arising from phase-sequencing, edge-case coverage,\nassumption resolvability, non-phase-sequencing approval boundaries, and\ndownstream readiness -- is judged exactly as it would be without this\nsection. This declaration modulates one finding basis and nothing else.\n\n### Why this is bounded even if the entry is fabricated\n\nAn agent can forge the investigation.md entry: quote invented words as \"the\nhuman's approval,\" and cite invented-but-well-formed commit hashes and SHA-256\nfingerprints that satisfy the shape rules above without being independently\nverified by this gate. The full evidence bar raises the cost of a convincing\nforgery -- a bare \"recent changes\" or an unqualified \"human approved this\" no\nlonger qualifies, the fabricator must produce syntactically valid full hashes\nfor every reference -- but it does not make forgery impossible, so the bound\nstill rests on scope, not on detection. The worst case is that\nphase-sequencing findings are suppressed for a package whose other findings\nthis gate still reports in full, and whose pins the workflow-state gate\n(`check-workflow-state.sh`) still verifies independently against the actual\nrepository state -- the forged entry does not relax any hash, contract, or\nidentity check outside this gate's own findings. A forged entry cannot make\nan otherwise-failing specification pass this gate on any basis except the\nsingle, narrowly-scoped phase-sequencing suppression described above.\n\n## False-Positive Guard\n\nDo not fail a specification because it omits:\n\n- concrete implementation architecture\n- implementation tasks or task ordering\n- test command names when acceptance outcomes are still observable\n- documentation-generation, codemap, checkpoint, learning, or prompt-evolution\n  workflows\n- language-specific commands unless the requirement explicitly depends on that\n  language or toolchain\n\n## Reproducibility\n\nThe gate must be reproducible. Do not use memories, prior raw reviewer reports,\nor adaptive prompt evolution while reviewing. Recurring misses belong in\nworkflow retrospectives or explicit prompt-evaluation fixtures outside this\ngate.\n# タスクボード Requirements\nSpec-Review-Status: Pending\n\n## Purpose and Scope\n新規ローカル単一ユーザー用の日本語単画面タスク管理。Python標準ライブラリとHTML/CSS/JSのみ、JSON保存。公開・認証・共有・編集・期日・検索・フィルタ・サイドナビ・件数表示は対象外。既存完成アプリやdiagnostic fixtureを流用しない。\n\n## Requirements\n| ID | Observable requirement | Layer |\n|---|---|---|\n| REQ-001 | ルート画面からタイトルを入力して追加できる。前後空白を除去し空白のみは拒否する | UX/frontend |\n| REQ-002 | 各タスクのcheckboxで未完了と完了を双方向に切替できる | UX/frontend |\n| REQ-003 | 各タスクを削除でき、確認キャンセルなら保持する | UX/frontend |\n| REQ-004 | 追加・切替・削除はJSONへ保存し、再読込およびサーバー再起動後も復元する | design/infra |\n| REQ-005 | 保存中は全更新操作を無効にし重複リクエストを防ぐ。失敗は日本語で通知し入力を保持する | UX/frontend |\n| REQ-006 | 白系背景、navy文字、teal主要操作、mobile対応。提供ImageGen参考画像 `specs/task-board/mockups/imagegen-reference.png`（SHA-256: `60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8`）を視覚方向に使用する | UX/frontend |\n| REQ-007 | loopbackのみで提供。入力をデータとして扱い、静的ファイル公開を限定する | security/infra |\n| REQ-008 | 空・読込中・失敗・成功状態とキーボード操作を備え、実Chromiumのdesktop/mobileで主要フローを確認する | UX/testing |\n\n## Constraints and Risks\nJSON置換は同一ディレクトリ一時ファイルからatomic replace。破損JSONを空データとして上書きしない。複数ユーザーや複数プロセス同時書込は対象外。保存応答が失われた場合の状態不明は再読込で回復し、書込の自動再送はしない。認証不要でも外部Originの変更要求は拒否する。画像内の文字・count・サイドバー・フィルタは仕様の根拠にしない。\n\n## Open Questions\nなし。技術上の具体値はdesignの実装方針として独立レビューする。\n# Acceptance Tests\n\n## UI Integration Checklist\n- AC-001 / REQ-001: localhostの `/` にアクセスすると日本語見出し、ラベル付き入力、追加ボタン、一覧へ直接到達する。認証や別ナビは不要。\n\n## Observable Scenarios\n| AC | REQ | Given / When / Then | Evidence plan |\n|---|---|---|---|\n| AC-002 | REQ-001 | 空一覧で「  買い物  」を追加すると「買い物」が1件だけ表示され入力が空になる | TEST-001 browser + API |\n| AC-003 | REQ-001 | 空文字、半角空白、全角空白、改行のみの追加を拒否しJSON件数は変わらない | TEST-002 negative API/browser |\n| AC-004 | REQ-002,REQ-004 | checkboxをcheck、reloadすると完了。uncheck、reloadすると未完了 | TEST-003 browser |\n| AC-005 | REQ-003,REQ-004 | 削除確認をcancelすると保持。確認すると行が消えreload後も戻らない | TEST-004 browser |\n| AC-006 | REQ-004 | 追加後サーバー再起動しGETすると同一id/title/completedが戻る | TEST-005 stdlib integration |\n| AC-007 | REQ-005 | 保存応答を遅延中に連打/Enter/checkbox/削除を操作しても更新requestは1件だけ。応答後に再操作可能 | TEST-006 Playwright route delay |\n| AC-008 | REQ-005,REQ-008 | 保存を失敗させると日本語エラー、入力保持、操作解除。自動再送せずreloadで正しい状態を表示する | TEST-007 browser fault injection |\n| AC-009 | REQ-006,REQ-008 | 1440pxと390pxおよび320pxで横スクロールなく操作でき、長い日本語が折り返す。navy/teal/白系・余白・丸角を参考画像 `specs/task-board/mockups/imagegen-reference.png`（SHA-256: `60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8`）と比較する。比較前に実ファイルのhash一致を確認する | TEST-008 actual screenshots + reference hash |\n| AC-010 | REQ-007 | HTML風titleは文字表示。不正JSON、型違い、存在しないid、外部Origin変更要求、静的path traversalは拒否 | TEST-009 negative integration |\n| AC-011 | REQ-008 | 初期空表示、読込中、GET失敗と再読込回復を確認。Tab/Enter/Spaceで追加と切替と削除確認cancelが使える | TEST-010 browser |\n| AC-012 | REQ-004 | JSON破損および書込失敗では非2xxを返し既存ファイルを保持する | TEST-011 stdlib temporary storage |\n| AC-013 | REQ-007 | server起動後、実processのlisten socketを調べ、起動portのlisten addressが `127.0.0.1` のみであることを確認する。`0.0.0.0`、`::`、`::1`、非loopback addressには同portのlistenerがない。`127.0.0.1` 経由のGET `/` は200。同一hostの実非loopback IPv4 addressに同portでTCP接続しても成立せず、HTTP画面が公開されないことを確認する。非loopback interfaceがない環境では未検証と記録し、ある環境で検証するまでPASSにしない | TEST-012 actual process/socket inspection + direct TCP probe (proxy不使用)、address/port/接続結果を保存 |\n\n検証出力はreports/以下へ実コマンド・exit code・スクリーンショットとともに保存。実行前の表は検証計画でありPASSではない。\n{\n  \"schema\": \"spec-review-precheck/v1\",\n  \"stage\": \"spec\",\n  \"feature\": \"task-board\",\n  \"attempt\": 2,\n  \"round\": 1,\n  \"spec_review_status_field\": \"Pending\",\n  \"requirements_sha256\": \"edce4a060201d53985d69c395b3789817699d6c05f2df53cd9e9db0c861de9b5\",\n  \"acceptance_sha256\": \"48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94\",\n  \"investigation_sha256\": null,\n  \"calibration_sha256\": \"f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad\",\n  \"input_sha256\": \"01a138901776637fbd29458b0414abfde08841cde7b272f6ed691f51900b23a9\",\n  \"edit_summary\": \"\",\n  \"reset\": true,\n  \"generated_at\": \"2026-11-07T11:20:49Z\"\n}\n",
+          "exitCode": 0,
+          "durationMs": 0
+        },
+        "threadId": "01a1b5be-183c-7692-81f4-e7af8040198f",
+        "turnId": "01a1b5be-1a72-7c80-bf4b-5b5bd200653c",
+        "completedAtMs": 1794050509186
+      },
+      "emittedAtMs": 1794050509188
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "agentMessage",
+          "id": "msg_06b80bf4842af4fb016aef09cfc05487d1a7bbdeab75023ef5",
+          "text": "{\n  \"schema\": \"spec-reviewer-a/v1\",\n  \"stage\": \"spec\",\n  \"role\": \"spec-reviewer-a\",\n  \"run_id\": \"01a1b5be-183c-7692-81f4-e7af8040198f\",\n  \"host_session_id\": \"01a1b5be-183c-7692-81f4-e7af8040198f\",\n  \"allowed_input_manifest\": [\n    {\n      \"path\": \"specs/task-board/requirements.md\",\n      \"sha256\": \"edce4a060201d53985d69c395b3789817699d6c05f2df53cd9e9db0c861de9b5\"\n    },\n    {\n      \"path\": \"specs/task-board/acceptance-tests.md\",\n      \"sha256\": \"48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94\"\n    },\n    {\n      \"path\": \"plugins/sdd-review-loop/references/spec-review-calibration.md\",\n      \"sha256\": \"f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad\"\n    },\n    {\n      \"path\": \"reports/spec-review/task-board/attempt-2/round-1/precheck-result.json\",\n      \"sha256\": \"31f3513d562f3506142de5e9b2eb4fb5a201e94fd8d3e5e29ad24d07280ab619\"\n    }\n  ],\n  \"verdict\": \"PASS\",\n  \"checks\": [\n    {\n      \"id\": \"REQ-TESTABILITY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"REQ-001–008 specify verifiable operations, persistence, failure handling, visual direction, security boundaries, and browser behavior. AC-001–013 supply concrete validation scenarios.\"\n    },\n    {\n      \"id\": \"GOAL-AC-TRACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"All eight requirements have explicitly mapped acceptance criteria covering the single-screen Japanese task-management goal.\"\n    },\n    {\n      \"id\": \"AC-OBSERVABLE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"AC-001–013 identify observable UI, request, stored-data, HTTP, screenshot, or socket outcomes; planned evidence is explicitly distinguished from executed PASS results.\"\n    },\n    {\n      \"id\": \"SCOPE-BOUNDARY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Purpose and Scope explicitly excludes publication, authentication, sharing, editing, deadlines, search, filters, sidebar navigation, and counts. Constraints exclude concurrent multi-user or multi-process writes.\"\n    },\n    {\n      \"id\": \"CONSTRAINTS-EXPLICIT\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Requirements specify the permitted technology stack, JSON atomic replacement, corruption preservation, no automatic write retries, external-Origin rejection, loopback exposure, and reference-image limitations.\"\n    },\n    {\n      \"id\": \"RISK-VALIDATION-SURFACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"AC-007–008 cover duplicate updates and uncertain save outcomes; AC-010 covers hostile inputs and traversal; AC-012 covers storage failures; AC-013 requires actual socket inspection and non-loopback connection probing before PASS.\"\n    },\n    {\n      \"id\": \"DOMAIN-CONFORMANCE\",\n      \"result\": \"SKIP\",\n      \"severity\": \"Major\",\n      \"finding\": \"The authorized input set supplies no Approved domain model or valid domain contract establishing this check's applicability. No unlisted domain files were read.\"\n    }\n  ]\n}",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        },
+        "threadId": "01a1b5be-183c-7692-81f4-e7af8040198f",
+        "turnId": "01a1b5be-1a72-7c80-bf4b-5b5bd200653c",
+        "completedAtMs": 1794050528313
+      },
+      "emittedAtMs": 1794050528315
+    },
+    {
+      "method": "turn/completed",
+      "params": {
+        "threadId": "01a1b5be-183c-7692-81f4-e7af8040198f",
+        "turn": {
+          "id": "01a1b5be-1a72-7c80-bf4b-5b5bd200653c",
+          "items": [
+            {
+              "type": "agentMessage",
+              "id": "msg_06b80bf4842af4fb016aef09cfc05487d1a7bbdeab75023ef5",
+              "text": "{\n  \"schema\": \"spec-reviewer-a/v1\",\n  \"stage\": \"spec\",\n  \"role\": \"spec-reviewer-a\",\n  \"run_id\": \"01a1b5be-183c-7692-81f4-e7af8040198f\",\n  \"host_session_id\": \"01a1b5be-183c-7692-81f4-e7af8040198f\",\n  \"allowed_input_manifest\": [\n    {\n      \"path\": \"specs/task-board/requirements.md\",\n      \"sha256\": \"edce4a060201d53985d69c395b3789817699d6c05f2df53cd9e9db0c861de9b5\"\n    },\n    {\n      \"path\": \"specs/task-board/acceptance-tests.md\",\n      \"sha256\": \"48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94\"\n    },\n    {\n      \"path\": \"plugins/sdd-review-loop/references/spec-review-calibration.md\",\n      \"sha256\": \"f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad\"\n    },\n    {\n      \"path\": \"reports/spec-review/task-board/attempt-2/round-1/precheck-result.json\",\n      \"sha256\": \"31f3513d562f3506142de5e9b2eb4fb5a201e94fd8d3e5e29ad24d07280ab619\"\n    }\n  ],\n  \"verdict\": \"PASS\",\n  \"checks\": [\n    {\n      \"id\": \"REQ-TESTABILITY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"REQ-001–008 specify verifiable operations, persistence, failure handling, visual direction, security boundaries, and browser behavior. AC-001–013 supply concrete validation scenarios.\"\n    },\n    {\n      \"id\": \"GOAL-AC-TRACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"All eight requirements have explicitly mapped acceptance criteria covering the single-screen Japanese task-management goal.\"\n    },\n    {\n      \"id\": \"AC-OBSERVABLE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"AC-001–013 identify observable UI, request, stored-data, HTTP, screenshot, or socket outcomes; planned evidence is explicitly distinguished from executed PASS results.\"\n    },\n    {\n      \"id\": \"SCOPE-BOUNDARY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Purpose and Scope explicitly excludes publication, authentication, sharing, editing, deadlines, search, filters, sidebar navigation, and counts. Constraints exclude concurrent multi-user or multi-process writes.\"\n    },\n    {\n      \"id\": \"CONSTRAINTS-EXPLICIT\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Requirements specify the permitted technology stack, JSON atomic replacement, corruption preservation, no automatic write retries, external-Origin rejection, loopback exposure, and reference-image limitations.\"\n    },\n    {\n      \"id\": \"RISK-VALIDATION-SURFACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"AC-007–008 cover duplicate updates and uncertain save outcomes; AC-010 covers hostile inputs and traversal; AC-012 covers storage failures; AC-013 requires actual socket inspection and non-loopback connection probing before PASS.\"\n    },\n    {\n      \"id\": \"DOMAIN-CONFORMANCE\",\n      \"result\": \"SKIP\",\n      \"severity\": \"Major\",\n      \"finding\": \"The authorized input set supplies no Approved domain model or valid domain contract establishing this check's applicability. No unlisted domain files were read.\"\n    }\n  ]\n}",
+              "phase": "final_answer",
+              "memoryCitation": null,
+              "delivery": null,
+              "questions": null
+            }
+          ],
+          "itemsView": "summary",
+          "status": "completed",
+          "error": null,
+          "startedAt": 1794050497,
+          "completedAt": 1794050528,
+          "durationMs": 31185
+        }
+      },
+      "emittedAtMs": 1794050528326
+    }
+  ]
+}

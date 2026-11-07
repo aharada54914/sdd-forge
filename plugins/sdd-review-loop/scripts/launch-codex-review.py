@@ -5,6 +5,8 @@ This transport emits a candidate, not a gate verdict. Canonical stage validators
 still decide adoption. Named native permissions are required; no read-only fallback.
 """
 import argparse
+import contextlib
+import io
 import hashlib
 import importlib.util
 import json
@@ -12,6 +14,7 @@ import os
 from pathlib import Path
 import re
 import selectors
+import shlex
 import shutil
 import subprocess
 import sys
@@ -20,7 +23,10 @@ import time
 
 
 def module(name, filename):
-    spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name(filename))
+    path = Path(filename)
+    if not path.is_absolute():
+        path = Path(__file__).with_name(filename)
+    spec = importlib.util.spec_from_file_location(name, path)
     result = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(result)
     return result
@@ -151,6 +157,25 @@ def probe_permissions(rpc, scratch, outside):
     return results
 
 
+def observed_input_read(item, hashes, scratch):
+    """Recognize a successful native cat of admitted files, never a claimed read."""
+    if (item.get('exitCode') != 0 or not isinstance(item.get('command'), str) or
+            not isinstance(item.get('cwd'), str) or not Path(item['cwd']).is_absolute()):
+        return False
+    try:
+        argv = shlex.split(item['command'])
+        if len(argv) == 3 and Path(argv[0]).name in ('bash', 'sh') and argv[1] in ('-c', '-lc'):
+            argv = shlex.split(argv[2])
+        if len(argv) < 2 or argv[0] != '/bin/cat':
+            return False
+        admitted = {(scratch / name).resolve() for name in hashes}
+        cwd = Path(item['cwd'])
+        return all((Path(name) if Path(name).is_absolute() else cwd / name).resolve()
+                   in admitted for name in argv[1:])
+    except ValueError:
+        return False
+
+
 def check_result(result, data):
     require(isinstance(result, dict), 'reviewer output is not an object')
     expected = {key: data[key] for key in ('stage', 'role', 'run_id', 'host_session_id')}
@@ -175,7 +200,7 @@ def launch(args):
     require(sha(template) == args.manifest_sha256, 'caller invocation pin mismatch')
     data = transport.load(template)
     stage = data.get('stage')
-    require(stage in ('spec', 'impl', 'task') and
+    require(stage in ('spec', 'impl', 'task', 'quality') and
             data.get('role') in transport.STAGE_ROLES[stage], 'unsupported Codex reviewer role')
     require(data.get('input_mode') == 'file-manifest' and data.get('fallback_mode') == 'none'
             and data.get('read_only') is True, 'unsupported review boundary')
@@ -236,11 +261,12 @@ def launch(args):
                         ('plugins', 'apps', 'hooks', 'multi_agent')) and
                     config.get('web_search') == 'disabled', 'native external capabilities not disabled')
             save('permission-probes.json', probe_permissions(rpc, scratch, outside))
-            role = transport.plugin_file('plugins/sdd-review-loop/agents/' + data['role'] + '.md')
+            role = transport.plugin_file('plugins/sdd-quality-loop/agents/evaluator.md' if stage == 'quality' else
+                                         'plugins/sdd-review-loop/agents/' + data['role'] + '.md')
             allocation = rpc.request('thread/start', {
                 'cwd': str(scratch), 'permissions': PROFILE, 'approvalPolicy': 'never',
                 'selectedCapabilityRoots': [],
-                'baseInstructions': 'Independent read-only review. Read only the invocation and its listed files. Return the role-required JSON. No changes, external tools, network, inherited history, or other reviewer reports.',
+                'baseInstructions': 'Independent read-only review. Read only the invocation and its listed files. Return the role-required output. No changes, external tools, network, inherited history, or other reviewer reports.',
                 'developerInstructions': role.read_text(), 'config': {'project_doc_max_bytes': 0}})
             save('idle-allocation.json', allocation)
             thread = allocation['thread']
@@ -263,9 +289,12 @@ def launch(args):
                         identity_ledger_sha256=sha(ledger),
                         previous_record_sha256=history[-1]['record_sha256'],
                         sequence=history[-1]['sequence'] + 1)
+            if stage == 'quality':
+                data['scratch_root'] = str(scratch)
             save('invocation.json', data)
             invocation = output / 'invocation.json'
             preflight.preflight(root, invocation, sha(invocation), runtime=args.runtime,
+                                verify_scratch_projection=stage == 'quality',
                                 fixed_input_record=args.fixed_input_record,
                                 fixed_input_snapshot=args.fixed_input_snapshot)
             validator = transport.plugin_file('plugins/sdd-quality-loop/scripts/validate-review-context-set.' +
@@ -277,26 +306,49 @@ def launch(args):
                 reserve += (['--fixed-input-record', fixed['record'], '--fixed-input-snapshot', fixed['snapshot']]
                             if args.runtime == 'bash' else ['-FixedInputRecord', fixed['record'], '-FixedInputSnapshot', fixed['snapshot']])
             unchanged()
-            reserved = subprocess.run(reserve, cwd=root, capture_output=True, text=True, timeout=60)
-            (output / 'reservation.stdout').write_text(reserved.stdout)
-            (output / 'reservation.stderr').write_text(reserved.stderr)
-            require(reserved.returncode == 0 and re.fullmatch(
+            if stage == 'quality':
+                delivery = module('codex_evaluator_delivery', transport.plugin_file(
+                    'plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py'))
+                capture = io.StringIO()
+                with contextlib.redirect_stdout(capture):
+                    count = delivery.check(invocation, sha(invocation), root, scratch, reserve=True,
+                                           fixed_input_record=args.fixed_input_record,
+                                           fixed_input_snapshot=args.fixed_input_snapshot)
+                require(count == len(hashes), 'evaluator delivery count differs')
+                receipt, reserve_stderr, reserve_code = capture.getvalue(), '', 0
+            else:
+                reserved = subprocess.run(reserve, cwd=root, capture_output=True, text=True, timeout=60)
+                receipt, reserve_stderr, reserve_code = reserved.stdout, reserved.stderr, reserved.returncode
+            (output / 'reservation.stdout').write_text(receipt)
+            (output / 'reservation.stderr').write_text(reserve_stderr)
+            require(reserve_code == 0 and re.fullmatch(
                 r'REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* previous_record_sha256=(?:-|[0-9a-f]{64}) pre_append_tip_sequence=[0-9]+ identity_unique=yes\n?',
-                reserved.stdout), 'reservation failed; no reviewer turn started')
-            transport.receipt_control(data, reserved.stdout)
+                receipt), 'reservation failed; no reviewer turn started')
+            transport.receipt_control(data, receipt)
             unchanged()
             (scratch / 'invocation.json').write_bytes(invocation.read_bytes())
+            output_instruction = 'Return only the required JSON. Review findings honestly; do not assume PASS.'
+            if stage == 'quality':
+                output_instruction = (
+                    'Return the evaluator plaintext contract, including exactly this line:\nALLOWED_INPUT_MANIFEST: ' +
+                    invocation.relative_to(root).as_posix() + ' ' + sha(invocation) +
+                    '\nRead the substantive admitted files yourself. Use /bin/cat with admitted paths for at least one observed file inspection. '
+                    'Do not claim to rerun tests that need writes, network, or undeclared dependencies; list tests not rerun. '
+                    'Missing evidence means NEEDS_WORK, not PASS. The receipt is not product evidence.')
             started = rpc.request('turn/start', {'threadId': identity, 'permissions': PROFILE,
                 'approvalPolicy': 'never', 'input': [{'type': 'text', 'text_elements': [], 'text':
-                'Read invocation.json and only its listed files. Verify your launch using this caller receipt and the manifest; do not read the ledger or reserve again.\n' + reserved.stdout +
-                '\nReturn only the required JSON. Review findings honestly; do not assume PASS.'}]})
+                'Read invocation.json and only its listed files. Verify your launch using this caller receipt and the manifest; do not read the ledger or reserve again.\n' + receipt + '\n' + output_instruction}]})
             turn_id = started['turn']['id']
             messages = []
+            inspected = False
             while True:
                 event = rpc.events.pop(0) if rpc.events else rpc.receive()
                 params = event.get('params', {})
                 if event.get('method') in ('item/completed', 'turn/completed'):
                     require(params.get('threadId') == identity, 'native event thread mismatch')
+                if event.get('method') == 'item/completed' and params['item'].get('type') == 'commandExecution':
+                    require(params.get('turnId') == turn_id, 'native event turn mismatch')
+                    inspected = inspected or observed_input_read(params['item'], hashes, scratch)
                 if event.get('method') == 'item/completed' and params['item'].get('type') == 'agentMessage':
                     require(params.get('turnId') == turn_id, 'native event turn mismatch')
                     messages.append(params['item']['text'])
@@ -307,14 +359,25 @@ def launch(args):
             unchanged()
             (output / 'reviewer-raw.txt').write_text('\n'.join(messages) + '\n')
             require(bool(messages), 'reviewer response missing')
-            result = json.loads(messages[-1])
-            check_result(result, data)
-            save('reviewer.json', result)
+            require(all(sha(scratch / name) == digest for name, digest in hashes.items()),
+                    'projected inputs changed during review')
+            if stage == 'quality':
+                verdict = transport.validate_evaluator_text(messages[-1], identity,
+                    invocation.relative_to(root).as_posix(), sha(invocation))
+                require(verdict != 'PASS' or inspected,
+                        'evaluator PASS lacks observed admitted input inspection')
+                candidate = output / 'evaluator.txt'
+                candidate.write_text(messages[-1] + '\n')
+            else:
+                result = json.loads(messages[-1])
+                check_result(result, data)
+                save('reviewer.json', result)
+                candidate = output / 'reviewer.json'
             save('delivery.json', {'schema': 'codex-review-delivery/v1', 'run_id': identity,
                 'host_session_id': identity, 'invocation_sha256': sha(invocation),
-                'reviewer_sha256': sha(output / 'reviewer.json'), 'raw_input_hashes': hashes,
+                'reviewer_sha256': sha(candidate), 'raw_input_hashes': hashes,
                 'permission_profile': PROFILE, 'adoption': 'requires-canonical-stage-validator'})
-            return output / 'reviewer.json'
+            return candidate
         finally:
             rpc.close()
 

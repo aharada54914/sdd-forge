@@ -1,0 +1,33 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "task-board",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/task-board/requirements.md",
+      "sha256": "edce4a060201d53985d69c395b3789817699d6c05f2df53cd9e9db0c861de9b5"
+    },
+    {
+      "path": "specs/task-board/acceptance-tests.md",
+      "sha256": "48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad"
+    },
+    {
+      "path": "reports/spec-review/task-board/attempt-2/round-1/precheck-result.json",
+      "sha256": "31f3513d562f3506142de5e9b2eb4fb5a201e94fd8d3e5e29ad24d07280ab619"
+    }
+  ],
+  "run_id": "01a1b5be-183c-7692-81f4-e7af8040198f",
+  "host_session_id": "01a1b5be-183c-7692-81f4-e7af8040198f",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "b44fb8d61f14127123061ba7fcf9c0485b1cb9fedc4075f8c80513af45d99ef0",
+  "previous_record_sha256": "36ef6dc60c0b0568b7108984a1a07444dba3bbf34a9bad65b4623b7685683b5c",
+  "sequence": 9
+}

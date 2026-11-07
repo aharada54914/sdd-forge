@@ -332,7 +332,8 @@ Read reviewer-a.json and reviewer-b.json. Compute:
 
 Merged verdict:
 - BLOCKED if `findings_critical > 0`.
-- NEEDS_WORK if `findings_major > 0` and `findings_critical == 0`.
+- NEEDS_WORK if `findings_critical == 0` and either `findings_major > 0`
+  or (`findings_minor > 0` and round < 3).
 - PASS-with-warnings if `findings_minor > 0` and round == 3 and
   `findings_major == 0` and `findings_critical == 0`.
 - PASS if `findings_critical == 0` and `findings_major == 0` and
@@ -406,20 +407,26 @@ missing, stale, or incomplete predecessor contracts before creating evidence.
 - Print: "Phase 2 (task decomposition) is now unblocked for feature <slug>."
 - Halt.
 
-#### Round < 3, Major or Critical findings → NEEDS_WORK
+#### Round < 3, findings remain → correction before the next round
 
+- Preserve the STEP 5 verdict in every persisted artifact: Critical findings
+  remain `BLOCKED`; Major or Minor-only findings remain `NEEDS_WORK`.
+  Eligibility to correct inputs and request the next round does not downgrade
+  the recorded verdict or authorize later phases.
 - Generate `reports/impl-review/<feature>/attempt-<M>/round-<N>/design-round-<N>-proposed-changes.md`
   using `plugins/sdd-review-loop/templates/impl-review-report.template.md`.
 - Present the proposed changes file to the human.
-- Print: "impl-review-loop NEEDS_WORK — round <N> of 3. Review proposed changes
-  and edit specs/<feature>/design.md. Then re-invoke with --edit-summary."
+- Print: "impl-review-loop <persisted-verdict> — round <N> of 3. Review proposed
+  changes and edit specs/<feature>/design.md. Then re-invoke with --edit-summary."
 - Halt and await human action.
 
-#### Round == 3, Critical or Major findings remain → BLOCKED
+#### Round == 3, Critical or Major findings remain → correction budget exhausted
 
-- Print: "impl-review-loop BLOCKED after 3 rounds in attempt <M>. Critical or
-  Major findings remain unresolved. Use --reset to start a new attempt after
-  addressing the root causes."
+- Preserve the STEP 5 verdict: `BLOCKED` for Critical findings, `NEEDS_WORK`
+  for Major-only findings. In either case later phases remain blocked.
+- Print: "impl-review-loop <persisted-verdict>; correction budget exhausted
+  after 3 rounds in attempt <M>. Critical or Major findings remain unresolved.
+  Use --reset to start a new attempt after addressing the root causes."
 - Halt.
 
 ### STEP 7 — --reset handling

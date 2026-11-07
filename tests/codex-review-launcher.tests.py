@@ -20,7 +20,7 @@ spec.loader.exec_module(module)
 
 class LaunchTests(unittest.TestCase):
     def run_case(self, *, reserve_ok=True, mutate=False, identity_bad=False, profile_bad=False,
-                 output_bad=False, event_bad=False, timeout=False, path_escape=False):
+                 output_bad=False, event_bad=False, timeout=False, path_escape=False, quality=False, no_inspection=False):
         calls = []
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
@@ -32,6 +32,8 @@ class LaunchTests(unittest.TestCase):
                     'role': 'spec-reviewer-a', 'feature': 'demo', 'input_mode': 'file-manifest',
                     'fallback_mode': 'none', 'read_only': True,
                     'allowed_input_manifest': [{'path': 'input', 'sha256': module.sha(root / 'input')}]}
+            if quality:
+                data.update(stage='quality', role='sdd-evaluator', task_id='T-001')
             invocation = root / 'template.json'
             invocation.write_text(json.dumps(data))
             args = SimpleNamespace(repository_root=root, invocation=invocation,
@@ -65,6 +67,15 @@ class LaunchTests(unittest.TestCase):
                                 'allowed_input_manifest': data['allowed_input_manifest']})}}},
                             {'method': 'turn/completed', 'params': {'threadId': 'host-allocated',
                              'turn': {'id': 'turn-1', 'status': 'completed'}}}]
+                        if quality:
+                            raw = ('RUN_ID: host-allocated\nHOST_SESSION_ID: host-allocated\n'
+                                   'ALLOWED_INPUT_MANIFEST: output/invocation.json ' + module.sha(root / 'output/invocation.json') +
+                                   '\nVERDICT: PASS\nFINDINGS:\n- None\nCHECKED:\n- Inspected admitted input.\n')
+                            self.events[0]['params']['item']['text'] = raw
+                            if not no_inspection:
+                                self.events.insert(0, {'method': 'item/completed', 'params': {
+                                    'threadId': 'host-allocated', 'turnId': 'turn-1', 'item': {
+                                    'type': 'commandExecution', 'command': '/bin/cat input', 'exitCode': 0, 'cwd': self.cwd}}})
                         if timeout:
                             self.events = []
                         return {'turn': {'id': 'turn-1'}}
@@ -82,26 +93,75 @@ class LaunchTests(unittest.TestCase):
                 bound = json.loads((root / 'output/invocation.json').read_text())
                 inputs = '\n'.join(e['path'] + '\t' + e['sha256'] for e in bound['allowed_input_manifest'])
                 fields = '|'.join(str(bound[key]) for key in ('sequence', 'stage', 'role', 'run_id', 'host_session_id', 'previous_record_sha256'))
-                digest = hashlib.sha256((fields + '|allowed-inputs-v1|' + hashlib.sha256(inputs.encode()).hexdigest()).encode()).hexdigest()
+                suffix = ('|scratch-declaration-v1|' + hashlib.sha256((bound['feature'] + '\n' + bound['scratch_root']).encode()).hexdigest()
+                          if quality else '|allowed-inputs-v1|' + hashlib.sha256(inputs.encode()).hexdigest())
+                digest = hashlib.sha256((fields + suffix).encode()).hexdigest()
                 return SimpleNamespace(returncode=0 if reserve_ok else 1, stderr='', stdout=
                     'REVIEW_CONTEXT_OK ' + digest + ' sequence=2 previous_record_sha256=' + 'b'*64 + ' pre_append_tip_sequence=1 identity_unique=yes\n')
-            with patch.object(module, 'Rpc', FakeRpc), \
+            def quality_delivery(invocation, pin, repository, scratch, reserve=True, **kwargs):
+                self.assertEqual(module.sha(invocation), pin)
+                bound = json.loads(invocation.read_text())
+                self.assertEqual(bound['scratch_root'], str(scratch))
+                self.assertEqual((scratch / 'input').read_text(), 'admitted')
+                result = reserve_result()
+                if result.returncode:
+                    raise ValueError('delivery reservation rejected')
+                print(result.stdout, end='')
+                return 1
+            reserve_result = reserve
+            real_module = module.module
+            def load_module(name, filename):
+                return SimpleNamespace(check=quality_delivery) if name == 'codex_evaluator_delivery' else real_module(name, filename)
+            with patch.object(module, 'module', side_effect=load_module), \
+                 patch.object(module, 'Rpc', FakeRpc), \
                  patch.object(module, 'probe_permissions', return_value=[]), \
                  patch.object(module.transport, 'fixed_input_binding', return_value=None), \
                  patch.object(module.launcher, 'checked_input_paths'), \
                  patch.object(module.preflight, 'preflight'), \
                  patch.object(module.subprocess, 'run', side_effect=reserve):
-                failed = not reserve_ok or mutate or identity_bad or profile_bad or output_bad or event_bad or timeout or path_escape
+                failed = not reserve_ok or mutate or identity_bad or profile_bad or output_bad or event_bad or timeout or path_escape or no_inspection
                 if failed:
                     with self.assertRaises((ValueError, TimeoutError)):
                         module.launch(args)
                     self.assertFalse((args.output / 'reviewer.json').exists())
+                    self.assertFalse((args.output / 'evaluator.txt').exists())
                 else:
                     result = module.launch(args)
-                    self.assertEqual(json.loads(result.read_text())['verdict'], 'NEEDS_WORK')
+                    if quality:
+                        self.assertIn('VERDICT: PASS', result.read_text())
+                    else:
+                        self.assertEqual(json.loads(result.read_text())['verdict'], 'NEEDS_WORK')
             if calls:
                 self.assertEqual(calls[-1], 'close')
             return calls
+
+    def test_quality_delivery_reserves_before_model(self):
+        calls = self.run_case(quality=True)
+        self.assertLess(calls.index('reserve'), calls.index('turn/start'))
+
+    def test_quality_delivery_rejection_never_starts_model(self):
+        self.assertNotIn('turn/start', self.run_case(quality=True, reserve_ok=False))
+
+    def test_quality_pass_requires_observed_input_inspection(self):
+        self.run_case(quality=True, no_inspection=True)
+
+    def test_quality_text_contract_rejects_false_claims(self):
+        raw = ('RUN_ID: id\nHOST_SESSION_ID: id\nALLOWED_INPUT_MANIFEST: invocation.json ' + 'a'*64 +
+               '\nVERDICT: PASS\nFINDINGS:\n- None\nCHECKED:\n- Read source.\n')
+        for changed in (raw.replace('RUN_ID: id', 'RUN_ID: foreign'),
+                        raw.replace('a'*64, 'b'*64), raw.replace('- None', '- [Major] Missing tests'),
+                        raw.replace('- Read source.', ''), raw + 'VERDICT: PASS\n'):
+            with self.assertRaises(ValueError):
+                module.transport.validate_evaluator_text(changed, 'id', 'invocation.json', 'a'*64)
+
+    def test_read_observation_rejects_shell_tricks(self):
+        scratch = Path('/projection')
+        for command in ('echo /bin/cat input', '/bin/cat invocation.json', '/bin/cat input; echo yes',
+                        '/bin/cat ../outside', '/bin/cat input /outside'):
+            self.assertFalse(module.observed_input_read({'command': command, 'exitCode': 0, 'cwd': str(scratch)}, {'input': 'a'*64}, scratch))
+        self.assertTrue(module.observed_input_read({'command': "/bin/bash -lc '/bin/cat input'", 'exitCode': 0, 'cwd': str(scratch)}, {'input': 'a'*64}, scratch))
+        for cwd in ('/outside', 'relative', ''):
+            self.assertFalse(module.observed_input_read({'command': '/bin/cat input', 'exitCode': 0, 'cwd': cwd}, {'input': 'a'*64}, scratch))
 
     def test_output_parent_traversal_rejected_before_host(self):
         self.assertEqual(self.run_case(path_escape=True), [])

@@ -1,0 +1,116 @@
+[
+  {
+    "command": [
+      "bash",
+      "tests/validate-repository.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 30.3,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/01-validate-repository.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/review-prompt-calibration.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.12,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/02-review-prompt-calibration.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/quality-loop-calibration.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/03-quality-loop-calibration.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/bootstrap-layer-templates.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.27,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/04-bootstrap-layer-templates.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/boundary-reference-authorization-parity.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.12,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/05-boundary-reference-authorization-parity.tests.sh.log"
+  },
+  {
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/boundary-reference-authorization-parity.tests.ps1"
+    ],
+    "exit_code": 0,
+    "seconds": 0.52,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/06-boundary-reference-authorization-parity.tests.ps1.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/phase2-guard-invariants.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 1.13,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/07-phase2-guard-invariants.tests.sh.log"
+  },
+  {
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/phase2-guard-invariants.tests.ps1"
+    ],
+    "exit_code": 0,
+    "seconds": 3.79,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/08-phase2-guard-invariants.tests.ps1.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/constant-parity.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.12,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/09-constant-parity.tests.sh.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tests/verification-catalog.tests.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.22,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/10-verification-catalog.tests.py.log"
+  },
+  {
+    "command": [
+      "python3",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/11-generate-guard-invariants.py.log"
+  },
+  {
+    "command": [
+      "bash",
+      "scripts/check-sdd-structure.sh",
+      "."
+    ],
+    "exit_code": 0,
+    "seconds": 0.0,
+    "log": "reports/verification/workflow-completion-fixes-20261107/final-integration/12-check-sdd-structure.sh.log"
+  }
+]

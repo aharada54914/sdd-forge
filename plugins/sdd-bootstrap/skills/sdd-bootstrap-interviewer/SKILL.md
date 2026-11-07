@@ -286,6 +286,12 @@ precheck. Missing template fields in a new design are incomplete bootstrap
 work, not evidence that the design predates the template or qualifies for
 legacy calibration. Existing files remain unchanged under the create-only rule.
 
+Declare each applicable ADR in the new design's ADR Change Log using a
+single-backtick full path such as `docs/adr/0001-storage.md`, matching the
+template. Plain prose names and Markdown links are not review-input
+declarations; verify that the implementation precheck's `adr_inputs` includes
+the intended ADRs before requesting a reviewer.
+
 New `requirements.md` must retain the template's bare
 `Spec-Review-Status: Pending` header; new `design.md` must retain
 `Impl-Review-Status: Pending`. These statuses belong to their respective files.
@@ -411,12 +417,20 @@ approval. Derive `Required Workflow:` from the tier per
 `low → test-after`, `medium → acceptance-first`, `high`/`critical → tdd`.
 
 For `high`/`critical` tasks, add the risk-derived `Done When` items the matrix
-mandates (Red→Green evidence captured; independent review verdict recorded;
+mandates (failing Red tests committed before implementation, with the Red
+commit ID and real Red→Green evidence; an independent verdict with the actual
+named reviewer/context ID distinct from the implementer;
 provenance with `spec_revision`; and for `critical`, an HMAC-signed evidence
 bundle plus a second, distinct named approver). Leaving `Risk:` absent selects
 legacy mode (no tier enforcement) and is reserved for pre-existing contracts —
 do not use it to dodge a tier. `check-risk` rejects a `high`/`critical` task
 that does not declare `Required Workflow: tdd`.
+
+Populate the planned requirement/acceptance/test mapping in traceability.md
+before task review freezes it. Done When must verify that reviewed mapping,
+not require implementation to rewrite it. Put later execution results in the
+implementation report and declared evidence outputs; a planned test path is
+not evidence that the test has already run.
 
 ## Task Decomposition Review Gate
 

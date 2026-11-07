@@ -12,6 +12,46 @@ user-invocable: false
 
 Use after `implement-task` has set a task to `Implementation Complete`.
 
+## Native Codex evaluator route
+
+For an unmanaged local Codex allocation without an idle sub-agent API, use the
+installed review plugin's `scripts/launch-codex-review.py` with the ordinary
+`stage: quality`, `role: sdd-evaluator` invocation template. Do not reserve its
+placeholder IDs. The launcher allocates a genuinely idle native thread, replaces
+only the run/session/ledger continuation fields and its own fresh `scratch_root`,
+then runs the existing evaluator delivery helper before the first model turn.
+The original caller template remains pinned and unchanged. Preserve `task_id`,
+`implementation_manifest`, gate-report and supplemental-delivery declarations,
+and every required input. Missing implementation binding is a launch failure.
+Managed model routing retains its admitted managed route; this is not a fallback
+from a managed failure and does not change the configured Codex evaluator tier.
+
+```bash
+python3 -I -B "$SDD_REVIEW_SCRIPTS/launch-codex-review.py" \
+  "$repository_root" "$invocation" --manifest-sha256 "$invocation_sha256" \
+  --output "$new_output_directory" --timeout 600
+```
+
+Use a new repository-contained output directory. Forward both fixed-input options
+when selected. This route requires Linux and native named permission profiles.
+It verifies inside read, outside read denial, write denial and network denial;
+there is no generic read-only fallback. The child permits only the projected
+inputs, its invocation and minimal native runtime files. External tools and
+plugins are disabled inside this child; parent workflow guards remain active.
+The canonical `preflight-evaluator-delivery.py` performs scratch hash readback
+and delegates the reservation, preserving the implementation identity binding
+and feature-wide scratch isolation checks. Do not separately reserve this route.
+
+`evaluator.txt` is an independently produced candidate, not a quality gate report.
+The shared plaintext validator checks identity, exact persisted manifest pin,
+verdict, findings and checked evidence. A PASS also requires an observed native
+read of an admitted file. The read-only child must list tests it could not rerun;
+missing dependencies, writes or network are never silently enabled to get PASS.
+Use the usual quality-gate persistence and task-state checks to adopt the result.
+Keep `delivery.json`, native events, permission probes and the reservation receipt
+as transport evidence. Timeout, stale inputs, false identity, or missing delivery
+binding stops without adopting a result; a consumed reservation stays in history.
+
 ## Managed allocation boundary
 
 Affected policy roles: `evaluator`.

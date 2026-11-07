@@ -1,0 +1,64 @@
+[
+  {
+    "case": "template",
+    "runtime": "bash",
+    "exit_code": 0,
+    "actual": [],
+    "expected": [],
+    "passed": true,
+    "stderr": ""
+  },
+  {
+    "case": "template",
+    "runtime": "pwsh",
+    "exit_code": 0,
+    "actual": [],
+    "expected": [],
+    "passed": true,
+    "stderr": ""
+  },
+  {
+    "case": "rendered-real-ADR",
+    "runtime": "bash",
+    "exit_code": 0,
+    "actual": [
+      "docs/adr/0042-real-decision.md"
+    ],
+    "expected": [
+      "docs/adr/0042-real-decision.md"
+    ],
+    "passed": true,
+    "stderr": ""
+  },
+  {
+    "case": "rendered-real-ADR",
+    "runtime": "pwsh",
+    "exit_code": 0,
+    "actual": [
+      "docs/adr/0042-real-decision.md"
+    ],
+    "expected": [
+      "docs/adr/0042-real-decision.md"
+    ],
+    "passed": true,
+    "stderr": ""
+  },
+  {
+    "case": "bare-and-fenced-examples",
+    "runtime": "bash",
+    "exit_code": 0,
+    "actual": [],
+    "expected": [],
+    "passed": true,
+    "stderr": ""
+  },
+  {
+    "case": "bare-and-fenced-examples",
+    "runtime": "pwsh",
+    "exit_code": 0,
+    "actual": [],
+    "expected": [],
+    "passed": true,
+    "stderr": ""
+  }
+]

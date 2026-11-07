@@ -1,0 +1,20 @@
+{
+  "head": "f996c4d067bae33c59502ff2bfec7401f33936de",
+  "sha256": {
+    "plugins/sdd-review-loop/scripts/launch-codex-review.py": "2b3a2945212689dbe98e235d610adff1eee77c88062c85e3486a02a5eae30b5b",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "0270d478a49b5a32c541332c347d7335d044b2d560236eae68f2276620d069b8",
+    "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "6e8b42d222f7c8a053a20c5b433e7dd9bdf7c43d02e4828c88801232c076fc9f",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "e2084b6b670088b0c62f73d778b50a914ebcae71d3e83f8f9f1e3ac72e65a894",
+    "tests/verification-catalog.json": "37bcecde421d2253ff248354c56a288a1f52d0b5aa06c07be87adeedd10f6845",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "96136a9d2ba9d7d6560a9c7825f1357e08923b8a226046e5904a446a9bb36daa",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md": "17c69864fd42ca609fc604699abbe7f4c5860483f844a0cd37bcd63bb6838da5",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md": "4961f0d0de720ceff66d859a0419079095d25e67c7f99ec997c3389c0cece2a9",
+    "plugins/sdd-review-loop/references/spec-review-calibration.md": "f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad",
+    "plugins/sdd-review-loop/agents/impl-reviewer-a.md": "131bd7379eeeac1c2e1e930c04d8ec5bc84c83ec5148aa6b2ce3dd9c634df18c",
+    "plugins/sdd-review-loop/agents/impl-reviewer-b.md": "5f272cef0d1ad06aa01545ff34f94fc8df8e962f726d4ff120ef6f33ce3665c2",
+    "plugins/sdd-review-loop/agents/spec-reviewer-a.md": "1021c8fd97d817f3bf3706abac21ef96a5dc785ae8716a68d56efae12f2d1c21",
+    "plugins/sdd-review-loop/agents/spec-reviewer-b.md": "e2fd51b9fa76203be943989a045b8715ba02f664d68b1ed19d6184d73d3cdc4e",
+    "plugins/sdd-review-loop/agents/task-reviewer-a.md": "173e7f39dc8ddd0a9b559fd78f8deb248df663a9b7d1907c83f1ad275e8c759a",
+    "plugins/sdd-review-loop/agents/task-reviewer-b.md": "38ce1c4b4ee7f99c8fe3333c94aca3d2eb239c321b3cb13efd53f2504f92a762"
+  }
+}

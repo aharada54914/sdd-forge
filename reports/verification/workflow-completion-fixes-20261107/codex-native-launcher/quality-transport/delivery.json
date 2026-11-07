@@ -1,0 +1,22 @@
+{
+  "schema": "codex-review-delivery/v1",
+  "run_id": "01a1b5cb-4f70-7ba2-a997-1927e541118e",
+  "host_session_id": "01a1b5cb-4f70-7ba2-a997-1927e541118e",
+  "invocation_sha256": "4e3a7caa172a3a5b8f0051d1fd037adb10c2589ceb9c6106fcb9ca28a88fa369",
+  "reviewer_sha256": "4983ad4249b250104716001a2dea6c3b35563afbe8fb49637c0bb8c0247f256a",
+  "raw_input_hashes": {
+    "plugins/sdd-quality-loop/references/quality-gate-calibration.md": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542",
+    "reports/implementation/sum/T-001.md": "c19a847293063e4917817565ad5273688423b8046d0429526d7376178bf5cf45",
+    "reports/test-result.txt": "7b00ea614b0c484f8c412c0da631a41074850557ba2096a4a5a968e23068ee7d",
+    "specs/sum/acceptance-tests.md": "6d2cfb854f89d6033d08de045ba2f779a1472bfbeeeb7a82094025a53052b9d5",
+    "specs/sum/design.md": "71feadff36fe55290491c1b5affe9e4f05c80f1366c210b44f51ce33989ed3ec",
+    "specs/sum/requirements.md": "2b689b2749bde2eb76a683238276f470e109f266714854b9d1f2b09791a30dd2",
+    "specs/sum/tasks.md": "68dbd58b2a2b0265d4af5984c27c53e34099013e4423b057011109f5bcec3558",
+    "specs/sum/traceability.md": "d82060bcd196479d127f16f0d89fef83524aeccd4f35570e3e058954dcaf1a51",
+    "sum_values.py": "931cb3deac007b3cc2a71663289dc1577b993af1f94970dd2c237d0ab7ab216a",
+    "tests/test_sum.py": "19cf7607dfcb865ace73819e514d3f279b9470305af1114392a0e6ecdce73062",
+    "reports/task-inputs/sum/T-001.json": "e4e56677dd723150ace52f86e54946970322d727b018f14cfa2b6601285a5790"
+  },
+  "permission_profile": "sdd_manifest_review",
+  "adoption": "requires-canonical-stage-validator"
+}

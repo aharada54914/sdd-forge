@@ -1,0 +1,4 @@
+ok: BASELINE_IDS: sh and ps1 are identical (6 entries)
+ok: RISK_TIERS tier:id pairs: sh and ps1 are identical (33 pairs)
+
+constant-parity.tests.sh: 2 passed, 0 failed
