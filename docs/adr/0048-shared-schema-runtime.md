@@ -23,10 +23,21 @@ messages, ordering and UTF-8/LF output; the library decides schema validity.
   for JSON-input schema validation.
 
 The unmodified hash-locked wheel is shipped as a zip-importable dependency,
-including its BSD license. It is loaded under a private package namespace. `scripts/update-schema-vendor.py` reproduces it; `manifest.json` records
+including its BSD license. It is loaded under a private package namespace. `plugins/sdd-quality-loop/scripts/vendor-schema-runtime.py` reproduces it; `manifest.json` records
 upstream file hashes. Installers copy the package through the existing `plugins/`
 payload rule. Runtime execution requires neither pip, network nor ambient packages.
-Development checkouts execute exactly the same packaged code.
+Development checkouts execute exactly the same packaged code. The installed wheel
+uses a stable filename so dependency updates retain the protected-write boundary.
+Shared modules are cached by installation directory, preventing imports from a
+different checkout from supplying the validator. Review-launch inventories and
+project-skill runtime fingerprints include the shared adapter, loader, metaschema
+and wheel; post-import mutations are rejected before execution.
+
+The three CLI schemas use Draft 7. Existing callers also supply Draft 2020-12
+contracts using the common vocabulary plus `$defs`; the adapter explicitly lowers
+that bounded profile, preserving `$ref` siblings through `allOf` and rejecting
+newer-only keywords. This is not general Draft 2020-12 support. The old manual
+`allOf` workaround in project-skill validation is removed.
 
 The adapter explicitly selects Draft 7, validates schemas against the bundled
 Draft 7 metaschema, rejects unknown schema keywords (an explicit project profile),
@@ -46,8 +57,9 @@ fails. Python regex support is not a claim of complete ECMA-262 compatibility.
 
 The metaschema is reproduced from `jsonschema` 4.26.0's Draft7Validator.META_SCHEMA
 (the official Draft 7 schema); its MIT license is included with the bundled data.
-Historical implementation descriptions in the original feature spec are retained
-with a superseding notice. Approval-sidecar and component-path validators remain
+The original feature specifications remain byte-identical because their review
+evidence binds their hashes. This ADR supersedes their implementation-only INV-014
+restriction; it does not reopen or rewrite historical approval evidence. Approval-sidecar and component-path validators remain
 separate because their independence and PowerShell parity contracts differ.
 
 ## Verification and maintenance

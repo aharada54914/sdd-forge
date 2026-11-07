@@ -20,7 +20,7 @@ _spec = importlib.util.spec_from_file_location(
 _schema = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_schema)
 LOADED_SOURCES = {str(Path(path).resolve()): hashlib.sha256(Path(path).read_bytes()).hexdigest()
-                  for path in (__file__, _schema.__file__)}
+                  for path in (__file__, _schema.__file__, *_schema.schema_runtime_files())}
 EVIDENCE = "reports/project-skill-observations/"
 MAX_JSON_BYTES = 8 * 1024 * 1024
 EXECUTION = ("command", "started_at", "finished_at", "exit_code", "passes", "evidence")
@@ -54,6 +54,8 @@ def runtime_environment(manifest):
         ("@schema-validator", Path(_schema.__file__)),
         ("@runner", bootstrap / "project-skill.py"),
         ("@supervisor", bootstrap / "project-skill-process.py")))
+    declared.extend(("@schema-runtime/" + str(path.relative_to(HERE)), str(path))
+                    for path in _schema.schema_runtime_files())
     for name, path in declared:
         item = {"name": name, "path": path, "sha256": None, "identity_sha256": None}
         if path:
@@ -122,15 +124,6 @@ def schema(value, filename, code):
     definition, _ = load(source, code)
     if _schema.validate_against_schema(value, definition):
         fail(code)
-    # The shared helper predates allOf. Task-input-manifest uses it for fallback admission.
-    for clause in definition.get("allOf", []):
-        if _schema._schema_matches(value, clause.get("if", True), definition):
-            diagnostics = []
-            _schema._validate(
-                value, clause.get("then", True), definition, "", diagnostics
-            )
-            if diagnostics:
-                fail(code)
 
 
 def relative(value, code="closure-escape"):

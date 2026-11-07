@@ -1,15 +1,5 @@
 # Design: epic-192-a4-facet-manifest
 
-> **2026-11-07 superseding decision:** INV-014's stdlib-only / independent-copy
-> implementation constraint is retired for the three schema validators. They
-> import `scripts/sdd_schema.py` and the pinned, bundled pure-Python Draft 7
-> runtime. Historical implementation descriptions below record the original
-> design, not a current prohibition. CLI arguments, diagnostic IDs, RFC 6901
-> paths, ordering, UTF-8/LF output, semantic checks and exit codes remain binding.
-> See [ADR 0048](../../docs/adr/0048-shared-schema-runtime.md) for distribution,
-> reference policy, compatibility and dependency update requirements.
-
-
 Impl-Review-Status: Passed
 Feature Type: three new machine-readable JSON Schema contracts (Facet
 Manifest, Capability Summary — Lite track only — Context Projection) plus

@@ -61,9 +61,16 @@ class SharedSchemaRuntimeTests(unittest.TestCase):
 
     def test_malformed_schema_and_wrong_draft_rejected(self):
         for schema in ({'minLength': -1}, {'required': 'x'}, {'type': 'typo'}, {'maxLenght': 1},
-                       {'$schema': 'https://json-schema.org/draft/2020-12/schema'}):
+                       {'$schema': 'https://json-schema.org/draft/2020-12/schema', 'prefixItems': []}):
             with self.subTest(schema=schema), self.assertRaises(ValueError):
                 self.diagnostics({}, schema)
+
+    def test_compatible_2020_defs_and_ref_siblings(self):
+        schema = {'$schema': 'https://json-schema.org/draft/2020-12/schema',
+                  '$defs': {'x': {'type': 'integer'}}, '$ref': '#/$defs/x', 'minimum': 2}
+        self.assertFalse(self.diagnostics(2, schema))
+        self.assertTrue(self.diagnostics(1, schema))
+        self.assertTrue(self.diagnostics('x', schema))
 
     def test_pattern_dollar_and_trailing_newline(self):
         self.assertFalse(self.diagnostics('$', {'pattern': '^[$]$'}))
@@ -71,11 +78,14 @@ class SharedSchemaRuntimeTests(unittest.TestCase):
         self.assertFalse(self.diagnostics('x', {'pattern': '^x$'}))
 
     def test_shared_callable(self):
+        shared = None
         for name in ('facet-manifest', 'capability-summary', 'context-projection'):
             spec = importlib.util.spec_from_file_location(name, SCRIPTS / f'validate-{name}.py')
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            self.assertIs(module._validate, sdd_schema._validate)
+            if shared is None:
+                shared = module._validate
+            self.assertIs(module._validate, shared)
 
     def test_old_python_fails_with_actionable_diagnostic(self):
         entry = SCRIPTS / 'validate-facet-manifest.py'
@@ -92,7 +102,7 @@ class SharedSchemaRuntimeTests(unittest.TestCase):
         lock = (vendor / 'requirements.txt').read_text()
         self.assertIn(manifest['sha256'], lock)
         self.assertEqual(lock.split()[0], 'fastjsonschema==' + manifest['wheel'].split('-')[1])
-        wheel = vendor / manifest['wheel']
+        wheel = vendor / 'fastjsonschema.whl'
         self.assertEqual(hashlib.sha256(wheel.read_bytes()).hexdigest(), manifest['sha256'])
         with zipfile.ZipFile(wheel) as archive:
             for name, digest in manifest['files'].items():

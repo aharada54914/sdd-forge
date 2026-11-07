@@ -4,14 +4,14 @@ from email.parser import BytesParser
 import hashlib
 import json
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import zipfile
 
-root = pathlib.Path(__file__).resolve().parents[1]
-destination = root / 'plugins/sdd-quality-loop/scripts/_schema_vendor'
+destination = pathlib.Path(__file__).resolve().with_name('_schema_vendor')
 with tempfile.TemporaryDirectory() as temporary:
     subprocess.run([sys.executable, '-m', 'pip', 'download', '--require-hashes',
                     '--no-deps', '--only-binary=:all:', '-r', str(destination / 'requirements.txt'),
@@ -23,7 +23,9 @@ with tempfile.TemporaryDirectory() as temporary:
     with zipfile.ZipFile(wheel) as archive:
         metadata_name, = (name for name in archive.namelist() if name.endswith('.dist-info/METADATA'))
         metadata = BytesParser().parsebytes(archive.read(metadata_name))
-        if metadata.get_all('Requires-Dist'):
+        optional_extra = r"""[^;]+;\s*extra\s*==\s*["'][A-Za-z0-9_-]+["']"""
+        if any(re.fullmatch(optional_extra, requirement) is None
+               for requirement in metadata.get_all('Requires-Dist', [])):
             raise ValueError('new transitive dependencies require an explicit distribution review')
         for name in archive.namelist():
             path = pathlib.PurePosixPath(name)
@@ -41,7 +43,7 @@ with tempfile.TemporaryDirectory() as temporary:
             files[str(target.relative_to(destination))] = data
     for previous in destination.glob('fastjsonschema-*.whl'):
         previous.unlink()
-    shutil.copyfile(wheel, destination / wheel.name)
+    shutil.copyfile(wheel, destination / "fastjsonschema.whl")
     (destination / 'LICENSE.fastjsonschema').write_bytes(files['LICENSE.fastjsonschema'])
     manifest = {'wheel': wheel.name, 'sha256': hashlib.sha256(wheel.read_bytes()).hexdigest(),
                 'files': {name: hashlib.sha256(data).hexdigest() for name, data in sorted(files.items())}}

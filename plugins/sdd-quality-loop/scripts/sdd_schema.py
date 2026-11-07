@@ -4,11 +4,31 @@ The bundled library owns validation. This adapter owns reference policy,
 ECMA end anchors and the existing RFC 6901 diagnostic presentation.
 """
 import json
+import hashlib
+import importlib.util
+import sys
 import re
 from functools import lru_cache
 from pathlib import Path
 
-from _schema_vendor import fastjsonschema
+_directory = Path(__file__).resolve().parent
+_vendor_name = '_sdd_schema_vendor_' + hashlib.sha256(str(_directory).encode()).hexdigest()
+if _vendor_name not in sys.modules:
+    _spec = importlib.util.spec_from_file_location(_vendor_name, _directory / '_schema_vendor/__init__.py')
+    _vendor = importlib.util.module_from_spec(_spec)
+    sys.modules[_vendor_name] = _vendor
+    try:
+        _spec.loader.exec_module(_vendor)
+    except BaseException:
+        del sys.modules[_vendor_name]
+        raise
+fastjsonschema = __import__(_vendor_name + '.fastjsonschema', fromlist=['fastjsonschema'])
+
+
+def runtime_files():
+    return tuple(_directory / name for name in (
+        'sdd_schema.py', '_schema_vendor/__init__.py', '_schema_vendor/draft-07.json',
+        '_schema_vendor/fastjsonschema.whl'))
 
 
 def _escape_pointer_token(token):
@@ -26,7 +46,10 @@ def _schema_nodes(schema):
         raise ValueError('schema must be an object or boolean')
     yield schema
     for key in ('properties', 'patternProperties', 'definitions', '$defs', 'dependencies'):
-        for child in schema.get(key, {}).values():
+        children = schema.get(key, {})
+        if not isinstance(children, dict):
+            raise ValueError(f'{key} must be an object')
+        for child in children.values():
             if not isinstance(child, list):
                 yield from _schema_nodes(child)
     for key in ('allOf', 'anyOf', 'oneOf'):
@@ -68,10 +91,25 @@ def _metavalidator():
 def _validator(serialized):
     schema = json.loads(serialized)
     _metavalidator()(schema)
+    dialect = schema.get('$schema') if isinstance(schema, dict) else None
+    compatible_2020 = dialect == 'https://json-schema.org/draft/2020-12/schema'
+    if compatible_2020:
+        # These consumers use the common vocabulary plus $defs. Preserve $ref
+        # siblings with allOf; reject newer-only keywords rather than ignore them.
+        for node in list(_schema_nodes(schema)):
+            if '$schema' in node:
+                if node['$schema'] != dialect:
+                    raise ValueError('mixed schema dialects are unsupported')
+                node['$schema'] = 'http://json-schema.org/draft-07/schema#'
+            if '$ref' in node and len(node) > 1:
+                ref = node.pop('$ref')
+                node.setdefault('allOf', []).append({'$ref': ref})
+    _metavalidator()(schema)
     originals = {}
     known = set(json.loads(Path(__file__).with_name('_schema_vendor').joinpath('draft-07.json').read_text())['properties'])
     for node in _schema_nodes(schema):
-        unknown = set(node) - known
+        _metavalidator()(node)
+        unknown = set(node) - known - ({"$defs"} if compatible_2020 else set())
         if unknown:
             raise ValueError(f'unsupported schema keywords: {sorted(unknown)!r}')
         ref = node.get('$ref', '#')

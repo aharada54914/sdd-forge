@@ -29,6 +29,8 @@ diagnostic IDs and semantic checks remain local to this entry point.
 """
 import argparse
 import json
+import hashlib
+import importlib.util
 import os
 import subprocess
 import sys
@@ -37,9 +39,21 @@ from collections import namedtuple
 if sys.version_info < (3, 10):
     raise SystemExit("facet-manifest: schema-runtime-unavailable: Python >= 3.10 required")
 
-# importlib callers need the same packaged-module lookup as direct CLI execution.
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-from sdd_schema import _validate
+# Cache by installed location: importlib callers may load multiple checkouts.
+_schema_dir = os.path.dirname(os.path.realpath(__file__))
+_schema_name = '_sdd_schema_' + hashlib.sha256(_schema_dir.encode()).hexdigest()
+if _schema_name not in sys.modules:
+    _schema_spec = importlib.util.spec_from_file_location(_schema_name, os.path.join(_schema_dir, 'sdd_schema.py'))
+    _shared_schema = importlib.util.module_from_spec(_schema_spec)
+    sys.modules[_schema_name] = _shared_schema
+    try:
+        _schema_spec.loader.exec_module(_shared_schema)
+    except BaseException:
+        del sys.modules[_schema_name]
+        raise
+_shared_schema = sys.modules[_schema_name]
+_validate = _shared_schema._validate
+schema_runtime_files = _shared_schema.runtime_files
 
 Diagnostic = namedtuple("Diagnostic", ["check_id", "pointer", "message"])
 
