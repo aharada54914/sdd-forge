@@ -277,13 +277,31 @@ Phase 1 outputs (generated before review gates):
 - relevant API/data contracts
 
 The seven Markdown files under `specs/<feature>/` above are mandatory Phase 1
-outputs for the full profile. Create layer files from the matching templates in
-`templates/`. Existing layer files remain unchanged under the create-only rule.
+outputs for the full profile. Create each new file from its matching template
+in `templates/`, including `design.template.md`; do not substitute an ad-hoc
+outline. In a newly generated design, retain and fill `## Components`,
+`Feature Type:`, `Data Entities:`, `Existing Data Affected:`, and
+`## Security Boundaries`. Check these fields before the first immutable review
+precheck. Missing template fields in a new design are incomplete bootstrap
+work, not evidence that the design predates the template or qualifies for
+legacy calibration. Existing files remain unchanged under the create-only rule.
 
 New `requirements.md` must retain the template's bare
 `Spec-Review-Status: Pending` header; new `design.md` must retain
 `Impl-Review-Status: Pending`. These statuses belong to their respective files.
 Only the corresponding review gate may advance its status to `Passed`.
+
+Before entering the full review gates, register this feature in the consumer's
+`specs/workflow-state-registry.json`. Read the installed quality plugin's
+`contracts/workflow-state-registry.schema.json`; use its schema version and
+`migration_baseline_commit` constant (this is schema metadata, not a claim
+about the consumer's Git history). For a new full feature add exactly
+`{"feature":"<feature>","profile":"full"}` to `entries`. Create the registry
+when absent; preserve all existing entries and never convert a conflicting
+profile or invent legacy exemptions. Validate the registry and Pending states
+with the installed `check-workflow-state` for this consumer root before the
+first implementation review. A missing registry is bootstrap work to complete,
+not a reason to bypass the workflow gate or fabricate a Passed status.
 
 Phase 2 outputs (generated after impl-review-loop passes):
 

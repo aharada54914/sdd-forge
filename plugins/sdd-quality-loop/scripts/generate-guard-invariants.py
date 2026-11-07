@@ -130,6 +130,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
     "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
     "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-review-loop/scripts/launch-codex-review.py",
     "plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
     "plugins/sdd-review-loop/scripts/preflight-host-review.py",
     "plugins/sdd-review-loop/scripts/prepare-review-assets.py",

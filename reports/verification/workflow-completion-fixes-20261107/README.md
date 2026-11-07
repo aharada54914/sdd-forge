@@ -17,3 +17,11 @@ Actual fresh runs: lite reached independent Done/PASS with browser interactions,
 Disposable approval fixtures are explicitly attributable to the user's test-only authorization, never represented as normal production human approvals. Reviewer contexts use actual native idle allocation, reservation, then first turn; no post-hoc identity reservation.
 
 Frozen human-copy predecessors are retained. Only applied mirrors are refreshed, and exact successor pins are updated with the current live-byte changes.
+
+## Second checkpoint
+
+#731 makes reviewer launch checks self-contained, distinguishes identity uniqueness across contexts from equal fields in one native context, and aligns conditional design inputs/current A-summary authorization. #733 distinguishes Phase 1 visual-token consent and draft design work from later architecture/task approval; genuine fake-gate negative control remains Critical. #734 completes bootstrap registry/template prerequisites.
+
+The shipped Codex launcher now uses native named permissions and verifies inside read, outside-read denial, write denial and network denial before allocating/reserving a reviewer. Actual native fixture transport succeeded. Independent review found and fixed output path traversal and overbroad CLI-directory reads; only the CLI file is admitted. The transport returns a candidate, never an automatic gate PASS. Full is now using it for implementation review; SQLite has passed specification review. Quality-evaluator transport is the next integration step.
+
+Sites deployment succeeded with an explicitly timestamped saved snapshot of all three sessions. This does not claim continuous collection. Local source-backed browser checks passed; native deployment success is recorded separately from live visitor-browser verification.

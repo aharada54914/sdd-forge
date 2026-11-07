@@ -10,6 +10,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 
@@ -113,8 +114,9 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
                               declarations) is not None, 'unsupported CLI argument: ' + flag)
     else:
         require(not required_flags and not help_subcommands, 'CLI flags require a host CLI')
-    validator = root / ('plugins/sdd-quality-loop/scripts/validate-review-context-set.' +
-                        ('sh' if runtime == 'bash' else 'ps1'))
+    validator = launcher.transport.plugin_file(
+        'plugins/sdd-quality-loop/scripts/validate-review-context-set.' +
+        ('sh' if runtime == 'bash' else 'ps1'))
     command = (['rtk', 'proxy', 'bash', str(validator), str(invocation), str(root)]
                if runtime == 'bash' else
                ['rtk', 'proxy', 'pwsh', '-NoProfile', '-File', str(validator),
@@ -124,6 +126,8 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
                          '--fixed-input-snapshot', str(fixed_input_snapshot)] if runtime == 'bash' else
                         ['-FixedInputRecord', str(fixed_input_record),
                          '-FixedInputSnapshot', str(fixed_input_snapshot)]))
+    if not shutil.which('rtk'):
+        command = command[2:]
     result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=600, encoding="utf-8")
     require(result.returncode == 0 and
             re.fullmatch(r'REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* '

@@ -140,6 +140,42 @@ for doc in $ROLE_DOCS; do
 done
 
 echo ""
+# E. Every role must carry the complete receipt-only procedure locally.
+reference_receipt=""
+for doc in $ROLE_DOCS; do
+    receipt="$(sed -n '/<!-- receipt-only-launch-verification:begin -->/,/<!-- receipt-only-launch-verification:end -->/p' "$ROOT/$doc")"
+    if [ -z "$receipt" ]; then
+        fail "E: $doc lacks inline receipt verification"
+    elif [ -z "$reference_receipt" ]; then
+        reference_receipt="$receipt"
+        ok "E: $doc carries inline receipt verification"
+    elif [ "$receipt" = "$reference_receipt" ]; then
+        ok "E: $doc matches inline receipt verification"
+    else
+        fail "E: $doc receipt verification differs"
+    fi
+    if grep -Eq 'Read it before rejecting|Reject a missing manifest or canonical identity ledger|Verify the ledger record chain instead' "$ROOT/$doc"; then
+        fail "E: $doc requires an unauthorized boundary/ledger read"
+    else
+        ok "E: $doc has no contradictory ledger/read requirement"
+    fi
+done
+for term in 'allowed-inputs-v1' 'scratch-declaration-v1' 'identity_unique=yes' 'sequence - 1' 'Do not read the identity ledger' 'these two fields to differ from each other'; do
+    if printf '%s' "$reference_receipt" | grep -Fq "$term"; then ok "E: inline receipt includes $term"; else fail "E: inline receipt lacks $term"; fi
+done
+
+# F. Inputs required by the canonical validator must also be role-authorized.
+for role in impl-reviewer-a impl-reviewer-b; do
+    doc="$ROOT/plugins/sdd-review-loop/agents/$role.md"
+    for term in 'design-system/design-tokens.json' 'design-system/design-system.md' 'design-system/ui-patterns.md'; do
+        if sed -n '/^# Inputs/,/^# ADR Input Boundary/p' "$doc" | grep -Fq "$term"; then ok "F: $role admits $term"; else fail "F: $role omits $term"; fi
+    done
+done
+for role in impl-reviewer-b task-reviewer-b; do
+    doc="$ROOT/plugins/sdd-review-loop/agents/$role.md"
+    if grep -Fq 'required in every round, including round 1' "$doc" && ! grep -Eq 'only available when round N > 1|absent \(round 1\)' "$doc"; then ok "F: $role requires the current A summary in round 1"; else fail "F: $role contradicts current-round summary admission"; fi
+done
+
 echo "boundary-reference-authorization-parity.tests.sh: ${PASS} passed, ${FAIL} failed"
 [ "$FAIL" -eq 0 ] || exit 1
 exit 0

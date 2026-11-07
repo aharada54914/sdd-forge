@@ -40,6 +40,21 @@ STRUCTURED_OUTPUT_ENFORCE_TURN = ('[structured-output-enforce] You MUST call the
                                   'Call this tool now.')
 
 
+def plugin_file(relative):
+    """Resolve trusted assets beside this release, never from the reviewed project."""
+    parts = pathlib.PurePosixPath(relative).parts
+    if len(parts) < 3 or parts[0] != 'plugins' or parts[1] not in (
+            'sdd-review-loop', 'sdd-quality-loop') or '..' in parts:
+        raise ValueError('unsupported review runtime asset')
+    owner = pathlib.Path(__file__).resolve().parent.parent
+    base = (owner.parent / parts[1] if owner.name == 'sdd-review-loop' else
+            owner.parent.parent / parts[1] / owner.name)
+    path = base.joinpath(*parts[2:])
+    if not path.is_file() or path.is_symlink():
+        raise ValueError('missing trusted review runtime asset: ' + str(path))
+    return path
+
+
 def admitted_raw_hashes(root, data, fixed_inputs=None):
     """Keep raw transport observations separate from canonical task normalization."""
     entries = data['allowed_input_manifest']
@@ -68,9 +83,9 @@ def admitted_raw_hashes(root, data, fixed_inputs=None):
                 precheck.get('tasks_sha256_form') == 'normalized' and
                 precheck.get('tasks_sha256') == mismatches[0]['sha256'],
                 'normalized task input is not precheck-bound')
-        command = ['rtk', 'proxy', 'bash', str(root /
-            'plugins/sdd-review-loop/scripts/task-review-precheck.sh'), feature,
-            match[1], match[2], '--verify-inputs']
+        command = (['rtk', 'proxy'] if shutil.which('rtk') else []) + ['bash', str(plugin_file(
+            'plugins/sdd-review-loop/scripts/task-review-precheck.sh')), feature,
+            match[1], match[2], '--verify-inputs', '--repository-root', str(root)]
         if fixed_inputs:
             command.extend(['--fixed-input-record', fixed_inputs['record'],
                             '--fixed-input-snapshot', fixed_inputs['snapshot']])
