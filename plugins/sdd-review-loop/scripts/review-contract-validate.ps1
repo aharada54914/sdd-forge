@@ -4,7 +4,8 @@ param(
   [Parameter(Mandatory = $true)][string]$Round,
   [Parameter(Mandatory = $true)][ValidateSet('spec', 'impl', 'task')][string]$Stage,
   [Parameter(Mandatory = $true)][string]$ReportRoot,
-  [Parameter(Mandatory = $true)][string]$Contract
+  [Parameter(Mandatory = $true)][string]$Contract,
+  [string]$RepositoryRoot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,7 +31,14 @@ if ([IO.Path]::DirectorySeparatorChar -ne '\') {
 }
 if (-not $regularContract) { Fail 'contract is not a regular file' }
 
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+if (-not $RepositoryRoot) {
+  $pluginRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+  $RepositoryRoot = (Get-Location).Path
+  if ($pluginRoot.Replace('\', '/') -cmatch '/plugins/sdd-review-loop$' -and (Test-Path -LiteralPath (Join-Path $pluginRoot '../../.git'))) {
+    $RepositoryRoot = (Resolve-Path -LiteralPath (Join-Path $pluginRoot '../..')).Path
+  }
+}
+$repoRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 $reportsRoot = Join-Path $repoRoot 'reports'
 $parent = Split-Path -Parent $ReportRoot
 if (-not (Test-Path -LiteralPath $parent -PathType Container)) { Fail 'report root parent does not exist' }

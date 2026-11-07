@@ -271,6 +271,12 @@ this table.
 
 ### Risk-upgrade scan
 
+Keep the selected task block and requirements complete, including exclusions and
+approval notes. `check-risk-upgrade` owns the bounded non-requirement grammar in
+`sdd-lite/references/risk-upgrade-policy.md`; do not prefilter sections or reword
+risks to pass. Positive requirements override nominal exclusions during review.
+
+
 A resolved `full` track is the only scan bypass. For every route that could
 resolve to **LITE** — `NO_OP_LITE`, or any remaining default, profile, or
 `--lite` route of the compatibility fallback — build a local UTF-8 input by

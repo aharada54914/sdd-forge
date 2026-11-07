@@ -11,6 +11,22 @@ Run this after Phase 1 artifacts exist and before `impl-review-loop`. It is the
 only workflow mechanism permitted to change `Spec-Review-Status: Pending` to
 `Spec-Review-Status: Passed`.
 
+## Installed project roots
+
+Run prechecks from the consumer project root. Versioned plugin caches and flat
+installations resolve runtime code beside the installed script; they never use
+the installation as the project. To select a project explicitly, append
+`--repository-root <absolute-project-root>` (PowerShell: `-RepositoryRoot`).
+Source-checkout invocations retain their checkout-root default for compatibility.
+
+Prechecks project only their required bundled calibration/risk reference inputs
+into canonical `plugins/.../references/` paths under the consumer project. The
+bytes must match the trusted installed references: existing differing files or
+linked paths block the gate, and input verification never repairs them. Runtime
+scripts remain installed; users do not copy a plugin tree into their project.
+The canonical reference paths and all review identity/hash requirements remain
+unchanged.
+
 ## Managed allocation boundary
 
 Affected policy roles: `spec-reviewer-a`, `spec-reviewer-b`.
@@ -68,6 +84,17 @@ Reached by entering at `/sdd-bootstrap:bootstrap` and following this file. The
 argument shape above is what the orchestrator supplies, not a slash command.
 
 ## Preconditions
+
+On a fresh project, register the invoking host before the first precheck
+creates review history. Use the installed quality plugin's
+`scripts/initialize-review-identity.py --root <consumer-root>` with
+`--codex-rollout <original CODEX_HOME/sessions/.../rollout-....jsonl>` for
+Codex or `--copilot-events <original native events.jsonl>` for Copilot.
+Use only metadata issued by the current host for this project. Never create
+or copy native metadata to satisfy admission. Existing ledgers are reused
+and validated, never reset; missing ledgers with prior review history require
+recovery, not a fresh initializer. This registers the orchestrator only and
+does not reserve reviewers or waive their independent-context requirements.
 
 Read `specs/<feature>/requirements.md` and `acceptance-tests.md`. The
 requirements header must be `Spec-Review-Status: Pending`. Determine the next

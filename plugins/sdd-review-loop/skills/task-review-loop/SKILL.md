@@ -11,6 +11,22 @@ Run the structural and quality review gate on a feature's tasks.md. This skill
 coordinates two independent reviewers, merges their findings, and manages the
 round/attempt state machine.
 
+## Installed project roots
+
+Run prechecks from the consumer project root. Versioned plugin caches and flat
+installations resolve runtime code beside the installed script; they never use
+the installation as the project. To select a project explicitly, append
+`--repository-root <absolute-project-root>` (PowerShell: `-RepositoryRoot`).
+Source-checkout invocations retain their checkout-root default for compatibility.
+
+Prechecks project only their required bundled calibration/risk reference inputs
+into canonical `plugins/.../references/` paths under the consumer project. The
+bytes must match the trusted installed references: existing differing files or
+linked paths block the gate, and input verification never repairs them. Runtime
+scripts remain installed; users do not copy a plugin tree into their project.
+The canonical reference paths and all review identity/hash requirements remain
+unchanged.
+
 ## Managed allocation boundary
 
 Affected policy roles: `task-reviewer-a`, `task-reviewer-b`.
