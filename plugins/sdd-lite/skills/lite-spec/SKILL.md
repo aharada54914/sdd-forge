@@ -222,6 +222,12 @@ ship time, unmodified by this extension) -- both stages are mandatory.
    - `requirements.md`（`templates/requirements-lite.md`）
    - `design.md`（`templates/design-lite.md`）
    - `tasks.md`（`templates/tasks-lite.md`）
+   実際に対象外としたリスク語は [risk-upgrade-policy](../../references/risk-upgrade-policy.md) の
+   bounded exclusion 文法で記述する。閉じた語彙にない通常の対象外項目は
+   別の見出しに置き、同じ除外節へ混在させない。正の要求を除外扱いにしない。
+   生成後、ship と同じ「タスクブロック全体 + requirements.md」を無加工で
+   risk checker に渡して再確認する。書式上の不整合は範囲を変えずに修正し、
+   実際の昇格理由が残る場合は既存の Full 昇格手順に従う。
 4. UI アプリで人間が希望する場合のみ、`design-sync-loop` スキル
    （sdd-bootstrap プラグインの内部スキル）を実行する。外部操作の前に同スキルの
    `resolve-design-sync.py` 判定を実行し、manual/skip では外部操作を行わない。モックアップは
