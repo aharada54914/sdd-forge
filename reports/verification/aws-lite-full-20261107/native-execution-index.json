@@ -1,0 +1,70 @@
+{
+  "lite-bootstrap": {
+    "thread_id": "01a1b5c7-f752-7f00-b281-8d4b99108b7a",
+    "log_sha256": "a9126fff498bed27b79d4d736f0c04df447dbc8a3839fc284482f52a82f427db",
+    "native_collaboration": []
+  },
+  "full-bootstrap": {
+    "thread_id": "01a1b5c7-fc76-7f70-8af7-4e984c58ecc9",
+    "log_sha256": "f32582b1a24e45823faae924fe12019bfff468428dad3eb05ea2ff85b52525c1",
+    "native_collaboration": []
+  },
+  "lite-bootstrap-capture": {
+    "thread_id": "01a1b5cb-8548-71d1-8dba-9c468034acec",
+    "log_sha256": "abbdf90310f629b3a2175600b56dd332518045aa9a1ffd6f80ccddce3ac30786",
+    "native_collaboration": []
+  },
+  "full-bootstrap-capture": {
+    "thread_id": "01a1b5cb-8a77-7f41-a541-96c34dd09005",
+    "log_sha256": "8d46a543890047b7fe0f38b7c65a7f68bab43e7e4047d0e65ce64e99b8e263c2",
+    "native_collaboration": []
+  },
+  "lite-source-bootstrap": {
+    "thread_id": "01a1b5cd-bda1-7302-bc67-8a180f2cde91",
+    "log_sha256": "b563d78fb587b4cfb281d64ad8083c89b7865349a805d55fe948c5691717a193",
+    "native_collaboration": [
+      {
+        "tool": "wait",
+        "sender_thread_id": "01a1b5cd-bda1-7302-bc67-8a180f2cde91",
+        "receiver_thread_ids": [],
+        "agents_states": {},
+        "status": "completed"
+      }
+    ]
+  },
+  "full-source-bootstrap": {
+    "thread_id": "01a1b5cd-f3d8-7321-9772-7adb99038d10",
+    "log_sha256": "d2e3862bebd1ac9cfde59adc7844e4a092b6a9a8d2b63b13eaeca4f54664f0cb",
+    "native_collaboration": []
+  },
+  "lite-ship": {
+    "thread_id": "01a1b5d5-d43d-7da2-acbc-a8f46b91bd90",
+    "log_sha256": "ac4c652ed75137cd0ed9c9214865a3d41c91c97c72fc8e896b39aa3e7258e979",
+    "native_collaboration": []
+  },
+  "lite-ship-resume": {
+    "thread_id": "01a1b5d5-d43d-7da2-acbc-a8f46b91bd90",
+    "log_sha256": "5b2dff37d697d08f7d4a1fe0442a8d024e95ef3739b7253d5d5f8e2578669769",
+    "native_collaboration": []
+  },
+  "lite-technical-fix": {
+    "thread_id": "01a1b5d5-d43d-7da2-acbc-a8f46b91bd90",
+    "log_sha256": "83a8f3366501a23773af9eb13851eee7387b69ca216b37b5897cb0f056242612",
+    "native_collaboration": []
+  },
+  "full-native-bootstrap": {
+    "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
+    "log_sha256": "5cf6a6af4b5d6e8562982b21e674c64953da6276181c608103bbea2311417454",
+    "native_collaboration": []
+  },
+  "full-native-resume": {
+    "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
+    "log_sha256": "d93b6d0afd0340b5c24e81cf354b3039b355df072a9819106eca8aee5d9fff89",
+    "native_collaboration": []
+  },
+  "full-native-host-resume": {
+    "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
+    "log_sha256": "31b3085692f724d62f4c207b806a6536d2d675d2a8b5ba6eb4c24c1cc7d69228",
+    "native_collaboration": []
+  }
+}

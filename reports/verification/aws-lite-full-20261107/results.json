@@ -2,8 +2,8 @@
   "baseline": "08398f03",
   "issue": "https://github.com/aharada54914/sdd-forge/issues/732",
   "end_to_end": {
-    "lite": "IN_PROGRESS: actual user approved T-001; normal ship executing",
-    "full": "IN_PROGRESS: native Full bootstrap generating specifications"
+    "lite": "PASS: actual approved T-001 reached Done through fresh independent Lite gate; 12 unit/CLI tests and final Done-state check passed",
+    "full": "WAITING_FOR_HUMAN: spec, implementation-policy and task A/B reviews PASS; reviewed T-001 Draft/Planned awaits actual user approval"
   },
   "live_aws": "NOT RUN: no configured AWS identity or protected CI approval",
   "cloud_suites": [
@@ -54,7 +54,9 @@
   "issues": [
     "https://github.com/aharada54914/sdd-forge/issues/732",
     "https://github.com/aharada54914/sdd-forge/issues/737",
-    "https://github.com/aharada54914/sdd-forge/issues/738"
+    "https://github.com/aharada54914/sdd-forge/issues/738",
+    "https://github.com/aharada54914/sdd-forge/issues/739",
+    "https://github.com/aharada54914/sdd-forge/issues/740"
   ],
   "integrated_existing_fixes": [
     "6b2df273: workflow/runtime and regression changes excluding prior UI work",
@@ -81,5 +83,19 @@
       "pass": 162,
       "fail": 0
     }
-  }
+  },
+  "lite_external_checks": {
+    "non_json_constants": "PASS: all three now exit 2 with stderr and no stdout",
+    "powershell_test_wrapper": "PASS: actual managed pwsh executed all 12 tests"
+  },
+  "final_installed_state_checks": {
+    "lite_done_state": "PASS",
+    "full_workflow_state": "PASS"
+  },
+  "full_reviews": {
+    "spec": "PASS round 1",
+    "implementation_policy": "PASS round 2",
+    "task_decomposition": "PASS round 1"
+  },
+  "full_approval": "PENDING actual user response; T-001 Draft/Planned"
 }
