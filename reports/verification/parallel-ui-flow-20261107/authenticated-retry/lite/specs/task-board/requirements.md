@@ -12,7 +12,7 @@
 - REQ-006: Malformed saved data must not crash the UI. If storage cannot be read or written, show a clear persistence warning and allow current-session task management.
 
 ## Scope exclusions
-- Accounts, authentication, server, sharing, sync, editing, priorities, drag and drop, deployment and remote publication.
+- Accounts, server, sharing, sync, editing, priorities, drag and drop, deployment and remote publication. 認証・認可機能はスコープ外です。
 
 ## Open Questions
 None. The user authorized reasonable defaults; this scope uses one local list without accounts.

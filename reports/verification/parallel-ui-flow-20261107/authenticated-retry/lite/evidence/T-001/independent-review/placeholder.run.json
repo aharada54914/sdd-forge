@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "sh",
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-placeholders.sh",
+    "index.html",
+    "styles.css",
+    "app.js",
+    "package.json",
+    "README.md"
+  ],
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-authenticated",
+  "started_at": "2026-11-07T10:13:55.479888+00:00",
+  "ended_at": "2026-11-07T10:13:55.487422+00:00",
+  "exit_code": 0,
+  "BOARD_EVIDENCE_DIR": "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-authenticated/evidence/T-001/independent-review/browser"
+}

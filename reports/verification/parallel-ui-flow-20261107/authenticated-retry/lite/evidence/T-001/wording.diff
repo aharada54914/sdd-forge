@@ -1,0 +1,19 @@
+--- evidence/T-001/wording-before/requirements.md	2026-11-07 10:06:33.440677916 +0000
++++ specs/task-board/requirements.md	2026-11-07 10:06:33.560939323 +0000
+@@ -12,7 +12,7 @@
+ - REQ-006: Malformed saved data must not crash the UI. If storage cannot be read or written, show a clear persistence warning and allow current-session task management.
+ 
+ ## Scope exclusions
+-- Accounts, authentication, server, sharing, sync, editing, priorities, drag and drop, deployment and remote publication.
++- Accounts, server, sharing, sync, editing, priorities, drag and drop, deployment and remote publication. 認証・認可機能はスコープ外です。
+ 
+ ## Open Questions
+ None. The user authorized reasonable defaults; this scope uses one local list without accounts.
+--- evidence/T-001/wording-before/tasks.md	2026-11-07 10:06:33.440728212 +0000
++++ specs/task-board/tasks.md	2026-11-07 10:06:33.588940295 +0000
+@@ -18,4 +18,4 @@
+ - Browser test results, screenshot, implementation report and passing lite gate are recorded.
+ 
+ ### Blockers
+-- Human review of requirements.md, design.md and this task is required. Only a human may change this task's Approval field to Approved. General authorization to create and test does not supply that task approval.
++- Parent-set test permission is recorded in evidence/test-approval-fixture.json. This is disposable test permission, no application access-control requirement, and no proof of normal human approval. Other workflow guards remain active.

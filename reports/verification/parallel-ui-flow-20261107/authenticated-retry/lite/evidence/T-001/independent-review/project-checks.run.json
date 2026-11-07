@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.23.1/lib/run-lite-gate.py",
+    "--check",
+    "lint",
+    "--check",
+    "test",
+    "--enforcement",
+    "none",
+    "--repo-root",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-authenticated",
+    "--runtime",
+    "posix",
+    "--output",
+    "reports/quality-gate/T-001.execution.json"
+  ],
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-authenticated",
+  "started_at": "2026-11-07T10:13:55.487507+00:00",
+  "ended_at": "2026-11-07T10:13:58.641516+00:00",
+  "exit_code": 0,
+  "BOARD_EVIDENCE_DIR": "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-authenticated/evidence/T-001/independent-review/browser"
+}
