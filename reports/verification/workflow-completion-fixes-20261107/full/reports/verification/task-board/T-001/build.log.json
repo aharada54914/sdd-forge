@@ -1,0 +1,7 @@
+{
+  "command": "python3 -B -c 'from pathlib import Path; [compile(Path(p).read_bytes(), p, \"exec\") for p in (\"store.py\", \"tests/test_store.py\")]; print(\"Compiled both Python modules\")'",
+  "exit_code": 0,
+  "started_at": "2026-11-07T12:13:17.576440+00:00",
+  "finished_at": "2026-11-07T12:13:17.613042+00:00",
+  "evidence": "reports/quality-gate/T-001-checks/build.log"
+}

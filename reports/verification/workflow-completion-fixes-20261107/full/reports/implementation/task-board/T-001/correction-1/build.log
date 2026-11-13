@@ -1,0 +1,4 @@
+$ python3 -B -c 'from pathlib import Path; [compile(Path(p).read_text(),p,'"'"'exec'"'"') for p in ('"'"'store.py'"'"','"'"'tests/test_store.py'"'"')]; print('"'"'Both modules compile successfully'"'"')'
+Both modules compile successfully
+
+EXIT CODE: 0

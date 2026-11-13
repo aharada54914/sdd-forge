@@ -1,0 +1,271 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "task-board",
+  "task_id": "T-001",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "implementation_manifest": {
+    "path": "handoffs/task-board/T-001-registered/manifest.json",
+    "sha256": "8dd4a6cc7deee8532959ec927e6d6c3ed234735aade1df74a924d4a941d692dc"
+  },
+  "gate_report_declaration": {
+    "path": "reports/quality-gate/T-001-v9-delivery.md",
+    "sha256": "3e520ff6db8226c01a28b8f6c2e9f6e59375739b774e5acebc2acdfae1a9a81b"
+  },
+  "supplemental_delivery_declaration": {
+    "path": "specs/task-board/verification/T-001/supplemental-delivery-cycle-2.json",
+    "sha256": "ec16ad22679009f33122ad909a263b9fed60ef4fbfbf0333e9618f32590a0626"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "specs/task-board/requirements.md",
+      "sha256": "e3bb16a156116a634309b4526afdf41f497d3ba23f4ef1c8767cd77288e812cc"
+    },
+    {
+      "path": "specs/task-board/acceptance-tests.md",
+      "sha256": "48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94"
+    },
+    {
+      "path": "specs/task-board/design.md",
+      "sha256": "c2b9d9feec9157ad694f75c8f00e5d510562db0906a51298b8f4d0f1af2ed37e"
+    },
+    {
+      "path": "specs/task-board/tasks.md",
+      "sha256": "1db826ee9429938cd02177cae410902edaca1c83bd069f06f24b5fe39440be9c"
+    },
+    {
+      "path": "specs/task-board/traceability.md",
+      "sha256": "c493c8482036ba9ea5d43fc1987a08ac004c57656e92ea0fa23d776a65849246"
+    },
+    {
+      "path": "specs/task-board/ux-spec.md",
+      "sha256": "d8b5ec25320b0143aad335c59a706be089baf27bbca4e28efd998db768498e79"
+    },
+    {
+      "path": "specs/task-board/frontend-spec.md",
+      "sha256": "543d8eb6ae280daf0b00c8b046fd379b8b032b05ff0d059da1189cdabc2f1cc0"
+    },
+    {
+      "path": "specs/task-board/infra-spec.md",
+      "sha256": "770aab00c90f878fc1d964d2bcea20eb219b75d1ee9601554e7851dd24e324e5"
+    },
+    {
+      "path": "specs/task-board/security-spec.md",
+      "sha256": "b80c20b7e17f528b18f027cd2261d852782007b7cf2c6a4b58de1f70a39280d6"
+    },
+    {
+      "path": "specs/task-board/traceability.json",
+      "sha256": "229af653ce9b49294d517847ecdb0b50b103e764ca58cc3a1ce8f94727b8fefa"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001.md",
+      "sha256": "61cf678dfb1dd2bbd06c28fe2dcc1d7f95d2d1dc5947df84fca874eff75f183c"
+    },
+    {
+      "path": "handoffs/task-board/T-001-registered/manifest.json",
+      "sha256": "8dd4a6cc7deee8532959ec927e6d6c3ed234735aade1df74a924d4a941d692dc"
+    },
+    {
+      "path": "store.py",
+      "sha256": "6aef2bf1d5e711f6c9aba68ba3e3737d25108f01c7430f909dd243b38f82b4d2"
+    },
+    {
+      "path": "tests/test_store.py",
+      "sha256": "8a70eca59b4628241c9cf9af007eb05ee88be9ef35709a7850bc23a6174b959f"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/build.log",
+      "sha256": "9fd11d9049ec9f570a0a494ac6b9cfeb231f512d8ef508e479e74404dc2e9560"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/environment.log",
+      "sha256": "2285ab5a203d075ff659e8ab65a81b0d6f5b88941f2d8eba53039609bbf92822"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/green-commit-provenance.log",
+      "sha256": "d4a8ecb82e915b7b872063d13ce5a6a6464deb579ba4318da8cf00a71b939ede"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/green-commit.log",
+      "sha256": "ab14ecb0f8438a3c21f9e73919d43f539ef5644ff765d5febc07deb968fa0029"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/green.log",
+      "sha256": "c4c057ff7cc0ead7e1df537b6a035665c9618ce00fbcb1ebc004abe5285157ec"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/lint.log",
+      "sha256": "f4717e4dcfa9ef96d5d7a2e4a07ef1bdd395610789186a3e30c56c4131fb2bc1"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/provenance.json",
+      "sha256": "b71b07783add7b2d27df07b05944491db323285b8ebb121ce8fa96ba257e81b1"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/red-commit-provenance.log",
+      "sha256": "3738842985b5923180bfed6f210115f0fe9d1d0fe45b7a9938495d65fbcf6d30"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/red.log",
+      "sha256": "b23fdb51e38533a96710d567d8ae580866fb06b645ade0328c7ebcfeb17b872d"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/regression.log",
+      "sha256": "1fbd6680a8f9e73dbbeeb4deceb163cbda3bdd40d1a19ac59affbc1b20e7357d"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/typecheck.log",
+      "sha256": "1a649bc48e70b6be7c4229bec6f478ddd0de9ac03e5d33b0331429f9c7bd7bfe"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "e6921402246ee194636150201e02ff14c84d30d95d1b192033375e3e7a44701b"
+    },
+    {
+      "path": "contracts/task-board.md",
+      "sha256": "9c13d8fbe035f0905121fbd2efc72813114fc5b4658ecd46ac314856c954f84f"
+    },
+    {
+      "path": "docs/adr/0001-local-json.md",
+      "sha256": "6ff53db3b1b61132033e4479448a66807b503608fe65e443307b9f9863d480a7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/evaluation-rubric.md",
+      "sha256": "08fc8eff5769f2dbe43a638d2b29eac2cb0a6d57e2cc47b5a9e2617844e3197c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/security-checklist.md",
+      "sha256": "2e25d44b824615bf9fe309a10e79d2f6f2a8f0afcfa65fb64b4d6fb91f7c97a5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/performance-checklist.md",
+      "sha256": "db06f69d17eacb2ed67851c262c0a5f983cc8e4a302080964d207655d5050e9b"
+    },
+    {
+      "path": "specs/task-board/verification/T-001.contract.json",
+      "sha256": "31e47a454e8e3e4bf7cdb5990b740955c09aac5843a1e81460f6ffae72a6ac2d"
+    },
+    {
+      "path": "specs/task-board/verification/T-001/supplemental-delivery-cycle-2.json",
+      "sha256": "ec16ad22679009f33122ad909a263b9fed60ef4fbfbf0333e9618f32590a0626"
+    },
+    {
+      "path": "specs/task-board/verification/T-001/traceability-cycle-2.json",
+      "sha256": "229af653ce9b49294d517847ecdb0b50b103e764ca58cc3a1ce8f94727b8fefa"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/build.log",
+      "sha256": "f21a90cbabc3ccc6791ece58a824ddfd5926cc5f5cbc48ff3c56e04f09c1c817"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/component.log",
+      "sha256": "018ac1ff70a3eb441119d3b86ab85d6e35f886212051ff3168e02c4a2a295844"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/contract.log",
+      "sha256": "df695cfc4efa68e4a47fa8c73a134ff6c04e4aa4f8a85d799c25095a626c3d05"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/lint.log",
+      "sha256": "ebb911e38e095f65f7aee38524c245a236451ff6e833beb60a349e770c8655e6"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/placeholders.log",
+      "sha256": "6432cd7034c0e1aff74cee10a2939783a9b1ee4d283d32a0cb6ad51029da007d"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/risk.log",
+      "sha256": "ce963beff657c3e598a3ea6c1a0fc02f02fb15254562d2e18315b88a8457f02d"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/task-state.log",
+      "sha256": "8913ed286c1adfb3372c3fadc9692f428ccced44cd73ef84ab9ebd17334cb183"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/tests.log",
+      "sha256": "0a703c550165fd7ce0b475a9f1e8e586cf679899fd87d94a3d5f0c4f106dd208"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/traceability.log",
+      "sha256": "1640a6f8386c370c4ae84f54cfe6888e3f8e16fc5ad1dab8b6b1901c1bfc43ff"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/workflow.log",
+      "sha256": "340297420230203e3a5dd752122412806b1bc7c6eca86e476997d041c638d1ac"
+    },
+    {
+      "path": "reports/verification/task-board/T-001-cycle-2/component.log.stdout",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "reports/verification/task-board/T-001/typecheck.log",
+      "sha256": "7158a9d9216ccd187c37c95b912ed29dbac607a7ba7a608cb172a03288d83b07"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/build.log",
+      "sha256": "9fd11d9049ec9f570a0a494ac6b9cfeb231f512d8ef508e479e74404dc2e9560"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/commit-provenance.log",
+      "sha256": "657fde7f5debd1efe1a4096ccdfc7b570857fd7dcb8c878455031cf4012c15a8"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/commit.log",
+      "sha256": "95e8316ff231b07b036ec362094fb94fe8e5d58f5caaeb992c697e4fc120d85c"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/diff-check.log",
+      "sha256": "a8c5d87921acd4ebdac7828eea8757cc0f9bbddc6de88db44ce372281b238901"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/lint.log",
+      "sha256": "f4717e4dcfa9ef96d5d7a2e4a07ef1bdd395610789186a3e30c56c4131fb2bc1"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/regression.log",
+      "sha256": "020a5742a97f538fd76783c2b5ff3fb0d27624cd601e2e9886d5eeaabab2730d"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/tests.log",
+      "sha256": "f336065e6e71ac7ce26dc2358d429ab37949ca3dce53a6d1f805c3d9d9291ec3"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/typecheck.log",
+      "sha256": "39f33bca6ba715ad30bb2374c4f0814e52661ec7a958f9d294f55d9234c7a7f7"
+    },
+    {
+      "path": "reports/implementation/task-board/T-001/correction-1/test-changes.diff",
+      "sha256": "de05f79785d92efb8d069934a6baede44de7367d337b7609f848c247839fb09a"
+    },
+    {
+      "path": "reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/skills/quality-gate/SKILL.md",
+      "sha256": "764f81e96227280b7f39ba862295f8e3f999b569b4279cd9117c4c36b6fa2a63"
+    },
+    {
+      "path": "reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/scripts/check-component-coverage.py",
+      "sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+    },
+    {
+      "path": "reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/references/deterministic-check-policy.md",
+      "sha256": "ce2628c45b342a0883d9f6d13870cb70d22f3d73b14933de01085c332734ef41"
+    },
+    {
+      "path": "reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    }
+  ],
+  "run_id": "01a1b603-cea4-7522-8930-5668fed6dd09",
+  "host_session_id": "01a1b603-cea4-7522-8930-5668fed6dd09",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2c1526684f22990a98927adc9b99f86d6d06a09983172df6e87abeb6ffe9c8a9",
+  "previous_record_sha256": "858aa7b6eba08c3ceceec0b2be68942c06b1afd7b7e6282ccffefcc11c9d5de4",
+  "sequence": 23,
+  "scratch_root": "/tmp/sdd-codex-review-eqetqsu_/inputs"
+}

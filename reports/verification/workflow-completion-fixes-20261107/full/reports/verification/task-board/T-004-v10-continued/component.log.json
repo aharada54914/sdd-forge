@@ -1,0 +1,7 @@
+{
+  "command": "python3 -I -B reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-component-coverage.py --repo-root /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+  "exit_code": 0,
+  "started_at": "2026-11-13T04:43:39.627088+00:00",
+  "finished_at": "2026-11-13T04:43:39.667293+00:00",
+  "evidence": "reports/verification/task-board/T-004-v10-continued/component.log"
+}

@@ -1,0 +1,12 @@
+{
+  "turn_id": "01a1d321-ada7-7ef2-bf50-fcfe7ad58911",
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "approval_policy": "never",
+  "sandbox_policy": {
+    "type": "danger-full-access"
+  },
+  "observed_timestamp": "2026-11-13T04:19:24.376Z",
+  "source_rollout": "/workspace/.tools/sdd-forge-dev/codex-verify/sessions/2026/11/07/rollout-2026-11-07T10-54-38-01a1b5a5-65db-7cb0-b787-17674fd99c69.jsonl"
+}

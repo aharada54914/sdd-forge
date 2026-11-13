@@ -1,0 +1,12 @@
+Evidence: reports/visual-evidence/task-board/T-004/quality-v10
+PASS crud
+PASS mobile-crud
+PASS validation
+PASS pending
+PASS failures
+PASS loading
+PASS timeout
+PASS visual
+PASS performance
+PASS restart
+PASS sockets

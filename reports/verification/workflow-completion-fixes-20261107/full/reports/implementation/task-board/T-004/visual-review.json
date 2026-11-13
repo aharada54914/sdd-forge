@@ -1,0 +1,28 @@
+{
+  "tool": "Python Playwright with real /usr/bin/chromium; no Claude Preview claim",
+  "reference": "specs/task-board/mockups/imagegen-reference.png",
+  "reference_sha256": "60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8",
+  "reference_inspection": "Hash-verified admitted snapshot read with view_image before UI implementation",
+  "first_desktop": "reports/visual-evidence/task-board/T-004/first-render/visual/board-1440.png",
+  "first_mobile": "reports/visual-evidence/task-board/T-004/first-mobile/visual/board-390.png",
+  "final_root": "reports/visual-evidence/task-board/T-004/final",
+  "iterations": 2,
+  "inspected_final": [
+    "visual/board-1440.png",
+    "visual/board-320.png",
+    "visual/board-200pct.png",
+    "mobile-crud/delete-dialog.png"
+  ],
+  "comparison": {
+    "white_surface": "token background #ffffff",
+    "navy_hierarchy": "token text #102038 and heading32px",
+    "primary": "token #007f78, one main 追加 action",
+    "spacing": "4px-grid token spacings; mobile16px gutters",
+    "rows": "outlined8px-radius, native checkbox and explicit削除",
+    "reflow": "1440/390/320 and200% CSSzoom nohorizontaloverflow, long Japanese wraps",
+    "rejected_reference_elements": "No sidebar,counts,filters,hamburger,Englishgeneratedcopy",
+    "keyboard": "visible focus CSS; real Tab/Enter/Space, cancel/Escape, next/previous/input restoration verified"
+  },
+  "findings": [],
+  "zoom_scope": "Actual Chromium document CSS zoom=2; browser-toolbar zoom not claimed. Headless Ctrl++ probe did not change innerWidth or DPR and is retained separately."
+}

@@ -1,0 +1,24 @@
+$ python3 -B -m unittest discover -s tests -p test_store.py -v
+test_store (unittest.loader._FailedTest.test_store) ... ERROR
+
+======================================================================
+ERROR: test_store (unittest.loader._FailedTest.test_store)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_store
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/test_store.py", line 15, in <module>
+    from store import StorageError, TaskNotFoundError, TaskStore, ValidationError
+ModuleNotFoundError: No module named 'store'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+
+EXIT CODE: 1

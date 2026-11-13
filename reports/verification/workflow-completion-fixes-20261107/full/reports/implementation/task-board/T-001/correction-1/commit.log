@@ -1,0 +1,5 @@
+$ git commit -m 'test: cover close cleanup and unpublished state failures (T-001)' -- tests/test_store.py
+[verification f3561ff] test: cover close cleanup and unpublished state failures (T-001)
+ 1 file changed, 59 insertions(+)
+
+EXIT CODE: 0

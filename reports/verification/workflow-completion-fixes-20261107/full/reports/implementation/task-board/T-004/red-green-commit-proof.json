@@ -1,0 +1,125 @@
+{
+  "red_commit": "c861f6ed4d5fb74ab0899572d5ea3211228bfb08",
+  "green_commit": "c336d0b092a675d1c1edac74b4cca0d901fc6688",
+  "recorded_at": "2026-11-13T04:38:43.630445+00:00",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "c861f6ed4d5fb74ab0899572d5ea3211228bfb08",
+        "c336d0b092a675d1c1edac74b4cca0d901fc6688"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "show",
+        "--stat",
+        "c861f6ed4d5fb74ab0899572d5ea3211228bfb08"
+      ],
+      "exit_code": 0,
+      "stdout": "commit c861f6ed4d5fb74ab0899572d5ea3211228bfb08\nAuthor: SDD Verification Fixture <sdd-verification@example.invalid>\nDate:   Fri Nov 13 04:30:36 2026 +0000\n\n    test(T-004): capture failing real Chromium acceptance before UI\n\n tests/browser_checks.py | 615 ++++++++++++++++++++++++++++++++++++++++++++++++\n 1 file changed, 615 insertions(+)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "show",
+        "--stat",
+        "c336d0b092a675d1c1edac74b4cca0d901fc6688"
+      ],
+      "exit_code": 0,
+      "stdout": "commit c336d0b092a675d1c1edac74b4cca0d901fc6688\nAuthor: SDD Verification Fixture <sdd-verification@example.invalid>\nDate:   Fri Nov 13 04:38:26 2026 +0000\n\n    feat(T-004): implement verified Japanese task board view\n\n tests/browser_checks.py |  34 ++++---\n web/app.js              | 234 ++++++++++++++++++++++++++++++++++++++++++++++++\n web/index.html          |  46 ++++++++++\n web/styles.css          |  92 +++++++++++++++++++\n 4 files changed, 396 insertions(+), 10 deletions(-)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=fuller",
+        "c861f6ed4d5fb74ab0899572d5ea3211228bfb08"
+      ],
+      "exit_code": 0,
+      "stdout": "commit c861f6ed4d5fb74ab0899572d5ea3211228bfb08\nAuthor:     SDD Verification Fixture <sdd-verification@example.invalid>\nAuthorDate: Fri Nov 13 04:30:36 2026 +0000\nCommit:     SDD Verification Fixture <sdd-verification@example.invalid>\nCommitDate: Fri Nov 13 04:30:36 2026 +0000\n\n    test(T-004): capture failing real Chromium acceptance before UI\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=fuller",
+        "c336d0b092a675d1c1edac74b4cca0d901fc6688"
+      ],
+      "exit_code": 0,
+      "stdout": "commit c336d0b092a675d1c1edac74b4cca0d901fc6688\nAuthor:     SDD Verification Fixture <sdd-verification@example.invalid>\nAuthorDate: Fri Nov 13 04:38:26 2026 +0000\nCommit:     SDD Verification Fixture <sdd-verification@example.invalid>\nCommitDate: Fri Nov 13 04:38:26 2026 +0000\n\n    feat(T-004): implement verified Japanese task board view\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "ls-tree",
+        "-r",
+        "c861f6ed4d5fb74ab0899572d5ea3211228bfb08",
+        "tests/browser_checks.py",
+        "web/"
+      ],
+      "exit_code": 0,
+      "stdout": "100644 blob cc9bacf1f2f6656f37f66caa81b744cf540a116b\ttests/browser_checks.py\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "ls-tree",
+        "-r",
+        "c336d0b092a675d1c1edac74b4cca0d901fc6688",
+        "tests/browser_checks.py",
+        "web/"
+      ],
+      "exit_code": 0,
+      "stdout": "100644 blob 9baae0b2ae2197ae5dfe70f063eabacf89ed14ea\ttests/browser_checks.py\n100644 blob 3082c985de610afda78c606444f1ea0d7489b3f4\tweb/app.js\n100644 blob 9ed5157befcfc0af56f2fc71b7859e02a8ba1c88\tweb/index.html\n100644 blob cd8716a94aa83813df738412849e1e1045eef71e\tweb/styles.css\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "c861f6ed4d5fb74ab0899572d5ea3211228bfb08",
+        "c336d0b092a675d1c1edac74b4cca0d901fc6688",
+        "--",
+        "tests/browser_checks.py"
+      ],
+      "exit_code": 0,
+      "stdout": "diff --git a/tests/browser_checks.py b/tests/browser_checks.py\nindex cc9bacf..9baae0b 100644\n--- a/tests/browser_checks.py\n+++ b/tests/browser_checks.py\n@@ -123,8 +123,9 @@ async def crud(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     await expect(checkbox).to_be_enabled()\n     await page.reload()\n     await expect(checkbox).to_be_checked()\n-    await checkbox.uncheck()\n+    await checkbox.click()\n     await expect(checkbox).to_be_enabled()\n+    await expect(checkbox).not_to_be_checked()\n     await page.reload()\n     await expect(checkbox).not_to_be_checked()\n     await add(page, '\u9023\u7d61\u3059\u308b')\n@@ -149,7 +150,15 @@ async def crud(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     await expect(page.get_by_role('checkbox', name='\u9023\u7d61\u3059\u308b', exact=True)).to_be_focused()\n     await page.reload()\n     await expect(checkbox).to_have_count(0)\n+    await add(page, '\u6700\u5f8c\u306e\u30bf\u30b9\u30af')\n+    last_row = page.get_by_role('listitem').filter(\n+        has=page.get_by_role('checkbox', name='\u6700\u5f8c\u306e\u30bf\u30b9\u30af', exact=True))\n+    await last_row.get_by_role('button', name='\u524a\u9664', exact=True).click()\n+    await dialog.get_by_role('button', name='\u524a\u9664', exact=True).click()\n+    await expect(page.get_by_role('checkbox', name='\u6700\u5f8c\u306e\u30bf\u30b9\u30af', exact=True)).to_have_count(0)\n+    await expect(page.get_by_role('checkbox', name='\u9023\u7d61\u3059\u308b', exact=True)).to_be_focused()\n     await page.get_by_role('button', name='\u524a\u9664', exact=True).click()\n+    await page.screenshot(path=str(output / 'delete-dialog.png'), full_page=True)\n     await dialog.get_by_role('button', name='\u524a\u9664', exact=True).click()\n     await expect(field).to_be_focused()\n     await expect(page.get_by_text('\u30bf\u30b9\u30af\u306f\u307e\u3060\u3042\u308a\u307e\u305b\u3093', exact=True)).to_be_visible()\n@@ -241,8 +250,9 @@ async def pending(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     await expect(field).to_have_value('')\n     await expect(field).to_be_enabled()\n     await page.unroute('**/api/tasks**', delay)\n-    await page.get_by_role('checkbox', name='\u65e2\u5b58\u30bf\u30b9\u30af', exact=True).check()\n+    await page.get_by_role('checkbox', name='\u65e2\u5b58\u30bf\u30b9\u30af', exact=True).click()\n     await expect(page.get_by_role('checkbox', name='\u65e2\u5b58\u30bf\u30b9\u30af', exact=True)).to_be_enabled()\n+    await expect(page.get_by_role('checkbox', name='\u65e2\u5b58\u30bf\u30b9\u30af', exact=True)).to_be_checked()\n     assert api(server)[1]['tasks'][0]['completed'] is True\n     return {'tests': ['TEST-006'], 'delayed_mutations': writes,\n             'server_saved_titles': [t['title'] for t in api(server)[1]['tasks']]}\n@@ -273,7 +283,7 @@ async def failures(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     await page.wait_for_timeout(300)\n     assert attempts == ['POST'] and server.data.read_bytes() == before\n     checkbox = page.get_by_role('checkbox', name='\u5143\u306e\u30bf\u30b9\u30af', exact=True)\n-    await checkbox.check()\n+    await checkbox.click()\n     await expect(checkbox).to_be_enabled()\n     await expect(checkbox).not_to_be_checked()\n     await page.get_by_role('button', name='\u524a\u9664', exact=True).click()\n@@ -415,7 +425,9 @@ async def visual(page: Page, server: Server, output: Path) -> dict[str, Any]:\n             primary: getComputedStyle(button).backgroundColor,\n             radius: getComputedStyle(row).borderRadius,\n             inputY: field.getBoundingClientRect().y, buttonY: button.getBoundingClientRect().y,\n-            minTarget: Math.min(...[...document.querySelectorAll('main button, main input')].map(x => x.getBoundingClientRect().height))};\n+            minTarget: Math.min(...[...document.querySelectorAll('main button, main input')]\n+              .filter(x => x.getBoundingClientRect().width > 0)\n+              .map(x => x.getBoundingClientRect().height))};\n         }''')\n         assert metrics['scroll'] <= width and metrics['mainWidth'] <= 880\n         assert metrics['minTarget'] >= 44\n@@ -477,8 +489,9 @@ async def restart(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     await open_board(page, server)\n     await add(page, '\u518d\u8d77\u52d5\u5f8c\u3082\u6b8b\u3059')\n     box = page.get_by_role('checkbox', name='\u518d\u8d77\u52d5\u5f8c\u3082\u6b8b\u3059', exact=True)\n-    await box.check()\n+    await box.click()\n     await expect(box).to_be_enabled()\n+    await expect(box).to_be_checked()\n     before = api(server)[1]\n     disk = server.data.read_bytes()\n     server.stop()\n@@ -517,8 +530,8 @@ async def sockets(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     assert len(listeners) == 1\n     assert listeners[0]['family'] == 'tcp' and listeners[0]['address_hex'] == '0100007F'\n     assert listeners[0]['owned_by_pid']\n-    addresses = sorted({entry[4][0] for entry in socket.getaddrinfo(socket.gethostname(),\n-                        None, socket.AF_INET) if not entry[4][0].startswith('127.')})\n+    addresses = sorted({str(entry[4][0]) for entry in socket.getaddrinfo(socket.gethostname(),\n+                        None, socket.AF_INET) if not str(entry[4][0]).startswith('127.')})\n     assert addresses, 'AC-013 UNVERIFIED: no real nonloopback IPv4 interface'\n     probes = []\n     for address in addresses:\n@@ -533,7 +546,7 @@ async def sockets(page: Page, server: Server, output: Path) -> dict[str, Any]:\n     return evidence\n \n \n-CASES = {'crud': crud, 'validation': validation, 'pending': pending, 'failures': failures,\n+CASES = {'crud': crud, 'mobile-crud': crud, 'validation': validation, 'pending': pending, 'failures': failures,\n          'loading': loading, 'timeout': timeout, 'visual': visual,\n          'performance': performance, 'restart': restart, 'sockets': sockets}\n \n@@ -551,7 +564,8 @@ async def run(args: argparse.Namespace, output: Path) -> int:\n             for name in args.case or CASES:\n                 case_output = output / name\n                 case_output.mkdir()\n-                context = await browser.new_context(viewport={'width': 1440, 'height': 1000},\n+                context = await browser.new_context(viewport={'width': 390 if name == 'mobile-crud' else 1440,\n+                                                             'height': 1000},\n                                                     locale='ja-JP')\n                 page = await context.new_page()\n                 page.set_default_timeout(5000)\n@@ -568,7 +582,7 @@ async def run(args: argparse.Namespace, output: Path) -> int:\n                     # Fault tests deliberately cause browser network errors; all are retained.\n                     unexpected = [error for error in console_errors if not (\n                         error.startswith('Failed to load resource:') and\n-                        (name in ('failures', 'loading', 'timeout') or '404' in error))]\n+                        name in ('failures', 'loading', 'timeout'))]\n                     assert not unexpected, unexpected\n                     results['cases'][name] = {'status': 'PASS', 'evidence': evidence}\n                     print(f'PASS {name}', flush=True)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "tests/browser_checks.py",
+        "web/"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "red_test_sha256": "5ac9e4cee1e324c9382313f4ac4c3e0ab949fc1d593adf37d9f0e65631525014",
+  "green_test_sha256": "62eb83ae42a1eb05c6a1e97f6cb71322a71d7ea6593087d321323939e873259d",
+  "green_commit_matches_executed": {
+    "web/index.html": true,
+    "web/app.js": true,
+    "web/styles.css": true,
+    "tests/browser_checks.py": true
+  }
+}

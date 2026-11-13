@@ -1,0 +1,21 @@
+/* Generated from design tokens; do not edit. */
+:root {
+  --color-background: #ffffff;
+  --color-border: #8b949e;
+  --color-danger: #b42318;
+  --color-primary: #007f78;
+  --color-text: #102038;
+  --layout-max-width: 880px;
+  --layout-mobile-breakpoint: 640px;
+  --layout-touch-target: 44px;
+  --radius-md: 8px;
+  --spacing-lg: 24px;
+  --spacing-md: 16px;
+  --spacing-sm: 8px;
+  --spacing-xl: 40px;
+  --spacing-xs: 4px;
+  --typography-font-family-base: system-ui, sans-serif;
+  --typography-font-size-base: 16px;
+  --typography-font-size-heading: 32px;
+  --typography-line-height-base: 1.5;
+}

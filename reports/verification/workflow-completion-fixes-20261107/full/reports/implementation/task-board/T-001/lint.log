@@ -1,0 +1,4 @@
+$ /workspace/.tools/sdd-forge-python/bin/ruff check --no-cache store.py tests/test_store.py
+All checks passed!
+
+EXIT CODE: 0

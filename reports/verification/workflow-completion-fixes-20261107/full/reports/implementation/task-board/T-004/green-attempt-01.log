@@ -1,0 +1,146 @@
+COMMAND: python3 -B tests/browser_checks.py --full --output-dir reports/visual-evidence/task-board/T-004/green-attempt-01
+Evidence: reports/visual-evidence/task-board/T-004/green-attempt-01
+FAIL crud
+Traceback (most recent call last):
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 568, in run
+    evidence = await CASES[name](page, server, case_output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 126, in crud
+    await checkbox.uncheck()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/async_api/_generated.py", line 20417, in uncheck
+    await self._impl_obj.uncheck(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_locator.py", line 723, in uncheck
+    return await self._frame.uncheck(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 921, in uncheck
+    await self._channel.send("uncheck", self._timeout, locals_to_params(locals()))
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Locator.uncheck: Clicking the checkbox did not change its state
+Call log:
+  - waiting for get_by_role("checkbox", name="買い物", exact=True)
+    - locator resolved to <input type="checkbox"/>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - performing click action
+    - click action done
+    - waiting for scheduled navigations to finish
+    - navigations have finished
+
+
+PASS validation
+FAIL pending
+Traceback (most recent call last):
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 568, in run
+    evidence = await CASES[name](page, server, case_output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 244, in pending
+    await page.get_by_role('checkbox', name='既存タスク', exact=True).check()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/async_api/_generated.py", line 17793, in check
+    await self._impl_obj.check(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_locator.py", line 148, in check
+    return await self._frame.check(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 908, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Locator.check: Clicking the checkbox did not change its state
+Call log:
+  - waiting for get_by_role("checkbox", name="既存タスク", exact=True)
+    - locator resolved to <input type="checkbox"/>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - performing click action
+    - click action done
+    - waiting for scheduled navigations to finish
+    - navigations have finished
+
+
+FAIL failures
+Traceback (most recent call last):
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 568, in run
+    evidence = await CASES[name](page, server, case_output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 276, in failures
+    await checkbox.check()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/async_api/_generated.py", line 17793, in check
+    await self._impl_obj.check(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_locator.py", line 148, in check
+    return await self._frame.check(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 908, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Locator.check: Clicking the checkbox did not change its state
+Call log:
+  - waiting for get_by_role("checkbox", name="元のタスク", exact=True)
+    - locator resolved to <input type="checkbox"/>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - performing click action
+    - click action done
+    - waiting for scheduled navigations to finish
+    - navigations have finished
+
+
+PASS loading
+PASS timeout
+PASS visual
+PASS performance
+FAIL restart
+Traceback (most recent call last):
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 568, in run
+    evidence = await CASES[name](page, server, case_output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/browser_checks.py", line 482, in restart
+    await box.check()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/async_api/_generated.py", line 17793, in check
+    await self._impl_obj.check(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_locator.py", line 148, in check
+    return await self._frame.check(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 908, in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Locator.check: Clicking the checkbox did not change its state
+Call log:
+  - waiting for get_by_role("checkbox", name="再起動後も残す", exact=True)
+    - locator resolved to <input type="checkbox"/>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - performing click action
+    - click action done
+    - waiting for scheduled navigations to finish
+    - navigations have finished
+
+
+PASS sockets
+
+EXIT_CODE: 1

@@ -1,0 +1,3 @@
+# Caller verification scope correction
+
+The first parent aggregate typecheck accidentally expanded strict annotations to tests/test_store.py, which T001 did not adopt as a strict typed surface. It produced66 annotation errors in that existing test file, not changed UI behavior. Preserve the failure. The corrected aggregate checks all production Python and the originally strict HTTP/token tests plus T004 browser harness; it does not change T001 source/tests or waive a prior required check. T001 contract remains unchanged. JS strict check and all actual unit/browser tests remain required. The prior actual lint PASS is reused; the false contract is continued only after remaining real commands complete.

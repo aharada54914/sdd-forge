@@ -1,0 +1,7 @@
+{
+  "command": "python3 -B -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "started_at": "2026-11-07T12:20:48.964304+00:00",
+  "finished_at": "2026-11-07T12:20:49.165897+00:00",
+  "evidence": "reports/verification/task-board/T-001-cycle-2/tests.log"
+}

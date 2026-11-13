@@ -1,0 +1,7 @@
+{
+  "command": "bash /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/integration/runtime-snapshot-v6/sdd-quality-loop/1.23.1/scripts/check-risk.sh specs/task-board/tasks.md T-001",
+  "exit_code": 0,
+  "started_at": "2026-11-07T12:21:15.525601+00:00",
+  "finished_at": "2026-11-07T12:21:15.532676+00:00",
+  "evidence": "reports/verification/task-board/T-001-cycle-2/risk.log"
+}

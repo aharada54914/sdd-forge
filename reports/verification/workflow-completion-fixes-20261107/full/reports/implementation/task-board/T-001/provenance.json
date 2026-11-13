@@ -1,0 +1,141 @@
+{
+  "native_thread_id": "01a1b5e3-59f1-7e93-9895-fb9d88a58dac",
+  "source": {
+    "subagent": {
+      "thread_spawn": {
+        "parent_thread_id": "01a1b5a5-65db-7cb0-b787-17674fd99c69",
+        "depth": 1,
+        "agent_path": "/root/implement_t001_registered",
+        "agent_nickname": "Russell",
+        "agent_role": null
+      }
+    }
+  },
+  "native_rollout_path": "/workspace/.tools/sdd-forge-dev/codex-verify/sessions/2026/11/07/rollout-2026-11-07T12-02-18-01a1b5e3-59f1-7e93-9895-fb9d88a58dac.jsonl",
+  "native_turns": [
+    {
+      "turn_id": "01a1b5e3-5a1d-7d22-ae58-8d490e926294",
+      "model": "gpt-6-astra",
+      "effort": "high"
+    },
+    {
+      "turn_id": "01a1b5e4-be44-7201-a10c-a699f58ddcde",
+      "model": "gpt-6-astra",
+      "effort": "high"
+    }
+  ],
+  "manifest_path": "handoffs/task-board/T-001-registered/manifest.json",
+  "manifest_sha256": "8dd4a6cc7deee8532959ec927e6d6c3ed234735aade1df74a924d4a941d692dc",
+  "snapshot_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "e6921402246ee194636150201e02ff14c84d30d95d1b192033375e3e7a44701b",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/requirements.md",
+      "sha256": "e3bb16a156116a634309b4526afdf41f497d3ba23f4ef1c8767cd77288e812cc",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/design.md",
+      "sha256": "c2b9d9feec9157ad694f75c8f00e5d510562db0906a51298b8f4d0f1af2ed37e",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/tasks.md",
+      "sha256": "36fff1e1a3534ff76519e5bd0d3d074d76acf34f00327e2c4e9e3e24394d5900",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/acceptance-tests.md",
+      "sha256": "48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/traceability.md",
+      "sha256": "c493c8482036ba9ea5d43fc1987a08ac004c57656e92ea0fa23d776a65849246",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/ux-spec.md",
+      "sha256": "d8b5ec25320b0143aad335c59a706be089baf27bbca4e28efd998db768498e79",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/frontend-spec.md",
+      "sha256": "543d8eb6ae280daf0b00c8b046fd379b8b032b05ff0d059da1189cdabc2f1cc0",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/infra-spec.md",
+      "sha256": "770aab00c90f878fc1d964d2bcea20eb219b75d1ee9601554e7851dd24e324e5",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/security-spec.md",
+      "sha256": "b80c20b7e17f528b18f027cd2261d852782007b7cf2c6a4b58de1f70a39280d6",
+      "matched": true
+    },
+    {
+      "path": "specs/task-board/mockups/imagegen-reference.png",
+      "sha256": "60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8",
+      "matched": true
+    },
+    {
+      "path": "contracts/task-board.md",
+      "sha256": "9c13d8fbe035f0905121fbd2efc72813114fc5b4658ecd46ac314856c954f84f",
+      "matched": true
+    },
+    {
+      "path": "docs/adr/0001-local-json.md",
+      "sha256": "6ff53db3b1b61132033e4479448a66807b503608fe65e443307b9f9863d480a7",
+      "matched": true
+    },
+    {
+      "path": "reports/integration/parent-task-approval-fixture.json",
+      "sha256": "293b32d591a04c9b410ed43c7a3a2547f156fe9573f873a1b9a5119c41640a01",
+      "matched": true
+    },
+    {
+      "path": "design-system/design-tokens.json",
+      "sha256": "95136a25de43a22bc3841cf32b6d42daebb772d86210cb10f5d87a0dbd889775",
+      "matched": true
+    },
+    {
+      "path": "design-system/design-system.md",
+      "sha256": "d669def181f97336f940658fcee61e6fc747457605f7580431e9259b82a7a7dd",
+      "matched": true
+    },
+    {
+      "path": "design-system/ui-patterns.md",
+      "sha256": "761a98beaf22db4479385f8099888b145f7856cab5f919b0711bc4c5e1abd62a",
+      "matched": true
+    },
+    {
+      "path": "handoffs/task-board/T-001-registered/instructions/implementation-report.template.md",
+      "sha256": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75",
+      "matched": true
+    },
+    {
+      "path": "handoffs/task-board/T-001-registered/instructions/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "matched": true
+    },
+    {
+      "path": "handoffs/task-board/T-001-registered/instructions/implementation-policy.md",
+      "sha256": "ac84b08f2a037eb36da6ab774620e2e255516c320c09a7a074cd40408d23fedb",
+      "matched": true
+    },
+    {
+      "path": "handoffs/task-board/T-001-registered/instructions/SKILL.md",
+      "sha256": "173ddd77be81ea08a9571d6e5a0e2d430ed87abc9258cdbc77d0b387815e8c86",
+      "matched": true
+    },
+    {
+      "path": "handoffs/task-board/T-001-registered/instructions/agent-delegation-policy.md",
+      "sha256": "a2c8ff8f7c75b3c6b88fd8f8d1d9aaaf65d846b6eaec5699b3bc1b9ec040c6d9",
+      "matched": true
+    }
+  ]
+}

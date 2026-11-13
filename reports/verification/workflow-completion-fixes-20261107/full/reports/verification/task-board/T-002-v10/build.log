@@ -1,0 +1,4 @@
+$ python3 -B -c 'from pathlib import Path; [compile(Path(p).read_bytes(),p,"exec") for p in ("server.py","tests/test_http.py")]; print("Compiled HTTP source and tests")'
+Compiled HTTP source and tests
+
+EXIT_CODE=0
