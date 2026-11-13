@@ -47,3 +47,9 @@ The launcher also announces its verified absolute read/hash runtime paths and ad
 ## Required invocation versus optional capability (#742)
 
 A genuine Full evaluator incorrectly required activating component coverage after the actual required check returned its canonical `not-applicable (disabled-legacy)` result. Quality calibration and evaluator runtime instructions now distinguish required execution from forcing capability activation. They still reject missing execution, unsupported N/A claims, enabled-mode missing coverage and configuration errors; an explicit active-coverage requirement remains independently enforceable. No deterministic gate implementation changed. Bash 46, PowerShell 53 and six additional real applicability controls pass. See `component-coverage-calibration/`; prior run calibration pins are preserved rather than overwritten mid-review.
+
+## Resume and exact design-output admission — 2026-11-13
+
+The native workflows resumed after the November 7 usage-limit interruption, preserving the existing Done states and historical failures. #743 fixes a canonical authorization ordering defect in both runtimes: exact quality output/gate-output/supplemental declarations are now considered before optional domain/design/concept prefix rules. No directory-wide grant, undeclared-path allowance, wrong-hash exception or cross-stage permission was introduced. Thirty-nine paired admission tests, 65 role checks per runtime and the broader boundary suite pass.
+
+The original Full T-003 invocation passes both repaired previews, and a fresh native evaluator has now accepted the generated CSS and required design inputs and returned PASS through the product launcher. Existing calibration pins remain preserved in per-run snapshots. See `quality-prefix-admission/`. SQLite UI screenshots were independently inspected by the parent; the saved views and limits are in `sqlite/parent-visual-review/`. Final all-task completion is still being verified.

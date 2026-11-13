@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "command": "bash tests/turn-first-workflow.tests.sh",
+      "exit_code": 0,
+      "log": "turn-first-tests.log",
+      "additional_controls": 12
+    },
+    {
+      "command": "bash tests/template-validator-parity.tests.sh",
+      "exit_code": 0,
+      "log": "template-bash.log",
+      "passed": 25
+    },
+    {
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/template-validator-parity.tests.ps1",
+      "exit_code": 0,
+      "log": "template-powershell.log",
+      "passed": 18
+    },
+    {
+      "command": "python3 scripts/sync-human-copy-mirrors.py --check",
+      "exit_code": 0,
+      "log": "human-copy-check.log"
+    }
+  ],
+  "diff_check_exit": 0
+}

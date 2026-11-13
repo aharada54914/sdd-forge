@@ -325,31 +325,32 @@ elif isolation_mode == "same-session-file-reload":
 else:
     fail("invalid Isolation Mode")
 
-# WFI-044: a quota interruption ends the recording agent's turn, so the
-# RESUMING orchestrator -- a different actor -- is the one that knows the run
-# fell back to same-session-file-reload, and nothing obliged it to say so.
-# Presence-only checking therefore let agci T-007 ship `fresh-agent` over a
-# narrative describing exactly that fallback (RT-20260821-016).
-#
-# The rule fires only on a `fresh-agent` declaration, and only when ONE
-# sentence carries both an interruption term and a resumption term -- the
-# conjunction is what distinguishes "this run was interrupted and resumed"
-# from the framework's ordinary talk of handoffs and reloads. Fail-closed: a
-# false positive is corrected by making the declaration truthful, never by
-# deleting the narrative.
+# WFI-044 detects an explicit orchestrator takeover, not interruption itself.
+# A separately allocated task worker can resume its own native context without
+# becoming the orchestrator. This prose check cannot prove identity continuity;
+# canonical manifest/identity binding still owns that verification. Keep the
+# original same-sentence interruption boundary and reject positive takeover
+# claims even if the sentence also claims same-worker continuity.
 if isolation_mode == "fresh-agent":
     _interruption = re.compile(
         r"\b(quota|rate[- ]limit\w*|interrupt\w*|"
         r"ran out of context|context (?:limit|window) (?:hit|exhausted))\b",
         re.IGNORECASE,
     )
-    _resumption = re.compile(
-        r"\b(resum\w+|took over|picked (?:it |the work )?up|"
-        r"orchestrator (?:completed|finished|continued))\b",
+    _actor = r"(?:orchestrator|parent(?: agent| session)?|main (?:agent|session))"
+    _work = r"(?:work|task|implementation|coding)"
+    _takeover = re.compile(
+        rf"\b{_actor}\s+(?:(?:then|subsequently|later|has|had)\s+)*"
+        rf"(?:took over\b|picked (?:it|the work|the task) up\b|"
+        rf"(?:resumed|continued|completed|finished)\s+(?:(?:the|this)\s+)?{_work}\b)"
+        rf"|\b{_work}\s+(?:was|has been|had been)\s+"
+        rf"(?:resumed|continued|completed|finished|taken over)\s+by\s+(?:the\s+)?{_actor}\b",
         re.IGNORECASE,
     )
     for _sentence in re.split(r"(?<=[.!?])\s+", text):
-        if _interruption.search(_sentence) and _resumption.search(_sentence):
+        # An inline code citation is not an account of who performed the work.
+        _prose = re.sub(r"`[^`\n]*`", "", _sentence)
+        if _interruption.search(_prose) and _takeover.search(_prose):
             fail("isolation narrative contradicts declared mode")
 
 unresolved_body = sections["Unresolved Items"][0].strip()

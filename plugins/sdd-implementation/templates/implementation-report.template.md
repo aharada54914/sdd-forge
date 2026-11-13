@@ -80,6 +80,12 @@ fallback is `same-session-file-reload`, whose exact reason is
 `host-does-not-support-implementation-subagents` and whose evidence is a
 lowercase 64-hex SHA-256.
 
+`fresh-agent` describes the independently allocated task worker. Resuming that
+same worker on the same task does not change the isolation mode. Preserve its
+actual identity/manifest binding and interruption history; prose alone does not
+prove continuity. An orchestrator taking over implementation is different, and
+an interruption alone does not authorize the host-incapable fallback.
+
 ## Regression Tests Run
 
 {{regression_results}}
