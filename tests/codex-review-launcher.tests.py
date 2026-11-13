@@ -8,6 +8,7 @@ import os
 import shutil
 from pathlib import Path
 import tempfile
+import tomllib
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -170,6 +171,18 @@ class LaunchTests(unittest.TestCase):
                          ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh')
         with self.assertRaises(ValueError):
             module.transport.plugin_file('plugins/sdd-review-loop/../secret')
+
+
+
+class EvaluatorRoleContract(unittest.TestCase):
+    def test_codex_role_preserves_canonical_evaluator_boundary(self):
+        canonical = (ROOT / 'plugins/sdd-quality-loop/agents/evaluator.md').read_text()
+        body = canonical.split('---', 2)[2].strip()
+        if body.startswith('<!-- x-sdd-effort:'):
+            body = body.split('\n', 1)[1].strip()
+        role = tomllib.loads((ROOT / '.codex/agents/sdd-evaluator.toml').read_text())
+        self.assertEqual(role['sandbox_mode'], 'read-only')
+        self.assertEqual(role['developer_instructions'].strip(), body)
 
 
 if __name__ == '__main__':
