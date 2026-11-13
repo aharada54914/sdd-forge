@@ -134,6 +134,19 @@ resume, re-read `tasks.md` and the report before taking any action.
    the passing output. quality-gate's risk-aware `check-contract` requires
    non-empty `red_evidence` and `green_evidence` for every test-type check, so
    capture both as you go rather than reconstructing them later.
+   If the approved task requires a failing-test commit before implementation,
+   also capture read-only Git evidence in the task's scratch area: the actual
+   RED commit and scoped tree/blob contents, its ancestry to the reviewed
+   revision (including command exit codes), and the test revision/working-tree
+   state used for each recorded run. Preserve actual command output alongside
+   the RED/GREEN logs so an isolated evaluator can inspect it without Git access.
+   Declare each produced evidence file with its exact SHA-256 in the report's
+   Outputs table and include it in the evaluator's fixed inputs. A commit ID or
+   a prose chronology alone is not the underlying evidence. Existing code from
+   other tasks may already be in the RED tree; assess the current task's scoped
+   change, not an empty-repository assumption. This adds no commit authority:
+   follow the host's authorization policy, and report missing historical proof
+   honestly rather than manufacturing commits or backdating test evidence.
 4. Run related existing regression tests.
 5. Perform a scoped self-review against the approved specification and the
    applicable language/boundary rules selected by `implementation-policy.md`.

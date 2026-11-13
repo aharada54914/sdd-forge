@@ -1,5 +1,6 @@
 {
   "plugins/sdd-implementation/scripts/validate-implementation-report.sh": "17df050152304f6d7eddadc49ae77b0504cfba1b6d220d38dce620a390baaf42",
-  "plugins/sdd-implementation/templates/implementation-report.template.md": "f16807700303adbb96af672450745a81ef398497b2ed1656c337dc8b6fd97b60",
-  "tests/turn-first-workflow.tests.sh": "0dd7aa44dcf00c9e12b04fd1126ba66aaf8ab84d7e273b14ad536e131b8d6e9c"
+  "plugins/sdd-implementation/templates/implementation-report.template.md": "181e28c74c811dbbaebe9a9a860547841b1ff6e020a687b64541f7894a064d90",
+  "tests/turn-first-workflow.tests.sh": "0dd7aa44dcf00c9e12b04fd1126ba66aaf8ab84d7e273b14ad536e131b8d6e9c",
+  "plugins/sdd-implementation/skills/implement-task/SKILL.md": "49e1d372afd4228984a7ae711bea8af56bc481b6ca7f549e6fa08ac8daf762de"
 }
