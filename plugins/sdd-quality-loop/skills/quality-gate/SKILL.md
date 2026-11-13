@@ -488,10 +488,11 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    quality-gate report and classify the finding `Accepted`; do not edit the
    frozen implementation report to reconcile it.
 10. Apply only safe fixes allowed by `auto-fix-policy.md`.
-11. Repeat critical review for a maximum of 3 cycles.
+11. Repeat critical review autonomously for a maximum of 3 cycles.
     Stop earlier when the remaining issue requires human decision, missing
     evidence cannot be produced, or the fix belongs to `fix-by-review-ticket` or
     an upstream review loop. Do not downgrade a finding merely to end the loop.
+    After escalation, follow Resuming After A Human Decision below.
 12. For UI changes, use available browser or Playwright tooling to verify the
     rendered screen, DOM, and console, and when feasible perform the smoke
     run described in `deterministic-check-policy.md`.
@@ -513,6 +514,28 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
     `validate-implementation-report.sh` present-and-format-only check):
     name the model and effort the gate's own critical-review pass ran
     under. (WFI-020)
+
+### Resuming After A Human Decision
+
+`Escalate-Human` ends autonomous retries; it is not a failed quality check that
+can be relabeled as success. After a human explicitly authorizes further
+correction and review, record in the current handoff and next gate report who
+authorized it, the actual instruction and its conversation/artifact reference,
+the affected feature/task, the correction scope, and remaining findings.
+An existing explicit retry instruction may apply: explain its concrete match
+to this correction instead of asking again. A general wish to finish, routine
+approval, or Sudo Mode alone does not authorize retries beyond the limit.
+
+Within that recorded scope, perform the authorized correction through the
+applicable workflow and obtain a fresh independent review on the corrected
+inputs. Re-run all required deterministic checks and satisfy every Done
+Decision condition. Preserve every prior report, counter, finding and verdict;
+keep the cycle-limit script's actual `Escalate-Human` output and non-zero exit
+in the evidence, describing this continuation as human-authorized rather than
+claiming the limit passed. Do not reset history, invent an override flag, or
+use a previous PASS for changed inputs. A new out-of-scope correction or an
+unresolved genuine human judgment still stops the gate. The recorded decision
+authorizes only its stated scope, not an unlimited autonomous retry loop.
 
 ### Sudo Mode
 

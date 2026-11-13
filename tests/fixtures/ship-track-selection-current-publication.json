@@ -6,15 +6,15 @@
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "e108d9b1bdce69769163d2f6b44269e96fd40fd411ef945a3e47d8b88824c7cf",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained."
+      "live_sha256": "cf6833ec70302e1740aa04f8d11ad7deadf404734db3f816855c4b9beed458a9",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Explicit scoped human-decision resumption after cycle-limit escalation; non-zero signal, history, independent review and all Done gates preserved (#749)."
     },
     {
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "e108d9b1bdce69769163d2f6b44269e96fd40fd411ef945a3e47d8b88824c7cf",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained."
+      "live_sha256": "cf6833ec70302e1740aa04f8d11ad7deadf404734db3f816855c4b9beed458a9",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Explicit scoped human-decision resumption after cycle-limit escalation; non-zero signal, history, independent review and all Done gates preserved (#749)."
     }
   ]
 }
