@@ -1,0 +1,63 @@
+[
+  {
+    "name": "lite-done-state",
+    "command": [
+      "bash",
+      "/workspace/.tools/sdd-forge-dev/verification-install/plugins/sdd-lite/scripts/check-task-state-lite.sh",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-lite/specs/s3-event-summary/tasks.md",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-lite/reports/quality-gate",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-lite/reports/implementation",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-lite"
+    ],
+    "exit_code": 0,
+    "stdout": "Task state (lite) check passed for 1 task(s).\n",
+    "stderr": ""
+  },
+  {
+    "name": "full-contract",
+    "command": [
+      "bash",
+      "/workspace/.tools/sdd-forge-dev/verification-install/plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-full/specs/s3-event-summary/verification/T-001.gate-2.contract.json",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-full"
+    ],
+    "exit_code": 0,
+    "stdout": "Verification contract passed for task T-001.\n",
+    "stderr": ""
+  },
+  {
+    "name": "full-evidence",
+    "command": [
+      "bash",
+      "/workspace/.tools/sdd-forge-dev/verification-install/plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-full/specs/s3-event-summary/verification/T-001.evidence.json",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-full"
+    ],
+    "exit_code": 0,
+    "stdout": "Verification contract passed for task T-001.\nWARNING: evidence bundle for task T-001 was generated with a dirty working tree\nEvidence bundle passed for task T-001.\n",
+    "stderr": ""
+  },
+  {
+    "name": "full-task-state",
+    "command": [
+      "bash",
+      "/workspace/.tools/sdd-forge-dev/verification-install/plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-full/specs/s3-event-summary/tasks.md"
+    ],
+    "exit_code": 0,
+    "stdout": "Verification contract passed for task T-001.\nWARNING: evidence bundle for task T-001 was generated with a dirty working tree\nEvidence bundle passed for task T-001.\nTask state check passed for 1 task(s).\n",
+    "stderr": ""
+  },
+  {
+    "name": "full-workflow-state",
+    "command": [
+      "bash",
+      "/workspace/.tools/sdd-forge-dev/verification-install/plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "--repository-root",
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/aws-notification-full"
+    ],
+    "exit_code": 0,
+    "stdout": "workflow-state: ok\n",
+    "stderr": ""
+  }
+]

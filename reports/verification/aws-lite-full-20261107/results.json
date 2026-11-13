@@ -2,8 +2,8 @@
   "baseline": "08398f03",
   "issue": "https://github.com/aharada54914/sdd-forge/issues/732",
   "end_to_end": {
-    "lite": "PASS: actual approved T-001 reached Done through fresh independent Lite gate; 12 unit/CLI tests and final Done-state check passed",
-    "full": "WAITING_FOR_HUMAN: spec, implementation-policy and task A/B reviews PASS; reviewed T-001 Draft/Planned awaits actual user approval"
+    "lite": "PASS: T-001 Done through independent Lite gate; 12 tests, CLI regressions and final Done-state validator passed",
+    "full": "PASS: T-001 Done through Full gate cycle 2; 11 tests, mypy 1.18.2, fresh independent evaluator, contract/evidence/task/workflow state all passed"
   },
   "live_aws": "NOT RUN: no configured AWS identity or protected CI approval",
   "cloud_suites": [
@@ -56,7 +56,8 @@
     "https://github.com/aharada54914/sdd-forge/issues/737",
     "https://github.com/aharada54914/sdd-forge/issues/738",
     "https://github.com/aharada54914/sdd-forge/issues/739",
-    "https://github.com/aharada54914/sdd-forge/issues/740"
+    "https://github.com/aharada54914/sdd-forge/issues/740",
+    "https://github.com/aharada54914/sdd-forge/issues/744"
   ],
   "integrated_existing_fixes": [
     "6b2df273: workflow/runtime and regression changes excluding prior UI work",
@@ -89,13 +90,35 @@
     "powershell_test_wrapper": "PASS: actual managed pwsh executed all 12 tests"
   },
   "final_installed_state_checks": {
-    "lite_done_state": "PASS",
-    "full_workflow_state": "PASS"
+    "lite-done-state": "PASS",
+    "full-contract": "PASS",
+    "full-evidence": "PASS",
+    "full-task-state": "PASS",
+    "full-workflow-state": "PASS"
   },
   "full_reviews": {
     "spec": "PASS round 1",
     "implementation_policy": "PASS round 2",
     "task_decomposition": "PASS round 1"
   },
-  "full_approval": "PENDING actual user response; T-001 Draft/Planned"
+  "full_approval": "Actual user approved this disposable Full flow and subsequent routine verification approvals; recorded 2026-11-13; no SDD_SUDO",
+  "completed_at": "2026-11-13T04:55:50.178812+00:00",
+  "full_gate": {
+    "report": "reports/quality-gate/20261113T044618Z-s3-event-summary-T-001.md",
+    "contract": "specs/s3-event-summary/verification/T-001.gate-2.contract.json",
+    "evidence_bundle": "specs/s3-event-summary/verification/T-001.evidence.json",
+    "evaluator_session": "01a1d338-af23-7891-bd4c-87f15bfca98c",
+    "verdict": "PASS",
+    "typecheck": "mypy 1.18.2, actual executable, --check-untyped-defs, fresh cache, exit 0",
+    "prior_failures": "29 prior evidence/report files verified unchanged"
+  },
+  "evaluator_role_regression": {
+    "cases": 13,
+    "skipped": 1,
+    "result": "PASS; canonical body parity and read-only mode preserved",
+    "frontmatter_targets": 10,
+    "frontmatter_drift": 0,
+    "source_commit": "45e29a9b"
+  },
+  "verified_code_commit": "45e29a9b"
 }

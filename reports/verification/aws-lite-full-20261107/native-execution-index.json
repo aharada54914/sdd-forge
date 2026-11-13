@@ -66,5 +66,134 @@
     "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
     "log_sha256": "31b3085692f724d62f4c207b806a6536d2d675d2a8b5ba6eb4c24c1cc7d69228",
     "native_collaboration": []
-  }
+  },
+  "20261113-full-ship": {
+    "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
+    "log_sha256": "c483403d723cf95a3ec40a9014c3cf58e0478953c2783bbc1669bb504f42989c",
+    "turn_completed": true
+  },
+  "20261113-full-model-resume": {
+    "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
+    "log_sha256": "75d0136ea2132c2c3005ee8292ec20b9a258b716046f26710436008f2ec8505f",
+    "turn_completed": true
+  },
+  "20261113-full-typecheck-resume": {
+    "thread_id": "01a1b5d3-5d19-7860-86a7-3d3feb8c36c4",
+    "log_sha256": "eb6c10886bfac6a44d57dd8afa351057494e8d8f3f548473234b19d9ab2a4c6a",
+    "turn_completed": true
+  },
+  "full_bounded_allocations": [
+    {
+      "path": "reports/impl-review/s3-event-summary/attempt-1/round-1/launch-a/idle-allocation.json",
+      "thread_id": "01a1b5dd-7911-7ba3-9727-3a80ea6b167e",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/impl-review/s3-event-summary/attempt-1/round-1/launch-b/idle-allocation.json",
+      "thread_id": "01a1b5de-9523-74b3-bcc7-8c1f75a5aff6",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/impl-review/s3-event-summary/attempt-1/round-2/launch-a/idle-allocation.json",
+      "thread_id": "01a1b5e0-9e28-70f3-a2b5-9fd4bc59809d",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/impl-review/s3-event-summary/attempt-1/round-2/launch-b/idle-allocation.json",
+      "thread_id": "01a1b5e1-a7c0-7ef0-a616-ee22b9015cb5",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/quality-gate/s3-event-summary-evaluator-1/idle-allocation.json",
+      "thread_id": "01a1d330-ad5f-7e13-af9f-ef6ef4cc059e",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/quality-gate/s3-event-summary-evaluator-2/idle-allocation.json",
+      "thread_id": "01a1d331-7088-7622-8d6f-b7c006ebf528",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/quality-gate/s3-event-summary-gate-2-evaluator-1/idle-allocation.json",
+      "thread_id": "01a1d338-af23-7891-bd4c-87f15bfca98c",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/ship/s3-event-summary/implementation-attempt-2/control/idle-allocation.json",
+      "thread_id": "01a1d32a-d078-7d90-9cc5-330325113fc8",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_task_implementation"
+    },
+    {
+      "path": "reports/ship/s3-event-summary/implementation-attempt-3/control/idle-allocation.json",
+      "thread_id": "01a1d32b-1d03-73e2-aa37-fd3008ccb221",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_task_implementation"
+    },
+    {
+      "path": "reports/spec-review/s3-event-summary/attempt-1/round-1/launch-a-resume-3/idle-allocation.json",
+      "thread_id": "01a1b5db-4667-7103-8f6f-bdb19e00cb60",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/spec-review/s3-event-summary/attempt-1/round-1/launch-b/idle-allocation.json",
+      "thread_id": "01a1b5dc-0e49-7541-824d-a6354210ad2f",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/task-review/s3-event-summary/attempt-1/round-1/launch-a/idle-allocation.json",
+      "thread_id": "01a1b5e3-d88b-72e3-800d-a4ed7a2ebdde",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/task-review/s3-event-summary/attempt-1/round-1/launch-b/idle-allocation.json",
+      "thread_id": "01a1b5e4-f2c5-7e30-93e5-87dd6357c4a9",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    },
+    {
+      "path": "reports/task-review/s3-event-summary/attempt-1/round-1/launch-b-corrected/idle-allocation.json",
+      "thread_id": "01a1b5e5-76bb-7ac1-b3c3-a7f2efe0c52e",
+      "status_at_allocation": {
+        "type": "idle"
+      },
+      "permission_profile": "sdd_manifest_review"
+    }
+  ]
 }
