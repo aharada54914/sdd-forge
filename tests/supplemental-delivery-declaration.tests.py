@@ -231,6 +231,67 @@ class AdmissionTests(unittest.TestCase):
         self.write(self.report, '# Implementation Report: T-001\n- Task ID: T-001\n## Outputs\n| `' + pin['path'] + '` | `' + pin['sha256'] + '` |\n')
         self.run_pair(True, legacy=True)
 
+    def conditional_product(self, path):
+        self.product = path
+        self.write(path, 'declared output bytes\n')
+        self.body['artifacts'] = [self.entry(path)]
+
+    def test_conditional_prefix_exact_supplemental_declarations(self):
+        for path in ('design-system/build/tokens.css',
+                     'design-system/design-tokens.json', 'design-system/design-system.md',
+                     'design-system/ui-patterns.md', 'domain/generated.md',
+                     'specs/f/concept-test.md'):
+            with self.subTest(path=path):
+                self.conditional_product(path)
+                self.run_pair(True)
+
+    def test_conditional_prefix_exact_report_outputs(self):
+        for path in ('design-system/build/tokens.css',
+                     'design-system/design-tokens.json', 'design-system/design-system.md',
+                     'design-system/ui-patterns.md', 'domain/generated.md',
+                     'specs/f/concept-test.md'):
+            with self.subTest(path=path):
+                self.conditional_product(path)
+                self.test_legacy_outputs()
+
+    def test_conditional_prefix_exact_gate_outputs(self):
+        self.conditional_product('design-system/build/tokens.css')
+        pin = self.entry(self.product)
+        gate = 'reports/quality-gate/T-001.md'
+        self.write(gate, '# Quality Gate: T-001\n## Post-Fix Artifacts\n| `' +
+                   pin['path'] + '` | `' + pin['sha256'] + '` |\n')
+        self.manifest['gate_report_declaration'] = self.entry(gate)
+        self.run_pair(True, legacy=True)
+
+    def test_conditional_prefix_undeclared_and_stale_outputs_are_rejected(self):
+        self.conditional_product('design-system/build/tokens.css')
+        self.run_pair(False, legacy=True)
+        self.write(self.report, '# Implementation Report: T-001\n- Task ID: T-001\n'
+                   '## Outputs\n| `' + self.product + '` | `' + '0' * 64 + '` |\n')
+        self.run_pair(False, legacy=True)
+
+    def test_conditional_prefix_supplemental_hash_and_link_fail_closed(self):
+        self.conditional_product('design-system/build/tokens.css')
+        self.body['artifacts'][0]['sha256'] = '0' * 64
+        self.run_pair(False)
+
+        self.body['artifacts'] = [self.entry(self.product)]
+        product = self.root / self.product
+        product.rename(product.with_suffix('.original'))
+        product.symlink_to(product.with_suffix('.original').name)
+        self.run_pair(False)
+
+    def test_conditional_prefix_cannot_admit_another_reviewer_report(self):
+        self.conditional_product('design-system/reviewer-a.json')
+        self.run_pair(False)
+
+    def test_quality_declarations_do_not_authorize_other_stages(self):
+        self.conditional_product('design-system/build/tokens.css')
+        for stage in ('spec', 'impl', 'task'):
+            with self.subTest(stage=stage):
+                self.manifest.update(stage=stage, role=stage + '-reviewer-a')
+                self.run_pair(False)
+
     def test_pointer_symlink(self):
         self.run_pair(False, pointer_link=True)
 

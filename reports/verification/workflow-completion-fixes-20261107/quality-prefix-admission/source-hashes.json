@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-11-13T04:23:57.640244+00:00",
+  "base_commit": "2446d2e8fe566e53fa9d6a9e686bb84529d30cee",
+  "files": {
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "127f8788f7ba4b7cd95e627f618ae7e663e36fb8d27d4967189754aa157e31d0",
+    "tests/supplemental-delivery-declaration.tests.py": "b9712474f249492469983801c3ec7f300fef9bb8df21e6084173451b7cf1b1ad"
+  }
+}

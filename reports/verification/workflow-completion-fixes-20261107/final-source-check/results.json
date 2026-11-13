@@ -1,0 +1,73 @@
+{
+  "source_commit": "2446d2e8fe566e53fa9d6a9e686bb84529d30cee",
+  "ending_commit": "2446d2e8fe566e53fa9d6a9e686bb84529d30cee",
+  "same_commit": true,
+  "commands": [
+    {
+      "command": [
+        "bash",
+        "tests/validate-repository.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 33.45,
+      "log": "01.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/review-prompt-calibration.tests.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "log": "02.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/quality-loop-calibration.tests.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06,
+      "log": "03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.88,
+      "log": "04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/sync-human-copy-mirrors.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11,
+      "log": "05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07,
+      "log": "06.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.02,
+      "log": "07.log"
+    }
+  ]
+}
