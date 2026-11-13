@@ -1,0 +1,21 @@
+{
+  "command": [
+    "python3",
+    "-I",
+    "-B",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-745/sdd-review-loop/1.23.1/scripts/launch-codex-review.py",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/quality-gate/T-003/evaluator-invocation-template-rt0003.json",
+    "--manifest-sha256",
+    "d63ad6b93574163490b8d01131c199e3ddbae73edff56b7c90323a2a1d3314a1",
+    "--output",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/quality-t003-product-rt0003",
+    "--timeout",
+    "300"
+  ],
+  "exit_code": 0,
+  "stdout": "CODEX_REVIEW_CANDIDATE /workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/quality-t003-product-rt0003/evaluator.txt\n",
+  "stderr": "CODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\nCODEX_REVIEW_PROGRESS waiting for native host\n",
+  "started_at": "2026-11-13T04:58:29.194516+00:00",
+  "finished_at": "2026-11-13T05:01:43.470461+00:00"
+}

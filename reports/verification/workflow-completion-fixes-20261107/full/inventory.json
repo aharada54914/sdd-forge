@@ -707,9 +707,19 @@
       "bytes": 406
     },
     {
+      "path": "reports/integration/runtime-snapshot-v10/inventory.json",
+      "sha256": "c2a1f5df9a015916d26fe111cfb45b518bf3697b59114891cb1bea0e9943a7d9",
+      "bytes": 46048
+    },
+    {
       "path": "reports/integration/runtime-snapshot-v9/PROVENANCE.md",
       "sha256": "24181d9272c9f3365e19319a275e2b081f8dd0388def21ada5cf9272d5fabaa6",
       "bytes": 370
+    },
+    {
+      "path": "reports/integration/runtime-snapshot-v9/inventory.json",
+      "sha256": "67da0e0e8c11cd147c45514895fe11d0563ac3de0d57bda4c5c610312ca23dcd",
+      "bytes": 46048
     },
     {
       "path": "reports/integration/runtime-v10-provenance.json",

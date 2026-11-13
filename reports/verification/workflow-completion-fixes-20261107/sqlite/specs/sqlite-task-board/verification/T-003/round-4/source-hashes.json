@@ -1,0 +1,38 @@
+[
+  {
+    "path": "static/app.js",
+    "sha256": "0599f4de7369608d0c09a233660eeedcb5bc57f2c023467489b59e5d619f038a"
+  },
+  {
+    "path": "static/index.html",
+    "sha256": "783345bbca1c98223cd81d5e9e0c0740bcd2dec213329a47c99cd0ef059768c4"
+  },
+  {
+    "path": "static/styles.css",
+    "sha256": "1860ba454361dd372b21b1cdbb39c5b838c4cec41b69cb16d079195424354cc9"
+  },
+  {
+    "path": "tests/browser_task_board.py",
+    "sha256": "0269273583c3136430b20c355f814414c3c58172973fa93da5ebd045cc4f4dca"
+  },
+  {
+    "path": "app.py",
+    "sha256": "2a12ab6268788b3df63a748de40583d268ff13dc0b64038af1b442b3ea7511fb"
+  },
+  {
+    "path": "schema.py",
+    "sha256": "8ed08878ce4242b6c842cc5174369a774762539e9a5915e179891538197d392f"
+  },
+  {
+    "path": "repository.py",
+    "sha256": "6b854a289ae6b33d2892af2558018b6c750963a98b3ab96c1066a5cff113ac79"
+  },
+  {
+    "path": "validation.py",
+    "sha256": "34e791416e6cf3a456a8725e4dc26e49d5c722d0206069e99b392f9bf35decaf"
+  },
+  {
+    "path": "design-system/build/tokens.css",
+    "sha256": "78228df0223c2861c8d4679c568d0dd4b56415aaf461045c1a1f62050fcf37b3"
+  }
+]

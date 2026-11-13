@@ -1,0 +1,65 @@
+[
+  {
+    "command": [
+      "git",
+      "show",
+      "--format=fuller",
+      "--stat",
+      "a173595"
+    ],
+    "exit_code": 0,
+    "stdout": "commit a17359533d15de5b2dad7bdf0af7cebf3f6f57c8\nAuthor:     Disposable SDD Verification <disposable-verification@example.invalid>\nAuthorDate: Fri Nov 13 05:30:55 2026 +0000\nCommit:     Disposable SDD Verification <disposable-verification@example.invalid>\nCommitDate: Fri Nov 13 05:30:55 2026 +0000\n\n    test: reproduce stale success feedback after failed mutations (RT-0005)\n\n tests/browser_task_board.py | 87 ++++++++++++++++++++++++++++++++++++++++++---\n 1 file changed, 82 insertions(+), 5 deletions(-)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "show",
+      "--format=fuller",
+      "--stat",
+      "5017085"
+    ],
+    "exit_code": 0,
+    "stdout": "commit 50170859b1658ea808c61c703e351e577cd548b8\nAuthor:     Disposable SDD Verification <disposable-verification@example.invalid>\nAuthorDate: Fri Nov 13 05:32:47 2026 +0000\nCommit:     Disposable SDD Verification <disposable-verification@example.invalid>\nCommitDate: Fri Nov 13 05:32:47 2026 +0000\n\n    fix: clear obsolete success feedback on mutation (RT-0005)\n\n static/app.js               |  2 ++\n tests/browser_task_board.py | 10 ++++++----\n 2 files changed, 8 insertions(+), 4 deletions(-)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "a173595^",
+      "a173595",
+      "--",
+      "static/app.js"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "a173595",
+      "5017085",
+      "--",
+      "static/app.js",
+      "tests/browser_task_board.py"
+    ],
+    "exit_code": 0,
+    "stdout": "diff --git a/static/app.js b/static/app.js\nindex a2fb85e..0d6631e 100644\n--- a/static/app.js\n+++ b/static/app.js\n@@ -133,6 +133,7 @@ async function mutate(method, task, completed) {\n   if (pending || !ready) return;\n   const title = normalizeTitle(titleInput.value);\n   clearError();\n+  status.textContent = \"\";\n   if (method === \"POST\" && (Array.from(title).length < 1 || Array.from(title).length > 200)) {\n     error.textContent = \"\u30bf\u30b9\u30af\u306e\u30bf\u30a4\u30c8\u30eb\u30921\u301c200\u6587\u5b57\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002\";\n     titleInput.setAttribute(\"aria-invalid\", \"true\");\n@@ -168,6 +169,7 @@ async function mutate(method, task, completed) {\n     succeeded = true;\n     status.textContent = method === \"POST\" ? \"\u30bf\u30b9\u30af\u3092\u8ffd\u52a0\u3057\u307e\u3057\u305f\u3002\" : method === \"PATCH\" ? \"\u30bf\u30b9\u30af\u3092\u66f4\u65b0\u3057\u307e\u3057\u305f\u3002\" : \"\u30bf\u30b9\u30af\u3092\u524a\u9664\u3057\u307e\u3057\u305f\u3002\";\n   } catch (failure) {\n+    status.textContent = \"\";\n     error.textContent = \"\u4fdd\u5b58\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\u3002\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002\";\n     if (method === \"POST\" && failure.status === 400) titleInput.setAttribute(\"aria-invalid\", \"true\");\n   } finally {\ndiff --git a/tests/browser_task_board.py b/tests/browser_task_board.py\nindex adf973c..c0ef655 100644\n--- a/tests/browser_task_board.py\n+++ b/tests/browser_task_board.py\n@@ -70,14 +70,14 @@ def run(output: Path, screenshots: Path) -> None:\n                                                \"playwright\": importlib.metadata.version(\"playwright\")}\n                 page = browser.new_page(viewport={\"width\": 1280, \"height\": 900})\n                 page.set_default_timeout(4000)\n+                console_phase = [\"normal-ui\"]\n                 page.on(\"request\", lambda request: observations[\"requests\"].append(\n                     {\"url\": request.url, \"method\": request.method, \"headers\": request.all_headers(),\n-                     \"body\": request.post_data}))\n+                     \"body\": request.post_data, \"phase\": console_phase[0]}))\n                 page.on(\"response\", lambda response: observations[\"responses\"].append(\n                     {\"url\": response.url, \"status\": response.status}))\n                 errors: list[str] = []\n                 page.on(\"pageerror\", lambda error: errors.append(str(error)))\n-                console_phase = [\"normal-ui\"]\n                 page.on(\"console\", lambda message: observations[\"console\"].append(\n                     {\"phase\": console_phase[0], \"type\": message.type, \"text\": message.text, \"location\": message.location}))\n                 response = page.goto(origin)\n@@ -288,8 +288,10 @@ def run(output: Path, screenshots: Path) -> None:\n                 observations[\"restart\"] = {\"before\": saved, \"after\": state(), \"deleted_id\": before[0][\"id\"]}\n                 assert_view(saved)\n                 record(\"TEST-005 new PID same SQLite path exact surviving/completed/deleted state\")\n-                # Freeze real wire observations before any mocked DELETE routes are installed.\n-                actual_deletes = [r for r in observations[\"requests\"] if r[\"method\"] == \"DELETE\"]\n+                # Injected DELETEs never reach the server or acquire transport framing.\n+                # Keep the real RT-0005 success and normal confirmed-deletion requests.\n+                actual_deletes = [r for r in observations[\"requests\"]\n+                                  if r[\"method\"] == \"DELETE\" and r[\"phase\"].startswith(\"normal\")]\n                 observations[\"actual_delete_framing\"] = actual_deletes\n \n                 for name, width, height in [(\"desktop\", 1280, 900), (\"mobile\", 375, 812)]:\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "a173595",
+      "5017085"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

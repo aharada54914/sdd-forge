@@ -1,0 +1,17 @@
+{
+  "command": [
+    "bash",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-design-system.sh",
+    ".",
+    "specs/sqlite-task-board/design.md",
+    "static/index.html",
+    "static/app.js",
+    "static/styles.css",
+    "design-system/build/tokens.css"
+  ],
+  "exit_code": 0,
+  "stdout": "check-design-system WARN (2 finding(s)):\n - raw style value: static/app.js: 5:const addButton = document.querySelector(\"#add\");\n - raw style value: static/styles.css: 42:#add { color: var(--color-background); background: var(--color-primary); border-color: var(--color-primary); }\nWarn-phase: findings do not block; record them in the quality-gate report. Set SDD_DESIGN_SYSTEM_ENFORCE=error to enforce.\n",
+  "stderr": "",
+  "started_at": "2026-11-13T05:32:51Z",
+  "finished_at": "2026-11-13T05:32:51Z"
+}

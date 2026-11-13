@@ -1,0 +1,27 @@
+[
+  {
+    "exitCode": 0,
+    "stdout": "sdd-readable-input\n",
+    "stderr": ""
+  },
+  {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "cat: /tmp/sdd-codex-review-lk1_4nkq/outside-denial-probe: No such file or directory\n"
+  },
+  {
+    "exitCode": 2,
+    "stdout": "",
+    "stderr": "/bin/sh: 1: cannot create .permission-probe: Read-only file system\n"
+  },
+  {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import socket; socket.socket()\n                   ~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/socket.py\", line 233, in __init__\n    _socket.socket.__init__(self, family, type, proto, fileno)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted\n"
+  },
+  {
+    "exitCode": 0,
+    "stdout": "b4922a786617277f095be8091de94c7cc9726da531881edf8a944daf7968e524\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "observed_at": "2026-11-13T05:36:34.517583+00:00",
+  "source": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/specs/sqlite-task-board/verification/T-003/round-4/screenshots/rt0005-post-failure.png",
+  "sha256": "b000039b2d526d164b22a46bf95be5eebe8177a0ab41fe5708200ef1f2561b8c",
+  "scope": "Parent visual inspection of final actual post-failure screenshot. Previous success message absent; failure message visible; draft text retained and input focus visible. Functional assertions are separately recorded by the native browser test."
+}

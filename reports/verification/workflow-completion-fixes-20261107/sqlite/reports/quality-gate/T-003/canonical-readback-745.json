@@ -1,0 +1,20 @@
+{
+  "command": [
+    "bash",
+    "reports/integration/runtime-snapshot-20261113-745/sdd-quality-loop/1.23.1/scripts/validate-review-context-set.sh",
+    "reports/integration/quality-t003-product-745/invocation.json",
+    "."
+  ],
+  "exit_code": 0,
+  "stdout": "REVIEW_CONTEXT_OK 0dca6a4bf13a5825585523b8ebc371cfc3457638c7fd1bfc17e7a2b94f0ab507 sequence=21 previous_record_sha256=c4b7894f8fd0cfa7e298a0a0c9403196befa7c72366c5cc254ba00b30d12f548 pre_append_tip_sequence=- identity_unique=yes\n",
+  "stderr": "",
+  "capture_source": "Actual immediately preceding exec output; hash/identity assertions executed in this record writer",
+  "all_input_hashes_match": true,
+  "input_count": 137,
+  "native_model_effort_verified": true,
+  "delivery_sha256": "66c10ad72eab151b9df21505570f2470047c9aa92881fdad128b345ae933f128",
+  "verdict": "NEEDS_WORK",
+  "critical": 1,
+  "major": 0,
+  "minor": 0
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "user-authorized-disposable-test-fixture",
+  "at": "2026-11-07T11:52:26.392380+00:00",
+  "task_ids": [
+    "T-001",
+    "T-002",
+    "T-003"
+  ],
+  "changes": "Only task Approval Draft to Approved; statuses remain Planned. This is a test fixture, not production human approval.",
+  "authorization": "User authorized disposable verification and completion retries. Scoped local failing-test commits before production implementation are authorized; no push, merge or publication of this disposable app.",
+  "before_sha256": "d94d3aa639cbb296af5577b95f7bf8800fce9a0266cd900c2ce84d864032924c",
+  "after_sha256": "e299462a96bbba8207d08e9d0746cdf85436d4fb5b13d690fc3b8ff3cec9390e",
+  "additional_parent_authorization": "Parent explicitly confirmed isolated project git init and necessary local development/test commits are authorized for this verification. No push or publication."
+}
