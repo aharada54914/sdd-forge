@@ -1,0 +1,28 @@
+{
+  "source": {
+    "project_id": "appgprj_6aecf6e64d708191a9b516463b5daac3",
+    "checkout_path": "/workspace/sites/sdd-forge-status-audit/.sites-checkout",
+    "commit_sha": "18611ec3036a717e6fdf3534c9c89e6501f8571b",
+    "archive": "/workspace/sites/sdd-forge-status-audit/verification-progress-v12.tar.gz"
+  },
+  "deployment": {
+    "id": "appgdep_6af69548bd088191a4b3d4ee2a0ab557",
+    "project_id": "appgprj_6aecf6e64d708191a9b516463b5daac3",
+    "title": "SDD Forge — プロジェクトの現在地",
+    "version_id": "appgprj_6aecf6e64d708191a9b516463b5daac3~appgver_5fa1a1562b448191bd4cea10e58146f2",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://sdd-forge-status-20261105.jrmagneticlevitation.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6aecf6e64d708191a9b516463b5daac3",
+    "failure_message": null,
+    "env_set_revision": 2,
+    "updated_at": "2026-11-13T04:43:03.982967+00:00"
+  },
+  "limits": [
+    "Saved timestamped progress, not continuous collection.",
+    "Local browser QA passed; authenticated production browser view remains unverified.",
+    "Existing owner-only audience preserved."
+  ]
+}
