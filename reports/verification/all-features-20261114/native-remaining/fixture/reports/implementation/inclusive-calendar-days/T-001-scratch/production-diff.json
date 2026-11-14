@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--",
+    "calendar_days.py"
+  ],
+  "stdout": "diff --git a/calendar_days.py b/calendar_days.py\nindex e723fac..980a65e 100644\n--- a/calendar_days.py\n+++ b/calendar_days.py\n@@ -4,4 +4,4 @@ def days_inclusive(start: str, end: str) -> int:\n     first, last = date.fromisoformat(start), date.fromisoformat(end)\n     if last < first:\n         raise ValueError(\"end precedes start\")\n-    return (last - first).days\n+    return (last - first).days + 1\n",
+  "stderr": "",
+  "exit_code": 0,
+  "elapsed_seconds": 0.0021253889999570674
+}

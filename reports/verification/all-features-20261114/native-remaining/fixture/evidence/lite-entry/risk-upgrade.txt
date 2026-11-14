@@ -1,0 +1,5 @@
+$ bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.23.1/scripts/check-risk-upgrade.sh evidence/intake/user-source.txt
+full-required: AUTH_BOUNDARY; triggers=AUTH_BOUNDARY
+exit_code=10
+
+Complete source retained unchanged, including exclusions and approval-fixture permission. No Lite artifacts created after this mandatory blocker.

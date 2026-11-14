@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v"
+  ],
+  "stdout": "",
+  "stderr": "test_invalid_date (test_calendar_days.ExistingChecks.test_invalid_date) ... ok\ntest_reversed_range (test_calendar_days.ExistingChecks.test_reversed_range) ... ok\ntest_inclusive_calendar_boundaries (test_inclusive_calendar_days.InclusiveCalendarDays.test_inclusive_calendar_boundaries) ... ok\ntest_invalid_dates_rejected_at_either_endpoint (test_inclusive_calendar_days.InclusiveCalendarDays.test_invalid_dates_rejected_at_either_endpoint) ... ok\ntest_reversed_calendar_boundaries_rejected (test_inclusive_calendar_days.InclusiveCalendarDays.test_reversed_calendar_boundaries_rejected) ... ok\ntest_same_date (test_inclusive_calendar_days.InclusiveCalendarDays.test_same_date) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n",
+  "exit_code": 0,
+  "elapsed_seconds": 0.05436920900001496
+}
