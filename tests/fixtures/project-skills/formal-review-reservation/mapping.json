@@ -1,6 +1,6 @@
 {
   "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
-  "source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+  "source_sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8",
   "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
   "mapping": {
     "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
@@ -22,7 +22,8 @@
     "Windows behavior",
     "entire application correctness"
   ],
-  "previous_source_sha256": "a02118e32da650aefbaf7461b4af467adcd773c146fd0d4c1ea63dd5140cbe43",
+  "previous_source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
   "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
-  "mapping_recheck": "Compared with integration5192f8fa: identity control-byte rejection moves from CONTRACT to IDENTITY before shell extraction, preserving rejection and diagnostic parity. No ledger writer or transaction-tail change; reservation_tail_sha256 remains byte-identical. Ordinary six-test suite checks actual two-process baseline and lock-removal mutation; no new TLC/native Windows claim."
+  "mapping_recheck": "Compared with bd94f864: #743 exact quality delivery declaration admission was added/refactored before conditional design/domain paths; no ledger writer, lock, post-lock hash check, staged publish or release changed. The full reservation transaction remains byte-identical (reservation_tail_sha256). Current-source six-test baseline/mutation replay and pinned TLC baseline/negative model are re-run separately in reports/verification/all-features-20261114/inventory/formal-reservation. Scope/assumptions/exclusions unchanged.",
+  "source_sync_commit": "3f5521b01f63570460adf85cc2511cc0143fa98f"
 }

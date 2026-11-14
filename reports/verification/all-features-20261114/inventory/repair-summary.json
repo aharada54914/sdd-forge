@@ -1,0 +1,38 @@
+{
+  "issues": [
+    "https://github.com/aharada54914/sdd-forge/issues/750",
+    "https://github.com/aharada54914/sdd-forge/issues/751"
+  ],
+  "formal": {
+    "before": "project-skill-formal.log",
+    "after": "project-skill-formal-fixed.log",
+    "tests": 6,
+    "passed": true,
+    "bounded_model_and_real_mutation": "formal-reservation/"
+  },
+  "fixture": {
+    "before": "concept-review-continuity.log",
+    "after": "concept-review-continuity-fixed.log",
+    "tests": 7,
+    "passed": true,
+    "related": [
+      {
+        "log": "workflow-conditional-inputs.tests.py.fixed.log",
+        "tests": 20,
+        "passed": true
+      },
+      {
+        "log": "loop-driver.tests.sh.fixed.log",
+        "tests": 26,
+        "passed": true
+      },
+      {
+        "before": "loop-driver.tests.ps1.fixed.log",
+        "after": "loop-driver.tests.ps1.fixed-root.log",
+        "tests": 23,
+        "passed": true
+      }
+    ]
+  },
+  "scope": "Verification mapping and test-fixture maintenance only; no production gate semantics changed."
+}
