@@ -1,7 +1,10 @@
 $ErrorActionPreference = 'Stop'
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $PSScriptRoot 'lib/fixture-matrix-builder.ps1')
 $WorkRoot = Join-Path ([IO.Path]::GetTempPath()) "sdd-task-layer-ps-$([guid]::NewGuid().ToString('N'))"
+New-Item -ItemType Directory -Path $WorkRoot | Out-Null
+$WorkRoot = Resolve-FixtureMatrixPhysicalDirectory $WorkRoot
 $Feature = 'task-layer-inputs-ps-fixture'
 $Spec = Join-Path $WorkRoot "specs/$Feature"
 $Report = Join-Path $WorkRoot "reports/task-review/$Feature/attempt-1/round-1"
