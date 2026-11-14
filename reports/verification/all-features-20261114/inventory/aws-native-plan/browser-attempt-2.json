@@ -1,0 +1,9 @@
+{
+  "run_id": "00808c3d-7ae8-43e5-a352-f48b7e9145c1",
+  "result": "BLOCKED",
+  "command_executed": false,
+  "reason": "Browser automation could not enter commands into CloudShell, including readiness echo. Short immutable-commit download command also not executed.",
+  "deployment_verified": false,
+  "rollback_verified": false,
+  "next_path": "Reuse existing pinned aws/agent-toolkit-for-aws CDK guidance and plugin IaC execution contracts; establish authenticated CLI or CI execution rather than repeat unsupported terminal input."
+}

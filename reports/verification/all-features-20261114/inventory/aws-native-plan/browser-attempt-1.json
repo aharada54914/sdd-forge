@@ -1,0 +1,17 @@
+{
+  "run_id": "61248343-c5d7-4694-a09c-39c16d4f6604",
+  "transport_status": "completed",
+  "result": {
+    "reason": "terminal_interaction_blocked",
+    "status": "failed",
+    "STATUS_LINES": "None - command could not be executed",
+    "sanitized_json": null,
+    "failure_details": "The CloudShell terminal uses a vi/vim-like keybinding mode that conflicted with keyboard input attempts. All attempts to focus the terminal and input the required Python command failed due to mode switching (vi normal mode, vi command-line mode showing ':', bash autocomplete display 'Display all 970 possibilities?'). The terminal was never in a state where the command could be typed and executed.",
+    "terminal_region": "ap-northeast-1",
+    "command_executed": false,
+    "terminal_available": true,
+    "observed_terminal_state": "AWS CloudShell terminal was open and interactive in ap-northeast-1 (Tokyo) region. The prompt showed '~$ ' indicating a bash shell. However, the terminal entered vi-like editing mode which prevented direct text input. Keyboard attempts (Escape, Control+c, Enter, Tab) caused unintended side effects including triggering 'Display all 970 possibilities? (y or n)' autocomplete prompts from bash, and entering vi command mode ('~$: ' and '~$:^[;^L^[^[^[^C'). A new terminal tab was opened ('Preparing your terminal...') but a 'Close editor' unsaved changes dialog appeared blocking further interaction. The command could not be successfully input into the terminal.",
+    "PRIVATE_EVIDENCE_DIRECTORY": "None"
+  },
+  "interpretation": "Browser terminal input blocked before command execution; no deployment or rollback result. Does not indicate IaC template failure."
+}
