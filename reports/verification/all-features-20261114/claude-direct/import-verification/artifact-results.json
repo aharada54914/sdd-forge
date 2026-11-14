@@ -1,0 +1,16 @@
+{
+  "artifact_sha256": "236bfaba4b532c89898d369d40d9be3f734f4af8f066e05190eea68e6703f1fc",
+  "checks": {
+    "blank_error_associated": true,
+    "add_keyboard": true,
+    "add_status": true,
+    "toggle": true,
+    "delete_cancel_preserves": true,
+    "delete": true,
+    "untrusted_title_is_literal": false,
+    "mobile_no_overflow": true,
+    "reload_persistence": false
+  },
+  "page_errors": [],
+  "interpretation": "Provider UI source is a disposable reference. Functional checks are actual fresh Chromium interactions; persistence and literal-rendering failures prohibit copying its runtime implementation into the apps."
+}

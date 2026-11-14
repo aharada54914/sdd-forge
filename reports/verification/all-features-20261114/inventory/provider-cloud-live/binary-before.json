@@ -1,0 +1,130 @@
+[
+  {
+    "host": "bash",
+    "kind": "png",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "bash",
+    "kind": "png",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "powershell",
+    "kind": "png",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "powershell",
+    "kind": "png",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "bash",
+    "kind": "nul",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "bash",
+    "kind": "nul",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "powershell",
+    "kind": "nul",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "powershell",
+    "kind": "nul",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "bash",
+    "kind": "invalid-utf8",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "bash",
+    "kind": "invalid-utf8",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "powershell",
+    "kind": "invalid-utf8",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "powershell",
+    "kind": "invalid-utf8",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": true
+  },
+  {
+    "host": "bash",
+    "kind": "japanese",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": false
+  },
+  {
+    "host": "bash",
+    "kind": "japanese",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": false
+  },
+  {
+    "host": "powershell",
+    "kind": "japanese",
+    "mode": "direct",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": false
+  },
+  {
+    "host": "powershell",
+    "kind": "japanese",
+    "mode": "declared",
+    "exit": 0,
+    "output_replaced": true,
+    "unexpected_acceptance": false
+  }
+]

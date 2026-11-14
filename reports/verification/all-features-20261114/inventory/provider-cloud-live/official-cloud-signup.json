@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-11-14",
+  "sources": [
+    {
+      "url": "https://aws.amazon.com/resources/create-account/",
+      "finding": "New signup can use existing GitHub/Google/Amazon/Apple identity; most new customers need no payment method, but additional verification may be required and prior customers may be ineligible for Free plan."
+    },
+    {
+      "url": "https://aws.amazon.com/free/free-tier-faqs/",
+      "finding": "New Free plan ends at6months or credits exhausted. Existing account eligibility/plan must be read in account, not assumed."
+    },
+    {
+      "url": "https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account",
+      "finding": "Standard free account requires phone and nonprepaid payment card plus Microsoft/GitHub identity; $200/30days, no automatic paid upgrade asserted."
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/training/support/faq?pivots=sandbox",
+      "finding": "General Microsoft Learn sandboxes no longer available."
+    },
+    {
+      "url": "https://azure.microsoft.com/en-us/free/students",
+      "finding": "No-card student offer limited to genuinely eligible verified students; eligibility not assumed."
+    }
+  ],
+  "status": "Public documentation reviewed; no signup, billing or security changes made."
+}

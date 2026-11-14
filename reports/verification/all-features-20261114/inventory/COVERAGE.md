@@ -75,3 +75,27 @@ MCP tests pass. General content reads remain restricted; manifest verification
 uses a guarded byte-hash comparison only. Legacy Lite with present Project Context
 is explicitly unsupported instead of bypassing approval validation. See
 `mcp-755-repair-summary.json` and before/after real MCP responses.
+
+## Live follow-up after the native SQL/Windows reruns
+
+- Claude: authenticated source-panel HTML export succeeded; real local Chromium
+  exercised add/complete/delete confirmation/error/live feedback. Full/SQLite
+  integration copies adopt accessible feedback and retain safe rendering and
+  backend persistence; Full43 unit+11 browser groups, SQLite37+26, plus11
+  before/after-focused checks per app pass. Native DesignSync remains unavailable.
+  See ../claude-direct/import-verification/SUMMARY.json.
+- Sites: supervised collector source published as c058ffba; 4roots/279tasks
+  preserved, forced child termination recovered, fresh production health/readback
+  passed and operator-assisted native credential replacement succeeded. Workspace
+  lifetime only, not shutdown recovery or automatic expiry renewal (#762).
+  Actual visitor browser reached Sign in required; user login handoff pending.
+- Providers: real text-only Codex review succeeded. A prior PNG-containing bundle
+  was invalidated, defect #761 fixed with strict text decoding; Bash235 and
+  PowerShell223+44 checks pass. Installed Copilot and Gemini actual calls failed
+  authentication; Claude CLI also lacks login. Multi-vendor consensus is incomplete.
+- AWS existing account was discovered through authorized Gmail search. Official
+  login handoff is pending; no account credentials or identifiers are published.
+  No AWS/Azure resources, deploy or rollback have been performed.
+
+Detailed current records supersede earlier unavailable-export and bounded-only
+collector observations above without deleting their historical failures.

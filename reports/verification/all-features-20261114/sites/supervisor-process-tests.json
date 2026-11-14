@@ -1,0 +1,29 @@
+{
+  "checks": [
+    "detached-supervisor-starts-without-credentials",
+    "four-roots-published",
+    "killed-collector-restarted",
+    "restart-publishes-fresh-readback",
+    "transport-failure-observable",
+    "transport-recovery-publishes",
+    "expired-credential-pauses-without-retry-loop",
+    "in-memory-credential-replacement-resumes",
+    "same-configuration-start-idempotent",
+    "different-configuration-rejected",
+    "credentials-not-written-to-state-files",
+    "control-socket-private",
+    "invalid-control-credentials-rejected",
+    "metadata-processes-have-no-credentials",
+    "collector-SIGKILL-cleans-metadata-and-grandchild",
+    "stop-cleans-owned-control-socket"
+  ],
+  "passed": 16,
+  "scope": "real detached Linux supervisor and collector processes with four synthetic roots and local authenticated HTTP service; no production or automatic native renewal claim",
+  "sourceSha256": {
+    "scripts/supervise-progress.py": "eebcbb7a7e2f7f5aa463fb4c03eac414fd557f78a70ecbaa5577dacf0d70e80f",
+    "scripts/collect-progress.py": "1295a19bd37a30d6cf6eea0820855899ee4057c49c72db7b554a84ab90935b8a",
+    "tests/supervisor.tests.py": "a34fa04a98adb9aacfad2525364acd059a5727fdf1d8e663c5b196402f77c146"
+  },
+  "nativeCredentialRenewal": "Not implemented; owner performs supported access reacquisition and hidden-stdin in-memory handoff",
+  "issue": "https://github.com/aharada54914/sdd-forge/issues/762"
+}
