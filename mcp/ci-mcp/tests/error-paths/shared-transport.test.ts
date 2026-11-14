@@ -12,7 +12,7 @@ for (const kind of ["json", "text"] as const) {
       assert.equal(init.method, "GET");
       assert.equal(init.headers["X-GitHub-Api-Version"], "2022-11-28");
       assert.equal(init.headers.authorization, "Bearer transport-canary");
-      assert.equal(init.headers.accept, kind === "json" ? "application/vnd.github+json" : "text/plain");
+      assert.equal(init.headers.accept, "application/vnd.github+json");
       assert.ok(init.signal instanceof AbortSignal);
       return {
         status: 401,

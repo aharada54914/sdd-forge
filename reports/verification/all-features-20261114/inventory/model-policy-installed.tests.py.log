@@ -1,0 +1,256 @@
+...............................FFFFF................FFFFFFFFF.....FFFF................
+======================================================================
+FAIL: test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation (__main__.InstalledDomainCallerTests.test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6702, in test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation
+    st = self.fixture('bash')
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 5916, in fixture
+    f, project, runtime = self._spec_helpers.fixture(self, extra_runtime=DOMAIN_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding (__main__.InstalledDomainCallerTests.test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6639, in test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding
+    st = self.fixture('bash')
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 5916, in fixture
+    f, project, runtime = self._spec_helpers.fixture(self, extra_runtime=DOMAIN_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending (__main__.InstalledDomainCallerTests.test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending) (shell='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6631, in test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending
+    st = self.fixture(shell)
+         ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 5916, in fixture
+    f, project, runtime = self._spec_helpers.fixture(self, extra_runtime=DOMAIN_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending (__main__.InstalledDomainCallerTests.test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending) (shell='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6631, in test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending
+    st = self.fixture(shell)
+         ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 5916, in fixture
+    f, project, runtime = self._spec_helpers.fixture(self, extra_runtime=DOMAIN_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending (__main__.InstalledDomainCallerTests.test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6636, in test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending
+    self.assertEqual(len(set(hashes)), 1, 'Both installed shells must bind the identical canonical input hash')
+AssertionError: 0 != 1 : Both installed shells must bind the identical canonical input hash
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='bash', stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6950, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6787, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='bash', stage='task')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6950, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6787, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='pwsh', stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6950, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6787, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='pwsh', stage='task')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6950, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6787, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding (__main__.InstalledProtectedCallerTests.test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding) (stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6979, in test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding
+    state = self.fixture('bash')
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6787, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding (__main__.InstalledProtectedCallerTests.test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding) (stage='task')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6979, in test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding
+    state = self.fixture('bash')
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6787, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation (__main__.InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4971, in test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4929, in positive
+    f, project, runtime = self.fixture()
+                          ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4527, in fixture
+    return self._spec_helpers.fixture(self, extra_runtime=QUALITY_CALLER_RUNTIME)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation (__main__.InstalledQualityCallerTests.test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4950, in test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4929, in positive
+    f, project, runtime = self.fixture()
+                          ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4527, in fixture
+    return self._spec_helpers.fixture(self, extra_runtime=QUALITY_CALLER_RUNTIME)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation (__main__.InstalledQualityCallerTests.test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4936, in test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4929, in positive
+    f, project, runtime = self.fixture()
+                          ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4527, in fixture
+    return self._spec_helpers.fixture(self, extra_runtime=QUALITY_CALLER_RUNTIME)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation (__main__.InstalledSpecCallerTests.test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4344, in test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4320, in positive
+    f, project, runtime = self.fixture()
+                          ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation (__main__.InstalledSpecCallerTests.test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4327, in test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation
+    self.positive()
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4320, in positive
+    f, project, runtime = self.fixture()
+                          ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle (__main__.InstalledSpecCallerTests.test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4330, in test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4320, in positive
+    f, project, runtime = self.fixture()
+                          ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+======================================================================
+FAIL: test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings (__main__.InstalledSpecCallerTests.test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 4367, in test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings
+    f, project, runtime = self.fixture(extra_runtime=(b_agent,))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3899, in fixture
+    self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+AssertionError: unexpectedly None : Required actual tool is absent (setup failure): rtk
+
+----------------------------------------------------------------------
+Ran 80 tests in 541.966s
+
+FAILED (failures=18)

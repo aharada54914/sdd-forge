@@ -1,0 +1,11 @@
+{
+  "client": "gh api --silent actual job log endpoint",
+  "exit_code": 1,
+  "stdout_bytes": 0,
+  "stderr_bytes": 525,
+  "http403": false,
+  "http415": false,
+  "timeout": false,
+  "diagnostic": "Raw stderr withheld because upstream redirects may include signed URLs.",
+  "sanitized_error": "Get \"[redacted-url] Forbidden\n"
+}

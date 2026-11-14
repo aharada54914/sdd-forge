@@ -1,0 +1,18 @@
+{
+  "issue": "https://github.com/aharada54914/sdd-forge/issues/752",
+  "before_http_status": 415,
+  "after_api_http_status": 302,
+  "regression_red": "ci-job-log-media-red.log",
+  "typecheck_exit": 0,
+  "build_exit": 0,
+  "test_exit": 0,
+  "tests_passed": 160,
+  "authenticated_metadata_tools_passed": 4,
+  "job_log_final_download": "blocked at proxy CONNECT; cause of refusal unconfirmed",
+  "safe_evidence": [
+    "ci-job-log-media-type.json",
+    "ci-mcp-live-github-before-media-fix.json",
+    "ci-mcp-live-github.json",
+    "ci-job-log-fresh-redirect.json"
+  ]
+}
