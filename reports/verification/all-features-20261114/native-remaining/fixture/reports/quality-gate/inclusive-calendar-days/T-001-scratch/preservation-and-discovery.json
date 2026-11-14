@@ -1,0 +1,400 @@
+{
+  "checks": [
+    {
+      "path": "CLAUDE.md",
+      "expected": "b9eec9c05793fec6fb98a90246847287d2dcdd66b8afb310fa5dba181256c6b6",
+      "actual": "b9eec9c05793fec6fb98a90246847287d2dcdd66b8afb310fa5dba181256c6b6",
+      "matches": true
+    },
+    {
+      "path": ".gitignore",
+      "expected": "6feaded4e28ea86e001a6751b4e3d960e8b7c31b9616ff9936b79297086e809b",
+      "actual": "6feaded4e28ea86e001a6751b4e3d960e8b7c31b9616ff9936b79297086e809b",
+      "matches": true
+    },
+    {
+      "path": "test_inclusive_calendar_days.py",
+      "expected": "55f5faa0df64cb5f683dec70f30b5827f30392bb33085bf4b38649ddca91fb90",
+      "actual": "55f5faa0df64cb5f683dec70f30b5827f30392bb33085bf4b38649ddca91fb90",
+      "matches": true
+    },
+    {
+      "path": "AGENTS.md",
+      "expected": "ddf2043c61351875e6fec855e75d0dd4607a8b9e3ae15cdecc87aa2bc3e8f4fd",
+      "actual": "ddf2043c61351875e6fec855e75d0dd4607a8b9e3ae15cdecc87aa2bc3e8f4fd",
+      "matches": true
+    },
+    {
+      "path": "README.md",
+      "expected": "61bbd8119f9e7a456991f5aede066342933ea69f4c96bba64f466a20608bdd84",
+      "actual": "61bbd8119f9e7a456991f5aede066342933ea69f4c96bba64f466a20608bdd84",
+      "matches": true
+    },
+    {
+      "path": "test_calendar_days.py",
+      "expected": "4d7a6f8d55cc718aadf4e9fc5c413455549683cb120aafb18debecfc3229c8b7",
+      "actual": "4d7a6f8d55cc718aadf4e9fc5c413455549683cb120aafb18debecfc3229c8b7",
+      "matches": true
+    },
+    {
+      "path": "EVALUATION.md",
+      "expected": "4d3098c03abdcf0112a5269459a184d72e4788a7afb935bef65696318d09bce5",
+      "actual": "4d3098c03abdcf0112a5269459a184d72e4788a7afb935bef65696318d09bce5",
+      "matches": true
+    },
+    {
+      "path": "specs/.gitkeep",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "evidence/native-turn-contexts.json",
+      "expected": "16d4f7023327d631077649be670489c5c4d03879916a27ffabf97a87e8cdb991",
+      "actual": "16d4f7023327d631077649be670489c5c4d03879916a27ffabf97a87e8cdb991",
+      "matches": true
+    },
+    {
+      "path": "evidence/installed-runtime-inventory.json",
+      "expected": "0d161db93292126fcf9427e357b603fee0dc4811facb660b1691c9ddcc822a5d",
+      "actual": "0d161db93292126fcf9427e357b603fee0dc4811facb660b1691c9ddcc822a5d",
+      "matches": true
+    },
+    {
+      "path": "evidence/final-integrity.json",
+      "expected": "1435427cd0b5ecd7fd3422f40c984b1e373ab7296c4e46428393b1039bfd4bb0",
+      "actual": "1435427cd0b5ecd7fd3422f40c984b1e373ab7296c4e46428393b1039bfd4bb0",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial-files.json",
+      "expected": "b6b46255a615387938150f4850792bdd418376776dabf75a6bb7a772382c60c4",
+      "actual": "b6b46255a615387938150f4850792bdd418376776dabf75a6bb7a772382c60c4",
+      "matches": true
+    },
+    {
+      "path": "evidence/native-context.json",
+      "expected": "c7d296efd7513772bff15b48844c720e04ca901503a415b8e79c707296860a79",
+      "actual": "c7d296efd7513772bff15b48844c720e04ca901503a415b8e79c707296860a79",
+      "matches": true
+    },
+    {
+      "path": "evidence/stage2-EVALUATION.md",
+      "expected": "4d3098c03abdcf0112a5269459a184d72e4788a7afb935bef65696318d09bce5",
+      "actual": "4d3098c03abdcf0112a5269459a184d72e4788a7afb935bef65696318d09bce5",
+      "matches": true
+    },
+    {
+      "path": "reports/implementation/.gitkeep",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "reports/diagnosis/inclusive-calendar-days.md",
+      "expected": "f1cca9e8dae6b888f7c744692be15ca6dc833553514c43fc8b09072495956855",
+      "actual": "f1cca9e8dae6b888f7c744692be15ca6dc833553514c43fc8b09072495956855",
+      "matches": true
+    },
+    {
+      "path": "reports/quality-gate/.gitkeep",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "docs/adr/.gitkeep",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "docs/review-tickets/.gitkeep",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "path": "specs/inclusive-calendar-days/design.md",
+      "expected": "7f111c8edd4df62d18ba1c6cece232018cefa3be4dc2d3d17c4d9e6d749d556d",
+      "actual": "7f111c8edd4df62d18ba1c6cece232018cefa3be4dc2d3d17c4d9e6d749d556d",
+      "matches": true
+    },
+    {
+      "path": "specs/inclusive-calendar-days/requirements.md",
+      "expected": "3fc381408fc6e1309e6673a067207056db1073ccfd1783f6285aaf05d106b4f7",
+      "actual": "3fc381408fc6e1309e6673a067207056db1073ccfd1783f6285aaf05d106b4f7",
+      "matches": true
+    },
+    {
+      "path": "specs/inclusive-calendar-days/baseline-behavior.md",
+      "expected": "f9b81277d89d85df16c7f984bb9b821b62f2099b8b5e22b8ee02cec6f8be121c",
+      "actual": "f9b81277d89d85df16c7f984bb9b821b62f2099b8b5e22b8ee02cec6f8be121c",
+      "matches": true
+    },
+    {
+      "path": "specs/inclusive-calendar-days/investigation.md",
+      "expected": "78412c97019d048c0a9a9a6e9588b9199da31a972dc81e6504f7b0922740bd7a",
+      "actual": "78412c97019d048c0a9a9a6e9588b9199da31a972dc81e6504f7b0922740bd7a",
+      "matches": true
+    },
+    {
+      "path": "specs/inclusive-calendar-days/codemap.md",
+      "expected": "3e22bd0f746712ce942bd8485a291b380746652eeb076fd136799eb1a12de303",
+      "actual": "3e22bd0f746712ce942bd8485a291b380746652eeb076fd136799eb1a12de303",
+      "matches": true
+    },
+    {
+      "path": "evidence/approval-fixture/reviewed-tasks.md",
+      "expected": "4fa6a796c3cea959e819fd6e1fdf7bb871264cc0e7a01a44ee226829ecbfd8bb",
+      "actual": "4fa6a796c3cea959e819fd6e1fdf7bb871264cc0e7a01a44ee226829ecbfd8bb",
+      "matches": true
+    },
+    {
+      "path": "evidence/approval-fixture/record.json",
+      "expected": "a5600821fefaebe36e91a41675feb152bd0646bd5117d06c2a13dbe0339ace6e",
+      "actual": "a5600821fefaebe36e91a41675feb152bd0646bd5117d06c2a13dbe0339ace6e",
+      "matches": true
+    },
+    {
+      "path": "evidence/approval-fixture/reviewed-requirements.md",
+      "expected": "3fc381408fc6e1309e6673a067207056db1073ccfd1783f6285aaf05d106b4f7",
+      "actual": "3fc381408fc6e1309e6673a067207056db1073ccfd1783f6285aaf05d106b4f7",
+      "matches": true
+    },
+    {
+      "path": "evidence/approval-fixture/reviewed-design.md",
+      "expected": "7f111c8edd4df62d18ba1c6cece232018cefa3be4dc2d3d17c4d9e6d749d556d",
+      "actual": "7f111c8edd4df62d18ba1c6cece232018cefa3be4dc2d3d17c4d9e6d749d556d",
+      "matches": true
+    },
+    {
+      "path": "evidence/stage1/EVALUATION.md",
+      "expected": "dfb090142bec0257d0db61293134806dcf1e37d1832261a8468946f0ca4806a3",
+      "actual": "dfb090142bec0257d0db61293134806dcf1e37d1832261a8468946f0ca4806a3",
+      "matches": true
+    },
+    {
+      "path": "evidence/intake/user-source-revised.txt",
+      "expected": "32ca9b1b2be2ff23b7f249a266f737b4b2292b3a6cbc86773e6bd496486b6fe9",
+      "actual": "32ca9b1b2be2ff23b7f249a266f737b4b2292b3a6cbc86773e6bd496486b6fe9",
+      "matches": true
+    },
+    {
+      "path": "evidence/intake/user-source.txt",
+      "expected": "766a4eb968534d34e6c90bcb7cb300d3c1d5e897c8b3476c0047f140c26b7b7f",
+      "actual": "766a4eb968534d34e6c90bcb7cb300d3c1d5e897c8b3476c0047f140c26b7b7f",
+      "matches": true
+    },
+    {
+      "path": "evidence/intake/caller-resubmission.md",
+      "expected": "66fa0e1c7b0b1cd766ff182515aa3da55b4079571d7732e6b80d05fcca955542",
+      "actual": "66fa0e1c7b0b1cd766ff182515aa3da55b4079571d7732e6b80d05fcca955542",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase4-h2-parser.txt",
+      "expected": "67eeb6123651b66eabb2568f8da46ce73243af8129c69402dca3c4454a680265",
+      "actual": "67eeb6123651b66eabb2568f8da46ce73243af8129c69402dca3c4454a680265",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase4-h3-guard.txt",
+      "expected": "cb45e8d7cac41e474c4796ac0ed0c07c674c8b98e0d5d7e2ec47e84a7f724e80",
+      "actual": "cb45e8d7cac41e474c4796ac0ed0c07c674c8b98e0d5d7e2ec47e84a7f724e80",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/unchanged-original-hashes.json",
+      "expected": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "actual": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase4-h1-arithmetic.txt",
+      "expected": "97817320508314632a901435aaa4c192e3039cd8e45a470b7a936ac9af66f87a",
+      "actual": "97817320508314632a901435aaa4c192e3039cd8e45a470b7a936ac9af66f87a",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase2-minimized-red.txt",
+      "expected": "473e412b0a508af2ecdf6fa43cb11b935f1af876096c5176426135b04408a966",
+      "actual": "473e412b0a508af2ecdf6fa43cb11b935f1af876096c5176426135b04408a966",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase5-full-red.txt",
+      "expected": "5120b21cc0c887126d23eb8d7cd1cddaae30919ff5a8b9698ccadcc575d26664",
+      "actual": "5120b21cc0c887126d23eb8d7cd1cddaae30919ff5a8b9698ccadcc575d26664",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/runtime.txt",
+      "expected": "0541d01d7588aecc1fac4050fe27ecb9abad38b30ca24b9e17f06b0b5fbb848e",
+      "actual": "0541d01d7588aecc1fac4050fe27ecb9abad38b30ca24b9e17f06b0b5fbb848e",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase1-red.txt",
+      "expected": "73efa11af76b7470fd0428827b9419d84a3518bcb01dc9abcd9dae38a1fe4619",
+      "actual": "73efa11af76b7470fd0428827b9419d84a3518bcb01dc9abcd9dae38a1fe4619",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/phase5-rejection-preserved.txt",
+      "expected": "5356cc7f8cdffdd3349c588b7fda3369d9f82cd82dca70d6789a30fc3895fe73",
+      "actual": "5356cc7f8cdffdd3349c588b7fda3369d9f82cd82dca70d6789a30fc3895fe73",
+      "matches": true
+    },
+    {
+      "path": "evidence/diagnosis/existing-suite.txt",
+      "expected": "b5e7bbeaed87fc5001a583b5bc98a4695210b22d84e37f7894ef469a04d7d759",
+      "actual": "b5e7bbeaed87fc5001a583b5bc98a4695210b22d84e37f7894ef469a04d7d759",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/after-first-structure.txt",
+      "expected": "29fd495ef78c4fb4b0f0c0e1b7a7c36f2d3c325224376df873cf84c1e4839b19",
+      "actual": "29fd495ef78c4fb4b0f0c0e1b7a7c36f2d3c325224376df873cf84c1e4839b19",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/after-second-hashes.json",
+      "expected": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "actual": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/initial-structure.txt",
+      "expected": "32ad6b16d2064e5f9536d423b896251f0d5772951b361dda9cb4430615fbf057",
+      "actual": "32ad6b16d2064e5f9536d423b896251f0d5772951b361dda9cb4430615fbf057",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/remotes.txt",
+      "expected": "bfde6a648b352c41e91c29dde72dbcbb820fd2b01da146dcc70f6b1be0f8fa90",
+      "actual": "bfde6a648b352c41e91c29dde72dbcbb820fd2b01da146dcc70f6b1be0f8fa90",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/original-hashes.json",
+      "expected": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "actual": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/after-first-hashes.json",
+      "expected": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "actual": "61d9124601c438ce0e5e2f3cfe56b08b9dd6f428e0748469de46e4dacf9217df",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/second-invocation-structure.txt",
+      "expected": "29fd495ef78c4fb4b0f0c0e1b7a7c36f2d3c325224376df873cf84c1e4839b19",
+      "actual": "29fd495ef78c4fb4b0f0c0e1b7a7c36f2d3c325224376df873cf84c1e4839b19",
+      "matches": true
+    },
+    {
+      "path": "evidence/adoption/idempotence.json",
+      "expected": "991f534f5a66cddbc86cea1cad2b9cc1143d9e186d892c976bd77c18ddbe5994",
+      "actual": "991f534f5a66cddbc86cea1cad2b9cc1143d9e186d892c976bd77c18ddbe5994",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/recorded-result.json",
+      "expected": "df9ba937f25b1e42c5a04686652d2b833fb502d86a036d2b4547774a77a9715a",
+      "actual": "df9ba937f25b1e42c5a04686652d2b833fb502d86a036d2b4547774a77a9715a",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/spec-checks.json",
+      "expected": "5bc5ec2ff1a6ccc124f7b4190764625c10a4e41dd1fe914fd7e401b962af8052",
+      "actual": "5bc5ec2ff1a6ccc124f7b4190764625c10a4e41dd1fe914fd7e401b962af8052",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/before-artifact-hashes.json",
+      "expected": "cce25deb8f1213c3dfc01eabfe5d710d26ac589deebe31e03568a026fb953790",
+      "actual": "cce25deb8f1213c3dfc01eabfe5d710d26ac589deebe31e03568a026fb953790",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/AGENTS-before.md",
+      "expected": "901682af2b4e98f9228c7bfc5191b3a640460a547d824362f1be8e9a7405fedb",
+      "actual": "901682af2b4e98f9228c7bfc5191b3a640460a547d824362f1be8e9a7405fedb",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/EVALUATION-before.md",
+      "expected": "dfb090142bec0257d0db61293134806dcf1e37d1832261a8468946f0ca4806a3",
+      "actual": "dfb090142bec0257d0db61293134806dcf1e37d1832261a8468946f0ca4806a3",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/entry-checks.txt",
+      "expected": "b3ccecaf59b16eb14c015a4b8bc4ed3c0558c1370555bd330711d64946cb64af",
+      "actual": "b3ccecaf59b16eb14c015a4b8bc4ed3c0558c1370555bd330711d64946cb64af",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/preservation-check.json",
+      "expected": "870229269f51efc0f2607e1e8a0f0a0cdcbfb41afea27ca30523de9133c3fdf5",
+      "actual": "870229269f51efc0f2607e1e8a0f0a0cdcbfb41afea27ca30523de9133c3fdf5",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry-revised/supplemental-wrapper-refusal.txt",
+      "expected": "a77ccf56f2f95e68b52981cb802b131116761038dc8407797c4c1b6316c5ea2a",
+      "actual": "a77ccf56f2f95e68b52981cb802b131116761038dc8407797c4c1b6316c5ea2a",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry/recorded-result.json",
+      "expected": "d58e9040e2c029feff51de4a51412d913971dfca3a3d3ed497b90526d864fa86",
+      "actual": "d58e9040e2c029feff51de4a51412d913971dfca3a3d3ed497b90526d864fa86",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry/challenge-command.txt",
+      "expected": "feb28aa1060e38ce0df1d816ece2752f8511cce7555c4ad7514eed71d40605d3",
+      "actual": "feb28aa1060e38ce0df1d816ece2752f8511cce7555c4ad7514eed71d40605d3",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry/verify-response.txt",
+      "expected": "50a7ca71fcd96e2b9acf0a3eb51c44a99edc3a597aae3889407fe32151924ce6",
+      "actual": "50a7ca71fcd96e2b9acf0a3eb51c44a99edc3a597aae3889407fe32151924ce6",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry/challenge.json",
+      "expected": "a441f0cb17109d0454a7b969ddb971fae939115f828305d76b9e326556aa4a77",
+      "actual": "a441f0cb17109d0454a7b969ddb971fae939115f828305d76b9e326556aa4a77",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry/risk-upgrade.txt",
+      "expected": "3aa5576e7bc204ba809c01847e7ca257f18f7a2af433af7bf5ca9c1aa5754f8c",
+      "actual": "3aa5576e7bc204ba809c01847e7ca257f18f7a2af433af7bf5ca9c1aa5754f8c",
+      "matches": true
+    },
+    {
+      "path": "evidence/lite-entry/context-presence.txt",
+      "expected": "7156d8305d59a98b7e09dd0ca011b8e08e293a7a2a97d24392daef87003b274b",
+      "actual": "7156d8305d59a98b7e09dd0ca011b8e08e293a7a2a97d24392daef87003b274b",
+      "matches": true
+    }
+  ],
+  "all_match": true,
+  "command_configuration_presence": {
+    "package.json": false,
+    "scripts/test.sh": false,
+    "scripts/test.ps1": false,
+    "pyproject.toml": false,
+    "setup.cfg": false,
+    "tox.ini": false,
+    "Makefile": false,
+    ".flake8": false
+  },
+  "test_discovery_resolution": "README/AGENTS define python3 -m unittest -v. Adapter maps only package.json or paired scripts; invoke Python command directly per skill Step 2."
+}

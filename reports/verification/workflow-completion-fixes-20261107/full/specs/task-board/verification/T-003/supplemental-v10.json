@@ -1,0 +1,55 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "task-board",
+  "task_id": "T-003",
+  "implementation_report": {
+    "path": "reports/implementation/task-board/T-003.md",
+    "sha256": "a8a610b0e4dfcd46791147e508586fcc1a9ba011293434cc902cb5db395bc8c1"
+  },
+  "artifacts": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "e6921402246ee194636150201e02ff14c84d30d95d1b192033375e3e7a44701b"
+    },
+    {
+      "path": "contracts/task-board.md",
+      "sha256": "9c13d8fbe035f0905121fbd2efc72813114fc5b4658ecd46ac314856c954f84f"
+    },
+    {
+      "path": "docs/adr/0001-local-json.md",
+      "sha256": "6ff53db3b1b61132033e4479448a66807b503608fe65e443307b9f9863d480a7"
+    },
+    {
+      "path": "specs/task-board/verification/T-003.contract.json",
+      "sha256": "25d8ce8d6846b3baeb0c0bac6db2dce80d61e01e2b31a1daad58b85e8cb39c9c"
+    },
+    {
+      "path": "design-system/design-tokens.json",
+      "sha256": "95136a25de43a22bc3841cf32b6d42daebb772d86210cb10f5d87a0dbd889775"
+    },
+    {
+      "path": "design-system/design-system.md",
+      "sha256": "d669def181f97336f940658fcee61e6fc747457605f7580431e9259b82a7a7dd"
+    },
+    {
+      "path": "design-system/ui-patterns.md",
+      "sha256": "761a98beaf22db4479385f8099888b145f7856cab5f919b0711bc4c5e1abd62a"
+    },
+    {
+      "path": "specs/task-board/mockups/imagegen-reference.png",
+      "sha256": "60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/evaluation-rubric.md",
+      "sha256": "08fc8eff5769f2dbe43a638d2b29eac2cb0a6d57e2cc47b5a9e2617844e3197c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/security-checklist.md",
+      "sha256": "2e25d44b824615bf9fe309a10e79d2f6f2a8f0afcfa65fb64b4d6fb91f7c97a5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/performance-checklist.md",
+      "sha256": "db06f69d17eacb2ed67851c262c0a5f983cc8e4a302080964d207655d5050e9b"
+    }
+  ]
+}

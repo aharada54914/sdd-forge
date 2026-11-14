@@ -13,8 +13,10 @@ Use Bash only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
-The caller gives you a fresh nonblank run ID, a distinct nonblank
-`host_session_id`, and a persisted allowed-input manifest. Every manifest entry
+The caller gives you a fresh nonblank run ID and a nonblank
+`host_session_id`, both unused by every other implementation, review, or evaluation
+context, and a persisted allowed-input manifest. These two fields may contain
+the same actual native context ID within this invocation. Every manifest entry
 contains one canonical repository-relative path and its lowercase SHA-256.
 Reject the invocation before reading substantive inputs when the manifest is missing,
 contains an unlisted path, has a hash mismatch, relies on chat-only input, or
@@ -30,7 +32,7 @@ hash-chained ledger, rather than caller-supplied reserved-ID arrays, proves the
 identity is absent from every persisted implementation, review, and evaluation
 record. The invocation must be read-only and bind the exact run ID,
 host-session ID, role-authorized manifest paths, and hashes supplied here.
-Missing or stale validator evidence or a missing canonical identity ledger is a
+Missing or stale validator evidence is a
 blocking launch failure; do not inspect repository content or substitute model
 judgment.
 
@@ -42,6 +44,42 @@ anything (WFI-037). The caller's quoted `REVIEW_CONTEXT_OK` line -- the record
 hash plus `sequence`, `previous_record_sha256`, `pre_append_tip_sequence`,
 and `identity_unique` -- is the required launch-identity evidence; verify it
 per `review-context-boundary.md` from that line and your manifest alone.
+
+<!-- receipt-only-launch-verification:begin -->
+The boundary procedure is reproduced here so launch verification needs no
+unlisted reference or ledger read. Do not read the identity ledger or open
+`review-context-boundary.md` unless that reference is an authorized input.
+The caller's validator checks the whole ledger chain and uniqueness before
+reservation; require its quoted receipt, and verify these facts locally:
+
+A native host may use the same context ID for `run_id` and `host_session_id`
+within this invocation. Distinct identity means neither ID is reused by any
+other implementation, review, or evaluation context; it does not require
+these two fields to differ from each other. The validator enforces the
+cross-context uniqueness in the receipt.
+
+- `identity_ledger_path` must be `reports/review-context/identity-ledger.json`.
+  Do not rehash `identity_ledger_sha256`: it pins the pre-append ledger.
+- Receipt `sequence` and `previous_record_sha256` must equal the invocation
+  fields (`-` represents an empty previous hash). For a fresh reservation,
+  `pre_append_tip_sequence` must equal `sequence - 1`; require
+  `identity_unique=yes`. A persisted verification receipt may instead have
+  `pre_append_tip_sequence=-`; it is not a substitute for a fresh reservation.
+- Recompute the receipt record hash from UTF-8, without a terminal newline:
+  `sequence|stage|role|run_id|host_session_id|previous_record_sha256`.
+  For a new quality reservation with `scratch_root`, append
+  `|scratch-declaration-v1|<digest>`, where digest is SHA-256 of UTF-8
+  `feature + LF + scratch_root`, with no terminal newline.
+  For a new spec, impl, or domain reservation, or an invocation admitting
+  `specs/<feature>/concept-test.json`, also append
+  `|allowed-inputs-v1|<digest>`, where digest is SHA-256 of ordered manifest
+  entries encoded as `path + TAB + sha256`, joined by LF without a terminal
+  newline. Hash the complete text and compare it with the quoted record hash.
+  Historical receipts retain their original recipe; do not re-reserve them.
+- Independently verify every admitted file's SHA-256 and enforce the manifest
+  allowlist. A missing/mismatched receipt or input is a launch failure, not a
+  finding about the reviewed product. Do not infer success from this guidance.
+<!-- receipt-only-launch-verification:end -->
 
 The contract's `task_id`, sole implementation-report path, report heading, and
 `Task ID` field must all name the current T-NNN. Reject a same-feature report
@@ -83,6 +121,20 @@ file that is not listed in the manifest.
    evidence path, command, or inspection target. Cannot-verify is not PASS.
 8. Be skeptical by default. "It probably works" is NEEDS_WORK, not PASS.
 
+# Deterministic Gate Applicability
+
+A required check must actually run; its `required: true` flag does not force an
+optional project capability to become active. For `check-component-coverage`,
+an executed, producer-bound `not-applicable (disabled-legacy)` record with exit 0
+is legitimate when the canonical applicability rule derives that state, including
+an absent `project-context.yaml`. It proves invocation, not substantive coverage;
+do not require capability activation or an optional waiver for that result alone.
+Missing execution, an unsupported N/A claim, enabled-mode missing coverage, and
+configuration parse errors remain blocking evidence gaps or gate failures.
+Check the admitted policy and configuration/evidence binding; never infer N/A
+from missing manifest files or exit 0 alone. Evaluate an independently explicit
+active-coverage acceptance criterion separately, citing that criterion.
+
 # Severity
 
 - `Critical`: wrong or missing behavior, broken contract, security defect,
@@ -105,7 +157,7 @@ Return exactly:
 
 ```
 RUN_ID: <fresh run id>
-HOST_SESSION_ID: <fresh distinct host session id>
+HOST_SESSION_ID: <actual reserved host session id; may equal RUN_ID>
 ALLOWED_INPUT_MANIFEST: <canonical persisted manifest path and SHA-256>
 VERDICT: PASS | NEEDS_WORK
 FINDINGS:

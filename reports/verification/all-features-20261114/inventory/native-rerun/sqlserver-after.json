@@ -1,0 +1,250 @@
+{
+  "schema": "sdd-native-rerun-summary/v1",
+  "engine": "sql-server",
+  "stage": "after",
+  "head_sha": "3f879030039a78f1bed7b118dd91b19e33e8b5bb",
+  "tested_merge_sha": "b8b92233dc979b0f6475c7fe2e2b55393833bec3",
+  "inputs_dirty": false,
+  "job_url": "https://github.com/aharada54914/sdd-forge/actions/runs/43569832964/job/132372549624",
+  "artifact_id": 14103852401,
+  "artifact_sha256": "189432430844a6725bf933d907cd20b4cc68fcbd3c62197fba51d9d335c3d82e",
+  "versions": {
+    "dotnet": "10.0.403",
+    "sqlpackage": "170.5.96.0",
+    "microsoft_build_sql": "2.3.0",
+    "sql_server": "17.0.5035.5|Enterprise Developer Edition (64-bit)",
+    "sqlcmd": "Microsoft (R) SQL Server Command Line Tool\nVersion 18.7.0001.1 Linux\nCopyright (C) 2017 Microsoft Corporation. All rights reserved."
+  },
+  "images": [
+    "mcr.microsoft.com/mssql/server:2025-CU10-ubuntu-22.04@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"
+  ],
+  "functional_check_count": 48,
+  "checks": [
+    {
+      "name": "pinned-dotnet-sdk",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned-sqlpackage",
+      "result": "PASS"
+    },
+    {
+      "name": "host-network-namespace-tools",
+      "result": "PASS"
+    },
+    {
+      "name": "unprivileged-host-client",
+      "result": "PASS"
+    },
+    {
+      "name": "Linux x86_64 reference host",
+      "result": "PASS"
+    },
+    {
+      "name": "owned network ID",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-internal-network",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "server-ready",
+      "result": "PASS"
+    },
+    {
+      "name": "sql-server-2025-developer",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "client-is-unprivileged-in-database-network",
+      "result": "PASS"
+    },
+    {
+      "name": "built-v1-dacpac",
+      "result": "PASS"
+    },
+    {
+      "name": "built-v2-dacpac",
+      "result": "PASS"
+    },
+    {
+      "name": "built-loss-dacpac",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "upgrade-plan-has-operation",
+      "result": "PASS"
+    },
+    {
+      "name": "upgrade-script-adds-memo",
+      "result": "PASS"
+    },
+    {
+      "name": "planning-did-not-apply",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "upgrade-retains-data",
+      "result": "PASS"
+    },
+    {
+      "name": "old-procedure-compatible",
+      "result": "PASS"
+    },
+    {
+      "name": "new-application-write",
+      "result": "PASS"
+    },
+    {
+      "name": "parameterized-value-is-data",
+      "result": "PASS"
+    },
+    {
+      "name": "empty-result",
+      "result": "PASS"
+    },
+    {
+      "name": "duplicate-key-rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "missing-label-rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "decimal-overflow-rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh-upgrade-schema-parity",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh-upgrade-data-parity",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "repeat-publish-preserves-data",
+      "result": "PASS"
+    },
+    {
+      "name": "real-schema-drift-detected",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "drift-publication-refused",
+      "result": "PASS"
+    },
+    {
+      "name": "owned-running-network-target",
+      "result": "PASS"
+    },
+    {
+      "name": "destructive-publication-refused",
+      "result": "PASS"
+    },
+    {
+      "name": "application-role-cannot-ddl",
+      "result": "PASS"
+    },
+    {
+      "name": "failed-transaction-rolled-back",
+      "result": "PASS"
+    },
+    {
+      "name": "roll-forward-after-observation",
+      "result": "PASS"
+    },
+    {
+      "name": "timeout-cancel-observed-on-server",
+      "result": "PASS"
+    },
+    {
+      "name": "bounded-lock-wait",
+      "result": "PASS"
+    },
+    {
+      "name": "lock-release-and-no-partial-update",
+      "result": "PASS"
+    },
+    {
+      "name": "evidence-secret-free",
+      "result": "PASS"
+    },
+    {
+      "name": "checkout-unchanged",
+      "result": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "error": null,
+  "cleanup": {
+    "removed": true,
+    "errors": []
+  },
+  "cleanup_commands": [
+    {
+      "label": "remove owned container",
+      "returncode": 0,
+      "stdout": "767bd720efba5d5c2cff8b030ad7e560ce8ee0c04e1b1ec738eb0efc8daaf20d\n",
+      "stderr": ""
+    },
+    {
+      "label": "confirm container absent",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "label": "remove owned network",
+      "returncode": 0,
+      "stdout": "0eaa90b74dbc3f32c2d629768eef609dbb0cdbe557bcb657a05449f125a055a0\n",
+      "stderr": ""
+    },
+    {
+      "label": "confirm network removed",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "scope": "Actual GitHub Ubuntu SQL Server 2025 Developer isolated database acceptance; not Azure SQL or Windows-native client acceptance.",
+  "diagnosis": "All 48 functional checks passed. Successful exact-identity Docker container listing confirmed absence; container and network cleanup both verified."
+}

@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-11-13T05:22:00.352606+00:00",
+  "issue": 749,
+  "base": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-745",
+  "runtime": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749",
+  "source_commit": "cacf6be3",
+  "changed_files": [
+    "sdd-quality-loop/1.23.1/skills/quality-gate/SKILL.md"
+  ],
+  "policy": "Only #749 quality-gate human-decision continuation documentation hunks applied. Earlier #742 documentation difference deliberately not imported. Every runtime script, review/implementation/quality calibration byte unchanged. Source ship guidance exists upstream but this flow invokes quality-gate directly."
+}

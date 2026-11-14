@@ -1,0 +1,18 @@
+{
+  "actual_project": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+  "node": "v26.13.0",
+  "passed": [
+    "actual completed Full task state shown",
+    "feature selector resolves task-board",
+    "refresh returns same completed state",
+    "done copy action hidden",
+    "evidence inspector shows actual project",
+    "mobile no horizontal overflow",
+    "missing bearer path returns404",
+    "no page exceptions",
+    "task source SHA unchanged",
+    "owned server terminated in finally"
+  ],
+  "task_sha256_before_after": "33bde02bfe1c1f4bfa01efc4896d80ed8e116d789c67db8747d3f43356b6df7c",
+  "scope": "Actual local loopback status UI in headless Chromium. Not Sites production authentication. Secret local URL not retained."
+}

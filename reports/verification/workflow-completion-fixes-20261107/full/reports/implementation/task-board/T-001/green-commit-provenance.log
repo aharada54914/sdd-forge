@@ -1,0 +1,27 @@
+$ git rev-parse HEAD
+fe2bf864d328d5a973e3035e439eab43e5fed69f
+EXIT CODE: 0
+
+$ git show --format=fuller --stat HEAD
+commit fe2bf864d328d5a973e3035e439eab43e5fed69f
+Author:     SDD Verification Fixture <sdd-verification@example.invalid>
+AuthorDate: Sat Nov 7 12:09:25 2026 +0000
+Commit:     SDD Verification Fixture <sdd-verification@example.invalid>
+CommitDate: Sat Nov 7 12:09:25 2026 +0000
+
+    feat: implement atomic JSON task storage (T-001 GREEN)
+
+ store.py | 184 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 184 insertions(+)
+EXIT CODE: 0
+
+$ git log '--format=%H %P %s' -2
+fe2bf864d328d5a973e3035e439eab43e5fed69f 0f8e6ea1db10db84220377bf4e86002d5e4f4202 feat: implement atomic JSON task storage (T-001 GREEN)
+0f8e6ea1db10db84220377bf4e86002d5e4f4202  test: define transactional task store behavior (T-001 RED)
+EXIT CODE: 0
+
+$ git diff HEAD -- store.py tests/test_store.py
+EXIT CODE: 0
+
+$ git diff --check
+EXIT CODE: 0

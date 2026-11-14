@@ -1,0 +1,15 @@
+RUN_ID: 01a1d331-7e63-72f3-89ba-5fde79cfd526
+HOST_SESSION_ID: 01a1d331-7e63-72f3-89ba-5fde79cfd526
+ALLOWED_INPUT_MANIFEST: reports/integration/quality-T-002-v10-r2-retry-product-native/invocation.json eaafc849f52f52077a74a9af96e97760b6e2bb924534a1d4c113778b7c9e2b9f
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Recomputed manifest and reservation receipt hashes; verified sequence linkage and all 71 admitted file hashes. T-002 report and supplemental bindings match.
+- Executed standalone `/bin/cat specs/task-board/requirements.md`; exit 0.
+- Inspected server.py:44–235, store.py:108–184 and tests/test_http.py:118–354 against T-002 contracts: CRUD, validation, Host/Origin, static allowlist, persistence failures and restart are implemented and tested.
+- Independently compiled server.py, store.py and tests/test_http.py in memory; all passed without writes.
+- Inspected saved execution evidence: 10 HTTP tests, 43 regression tests and rollback smoke passed. Required lint, typecheck, build and deterministic gate logs report exit 0.
+- Compared committed RED test bytes with current tests: only HEAD response-helper correction and type annotations changed; assertions preserved. Inspected RED failure and commit ancestry evidence.
+- Verified component-check producer hash and documented applicability; disabled-legacy result establishes execution, not active coverage.
+- Tests were not rerun: HTTP/store/token suites require writes or sockets; lint/typecheck and gate dependencies are outside this runtime’s admitted execution boundary. Browser and final nonloopback acceptance belong to T-004/T-005, not this PASS.

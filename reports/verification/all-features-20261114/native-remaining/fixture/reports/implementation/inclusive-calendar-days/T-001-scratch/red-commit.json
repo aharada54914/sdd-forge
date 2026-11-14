@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "git",
+    "show",
+    "--format=fuller",
+    "--stat",
+    "33d96159b2e0a91237c1129d6aa363da55a72e86"
+  ],
+  "stdout": "commit 33d96159b2e0a91237c1129d6aa363da55a72e86\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sat Nov 14 04:59:02 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sat Nov 14 04:59:02 2026 +0000\n\n    test: record inclusive calendar regression before production fix\n\n evidence/diagnosis/existing-suite.txt             |  10 ++\n evidence/diagnosis/phase1-red.txt                 |  18 ++++\n evidence/diagnosis/phase2-minimized-red.txt       |  18 ++++\n evidence/diagnosis/phase4-h1-arithmetic.txt       |  18 ++++\n evidence/diagnosis/phase4-h2-parser.txt           |  18 ++++\n evidence/diagnosis/phase4-h3-guard.txt            |  20 ++++\n evidence/diagnosis/phase5-full-red.txt            | 121 ++++++++++++++++++++++\n evidence/diagnosis/phase5-rejection-preserved.txt |  12 +++\n evidence/diagnosis/runtime.txt                    |   4 +\n evidence/diagnosis/unchanged-original-hashes.json |   6 ++\n reports/diagnosis/inclusive-calendar-days.md      |  60 +++++++++++\n test_inclusive_calendar_days.py                   |  47 +++++++++\n 12 files changed, 352 insertions(+)\n",
+  "stderr": "",
+  "exit_code": 0,
+  "elapsed_seconds": 0.0025460130000283243
+}

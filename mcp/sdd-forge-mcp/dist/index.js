@@ -28616,7 +28616,16 @@ import { parseArgs } from "node:util";
 function readCliRootArg(argv) {
   const { values } = parseArgs({
     args: [...argv],
-    options: { root: { type: "string" }, "status-ui": { type: "boolean" } },
+    options: {
+      root: { type: "string" },
+      "status-ui": { type: "boolean" },
+      dashboard: { type: "boolean" },
+      "dashboard-snapshot": { type: "boolean" },
+      "dashboard-stream": { type: "boolean" },
+      "dashboard-monitor-stream": { type: "boolean" },
+      "dashboard-html": { type: "boolean" },
+      "parent-service": { type: "string" }
+    },
     strict: true,
     allowPositionals: false
   });
@@ -36957,7 +36966,8 @@ function err(code, message, details) {
 }
 
 // src/path-guard.ts
-import { readdirSync, readFileSync, realpathSync as realpathSync2, statSync as statSync2 } from "node:fs";
+import { createHash } from "node:crypto";
+import { lstatSync, readdirSync, readFileSync, realpathSync as realpathSync2, statSync as statSync2 } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve as resolve2, sep } from "node:path";
 var ALLOWLISTED_DIRECTORIES = [
@@ -36966,7 +36976,7 @@ var ALLOWLISTED_DIRECTORIES = [
   "docs/review-tickets",
   "docs/workflow-improvements"
 ];
-var ALLOWLISTED_FILES = ["AGENTS.md"];
+var ALLOWLISTED_FILES = ["AGENTS.md", "dashboard-labels.json"];
 var DENYLISTED_BASENAMES = /* @__PURE__ */ new Set([
   ["SDD", "SUDO"].join("_"),
   ".env"
@@ -37044,6 +37054,9 @@ function isDenylisted(root, lexicalPath, knownRealPath, knownEvidenceKeyPath) {
   return false;
 }
 function resolveGuarded(root, relPath) {
+  return resolveFile(root, relPath, false);
+}
+function resolveFile(root, relPath, artifactOnly) {
   const shapeError = validateInputShape(relPath);
   if (shapeError !== void 0) {
     return shapeError;
@@ -37058,7 +37071,7 @@ function resolveGuarded(root, relPath) {
       rule: "exists"
     });
   }
-  if (!isAllowlisted(root, resolvedPath)) {
+  if (!(artifactOnly ? isWithin(root.path, resolvedPath) : isAllowlisted(root, resolvedPath))) {
     return err("path-denied", "Path is outside the allowlisted directories.", {
       rule: "allowlist"
     });
@@ -37091,6 +37104,16 @@ function resolveGuarded(root, relPath) {
     });
   }
   return ok({ resolvedPath, size });
+}
+function guardedArtifactMatches(root, relPath, expected) {
+  const result = resolveFile(root, relPath, true);
+  if (!result.ok) return result;
+  try {
+    const bytes = readFileSync(result.data.resolvedPath);
+    return ok(createHash("sha256").update(bytes).digest("hex") === expected);
+  } catch {
+    return err("not-found", `Unable to read artifact: ${relPath}`, { file: relPath, rule: "readable" });
+  }
 }
 function guardedRead(root, relPath) {
   const guardResult = resolveGuarded(root, relPath);
@@ -37214,6 +37237,14 @@ function resolveGuardedDirectory(root, relPath) {
     });
   }
   return ok({ resolvedPath });
+}
+function hasProjectContext(root) {
+  try {
+    lstatSync(join(root.path, "sdd/project-context.yaml"));
+    return true;
+  } catch (error62) {
+    return !(error62 instanceof Error && "code" in error62 && error62.code === "ENOENT");
+  }
 }
 
 // src/parsers/agents-md.ts
@@ -40042,16 +40073,27 @@ function createReportLookup() {
   };
 }
 
-// src/parsers/evidence-bundle.ts
-import { createHash } from "node:crypto";
-var SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
-function sha256OfGuardedFile(root, relPath) {
-  const result = guardedRead(root, relPath);
-  if (!result.ok) {
-    return void 0;
+// src/profile.ts
+function workflowProfile(root) {
+  const agents = guardedRead(root, "AGENTS.md");
+  if (!agents.ok) return agents.error.code === "not-found" ? ok("full") : agents;
+  if ((agents.data.contents.match(/^## Project Settings\s*$/gm) ?? []).length > 1) {
+    return err("cannot-determine", "Multiple Project Settings sections make profile selection ambiguous.", { rule: "profile-invalid" });
   }
-  return createHash("sha256").update(result.data.contents, "utf-8").digest("hex");
+  const settings = /^## Project Settings\s*\r?\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(agents.data.contents)?.[1] ?? "";
+  const profiles = [...settings.matchAll(/^spec_profile:\s*(\S+)\s*$/gm)].map((match) => match[1]);
+  if (profiles.length > 1 || profiles.length === 1 && !["lite", "full"].includes(profiles[0] ?? "")) {
+    return err("cannot-determine", "Project Settings has an invalid or ambiguous spec_profile.", { rule: "profile-invalid" });
+  }
+  if (profiles[0] !== "lite") return ok("full");
+  if (hasProjectContext(root)) {
+    return err("cannot-determine", "Project Context is present; its approved profile must be resolved before using the legacy Lite read model.", { rule: "project-context-profile-unverified" });
+  }
+  return ok("lite");
 }
+
+// src/parsers/evidence-bundle.ts
+var SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 function normalizeRelPath(raw) {
   if (typeof raw !== "string") {
     return void 0;
@@ -40200,10 +40242,6 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       failures.push(`artifact path is missing or invalid: ${jsonValueText(artifact.path)}`);
       continue;
     }
-    if (!guardedExists(root, artifactRel)) {
-      failures.push(`artifact path missing: ${jsonValueText(artifact.path)}`);
-      continue;
-    }
     if (!SHA256_HEX_PATTERN.test(sha)) {
       failures.push(`artifact sha256 is invalid for ${jsonValueText(artifact.path)}: ${jsonValueText(artifact.sha256)}`);
       continue;
@@ -40213,8 +40251,10 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       continue;
     }
     artifactIndex.set(artifactRel, sha);
-    const actualSha = sha256OfGuardedFile(root, artifactRel);
-    if (actualSha !== sha) {
+    const match = guardedArtifactMatches(root, artifactRel, sha);
+    if (!match.ok) {
+      failures.push(`artifact cannot be verified (${match.error.code}): ${artifactRel}`);
+    } else if (!match.data) {
       failures.push(`artifact sha256 mismatch for ${artifactRel}`);
     }
   }
@@ -40320,7 +40360,7 @@ function approverId(value) {
 function isApprovedShape(value) {
   return value === "Approved" || APPROVED_ANNOTATION_PATTERN.test(value);
 }
-function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup) {
+function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile = "full") {
   const taskId = draft.id;
   const fail = (rule, message) => {
     failures.push({ taskId, rule, message });
@@ -40334,6 +40374,9 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     approval = draft.approval;
   }
   const isApproved = isApprovedShape(draft.approval);
+  if (profile === "lite" && (draft.risk === "high" || draft.risk === "critical")) {
+    fail("lite-full-upgrade-required", `${taskId} declares ${draft.risk} risk; Full workflow validation is required`);
+  }
   let status;
   if (draft.status === "") {
     fail("status-missing", `${taskId} has no Status line`);
@@ -40345,16 +40388,19 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   if (status !== void 0 && (status === "In Progress" || status === "Implementation Complete" || status === "Done") && !isApproved) {
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
-  if (status === "Done") {
+  if (status === "Done" && profile === "full") {
     validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
-  if (status === "Implementation Complete") {
+  if (status === "Implementation Complete" || status === "Done" && profile === "lite") {
     if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
       fail(
         "impl-complete-report-missing",
         `${taskId} is Implementation Complete but no implementation report in ${implReportsDir} mentions it`
       );
     }
+  }
+  if (status === "Done" && profile === "lite" && !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
+    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
   }
   let blockersNonEmpty = false;
   if (status === "Blocked") {
@@ -40369,7 +40415,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   } else {
     blockersNonEmpty = draft.blockersContent !== "";
   }
-  if (status === "Done" && draft.risk === "critical") {
+  if (profile === "full" && status === "Done" && draft.risk === "critical") {
     validateCriticalTwoPersonApproval(taskId, draft, fail);
   }
   if (status !== void 0 && approval !== void 0) {
@@ -40512,6 +40558,8 @@ function parentDir(relTasksFilePath) {
   return idx === -1 ? "." : relTasksFilePath.slice(0, idx);
 }
 function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/quality-gate", implReportsDir = "reports/implementation", reportLookup = createReportLookup()) {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
   const fileResult = guardedRead(root, relTasksFilePath);
   if (!fileResult.ok) {
     return fileResult;
@@ -40524,7 +40572,7 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
   let draft;
   const finish = () => {
     if (draft !== void 0) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
+      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
     }
   };
   for (const rawLine of lines) {
@@ -40670,7 +40718,10 @@ function phaseFromTasks(feature, tasks) {
     rationale: `specs/${feature}/tasks.md's Approved tasks are in an unrecognized mixture of statuses that does not map to a single next command.`
   };
 }
-function nextCommandForFeature(root, feature) {
+function nextCommandForFeature(root, feature, reports) {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
+  const lite = profile.data === "lite";
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
@@ -40681,12 +40732,12 @@ function nextCommandForFeature(root, feature) {
       kind: "next-command",
       feature,
       phase: "phase1-not-started",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : `/sdd-bootstrap:bootstrap feature ${feature}`,
       rationale: `${requirementsPath} does not exist yet; Phase 1 (requirements, design, acceptance tests) has not been started (AGENTS.md Required Workflow step 1).`
     });
   }
   const specReviewStatus = extractHeaderValue(requirementsResult.data.contents, "Spec-Review-Status");
-  if (specReviewStatus !== "Passed") {
+  if (!lite && specReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -40708,7 +40759,7 @@ function nextCommandForFeature(root, feature) {
     );
   }
   const implReviewStatus = extractHeaderValue(designResult.data.contents, "Impl-Review-Status");
-  if (implReviewStatus !== "Passed") {
+  if (!lite && implReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -40727,12 +40778,12 @@ function nextCommandForFeature(root, feature) {
       kind: "next-command",
       feature,
       phase: "phase2-not-started",
-      nextCommand: "/sdd-bootstrap:bootstrap feature",
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : "/sdd-bootstrap:bootstrap feature",
       rationale: `${tasksPath} does not exist yet; Phase 2 (Draft tasks) has not been started (AGENTS.md Required Workflow step 4).`
     });
   }
   const taskReviewStatus = extractHeaderValue(tasksReadResult.data.contents, "Task-Review-Status");
-  if (taskReviewStatus !== "Passed") {
+  if (!lite && taskReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -40741,7 +40792,7 @@ function nextCommandForFeature(root, feature) {
       rationale: `${tasksPath}'s Task-Review-Status is ${taskReviewStatus === void 0 ? "missing" : `"${taskReviewStatus}"`}, not Passed (AGENTS.md Required Workflow step 4).`
     });
   }
-  const taskStateResult = parseTaskState(root, feature, tasksPath);
+  const taskStateResult = parseTaskState(root, feature, tasksPath, void 0, void 0, reports);
   if (!taskStateResult.ok) {
     return taskStateResult;
   }
@@ -40752,7 +40803,10 @@ function nextCommandForFeature(root, feature) {
       { file: tasksPath, rule: "task-state-verdict-fail" }
     );
   }
-  return ok(phaseFromTasks(feature, taskStateResult.data.tasks));
+  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  if (lite && phase.phase === "implementation") phase.nextCommand = `/sdd-ship:ship --lite specs/${feature}/tasks.md`;
+  if (lite && phase.phase === "quality-gate") phase.nextCommand = phase.nextCommand.replace("/sdd-quality-loop:quality-gate", "/sdd-lite:lite-gate");
+  return ok(phase);
 }
 function autoSelectFeature(root) {
   const specsResult = parseActiveSpecDirectories(root);
@@ -40794,15 +40848,15 @@ function autoSelectFeature(root) {
   }
   return ok(selected);
 }
-function getNextSddCommand(root, feature) {
+function getNextSddCommand(root, feature, reports) {
   if (feature !== void 0) {
-    return nextCommandForFeature(root, feature);
+    return nextCommandForFeature(root, feature, reports);
   }
   const selected = autoSelectFeature(root);
   if (!selected.ok) {
     return selected;
   }
-  return nextCommandForFeature(root, selected.data);
+  return nextCommandForFeature(root, selected.data, reports);
 }
 
 // src/tools/core.ts
@@ -40879,12 +40933,12 @@ function getSpecStatus(root, feature) {
   });
   return ok({ kind: "spec-status", feature, artifacts });
 }
-function getTaskState(root, feature) {
+function getTaskState(root, feature, reports) {
   const featureResult = validateFeature(feature);
   if (!featureResult.ok) {
     return featureResult;
   }
-  return parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+  return parseTaskState(root, feature, `specs/${feature}/tasks.md`, void 0, void 0, reports);
 }
 function isApprovedShape3(approval) {
   return approval === "Approved" || approval.startsWith("Approved (");
@@ -40921,14 +40975,14 @@ function getQualityGateSummary(root) {
   const scan = listQualityReports(root);
   return ok({ kind: "quality-gate-summary", reports: scan.reports });
 }
-function getNextSddCommand2(root, feature) {
+function getNextSddCommand2(root, feature, reports) {
   if (feature !== void 0) {
     const featureResult = validateFeature(feature);
     if (!featureResult.ok) {
       return featureResult;
     }
   }
-  return getNextSddCommand(root, feature);
+  return getNextSddCommand(root, feature, reports);
 }
 
 // src/resources.ts
@@ -40993,8 +41047,128 @@ function registerResources(server, root) {
   );
 }
 
-// src/tools/evidence.ts
+// src/dashboard/snapshot.ts
 import { createHash as createHash2 } from "node:crypto";
+import { basename } from "node:path";
+var SCHEMA = "sdd-dashboard/v1";
+function selectPresentation(parentService) {
+  if (parentService === "chatgpt") return "sites";
+  if (parentService === "claude") return "artifacts";
+  throw new Error("\u89AA\u30B5\u30FC\u30D3\u30B9\u3092 chatgpt \u307E\u305F\u306F claude \u3068\u3057\u3066\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5B50\u306E\u30E2\u30C7\u30EB\u304B\u3089\u306F\u9078\u629E\u3057\u307E\u305B\u3093\u3002");
+}
+function readData(root) {
+  const labelsFile = guardedRead(root, "dashboard-labels.json");
+  let labels = {};
+  if (labelsFile.ok) {
+    const value = JSON.parse(labelsFile.data.contents);
+    if (!value || typeof value !== "object") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    const config2 = value;
+    if (config2.schema !== "sdd-dashboard-labels/v1" || !config2.features || typeof config2.features !== "object" || Array.isArray(config2.features) || Object.keys(value).some((k) => !["schema", "features"].includes(k))) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    for (const [key, label] of Object.entries(config2.features)) {
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(key) || typeof label !== "string" || !label.trim() || label.length > 200) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5024\u304C\u4E0D\u6B63\u3067\u3059");
+    }
+    labels = config2.features;
+  } else if (labelsFile.error.code !== "not-found") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u3092\u8AAD\u3081\u307E\u305B\u3093: " + labelsFile.error.code);
+  const specs = parseActiveSpecDirectories(root);
+  if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
+  const data = { project: basename(root.path), features: [], tasks: [] };
+  const reports = createReportLookup();
+  const hash2 = createHash2("sha256").update(JSON.stringify(specs.data));
+  for (const { feature } of specs.data) {
+    const source = `specs/${feature}/tasks.md`;
+    const file2 = guardedRead(root, source);
+    const spec = getSpecStatus(root, feature);
+    const next = getNextSddCommand2(root, feature, reports);
+    const warnings = [];
+    if (!spec.ok) warnings.push("\u4ED5\u69D8\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093: " + spec.error.code);
+    if (!next.ok) warnings.push("\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: " + next.error.code);
+    data.features.push({ id: feature, ...Object.hasOwn(labels, feature) ? { displayName: labels[feature] } : {}, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
+    hash2.update(JSON.stringify(spec));
+    if (!file2.ok) {
+      if (file2.error.code !== "not-found") throw new Error(`${source}: ${file2.error.code}`);
+      warnings.push("\u30BF\u30B9\u30AF\u672A\u4F5C\u6210");
+      hash2.update(source + ":missing");
+      continue;
+    }
+    hash2.update(source).update(file2.data.contents);
+    const state = getTaskState(root, feature, reports);
+    if (!state.ok) throw new Error(`${source}: ${state.error.code}`);
+    const sections = [...file2.data.contents.matchAll(/^##\s+(T-\d+)\b([^\n]*)\n([\s\S]*?)(?=^##\s+T-\d+\b|(?![\s\S]))/gm)];
+    if (!sections.length || !state.data.tasks.length) throw new Error(`${source}: \u30BF\u30B9\u30AF\u5F62\u5F0F\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
+    for (const task of state.data.tasks) {
+      const section = sections.find((s) => s[1] === task.id);
+      if (!section) throw new Error(`${source}: \u30BF\u30B9\u30AF\u672C\u6587\u304C\u4E0D\u6574\u5408\u3067\u3059`);
+      const body = section[3] ?? "";
+      const release = body.match(/^Release:[ \t]*(\S[^\r\n]*)\r?$/m)?.[1]?.trim() || null;
+      data.tasks.push({
+        key: `${feature}/${task.id}`,
+        feature,
+        id: task.id,
+        title: (section[2] ?? "").replace(/^\s*[:—-]\s*/, "").trim() || task.id,
+        body,
+        source,
+        status: task.status,
+        approval: task.approval,
+        risk: task.risk ?? "unknown",
+        release,
+        failures: state.data.failures.filter((f) => !f.taskId || f.taskId === task.id).map((f) => f.message)
+      });
+    }
+  }
+  hash2.update(JSON.stringify(data));
+  return { data, digest: hash2.digest("hex") };
+}
+var DashboardReader = class {
+  constructor(root, read = readData) {
+    this.root = root;
+    this.read = read;
+  }
+  root;
+  read;
+  previous;
+  sample(now = /* @__PURE__ */ new Date()) {
+    const attemptedAt = now.toISOString();
+    try {
+      let before = this.read(this.root);
+      let stable;
+      for (let retry = 0; retry < 2; retry++) {
+        const after = this.read(this.root);
+        if (before.digest === after.digest) {
+          stable = after;
+          break;
+        }
+        before = after;
+      }
+      if (!stable) throw new Error("\u66F4\u65B0\u9014\u4E2D\u306E\u305F\u3081\u6574\u5408\u6027\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093");
+      this.previous = {
+        schema: SCHEMA,
+        revision: stable.digest,
+        checkedAt: attemptedAt,
+        changedAt: this.previous?.revision === stable.digest ? this.previous.changedAt : attemptedAt,
+        lastSuccessAt: attemptedAt,
+        attemptedAt,
+        error: null,
+        data: stable.data
+      };
+    } catch (error62) {
+      this.previous = {
+        schema: SCHEMA,
+        revision: "",
+        checkedAt: null,
+        changedAt: null,
+        lastSuccessAt: null,
+        data: null,
+        ...this.previous,
+        attemptedAt,
+        error: error62 instanceof Error ? error62.message : "\u53D6\u5F97\u306B\u5931\u6557\u3057\u307E\u3057\u305F"
+      };
+    }
+    return this.previous;
+  }
+};
+
+// src/tools/evidence.ts
+import { createHash as createHash3 } from "node:crypto";
 
 // src/parsers/evidence.ts
 var REQUIRED_BUNDLE_FIELDS = [
@@ -41571,7 +41745,7 @@ function evidenceCompareToTraceability(root, feature) {
 var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;
 var GIT_COMMIT_PATTERN = /^[0-9a-f]{40}$/;
 function sha256OfContents(contents) {
-  return createHash2("sha256").update(contents, "utf-8").digest("hex");
+  return createHash3("sha256").update(contents, "utf-8").digest("hex");
 }
 function escapeRegExp2(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -41618,7 +41792,7 @@ function recomputeSpecRevision(root, feature, bundle) {
     `specs/${feature}/design.md`,
     `specs/${feature}/acceptance-tests.md`
   ];
-  const hasher = createHash2("sha256");
+  const hasher = createHash3("sha256");
   const filesHashed = [];
   let foundAny = false;
   for (const relPath of specFiles) {
@@ -41935,12 +42109,571 @@ function buildServer(root) {
     ({ feature, taskId }) => toCallToolResult(evidenceDeepVerify(root, feature, taskId))
   );
   registerResources(server, root);
+  const dashboard = new DashboardReader(root);
+  server.registerTool("get_dashboard_snapshot", {
+    title: "Read dashboard snapshot",
+    description: "Read-only six-view dashboard data with source freshness and last-good failure state. Never changes approval or task state.",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true }
+  }, () => toCallToolResult({ ok: true, data: { kind: "dashboard-snapshot", snapshot: dashboard.sample() } }));
   return server;
 }
 
 // src/status-view.ts
 import { createServer } from "node:http";
+import { readFileSync as readFileSync2, lstatSync as lstatSync2, existsSync as existsSync2 } from "node:fs";
+import { join as join2 } from "node:path";
+
+// src/dashboard/observations.js
+var RETENTION_MS = 30 * 24 * 60 * 60 * 1e3;
+var EVENT_LIMIT = 200;
+function observe(old, next) {
+  const previous = old?._observations;
+  const at = next.attemptedAt;
+  const cutoff = Date.parse(at) - RETENTION_MS;
+  const events = (previous?.events || []).filter((e) => Date.parse(e.observedAt) >= cutoff).slice(-EVENT_LIMIT);
+  const tracking = /* @__PURE__ */ Object.create(null);
+  function emit(kind, task, field, before, after, notify = false) {
+    events.push({
+      id: at + ":" + kind + ":" + (task?.key || "") + ":" + field,
+      observedAt: at,
+      kind,
+      key: task?.key || null,
+      feature: task?.feature || null,
+      title: task ? task.title.slice(0, 300) : "",
+      field,
+      before,
+      after,
+      notify
+    });
+    if (events.length > EVENT_LIMIT) events.shift();
+  }
+  if (Boolean(old?.error) !== Boolean(next.error)) emit(next.error ? "source-failed" : "source-recovered", null, "source", old?.error ? "failed" : "ok", next.error ? "failed" : "ok", true);
+  if (next.error || !next.data) return { events, tracking: previous?.tracking || {}, startedAt: previous?.startedAt || at };
+  const oldTasks = new Map((old?.data?.tasks || []).map((t) => [t.key, t]));
+  const gap = !!old?.checkedAt && (Date.parse(next.checkedAt) - Date.parse(old.checkedAt) > 6e4 || !!old.error);
+  if (gap) emit("observation-gap", null, "continuity", "unknown", "resumed", true);
+  for (const task of next.data.tasks) {
+    const prior = oldTasks.get(task.key);
+    const remembered = previous?.tracking?.[task.key];
+    const changed = !prior || prior.status !== task.status;
+    tracking[task.key] = {
+      since: !gap && !changed && remembered ? remembered.since : next.checkedAt,
+      lastObservedAt: next.checkedAt,
+      reason: gap ? "gap" : changed && prior ? "status-change" : remembered?.reason || "first-observation"
+    };
+    if (!prior) {
+      emit(old?.data ? "added" : "first-observed", task, "status", null, task.status, task.status === "Blocked" || task.approval === "Draft" || task.status === "Implementation Complete" || task.failures.length > 0);
+    } else {
+      for (const field of ["status", "approval", "risk", "release"]) {
+        if (prior[field] !== task[field]) emit("changed", task, field, prior[field], task[field], field === "status" || field === "approval");
+      }
+      if (JSON.stringify(prior.failures) !== JSON.stringify(task.failures)) emit("changed", task, "validation", prior.failures.length, task.failures.length, true);
+    }
+    oldTasks.delete(task.key);
+  }
+  for (const task of oldTasks.values()) emit("removed", task, "status", task.status, null, true);
+  return { events, tracking, startedAt: previous?.startedAt || at };
+}
+function observationView(stored, now = Date.now()) {
+  const state = stored?._observations;
+  const events = (state?.events || []).filter((e) => Date.parse(e.observedAt) >= now - RETENTION_MS);
+  return {
+    schema: "sdd-observations/v1",
+    snapshotRevision: stored?.revision || "",
+    observedAt: stored?.attemptedAt || null,
+    startedAt: state?.startedAt || null,
+    retentionDays: 30,
+    eventLimit: EVENT_LIMIT,
+    events,
+    tracking: state?.tracking || {},
+    sourceStale: !stored?.checkedAt || now - Date.parse(stored.checkedAt) > 6e4,
+    sourceError: !!stored?.error
+  };
+}
+
+// src/status-view.ts
 import { randomBytes, timingSafeEqual } from "node:crypto";
+
+// ui/dashboard-page.ts
+import { createHash as createHash4 } from "node:crypto";
+function dashboardPage(mode = "http") {
+  const page = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
+:root{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#172b4d;background:#fff;--line:#767676;--blue:#0031d8;--muted:#505f79;--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--radius-control:8px;--radius-panel:12px;--success:#216e4e;--warning:#705400;--error:#ae2a19}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button,a,input,select,summary{scroll-margin:16px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:4px solid #000;outline-offset:3px;box-shadow:0 0 0 3px #ffd43d}button{min-height:44px}a,summary{min-height:44px}summary{cursor:pointer;padding:8px 0}a{display:inline-flex;align-items:center}header{min-height:72px;border-bottom:1px solid #dfe1e6;display:flex;align-items:center;padding:16px 24px;gap:24px;flex-wrap:wrap}.logo{font-size:24px;font-weight:700;color:#0747a6}.readonly{color:var(--muted);font-size:14px;margin-left:auto}.shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);min-height:calc(100vh - 72px)}aside.sidebar{padding:32px 24px;background:#f4f5f7;border-right:1px solid #dfe1e6}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:48px;height:48px;font-weight:700;margin-bottom:16px}.eyebrow{font-size:14px;font-weight:700;color:var(--muted)}.project{font-weight:700;overflow-wrap:anywhere;margin:8px 0 24px}label{display:block;font-size:16px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:var(--radius-control);padding:8px;min-height:44px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:8px}.side-note{font-size:14px;color:var(--muted);margin-top:32px}main{padding:24px 32px;min-width:0}.breadcrumb{color:var(--muted);font-size:14px;overflow-wrap:anywhere}h1{font-size:32px;margin:8px 0 24px}nav{display:flex;gap:24px;border-bottom:2px solid #dfe1e6;flex-wrap:wrap}nav a{color:var(--muted);text-decoration:none;padding:8px 0;border-bottom:3px solid transparent}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:700}.toolbar{display:flex;gap:16px;margin:24px 0;flex-wrap:wrap;align-items:end}.toolbar input{width:100%}.toolbar label{flex:1;min-width:min(240px,100%)}.refresh,.pause{background:var(--blue);color:white;border:1px solid var(--blue);border-radius:var(--radius-control);padding:8px 16px}.pause{background:white;color:var(--blue)}.banner{border:1px solid #216e4e;background:#eefaf4;color:var(--success);border-radius:8px;padding:16px;margin-top:24px;font-size:16px;overflow-wrap:anywhere}.banner[data-state=stale],.banner[data-state=paused]{background:#fff8e6;border-color:#705400;color:var(--warning)}.banner[data-state=error]{background:#fff1f0;border-color:#ae2a19;color:var(--error)}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:12px;padding:16px;background:white;color:inherit;text-align:left}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid #dfe1e6;border-radius:12px;padding:24px;margin-bottom:24px}h2{font-size:24px;margin:0 0 16px}h3{font-size:20px;margin:0 0 16px}.board{display:grid;grid-template-columns:repeat(5,minmax(240px,1fr));gap:32px;overflow-x:auto;padding:8px 8px 16px}.column{background:#f4f5f7;border-radius:12px;padding:16px;min-height:160px}.column h2{font-size:16px;color:var(--muted);margin:0 0 16px}.card{display:block;text-align:left;background:white;border:1px solid var(--line);border-radius:8px;padding:16px;width:100%;margin-bottom:16px;color:inherit}.card:hover{border-color:var(--blue)}.card-title{display:block;margin:8px 0 16px;font-size:16px;overflow-wrap:anywhere}.key{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-block;font-size:14px;font-weight:700;padding:4px 8px;border-radius:8px;background:#ebecf0;overflow-wrap:anywhere}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:16px}th{font-size:16px;color:var(--muted);font-weight:700}th,td{padding:16px;border-bottom:1px solid #dfe1e6}td button{border:0;background:none;color:var(--blue);text-align:left;text-decoration:underline;min-height:44px;min-width:44px}.empty{padding:32px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.phase{display:grid;grid-template-columns:minmax(160px,1fr) minmax(240px,2fr);gap:32px;padding:16px 0;border-bottom:1px solid #dfe1e6;overflow-wrap:anywhere}.phase small{display:block;font-size:14px}.track{display:flex;gap:4px;align-items:center}.segment{height:16px;flex:1;background:#ebecf0;border-radius:4px}.segment.active{background:#0052cc}.segment.done{background:#216e4e}progress{width:100%;accent-color:#0031d8}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(720px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:24px;box-shadow:-8px 0 32px #091e4240}dialog::backdrop{background:#091e4266}dialog .close{float:right;border:1px solid var(--line);background:#f4f5f7;border-radius:8px;padding:8px 16px}dialog h2{padding-top:24px;font-size:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:8px}.issue-warning{color:var(--error);font-size:14px}footer{margin-top:32px;font-size:14px;color:var(--muted)}.skip{position:absolute;left:16px;top:-100px;background:white;z-index:10;padding:8px}.skip:focus{top:8px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.monitor{font-size:14px;overflow-wrap:anywhere}.mobile-feature{display:none}[hidden]{display:none!important}@media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:24px 16px}.mobile-feature{display:block}.phase{grid-template-columns:1fr;gap:16px}.board{grid-template-columns:1fr;overflow:visible;padding:0}.column{min-height:0}.toolbar{align-items:stretch}.toolbar>*{max-width:100%}header{gap:16px;padding:16px}.metrics{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}.panel{padding:16px}h1{font-size:28px}}
+</style></head><body><a class="skip" href="#main">\u672C\u6587\u3078\u79FB\u52D5</a><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>\u8AB2\u984C\u3092\u691C\u7D22<input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"></label><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="pause" id="pause" aria-pressed="false">\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62</button><button class="refresh" id="refresh">\u4ECA\u3059\u3050\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><details id="activity" class="panel"><summary id="activity-summary">\u901A\u77E5\u30FB\u5909\u66F4\u5C65\u6B74</summary><p id="activity-state" role="status">\u5C65\u6B74\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p><p>\u89B3\u6E2C\u3067\u304D\u305F\u5909\u5316\u3092\u8A18\u9332\u3057\u307E\u3059\u3002\u5B9F\u969B\u306E\u64CD\u4F5C\u6642\u523B\u30FB\u64CD\u4F5C\u3057\u305F\u4EBA\u306F\u63A8\u6E2C\u3057\u307E\u305B\u3093\u3002\u76F4\u8FD130\u65E5\u30FB\u6700\u5927200\u4EF6\u3067\u3059\u3002</p><button id="acknowledge" class="pause">\u8868\u793A\u4E2D\u306E\u901A\u77E5\u3092\u78BA\u8A8D\u6E08\u307F\u306B\u3059\u308B</button><ol id="activity-events"></ol></details><details class="monitor"><summary>\u89B3\u6E2C\u57FA\u76E4\u306E\u7A3C\u50CD\u72B6\u6CC1</summary><p id="monitor-status">\u7A3C\u50CD\u60C5\u5831\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p></details><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+const PAGE_VERSION = "__SDD_PAGE_VERSION__";
+const MODE = ${JSON.stringify(mode)};
+const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9" };
+const STATES = ["Planned", "In Progress", "Blocked", "Implementation Complete", "Done"];
+const LABELS = { "Planned": "\u4E88\u5B9A", "In Progress": "\u9032\u884C\u4E2D", "Blocked": "\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", "Implementation Complete": "\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061", "Done": "\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", "Draft": "\u627F\u8A8D\u5F85\u3061", "Approved": "\u627F\u8A8D\u6E08\u307F", "Rejected": "\u5374\u4E0B", "low": "\u4F4E", "medium": "\u4E2D", "high": "\u9AD8", "critical": "\u6700\u91CD\u8981", "unknown": "\u672A\u78BA\u8A8D" };
+// Display aliases only: canonical phases, commands and identifiers stay unchanged.
+const HEALTH_LABELS = {starting:"\u8D77\u52D5\u4E2D",running:"\u7A3C\u50CD\u4E2D", "collection-failed":"\u53CE\u96C6\u505C\u6B62\u30FB\u518D\u8D77\u52D5\u5F85\u3061", "source-failed":"\u6B63\u672C\u306E\u8AAD\u307F\u53D6\u308A\u5931\u6557", "auth-failed":"\u8A8D\u8A3C\u5931\u6557\u30FB\u8A2D\u5B9A\u78BA\u8A8D\u304C\u5FC5\u8981", "data-rejected":"\u9001\u4FE1\u30C7\u30FC\u30BF\u306E\u78BA\u8A8D\u304C\u5FC5\u8981",conflict:"\u66F4\u65B0\u306E\u7AF6\u5408", "http-failed":"\u9001\u4FE1\u5148\u306E\u5FDC\u7B54\u7570\u5E38", "transport-failed":"\u901A\u4FE1\u969C\u5BB3\u30FB\u518D\u8A66\u884C\u4E2D"};
+const PHASES = {
+  "phase1-not-started": ["\u8981\u4EF6\u30FB\u8A2D\u8A08\u306E\u4F5C\u6210\u524D", "\u5B9F\u73FE\u3057\u305F\u3044\u5185\u5BB9\u3068\u8A2D\u8A08\u3092\u6574\u7406\u3057\u307E\u3059"],
+  "spec-review": ["\u8981\u4EF6\u306E\u78BA\u8A8D", "\u8981\u4EF6\u306E\u629C\u3051\u30FB\u77DB\u76FE\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "impl-review": ["\u8A2D\u8A08\u30FB\u5B9F\u88C5\u65B9\u91DD\u306E\u78BA\u8A8D", "\u5B9F\u73FE\u65B9\u6CD5\u3068\u8A2D\u8A08\u306E\u59A5\u5F53\u6027\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "phase2-not-started": ["\u4F5C\u696D\u8A08\u753B\u306E\u4F5C\u6210\u524D", "\u4ED5\u69D8\u3092\u5B9F\u884C\u53EF\u80FD\u306A\u30BF\u30B9\u30AF\u306B\u5206\u3051\u307E\u3059"],
+  "task-review": ["\u4F5C\u696D\u8A08\u753B\u306E\u78BA\u8A8D", "\u4F5C\u696D\u7BC4\u56F2\u30FB\u9806\u5E8F\u30FB\u78BA\u8A8D\u65B9\u6CD5\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "approval-gate": ["\u7BA1\u7406\u8005\u306E\u627F\u8A8D\u5F85\u3061", "\u62C5\u5F53\u8005\u304C\u5185\u5BB9\u3092\u78BA\u8A8D\u3057\u3001\u7740\u624B\u3059\u308B\u30BF\u30B9\u30AF\u3092\u627F\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
+  "implementation": ["\u958B\u767A\u30FB\u5B9F\u88C5", "\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u3092\u9032\u3081\u307E\u3059"],
+  "quality-gate": ["\u54C1\u8CEA\u30FB\u5B8C\u4E86\u6761\u4EF6\u306E\u78BA\u8A8D", "\u30C6\u30B9\u30C8\u7D50\u679C\u3068\u8A3C\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u5B8C\u4E86\u3092\u5224\u5B9A\u3057\u307E\u3059"],
+  "blocked": ["\u554F\u984C\u306E\u89E3\u6D88\u5F85\u3061", "\u9032\u884C\u3092\u59A8\u3052\u3066\u3044\u308B\u554F\u984C\u306E\u89E3\u6D88\u304C\u5FC5\u8981\u3067\u3059"],
+  "done": ["\u5BFE\u8C61\u4F5C\u696D\u306E\u5B8C\u4E86", "\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u306F\u53F0\u5E33\u4E0A\u3059\u3079\u3066\u5B8C\u4E86\u3057\u3066\u3044\u307E\u3059"],
+  "cannot-determine": ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u8A18\u9332\u306E\u4E0D\u8DB3\u3084\u4E0D\u6574\u5408\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
+  "unknown": ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093\u3002\u8A18\u9332\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"]
+};
+function featureName(id) {
+  return snapshot?.data?.features.find(f => f.id === id)?.displayName || id;
+}
+function valueLabel(value) {
+  if (Object.hasOwn(LABELS, value)) return LABELS[value];
+  return value.replace(/^Approved(?=\\s|$)/, "\u627F\u8A8D\u6E08\u307F");
+}
+const $ = (id) => document.getElementById(id);
+const el = (tag, text, cls) => {
+  const n = document.createElement(tag);
+  if (text !== void 0) n.textContent = text;
+  if (cls) n.className = cls;
+  return n;
+};
+let latest = null, paused = false, attention = "", detailSignature = "", announcedState = "", health = null, healthError = "", lastContact = null;
+let observations = null, observationError = "", activitySignature = "";
+let acknowledged = new Set();
+const ackKey = "sdd-notifications:" + location.pathname;
+try { const saved = JSON.parse(localStorage.getItem(ackKey) || "[]"); if (Array.isArray(saved)) acknowledged = new Set(saved.filter(x => typeof x === "string").slice(-200)); } catch {}
+let snapshot = null, transportError = "", inFlight = false, detailKey = null;
+const prefsKey = "sdd-dashboard:" + location.pathname;
+let prefs = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(prefsKey) || "{}");
+  prefs = saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+} catch {
+}
+let feature = typeof prefs.feature === "string" ? prefs.feature : "", filter = typeof prefs.filter === "string" ? prefs.filter : "", query = typeof prefs.query === "string" ? prefs.query : "";
+$("search").value = query;
+function save() {
+  try {
+    localStorage.setItem(prefsKey, JSON.stringify({ feature, filter, query }));
+  } catch {
+  }
+}
+function view() {
+  const v = location.hash.slice(1);
+  return Object.hasOwn(VIEWS, v) ? v : "overview";
+}
+function badge(status) {
+  const b = el("span", LABELS[status] || status, "badge");
+  b.dataset.status = status;
+  return b;
+}
+function needs(t, kind) {
+  return kind === "approval" ? t.approval === "Draft" : kind === "blocked" ? t.status === "Blocked" : kind === "quality" ? t.status === "Implementation Complete" : kind === "inconsistent" ? t.failures.length > 0 : true;
+}
+function filtered() {
+  return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && needs(t, attention) && (!query || (featureName(t.feature) + " " + t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
+}
+function freshness() {
+  const s = snapshot;
+  const date = (value) => value ? new Date(value).toLocaleString("ja-JP") : "\u672A\u78BA\u8A8D";
+  const stale = !s?.checkedAt || Date.now() - Date.parse(s.checkedAt) > 6e4;
+  const error = transportError || latest?.error;
+  const state = error ? "error" : paused ? "paused" : stale ? "stale" : "live";
+  const headline = error ? "\xD7 \u53D6\u5F97\u5931\u6557: " + error : paused ? "\u2161 \u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62\u4E2D" : stale ? "! \u66F4\u65B0\u78BA\u8A8D\u304C\u505C\u6B62\u3057\u3066\u3044\u307E\u3059" : "\u2713 \u6B63\u672C\u306E\u53D6\u5F97\u306F\u6B63\u5E38\u3067\u3059";
+  const b = $("freshness");
+  b.dataset.state = state;
+  b.textContent = headline + " \uFF5C \u8868\u793A\u30C7\u30FC\u30BF\u306E\u78BA\u8A8D\u6642\u523B " + date(s?.checkedAt) + " \uFF5C \u5185\u5BB9\u66F4\u65B0 " + date(s?.changedAt) + " \uFF5C \u8868\u793A\u5148\u3068\u306E\u901A\u4FE1 " + (transportError ? "\u5931\u6557" : lastContact ? "\u63A5\u7D9A\u6E08\u307F" : "\u672A\u78BA\u8A8D") + (error ? " \uFF5C \u6700\u5F8C\u306E\u6B63\u5E38\u53D6\u5F97 " + date(s?.lastSuccessAt) : "");
+  if (announcedState !== state) { $("announcer").textContent = headline; announcedState = state; }
+  const healthStale = !health?.observedAt || Date.now() - Date.parse(health.observedAt) > 60000;
+  $("monitor-status").textContent = "\u753B\u9762\u7248: " + PAGE_VERSION + " \uFF5C " + (health ? "\u53CE\u96C6\u7248: " + health.collectorVersion + " \uFF5C \u9001\u4FE1\u7248: " + health.publisherVersion + " \uFF5C \u76E3\u7763: " + (healthStale ? "\u66F4\u65B0\u505C\u6B62\u30FB\u8981\u78BA\u8A8D" : HEALTH_LABELS[health.state] || "\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093") + " \uFF5C \u6700\u7D42\u9001\u4FE1\u6210\u529F: " + date(health.lastPublishAt) + " \uFF5C \u9023\u7D9A\u5931\u6557: " + health.consecutiveFailures + " \uFF5C \u53CE\u96C6\u6642\u9593: " + health.collectionMs + "ms \uFF5C \u53CE\u96C6\u518D\u8D77\u52D5: " + health.collectorRestarts + (healthError ? " \uFF5C " + healthError : "") : healthError || "\u7A3C\u50CD\u60C5\u5831\u306F\u672A\u53D6\u5F97\u3067\u3059");
+}
+function options(node, items, selected, all, label = valueLabel) {
+  if (node.dataset.options === JSON.stringify([items, all])) { node.value = selected; return; }
+  node.dataset.options = JSON.stringify([items, all]);
+  node.replaceChildren();
+  const first = el("option", all);
+  first.value = "";
+  node.append(first);
+  for (const item of items) {
+    const o = el("option", label(item));
+    o.value = item;
+    node.append(o);
+  }
+  node.value = selected;
+}
+function syncFilters() {
+  const features = (snapshot?.data?.features || []).map((f) => f.id);
+  if (feature && !features.includes(feature)) feature = "";
+  const states = [...new Set((snapshot?.data?.tasks || []).filter((t) => !feature || t.feature === feature).map((t) => t.status))];
+  if (filter && !states.includes(filter)) filter = "";
+  options($("feature"), features, feature, "\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE", featureName);
+  options($("mobile-feature"), features, feature, "\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE", featureName);
+  options($("filter"), states, filter, "\u3059\u3079\u3066\u306E\u72B6\u614B");
+  save();
+}
+function openDetail(key) {
+  detailKey = key;
+  detailSignature = "";
+  renderDetail();
+  if (!$("detail").open) $("detail").showModal();
+}
+function renderDetail() {
+  const box = $("detail-content");
+  const task = snapshot?.data?.tasks.find((t) => t.key === detailKey);
+  const tracking = observations?.snapshotRevision === snapshot?.revision ? observations?.tracking?.[detailKey] : null;
+  const signature = JSON.stringify([task,tracking]);
+  if (detailSignature === signature) return;
+  detailSignature = signature;
+  const oldScroll = $("detail").scrollTop;
+  box.replaceChildren();
+  if (!task) {
+    const title = el("h2", "\u8AB2\u984C\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093");
+    title.id = "detail-title";
+    box.append(title);
+    return;
+  }
+  box.append(el("div", task.key, "key"));
+  const title = el("h2", task.title);
+  title.id = "detail-title";
+  box.append(title, badge(task.status), el("p", "\u627F\u8A8D: " + valueLabel(task.approval) + " / \u30EA\u30B9\u30AF: " + valueLabel(task.risk)), el("p", "\u6B63\u672C: " + task.source, "muted"));
+  if (tracking) box.append(el("p", "\u3053\u306E\u72B6\u614B\u3092\u9023\u7D9A\u89B3\u6E2C: " + Math.max(0,Math.floor((Date.parse(tracking.lastObservedAt)-Date.parse(tracking.since))/60000)) + "\u5206\uFF08" + new Date(tracking.since).toLocaleString("ja-JP") + "\u304B\u3089\u6700\u7D42\u78BA\u8A8D\u307E\u3067\uFF09\u3002\u89B3\u6E2C\u4E2D\u65AD\u6642\u306F\u8A08\u6E2C\u3092\u518D\u958B\u3057\u307E\u3059\u3002", "muted"));
+  for (const failure of task.failures) box.append(el("p", failure, "issue-warning"));
+  box.append(el("pre", task.body));
+  $("detail").scrollTop = oldScroll;
+}
+function card(task) {
+  const b = el("button", void 0, "card");
+  b.append(el("span", featureName(task.feature) + " / " + task.id, "key"), el("span", task.title, "card-title"), badge(task.status));
+  if (task.failures.length) b.append(el("div", "\u72B6\u614B\u30FB\u8A3C\u62E0\u306B\u8981\u78BA\u8A8D\u4E8B\u9805\u3042\u308A", "issue-warning"));
+  b.dataset.focusKey = task.key;
+  b.onclick = () => openDetail(task.key);
+  return b;
+}
+function list(tasks) {
+  const wrap = el("div", void 0, "table-wrap");
+  const table = el("table");
+  const head = el("tr");
+  for (const label of ["\u8AB2\u984C", "\u6982\u8981", "\u72B6\u614B", "\u627F\u8A8D", "\u30EA\u30B9\u30AF"]) head.append(el("th", label));
+  const thead = el("thead");
+  thead.append(head);
+  table.append(thead);
+  const body = el("tbody");
+  for (const t of tasks) {
+    const row = el("tr");
+    const key = el("td");
+    const link = el("button", t.id);
+    link.dataset.focusKey = t.key;
+    link.onclick = () => openDetail(t.key);
+    key.append(link);
+    row.append(key, el("td", t.title));
+    const state = el("td");
+    state.append(badge(t.status));
+    row.append(state, el("td", valueLabel(t.approval)), el("td", valueLabel(t.risk)));
+    body.append(row);
+  }
+  table.append(body);
+  wrap.append(table);
+  return wrap;
+}
+function render() {
+  const v = view();
+  $("title").textContent = VIEWS[v];
+  for (const a of $("tabs").children) a.setAttribute("aria-current", a.hash === "#" + v ? "page" : "false");
+  const c = $("content");
+  const activeKey = (document.activeElement?.dataset.focusKey || document.activeElement?.closest("details")?.dataset.focusKey);
+  const opened = new Set([...c.querySelectorAll("details[open]")].map(n => n.dataset.feature));
+  const scroll = {x:window.scrollX,y:window.scrollY,board:c.querySelector(".board")?.scrollLeft || 0};
+  c.replaceChildren();
+  freshness();
+  if (!snapshot?.data) {
+    c.append(el("div", "\u307E\u3060\u30C7\u30FC\u30BF\u3092\u53D6\u5F97\u3067\u304D\u3066\u3044\u307E\u305B\u3093\u3002\u63A5\u7D9A\u3068\u53CE\u96C6\u30D7\u30ED\u30BB\u30B9\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "empty"));
+    return;
+  }
+  const data = snapshot.data;
+  const tasks = filtered();
+  $("project").textContent = data.project;
+  $("crumb").textContent = data.project;
+  if (v === "overview") {
+    const actionPanel = el("section", undefined, "panel");
+    actionPanel.append(el("h2", "\u7BA1\u7406\u8005\u306E\u5BFE\u5FDC\u304C\u5FC5\u8981\u306A\u8AB2\u984C"));
+    const actions = el("div", undefined, "metrics");
+    const candidates = data.tasks.filter(t => !feature || t.feature === feature);
+    for (const [kind, label] of [["approval","\u627F\u8A8D\u5F85\u3061"],["blocked","\u9032\u884C\u505C\u6B62"],["quality","\u54C1\u8CEA\u78BA\u8A8D\u5F85\u3061"],["inconsistent","\u8A18\u9332\u306E\u4E0D\u6574\u5408"]]) {
+      const action = el("button", label + " \xB7 " + candidates.filter(t => needs(t,kind)).length, "metric");
+      action.dataset.focusKey = "action:" + kind;
+      action.onclick = () => { attention = kind; query = ""; filter = ""; $("search").value = ""; syncFilters(); location.hash = "list"; render(); };
+      actions.append(action);
+    }
+    actionPanel.append(actions); c.append(actionPanel);
+    const metrics = el("div", void 0, "metrics");
+    for (const [label, count] of [["\u8AB2\u984C", tasks.length], ["\u627F\u8A8D\u5F85\u3061", tasks.filter((t) => t.approval === "Draft").length], ["\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", tasks.filter((t) => t.status === "Blocked").length], ["\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", tasks.filter((t) => t.status === "Done").length]]) {
+      const m = el("div", void 0, "metric");
+      m.append(el("span", label, "muted"), el("strong", String(count)));
+      metrics.append(m);
+    }
+    c.append(metrics);
+    const p = el("section", void 0, "panel");
+    p.append(el("h2", "\u958B\u767A\u30C6\u30FC\u30DE\u3054\u3068\u306E\u9032\u6357\u3068\u6B21\u306E\u5BFE\u5FDC"));
+    for (const f of data.features.filter((f2) => !feature || f2.id === feature)) {
+      const r = el("div", void 0, "phase");
+      const name = el("div", featureName(f.id));
+      name.title = f.id;
+      r.append(name);
+      const phase = Object.hasOwn(PHASES, f.phase) ? PHASES[f.phase] : ["\u72B6\u6CC1\u306E\u78BA\u8A8D\u304C\u5FC5\u8981", "\u672A\u5BFE\u5FDC\u306E\u5DE5\u7A0B\u3067\u3059\u3002\u62C5\u5F53\u8005\u306B\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"];
+      const next = el("div", phase[0]);
+      next.append(el("small", phase[1], "muted"));
+      const technical = el("details");
+      technical.dataset.feature = f.id;
+      technical.open = opened.has(f.id);
+      technical.dataset.focusKey = "details:" + f.id;
+      technical.append(el("summary", "\u6280\u8853\u60C5\u5831\uFF08\u62C5\u5F53\u8005\u5411\u3051\uFF09"), el("pre", "\u8B58\u5225\u5B50: " + f.id + "\\n\u5DE5\u7A0B: " + f.phase + "\\n\u64CD\u4F5C: " + (f.nextCommand || "\u672A\u78BA\u8A8D")));
+      next.append(technical);
+      for (const w of f.warnings) next.append(el("small", w, "issue-warning"));
+      r.append(next);
+      p.append(r);
+    }
+    c.append(p);
+  } else if (v === "board") {
+    const board = el("div", void 0, "board");
+    for (const state of [...STATES, ...new Set(tasks.map((t) => t.status).filter((s) => !STATES.includes(s)))]) {
+      const column = el("section", void 0, "column");
+      const items = tasks.filter((t) => t.status === state);
+      column.append(el("h2", (LABELS[state] || state) + " \xB7 " + items.length));
+      for (const t of items) column.append(card(t));
+      board.append(column);
+    }
+    c.append(board);
+  } else if (v === "list") c.append(tasks.length ? list(tasks) : el("div", "\u6761\u4EF6\u306B\u4E00\u81F4\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "empty"));
+  else if (v === "backlog") {
+    for (const [label, predicate] of [["\u627F\u8A8D\u5F85\u3061", (t) => t.approval === "Draft"], ["\u4E88\u5B9A", (t) => t.approval !== "Draft" && t.status === "Planned"], ["\u9032\u884C\u4E2D\u30FB\u8981\u5BFE\u5FDC", (t) => t.approval !== "Draft" && !["Planned", "Done"].includes(t.status)]]) {
+      const p = el("section", void 0, "panel");
+      const items = tasks.filter(predicate);
+      p.append(el("h2", label + " \xB7 " + items.length));
+      p.append(items.length ? list(items) : el("p", "\u8A72\u5F53\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "muted"));
+      c.append(p);
+    }
+  } else if (v === "timeline") {
+    c.append(el("p", "\u65E5\u4ED8\u8EF8\u3092\u4F7F\u308F\u305A\u3001\u4E88\u5B9A \u2192 \u9032\u884C\u4E2D \u2192 \u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061 \u2192 \u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09 \u306E\u6BB5\u968E\u3092\u8868\u793A\u3057\u307E\u3059\u3002", "muted"));
+    for (const t of tasks) {
+      const r = el("div", void 0, "phase");
+      const b = el("button", t.id + " " + t.title, "card");
+      b.dataset.focusKey = t.key;
+      b.onclick = () => openDetail(t.key);
+      r.append(b);
+      const right = el("div");
+      right.append(badge(t.status));
+      const track = el("div", void 0, "track");
+      const steps = ["Planned", "In Progress", "Implementation Complete", "Done"];
+      const current = steps.indexOf(t.status);
+      steps.forEach((step, i) => {
+        const s = el("span", void 0, "segment" + (i <= current ? t.status === "Done" ? " done" : " active" : ""));
+        s.title = LABELS[step];
+        track.append(s);
+      });
+      right.append(track);
+      r.append(right);
+      c.append(r);
+    }
+    if (!tasks.length) c.append(el("p", "\u8868\u793A\u3059\u308B\u8AB2\u984C\u306F\u3042\u308A\u307E\u305B\u3093\u3002", "empty"));
+  } else if (v === "releases") {
+    const groups = [...new Set(tasks.map((t) => t.release).filter(Boolean))];
+    if (!groups.length) c.append(el("div", "\u30EA\u30EA\u30FC\u30B9\u4E88\u5B9A\u306F\u672A\u767B\u9332\u3067\u3059\u3002\u30BF\u30B9\u30AF\u306B\u30EA\u30EA\u30FC\u30B9\u4E88\u5B9A\u304C\u767B\u9332\u3055\u308C\u308B\u3068\u8868\u793A\u3055\u308C\u307E\u3059\u3002", "empty"));
+    for (const name of groups) {
+      const items = tasks.filter((t) => t.release === name);
+      const done = items.filter((t) => t.status === "Done").length;
+      const p = el("section", void 0, "panel");
+      p.append(el("h2", name), el("p", done + " / " + items.length + " \u4EF6\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09\u30FB\u516C\u958B\u72B6\u6CC1\u306F\u672A\u78BA\u8A8D", "muted"));
+      const bar = el("progress");
+      bar.max = items.length;
+      bar.value = done;
+      bar.setAttribute("aria-label", name + "\u306E\u30BF\u30B9\u30AF\u9032\u6357");
+      p.append(bar, list(items));
+      c.append(p);
+    }
+    const unassigned = tasks.filter((t) => !t.release).length;
+    c.append(el("p", "\u30EA\u30EA\u30FC\u30B9\u672A\u5272\u308A\u5F53\u3066: " + unassigned + "\u4EF6", "muted"));
+  }
+  if (attention) {
+    const clear = el("button", "\u5BFE\u5FDC\u4E8B\u9805\u306E\u7D5E\u308A\u8FBC\u307F\u3092\u89E3\u9664", "pause");
+    clear.dataset.focusKey = "clear-attention";
+    clear.onclick = () => { attention = ""; render(); };
+    c.prepend(clear);
+  }
+  if (activeKey) {
+    const target = [...c.querySelectorAll("[data-focus-key]")].find(n => n.dataset.focusKey === activeKey);
+    if (target) (target.tagName === "DETAILS" ? target.querySelector("summary") : target).focus({preventScroll:true});
+    else $("title").focus({preventScroll:true});
+  }
+  if (c.querySelector(".board")) c.querySelector(".board").scrollLeft = scroll.board;
+  window.scrollTo(scroll.x,scroll.y);
+  if ($("detail").open) renderDetail();
+}
+function validSnapshot(s) {
+  if (!s || s.schema !== "sdd-dashboard/v1" || typeof s.revision !== "string" || !Number.isFinite(Date.parse(s.attemptedAt)) || Date.parse(s.attemptedAt) > Date.now() + 3e4 || !(s.error === null || typeof s.error === "string")) return false;
+  for (const k of ["checkedAt", "changedAt", "lastSuccessAt"]) if (s[k] !== null && (!Number.isFinite(Date.parse(s[k])) || Date.parse(s[k]) > Date.parse(s.attemptedAt))) return false;
+  if (s.data === null) return typeof s.error === "string" && s.checkedAt === null;
+  if (!s.checkedAt || !s.lastSuccessAt || !s.changedAt || typeof s.data?.project !== "string" || !Array.isArray(s.data.features) || !Array.isArray(s.data.tasks)) return false;
+  if (s.data.features.length > 1e3 || s.data.tasks.length > 1e4) return false;
+  return s.data.features.every((f) => f && ["id", "phase", "nextCommand"].every((k) => typeof f[k] === "string") && Array.isArray(f.warnings) && f.warnings.every((w) => typeof w === "string")) && s.data.tasks.every((t) => t && ["key", "id", "feature", "title", "body", "status", "approval", "risk", "source"].every((k) => typeof t[k] === "string") && (t.release === null || typeof t.release === "string") && Array.isArray(t.failures) && t.failures.every((f) => typeof f === "string"));
+}
+async function readArtifact() {
+  let timer;
+  try {
+    return await Promise.race([window.sddDashboardRead(), new Promise((_, reject) => {
+      timer = setTimeout(() => reject(Error("\u30B3\u30CD\u30AF\u30BF\u306E\u5FDC\u7B54\u304C\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8\u3057\u307E\u3057\u305F")), 15e3);
+    })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function refresh() {
+  if (inFlight) return;
+  inFlight = true;
+  $("refresh").disabled = true;
+  try {
+    let next;
+    if (MODE === "artifacts") {
+      if (typeof window.sddDashboardRead !== "function") throw Error("Artifacts\u306E\u8AAD\u53D6\u30B3\u30CD\u30AF\u30BF\u304C\u672A\u63A5\u7D9A\u3067\u3059");
+      next = await readArtifact();
+    } else {
+      const response = await fetch("api/dashboard", { cache: "no-store", signal: AbortSignal.timeout(15e3) });
+      if (!response.ok) throw Error("HTTP " + response.status);
+      next = await response.json();
+    }
+    if (!validSnapshot(next)) throw Error("\u8868\u793A\u30C7\u30FC\u30BF\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    if (snapshot && Date.parse(next.attemptedAt) < Date.parse(snapshot.attemptedAt)) return;
+    latest = next;
+    lastContact = new Date().toISOString();
+    transportError = "";
+    if (!paused) {
+      const changed = !snapshot || snapshot.revision !== next.revision || Boolean(snapshot.data) !== Boolean(next.data);
+      snapshot = next;
+      if (changed) { syncFilters(); render(); }
+    }
+    await readObservations();
+    freshness();
+  } catch (e) {
+    transportError = e.message || "\u63A5\u7D9A\u3067\u304D\u307E\u305B\u3093";
+    freshness();
+    if (!snapshot) render();
+  } finally {
+    inFlight = false;
+    $("refresh").disabled = false;
+  }
+}
+for (const [id, title] of Object.entries(VIEWS)) {
+  const a = el("a", title);
+  a.href = "#" + id;
+  $("tabs").append(a);
+}
+$("search").oninput = () => {
+  query = $("search").value;
+  save();
+  render();
+};
+$("filter").onchange = () => {
+  filter = $("filter").value;
+  save();
+  render();
+};
+for (const id of ["feature", "mobile-feature"]) $(id).onchange = () => {
+  feature = $(id).value;
+  syncFilters();
+  render();
+};
+$("refresh").onclick = refresh;
+$("pause").onclick = () => {
+  paused = !paused;
+  $("pause").setAttribute("aria-pressed",String(paused));
+  if (paused) $("acknowledge").disabled = true;
+  $("pause").textContent = paused ? "\u8868\u793A\u66F4\u65B0\u3092\u518D\u958B" : "\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62";
+  if (!paused && latest) { snapshot = latest; syncFilters(); render(); renderActivity(); }
+  freshness();
+};
+const EVENT_LABELS = {"first-observed":"\u89B3\u6E2C\u3092\u958B\u59CB","added":"\u8AB2\u984C\u3092\u8FFD\u52A0\u78BA\u8A8D","changed":"\u5909\u66F4\u3092\u78BA\u8A8D","removed":"\u8AB2\u984C\u306E\u524A\u9664\u3092\u78BA\u8A8D","source-failed":"\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5931\u6557","source-recovered":"\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5FA9\u65E7","observation-gap":"\u89B3\u6E2C\u4E2D\u65AD\u5F8C\u306B\u518D\u958B"};
+const FIELD_LABELS = {status:"\u72B6\u614B",approval:"\u627F\u8A8D",risk:"\u30EA\u30B9\u30AF",release:"\u30EA\u30EA\u30FC\u30B9",validation:"\u691C\u8A3C\u30A8\u30E9\u30FC\u4EF6\u6570",source:"\u6B63\u672C",continuity:"\u89B3\u6E2C"};
+function validObservations(o) {
+  return o?.schema === "sdd-observations/v1" && typeof o.snapshotRevision === "string" && (o.observedAt === null || Number.isFinite(Date.parse(o.observedAt))) && typeof o.sourceError === "boolean" && typeof o.sourceStale === "boolean" && Array.isArray(o.events) && o.events.length <= 200 && o.tracking && typeof o.tracking === "object" && o.events.every(e => e && typeof e.id === "string" && Object.hasOwn(EVENT_LABELS,e.kind) && Object.hasOwn(FIELD_LABELS,e.field) && Number.isFinite(Date.parse(e.observedAt)) && typeof e.title === "string" && typeof e.notify === "boolean" && [e.before,e.after].every(v => v === null || typeof v === "string" || typeof v === "number")) && Object.values(o.tracking).every(t => t && Number.isFinite(Date.parse(t.since)) && Number.isFinite(Date.parse(t.lastObservedAt)) && Date.parse(t.lastObservedAt) >= Date.parse(t.since));
+}
+function renderActivity() {
+  if (paused) return;
+  const ready = observations && observations.observedAt && observations.snapshotRevision === snapshot?.revision;
+  $("activity-state").textContent = observationError || (!ready ? "\u73FE\u5728\u306E\u8868\u793A\u306B\u5BFE\u5FDC\u3059\u308B\u5C65\u6B74\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059" : observations.sourceError ? "\u6B63\u672C\u306E\u8AAD\u307F\u8FBC\u307F\u5931\u6557\u4E2D\u3002\u7D4C\u904E\u6642\u9593\u306E\u8A08\u6E2C\u306F\u505C\u6B62\u3057\u3066\u3044\u307E\u3059\u3002" : (observations.sourceStale || !snapshot?.checkedAt || Date.now()-Date.parse(snapshot.checkedAt)>60000) ? "\u6700\u7D42\u78BA\u8A8D\u304C\u53E4\u304F\u306A\u3063\u3066\u3044\u307E\u3059\u3002\u672A\u89B3\u6E2C\u306E\u5909\u5316\u306F\u5206\u304B\u308A\u307E\u305B\u3093\u3002" : "\u6700\u7D42\u89B3\u6E2C: " + new Date(observations.observedAt).toLocaleString("ja-JP"));
+  $("activity-events").hidden = !ready || !!observationError;
+  if (!ready || observationError) { $("acknowledge").disabled = true; return; }
+  const events = observations.events;
+  const unread = events.filter(e => e.notify && !acknowledged.has(e.id));
+  $("activity-summary").textContent = "\u901A\u77E5\u30FB\u5909\u66F4\u5C65\u6B74\uFF08\u672A\u78BA\u8A8D " + unread.length + "\u4EF6\uFF09";
+  $("acknowledge").disabled = !unread.length;
+  const signature = JSON.stringify([events,[...acknowledged]]);
+  if (activitySignature !== signature) {
+    activitySignature = signature;
+    $("activity-events").replaceChildren();
+    for (const event of [...events].reverse()) {
+      const label = v => v === null ? "\u306A\u3057" : ({ok:"\u6B63\u5E38",failed:"\u5931\u6557",unknown:"\u4E0D\u660E",resumed:"\u518D\u958B"}[v] || valueLabel(String(v)));
+      const li = el("li", (event.notify && !acknowledged.has(event.id) ? "\u672A\u78BA\u8A8D\u30FB" : "") + new Date(event.observedAt).toLocaleString("ja-JP") + " \u2014 " + EVENT_LABELS[event.kind] + " / " + FIELD_LABELS[event.field] + ": " + label(event.before) + " \u2192 " + label(event.after) + (event.title ? " / " + event.title : ""));
+      if (event.key && snapshot.data?.tasks.some(t => t.key === event.key)) { const button = el("button","\u8AB2\u984C\u306E\u8A73\u7D30"); button.onclick = () => openDetail(event.key); li.append(button); }
+      $("activity-events").append(li);
+    }
+    if (!events.length) $("activity-events").append(el("li","\u3053\u306E\u4FDD\u6301\u671F\u9593\u306E\u5909\u66F4\u8A18\u9332\u306F\u3042\u308A\u307E\u305B\u3093\u3002"));
+  }
+  if ($("detail").open) renderDetail();
+}
+async function readObservations() {
+  try {
+    let o;
+    if (MODE === "artifacts") {
+      if (typeof window.sddDashboardObservations !== "function") throw Error("\u3053\u306EArtifacts\u63A5\u7D9A\u306F\u5C65\u6B74\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u305B\u3093");
+      let timer; try { o = await Promise.race([window.sddDashboardObservations(),new Promise((_,reject) => {timer=setTimeout(() => reject(Error("\u5C65\u6B74\u306E\u53D6\u5F97\u304C\u30BF\u30A4\u30E0\u30A2\u30A6\u30C8\u3057\u307E\u3057\u305F")),10000)})]); } finally {clearTimeout(timer);}
+    } else {
+      const r = await fetch("api/observations",{cache:"no-store",signal:AbortSignal.timeout(10000)});
+      if (!r.ok) throw Error("\u5909\u66F4\u5C65\u6B74\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093");
+      o = await r.json();
+    }
+    if (!validObservations(o)) throw Error("\u5909\u66F4\u5C65\u6B74\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    observations = o; observationError = "";
+  } catch (e) { observationError = e.message || "\u5909\u66F4\u5C65\u6B74\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093"; }
+  renderActivity();
+}
+$("acknowledge").onclick = () => {
+  if (paused || observationError || observations?.snapshotRevision !== snapshot?.revision) return;
+  for (const e of observations?.events || []) if (e.notify) acknowledged.add(e.id);
+  acknowledged = new Set([...acknowledged].slice(-200));
+  try {localStorage.setItem(ackKey,JSON.stringify([...acknowledged]));} catch {}
+  renderActivity();
+};
+async function readHealth() {
+  if (MODE !== "http") { healthError = "\u3053\u306E\u63A5\u7D9A\u65B9\u5F0F\u3067\u306F\u53CE\u96C6\u30D7\u30ED\u30BB\u30B9\u306E\u7A3C\u50CD\u60C5\u5831\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u305B\u3093"; return; }
+  try {
+    const r = await fetch("api/health", {cache:"no-store",signal:AbortSignal.timeout(10000)});
+    if (!r.ok) throw Error("\u7A3C\u50CD\u60C5\u5831\u306F\u672A\u63D0\u4F9B\u307E\u305F\u306F\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093");
+    const h = await r.json();
+    if (h.schema !== "sdd-monitor/v1" || !Number.isFinite(Date.parse(h.observedAt)) || Date.parse(h.observedAt) > Date.now()+30000 || !Object.hasOwn(HEALTH_LABELS,h.state) || !["collectorVersion","publisherVersion"].every(k => typeof h[k] === "string" && /^[a-f0-9]{12}$/.test(h[k])) || !["consecutiveFailures","collectorRestarts","collectionMs"].every(k => Number.isSafeInteger(h[k]) && h[k]>=0)) throw Error("\u7A3C\u50CD\u60C5\u5831\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    health = h; healthError = "";
+  } catch { healthError = "\u7A3C\u50CD\u60C5\u5831\u306F\u672A\u63D0\u4F9B\u307E\u305F\u306F\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093"; }
+  freshness();
+}
+setInterval(readHealth,15000);
+readHealth();
+$("close").onclick = () => $("detail").close();
+$("detail").addEventListener("close", () => {
+  // A source update may have replaced the button that originally opened the dialog.
+  const trigger = [...$("content").querySelectorAll("[data-focus-key]")].find(n => n.dataset.focusKey === detailKey);
+  (trigger || $("title")).focus({preventScroll:true});
+});
+window.addEventListener("hashchange", render);
+document.addEventListener("visibilitychange", () => {
+  freshness();
+  if (!document.hidden) refresh();
+});
+setInterval(() => {freshness();renderActivity();}, 1e3);
+setInterval(refresh, 5e3);
+render();
+refresh();
+</script></body></html>`;
+  return page.replace("__SDD_PAGE_VERSION__", createHash4("sha256").update(page).digest("hex").slice(0, 12));
+}
+
+// src/status-view.ts
 var PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730 | sdd-forge</title><style>
 :root{font-family:system-ui,-apple-system,sans-serif;color:#172c38;background:#f3f6f8;line-height:1.75}*{box-sizing:border-box}body{margin:0}header{background:white;border-bottom:1px solid #dce4e9}header div,main{max-width:850px;margin:auto;padding:20px 24px}h1{font-size:clamp(26px,5vw,36px)}h2{font-size:22px}section{background:white;border:1px solid #dce4e9;border-radius:14px;padding:24px;margin:20px 0}select,button{font:inherit;min-height:48px;border:1px solid #8b9da9;border-radius:8px;padding:10px;background:white;color:#172c38}select{width:100%;margin-top:8px}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #1269ce;outline-offset:3px}.next{background:#eef5fc;border-radius:10px;padding:20px}.muted{color:#526675}ul{padding:0;list-style:none}li{border-bottom:1px solid #e7edf1;padding:12px 0;display:flex;justify-content:space-between;gap:12px}li span:last-child{text-align:right}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:20em;overflow:auto;background:#f3f6f8;padding:12px}summary{cursor:pointer;min-height:48px}code{overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:540px){main,header div{padding-left:20px;padding-right:20px}section{padding:20px}}
 </style></head><body><header><div><strong>sdd-forge</strong> <span class="muted">\u30FB\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></div></header><main><h1>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730</h1><p>\u3069\u3053\u307E\u3067\u9032\u3093\u3060\u304B\u3001\u6B21\u306B\u4F55\u3092\u3059\u308C\u3070\u3088\u3044\u304B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002</p><p class="muted">\u73FE\u5728\u306E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u304B\u3089\u53D6\u5F97\u3057\u307E\u3059\u3002\u66F4\u65B0\u30DC\u30BF\u30F3\u3067\u518D\u53D6\u5F97\u3067\u304D\u307E\u3059\u3002</p><label for="feature">\u78BA\u8A8D\u3059\u308B\u6A5F\u80FD</label><select id="feature" disabled><option>\u8AAD\u307F\u8FBC\u307F\u4E2D</option></select><p><button id="refresh" type="button">\u72B6\u614B\u3092\u66F4\u65B0</button></p><p id="error" role="alert"></p><section id="result" hidden><h2 id="headline"></h2><p id="reason"></p><div class="next"><strong>\u6B21\u306B\u3059\u308B\u3053\u3068</strong><p id="next"></p><p><code id="command"></code></p><button id="copy" type="button">\u30B3\u30DE\u30F3\u30C9\u3092\u30B3\u30D4\u30FC</button><p id="copy-result" role="status"></p><p class="muted">\u30B3\u30DE\u30F3\u30C9\u306F\u3053\u306E\u753B\u9762\u304B\u3089\u5B9F\u884C\u3055\u308C\u307E\u305B\u3093\u3002</p></div></section><section id="progress" hidden><h2>\u5DE5\u7A0B\u3054\u3068\u306E\u72B6\u614B</h2><p class="muted">\u72B6\u614B\u672A\u78BA\u8A8D\u306F\u3001\u53D6\u5F97\u30C7\u30FC\u30BF\u3060\u3051\u3067\u306F\u5B9F\u65BD\u72B6\u6CC1\u304C\u5206\u304B\u3089\u306A\u3044\u3053\u3068\u3092\u793A\u3057\u307E\u3059\u3002\u632F\u308A\u8FD4\u308A\u306F\u6761\u4EF6\u306B\u5FDC\u3058\u3066\u5B9F\u65BD\u3057\u307E\u3059\u3002</p><ul id="steps"></ul><details><summary>\u5224\u65AD\u306E\u6839\u62E0\u3092\u898B\u308B</summary><pre id="raw"></pre></details></section><p class="muted">\u8868\u793A\u306F\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3067\u3059\u3002\u30BF\u30B9\u30AF\u3084\u627F\u8A8D\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002</p></main><script>
@@ -41950,8 +42683,39 @@ const phases={'phase1-not-started':'\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u
 function row(name,value){const li=document.createElement('li');for(const text of [name,value]){const span=document.createElement('span');span.textContent=text;li.append(span)}$('steps').append(li)}
 async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';$('headline').textContent=phases[p]||'\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044';$('reason').textContent=explanations[p]||'MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
 async function start(){const id=++requestId;try{const r=await api('api/features');if(id!==requestId)return;if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='\u8868\u793A\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u305B\u3093\u3002'}catch(e){if(id!==requestId)return;$('error').textContent='\u6A5F\u80FD\u4E00\u89A7\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002\u958B\u767A\u74B0\u5883\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u304F\u3060\u3055\u3044\u3002'}catch{$('copy-result').textContent='\u81EA\u52D5\u30B3\u30D4\u30FC\u3067\u304D\u307E\u305B\u3093\u3002\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}};start();</script></body></html>`;
-async function startStatusView(root) {
+async function startStatusView(root, dashboard = false) {
   const token = randomBytes(32).toString("hex");
+  const reader = new DashboardReader(root);
+  const directory = dashboard ? process.env.SDD_DASHBOARD_STATE : void 0;
+  let stored = null;
+  if (directory) {
+    const info = lstatSync2(directory);
+    if (!info.isDirectory() || info.isSymbolicLink() || process.platform !== "win32" && info.mode & 63) throw new Error("Dashboard state directory must be private");
+    const file2 = join2(directory, "observations.json");
+    if (existsSync2(file2)) {
+      const stat = lstatSync2(file2);
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16 * 1024 * 1024) throw new Error("Invalid dashboard state file");
+      stored = JSON.parse(readFileSync2(file2, "utf8"));
+      if (!stored || stored.schema !== "sdd-dashboard/v1" || !stored._observations) throw new Error("Invalid dashboard state");
+    }
+  }
+  function sample() {
+    const next = reader.sample();
+    if (stored?.data && next.error && !next.data) {
+      next.data = stored.data;
+      next.revision = stored.revision;
+      next.checkedAt = stored.checkedAt;
+      next.lastSuccessAt = stored.lastSuccessAt;
+      next.changedAt = stored.changedAt;
+    }
+    if (stored?.revision === next.revision && stored?.changedAt) next.changedAt = stored.changedAt;
+    stored = { ...next, _observations: observe(stored, next) };
+    return next;
+  }
+  let snapshot = dashboard ? sample() : void 0;
+  const timer = dashboard ? setInterval(() => {
+    snapshot = sample();
+  }, 5e3) : void 0;
   let host = "";
   const server = createServer((req, res) => {
     const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" };
@@ -41971,7 +42735,10 @@ async function startStatusView(root) {
     const expected = Buffer.from(token);
     if (given.length !== expected.length || !timingSafeEqual(given, expected)) return send(404, "text/plain; charset=utf-8", "Not found");
     const route = parts.slice(2).join("/");
-    if (route === "") return send(200, "text/html; charset=utf-8", PAGE);
+    if (route === "") return send(200, "text/html; charset=utf-8", dashboard ? dashboardPage() : PAGE);
+    if (route === "api/runtime-state" && dashboard && directory) return send(200, "application/json; charset=utf-8", JSON.stringify(stored));
+    if (route === "api/observations" && dashboard) return send(200, "application/json; charset=utf-8", JSON.stringify(observationView(stored)));
+    if (route === "api/dashboard" && dashboard) return send(200, "application/json; charset=utf-8", JSON.stringify(snapshot));
     if (route === "api/features") return send(200, "application/json; charset=utf-8", JSON.stringify(listActiveSpecs(root)));
     if (route === "api/status") {
       const feature = url2.searchParams.get("feature") ?? "";
@@ -41979,6 +42746,12 @@ async function startStatusView(root) {
       return send(200, "application/json; charset=utf-8", JSON.stringify({ spec: getSpecStatus(root, feature), tasks: getTaskState(root, feature), next: getNextSddCommand2(root, feature) }));
     }
     return send(404, "text/plain; charset=utf-8", "Not found");
+  });
+  server.once("close", () => {
+    if (timer) clearInterval(timer);
+  });
+  server.once("error", () => {
+    if (timer) clearInterval(timer);
   });
   await new Promise((resolve3, reject) => {
     server.once("error", reject);
@@ -42017,8 +42790,27 @@ async function main() {
   };
   process.stderr.write(`${JSON.stringify(startupInfo)}
 `);
-  if (process.argv.slice(2).includes("--status-ui")) {
-    const view = await startStatusView(root);
+  const args = process.argv.slice(2);
+  if (args.includes("--dashboard-snapshot") || args.includes("--dashboard-stream") || args.includes("--dashboard-monitor-stream")) {
+    const reader = new DashboardReader(root);
+    const emit = () => {
+      const started = performance.now();
+      const snapshot = reader.sample();
+      const output2 = args.includes("--dashboard-monitor-stream") ? { ...snapshot, _collectionMs: Math.round(performance.now() - started) } : snapshot;
+      process.stdout.write(JSON.stringify(output2) + "\n");
+    };
+    emit();
+    if (args.includes("--dashboard-stream") || args.includes("--dashboard-monitor-stream")) setInterval(emit, 5e3);
+    return;
+  }
+  if (args.includes("--dashboard-html")) {
+    const parent = args[args.indexOf("--parent-service") + 1];
+    if (!args.includes("--parent-service") || !parent) throw new Error("--parent-service is required");
+    process.stdout.write(dashboardPage(selectPresentation(parent) === "artifacts" ? "artifacts" : "http"));
+    return;
+  }
+  if (args.includes("--status-ui") || args.includes("--dashboard")) {
+    const view = await startStatusView(root, args.includes("--dashboard"));
     process.stderr.write(`Read-only status view: ${view.url}
 `);
     return;

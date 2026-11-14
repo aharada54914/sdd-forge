@@ -1,0 +1,33 @@
+{
+  "checks": [
+    {
+      "case": "missing bundle does not imply completion",
+      "passed": true
+    },
+    {
+      "case": "dated canonical report resolved by bundle",
+      "passed": true
+    },
+    {
+      "case": "stale report hash rejected",
+      "passed": true
+    },
+    {
+      "case": "different task rejected",
+      "passed": true
+    },
+    {
+      "case": "different feature rejected",
+      "passed": true
+    },
+    {
+      "case": "outside report path rejected",
+      "passed": true
+    },
+    {
+      "case": "lite direct report supported",
+      "passed": true
+    }
+  ],
+  "passed": 7
+}

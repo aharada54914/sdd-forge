@@ -1,0 +1,7 @@
+$ bash reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/scripts/check-task-state.sh specs/task-board/tasks.md reports/quality-gate reports/implementation /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Task state check passed for 5 task(s).
+
+EXIT_CODE=0

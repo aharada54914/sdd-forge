@@ -1,0 +1,18 @@
+{
+  "helper_sha256": "5c81e5403c469f036010ca24641f2d959e2e4c7c4f821ba41e08c8402247f1f2",
+  "checks": {
+    "isolated_writer_accepted": true,
+    "isolated_execution_success_tasks_unchanged": true,
+    "nonisolated_writer_rejected": true,
+    "BASH_FUNC_python3%%_rejected": true,
+    "BASH_ENV_rejected": true,
+    "ENV_rejected": true,
+    "direct_authority_rejected": true,
+    "traversal_rejected": true,
+    "exec_rejected": true,
+    "shell_tail_rejected": true,
+    "unquoted_heredoc_rejected": true,
+    "symlink_rejected": true,
+    "hardlink_rejected": true
+  }
+}

@@ -1,0 +1,16 @@
+RUN_ID: 01a1d33e-45d8-7ff0-9400-2aed634fa843
+HOST_SESSION_ID: 01a1d33e-45d8-7ff0-9400-2aed634fa843
+ALLOWED_INPUT_MANIFEST: reports/integration/quality-T-005-v10-product-native/invocation.json 2a6b5cfe3bc5ef719f15fc5fd7920e604dd99314bf58709e935013724524b417
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Recomputed manifest and reservation-record hashes; verified all 97 admitted file hashes, receipt sequence, task identity, and supplemental binding. Did not read the ledger.
+- Executed standalone /bin/cat specs/task-board/requirements.md; exit 0.
+- Inspected storage, HTTP, UI, and test code against AC-001–013. Found substantive assertions covering persistence, validation, mutation locking, failure recovery, keyboard operation, and security boundaries.
+- Inspected saved execution evidence: 43 unittest tests and 11 Chromium scenarios passed, exit 0. Application/test hashes match the implementation snapshot.
+- Independently checked recorded socket tables: sole task-port listener was 127.0.0.1; loopback GET succeeded and nonloopback probes returned connection refused.
+- Viewed hash-verified reference and 1440/390/320px screenshots: selected visual attributes and responsive wrapping match. Enlargement evidence covers CSS zoom, not native browser zoom.
+- Verified producer-bound component-check output against admitted implementation and applicability policy: executed disabled-legacy N/A, not substantive coverage.
+- README matches startup, storage, recovery, testing, and operational limits.
+- Did not rerun unittest, browser, lint, typecheck, build, or scripted gates requiring writes, sockets, or undeclared dependencies; inspected saved evidence instead.

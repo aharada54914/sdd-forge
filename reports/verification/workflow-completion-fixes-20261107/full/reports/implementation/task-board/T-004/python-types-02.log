@@ -1,0 +1,4 @@
+COMMAND: /workspace/.tools/sdd-forge-python/bin/mypy --strict --follow-imports=silent --python-executable /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python tests/browser_checks.py
+Success: no issues found in 1 source file
+
+EXIT_CODE: 0

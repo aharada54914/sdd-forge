@@ -1,0 +1,90 @@
+$ python3 -B reports/integration/run_ui_stack_checks.py typecheck
+COMMAND: ['/workspace/.tools/sdd-forge-python/bin/mypy', '--strict', '--follow-imports=silent', '--cache-dir', '/tmp/task-board-parent-mypy-final', '--python-executable', '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', 'store.py', 'server.py', 'scripts/generate_tokens.py', 'tests']
+tests/test_store.py:20: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:20: note: Use "-> None" if function does not return a value
+tests/test_store.py:26: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:29: error: Function is missing a type annotation  [no-untyped-def]
+tests/test_store.py:36: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:36: note: Use "-> None" if function does not return a value
+tests/test_store.py:39: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:42: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:42: note: Use "-> None" if function does not return a value
+tests/test_store.py:53: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:53: note: Use "-> None" if function does not return a value
+tests/test_store.py:59: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:59: note: Use "-> None" if function does not return a value
+tests/test_store.py:60: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:62: error: Need type annotation for "title"  [var-annotated]
+tests/test_store.py:65: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:67: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:67: note: Use "-> None" if function does not return a value
+tests/test_store.py:68: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:76: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:76: note: Use "-> None" if function does not return a value
+tests/test_store.py:77: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:79: error: Need type annotation for "value"  [var-annotated]
+tests/test_store.py:82: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:84: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:85: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:88: error: Need type annotation for "task_id"  [var-annotated]
+tests/test_store.py:92: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:96: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:98: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:98: note: Use "-> None" if function does not return a value
+tests/test_store.py:99: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:108: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:108: note: Use "-> None" if function does not return a value
+tests/test_store.py:109: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:120: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:120: note: Use "-> None" if function does not return a value
+tests/test_store.py:121: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:135: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:136: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:161: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:161: note: Use "-> None" if function does not return a value
+tests/test_store.py:162: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:163: error: Need type annotation for "invalid_tasks"  [var-annotated]
+tests/test_store.py:179: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:179: note: Use "-> None" if function does not return a value
+tests/test_store.py:180: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:193: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:194: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:202: error: Call to untyped function (unknown) in typed context  [no-untyped-call]
+tests/test_store.py:203: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:205: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:205: note: Use "-> None" if function does not return a value
+tests/test_store.py:208: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:213: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:215: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:215: note: Use "-> None" if function does not return a value
+tests/test_store.py:216: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:221: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:223: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:224: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:228: error: Function is missing a type annotation  [no-untyped-def]
+tests/test_store.py:235: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:237: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:237: note: Use "-> None" if function does not return a value
+tests/test_store.py:238: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:244: error: Function is missing a type annotation  [no-untyped-def]
+tests/test_store.py:259: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:262: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:262: note: Use "-> None" if function does not return a value
+tests/test_store.py:263: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:285: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:286: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:293: error: Call to untyped function "assert_preserved" in typed context  [no-untyped-call]
+tests/test_store.py:295: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:295: note: Use "-> None" if function does not return a value
+tests/test_store.py:298: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:303: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:303: note: Use "-> None" if function does not return a value
+tests/test_store.py:304: error: Call to untyped function "seed" in typed context  [no-untyped-call]
+tests/test_store.py:309: error: Function is missing a type annotation  [no-untyped-def]
+tests/test_store.py:313: error: Function is missing a type annotation  [no-untyped-def]
+tests/test_store.py:329: error: Function is missing a return type annotation  [no-untyped-def]
+tests/test_store.py:333: error: Function is missing a type annotation  [no-untyped-def]
+Found 66 errors in 1 file (checked 7 source files)
+EXIT: 1
+
+EXIT_CODE=1

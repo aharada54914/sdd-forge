@@ -1,0 +1,13 @@
+$ python3 -B reports/integration/run_ui_stack_checks.py build
+COMMAND: ['node', '--check', 'web/app.js']
+EXIT: 0
+COMPILED: store.py
+COMPILED: server.py
+COMPILED: scripts/generate_tokens.py
+COMPILED: tests/browser_checks.py
+COMPILED: tests/test_http.py
+COMPILED: tests/test_store.py
+COMPILED: tests/test_tokens.py
+RUNTIME_STATIC_BYTES: {'web/index.html': 1820, 'web/app.js': 8652, 'web/styles.css': 3456, 'design-system/build/tokens.css': 593} TOTAL: 14521
+
+EXIT_CODE=0

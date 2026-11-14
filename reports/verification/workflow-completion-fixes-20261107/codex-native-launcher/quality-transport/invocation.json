@@ -1,0 +1,67 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sum",
+  "task_id": "T-001",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sum/T-001.md",
+      "sha256": "c19a847293063e4917817565ad5273688423b8046d0429526d7376178bf5cf45"
+    },
+    {
+      "path": "reports/test-result.txt",
+      "sha256": "7b00ea614b0c484f8c412c0da631a41074850557ba2096a4a5a968e23068ee7d"
+    },
+    {
+      "path": "specs/sum/acceptance-tests.md",
+      "sha256": "6d2cfb854f89d6033d08de045ba2f779a1472bfbeeeb7a82094025a53052b9d5"
+    },
+    {
+      "path": "specs/sum/design.md",
+      "sha256": "71feadff36fe55290491c1b5affe9e4f05c80f1366c210b44f51ce33989ed3ec"
+    },
+    {
+      "path": "specs/sum/requirements.md",
+      "sha256": "2b689b2749bde2eb76a683238276f470e109f266714854b9d1f2b09791a30dd2"
+    },
+    {
+      "path": "specs/sum/tasks.md",
+      "sha256": "68dbd58b2a2b0265d4af5984c27c53e34099013e4423b057011109f5bcec3558"
+    },
+    {
+      "path": "specs/sum/traceability.md",
+      "sha256": "d82060bcd196479d127f16f0d89fef83524aeccd4f35570e3e058954dcaf1a51"
+    },
+    {
+      "path": "sum_values.py",
+      "sha256": "931cb3deac007b3cc2a71663289dc1577b993af1f94970dd2c237d0ab7ab216a"
+    },
+    {
+      "path": "tests/test_sum.py",
+      "sha256": "19cf7607dfcb865ace73819e514d3f279b9470305af1114392a0e6ecdce73062"
+    },
+    {
+      "path": "reports/task-inputs/sum/T-001.json",
+      "sha256": "e4e56677dd723150ace52f86e54946970322d727b018f14cfa2b6601285a5790"
+    }
+  ],
+  "run_id": "01a1b5cb-4f70-7ba2-a997-1927e541118e",
+  "host_session_id": "01a1b5cb-4f70-7ba2-a997-1927e541118e",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "4518ded177c602b5e81b9a8591ff0cd1962229a034d08aa351cdd251cc200334",
+  "sequence": 10,
+  "previous_record_sha256": "41cf3a90038e8dc41f63472cac7fa734cf14b70c5ddb8f50f4b68c34f2b9fb3e",
+  "implementation_manifest": {
+    "path": "reports/task-inputs/sum/T-001.json",
+    "sha256": "e4e56677dd723150ace52f86e54946970322d727b018f14cfa2b6601285a5790"
+  },
+  "scratch_root": "/tmp/sdd-codex-review-zqnpmtxq/inputs"
+}

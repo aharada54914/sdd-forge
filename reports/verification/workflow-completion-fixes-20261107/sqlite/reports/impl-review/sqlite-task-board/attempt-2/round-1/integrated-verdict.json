@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "sqlite-task-board",
+  "run_id": "01a1b5a7-cf8f-7a73-b047-488362834031",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 2,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0
+}

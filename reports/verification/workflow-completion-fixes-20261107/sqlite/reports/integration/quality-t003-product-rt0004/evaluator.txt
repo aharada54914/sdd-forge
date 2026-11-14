@@ -1,0 +1,14 @@
+RUN_ID: 01a1d352-cac2-7fc2-999a-cf86836a03b5
+HOST_SESSION_ID: 01a1d352-cac2-7fc2-999a-cf86836a03b5
+ALLOWED_INPUT_MANIFEST: reports/integration/quality-t003-product-rt0004/invocation.json 71fcaaf1351cab0e6d256d502da71af7806dcc6ba96e7f64e848521e7f40d4c9
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] static/app.js:132–172 — Failed writes retain an unqualified previous success message, conflicting with AC-007’s failure feedback requirement. After a successful add followed by a failed add, “タスクを追加しました。” remains alongside “保存できませんでした。” Neither mutation entry nor failure clears status. tests/browser_task_board.py:304,447 explicitly preserve prior status instead of checking that success feedback is removed. Clear stale success and add a success-then-failure regression.
+CHECKED:
+- Recomputed manifest and receipt SHA-256; verified fresh reservation fields and all 94 admitted file hashes. No ledger read or reservation performed.
+- Verified T-003 invocation, contract, report heading/Task ID and supplemental report binding.
+- Executed standalone /bin/cat README.md successfully.
+- Inspected frontend, backend, API contract, ADR and acceptance requirements at line level.
+- Inspected saved browser evidence: 25 passing groups, 17 malformed-response cases, distinct restart PIDs and identical persisted state. Saved backend output records 37 passing tests.
+- Compared Unicode failure evidence with corrected normalization and saved boundary regressions.
+- Browser/backend suites were not rerun: they require filesystem writes, loopback networking and/or undeclared browser dependencies. Saved results are not claimed as fresh executions.

@@ -1,0 +1,7 @@
+{
+  "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-traceability.sh specs/task-board/traceability.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed require-evidence",
+  "exit_code": 0,
+  "started_at": "2026-11-13T04:26:36.019512+00:00",
+  "finished_at": "2026-11-13T04:26:36.052470+00:00",
+  "evidence": "reports/verification/task-board/T-003-v10/traceability.log"
+}

@@ -1,0 +1,9 @@
+COMMAND: python3 -B tests/browser_checks.py --case crud --case mobile-crud --case pending --case failures --case restart --output-dir reports/visual-evidence/task-board/T-004/interaction-02
+Evidence: reports/visual-evidence/task-board/T-004/interaction-02
+PASS crud
+PASS mobile-crud
+PASS pending
+PASS failures
+PASS restart
+
+EXIT_CODE: 0

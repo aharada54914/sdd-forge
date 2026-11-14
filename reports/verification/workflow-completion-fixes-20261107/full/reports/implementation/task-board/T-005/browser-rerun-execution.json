@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python3",
+    "tests/browser_checks.py",
+    "--output-dir",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/visual-evidence/task-board/T-005/acceptance-rerun",
+    "--chromium",
+    "/usr/bin/chromium"
+  ],
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/handoffs/task-board/T-005-registered/snapshot",
+  "started": "2026-11-13T04:44:27.233353+00:00",
+  "ended": "2026-11-13T04:44:47.488513+00:00",
+  "exit_code": 0,
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/tmp"
+  },
+  "rerun_reason": "First launch failed before cases because task scratch absolute path exceeds Chromium UNIX socket path length; use normal auto-cleaned runtime temp directories."
+}

@@ -1,0 +1,4 @@
+Command: ['/workspace/.tools/sdd-forge-python/bin/mypy', '--strict', '--follow-imports=silent', '--cache-dir=/dev/null', 'server.py', 'tests/test_http.py']
+Success: no issues found in 2 source files
+
+Exit code: 0

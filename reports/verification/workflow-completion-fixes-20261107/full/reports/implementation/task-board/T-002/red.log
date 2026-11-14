@@ -1,0 +1,24 @@
+Command: python3 -B -m unittest discover -s tests -p test_http.py -v
+test_http (unittest.loader._FailedTest.test_http) ... ERROR
+
+======================================================================
+ERROR: test_http (unittest.loader._FailedTest.test_http)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_http
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/tests/test_http.py", line 22, in <module>
+    import server
+ModuleNotFoundError: No module named 'server'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+
+Exit code: 1

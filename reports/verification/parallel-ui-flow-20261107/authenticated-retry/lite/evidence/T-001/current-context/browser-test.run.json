@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npm",
+    "test"
+  ],
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-authenticated",
+  "started_at": "2026-11-07T10:11:09.489321+00:00",
+  "finished_at": "2026-11-07T10:11:11.942633+00:00",
+  "exit_code": 0,
+  "BOARD_EVIDENCE_DIR": "evidence/T-001/current-context/browser"
+}

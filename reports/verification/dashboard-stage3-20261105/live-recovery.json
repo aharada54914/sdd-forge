@@ -1,0 +1,13 @@
+{
+  "tasks": 265,
+  "japaneseFeatures": 48,
+  "historySchema": "sdd-observations/v1",
+  "historyEvents": 0,
+  "publisherKilled": 57875,
+  "publisherRecovered": 58233,
+  "publisherRestarts": 1,
+  "before": "2026-11-05T22:54:59.899Z",
+  "after": "2026-11-05T22:55:14.740Z",
+  "health": "running",
+  "sourceError": null
+}

@@ -1,0 +1,35 @@
+{
+  "observedAt": "2026-11-14T04:36:35.394916+00:00",
+  "workerSha256": "ec1210650dd5b31755c9bd6daf62979f0441706554053b75732bce87c53749b8",
+  "baselineSiteVersion": 13,
+  "existingArchitecture": {
+    "reader": "5-second browser polling of stored R2 snapshot",
+    "snapshotWrite": "PUT /api/snapshot requires publisher authentication and same project identity",
+    "healthWrite": "PUT /api/health requires publisher authentication",
+    "sourceCollection": "No collector/publisher implementation in current site checkout; current 3-session progress is explicit static saved snapshot"
+  },
+  "localReadiness": {
+    "publisherEnvironmentPresent": false,
+    "matchingPublisherCollectorProcessesObserved": 0,
+    "startupIntegrationFound": false,
+    "mainTaskManifests": 42,
+    "verificationWorkspaces": {
+      "lite-task-board-fixed": 1,
+      "full-task-board-fixed": 5,
+      "sqlite-task-board-fixed": 3
+    }
+  },
+  "notVerified": [
+    "Existing external publisher in another environment",
+    "Production snapshot identity and timestamps",
+    "Automatic local-source collection to production publication",
+    "Authenticated production browser polling"
+  ],
+  "boundaries": [
+    "No publisher secret read, printed, replaced or guessed",
+    "No production writes or audience changes",
+    "No forged viewer identity header to production",
+    "No alteration of completed verification task states"
+  ],
+  "issue": "https://github.com/aharada54914/sdd-forge/issues/728"
+}

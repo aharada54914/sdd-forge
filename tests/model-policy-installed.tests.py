@@ -3846,6 +3846,7 @@ SPEC_CALLER_RUNTIME = sorted({
     *('plugins/sdd-review-loop/scripts/' + name for name in (
         'launch-impl-review.py', 'validate-nontty-spec-launch.py', 'preflight-host-review.py',
         'probe-nontty-review.py', 'nontty-impl-pretool-guard.mjs', 'spec-review-precheck.sh',
+        'prepare-review-assets.py',
         'review-contract-validate.sh', 'lib/fixed-input-source.sh')),
     *('plugins/sdd-quality-loop/scripts/' + name for name in (
         'validate-review-context-set.sh', 'review-conditional-inputs.py'))})

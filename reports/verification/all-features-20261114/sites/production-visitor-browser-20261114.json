@@ -1,0 +1,28 @@
+{
+  "observedAt": "2026-11-14T07:36:05.060290+00:00",
+  "site": "https://sdd-forge-status-20261105.jrmagneticlevitation.chatgpt.site",
+  "siteVersion": 15,
+  "method": "Actual TinyFish browser using previously authorized saved profile; normal visitor navigation only",
+  "runId": "0282911c-031f-4ffb-bdd2-9c34dd6e1789",
+  "runUrl": "https://agent.tinyfish.ai/runs/0282911c-031f-4ffb-bdd2-9c34dd6e1789",
+  "result": "BLOCKED_AUTHENTICATION",
+  "visibleTitle": "Sign in required",
+  "visibleHeading": "Log in to access",
+  "visibleAction": "Continue with ChatGPT",
+  "authenticatedVisitorEstablished": false,
+  "serviceBypassHeadersUsed": false,
+  "forgedIdentityUsed": false,
+  "checksNotRun": [
+    "six view navigation",
+    "task details",
+    "pause/resume polling",
+    "history/notification rendering",
+    "visible source freshness across refresh"
+  ],
+  "nextAction": "Sign in to ChatGPT in the selected saved browser profile, save the profile session, then repeat this same production browser verification.",
+  "limits": [
+    "An existing Claude/Google session does not establish ChatGPT Sites visitor identity.",
+    "This finding applies to the tested browser profile, not every browser the user may have signed into.",
+    "No source, task state, audience or production data was changed by this run."
+  ]
+}

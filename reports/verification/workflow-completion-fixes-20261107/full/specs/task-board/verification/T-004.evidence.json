@@ -1,0 +1,246 @@
+{
+  "task_id": "T-004",
+  "feature": "task-board",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "183d0504fed2af3972c0e867ade2ec2eb500c733d78b2d916e19c888d40c3645",
+  "quality_report": "reports/quality-gate/T-004-v10-r1-retry-final.md",
+  "verification_contract": "specs/task-board/verification/T-004.contract.json",
+  "git_commit": "c336d0b092a675d1c1edac74b4cca0d901fc6688",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B reports/integration/run_ui_stack_checks.py lint",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:42:32Z",
+      "finished_at": "2026-11-13T04:42:32Z",
+      "evidence": "reports/verification/task-board/T-004-v10/lint.log",
+      "evidence_sha256": "291eb2d82eaab8820d41201dfa749bdb9ee4f3c6d3933c300222313b3d542445"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B reports/integration/run_ui_stack_checks.py typecheck",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:36Z",
+      "finished_at": "2026-11-13T04:43:37Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/typecheck.log",
+      "evidence_sha256": "51b82e2eded689fd76fa645783b9789470ddb52681fcd24f9f67006ef0764cd8"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:37Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/tests.log",
+      "evidence_sha256": "5be228de5bda1cc8755dda238f21d0146f3ecb78f9141931e48d9fab47baeb2c"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/browser_checks.py --output-dir reports/visual-evidence/task-board/T-004/quality-v10 --full",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:44:01Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/browser.log",
+      "evidence_sha256": "32b79911f338be2fe41525582f9344c8b24de5e65a9d42d8c3abe992b5970c12"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B reports/integration/run_ui_stack_checks.py build",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/build.log",
+      "evidence_sha256": "fbfe9ad1921352a0b1def3a723df9629b4c0c5c1cac065a204e6afc49d3b52ce"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-placeholders.sh web/index.html web/app.js web/styles.css",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/placeholders.log",
+      "evidence_sha256": "2d86d94ee74d851b19b500b34119ab8be128218a0d5934203e47ddd47cb1a2c2"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-task-state.sh specs/task-board/tasks.md reports/quality-gate reports/implementation /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/task-state.log",
+      "evidence_sha256": "f5ff49b15e87bf5216453c885d50e29a37677aebfc79fd94adccf9f6d9fb8b75"
+    },
+    {
+      "id": "smoke-run",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/browser_checks.py --output-dir reports/visual-evidence/task-board/T-004/quality-v10 --full",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:44:01Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/browser.log",
+      "evidence_sha256": "32b79911f338be2fe41525582f9344c8b24de5e65a9d42d8c3abe992b5970c12"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/browser_checks.py --output-dir reports/visual-evidence/task-board/T-004/quality-v10 --full",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:44:01Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/browser.log",
+      "evidence_sha256": "32b79911f338be2fe41525582f9344c8b24de5e65a9d42d8c3abe992b5970c12"
+    },
+    {
+      "id": "design-system",
+      "required": true,
+      "passes": true,
+      "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-design-system.sh /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed specs/task-board/design.md web/index.html web/app.js web/styles.css",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:44:01Z",
+      "finished_at": "2026-11-13T04:44:01Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/design-system.log",
+      "evidence_sha256": "7507b37823655291bd9aa7441b7af54561d496f26d9acef508e08678f165325b"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/browser_checks.py --output-dir reports/visual-evidence/task-board/T-004/quality-v10 --full",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:44:01Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/browser.log",
+      "evidence_sha256": "32b79911f338be2fe41525582f9344c8b24de5e65a9d42d8c3abe992b5970c12"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:37Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/tests.log",
+      "evidence_sha256": "5be228de5bda1cc8755dda238f21d0146f3ecb78f9141931e48d9fab47baeb2c"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-traceability.sh specs/task-board/traceability.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/traceability.log",
+      "evidence_sha256": "158026bca34c4637529b83a8b61c6495ce9def7759685452c3bbd965d3af5520"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 -I -B reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-component-coverage.py --repo-root /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+      "exit_code": 0,
+      "started_at": "2026-11-13T04:43:39Z",
+      "finished_at": "2026-11-13T04:43:39Z",
+      "evidence": "reports/verification/task-board/T-004-v10-continued/component.log.stdout",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/task-board/verification/T-004.contract.json",
+      "sha256": "d12828c473c2bc34ac2b136abf8d8dbe20ebfbfe972ef19c7282ba829fad3354"
+    },
+    {
+      "path": "reports/quality-gate/T-004-v10-r1-retry-final.md",
+      "sha256": "17e2017be002265b0555fdb508b911b17c2aa206ee29a5f50a0eb589fcfb1b0d"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/browser.log",
+      "sha256": "32b79911f338be2fe41525582f9344c8b24de5e65a9d42d8c3abe992b5970c12"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/build.log",
+      "sha256": "fbfe9ad1921352a0b1def3a723df9629b4c0c5c1cac065a204e6afc49d3b52ce"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/component.log.stdout",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/design-system.log",
+      "sha256": "7507b37823655291bd9aa7441b7af54561d496f26d9acef508e08678f165325b"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/placeholders.log",
+      "sha256": "2d86d94ee74d851b19b500b34119ab8be128218a0d5934203e47ddd47cb1a2c2"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/task-state.log",
+      "sha256": "f5ff49b15e87bf5216453c885d50e29a37677aebfc79fd94adccf9f6d9fb8b75"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/tests.log",
+      "sha256": "5be228de5bda1cc8755dda238f21d0146f3ecb78f9141931e48d9fab47baeb2c"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/traceability.log",
+      "sha256": "158026bca34c4637529b83a8b61c6495ce9def7759685452c3bbd965d3af5520"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10-continued/typecheck.log",
+      "sha256": "51b82e2eded689fd76fa645783b9789470ddb52681fcd24f9f67006ef0764cd8"
+    },
+    {
+      "path": "reports/verification/task-board/T-004-v10/lint.log",
+      "sha256": "291eb2d82eaab8820d41201dfa749bdb9ee4f3c6d3933c300222313b3d542445"
+    }
+  ]
+}

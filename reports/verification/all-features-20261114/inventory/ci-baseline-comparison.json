@@ -1,0 +1,33 @@
+{
+  "baseline": {
+    "head": "0f4e3268b5403855008ae089d3c1611430a41987",
+    "run": 42368124216,
+    "event": "push",
+    "workflow": "Test installers and gates",
+    "conclusion": "success",
+    "confirmed_executed_steps": [
+      "SQL PostgreSQL/MySQL/SQL Server isolated migration and recovery",
+      "Cloud contracts/local tools on Linux/macOS/Windows",
+      "Interrupted review recovery PowerShell on Linux/macOS/Windows"
+    ]
+  },
+  "pr": {
+    "head": "134cb897f2b0390afebba1e47d572c40ad8c0966",
+    "run": 43563023243,
+    "sql_failed_steps": [
+      "Test isolated postgres migration and recovery",
+      "Test isolated mysql migration and recovery",
+      "Test isolated tsql migration and recovery"
+    ],
+    "sql_setup_checkout_succeeded": true,
+    "sql_evidence_upload_succeeded": true,
+    "annotations": "Only generic Process completed with exit code 1; no root-cause message."
+  },
+  "source_comparison": "SQL test scripts, tests/lib/sql_database_fixture.py, tests/fixtures/sql-development and workflow have no diff between main and PR head.",
+  "access_limit": "Supported job-log and uploaded-artifact downloads both return Forbidden through configured transport. No signed redirect URL retained and no network-policy bypass attempted.",
+  "classification": {
+    "reproduced_and_repaired": "candidate manifest synchronization, traceability fixture/root/reference closure, loop consistency reset caller root, task-layer VerifyInputs caller root; coding standards handled separately",
+    "unresolved": "Interrupted recovery, cloud, SQL, A7, unwired shard failures. Baseline success alone does not prove environment cause, and unchanged SQL sources do not prove database tests pass today."
+  },
+  "recommended_next": "After checkpoint, use the new CI run and accessible original SQL proof/log artifacts to identify exact failures; rerun focused local interrupted/cloud fixtures if needed. Do not claim all CI green."
+}

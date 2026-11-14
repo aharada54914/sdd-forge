@@ -1,0 +1,4 @@
+Command: ['python3', '-B', '-c', "from pathlib import Path; files=['server.py','tests/test_http.py']; [compile(Path(p).read_bytes(), p, 'exec') for p in files]; print('Compiled both scoped files successfully (no bytecode outputs)')"]
+Compiled both scoped files successfully (no bytecode outputs)
+
+Exit code: 0

@@ -1,0 +1,14 @@
+RUN_ID: 01a1b608-155d-7831-a2d9-b36b9ade0de4
+HOST_SESSION_ID: 01a1b608-155d-7831-a2d9-b36b9ade0de4
+ALLOWED_INPUT_MANIFEST: reports/integration/quality-t002-product/invocation.json b856a74641bb6dd8b236fb5f2e0816d8e48fa1b55c71bba012bef97cc92b54a9
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Recomputed manifest and receipt hashes; verified fresh-reservation fields and all 55 admitted file hashes. No ledger or peer-review reports read.
+- Executed standalone /bin/cat app.py successfully; inspected implementation against T-002 specifications, API contract and ADR.
+- Executed 13 read-only validation/synthetic-handler tests using /usr/bin/python3 -I -B: all passed.
+- Inspected source-bound green-final evidence: 37 tests passed, including real-process restart, unchanged-state rejections, Unicode/body boundaries, storage failures and resource recovery.
+- Inspected Red logs, saved commit evidence and Red-to-Green test differences; assertions were not weakened.
+- Inspected saved successful lint/typecheck/build output and independently matched recorded source hashes.
+- Not rerun: filesystem/network-dependent HTTP, repository, schema and admission tests; full discovery; external lint/typecheck/build tools. Saved evidence used instead. UI/browser acceptance remains T-003 scope.

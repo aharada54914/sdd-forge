@@ -10,6 +10,11 @@ Use execute only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
+Within one evaluator invocation, `run_id` and `host_session_id` may be the same
+actual native context ID. Each value must be unused by every other implementation,
+review, and evaluation context; the caller's canonical reservation enforces this
+boundary. Never invent a second ID merely to make the two fields unequal.
+
 The caller gives you a task id, the feature spec directory (`specs/<feature>/`),
 the implementation report, and the changed files. Read the approved task,
 requirements, design, acceptance tests, contracts, the diff, and
@@ -35,6 +40,20 @@ requirements, design, acceptance tests, contracts, the diff, and
 7. If an in-scope behavior cannot be verified, emit NEEDS_WORK with the missing
    evidence path, command, or inspection target. Cannot-verify is not PASS.
 8. Be skeptical by default. "It probably works" is NEEDS_WORK, not PASS.
+
+# Deterministic Gate Applicability
+
+A required check must actually run; its `required: true` flag does not force an
+optional project capability to become active. For `check-component-coverage`,
+an executed, producer-bound `not-applicable (disabled-legacy)` record with exit 0
+is legitimate when the canonical applicability rule derives that state, including
+an absent `project-context.yaml`. It proves invocation, not substantive coverage;
+do not require capability activation or an optional waiver for that result alone.
+Missing execution, an unsupported N/A claim, enabled-mode missing coverage, and
+configuration parse errors remain blocking evidence gaps or gate failures.
+Check the admitted policy and configuration/evidence binding; never infer N/A
+from missing manifest files or exit 0 alone. Evaluate an independently explicit
+active-coverage acceptance criterion separately, citing that criterion.
 
 # Severity
 

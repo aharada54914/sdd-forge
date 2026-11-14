@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "sqlite-task-board",
+  "run_id": "01a1b5a7-cf8f-7a73-b047-488362834031",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "ce020939fc38735d34bb5de8d4ffae833076f2a50ccf3bf3bff523bc6c93643f",
+  "requirements_sha256": "bd15b9e3bd5e3e3077935805f7a9d99e57ebd826f9071478e8a58870fb9c7a2b",
+  "acceptance_sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6",
+  "design_sha256": "8e1502470219d2823e4979871dd2a247fe9a05fed6a15978e68e980c0fcd7ae7",
+  "tasks_sha256": "37012db6f0d309e9a60bb45063e800d858a76416576909c58ab273e1a6875d77",
+  "traceability_sha256": "b8e37e69151dca2e9e3a8d8525812906433f737905dbc456c5db4d786cf89bc1",
+  "layer_sha256": {
+    "ux-spec.md": "181580cbedd5a70a502e97e3205c704326b9a81061badf32d9c6ef8f6a25b8da",
+    "frontend-spec.md": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008",
+    "infra-spec.md": "92728a6cfb5205ae52ac7aebd4635471aa952f0608b91aa81d8a64877923bb64",
+    "security-spec.md": "ec9c1487fe962689e19b7ca9e56061d0ffab26c36fa001af5e7bbfbeb3404916"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "01a1b5d6-1f89-79e0-9a46-21af5c2e6783",
+      "host_session_id": "01a1b5d6-1f89-79e0-9a46-21af5c2e6783",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "reports/task-review/sqlite-task-board/attempt-1/round-2/dependency-graph.json",
+          "sha256": "9e9fc047b74f6635e92c840350ff0d25c9973da635add95cff989487b2435ead"
+        },
+        {
+          "path": "reports/task-review/sqlite-task-board/attempt-1/round-2/precheck-result.json",
+          "sha256": "39256a9bdd747b9ea5e8d266d28dbaab1b4a4eaa743598864d40074f1a3e93a0"
+        },
+        {
+          "path": "specs/sqlite-task-board/acceptance-tests.md",
+          "sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6"
+        },
+        {
+          "path": "specs/sqlite-task-board/design.md",
+          "sha256": "8e1502470219d2823e4979871dd2a247fe9a05fed6a15978e68e980c0fcd7ae7"
+        },
+        {
+          "path": "specs/sqlite-task-board/frontend-spec.md",
+          "sha256": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008"
+        },
+        {
+          "path": "specs/sqlite-task-board/infra-spec.md",
+          "sha256": "92728a6cfb5205ae52ac7aebd4635471aa952f0608b91aa81d8a64877923bb64"
+        },
+        {
+          "path": "specs/sqlite-task-board/requirements.md",
+          "sha256": "bd15b9e3bd5e3e3077935805f7a9d99e57ebd826f9071478e8a58870fb9c7a2b"
+        },
+        {
+          "path": "specs/sqlite-task-board/security-spec.md",
+          "sha256": "ec9c1487fe962689e19b7ca9e56061d0ffab26c36fa001af5e7bbfbeb3404916"
+        },
+        {
+          "path": "specs/sqlite-task-board/tasks.md",
+          "sha256": "37012db6f0d309e9a60bb45063e800d858a76416576909c58ab273e1a6875d77"
+        },
+        {
+          "path": "specs/sqlite-task-board/traceability.md",
+          "sha256": "b8e37e69151dca2e9e3a8d8525812906433f737905dbc456c5db4d786cf89bc1"
+        },
+        {
+          "path": "specs/sqlite-task-board/ux-spec.md",
+          "sha256": "181580cbedd5a70a502e97e3205c704326b9a81061badf32d9c6ef8f6a25b8da"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "01a1b5d7-643e-7e51-9233-6c51666e6cbc",
+      "host_session_id": "01a1b5d7-643e-7e51-9233-6c51666e6cbc",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "reports/task-review/sqlite-task-board/attempt-1/round-2/integrated-summary.json",
+          "sha256": "e1928eb0f9b9228ee4b25588d0dd196e7756ddf2a460b3a3550d870e2934f31a"
+        },
+        {
+          "path": "reports/task-review/sqlite-task-board/attempt-1/round-2/precheck-result.json",
+          "sha256": "39256a9bdd747b9ea5e8d266d28dbaab1b4a4eaa743598864d40074f1a3e93a0"
+        },
+        {
+          "path": "specs/sqlite-task-board/acceptance-tests.md",
+          "sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6"
+        },
+        {
+          "path": "specs/sqlite-task-board/design.md",
+          "sha256": "8e1502470219d2823e4979871dd2a247fe9a05fed6a15978e68e980c0fcd7ae7"
+        },
+        {
+          "path": "specs/sqlite-task-board/frontend-spec.md",
+          "sha256": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008"
+        },
+        {
+          "path": "specs/sqlite-task-board/infra-spec.md",
+          "sha256": "92728a6cfb5205ae52ac7aebd4635471aa952f0608b91aa81d8a64877923bb64"
+        },
+        {
+          "path": "specs/sqlite-task-board/requirements.md",
+          "sha256": "bd15b9e3bd5e3e3077935805f7a9d99e57ebd826f9071478e8a58870fb9c7a2b"
+        },
+        {
+          "path": "specs/sqlite-task-board/security-spec.md",
+          "sha256": "ec9c1487fe962689e19b7ca9e56061d0ffab26c36fa001af5e7bbfbeb3404916"
+        },
+        {
+          "path": "specs/sqlite-task-board/tasks.md",
+          "sha256": "37012db6f0d309e9a60bb45063e800d858a76416576909c58ab273e1a6875d77"
+        },
+        {
+          "path": "specs/sqlite-task-board/traceability.md",
+          "sha256": "b8e37e69151dca2e9e3a8d8525812906433f737905dbc456c5db4d786cf89bc1"
+        },
+        {
+          "path": "specs/sqlite-task-board/ux-spec.md",
+          "sha256": "181580cbedd5a70a502e97e3205c704326b9a81061badf32d9c6ef8f6a25b8da"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Split storage/unit, HTTP/integration and UI/browser concerns; require committed Red before implementation; map delivery evidence in non-frozen reports. Retain all acceptance requirements.",
+  "timestamp": "2026-11-07T11:50:57.330736+00:00"
+}

@@ -1,0 +1,160 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sqlite-task-board",
+  "run_id": "01a1b5a7-cf8f-7a73-b047-488362834031",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 2,
+  "legacy_design": false,
+  "feature_type": "project",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "bd15b9e3bd5e3e3077935805f7a9d99e57ebd826f9071478e8a58870fb9c7a2b",
+  "acceptance_sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6",
+  "design_sha256": "5bd07947d9a6b2c3adb98aaf250f5acf2bbdedbba28ba61ec6cd900d4a7dd2f2",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0001-local-stdlib-sqlite.md",
+      "sha256": "b44884da1299d882ed819ec0c76c70a844932bc0593605095f10ecc6c9dc60d8"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "181580cbedd5a70a502e97e3205c704326b9a81061badf32d9c6ef8f6a25b8da",
+    "frontend-spec.md": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008",
+    "infra-spec.md": "92728a6cfb5205ae52ac7aebd4635471aa952f0608b91aa81d8a64877923bb64",
+    "security-spec.md": "ec9c1487fe962689e19b7ca9e56061d0ffab26c36fa001af5e7bbfbeb3404916"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a1b5ca-8675-72f0-a2be-fad2acee33a0",
+      "host_session_id": "01a1b5ca-8675-72f0-a2be-fad2acee33a0",
+      "allowed_input_manifest": [
+        {
+          "path": "design-system/design-system.md",
+          "sha256": "a8dc059e5049f7a00dcb48da97c121e011406d13406aff9e9158979b480b075a"
+        },
+        {
+          "path": "design-system/design-tokens.json",
+          "sha256": "76f526f7c65ed20df8cef5805fe2c10f69dd19bee21aea040049773833481ae2"
+        },
+        {
+          "path": "design-system/ui-patterns.md",
+          "sha256": "b00f27065467cdb5217022e9e80a3272b632443692f4fd177a4af57abae504fc"
+        },
+        {
+          "path": "docs/adr/0001-local-stdlib-sqlite.md",
+          "sha256": "b44884da1299d882ed819ec0c76c70a844932bc0593605095f10ecc6c9dc60d8"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "reports/impl-review/sqlite-task-board/attempt-2/round-1/precheck-result.json",
+          "sha256": "4d7a273d1e57f4cbb5a624d6ec34a1c3e94602bbe81ae48fc941de1ffef2f43b"
+        },
+        {
+          "path": "specs/sqlite-task-board/acceptance-tests.md",
+          "sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6"
+        },
+        {
+          "path": "specs/sqlite-task-board/design.md",
+          "sha256": "5bd07947d9a6b2c3adb98aaf250f5acf2bbdedbba28ba61ec6cd900d4a7dd2f2"
+        },
+        {
+          "path": "specs/sqlite-task-board/frontend-spec.md",
+          "sha256": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008"
+        },
+        {
+          "path": "specs/sqlite-task-board/infra-spec.md",
+          "sha256": "92728a6cfb5205ae52ac7aebd4635471aa952f0608b91aa81d8a64877923bb64"
+        },
+        {
+          "path": "specs/sqlite-task-board/requirements.md",
+          "sha256": "bd15b9e3bd5e3e3077935805f7a9d99e57ebd826f9071478e8a58870fb9c7a2b"
+        },
+        {
+          "path": "specs/sqlite-task-board/security-spec.md",
+          "sha256": "ec9c1487fe962689e19b7ca9e56061d0ffab26c36fa001af5e7bbfbeb3404916"
+        },
+        {
+          "path": "specs/sqlite-task-board/ux-spec.md",
+          "sha256": "181580cbedd5a70a502e97e3205c704326b9a81061badf32d9c6ef8f6a25b8da"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a1b5cb-91ae-7fe3-9c50-1fa587e67b2e",
+      "host_session_id": "01a1b5cb-91ae-7fe3-9c50-1fa587e67b2e",
+      "allowed_input_manifest": [
+        {
+          "path": "design-system/design-system.md",
+          "sha256": "a8dc059e5049f7a00dcb48da97c121e011406d13406aff9e9158979b480b075a"
+        },
+        {
+          "path": "design-system/design-tokens.json",
+          "sha256": "76f526f7c65ed20df8cef5805fe2c10f69dd19bee21aea040049773833481ae2"
+        },
+        {
+          "path": "design-system/ui-patterns.md",
+          "sha256": "b00f27065467cdb5217022e9e80a3272b632443692f4fd177a4af57abae504fc"
+        },
+        {
+          "path": "docs/adr/0001-local-stdlib-sqlite.md",
+          "sha256": "b44884da1299d882ed819ec0c76c70a844932bc0593605095f10ecc6c9dc60d8"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "reports/impl-review/sqlite-task-board/attempt-2/round-1/precheck-result.json",
+          "sha256": "4d7a273d1e57f4cbb5a624d6ec34a1c3e94602bbe81ae48fc941de1ffef2f43b"
+        },
+        {
+          "path": "specs/sqlite-task-board/acceptance-tests.md",
+          "sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6"
+        },
+        {
+          "path": "specs/sqlite-task-board/design.md",
+          "sha256": "5bd07947d9a6b2c3adb98aaf250f5acf2bbdedbba28ba61ec6cd900d4a7dd2f2"
+        },
+        {
+          "path": "specs/sqlite-task-board/frontend-spec.md",
+          "sha256": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008"
+        },
+        {
+          "path": "specs/sqlite-task-board/infra-spec.md",
+          "sha256": "92728a6cfb5205ae52ac7aebd4635471aa952f0608b91aa81d8a64877923bb64"
+        },
+        {
+          "path": "specs/sqlite-task-board/requirements.md",
+          "sha256": "bd15b9e3bd5e3e3077935805f7a9d99e57ebd826f9071478e8a58870fb9c7a2b"
+        },
+        {
+          "path": "specs/sqlite-task-board/security-spec.md",
+          "sha256": "ec9c1487fe962689e19b7ca9e56061d0ffab26c36fa001af5e7bbfbeb3404916"
+        },
+        {
+          "path": "specs/sqlite-task-board/ux-spec.md",
+          "sha256": "181580cbedd5a70a502e97e3205c704326b9a81061badf32d9c6ef8f6a25b8da"
+        },
+        {
+          "path": "reports/impl-review/sqlite-task-board/attempt-2/round-1/integrated-summary.json",
+          "sha256": "a6ee22c7683eed95765e2d62288c47f6e025435cbf84e9dce902c091a48d64de"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-11-07T11:38:37.416577+00:00"
+}

@@ -113,7 +113,8 @@ class TaskHashes(unittest.TestCase):
             with patch.object(transport.subprocess, 'run', return_value=SimpleNamespace(returncode=0)) as run:
                 actual = transport.admitted_raw_hashes(root, data)
             self.assertNotEqual(actual['specs/demo/tasks.md'], 'a' * 64)
-            self.assertEqual(run.call_args.args[0][-4:], ['demo', '1', '1', '--verify-inputs'])
+            self.assertEqual(run.call_args.args[0][-6:],
+                             ['demo', '1', '1', '--verify-inputs', '--repository-root', str(root)])
             self.assertEqual(data['allowed_input_manifest'][0]['sha256'], 'a' * 64)
 
     def test_rejects_canonical_failure_and_concurrent_change(self):

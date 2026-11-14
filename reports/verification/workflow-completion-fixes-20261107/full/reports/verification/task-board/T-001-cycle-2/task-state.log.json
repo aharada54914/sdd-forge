@@ -1,0 +1,7 @@
+{
+  "command": "bash /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/integration/runtime-snapshot-v6/sdd-quality-loop/1.23.1/scripts/check-task-state.sh specs/task-board/tasks.md reports/quality-gate reports/implementation /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+  "exit_code": 0,
+  "started_at": "2026-11-07T12:21:15.540332+00:00",
+  "finished_at": "2026-11-07T12:21:15.574723+00:00",
+  "evidence": "reports/verification/task-board/T-001-cycle-2/task-state.log"
+}

@@ -1,0 +1,5 @@
+COMMAND: python3 -B tests/browser_checks.py --case visual --output-dir reports/visual-evidence/task-board/T-004/first-mobile
+Evidence: reports/visual-evidence/task-board/T-004/first-mobile
+PASS visual
+
+EXIT_CODE: 0

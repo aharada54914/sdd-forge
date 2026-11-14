@@ -1,0 +1,13 @@
+{
+  "command": [
+    "bash",
+    "reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-quality-gate-cycle-limit.sh",
+    "T-003",
+    "sqlite-task-board"
+  ],
+  "exit_code": 1,
+  "stdout": "Escalate-Human\n",
+  "stderr": "",
+  "started_at": "2026-11-13T05:39:53.488019+00:00",
+  "finished_at": "2026-11-13T05:39:53.503378+00:00"
+}

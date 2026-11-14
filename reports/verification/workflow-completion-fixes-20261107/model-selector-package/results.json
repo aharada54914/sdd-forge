@@ -1,0 +1,49 @@
+[
+  {
+    "command": [
+      "python3",
+      "tests/model-selector-package.tests.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.2,
+    "log": "model-selector-package.tests.py.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/agent-capabilities-v2.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.37,
+    "log": "agent-capabilities-v2.tests.sh.log"
+  },
+  {
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/agent-capabilities-v2.tests.ps1"
+    ],
+    "exit_code": 0,
+    "seconds": 0.72,
+    "log": "agent-capabilities-v2.tests.ps1.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/agent-model-routing.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 19.84,
+    "log": "agent-model-routing.tests.sh.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tests/verification-catalog.tests.py"
+    ],
+    "exit_code": 0,
+    "seconds": 1.93,
+    "log": "verification-catalog.tests.py.log"
+  }
+]

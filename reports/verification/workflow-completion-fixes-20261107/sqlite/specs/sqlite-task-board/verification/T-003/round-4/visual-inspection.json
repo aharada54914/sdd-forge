@@ -1,0 +1,20 @@
+{
+  "method": "Root inspected actual PNG files using native view_image on 2026-11-13",
+  "observed": "White background, blue accents, Japanese labelled controls; mobile stacking and long-title wrapping at 200% without visible overlap; failed-write screenshot retains draft and saved rows, visible focus and Japanese error with no stale success. This is agent observation, not invented parent approval.",
+  "imagegen_reference": "specs/sqlite-task-board/mockups/imagegen-reference.png",
+  "provenance": "Actual parent-generated ImageGen reference, not Claude Design connector connectivity.",
+  "images": [
+    {
+      "path": "reports/visual-evidence/sqlite-task-board/rt-0005/green-2/early-mobile.png",
+      "sha256": "e806501c5f4ea3f865244b789f8c5be4addf4fefb95b7ef2d15892d6dcad08ac"
+    },
+    {
+      "path": "reports/visual-evidence/sqlite-task-board/rt-0005/green-2/rt0005-post-failure.png",
+      "sha256": "b000039b2d526d164b22a46bf95be5eebe8177a0ab41fe5708200ef1f2561b8c"
+    },
+    {
+      "path": "reports/visual-evidence/sqlite-task-board/rt-0005/green-2/zoom-200.png",
+      "sha256": "3e2f795f41e87596bb4ae76485ed08814fc94c34ce825c8da31c46af2084d8bf"
+    }
+  ]
+}

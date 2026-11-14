@@ -1,0 +1,26 @@
+{
+  "observedAt": "2026-11-14T04:43:24.537858+00:00",
+  "native_cli": {
+    "version": "2.1.325",
+    "source": "https://downloads.claude.ai/claude-code-releases/2.1.325/linux-x64/claude",
+    "sha256": "0dc4f4a9a165fc60746d7ae8489712e5fc352f1e7ad4eb22e7141bd0812eb0cf",
+    "manifest_checksum_match": true
+  },
+  "auth_status": {
+    "exit_code": 1,
+    "loggedIn": false,
+    "authMethod": "none",
+    "apiProvider": "firstParty"
+  },
+  "host_designsync_tool_available": false,
+  "plugin_search_exact_claude_results": 0,
+  "browser_control_tools_available": false,
+  "tinyfish_profile_has_recorded_claude_or_sites_signin": false,
+  "status": "AWAITING_AUTHENTICATION",
+  "limits": "Native CLI installation and public documentation do not prove an authenticated DesignSync transaction. No design generated/uploaded through Claude and no PASS claimed.",
+  "official_sources": [
+    "https://support.claude.com/en/articles/14604416-get-started-with-claude-design",
+    "https://code.claude.com/docs/en/setup"
+  ],
+  "supported_path": "Claude Code /design or /design-sync with Claude subscription authentication."
+}

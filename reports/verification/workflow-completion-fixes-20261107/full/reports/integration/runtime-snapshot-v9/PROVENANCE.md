@@ -1,0 +1,1 @@
+Runtime v9: exact v8 source assets plus current source quality evaluator and quality-gate skill (#742 legitimate executed disabled-legacy N/A distinction). Existing spec and quality calibration bytes retained unchanged. Old snapshots and failed review deliveries preserved. Runtime pycache is generated data, excluded from immutable source inventory; launch with -I -B.

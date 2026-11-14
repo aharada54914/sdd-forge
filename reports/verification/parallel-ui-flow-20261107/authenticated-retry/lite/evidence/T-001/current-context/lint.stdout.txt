@@ -1,0 +1,4 @@
+
+> local-task-board@1.0.0 lint
+> node --check app.js
+

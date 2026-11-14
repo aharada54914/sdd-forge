@@ -1,0 +1,23 @@
+{
+  "user_action": "User explicitly confirmed pressing Save profile after the repeated setup handoff.",
+  "profile_metadata_after_save": {
+    "profile_id": "prof_b2ed8f562b3a44e0",
+    "domain_count": 4,
+    "signed_in_sites": [],
+    "updated_at": "2026-10-25 01:37:50"
+  },
+  "actual_run": {
+    "id": "ca85e054-feb7-412e-9dbe-166f32fb23c1",
+    "status": "completed",
+    "duration_seconds": 38,
+    "requested_url": "https://claude.ai/artifacts",
+    "final_url": "https://claude.ai/login?from=logout&reauth=1&returnTo=%2Fartifacts%3F",
+    "visible_result": "After security verification, application redirects to login with sign-in options.",
+    "artifact_created": false,
+    "ui_revision_verified": false
+  },
+  "interpretation": "Authenticated session was not restored in the automation browser after the user-confirmed save. Save failure, expiry, rejection, or another handoff cause cannot be distinguished from these observations. Do not blame the user or assert cookie contents.",
+  "alternate_path_discovery": "No connected-browser or shared-desktop control tool exposed in current tool inventory.",
+  "next_step": "Do not loop the same login/save request without a changed recovery path. Track external profile handoff blocker under existing #729 and PR #756.",
+  "excluded": "Credentials, browser storage, setup capability URLs and unrelated user content."
+}

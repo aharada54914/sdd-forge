@@ -1,0 +1,20 @@
+[
+  {
+    "runtime": "bash",
+    "before_exit": 1,
+    "before_stdout": "",
+    "before_stderr": "MODEL_SELECTION_ERROR: invalid capability candidates\n",
+    "after_exit": 0,
+    "after_stdout": "{\"available_candidates\":[\"openai/gpt-5.1-codex\"],\"canonical_tier\":\"standard\",\"effort\":\"medium\",\"escalation\":null,\"estimated_cost_per_attempt_usd\":\"0.02\",\"model\":\"openai/gpt-5.1-codex\",\"xhigh_reason\":null}\n",
+    "after_stderr": ""
+  },
+  {
+    "runtime": "powershell",
+    "before_exit": 1,
+    "before_stdout": "",
+    "before_stderr": "Exception: /tmp/selector-package-52qonvf8/cache/sdd-plugins/sdd-implementation/1.23.1/scripts/select-agent-model.ps1:493\nLine |\n 493 |      throw 'MODEL_SELECTION_ERROR: invalid capability candidates'\n     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n     | MODEL_SELECTION_ERROR: invalid capability candidates\n",
+    "after_exit": 0,
+    "after_stdout": "{\"model\":\"openai/gpt-5.1-codex\",\"canonical_tier\":\"standard\",\"effort\":\"medium\",\"estimated_cost_per_attempt_usd\":\"0.02\",\"available_candidates\":[\"openai/gpt-5.1-codex\"],\"xhigh_reason\":null,\"escalation\":null}\n",
+    "after_stderr": ""
+  }
+]

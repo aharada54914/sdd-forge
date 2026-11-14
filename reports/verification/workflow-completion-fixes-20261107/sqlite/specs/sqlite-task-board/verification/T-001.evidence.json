@@ -1,0 +1,238 @@
+{
+  "task_id": "T-001",
+  "feature": "sqlite-task-board",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "b64643bcfcea6e1d8d4b896e226363990487c8134b9b318b1a612b982382685d",
+  "quality_report": "reports/quality-gate/20261107-T-001-pass.md",
+  "verification_contract": "specs/sqlite-task-board/verification/T-001.final.contract.json",
+  "git_commit": "191d8acdd8f6eabaac8c4d4a8783a0341dabab1c",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/sqlite-task-board-quality-tools-n0vojfhn/bin/ruff check --isolated --no-cache schema.py repository.py",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:55Z",
+      "finished_at": "2026-11-07T12:10:55Z",
+      "evidence": "reports/quality-gate/T-001/lint-green.json",
+      "evidence_sha256": "caedad427fde377272c6a3e7e5d1e6fede35bc8f2a566faf468926a0bef12970"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/sqlite-task-board-quality-tools-n0vojfhn/bin/mypy --config-file=/dev/null --check-untyped-defs --cache-dir=/tmp/sqlite-task-board-mypy-t001 schema.py repository.py",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:55Z",
+      "finished_at": "2026-11-07T12:10:55Z",
+      "evidence": "reports/quality-gate/T-001/typecheck.json",
+      "evidence_sha256": "9d5589f282171004f0e33053130fb37e158fff29523b9d37ed0509e3844f2d44"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:55Z",
+      "finished_at": "2026-11-07T12:10:58Z",
+      "evidence": "reports/quality-gate/T-001/unit-tests.json",
+      "evidence_sha256": "811651816db3d13797c5810267b7275b92d7d7e504f1d8288353cc063d3aaccd"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "python3 -m py_compile schema.py repository.py",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:55Z",
+      "finished_at": "2026-11-07T12:10:55Z",
+      "evidence": "reports/quality-gate/T-001/build.json",
+      "evidence_sha256": "a36cf372a6615f4d2b38bb77f1a8ed460fb0e15a70aaa28ad6d03396133674fd"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-placeholders.sh schema.py repository.py",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:58Z",
+      "finished_at": "2026-11-07T12:10:58Z",
+      "evidence": "reports/quality-gate/T-001/placeholder-scan.json",
+      "evidence_sha256": "0013224580264170d4a892ea906df1c721d28f67e50c8de98f9b59985fd54b73"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-task-state.sh specs/sqlite-task-board/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:58Z",
+      "finished_at": "2026-11-07T12:10:58Z",
+      "evidence": "reports/quality-gate/T-001/task-state-check.json",
+      "evidence_sha256": "5cd5595c331a224c8164cc32b0bc57ab9558b7df0a1bd63b925a6945d50bee5e"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:55Z",
+      "finished_at": "2026-11-07T12:10:58Z",
+      "evidence": "reports/quality-gate/T-001/unit-tests.json",
+      "evidence_sha256": "811651816db3d13797c5810267b7275b92d7d7e504f1d8288353cc063d3aaccd"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "started_at": "2026-11-07T12:10:55Z",
+      "finished_at": "2026-11-07T12:10:58Z",
+      "evidence": "reports/quality-gate/T-001/unit-tests.json",
+      "evidence_sha256": "811651816db3d13797c5810267b7275b92d7d7e504f1d8288353cc063d3aaccd"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-traceability.sh specs/sqlite-task-board/traceability.json . require-evidence",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/sqlite-task-board/verification/T-001/canonical-traceability-check.json",
+      "evidence_sha256": "63ddd5b97200e6e40b00a30e8eb7c49ebc25ef12d66e35e7b56da77a1516d5d3"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-component-coverage.sh --repo-root .",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/quality-gate/T-001/component-coverage-verdict.json",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/sqlite-task-board/verification/T-001.final.contract.json",
+      "sha256": "8e3a5f363ac2296c481745ca3ffcbde19f89e72147895ebaca0a279bd8ac4452"
+    },
+    {
+      "path": "reports/quality-gate/20261107-T-001-pass.md",
+      "sha256": "da707a7158a2902f983f006c6d9b284d01f83e9c0a52b92a750ab787a798d1c3"
+    },
+    {
+      "path": "reports/quality-gate/T-001/build.json",
+      "sha256": "a36cf372a6615f4d2b38bb77f1a8ed460fb0e15a70aaa28ad6d03396133674fd"
+    },
+    {
+      "path": "reports/quality-gate/T-001/component-coverage-verdict.json",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "reports/quality-gate/T-001/lint-green.json",
+      "sha256": "caedad427fde377272c6a3e7e5d1e6fede35bc8f2a566faf468926a0bef12970"
+    },
+    {
+      "path": "reports/quality-gate/T-001/placeholder-scan.json",
+      "sha256": "0013224580264170d4a892ea906df1c721d28f67e50c8de98f9b59985fd54b73"
+    },
+    {
+      "path": "reports/quality-gate/T-001/task-state-check.json",
+      "sha256": "5cd5595c331a224c8164cc32b0bc57ab9558b7df0a1bd63b925a6945d50bee5e"
+    },
+    {
+      "path": "reports/quality-gate/T-001/typecheck.json",
+      "sha256": "9d5589f282171004f0e33053130fb37e158fff29523b9d37ed0509e3844f2d44"
+    },
+    {
+      "path": "reports/quality-gate/T-001/unit-tests.json",
+      "sha256": "811651816db3d13797c5810267b7275b92d7d7e504f1d8288353cc063d3aaccd"
+    },
+    {
+      "path": "specs/sqlite-task-board/verification/T-001/canonical-traceability-check.json",
+      "sha256": "63ddd5b97200e6e40b00a30e8eb7c49ebc25ef12d66e35e7b56da77a1516d5d3"
+    }
+  ]
+}

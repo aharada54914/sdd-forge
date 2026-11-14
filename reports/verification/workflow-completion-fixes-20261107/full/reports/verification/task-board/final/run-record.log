@@ -1,0 +1,4 @@
+$ bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/emit-run-record.sh task-board --track full --model-main gpt-6-astra --model-reviewers gpt-6-astra --plugin-version 1.23.1-runtime-v10 --effort-main high --effort-reviewers high --effort-control-main flag --effort-control-reviewers flag --effort-applied-main high --effort-applied-reviewers high --capability-enforcement disabled-legacy
+emit-run-record: wrote reports/runs/RUN-20261113T045704Z-task-board.json
+
+EXIT_CODE=0

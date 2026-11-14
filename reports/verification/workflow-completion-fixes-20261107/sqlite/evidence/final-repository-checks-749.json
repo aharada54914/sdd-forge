@@ -1,0 +1,72 @@
+{
+  "checked_at": "2026-11-13T05:44:04.709149+00:00",
+  "checks": [
+    {
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-workflow-state.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-task-state.sh",
+        "specs/sqlite-task-board/tasks.md"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-001.\nWARNING: evidence bundle for task T-001 was generated with a dirty working tree\nEvidence bundle passed for task T-001.\nVerification contract passed for task T-002.\nWARNING: evidence bundle for task T-002 was generated with a dirty working tree\nEvidence bundle passed for task T-002.\nVerification contract passed for task T-003.\nWARNING: evidence bundle for task T-003 was generated with a dirty working tree\nEvidence bundle passed for task T-003.\nTask state check passed for 3 task(s).\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-traceability.sh",
+        "specs/sqlite-task-board/traceability.json",
+        ".",
+        "require-evidence"
+      ],
+      "exit_code": 0,
+      "stdout": "Traceability check passed for sqlite-task-board: 33 link(s).\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-evidence-bundle.sh",
+        "specs/sqlite-task-board/verification/T-001.evidence.json",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-001.\nWARNING: evidence bundle for task T-001 was generated with a dirty working tree\nEvidence bundle passed for task T-001.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-evidence-bundle.sh",
+        "specs/sqlite-task-board/verification/T-002.evidence.json",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-002.\nWARNING: evidence bundle for task T-002 was generated with a dirty working tree\nEvidence bundle passed for task T-002.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-evidence-bundle.sh",
+        "specs/sqlite-task-board/verification/T-003.evidence.json",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\nWARNING: evidence bundle for task T-003 was generated with a dirty working tree\nEvidence bundle passed for task T-003.\n",
+      "stderr": ""
+    }
+  ],
+  "runtime_inventory_verified_files": 309,
+  "prior_history_unchanged_except_recorded_task_status": true,
+  "current_source_hashes_match_review": true
+}

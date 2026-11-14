@@ -1,0 +1,13 @@
+{
+  "command": [
+    "bash",
+    "reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-evidence-bundle.sh",
+    "specs/sqlite-task-board/verification/T-003.evidence.json",
+    "."
+  ],
+  "exit_code": 0,
+  "stdout": "Verification contract passed for task T-003.\nWARNING: evidence bundle for task T-003 was generated with a dirty working tree\nEvidence bundle passed for task T-003.\n",
+  "stderr": "",
+  "started_at": "2026-11-13T05:40:29.532791+00:00",
+  "finished_at": "2026-11-13T05:40:29.625280+00:00"
+}

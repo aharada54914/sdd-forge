@@ -1,0 +1,229 @@
+{
+  "quality_reports": [
+    {
+      "path": "reports/quality-gate/20261107-T-001-pass.md",
+      "task": "T-001",
+      "run": "01a1b5fa-4b0e-77b0-b5b1-1b3638108e4d",
+      "verdict": [
+        "PASS"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/20261107-T-001-system-failure.md",
+      "task": "T-001",
+      "run": "01a1b5ed-794f-7ac1-8cc3-daf26e0313e7",
+      "verdict": [
+        "NEEDS_WORK"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/20261107-T-002-pass.md",
+      "task": "T-002",
+      "run": "01a1b608-155d-7831-a2d9-b36b9ade0de4",
+      "verdict": [
+        "PASS"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/20261113-T-003-cycle-1.md",
+      "task": "T-003",
+      "run": "01a1d337-a8d8-77a1-aa7f-526a748dc263",
+      "verdict": [
+        "NEEDS_WORK"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/20261113-T-003-cycle-2.md",
+      "task": "T-003",
+      "run": "01a1d345-8030-70d1-bd30-e96dc4bd17f6",
+      "verdict": [
+        "NEEDS_WORK"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/20261113-T-003-cycle-3.md",
+      "task": "T-003",
+      "run": "01a1d352-cac2-7fc2-999a-cf86836a03b5",
+      "verdict": [
+        "NEEDS_WORK"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/20261113-T-003-cycle-4-pass.md",
+      "task": "T-003",
+      "run": "01a1d366-6d5b-7051-b889-dcb4016575e7",
+      "verdict": [
+        "PASS"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/T-001-pre-evaluator.md",
+      "task": "T-001",
+      "run": "01a1b5e1-5334-7ec3-8128-9c4622023ef1",
+      "verdict": [
+        "NEEDS_WORK"
+      ],
+      "blocked": false
+    },
+    {
+      "path": "reports/quality-gate/T-001-product-review-cycle-1.md",
+      "task": "T-001",
+      "run": "01a1b5f2-5114-7992-884b-1affd1980e36",
+      "verdict": [
+        "NEEDS_WORK"
+      ],
+      "blocked": false
+    }
+  ],
+  "excluded_ambiguous": [
+    "reports/quality-gate/T-001-canonical-traceability-admission.md",
+    "reports/quality-gate/T-002-evidence-admission.md"
+  ],
+  "review_contracts": [
+    {
+      "path": "reports/spec-review/sqlite-task-board/attempt-1/round-1/spec-review-contract.json",
+      "stage": "spec",
+      "verdict": "NEEDS_WORK",
+      "round": 1,
+      "attempt": 1,
+      "legacy_design": null
+    },
+    {
+      "path": "reports/spec-review/sqlite-task-board/attempt-1/round-2/spec-review-contract.json",
+      "stage": "spec",
+      "verdict": "NEEDS_WORK",
+      "round": 2,
+      "attempt": 1,
+      "legacy_design": null
+    },
+    {
+      "path": "reports/spec-review/sqlite-task-board/attempt-1/round-3/spec-review-contract.json",
+      "stage": "spec",
+      "verdict": "PASS",
+      "round": 3,
+      "attempt": 1,
+      "legacy_design": null
+    },
+    {
+      "path": "reports/impl-review/sqlite-task-board/attempt-1/round-1/impl-review-contract.json",
+      "stage": "impl",
+      "verdict": "NEEDS_WORK",
+      "round": 1,
+      "attempt": 1,
+      "legacy_design": false
+    },
+    {
+      "path": "reports/impl-review/sqlite-task-board/attempt-2/round-1/impl-review-contract.json",
+      "stage": "impl",
+      "verdict": "PASS",
+      "round": 1,
+      "attempt": 2,
+      "legacy_design": false
+    },
+    {
+      "path": "reports/task-review/sqlite-task-board/attempt-1/round-1/task-review-contract.json",
+      "stage": "task",
+      "verdict": "BLOCKED",
+      "round": 1,
+      "attempt": 1,
+      "legacy_design": null
+    },
+    {
+      "path": "reports/task-review/sqlite-task-board/attempt-1/round-2/task-review-contract.json",
+      "stage": "task",
+      "verdict": "PASS",
+      "round": 2,
+      "attempt": 1,
+      "legacy_design": null
+    }
+  ],
+  "tickets": [
+    {
+      "path": "docs/review-tickets/RT-0001.yml",
+      "task": "T-001",
+      "severity": "critical",
+      "status": "closed",
+      "auto_fixed": false
+    },
+    {
+      "path": "docs/review-tickets/RT-0002.yml",
+      "task": "T-001",
+      "severity": "major",
+      "status": "closed",
+      "auto_fixed": false
+    },
+    {
+      "path": "docs/review-tickets/RT-0003.yml",
+      "task": "T-003",
+      "severity": "critical",
+      "status": "resolved",
+      "auto_fixed": true
+    },
+    {
+      "path": "docs/review-tickets/RT-0004.yml",
+      "task": "T-003",
+      "severity": "major",
+      "status": "resolved",
+      "auto_fixed": true
+    },
+    {
+      "path": "docs/review-tickets/RT-0005.yml",
+      "task": "T-003",
+      "severity": "major",
+      "status": "resolved",
+      "auto_fixed": true
+    }
+  ],
+  "implementation": [
+    {
+      "task": "T-001",
+      "path": "reports/implementation/sqlite-task-board/T-001.md",
+      "run_id": "01a1b5e3-a700-7b90-86af-e946ea7158a5",
+      "attempts": 1,
+      "review_rounds": 0,
+      "escalations": 0
+    },
+    {
+      "task": "T-002",
+      "path": "reports/implementation/sqlite-task-board/T-002.md",
+      "run_id": "01a1b5fc-5952-7b13-bbdc-f715c923e062",
+      "attempts": 1,
+      "review_rounds": 0,
+      "escalations": 0
+    },
+    {
+      "task": "T-003",
+      "path": "reports/implementation/sqlite-task-board/T-003.md",
+      "run_id": "01a1b60a-8804-7c51-b20d-2361d0daa5b0",
+      "attempts": 1,
+      "review_rounds": 0,
+      "escalations": 0
+    }
+  ],
+  "optional_sources_before_retrospective": {
+    "reports/retrospective": false,
+    "reports/runs": false,
+    "docs/workflow-improvements": false,
+    "docs/workflow-improvements/retention-checklist.md": false,
+    "domain": false
+  },
+  "git_feature_history": {
+    "command": [
+      "git",
+      "log",
+      "--oneline",
+      "--",
+      "specs/sqlite-task-board"
+    ],
+    "exit_code": 0,
+    "stdout": "e22c807 Record approved disposable task board specification baseline\n",
+    "stderr": ""
+  }
+}

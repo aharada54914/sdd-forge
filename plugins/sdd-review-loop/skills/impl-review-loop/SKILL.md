@@ -11,6 +11,22 @@ Run the structural soundness and implementability review gate on a feature's
 design.md. This skill coordinates two independent reviewers, merges their
 findings, and manages the round/attempt state machine.
 
+## Installed project roots
+
+Run prechecks from the consumer project root. Versioned plugin caches and flat
+installations resolve runtime code beside the installed script; they never use
+the installation as the project. To select a project explicitly, append
+`--repository-root <absolute-project-root>` (PowerShell: `-RepositoryRoot`).
+Source-checkout invocations retain their checkout-root default for compatibility.
+
+Prechecks project only their required bundled calibration/risk reference inputs
+into canonical `plugins/.../references/` paths under the consumer project. The
+bytes must match the trusted installed references: existing differing files or
+linked paths block the gate, and input verification never repairs them. Runtime
+scripts remain installed; users do not copy a plugin tree into their project.
+The canonical reference paths and all review identity/hash requirements remain
+unchanged.
+
 ## Managed allocation boundary
 
 Affected policy roles: `impl-reviewer-a`, `impl-reviewer-b`.
@@ -54,6 +70,54 @@ fallback evidence and all review isolation requirements remain unchanged.
 
 Apply separately to reviewer A or B before allocation or reservation. Keep the admitted protected managed Claude launch, exact role staging, readonly inputs, approval checkpoints and report/status ownership.
 
+
+## Native Codex reviewer route
+
+For a local Codex host without an idle sub-agent allocation API, use the installed
+`launch-codex-review.py` before concluding that independent review is unavailable.
+This route is for unmanaged spec/impl/task A and B allocations only. An explicitly
+selected managed workflow must retain its admitted managed transport; never use
+this route to recover from a managed-routing failure.
+
+Prepare the normal `review-context-invocation/v2` file-manifest template after
+precheck, with the exact role-specific allowed inputs. Its run/session IDs are
+placeholders only: this launcher replaces them with a newly allocated, idle native
+thread ID, pins the current ledger, runs canonical preflight, and reserves that
+identity before the first model turn. Do not reserve the placeholder IDs yourself.
+
+```bash
+python3 -I -B "$SDD_REVIEW_SCRIPTS/launch-codex-review.py" \
+  "$repository_root" "$invocation" --manifest-sha256 "$invocation_sha256" \
+  --output "$new_output_directory" --timeout 600
+```
+
+Resolve `SDD_REVIEW_SCRIPTS` from this installed plugin's `scripts` directory.
+The output must be a new directory inside the reviewed repository. Forward both
+`--fixed-input-record` and `--fixed-input-snapshot` unchanged when using fixed Git
+inputs. `--runtime powershell` selects the existing PowerShell validators.
+The current native permission probe requires Linux, `/bin/cat`, `/bin/sh`, and
+`/usr/bin/python3`, and a Codex app-server supporting named permission profiles.
+Missing capabilities stop before a model turn; never fall back to unrestricted
+or generic read-only execution. The inherited Codex account/model configuration
+is retained; external MCP tools, plugins, hooks, Apps, web search, and delegation
+are disabled only inside this isolated reviewer process. Parent workflow guards
+remain enabled.
+
+The launcher projects only admitted files into a temporary directory, allows
+reads of that projection and native runtime files, denies writes/network, and
+probes inside read, outside read, write, and network denial through the native
+host before reservation. The reviewer receives the invocation and validator
+receipt, never the identity ledger. Raw hashes also pin lifecycle-normalized
+task inputs without changing their canonical declared hash.
+
+On success, `reviewer.json` is a candidate with the actual native identity;
+`delivery.json`, `idle-allocation.json`, `permission-probes.json`, reservation
+stdout/stderr, and native events are transport evidence. Adopt it only through
+the usual role-specific output checks, A-to-B sanitization, merge, and persisted
+workflow-state validator. A `NEEDS_WORK` or `BLOCKED` review is not a transport
+failure and must remain visible. On timeout, reservation failure, changed input,
+or identity mismatch, no candidate is adopted. Keep the consumed reservation
+and diagnostics, correct the cause, then allocate a new identity for a retry.
 
 ## Invocation
 
@@ -268,7 +332,8 @@ Read reviewer-a.json and reviewer-b.json. Compute:
 
 Merged verdict:
 - BLOCKED if `findings_critical > 0`.
-- NEEDS_WORK if `findings_major > 0` and `findings_critical == 0`.
+- NEEDS_WORK if `findings_critical == 0` and either `findings_major > 0`
+  or (`findings_minor > 0` and round < 3).
 - PASS-with-warnings if `findings_minor > 0` and round == 3 and
   `findings_major == 0` and `findings_critical == 0`.
 - PASS if `findings_critical == 0` and `findings_major == 0` and
@@ -342,20 +407,26 @@ missing, stale, or incomplete predecessor contracts before creating evidence.
 - Print: "Phase 2 (task decomposition) is now unblocked for feature <slug>."
 - Halt.
 
-#### Round < 3, Major or Critical findings → NEEDS_WORK
+#### Round < 3, findings remain → correction before the next round
 
+- Preserve the STEP 5 verdict in every persisted artifact: Critical findings
+  remain `BLOCKED`; Major or Minor-only findings remain `NEEDS_WORK`.
+  Eligibility to correct inputs and request the next round does not downgrade
+  the recorded verdict or authorize later phases.
 - Generate `reports/impl-review/<feature>/attempt-<M>/round-<N>/design-round-<N>-proposed-changes.md`
   using `plugins/sdd-review-loop/templates/impl-review-report.template.md`.
 - Present the proposed changes file to the human.
-- Print: "impl-review-loop NEEDS_WORK — round <N> of 3. Review proposed changes
-  and edit specs/<feature>/design.md. Then re-invoke with --edit-summary."
+- Print: "impl-review-loop <persisted-verdict> — round <N> of 3. Review proposed
+  changes and edit specs/<feature>/design.md. Then re-invoke with --edit-summary."
 - Halt and await human action.
 
-#### Round == 3, Critical or Major findings remain → BLOCKED
+#### Round == 3, Critical or Major findings remain → correction budget exhausted
 
-- Print: "impl-review-loop BLOCKED after 3 rounds in attempt <M>. Critical or
-  Major findings remain unresolved. Use --reset to start a new attempt after
-  addressing the root causes."
+- Preserve the STEP 5 verdict: `BLOCKED` for Critical findings, `NEEDS_WORK`
+  for Major-only findings. In either case later phases remain blocked.
+- Print: "impl-review-loop <persisted-verdict>; correction budget exhausted
+  after 3 rounds in attempt <M>. Critical or Major findings remain unresolved.
+  Use --reset to start a new attempt after addressing the root causes."
 - Halt.
 
 ### STEP 7 — --reset handling

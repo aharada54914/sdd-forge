@@ -36917,7 +36917,7 @@ async function readBoundedTail(stream, capBytes, marginBytes) {
 }
 var defaultTextFetch = (url2, init) => fetch(url2, init);
 async function githubGetText(request, fetchImpl = defaultTextFetch) {
-  const result = await requestGithub(request, "text/plain", fetchImpl);
+  const result = await requestGithub(request, "application/vnd.github+json", fetchImpl);
   if (!result.ok) return result;
   const response = result.data;
   try {

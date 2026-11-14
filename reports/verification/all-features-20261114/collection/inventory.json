@@ -1,0 +1,74 @@
+{
+  "copiedAt": "2026-11-14T05:09:23.018231+00:00",
+  "scope": "Sanitized local collector/metadata-adapter and local integration evidence only; private production snapshot, credentials and Worker source excluded.",
+  "files": [
+    {
+      "path": "README-collector.md",
+      "sha256": "cb18de2126e17279f7ff27f33e966ca21617b92c37d1ef8c5e86c156cc543d3f"
+    },
+    {
+      "path": "VERIFICATION.md",
+      "sha256": "8bfc82456d5502f038664f89be05729865c1fa481e1935e8f3ae69d7b333b6fa"
+    },
+    {
+      "path": "automatic-collection-audit.json",
+      "sha256": "cc7f57866a0cd7de8b1d1c987d12478f7f09fe4ee770f215cbe9425ac8205067"
+    },
+    {
+      "path": "collect-progress.py",
+      "sha256": "84f45ae0d746fa6ed4d9784883c7d3539e245e87e0604b91369726ebbade460d"
+    },
+    {
+      "path": "collector-compatibility.json",
+      "sha256": "3053dd5fb7230df357e204fd38cbdfcb3fc2879c6cf9ab7d8d0289b945832ab6"
+    },
+    {
+      "path": "collector-controls.json",
+      "sha256": "27094216c69d663fa68a7f9fa35577c9c3f44ced7ae4bb0bc7199787d6cfa26e"
+    },
+    {
+      "path": "collector-live-update.png",
+      "sha256": "977daa2d6295d95a9a45834e952aeaa1be3963c389077a71e19cfd4d167c6791"
+    },
+    {
+      "path": "collector-mcp-before-755.json",
+      "sha256": "03d104c35b747d50a8d35b2f05d62ad309318f2a4cfff54b40c587176e9ce53a"
+    },
+    {
+      "path": "collector-mcp-results.json",
+      "sha256": "8c495c0b86c618a022f1f469a13a35d325f1adcc65a250062406a82711d395ac"
+    },
+    {
+      "path": "collector-mobile.png",
+      "sha256": "ed83449f8f762575571c4afa8ced29283e89d7bfdf9cf8e5cde155f69ba79bcb"
+    },
+    {
+      "path": "collector-results.json",
+      "sha256": "a47ea34dbbdefd5250d3b6246741b0c35cd33980326f3e2e156de5b38a664912"
+    },
+    {
+      "path": "collector-server.mjs",
+      "sha256": "634cd16eaab49e9a1f0194047f75ab4f5951602e95929da838ff9ac57c1a6120"
+    },
+    {
+      "path": "metadata-process-controls.json",
+      "sha256": "ac05b9021b171b225fb4987c8159178c00e6e1c9d5203f62a492a970ae069a96"
+    },
+    {
+      "path": "read-workflow-metadata.mjs",
+      "sha256": "487c14bf8638e6188427d8bcabb5d781bb82fcdb3f387cd683502e78660f608a"
+    },
+    {
+      "path": "test-collector-controls.py",
+      "sha256": "e0ea8062e7de5799e46d5d257cd641f6acb26803f8c58b20c3782b84554ecd5c"
+    },
+    {
+      "path": "test-collector.py",
+      "sha256": "0897cf23108af186daf57bb8d6daf92eaad1c7cf4ab7f798c57b89fdbf39002c"
+    },
+    {
+      "path": "test-metadata-process.py",
+      "sha256": "6993a32d35b79dea07e534c5137db2d92762904f59bf3d42bcefbed1c796d80e"
+    }
+  ]
+}

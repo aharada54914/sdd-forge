@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-11-14T04:45:43.677Z",
+  "node": "v26.13.0",
+  "repository": "aharada54914/sdd-forge",
+  "authentication": "Existing gh credential passed in memory to CI-MCP environment; no token or raw job logs persisted.",
+  "scope": "Actual built read-only MCP subprocess calling production api.github.com; response digests retained, payloads/log text omitted.",
+  "results": [
+    {
+      "tool": "list_workflow_runs",
+      "ok": false,
+      "keys": [],
+      "response_sha256": "00b2f7a0b87bacf4d16ca1306ac1a0a4c6270aa24af12f3213e25438084d7d13",
+      "response_bytes": 104,
+      "error_code": "upstream-error"
+    }
+  ]
+}

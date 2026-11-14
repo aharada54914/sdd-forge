@@ -1,0 +1,4 @@
+$ bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-placeholders.sh README.md
+Placeholder scan passed.
+
+EXIT_CODE=0

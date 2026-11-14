@@ -1,0 +1,122 @@
+{
+  "source_revision": "eb8b51938f5487f609e127d936630431c152d7c4",
+  "claude": {
+    "cli_version": "2.1.325",
+    "logged_in": false,
+    "prior_native_oauth_requirement": "Eligible Claude subscription or API key; browser sign-in alone insufficient"
+  },
+  "copilot": {
+    "version": "1.0.112",
+    "installed_isolated": true,
+    "native_request_exit": 1,
+    "outcome": "Authentication failed with existing GH token; native Copilot auth / Copilot Requests permission needed"
+  },
+  "gemini": {
+    "version": "0.68.0",
+    "installed_isolated": true,
+    "native_request_exit": 41,
+    "outcome": "No configured auth method; official Google OAuth, API key, Vertex or GCA authentication required"
+  },
+  "cloud": {
+    "cli": {
+      "aws": false,
+      "az": false
+    },
+    "credential_config_present": {
+      "aws_config": false,
+      "aws_credentials": false,
+      "azure_profile": false
+    },
+    "provider_env_credentials_present": false,
+    "repo_environments": [
+      "context-approval"
+    ],
+    "aws_azure_workflows_found": false,
+    "protected_variable_listing": "403 Resource not accessible by integration; no absent-values inference",
+    "deploy_performed": false,
+    "rollback_performed": false,
+    "resources_created": false,
+    "required": "Owner-provided sandbox account/subscription, region and scope, protected control workflow/ref, authenticated identity and configured review/trust/budget/cleanup policy",
+    "existing_aws_account_discovered": true,
+    "account_discovery": "User-authorized narrow Gmail search found AWS service mail with DKIM and DMARC pass. Account ID/login candidate handed privately to coordinating agent; no secrets read or reset requested.",
+    "account_creation_requested_then_superseded": "User requested existing AWS account sign-in after discovery; no account created."
+  },
+  "issues": [
+    "https://github.com/aharada54914/sdd-forge/issues/761"
+  ],
+  "notes": [
+    "T-001 stale output hash correctly rejected with explicit project root; not bypassed.",
+    "Initial scratch copy omitted .git/AGENTS so auto-root selected ancestor; explicit project root used for final preparation.",
+    "Verify profile auth-sync reconnected to host auth and native request failed401; existing separately authenticated reauth-session succeeded. No secrets copied.",
+    "No full raw prompt bundle, tokens or OAuth URLs included in published evidence."
+  ],
+  "invalidated_binary_run": {
+    "native_cli_exit": 0,
+    "canonical_preparer_exit": 0,
+    "bundle_bytes": 1041496,
+    "bundle_sha256": "42ec48b2412f2fda9b653ddfce3a576e9742441c354fd2b7779fa1b58afaa43b",
+    "input_digest": "ce0dd514c27664aef9ea43477979ae614c5f1babb29af3569b6893e1c492ec31",
+    "model_field": "gpt-6 (provider-output self-report; not independent model identity proof)",
+    "verdict": "PASS",
+    "single_vendor_gate_exit": 1,
+    "cross_vendor_panel_complete": false,
+    "limitation": "Declared PNG evidence decoded lossily; provider PASS is not image review or task approval. Issue761.",
+    "assessment_valid": false,
+    "reason": "Lossy binary input invalidates task/image assessment; retain only provider-transport diagnostic."
+  },
+  "gpt_text_only": {
+    "task": "Completed synthetic Full task-board T-002 HTTP API",
+    "native_cli_exit": 0,
+    "preparer_exit": 0,
+    "bundle_bytes": 144816,
+    "bundle_sha256": "be16e0ca416a4e1b64085277e87e411fd7a8226f069cc6f3630ed72bf2dbe9f7",
+    "input_digest": "e0d3610c09cd9e9a31590a5b01bc0820874e412e6afdab57b789421fb51ed06e",
+    "valid_utf8": true,
+    "replacement_character_count": 0,
+    "verdict": "PASS",
+    "model_field": "gpt-6 (output self-report, not independent model identity proof)",
+    "single_vendor_gate_exit": 1,
+    "cross_vendor_panel_complete": false,
+    "manifest_hashes_preserved": true,
+    "original_task_status_unmodified": true
+  },
+  "binary_repair": {
+    "issue": 761,
+    "before_unsafe_acceptances": 12,
+    "before_valid_utf8_controls": 4,
+    "bash_full": {
+      "pass": 235,
+      "fail": 0,
+      "exit": 0
+    },
+    "powershell_full": {
+      "pass": 223,
+      "fail": 0,
+      "exit": 0
+    },
+    "powershell_final_boundary_rerun": {
+      "pass": 44,
+      "fail": 0,
+      "exit": 0
+    },
+    "actual_original_T005_after": [
+      {
+        "host": "bash",
+        "exit": 1,
+        "output_exists": false,
+        "explicit_binary_error": true
+      },
+      {
+        "host": "powershell",
+        "exit": 1,
+        "output_exists": false,
+        "explicit_binary_error": true
+      }
+    ],
+    "source_sha256": {
+      "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh": "98bbd0801e50c1a1210dfffc2bb444c03557235cf00e9b51f07b78b57dc36ec0",
+      "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1": "d9020a6b93e99aee8a2d22f60b5c269d13bfca2d73dbdf965b4b907e2d175b87"
+    },
+    "native_windows": "Not rerun for this repair; Linux PowerShell7.6.7 only"
+  }
+}

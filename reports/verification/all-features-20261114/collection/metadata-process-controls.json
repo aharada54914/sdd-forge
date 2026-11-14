@@ -1,0 +1,13 @@
+{
+  "passed": 2,
+  "checks": [
+    "real metadata child and grandchild receive no publisher/service/API secrets",
+    "SIGTERM of collector terminates owned metadata process group"
+  ],
+  "childEnvironmentKeys": [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TZ"
+  ]
+}

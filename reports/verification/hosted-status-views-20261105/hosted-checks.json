@@ -1,0 +1,17 @@
+{
+  "url": "https://sdd-forge-status-20261105.jrmagneticlevitation.chatgpt.site",
+  "sourceCommit": "7ae913f6724ff08299f703c2401561f51a27bdca",
+  "deployment": "appgdep_6aecfba071f081918ba3dec6d04e47ee",
+  "visibility": "owner-private",
+  "authenticationTested": "service credential; normal interactive user sign-in not exercised",
+  "tasks": 265,
+  "http": 200,
+  "sourceError": null,
+  "browserPageErrors": [],
+  "browserHeartbeatAdvanced": true,
+  "staleAfterCollectorStop": true,
+  "recoveredSourceCheckedAt": "2026-11-05T21:59:49.416Z",
+  "recoveredSourceAgeSeconds": 8.402,
+  "unauthorizedPublisherRejected": true,
+  "nativeClaudeVerified": false
+}

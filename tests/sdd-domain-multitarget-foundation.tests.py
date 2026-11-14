@@ -177,7 +177,7 @@ def current_ci_mcp_violations(server_text, client_text):
     if len(methods) != 1 or shared is None or BOUNDARIES._METHOD_RE.findall(shared[0]) != ["GET"]:
         violations.append("fetch-call-count-mismatch")
     declarations = list(re.finditer(r"(?m)^export async function ([A-Za-z]+)\(", client_text))
-    for name, accept in (("githubGet", "application/vnd.github+json"), ("githubGetText", "text/plain")):
+    for name, accept in (("githubGet", "application/vnd.github+json"), ("githubGetText", "application/vnd.github+json")):
         bodies = [client_text[match.start():declarations[index + 1].start() if index + 1 < len(declarations) else len(client_text)]
                   for index, match in enumerate(declarations) if match[1] == name]
         call = 'await requestGithub(request, "' + accept + '", fetchImpl)'
@@ -197,14 +197,19 @@ class CurrentCiMcpReadOnlyBoundaryTests(BOUNDARIES.CiMcpReadOnlyBoundaryTests):
             ('await requestGithub(request, "application/vnd.github+json", fetchImpl)',
              'await anotherClient(request, "application/vnd.github+json", fetchImpl)',
              'shared-transport-delegate-mismatch:githubGet'),
-            ('await requestGithub(request, "text/plain", fetchImpl)',
-             'await anotherClient(request, "text/plain", fetchImpl)',
+            ('await requestGithub(request, "application/vnd.github+json", fetchImpl)',
+             'await anotherClient(request, "application/vnd.github+json", fetchImpl)',
              'shared-transport-delegate-mismatch:githubGetText'),
         ):
             with self.subTest(diagnostic=diagnostic):
-                changed = self.client_text.replace(original, replacement, 1)
+                changed = (replacement.join(self.client_text.rsplit(original, 1))
+                           if diagnostic.endswith(":githubGetText")
+                           else self.client_text.replace(original, replacement, 1))
                 self.assertNotEqual(changed, self.client_text)
                 self.assertIn(diagnostic, current_ci_mcp_violations(self.server_text, changed))
+        wrong_media = '"text/plain"'.join(self.client_text.rsplit('"application/vnd.github+json"', 1))
+        self.assertIn('shared-transport-delegate-mismatch:githubGetText',
+                      current_ci_mcp_violations(self.server_text, wrong_media))
         duplicate = self.client_text + '\nawait fetchImpl(url, { method: "GET", headers, signal });\n'
         self.assertIn('fetch-call-count-mismatch', current_ci_mcp_violations(self.server_text, duplicate))
 

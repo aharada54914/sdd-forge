@@ -1,0 +1,15 @@
+{
+  "scope": "local real Worker authorization with synthetic credentials; not production browser authentication",
+  "passed": [
+    "anonymous denied",
+    "wrong publisher denied",
+    "existing publisher preserved",
+    "dedicated collector authenticated",
+    "legacy-only deployment unchanged",
+    "collector-only deployment authenticated",
+    "short collector configuration fails closed",
+    "viewer cannot publish",
+    "cross-origin collector denied",
+    "origin-bearing write denied"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "source": {
+    "node_version": "v26.13.0",
+    "archive": "https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz",
+    "official_checksum_source": "https://nodejs.org/dist/v26.13.0/SHASUMS256.txt",
+    "verified_sha256": "d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997"
+  },
+  "installed_executable": "/workspace/.tools/sdd-forge-dev/verification-tools/node-v26.13.0-linux-x64/bin/node",
+  "scope": "Isolated supported runtime for verification. Default system Node/PATH configuration unchanged. Per-command PATH includes selected runtime and required pwsh/rtk.",
+  "proxy": "Authenticated CI-MCP live verification enables NODE_USE_ENV_PROXY=1 to use the configured proxy; proxy address and credentials are not copied."
+}

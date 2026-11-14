@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-11-13T04:20:34.746894+00:00",
+  "source_rollout": "/workspace/.tools/sdd-forge-dev/codex-verify/sessions/2026/11/07/rollout-2026-11-07T12-45-05-01a1b60a-87de-77e2-89f4-2396094d6d78.jsonl",
+  "bound_identity": "01a1b60a-87de-77e2-89f4-2396094d6d78",
+  "resumed_same_context": true,
+  "latest_turn_context": {
+    "turn_id": "01a1d322-5180-7f20-b6b8-8027e343a1b8",
+    "root_turn_id": "01a1d322-11d0-7bb2-8b9e-f5e7f65325ed",
+    "disabled_plugin_ids": [],
+    "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed",
+    "workspace_roots": [
+      "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed"
+    ],
+    "current_date": "2026-11-13",
+    "timezone": "Etc/UTC",
+    "approval_policy": "never",
+    "approvals_reviewer": "user",
+    "sandbox_policy": {
+      "type": "danger-full-access"
+    },
+    "permission_profile": {
+      "type": "disabled"
+    },
+    "model": "gpt-6-astra",
+    "comp_hash": "3000",
+    "collaboration_mode": {
+      "mode": "default",
+      "settings": {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "high",
+        "developer_instructions": null
+      }
+    },
+    "multi_agent_version": "v2",
+    "realtime_active": false,
+    "effort": "high",
+    "summary": "none"
+  },
+  "prior_history_preserved": true
+}

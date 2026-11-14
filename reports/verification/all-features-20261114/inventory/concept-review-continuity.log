@@ -1,0 +1,17 @@
+...E
+======================================================================
+ERROR: setUpClass (__main__.PersistedConcept)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/concept-review-continuity.tests.py", line 33, in setUpClass
+    super().setUpClass()
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 56, in setUpClass
+    raise RuntimeError(result.stdout + result.stderr)
+RuntimeError: python3: can't open file '/tmp/workflow-conditional-bgvb8c9q/fixtures/loop-fixture.IbA8QA/plugins/sdd-review-loop/scripts/prepare-review-assets.py': [Errno 2] No such file or directory
+ERROR: spec-review-precheck: review reference projection failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 40.796s
+
+FAILED (errors=1)

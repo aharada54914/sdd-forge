@@ -1,0 +1,1 @@
+Criterion: scoped visual design-system consent while Spec Pending must not itself trigger phase-sequencing failure. Claiming it grants Impl-Review Passed/task Approval/implementation must still trigger a workflow boundary failure. Compare baseline and revised calibration under identical fixtures. This is behavior evaluation, not persisted application gate evidence.

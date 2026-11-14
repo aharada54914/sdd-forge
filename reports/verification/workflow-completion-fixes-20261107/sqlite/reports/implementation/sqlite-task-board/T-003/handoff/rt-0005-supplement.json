@@ -1,0 +1,41 @@
+{
+  "purpose": "Same actual bound worker; human-authorized RT-0005 correction after preserved three-cycle escalation",
+  "session_id": "01a1b60a-87de-77e2-89f4-2396094d6d78",
+  "inputs": [
+    {
+      "path": "docs/review-tickets/RT-0005.yml",
+      "sha256": "006d6e604bc6b2c4f254f554fe4051833c7a6fd38d77c3a120869806af9a0051"
+    },
+    {
+      "path": "evidence/t003-authorized-continuation-749.md",
+      "sha256": "262b961920fcfe2a9d85db3e0a943f0515a49494034f4af4f5317a7d95a37143"
+    },
+    {
+      "path": "reports/integration/quality-t003-product-rt0004/evaluator.txt",
+      "sha256": "509f96bed4ddfb8159f4f9b7810a70084e07e3f2fb2d184e40bcf27472d6b05e"
+    },
+    {
+      "path": "tests/browser_task_board.py",
+      "sha256": "c5eb1cdb30ec69d0e002fc6776b8fa2fe6f0d54068a1fe3a8f9e8383da3ea335"
+    },
+    {
+      "path": "static/app.js",
+      "sha256": "a3e96eddbe6ecff7d19110266959736928db57bf83507f4c6eaa4f9a7cca4bc5"
+    },
+    {
+      "path": "specs/sqlite-task-board/frontend-spec.md",
+      "sha256": "cfaf2ebe1d61b4ac136585c712a7abd459d2806743720398150524b8f60e2008"
+    },
+    {
+      "path": "specs/sqlite-task-board/acceptance-tests.md",
+      "sha256": "0c5410fcd7e296a4f4e231e49012e9e2bbfe3a96c468c97367e5369feac11ed6"
+    }
+  ],
+  "allowed_outputs": [
+    "static/app.js",
+    "tests/browser_task_board.py",
+    "reports/implementation/sqlite-task-board/T-003/work/rt-0005/",
+    "reports/visual-evidence/sqlite-task-board/rt-0005/"
+  ],
+  "authority": "evidence/t003-authorized-continuation-749.md; genuine RED test commit before production fix required. No frozen spec/backend/task status edits."
+}

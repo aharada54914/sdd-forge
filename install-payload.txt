@@ -46,6 +46,7 @@ docs/skill-reference.md
 docs/troubleshooting.md
 docs/verification.md
 docs/workflow-guide.md
+docs/hosted-status-views.md
 docs/architecture/
 docs/adr/
 docs/contributor/workflow-detail.md

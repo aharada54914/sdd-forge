@@ -14,6 +14,19 @@ set -euo pipefail
 FEATURE="${1:?Usage: task-review-precheck.sh <feature-slug> <attempt> <round>}"
 ATTEMPT="${2:?Usage: task-review-precheck.sh <feature-slug> <attempt> <round>}"
 ROUND="${3:?Usage: task-review-precheck.sh <feature-slug> <attempt> <round>}"
+repository_root=""
+review_options=()
+for ((review_index=4; review_index<=$#; review_index++)); do
+  review_option="${!review_index}"
+  if [[ "$review_option" == --repository-root ]]; then
+    [[ -z "$repository_root" && "$review_index" -lt $# ]] || { echo 'ERROR: duplicate or empty repository root' >&2; exit 1; }
+    ((review_index+=1)); repository_root="${!review_index}"
+    [[ -n "$repository_root" ]] || { echo 'ERROR: empty repository root' >&2; exit 1; }
+  else
+    review_options+=("$review_option")
+  fi
+done
+set -- "$1" "$2" "$3" "${review_options[@]}"
 MODE="${4:-}"
 
 SPECS_DIR="specs/${FEATURE}"
@@ -29,7 +42,16 @@ CHECK_RISK_SCRIPT="plugins/sdd-quality-loop/scripts/check-risk.sh"
 CALIBRATION_MD="plugins/sdd-review-loop/references/reviewer-calibration.md"
 REGISTRY="specs/workflow-state-registry.json"
 LAYER_FILES=("ux-spec.md" "frontend-spec.md" "infra-spec.md" "security-spec.md")
-repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+script_dir="$(cd "$(dirname "$0")" && pwd -P)"
+plugin_root="$(cd "$script_dir/.." && pwd -P)"
+if [[ -z "$repository_root" ]]; then
+  repository_root="$PWD"
+  if [[ "$plugin_root" == */plugins/sdd-review-loop && -e "$plugin_root/../../.git" ]]; then
+    repository_root="$(cd "$plugin_root/../.." && pwd -P)"
+  fi
+fi
+repo_root="$(cd "$repository_root" && pwd -P)" || exit 1
+cd "$repo_root" || exit 1
 calibration_sha256=""
 
 fail() { echo "ERROR: task-review-precheck: $*" >&2; exit 1; }
@@ -85,8 +107,12 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
 [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] || fail "unknown mode: $MODE"
-. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+. "$script_dir/lib/fixed-input-source.sh"
 fixed_input_options "${@:5}"
+asset_options=()
+[[ "$MODE" == --verify-inputs ]] && asset_options+=(--verify-only)
+python3 "$script_dir/prepare-review-assets.py" --root "$repo_root" --stage task "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
+
 if [[ -n "$fixed_source_map" ]]; then
   TASKS_MD=$(fixed_input_path "$TASKS_MD")
   REQS_MD=$(fixed_input_path "$REQS_MD")
@@ -127,7 +153,7 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
       fail "traceability review input is missing or substituted"
     jq -e --arg hash "$(sha256 "$TRACEABILITY_MD")" '.traceability_sha256 == $hash' \
       "$precheck" >/dev/null || fail "traceability review input changed after precheck"
-    python3 "${repo_root}/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+    python3 "${script_dir}/validate-layer-traceability.py" \
       "$TRACEABILITY_MD" "$REQS_MD" || fail "traceability Layer Spec values are invalid"
     jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' \
       "$precheck" >/dev/null || fail "precheck layer manifest is incomplete"
@@ -159,12 +185,12 @@ if [[ "$MODE" == "--provenance-rereview" ]]; then
   done < <(find "reports/task-review/${FEATURE}" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
   [[ "$prior_pass" == "true" ]] ||
     fail "provenance re-review requires a prior persisted task-review PASS verdict"
-  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE"; then
+  if ! bash "$(review_plugin_file plugins/sdd-quality-loop/scripts/check-workflow-state.sh)" --repository-root "$repo_root" --feature "$FEATURE"; then
     echo "NOTE: task-review-precheck: canonical workflow-state validation failed;" \
       "proceeding under --provenance-rereview (task-stage evidence re-binding in progress)." >&2
   fi
 else
-  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+  bash "$(review_plugin_file plugins/sdd-quality-loop/scripts/check-workflow-state.sh)" --repository-root "$repo_root" --feature "$FEATURE" ||
     fail "canonical workflow-state validation failed"
 fi
 
@@ -205,8 +231,8 @@ impl_review_status=$(sed -n 's/^Impl-Review-Status:[[:space:]]*//p' "${DESIGN_MD
 
 workflow_match_precheck="PASS"
 
-if [[ -x "${CHECK_RISK_SCRIPT}" ]]; then
-  if ! bash "${CHECK_RISK_SCRIPT}" "${TASKS_MD}" >/dev/null 2>&1; then
+if [[ -x "$(review_plugin_file "$CHECK_RISK_SCRIPT")" ]]; then
+  if ! bash "$(review_plugin_file "$CHECK_RISK_SCRIPT")" "${TASKS_MD}" >/dev/null 2>&1; then
     workflow_match_precheck="FAIL"
   fi
 else
@@ -414,7 +440,7 @@ if $full_profile; then
     layer_sha256="$(jq -c --arg name "$name" --arg hash "$(sha256 "${SPECS_DIR}/${name}")" \
       '. + {($name): $hash}' <<<"$layer_sha256")"
   done
-  python3 "${repo_root}/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+  python3 "${script_dir}/validate-layer-traceability.py" \
     "$TRACEABILITY_MD" "$REQS_MD" || fail "traceability Layer Spec values are invalid"
 fi
 [[ -f "${CALIBRATION_MD}" && ! -L "${CALIBRATION_MD}" ]] || fail "${CALIBRATION_MD} not found"
@@ -467,7 +493,7 @@ trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
   '{schema:"review-contract/v1",stage:"task",feature:$feature,attempt:$attempt,round:$round,input_sha256:$input_sha256,run_id:"task-precheck",verdict:"PASS"}' > "$foundation_contract"
 mkdir -p "reports/task-review"
-"${repo_root}/plugins/sdd-review-loop/scripts/review-contract-validate.sh" --feature "$FEATURE" --attempt "$ATTEMPT" --round "$ROUND" --stage task --report-root "reports/task-review/${FEATURE}" --contract "$foundation_contract" >/dev/null
+"${script_dir}/review-contract-validate.sh" --repository-root "$repo_root" --feature "$FEATURE" --attempt "$ATTEMPT" --round "$ROUND" --stage task --report-root "reports/task-review/${FEATURE}" --contract "$foundation_contract" >/dev/null
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 7: Create output directory and write precheck-result.json

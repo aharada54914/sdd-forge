@@ -39,6 +39,10 @@
 # bundle size. If the bundle is still over --max-bytes after both tiers are
 # exhausted, this script still fails closed exactly as above.
 #
+# Text transport only: binary/NUL or invalid UTF-8 artifacts fail closed.
+# Declared binary evidence must not be omitted to manufacture a successful review.
+# Use a separately supported native attachment review for those artifacts.
+#
 # Security (design.md §6):
 #   • Fail-closed consent gate: exits non-zero without writing output unless
 #     tasks.md contains "Cross-Model: enabled" for the task, OR a valid
@@ -583,11 +587,38 @@ _ppi_count_bytes() {
     printf '%s\n' "$count"
 }
 
+# The CLI transport carries text only. Reject binary evidence before shell
+# substitution can discard NUL bytes or UTF-8 decoding can replace bytes.
+_ppi_read_text() {
+    python3 - "$1" <<'PPI_TEXT'
+from pathlib import Path
+import sys
+try:
+    content = Path(sys.argv[1]).read_bytes()
+    content.decode('utf-8', errors='strict')
+    if b'\x00' in content:
+        raise ValueError('NUL byte')
+except (UnicodeError, ValueError):
+    print('prepare-panelist-input: unsupported binary or invalid UTF-8 input; '
+          'text-only panelist transport cannot review this artifact: ' + sys.argv[1], file=sys.stderr)
+    sys.exit(3)
+sys.stdout.buffer.write(content)
+PPI_TEXT
+}
+
+_ppi_read_error() {
+    local status=$?
+    # Distinguish unsupported input from the existing I/O-error exit contract.
+    [ "$status" -eq 3 ] && exit 1
+    _ppi_io_error
+}
+
 # One file's content, elided to its first/last $_ppi_elide_lines lines
 # plus a marker. Callers only invoke this for a file the budget loop below
 # has already decided to elide — it is not itself threshold-gated.
 _ppi_elide_content() {
     _pec_file="$1"
+    _ppi_read_text "$_pec_file" >/dev/null || return $?
     _pec_label="$2"
     _pec_total=$(_ppi_count_bytes < "$_pec_file") || return 1
     _pec_head=$(head -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
@@ -609,9 +640,9 @@ _ppi_elide_content() {
 # only the step-3 rebuild function below ever passes it.
 _ppi_append_content() {
     if [ "${3:-0}" = "1" ]; then
-        _pac_content=$(_ppi_elide_content "$1" "$2") || _ppi_io_error
+        _pac_content=$(_ppi_elide_content "$1" "$2") || _ppi_read_error
     else
-        _pac_content=$(cat -- "$1") || _ppi_io_error
+        _pac_content=$(_ppi_read_text "$1") || _ppi_read_error
     fi
     raw_content="${raw_content}# ---- ${2} ----
 ${_pac_content}
@@ -773,7 +804,7 @@ elif [ -d "$input_path" ]; then
     _ppi_content_suffix="$raw_content"
     raw_content=""
 else
-    _ppi_content_prefix="$(cat -- "$input_path")" || _ppi_io_error
+    _ppi_content_prefix="$(_ppi_read_text "$input_path")" || _ppi_read_error
     _ppi_content_suffix=""
     _ppi_elidable_index=""
 fi
@@ -791,12 +822,12 @@ _ppi_build_step3_content() {
     while IFS="$_ppi_tab" read -r _pbs_bytes _pbs_abspath _pbs_relpath; do
         [ -n "$_pbs_relpath" ] || continue
         if printf '%s\n' "$_pbs_elide_set" | grep -qxF -- "$_pbs_relpath"; then
-            _pbs_content=$(_ppi_elide_content "$_pbs_abspath" "$_pbs_relpath") || _ppi_io_error
+            _pbs_content=$(_ppi_elide_content "$_pbs_abspath" "$_pbs_relpath") || _ppi_read_error
             _ppi_step3_content="${_ppi_step3_content}# ---- ${_pbs_relpath} ----
 ${_pbs_content}
 "
         else
-            _pbs_content=$(cat -- "$_pbs_abspath") || _ppi_io_error
+            _pbs_content=$(_ppi_read_text "$_pbs_abspath") || _ppi_read_error
             _ppi_step3_content="${_ppi_step3_content}# ---- ${_pbs_relpath} ----
 ${_pbs_content}
 "
@@ -1146,12 +1177,12 @@ _ppi_build_declared_content() {
 [no current content: this declared output does not exist in the worktree]
 "
         elif printf '%s\n' "$_pbd_elide_set" | grep -qxF -- "$_pbd_row_path"; then
-            _pbd_content=$(_ppi_elide_content "$_pbd_candidate_f" "$_pbd_row_path") || _ppi_io_error
+            _pbd_content=$(_ppi_elide_content "$_pbd_candidate_f" "$_pbd_row_path") || _ppi_read_error
             declared_content="${declared_content}${_pbd_header}
 ${_pbd_content}
 "
         else
-            _pbd_content=$(cat -- "$_pbd_candidate_f") || _ppi_io_error
+            _pbd_content=$(_ppi_read_text "$_pbd_candidate_f") || _ppi_read_error
             declared_content="${declared_content}${_pbd_header}
 ${_pbd_content}
 "

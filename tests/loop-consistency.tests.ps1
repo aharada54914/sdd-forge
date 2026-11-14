@@ -123,7 +123,7 @@ try {
         Set-LoopStatusField $specRequirementsPath "Spec-Review-Status" "Passed"
         Add-Content -LiteralPath $specRequirementsPath -Value "`n<!-- same-turn edit recorded while still Passed -->`n"
         $specResetScriptPath = Join-Path $specRoot "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
-        & $specResetScriptPath $specFeature 2 1 "--reset" | Out-Null
+        & $specResetScriptPath $specFeature 2 1 "--reset" -RepositoryRoot $specRoot | Out-Null
         $specResetExitCode = $LASTEXITCODE
         if ($specResetExitCode -eq 0) {
             Test-Ok "TEST-018.1: same-turn edit + reset (attempt 2 round 1) exits success"

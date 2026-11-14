@@ -1,0 +1,11 @@
+test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) ... ok
+test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding (__main__.InstalledProtectedCallerTests.test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding) ... ok
+test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation (__main__.InstalledSpecCallerTests.test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation) ... ok
+test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation (__main__.InstalledSpecCallerTests.test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation) ... ok
+test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle (__main__.InstalledSpecCallerTests.test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle) ... ok
+test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings (__main__.InstalledSpecCallerTests.test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 105.835s
+
+OK

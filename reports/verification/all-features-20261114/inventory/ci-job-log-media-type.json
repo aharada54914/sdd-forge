@@ -1,0 +1,16 @@
+{
+  "endpoint": "GET /repos/aharada54914/sdd-forge/actions/jobs/129119447247/logs",
+  "scope": "Existing authenticated request; no response body, token or signed redirect URL saved.",
+  "results": [
+    {
+      "accept": "text/plain",
+      "status": 415,
+      "has_redirect": false
+    },
+    {
+      "accept": "application/vnd.github+json",
+      "status": 302,
+      "has_redirect": true
+    }
+  ]
+}

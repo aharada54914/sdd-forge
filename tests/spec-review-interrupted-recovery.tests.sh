@@ -95,7 +95,7 @@ def functions_bash():
 
 def drivers(scratch):
  bash=scratch/'admission-driver.sh'
- bash.write_text('set -euo pipefail\n'+functions_bash()+r'''
+ bash.write_text('set -euo pipefail\nsource '+shlex.quote(str(ROOT/'plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh'))+'\n'+functions_bash()+r'''
 repo_root=$1; repo_root_alias=$1; feature=$2; attempt=4; round=1
 spec_dir="$repo_root/specs/$feature"
 requirements="$spec_dir/requirements.md"; acceptance="$spec_dir/acceptance-tests.md"
@@ -112,6 +112,7 @@ fi
  ps=scratch/'admission-driver.ps1'
  ps.write_text(r'''param([string]$Repository,[string]$Feature,[string]$Mode,[string]$Source)
 $ErrorActionPreference='Stop'
+. (Join-Path (Split-Path -Parent $Source) 'lib/fixed-input-source.ps1')
 $tokens=$null;$errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile($Source,[ref]$tokens,[ref]$errors)
 if($errors.Count){throw 'Cannot parse production precheck'}
@@ -511,14 +512,15 @@ def transition_fixture(root,source_round=3):
  SOURCE=f'reports/spec-review/{FEATURE}/attempt-3/round-{source_round}';PRIOR=f'reports/spec-review/{FEATURE}/attempt-3/round-{source_round-1}';INV=f'reports/review-context/{FEATURE}-spec-a3r{source_round}-a-invocation.json'
  try:record=fixture(root,source_round)
  finally:SOURCE,PRIOR,INV=saved_source,saved_prior,saved_inv
- for rel in ('plugins/sdd-review-loop/scripts/spec-review-precheck.sh','plugins/sdd-review-loop/scripts/spec-review-precheck.ps1','plugins/sdd-review-loop/scripts/review-contract-validate.sh','plugins/sdd-review-loop/scripts/review-contract-validate.ps1','plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh','plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1'):
-  put(root,rel,(ROOT/rel).read_bytes());(root/rel).chmod(0o755)
+ # Copy the installed runtime closure, including reference projection and helper modules.
+ for rel in ('plugins/sdd-review-loop/scripts','plugins/sdd-quality-loop/scripts'):
+  shutil.copytree(ROOT/rel,root/rel,dirs_exist_ok=True)
  return record
 
 def transition_command(root,options=None,gate=None,stop=False,ancestor=False):
  options=options if options is not None else ['recovery']
  script=root/('plugins/sdd-review-loop/scripts/spec-review-precheck.'+('sh' if RUNTIME=='bash' else 'ps1'))
- args=[]
+ args=['--repository-root',str(root)] if RUNTIME=='bash' else ['-RepositoryRoot',str(root)]
  for option in options:
   if option=='recovery':args+=['--recover-interrupted='+RECORD] if RUNTIME=='bash' else ['-RecoverInterrupted',RECORD]
   elif option=='reset':args+=['--reset'] if RUNTIME=='bash' else ['-Reset']
@@ -686,6 +688,7 @@ def consumption_main():
    funcs=re.findall(r'^[a-zA-Z_][a-zA-Z_0-9]*\(\) \{[^\n]*\}\s*$|^[a-zA-Z_][a-zA-Z_0-9]*\(\) \{\n.*?^\}',text,re.M|re.S)
    driver=root/'consumer.sh';driver.write_text('set -euo pipefail\n'+ '\n'.join(funcs)+r"""
 repo_root=$1; FEATURE=$2; CALIBRATION_MD=plugins/sdd-review-loop/references/reviewer-calibration.md
+source "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
 source "$repo_root/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh"
 require_persisted_pass "$repo_root/reports/spec-review/$FEATURE" spec "$(sha256 "$repo_root/specs/$FEATURE/requirements.md")" "$(sha256 "$repo_root/specs/$FEATURE/acceptance-tests.md")" '' "$(sha256 "$repo_root/specs/$FEATURE/requirements.md")" ''
 """)
@@ -693,8 +696,10 @@ require_persisted_pass "$repo_root/reports/spec-review/$FEATURE" spec "$(sha256 
   else:
    driver=root/'plugins/sdd-review-loop/scripts/consumer.ps1';driver.write_text(r"""param($Repository,$Feature,$Source)
 $ErrorActionPreference='Stop';$tokens=$null;$errors=$null
+$script:root=$Repository
 $ast=[Management.Automation.Language.Parser]::ParseFile($Source,[ref]$tokens,[ref]$errors)
 if($errors.Count){throw 'consumer parse failed'}
+. (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
 . (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 foreach($node in $ast.EndBlock.Statements){if($node -is [Management.Automation.Language.FunctionDefinitionAst]){. ([scriptblock]::Create($node.Extent.Text.Replace('$PSScriptRoot', ("'" + $PSScriptRoot.Replace("'", "''") + "'"))))}}
 $req=(Get-FileHash -LiteralPath "$Repository/specs/$Feature/requirements.md").Hash.ToLowerInvariant()
@@ -704,7 +709,8 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
    cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(driver),str(root),FEATURE,str(source)+'ps1']
   return run_child(root,cmd)
  with tempfile.TemporaryDirectory(prefix='a9-consume-') as tmp:
-  scratch=pathlib.Path(tmp);base=scratch/'base';transition_fixture(base)
+  # Windows TEMP may use an 8.3 alias; the real CLI requires a canonical root.
+  scratch=pathlib.Path(tmp).resolve();base=scratch/'base';transition_fixture(base)
   # The generated PowerShell harness is the only nested driver excluded below.
   # Exercise Windows spelling even on POSIX, without emulating Windows execution.
   windows_root=pathlib.PureWindowsPath('C:/fixture')
@@ -721,7 +727,7 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
   (oracle/'evidence/item.json').unlink();ok=snapshot(oracle)!=added
   results.append(ok);print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' CONTROL::snapshot-detects-removed-file',flush=True)
   shutil.rmtree(oracle)
-  for rel in ('plugins/sdd-review-loop/scripts','plugins/sdd-review-loop/references'):
+  for rel in ('plugins/sdd-review-loop/references',):
    shutil.copytree(ROOT/rel,base/rel,dirs_exist_ok=True)
   run=run_child(base,transition_command(base)[0])
   emit('TEST-097::real-publication-control',run,True,True)
@@ -730,7 +736,7 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
   complete(base)
   def reset_command(root):
    script=root/('plugins/sdd-review-loop/scripts/spec-review-precheck.'+('sh' if RUNTIME=='bash' else 'ps1'))
-   return ['bash',str(script),FEATURE,'5','1','--reset'] if RUNTIME=='bash' else [PWSH,'-NoProfile','-File',str(script),'-Feature',FEATURE,'-Attempt','5','-Round','1','-Reset']
+   return ['bash',str(script),FEATURE,'5','1','--repository-root',str(root),'--reset'] if RUNTIME=='bash' else [PWSH,'-NoProfile','-File',str(script),'-Feature',FEATURE,'-Attempt','5','-Round','1','-RepositoryRoot',str(root),'-Reset']
   rollback_ref=os.environ.get('SDD_RECOVERY_ROLLBACK_REF')
   for reverted in ((False,True) if rollback_ref else (False,)):
    for terminal in ('PASS','BLOCKED'):

@@ -1,0 +1,28 @@
+{
+  "commands": [
+    "bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.23.1/scripts/check-task-state-lite.sh specs/inclusive-calendar-days/tasks.md",
+    "git diff --check; git status --short"
+  ],
+  "actual_results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "31e82c",
+        "wall_time_seconds": 0.000009344,
+        "exit_code": 0,
+        "original_token_count": 12,
+        "output": "Task state (lite) check passed for 1 task(s).\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "5dce51",
+        "wall_time_seconds": 0.000005378,
+        "exit_code": 0,
+        "original_token_count": 103,
+        "output": "?? AGENTS.md\n?? CLAUDE.md\n?? EVALUATION.md\n?? docs/\n?? evidence/adoption/\n?? evidence/final-integrity.json\n?? evidence/initial-files.json\n?? evidence/installed-runtime-inventory.json\n?? evidence/intake/\n?? evidence/lite-entry-revised/\n?? evidence/lite-entry/\n?? evidence/native-context.json\n?? evidence/native-turn-contexts.json\n?? evidence/stage1/\n?? reports/implementation/\n?? reports/quality-gate/\n?? specs/\n"
+      }
+    }
+  ]
+}

@@ -50,9 +50,9 @@ Breaking API: {{breaking_api}}
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-001 → {{requirement_ids}} mapping
-- [ ] (high/critical) Red→Green evidence captured
-- [ ] (high/critical) Independent review verdict recorded
+- [ ] Reviewed traceability.md mapping T-001 → {{requirement_ids}} verified; execution evidence recorded in implementation reports without editing review-frozen specifications
+- [ ] (high/critical) Failing Red tests committed before implementation; Red commit ID and actual Red→Green execution evidence recorded
+- [ ] (high/critical) Independent review verdict and the actual named reviewer/context ID recorded; reviewer differs from the implementer
 - [ ] (critical) Second approver recorded and evidence bundle signed
 
 If a Done When item depends on a case staying unchanged and a design clause can change that case from outside the task, name the design clause in the task plan so the contradiction is visible at review time.

@@ -1,0 +1,70 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a1b5be-183c-7692-81f4-e7af8040198f",
+  "host_session_id": "01a1b5be-183c-7692-81f4-e7af8040198f",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/task-board/requirements.md",
+      "sha256": "edce4a060201d53985d69c395b3789817699d6c05f2df53cd9e9db0c861de9b5"
+    },
+    {
+      "path": "specs/task-board/acceptance-tests.md",
+      "sha256": "48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "f7700a54a7dc0896cb5c924ab37b90085678959c09bb4711161d35b2cb6866ad"
+    },
+    {
+      "path": "reports/spec-review/task-board/attempt-2/round-1/precheck-result.json",
+      "sha256": "31f3513d562f3506142de5e9b2eb4fb5a201e94fd8d3e5e29ad24d07280ab619"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–008 specify verifiable operations, persistence, failure handling, visual direction, security boundaries, and browser behavior. AC-001–013 supply concrete validation scenarios."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eight requirements have explicitly mapped acceptance criteria covering the single-screen Japanese task-management goal."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001–013 identify observable UI, request, stored-data, HTTP, screenshot, or socket outcomes; planned evidence is explicitly distinguished from executed PASS results."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Purpose and Scope explicitly excludes publication, authentication, sharing, editing, deadlines, search, filters, sidebar navigation, and counts. Constraints exclude concurrent multi-user or multi-process writes."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements specify the permitted technology stack, JSON atomic replacement, corruption preservation, no automatic write retries, external-Origin rejection, loopback exposure, and reference-image limitations."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-007–008 cover duplicate updates and uncertain save outcomes; AC-010 covers hostile inputs and traversal; AC-012 covers storage failures; AC-013 requires actual socket inspection and non-loopback connection probing before PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The authorized input set supplies no Approved domain model or valid domain contract establishing this check's applicability. No unlisted domain files were read."
+    }
+  ]
+}

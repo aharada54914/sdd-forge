@@ -1,0 +1,15 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "task-board",
+  "vendor": "openai",
+  "model": "gpt-6",
+  "verdict": "PASS",
+  "findings": [],
+  "blind": true,
+  "input_digest": "ce0dd514c27664aef9ea43477979ae614c5f1babb29af3569b6893e1c492ec31",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "specs/task-board/tasks.md#T-005 Approval: Approved"
+  }
+}

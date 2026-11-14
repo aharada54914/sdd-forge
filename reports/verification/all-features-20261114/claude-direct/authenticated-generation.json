@@ -1,0 +1,66 @@
+{
+  "status": "Authenticated Claude browser generation and revision artifact existence confirmed; full export and runtime interactions not verified",
+  "profile_observation": "Saved profile now records Google sign-in and eight domains; actual Claude app access succeeded despite no claude.ai metadata entry.",
+  "generation_run": "94491f6d-355e-4b02-a595-f3955a85a7fa",
+  "chat_id": "10e8e6b5-f714-48e5-a04c-f399c95bbbf7",
+  "initial_artifact_id": "5d90e595-8f73-440d-aa5c-d673ff946259",
+  "generation": "Actual Claude app generated a Japanese task-board HTML artifact from a fictional brief. No public publishing.",
+  "first_revision_run": "14146fe2-32a5-42ec-b92c-e57bc290a7e5",
+  "first_revision_artifact_id": "262168df-02ea-4bc8-8f67-3a1c843beae3",
+  "first_revision_result": "Requested focus-visible and 44px touch targets. Browser reported already present/no observed change; returned prose instead of full HTML. Not accepted as demonstrated UI improvement or byte-identity proof.",
+  "accessibility_revision_run": "9dc1e9b9-a3f6-4d4d-8b11-c6093f1d5016",
+  "accessibility_revision_request": "Visible polite live-region action feedback and associated empty-input errors while retaining behavior and accessibility.",
+  "exact_html_acquired": false,
+  "runtime_interactions_verified": false,
+  "native_designsync_verified": false,
+  "remaining_boundary": "Browser-driven Claude generation is real, but native sdd-forge DesignSync and source import/runtime improvement require separate evidence.",
+  "excluded": "Personal account name, plan details, credentials, cookies, unrelated chats and setup URLs.",
+  "accessibility_revision_result": {
+    "run_status": "failed",
+    "error": "This task timed out before it finished. Try a simpler goal, or retry.",
+    "duration_seconds": 1199,
+    "step_count": 74,
+    "exact_html_acquired": false
+  },
+  "readback_run": "e0999783-4ff1-4ac1-aae0-5fb22cb76e1c",
+  "readback_observation": {
+    "updated_artifact_present": true,
+    "artifact_id": "262168df-02ea-4bc8-8f67-3a1c843beae3",
+    "preview_observed": "5 tasks, 4 incomplete, 1 complete",
+    "provider_reply_excerpt": "更新版を単一HTMLのArtifactとして公開しました。",
+    "provider_claimed_changes": [
+      "Visible role=status aria-live=polite aria-atomic=true action feedback",
+      "Associated empty-input message with aria-describedby/aria-invalid",
+      "Existing task actions and focus/touch targets retained"
+    ],
+    "limits": "Reply text and preview existence do not prove all claimed runtime behavior or full-source parity. Public publishing was not authorized or observed; the reply wording alone is not evidence of public sharing."
+  },
+  "ui_test": {
+    "run": "6401368d-0823-46c2-89b8-077b5b317ba5",
+    "duration_seconds": 35,
+    "result": "NOT-TESTED",
+    "actions": {
+      "add": "NOT-TESTED",
+      "toggle_complete": "NOT-TESTED",
+      "delete": "NOT-TESTED",
+      "blank_submit": "NOT-TESTED"
+    },
+    "observations": "Task-board preview, counters 5 total / 4 incomplete / 1 complete, task-name input, priority selector and add button were visible.",
+    "blocker": "Available automation could not target the embedded preview controls. Underlying iframe/shadow/canvas implementation was not independently determined.",
+    "limits": "Visible controls and provider claims are not runtime test success. No local browser test was possible without acquired HTML."
+  },
+  "input_error": {
+    "schema_validation": "One request rejected before starting because TinyFish output_schema does not support description. Removed only that schema annotation and retried; no app change."
+  },
+  "native_cli_login_attempt": {
+    "run": "474aaf07-576a-4800-a7bd-eb14f4e14d37",
+    "method": "Official isolated Claude Code auth login --claudeai; generated OAuth URL used through the authenticated browser profile",
+    "status": "BLOCKED",
+    "visible_requirement": "Official authorization page requires an eligible Claude subscription or API key for Claude Code.",
+    "authorization_code_received": false,
+    "plan_changed": false,
+    "api_key_provisioned": false,
+    "waiting_cli_stopped": true,
+    "limits": "Browser Claude design generation success does not establish native CLI availability. OAuth URL/state/code excluded from evidence."
+  }
+}

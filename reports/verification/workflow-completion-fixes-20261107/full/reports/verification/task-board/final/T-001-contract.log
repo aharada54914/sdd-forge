@@ -1,0 +1,4 @@
+$ bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-contract.sh specs/task-board/verification/T-001.contract.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed
+Verification contract passed for task T-001.
+
+EXIT_CODE=0
