@@ -1,0 +1,32 @@
+{
+  "scope": "User requested Claude/Codex sign-in and maximum feasible authenticated verification",
+  "codex_default_profile": {
+    "status_command": "Logged in using ChatGPT",
+    "actual_request": "FAIL",
+    "http_status": 401,
+    "reason": "refresh rejected; login status alone did not establish working model access"
+  },
+  "codex_existing_reauthenticated_verification_profile": {
+    "launcher": "/workspace/.tools/sdd-forge-dev/verify-task-session",
+    "actual_request": "PASS",
+    "task": "Read existing disposable task state without modifying it",
+    "response": {
+      "task": "T-001",
+      "approval": "Approved",
+      "status": "Done"
+    },
+    "credential_values_read_or_copied": false
+  },
+  "claude": {
+    "native_auth_status": "logged out",
+    "browser_setup_requested": true,
+    "manual_setup_handoff_created": true,
+    "saved_authenticated_profile_confirmed": false,
+    "design_transaction_verified": false
+  },
+  "limits": [
+    "Browser setup URL is deliberately excluded from committed evidence.",
+    "No password or OTP requested in chat.",
+    "Working Codex verification login does not establish Claude or Sites browser sign-in."
+  ]
+}
