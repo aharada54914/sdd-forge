@@ -13,7 +13,7 @@ are recorded separately in [the feature inventory](inventory/COVERAGE.md).
 | Prior Lite / Full / SQLite apps | 1/1, 5/5, 3/3 Done and final workflow PASS | See [prior report](../workflow-completion-fixes-20261107/README.md); not every alternate mode |
 | Three MCP servers | Supported Node 26.13; 319 + 57 + 160 tests; actual stdio discovery/read operations | Controlled API tests do not establish every live upstream |
 | CI-MCP live GitHub | Four metadata tools succeeded; job-log API 415 fixed to 302 | Blob download blocked at proxy CONNECT (403), despite unexpired fresh signed URL; cause of refusal unconfirmed |
-| Claude Design direct | Official Claude Code 2.1.325 binary verified and runnable | Actual auth status is logged out; no authenticated DesignSync transaction claimed |
+| Claude design through browser | Authenticated Claude Artifacts access, actual Japanese task-board generation and subsequent revision reply/artifact confirmed | Exact HTML export and runtime improvement remain separately evaluated; no native DesignSync transaction claimed. Isolated Claude Code CLI remains logged out |
 | Sites collector | Real file change → automatic HTTP publish → browser poll verified locally; version 15 deployed and three actual production collection cycles succeeded | All existing 48 features / 265 tasks and four history events retained; total 51 features / 274 tasks. Bounded process, not an installed always-on daemon |
 | Sites production authorization | Six service-boundary checks passed; authenticated GET reads actual existing R2 data | No visitor identity headers were forged; not an authenticated visitor browser test |
 | Sites UI | Six-view browser checks (19) and focused mobile repair checks (4) passed | Local Chromium and controlled data; signed-in production browser is pending |
@@ -50,8 +50,11 @@ See [production collection evidence](sites/production-collection.json) and
 last health record is an observation, not a promise that collection continues
 after process exit; the UI's source-age behavior is tested separately.
 
-The available browser profile records GitHub sign-in only. The user was asked
-whether Claude/Sites sign-in already exists or to authorize opening a sign-in
-setup. This missing authentication cannot be replaced with a publisher token or
-synthetic visitor headers. Shared desktop control tools are absent in this turn;
-the environment advertises a desktop but that alone does not prove browser access.
+Earlier Claude browser attempts redirected to login even after the user's save
+confirmation. A later saved profile recorded Google sign-in, and actual Claude
+Artifacts access and generation then succeeded. See
+[authenticated generation evidence](claude-direct/authenticated-generation.json).
+The historical failed attempts remain preserved. This does not establish Sites
+visitor authentication, native DesignSync or local Claude Code authentication.
+Shared desktop control tools remain unavailable; service publisher tokens were
+never substituted for a human browser session.
