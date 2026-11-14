@@ -498,6 +498,12 @@ lite 成果物はフル SDD の部分集合であり、書き直しゼロの加�
 
 ---
 
+## SQL開発
+
+SQL案件は `/sdd-implementation:sql-develop <要求>` で対象・データ契約・変更影響を整理し、既存のbootstrapで仕様化します。承認後の入口は通常どおりshipです。SQL用の独立した承認・Done状態は増やしません。
+
+SQL Server／Azure SQL、PostgreSQL、MySQLの手順を使い、隔離DBで新規構築と前版からの更新、期待結果、アプリ互換性、途中失敗後の状態を確認します。本番・共有DBの操作は初版の対象外で、実装完了から自動適用へは進みません。詳細は[SQL開発ガイド](sql-development.md)を参照してください。
+
 ## バグ修正トラック（diagnose）
 
 バグ修正・回帰・フレーキーテスト・性能退行は、フル SDD（3レビューループ）を通す前に `/sdd-implementation:diagnose` で診断規律を回す。1行修正にフルフローを強制するのは過剰であり、`diagnose` が軽量トラックへの入口を兼ねる。

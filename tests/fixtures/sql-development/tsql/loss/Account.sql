@@ -1,0 +1,6 @@
+CREATE TABLE [dbo].[Account]
+(
+    [Id] INT NOT NULL PRIMARY KEY,
+    [Label] NVARCHAR(80) NOT NULL,
+    [Memo] NVARCHAR(120) NULL
+);

@@ -1,0 +1,1 @@
+This isolated evaluation uses a synthetic pre-existing Approved task as its starting condition, not an actual human approval record. The disposable DB is created by the evaluator for this case and contains only synthetic data. Only its private Unix socket is in scope.

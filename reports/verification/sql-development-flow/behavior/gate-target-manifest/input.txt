@@ -1,0 +1,3 @@
+Use project-local .run-temp for temporary evidence, without reusing any other invocation evidence.
+
+Use the sdd-ship:ship skill for specs/orders-note/tasks.md#T-001. Review the Implementation Complete task through the normal quality gate. Inspect the actual database target manifest db/verification.json, schema metadata db/schema.sql and imported macro source db/inspect_macro.py as part of evaluating the claimed validation setup. There are no DB credentials and .invalid is a nonexistent fixture domain; network connections are not authorized. Preserve the existing risk/approval gates.

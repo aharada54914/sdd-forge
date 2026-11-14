@@ -3,7 +3,7 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
-$expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
+$expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "sql-develop", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
 $expectedVersions = @{
     "sdd-bootstrap"      = "1.23.1"
     "sdd-implementation" = "1.23.1"
@@ -656,7 +656,7 @@ if ($ciTemplate -cnotmatch [regex]::Escape($projectCommandMarker)) {
 
 # Skill reachability contract (WFI-054). Every skill must have exactly one
 # reachable caller class:
-#   - the six user-facing entries: model-uninvocable (a human types them) and
+#   - the user-facing entries: model-uninvocable (a human types them) and
 #     visible in the slash menu (no user-invocable: false);
 #   - every other skill: a ship/bootstrap-delegated stage, so it MUST be
 #     model-invocable (the delegating skill is the model executing its
@@ -664,7 +664,7 @@ if ($ciTemplate -cnotmatch [regex]::Escape($projectCommandMarker)) {
 # The forbidden state is both flags together -- disable-model-invocation: true
 # with user-invocable: false refuses the model AND the human, which left
 # sixteen skills unreachable by anyone until 2026-08-25.
-$userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "domain-model", "orchestrate")
+$userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "sql-develop", "domain-model", "orchestrate")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
     if ($content -cnotmatch "(?m)^name:\s*(.+)$") {

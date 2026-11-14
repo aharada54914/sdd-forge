@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "ee40807f7cdeceb08dd72bbfed313f49575f6d20",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "0338f3208a9a12329fa24423768eb0b12eb717f44f2e327681c1440c20727a38",
+  "selected": [
+    "tests/sql-development-tsql.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/sql-development-tsql.tests.py",
+      "source_sha256": "4ec1aad47577931263b71d6fa9f5e5047a7caa8ea9ec1399d59cb3c479ca5fc3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 123.187609
+    }
+  ],
+  "revision_after": "ee40807f7cdeceb08dd72bbfed313f49575f6d20",
+  "clean_after": true
+}

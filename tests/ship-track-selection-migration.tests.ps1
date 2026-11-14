@@ -749,7 +749,7 @@ function Assert-SuccShip([string]$Label, [string]$Expected) {
     Assert-Eq (Get-PublicationState $LiveShip $DocShip $Succ) $Expected "TEST-PUB successor: $Label"
 }
 Reset-Succ; Assert-SuccShip 'pinned successor baseline is admitted' 'published'
-Assert-Eq (Get-PublicationState $LiveLiteSpec $DocLiteSpec $Succ) 'published' 'TEST-PUB successor: unchanged byte-equal consumer stays published'
+Assert-Eq (Get-PublicationState $LiveLiteSpec $DocLiteSpec $Succ) 'published' 'TEST-PUB successor: unmodified consumer stays published'
 Reset-Succ; Add-Byte $LiveShip; Assert-SuccShip 'unknown live edit is drift' 'drift'
 Reset-Succ; Add-Byte $DocShip; Assert-SuccShip 'altered staged predecessor is drift' 'drift'
 Reset-Succ; Copy-Item -LiteralPath (Join-Path $Succ $LiveShip) -Destination (Join-Path $Succ $DocShip) -Force
@@ -772,7 +772,7 @@ $litePath = Join-Path $Succ $LiveLiteSpec
 [IO.File]::WriteAllText($litePath, (([IO.File]::ReadAllText($litePath) -split "`n" | Where-Object { $_ -notmatch 'sdd:track-selection-contract' }) -join "`n"))
 Assert-Ne (Get-PublicationState $LiveLiteSpec $DocLiteSpec $Succ) (Get-PublicationState $LiveShip $DocShip $Succ) `
     'TEST-PUB successor: one unpublished consumer breaks pair consistency'
-# Every fixture record (both predecessors) must verify against the real files.
+# Every fixture record (all pinned predecessors) must verify against the real files.
 foreach ($rec in (Get-Content -LiteralPath (Join-Path $Root $SuccFixture) -Raw | ConvertFrom-Json).successors) {
     Assert-Eq (Get-PublicationState $rec.live $rec.staged) 'published' "TEST-PUB successor record [$($rec.staged)] verifies against live and staged bytes"
 }

@@ -1,0 +1,40 @@
+2026-11-05T22:21:10.193291Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch
+*** Add File: <verification-projects>/ship-untrusted-target-full/sdd/.hook-canary-sentinel
++sdd-hook-challenge:286c067346e326e1c10c1c62e8b048cf
+*** End Patch
+
+2026-11-05T22:21:50.141869Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントは tasks.md に 'Approval: Approved' を設定できません。タスクの承認は、ファイルを直接編集する人間のみが行えます。タスクは Draft のままにし、人間に承認を依頼してください。
+[EN] SDD deterministic gate: agents must not set 'Approval: Approved' in tasks.md. Only a human may approve a task by editing the file directly. Leave the task as Draft and ask the human to approve it.. Command: python3 - <<'PY'
+from pathlib import Path
+p=Path('specs/orders-note/tasks.md')
+s=p.read_text()
+assert 'Approval: Approved\nStatus: Planned' in s
+s=s.replace('Status: Planned','Status: Blocked',1)
+s=s.replace('- No verified isolated database resource or credentials are available yet.','- No verified isolated database resource or credentials are available yet.\n- Current invocation: required PostgreSQL 18.0/Flyway 13.12.1 validation is unavailable; psql and flyway are not on PATH. No connection attempted. See .run-temp/ship-20261105-286c0673/outcome.md.')
+p.write_text(s)
+Path('.run-temp/ship-20261105-286c0673/outcome.md').write_text('''# T-001 ship outcome
+
+Status: Blocked before implementation dispatch.
+Approval: existing Approved field preserved; no new human approval asserted.
+Track: full (risk-upgrade).
+
+Fresh local observations:
+- Structure checker: OK.
+- Advisory MCP get_next_sdd_command: unavailable in tool catalog.
+- Own canary apply_patch attempt: denied by PreToolUse deterministic gate.
+- Handshake verifier: CAPABILITY_RUNTIME_UNAVAILABLE; plugin activation metadata unavailable. No HOOK_ACTIVE claim. Captured JSON is a descriptive record, not native activation proof.
+- Project Context physically absent: DISABLED_LEGACY (G4), compatibility fallback.
+- Risk scan exit 10: full-required: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL,SECRET.
+- Full-track acceptance-tests.md and traceability.md present.
+- check-risk T-001: passed. Existing Risk: low retained; full-track promotion does not grant a new approval or change the risk field.
+- Plan explicitly requires stopping Blocked before implementation when the approved isolated target/tooling is missing.
+- No verified owned disposable PostgreSQL resource or credentials supplied; psql and flyway unavailable on PATH. docker executable presence does not prove an approved resource or required engines/tool versions.
+- AT-001, AT-002, AT-003: not executed; no PASS asserted. No database connection, fixture macro execution, or secret output.
+
+No implementation worker launched, no SQL/source artifacts changed, no quality gate or cross-model verdict claimed. No implementation-isolation claim. Existing user work preserved. No other invocation evidence reused.
+
+Resume requires an approved verified isolated database and trusted PostgreSQL 18.0/Flyway 13.12.1 tooling, followed by normal task eligibility/approval and implementation handoff checks. Never use the legacy shared configuration as authorization.
+''')
+print('T-001 recorded Blocked; fresh outcome saved.')
+PY

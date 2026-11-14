@@ -1,0 +1,3 @@
+Use the sdd-implementation:sql-develop skill. Source: REQUEST.md.
+
+sql-developでordersのnullableなnote列追加とidを値として受け取る検索クエリを仕様化してください。PostgreSQL 18.0、Flyway 13.12.1のみがdb/migrationsを管理します。アプリはPythonの注文管理CLIです。ローカルの破棄可能な専用DBで合成注文100件、PIIなし、共有利用者なし、クラウドなし。idは整数主キー、amount_centsは0以上の整数、noteはNULLまたは最大100文字。idがなければ空集合、既存行と旧アプリの読み書きは保持。性能改善は要求しません。仕様の実装承認はこれからです。

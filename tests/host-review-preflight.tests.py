@@ -208,7 +208,7 @@ class HostReviewPreflightTests(unittest.TestCase):
             'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md')]
         for path in paths:
             with self.subTest(path=path.name):
-                content = path.read_text()
+                content = path.read_text(encoding='utf-8')
                 self.assertIn('preflight-host-review.py', content)
                 self.assertIn('HOST_REVIEW_PREFLIGHT_OK', content)
 

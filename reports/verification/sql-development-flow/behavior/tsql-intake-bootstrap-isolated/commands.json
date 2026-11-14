@@ -1,0 +1,98 @@
+[
+  {
+    "command_sha256": "bba310c50e92e2a479bdcc4582d0956ec4d39764ab38be18615ef35d09d65adc",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-bootstrap/1.23.1/skills/bootstrap/SKILL.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "db9b6ed5b8a96ff22f6930580e32e43812f0c3eb0f4c375011107f22530687e4",
+    "command": "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'REQUEST.md' -g '*.sql*' -g '*spec*' -g '*tasks*' -g 'README*' -g 'CLAUDE.md' -g 'package.json'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "6af36b8a7b454ad267c246ec391ccd9197bff65a5c9e0ea1d19bb310e04e9e9e",
+    "command": "/bin/bash -lc \"ls -la; cat AGENTS.md REQUEST.md db/Orders.sqlproj db/schema.sql; rg --files /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins | rg '(check-sdd-structure|check-hook-activation-handshake|lite-spec/SKILL)'\"",
+    "exit_code": 0,
+    "output_excerpt": "total 56\ndrwx------ 13 agent agent 4096 Nov  5 22:20 .\ndrwx------  1 agent agent 4096 Nov  5 22:18 ..\ndr-xr-xr-x  2 agent agent   40 Nov  5 22:20 .agents\ndr-xr-xr-x  2 agent agent   40 Nov  5 22:20 .aws\ndr-xr-xr-x  2 agent agent   40 Nov  5 22:20 .codex\ndrwx------  6 agent agent 4096 Nov  5 22:10 .git\ndrwx------  7 agent agent 4096 Nov  5 22:20 .run-temp\n-rw-------  1 agent agent  255 Nov  5 22:10 AGENTS.md\n-rw-------  1 agent agent   18 Nov  5 22:10 CLAUDE.md\n-rw-------  1 agent agent   89 Nov  5 22:10 README.md\n-rw-------  1 agent agent  702 Nov  5 22:10 REQUEST.md\ndrwx------  2 agent agent 4096 Nov  5 22:10 contracts\ndrwx------  3 agent agent 4096 Nov  5 22:10 db\ndrwx------  5 agent agent 4096 Nov  5 22:10 docs\ndrwx------  4 agent agent 4096 Nov  5 22:10 reports\ndrwx------  2 agent agent 4096 Nov  5 22:10 scripts\ndrwx------  2 agent agent 4096 Nov  5 22:10 specs\n# pine-orders\n\nspec_pr"
+  },
+  {
+    "command_sha256": "308c3a81575c72a0b90c88e5aa7b57302a3d874fb4e0bb43ae60d1870ffa21e0",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.sh; cat <installed-cache>/sdd-lite/1.23.1/skills/lite-spec/SKILL.md; bash <installed-cache>/sdd-bootstrap/1.23.1/scripts/check-sdd-structure.sh'",
+    "exit_code": 0,
+    "output_excerpt": "#!/bin/sh\n# Thin POSIX dispatcher for check-hook-activation-handshake. Exactly ONE\n# behavioral implementation exists (the Python master beside this file).\n# Dispatch logic (python3 -> python -> fail-closed exit 3) lives in\n# lib/py-dispatch.sh, shared by every python-master wrapper.\nset -u\n\ndir=\"$(CDPATH= cd -- \"$(dirname -- \"$0\")\" && pwd)\"\n\n# Probe before sourcing: POSIX shells (dash among them) treat a failed `.`\n# special builtin as fatal, so an if-guard around the dot itself can never\n# run its else branch -- the readability test is what keeps the documented\n# exit 3 reachable on a partial or damaged installation.\nif [ ! -r \"$dir/lib/py-dispatch.sh\" ]; then\n  echo 'check-hook-activation-handshake: CHECK_HOOK_ACTIVATION_HANDSHAKE_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2\n  exit 3\nfi\n. \"$dir/lib/py-dispatch.sh\"\n\nsdd_py_dispatch \"$dir/check-hook-activa"
+  },
+  {
+    "command_sha256": "9784c86a4f5491b5310eff5db20ec0dcb6ecbb5d9689f6a20a321e88c64ddcbb",
+    "command": "/bin/bash -lc 'python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --help'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "6c85edc3739af0e35ac4f8cf844a30eec9357177600678a98f2f84e98ec452b5",
+    "command": "/bin/bash -lc 'mkdir -p .run-temp; mktemp -d .run-temp/bootstrap-orders-note-tsql-intake-XXXXXXXX'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "2afe55c9b1dd1d3ebc33e76f12dfa510f014fb381b3bc9b1e5a050ca92013146",
+    "command": "/bin/bash -lc 'python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --emit-challenge'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "6bfed1a1735ab5e71ab3ab67bdcee29aac2914551502b9141862a99398b4d2c7",
+    "command": "/bin/bash -lc \"rg -n 'codex|recorded|HOOK_ACTIVE|nonce' <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "40f4b1aef9344cbe25d088cfb561c2d210f4ced5c211f67b69d81f912edc5614",
+    "command": "/bin/bash -lc \"sed -n '175,192p' <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py; cat <installed-cache>/sdd-lite/1.23.1/templates/*lite.md; cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/sql-development-policy.md; ls <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "0e80822ef4e6d9c1d57079a3fd0bdddf4e439da2c6a1f598658351ef6c59569e",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/tsql.md; cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/templates/sql-development-contract.md; rg --files db scripts specs; git status --short; test ! -e sdd/project-context.yaml'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "7bb1707a17bbd29a77b27fba3c9c95c95586a116e183e3ca672667a5dd74aee1",
+    "command": "/bin/bash -lc 'python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce ab421700c9bdc6745b3c0f1825b3f4b6 --recorded-result .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/canary-response.json --runtime codex-cli'",
+    "exit_code": 0,
+    "output_excerpt": "{\n  \"nonce\": \"ab421700c9bdc6745b3c0f1825b3f4b6\",\n  \"runtime\": \"codex-cli\",\n  \"schema\": \"sdd-hook-verify-result/v1\",\n  \"status\": \"HOOK_ACTIVE\"\n}\n"
+  },
+  {
+    "command_sha256": "2afe55c9b1dd1d3ebc33e76f12dfa510f014fb381b3bc9b1e5a050ca92013146",
+    "command": "/bin/bash -lc 'python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --emit-challenge'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "646f2ced752e9b033203258db6a2ae6f1f04d8431935c80a36c6d51ecc8b098e",
+    "command": "/bin/bash -lc 'python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce 744e2dd067e8b5b6ecd52bfa05a08c3d --recorded-result .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/lite-canary-response.json --runtime codex-cli > .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/lite-handshake.json'",
+    "exit_code": 0,
+    "output_excerpt": ""
+  },
+  {
+    "command_sha256": "d880193fea13f056fd18925c86bc2ebda2146981e9ce0c62a0f93f1240a8af05",
+    "command": "/bin/bash -lc \"cat > .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/source.txt <<'EOF'\nMode: feature --lite --feature orders-note-tsql-intake\nDraft specification generation only; implementation has not been approved. Keep unresolved configuration decisions explicit in the Draft specification.\nEOF\ncat REQUEST.md >> .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/source.txt\ncat >> .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/source.txt <<'EOF'\n\nPrior sql-develop handoff:\n既存 db/schema.sql: orders(id INTEGER PRIMARY KEY, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0))。\ndb/Orders.sqlproj: Microsoft.Build.Sql 2.2.0／Sql170。\n再作成可能な専用隔離DB、合成データ100件、PII・共有利用者なし、限定的な追加なのでLite候補。正式な判定と仕様生成はbootstrapで行う。\nSQL開発契約案:\n対象・管理主体: ローカルSQL Server 2025、compatibility level 170。Microsoft.Build.Sqlのdb/Orders.sqlprojを唯一のスキーマ管理主体として維持。\nスキーマ変更: ordersにNULL許容noteを追加。NULLまたは最大100文字、既存行はNULL。id・amount_centsと既存制約を保持。backfill・既存列削除は不要。\n検索: 整数idを型付きパラメーターとしてバインド。入力をSQL文字列に連結しない。出力案id・amount_cents・note。一致時1行、不一致時空集合。最大1行なので並び順指定不要。\n互換性: 既存100件のキー・金額を保持。旧CLIの読み取り・追加・更新、新CLIのnote読み書き、旧CLI更新時の既存note保持を検証。\n境界値: NULL、空文字、100文字、101文字、Unicode、金額0・負数、存在しないid、主キー重複。101文字は黙って切り詰めず拒否する案。\n配置・整合性: 新規構築と前版更新で同じ最終スキーマ・制約。DACPAC成果物整合と実スキーマdriftを別確認。SqlPackage変更計画・pre/post script確認、データ損失防止設定維持。\n失敗・回復: 二重適用、途中失敗、ロック待ち、timeoutを検証。中断時はDB処理・transaction・lock・スキーマ確認後に再実行を判断。所有確認済み破棄可能DBの再作成と合成データ再投入で回復する案。\n隔離・記録: 実装承認後、作成主体・資源ID・DB名を記録した専用DBだけで検証。アプリ権限と配置権限を分離。秘密を証跡に保存しない。片付けは記録資源だけ。\n性能: 改善要求なし。性能評価は受入対象外、改善達成とは報告しない。\n実装前に確定: SQL Server正確なbuild・edition・collation、note型と100文字のUnicode上の数え方、CLIソースと旧版検証方法、実行コマンド、statement／lock timeoutと適用排他。CLIソースなし、互換性未検証。\n前回はファイル変更・DB接続・SQL実装・試験を行っていない。sql-develop入口からbootstrapやlite-spec／interviewerを自動起動しない。仕様はbootstrapで生成し人間承認後shipへ。共有・本番DBやAzure接続・適用は対象外。\nEOF\nbash <installed-cache>/sdd-lite/1.23.1/scripts/check-risk-upgrade.sh .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/source.txt > .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/risk-upgrade.txt\ncat .run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/risk-upgrade.txt\"",
+    "exit_code": 0,
+    "output_excerpt": "lite-eligible\n"
+  },
+  {
+    "command_sha256": "93d84d243ed70b8672fb9e3f855a6b5b0b77895238bc58c734db06dbf7eb7afd",
+    "command": "/bin/bash -lc \"mkdir -p specs/orders-note-tsql-intake\ncat > specs/orders-note-tsql-intake/requirements.md <<'EOF'\n# 要件（lite）: orders-note-tsql-intake\n\nStatus: Draft\n\n- **Issue/出典**: \"'`REQUEST.md` と今回の prior sql-develop handoff。今回の入力記録: `.run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi/source.txt`。\n- **目的**: .NET注文管理CLIの注文に任意のnoteを保存し、整数idを値として安全に渡して検索できるようにする。\n- **段階**: 仕様Draftのみ。実装・DB接続・試験は未承認、未実施。\n\n## ユーザーストーリー / 要求\n\n- REQ-001: ローカルの破棄可能な専用SQL Server 2025開発DB、compatibility level 170を対象とする。Microsoft.Build.SqlのSQL Database Projects `db/Orders.sqlproj` のみをスキーマ管理主体とする。\n- REQ-002: `orders` にnullableな `note` を追加する。NULLまたは最大100文字。既存行のnoteはNULLとし、既存100件のid・amount_centsと主キー・非負制約を保持する。backfillは不要。\n- REQ-003: 検索は整数idを型付きパラメーターとしてバインドし、値をSQL文字列へ連結しない。Draftの出力契約は `id`、`amount_cents`、`note`。一致時は1行、存在しないidでは空集合。最大1行なので順序指定は不要。\n- REQ-004: 旧CLIの読み取り・追加・更新が継続すること。旧CLIでnoteを省略した追加はNULL、旧CLIの金額更新で保存済みnoteが失われないこと。新CLIはnoteを読み書きでき、NULLと空文字を区別する。旧CLIの実物がない間は互換性を合格扱いにしない。\n- REQ-005: Draft案として101文字以上は保存前またはDB境界で明確に拒否し、黙って切り詰めない。NULL、空文字、100文字、101文字、Unicode、金額0・負数、存在しないid、主キー重複を検証する。「文字」の定義はOpen Questionsで確定する。\n- REQ-006: 空DBからの新規構築と前版からの更新で同じ最終スキーマ・制約となること。更新では行数だけでなく既存100件すべてのキーと金額の一致を確認する。DACPACの成果物整合と実スキーマdriftを別々に確認する。\n- REQ-007: 二重適用、途中失敗、ロック待ち、timeoutを隔離DBで検証する。中断後はDB側の処理・transaction・lock・schemaを観測し、状態不明のまま再実行しない。復旧は所有確認した専用DBの再作成・合成データ再投入を案とする。\n- REQ-008: 合成注文100件のみを使い、PII・共有利用者・Azure接続を含めない。作成主体・資源ID・DB名を記録して接続先の所有と隔離を確認する。アプリ権限と配置権限を分離し、秘密を証跡へ保存しない。片付けは記録した資源に限る。\n\n## スコープ外\n\n- 今回のSQL・CLI実装、DB接続、配置、試験、資源作成・破棄。\n- 性能改善・性能評価。性能改善を達成したとは報告しない。\n- 共有・本番DB、Azure、旧列削除、破壊的移行、大規模backfill、別migr\n[excerpt; full original command identified by sha256]",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "88113ef0d7f0c3eb8ea437e5fe2c82448a33e60b0b72d446cd696ba64852e846",
+    "command": "/bin/bash -lc \"python3 -B - <<'PY'\nfrom pathlib import Path\nimport json, hashlib\nroot=Path('specs/orders-note-tsql-intake')\nassert {p.name for p in root.iterdir()}=={'requirements.md','design.md','tasks.md'}\nt=(root/'tasks.md').read_text()\nassert t.count('Approval: Draft')==3 and t.count('Status: Planned')==3\nassert '\\\\nRisk:' not in t\nr=Path('.run-temp/bootstrap-orders-note-tsql-intake-nJJ2trWi')\ns={'stage':'Draft specification only','structure':'OK','mcp_preflight':'tool unavailable; file flow used','project_context':'physically absent','track':'COMPATIBILITY_FALLBACK --lite','bootstrap_handshake':'HOOK_ACTIVE exit 0; fresh canary-response.json','lite_handshake':json.loads((r/'lite-handshake.json').read_text()),'risk_checker':(r/'risk-upgrade.txt').read_text().strip(),'artifacts':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.iterdir())},'not_run':['implementation','DB connection','SQL execution','application tests'],'draft_checks':'3 files, 3 Draft/Planned tasks, no Risk lines'}\n(r/'intake-summary.json').write_text(json.dumps(s,ensure_ascii=False,indent=2)+'\\\\n')\nprint('Draft checks: OK')\nPY\ncat db/schema.sql db/Orders.sqlproj\n git status --short\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  }
+]

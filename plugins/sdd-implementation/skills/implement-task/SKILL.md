@@ -92,6 +92,16 @@ other tasks do not load them.
 If `specs/<feature>/codemap.md` exists, read it before any repository
 exploration and limit fresh searches to areas it does not cover.
 
+## SQL開発の参照
+
+要求・設計・承認済みタスクがSQL、DBスキーマ、migration、ORMのDB変更を含む場合は、
+[SQL共通手順](../sql-develop/references/sql-development-policy.md)の「承認済み実装と隔離」と該当engineの参照を読む。
+公開 `sql-develop` を再起動せず、このスキルの承認・トラック・状態・実行証跡の規則を維持する。
+SQL契約の不足や、承認範囲外のDB変更が見つかった場合は、必要な仕様確認へ戻す。
+SQLを扱わない案件はこの追加手順を適用しない。SQL対象なのに参照資料が未導入の場合は、
+`sdd-implementation` の導入を案内し、SQL検証を省略して完了扱いにしない。
+初版で実行できるのは合成データの隔離DB検証まで。共有・本番DBへは接続しない。
+
 ### Sudo Mode
 
 If a valid `SDD_SUDO` flag file exists at the project root (see

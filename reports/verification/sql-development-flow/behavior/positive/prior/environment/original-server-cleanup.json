@@ -1,0 +1,28 @@
+{
+  "resource_id": "f9c04b3b-21d1-43b1-9084-fba6c4737be3",
+  "owned_pid": 1086534,
+  "verified_command": [
+    "/tmp/sdd-pg18.6.5DVQDC/install/bin/postgres",
+    "-D",
+    "/tmp/sql-flow-pg-positive-q3wc_i5b/data"
+  ],
+  "command": [
+    "/tmp/sdd-pg18.6.5DVQDC/install/bin/pg_ctl",
+    "-D",
+    "/tmp/sql-flow-pg-positive-q3wc_i5b/data",
+    "-w",
+    "-t",
+    "15",
+    "-m",
+    "fast",
+    "stop"
+  ],
+  "exit_code": 0,
+  "stdout": "waiting for server to shut down.... done\nserver stopped\n",
+  "stderr": "",
+  "pid_file_absent": true,
+  "socket_absent": true,
+  "process_absent": false,
+  "scope": "Only the original task-owned Unix-socket fixture. Source binaries/build/evidence retained.",
+  "remaining_process_state": "State:\tZ (zombie)"
+}

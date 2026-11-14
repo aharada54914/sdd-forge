@@ -1,0 +1,40 @@
+{
+  "criterion": "Approved SQL query implementation via public ship, followed by separate-context real-engine Lite gate; immutable checks/fixtures and owned resource cleanup.",
+  "result": "PASS",
+  "implementation_thread": "01a1adef-a753-7141-8bc2-c5399cc60317",
+  "independent_review_thread": "01a1adf2-a511-7af3-a317-a8dc4028cddc",
+  "first_gate_subagent_identity": "not established by CLI JSONL (empty receiver IDs); not relied on for independence",
+  "first_gate_db_run": "939d18e1-4970-4732-9146-832ff9b6b7ee",
+  "independent_gate_db_run": "52a9b077-d738-4ce3-aa80-9365cb4dc9a9",
+  "distinct_db_runs": true,
+  "review_protected_inputs_unchanged": {
+    "db/queries/orders.sql": "add2d355c621614ec0a507c1af2ca0adc0f7711579049c6fe14cee25f3d3fd1c",
+    "checks/acceptance.py": "099853481950d47ce1cf13aca3a43d3c1d92a2131e8cc8809b957073a3555378",
+    "db/schema.sql": "dab2b24eab6322f0e5f65f3ea1633d35ba8c52312759d08b37c87d28981c4b5f",
+    "db/fixture.sql": "c19d32d03e3b585513b63768f55f25945a1caa3726f7624dd619a7abe1cb43fc",
+    "db/runtime.json": "67574c60546e36baef81de4d3239e4af99fa8c35a38e206870052a366ed118f5",
+    "package.json": "9d006635633c13427722f6b1ba07c2a8fb8173e6a88a98d03d7958fedb70462e"
+  },
+  "task_status": "Done",
+  "gate_source_dirty": true,
+  "reuse_allowed": false,
+  "limitations": [
+    "Single synthetic query case, not a model success-rate or comparative study.",
+    "CLI default model identity was not independently attested.",
+    "No cloud/shared/production DB or performance claim.",
+    "Filesystem side-effect assertions cover project snapshots and reviewed traces, not an exhaustive host-wide monitor."
+  ],
+  "provided_inputs_unchanged_during_implementation": {
+    "checks/acceptance.py": "099853481950d47ce1cf13aca3a43d3c1d92a2131e8cc8809b957073a3555378",
+    "db/schema.sql": "dab2b24eab6322f0e5f65f3ea1633d35ba8c52312759d08b37c87d28981c4b5f",
+    "db/fixture.sql": "c19d32d03e3b585513b63768f55f25945a1caa3726f7624dd619a7abe1cb43fc",
+    "db/runtime.json": "67574c60546e36baef81de4d3239e4af99fa8c35a38e206870052a366ed118f5",
+    "package.json": "9d006635633c13427722f6b1ba07c2a8fb8173e6a88a98d03d7958fedb70462e"
+  },
+  "psql_client_timeout_seconds": 10,
+  "server_timeouts_verified": {
+    "statement_seconds": 5,
+    "lock_seconds": 1
+  },
+  "implementation_complete_checkpoint": "ic/observation.json"
+}

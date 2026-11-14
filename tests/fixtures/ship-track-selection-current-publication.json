@@ -19,9 +19,23 @@
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
-      "live_sha256": "941cf4fd3f0b0e0841604c72c732da521bef271b12a5eab5e26d81a6fbba8de0",
+      "live_sha256": "6dfae2558c7ed021ee3afae8b425cff39ef1a113b5e2453cbf4ebe7cfdf92975",
       "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "intentional_changes": "Installed consumer runtime resolution, native Codex review and handshake evidence capture; frozen predecessor unchanged. These are candidate byte pins, not review or approval evidence. Canonical risk-exclusion authoring and complete generated ship-input recheck (#739); no requirement filtering."
+      "intentional_changes": "Installed consumer runtime resolution, native Codex review and handshake evidence capture; frozen predecessor unchanged. These are candidate byte pins, not review or approval evidence. Canonical risk-exclusion authoring and complete generated ship-input recheck (#739); no requirement filtering. User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
+    },
+    {
+      "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+      "live_sha256": "6dfae2558c7ed021ee3afae8b425cff39ef1a113b5e2453cbf4ebe7cfdf92975",
+      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
+    },
+    {
+      "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged": "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+      "live_sha256": "6dfae2558c7ed021ee3afae8b425cff39ef1a113b5e2453cbf4ebe7cfdf92975",
+      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
     }
   ]
 }

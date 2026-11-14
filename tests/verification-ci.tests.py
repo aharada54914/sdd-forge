@@ -393,8 +393,22 @@ class BoundaryTests(unittest.TestCase):
             'Test POSIX kill-switch permission failures': None,
             'Run native controls and complete tracked-source audit': 'coding-standards',
             'Run native Windows compatibility contracts': '${{ matrix.profile }}',
+            'Test SQL contracts and FilesOnly distribution': None,
+            'Test isolated postgres migration and recovery': None,
+            'Test isolated mysql migration and recovery': None,
+            'Test isolated tsql migration and recovery': None,
         }
-        self.assertEqual(len(obligations), 18)
+        self.assertEqual(len(obligations), 22)
+        sql_suites = {
+            'sql-contract': 'tests/sql-development-contract.tests.py',
+            'sql-postgres': 'tests/sql-development-postgres.tests.py',
+            'sql-mysql': 'tests/sql-development-mysql.tests.py',
+            'sql-tsql': 'tests/sql-development-tsql.tests.py',
+        }
+        self.assertCountEqual(
+            [(o['job'], o['suites'], o['matrix']) for o in obligations if o['job'] in sql_suites],
+            [(job, [suite], {}) for job, suite in sql_suites.items()],
+        )
         for obligation in obligations:
             with self.subTest(job=obligation['job'], matrix=obligation['matrix'], step=obligation['step']):
                 self.assertIn(obligation['step'], expected)

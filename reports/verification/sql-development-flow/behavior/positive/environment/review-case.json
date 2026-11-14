@@ -1,0 +1,7 @@
+[
+  {
+    "case": "positive-pg-client-cap-fresh-gate",
+    "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-client-cap",
+    "request": "Use the sdd-lite:lite-gate skill as an independent reviewer for specs/order-filter/tasks.md#T-001. この新しいセッションはSQLの実装者とは別の検証担当です。実装済みSQLと要求・既存チェックを確認し、自分のfresh handshakeと共通run-lite-gate.pyでnpm testを実行して品質レポートとexecution.jsonを保存してください。既存Done/PASSや以前のexecution.jsonを再利用して合格にせず、実DBの新しい実行結果を確認してください。SQL・テスト・fixture・schema・runtime設定は変更しないでください。既存npm testだけがこのsandbox内に隔離DBを生成し、所有PIDを停止します。共有・外部DB接続は含みません。"
+  }
+]

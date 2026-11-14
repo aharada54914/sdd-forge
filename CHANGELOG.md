@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `sdd-implementation:sql-develop` でMicrosoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求・データ契約・変更影響を整理し、既存bootstrapへ引き継ぐ。SQL共通手順を既存の仕様化・実装・独立検証へ接続する。
+- 隔離DBでの変更・失敗回復を扱う参照試験と、既存の承認・実装完了から本番接続を自動開始しない運用引き継ぎ。[SQL開発ガイド](docs/sql-development.md)を参照。
+
+
 ## v1.23.1 (2026-11-05)
 
 ### Fixed

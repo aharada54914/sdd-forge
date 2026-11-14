@@ -1901,7 +1901,7 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.prep.assert_unchanged_world()
 
     def fence(self, installed, output, caller=INVESTIGATION_CALLER):
-        source = (installed / caller).read_text()
+        source = (installed / caller).read_text(encoding='utf-8')
         fences = [body for body in re.findall(r'```bash\n(.*?)```', source, re.S) if 'claude-entry' in body]
         self.assertEqual(len(fences), 1, 'maintained bootstrap lacks exactly one pre-allocation investigator fence')
         script = fences[0]
@@ -2417,7 +2417,7 @@ class InstalledClaudeImplementerTests(unittest.TestCase):
             'report': str(self.report), 'task_ref': self.task_ref, 'task_file': str(self.task_file),
             'tasks_before': self.tasks_before, 'project_root': str(case.root), 'run_id': case.run_id,
             'public_test': str(self.public_test), 'precheck': str(self.precheck),
-            'sources': {p: (ROOT / p).read_text() for p in IMPLEMENTER_SOURCES},
+            'sources': {p: (ROOT / p).read_text(encoding='utf-8') for p in IMPLEMENTER_SOURCES},
             'instructions': (case.root / self.prompt).read_text(),
             'canary_name': ENV_CANARY, 'canary_value': ENV_CANARY_VALUE}
         prep.executable.write_bytes((ROOT / IMPLEMENTER_RECORDER).read_bytes())
@@ -7446,7 +7446,7 @@ class InstalledDefaultNativeCallerCandidateTests(unittest.TestCase):
         self.assertEqual(sum(len(v) for v in _DEFAULT_NATIVE_BOUNDARIES.values()), 22)
         self.assertEqual(len(_DEFAULT_NATIVE_HOSTS), 4)
         for rel in _DEFAULT_NATIVE_BOUNDARIES:
-            source = (root / rel).read_text()
+            source = (root / rel).read_text(encoding='utf-8')
             fence = self.boundary(source, rel)
             title = '## Managed allocation boundary\n'
             start = source.index(title)
