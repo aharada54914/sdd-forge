@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.24.0 (2026-11-15)
 
 ### Fixed
 - 別ソースのmarketplace登録を導入成功として扱わず停止し、登録先の修正方法を案内する（#732）。
@@ -8,10 +8,17 @@
 - 配布Codex evaluatorを現行の入力manifest・identity・receipt契約へ同期する（#744）。
 - ブラインド評価用の入力から、証拠JSONに含まれる一次評価の判定・報告参照を除外する。現在タスクの検証領域と識別子が一致する証拠だけを対象とし、業務データ・実行チェック・元の証拠ファイルは保持する（#771）。
 - GPT／Geminiパネルの明示モデル指定を出力メタデータと照合し、不一致の判定を保存しない（#772）。
+- A7変異テストを現行の検証カタログへ接続し、macOS・Ubuntu・Windowsの導入／レビュー経路の不整合を修正する（#764ほか）。
+- ダッシュボード収集workerの不正JSON・過大応答で監督プロセスまで停止する問題を修正。最後の正常な状態を保持し、既存のworker再起動経路で復旧する（#775）。
 
 ### Added
 - `sdd-implementation:sql-develop` でMicrosoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求・データ契約・変更影響を整理し、既存bootstrapへ引き継ぐ。SQL共通手順を既存の仕様化・実装・独立検証へ接続する。
 - 隔離DBでの変更・失敗回復を扱う参照試験と、既存の承認・実装完了から本番接続を自動開始しない運用引き継ぎ。[SQL開発ガイド](docs/sql-development.md)を参照。
+- `sdd-ship:status` と読み取り専用MCP snapshotを追加。Sites／Claude Artifacts向けの6ビュー、日本語表示、更新の一時停止、変更履歴、収集の状態表示を提供する。
+
+### Verification limits
+- 所有者限定Sitesの認証付き表示と主要操作、現作業環境での認証更新・収集復旧は検証済み。別の自動実行環境へ収集元が引き継がれない制約が残り、無人の認証更新・環境停止後の常駐を保証しない（#728、#762）。
+- Claude Designのnative DesignSync連携、Claude／Gemini／Copilotの実CLI認証後の全モデル構成は未検証。ローカルadapterやCodexの成功をこれらの成功とは扱わない（#729）。
 
 
 ## v1.23.1 (2026-11-05)
