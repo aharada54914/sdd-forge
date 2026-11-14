@@ -157,6 +157,7 @@ test("inspector CLI: tools/list reports all 8 core tools + 6 evidence tools", ()
     "evidence_get_bundle",
     "evidence_summarize_contract_checks",
     "evidence_validate_paths",
+    "get_dashboard_snapshot",
     "get_next_sdd_command",
     "get_quality_gate_summary",
     "get_spec_status",

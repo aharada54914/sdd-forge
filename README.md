@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.23.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.24.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
 [research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
@@ -79,6 +79,10 @@ Azure Bicep と AWS CDK / CloudFormation の専用プラグインは、明示指
 ```bash
 bash install.sh --source-directory "$PWD" --target Codex --plugins sdd-azure-cloud,sdd-aws-cloud
 ```
+
+既存の `sdd-plugins` marketplace が別の場所を指している場合、導入はエラーで停止します。
+登録先を確認し、対象ホストの marketplace 登録をインストール先へ変更して再実行してください。
+ソース checkout の直接登録では、クラウドプラグインに必要な共有 runtime が配置されません。
 
 入口は `/sdd-azure-cloud:orchestrate` / `/sdd-aws-cloud:orchestrate` です。
 共有 runtime はこのリポジトリのインストーラーが組み立てるため、marketplace だけの直接導入では動作しません。
@@ -324,3 +328,30 @@ flowchart LR
 ## 変更履歴
 
 詳しい変更履歴と版移行ガイドは [CHANGELOG.md](CHANGELOG.md) をご参照ください。
+
+### 親サービスで開く6ビューの観測画面
+
+`/sdd-ship:status` は、起動した親がChatGPTならSites、ClaudeならArtifactsを
+選びます。子エージェントのモデルやサービスは表示先に影響しません。
+既存ファイルが正本のままで、画面から承認・タスク状態を変更しません。
+概要、タイムライン、バックログ、ボード、一覧、リリースに加え、検索・絞り込み、
+課題詳細、自動更新、最終確認／内容更新の時刻、取得失敗時の最後の正常データを表示します。
+
+ローカルで確認する場合:
+
+```sh
+node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --root <プロジェクト> --dashboard
+```
+
+これはローカル検証用です。Sites/Artifactsへの公開と接続は
+[statusスキル](plugins/sdd-ship/skills/status/SKILL.md)の手順に従います。
+Sitesでは独立したcollectorと私有ストレージを使い、Artifactsでは親ホストの
+ネイティブ作成機能と閲覧アカウントの読取コネクタが必要です。
+ローカルstdio MCPを登録しただけではArtifactsから継続取得できません。
+接続機能がない場合は未接続と表示し、他方のサービスへ自動転送しません。
+
+5秒周期で取得し、正本の正常確認から60秒を超えると警告します。
+collectorが停止してもSiteは残りますが、データは更新されません。
+`Release:` をタスク本文に明記した場合にリリース所属を表示します。
+未指定なら「リリース未定義」とし、Doneをリリース済みとは扱いません。
+詳細・起動手順・検証範囲は[運用ガイド](docs/hosted-status-views.md)を参照してください。

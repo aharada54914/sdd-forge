@@ -9,6 +9,19 @@ disable-model-invocation: true
 Orchestrate approved tasks from implementation through quality verification to Done.
 This skill does not write specifications; use `/sdd-bootstrap:bootstrap` for that.
 
+## Requested status dashboard
+
+When a dashboard is requested, the initiating parent follows
+`<installed-root>/plugins/sdd-ship/skills/status/SKILL.md` before delegating
+presentation work. Bind ChatGPT to Sites or Claude to Artifacts using the
+parent service, retain the selected presentation identity, and never change it
+because a child uses another service/model. Read-only display never advances a
+workflow gate. Missing presentation capability is reported independently of the
+already-authorized development work. On entry/resume of a requested dashboard,
+run the status skill's idempotent local runtime start for this project/environment
+before checking the retained parent presentation. No external permanent host
+is required.
+
 ## Managed allocation boundary
 
 Affected policy roles: `implementer`.
@@ -170,6 +183,11 @@ before trusting any Project Context content:
    absent, the project never entered Capability Mode, so continue on the
    compatibility fallback as `DISABLED_LEGACY` (gates G3/G4). From a
    valid-Context project, never fall back to legacy behaviour silently.
+
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
 
 <!-- /sdd:handshake-wiring -->
 
