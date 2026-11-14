@@ -709,7 +709,8 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
    cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(driver),str(root),FEATURE,str(source)+'ps1']
   return run_child(root,cmd)
  with tempfile.TemporaryDirectory(prefix='a9-consume-') as tmp:
-  scratch=pathlib.Path(tmp);base=scratch/'base';transition_fixture(base)
+  # Windows TEMP may use an 8.3 alias; the real CLI requires a canonical root.
+  scratch=pathlib.Path(tmp).resolve();base=scratch/'base';transition_fixture(base)
   # The generated PowerShell harness is the only nested driver excluded below.
   # Exercise Windows spelling even on POSIX, without emulating Windows execution.
   windows_root=pathlib.PureWindowsPath('C:/fixture')
