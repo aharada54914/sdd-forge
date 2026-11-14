@@ -20,8 +20,7 @@
  */
 
 import { isJsonObject, jsonValueText, type JsonObject } from "./json-object.js";
-import { createHash } from "node:crypto";
-import { guardedExists, guardedRead } from "../path-guard.js";
+import { guardedArtifactMatches, guardedExists, guardedRead } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
 
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
@@ -32,15 +31,6 @@ export type EvidenceBundle = JsonObject;
 export type VerificationContract = JsonObject;
 export type ContractCheck = JsonObject;
 export type EvidenceArtifact = JsonObject;
-
-/** Computes the sha256 hex digest of a guarded file's contents (used for artifact manifest checks). */
-function sha256OfGuardedFile(root: SddRoot, relPath: string): string | undefined {
-  const result = guardedRead(root, relPath);
-  if (!result.ok) {
-    return undefined;
-  }
-  return createHash("sha256").update(result.data.contents, "utf-8").digest("hex");
-}
 
 /**
  * Normalizes an artifact/report path recorded in an evidence bundle or
@@ -221,10 +211,6 @@ export function verifyEvidenceBundle(
       failures.push(`artifact path is missing or invalid: ${jsonValueText(artifact.path)}`);
       continue;
     }
-    if (!guardedExists(root, artifactRel)) {
-      failures.push(`artifact path missing: ${jsonValueText(artifact.path)}`);
-      continue;
-    }
     if (!SHA256_HEX_PATTERN.test(sha)) {
       failures.push(`artifact sha256 is invalid for ${jsonValueText(artifact.path)}: ${jsonValueText(artifact.sha256)}`);
       continue;
@@ -234,8 +220,10 @@ export function verifyEvidenceBundle(
       continue;
     }
     artifactIndex.set(artifactRel, sha);
-    const actualSha = sha256OfGuardedFile(root, artifactRel);
-    if (actualSha !== sha) {
+    const match = guardedArtifactMatches(root, artifactRel, sha);
+    if (!match.ok) {
+      failures.push(`artifact cannot be verified (${match.error.code}): ${artifactRel}`);
+    } else if (!match.data) {
       failures.push(`artifact sha256 mismatch for ${artifactRel}`);
     }
   }

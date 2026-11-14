@@ -1,0 +1,80 @@
+[
+  {
+    "suite": "tests/research-owner-integration.tests.py",
+    "exit_code": 0,
+    "seconds": 15.29,
+    "log": "research-owner-integration.log"
+  },
+  {
+    "suite": "tests/research-discovery.tests.py",
+    "exit_code": 0,
+    "seconds": 0.43,
+    "log": "research-discovery.log"
+  },
+  {
+    "suite": "tests/research-consumers.tests.py",
+    "exit_code": 0,
+    "seconds": 0.28,
+    "log": "research-consumers.log"
+  },
+  {
+    "suite": "tests/research-acquire.tests.py",
+    "exit_code": 0,
+    "seconds": 4.75,
+    "log": "research-acquire.log"
+  },
+  {
+    "suite": "tests/research-evidence.tests.py",
+    "exit_code": 0,
+    "seconds": 0.28,
+    "log": "research-evidence.log"
+  },
+  {
+    "suite": "tests/project-skill-lifecycle.tests.py",
+    "exit_code": 0,
+    "seconds": 6.95,
+    "log": "project-skill-lifecycle.log"
+  },
+  {
+    "suite": "tests/project-skill-observation.tests.py",
+    "exit_code": 0,
+    "seconds": 2.61,
+    "log": "project-skill-observation.log"
+  },
+  {
+    "suite": "tests/project-skill-formal.tests.py",
+    "exit_code": 1,
+    "seconds": 1.06,
+    "log": "project-skill-formal.log"
+  },
+  {
+    "suite": "tests/project-skill-profiles.tests.py",
+    "exit_code": 0,
+    "seconds": 6.08,
+    "log": "project-skill-profiles.log"
+  },
+  {
+    "suite": "tests/concept-test.tests.py",
+    "exit_code": 0,
+    "seconds": 11.99,
+    "log": "concept-test.log"
+  },
+  {
+    "suite": "tests/concept-review-continuity.tests.py",
+    "exit_code": 1,
+    "seconds": 40.92,
+    "log": "concept-review-continuity.log"
+  },
+  {
+    "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+    "exit_code": 0,
+    "seconds": 0.78,
+    "log": "sdd-domain-multitarget-foundation.log"
+  },
+  {
+    "suite": "tests/domain-review-finalize.tests.py",
+    "exit_code": 0,
+    "seconds": 74.97,
+    "log": "domain-review-finalize.log"
+  }
+]

@@ -32,7 +32,20 @@
         "tests": 23,
         "passed": true
       }
-    ]
+    ],
+    "managed_caller": {
+      "source": "tests/model-policy-installed.tests.py",
+      "change": "Include actual prepare-review-assets.py in SPEC_CALLER_RUNTIME",
+      "initial_methods": 80,
+      "unaffected_initial_pass": 68,
+      "final_changed_closure_methods_pass": 12,
+      "final_reruns": [
+        "model-policy-installed-assets-rerun.json",
+        "model-policy-installed-assets-related.json"
+      ],
+      "initial_runner_error": "RTK missing from audit runner PATH, corrected using already installed executable",
+      "monolithic_rerun": false
+    }
   },
   "scope": "Verification mapping and test-fixture maintenance only; no production gate semantics changed."
 }

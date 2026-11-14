@@ -1,0 +1,59 @@
+[
+  {
+    "kind": "lite",
+    "get_task_state": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"task-board\",\"tasksFile\":\"specs/task-board/tasks.md\",\"verdict\":\"fail\",\"taskCount\":1,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true}],\"failures\":[{\"taskId\":\"T-001\",\"rule\":\"done-evidence-missing\",\"message\":\"T-001 is Done but verification/T-001.evidence.json does not exist in specs/task-board\"},{\"taskId\":\"T-001\",\"rule\":\"done-contract-missing\",\"message\":\"T-001 is Done but verification/T-001.contract.json does not exist in specs/task-board\"}]}}"
+        }
+      ]
+    },
+    "get_next_sdd_command": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"task-board\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature task-board\",\"rationale\":\"specs/task-board/requirements.md's Spec-Review-Status is missing, not Passed (AGENTS.md Required Workflow step 2).\"}}"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "full",
+    "get_task_state": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"task-board\",\"tasksFile\":\"specs/task-board/tasks.md\",\"verdict\":\"pass\",\"taskCount\":5,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"medium\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"}],\"failures\":[]}}"
+        }
+      ]
+    },
+    "get_next_sdd_command": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"task-board\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/task-board/tasks.md has reached Done.\"}}"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "sqlite",
+    "get_task_state": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sqlite-task-board\",\"tasksFile\":\"specs/sqlite-task-board/tasks.md\",\"verdict\":\"fail\",\"taskCount\":3,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"}],\"failures\":[{\"taskId\":\"T-003\",\"rule\":\"done-evidence-invalid\",\"message\":\"T-003 evidence bundle failed validation: specs/sqlite-task-board/verification/T-003.evidence.json\"}]}}"
+        }
+      ]
+    },
+    "get_next_sdd_command": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":false,\"error\":{\"code\":\"cannot-determine\",\"message\":\"specs/sqlite-task-board/tasks.md failed its state-machine validation (T-003 evidence bundle failed validation: specs/sqlite-task-board/verification/T-003.evidence.json); the next command cannot be determined until this is fixed.\",\"details\":{\"file\":\"specs/sqlite-task-board/tasks.md\",\"rule\":\"task-state-verdict-fail\"}}}"
+        }
+      ]
+    }
+  }
+]

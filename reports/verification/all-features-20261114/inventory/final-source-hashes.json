@@ -1,0 +1,21 @@
+{
+  "observed_git_head": "7a12d5e136c7b6b75c4177cabd5e90dea301abd6",
+  "files": {
+    "mcp/ci-mcp/src/github-client.ts": "0d54c03094babda41acef60d52618ce731feb5d01cc6640775843e0af4df682d",
+    "mcp/ci-mcp/tests/error-paths/shared-transport.test.ts": "770b3ed2e38c2205f7eb8b412e07d3d31dea7ce6d792b207290a0811cb53ef6a",
+    "mcp/ci-mcp/dist/index.js": "23d58bbf7310d7b0d33af884556f9436baa225b5654a4378d40591daa444fb5d",
+    "tests/model-policy-installed.tests.py": "77b1ae084b04cfd664727ca57c1787052a8658b0c1eecb33d3998eb36459aa94",
+    "tests/lib/loop-driver.sh": "40c2066b87a6a4803fcd2932f358f6af4da3bf54c8c77ab5007e8708027049df",
+    "tests/lib/loop-driver.ps1": "6f4149b9eb2aa44a0d766025c59e44c74787aeeef3d9e133e0826a0c988dbb73",
+    "tests/fixtures/project-skills/formal-review-reservation/mapping.json": "4106605c6ed24d9aafe6fe0ecc3e78721ef6d5c8064c6210a48d4dfe4443f44c",
+    "mcp/sdd-forge-mcp/src/next-command.ts": "5667764ff6f4be10cb9b6d0e0c27f34da1976c861cb4889c767242f4af1b01f3",
+    "mcp/sdd-forge-mcp/src/profile.ts": "9b2551f17ddb75586973cf153238734f85d1994c0c378e3f53a3cc028ebffa39",
+    "mcp/sdd-forge-mcp/src/path-guard.ts": "22543f701417a56a75118472c50ff86b8b2f4f9eae1f8e83ab4d250e6e674c54",
+    "mcp/sdd-forge-mcp/src/parsers/tasks.ts": "b2c2135e0de03ee39725b906c24accac662c35a3eaddcca4cbb7ec22a55adc34",
+    "mcp/sdd-forge-mcp/src/parsers/task-validation.ts": "d3f3277027fc3e862992b104417a376d832ed47f9e3ac8a1d9dab97c12a59b6f",
+    "mcp/sdd-forge-mcp/src/parsers/evidence-bundle.ts": "fea06ede74c0748506b8a4c7dc19176e95778bf03e30447f835aa551f4e39731",
+    "mcp/sdd-forge-mcp/tests/workflow-profile-artifacts.test.ts": "15b0b3850f8e8f7e5c1eb928671e6e20d307e3e645c110487667baa03635dfd9",
+    "mcp/sdd-forge-mcp/dist/index.js": "888d6dcd03a627051f2e264abb4d37d5a5bdff93afe33fd6a89bbaa99ef1080b",
+    "specs/sdd-forge-mcp/security-spec.md": "49edc633ed6ae19a8f657a82a39cf80e20c6f71235ca696e0340f3b13c0e9976"
+  }
+}

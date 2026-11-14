@@ -1,0 +1,69 @@
+{
+  "node": "v26.13.0",
+  "node_tar_sha256": "d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997",
+  "results": [
+    {
+      "package": "sdd-forge-mcp",
+      "action": "typecheck",
+      "exit_code": 0,
+      "seconds": 0.68,
+      "log": "sdd-forge-mcp-typecheck.log"
+    },
+    {
+      "package": "sdd-forge-mcp",
+      "action": "build",
+      "exit_code": 0,
+      "seconds": 0.32,
+      "log": "sdd-forge-mcp-build.log"
+    },
+    {
+      "package": "sdd-forge-mcp",
+      "action": "test",
+      "exit_code": 0,
+      "seconds": 17.83,
+      "log": "sdd-forge-mcp-test.log"
+    },
+    {
+      "package": "local-env-mcp",
+      "action": "typecheck",
+      "exit_code": 0,
+      "seconds": 0.68,
+      "log": "local-env-mcp-typecheck.log"
+    },
+    {
+      "package": "local-env-mcp",
+      "action": "build",
+      "exit_code": 0,
+      "seconds": 0.31,
+      "log": "local-env-mcp-build.log"
+    },
+    {
+      "package": "local-env-mcp",
+      "action": "test",
+      "exit_code": 0,
+      "seconds": 9.01,
+      "log": "local-env-mcp-test.log"
+    },
+    {
+      "package": "ci-mcp",
+      "action": "typecheck",
+      "exit_code": 0,
+      "seconds": 0.72,
+      "log": "ci-mcp-typecheck.log"
+    },
+    {
+      "package": "ci-mcp",
+      "action": "build",
+      "exit_code": 0,
+      "seconds": 0.29,
+      "log": "ci-mcp-build.log"
+    },
+    {
+      "package": "ci-mcp",
+      "action": "test",
+      "exit_code": 0,
+      "seconds": 4.04,
+      "log": "ci-mcp-test.log"
+    }
+  ]
+}
