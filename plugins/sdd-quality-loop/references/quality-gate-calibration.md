@@ -23,6 +23,30 @@ Rank evidence in this order:
 Items 1-4 may support PASS when they match the task risk tier. Item 5 is a
 claim only and never supports PASS by itself.
 
+## Executed Gate Applicability
+
+A required deterministic check must execute and produce verifiable evidence;
+`required: true` does not independently activate every optional project capability.
+Evaluate its output according to that check's documented applicability contract.
+For `check-component-coverage`, an absent `project-context.yaml` legitimately
+derives `disabled-legacy`: the executed check returns exit 0 with
+`check-component-coverage-verdict/v1`, `state: not-applicable (disabled-legacy)`,
+`manifest_status: not-consulted`, no fail conditions, and a producer hash. This
+satisfies the required invocation without claiming substantive coverage. Do not
+require enabling the capability or converting the check to an optional waiver
+solely because that verified result is N/A.
+
+Require the real command, exit status, current input/configuration binding and
+producer-bound record. A missing execution or an unsupported N/A claim is still
+cannot-verify. Missing or invalid coverage inputs when the canonical state is
+`advisory` or `required`, configuration parse errors, and nonzero gate failures
+must not be recast as disabled-legacy. An advisory exit 0 retains its reported
+findings; it does not prove that those coverage conditions passed. Missing Facet
+Manifest files never determine applicability. If an explicit requirement or
+acceptance criterion independently demands active coverage, evaluate that
+criterion separately and cite it; the invocation's `required` flag alone is not
+such a requirement.
+
 ## Cannot-Verify Handling
 
 If the evaluator or orchestrator cannot verify an in-scope requirement,

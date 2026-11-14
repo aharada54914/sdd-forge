@@ -1,0 +1,7 @@
+{
+  "command": "/workspace/.tools/sdd-forge-python/bin/ruff check --no-cache server.py tests/test_http.py",
+  "exit_code": 0,
+  "started_at": "2026-11-13T04:26:34.798730+00:00",
+  "finished_at": "2026-11-13T04:26:34.807976+00:00",
+  "evidence": "reports/verification/task-board/T-002-v10/lint.log"
+}

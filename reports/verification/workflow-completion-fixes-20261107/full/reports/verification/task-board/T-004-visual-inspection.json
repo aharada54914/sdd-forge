@@ -1,0 +1,14 @@
+{
+  "observation": "Root directly viewed actual desktop1440 and mobile390 PNGs. Japanese single view, white/navy/teal, rounded bordered task rows, wrapped long Japanese titles, stacked mobile form; no sidebar/count/navigation. Reference is prior actual one-way ImageGen artifact, not Claude Design connectivity. Token values independently inspected against rendered computed-style evidence.",
+  "contrast_ratios_against_white": {
+    "text": 16.332990012258744,
+    "primary": 4.875826684199776,
+    "danger": 6.57428861557707
+  },
+  "artifacts": {
+    "specs/task-board/mockups/imagegen-reference.png": "60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8",
+    "reports/visual-evidence/task-board/T-004/final/visual/board-1440.png": "53547dfc21517fe36706b5301b410d65b6e98c0c5e21c610e5e491bcbd7a44c5",
+    "reports/visual-evidence/task-board/T-004/first-mobile/visual/board-390.png": "6dd466183e82ffbf77dfd554de6803a3b9a01db4d9cec88910adbb5622882660"
+  },
+  "limits": "200% evidence is real Chromium CSS zoom2, not a claimed headless browser-toolbar zoom. Exact functional verdict belongs to executable browser evidence and independent evaluator."
+}

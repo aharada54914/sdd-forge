@@ -1,0 +1,25 @@
+{
+  "scope": "published source served locally, controlled fixtures; not production data",
+  "passed": [
+    "view:overview",
+    "view:timeline",
+    "view:backlog",
+    "view:board",
+    "view:list",
+    "view:releases",
+    "search and preferences persist",
+    "status filter",
+    "feature filter and empty state",
+    "details, close, safe text rendering",
+    "automatic polling update",
+    "pause, fetch while paused, resume latest",
+    "history and acknowledgment persist",
+    "overview attention drilldown and clear",
+    "mobile layout and feature selector",
+    "stale source visibly warned",
+    "network failure retains last content with warning",
+    "network recovery",
+    "no JavaScript errors"
+  ],
+  "pageErrors": []
+}

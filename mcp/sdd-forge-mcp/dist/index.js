@@ -36966,7 +36966,8 @@ function err(code, message, details) {
 }
 
 // src/path-guard.ts
-import { readdirSync, readFileSync, realpathSync as realpathSync2, statSync as statSync2 } from "node:fs";
+import { createHash } from "node:crypto";
+import { lstatSync, readdirSync, readFileSync, realpathSync as realpathSync2, statSync as statSync2 } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve as resolve2, sep } from "node:path";
 var ALLOWLISTED_DIRECTORIES = [
@@ -37053,6 +37054,9 @@ function isDenylisted(root, lexicalPath, knownRealPath, knownEvidenceKeyPath) {
   return false;
 }
 function resolveGuarded(root, relPath) {
+  return resolveFile(root, relPath, false);
+}
+function resolveFile(root, relPath, artifactOnly) {
   const shapeError = validateInputShape(relPath);
   if (shapeError !== void 0) {
     return shapeError;
@@ -37067,7 +37071,7 @@ function resolveGuarded(root, relPath) {
       rule: "exists"
     });
   }
-  if (!isAllowlisted(root, resolvedPath)) {
+  if (!(artifactOnly ? isWithin(root.path, resolvedPath) : isAllowlisted(root, resolvedPath))) {
     return err("path-denied", "Path is outside the allowlisted directories.", {
       rule: "allowlist"
     });
@@ -37100,6 +37104,16 @@ function resolveGuarded(root, relPath) {
     });
   }
   return ok({ resolvedPath, size });
+}
+function guardedArtifactMatches(root, relPath, expected) {
+  const result = resolveFile(root, relPath, true);
+  if (!result.ok) return result;
+  try {
+    const bytes = readFileSync(result.data.resolvedPath);
+    return ok(createHash("sha256").update(bytes).digest("hex") === expected);
+  } catch {
+    return err("not-found", `Unable to read artifact: ${relPath}`, { file: relPath, rule: "readable" });
+  }
 }
 function guardedRead(root, relPath) {
   const guardResult = resolveGuarded(root, relPath);
@@ -37223,6 +37237,14 @@ function resolveGuardedDirectory(root, relPath) {
     });
   }
   return ok({ resolvedPath });
+}
+function hasProjectContext(root) {
+  try {
+    lstatSync(join(root.path, "sdd/project-context.yaml"));
+    return true;
+  } catch (error62) {
+    return !(error62 instanceof Error && "code" in error62 && error62.code === "ENOENT");
+  }
 }
 
 // src/parsers/agents-md.ts
@@ -40051,16 +40073,27 @@ function createReportLookup() {
   };
 }
 
-// src/parsers/evidence-bundle.ts
-import { createHash } from "node:crypto";
-var SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
-function sha256OfGuardedFile(root, relPath) {
-  const result = guardedRead(root, relPath);
-  if (!result.ok) {
-    return void 0;
+// src/profile.ts
+function workflowProfile(root) {
+  const agents = guardedRead(root, "AGENTS.md");
+  if (!agents.ok) return agents.error.code === "not-found" ? ok("full") : agents;
+  if ((agents.data.contents.match(/^## Project Settings\s*$/gm) ?? []).length > 1) {
+    return err("cannot-determine", "Multiple Project Settings sections make profile selection ambiguous.", { rule: "profile-invalid" });
   }
-  return createHash("sha256").update(result.data.contents, "utf-8").digest("hex");
+  const settings = /^## Project Settings\s*\r?\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(agents.data.contents)?.[1] ?? "";
+  const profiles = [...settings.matchAll(/^spec_profile:\s*(\S+)\s*$/gm)].map((match) => match[1]);
+  if (profiles.length > 1 || profiles.length === 1 && !["lite", "full"].includes(profiles[0] ?? "")) {
+    return err("cannot-determine", "Project Settings has an invalid or ambiguous spec_profile.", { rule: "profile-invalid" });
+  }
+  if (profiles[0] !== "lite") return ok("full");
+  if (hasProjectContext(root)) {
+    return err("cannot-determine", "Project Context is present; its approved profile must be resolved before using the legacy Lite read model.", { rule: "project-context-profile-unverified" });
+  }
+  return ok("lite");
 }
+
+// src/parsers/evidence-bundle.ts
+var SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 function normalizeRelPath(raw) {
   if (typeof raw !== "string") {
     return void 0;
@@ -40209,10 +40242,6 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       failures.push(`artifact path is missing or invalid: ${jsonValueText(artifact.path)}`);
       continue;
     }
-    if (!guardedExists(root, artifactRel)) {
-      failures.push(`artifact path missing: ${jsonValueText(artifact.path)}`);
-      continue;
-    }
     if (!SHA256_HEX_PATTERN.test(sha)) {
       failures.push(`artifact sha256 is invalid for ${jsonValueText(artifact.path)}: ${jsonValueText(artifact.sha256)}`);
       continue;
@@ -40222,8 +40251,10 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       continue;
     }
     artifactIndex.set(artifactRel, sha);
-    const actualSha = sha256OfGuardedFile(root, artifactRel);
-    if (actualSha !== sha) {
+    const match = guardedArtifactMatches(root, artifactRel, sha);
+    if (!match.ok) {
+      failures.push(`artifact cannot be verified (${match.error.code}): ${artifactRel}`);
+    } else if (!match.data) {
       failures.push(`artifact sha256 mismatch for ${artifactRel}`);
     }
   }
@@ -40329,7 +40360,7 @@ function approverId(value) {
 function isApprovedShape(value) {
   return value === "Approved" || APPROVED_ANNOTATION_PATTERN.test(value);
 }
-function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup) {
+function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile = "full") {
   const taskId = draft.id;
   const fail = (rule, message) => {
     failures.push({ taskId, rule, message });
@@ -40343,6 +40374,9 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     approval = draft.approval;
   }
   const isApproved = isApprovedShape(draft.approval);
+  if (profile === "lite" && (draft.risk === "high" || draft.risk === "critical")) {
+    fail("lite-full-upgrade-required", `${taskId} declares ${draft.risk} risk; Full workflow validation is required`);
+  }
   let status;
   if (draft.status === "") {
     fail("status-missing", `${taskId} has no Status line`);
@@ -40354,16 +40388,19 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   if (status !== void 0 && (status === "In Progress" || status === "Implementation Complete" || status === "Done") && !isApproved) {
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
-  if (status === "Done") {
+  if (status === "Done" && profile === "full") {
     validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
-  if (status === "Implementation Complete") {
+  if (status === "Implementation Complete" || status === "Done" && profile === "lite") {
     if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
       fail(
         "impl-complete-report-missing",
         `${taskId} is Implementation Complete but no implementation report in ${implReportsDir} mentions it`
       );
     }
+  }
+  if (status === "Done" && profile === "lite" && !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
+    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
   }
   let blockersNonEmpty = false;
   if (status === "Blocked") {
@@ -40378,7 +40415,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   } else {
     blockersNonEmpty = draft.blockersContent !== "";
   }
-  if (status === "Done" && draft.risk === "critical") {
+  if (profile === "full" && status === "Done" && draft.risk === "critical") {
     validateCriticalTwoPersonApproval(taskId, draft, fail);
   }
   if (status !== void 0 && approval !== void 0) {
@@ -40521,6 +40558,8 @@ function parentDir(relTasksFilePath) {
   return idx === -1 ? "." : relTasksFilePath.slice(0, idx);
 }
 function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/quality-gate", implReportsDir = "reports/implementation", reportLookup = createReportLookup()) {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
   const fileResult = guardedRead(root, relTasksFilePath);
   if (!fileResult.ok) {
     return fileResult;
@@ -40533,7 +40572,7 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
   let draft;
   const finish = () => {
     if (draft !== void 0) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
+      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
     }
   };
   for (const rawLine of lines) {
@@ -40680,6 +40719,9 @@ function phaseFromTasks(feature, tasks) {
   };
 }
 function nextCommandForFeature(root, feature, reports) {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
+  const lite = profile.data === "lite";
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
@@ -40690,12 +40732,12 @@ function nextCommandForFeature(root, feature, reports) {
       kind: "next-command",
       feature,
       phase: "phase1-not-started",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : `/sdd-bootstrap:bootstrap feature ${feature}`,
       rationale: `${requirementsPath} does not exist yet; Phase 1 (requirements, design, acceptance tests) has not been started (AGENTS.md Required Workflow step 1).`
     });
   }
   const specReviewStatus = extractHeaderValue(requirementsResult.data.contents, "Spec-Review-Status");
-  if (specReviewStatus !== "Passed") {
+  if (!lite && specReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -40717,7 +40759,7 @@ function nextCommandForFeature(root, feature, reports) {
     );
   }
   const implReviewStatus = extractHeaderValue(designResult.data.contents, "Impl-Review-Status");
-  if (implReviewStatus !== "Passed") {
+  if (!lite && implReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -40736,12 +40778,12 @@ function nextCommandForFeature(root, feature, reports) {
       kind: "next-command",
       feature,
       phase: "phase2-not-started",
-      nextCommand: "/sdd-bootstrap:bootstrap feature",
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : "/sdd-bootstrap:bootstrap feature",
       rationale: `${tasksPath} does not exist yet; Phase 2 (Draft tasks) has not been started (AGENTS.md Required Workflow step 4).`
     });
   }
   const taskReviewStatus = extractHeaderValue(tasksReadResult.data.contents, "Task-Review-Status");
-  if (taskReviewStatus !== "Passed") {
+  if (!lite && taskReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -40761,7 +40803,10 @@ function nextCommandForFeature(root, feature, reports) {
       { file: tasksPath, rule: "task-state-verdict-fail" }
     );
   }
-  return ok(phaseFromTasks(feature, taskStateResult.data.tasks));
+  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  if (lite && phase.phase === "implementation") phase.nextCommand = `/sdd-ship:ship --lite specs/${feature}/tasks.md`;
+  if (lite && phase.phase === "quality-gate") phase.nextCommand = phase.nextCommand.replace("/sdd-quality-loop:quality-gate", "/sdd-lite:lite-gate");
+  return ok(phase);
 }
 function autoSelectFeature(root) {
   const specsResult = parseActiveSpecDirectories(root);
@@ -42075,7 +42120,7 @@ function buildServer(root) {
 
 // src/status-view.ts
 import { createServer } from "node:http";
-import { readFileSync as readFileSync2, lstatSync, existsSync as existsSync2 } from "node:fs";
+import { readFileSync as readFileSync2, lstatSync as lstatSync2, existsSync as existsSync2 } from "node:fs";
 import { join as join2 } from "node:path";
 
 // src/dashboard/observations.js
@@ -42644,11 +42689,11 @@ async function startStatusView(root, dashboard = false) {
   const directory = dashboard ? process.env.SDD_DASHBOARD_STATE : void 0;
   let stored = null;
   if (directory) {
-    const info = lstatSync(directory);
+    const info = lstatSync2(directory);
     if (!info.isDirectory() || info.isSymbolicLink() || process.platform !== "win32" && info.mode & 63) throw new Error("Dashboard state directory must be private");
     const file2 = join2(directory, "observations.json");
     if (existsSync2(file2)) {
-      const stat = lstatSync(file2);
+      const stat = lstatSync2(file2);
       if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16 * 1024 * 1024) throw new Error("Invalid dashboard state file");
       stored = JSON.parse(readFileSync2(file2, "utf8"));
       if (!stored || stored.schema !== "sdd-dashboard/v1" || !stored._observations) throw new Error("Invalid dashboard state");

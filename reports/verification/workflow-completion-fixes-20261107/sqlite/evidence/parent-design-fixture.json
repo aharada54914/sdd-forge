@@ -1,0 +1,11 @@
+{
+  "scope": "SQLite disposable-test design contract",
+  "normal_human_approval": false,
+  "authorization": "User: これはただのテストなのでこのプログラムは使わないからapprovedかどうかはどうでもいい",
+  "files": {
+    "design-system.md": "a8dc059e5049f7a00dcb48da97c121e011406d13406aff9e9158979b480b075a",
+    "design-tokens.json": "76f526f7c65ed20df8cef5805fe2c10f69dd19bee21aea040049773833481ae2",
+    "ui-patterns.md": "b00f27065467cdb5217022e9e80a3272b632443692f4fd177a4af57abae504fc"
+  },
+  "time": "2026-11-07T11:05:06.234348+00:00"
+}

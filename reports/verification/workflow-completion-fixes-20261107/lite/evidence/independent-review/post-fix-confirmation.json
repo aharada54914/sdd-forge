@@ -1,0 +1,45 @@
+{
+  "tasks_before_sha256": "e43cfb0d3b22506cfc0873a0cfb9e3f81442624006491536b9ec237908d94847",
+  "tasks_after_sha256": "e43cfb0d3b22506cfc0873a0cfb9e3f81442624006491536b9ec237908d94847",
+  "installed_hashes": {
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/classify-evidence-write.py": "5c81e5403c469f036010ca24641f2d959e2e4c7c4f821ba41e08c8402247f1f2",
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/sdd-hook-guard.py": "f87a4c1857e5a36f6d728cd767a9c43ad8bee364acd8752b2b32f2d0c96a252f",
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py": "eb08bbb1a7a415a7b9ca6cf495bcc6f872666863037c49b4ac79366464f60d7a"
+  },
+  "checks": [
+    {
+      "argv": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.sh",
+        "--verify-response",
+        "--nonce",
+        "bdeca5799142c7663c1a36e46607e508",
+        "--recorded-result",
+        "evidence/independent-review/post-fix-canary.json",
+        "--runtime",
+        "codex-cli"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"nonce\": \"bdeca5799142c7663c1a36e46607e508\",\n  \"runtime\": \"codex-cli\",\n  \"schema\": \"sdd-hook-verify-result/v1\",\n  \"status\": \"HOOK_ACTIVE\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.23.1/scripts/check-task-state-lite.sh",
+        "specs/task-board/tasks.md"
+      ],
+      "exit_code": 0,
+      "stdout": "Task state (lite) check passed for 1 task(s).\n",
+      "stderr": ""
+    }
+  ],
+  "historical_raw_result_matches_original": true,
+  "approval_writer_native_result": {
+    "exit_code": 0,
+    "output": "Historical refusal saved; no approval edit executed.\n"
+  },
+  "approval_writer_command_form": "python3 -I - <<'EVIDENCE'",
+  "canary_tool": "apply_patch",
+  "canary_patch": "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:bdeca5799142c7663c1a36e46607e508\n*** End Patch"
+}

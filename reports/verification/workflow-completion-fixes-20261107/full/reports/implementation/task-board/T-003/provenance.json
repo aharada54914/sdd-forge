@@ -1,0 +1,34 @@
+{
+  "schema": "task-implementation-provenance/v1",
+  "task_id": "T-003",
+  "input_manifest": "handoffs/task-board/T-003-registered/manifest.json",
+  "input_manifest_sha256": "38999e491ca3d73f0c7149b4e6af7339b07184eb36ea4647e99bf2aa1494f0d8",
+  "run_id": "01a1b603-4c15-7e92-8d09-966e8152d968",
+  "session_id": "01a1b603-4c15-7e92-8d09-966e8152d968",
+  "agent_instance_id": "Aquinas-01a1b603-4c15-7e92-8d09-966e8152d968",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "isolation_mode": "fresh-agent",
+  "spec_revision": {
+    "specs/task-board/requirements.md": "e3bb16a156116a634309b4526afdf41f497d3ba23f4ef1c8767cd77288e812cc",
+    "specs/task-board/design.md": "c2b9d9feec9157ad694f75c8f00e5d510562db0906a51298b8f4d0f1af2ed37e",
+    "specs/task-board/tasks.md": "1db826ee9429938cd02177cae410902edaca1c83bd069f06f24b5fe39440be9c",
+    "specs/task-board/acceptance-tests.md": "48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94",
+    "specs/task-board/traceability.md": "c493c8482036ba9ea5d43fc1987a08ac004c57656e92ea0fa23d776a65849246",
+    "specs/task-board/ux-spec.md": "d8b5ec25320b0143aad335c59a706be089baf27bbca4e28efd998db768498e79",
+    "specs/task-board/frontend-spec.md": "543d8eb6ae280daf0b00c8b046fd379b8b032b05ff0d059da1189cdabc2f1cc0",
+    "specs/task-board/infra-spec.md": "770aab00c90f878fc1d964d2bcea20eb219b75d1ee9601554e7851dd24e324e5",
+    "specs/task-board/security-spec.md": "b80c20b7e17f528b18f027cd2261d852782007b7cf2c6a4b58de1f70a39280d6"
+  },
+  "red_commit": "4696b3b3c3e61f52868118a797cfe9ec768178c1",
+  "implementation_commit": "e1351a8b2376401a7c85134e4079e2a569f4b9d8",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "all_admitted_input_hashes_verified": true,
+  "reference_image_viewed": true,
+  "structure_precondition": "Parent attested check-sdd-structure: OK; docs/architecture advisory only",
+  "regression_scope": "T-003 token suite only; full cross-task regression delegated to parent",
+  "independent_review": "Pending parent quality-gate; implementer does not claim Done"
+}

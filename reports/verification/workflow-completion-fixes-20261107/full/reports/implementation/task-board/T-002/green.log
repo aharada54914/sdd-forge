@@ -1,0 +1,18 @@
+Command: ['python3', '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_http.py', '-v']
+test_cli_restart_and_source_restore_preserve_json (test_http.CLITests.test_cli_restart_and_source_restore_preserve_json) ... ok
+test_bad_framing_is_closed_without_mutation (test_http.HTTPTests.test_bad_framing_is_closed_without_mutation) ... ok
+test_content_type_size_and_bodyless_methods (test_http.HTTPTests.test_content_type_size_and_bodyless_methods) ... ok
+test_crud_snapshots_unicode_order_and_restart (test_http.HTTPTests.test_crud_snapshots_unicode_order_and_restart) ... ok
+test_host_and_origin_allowlists (test_http.HTTPTests.test_host_and_origin_allowlists) ... ok
+test_json_syntax_duplicates_encoding_and_nesting (test_http.HTTPTests.test_json_syntax_duplicates_encoding_and_nesting) ... ok
+test_static_exact_allowlist_and_loopback (test_http.HTTPTests.test_static_exact_allowlist_and_loopback) ... ok
+test_storage_failure_and_corruption_keep_bytes_and_recover (test_http.HTTPTests.test_storage_failure_and_corruption_keep_bytes_and_recover) ... ok
+test_titles_schema_and_scalar_types (test_http.HTTPTests.test_titles_schema_and_scalar_types) ... ok
+test_uuid_and_route_contract (test_http.HTTPTests.test_uuid_and_route_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.368s
+
+OK
+
+Exit code: 0

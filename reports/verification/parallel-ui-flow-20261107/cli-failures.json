@@ -1,0 +1,54 @@
+{
+  "source_commit": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+  "cli_version": "codex-cli 0.159.2",
+  "runs": [
+    {
+      "workspace": "lite-task-board",
+      "events": [
+        {
+          "type": "error",
+          "message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again."
+        },
+        {
+          "type": "turn.failed",
+          "error": {
+            "message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again."
+          }
+        }
+      ],
+      "result": "blocked_before_model_execution"
+    },
+    {
+      "workspace": "full-task-board",
+      "events": [
+        {
+          "type": "error",
+          "message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again."
+        },
+        {
+          "type": "turn.failed",
+          "error": {
+            "message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again."
+          }
+        }
+      ],
+      "result": "blocked_before_model_execution"
+    },
+    {
+      "workspace": "sqlite-task-board",
+      "events": [
+        {
+          "type": "error",
+          "message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again."
+        },
+        {
+          "type": "turn.failed",
+          "error": {
+            "message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again."
+          }
+        }
+      ],
+      "result": "blocked_before_model_execution"
+    }
+  ]
+}

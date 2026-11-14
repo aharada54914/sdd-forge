@@ -1,0 +1,60 @@
+{
+  "node": "v26.13.0",
+  "scope": "Real built subprocess stdio protocol; full completed application is actual source",
+  "results": [
+    {
+      "server": "sdd-forge-mcp",
+      "toolNames": [
+        "list_active_specs",
+        "get_spec_status",
+        "get_task_state",
+        "list_approved_tasks",
+        "list_blocked_tasks",
+        "list_review_tickets",
+        "get_quality_gate_summary",
+        "get_next_sdd_command",
+        "evidence_get_bundle",
+        "evidence_validate_paths",
+        "evidence_find_missing",
+        "evidence_summarize_contract_checks",
+        "evidence_compare_to_traceability",
+        "evidence_deep_verify"
+      ],
+      "taskState": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"task-board\",\"tasksFile\":\"specs/task-board/tasks.md\",\"verdict\":\"pass\",\"taskCount\":5,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"medium\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"}],\"failures\":[]}}"
+          }
+        ]
+      }
+    },
+    {
+      "server": "local-env-mcp",
+      "toolNames": [
+        "get_os_info",
+        "get_toolchain_versions",
+        "list_available_clis"
+      ],
+      "availableClis": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"ok\":true,\"data\":{\"kind\":\"cli-availability\",\"entries\":[{\"name\":\"node\",\"available\":true},{\"name\":\"npm\",\"available\":true},{\"name\":\"pnpm\",\"available\":true},{\"name\":\"yarn\",\"available\":false},{\"name\":\"bun\",\"available\":false},{\"name\":\"deno\",\"available\":false},{\"name\":\"git\",\"available\":true},{\"name\":\"gh\",\"available\":true},{\"name\":\"python3\",\"available\":true},{\"name\":\"go\",\"available\":false},{\"name\":\"rustc\",\"available\":false},{\"name\":\"cargo\",\"available\":false},{\"name\":\"java\",\"available\":true},{\"name\":\"docker\",\"available\":true}]}}"
+          }
+        ]
+      }
+    },
+    {
+      "server": "ci-mcp",
+      "toolNames": [
+        "list_workflow_runs",
+        "get_workflow_run",
+        "list_run_jobs",
+        "list_run_artifacts",
+        "get_job_log"
+      ],
+      "scope": "Real stdio tool discovery only; upstream GitHub responses covered by tests, no authenticated live GitHub API claim."
+    }
+  ]
+}

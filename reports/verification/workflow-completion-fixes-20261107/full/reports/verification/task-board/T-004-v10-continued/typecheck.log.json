@@ -1,0 +1,7 @@
+{
+  "command": "python3 -B reports/integration/run_ui_stack_checks.py typecheck",
+  "exit_code": 0,
+  "started_at": "2026-11-13T04:43:36.877773+00:00",
+  "finished_at": "2026-11-13T04:43:37.229336+00:00",
+  "evidence": "reports/verification/task-board/T-004-v10-continued/typecheck.log"
+}

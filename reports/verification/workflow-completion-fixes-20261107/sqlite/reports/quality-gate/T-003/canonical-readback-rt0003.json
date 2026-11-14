@@ -1,0 +1,19 @@
+{
+  "command": [
+    "bash",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-745/sdd-quality-loop/1.23.1/scripts/validate-review-context-set.sh",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/quality-t003-product-rt0003/invocation.json",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed"
+  ],
+  "exit_code": 0,
+  "stdout": "REVIEW_CONTEXT_OK ba40cebe257a1dba76b6bac691e91fc3b57013a95aefeff8216d7dd24cc9d933 sequence=22 previous_record_sha256=0dca6a4bf13a5825585523b8ebc371cfc3457638c7fd1bfc17e7a2b94f0ab507 pre_append_tip_sequence=- identity_unique=yes\n",
+  "stderr": "",
+  "all_input_hashes_match": true,
+  "input_count": 106,
+  "native_model_effort_verified": true,
+  "delivery_sha256": "d24d94bbaa53bacaa8de08a13b5656f5e0f587776c6ea68634ead8a471c7d167",
+  "verdict": "NEEDS_WORK",
+  "critical": 0,
+  "major": 2,
+  "minor": 0
+}

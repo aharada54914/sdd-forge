@@ -1,0 +1,36 @@
+{
+  "method": "Two fresh independent evaluator contexts, identical cases/prompt, baseline versus revised calibration only. Behavioral evaluation, not an application gate verdict.",
+  "baseline": {
+    "case-a": {
+      "decision": "FAIL",
+      "severity": "Critical",
+      "reason": "Mere reference to draft architecture design.md while specification Pending treated as unauthorized phase sequencing."
+    },
+    "case-b": {
+      "decision": "FAIL",
+      "severity": "Critical",
+      "reason": "Visual consent wrongly claimed as authorization for implementation review/task approval/implementation."
+    }
+  },
+  "revised": {
+    "case-a": {
+      "decision": "PASS",
+      "severity": null,
+      "reason": "Phase1 visual-only consent explicitly allowed; architecture/task gates stay Pending."
+    },
+    "case-b": {
+      "decision": "FAIL",
+      "severity": "Critical",
+      "reason": "Visual consent cannot authorize architecture/task review or implementation."
+    }
+  },
+  "native_reproduction": "sqlite-task-board-fixed/reports/spec-review/sqlite-task-board/attempt-1/round-2/reviewer-a.json",
+  "conclusion": "Observed false positive repaired in controlled model evaluation; actual native spec round3 pending. One repetition per calibration, no claim of exhaustive model behavior.",
+  "native_followup": {
+    "project": "sqlite-task-board-fixed",
+    "round": 3,
+    "reviewers": "genuine independent native spec A/B",
+    "result": "PASS; 0 Critical/Major/Minor; only invocation and allowed manifest inputs read",
+    "adoption": "installed predecessor/state checks succeeded; Spec-Review Passed; impl precheck legacy_design=false"
+  }
+}

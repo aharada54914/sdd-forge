@@ -1,0 +1,233 @@
+{
+  "scope": "Broadened deterministic/current-source and selected actual local/upstream functional checks. Not all native workflows/providers/platforms verified.",
+  "python_suites": {
+    "tests/research-owner-integration.tests.py": {
+      "final_log": "research-owner-integration.log",
+      "tests": 8,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 8,
+      "status": "PASS"
+    },
+    "tests/research-discovery.tests.py": {
+      "final_log": "research-discovery.log",
+      "tests": 20,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 20,
+      "status": "PASS"
+    },
+    "tests/research-consumers.tests.py": {
+      "final_log": "research-consumers.log",
+      "tests": 17,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 17,
+      "status": "PASS"
+    },
+    "tests/research-acquire.tests.py": {
+      "final_log": "research-acquire.log",
+      "tests": 32,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 1,
+      "passed_tests": 31,
+      "status": "PASS_WITH_NAMED_SKIP"
+    },
+    "tests/research-evidence.tests.py": {
+      "final_log": "research-evidence.log",
+      "tests": 21,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 21,
+      "status": "PASS"
+    },
+    "tests/project-skill-lifecycle.tests.py": {
+      "final_log": "project-skill-lifecycle.log",
+      "tests": 44,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 44,
+      "status": "PASS"
+    },
+    "tests/project-skill-observation.tests.py": {
+      "final_log": "project-skill-observation.log",
+      "tests": 40,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 40,
+      "status": "PASS"
+    },
+    "tests/project-skill-formal.tests.py": {
+      "final_log": "project-skill-formal-fixed.log",
+      "tests": 6,
+      "first_run_exit": 1,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 6,
+      "status": "PASS"
+    },
+    "tests/project-skill-profiles.tests.py": {
+      "final_log": "project-skill-profiles.log",
+      "tests": 5,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 5,
+      "status": "PASS"
+    },
+    "tests/concept-test.tests.py": {
+      "final_log": "concept-test.log",
+      "tests": 21,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 21,
+      "status": "PASS"
+    },
+    "tests/concept-review-continuity.tests.py": {
+      "final_log": "concept-review-continuity-fixed.log",
+      "tests": 7,
+      "first_run_exit": 1,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 7,
+      "status": "PASS"
+    },
+    "tests/sdd-domain-multitarget-foundation.tests.py": {
+      "final_log": "sdd-domain-multitarget-foundation.log",
+      "tests": 55,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 0,
+      "passed_tests": 55,
+      "status": "PASS"
+    },
+    "tests/domain-review-finalize.tests.py": {
+      "final_log": "domain-review-finalize.log",
+      "tests": 25,
+      "first_run_exit": 0,
+      "exit_success": true,
+      "skipped": 1,
+      "passed_tests": 24,
+      "status": "PASS_WITH_NAMED_SKIP"
+    }
+  },
+  "mcp": {
+    "typecheck_build_passed": [
+      "sdd-forge-mcp",
+      "local-env-mcp",
+      "ci-mcp"
+    ],
+    "tests": {
+      "sdd-forge-mcp": 314,
+      "local-env-mcp": 57,
+      "ci-mcp": 160
+    },
+    "actual_stdio_discovered_tools": 22,
+    "actual_full_project_read": "5/5 Done",
+    "actual_local_status_browser": "PASS",
+    "actual_authenticated_github_metadata_tools": 4,
+    "job_log": "API media bug fixed (415 to302); final transfer blocked by explicit proxy CONNECT403 on fresh unexpired URL, refusal cause unresolved"
+  },
+  "managed": {
+    "installed_test_methods": 80,
+    "passing_evidence": "68 unaffected initial methods + 12 affected methods on corrected shared fixture, split reruns",
+    "monolithic_rerun": false,
+    "launcher_tests": 57,
+    "real_remote_model_judgments": false
+  },
+  "design": {
+    "policy_consent_scan_contract_compliance": "current Bash/PowerShell/Python suites PASS",
+    "direct_claude_design": "not established by these tests"
+  },
+  "optional_cloud": {
+    "scope": "Synthetic offline provider transports and actual local installers. No live cloud credentials/deployments or writes. Multitarget foundation separately in selected-python-results.",
+    "results": [
+      {
+        "suite": "tests/cloud-orchestration-contracts.tests.py",
+        "exit_code": 0,
+        "seconds": 0.54,
+        "log": "cloud-orchestration-contracts.tests.py.log",
+        "tests": 34
+      },
+      {
+        "suite": "tests/cloud-orchestration-routing.tests.py",
+        "exit_code": 0,
+        "seconds": 26.84,
+        "log": "cloud-orchestration-routing.tests.py.log",
+        "tests": 96
+      },
+      {
+        "suite": "tests/cloud-orchestration-execution.tests.py",
+        "exit_code": 0,
+        "seconds": 11.1,
+        "log": "cloud-orchestration-execution.tests.py.log",
+        "tests": 88
+      },
+      {
+        "suite": "tests/cloud-orchestration-verification.tests.py",
+        "exit_code": 0,
+        "seconds": 155.79,
+        "log": "cloud-orchestration-verification.tests.py.log",
+        "tests": 112
+      },
+      {
+        "suite": "tests/install-cloud.tests.py",
+        "exit_code": 0,
+        "seconds": 141.77,
+        "log": "install-cloud.tests.py.log",
+        "tests": 16
+      }
+    ]
+  },
+  "issues": [
+    "#750",
+    "#751",
+    "#752"
+  ],
+  "all_features_native_verified": false,
+  "named_skips": {
+    "tests/research-acquire.tests.py": "Distinct reader identities require isolated root-capable Linux CI (current uid1000).",
+    "tests/domain-review-finalize.tests.py": "Real Windows junction requires Windows (current Linux)."
+  },
+  "mcp_workflow_read_model_repair": {
+    "issue": "https://github.com/aharada54914/sdd-forge/issues/755",
+    "validation": {
+      "typecheck": "PASS",
+      "build": "PASS",
+      "tests": 319,
+      "passed": 319,
+      "failed": 0,
+      "skipped": 0,
+      "real_stdio_roots": {
+        "lite": "task verdict pass; next done",
+        "full": "task verdict pass; next done",
+        "sqlite": "task verdict pass; next done"
+      },
+      "canonical_cli_each_exit": 0
+    },
+    "evidence": [
+      "mcp-three-before.json",
+      "mcp-three-after.json",
+      "mcp-three-canonical-cli.json",
+      "sdd-mcp-755-test-final.log"
+    ],
+    "scope": [
+      "Legacy explicit Lite profile selects Lite report requirements and routes. Full gates preserved.",
+      "Ambiguous profiles and explicit high/critical tasks in Lite are rejected; Project Context present with legacy Lite is unsupported/cannot-determine, not silently downgraded.",
+      "Manifest-only raw-byte integrity checks admit repository-contained artifacts beyond content allowlist; public content APIs unchanged.",
+      "Path denial/oversize/unreadable artifacts fail closed with a specific unverifiable error."
+    ],
+    "limits": [
+      "Project Context approval sidecar verification is not implemented by this minimal MCP legacy-profile repair.",
+      "Existing evidence validator omissions (contract semantic revalidation and git ancestry) remain documented; this is not a complete canonical gate replacement."
+    ]
+  }
+}

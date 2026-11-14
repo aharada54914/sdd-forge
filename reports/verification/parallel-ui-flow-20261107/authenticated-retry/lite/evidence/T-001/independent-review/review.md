@@ -1,0 +1,10 @@
+# Independent lite-gate attempt: T-001
+
+Installed sdd-lite:lite-gate invoked once in this new independent review context. Read project AGENTS.md, actual requirements/design/tasks, implementation report, current-context handoff, approval fixture, wording diff, implementation and browser suite. Approval is a user-permitted disposable fixture; ordinary human approval and unmodified normal-flow success are not claimed.
+
+First system blocker: mandatory hook handshake verification returned CAPABILITY_RUNTIME_UNAVAILABLE / RECORDED_RESULT_UNREADABLE, exit 61. Exact command and observed stderr are in blocker.json and handshake-verification.stderr.log. The actual relative-template apply_patch canary attempt was denied by the native PreToolUse deterministic hook. Its raw native output was sourced from this invocation's evidence/cli-independent-gate-stderr.log as requested; the verifier rejected that raw log as non-JSON. No synthetic denial wrapper or protected patch text was embedded into shell commands.
+
+Stopped immediately per user instruction and skill Track Detection rule: only HOOK_ACTIVE permits continuation. No workaround research or fixes performed. Acceptance rerun, placeholder scan, command adapter, screenshot inspection and final Done-state validation were not run. Prior browser passes were not reused as independent evidence. No quality PASS report generated, no Approval or Status changes made; T-001 remains Implementation Complete. No deployment, commit, push or publication.
+
+## Correction and completion
+The earlier raw-stderr argument was a caller-input error, not a plugin defect. Retained prior error records. Exact bytes from this invocation were encoded in native-schema JSON with provenance; same nonce verified HOOK_ACTIVE. Continued this single invocation. Independent placeholder/lint/browser checks passed; screenshots inspected. Quality report: reports/quality-gate/T-001.md. Final task-state checker exit: 0. Current task status: Done. Disposable approval fixture and wording workaround limitations remain.

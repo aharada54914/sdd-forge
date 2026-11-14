@@ -1,0 +1,19 @@
+COMMAND: /tmp/task-board-verification-dev-tools/node_modules/.bin/eslint --config handoffs/task-board/T-004-registered/snapshot/reports/integration/ui-eslint.config.mjs web/app.js
+
+EXIT_CODE: 0
+
+COMMAND: /tmp/task-board-verification-dev-tools/node_modules/.bin/tsc --allowJs --checkJs --noEmit --strict --target ES2020 --lib ES2020,DOM,DOM.Iterable --skipLibCheck web/app.js
+web/app.js(12,7): error TS2451: Cannot redeclare block-scoped variable 'status'.
+web/app.js(48,10): error TS2339: Property 'textContent' does not exist on type 'string'.
+
+EXIT_CODE: 1
+
+COMMAND: /workspace/.tools/sdd-forge-python/bin/ruff check tests/browser_checks.py
+All checks passed!
+
+EXIT_CODE: 0
+
+COMMAND: /workspace/.tools/sdd-forge-python/bin/mypy --strict --follow-imports=silent --python-executable /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python tests/browser_checks.py
+Success: no issues found in 1 source file
+
+EXIT_CODE: 0

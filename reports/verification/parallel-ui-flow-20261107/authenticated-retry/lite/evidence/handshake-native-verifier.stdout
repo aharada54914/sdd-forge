@@ -1,0 +1,6 @@
+{
+  "nonce": "bac0face7312cdda14e7cf7dc5d5347d",
+  "runtime": "codex-cli",
+  "schema": "sdd-hook-verify-result/v1",
+  "status": "HOOK_ACTIVE"
+}

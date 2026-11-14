@@ -1,0 +1,15 @@
+$ python3 -B tests/browser_checks.py --output-dir reports/visual-evidence/task-board/T-004/quality-v10 --full
+Evidence: reports/visual-evidence/task-board/T-004/quality-v10
+PASS crud
+PASS mobile-crud
+PASS validation
+PASS pending
+PASS failures
+PASS loading
+PASS timeout
+PASS visual
+PASS performance
+PASS restart
+PASS sockets
+
+EXIT_CODE=0

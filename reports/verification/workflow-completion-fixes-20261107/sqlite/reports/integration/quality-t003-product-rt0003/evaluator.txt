@@ -1,0 +1,17 @@
+RUN_ID: 01a1d345-8030-70d1-bd30-e96dc4bd17f6
+HOST_SESSION_ID: 01a1d345-8030-70d1-bd30-e96dc4bd17f6
+ALLOWED_INPUT_MANIFEST: reports/integration/quality-t003-product-rt0003/invocation.json 0f0e62bf1377301efbdb3341bf9d8d091309ce485fde8afe1b3667e75a5d962b
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] tests/browser_task_board.py:97-111,148-182 — The required one-second normal-mutation budget remains unverified for toggle and delete — Only addition measures elapsed time. Add browser timing assertions and saved results for PATCH and confirmed DELETE against frontend-spec.md:41 and infra-spec.md:18.
+- [Major] tests/browser_task_board.py:303-332 — Malformed-success recovery lacks coverage for GET, PATCH and DELETE — The sole malformed-success test injects a POST response; PATCH/DELETE tests inject HTTP 500 instead. Exercise malformed list/task/deletion acknowledgments and verify error feedback, preserved state and restored controls.
+CHECKED:
+- Recomputed invocation and receipt SHA-256 values; verified fresh reservation fields and all 106 admitted file hashes. Did not read the ledger or reserve again.
+- Executed standalone `/bin/cat README.md`; inspected documented startup, restart, rollback and test prerequisites.
+- Confirmed invocation, implementation-report heading/Task ID and verification contract identify T-003.
+- Inspected frontend and backend source against admitted specifications, API contract and ADR; observed acknowledged-only mutations, literal rendering, parameterized SQL and bounded request handling.
+- Executed six admitted validation tests using `/usr/bin/python3 -I -B` with hash-verified modules loaded in memory: all passed.
+- Inspected saved browser and regression command output: browser suite exited 0; 37 regression tests passed. These were saved results, not reruns.
+- Compared RT-0003 Red failure, fixed source and Green observations; independently checked 35 UI and 68 API Unicode cases and identical Red/current test bytes. Saved restart observations contain distinct PIDs, the same database path and equal surviving state.
+- Viewed admitted reference and desktop/mobile screenshots; observed Japanese white/blue presentation, responsive stacking and omission of out-of-scope decorative controls.
+- Browser, storage/HTTP suites, Ruff, mypy and Node checks were not rerun: they require writes, sockets or undeclared runtimes/dependencies.

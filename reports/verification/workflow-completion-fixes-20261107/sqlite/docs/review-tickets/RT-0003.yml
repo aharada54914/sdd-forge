@@ -1,0 +1,33 @@
+ticket_id: RT-0003
+status: resolved
+type: correctness
+severity: critical
+target:
+  feature: sqlite-task-board
+  task: T-003
+  files:
+    - static/app.js
+    - tests/browser_task_board.py
+summary: Align browser title normalization with authoritative Python Unicode stripping
+problem: |
+  Genuine evaluator 01a1d337-a8d8-77a1-aa7f-526a748dc263 found that JS trim
+  retains U+0085 while Python strip removes it. A successfully committed title
+  can consequently be presented as a failed write, inviting duplicate retries.
+  The reverse difference (JS removes U+FEFF; Python preserves it) also requires
+  coverage. Preserve acknowledged-only rendering and existing API semantics.
+expected_fix:
+  - Add real failing browser/API regression coverage before production edits and commit the failing test version.
+  - Use one frontend normalization rule matching Python str.strip whitespace, including C0 separators and U+0085, and preserving U+FEFF.
+  - Verify successful additions, exact normalized response and persisted row, no false error or duplicate, blank and codepoint boundaries.
+  - Rerun complete browser suite and relevant static/regression checks with new evidence paths; preserve all prior reports and raw results.
+references:
+  - reports/integration/quality-t003-product-745/evaluator.txt
+  - reports/quality-gate/T-003/canonical-readback-745.json
+  - specs/sqlite-task-board/requirements.md
+  - contracts/task-api.md
+  - validation.py
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+authorization: User explicitly authorized routine within-scope defect fixes and local Red-before-production commits; this ticket is agent-authored, not a human-authored approval fixture.
+resolution: Shared frontend normalization now matches authoritative Python whitespace and preserves FEFF; exact acknowledged-response comparisons retained. Red d6b8be0 precedes fix 570dcf0. Worker and caller observed 21 browser groups and 37 backend tests passing. Caller records are specs/sqlite-task-board/verification/T-003/round-2/. Fresh independent review still required before Done.

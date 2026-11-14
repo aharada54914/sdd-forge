@@ -1,0 +1,39 @@
+[
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "stdout": "b643938e6f0246a5b68857dd78981939027b2c4c\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "33d96159b2e0a91237c1129d6aa363da55a72e86",
+      "HEAD"
+    ],
+    "stdout": "",
+    "stderr": "",
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "33d96159b2e0a91237c1129d6aa363da55a72e86",
+      "HEAD",
+      "--",
+      "calendar_days.py",
+      "test_calendar_days.py",
+      "test_inclusive_calendar_days.py"
+    ],
+    "stdout": "diff --git a/calendar_days.py b/calendar_days.py\nindex e723fac..980a65e 100644\n--- a/calendar_days.py\n+++ b/calendar_days.py\n@@ -4,4 +4,4 @@ def days_inclusive(start: str, end: str) -> int:\n     first, last = date.fromisoformat(start), date.fromisoformat(end)\n     if last < first:\n         raise ValueError(\"end precedes start\")\n-    return (last - first).days\n+    return (last - first).days + 1\n",
+    "stderr": "",
+    "exit_code": 0
+  }
+]

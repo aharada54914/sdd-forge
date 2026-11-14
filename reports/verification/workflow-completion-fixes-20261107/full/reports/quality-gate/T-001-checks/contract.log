@@ -1,0 +1,26 @@
+$ bash /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/integration/runtime-snapshot-v6/sdd-quality-loop/1.23.1/scripts/check-contract.sh /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/specs/task-board/verification/T-001.contract.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed
+Verification contract FAILED for task T-001:
+ - check 'lint' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'lint' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'unit-tests' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'unit-tests' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'integration-tests' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'integration-tests' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'placeholder-scan' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'placeholder-scan' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'acceptance-tests' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'acceptance-tests' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'regression' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'regression' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'requirement-traceability' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'requirement-traceability' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'check-component-coverage' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'check-component-coverage' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+
+EXIT_CODE=1

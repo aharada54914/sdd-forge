@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>今日のタスク</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/tokens.css">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>今日のタスク</h1>
+      <p>今日やることを整理して、ひとつずつ。</p>
+    </header>
+    <form id="add-form" novalidate>
+      <label for="task-title">新しいタスク</label>
+      <div class="form-controls">
+        <input id="task-title" name="title" type="text" autocomplete="off"
+               aria-describedby="title-help" disabled>
+        <button id="add-button" type="submit" class="primary" disabled>追加</button>
+      </div>
+      <p id="title-help">500文字まで入力できます。</p>
+    </form>
+    <div class="feedback">
+      <p id="status" role="status" aria-live="polite">読み込み中</p>
+      <p id="error" role="alert" hidden></p>
+    </div>
+    <section aria-label="タスク一覧" id="task-section" aria-busy="true">
+      <p id="empty" hidden>タスクはまだありません</p>
+      <ul id="task-list"></ul>
+    </section>
+    <dialog id="delete-dialog" aria-labelledby="delete-heading" aria-describedby="delete-title">
+      <h2 id="delete-heading">タスクを削除しますか？</h2>
+      <p id="delete-title"></p>
+      <div class="dialog-actions">
+        <button id="cancel-delete" type="button" autofocus>キャンセル</button>
+        <button id="confirm-delete" type="button" class="danger">削除</button>
+      </div>
+    </dialog>
+    <noscript>タスクを操作するにはJavaScriptを有効にしてください。</noscript>
+  </main>
+</body>
+</html>

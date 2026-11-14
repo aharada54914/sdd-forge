@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "git",
+    "ls-tree",
+    "33d96159b2e0a91237c1129d6aa363da55a72e86",
+    "--",
+    "calendar_days.py",
+    "test_calendar_days.py",
+    "test_inclusive_calendar_days.py"
+  ],
+  "stdout": "100644 blob e723faccd626019743eb2d01c67de5942746f54b\tcalendar_days.py\n100644 blob 3f31166c4c9db917e0c558eb73519b0c86bffc1c\ttest_calendar_days.py\n100644 blob 9a8b63e84f5ac56688a1c9978aaa9c159dd35b06\ttest_inclusive_calendar_days.py\n",
+  "stderr": "",
+  "exit_code": 0,
+  "elapsed_seconds": 0.0014856470002087008
+}

@@ -1,0 +1,18 @@
+Python -c probe source:
+from datetime import date
+from calendar_days import days_inclusive
+for start, end, expected in [("2026-11-14","2026-11-14",1),("2026-11-14","2026-11-15",2),("2026-11-14","2026-11-20",7),("2026-01-31","2026-02-01",2),("2026-12-31","2027-01-01",2),("2024-02-28","2024-03-01",3)]:
+    elapsed=(date.fromisoformat(end)-date.fromisoformat(start)).days
+    actual=days_inclusive(start,end)
+    print(f"[DEBUG-calendar-h1] {start}..{end}: actual={actual} elapsed={elapsed} inclusive_oracle={expected} elapsed_plus_one={elapsed+1}")
+    assert actual == elapsed and elapsed+1 == expected
+
+Actual output:
+[DEBUG-calendar-h1] 2026-11-14..2026-11-14: actual=0 elapsed=0 inclusive_oracle=1 elapsed_plus_one=1
+[DEBUG-calendar-h1] 2026-11-14..2026-11-15: actual=1 elapsed=1 inclusive_oracle=2 elapsed_plus_one=2
+[DEBUG-calendar-h1] 2026-11-14..2026-11-20: actual=6 elapsed=6 inclusive_oracle=7 elapsed_plus_one=7
+[DEBUG-calendar-h1] 2026-01-31..2026-02-01: actual=1 elapsed=1 inclusive_oracle=2 elapsed_plus_one=2
+[DEBUG-calendar-h1] 2026-12-31..2027-01-01: actual=1 elapsed=1 inclusive_oracle=2 elapsed_plus_one=2
+[DEBUG-calendar-h1] 2024-02-28..2024-03-01: actual=2 elapsed=2 inclusive_oracle=3 elapsed_plus_one=3
+
+exit_code=0

@@ -1,0 +1,4 @@
+# ADR-0001: Local JSON persistence
+Status: Proposed
+
+ユーザー指定のPython標準ライブラリ、ローカル単一ユーザーを満たすためhttp.serverとJSONファイルを採用する。thread lockと同一ディレクトリ一時ファイルからのatomic replaceで部分書込を避ける。複数プロセスやネットワーク公開は保証対象外。破損データはエラーで保持し自動破棄しない。独立実装方針レビューの対象。

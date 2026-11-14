@@ -1,0 +1,192 @@
+# Implementation Report: T-003
+
+- Task ID: T-003
+- Model: gpt-6-astra
+- Effort: high
+
+Report Schema: implementation-report/v2
+
+**Snapshot Notice**: The numbers, statuses, and paths below reflect this report's own authoring run. A later task edit or gate normalization may supersede them. The independent quality report is the authority for gate-time state.
+
+Run ID: 01a1b60a-8804-7c51-b20d-2361d0daa5b0
+
+## Target
+
+Approved T-003, Japanese task UI over completed T-001/T-002 backend. Parent owns status transitions, canonical report adoption and independent quality. Only admitted snapshot inputs and scoped outputs were used.
+
+- **Input manifest**: `reports/implementation/sqlite-task-board/T-003/task-input-manifest.json` — SHA-256: `2800f6caa95c5fa7a8a9936563655d8d2e761907bb0e02ab2882c557dcbeac30`
+
+## Summary
+
+Delivered plain Japanese HTML/JS, generated token CSS, responsive form/task rows and acknowledged-only CRUD. Native labelled controls, Unicode codepoint validation, literal text rendering, confirmation, focus restoration, retry/error states, serial mutations, strict DTO handling and 10s abort are implemented. README documents local operation, test prerequisites, restart and preservation/rollback.
+
+Actual Chromium browser acceptance passes 19 assertion groups spanning TEST-001–008. Full 37 storage/HTTP regression tests pass. Ruff, mypy, JavaScript syntax and Python compile pass. Runtime assets total 13,040 bytes. Backend, prior tests, frozen specs, earlier task evidence and task statuses were not edited.
+
+The admitted native identity and strong/high selection were supplied by the parent after host verification before handoff. USD 1.00 is the admitted planning estimate only, not a measured price. No model reselection, reviewer delegation, external sends or publication occurred.
+
+## Files Changed
+
+- static/index.html: semantic Japanese root, labelled form, feedback and task list.
+- static/app.js: strict server DTO client, codepoint validation and acknowledged CRUD, recovery and focus.
+- static/styles.css: all visual values consume tokens/derived layout variables.
+- design-system/build/tokens.css: generated approved tokens and derived layout/breakpoint declarations.
+- tests/browser_task_board.py: real Chromium acceptance, interception-based failures and real same-path process restart.
+- README.md: exact start/test/restart/rollback and local-only prerequisites.
+- Task work artifacts and distinct screenshot directories: actual execution evidence and comparison.
+
+## Tests Added Or Updated
+
+The full browser suite was written and genuinely failed against the absent UI, then committed as ec541c9ae7ee6c3fa451a9d993b15926ded3579a before production UI work. Original exact bytes/logs/command and git tree evidence remain immutable. Later test refinements add actual computed contrast, visible target diagnostics, failure-state comparisons, malformed DTO handling and final-row focus. The task-local addendum maps each requirement to named assertions and observations.
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `README.md` | `e93d6bc02f7d13cc9a89cfdd093ccc22c43d006aa042fae3aa67de9b7d53ad99` |
+| `design-system/build/tokens.css` | `78228df0223c2861c8d4679c568d0dd4b56415aaf461045c1a1f62050fcf37b3` |
+| `reports/implementation/sqlite-task-board/T-003/work/final-console/observations.json` | `2d14df85a97f99bb85307b89d77b170ef73a7dfd894f1fb9a1ecc3b3f62c5b67` |
+| `reports/implementation/sqlite-task-board/T-003/work/final-console/server.log` | `5dd4e254166893bfad45e08df8a2a49323153e5fd064cd1f480465b71a0be448` |
+| `reports/implementation/sqlite-task-board/T-003/work/final-console-command.json` | `d97e1c0298001a6fc39bf7b8fb7d628c60c311a9dc83f36397c70628b2fdbd14` |
+| `reports/implementation/sqlite-task-board/T-003/work/final-console.log` | `6d299c721675e5e9a2c9c1051cddb50a9235f1a006a77c7e913210baeac9ff45` |
+| `reports/implementation/sqlite-task-board/T-003/work/gate-incidents.md` | `4c758f6b0c48e572bbfa67ca6147d8d0fdcaf91d460105fb60ff9798c95621bb` |
+| `reports/implementation/sqlite-task-board/T-003/work/generate-tokens.py` | `b3e458825af1bd8cb6da4a058a62dbdfc35c4beb51aeed845be086776fdd1694` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-1/observations.json` | `fbe29688fff05065ef953d264d983fea2f1ad6e46883b876d148b007fe91ab51` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-1/server.log` | `94b753809251e7fdfe4ebb3b83bb13cfffe7449f4990a5c5f14dea5fabaa1ffd` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-2/observations.json` | `e5ca4952a3e60ccee14ab59a161d002830a40e62569e153b2e7b7e0c8f51d762` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-2/server.log` | `854dae1a464fd1346d9840dfe04414f8a4d00ba6b317676f7e34251f6bb15f5a` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-2-command.json` | `1ea93174b6e7660a2b82bae5ffa5ea59ce12b6e1a38d5c04455ec5996b9c2430` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-2.log` | `c5838233a8b8f95df279146080f400a79660627dd29e177b5288ed4c517a98d4` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-3/observations.json` | `df7e5cea295802ffb5ed1f4a2b0e127357e4779d0cb22f8026a431f911a0cec3` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-3/server.log` | `11de4852942c77840729a6dd0e82dadba91388a8044d26510efface46fddbced` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-3-command.json` | `ec9a82e55757e71337eb86198abde329d3b8a53456a5ab5881b941d9d52f2712` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-3.log` | `79f8746998db657ece332f195381c3be3929ced27926136fefaaf3f34ce54761` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final/observations.json` | `ffcf38051460de51d87317062a4d9fe24e812ea5c58659bfc5e01c6a2ca4e03d` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final/server.log` | `2c864a906174231a16e78e72c730328c9d7d6d7942a56cc244e3e3a47f690847` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final-command.json` | `02c0bd2ce35c39288f3778a00ebeeb7cdbe7ee5c83639a2a5c9f2c24a2455d61` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final-pass/observations.json` | `09fa072774373e1a0f4499791c30049c665a0f5334820ef89fa839141c5ec75b` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final-pass/server.log` | `517b6ada58d18e56d76908fb145e1be8597f23779317f488dca49849f44d96cd` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final-pass-command.json` | `88b0a605557a104c4d5b98ec4cf3c0b17ba6e98b7d78da8f6331b4028979b7e2` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final-pass.log` | `1dcd0924e7a717864536b9d6dfdc286c8386d34f0576a580c713d3308757dbed` |
+| `reports/implementation/sqlite-task-board/T-003/work/green-final.log` | `1cb94642ae38916a66f2883540b6aa236799adfb420c113e77740f54dc02d77e` |
+| `reports/implementation/sqlite-task-board/T-003/work/handoff-checks.json` | `907e32ddc77f9d17ae70c858f08218455cb4c6f5c954af14a068ce21c742c966` |
+| `reports/implementation/sqlite-task-board/T-003/work/red/observations.json` | `5d96ee2a39a51be03bbc15839a1403abe6ea6ccfffc6e93317ae1fa6f2faf0c7` |
+| `reports/implementation/sqlite-task-board/T-003/work/red/server.log` | `28990c5b9868725870a1b92c7d868f91d63e25f270485b9a588e3b03f2ca67a4` |
+| `reports/implementation/sqlite-task-board/T-003/work/red-command.json` | `c6f00228a59a3f76ee3acda29b287a223f89b3a24e8577731a8c4be71fed67f2` |
+| `reports/implementation/sqlite-task-board/T-003/work/red-git-chronology.json` | `765c6b3a0f857c90d98bda9fc43ae6375d79ad00d4aeb301cced07091ccb9139` |
+| `reports/implementation/sqlite-task-board/T-003/work/red-test.py.txt` | `498de9e6d75cbee98db2901c0f924003322999e92325a1cd96f8e6dba5793e6f` |
+| `reports/implementation/sqlite-task-board/T-003/work/red.log` | `90adefa4cd584d8586aed38d7ca481fd8d876fdc17aa78666f84f97f29024f35` |
+| `reports/implementation/sqlite-task-board/T-003/work/regression-command.json` | `36d1f95c220b0092fdfc3c090b05aa5d87cb271f73c13f4ba76a176ba901eb15` |
+| `reports/implementation/sqlite-task-board/T-003/work/regression.log` | `472eb19340a0ba3baeb8710c9b3047f37cdb9c85c467907934795abcf40bfe04` |
+| `reports/implementation/sqlite-task-board/T-003/work/static-checks-1.json` | `93597589a1bd1344112090aca8ce51a11601470a6615ad773cb954f916f6510d` |
+| `reports/implementation/sqlite-task-board/T-003/work/static-checks-2.json` | `b560d92e9844cf1bba32b9fad843f897f19fb58134d48b228442d1cf1bb2d88c` |
+| `reports/implementation/sqlite-task-board/T-003/work/static-checks-3.json` | `26c987d75cdaf45ed6494cbd46ee7519706c2df4c1981b0a51708e828a77848b` |
+| `reports/implementation/sqlite-task-board/T-003/work/static-checks-console.json` | `1acadf164c62c26538629f5afd42fbbfb711e38e80a3995cc7badcc75f934119` |
+| `reports/implementation/sqlite-task-board/T-003/work/static-checks-final.json` | `2426d4ba05df2cf993003ecf62e26d39570fd5806cecb0ab06d390bea62ce73a` |
+| `reports/implementation/sqlite-task-board/T-003/work/verification-addendum.md` | `b150d7f26dd115b5fcc906eaedff046ebaccd719da8876a765136a9b572cd894` |
+| `reports/implementation/sqlite-task-board/T-003/work/visual-comparison.md` | `9e72020e45b45907883560a92572cd964bd6842241998705163d5e700cc4f1b1` |
+| `reports/visual-evidence/sqlite-task-board/early-desktop.png` | `c7cb7e5976bda8b39b734da49ca1cb5842d3117fc163b9bc502c95f4d4de9c05` |
+| `reports/visual-evidence/sqlite-task-board/early-mobile.png` | `5219dc7bb0ec39c744d3d4638eebd0e91406935be46a04fae8d03da02680b819` |
+| `reports/visual-evidence/sqlite-task-board/final/desktop.png` | `5df59f418bbf472761fb186e33b7acaf8615bb6f9a90e7804820f7cb2c2e2ab6` |
+| `reports/visual-evidence/sqlite-task-board/final/early-desktop.png` | `4453491084f9eea9fd0c9c50cace6ab21ccef68660181e82b7bc79a41271e7e5` |
+| `reports/visual-evidence/sqlite-task-board/final/early-mobile.png` | `e806501c5f4ea3f865244b789f8c5be4addf4fefb95b7ef2d15892d6dcad08ac` |
+| `reports/visual-evidence/sqlite-task-board/final/empty.png` | `81736ec99d4954bce6cfcb0ad331fe3d8931b2d734c0d9d04aa068fe4b4cf7ba` |
+| `reports/visual-evidence/sqlite-task-board/final/loading.png` | `c26e71aabf4f7f7f5ec00fee82389c1d30f94e0480694c806bf342b87b440447` |
+| `reports/visual-evidence/sqlite-task-board/final/mobile.png` | `9ed99c778efb99b4e53a4f5e58d95f098c1c349879f545bf6f5892f1c60e53f2` |
+| `reports/visual-evidence/sqlite-task-board/final/read-error.png` | `bf0c805da79c46be58f2fce3e3f9cfb66b954f273cb01cd65965d12285efa8e0` |
+| `reports/visual-evidence/sqlite-task-board/final/write-error.png` | `bb9e502239a4521095a8cc26c149f8a45fa8706dfa5a4d7e9c6b4810c076d018` |
+| `reports/visual-evidence/sqlite-task-board/final/zoom-200.png` | `b751850ecae13e949b52be325882969a3511ac22f192b02eed0b476b870ce7ee` |
+| `reports/visual-evidence/sqlite-task-board/final-console/desktop.png` | `5df59f418bbf472761fb186e33b7acaf8615bb6f9a90e7804820f7cb2c2e2ab6` |
+| `reports/visual-evidence/sqlite-task-board/final-console/early-desktop.png` | `4453491084f9eea9fd0c9c50cace6ab21ccef68660181e82b7bc79a41271e7e5` |
+| `reports/visual-evidence/sqlite-task-board/final-console/early-mobile.png` | `e806501c5f4ea3f865244b789f8c5be4addf4fefb95b7ef2d15892d6dcad08ac` |
+| `reports/visual-evidence/sqlite-task-board/final-console/empty.png` | `81736ec99d4954bce6cfcb0ad331fe3d8931b2d734c0d9d04aa068fe4b4cf7ba` |
+| `reports/visual-evidence/sqlite-task-board/final-console/loading.png` | `c26e71aabf4f7f7f5ec00fee82389c1d30f94e0480694c806bf342b87b440447` |
+| `reports/visual-evidence/sqlite-task-board/final-console/mobile.png` | `9ed99c778efb99b4e53a4f5e58d95f098c1c349879f545bf6f5892f1c60e53f2` |
+| `reports/visual-evidence/sqlite-task-board/final-console/read-error.png` | `bf0c805da79c46be58f2fce3e3f9cfb66b954f273cb01cd65965d12285efa8e0` |
+| `reports/visual-evidence/sqlite-task-board/final-console/write-error.png` | `bb9e502239a4521095a8cc26c149f8a45fa8706dfa5a4d7e9c6b4810c076d018` |
+| `reports/visual-evidence/sqlite-task-board/final-console/zoom-200.png` | `b751850ecae13e949b52be325882969a3511ac22f192b02eed0b476b870ce7ee` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/desktop.png` | `5df59f418bbf472761fb186e33b7acaf8615bb6f9a90e7804820f7cb2c2e2ab6` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/early-desktop.png` | `4453491084f9eea9fd0c9c50cace6ab21ccef68660181e82b7bc79a41271e7e5` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/early-mobile.png` | `e806501c5f4ea3f865244b789f8c5be4addf4fefb95b7ef2d15892d6dcad08ac` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/empty.png` | `81736ec99d4954bce6cfcb0ad331fe3d8931b2d734c0d9d04aa068fe4b4cf7ba` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/loading.png` | `c26e71aabf4f7f7f5ec00fee82389c1d30f94e0480694c806bf342b87b440447` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/mobile.png` | `9ed99c778efb99b4e53a4f5e58d95f098c1c349879f545bf6f5892f1c60e53f2` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/read-error.png` | `bf0c805da79c46be58f2fce3e3f9cfb66b954f273cb01cd65965d12285efa8e0` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/write-error.png` | `bb9e502239a4521095a8cc26c149f8a45fa8706dfa5a4d7e9c6b4810c076d018` |
+| `reports/visual-evidence/sqlite-task-board/final-pass/zoom-200.png` | `b751850ecae13e949b52be325882969a3511ac22f192b02eed0b476b870ce7ee` |
+| `reports/visual-evidence/sqlite-task-board/green-3/desktop.png` | `5df59f418bbf472761fb186e33b7acaf8615bb6f9a90e7804820f7cb2c2e2ab6` |
+| `reports/visual-evidence/sqlite-task-board/green-3/early-desktop.png` | `4453491084f9eea9fd0c9c50cace6ab21ccef68660181e82b7bc79a41271e7e5` |
+| `reports/visual-evidence/sqlite-task-board/green-3/early-mobile.png` | `e806501c5f4ea3f865244b789f8c5be4addf4fefb95b7ef2d15892d6dcad08ac` |
+| `reports/visual-evidence/sqlite-task-board/green-3/loading.png` | `c26e71aabf4f7f7f5ec00fee82389c1d30f94e0480694c806bf342b87b440447` |
+| `reports/visual-evidence/sqlite-task-board/green-3/mobile.png` | `9ed99c778efb99b4e53a4f5e58d95f098c1c349879f545bf6f5892f1c60e53f2` |
+| `reports/visual-evidence/sqlite-task-board/green-3/read-error.png` | `bf0c805da79c46be58f2fce3e3f9cfb66b954f273cb01cd65965d12285efa8e0` |
+| `reports/visual-evidence/sqlite-task-board/green-3/write-error.png` | `bb9e502239a4521095a8cc26c149f8a45fa8706dfa5a4d7e9c6b4810c076d018` |
+| `reports/visual-evidence/sqlite-task-board/green-3/zoom-200.png` | `b751850ecae13e949b52be325882969a3511ac22f192b02eed0b476b870ce7ee` |
+| `static/app.js` | `0ec74a38f3cfd5a12a14363553f9ce2fa93f2ac45013008dd15cc757fe52491d` |
+| `static/index.html` | `783345bbca1c98223cd81d5e9e0c0740bcd2dec213329a47c99cd0ef059768c4` |
+| `static/styles.css` | `1860ba454361dd372b21b1cdbb39c5b838c4cec41b69cb16d079195424354cc9` |
+| `tests/browser_task_board.py` | `4c600f4d824a926f47ec9c40e3cd3a45d079f54781ad94a15962d38dae8de6b1` |
+
+## Test Evidence
+
+- **Test Command**: python -B tests/browser_task_board.py --output reports/implementation/sqlite-task-board/T-003/work/final-console --screenshots reports/visual-evidence/sqlite-task-board/final-console
+- **Test Result**: PASS
+- **Test Evidence Path**: reports/implementation/sqlite-task-board/T-003/work/final-console/observations.json
+
+The command and exit 0 are persisted separately. All 19 assertion groups pass. Final real server PIDs were 58357 and 58565, both exit 0, using the same fresh `/tmp/task-board-browser-y1yx7szs/tasks.sqlite3`. Browser DOM titles/booleans and server rows match exactly across restart. Delivered browser DELETE sends Content-Length:0; intercepted mock DELETE is explicitly excluded from wire-header claims. Raw browser request/response observations and 4096/4097 body outcomes are preserved. Actual console events include type/text/location and scenario attribution: zero normal-path console errors, seven expected resource errors from deliberate 500/400/413 scenarios, and no uncaught page errors. An inline empty favicon avoids an undeclared favicon request.
+
+Measured 100-row list usability: 0.059399610s (<2s). Every normal UI add asserted <1s. Timeout recovery measured 10.492303775s; a held intercepted mutation was aborted without automatic retry. Environment: Python 3.12.14, Playwright 1.62.0, local Chromium 154.0.8037.57.
+
+## Visual Evidence
+
+`reports/visual-evidence/sqlite-task-board/final-console/` holds populated desktop/mobile, long-title desktop/mobile, 200% CSS page zoom, empty, loading, read-error and write-error captures. `work/visual-comparison.md` records direct image-viewer comparison to the actual supplied ImageGen reference and approved tokens. No Claude Preview claim is made.
+
+Actual accessibility snapshots, geometry, focus and computed-style observations accompany the screenshots. Visible action targets are ≥44px. Minimum measured text contrast is 5.0017:1, controls 3.3190:1. Five capture rounds were sufficient; original early images are preserved. No unresolved scoped visual mismatch was identified. Screen-reader audio and Chrome user-menu zoom are not claimed; live-region behavior is checked through attributes/content/accessibility snapshots, and the 200% rendering test uses browser CSS page zoom.
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+One admitted task attempt contained the expected Red and several preserved test-harness corrections: green-1 synchronous check() versus acknowledgment semantics; green-2 hidden retry in visible-target geometry; expanded green-final intercepted DELETE versus actual wire framing. green-3 and final-pass are successful; final-console adds the explicit console checks and also passes. No application failure was hidden or backend rewritten. Tool availability/import-resolution errors are preserved and resolved in the final scoped checks. See gate-incidents.md for the real shell-hook error and reset/resume provenance.
+
+## Isolation Evidence
+
+- **Scratch Root**: /workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/implementation/sqlite-task-board/T-003/work
+- **Run ID**: 01a1b60a-8804-7c51-b20d-2361d0daa5b0
+- **Session ID**: 01a1b60a-87de-77e2-89f4-2396094d6d78
+- **Agent Instance ID**: 01a1b60a-87de-77e2-89f4-2396094d6d78
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Regression Tests Run
+
+`python -B -m unittest discover -s tests -p 'test_*.py' -v`: 37 tests, 14.903s, exit 0. Exact command/log preserved. This covers byte framing, malformed input, storage safety and rollback including invalid existing DB preservation. Browser acceptance is additional real execution, not replaced by HTTP checks.
+
+Pinned input checks remain in handoff-checks.json. Final `static-checks-console.json`: Ruff 0.17.4 clean; mypy 2.4.1 clean with the actual Playwright Python interpreter; node --check clean. Python compile also passes in static-checks-console.json. All 36 immutable snapshot hashes and current pinned backend/regression source hashes match admission. Ephemeral mypy cache is non-evidence and omitted from Outputs.
+
+## Specification Differences
+
+None to approved functional/visual/API scope. Native checkbox appearance is styled using approved tokens while retaining input semantics and a ≥44px label hit area. CSS breakpoint/layout values are generated from the approved spacing scale and the explicit <640px responsive requirement. No architecture/API/spec changes.
+
+## Unresolved Items
+
+Independent evaluator and quality verdict remain parent-owned. The project has no dedicated frontend token-style lint configuration; follow-up maintenance may adopt one. This task includes source review and computed token evidence without adding unrelated lint infrastructure.
+
+## Quality Gate Focus
+
+Independently verify the admitted source hashes, authentic Red chronology, current browser tests, wire framing versus mock routes, exact restart state and the measured visual/accessibility assertions. Review UI logic for failed mutations and malformed acknowledgments. Source self-review found no unsafe title HTML interpolation, automatic mutation replay, swallowed success, fixture-only runtime paths, unused fallback, backend mutation or unapproved output.
+
+## Working Notes
+
+No secondary helper delegation. Source of truth was the parent-admitted immutable snapshot. Parent instructions restricted all writes to scoped manifest outputs and reserved status/report adoption. The account-limit interruption resumed in the same task context under explicit current authorization, with files/hash evidence reloaded. Human-visible early screenshots were shared before completion; failed runs are retained.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Parent adopts report and proceeds through independent quality gate.
+- **Unresolved Items**: Independent verdict; optional future token-style lint maintenance.

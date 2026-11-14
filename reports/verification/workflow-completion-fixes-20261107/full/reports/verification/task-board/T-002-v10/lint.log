@@ -1,0 +1,4 @@
+$ /workspace/.tools/sdd-forge-python/bin/ruff check --no-cache server.py tests/test_http.py
+All checks passed!
+
+EXIT_CODE=0

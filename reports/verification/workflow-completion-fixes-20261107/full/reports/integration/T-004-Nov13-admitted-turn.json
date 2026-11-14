@@ -1,0 +1,6 @@
+{
+  "turn_id": "01a1d322-a0b5-78b2-8c73-d3e6c045bfef",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed"
+}

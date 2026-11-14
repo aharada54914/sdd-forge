@@ -1,0 +1,33 @@
+ticket_id: RT-0001
+status: closed
+type: test-gap
+severity: critical
+target:
+  feature: sqlite-task-board
+  task: T-001
+  files:
+    - reports/integration/quality-t001-product-2/evaluator.txt
+    - reports/integration/quality-t001-product-2/native-events.jsonl
+summary: Installed native evaluator rejected canonical identity and could not execute hash tools
+problem: |
+  The installed product launcher allocated gpt-6-astra/high with named
+  sdd_manifest_review permissions, preflighted and reserved genuine native ID
+  01a1b5ed-794f-7ac1-8cc3-daf26e0313e7. Canonical readback passes.
+  The evaluator returned NEEDS_WORK and one Critical launch finding because
+  run_id equals host_session_id. It did not inspect substantive product inputs.
+  Its python3 and sha256sum commands both returned 127, command not found.
+  This is preserved system-failure evidence, not an adopted product verdict.
+expected_fix:
+  - Supervisor aligns installed evaluator identity instructions with canonical launcher/validator semantics.
+  - Supervisor establishes supported native read-only hash-tool execution without weakening permissions or hooks.
+  - Rerun installed product quality evaluator with a fresh genuine identity and unchanged product inputs unless ordinary fixes require new evidence.
+references:
+  - evidence/t001-evaluator-canonical-readback.json
+  - evidence/t001-evaluator-command-audit.json
+  - reports/quality-gate/T-001/system-failure-disposition.json
+  - reports/quality-gate/20261107-T-001-system-failure.md
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1
+
+resolution: Supervisor repaired installed delivery; genuine product-5 evaluator completed supported inspection and passed canonical readback.

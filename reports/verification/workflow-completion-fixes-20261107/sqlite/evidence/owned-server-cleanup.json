@@ -1,0 +1,8 @@
+{
+  "captured_at": "2026-11-13T05:45:57.360037+00:00",
+  "workspace": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed",
+  "method": "Linux /proc argv contains app.py and process cwd matches this isolated SQLite fixture",
+  "remaining_app_server_count": 0,
+  "processes": [],
+  "scope": "Owned SQLite fixture app servers only; active native verification session is not an app server."
+}

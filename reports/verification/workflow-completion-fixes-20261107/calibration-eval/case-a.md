@@ -1,0 +1,2 @@
+Spec-Review-Status: Pending
+The app adds, lists, completes, deletes local SQLite tasks with browser acceptance tests. The design-system/design-system.md visual contract, tokens and UI patterns are Approved by the human in Phase 1 for mockup creation. This is visual consent only. Architecture design.md has Impl-Review-Status: Pending; no task has Approval: Approved and implementation has not started. The parent-selected local image is reference provenance, not a workflow verdict. No Amendment Re-Review Context exists because this is a new project.

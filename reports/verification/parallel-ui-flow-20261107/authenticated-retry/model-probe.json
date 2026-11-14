@@ -1,0 +1,11 @@
+{
+  "cli_version": "0.159.2",
+  "authentication": "user_completed_device_authorization",
+  "auth_source": "separate local login profile; no credentials copied into report",
+  "invocation": "CODEX_HOME=<reauth-profile> verify-codex exec --skip-git-repo-check --json <OK-only prompt>",
+  "thread_id": "01a1b570-5a18-7653-bf5f-bdfe00175d22",
+  "assistant_response": "OK",
+  "terminal_event": "turn.completed",
+  "input_tokens": 16421,
+  "output_tokens": 5
+}

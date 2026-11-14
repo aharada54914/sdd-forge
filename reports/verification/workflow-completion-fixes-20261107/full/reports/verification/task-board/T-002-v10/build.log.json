@@ -1,0 +1,7 @@
+{
+  "command": "python3 -B -c 'from pathlib import Path; [compile(Path(p).read_bytes(),p,\"exec\") for p in (\"server.py\",\"tests/test_http.py\")]; print(\"Compiled HTTP source and tests\")'",
+  "exit_code": 0,
+  "started_at": "2026-11-13T04:26:38.629078+00:00",
+  "finished_at": "2026-11-13T04:26:38.656633+00:00",
+  "evidence": "reports/verification/task-board/T-002-v10/build.log"
+}

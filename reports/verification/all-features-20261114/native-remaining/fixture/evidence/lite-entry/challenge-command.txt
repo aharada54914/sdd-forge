@@ -1,0 +1,59 @@
+bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.sh --emit-challenge
+{
+  "canary_target": "sdd/.hook-canary-sentinel",
+  "capture_instructions": {
+    "claude-code": "Replace raw_request and raw_result with the verbatim native tool_use and matching tool_result objects for your one Write attempt. Preserve their real id/tool_use_id and exact content; the Write content must carry this challenge nonce. Keep executed:false when the hook blocks the Write; executed means the file was actually written, not merely attempted. Never infer or invent a numeric exit code or tool ID from prose. If the host does not expose these native objects, capture them from this session's own host event stream before verification; unavailable capture is not HOOK_ACTIVE.",
+    "copilot-cli": "Select the template or alternative exposed by this host. Replace raw_events with the verbatim tool.execution_start and matching tool.execution_complete objects from that one native dispatch. Preserve the actual model fields; Auto evidence does not establish a fixed-model run. An empty pair, unavailable tool, malformed-payload denial, or model prose is not activation evidence."
+  },
+  "nonce": "154b88e6f9b9667eef60689807003589",
+  "recorded_result_template": {
+    "claude-code": {
+      "executed": false,
+      "nonce": "154b88e6f9b9667eef60689807003589",
+      "raw_request": null,
+      "raw_result": null,
+      "runtime": "claude-code",
+      "schema": "sdd-claude-host-denial/v1"
+    },
+    "copilot-cli": {
+      "executed": false,
+      "nonce": "154b88e6f9b9667eef60689807003589",
+      "raw_events": [],
+      "runtime": "copilot-cli",
+      "schema": "sdd-copilot-host-denial/v1"
+    }
+  },
+  "schema": "sdd-hook-challenge/v1",
+  "tool_call_alternatives": {
+    "copilot-cli": [
+      {
+        "tool_input": "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:154b88e6f9b9667eef60689807003589\n*** End Patch",
+        "tool_name": "apply_patch"
+      }
+    ]
+  },
+  "tool_call_template": {
+    "claude-code": {
+      "tool_input": {
+        "content": "sdd-hook-challenge:154b88e6f9b9667eef60689807003589",
+        "file_path": "sdd/.hook-canary-sentinel"
+      },
+      "tool_name": "Write"
+    },
+    "codex-cli": {
+      "tool_input": {
+        "patch": "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:154b88e6f9b9667eef60689807003589\n*** End Patch"
+      },
+      "tool_name": "apply_patch"
+    },
+    "copilot-cli": {
+      "tool_input": {
+        "file_text": "sdd-hook-challenge:154b88e6f9b9667eef60689807003589",
+        "path": "sdd/.hook-canary-sentinel"
+      },
+      "tool_name": "create"
+    }
+  }
+}
+
+exit_code=0

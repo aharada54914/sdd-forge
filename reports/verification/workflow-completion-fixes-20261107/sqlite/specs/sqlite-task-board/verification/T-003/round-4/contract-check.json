@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/check-contract.sh",
+    "specs/sqlite-task-board/verification/T-003.round-4.contract.json"
+  ],
+  "exit_code": 0,
+  "stdout": "Verification contract passed for task T-003.\n",
+  "stderr": ""
+}

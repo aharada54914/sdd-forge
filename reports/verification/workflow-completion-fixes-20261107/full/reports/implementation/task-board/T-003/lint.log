@@ -1,0 +1,10 @@
+Command: /workspace/.tools/sdd-forge-python/bin/ruff check --isolated --no-cache scripts/generate_tokens.py tests/test_tokens.py
+All checks passed!
+
+Exit code: 0
+
+Command: /workspace/.tools/sdd-forge-python/bin/ruff check --isolated --no-cache scripts/generate_tokens.py tests/test_tokens.py
+TASK_BOARD_TOKEN_SOURCE=/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/handoffs/task-board/T-003-registered/snapshot/design-system/design-tokens.json
+All checks passed!
+
+Exit code: 0

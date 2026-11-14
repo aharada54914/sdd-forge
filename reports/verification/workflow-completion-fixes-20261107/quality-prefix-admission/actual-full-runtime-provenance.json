@@ -1,0 +1,23 @@
+{
+  "created_at": "2026-11-13T04:23:13.515220+00:00",
+  "base": "runtime-snapshot-v9",
+  "source_head": "2446d2e8fe566e53fa9d6a9e686bb84529d30cee",
+  "source_patch_not_yet_committed": true,
+  "changes": [
+    {
+      "path": "sdd-quality-loop/1.23.1/scripts/validate-review-context-set.sh",
+      "source": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "before_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+      "after_sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8"
+    },
+    {
+      "path": "sdd-quality-loop/1.23.1/scripts/validate-review-context-set.ps1",
+      "source": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "before_sha256": "2cc11cd65a55e9e6ec0fbaae4435c09e4298596b6c96b2b05519118096aebfbe",
+      "after_sha256": "127f8788f7ba4b7cd95e627f618ae7e663e36fb8d27d4967189754aa157e31d0"
+    }
+  ],
+  "inventory_sha256": "c2a1f5df9a015916d26fe111cfb45b518bf3697b59114891cb1bea0e9943a7d9",
+  "file_count": 281,
+  "validation": "admission_fix reported 39 paired scope tests and 65 role parity checks per runtime passed; wider regression ongoing"
+}

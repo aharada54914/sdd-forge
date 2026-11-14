@@ -1,0 +1,4 @@
+$ bash /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/integration/runtime-snapshot-v6/sdd-quality-loop/1.23.1/scripts/check-workflow-state.sh --repository-root /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed
+workflow-state: ok
+
+EXIT_CODE=0

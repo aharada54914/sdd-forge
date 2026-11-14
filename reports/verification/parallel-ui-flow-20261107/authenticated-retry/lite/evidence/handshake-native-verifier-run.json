@@ -1,0 +1,14 @@
+{
+  "command": [
+    "bash",
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.sh",
+    "--verify-response",
+    "--nonce",
+    "bac0face7312cdda14e7cf7dc5d5347d",
+    "--recorded-result",
+    "evidence/handshake-native-response.json",
+    "--runtime",
+    "codex-cli"
+  ],
+  "exit_code": 0
+}

@@ -1,0 +1,41 @@
+{
+  "task_id": "T-005",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "tier": "strong",
+  "run_id": "01a1d329-44c8-7c03-b2a6-1948de73796c",
+  "session_id": "01a1d329-44c8-7c03-b2a6-1948de73796c",
+  "agent_instance_id": "Hooke-01a1d329-44c8-7c03-b2a6-1948de73796c",
+  "isolation_mode": "fresh-agent",
+  "native_rollout": "/workspace/.tools/sdd-forge-dev/codex-verify/sessions/2026/11/13/rollout-2026-11-13T04-27-39-01a1d329-44c8-7c03-b2a6-1948de73796c.jsonl",
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
+  "execution_cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/handoffs/task-board/T-005-registered/snapshot",
+  "spec_revision": {
+    "specs/task-board/requirements.md": "e3bb16a156116a634309b4526afdf41f497d3ba23f4ef1c8767cd77288e812cc",
+    "specs/task-board/design.md": "c2b9d9feec9157ad694f75c8f00e5d510562db0906a51298b8f4d0f1af2ed37e",
+    "specs/task-board/tasks.md": "06488751d4940f1dc1b13bfbcea8ce512a8495f966da6b34198baadcc80d8571",
+    "specs/task-board/acceptance-tests.md": "48ca3798234dd0a0de0559b58c08c9bd6726a138830b5878794d20b2a77abb94",
+    "specs/task-board/traceability.md": "c493c8482036ba9ea5d43fc1987a08ac004c57656e92ea0fa23d776a65849246",
+    "specs/task-board/ux-spec.md": "d8b5ec25320b0143aad335c59a706be089baf27bbca4e28efd998db768498e79",
+    "specs/task-board/frontend-spec.md": "543d8eb6ae280daf0b00c8b046fd379b8b032b05ff0d059da1189cdabc2f1cc0",
+    "specs/task-board/infra-spec.md": "770aab00c90f878fc1d964d2bcea20eb219b75d1ee9601554e7851dd24e324e5",
+    "specs/task-board/security-spec.md": "b80c20b7e17f528b18f027cd2261d852782007b7cf2c6a4b58de1f70a39280d6",
+    "specs/task-board/mockups/imagegen-reference.png": "60049c2b9d49f059afbe50ec43cc0d0802bae75b15b5dde090c4acdaf00127d8",
+    "contracts/task-board.md": "9c13d8fbe035f0905121fbd2efc72813114fc5b4658ecd46ac314856c954f84f",
+    "design-system/design-tokens.json": "95136a25de43a22bc3841cf32b6d42daebb772d86210cb10f5d87a0dbd889775",
+    "design-system/design-system.md": "d669def181f97336f940658fcee61e6fc747457605f7580431e9259b82a7a7dd",
+    "design-system/ui-patterns.md": "761a98beaf22db4479385f8099888b145f7856cab5f919b0711bc4c5e1abd62a",
+    "design-system/build/tokens.css": "d8857bba9e25e88d8f3230f5eb9b2e5bee9a97d6f64c6e74fbd7e10e98fbffe7"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "playwright": "1.62.0",
+    "chromium": "154.0.8037.57",
+    "browser_executable": "/usr/bin/chromium",
+    "os": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "input_hashes_rechecked_unchanged": true,
+  "remaining_task_server_pids": [],
+  "checked_at": "2026-11-13T04:45:55.620770+00:00",
+  "preflight": "Parent confirmed structure check OK and git status/diff preservation; parent alone owns shared lifecycle."
+}

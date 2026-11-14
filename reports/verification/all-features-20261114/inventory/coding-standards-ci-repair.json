@@ -1,0 +1,216 @@
+{
+  "scope": "Local reproduction and minimal repair of native coding standards findings; remote CI logs unavailable through current blob route.",
+  "before": {
+    "language": "python",
+    "finding_count": 4,
+    "findings": [
+      {
+        "path": "plugins/sdd-review-loop/scripts/launch-codex-review.py",
+        "line": 10,
+        "column": 8,
+        "native_rule": "F401",
+        "rule_id": "CS-020",
+        "message": "`hashlib` imported but unused",
+        "tool": "ruff",
+        "version": "ruff 0.13.3",
+        "reference": "docs/contributor/coding-standards/common.md#cs-020"
+      },
+      {
+        "path": "tests/codex-review-launcher.tests.py",
+        "line": 3,
+        "column": 8,
+        "native_rule": "F401",
+        "rule_id": "CS-020",
+        "message": "`copy` imported but unused",
+        "tool": "ruff",
+        "version": "ruff 0.13.3",
+        "reference": "docs/contributor/coding-standards/common.md#cs-020"
+      },
+      {
+        "path": "tests/model-selector-package.tests.py",
+        "line": 9,
+        "column": 8,
+        "native_rule": "F401",
+        "rule_id": "CS-020",
+        "message": "`sys` imported but unused",
+        "tool": "ruff",
+        "version": "ruff 0.13.3",
+        "reference": "docs/contributor/coding-standards/common.md#cs-020"
+      },
+      {
+        "path": "tests/workflow-state-installed-root.tests.py",
+        "line": 5,
+        "column": 8,
+        "native_rule": "F401",
+        "rule_id": "CS-020",
+        "message": "`os` imported but unused",
+        "tool": "ruff",
+        "version": "ruff 0.13.3",
+        "reference": "docs/contributor/coding-standards/common.md#cs-020"
+      }
+    ]
+  },
+  "changes": "Remove exactly four unused Python imports; no rule, scope, suppression or runtime behavior change.",
+  "individual_language_scans_after_fix": [
+    {
+      "language": "python",
+      "selected_count": 304,
+      "finding_count": 0,
+      "status": "complete",
+      "tools": [
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 303
+        }
+      ],
+      "full_private_record_sha256": "aecdb75000b101d4ffacbb2f2fb9d6a7268bfdf3ddb0ddf2e900f7aa83c73916"
+    },
+    {
+      "language": "bash",
+      "selected_count": 277,
+      "finding_count": 0,
+      "status": "complete",
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 277
+        }
+      ],
+      "full_private_record_sha256": "9af499c46aa52c98c872c2b8af53e346e9414ed815e971edfc7a767193ee4621"
+    },
+    {
+      "language": "powershell",
+      "selected_count": 233,
+      "finding_count": 0,
+      "status": "complete",
+      "tools": [
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 233
+        }
+      ],
+      "full_private_record_sha256": "ad61150cc4b280e1694eac502f4ac3a99d3bfac1d74c5a43bd7bf1e73de37da0"
+    },
+    {
+      "language": "typescript",
+      "selected_count": 130,
+      "finding_count": 0,
+      "status": "complete",
+      "tools": [
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 130
+        }
+      ],
+      "full_private_record_sha256": "ba23adc270a6af926b77c834f99f26780b83989891c70d027b692596d0764904"
+    },
+    {
+      "language": "javascript",
+      "selected_count": 21,
+      "finding_count": 0,
+      "status": "complete",
+      "tools": [
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 21
+        }
+      ],
+      "full_private_record_sha256": "15d79e877952d6c0e9a500b4abf7ad79858a02c237b331b03a25abdacf4bcd1b"
+    }
+  ],
+  "targeted_tests": {
+    "codex_review_launcher": {
+      "tests": 17,
+      "skipped": 1,
+      "exit_code": 0,
+      "skip": "Explicit opt-in native Linux permissions probe not requested in this run."
+    },
+    "model_selector_package": {
+      "tests": 8,
+      "exit_code": 0
+    },
+    "workflow_state_installed_root": {
+      "tests": 5,
+      "exit_code": 0
+    },
+    "coding_native_controls": {
+      "tests": 12,
+      "exit_code": 0
+    }
+  },
+  "combined_profile_first_attempt": {
+    "exit_code": 1,
+    "reason": "Concurrent edit detected in scripts/sync-human-copy-mirrors.py; native audit correctly failed closed with finding_count:null."
+  },
+  "combined_profile_final": {
+    "exit_code": 0,
+    "status": "complete",
+    "finding_count": 0,
+    "population_count": 13846,
+    "selected_count": 965,
+    "inspected_count": 964,
+    "tools": [
+      {
+        "language": "bash",
+        "status": "executed",
+        "version": "0.11.0",
+        "target_count": 277
+      },
+      {
+        "language": "javascript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 21
+      },
+      {
+        "language": "powershell",
+        "status": "executed",
+        "version": "7.6.7",
+        "target_count": 233
+      },
+      {
+        "language": "python",
+        "status": "executed",
+        "version": "ruff 0.13.3",
+        "target_count": 303
+      },
+      {
+        "language": "typescript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 130
+      }
+    ],
+    "excluded": [
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+        "sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+        "tools": [
+          "ruff"
+        ],
+        "reason": "Deliberately invalid module verifies resolver reports a syntax error rather than importing it.",
+        "control": "tests/resolve-project-context-block.tests.sh"
+      }
+    ],
+    "manual_review": "unknown",
+    "manual_unreviewed_count": 13846,
+    "source_binding_sha256": "5713b1a4a30d4ae3bccb5a58c20788bc60e275197ae05ef6434eecc94793bf81",
+    "full_log_sha256": "496b8959e28e1e674f57ae920a039ac49ba1768aeef942767a9196e6fee08100",
+    "receipt_sha256": "c151ff27781d881f2b6922610ff3574328be3bcd101aca4f2e231a690f572deb"
+  },
+  "limits": [
+    "Final combined scan completed after shared runtime source freeze; individual earlier scans remain separate historical records.",
+    "Linux PowerShell analyzer execution is not a Windows execution proof.",
+    "Context/manual coding-standard reviews remain outside native enforced subsets."
+  ]
+}

@@ -1,0 +1,23 @@
+$ git rev-parse HEAD
+0f8e6ea1db10db84220377bf4e86002d5e4f4202
+EXIT CODE: 0
+
+$ git show --format=fuller --stat HEAD
+commit 0f8e6ea1db10db84220377bf4e86002d5e4f4202
+Author:     SDD Verification Fixture <sdd-verification@example.invalid>
+AuthorDate: Sat Nov 7 12:07:35 2026 +0000
+Commit:     SDD Verification Fixture <sdd-verification@example.invalid>
+CommitDate: Sat Nov 7 12:07:35 2026 +0000
+
+    test: define transactional task store behavior (T-001 RED)
+
+ tests/test_store.py | 291 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 291 insertions(+)
+EXIT CODE: 0
+
+$ git ls-tree -r --name-only HEAD
+tests/test_store.py
+EXIT CODE: 0
+
+$ git diff --check
+EXIT CODE: 0

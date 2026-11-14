@@ -8,6 +8,7 @@ Run this after editing a repository-shared file and before pushing:
 
 It copies live bytes over every mirror classified STALE by
 ``scripts/human_copy_mirrors.py`` and rewrites the affected ``MANIFEST.sha256``
+or ``MANIFEST.sha256.candidate``
 lines in place, preserving order and every untouched entry.
 
 What it will not do
@@ -74,13 +75,15 @@ def main(argv):
         payload = open(os.path.join(root, rel), "rb").read()
         with open(staged, "wb") as handle:
             handle.write(payload)
-        if rule != "manifest":
-            continue
-        manifest = os.path.join(root, bundle, "MANIFEST.sha256")
+        manifest_name = "MANIFEST.sha256" if rule == "manifest" else "MANIFEST.sha256.candidate"
+        manifest = os.path.join(root, bundle, manifest_name)
         by_manifest.setdefault(manifest, {})[rel] = _sha_bytes(payload)
 
     unregistered = []
     for manifest, fresh in by_manifest.items():
+        if not os.path.isfile(manifest):
+            unregistered.extend((os.path.relpath(manifest, root), p) for p in fresh)
+            continue
         lines = open(manifest, encoding="utf-8").read().splitlines()
         out, rewritten, seen = [], 0, set()
         for line in lines:

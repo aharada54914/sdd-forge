@@ -1,0 +1,67 @@
+{
+  "observedAt": "2026-11-14T05:07:43.784706+00:00",
+  "scope": "Actual three source workspaces plus an explicitly disposable mutation probe; real HTTP loop, exact site Worker with local in-memory R2, Chromium UI. Not production authentication or persistence proof.",
+  "checks": [
+    "real three workspaces collect nine Done tasks without ID collisions plus explicit probe",
+    "filesystem write automatically published and observed by existing five-second UI poll without refresh",
+    "source disappearance publishes failure while retaining last-good content in browser",
+    "source recovery automatically restores fresh state",
+    "MCP registered taskless feature retained without fabricated task or removal",
+    "mobile no overflow and no JavaScript errors",
+    "derived history contains actual source change, failure and recovery",
+    "automatic publisher health reports running after recovery",
+    "bounded process shutdown stops publication; no daemon falsely claimed",
+    "actual stopped collector becomes visibly stale after real source-age threshold",
+    "publisher restart retains unchanged content age and advances source observation",
+    "project mismatch refused before writing and credential never logged",
+    "original lite/full/SQLite task files unchanged"
+  ],
+  "observations": [
+    {
+      "attemptedAt": "2026-11-14T05:05:42.129836+00:00",
+      "revision": "db4c80a426854b55c2e9a88dc5a6d080e9780a2d321dfb7f505505a8a3bab75f",
+      "error": null
+    },
+    {
+      "attemptedAt": "2026-11-14T05:05:42.129836+00:00",
+      "revision": "db4c80a426854b55c2e9a88dc5a6d080e9780a2d321dfb7f505505a8a3bab75f",
+      "error": null
+    },
+    {
+      "attemptedAt": "2026-11-14T05:06:28.837812+00:00",
+      "revision": "db4c80a426854b55c2e9a88dc5a6d080e9780a2d321dfb7f505505a8a3bab75f",
+      "error": "source-collection-failed"
+    },
+    {
+      "attemptedAt": "2026-11-14T05:06:34.341971+00:00",
+      "revision": "72b8e5cfff15bf68afa131e3085d6bef81144e632c462038f2f3ccf634f32191",
+      "error": null
+    },
+    {
+      "attemptedAt": "2026-11-14T05:06:39.552963+00:00",
+      "revision": "d3144dcad5d72af4625aff61e68145cc48d34940fcdce4dd3ee4d64e404c18a9",
+      "error": null
+    },
+    {
+      "attemptedAt": "2026-11-14T05:06:41.010737+00:00",
+      "revision": "72b8e5cfff15bf68afa131e3085d6bef81144e632c462038f2f3ccf634f32191",
+      "error": null
+    }
+  ],
+  "originalTaskHashes": {
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/lite-task-board-fixed/specs/task-board/tasks.md": "e43cfb0d3b22506cfc0873a0cfb9e3f81442624006491536b9ec237908d94847",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/specs/task-board/tasks.md": "33bde02bfe1c1f4bfa01efc4896d80ed8e116d789c67db8747d3f43356b6df7c",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/specs/sqlite-task-board/tasks.md": "971b9851c6bd0191a3a707c49b340d5cef0f173ba2e685199b93df19c513d3dc"
+  },
+  "publisherCredential": "synthetic loopback-only test token, not production",
+  "workerSha256": "7618572f2c706ed16d8208911a1f72b6a85cb5f7ae4cf48c6fc06c56ab2b90e8",
+  "collectorSha256": "84f45ae0d746fa6ed4d9784883c7d3539e245e87e0604b91369726ebbade460d",
+  "adapterSha256": "487c14bf8638e6188427d8bcabb5d781bb82fcdb3f387cd683502e78660f608a",
+  "sourceHashes": {
+    "/workspace/sites/sdd-forge-status-audit/.sites-checkout/scripts/collect-progress.py": "84f45ae0d746fa6ed4d9784883c7d3539e245e87e0604b91369726ebbade460d",
+    "/workspace/sites/sdd-forge-status-audit/.sites-checkout/scripts/read-workflow-metadata.mjs": "487c14bf8638e6188427d8bcabb5d781bb82fcdb3f387cd683502e78660f608a",
+    "/workspace/sites/sdd-forge-status-audit/.sites-checkout/worker/index.js": "7618572f2c706ed16d8208911a1f72b6a85cb5f7ae4cf48c6fc06c56ab2b90e8",
+    "/workspace/sdd-forge/mcp/sdd-forge-mcp/dist/index.js": "345d30e6e36315c6b06e39df5602d01ee3d6aa4a1c631760a6199449c8e807f8"
+  },
+  "metadataMode": "real MCP stdio"
+}

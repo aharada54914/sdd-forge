@@ -1,0 +1,7 @@
+{
+  "command": "git ls-tree -r 398a70149c7f9da9ef8dc28faa04e5a98ea1d8ca",
+  "exit_code": 0,
+  "started_at": "2026-11-13T04:31:37.957686+00:00",
+  "finished_at": "2026-11-13T04:31:37.959860+00:00",
+  "evidence": "reports/verification/task-board/T-002-red-binding/red-tree.log"
+}

@@ -1270,8 +1270,24 @@ function sudoActive() {
   return false;
 }
 
+function shellIsEvidenceWrite(toolName, command, directories) {
+  if (!['bash', 'shell', 'exec_command', 'exec'].includes(toolName.toLowerCase()) || typeof command !== 'string') return false;
+  try {
+    const result = require('child_process').spawnSync('python3', ['-I', '-B', path.join(__dirname, 'classify-evidence-write.py')], {
+      input: JSON.stringify({command, root: directories.length ? directories[directories.length - 1] : process.cwd()}),
+      encoding: 'utf8', timeout: 3000, maxBuffer: 65536,
+    });
+    return !result.error && result.status === 0 && JSON.parse(result.stdout) === true;
+  } catch (_) { return false; }
+}
+
 function looksLikePatch(command) {
-  return typeof command === 'string' && command.includes('*** Begin Patch');
+  if (typeof command !== 'string' || !command.includes('*** Begin Patch')) return false;
+  if (command.trimStart().startsWith('*** Begin Patch')) return true;
+  const tokens = tokenizeShellCommand(command);
+  // Quoted diagnostic evidence is data; unknown syntax and patch carriers stay conservative.
+  return tokens === null || tokens.some(([kind, text]) =>
+    kind === 'word' && /(?:^|[^A-Za-z0-9_.-])apply_patch(?:[^A-Za-z0-9_.-]|$)/.test(text));
 }
 
 function patchIncreases(patch) {
@@ -2238,7 +2254,7 @@ async function main() {
     // Check 2b: Approval guard (bypassed by valid sudo).
     // Reset global regex state before use.
     APPROVAL_RE.lastIndex = 0;
-    if (approvalIncreases(payload) && !sudoActive()) {
+    if (approvalIncreases(payload) && !sudoActive() && !shellIsEvidenceWrite(toolName, toolInput.command, directories)) {
       emitDecision('deny', APPROVAL_MSG, mode);
     }
 

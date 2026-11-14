@@ -1,0 +1,31 @@
+✔ json: shared transport authenticates once and rejects status before body reads (4.815632ms)
+✖ text: shared transport authenticates once and rejects status before body reads (1.038383ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.169901
+
+✖ failing tests:
+
+test at dist-test/tests/error-paths/shared-transport.test.js:6:5
+✖ text: shared transport authenticates once and rejects status before body reads (1.038383ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'upstream-error'
+  - 'auth-missing'
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/ci-mcp/dist-test/tests/error-paths/shared-transport.test.js:28:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'upstream-error',
+    expected: 'auth-missing',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

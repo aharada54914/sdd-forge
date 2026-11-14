@@ -273,13 +273,13 @@ class FixedLaunchTests(unittest.TestCase):
         self.data['allowed_input_manifest'].append(dict(path=name, sha256=self.transport.sha(target)))
         real_run = subprocess.run
         def canonical_run(argv, **kwargs):
-            if argv[:3] == ['rtk', 'proxy', 'bash']:
+            if (argv[:3] == ['rtk', 'proxy', 'bash'] or argv[:1] == ['bash']):
                 return subprocess.CompletedProcess(argv, 0)
             return real_run(argv, **kwargs)
         with patch.object(self.transport.subprocess, 'run', side_effect=canonical_run):
             self.assertEqual(self.binding()['inventory'], self.inventory)
         with patch.object(self.transport.subprocess, 'run', side_effect=lambda argv, **kw:
-                subprocess.CompletedProcess(argv, 1) if argv[:3] == ['rtk', 'proxy', 'bash']
+                subprocess.CompletedProcess(argv, 1) if (argv[:3] == ['rtk', 'proxy', 'bash'] or argv[:1] == ['bash'])
                 else real_run(argv, **kw)):
             with self.assertRaisesRegex(ValueError, 'canonical normalized task verification failed'):
                 self.binding()

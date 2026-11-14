@@ -1,0 +1,8 @@
+{
+  "plugins/sdd-quality-loop/references/quality-gate-calibration.md": "3de46099cef3e08ead47bad906db0bdaf7784eab3d4617db5d642077d3f3af95",
+  "plugins/sdd-quality-loop/agents/evaluator.md": "e93de02ac6fca5e4131746efdf0229fce503fb088130a0a1ea535adb601037bd",
+  "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md": "2114fbab9535b3224788a7838b1f7442b84a46f70478d1e5ef17bcb5dbe75a76",
+  ".codex/agents/sdd-evaluator.toml": "258feac86702694f6e1f3c0da3f3fef030a1d6426655421146c234d00a5188ba",
+  "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "764f81e96227280b7f39ba862295f8e3f999b569b4279cd9117c4c36b6fa2a63",
+  "tests/quality-loop-calibration.tests.sh": "d26a4d835bfdbe16cfc1b7a77528bb8f3219aa60548e00c13cb545bfab4e1183"
+}

@@ -1,0 +1,38 @@
+{
+  "observed_at": "2026-11-13T04:37:31.199428+00:00",
+  "report_path": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/implementation-resume-false-positive/original-report.md",
+  "report_sha256": "5bb928bbee3b1ed5ee165c912393739d01b1a8d606d2cdf0b037f8371836f2d6",
+  "report_unchanged": true,
+  "runs": [
+    {
+      "kind": "installed_before",
+      "command": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-implementation/1.23.1/scripts/validate-implementation-report.sh",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/implementation-resume-false-positive/original-report.md"
+      ],
+      "validator_sha256": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "IMPLEMENTATION_REPORT_FIELD: isolation narrative contradicts declared mode\n"
+    },
+    {
+      "kind": "source_after",
+      "command": [
+        "bash",
+        "/workspace/sdd-forge/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/implementation-resume-false-positive/original-report.md"
+      ],
+      "validator_sha256": "17df050152304f6d7eddadc49ae77b0504cfba1b6d220d38dce620a390baaf42",
+      "exit_code": 0,
+      "stdout": "IMPLEMENTATION_REPORT_OK\n",
+      "stderr": ""
+    }
+  ],
+  "actual_context_observation": {
+    "bound_identity": "01a1b60a-87de-77e2-89f4-2396094d6d78",
+    "resumed_same_context": true,
+    "latest_turn_id": "01a1d322-5180-7f20-b6b8-8027e343a1b8",
+    "provenance": "evidence/t003-resumed-native-context.json; existing task identity/manifest binding remains independently enforced"
+  }
+}

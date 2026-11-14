@@ -1,0 +1,15 @@
+{
+  "command": [
+    "bash",
+    "reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/generate-evidence-bundle.sh",
+    "specs/sqlite-task-board/verification/T-003.final.contract.json",
+    "reports/quality-gate/20261113-T-003-cycle-4-pass.md",
+    ".",
+    "specs/sqlite-task-board/verification/T-003.evidence.json"
+  ],
+  "exit_code": 0,
+  "stdout": "specs/sqlite-task-board/verification/T-003.evidence.json\nGenerated evidence bundle for T-003: 23 artifact(s), commit 50170859b165  [dirty]\n",
+  "stderr": "",
+  "started_at": "2026-11-13T05:40:29.345765+00:00",
+  "finished_at": "2026-11-13T05:40:29.391053+00:00"
+}

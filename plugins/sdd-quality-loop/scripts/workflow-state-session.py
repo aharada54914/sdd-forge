@@ -24,7 +24,7 @@ if sys.platform == 'linux':
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 GATE = HERE / 'check-workflow-state.sh'
-AUDITED_GATE_SHA256 = '8ddf68a6dea4adc4193007db61e4a024d3ea4b7cf50a9e75cc97885757b042be'
+AUDITED_GATE_SHA256 = '9d252c029f5c21b8f474081ffa22843edfd55b855576cb3a8d04455c9620f58f'
 TOOLS = ('bash', 'jq', 'awk', 'find', 'iconv', 'sha256sum', 'cat', 'dirname', 'basename',
          'head', 'sed', 'grep', 'tr', 'sort', 'mktemp', 'rm', 'rmdir', 'cmp', 'cut', 'wc', 'tail', 'uniq')
 ENVIRONMENT = {'PATH': '/usr/bin', 'LC_ALL': 'C', 'LANG': 'C', 'TZ': 'UTC', 'HOME': '/nonexistent', 'TMPDIR': '/tmp'}

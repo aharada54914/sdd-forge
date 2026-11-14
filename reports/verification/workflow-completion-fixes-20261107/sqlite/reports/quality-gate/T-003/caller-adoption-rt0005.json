@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-I",
+    "-B",
+    "evidence/adopt-t003-round4-review.py"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"command\": [\n    \"bash\",\n    \"/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-749/sdd-quality-loop/1.23.1/scripts/validate-review-context-set.sh\",\n    \"/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/quality-t003-product-rt0005/invocation.json\",\n    \"/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed\"\n  ],\n  \"exit_code\": 0,\n  \"stdout\": \"REVIEW_CONTEXT_OK 8612408d9c18506548c0e17a6b5060eedd07e13a07d457ae3a48d22e9e9bb3cd sequence=24 previous_record_sha256=38f18603785557b756ebb44f1887d3bcd7c3aecca51564b6b391a27fd9b5b361 pre_append_tip_sequence=- identity_unique=yes\\n\",\n  \"stderr\": \"\",\n  \"all_input_hashes_match\": true,\n  \"input_count\": 130,\n  \"native_model_effort_verified\": true,\n  \"delivery_sha256\": \"adfcfa178a9d197332c037722bf62c430dfa8830959fe8c3b2c5a231f60cd290\",\n  \"verdict\": \"PASS\",\n  \"critical\": 0,\n  \"major\": 0,\n  \"minor\": 0\n}\n",
+  "stderr": "",
+  "started_at": "2026-11-13T05:38:43.366044+00:00",
+  "finished_at": "2026-11-13T05:38:49.590384+00:00"
+}

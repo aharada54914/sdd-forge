@@ -284,6 +284,12 @@ this table.
 
 ### Risk-upgrade scan
 
+Keep the selected task block and requirements complete, including exclusions and
+approval notes. `check-risk-upgrade` owns the bounded non-requirement grammar in
+`sdd-lite/references/risk-upgrade-policy.md`; do not prefilter sections or reword
+risks to pass. Positive requirements override nominal exclusions during review.
+
+
 A resolved `full` track is the only scan bypass. For every route that could
 resolve to **LITE** — `NO_OP_LITE`, or any remaining default, profile, or
 `--lite` route of the compatibility fallback — build a local UTF-8 input by
@@ -452,9 +458,16 @@ For each task at `Implementation Complete`, in tasks.md document order:
    - `continue` (exit 0): fewer than three reports — proceed to invoke
      quality-gate for T-NNN.
    - `Escalate-Human` (non-zero exit): three or more reports and the task is
-     still not Done — do **not** invoke quality-gate again and do **not** prompt
-     for fix-by-review-ticket; stop and instruct the human to investigate
-     manually.
+     still not Done — stop autonomous retries and surface the remaining
+     findings for a human decision. Do not automatically invoke quality-gate
+     or fix-by-review-ticket again. If a human has explicitly authorized the
+     applicable correction and further review, follow **Resuming After A Human
+     Decision** in `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`:
+     record the authorizer, instruction source, feature/task, correction scope
+     and remaining findings, then obtain fresh independent review and all
+     required gate evidence. A general wish to finish is insufficient. Preserve
+     the limit's non-zero exit and all report history; this is a documented
+     human-authorized continuation, not a successful cycle-limit check.
 
    Because each quality-gate run writes a durable timestamped report under
    `reports/quality-gate/`, this limit is computed from disk and holds across
@@ -524,6 +537,7 @@ IDLE
    ├── task Done → continue loop
    ├── task Blocked → STOP (surface review tickets)
    └── ≥3 disk gate reports for task and not Done → STOP (Escalate-Human)
+       └── explicit applicable human decision → documented scoped continuation
 → COMPLETION_CHECK   (all targeted tasks Done?)
    └── yes → [--retro or all-Done] RETROSPECTIVE → DONE
 ```

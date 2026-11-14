@@ -35,7 +35,7 @@ try {
   $registryData.entries = @($registryData.entries) + [pscustomobject]@{feature=$Feature;profile='full'}
   $registryData | ConvertTo-Json -Depth 10 | Set-Content $Registry -Encoding utf8NoBOM
   Write-Inputs; Write-Precheck
-  & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null
+  & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs -RepositoryRoot $WorkRoot | Out-Null
   Write-Host 'PASS: PowerShell complete task-review inputs verify'
 
   foreach ($value in @('', 'N/A', 'ux-spec.md', 'N/A — cross-layer only:')) {
@@ -46,7 +46,7 @@ try {
     try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1') -Path (Join-Path $Spec 'traceability.md') -RequirementsPath (Join-Path $Spec 'requirements.md') } catch { $failed = $true }
     if (-not $failed) { throw "FAIL: invalid Layer Spec accepted: $value" }
     $failed = $false
-    try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null } catch { $failed = $true }
+    try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs -RepositoryRoot $WorkRoot | Out-Null } catch { $failed = $true }
     if (-not $failed) { throw "FAIL: reviewer-time precheck accepted invalid Layer Spec: $value" }
   }
   Write-Host 'PASS: PowerShell rejects invalid Layer Spec values'
@@ -65,21 +65,21 @@ try {
   $registryData | ConvertTo-Json -Depth 10 | Set-Content $Registry -Encoding utf8NoBOM
   Add-Content (Join-Path $Spec 'ux-spec.md') 'tamper'
   $failed = $false
-  try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null } catch { $failed = $true }
+  try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs -RepositoryRoot $WorkRoot | Out-Null } catch { $failed = $true }
   if (-not $failed) { throw 'FAIL: PowerShell accepted layer tamper' }
   Write-Host 'PASS: PowerShell persisted full manifest rejects tamper after profile downgrade'
 
   Write-Inputs; Write-Precheck
   Remove-Item (Join-Path $Spec 'infra-spec.md')
   $failed = $false
-  try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null } catch { $failed = $true }
+  try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs -RepositoryRoot $WorkRoot | Out-Null } catch { $failed = $true }
   if (-not $failed) { throw 'FAIL: PowerShell accepted missing layer' }
   Write-Host 'PASS: PowerShell rejects missing layer'
 
   Write-Inputs; Write-Precheck
   Add-Content (Join-Path $Spec 'design.md') 'tamper'
   $failed = $false
-  try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null } catch { $failed = $true }
+  try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs -RepositoryRoot $WorkRoot | Out-Null } catch { $failed = $true }
   if (-not $failed) { throw 'FAIL: PowerShell accepted design tamper' }
   Write-Host 'PASS: PowerShell binds the Phase 1 design input'
 
@@ -89,7 +89,7 @@ try {
   try {
     New-Item -ItemType SymbolicLink -Path (Join-Path $Spec 'security-spec.md') -Target $outside.FullName | Out-Null
     $failed = $false
-    try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null } catch { $failed = $true }
+    try { & (Join-Path $WorkRoot 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs -RepositoryRoot $WorkRoot | Out-Null } catch { $failed = $true }
     if (-not $failed) { throw 'FAIL: PowerShell accepted path-substituted layer' }
   } finally {
     Remove-Item -LiteralPath $outside.FullName -Force -ErrorAction SilentlyContinue

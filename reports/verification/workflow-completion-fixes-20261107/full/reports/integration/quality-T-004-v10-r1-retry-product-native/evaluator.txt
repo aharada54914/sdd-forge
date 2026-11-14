@@ -1,0 +1,15 @@
+RUN_ID: 01a1d33a-9843-7e21-8f3f-5bee34445e34
+HOST_SESSION_ID: 01a1d33a-9843-7e21-8f3f-5bee34445e34
+ALLOWED_INPUT_MANIFEST: reports/integration/quality-T-004-v10-r1-retry-product-native/invocation.json 8613b9a0eed7eb5f0253eabaf47fac37fa5e95b8bf918de351ad97aeebabbc72
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Recomputed manifest and receipt hashes; verified reservation sequence and all 99 admitted file hashes. T-004 report and supplemental bindings matched.
+- Executed standalone `/bin/cat specs/task-board/requirements.md`; exit 0.
+- Inspected web/app.js:25–234, HTML, CSS, contracts and specifications: validation, saved-state rendering, mutation locking, recovery and keyboard focus matched requirements.
+- Inspected browser assertions and saved execution evidence: 11 browser groups and 43 regression tests passed. Verified executed-source hashes against admitted bytes and inspected Red/Green commit evidence.
+- Compared hash-verified reference and desktop/mobile screenshots: required colors, spacing, rounded rows and long-title reflow present.
+- Inspected deterministic logs and component-check producer/policy: recorded checks succeeded; disabled-legacy N/A is legitimate, not substantive coverage.
+- Executed read-only Python syntax compilation for seven files: passed. Independently measured static assets: 14,521 bytes.
+- Browser/unit tests, lint, typecheck and full gates were not rerun: they require writes, sockets or undeclared dependencies. Evaluated admitted saved outputs instead.

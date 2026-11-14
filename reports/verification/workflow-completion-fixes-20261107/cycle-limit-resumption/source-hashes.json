@@ -1,0 +1,7 @@
+{
+  "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "f584853db852fd8d8ace2eb79dc021376ede32cdcf8efa94dcadbffeb15d39e8",
+  "plugins/sdd-ship/skills/ship/SKILL.md": "cf6833ec70302e1740aa04f8d11ad7deadf404734db3f816855c4b9beed458a9",
+  "tests/fixtures/ship-track-selection-current-publication.json": "6432299974b5502194df6abdf6137edb1dfbd0e550f29bd347b84d149dd1367f",
+  "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh": "21c74ddac1f742081c9d5f9a34021c4513f0efd6f2c4742fa559223716f9389f",
+  "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1": "18e0f451510ce207c585028e97854e7cd31c4368b3a82953fac77eb0aa338b0e"
+}

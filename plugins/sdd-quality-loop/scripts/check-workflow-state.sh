@@ -2,8 +2,13 @@
 # Validate the repository-wide SDD workflow state. Diagnostics are API-stable.
 set -euo pipefail
 
-SCRIPT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
-REGISTRY="$SCRIPT_ROOT/specs/workflow-state-registry.json"
+SCRIPT_DIRECTORY="$(cd "$(dirname "$0")" && pwd -P)"
+PACKAGE_ROOT="$(cd "$SCRIPT_DIRECTORY/.." && pwd -P)"
+SOURCE_ROOT="$(cd "$SCRIPT_DIRECTORY/../../.." && pwd -P)"
+SCRIPT_ROOT="$SOURCE_ROOT"
+[[ -f "$SOURCE_ROOT/contracts/workflow-state-registry.schema.json" ]] || SCRIPT_ROOT="$(pwd -P)"
+REGISTRY=""
+EXPLICIT_REPOSITORY_ROOT=""
 FEATURE_FILTER=""
 OPENING_STAGE=""
 OPENING_ATTEMPT=""
@@ -804,6 +809,11 @@ while (($#)); do
     --feature)
       (($# >= 2)) || diagnostic repository cli-usage "--feature requires a value"
       FEATURE_FILTER="$2"; shift 2 ;;
+    --repository-root)
+      (($# >= 2)) || diagnostic repository cli-usage "--repository-root requires a value"
+      [[ -d "$2" && -n "$2" ]] || diagnostic repository cli-usage "repository root must be a directory"
+      EXPLICIT_REPOSITORY_ROOT="$(cd "$2" && pwd -P)"
+      SCRIPT_ROOT="$EXPLICIT_REPOSITORY_ROOT"; shift 2 ;;
     --registry)
       (($# >= 2)) || diagnostic repository cli-usage "--registry requires a value"
       REGISTRY="$2"; shift 2 ;;
@@ -818,9 +828,14 @@ while (($#)); do
     *) diagnostic repository cli-usage "unknown argument: $1" ;;
   esac
 done
+REGISTRY="${REGISTRY:-$SCRIPT_ROOT/specs/workflow-state-registry.json}"
 if [[ -n "$BATCH" ]]; then
+  if [[ -n "$EXPLICIT_REPOSITORY_ROOT" ]]; then
+    registry_repository="$(cd "$(dirname "$REGISTRY")/.." && pwd -P)" || diagnostic repository registry-unreadable "registry parent is unavailable"
+    [[ "$registry_repository" == "$EXPLICIT_REPOSITORY_ROOT" ]] || diagnostic repository cli-usage "registry is outside the selected repository"
+  fi
   [[ -z "$FEATURE_FILTER" && -z "$OPENING_STAGE" ]] || diagnostic repository cli-usage "--batch requires full scope"
-  exec python3 "$SCRIPT_ROOT/plugins/sdd-quality-loop/scripts/workflow-state-session.py" --requests "$BATCH" --registry "$REGISTRY"
+  exec python3 "$SCRIPT_DIRECTORY/workflow-state-session.py" --requests "$BATCH" --registry "$REGISTRY"
 fi
 [[ -z "$FEATURE_FILTER" || "$FEATURE_FILTER" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   diagnostic "$FEATURE_FILTER" cli-usage "invalid feature slug"
@@ -841,7 +856,8 @@ jq -e '
     (.profile == "full" or .profile == "lite" or .profile == "legacy"))
 ' "$REGISTRY" >/dev/null 2>&1 ||
   diagnostic repository registry-malformed "registry shape or version is invalid"
-SCHEMA="$SCRIPT_ROOT/contracts/workflow-state-registry.schema.json"
+SCHEMA="$SOURCE_ROOT/contracts/workflow-state-registry.schema.json"
+[[ -f "$SCHEMA" ]] || SCHEMA="$PACKAGE_ROOT/contracts/workflow-state-registry.schema.json"
 [[ -f "$SCHEMA" ]] || diagnostic repository registry-schema "registry schema is unavailable"
 jq -e --slurpfile schema "$SCHEMA" '
   (keys | sort) == ["entries","migration_baseline_commit","schema_version"] and
@@ -860,6 +876,7 @@ jq -e --slurpfile schema "$SCHEMA" '
 
 SPECS_ROOT="$(cd "$(dirname "$REGISTRY")" && pwd -P)"
 REPO_ROOT="$(cd "$SPECS_ROOT/.." && pwd -P)"
+[[ -z "$EXPLICIT_REPOSITORY_ROOT" || "$EXPLICIT_REPOSITORY_ROOT" == "$REPO_ROOT" ]] || diagnostic repository cli-usage "registry is outside the selected repository"
 REPO_ROOT_ALIAS="$REPO_ROOT"
 case "$REPO_ROOT" in
   /private/var/*) REPO_ROOT_ALIAS="/var/${REPO_ROOT#/private/var/}" ;;
@@ -1132,7 +1149,7 @@ workflow_conditional_paths() {
       research_args=(--history-contract "$history_contract")
     fi
   fi
-  selected=$(python3 "$REPO_ROOT/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
+  selected=$(python3 "$SCRIPT_DIRECTORY/review-conditional-inputs.py" \
     --root "$REPO_ROOT" --feature "$feature" --stage "$stage" "${research_args[@]}") || return 1
   jq -ce --slurpfile contracts "$contract" --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
     def relative:

@@ -1,0 +1,4 @@
+$ /workspace/.tools/sdd-forge-python/bin/mypy --strict --cache-dir reports/quality-gate/T-001-checks/mypy-cache store.py
+Success: no issues found in 1 source file
+
+EXIT_CODE=0

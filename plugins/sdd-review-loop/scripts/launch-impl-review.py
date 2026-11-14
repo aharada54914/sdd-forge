@@ -86,8 +86,8 @@ def run(root, command, destination, prompt=None, env=None):
 def required_dependencies(root, data, fixed_inputs=None):
     """Require canonical conditional inputs before any reservation."""
     helper_spec = importlib.util.spec_from_file_location(
-        'conditional_inputs', Path(__file__).parents[2] /
-        'sdd-quality-loop/scripts/review-conditional-inputs.py')
+        'conditional_inputs', transport.plugin_file(
+        'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'))
     if helper_spec is None or helper_spec.loader is None:
         raise ValueError('conditional input loader unavailable')
     helper = importlib.util.module_from_spec(helper_spec)
@@ -166,18 +166,20 @@ def checked_input_paths(root, data, fixed_inputs=None):
 def verify_inputs_before_output(root, stage, feature, attempt, round_number, runtime='bash', fixed_inputs=None):
     """Use the existing precheck's ADR/design binding before trusting its paths."""
     transport.require(runtime in ('bash', 'powershell'), 'unsupported precheck runtime')
-    script = root / 'plugins/sdd-review-loop/scripts' / (stage + '-review-precheck.' +
-                                                        ('sh' if runtime == 'bash' else 'ps1'))
+    script = transport.plugin_file('plugins/sdd-review-loop/scripts/' + stage +
+                                    '-review-precheck.' + ('sh' if runtime == 'bash' else 'ps1'))
     command = (['rtk', 'proxy', 'bash', str(script), feature, str(attempt),
-                str(round_number), '--verify-inputs'] if runtime == 'bash' else
+                str(round_number), '--verify-inputs', '--repository-root', str(root)] if runtime == 'bash' else
                ['rtk', 'proxy', 'pwsh', '-NoProfile', '-File', str(script),
                 '-Feature', feature, '-Attempt', str(attempt), '-Round',
-                str(round_number), '-VerifyInputs'])
+                str(round_number), '-VerifyInputs', '-RepositoryRoot', str(root)])
     if fixed_inputs:
         command.extend(['--fixed-input-record' if runtime == 'bash' else '-FixedInputRecord',
                         fixed_inputs['record'],
                         '--fixed-input-snapshot' if runtime == 'bash' else '-FixedInputSnapshot',
                         fixed_inputs['snapshot']])
+    if not shutil.which('rtk'):
+        command = command[2:]
     result = subprocess.run(command,
                             cwd=root, capture_output=True, text=True, timeout=600, encoding="utf-8")
     transport.require(result.returncode == 0, 'read-only precheck failed before output')

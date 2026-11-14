@@ -1,0 +1,28 @@
+{
+  "preexisting_files": 66,
+  "changed_preexisting_files": [
+    "calendar_days.py",
+    "AGENTS.md",
+    "EVALUATION.md",
+    "specs/inclusive-calendar-days/tasks.md"
+  ],
+  "all_other_preexisting_hashes_match": true,
+  "append_only_documents": {
+    "EVALUATION.md": true,
+    "AGENTS.md": true
+  },
+  "tests_sha256": {
+    "test_calendar_days.py": "4d7a6f8d55cc718aadf4e9fc5c413455549683cb120aafb18debecfc3229c8b7",
+    "test_inclusive_calendar_days.py": "55f5faa0df64cb5f683dec70f30b5827f30392bb33085bf4b38649ddca91fb90"
+  },
+  "both_tests_unchanged": true,
+  "production_exactly_approved_one_line_fix": true,
+  "task_only_status_changed_since_fixture": true,
+  "final_task_state": "Status: Done",
+  "installed_files_checked": 404,
+  "installed_files_changed": [],
+  "production_commit": "b643938e6f0246a5b68857dd78981939027b2c4c",
+  "reviewer": "/root/lite_gate",
+  "quality_report": "reports/quality-gate/T-001.md",
+  "final_state_exit": "0"
+}

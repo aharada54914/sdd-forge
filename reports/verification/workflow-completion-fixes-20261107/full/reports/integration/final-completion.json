@@ -1,0 +1,22 @@
+{
+  "status": "all-five-Done",
+  "canonical_workflow_log": "reports/verification/task-board/final/workflow.log",
+  "task_statuses": [
+    "Status: Done",
+    "Status: Done",
+    "Status: Done",
+    "Status: Done",
+    "Status: Done"
+  ],
+  "documents": {
+    "README.md": "3a163983fe6060695281fb9388d12546828a0032890db01fc62e260d1328be5a",
+    "EVALUATION.md": "a100f42a3615b2a89be5980c4f1942dbcc25a36b8c8489c42269dd5f7a734919",
+    "reports/integration/HANDOFF-final.md": "9fcf6535fbc236a127fa756d2f12ad9fd371c7816301defd016b9ab7d59a88f8",
+    "specs/task-board/tasks.md": "33bde02bfe1c1f4bfa01efc4896d80ed8e116d789c67db8747d3f43356b6df7c",
+    "specs/task-board/traceability.md": "82e3114dd9f3d909b85c6fcc38b8f4ca67a559a13b555e20721238d6c40c2302",
+    "specs/task-board/traceability.json": "9555e45414e6e3f0f8170587319f0f29ed899f24c8aaddb5f978b83d65fd5702"
+  },
+  "temporary_servers_remaining": 0,
+  "cleanup_evidence": "reports/verification/task-board/final/server-cleanup.log",
+  "no_pending_source_repair": true
+}

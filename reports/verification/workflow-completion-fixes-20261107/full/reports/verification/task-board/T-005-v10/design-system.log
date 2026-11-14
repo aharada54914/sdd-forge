@@ -1,0 +1,4 @@
+$ bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-design-system.sh /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed specs/task-board/design.md web/index.html web/app.js web/styles.css
+check-design-system passed.
+
+EXIT_CODE=0

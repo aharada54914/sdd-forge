@@ -1,0 +1,14 @@
+{
+  "command": [
+    "bash",
+    "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/reports/integration/runtime-snapshot-20261113-745/sdd-implementation/1.23.1/scripts/validate-implementation-report.sh",
+    "reports/implementation/sqlite-task-board/T-003.md"
+  ],
+  "exit_code": 0,
+  "stdout": "IMPLEMENTATION_REPORT_OK\n",
+  "stderr": "",
+  "original_worker_sha256": "5bb928bbee3b1ed5ee165c912393739d01b1a8d606d2cdf0b037f8371836f2d6",
+  "canonical_report_sha256": "82cb981a63b013aa18cc4cc1a39430bcdb3414e5b45708dae651eb598baa3018",
+  "change": "Caller normalized only the existing input-manifest citation syntax; Mode, native IDs, truthful continuation narrative and all Outputs bytes unchanged.",
+  "original_report_preserved": "reports/implementation/sqlite-task-board/T-003/report-before-citation-normalization.md"
+}

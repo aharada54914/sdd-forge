@@ -4,7 +4,7 @@
 #
 # epic-194-a6-lite-integration T-002 (REQ-002): extended with an optional
 # second argument, --capability-reasons <fragment-path>. Omitted entirely ->
-# byte-identical to the pre-T-002 script (AC-007). Supplied ->
+# legacy keyword behavior, except the documented #727 non-requirement grammar. Supplied ->
 # unreadable/malformed/shape-invalid fragment is a hard error, exit 2, no
 # trigger reporting (Blocker [B3]); a valid fragment's eligible:false entries
 # contribute their own upgrade_reasons tokens, or a synthetic
@@ -83,6 +83,58 @@ def lower_ascii(value: str) -> str:
     )
 
 normalized = lower_ascii(source).replace("\r\n", "\n").replace("\r", "\n")
+# Only complete noun-list exclusions are non-requirements; never discard a section.
+exclusion_noun = (
+    r"accounts?|auth|authentication|authorization|oauth|oidc|servers?|sharing|sync|"
+    r"editing|priorities|drag and drop|deployment|remote publication|tokens?|"
+    r"credentials?|passwords?|private keys?|mcp|external apis?|third-party apis?|"
+    r"third party apis?|secrets?|github actions"
+)
+exclusion_items = re.compile(
+    r" {0,3}[-*][ \t]+(?:" + exclusion_noun
+    + r")(?:[ \t]*(?:,[ \t]*(?:and[ \t]+)?|[ \t]+and[ \t]+)(?:"
+    + exclusion_noun + r"))*[ \t]*\.?[ \t]*"
+)
+section = ""
+fence = ""
+excluded = []
+exclusion_valid = True
+lines = []
+for line in normalized.split("\n"):
+    marker = re.match(r"^ {0,3}(`{3,}|~{3,})", line)
+    if marker:
+        exclusion_valid = False
+        if not fence:
+            fence = marker.group(1)
+        elif marker.group(1)[0] == fence[0] and len(marker.group(1)) >= len(fence) and not line[marker.end():].strip():
+            fence = ""
+        lines.append(line)
+        continue
+    if fence:
+        lines.append(line)
+        continue
+    heading = re.fullmatch(r" {0,3}(#{1,6})[ \t]+([^#]+?)[ \t]*#*[ \t]*", line)
+    if heading:
+        if exclusion_valid:
+            for index in excluded:
+                lines[index] = ""
+        excluded = []
+        exclusion_valid = True
+        section = heading.group(2).strip()
+    elif section in ("scope exclusions", "out of scope", "スコープ外") and exclusion_items.fullmatch(line):
+        excluded.append(len(lines))
+    elif section in ("scope exclusions", "out of scope", "スコープ外") and line.strip():
+        exclusion_valid = False
+    elif section == "blockers":
+        line = line.replace(
+            "general authorization to create and test does not supply that task approval.",
+            "general permission to create and test does not supply that task approval.",
+        )
+    lines.append(line)
+if exclusion_valid:
+    for index in excluded:
+        lines[index] = ""
+normalized = "\n".join(lines)
 normalized = re.sub(r"[ \t\n]+", " ", normalized)
 
 # Do not erase an adjacent token whose documented boundary is a hyphen or a

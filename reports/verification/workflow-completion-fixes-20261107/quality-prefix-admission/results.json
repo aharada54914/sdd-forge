@@ -1,0 +1,43 @@
+{
+  "recorded_at": "2026-11-13T04:25:04.434760+00:00",
+  "commands": [
+    {
+      "name": "supplemental",
+      "command": "python3 tests/supplemental-delivery-declaration.tests.py",
+      "exit_code": 0,
+      "log": "supplemental-tests.log"
+    },
+    {
+      "name": "boundary",
+      "command": "bash tests/review-context-boundary.tests.sh",
+      "exit_code": 0,
+      "log": "boundary.log"
+    },
+    {
+      "name": "role-bash",
+      "command": "bash tests/boundary-reference-authorization-parity.tests.sh",
+      "exit_code": 0,
+      "log": "role-bash.log"
+    },
+    {
+      "name": "role-pwsh",
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/boundary-reference-authorization-parity.tests.ps1",
+      "exit_code": 0,
+      "log": "role-pwsh.log"
+    },
+    {
+      "name": "human-copy",
+      "command": "python3 scripts/sync-human-copy-mirrors.py --check",
+      "exit_code": 0,
+      "log": "human-copy-check.log"
+    }
+  ],
+  "diff_check_exit": 0,
+  "actual_consumer_preview": {
+    "bash": "exit0 REVIEW_CONTEXT_OK",
+    "powershell": "exit0 REVIEW_CONTEXT_OK",
+    "reserved": false,
+    "fresh_native_review": "Owned by Full/SQLite resume sessions; not claimed by these previews"
+  },
+  "platform": "Linux Bash and PowerShell 7; no native Windows PowerShell 5.1 claim"
+}

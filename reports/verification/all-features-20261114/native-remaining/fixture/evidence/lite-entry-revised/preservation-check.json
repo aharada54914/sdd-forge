@@ -1,0 +1,17 @@
+{
+  "preexisting_artifacts": 48,
+  "byte_identical_preexisting_artifacts": 46,
+  "append_only_documents": {
+    "AGENTS.md": true,
+    "EVALUATION.md": true
+  },
+  "original_application_readme_tests_unchanged": true,
+  "installed_inventory_files_checked": 404,
+  "installed_files_changed": [],
+  "head": "33d96159b2e0a91237c1129d6aa363da55a72e86",
+  "specification_hashes": {
+    "requirements.md": "3fc381408fc6e1309e6673a067207056db1073ccfd1783f6285aaf05d106b4f7",
+    "design.md": "7f111c8edd4df62d18ba1c6cece232018cefa3be4dc2d3d17c4d9e6d749d556d",
+    "tasks.md": "4fa6a796c3cea959e819fd6e1fdf7bb871264cc0e7a01a44ee226829ecbfd8bb"
+  }
+}

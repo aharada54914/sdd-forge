@@ -1,0 +1,47 @@
+{
+  "schema": "sdd-verification-progress/v1",
+  "observedAt": "2026-11-07T12:08:53.250528+00:00",
+  "automatic": false,
+  "sessions": [
+    {
+      "mode": "Lite",
+      "phase": "完了",
+      "state": "Done / PASS",
+      "tasks": [
+        "Done"
+      ],
+      "screenshots": 7,
+      "detail": "独立ゲートと実ブラウザー検証を完了。",
+      "evidence": "reports/quality-gate/T-001.md"
+    },
+    {
+      "mode": "Full",
+      "phase": "実装・品質確認",
+      "state": "進行中",
+      "tasks": [
+        "In Progress",
+        "Planned",
+        "Planned",
+        "Planned",
+        "Planned"
+      ],
+      "screenshots": 0,
+      "detail": "独立レビューの指摘を修正し、再検証しています。",
+      "evidence": "reports/spec-review/task-board/"
+    },
+    {
+      "mode": "Full + SQLite",
+      "phase": "実装・品質確認",
+      "state": "進行中",
+      "tasks": [
+        "In Progress",
+        "Planned",
+        "Planned"
+      ],
+      "screenshots": 0,
+      "detail": "独立レビューの指摘を修正し、再検証しています。",
+      "evidence": "reports/spec-review/sqlite-task-board/"
+    }
+  ],
+  "provider": "ImageGenの実生成参照を採用。Claude Design / DesignSyncの接続成功ではありません。"
+}

@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-11-13T04:40:28.522758+00:00",
+  "reviewer": "parent agent",
+  "scope": "Actual T004 final desktop/mobile screenshots; visible wrapping, spacing, readable labels and controls. No new visual finding in inspected views. Action, persistence and quality results are recorded separately by the native workflow.",
+  "design_provider": "Actual ImageGen reference; not proof of Claude Design or DesignSync connectivity.",
+  "files": [
+    {
+      "source": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/visual-evidence/task-board/T-004/final/visual/board-1440.png",
+      "copy": "board-1440.png",
+      "sha256": "53547dfc21517fe36706b5301b410d65b6e98c0c5e21c610e5e491bcbd7a44c5"
+    },
+    {
+      "source": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/visual-evidence/task-board/T-004/final/visual/board-390.png",
+      "copy": "board-390.png",
+      "sha256": "c87c563bed66df92da872fc0623413c39418a7b6a3193ca453350541aa55eb61"
+    },
+    {
+      "source": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/visual-evidence/task-board/T-004/final/visual/board-320.png",
+      "copy": "board-320.png",
+      "sha256": "6f83062ac6a40991dc79374b79304ddc3ae587eb0bcdfbbc9f9af34ebadf4629"
+    }
+  ]
+}
