@@ -1613,13 +1613,14 @@ validate_passed_stage() {
       # legitimately reviewed the four layer specs even when the round
       # contract predates recording them. Spec/task stages must still
       # match the contract exactly.
+      # Explicit grouping preserves pipeline binding across jq 1.7 and 1.8.
       $stage == "impl" and
-      manifest_relative_path as $rel |
+      (manifest_relative_path as $rel |
       ($rel != null) and
       ($rel == ("specs/" + $feature + "/ux-spec.md") or
        $rel == ("specs/" + $feature + "/frontend-spec.md") or
        $rel == ("specs/" + $feature + "/infra-spec.md") or
-       $rel == ("specs/" + $feature + "/security-spec.md"));
+       $rel == ("specs/" + $feature + "/security-spec.md")));
     def manifest_superset_ok($reviewer_manifest; $contract_manifest):
       ($contract_manifest | normalized_manifest) as $contract_norm |
       ($reviewer_manifest | normalized_manifest) as $reviewer_norm |
