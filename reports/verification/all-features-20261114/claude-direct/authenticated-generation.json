@@ -51,5 +51,16 @@
   },
   "input_error": {
     "schema_validation": "One request rejected before starting because TinyFish output_schema does not support description. Removed only that schema annotation and retried; no app change."
+  },
+  "native_cli_login_attempt": {
+    "run": "474aaf07-576a-4800-a7bd-eb14f4e14d37",
+    "method": "Official isolated Claude Code auth login --claudeai; generated OAuth URL used through the authenticated browser profile",
+    "status": "BLOCKED",
+    "visible_requirement": "Official authorization page requires an eligible Claude subscription or API key for Claude Code.",
+    "authorization_code_received": false,
+    "plan_changed": false,
+    "api_key_provisioned": false,
+    "waiting_cli_stopped": true,
+    "limits": "Browser Claude design generation success does not establish native CLI availability. OAuth URL/state/code excluded from evidence."
   }
 }

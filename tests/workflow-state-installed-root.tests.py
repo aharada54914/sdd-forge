@@ -2,7 +2,6 @@
 """Installed workflow checker selects consumer state and packaged schema (#726)."""
 import argparse
 import json
-import os
 from pathlib import Path
 import shutil
 import subprocess

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Bounded native transport controls; no model or network required."""
-import copy
 import hashlib
 import importlib.util
 import json

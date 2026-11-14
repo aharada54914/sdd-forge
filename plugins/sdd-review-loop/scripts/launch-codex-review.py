@@ -7,7 +7,6 @@ still decide adoption. Named native permissions are required; no read-only fallb
 import argparse
 import contextlib
 import io
-import hashlib
 import importlib.util
 import json
 import os
