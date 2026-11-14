@@ -25,10 +25,14 @@ is **variable** and defined per-task; the one hard constraint:
 - **≥1 non-Anthropic vendor** (always present baseline: Claude).
 - **Every vendor's verdict is collected blind** — no cross-talk, no evaluator context.
 
-When preparing persisted `*.evidence.json`, the collection layer omits the primary
+For the current task’s `verification/T-NNN.evidence.json` and `*.evidence.json`
+under `verification/T-NNN/`, projection requires matching `task_id`, `feature`,
+and an array of `checks`. Other application fixtures remain intact.
+For that task evidence, the collection layer omits the primary
 `review_verdict`, `quality_report`, and that report's artifact reference from the
 transport only. It retains execution checks and other provenance, marks the
-projection, and hashes the projected content. Canonical evidence is unchanged;
+projection, and binds the bundle digest to the projected content. Source-manifest
+hashes still describe the original bytes. Canonical evidence is unchanged;
 size-based head/tail elision must not reintroduce the omitted outcome.
 
 GPT and Gemini collectors bind an explicit `--model` to the response's `model`

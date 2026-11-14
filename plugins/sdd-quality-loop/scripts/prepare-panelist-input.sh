@@ -590,7 +590,7 @@ _ppi_count_bytes() {
 # The CLI transport carries text only. Reject binary evidence before shell
 # substitution can discard NUL bytes or UTF-8 decoding can replace bytes.
 _ppi_read_text() {
-    python3 - "$1" <<'PPI_TEXT'
+    python3 - "$1" "$tasks_file" "$task_id" "$feature" <<'PPI_TEXT'
 from pathlib import Path
 import json, sys
 try:
@@ -604,9 +604,14 @@ except (UnicodeError, ValueError):
     sys.exit(3)
 # Persisted evidence mixes execution facts with the primary review outcome.
 # Project only the latter out of the transport; never rewrite the source file.
-if sys.argv[1].endswith('.evidence.json'):
+canonical = Path(sys.argv[2]).resolve().parent / 'verification' / (sys.argv[3] + '.evidence.json')
+source = Path(sys.argv[1]).resolve()
+if (source == canonical or (source.name.endswith('.evidence.json')
+        and source.is_relative_to(canonical.parent / sys.argv[3]))):
     evidence = json.loads(content)
-    if isinstance(evidence, dict) and ('review_verdict' in evidence or 'quality_report' in evidence):
+    if (isinstance(evidence, dict) and evidence.get('task_id') == sys.argv[3]
+            and evidence.get('feature') == sys.argv[4] and isinstance(evidence.get('checks'), list)
+            and ('review_verdict' in evidence or 'quality_report' in evidence)):
         report = evidence.pop('quality_report', None)
         evidence.pop('review_verdict', None)
         if isinstance(evidence.get('artifacts'), list):
