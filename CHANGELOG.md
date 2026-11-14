@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+- ブラインド評価用の入力から、証拠JSONに含まれる一次評価の判定・報告参照を除外する。実行チェックと元の証拠ファイルは保持する（#771）。
+- GPT／Geminiパネルの明示モデル指定を出力メタデータと照合し、不一致の判定を保存しない（#772）。
+
 ### Added
 - `sdd-implementation:sql-develop` でMicrosoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求・データ契約・変更影響を整理し、既存bootstrapへ引き継ぐ。SQL共通手順を既存の仕様化・実装・独立検証へ接続する。
 - 隔離DBでの変更・失敗回復を扱う参照試験と、既存の承認・実装完了から本番接続を自動開始しない運用引き継ぎ。[SQL開発ガイド](docs/sql-development.md)を参照。

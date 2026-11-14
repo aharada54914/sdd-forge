@@ -3173,6 +3173,35 @@ foreach ($kind in @('png', 'nul', 'invalid-utf8', 'japanese')) {
     }
 }
 
+# Primary review outcomes must not travel beside real execution evidence.
+$blindRoot = Join-Path $Work 'blind-evidence'
+New-Item -ItemType Directory -Force "$blindRoot/specs/feat/verification" | Out-Null
+Write-TasksWithConsent "$blindRoot/specs/feat/tasks.md" T-004
+$blindSource = "$blindRoot/specs/feat/verification/T-004.evidence.json"
+$original = '{"review_verdict":{"verdict":"PRIMARY_REVIEW_SECRET"},"quality_report":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","checks":[{"id":"unit-tests","evidence":"actual-test-facts"}],"artifacts":[{"path":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","sha256":"original-review-hash"},{"path":"tests.log","sha256":"execution-hash"}]}'
+[IO.File]::WriteAllText($blindSource, $original)
+foreach ($mode in @('file', 'directory')) {
+    $blindInput = if ($mode -eq 'file') { $blindSource } else { $blindRoot }
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', $blindInput, '--out', "$blindRoot/$mode.txt")
+    $result = if (Test-Path "$blindRoot/$mode.txt") { [IO.File]::ReadAllText("$blindRoot/$mode.txt") } else { '' }
+    if ($PP_Exit -eq 0 -and -not $result.Contains('PRIMARY_REVIEW_SECRET') -and
+        $result.Contains('actual-test-facts') -and $result.Contains('execution-hash') -and
+        $result.Contains('panelist_projection') -and [IO.File]::ReadAllText($blindSource) -ceq $original) {
+        ok "blind-${mode}: primary feedback excluded; execution facts and source preserved"
+    } else { fail "blind-${mode}: projection failed: $PP_Output" }
+}
+
+New-Item -ItemType Directory -Force "$blindRoot/specs/feat/verification/T-004" | Out-Null
+$blindLarge = "$blindRoot/specs/feat/verification/T-004/large.evidence.json"
+$largeOriginal = @{ checks = @(1..1000 | ForEach-Object { @{ evidence = ('execution-facts-' + ('x' * 250)) } }); review_verdict = @{ verdict = 'PRIMARY_REVIEW_SECRET' } } | ConvertTo-Json -Depth 10
+[IO.File]::WriteAllText($blindLarge, $largeOriginal)
+Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', $blindRoot, '--max-bytes', '16000', '--out', "$blindRoot/elided.txt")
+$elidedResult = if (Test-Path "$blindRoot/elided.txt") { [IO.File]::ReadAllText("$blindRoot/elided.txt") } else { '' }
+if ($PP_Exit -eq 0 -and $elidedResult.Contains('bytes elided') -and -not $elidedResult.Contains('PRIMARY_REVIEW_SECRET') -and
+    $elidedResult.Contains('execution-facts') -and [IO.File]::ReadAllText($blindLarge) -ceq $largeOriginal) {
+    ok 'blind-elision: projected evidence stays blind after head/tail elision; source unchanged'
+} else { fail "blind-elision: projection failed: $PP_Output" }
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }

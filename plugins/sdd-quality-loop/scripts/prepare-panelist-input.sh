@@ -592,7 +592,7 @@ _ppi_count_bytes() {
 _ppi_read_text() {
     python3 - "$1" <<'PPI_TEXT'
 from pathlib import Path
-import sys
+import json, sys
 try:
     content = Path(sys.argv[1]).read_bytes()
     content.decode('utf-8', errors='strict')
@@ -602,6 +602,18 @@ except (UnicodeError, ValueError):
     print('prepare-panelist-input: unsupported binary or invalid UTF-8 input; '
           'text-only panelist transport cannot review this artifact: ' + sys.argv[1], file=sys.stderr)
     sys.exit(3)
+# Persisted evidence mixes execution facts with the primary review outcome.
+# Project only the latter out of the transport; never rewrite the source file.
+if sys.argv[1].endswith('.evidence.json'):
+    evidence = json.loads(content)
+    if isinstance(evidence, dict) and ('review_verdict' in evidence or 'quality_report' in evidence):
+        report = evidence.pop('quality_report', None)
+        evidence.pop('review_verdict', None)
+        if isinstance(evidence.get('artifacts'), list):
+            evidence['artifacts'] = [a for a in evidence['artifacts']
+                                     if not (isinstance(a, dict) and report and a.get('path') == report)]
+        evidence['panelist_projection'] = 'Primary review outcome omitted for blind review; execution evidence retained.'
+        content = (json.dumps(evidence, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
 sys.stdout.buffer.write(content)
 PPI_TEXT
 }
@@ -618,11 +630,12 @@ _ppi_read_error() {
 # has already decided to elide — it is not itself threshold-gated.
 _ppi_elide_content() {
     _pec_file="$1"
-    _ppi_read_text "$_pec_file" >/dev/null || return $?
+    _pec_projected="$_ppi_tmpdir/elision-input"
+    _ppi_read_text "$_pec_file" > "$_pec_projected" || return $?
     _pec_label="$2"
-    _pec_total=$(_ppi_count_bytes < "$_pec_file") || return 1
-    _pec_head=$(head -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
-    _pec_tail=$(tail -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
+    _pec_total=$(_ppi_count_bytes < "$_pec_projected") || return 1
+    _pec_head=$(head -n "$_ppi_elide_lines" -- "$_pec_projected") || return 1
+    _pec_tail=$(tail -n "$_ppi_elide_lines" -- "$_pec_projected") || return 1
     _pec_head_bytes=$(printf '%s\n' "$_pec_head" | _ppi_count_bytes) || return 1
     _pec_tail_bytes=$(printf '%s\n' "$_pec_tail" | _ppi_count_bytes) || return 1
     _pec_elided=$((_pec_total - _pec_head_bytes - _pec_tail_bytes))

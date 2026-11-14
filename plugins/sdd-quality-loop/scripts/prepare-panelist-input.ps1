@@ -507,6 +507,20 @@ function Read-PpiText {
     }
     # Preserve Get-Content's existing UTF-8 BOM handling.
     if ($text.Length -gt 0 -and $text[0] -eq [char]0xFEFF) { $text = $text.Substring(1) }
+    # Keep execution facts, but never disclose the primary review in blind input.
+    if ($FilePath.EndsWith('.evidence.json', [StringComparison]::Ordinal)) {
+        $evidence = $text | ConvertFrom-Json -ErrorAction Stop
+        if ($evidence.PSObject.Properties['review_verdict'] -or $evidence.PSObject.Properties['quality_report']) {
+            $report = $evidence.quality_report
+            $evidence.PSObject.Properties.Remove('quality_report')
+            $evidence.PSObject.Properties.Remove('review_verdict')
+            if ($evidence.PSObject.Properties['artifacts']) {
+                $evidence.artifacts = @($evidence.artifacts | Where-Object { -not ($report -and $_.path -ceq $report) })
+            }
+            $evidence | Add-Member -Force -NotePropertyName panelist_projection -NotePropertyValue 'Primary review outcome omitted for blind review; execution evidence retained.'
+            $text = ($evidence | ConvertTo-Json -Depth 100) + "`n"
+        }
+    }
     return $text
 }
 
@@ -514,7 +528,7 @@ function Get-PpiElidedContent {
     param([string]$FilePath, [string]$Label)
     $raw = Read-PpiText $FilePath
     $totalBytes = [System.Text.Encoding]::UTF8.GetByteCount($raw)
-    $lines = Get-Content -Encoding Utf8 -LiteralPath $FilePath
+    $lines = @($raw.TrimEnd("`r", "`n") -split '\r?\n')
     $lineCount = $lines.Count
     $n = [Math]::Min($script:PpiElideLines, $lineCount)
     $headText = ($lines[0..($n - 1)] -join "`n")

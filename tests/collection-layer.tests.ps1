@@ -807,6 +807,22 @@ if (-not (Test-Path "$cl023/specs/feat/verification/T-023.panelist-openai.verdic
     fail "CL-023c: a verdict file was written despite malformed JSON"
 }
 
+# A well-formed but conflicting self-reported model must never be adopted.
+New-TranscriptStub -BinDir $cl022Bin -Name 'gemini' -Transcript $transcript22
+foreach ($provider in @('gpt', 'gemini')) {
+    $modelRoot = Join-Path $Work "model-mismatch-$provider"
+    New-Item -ItemType Directory -Force $modelRoot | Out-Null
+    $modelProcess = Start-Process -FilePath $PowerShellHost `
+        -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @('-NoProfile', '-File', "$ScriptsDir/run-panelist-$provider.ps1",
+            '--task', 'T-MODEL', '--feature', 'feat', '--input', "$cl022/input.txt", '--spec-root', "$modelRoot/specs", '--model', 'selected-model')) `
+        -Environment @{ PATH = $cl022Path } -RedirectStandardError "$modelRoot/stderr.txt" -Wait -PassThru -NoNewWindow
+    $modelError = [IO.File]::ReadAllText("$modelRoot/stderr.txt")
+    if ($modelProcess.ExitCode -eq 1 -and $modelError.Contains('returned model does not match explicit CLI model') -and
+        -not (Get-ChildItem -Recurse -Filter '*.verdict.json' $modelRoot)) {
+        ok "$provider explicit model mismatch rejected without verdict"
+    } else { fail "$provider explicit model mismatch was adopted: $modelError" }
+}
+
 # CL-024: Gemini extraction parity, exercising the real runner with offline CLI output.
 $geminiPayload = [ordered]@{
     schema = 'cross-model-verdict/v1'; task_id = 'T-024'; feature = 'feat'

@@ -772,6 +772,19 @@ else
     fail "CL-023c: a verdict file was written despite malformed JSON"
 fi
 
+# A well-formed but conflicting self-reported model must never be adopted.
+cp "$CL022_BIN/codex" "$CL022_BIN/gemini"
+for provider in gpt gemini; do
+    RUN_EXIT=0
+    RUN_OUTPUT=$(PATH="${CL022_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-$provider.sh" \
+        --task T-MODEL --feature feat --input "${WORK}/cl022/input.txt" \
+        --spec-root "${WORK}/model-mismatch-$provider/specs" --model selected-model 2>&1) || RUN_EXIT=$?
+    if [[ "$RUN_EXIT" == 1 && "$RUN_OUTPUT" == *"returned model does not match explicit CLI model"* ]] &&
+       [[ -z "$(find "$WORK/model-mismatch-$provider" -name '*.verdict.json' -print)" ]]; then
+        ok "$provider explicit model mismatch rejected without verdict"
+    else fail "$provider explicit model mismatch was adopted: $RUN_OUTPUT"; fi
+done
+
 # A version probe is external work even though it never invokes a model.
 if python3 "$REPO_ROOT/tests/lib/detect-panel-probe.py" "$SCRIPTS_DIR/detect-panel.sh" "$BASH"; then
     ok "detect-panel version success/failure/deadline and child cleanup"

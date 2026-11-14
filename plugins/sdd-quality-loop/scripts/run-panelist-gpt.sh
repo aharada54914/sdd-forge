@@ -282,6 +282,7 @@ fi
 _combined="${_scratch}/combined.txt"
 if ! {
     cat "$_prompt_file" &&
+    { [ -z "$model" ] || printf '\nThe explicit CLI model is %s. Return that exact string in model; do not infer it from the bundle.\n' "$model"; } &&
     printf '\n\n## Sanitized Input Bundle\n\n' &&
     cat "$input_path"
 } > "$_combined"; then
@@ -459,6 +460,10 @@ if not re.match(r'^[0-9a-f]{64}$', digest):
 
 if verdict.get("verdict") not in ("PASS","NEEDS_WORK"):
     print(f"run-panelist-gpt: verdict must be PASS or NEEDS_WORK, got: {verdict.get('verdict')!r}", file=sys.stderr)
+    sys.exit(1)
+
+if model and verdict.get("model") != model:
+    print("run-panelist-gpt: returned model does not match explicit CLI model", file=sys.stderr)
     sys.exit(1)
 
 # Normalize fields

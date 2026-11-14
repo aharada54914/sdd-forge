@@ -3329,6 +3329,39 @@ BINARY_FIXTURE
     done
 done
 
+# Primary review outcomes must not travel beside real execution evidence.
+blind_root="$WORK/blind-evidence"
+mkdir -p "$blind_root/specs/feat/verification"
+write_tasks_with_consent "$blind_root/specs/feat/tasks.md" T-004
+blind_source="$blind_root/specs/feat/verification/T-004.evidence.json"
+printf '%s\n' '{"review_verdict":{"verdict":"PRIMARY_REVIEW_SECRET"},"quality_report":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","checks":[{"id":"unit-tests","evidence":"actual-test-facts"}],"artifacts":[{"path":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","sha256":"original-review-hash"},{"path":"tests.log","sha256":"execution-hash"}]}' > "$blind_source"
+cp "$blind_source" "$blind_root/original.json"
+for mode in file directory; do
+    blind_input="$blind_source"
+    [[ "$mode" == directory ]] && blind_input="$blind_root"
+    run_prepare --task T-004 --feature feat --project-root "$blind_root" --tasks-file "$blind_root/specs/feat/tasks.md" --input "$blind_input" --out "$blind_root/$mode.txt"
+    if [[ "$PP_EXIT" == 0 ]] && ! grep -q PRIMARY_REVIEW_SECRET "$blind_root/$mode.txt" &&
+       grep -q actual-test-facts "$blind_root/$mode.txt" && grep -q execution-hash "$blind_root/$mode.txt" &&
+       grep -q panelist_projection "$blind_root/$mode.txt" && cmp -s "$blind_source" "$blind_root/original.json"; then
+        ok "blind-$mode: primary feedback excluded; execution facts and source preserved"
+    else fail "blind-$mode: projection failed: $PP_OUTPUT"; fi
+done
+
+mkdir -p "$blind_root/specs/feat/verification/T-004"
+blind_large="$blind_root/specs/feat/verification/T-004/large.evidence.json"
+python3 - "$blind_large" <<'BLIND_FIXTURE'
+import json, sys
+from pathlib import Path
+Path(sys.argv[1]).write_text(json.dumps({'checks': [{'evidence': 'execution-facts-' + 'x' * 250} for _ in range(1000)], 'review_verdict': {'verdict': 'PRIMARY_REVIEW_SECRET'}}, indent=2))
+BLIND_FIXTURE
+cp "$blind_large" "$blind_root/original-large.json"
+run_prepare --task T-004 --feature feat --project-root "$blind_root" --tasks-file "$blind_root/specs/feat/tasks.md" --input "$blind_root" --max-bytes 16000 --out "$blind_root/elided.txt"
+if [[ "$PP_EXIT" == 0 ]] && grep -q 'bytes elided' "$blind_root/elided.txt" &&
+   ! grep -q PRIMARY_REVIEW_SECRET "$blind_root/elided.txt" && grep -q execution-facts "$blind_root/elided.txt" &&
+   cmp -s "$blind_large" "$blind_root/original-large.json"; then
+    ok 'blind-elision: projected evidence stays blind after head/tail elision; source unchanged'
+else fail "blind-elision: projection failed: $PP_OUTPUT"; fi
+
 # ============================================================================
 # Summary
 # ============================================================================
