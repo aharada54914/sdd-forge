@@ -1,0 +1,38 @@
+{
+  "issue": "https://github.com/aharada54914/sdd-forge/issues/758",
+  "engine": "MySQL 8.4.13",
+  "flyway": "13.12.1",
+  "baseline": {
+    "source_revision": "0971bddf7e92e4fdbf742f834a3ce27b0694714c",
+    "result": "PASS",
+    "checks": 68,
+    "exit_code": 0
+  },
+  "fixed": {
+    "source_revision": "3f879030039a78f1bed7b118dd91b19e33e8b5bb",
+    "inputs_dirty": false,
+    "result": "PASS",
+    "checks": 68,
+    "exit_code": 0,
+    "cleanup": {
+      "removed": true,
+      "errors": []
+    },
+    "owned_containers_remaining": [],
+    "owned_networks_remaining": []
+  },
+  "contract_tests": {
+    "methods": 5,
+    "result": "PASS"
+  },
+  "remote_failure": {
+    "run": 43568731917,
+    "mysql_job": 132368435252,
+    "cause": "Case-sensitive No such object expected, actual error: no such object diagnostic lowercase. Replaced diagnostic inference with successful exact-filter all-container listing."
+  },
+  "limits": [
+    "GitHub CI after the repair was queued at local run completion; its result is separate from local real Docker success.",
+    "Local Docker version28.4.0; remote Docker diagnostic compatibility is addressed without parsing its wording.",
+    "No production/customer databases used; synthetic isolated owned fixtures only."
+  ]
+}

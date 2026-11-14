@@ -41,8 +41,11 @@ bypassed, and no PR was merged by this task.
 ## Remaining verification
 
 - Recheck CI and independent approval before merging; intended order #756 then #760.
-- MySQL and SQL Server real reruns; remote SQL CI cause is not established by the
-  separately reproduced and repaired local vfs storage exhaustion (#758).
+- MySQL and SQL Server real reruns completed successfully on 2026-11-14,
+  including cleanup. Windows recovery also passed 955 checks. See
+  `native-rerun/README.md` for actual jobs and remaining exclusions.
+  Remote Docker diagnostic case sensitivity was repaired separately from the
+  earlier local vfs storage exhaustion (#758).
 - Claude artifact HTML export, runtime UI interactions and applying improvements
   to Full/SQLite; native DesignSync is unverified. Official Claude Code OAuth
   reached a plan/API-key requirement, so browser sign-in is not CLI sign-in.

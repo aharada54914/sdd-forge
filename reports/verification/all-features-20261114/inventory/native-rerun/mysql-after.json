@@ -1,0 +1,295 @@
+{
+  "source_revision": "b8b92233dc979b0f6475c7fe2e2b55393833bec3",
+  "inputs_dirty": false,
+  "result": "PASS",
+  "error": null,
+  "versions": {
+    "database": "8.4.13",
+    "flyway": "13.12.1"
+  },
+  "cleanup": {
+    "removed": true,
+    "errors": []
+  },
+  "checks": [
+    {
+      "name": "Linux x86_64 reference host",
+      "result": "PASS"
+    },
+    {
+      "name": "owned network ID",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "MySQL accepts authenticated queries",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned MySQL patch version",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway migrate upgrade ('-target=1',)",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS"
+    },
+    {
+      "name": "v1 expected values",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway migrate upgrade ()",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway migrate fresh ()",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh and upgrade yield the same rows",
+      "result": "PASS"
+    },
+    {
+      "name": "upgraded expected values",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh and upgrade schemas agree",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh and upgrade constraints agree",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway migrate upgrade ()",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS"
+    },
+    {
+      "name": "rerun has no migrations to execute",
+      "result": "PASS"
+    },
+    {
+      "name": "each migration version recorded once",
+      "result": "PASS"
+    },
+    {
+      "name": "old and new app read compatibility",
+      "result": "PASS"
+    },
+    {
+      "name": "parameter values cannot change SQL structure",
+      "result": "PASS"
+    },
+    {
+      "name": "application role cannot drop schema objects",
+      "result": "PASS"
+    },
+    {
+      "name": "duplicate primary key rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "NULL name rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "negative credit rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "missing lookup returns empty result",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "applied migration mutation rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "restored source validates without repair",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "history validation alone does not detect schema drift",
+      "result": "PASS"
+    },
+    {
+      "name": "actual schema comparison detects untracked change",
+      "result": "PASS"
+    },
+    {
+      "name": "schema baseline restored",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "concurrent Flyway migrations both finish",
+      "result": "PASS"
+    },
+    {
+      "name": "migration owner serializes concurrent application",
+      "result": "PASS"
+    },
+    {
+      "name": "interrupted DML rolls back with its checkpoint",
+      "result": "PASS"
+    },
+    {
+      "name": "backfill resumes without duplicated effects",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway migrate faults ()",
+      "result": "PASS"
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS"
+    },
+    {
+      "name": "pre-change backup contains schema and owner history",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway failure preserves DDL commit but rolls back later DML",
+      "result": "PASS"
+    },
+    {
+      "name": "Flyway records failed nontransactional version",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "owner refuses blindly retrying failed migration",
+      "result": "PASS"
+    },
+    {
+      "name": "rollback cannot erase implicitly committed partial migration",
+      "result": "PASS"
+    },
+    {
+      "name": "restored backup preserves original business data",
+      "result": "PASS"
+    },
+    {
+      "name": "restored owner history predates failed version",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "reviewed corrected migration rolls forward on restored DB",
+      "result": "PASS"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS"
+    },
+    {
+      "name": "recovered migration is not applied twice",
+      "result": "PASS"
+    },
+    {
+      "name": "original failed state remains available for investigation",
+      "result": "PASS"
+    },
+    {
+      "name": "server cancels timed-out statement",
+      "result": "PASS"
+    },
+    {
+      "name": "timed-out query no longer active",
+      "result": "PASS"
+    },
+    {
+      "name": "lock holder observed at server",
+      "result": "PASS"
+    },
+    {
+      "name": "contender obeys lock deadline",
+      "result": "PASS"
+    },
+    {
+      "name": "lock test leaves original data",
+      "result": "PASS"
+    },
+    {
+      "name": "all application rows survive fault cases",
+      "result": "PASS"
+    }
+  ],
+  "run_id": 43569832964,
+  "job_id": 132372549649,
+  "head_sha": "3f879030039a78f1bed7b118dd91b19e33e8b5bb",
+  "job_url": "https://github.com/aharada54914/sdd-forge/actions/runs/43569832964/job/132372549649",
+  "artifact_id": 14104537652,
+  "archive_sha256": "774047cf417e9c80f73055be2587f0a885ba853bd3404197263ba0bcccfb6a98",
+  "proof_sha256": "f9a0c1e0f8cb155977715ad0c8077e2fe05bf89b7fe564b4e7947aa340cf825b"
+}
