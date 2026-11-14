@@ -30,7 +30,7 @@ hash-chained ledger, rather than caller-supplied reserved-ID arrays, proves the
 identity is absent from every persisted implementation, review, and evaluation
 record. The invocation must be read-only and bind the exact run ID,
 host-session ID, role-authorized manifest paths, and hashes supplied here.
-Missing or stale validator evidence or a missing canonical identity ledger is a
+Missing or stale validator evidence is a
 blocking launch failure; do not inspect repository content or substitute model
 judgment.
 
@@ -42,6 +42,42 @@ anything (WFI-037). The caller's quoted `REVIEW_CONTEXT_OK` line -- the record
 hash plus `sequence`, `previous_record_sha256`, `pre_append_tip_sequence`,
 and `identity_unique` -- is the required launch-identity evidence; verify it
 per `review-context-boundary.md` from that line and your manifest alone.
+
+<!-- receipt-only-launch-verification:begin -->
+The boundary procedure is reproduced here so launch verification needs no
+unlisted reference or ledger read. Do not read the identity ledger or open
+`review-context-boundary.md` unless that reference is an authorized input.
+The caller's validator checks the whole ledger chain and uniqueness before
+reservation; require its quoted receipt, and verify these facts locally:
+
+A native host may use the same context ID for `run_id` and `host_session_id`
+within this invocation. Distinct identity means neither ID is reused by any
+other implementation, review, or evaluation context; it does not require
+these two fields to differ from each other. The validator enforces the
+cross-context uniqueness in the receipt.
+
+- `identity_ledger_path` must be `reports/review-context/identity-ledger.json`.
+  Do not rehash `identity_ledger_sha256`: it pins the pre-append ledger.
+- Receipt `sequence` and `previous_record_sha256` must equal the invocation
+  fields (`-` represents an empty previous hash). For a fresh reservation,
+  `pre_append_tip_sequence` must equal `sequence - 1`; require
+  `identity_unique=yes`. A persisted verification receipt may instead have
+  `pre_append_tip_sequence=-`; it is not a substitute for a fresh reservation.
+- Recompute the receipt record hash from UTF-8, without a terminal newline:
+  `sequence|stage|role|run_id|host_session_id|previous_record_sha256`.
+  For a new quality reservation with `scratch_root`, append
+  `|scratch-declaration-v1|<digest>`, where digest is SHA-256 of UTF-8
+  `feature + LF + scratch_root`, with no terminal newline.
+  For a new spec, impl, or domain reservation, or an invocation admitting
+  `specs/<feature>/concept-test.json`, also append
+  `|allowed-inputs-v1|<digest>`, where digest is SHA-256 of ordered manifest
+  entries encoded as `path + TAB + sha256`, joined by LF without a terminal
+  newline. Hash the complete text and compare it with the quoted record hash.
+  Historical receipts retain their original recipe; do not re-reserve them.
+- Independently verify every admitted file's SHA-256 and enforce the manifest
+  allowlist. A missing/mismatched receipt or input is a launch failure, not a
+  finding about the reviewed product. Do not infer success from this guidance.
+<!-- receipt-only-launch-verification:end -->
 
 The contract's `task_id`, sole implementation-report path, report heading, and
 `Task ID` field must all name the current T-NNN. Reject a same-feature report

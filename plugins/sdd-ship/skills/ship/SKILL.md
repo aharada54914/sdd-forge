@@ -171,6 +171,11 @@ before trusting any Project Context content:
    compatibility fallback as `DISABLED_LEGACY` (gates G3/G4). From a
    valid-Context project, never fall back to legacy behaviour silently.
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 **When the presence/validity probe runs.** The handshake itself never reads
@@ -270,6 +275,12 @@ and instruct the user to run full-track sdd-bootstrap.
 this table.
 
 ### Risk-upgrade scan
+
+Keep the selected task block and requirements complete, including exclusions and
+approval notes. `check-risk-upgrade` owns the bounded non-requirement grammar in
+`sdd-lite/references/risk-upgrade-policy.md`; do not prefilter sections or reword
+risks to pass. Positive requirements override nominal exclusions during review.
+
 
 A resolved `full` track is the only scan bypass. For every route that could
 resolve to **LITE** — `NO_OP_LITE`, or any remaining default, profile, or

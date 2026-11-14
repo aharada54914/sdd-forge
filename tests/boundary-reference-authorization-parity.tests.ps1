@@ -90,6 +90,37 @@ foreach ($doc in $roleDocs) {
 }
 
 Write-Output ""
+# E. Complete receipt-only procedure is locally available to every role.
+$referenceReceipt = $null
+foreach ($doc in $roleDocs) {
+    $text = Get-Content -Raw -LiteralPath (Join-Path $Root $doc)
+    $receipt = [regex]::Match($text, '(?s)<!-- receipt-only-launch-verification:begin -->.*?<!-- receipt-only-launch-verification:end -->').Value -replace "`r`n", "`n"
+    if (-not $receipt) { Nope "E: $doc lacks inline receipt verification" }
+    elseif ($null -eq $referenceReceipt) { $referenceReceipt = $receipt; Ok "E: $doc carries inline receipt verification" }
+    elseif ($receipt -ceq $referenceReceipt) { Ok "E: $doc matches inline receipt verification" }
+    else { Nope "E: $doc receipt verification differs" }
+    if ($text -match 'Read it before rejecting|Reject a missing manifest or canonical identity ledger|Verify the ledger record chain instead') { Nope "E: $doc requires an unauthorized boundary/ledger read" }
+    else { Ok "E: $doc has no contradictory ledger/read requirement" }
+}
+foreach ($term in @('allowed-inputs-v1', 'scratch-declaration-v1', 'identity_unique=yes', 'sequence - 1', 'Do not read the identity ledger', 'these two fields to differ from each other')) {
+    if ($referenceReceipt -and $referenceReceipt.Contains($term)) { Ok "E: inline receipt includes $term" }
+    else { Nope "E: inline receipt lacks $term" }
+}
+
+# F. Required conditional inputs and current-round summaries are authorized.
+foreach ($role in @('impl-reviewer-a', 'impl-reviewer-b')) {
+    $text = Get-Content -Raw -LiteralPath (Join-Path $Root "plugins/sdd-review-loop/agents/$role.md")
+    $inputs = [regex]::Match($text, '(?s)# Inputs.*?# ADR Input Boundary').Value
+    foreach ($term in @('design-system/design-tokens.json', 'design-system/design-system.md', 'design-system/ui-patterns.md')) {
+        if ($inputs.Contains($term)) { Ok "F: $role admits $term" } else { Nope "F: $role omits $term" }
+    }
+}
+foreach ($role in @('impl-reviewer-b', 'task-reviewer-b')) {
+    $text = Get-Content -Raw -LiteralPath (Join-Path $Root "plugins/sdd-review-loop/agents/$role.md")
+    if ($text.Contains('required in every round, including round 1') -and $text -notmatch 'only available when round N > 1|absent \(round 1\)') { Ok "F: $role requires the current A summary in round 1" }
+    else { Nope "F: $role contradicts current-round summary admission" }
+}
+
 Write-Output "boundary-reference-authorization-parity.tests.ps1: $($script:Pass) passed, $($script:Fail) failed"
 if ($script:Fail -ne 0) { exit 1 }
 exit 0

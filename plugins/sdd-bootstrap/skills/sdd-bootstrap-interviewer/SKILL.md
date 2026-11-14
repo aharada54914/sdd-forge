@@ -92,8 +92,13 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
     `concept-test` skill first. Its deterministic validator must return
     CONTINUE before domain-sync or any generation. BLOCK, DEFER, and REJECT
     stop this flow. Do not substitute an LLM verdict for evidence validation.
-1b. Run `domain-sync`'s detection logic (project root, feature slug) before
-    generating any Phase 1 artifact. If it reports a skip or warning line,
+1b. Before resolving the optional `domain-sync` skill, check whether `domain/`
+    physically exists at the project root. If absent, record exactly
+    `domain-sync skipped: no domain/ directory` once and continue to step 2;
+    do not require or install `sdd-domain` for this case. If `domain/` exists,
+    run `domain-sync`'s detection logic (project root, feature slug) before
+    generating any Phase 1 artifact. Do not invent injection or validation
+    results when that installed skill is unavailable. If it reports a skip or warning line,
     proceed exactly as if `domain/` were absent — record the line and
     continue to step 2 with no other change to this flow. If it reports an
     injection, carry its `Bounded-Context:` field text, canonical terms, and
@@ -291,13 +296,31 @@ Phase 1 outputs (generated before review gates):
 - relevant API/data contracts
 
 The seven Markdown files under `specs/<feature>/` above are mandatory Phase 1
-outputs for the full profile. Create layer files from the matching templates in
-`templates/`. Existing layer files remain unchanged under the create-only rule.
+outputs for the full profile. Create each new file from its matching template
+in `templates/`, including `design.template.md`; do not substitute an ad-hoc
+outline. In a newly generated design, retain and fill `## Components`,
+`Feature Type:`, `Data Entities:`, `Existing Data Affected:`, and
+`## Security Boundaries`. Check these fields before the first immutable review
+precheck. Missing template fields in a new design are incomplete bootstrap
+work, not evidence that the design predates the template or qualifies for
+legacy calibration. Existing files remain unchanged under the create-only rule.
 
 New `requirements.md` must retain the template's bare
 `Spec-Review-Status: Pending` header; new `design.md` must retain
 `Impl-Review-Status: Pending`. These statuses belong to their respective files.
 Only the corresponding review gate may advance its status to `Passed`.
+
+Before entering the full review gates, register this feature in the consumer's
+`specs/workflow-state-registry.json`. Read the installed quality plugin's
+`contracts/workflow-state-registry.schema.json`; use its schema version and
+`migration_baseline_commit` constant (this is schema metadata, not a claim
+about the consumer's Git history). For a new full feature add exactly
+`{"feature":"<feature>","profile":"full"}` to `entries`. Create the registry
+when absent; preserve all existing entries and never convert a conflicting
+profile or invent legacy exemptions. Validate the registry and Pending states
+with the installed `check-workflow-state` for this consumer root before the
+first implementation review. A missing registry is bootstrap work to complete,
+not a reason to bypass the workflow gate or fabricate a Passed status.
 
 Phase 2 outputs (generated after impl-review-loop passes):
 
@@ -330,6 +353,11 @@ handshake first:
 4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome — stop
    with `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy
    behaviour silently.
+
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
 
 <!-- /sdd:handshake-wiring -->
 

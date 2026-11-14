@@ -6,7 +6,8 @@ param(
   [switch]$VerifyInputs,
   [switch]$ProvenanceRereview,
   [string]$FixedInputRecord = '',
-  [string]$FixedInputSnapshot = ''
+  [string]$FixedInputSnapshot = '',
+  [string]$RepositoryRoot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -455,7 +456,7 @@ function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$Feat
   if ($researchArgs.Count -eq 0 -and $Stage -ceq 'impl' -and $Contract.verdict -cin @('NEEDS_WORK', 'BLOCKED')) {
     $researchArgs = @('--history-contract', "reports/impl-review/$FeatureName/attempt-$($Contract.attempt)/round-$($Contract.round)/impl-review-contract.json")
   }
-  $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage @researchArgs
+  $raw = & python3 (Get-ReviewPluginFile 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage @researchArgs
   if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
   $resolved = $raw | ConvertFrom-Json
   $selected = @($resolved.inputs)
@@ -536,7 +537,7 @@ function Require-Pass(
   [string]$RequirementsCurrentHash,
   [string]$DesignCurrentHash
 ) {
-  $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+  $repoRoot = $script:root
   if (-not (Test-Path -LiteralPath $Root -PathType Container) -or (Get-Item -LiteralPath $Root).LinkType) { Fail "missing $Stage predecessor report root" }
   $verdictCandidates = @(Get-ChildItem -LiteralPath $Root -Filter integrated-verdict.json -File -Recurse)
   if ($verdictCandidates.Count -eq 0) { Fail "missing persisted $Stage PASS verdict" }
@@ -690,9 +691,21 @@ function Require-Pass(
 if ($Feature -cnotmatch '^[a-z0-9][a-z0-9-]*\z') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
-$root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path; $spec = Join-Path $root "specs/$Feature"; $report = Join-Path $root "reports/task-review/$Feature/attempt-$Attempt/round-$Round"
+$pluginRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+if (-not $RepositoryRoot) {
+  $RepositoryRoot = (Get-Location).Path
+  if ($pluginRoot.Replace('\', '/') -cmatch '/plugins/sdd-review-loop$' -and (Test-Path -LiteralPath (Join-Path $pluginRoot '../../.git'))) {
+    $RepositoryRoot = (Resolve-Path -LiteralPath (Join-Path $pluginRoot '../..')).Path
+  }
+}
+$root = (Resolve-Path -LiteralPath $RepositoryRoot).Path; $spec = Join-Path $root "specs/$Feature"; $report = Join-Path $root "reports/task-review/$Feature/attempt-$Attempt/round-$Round"
 . (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
 $fixedSources = Get-FixedInputSources $root $FixedInputRecord $FixedInputSnapshot ([bool]$VerifyInputs)
+$assetOptions = @()
+if ($VerifyInputs) { $assetOptions += '--verify-only' }
+& python3 (Join-Path $PSScriptRoot 'prepare-review-assets.py') --root $root --stage task @assetOptions | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail 'review reference projection failed' }
+
 if ($null -ne $fixedSources) { $spec = Join-Path (Resolve-Path -LiteralPath $FixedInputSnapshot).Path "specs/$Feature" }
 if (-not (Test-Path -LiteralPath $spec -PathType Container) -or (Get-Item -LiteralPath $spec).LinkType) { Fail 'feature specification directory must be a real directory' }
 $registry = Get-Content -LiteralPath (Join-Path $root 'specs/workflow-state-registry.json') -Raw | ConvertFrom-Json
@@ -773,13 +786,13 @@ if ($ProvenanceRereview) {
     }
   }
   if (-not $priorPass) { Fail 'provenance re-review requires a prior persisted task-review PASS verdict' }
-  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  & $powerShellExe -NoProfile -File (Get-ReviewPluginFile 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --repository-root $root --feature $Feature
   if ($LASTEXITCODE -ne 0) {
     Write-Warning ('task-review-precheck: canonical workflow-state validation failed; ' +
       'proceeding under -ProvenanceRereview (task-stage evidence re-binding in progress).')
   }
 } else {
-  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  & $powerShellExe -NoProfile -File (Get-ReviewPluginFile 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --repository-root $root --feature $Feature
   if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
 }
 foreach ($path in @($requirements, $design, $acceptance, $tasks)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" } }
@@ -852,7 +865,7 @@ $specReviewedRequirementsHash = Get-ReviewedHash $requirements 'Spec-Review-Stat
 $implReviewedDesignHash = Get-ReviewedHash $design 'Impl-Review-Status' 'Pending'
 Require-Pass (Join-Path $root "reports/spec-review/$Feature") 'spec' $Feature $specReviewedRequirementsHash $acceptanceHash '' $requirementsHash ''
 Require-Pass (Join-Path $root "reports/impl-review/$Feature") 'impl' $Feature $requirementsHash $acceptanceHash $implReviewedDesignHash $requirementsHash $designHash
-$riskScript = Join-Path $root 'plugins/sdd-quality-loop/scripts/check-risk.ps1'
+$riskScript = Get-ReviewPluginFile 'plugins/sdd-quality-loop/scripts/check-risk.ps1'
 if (-not (Test-Path -LiteralPath $riskScript -PathType Leaf)) { Fail 'shared risk gate is missing' }
 & $riskScript -TasksPath $tasks
 if ($LASTEXITCODE -ne 0) { Fail 'Risk/Required Workflow mismatches must be fixed before creating evidence' }
@@ -894,7 +907,7 @@ $inputMaterial = if ($fullProfile) {
 }
 $inputHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($inputMaterial))).ToLower()
 $base=Join-Path $root 'reports/task-review'; New-Item -ItemType Directory -Path $base -Force | Out-Null; $temporaryContract=[IO.Path]::GetTempFileName()
-try { [ordered]@{schema='review-contract/v1';stage='task';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;input_sha256=$inputHash;run_id='task-precheck';verdict='PASS'}|ConvertTo-Json -Compress|Set-Content -LiteralPath $temporaryContract -Encoding utf8NoBOM; & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -Feature $Feature -Attempt $Attempt -Round $Round -Stage task -ReportRoot (Join-Path $root "reports/task-review/$Feature") -Contract $temporaryContract | Out-Null } finally { Remove-Item -LiteralPath $temporaryContract -Force -ErrorAction SilentlyContinue }
+try { [ordered]@{schema='review-contract/v1';stage='task';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;input_sha256=$inputHash;run_id='task-precheck';verdict='PASS'}|ConvertTo-Json -Compress|Set-Content -LiteralPath $temporaryContract -Encoding utf8NoBOM; & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -RepositoryRoot $root -Feature $Feature -Attempt $Attempt -Round $Round -Stage task -ReportRoot (Join-Path $root "reports/task-review/$Feature") -Contract $temporaryContract | Out-Null } finally { Remove-Item -LiteralPath $temporaryContract -Force -ErrorAction SilentlyContinue }
 New-Item -ItemType Directory -Path $report | Out-Null
 $graph=[ordered]@{schema='dependency-graph/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;nodes=$nodes;edges=$edges;generated_at=[DateTime]::UtcNow.ToString('o')}; $graph|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path $report 'dependency-graph.json') -Encoding utf8NoBOM
 [ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;tasks_sha256_form=$tasksHashForm;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;frozen_artifact_done_when=$frozenDoneWhen;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM

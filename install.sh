@@ -199,6 +199,12 @@ run_idempotent_plugin_command() {
         rm -f "$out_file" "$err_file"
         return 0
     fi
+    # A different source is a conflict, not an idempotent registration.
+    if cat "$out_file" "$err_file" | grep -Eqi 'already added from a different source'; then
+        rm -f "$out_file" "$err_file"
+        echo "Error: ${label} points to a different source. Re-register it from the install root before retrying; existing plugin caches may lack the packaged runtime." >&2
+        return 1
+    fi
     if cat "$out_file" "$err_file" | grep -Eqi "$IDEMPOTENT_REGISTRATION_RE"; then
         rm -f "$out_file" "$err_file"
         echo "Note: ${label} is already registered; keeping the existing registration."

@@ -1,0 +1,124 @@
+{
+  "baseline": "08398f03",
+  "issue": "https://github.com/aharada54914/sdd-forge/issues/732",
+  "end_to_end": {
+    "lite": "PASS: T-001 Done through independent Lite gate; 12 tests, CLI regressions and final Done-state validator passed",
+    "full": "PASS: T-001 Done through Full gate cycle 2; 11 tests, mypy 1.18.2, fresh independent evaluator, contract/evidence/task/workflow state all passed"
+  },
+  "live_aws": "NOT RUN: no configured AWS identity or protected CI approval",
+  "cloud_suites": [
+    {
+      "suite": "cloud-orchestration-contracts.tests.py",
+      "result": "PASS",
+      "tests": 34,
+      "skipped": 1
+    },
+    {
+      "suite": "cloud-orchestration-execution.tests.py",
+      "result": "PASS",
+      "tests": 88,
+      "skipped": 1
+    },
+    {
+      "suite": "cloud-orchestration-routing.tests.py",
+      "result": "PASS",
+      "tests": 96,
+      "skipped": 14
+    },
+    {
+      "suite": "cloud-orchestration-verification.tests.py",
+      "result": "PASS",
+      "tests": 112,
+      "skipped": 1
+    },
+    {
+      "suite": "install-cloud.tests.py",
+      "result": "PASS",
+      "tests": 16,
+      "skipped": 0
+    }
+  ],
+  "aws_native": {
+    "result": "PASS",
+    "tests": 28,
+    "skipped": 0,
+    "node": "26.13.0",
+    "node_sha256": "0adde40d1b7dfa57c8bc83cbc319758c3ec6ebba21363bb2fa752ea6b267ad1b",
+    "cdk": "2.1145.0",
+    "aws_cdk_lib": "2.273.0",
+    "constructs": "10.5.0",
+    "note": "Official Node archive checksum verified; npm ci --ignore-scripts from committed lock. Re-runs the initially skipped AWS synth cases."
+  },
+  "workflow_state": "PASS",
+  "authentication": "PASS: fresh device login; independent model returned READY",
+  "issues": [
+    "https://github.com/aharada54914/sdd-forge/issues/732",
+    "https://github.com/aharada54914/sdd-forge/issues/737",
+    "https://github.com/aharada54914/sdd-forge/issues/738",
+    "https://github.com/aharada54914/sdd-forge/issues/739",
+    "https://github.com/aharada54914/sdd-forge/issues/740",
+    "https://github.com/aharada54914/sdd-forge/issues/744"
+  ],
+  "integrated_existing_fixes": [
+    "6b2df273: workflow/runtime and regression changes excluding prior UI work",
+    "f996c4d0: native reviewer and review contract changes excluding prior reports"
+  ],
+  "new_regressions": {
+    "handshake": {
+      "pass": 985,
+      "fail": 0
+    },
+    "native_adapters": {
+      "pass": 13,
+      "fail": 0
+    },
+    "domain_sync_pester4": {
+      "pass": 25,
+      "fail": 0
+    },
+    "protected_boundary": {
+      "pass": 228,
+      "fail": 0
+    },
+    "ship_track": {
+      "pass": 162,
+      "fail": 0
+    }
+  },
+  "lite_external_checks": {
+    "non_json_constants": "PASS: all three now exit 2 with stderr and no stdout",
+    "powershell_test_wrapper": "PASS: actual managed pwsh executed all 12 tests"
+  },
+  "final_installed_state_checks": {
+    "lite-done-state": "PASS",
+    "full-contract": "PASS",
+    "full-evidence": "PASS",
+    "full-task-state": "PASS",
+    "full-workflow-state": "PASS"
+  },
+  "full_reviews": {
+    "spec": "PASS round 1",
+    "implementation_policy": "PASS round 2",
+    "task_decomposition": "PASS round 1"
+  },
+  "full_approval": "Actual user approved this disposable Full flow and subsequent routine verification approvals; recorded 2026-11-13; no SDD_SUDO",
+  "completed_at": "2026-11-13T04:55:50.178812+00:00",
+  "full_gate": {
+    "report": "reports/quality-gate/20261113T044618Z-s3-event-summary-T-001.md",
+    "contract": "specs/s3-event-summary/verification/T-001.gate-2.contract.json",
+    "evidence_bundle": "specs/s3-event-summary/verification/T-001.evidence.json",
+    "evaluator_session": "01a1d338-af23-7891-bd4c-87f15bfca98c",
+    "verdict": "PASS",
+    "typecheck": "mypy 1.18.2, actual executable, --check-untyped-defs, fresh cache, exit 0",
+    "prior_failures": "29 prior evidence/report files verified unchanged"
+  },
+  "evaluator_role_regression": {
+    "cases": 13,
+    "skipped": 1,
+    "result": "PASS; canonical body parity and read-only mode preserved",
+    "frontmatter_targets": 10,
+    "frontmatter_drift": 0,
+    "source_commit": "45e29a9b"
+  },
+  "verified_code_commit": "45e29a9b"
+}

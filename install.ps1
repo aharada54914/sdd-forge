@@ -188,6 +188,10 @@ function Invoke-IdempotentPluginCommand {
 
     $result = Invoke-CapturedCommand -Command $Command -Arguments $Arguments
     if ($result.ExitCode -eq 0) { return }
+    # A different source is a conflict, not an idempotent registration.
+    if ($result.Output -imatch 'already added from a different source') {
+        throw "$Label points to a different source. Re-register it from the install root before retrying; existing plugin caches may lack the packaged runtime."
+    }
     if ($result.Output -imatch $script:IdempotentRegistrationPattern) {
         Write-Host "Note: $Label is already registered; keeping the existing registration."
         return

@@ -1,0 +1,33 @@
+# AWS Lite / Full workflow verification
+
+**Both tracks reached Done in the isolated local AWS S3 notification utility fixture.** Final continuation: 2026-11-13. The result is working-tree implementation verification, not live AWS deployment or production acceptance.
+
+| Track | Actual outcome | Evidence |
+|---|---|---|
+| Lite | T-001 Done; independent Lite gate PASS; 12 tests; command discovery and Done-state validation PASS | `lite/reports/quality-gate/T-001-attempt-2.md` in the archive |
+| Full | T-001 Done; three A/B bootstrap reviews PASS; implementation, 11 tests, mypy 1.18.2, fresh independent evaluator and gate cycle 2 PASS | `full/reports/quality-gate/20261113T044618Z-s3-event-summary-T-001.md` in the archive |
+
+Final installed validators independently returned exit 0 for Lite Done state, Full verification contract, evidence bundle, task state and repository workflow state. External acceptance checked decoding, Unicode, multiple records, input immutability, invalid shapes and real CLI success/error/non-JSON constant cases. The managed host also executed the Lite PowerShell test wrapper successfully; this is not native Windows certification.
+
+| Issue | Finding and correction |
+|---|---|
+| [#732](https://github.com/aharada54914/sdd-forge/issues/732) | Installer treated a different marketplace source as successful idempotency, leaving AWS without runtime. Both installers reject the conflict and explain recovery. |
+| [#737](https://github.com/aharada54914/sdd-forge/issues/737) | Missing Codex denial-capture guidance stranded bootstrap. Added a shared response template and native evidence-edit procedure; actual Lite and Full handshakes returned HOOK_ACTIVE. |
+| [#738](https://github.com/aharada54914/sdd-forge/issues/738) | Full bootstrap required optional domain-sync without domain/. Preserve the existing exact absent-domain skip contract before resolving that skill. |
+| [#739](https://github.com/aharada54914/sdd-forge/issues/739) | Generated mixed exclusions failed the ship risk grammar. Preserve all excluded scope in supported sections and recheck the whole generated ship input; no positive requirement is filtered away. |
+| [#740](https://github.com/aharada54914/sdd-forge/issues/740) | Generated Lite fixture accepted NaN/Infinity and had no discoverable test wrapper. Corrected the fixture, added regressions and paired scripts, then reran the real independent gate. This is a fixture finding, not a shipped S3 parser. |
+| [#744](https://github.com/aharada54914/sdd-forge/issues/744) | Shipped Codex evaluator TOML lacked canonical manifest/receipt and identity-output rules. Synchronized its instructions while retaining role metadata/read-only mode; red/green parity regression, frontmatter check and actual installed evaluator execution verified the correction. |
+
+The source fixes are committed on `work/20261107-200645-aws-workflow-verify` (latest code fix `45e29a9b`). Initial baseline was `08398f03`. Existing workflow/native-review repairs from `6b2df273` and `f996c4d0` were reused without unrelated prior UI work or report artifacts. These branch fixes are not an automatic merge or release.
+
+The actual user approved Lite T-001 and later explicitly approved the disposable Full flow and subsequent routine verification approvals. Each approval and exact artifact hashes are recorded in the fixture. No approval wait, fabricated human event, SDD_SUDO token, waived check or invented Done was used in the final continuation. Frozen spec/task bodies and the prior failure reports remain preserved; only admitted lifecycle fields advance.
+
+Full initially lacked routing inputs. The operator supplied the existing trusted installed v2 registry, a real successful registered-model availability probe, and public model pricing with explicit token assumptions. USD 0.60 is an API-equivalent planning estimate, not measured billing, quota or a hard cap. Native effective model/effort controls were verified before work. Initial configuration/snapshot admission failures were preserved before substantive execution. A fresh implementer used a read-only input snapshot and separate declared writable outputs.
+
+The first genuine Full evaluator reran all 11 tests and returned NEEDS_WORK because a required typecheck selected a Python without mypy. The already installed `/workspace/.tools/sdd-forge-python/bin/mypy` then passed with a fresh cache. A new gate/evaluator cycle admitted that real evidence through the sanctioned supplemental-delivery path and returned PASS. It did not rewrite the frozen implementation report, reuse the evaluator or convert the old failure into a pass. All 29 prior files checked before cycle 2 retained their hashes. Both technical review tickets are resolved; the retrospective and final installed run record were emitted.
+
+The outer author used the selected managed environment's execution setting. Independent reviewers/evaluators retained named read-only permission profiles; actual probes established admitted-read success and outside-read/write/network denial before reservation. Extra nested author sandbox network/socket failures were retained as setup diagnostics. Native IDs, hash-chain receipts, input pins and actual verdicts are inspectable in the archive; allocation/delivery alone is never treated as PASS.
+
+`results.json` is the final machine-readable outcome. `final-state-validation.json` contains the external final commands and raw results. `native-execution-index.json` records this task's session IDs and transcript digests. `test-evidence.zip` contains both disposable fixtures, earlier regressions, approvals, actual model controls, permission/reservation/delivery records, source/tests and final gate evidence. Credentials, unrelated sessions, parent environment/process dumps, bytecode and typechecker caches are excluded. `SHA256SUMS` binds the report artifacts. Observations are unblinded functional checks, not statistical model evaluation or a guarantee for every project/host. Fixtures are intentionally uncommitted; the Full bundle records the dirty tree and passes under its actual medium-risk contract.
+
+PR preparation on 2026-11-14 integrated main `0f4e3268`, preserving its SQL additions. Conflicting verification-catalog registrations were combined by suite/category identity; successor publication pins retain both change descriptions and unchanged frozen predecessors. Post-integration checks passed: verification catalog 15 tests, track selection 164 assertions, Codex review/evaluator role suite 13 cases with 1 optional native case skipped, and diff whitespace checks. The recorded Lite/Full end-to-end executions remain the 2026-11-13 evidence; they were not rerun for this main synchronization.

@@ -6,35 +6,35 @@
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "443803f2a4b8c13ffc2dfdba1632fd40d65da9ab6e16cca3e68e2bd4e09b801d",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back."
+      "live_sha256": "ab2e04f796bde88e1ad4842f02657fcbae9684d0512ba2a900a36c85b1d9153c",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Installed consumer runtime resolution, native Codex review and handshake evidence capture; frozen predecessor unchanged. These are candidate byte pins, not review or approval evidence."
     },
     {
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "443803f2a4b8c13ffc2dfdba1632fd40d65da9ab6e16cca3e68e2bd4e09b801d",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back."
+      "live_sha256": "ab2e04f796bde88e1ad4842f02657fcbae9684d0512ba2a900a36c85b1d9153c",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Installed consumer runtime resolution, native Codex review and handshake evidence capture; frozen predecessor unchanged. These are candidate byte pins, not review or approval evidence."
     },
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "live_sha256": "6dfae2558c7ed021ee3afae8b425cff39ef1a113b5e2453cbf4ebe7cfdf92975",
       "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
-      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
+      "intentional_changes": "Installed consumer runtime resolution, native Codex review and handshake evidence capture; frozen predecessor unchanged. These are candidate byte pins, not review or approval evidence. Canonical risk-exclusion authoring and complete generated ship-input recheck (#739); no requirement filtering. User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
     },
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
+      "live_sha256": "6dfae2558c7ed021ee3afae8b425cff39ef1a113b5e2453cbf4ebe7cfdf92975",
       "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
     },
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
+      "live_sha256": "6dfae2558c7ed021ee3afae8b425cff39ef1a113b5e2453cbf4ebe7cfdf92975",
       "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
     }
   ]

@@ -278,5 +278,32 @@ class NativeClaude(unittest.TestCase):
             self.assertEqual(result.returncode,61,result.stderr)
 
 
+class NativeCodexCapture(unittest.TestCase):
+    def test_evidence_patch_allowed_while_canary_stays_protected(self):
+        challenge = handshake.build_challenge()
+        record = challenge['recorded_result_template']['codex-cli']
+        self.assertEqual(set(record), {'schema', 'runtime', 'nonce', 'executed', 'raw_result'})
+        self.assertEqual(record['schema'], 'sdd-codex-host-denial/v1')
+        self.assertEqual(record['nonce'], challenge['nonce'])
+        self.assertFalse(record['executed'])
+        self.assertIsNone(record['raw_result'])
+        guard = SCRIPT.with_name('sdd-hook-guard.py')
+        canary = challenge['tool_call_template']['codex-cli']['tool_input']['patch']
+        with tempfile.TemporaryDirectory() as directory:
+            def decision(patch):
+                return subprocess.run([sys.executable, str(guard)], cwd=directory,
+                    input=json.dumps({'tool_name': 'apply_patch', 'tool_input': {'command': patch}}),
+                    text=True, capture_output=True)
+            denied = decision(canary)
+            self.assertEqual(denied.returncode, 2, denied.stderr)
+            record['raw_result'] = 'Command blocked by PreToolUse hook: ' + denied.stderr + '. Command: ' + canary
+            content = json.dumps(record, ensure_ascii=False, indent=2)
+            evidence_patch = ('*** Begin Patch\n*** Add File: reports/bootstrap/response.json\n'
+                + ''.join('+' + line + '\n' for line in content.splitlines()) + '*** End Patch')
+            allowed = decision(evidence_patch)
+            self.assertEqual(allowed.returncode, 0, allowed.stderr)
+            self.assertEqual(decision(canary).returncode, 2)
+
+
 if __name__ == '__main__':
     unittest.main()
