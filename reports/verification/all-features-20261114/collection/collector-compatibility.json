@@ -1,0 +1,37 @@
+{
+  "elapsedSeconds": 4.28,
+  "oldFeatureCount": 48,
+  "newFeatureCount": 51,
+  "missingOldFeatures": [],
+  "oldTaskCount": 265,
+  "newTaskCount": 274,
+  "missingOldTasks": [],
+  "existingSourceChanges": 0,
+  "existingDisplayNameChanges": 0,
+  "observedMetadataChanges": [],
+  "phaseDifferences": [],
+  "newFeatures": [
+    {
+      "id": "lite/task-board",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "warnings": []
+    },
+    {
+      "id": "full/task-board",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "warnings": []
+    },
+    {
+      "id": "sqlite/sqlite-task-board",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "warnings": []
+    }
+  ],
+  "newTaskFailures": [],
+  "collectorSha256": "84f45ae0d746fa6ed4d9784883c7d3539e245e87e0604b91369726ebbade460d",
+  "adapterSha256": "487c14bf8638e6188427d8bcabb5d781bb82fcdb3f387cd683502e78660f608a",
+  "mcpServerSha256": "345d30e6e36315c6b06e39df5602d01ee3d6aa4a1c631760a6199449c8e807f8"
+}

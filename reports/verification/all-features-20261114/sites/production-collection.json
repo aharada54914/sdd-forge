@@ -1,0 +1,68 @@
+{
+  "scope": "actual owner-private production service API; no authenticated visitor-browser claim",
+  "deploymentVersion": 15,
+  "sourceCommit": "487d719a71a41bf1db67df7f67a1d37d9e5131b9",
+  "cycles": 3,
+  "exitCode": 0,
+  "cyclePublishedAt": [
+    "2026-11-14T05:09:13.747846+00:00",
+    "2026-11-14T05:09:21.340060+00:00",
+    "2026-11-14T05:09:29.557746+00:00"
+  ],
+  "sameRevisionAcrossCycles": true,
+  "revision": "cb9e07564a7b3019091296fb8a6a115ef15bcea2f79163919203a3ff4b31cd39",
+  "checkedAt": "2026-11-14T05:09:22.822579+00:00",
+  "changedAt": "2026-11-14T05:09:06.064390+00:00",
+  "featuresBefore": 48,
+  "featuresAfter": 51,
+  "tasksBefore": 265,
+  "tasksAfter": 274,
+  "missingExistingFeatures": [],
+  "missingExistingTasks": [],
+  "newFeatures": [
+    {
+      "id": "lite/task-board",
+      "displayName": "Lite検証 / task-board",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "warnings": []
+    },
+    {
+      "id": "full/task-board",
+      "displayName": "Full検証 / task-board",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "warnings": []
+    },
+    {
+      "id": "sqlite/sqlite-task-board",
+      "displayName": "SQLite検証 / sqlite-task-board",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "warnings": []
+    }
+  ],
+  "oldHistoryCount": 4,
+  "newHistoryCount": 14,
+  "oldHistoryRetained": true,
+  "healthAtReadback": {
+    "schema": "sdd-monitor/v1",
+    "observedAt": "2026-11-14T05:09:29.557746+00:00",
+    "state": "running",
+    "publisherVersion": "6275731cef50",
+    "collectorVersion": "6275731cef50",
+    "lastPublishAt": "2026-11-14T05:09:22.822579+00:00",
+    "lastSourceAt": "2026-11-14T05:09:22.822579+00:00",
+    "consecutiveFailures": 0,
+    "collectorRestarts": 0,
+    "collectionMs": 6735,
+    "lastError": null
+  },
+  "sourceStaleAtReadback": false,
+  "sourceErrorAtReadback": false,
+  "limits": [
+    "Bounded three-cycle run completed; no persistent daemon or schedule installed.",
+    "Service credentials do not establish human browser sign-in."
+  ],
+  "privateReadbackSha256": "beb77d13a6b18b9499ba2a4d8738e8eeb53dd852615f89ba209a8e995675b21d"
+}

@@ -17,7 +17,7 @@ The November 7–13 disposable Lite/Full/SQLite runs completed the specification
 | fix-by-review-ticket | Actual SQLite corrections, immutable failures and authorized continuation | Human-only judgment or unrelated approval is not bypassable |
 | quality-gate / workflow-retrospective | Actual final all-task gates and retrospective records | Formal, cross-model and optional capabilities are not all enabled in these applications |
 | design-sync-loop / visual-verify-loop | ImageGen → approved tokens → application → Chromium screenshots | **Claude Design / DesignSync / Claude Preview / WPF native paths remain separate**, not proven by ImageGen |
-| investigate-codebase / diagnose / sdd-adopt | Workflow scenario and routing tests can exercise contracts | Dedicated native brownfield/diagnosis user runs have not been shown in this session |
+| investigate-codebase / diagnose / sdd-adopt | Dedicated native brownfield date-range scenario: adoption twice with preservation/idempotence, independent investigation, real RED diagnosis, one-line bug fix, independent Lite gate and Done | Prepared request initially triggered conservative risk escalation; documented product-scope normalization passed unchanged guard. Not evidence for every natural-language form or Full refactor mode |
 | research-sources | Current deterministic owner/discovery/acquire/evidence/consumer suites | Fixture sources do not prove live primary-source search/upload capability |
 | create-project-skill / maintain-project-skill | Current lifecycle, observation, profiles and bounded formal verification tests | Full native authoring/maintenance of every profile is distinct |
 | cross-model-verify | Prior contract checks and guarded routing exist | Genuine Claude/GPT/Gemini independent panel execution requires available authenticated providers |
@@ -30,11 +30,11 @@ The November 7–13 disposable Lite/Full/SQLite runs completed the specification
 |---|---|---|
 | sdd-domain (6 skills) | Concept, continuity, domain finalize and multitarget foundation suites; actual replay fixtures | Full seven-stage native DDD interview/new/update/reverse and human model approval |
 | sdd-azure-cloud / sdd-aws-cloud | Available local route/plan/validate contract suites | Real paid cloud apply, credentials, IAM, rollback; README explicitly marks sandbox acceptance TEST-003/005/009 BLOCKED |
-| sdd-forge-mcp | Supported Node 26.13, build/typecheck, 314 tests, actual subprocess tools/list and real completed Full task read | All clients and public deployment; MCP remains advisory/read-only |
+| sdd-forge-mcp | Supported Node 26.13, build/typecheck, 319 final tests after #755; actual subprocess tools/list and completed Lite/Full/SQLite reads all PASS / done | All clients and public deployment; MCP remains advisory/read-only; Project Context-approved Lite profile is not implemented by the limited legacy-profile repair |
 | local-env-mcp | Supported Node 26.13, build/typecheck, 57 tests, actual subprocess CLI availability | Missing CLI providers are not installed/signed in by discovery |
 | ci-mcp | Supported Node 26.13, build/typecheck, 160 tests; real authenticated workflow/runs/jobs/artifacts tools succeed | Job-log API media bug #752 fixed (415→302); fresh unexpired blob redirect blocked at proxy CONNECT with 403, cause of refusal unconfirmed |
 | Local status UI | MCP tests plus actual completed Full application browser display, refresh, evidence, mobile and read-only source check | A loopback dashboard is not Sites production authentication |
-| Sites automatic collection and signed-in production browser | Separate root/collector verification branch in this report | Saved snapshots alone are not continuous collection or authenticated browser evidence |
+| Sites automatic collection and signed-in production browser | Version 15, three actual production collection/publish cycles; 51 features / 274 tasks, existing identities/history retained. Local automatic file-change/browser-poll and failure/recovery/stale/restart checks passed | Bounded execution is not an always-on service; authenticated visitor browser still pending |
 | Installer / hook host integration | Existing tests cover isolated fake-home/file and host contracts | Linux PowerShell is not Windows; CLI payload injection is not real Claude/Copilot hook activation |
 
 ## Current-source execution
