@@ -4,6 +4,7 @@
 import importlib.util
 import json
 import os
+import shutil
 from pathlib import Path
 import sys
 import subprocess
@@ -113,6 +114,9 @@ class Lifecycle(unittest.TestCase):
                 target = installed / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / relative).read_bytes())
+            shared = "plugins/sdd-quality-loop/scripts/"
+            shutil.copyfile(ROOT / (shared + "sdd_schema.py"), installed / (shared + "sdd_schema.py"))
+            shutil.copytree(ROOT / (shared + "_schema_vendor"), installed / (shared + "_schema_vendor"))
             runner_path = installed / "plugins/sdd-bootstrap/scripts/project-skill.py"
             copied_spec = importlib.util.spec_from_file_location(
                 "copied_runner", runner_path
@@ -123,6 +127,7 @@ class Lifecycle(unittest.TestCase):
                 runner_path,
                 Path(copied.V.__file__),
                 Path(copied.V._schema.__file__),
+                *copied.V._schema.schema_runtime_files(),
             ):
                 original = path.read_bytes()
                 path.write_bytes(original + b"\n# changed after import\n")

@@ -1,0 +1,27 @@
+{
+  "ticket_id": "RT-0001",
+  "status": "open",
+  "type": "implementation-gap",
+  "severity": "critical",
+  "target": {
+    "feature": "orders-note",
+    "task": "T-001",
+    "files": [
+      "specs/orders-note/tasks.md",
+      "reports/implementation/T-001.md"
+    ]
+  },
+  "summary": "SQL implementation and real DB evidence missing",
+  "problem": "Scoped migration/query directories are absent; required isolated PostgreSQL/Flyway executions, retained values, compatibility, boundaries, history/drift and recovery observations are not run.",
+  "expected_fix": [
+    "Provide owned isolated resource and trusted tooling, implement approved scope, and collect actual acceptance execution evidence."
+  ],
+  "references": [
+    ".run-temp/ship-Ji5HdLez/checks.json",
+    ".run-temp/ship-Ji5HdLez/observations.md",
+    "specs/orders-note/design.md"
+  ],
+  "auto_fix_allowed": false,
+  "requires_human_decision": false,
+  "review_cycles": 1
+}

@@ -37,11 +37,11 @@ function New-FakeCli([string]$Bin, [string]$Log) {
     foreach ($name in @("codex", "claude", "copilot", "gh")) {
         if ($windowsHost) {
             $path = Join-Path $Bin "$name.cmd"
-            Set-Content -LiteralPath $path -Encoding ascii -Value "@echo off`necho $name %*>>`"$Log`"`nexit /b 0"
+            Set-Content -LiteralPath $path -Encoding ascii -Value "@echo off`necho $name %*>>`"$Log`"`nif `"%~1`"==`"--version`" (echo 2.1.317 ^(Claude Code^) & exit /b 0)`nexit /b 0"
         }
         else {
             $path = Join-Path $Bin $name
-            Set-Content -LiteralPath $path -Encoding utf8NoBOM -Value "#!/bin/sh`nprintf '%s %s\\n' '$name' `"\$*`" >> '$Log'`nexit 0"
+            Set-Content -LiteralPath $path -Encoding utf8NoBOM -Value "#!/bin/sh`nprintf '%s %s\\n' '$name' `"\$*`" >> '$Log'`nif [ `"`$1`" = --version ]; then echo '2.1.317 (Claude Code)'; exit 0; fi`nexit 0"
             & chmod +x $path
         }
     }

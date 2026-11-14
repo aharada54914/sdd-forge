@@ -1,0 +1,18 @@
+ticket_id: RT-0003
+status: open
+type: test-gap
+severity: major
+target:
+  feature: orders-note
+  task: T-001
+  files: []
+summary: "Gate and independent-review prerequisites are missing."
+problem: "Workflow-state fails registry-unreadable; traceability.json is absent. Report exists only at reports/implementation/T-001.md and has no Outputs table. No canonical evaluator delivery manifest or ledger exists. Independent evaluator was not launched."
+expected_fix:
+  - "Restore workflow registry, traced execution evidence and canonical implementation report/delivery inputs through their existing owners; rerun the normal quality gate with a fresh isolated evaluator."
+references:
+  - specs/orders-note/tasks.md#T-001
+  - .run-temp/ship-PSKV3uBb/inspection.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 0

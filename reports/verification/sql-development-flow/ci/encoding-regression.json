@@ -1,0 +1,99 @@
+{
+  "cp1252-before": {
+    "tests": 5,
+    "successful": false,
+    "errors": 6,
+    "failures": 0,
+    "skipped": 0,
+    "simulation_scope": "cp1252 default decoding of the five SQL-modified SKILL paths only; other files and OS configuration unchanged",
+    "observed_reads": [
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": null
+      },
+      {
+        "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+        "encoding": null
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": null
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": null
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": null
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+        "encoding": null
+      }
+    ]
+  },
+  "cp1252-after": {
+    "tests": 5,
+    "successful": true,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "simulation_scope": "cp1252 default decoding of the five SQL-modified SKILL paths only; other files and OS configuration unchanged",
+    "observed_reads": [
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+        "encoding": "utf-8"
+      }
+    ]
+  },
+  "normal-after": {
+    "tests": 5,
+    "successful": true,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "simulation_scope": "cp1252 default decoding of the five SQL-modified SKILL paths only; other files and OS configuration unchanged",
+    "observed_reads": []
+  }
+}

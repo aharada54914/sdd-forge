@@ -546,8 +546,10 @@ Body text unrelated to any check.
         Test-Ok "TEST-019.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window"
     }
 
+    # SQL references add 14 lines and one heading before the byte-identical
+    # capability window (main 75c6919b:145-184); the expected digest is unchanged.
     $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 145 -End 184 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 6
+    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 159 -End 198 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 7
     # The live check activates only after A5's interviewer caller exists. The
     # spec directory may be staged before that insertion point is wired.
     $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and

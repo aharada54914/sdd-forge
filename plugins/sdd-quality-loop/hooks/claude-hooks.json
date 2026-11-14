@@ -1,5 +1,5 @@
 {
-  "description": "Claude Code-specific enforcement layer for the SDD quality loop. This file is referenced from .claude-plugin/plugin.json via the 'hooks' field and uses the officially recommended exec form with Node.js so the gates run identically on Windows (no Git Bash needed), macOS, and Linux. ${CLAUDE_PLUGIN_ROOT} is expanded by Claude Code itself before spawning and works in args on all operating systems. hooks/hooks.json remains the Codex CLI enforcement config; hooks/copilot-hooks.json remains the GitHub Copilot CLI variant.",
+  "description": "Claude Code >= 2.1.295 enforcement layer for the SDD quality loop. This file is referenced from .claude-plugin/plugin.json via the 'hooks' field and uses the officially recommended exec form with Node.js so the gates run identically on Windows (no Git Bash needed), macOS, and Linux. ${CLAUDE_PLUGIN_ROOT} is expanded by Claude Code itself before spawning and works in args on all operating systems. onFailure:block prevents runtime startup failures, crashes, and timeouts from allowing the tool call; a fresh native canary must still prove guard activation. hooks/hooks.json remains the Codex CLI enforcement config; hooks/copilot-hooks.json remains the GitHub Copilot CLI variant.",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,6 +8,7 @@
           {
             "type": "command",
             "command": "node",
+            "onFailure": "block",
             "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/kill-switch.js"]
           }
         ]
@@ -18,6 +19,7 @@
           {
             "type": "command",
             "command": "node",
+            "onFailure": "block",
             "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/sdd-hook-guard.js", "--emit", "exit"]
           }
         ]

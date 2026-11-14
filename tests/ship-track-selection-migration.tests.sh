@@ -962,7 +962,7 @@ succ_expect() { # succ_expect <label> <expected-ship-state>
   assert_eq "$(publication_state "$LIVE_SHIP" "$DOC_SHIP" "$SUCC")" "$2" "TEST-PUB successor: $1"
 }
 succ_reset; succ_expect "pinned successor baseline is admitted" published
-assert_eq "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" published "TEST-PUB successor: unchanged byte-equal consumer stays published"
+assert_eq "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" published "TEST-PUB successor: unmodified consumer stays published"
 succ_reset; printf 'x\n' >> "$SUCC/$LIVE_SHIP"; succ_expect "unknown live edit is drift" drift
 succ_reset; printf 'x\n' >> "$SUCC/$DOC_SHIP"; succ_expect "altered staged predecessor is drift" drift
 succ_reset; cp "$SUCC/$LIVE_SHIP" "$SUCC/$DOC_SHIP"; succ_expect "staged replaced by live (equal bytes) is drift" drift
@@ -980,7 +980,7 @@ assert_ne "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" "$(pub
 succ_reset; sed '/sdd:track-selection-contract/d' "$ROOT/$LIVE_LITESPEC" > "$SUCC/$LIVE_LITESPEC"
 assert_ne "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" "$(publication_state "$LIVE_SHIP" "$DOC_SHIP" "$SUCC")" \
   "TEST-PUB successor: one unpublished consumer breaks pair consistency"
-# Every fixture record (both predecessors) must verify against the real files.
+# Every fixture record (all pinned predecessors) must verify against the real files.
 for rec in $("$PY" -I -c 'import json,sys;[print(e["live"]+"="+e["staged"]) for e in json.load(open(sys.argv[1]))["successors"]]' "$ROOT/$SUCC_FIXTURE"); do
   assert_eq "$(publication_state "${rec%%=*}" "${rec#*=}")" published "TEST-PUB successor record [${rec#*=}] verifies against live and staged bytes"
 done

@@ -62,6 +62,9 @@ CLOSURE = [
     "plugins/sdd-ship/status-site/service/sdd-dashboard.service",
     "contracts/sdd-dashboard.v1.schema.json",
     "docs/hosted-status-views.md",
+    "plugins/sdd-quality-loop/scripts/sdd_schema.py",
+    "plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py",
+    "plugins/sdd-quality-loop/scripts/_schema_vendor/manifest.json",
 ]
 
 # Tracked development content that must never be installed (every value is FAKE).
@@ -185,7 +188,7 @@ def node_ok():
     except OSError:
         return False
     match = re.fullmatch(r"v?(\d+)\.(\d+)\.(\d+)", out)
-    return bool(match) and tuple(map(int, match.groups())) >= (22, 19, 0)
+    return bool(match) and tuple(map(int, match.groups())) >= (26, 13, 0)
 
 
 def symlinks_ok():
@@ -523,6 +526,15 @@ class PayloadChecks(unittest.TestCase):
         result = run([sys.executable, "-I", str(script), "--help"], cwd=str(self.tmp), env=scenario_env(self.tmp))
         self.assertEqual(result.returncode, 0, describe(result))
         self.assertIn("usage:", result.stdout)
+        validator = root / "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+        fixture = REPO / "tests/fixtures/facet-manifest/schema/valid-base.json"
+        result = run([sys.executable, "-I", "-S", "-c",
+                      "import runpy,sys;sys.argv=sys.argv[1:];runpy.run_path(sys.argv[0],run_name='__main__')",
+                      str(validator), "--manifest", str(fixture)],
+                     cwd=str(self.tmp), env=scenario_env(self.tmp))
+        self.assertEqual(result.returncode, 0, describe(result))
+        self.assertEqual(result.stdout, "")
+
 
     def test_local_source_installs_only_the_payload(self):
         root = self.root_for("default")
@@ -548,8 +560,8 @@ class PayloadChecks(unittest.TestCase):
         if not self.has_node:
             gated = self.root_for("no-node")
             self.install_ok(gated, source=self.fx.path)
-            self.assertFalse((gated / "mcp").exists(), "the Node >= 22.19.0 gate must skip MCP placement")
-            self.skipTest("Node.js >= 22.19.0 is required to exercise MCP placement")
+            self.assertFalse((gated / "mcp").exists(), "the Node >= 26.13.0 gate must skip MCP placement")
+            self.skipTest("Node.js >= 26.13.0 is required to exercise MCP placement")
         for label, kwargs in self.sources():
             with self.subTest(source=label):
                 root = self.root_for(f"mcp-{label}")
@@ -561,7 +573,7 @@ class PayloadChecks(unittest.TestCase):
 
     def test_local_mcp_links_are_skipped_without_following_them(self):
         if not self.has_node or not self.fx.symlinks:
-            self.skipTest("Node >= 22.19.0 and local symlinks are required")
+            self.skipTest("Node >= 26.13.0 and local symlinks are required")
         for index, relative in enumerate(("mcp", "mcp/local-env-mcp", "mcp/local-env-mcp/dist",
                                            "mcp/local-env-mcp/dist/index.js", "mcp/local-env-mcp/package.json")):
             with self.subTest(link=relative):

@@ -50,6 +50,12 @@
     ]
   },
   "suites": [
+    {"path": "tests/dashboard-publisher.tests.py", "runtime": "python"},
+    {"path": "tests/dashboard-runtime.tests.py", "runtime": "python"},
+    {"path": "tests/sql-development-contract.tests.py", "runtime": "python", "ci_jobs": ["sql-contract"]},
+    {"path": "tests/sql-development-postgres.tests.py", "runtime": "python", "args": ["--output", "../sql-postgres-proof.json"], "ci_jobs": ["sql-postgres"]},
+    {"path": "tests/sql-development-mysql.tests.py", "runtime": "python", "args": ["--output", "../sql-mysql-proof.json"], "ci_jobs": ["sql-mysql"]},
+    {"path": "tests/sql-development-tsql.tests.py", "runtime": "python", "args": ["--output", "../sql-tsql-proof.json", "--sqlpackage", "../sql-tsql-tools/sqlpackage"], "ci_jobs": ["sql-tsql"]},
     {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
     {"path": "tests/cloud-orchestration-execution.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
@@ -134,6 +140,7 @@
     {"path": "tests/ci-qcd-candidate.tests.sh", "runtime": "bash", "excluded": "Historical CI candidate patch diagnostic; not registered by the previous runners."},
     {"path": "tests/ci-suite-wiring.tests.sh", "runtime": "bash"},
     {"path": "tests/claude-bash-matcher.tests.sh", "runtime": "bash"},
+    {"path": "tests/claude-hook-runtime.tests.py", "runtime": "python", "args": ["--output", "claude-hook-runtime-proof.json"], "ci_jobs": ["cli-hook-enforcement"]},
     {"path": "tests/claude-manifest-validation.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
     {"path": "tests/claude-registration.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
     {"path": "tests/cli-hook-enforcement.ps1", "runtime": "powershell", "ci_jobs": ["cli-hook-enforcement"]},
@@ -473,6 +480,8 @@
     ],
     "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
+      "tests/dashboard-publisher.tests.py",
+      "tests/dashboard-runtime.tests.py",
       "tests/cloud-orchestration-contracts.tests.py",
       "tests/cloud-orchestration-routing.tests.py",
       "tests/cloud-orchestration-execution.tests.py",

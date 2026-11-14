@@ -270,6 +270,10 @@ function Copy-LoopFixtureReferences([string]$Root) {
         "plugins/sdd-domain/references/domain-review-calibration.md",
         "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
         "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+        "plugins/sdd-quality-loop/scripts/sdd_schema.py",
+        "plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py",
+        "plugins/sdd-quality-loop/scripts/_schema_vendor/draft-07.json",
+        "plugins/sdd-quality-loop/scripts/_schema_vendor/fastjsonschema.whl",
         "contracts/domain-contract.v1.schema.json",
         "contracts/domain-contract.v2.schema.json",
         "contracts/workflow-state-registry.schema.json"

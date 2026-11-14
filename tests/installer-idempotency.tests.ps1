@@ -171,6 +171,7 @@ function New-Stubs {
             $lines = @(
                 "@echo off",
                 "echo $command %*>>`"$LogPath`"",
+                '@if "%~1"=="--version" (echo 2.1.317 ^(Claude Code^) & exit /b 0)',
                 "echo %*| findstr /c:`"plugin marketplace update`" >nul && exit /b 0",
                 "echo %*| findstr /c:`"plugin marketplace add`" >nul && $marketplaceBody",
                 "echo %*| findstr /c:`"plugin update`" >nul && $updateBody",
@@ -193,6 +194,7 @@ function New-Stubs {
                 "#!/bin/sh",
                 "echo `"$command `$*`" >> `"$LogPath`"",
                 'case "$*" in',
+                '  --version) echo "2.1.317 (Claude Code)"; exit 0 ;;',
                 "  `"plugin marketplace update`"*) exit 0 ;;",
                 "  `"plugin marketplace add`"*) $marketplaceBody ;;",
                 "  `"plugin update`"*) $updateBody ;;",
@@ -207,14 +209,14 @@ function New-Stubs {
         }
     }
 
-    # Report a Node version that clears the >= 22.19.0 gate, so MCP placement
+    # Report a Node version that clears the >= 26.13.0 gate, so MCP placement
     # runs on every host regardless of the real toolchain.
     if ($isWindowsPlatform) {
-        Set-Content -Path (Join-Path $BinRoot "node.cmd") -Value "@echo off`r`necho v22.19.0`r`nexit /b 0" -Encoding Ascii
+        Set-Content -Path (Join-Path $BinRoot "node.cmd") -Value "@echo off`r`necho v26.13.0`r`nexit /b 0" -Encoding Ascii
     }
     else {
         $nodePath = Join-Path $BinRoot "node"
-        Set-Content -Path $nodePath -Value "#!/bin/sh`necho v22.19.0`n" -Encoding Utf8NoBOM
+        Set-Content -Path $nodePath -Value "#!/bin/sh`necho v26.13.0`n" -Encoding Utf8NoBOM
         & chmod +x $nodePath
     }
 }
@@ -237,6 +239,22 @@ function Invoke-IdempotencyScenario {
     Set-Content -Path $logPath -Value "" -Encoding Utf8NoBOM
 
     New-Stubs -BinRoot $binRoot -LogPath $logPath -Mode $Mode
+    $claudeOptions = @{}
+    if ($Mode -eq 'installed') {
+        # All upgrade and MCP calls must use the same explicitly selected CLI,
+        # even when a broken launcher shadows the default command on PATH.
+        $commandName = if ($isWindowsPlatform) { 'claude.cmd' } else { 'claude' }
+        $defaultCommand = Join-Path $binRoot $commandName
+        $selectedCommand = Join-Path $binRoot ("selected-" + $commandName)
+        Move-Item -LiteralPath $defaultCommand -Destination $selectedCommand
+        if ($isWindowsPlatform) {
+            Set-Content -LiteralPath $defaultCommand -Value '@exit /b 71' -Encoding Ascii
+        } else {
+            Set-Content -LiteralPath $defaultCommand -Value "#!/bin/sh`nexit 71" -Encoding Utf8NoBOM
+            & chmod +x $defaultCommand
+        }
+        $claudeOptions.ClaudeCommand = $selectedCommand
+    }
 
     if ($SeedExistingInstall) {
         New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
@@ -276,7 +294,7 @@ function Invoke-IdempotencyScenario {
     $transcript = Join-Path $testRoot "installer-output.txt"
     $failed = $false
     try {
-        & $installer -SourceDirectory $sourceFixture -InstallRoot $installRoot `
+        & $installer @claudeOptions -SourceDirectory $sourceFixture -InstallRoot $installRoot `
             -Target All -Plugins @("sdd-bootstrap") -Mcp @("sdd-forge-mcp") *> $transcript
     }
     catch {

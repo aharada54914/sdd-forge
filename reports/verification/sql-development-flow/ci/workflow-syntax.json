@@ -1,0 +1,17 @@
+{
+  "tool": "actionlint 1.7.12",
+  "archive_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+  "checks": "GitHub Actions syntax and expression contexts; shellcheck and pyflakes disabled",
+  "results": [
+    {
+      "revision": "d42e18aab53658a380a27fa5fd7de4a33a7568c9",
+      "state": "before",
+      "exit_code": 1
+    },
+    {
+      "revision": "working-tree-fix",
+      "state": "after",
+      "exit_code": 0
+    }
+  ]
+}

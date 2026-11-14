@@ -347,9 +347,21 @@ def rules(catalog, workflow):
         candidates = [s for s in workflow['jobs'][item['job']].get('steps', []) if s.get('name') == item['step']]
         if item['kind'] == 'setup':
             if ((item['job'], item['step']) != ('cli-hook-enforcement', 'Install Claude Code CLI')
-                    or len(candidates) != 1
-                    or candidates[0].get('run', '').rstrip('\n') != (
-                        'npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code\nclaude --version')):
+                    or len(candidates) != 1):
+                raise ValueError('unrecognized setup command cannot authorize omission')
+            command = candidates[0].get('run', '').rstrip('\n')
+            legacy = 'npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code\nclaude --version'
+            pinned = ('npm install -g --allow-scripts=@anthropic-ai/claude-code '
+                      '"@anthropic-ai/claude-code@${{ env.CLAUDE_CLI_VERSION }}"\nclaude --version')
+            environment = {}
+            for scope in (workflow, workflow['jobs'][item['job']], candidates[0]):
+                values = scope.get('env', {})
+                if not isinstance(values, dict):
+                    raise ValueError('invalid setup environment')
+                environment.update(values)
+            version = environment.get('CLAUDE_CLI_VERSION')
+            valid_pin = isinstance(version, str) and re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version)
+            if command != legacy and not (command == pinned and valid_pin):
                 raise ValueError('unrecognized setup command cannot authorize omission')
         elif len(candidates) != 1 or candidates[0].get('run', '').strip() not in (
                 'npm run build', 'npm test', 'npx tsc --noEmit', 'npm audit --omit=dev --audit-level=high'):

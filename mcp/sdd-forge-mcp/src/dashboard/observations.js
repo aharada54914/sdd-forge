@@ -50,4 +50,3 @@ export function observationView(stored, now=Date.now()) {
     tracking:state?.tracking || {},sourceStale:!stored?.checkedAt || now-Date.parse(stored.checkedAt)>60000,
     sourceError:!!stored?.error};
 }
-

@@ -69,6 +69,7 @@ export interface CliAvailabilityData {
  * commands are resolved; it is omitted in production tool registration.
  */
 export interface ToolProbeOptions {
+  probe?: typeof probeEngine;
   pathOverride?: string;
 }
 
@@ -156,7 +157,7 @@ export async function getToolchainVersions(
 
   const entries = selectEntries(parsed.data.names);
   const probeOptions = options.pathOverride === undefined ? {} : { pathOverride: options.pathOverride };
-  const results = await probeEngine(entries, probeOptions);
+  const results = await (options.probe ?? probeEngine)(entries, probeOptions);
 
   const mapped: ToolchainEntry[] = results.map((r) => {
     const entry: ToolchainEntry = { name: r.name, available: r.available };
@@ -181,7 +182,7 @@ export async function listAvailableClis(
   options: ToolProbeOptions = {},
 ): Promise<Result<CliAvailabilityData>> {
   const probeOptions = options.pathOverride === undefined ? {} : { pathOverride: options.pathOverride };
-  const results = await probeEngine([...ALLOWLIST], probeOptions);
+  const results = await (options.probe ?? probeEngine)([...ALLOWLIST], probeOptions);
   const entries: CliAvailabilityEntry[] = results.map((r) => ({ name: r.name, available: r.available }));
   return ok({ kind: "cli-availability", entries });
 }

@@ -1283,6 +1283,103 @@ def _shell_write_targets_are_safe(cmd):
     return True
 
 
+def _shell_is_literal_backup_copy(cmd):
+    """Resolve a bounded cp backup form; never guess unresolved destinations.
+
+    Only a protected regular source and a new absolute destination are admitted.
+    Existing files (including hard links), directories, and symlink parents are
+    deliberately outside this exception, matching the Node/PowerShell twins.
+    """
+    bindings = {"HOME": os.environ["HOME"]} if os.environ.get("HOME") else {}
+    rest = cmd.strip()
+    assignment = re.compile(r'''^([A-Za-z_][A-Za-z0-9_]*)=(?:"([A-Za-z0-9_ ./:\\-]+)"|'([A-Za-z0-9_ ./:\\-]+)'|([A-Za-z0-9_./:-]+))\s*;\s*''')
+    while True:
+        match = assignment.match(rest)
+        if not match:
+            break
+        name = match[1]
+        if not re.fullmatch(r"(?:BK|BACKUP(?:_[A-Z0-9]+)*|[a-z][a-z0-9_]*)", name):
+            return False
+        if match[2] and ("\\\\" in match[2] or match[2].endswith("\\")):
+            return False
+        bindings[name] = match[2] or match[3] or match[4]
+        rest = rest[match.end():]
+    if not rest.startswith("cp "):
+        return False
+    rest = rest[3:].strip()
+    args = []
+    while rest:
+        match = re.match(r'''^(?:"([^"`\r\n]*)"|'([^'\r\n]*)'|([A-Za-z0-9_./~:@%+=,-]+))(?:\s+|$)''', rest)
+        if not match:
+            return False
+        value = next(part for part in match.groups() if part is not None)
+        if match[1] is not None:
+            if re.search(r'\\[$`"\\]', value) or value.endswith("\\"):
+                return False
+            unknown = False
+
+            def expand(variable):
+                nonlocal unknown
+                name = variable[1] or variable[2]
+                if name not in bindings:
+                    unknown = True
+                    return ""
+                return bindings[name]
+
+            value = re.sub(r"\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))", expand, value)
+            if unknown:
+                return False
+        elif match[3] and value.startswith("~/") and bindings.get("HOME"):
+            value = bindings["HOME"] + value[1:]
+        if re.search(r"[$`*?\[\]{}\r\n]", value):
+            return False
+        args.append(value)
+        rest = rest[match.end():]
+    while args and args[0] in ("-a", "-p", "--archive", "--preserve"):
+        args.pop(0)
+    if args and args[0] == "--":
+        args.pop(0)
+    if len(args) != 2 or any(arg.startswith("-") for arg in args):
+        return False
+    if os.name == "nt":
+        args = [re.sub(r"^/([A-Za-z])/", r"\1:/", arg) for arg in args]
+        for arg in args:
+            normalized = arg.replace("\\", "/")
+            if (not re.match(r"^[A-Za-z]:/", normalized) or ":" in normalized[2:]
+                    or any(re.search(r"[ .]$", part) for part in normalized[3:].split("/"))):
+                return False
+    source, destination = args
+    if not destination.endswith('.bak'):
+        return False
+    if (not all(os.path.isabs(p) for p in args) or not _is_protected_gate_file(source)
+            or _is_protected_gate_file(destination)):
+        return False
+    try:
+        source_stat = os.lstat(source)
+        if (not stat.S_ISREG(source_stat.st_mode)
+                or getattr(source_stat, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
+            return False
+        try:
+            os.lstat(destination)
+            return False
+        except FileNotFoundError:
+            pass
+        parent = os.path.dirname(destination)
+        while True:
+            parent_stat = os.lstat(parent)
+            mode = parent_stat.st_mode
+            if (not stat.S_ISDIR(mode) or stat.S_ISLNK(mode)
+                    or getattr(parent_stat, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT):
+                return False
+            next_parent = os.path.dirname(parent)
+            if next_parent == parent:
+                break
+            parent = next_parent
+        return True
+    except OSError:
+        return False
+
+
 def _norm_dir(path_str):
     """REQ-002: normalize a tracked directory (forward slashes, collapse .. )."""
     return os.path.normpath(path_str.replace("\\", "/")).replace("\\", "/")
@@ -1743,7 +1840,7 @@ def _command_references_protected_path(cmd, directories=()):
     return False
 
 
-def _shell_targets_protected_gate_file(cmd, directories=()):
+def _shell_targets_protected_gate_file(cmd, directories=(), bash_semantics=False):
     """R-10: Deny shell commands that WRITE to protected gate files.
     Uses a token-based pre-filter (a protected path appears as a shell token
     or redirect target) combined with
@@ -1777,7 +1874,7 @@ def _shell_targets_protected_gate_file(cmd, directories=()):
         return False
     if not has_write:
         return False
-    return not _shell_write_targets_are_safe(cmd)
+    return not _shell_write_targets_are_safe(cmd) and not (bash_semantics and _shell_is_literal_backup_copy(cmd))
 
 
 def _shell_read_segments(cmd):
@@ -1838,14 +1935,47 @@ def _reader_glob_can_add_options(words, has_glob, expands):
     return False
 
 
-def _shell_has_globbed_reader_options(cmd):
+def _shell_has_globbed_reader_options(cmd, bash_semantics=False):
+    if bash_semantics and _shell_is_read_only_for_loop(cmd):
+        return False
     parsed = _shell_read_segments(cmd)
     return bool(parsed and (parsed["ambiguous"] or parsed["unknown_glob"] or any(
-        _reader_glob_can_add_options(words, glob, expands) for words, glob, expands in parsed["segments"])))
+        _shell_for_binding_is_unsafe(words) or _reader_glob_can_add_options(words, glob, expands)
+        for words, glob, expands in parsed["segments"])))
 
 
-def _shell_is_read_only(cmd):
+def _shell_for_binding_is_unsafe(words):
+    """Bash integer/array bindings can execute filenames before a reader runs."""
+    # Token sequences cover compound prefixes without reimplementing Bash's
+    # grammar. Whole quoted phrases stay a single token; quote such data whole.
+    for index, word in enumerate(words):
+        binding = words[index + 1] if index + 1 < len(words) else ""
+        following = words[index + 2] if index + 2 < len(words) else None
+        if (re.search(r"(?:^|[({)])for$", word) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", binding)
+                and not re.fullmatch(r"[a-z][a-z0-9_]*", binding)
+                and (following is None or following == "in" or following.startswith("#"))):
+            return True
+    return False
+
+
+def _shell_is_read_only_for_loop(cmd):
+    """Recognize a complete read-only Bash loop, not arbitrary ambiguous shell."""
+    if not isinstance(cmd, str):
+        return False
+    text = re.sub(r"\\\n", "", cmd).strip()
+    loop = re.fullmatch(r"for[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]+in[ \t]+([A-Za-z0-9_./*?\[\]-]+(?:[ \t]+[A-Za-z0-9_./*?\[\]-]+)*)[ \t]*[;\n]\s*do\s+([\s\S]+);\s*done[ \t]*;?", text)
+    if not loop or not re.fullmatch(r"[a-z][a-z0-9_]*", loop[1]):
+        return False
+    operand = r'"\$(?:' + loop[1] + r'|\{' + loop[1] + r'\})"'
+    reader = r"(?:cat|wc(?:[ \t]+-[clmwL])?|(?:head|tail)(?:[ \t]+-n[ \t]+[0-9]+)?)"
+    body = re.compile(reader + r"[ \t]+--[ \t]+" + operand)
+    return all(body.fullmatch(command.strip()) for command in loop[3].split(";"))
+
+
+def _shell_is_read_only(cmd, bash_semantics=False):
     """Classify every command; quoted patterns are data, expansions are not argv."""
+    if bash_semantics and _shell_is_read_only_for_loop(cmd):
+        return True
     parsed = _shell_read_segments(cmd)
     if parsed is None or not parsed["read_safe"] or parsed["ambiguous"] or parsed["unknown_glob"]:
         return False
@@ -2123,12 +2253,12 @@ def main():
 
         # Reject unknown argv before the legacy write scanners can miss glob-added options.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
-                and _shell_has_globbed_reader_options(tool_input.get("command"))):
-            emit("deny", "SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).", mode)
+                and _shell_has_globbed_reader_options(tool_input.get("command"), tool_name.lower() == "bash")):
+            emit("deny", "SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).", mode)
             return
         # Read-only shell inspection cannot change protected files or grant approvals.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
-                and _shell_is_read_only(tool_input.get("command"))):
+                and _shell_is_read_only(tool_input.get("command"), tool_name.lower() == "bash")):
             emit("allow", None, mode)
             return
 
@@ -2168,7 +2298,7 @@ def main():
         if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
             tool_input.get("command"), str
         ):
-            if _shell_targets_protected_gate_file(tool_input["command"], directories):
+            if _shell_targets_protected_gate_file(tool_input["command"], directories, tool_name.lower() == "bash"):
                 emit("deny", _GATE_PROTECT_MSG, mode)
                 return
 

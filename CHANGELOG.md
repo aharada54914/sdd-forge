@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `sdd-implementation:sql-develop` でMicrosoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求・データ契約・変更影響を整理し、既存bootstrapへ引き継ぐ。SQL共通手順を既存の仕様化・実装・独立検証へ接続する。
+- 隔離DBでの変更・失敗回復を扱う参照試験と、既存の承認・実装完了から本番接続を自動開始しない運用引き継ぎ。[SQL開発ガイド](docs/sql-development.md)を参照。
+
+
+## v1.23.1 (2026-11-05)
+
+### Fixed
+- Claude の安全フックに `onFailure: block` を設定し、Node の起動失敗で操作が通過する問題を修正。有効化確認はガードの拒否と実行環境の失敗を区別する。
+- 配置先を変更する前に、Claude 用フックの実行環境（Claude >= 2.1.295、Node >= 22.19.0）を制限時間付きで確認する。PowerShell は `-ClaudeCommand` / `SDD_CLAUDE_BIN` で指定した同じ CLI を登録・更新・MCP 登録に使用する。
+- 保護された設定ファイルの退避と、行継続を含む読み取りループの誤拒否を限定的に修正。未知の変数展開・危険なコピー先・書き込みを含むループは許可しない。
+- `SECONDS` / `RANDOM` などの特殊変数への代入時にファイル名を算術評価し、読み取りループから書き込みを起こせる旧解析経路も拒否。条件文や関数などに包まれた同じ経路も検証した。
+- Windows の長いパスによる不完全な checkout の復旧手順と、インストーラのエラー案内を追加。
+
+### Verification
+- 実 Claude ホストにローカル API fixture から同じ操作を返し、フック起動失敗時の native 拒否とファイル未作成を検証する回帰テストを追加。ライブモデルの受入評価とは区別する。
+- PowerShell 5.1 は起動方式の固有境界を検証し、共通のインストール仕様は PowerShell 7 の既存スイートで検証する。[原因と対策](docs/contributor/claude-runtime-hardening.md)を参照。
+
 ## v1.23.0 (2026-11-04)
 
 ### Restored

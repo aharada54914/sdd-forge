@@ -50,6 +50,28 @@ def receipt_name(run, attempt, job, matrix):
     return f'verification-receipts-{run}-{attempt}-{job_key(job, matrix)}'
 
 
+class TrustedParserTests(unittest.TestCase):
+    def test_dependency_updates_install_base_lock_without_scripts_and_fail_closed(self):
+        ci = module(SCRIPT, 'parser_reconstruction_ci')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'subject'
+            trusted = Path(directory) / 'base'
+            for target in (root, trusted):
+                package = target / 'mcp/sdd-forge-mcp'
+                package.mkdir(parents=True)
+                (package / 'package-lock.json').write_text(target.name)
+            (root / 'mcp/sdd-forge-mcp/node_modules/js-yaml').mkdir(parents=True)
+            with patch.object(ci, 'ROOT', root), patch.object(ci.subprocess, 'run') as run:
+                ci.prepare_trusted_parser(trusted)
+                run.assert_called_once_with(
+                    ['npm', 'ci', '--prefix', str(trusted / 'mcp/sdd-forge-mcp'),
+                     '--ignore-scripts', '--no-audit', '--no-fund'],
+                    capture_output=True, check=True, timeout=120)
+                run.side_effect = subprocess.CalledProcessError(1, 'npm')
+                with self.assertRaises(subprocess.CalledProcessError):
+                    ci.prepare_trusted_parser(trusted)
+
+
 class BoundaryTests(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
@@ -371,8 +393,22 @@ class BoundaryTests(unittest.TestCase):
             'Test POSIX kill-switch permission failures': None,
             'Run native controls and complete tracked-source audit': 'coding-standards',
             'Run native Windows compatibility contracts': '${{ matrix.profile }}',
+            'Test SQL contracts and FilesOnly distribution': None,
+            'Test isolated postgres migration and recovery': None,
+            'Test isolated mysql migration and recovery': None,
+            'Test isolated tsql migration and recovery': None,
         }
-        self.assertEqual(len(obligations), 18)
+        self.assertEqual(len(obligations), 22)
+        sql_suites = {
+            'sql-contract': 'tests/sql-development-contract.tests.py',
+            'sql-postgres': 'tests/sql-development-postgres.tests.py',
+            'sql-mysql': 'tests/sql-development-mysql.tests.py',
+            'sql-tsql': 'tests/sql-development-tsql.tests.py',
+        }
+        self.assertCountEqual(
+            [(o['job'], o['suites'], o['matrix']) for o in obligations if o['job'] in sql_suites],
+            [(job, [suite], {}) for job, suite in sql_suites.items()],
+        )
         for obligation in obligations:
             with self.subTest(job=obligation['job'], matrix=obligation['matrix'], step=obligation['step']):
                 self.assertIn(obligation['step'], expected)

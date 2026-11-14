@@ -1,0 +1,26 @@
+[
+  {
+    "command_sha256": "6db90fbfc2d7091226d72a6d18381fd5922c65d8ad64782de0eb3776482e3080",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/SKILL.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "5696d4e5c1b3e6b33470ea3875710b85fe41033ab31019b75a67521931e176e4",
+    "command": "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'REQUEST.md' -g '*schema*' -g '*migration*' -g '*.sql' -g '*.prisma' -g 'package.json' -g 'flyway*' -g '*tasks*' -g '*requirements*' -g '*design*'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "ff50ee369018d8a4c2050cd50f22a346aeb446867766614368af46fd28e0c801",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/templates/sql-development-contract.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/sql-development-policy.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/postgresql.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "f8112d8a8c5d369d60c2a9349233e07fd606df13b35076f51a30f64b1e53464d",
+    "command": "/bin/bash -lc \"cat AGENTS.md REQUEST.md db/flyway.toml db/schema.prisma db/schema.sql; rg --files -g '\"'!node_modules'\"' -g '\"'!.git'\"'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  }
+]

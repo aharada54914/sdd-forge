@@ -26759,21 +26759,21 @@ function visit(schema, fnOrHandlers) {
     const h = fnOrHandlers[node2._zod.def.type];
     return h ? h(node2, rewritten) : node2;
   };
-  const cache2 = /* @__PURE__ */ new Map();
+  const cache = /* @__PURE__ */ new Map();
   function run(s) {
-    const cached2 = cache2.get(s);
+    const cached2 = cache.get(s);
     if (cached2 === RESOLVING) {
       return new $ZodLazy({
         type: "lazy",
-        getter: () => cache2.get(s)
+        getter: () => cache.get(s)
       });
     }
     if (cached2 !== void 0)
       return cached2;
-    cache2.set(s, RESOLVING);
+    cache.set(s, RESOLVING);
     const inner = mapInner(s);
     const mapped = fn(inner, inner !== s);
-    cache2.set(s, mapped);
+    cache.set(s, mapped);
     return mapped;
   }
   function mapInner(s) {
@@ -35861,6 +35861,15 @@ var McpServer = class {
     this._promptHandlersInitialized = false;
     this.server = new Server(serverInfo, options);
     this._maxToolInputElements = resolveMaxToolInputElements(options?.maxToolInputElements);
+    if (options?.capabilities?.tools) {
+      this.setToolRequestHandlers();
+    }
+    if (options?.capabilities?.resources) {
+      this.setResourceRequestHandlers();
+    }
+    if (options?.capabilities?.prompts) {
+      this.setPromptRequestHandlers();
+    }
   }
   /**
    * Access experimental features.
@@ -36644,6 +36653,133 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
+// src/probe-engine.ts
+import { execFile } from "node:child_process";
+import path from "node:path";
+var TIMEOUT_MS = 2e3;
+var MAX_OUTPUT_BYTES = 8 * 1024;
+var CONCURRENCY_LIMIT = 4;
+var CACHE_TTL_MS = 6e4;
+var MAX_VERSION_CHARS = 200;
+var activeProbes = 0;
+var waitingProbes = [];
+async function acquireProbeSlot() {
+  if (activeProbes < CONCURRENCY_LIMIT) {
+    activeProbes += 1;
+  } else {
+    await new Promise((resolve) => waitingProbes.push(resolve));
+  }
+}
+function normalizeVersion(raw) {
+  const firstLine = raw.split(/\r?\n/, 1)[0] ?? "";
+  return firstLine.trim().slice(0, MAX_VERSION_CHARS);
+}
+function createProbeEngine(dependencies = {}) {
+  const run = dependencies.run ?? execFile;
+  const now = dependencies.now ?? (() => performance.now());
+  const environment = dependencies.environment ?? (() => process.env);
+  const cache = /* @__PURE__ */ new Map();
+  function probeOne(entry, options) {
+    return new Promise((resolve) => {
+      const env = { ...environment() };
+      if (options.pathOverride !== void 0) {
+        const pathKey = process.platform === "win32" ? Object.keys(env).sort().find((key) => key.toUpperCase() === "PATH") ?? "PATH" : "PATH";
+        const inherited = env[pathKey] ?? "";
+        env[pathKey] = inherited.length > 0 ? `${options.pathOverride}${path.delimiter}${inherited}` : options.pathOverride;
+      }
+      let settled = false;
+      const finish = (result) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        resolve(result);
+      };
+      let child;
+      try {
+        child = run(
+          entry.command,
+          [...entry.args],
+          {
+            env,
+            timeout: TIMEOUT_MS,
+            killSignal: "SIGKILL",
+            maxBuffer: MAX_OUTPUT_BYTES,
+            windowsHide: true
+          },
+          (error62, stdout, stderr) => {
+            if (error62) {
+              const code = error62.code;
+              if (code === "ENOENT") {
+                finish({ name: entry.name, available: false, probeError: "not-found" });
+                return;
+              }
+              if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
+                finish({ name: entry.name, available: false, probeError: "output-too-large" });
+                return;
+              }
+              const killed = error62.killed === true;
+              const signal = error62.signal;
+              if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
+                finish({ name: entry.name, available: false, probeError: "timeout" });
+                return;
+              }
+              if (typeof error62.code === "number") {
+                finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
+                return;
+              }
+              finish({ name: entry.name, available: false, probeError: "spawn-error" });
+              return;
+            }
+            const raw = entry.versionStream === "stderr" ? stderr : stdout;
+            const version2 = normalizeVersion(String(raw));
+            if (version2.length === 0) {
+              finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
+              return;
+            }
+            finish({ name: entry.name, available: true, version: version2 });
+          }
+        );
+      } catch {
+        finish({ name: entry.name, available: false, probeError: "spawn-error" });
+        return;
+      }
+      child.on("error", (error62) => {
+        const code = error62.code;
+        if (code === "ENOENT") {
+          finish({ name: entry.name, available: false, probeError: "not-found" });
+        } else {
+          finish({ name: entry.name, available: false, probeError: "spawn-error" });
+        }
+      });
+    });
+  }
+  async function probe(entries, options = {}) {
+    return Promise.all(entries.map(async (entry) => {
+      let cached2 = cache.get(entry.name);
+      if (cached2 !== void 0 && now() - cached2.at < CACHE_TTL_MS) return cached2.result;
+      await acquireProbeSlot();
+      try {
+        cached2 = cache.get(entry.name);
+        if (cached2 !== void 0 && now() - cached2.at < CACHE_TTL_MS) {
+          return cached2.result;
+        }
+        const result = await probeOne(entry, options);
+        cache.set(entry.name, { at: now(), result });
+        return result;
+      } finally {
+        const next = waitingProbes.shift();
+        if (next !== void 0) next();
+        else activeProbes -= 1;
+      }
+    }));
+  }
+  return { probe, clearCache: () => cache.clear() };
+}
+var defaultEngine = createProbeEngine();
+var probeEngine = defaultEngine.probe;
+var __clearProbeCache = defaultEngine.clearCache;
+
 // src/tools/env.ts
 import os from "node:os";
 
@@ -36674,123 +36810,6 @@ var ALLOWLIST = [
   { name: "docker", command: "docker", args: ["--version"], versionStream: "stdout" }
 ];
 var ALLOWLIST_NAMES = new Set(ALLOWLIST.map((e) => e.name));
-
-// src/probe-engine.ts
-import { execFile } from "node:child_process";
-import path from "node:path";
-var TIMEOUT_MS = 2e3;
-var MAX_OUTPUT_BYTES = 8 * 1024;
-var CONCURRENCY_LIMIT = 4;
-var CACHE_TTL_MS = 6e4;
-var MAX_VERSION_CHARS = 200;
-var cache = /* @__PURE__ */ new Map();
-var activeProbes = 0;
-var waitingProbes = [];
-async function acquireProbeSlot() {
-  if (activeProbes < CONCURRENCY_LIMIT) {
-    activeProbes += 1;
-  } else {
-    await new Promise((resolve) => waitingProbes.push(resolve));
-  }
-}
-function normalizeVersion(raw) {
-  const firstLine = raw.split(/\r?\n/, 1)[0] ?? "";
-  return firstLine.trim().slice(0, MAX_VERSION_CHARS);
-}
-function probeOne(entry, options) {
-  return new Promise((resolve) => {
-    const env = { ...process.env };
-    if (options.pathOverride !== void 0) {
-      const inherited = process.env.PATH ?? "";
-      env.PATH = inherited.length > 0 ? `${options.pathOverride}${path.delimiter}${inherited}` : options.pathOverride;
-    }
-    let settled = false;
-    const finish = (result) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      resolve(result);
-    };
-    let child;
-    try {
-      child = execFile(
-        entry.command,
-        [...entry.args],
-        {
-          env,
-          timeout: TIMEOUT_MS,
-          killSignal: "SIGKILL",
-          maxBuffer: MAX_OUTPUT_BYTES,
-          windowsHide: true
-        },
-        (error62, stdout, stderr) => {
-          if (error62) {
-            const code = error62.code;
-            if (code === "ENOENT") {
-              finish({ name: entry.name, available: false, probeError: "not-found" });
-              return;
-            }
-            if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
-              finish({ name: entry.name, available: false, probeError: "output-too-large" });
-              return;
-            }
-            const killed = error62.killed === true;
-            const signal = error62.signal;
-            if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
-              finish({ name: entry.name, available: false, probeError: "timeout" });
-              return;
-            }
-            if (typeof error62.code === "number") {
-              finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
-              return;
-            }
-            finish({ name: entry.name, available: false, probeError: "spawn-error" });
-            return;
-          }
-          const raw = entry.versionStream === "stderr" ? stderr : stdout;
-          const version2 = normalizeVersion(String(raw));
-          if (version2.length === 0) {
-            finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
-            return;
-          }
-          finish({ name: entry.name, available: true, version: version2 });
-        }
-      );
-    } catch {
-      finish({ name: entry.name, available: false, probeError: "spawn-error" });
-      return;
-    }
-    child.on("error", (error62) => {
-      const code = error62.code;
-      if (code === "ENOENT") {
-        finish({ name: entry.name, available: false, probeError: "not-found" });
-      } else {
-        finish({ name: entry.name, available: false, probeError: "spawn-error" });
-      }
-    });
-  });
-}
-async function probeEngine(entries, options = {}) {
-  return Promise.all(entries.map(async (entry) => {
-    let cached2 = cache.get(entry.name);
-    if (cached2 !== void 0 && Date.now() - cached2.at < CACHE_TTL_MS) return cached2.result;
-    await acquireProbeSlot();
-    try {
-      cached2 = cache.get(entry.name);
-      if (cached2 !== void 0 && Date.now() - cached2.at < CACHE_TTL_MS) {
-        return cached2.result;
-      }
-      const result = await probeOne(entry, options);
-      cache.set(entry.name, { at: Date.now(), result });
-      return result;
-    } finally {
-      const next = waitingProbes.shift();
-      if (next !== void 0) next();
-      else activeProbes -= 1;
-    }
-  }));
-}
 
 // src/tools/env.ts
 var CLI_NAME_VALUES = ALLOWLIST.map((e) => e.name);
@@ -36829,7 +36848,7 @@ async function getToolchainVersions(input2, options = {}) {
   }
   const entries = selectEntries(parsed.data.names);
   const probeOptions = options.pathOverride === void 0 ? {} : { pathOverride: options.pathOverride };
-  const results = await probeEngine(entries, probeOptions);
+  const results = await (options.probe ?? probeEngine)(entries, probeOptions);
   const mapped = results.map((r) => {
     const entry = { name: r.name, available: r.available };
     if (r.version !== void 0) {
@@ -36844,7 +36863,7 @@ async function getToolchainVersions(input2, options = {}) {
 }
 async function listAvailableClis(options = {}) {
   const probeOptions = options.pathOverride === void 0 ? {} : { pathOverride: options.pathOverride };
-  const results = await probeEngine([...ALLOWLIST], probeOptions);
+  const results = await (options.probe ?? probeEngine)([...ALLOWLIST], probeOptions);
   const entries = results.map((r) => ({ name: r.name, available: r.available }));
   return ok({ kind: "cli-availability", entries });
 }
@@ -36855,7 +36874,8 @@ function toCallToolResult(result) {
     content: [{ type: "text", text: JSON.stringify(result) }]
   };
 }
-function buildServer() {
+function buildServer(options = {}) {
+  const probeOptions = { ...options, probe: options.probe ?? createProbeEngine().probe };
   const server = new McpServer({
     name: "local-env-mcp",
     version: "0.1.0"
@@ -36875,7 +36895,7 @@ function buildServer() {
       description: "Probes the fixed 14-CLI allowlist (or the subset named in `names`) with execFile --version and returns a normalized version string per available CLI. Missing CLIs are reported available:false; the whole response stays ok:true. Accepts no command, argument, or path input.",
       inputSchema: TOOLCHAIN_TOOL_INPUT_SHAPE
     },
-    async ({ names }) => toCallToolResult(await getToolchainVersions({ names }))
+    async ({ names }) => toCallToolResult(await getToolchainVersions({ names }, probeOptions))
   );
   server.registerTool(
     "list_available_clis",
@@ -36883,7 +36903,7 @@ function buildServer() {
       title: "List available CLIs",
       description: "Reports availability (present/absent) for each CLI in the fixed 14-CLI allowlist, without version strings. Takes no input."
     },
-    async () => toCallToolResult(await listAvailableClis())
+    async () => toCallToolResult(await listAvailableClis(probeOptions))
   );
   return server;
 }

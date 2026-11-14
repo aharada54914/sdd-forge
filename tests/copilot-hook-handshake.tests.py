@@ -141,6 +141,35 @@ class NativeClaude(unittest.TestCase):
             path.write_text(json.dumps(record or self.record), encoding='utf-8')
             return handshake.run_verify_response(self.nonce, str(path), runtime)
 
+    def test_hook_startup_failures_cannot_claim_activation(self):
+        # Ordinary runtime failures are not the guard's exit-2 policy verdict.
+        for exit_code in (0, 1, 126, 127, 137, -9, True, "2", None):
+            with self.subTest(exit_code=exit_code):
+                record = dict(nonce=self.nonce, executed=False,
+                              guard_emit_mode='exit', exit_code=exit_code)
+                with self.assertRaises(handshake.HookHandshakeError) as error:
+                    self.verify(record)
+                self.assertEqual(error.exception.category, 'UNRECOGNIZED_RESULT')
+        self.verify(dict(nonce=self.nonce, executed=False,
+                         guard_emit_mode='exit', exit_code=2))
+        for failure in ('spawn node ENOENT', 'node: command not found',
+                        'Hook timed out', 'Hook failed; blocking due to onFailure: block'):
+            with self.subTest(failure=failure):
+                record = copy.deepcopy(self.record)
+                record['raw_result']['content'] = (
+                    'PreToolUse:Write hook error: [node /fixture/scripts/sdd-hook-guard.js --emit exit]: '
+                    + failure)
+                with self.assertRaises(handshake.HookHandshakeError):
+                    self.verify(record)
+
+    def test_security_hooks_block_when_runtime_cannot_start(self):
+        config = json.loads((ROOT / 'plugins/sdd-quality-loop/hooks/claude-hooks.json').read_text())
+        hooks = [hook for group in config['hooks']['PreToolUse'] for hook in group['hooks']]
+        self.assertEqual(len(hooks), 2)
+        for hook in hooks:
+            with self.subTest(script=hook['args'][0]):
+                self.assertEqual(hook.get('onFailure'), 'block')
+
     def test_native_denial_without_numeric_exit(self):
         self.verify()
         self.record['raw_request']['input']['file_path'] = str(Path('sdd/.hook-canary-sentinel').resolve())

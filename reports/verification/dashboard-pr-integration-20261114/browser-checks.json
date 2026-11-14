@@ -1,0 +1,32 @@
+{
+  "checks": [
+    "three-refresh-disclosure-focus-and-pause-resume",
+    "320px-reflow-readable-controls",
+    "attention-summary-drilldown",
+    "japanese-phases-theme-search-and-preserved-technical-details",
+    "view:overview",
+    "view:timeline",
+    "view:backlog",
+    "view:board",
+    "view:list",
+    "view:releases",
+    "detail-safe-text-and-keyboard",
+    "search",
+    "reload-selection",
+    "corrupt-preferences-recovery",
+    "live-update-and-removed-filter",
+    "dialog-update-and-focus-return",
+    "parse-failure-retains-last-good",
+    "history-failure-notification-and-persistent-ack",
+    "recovery",
+    "mobile",
+    "stale-source-with-live-http",
+    "artifact-adapter-not-native-host:missing-connected-malformed",
+    "disconnect-keeps-data"
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "board-desktop.png",
+    "detail-mobile.png"
+  ]
+}

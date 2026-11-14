@@ -1,0 +1,18 @@
+ticket_id: RT-0002
+status: open
+type: spec-gap
+severity: major
+target:
+  feature: orders-note
+  task: T-001
+  files: []
+summary: "Risk and workflow require human reconciliation."
+problem: "Approved task says low/test-after, while the policy classifies data mutation/migration as high/tdd. Existing contract already proposes high/tdd. Risk scan forces full track."
+expected_fix:
+  - "Human must confirm or revise classification and workflow through the existing specification/approval process. Preserve all existing gates."
+references:
+  - specs/orders-note/tasks.md#T-001
+  - .run-temp/ship-PSKV3uBb/inspection.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 0

@@ -10,6 +10,7 @@ for (const kind of ["json", "text"] as const) {
       calls++;
       assert.equal(new URL(url).hostname, "api.github.com");
       assert.equal(init.method, "GET");
+      assert.equal(init.headers["X-GitHub-Api-Version"], "2022-11-28");
       assert.equal(init.headers.authorization, "Bearer transport-canary");
       assert.equal(init.headers.accept, kind === "json" ? "application/vnd.github+json" : "text/plain");
       assert.ok(init.signal instanceof AbortSignal);

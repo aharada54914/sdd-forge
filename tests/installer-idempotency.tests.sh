@@ -139,6 +139,7 @@ make_stubs() {
             printf '%s\n' '#!/bin/sh'
             printf 'echo "%s $*" >> "%s"\n' "$cmd" "$log_path"
             printf '%s\n' 'case "$*" in'
+            printf '%s\n' '  --version) echo "2.1.317 (Claude Code)"; exit 0 ;;'
             printf '  "plugin marketplace update"*) exit 0 ;;\n'
             printf '  "plugin marketplace add"*) %s ;;\n' "$marketplace_add_body"
             printf '  "plugin update"*) %s ;;\n' "$plugin_update_body"
@@ -150,9 +151,9 @@ make_stubs() {
         chmod +x "${bin_dir}/${cmd}"
     done
 
-    # Report a Node version that clears the >= 22.19.0 gate, so MCP placement
+    # Report a Node version that clears the >= 26.13.0 gate, so MCP placement
     # runs on every host regardless of the real toolchain.
-    printf '%s\n%s\n' '#!/bin/sh' 'echo v22.19.0' > "${bin_dir}/node"
+    printf '%s\n%s\n' '#!/bin/sh' 'echo v26.13.0' > "${bin_dir}/node"
     chmod +x "${bin_dir}/node"
 }
 

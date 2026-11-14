@@ -102,51 +102,6 @@
       "sha256": "44f0deeb6b510736a1e2fd4b8449f20aefc738762e145ad0219b93888ce9c799"
     },
     {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.assets.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.assets.json",
-      "sha256": "61dc41017079b19bf33c9456734c5ac6a6b40321a36736618f5e9a1309a2404b"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.metadata.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.metadata.json",
-      "sha256": "eca3c5a792ec796bccd3933f8016a843cbe404c87adc30672d9b73d6e0c620ae"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.template.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.template.json",
-      "sha256": "5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/cdk.out",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/cdk.out",
-      "sha256": "2801c31b9ddf660f597e3c9d9ba2a9505ac144717ede055f34dc916602a35b25"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/manifest.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/manifest.json",
-      "sha256": "5f9fef0f3c6a140e5899e8865438fa914b1c3ec5bb2790b01fbfdd8ea97d5139"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/tree.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/tree.json",
-      "sha256": "3761ef1db74a85d2947a3d83e28066d5ec59e9167d13b0ff87a84115c8bd8a1f"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/validation-report.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/validation-report.json",
-      "sha256": "37b01cf5f0a5b20784c30c5c70bddb00b633d76449ea5abec1fe334272da287a"
-    },
-    {
-      "path": "aws-bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799.request.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799.request.json",
-      "sha256": "6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e"
-    },
-    {
-      "path": "aws-bundle/lock.json",
-      "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/lock.json",
-      "sha256": "742c2c404cc22a8b93fef2e6958f431708643ae514eaf1ebbdda6cd70f990799"
-    },
-    {
       "path": "aws-bundle/ownership.json",
       "source_path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/ownership.json",
       "sha256": "13714b3f1d710d9fe65c99901041d0fa2add43360017fd979e5b8e9243e66293"
@@ -250,6 +205,61 @@
       "path": "aws-model/9/aws-cloudformation-2010-05-15.json",
       "source_path": "specs/cloud-orchestration/verification/T-013/inputs/external/9/aws-cloudformation-2010-05-15.json",
       "sha256": "142ac136f30bf2ba93723536c67e66443b00d86cc2128448916d6d7ab145eec3"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/Private.assets.json",
+      "generation": "node26-native-synth",
+      "sha256": "61dc41017079b19bf33c9456734c5ac6a6b40321a36736618f5e9a1309a2404b"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/Private.metadata.json",
+      "generation": "node26-native-synth",
+      "sha256": "afe90eb88a38e951bbe761bfffcb77056a0b9a4ba1d642bac12e04b2c826be0b"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/Private.template.json",
+      "generation": "node26-native-synth",
+      "sha256": "5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/cdk.out",
+      "generation": "node26-native-synth",
+      "sha256": "2801c31b9ddf660f597e3c9d9ba2a9505ac144717ede055f34dc916602a35b25"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/manifest.json",
+      "generation": "node26-native-synth",
+      "sha256": "5f9fef0f3c6a140e5899e8865438fa914b1c3ec5bb2790b01fbfdd8ea97d5139"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/tree.json",
+      "generation": "node26-native-synth",
+      "sha256": "3761ef1db74a85d2947a3d83e28066d5ec59e9167d13b0ff87a84115c8bd8a1f"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043/validation-report.json",
+      "generation": "node26-native-synth",
+      "sha256": "2c0b93be0771db36622ebebdf5dc154ba83a2166882bf08a490ebe4ea8cbde87"
+    },
+    {
+      "path": "aws-bundle/generated/fbd9242ac553c270ac0db2788e60e8fde81f5b0f3cd81f3f141e6e96ec479043.request.json",
+      "generation": "node26-native-synth",
+      "sha256": "26ccfbb984756bc08b24f8930c223192b187a42b5c9d4a984ccdd48b9c933a6b"
+    },
+    {
+      "path": "aws-bundle/lock.json",
+      "generation": "node26-native-synth",
+      "sha256": "8988ff55954184a36e621022f13471335fc600996af9de6218e7a70558d3de21"
     }
-  ]
+  ],
+  "regenerations": {
+    "node26-native-synth": {
+      "date": "2026-11-07",
+      "generator": "tests/cloud-orchestration-routing.tests.py::AwsNativePreparation",
+      "operation": "plan with verified toolchain; no cloud execution",
+      "node": "26.13.0",
+      "toolchain": "plugins/sdd-aws-cloud/references/toolchain-lock.json",
+      "description": "Replaces the original AWS lock and generated assembly; other files retain source_revision provenance."
+    }
+  }
 }

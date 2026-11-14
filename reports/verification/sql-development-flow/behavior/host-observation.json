@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.159.2",
+  "profile": "verify-codex",
+  "auth_smoke": "SQL_EVAL_READY",
+  "profile_developer_skills_present": false,
+  "discovery_errors": [],
+  "sql_skill_enabled": [
+    true
+  ],
+  "hooks": [
+    {
+      "key": "sdd-quality-loop@sdd-plugins:hooks/hooks.json:pre_tool_use:0:0",
+      "trustStatus": "trusted",
+      "currentHash": "sha256:3eb9f8d1359b411fde8f67c2aa1e791c22068150231a242a414dc85aed9f5d04"
+    },
+    {
+      "key": "sdd-quality-loop@sdd-plugins:hooks/hooks.json:pre_tool_use:1:0",
+      "trustStatus": "trusted",
+      "currentHash": "sha256:28f5ea576551dd2fe287fc22645a2f4b57256ada78e9cd5b89029335b0c275d6"
+    }
+  ],
+  "hook_trust_unchanged_since_before_real_runs": true,
+  "model": "CLI default; not pinned / actual model identity not independently attested",
+  "sandbox": "workspace-write; approval_policy never",
+  "credential_values_read_by_evaluator": false
+}

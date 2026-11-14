@@ -102,7 +102,7 @@ cat > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/package.json" <<'MCPPKG'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.19.0" }
+  "engines": { "node": ">=26.13.0" }
 }
 MCPPKG
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -127,7 +127,7 @@ cat > "${SOURCE_FIXTURE}/mcp/local-env-mcp/package.json" <<'MCPPKG2'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.19.0" }
+  "engines": { "node": ">=26.13.0" }
 }
 MCPPKG2
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -152,7 +152,7 @@ cat > "${SOURCE_FIXTURE}/mcp/ci-mcp/package.json" <<'MCPPKG3'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.19.0" }
+  "engines": { "node": ">=26.13.0" }
 }
 MCPPKG3
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -205,6 +205,7 @@ SHIM
             cat > "$shim" <<SHIM
 #!/bin/sh
 echo "${cmd} \$*" >> $(shell_literal "$log_path")
+if [ "${cmd}" = claude ] && [ "\$1" = --version ]; then echo "2.1.317 (Claude Code)"; exit 0; fi
 echo "\$*" | grep -qF $(shell_literal "$fail_pattern") && exit 9
 exit 0
 SHIM
@@ -212,6 +213,7 @@ SHIM
             cat > "$shim" <<SHIM
 #!/bin/sh
 echo "${cmd} \$*" >> $(shell_literal "$log_path")
+if [ "${cmd}" = claude ] && [ "\$1" = --version ]; then echo "2.1.317 (Claude Code)"; exit 0; fi
 exit 0
 SHIM
         fi
@@ -1582,7 +1584,7 @@ _w_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root 
 export PATH="$_w_orig_path"
 _w_ok=1
 [[ $_w_failed -eq 0 ]] || { fail "old Node (w): installer exited non-zero despite MCP-only skip"; _w_ok=0; }
-[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed below Node 22.19.0"; _w_ok=0; }
+[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed below Node 26.13.0"; _w_ok=0; }
 for p in $ALL_PLUGINS; do
     [[ -f "${_w_install}/plugins/${p}/.codex-plugin/plugin.json" ]] || { fail "old Node (w): plugin not copied despite MCP-only skip: $p"; _w_ok=0; }
 done
@@ -1593,10 +1595,10 @@ fi
 rm -rf "$_w_root"
 [[ $_w_ok -eq 1 ]] && ok "unsupported Node warns and skips MCP only, plugin install continues"
 
-# Scenario (w1): enforce the exact supported MCP runtime floor. Node 22.18.x
+# Scenario (w1): enforce the exact supported MCP runtime floor. Node 26.12.x
 # and malformed output must fail closed, while
-# Node 22.19.0 and the current Node 24 LTS line remain supported.
-for _w1_case in "v22.18.0:reject" "v22.19.0:accept" "v24.0.0:accept" "v22.19.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
+# Node 26.13.0 and newer stable releases are supported; Node 22/24 are rejected.
+for _w1_case in "v22.19.0:reject" "v24.19.0:reject" "v26.12.1:reject" "v26.13.0:accept" "v26.14.0:accept" "v26.13.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
     _w1_version="${_w1_case%%:*}"
     _w1_expected="${_w1_case##*:}"
     _w1_root="$(mktemp -d)"
@@ -1633,7 +1635,7 @@ NODESHIM_BOUNDARY
 done
 
 # Scenario (w2): an unsupported v18.x runtime for the DEFAULT multi-MCP
-# install. The MCP gate skips placement and registration below Node 22.19.0.
+# install. The MCP gate skips placement and registration below Node 26.13.0.
 # A v18.x shim ahead of the
 # real node on PATH must cause NO placement of EITHER MCP and NO Claude/Codex
 # registration, while a warning mentioning Node is printed. --target All +
@@ -1661,7 +1663,7 @@ export PATH="${_w2_bin}:${_w2_orig_path}"
 export SDD_CODEX_HOME="${_w2_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
-# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 22.19.0.
+# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 26.13.0.
 export SDD_CURSOR_DIR="${_w2_root}/cursor"
 export SDD_VSCODE_USER_DIR="${_w2_root}/vscode-user"
 mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
@@ -1670,24 +1672,24 @@ printf '{\n  "servers": {}\n}\n' > "${_w2_root}/vscode-user/mcp.json"
 cp "${_w2_root}/cursor/mcp.json" "${_w2_root}/cursor-before.json"
 cp "${_w2_root}/vscode-user/mcp.json" "${_w2_root}/vscode-before.json"
 _w2_failed=0
-_w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install 2>&1)" || _w2_failed=1
+_w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install --plugins sdd-bootstrap 2>&1)" || _w2_failed=1
 export PATH="$_w2_orig_path"
 if [[ -z "$_w2_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_w2_orig_codex_home"; fi
 if [[ -z "$_w2_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_w2_orig_cursor_dir"; fi
 if [[ -z "$_w2_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_w2_orig_vscode_dir"; fi
 _w2_ok=1
 [[ $_w2_failed -eq 0 ]] || { fail "old Node v18 (w2): installer exited non-zero despite MCP-only skip"; _w2_ok=0; }
-[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed below Node 22.19.0"; _w2_ok=0; }
+[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed below Node 26.13.0"; _w2_ok=0; }
 if [[ -f "$_w2_log" ]] && grep -qF "claude mcp add" "$_w2_log"; then
-    fail "old Node v18 (w2): claude mcp add was invoked below Node 22.19.0"
+    fail "old Node v18 (w2): claude mcp add was invoked below Node 26.13.0"
     _w2_ok=0
 fi
 if grep -qE "sdd-forge-mcp|local-env-mcp|ci-mcp" "${_w2_root}/codex-home/config.toml" 2>/dev/null; then
-    fail "old Node v18 (w2): Codex config.toml was modified below Node 22.19.0"
+    fail "old Node v18 (w2): Codex config.toml was modified below Node 26.13.0"
     _w2_ok=0
 fi
-cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 22.19.0"; _w2_ok=0; }
-cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 22.19.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 26.13.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 26.13.0"; _w2_ok=0; }
 if ! echo "$_w2_out" | grep -qi "node"; then
     fail "old Node v18 (w2): expected warning mentioning Node was not printed"
     _w2_ok=0
@@ -1985,6 +1987,99 @@ else
 fi
 _fixture_matrix_cleanup "$_t003_absent"
 _fixture_matrix_cleanup "$_t003_present"
+
+# Claude guard prerequisites must fail before creating or replacing an install,
+# including --skip-mcp. FilesOnly keeps its separate optional MCP behavior above.
+_hook_root="$(mktemp -d)"
+_hook_bin="${_hook_root}/bin"
+make_fake_commands "$_hook_bin" "${_hook_root}/commands.log"
+# A bounded PATH makes the absent-Node case independent of the runner's Node.
+for _hook_tool in bash sh git dirname basename mktemp rm cat sleep date grep sed sort realpath readlink uname; do
+    _hook_path="$(command -v "$_hook_tool" || true)"
+    [[ -z "$_hook_path" ]] || ln -s "$_hook_path" "${_hook_bin}/${_hook_tool}"
+done
+# Apple git invokes xcrun; only git's child environment needs system PATH.
+rm "${_hook_bin}/git"
+printf '#!/bin/sh\nPATH="/usr/bin:/bin:$PATH" exec %s "$@"\n' "$(shell_literal "$(command -v git)")" > "${_hook_bin}/git"
+chmod +x "${_hook_bin}/git"
+_hook_real_sleep="$(command -v sleep)"
+for _hook_case in missing broken old invalid hanging claude-old valid; do
+    rm -f "${_hook_bin}/sleep"
+    ln -s "$_hook_real_sleep" "${_hook_bin}/sleep"
+    rm -f "${_hook_bin}/node"
+    _hook_node='echo v26.13.0'
+    case "$_hook_case" in
+        broken) _hook_node='exit 127' ;;
+        old) _hook_node='echo v22.18.0' ;;
+        invalid) _hook_node='echo v26.13.0-rc.1' ;;
+        hanging)
+            # Deliberately slow each poll: iteration counts cannot stand in for
+            # elapsed time on a busy/macOS runner. The probe still gets 30s.
+            rm "${_hook_bin}/sleep"
+            printf '#!/bin/sh\nif [ "$1" = 0.1 ]; then set -- 0.25; fi\nexec %s "$@"\n' "$(shell_literal "$_hook_real_sleep")" > "${_hook_bin}/sleep"
+            chmod +x "${_hook_bin}/sleep"
+            _hook_node="date +%s > $(shell_literal "${_hook_root}/probe-start"); sleep 120 & child=\$!; echo \"\$child\" > $(shell_literal "${_hook_root}/child.pid"); wait \"\$child\""
+            ;;
+    esac
+    if [[ "$_hook_case" != missing ]]; then
+        printf '#!/bin/sh\n%s\n' "$_hook_node" > "${_hook_bin}/node"
+        chmod +x "${_hook_bin}/node"
+    fi
+    _hook_claude='2.1.317'
+    [[ "$_hook_case" != claude-old ]] || _hook_claude='2.1.294'
+    [[ "$_hook_case" != valid ]] || _hook_claude='2.1.295'
+    printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "%s (Claude Code)"; fi\n' "$_hook_claude" > "${_hook_bin}/claude"
+    chmod +x "${_hook_bin}/claude"
+    _hook_install="${_hook_root}/${_hook_case}/installed"
+    mkdir -p "$_hook_install"
+    printf 'preserve me\n' > "${_hook_install}/old.marker"
+    _hook_failed=0
+    # Valid install needs the normal staging utilities as well as the shims.
+    _hook_path="$_hook_bin"
+    [[ "$_hook_case" != valid ]] || _hook_path="$_hook_bin:$PATH"
+    _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
+    if [[ "$_hook_case" == valid ]]; then
+        if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" ]]; then
+            ok "Claude hooks: supported runtime installs with --skip-mcp"
+        else
+            fail "Claude hooks: supported runtime failed: $_hook_out"
+        fi
+    elif [[ $_hook_failed -ne 0 && "$(cat "${_hook_install}/old.marker" 2>/dev/null)" == 'preserve me' && "$_hook_out" == *'Installation was not changed.'* && "$_hook_out" == *'quality-loop hooks'* ]]; then
+        ok "Claude hooks: $_hook_case runtime leaves existing install untouched"
+    else
+        fail "Claude hooks: $_hook_case did not fail before mutation: $_hook_out"
+    fi
+    if [[ "$_hook_case" == hanging ]]; then
+        # Measure the runtime probe, excluding source validation before it.
+        _hook_elapsed=$(( $(date +%s) - $(cat "${_hook_root}/probe-start") ))
+        if (( _hook_elapsed >= 25 && _hook_elapsed < 45 )); then
+            ok "Claude hooks: hanging runtime meets the preflight deadline (${_hook_elapsed}s despite slow polling)"
+        else
+            fail "Claude hooks: expected a 30s probe (25-44s tolerance), got ${_hook_elapsed}s"
+        fi
+        _hook_child="$(cat "${_hook_root}/child.pid")"
+        # A killed child can remain a zombie until the OS reaps it; it must
+        # never still execute after the preflight deadline.
+        _hook_state="$(ps -o stat= -p "$_hook_child" 2>/dev/null || true)"
+        if [[ -z "$_hook_state" || "$_hook_state" == Z* ]]; then
+            ok "Claude hooks: timeout stops the launcher and its child"
+        else
+            fail "Claude hooks: timeout left child $_hook_child running ($_hook_state)"
+            kill -KILL "$_hook_child" 2>/dev/null || true
+        fi
+    fi
+    rm -rf "$_hook_install"
+    if [[ "$_hook_case" != valid && "$_hook_case" != hanging ]]; then
+        _hook_failed=0
+        _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
+        if [[ $_hook_failed -ne 0 && ! -e "$_hook_install" && "$_hook_out" == *'Installation was not changed.'* ]]; then
+            ok "Claude hooks: $_hook_case runtime does not create a new install"
+        else
+            fail "Claude hooks: $_hook_case created a new install or wrong failure: $_hook_out"
+        fi
+    fi
+done
+rm -rf "$_hook_root"
 
 # ---------------------------------------------------------------------------
 # Summary

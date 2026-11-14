@@ -1145,8 +1145,8 @@ $panelistRunners = @(
             if (-not $IsWindows) { $expectedStdin += [Environment]::NewLine }
             $expectedBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($expectedStdin))
             $actualBase64 = Get-Content -Raw -LiteralPath $stdinReceipt
-            if ($script:panelistExit -eq 0 -and $actual.Count -eq 4 -and $actual[2] -ceq '-p' -and
-                $actual[3] -ceq 'Review the complete instructions and sanitized input on stdin.' -and
+            if ($script:panelistExit -eq 0 -and $actual.Count -eq 2 -and $actual[0] -ceq '-p' -and
+                $actual[1] -ceq 'Review the complete instructions and sanitized input on stdin.' -and
                 $actualBase64 -ceq $expectedBase64) {
                 Ok 'Gemini receives fixed prompt argument and exact multiline instructions plus bundle on stdin'
             } else {

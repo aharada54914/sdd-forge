@@ -321,7 +321,8 @@ for sync_target in "${phase2_targets[@]}"; do
   fi
   staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
   live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
-  if [[ "$sync_target" == plugins/sdd-ship/skills/ship/SKILL.md ]] &&
+  if [[ "$sync_target" == plugins/sdd-ship/skills/ship/SKILL.md ||
+        "$sync_target" == plugins/sdd-lite/skills/lite-spec/SKILL.md ]] &&
      jq -e --arg live "$sync_target" --arg staged "specs/epic-136-phase2-gates/human-copy/$sync_target" \
        --arg lh "$live_digest" --arg sh "$staged_digest" '
        .schema == "ship-track-selection-current-publication/v1" and
