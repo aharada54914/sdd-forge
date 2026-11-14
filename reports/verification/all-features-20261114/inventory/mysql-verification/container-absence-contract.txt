@@ -1,0 +1,10 @@
+....PASS immutable image reference
+PASS immutable image reference
+PASS immutable image reference
+PASS immutable image reference
+PASS immutable image reference
+.
+----------------------------------------------------------------------
+Ran 5 tests in 3.123s
+
+OK

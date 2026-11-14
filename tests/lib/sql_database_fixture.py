@@ -176,11 +176,19 @@ class DockerFixture:
         if labels.get(LABEL) != self.run_id:
             raise RuntimeError(f"refusing cleanup of unowned {kind}")
 
+    def _container_absent(self, container):
+        # A successful listing avoids Docker-version/localization-dependent errors.
+        # Include stopped containers and select the exact run-owned ID or name.
+        selector = ('id=' + container if re.fullmatch(r'[0-9a-f]{64}', container)
+                    else 'name=^/' + re.escape(container) + '$')
+        remaining = self.docker(['container', 'ls', '--all', '--quiet', '--no-trunc',
+                                 '--filter', selector], label='confirm container absent')
+        return not remaining.stdout.strip()
+
     def _remove_container(self, container):
         self._owned("container", container)
         self.docker(["rm", "--force", "--volumes", container], label="remove owned container")
-        absent = self.docker(["inspect", container], expected=None, label="confirm container removed")
-        if absent.returncode != 1 or "No such object" not in absent.stderr:
+        if not self._container_absent(container):
             raise RuntimeError("could not confirm owned container removal")
         self.containers.remove(container)
 
@@ -191,7 +199,7 @@ class DockerFixture:
                 probe = self.docker(["inspect", pending], expected=None, label="inspect pending create")
                 if probe.returncode == 0:
                     self.containers.append(pending)
-                elif probe.returncode != 1 or "No such object" not in probe.stderr:
+                elif not self._container_absent(pending):
                     cleanup_errors.append("could not determine pending container state")
             except Exception as exc:
                 cleanup_errors.append(self.redact(str(exc)))

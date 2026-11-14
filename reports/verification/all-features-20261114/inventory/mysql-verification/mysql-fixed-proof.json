@@ -1,0 +1,436 @@
+{
+  "schema": "sdd-sql-reference-observation/v1",
+  "engine": "mysql",
+  "source_revision": "3f879030039a78f1bed7b118dd91b19e33e8b5bb",
+  "inputs_dirty": false,
+  "input_sha256": {
+    "tests/fixtures/sql-development/mysql/README.md": "bae929fc4c132314ed2ead2e6e317d62092cd9505eb2182fb8f025a3dd7982e4",
+    "tests/fixtures/sql-development/mysql/images.json": "2e42fdf0712a036268f1023ff541e2d0a476d1adf4837e0eb9f88151188b6a4a",
+    "tests/fixtures/sql-development/mysql/migrations/V1__accounts.sql": "dd73ee43be3e3bd92ede0bb85a24ee9af2beae66b735d4d0c5e848f0b50b9559",
+    "tests/fixtures/sql-development/mysql/migrations/V2__expand_status.sql": "754b85f70ebeda9824685097f7ddcbabbd72225bd10edee81804a80747663f20",
+    "tests/lib/sql_database_fixture.py": "bcffc289df962f23c1f81783b894431ead2f96624587d2789fa8792839c5ec6f",
+    "tests/sql-development-mysql.tests.py": "00cf486eaca3da09981bc6cd16afc90c37cf05cd7e9c94c11f0b05ddd7586f86"
+  },
+  "run_id": "sdd-sql-mysql-5082a4835f75",
+  "images": [
+    "mysql:8.4.13@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902",
+    "redgate/flyway:13.12.1@sha256:0d7a2da5f76b279ddde34133a3fc5e6b99f397ecdc8a18661dc7d677edbbb189"
+  ],
+  "versions": {
+    "database": "8.4.13",
+    "flyway": "13.12.1"
+  },
+  "result": "PASS",
+  "checks": [
+    {
+      "name": "Linux x86_64 reference host",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "owned network ID",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "MySQL accepts authenticated queries",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "pinned MySQL patch version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Flyway migrate upgrade ('-target=1',)",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "v1 expected values",
+      "result": "PASS",
+      "detail": "1\tAlice\t100\n2\tBob\t0"
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Flyway migrate upgrade ()",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Flyway migrate fresh ()",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "fresh and upgrade yield the same rows",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "upgraded expected values",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "fresh and upgrade schemas agree",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "fresh and upgrade constraints agree",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Flyway migrate upgrade ()",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "rerun has no migrations to execute",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "each migration version recorded once",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "old and new app read compatibility",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "parameter values cannot change SQL structure",
+      "result": "PASS",
+      "detail": "1\n0\n"
+    },
+    {
+      "name": "application role cannot drop schema objects",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "duplicate primary key rejected",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "NULL name rejected",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "negative credit rejected",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "missing lookup returns empty result",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "applied migration mutation rejected",
+      "result": "PASS",
+      "detail": {
+        "exit_code": 0,
+        "response": {
+          "allErrorMessages": "Migration checksum mismatch for migration version 2\n-> Applied to database : 1203871700\n-> Resolved locally    : -1009898529\nEither revert the changes to the migration, or run repair to update the schema history.",
+          "database": "upgrade",
+          "errorDetails": {
+            "errorCode": "VALIDATE_ERROR",
+            "errorMessage": "Migrations have failed validation"
+          },
+          "flywayVersion": "13.12.1",
+          "invalidMigrations": [
+            {
+              "description": "expand status",
+              "errorDetails": {
+                "errorCode": "CHECKSUM_MISMATCH",
+                "errorMessage": "Migration checksum mismatch for migration version 2\n-> Applied to database : 1203871700\n-> Resolved locally    : -1009898529\nEither revert the changes to the migration, or run repair to update the schema history."
+              },
+              "filepath": "/flyway/sql/V2__expand_status.sql",
+              "version": "2"
+            }
+          ],
+          "operation": "validate",
+          "validateCount": 0,
+          "validationSuccessful": false,
+          "warnings": []
+        },
+        "stderr": ""
+      }
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "restored source validates without repair",
+      "result": "PASS",
+      "detail": {
+        "exit_code": 0,
+        "response": {
+          "allErrorMessages": "",
+          "database": "upgrade",
+          "errorDetails": null,
+          "flywayVersion": "13.12.1",
+          "invalidMigrations": [],
+          "operation": "validate",
+          "validateCount": 2,
+          "validationSuccessful": true,
+          "warnings": []
+        },
+        "stderr": ""
+      }
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "history validation alone does not detect schema drift",
+      "result": "PASS",
+      "detail": {
+        "exit_code": 0,
+        "response": {
+          "allErrorMessages": "",
+          "database": "upgrade",
+          "errorDetails": null,
+          "flywayVersion": "13.12.1",
+          "invalidMigrations": [],
+          "operation": "validate",
+          "validateCount": 2,
+          "validationSuccessful": true,
+          "warnings": []
+        },
+        "stderr": ""
+      }
+    },
+    {
+      "name": "actual schema comparison detects untracked change",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "schema baseline restored",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "concurrent Flyway migrations both finish",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "migration owner serializes concurrent application",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "interrupted DML rolls back with its checkpoint",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "backfill resumes without duplicated effects",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Flyway migrate faults ()",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pinned Flyway version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "pre-change backup contains schema and owner history",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "Flyway failure preserves DDL commit but rolls back later DML",
+      "result": "PASS",
+      "detail": {
+        "exit_code": 1,
+        "observed_rows": "1\t7"
+      }
+    },
+    {
+      "name": "Flyway records failed nontransactional version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "owner refuses blindly retrying failed migration",
+      "result": "PASS",
+      "detail": {
+        "exit_code": 1,
+        "error": {
+          "errorCode": "VALIDATE_ERROR",
+          "message": "Validate failed: Migrations have failed validation\nDetected failed migration to version 3 (partial probe).\nPlease remove any half-completed changes then run repair to fix the schema history.\nNeed more flexibility with validation rules? Learn more: https://help.red-gate.com/help/flyway-cli13/help_12.aspx?topic=flyway-blog/older-posts/customize-validation-rules-with-ignoremigrationpatterns",
+          "cause": null
+        }
+      }
+    },
+    {
+      "name": "rollback cannot erase implicitly committed partial migration",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "restored backup preserves original business data",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "restored owner history predates failed version",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "reviewed corrected migration rolls forward on restored DB",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "immutable image reference",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "recovered migration is not applied twice",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "original failed state remains available for investigation",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "server cancels timed-out statement",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "timed-out query no longer active",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "lock holder observed at server",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "contender obeys lock deadline",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "lock test leaves original data",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "name": "all application rows survive fault cases",
+      "result": "PASS",
+      "detail": null
+    }
+  ],
+  "cleanup": {
+    "removed": true,
+    "errors": []
+  },
+  "private_full_proof_sha256": "e58e0cdb134bf7138b8500cfbd2f9bb768cbd037950cc5a3c5aa3ea38b6d1ea6"
+}
