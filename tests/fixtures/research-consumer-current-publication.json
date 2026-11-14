@@ -20,8 +20,8 @@
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
       "staged_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
-      "live_sha256": "79cca64a372f34f3e7c289f59d1ea682cf0c7131e87252eccb7f251bd391689a",
-      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Selective interrupted-review recovery admission and saved-reference validation, preserving current research/ADR behavior; regular-file checks reject FIFO evidence before reading. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained."
+      "live_sha256": "e195ab2f9067c16086b8301e6c7536e666cde299f76acd37445c04d6ae67fc4e",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Selective interrupted-review recovery admission and saved-reference validation, preserving current research/ADR behavior; regular-file checks reject FIFO evidence before reading. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Bash 3.2 compatibility keeps mandatory projection arguments in the array; optional verify-only behavior and strict mode unchanged."
     },
     {
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
