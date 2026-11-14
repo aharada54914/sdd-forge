@@ -21,6 +21,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { Result } from "./envelope.js";
 import { registerResources } from "./resources.js";
+import { DashboardReader } from './dashboard/snapshot.js';
 import type { SddRoot } from "./root.js";
 import {
   getNextSddCommand,
@@ -232,6 +233,13 @@ export function buildServer(root: SddRoot): McpServer {
   );
 
   registerResources(server, root);
+
+  const dashboard = new DashboardReader(root);
+  server.registerTool('get_dashboard_snapshot', {
+    title: 'Read dashboard snapshot',
+    description: 'Read-only six-view dashboard data with source freshness and last-good failure state. Never changes approval or task state.',
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
+  }, () => toCallToolResult({ ok: true, data: { kind: 'dashboard-snapshot', snapshot: dashboard.sample() } }));
 
   return server;
 }

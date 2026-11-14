@@ -1,0 +1,28 @@
+# Install on a persistent Linux host with systemd >= 250. See docs/hosted-status-views.md.
+[Unit]
+Description=Read-only SDD dashboard publisher
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=sdd-dashboard
+Group=sdd-dashboard
+WorkingDirectory=/opt/sdd-forge
+LoadCredentialEncrypted=sites-publisher:/etc/credstore.encrypted/sdd-dashboard
+ExecStart=/usr/bin/python3 /opt/sdd-forge/plugins/sdd-ship/scripts/publish-dashboard.py --entry /opt/sdd-forge/mcp/sdd-forge-mcp/dist/index.js --root /srv/sdd-project --url https://REPLACE_WITH_PRIVATE_SITE_HOST --systemd-credentials --quiet
+Restart=on-failure
+RestartPreventExitStatus=78
+RestartSec=10
+TimeoutStopSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+RestrictSUIDSGID=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
