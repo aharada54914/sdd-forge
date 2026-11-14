@@ -52,7 +52,8 @@ copy_surface() {
     "$destination/plugins/sdd-lite/skills" "$destination/plugins/sdd-lite" \
     "$destination/specs/epic-195-a7-compatibility"
   for relative in \
-    tests/run-all.sh tests/run-all.ps1 tests/suite-inventory.posix \
+    tests/run-all.sh tests/run-all.ps1 tests/verification.py \
+    tests/verification-catalog.json tests/verification-timings.json \
     tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 \
     tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 \
     tests/lib/markdown-ast-canonicalizer.mjs tests/fixtures/structural-frontmatter-cases.json \
@@ -68,6 +69,23 @@ copy_surface() {
     mkdir -p "$destination/$(dirname "$relative")"
     cp "$ROOT/$relative" "$destination/$relative"
   done
+  # The real catalog loader validates every registered suite's existence.
+  # Copy those exact sources; keep the catalog and its validation unchanged.
+  python3 - "$ROOT" "$destination" <<'PY_CATALOG'
+import json
+from pathlib import Path
+import shutil
+import sys
+root, destination = map(Path, sys.argv[1:])
+catalog = json.loads((root / 'tests/verification-catalog.json').read_text())
+for suite in catalog['suites']:
+    relative = Path(suite['path'])
+    if relative.is_absolute() or '..' in relative.parts or relative.parts[0] != 'tests':
+        raise ValueError('invalid catalog suite path')
+    target = destination / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(root / relative, target)
+PY_CATALOG
   # F5/F6 drive current Context/Resolver publication after A1+A6 activation.
   # Preserve the complete live dependency surface in every isolated control.
   mkdir -p "$destination/contracts" "$destination/plugins/sdd-quality-loop/scripts" "$destination/plugins/sdd-quality-loop/references"
@@ -224,8 +242,14 @@ mutate_case() {
       deactivate_dependency_for_mutation "$target_root" AC-043
       perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md"
       ;;
-    runner-sh) perl -0pi -e 's/^tests\/structural-compatibility\.tests\.sh\n//m' "$target_root/tests/suite-inventory.posix" ;;
-    runner-ps1) perl -0pi -e "s/^\\s*['\"]tests\\/structural-compatibility\\.tests\\.ps1['\"],?\\r?\\n//m" "$target_root/tests/run-all.ps1" ;;
+    runner-sh)
+      update_json "$target_root/tests/verification-catalog.json" \
+        '.profiles["local-posix"] |= map(select(. != "tests/structural-compatibility.tests.sh"))'
+      ;;
+    runner-ps1)
+      update_json "$target_root/tests/verification-catalog.json" \
+        '.profiles["local-powershell"] |= map(select(. != "tests/structural-compatibility.tests.ps1"))'
+      ;;
     *) printf 'unknown mutation: %s\n' "$id" >&2; exit 2 ;;
   esac
 }

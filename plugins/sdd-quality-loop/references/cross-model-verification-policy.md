@@ -25,6 +25,17 @@ is **variable** and defined per-task; the one hard constraint:
 - **≥1 non-Anthropic vendor** (always present baseline: Claude).
 - **Every vendor's verdict is collected blind** — no cross-talk, no evaluator context.
 
+When preparing persisted `*.evidence.json`, the collection layer omits the primary
+`review_verdict`, `quality_report`, and that report's artifact reference from the
+transport only. It retains execution checks and other provenance, marks the
+projection, and hashes the projected content. Canonical evidence is unchanged;
+size-based head/tail elision must not reintroduce the omitted outcome.
+
+GPT and Gemini collectors bind an explicit `--model` to the response's `model`
+field and reject a mismatch before saving a verdict. This checks consistency
+with the invoked CLI argument, not the provider's internal model identity.
+Without an explicit model, the legacy CLI-default response remains self-reported.
+
 If the non-Anthropic vendor's CLI is absent or errors, the gate evaluates only the
 collected verdicts but still enforces the diversity minimum. If diversity is unmet
 (e.g., all vendors are Anthropic), `check-cross-model` fails and blocks auto-Done

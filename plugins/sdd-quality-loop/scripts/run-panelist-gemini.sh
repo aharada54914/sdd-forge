@@ -180,6 +180,10 @@ fi
 _prompt_text="$(cat "$_prompt_file")" || {
     printf 'run-panelist-gemini: cannot read panelist prompt\n' >&2; exit 2
 }
+if [ -n "$model" ]; then
+    _prompt_text="${_prompt_text}
+The explicit CLI model is ${model}. Return that exact string in model; do not infer it from the bundle."
+fi
 
 printf 'run-panelist-gemini: invoking gemini (model=%s task=%s feature=%s)\n' \
     "${model:-CLI default}" "$task_id" "$feature" >&2
@@ -323,6 +327,10 @@ if not re.match(r'^[0-9a-f]{64}$', verdict.get("input_digest","")):
     sys.exit(1)
 if verdict.get("verdict") not in ("PASS","NEEDS_WORK"):
     print(f"run-panelist-gemini: verdict must be PASS or NEEDS_WORK", file=sys.stderr)
+    sys.exit(1)
+
+if model and verdict.get("model") != model:
+    print("run-panelist-gemini: returned model does not match explicit CLI model", file=sys.stderr)
     sys.exit(1)
 
 verdict["task_id"] = task_id
