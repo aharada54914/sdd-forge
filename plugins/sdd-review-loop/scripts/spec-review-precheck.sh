@@ -91,9 +91,9 @@ report_root="${repo_root}/reports/spec-review/${feature}"
 report_dir="${report_root}/attempt-${attempt}/round-${round}"
 . "$script_dir/lib/fixed-input-source.sh"
 fixed_input_init "$verify_inputs"
-asset_options=()
+asset_options=(--root "$repo_root" --stage spec)
 [[ "$verify_inputs" == true ]] && asset_options+=(--verify-only)
-python3 "$script_dir/prepare-review-assets.py" --root "$repo_root" --stage spec "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
+python3 "$script_dir/prepare-review-assets.py" "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
 
 if [[ -n "$fixed_source_map" ]]; then
   requirements=$(fixed_input_path "$requirements")

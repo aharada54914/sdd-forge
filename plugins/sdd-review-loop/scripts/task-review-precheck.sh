@@ -109,9 +109,9 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] || fail "unknown mode: $MODE"
 . "$script_dir/lib/fixed-input-source.sh"
 fixed_input_options "${@:5}"
-asset_options=()
+asset_options=(--root "$repo_root" --stage task)
 [[ "$MODE" == --verify-inputs ]] && asset_options+=(--verify-only)
-python3 "$script_dir/prepare-review-assets.py" --root "$repo_root" --stage task "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
+python3 "$script_dir/prepare-review-assets.py" "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
 
 if [[ -n "$fixed_source_map" ]]; then
   TASKS_MD=$(fixed_input_path "$TASKS_MD")

@@ -218,9 +218,9 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
   fail "unknown mode: $MODE"
 . "$script_dir/lib/fixed-input-source.sh"
 fixed_input_options "${@:5}"
-asset_options=()
+asset_options=(--root "$repo_root" --stage impl)
 [[ "$MODE" == --verify-inputs ]] && asset_options+=(--verify-only)
-python3 "$script_dir/prepare-review-assets.py" --root "$repo_root" --stage impl "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
+python3 "$script_dir/prepare-review-assets.py" "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
 
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
