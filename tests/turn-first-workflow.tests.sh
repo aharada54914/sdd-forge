@@ -859,9 +859,9 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And
   "$REPORT_WORK/legacy-short-hash.md" \
   "legacy bullet carrying a 62-hex hash instead of 64"
 
-# WFI-044 (RT-20260821-016): a quota interruption ends the recording agent's
-# turn, so the resuming orchestrator -- a different actor -- is the one that
-# knows the run fell back, and presence-only checking let agci T-007 ship
+# WFI-044 (RT-20260821-016): in the original incident a quota interruption
+# was followed by an orchestrator takeover, and presence-only checking let
+# agci T-007 ship
 # `fresh-agent` over a narrative describing exactly that fallback. Both
 # polarities plus the false-positive guard are pinned here.
 {
@@ -899,12 +899,45 @@ ordinary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolati
 [[ "$ordinary_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
   fail "unexpected diagnostic for ordinary handoff prose: $ordinary_output"
 
+# A resumed independent worker is not an orchestrator takeover. Narrative is
+# not identity proof; the canonical manifest/binding checks remain separate.
+python3 - "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/current.md" "$REPORT_WORK" <<'PYEOF'
+from pathlib import Path
+import subprocess
+import sys
+
+validator, base, work = sys.argv[1:]
+text = Path(base).read_text()
+cases = [
+    ("The account-limit interruption resumed in the same task context under explicit current authorization, with files/hash evidence reloaded.", True),
+    ("After the quota interruption, the original task worker resumed its same native context.", True),
+    ("After the quota interruption, the orchestrator resumed the original worker in its existing context.", True),
+    ("After the quota interruption, the orchestrator did not resume the work; the same worker resumed it.", True),
+    ("After the quota interruption, the parent never took over; the task worker resumed.", True),
+    ("After the quota interruption, the diagnostic `orchestrator resumed the work` was recorded, and the same worker resumed.", True),
+    ("After the rate-limit interruption, a different independent task worker resumed under its new manifest binding.", True),
+    ("After the quota interruption, the orchestrator took over.", False),
+    ("After the quota interruption, the parent agent completed the implementation.", False),
+    ("After the interruption, the main session picked it up.", False),
+    ("After the quota interruption, the work was resumed by the orchestrator.", False),
+    ("After the quota interruption, the same worker resumed, but the orchestrator continued the implementation.", False),
+]
+for index, (narrative, accepted) in enumerate(cases):
+    report = Path(work) / f"resume-actor-{index}.md"
+    report.write_text(text + "\n\n" + narrative + "\n")
+    result = subprocess.run(["bash", validator, str(report)], capture_output=True, text=True)
+    assert (result.returncode == 0) == accepted, (index, result.stdout, result.stderr)
+    if not accepted:
+        assert "isolation narrative contradicts declared mode" in result.stderr
+print(f"ok: {len(cases)} independent-worker resume and orchestrator-takeover controls")
+PYEOF
+
 # The rule's two NARROWING semantics need their own fixtures, or `and`->`or`
 # and per-sentence->whole-document both survive (seq 848). These two carry the
 # terms the previous false-positive fixture lacked.
 {
   cat "$REPORT_WORK/current.md"
-  printf '\n\nThe host quota was reached during the run. A later paragraph notes that the batch resumed normally afterwards.\n'
+  printf '\n\nThe host quota was reached during the run. The orchestrator resumed the work from the handoff file.\n'
 } > "$REPORT_WORK/isolation-split-sentences.md"
 split_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-split-sentences.md")" ||
   fail "WFI-044 fired across sentence boundaries (the rule is per-sentence)"

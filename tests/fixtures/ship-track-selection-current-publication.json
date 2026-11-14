@@ -6,36 +6,36 @@
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "443803f2a4b8c13ffc2dfdba1632fd40d65da9ab6e16cca3e68e2bd4e09b801d",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back."
+      "live_sha256": "cf6833ec70302e1740aa04f8d11ad7deadf404734db3f816855c4b9beed458a9",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Explicit scoped human-decision resumption after cycle-limit escalation; non-zero signal, history, independent review and all Done gates preserved (#749)."
     },
     {
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
       "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
       "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
-      "live_sha256": "443803f2a4b8c13ffc2dfdba1632fd40d65da9ab6e16cca3e68e2bd4e09b801d",
-      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back."
+      "live_sha256": "cf6833ec70302e1740aa04f8d11ad7deadf404734db3f816855c4b9beed458a9",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative. Explicit managed policy selection and Lite implementation handoff restored; unselected legacy routing is preserved and managed failures do not fall back. Installed-consumer root separation and bounded workflow completion fixes; frozen staged predecessor retained. Explicit scoped human-decision resumption after cycle-limit escalation; non-zero signal, history, independent review and all Done gates preserved (#749)."
     },
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
-      "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
-      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
+      "staged_sha256": "6aee5a085013a63241a913977652ac25035d5a6442451fb275c67c4e9bf30baf",
+      "live_sha256": "661a9dc7abaadaba311c067dcc2d8d7fb3b9f6b6729a982736f62fff1f380b74",
+      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority. Merge retains the workflow-completion branch Lite entry clarification in both live and its already-applied predecessor; the SQL handoff remains live-only. No approval authority is added."
     },
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
-      "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
-      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
+      "staged_sha256": "6aee5a085013a63241a913977652ac25035d5a6442451fb275c67c4e9bf30baf",
+      "live_sha256": "661a9dc7abaadaba311c067dcc2d8d7fb3b9f6b6729a982736f62fff1f380b74",
+      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority. Merge retains the workflow-completion branch Lite entry clarification in both live and its already-applied predecessor; the SQL handoff remains live-only. No approval authority is added."
     },
     {
       "live": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
       "staged": "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
-      "staged_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
-      "live_sha256": "9d677c91b83c2c4de37c10f430e40d6acdd8071a2868609c7543058bf661a5ad",
-      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority."
+      "staged_sha256": "6aee5a085013a63241a913977652ac25035d5a6442451fb275c67c4e9bf30baf",
+      "live_sha256": "661a9dc7abaadaba311c067dcc2d8d7fb3b9f6b6729a982736f62fff1f380b74",
+      "intentional_changes": "User-approved SQL development reference section only: discover sql-develop through the current host index and active plugin root, require common policy, and stop on missing references. Existing track selection, approval, risk escalation and state contracts remain byte-identical; this pin grants no approval or database execution authority. Merge retains the workflow-completion branch Lite entry clarification in both live and its already-applied predecessor; the SQL handoff remains live-only. No approval authority is added."
     }
   ]
 }

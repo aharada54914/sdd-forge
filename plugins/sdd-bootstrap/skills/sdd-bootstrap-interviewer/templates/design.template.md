@@ -53,7 +53,12 @@ Activation or gate clauses should key off workflow position, not repository stat
 
 | ADR | Decision | Status | Layer Impact | Supersedes | Date |
 |---|---|---|---|---|---|
-| {{adr_ref}} | {{decision_summary}} | {{status}} | {{layers}} | {{prior_adr_or_none}} | {{iso_date}} |
+| `{{adr_ref}}` | {{decision_summary}} | {{status}} | {{layers}} | {{prior_adr_or_none}} | {{iso_date}} |
+
+Fill `adr_ref` with the full repository-relative path (for example,
+docs/adr/0001-storage.md) inside one pair of backticks. This exact inline
+declaration admits the ADR to implementation review; a bare identifier,
+relative Markdown link, or fenced example does not authorize its contents.
 
 ## Data Plan
 

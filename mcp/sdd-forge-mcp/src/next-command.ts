@@ -17,6 +17,7 @@
  * assuming a phase.
  */
 
+import { workflowProfile } from "./profile.js";
 import { err, ok, type Result } from "./envelope.js";
 import { parseActiveSpecDirectories } from "./parsers/agents-md.js";
 import { extractHeaderValue } from "./parsers/spec-header.js";
@@ -138,6 +139,9 @@ function phaseFromTasks(
  * not yet passed.
  */
 function nextCommandForFeature(root: SddRoot, feature: string): Result<NextCommandData> {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
+  const lite = profile.data === "lite";
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
@@ -151,14 +155,14 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
       kind: "next-command",
       feature,
       phase: "phase1-not-started",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : `/sdd-bootstrap:bootstrap feature ${feature}`,
       rationale: `${requirementsPath} does not exist yet; Phase 1 (requirements, design, ` +
         "acceptance tests) has not been started (AGENTS.md Required Workflow step 1).",
     });
   }
 
   const specReviewStatus = extractHeaderValue(requirementsResult.data.contents, "Spec-Review-Status");
-  if (specReviewStatus !== "Passed") {
+  if (!lite && specReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -185,7 +189,7 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
   }
 
   const implReviewStatus = extractHeaderValue(designResult.data.contents, "Impl-Review-Status");
-  if (implReviewStatus !== "Passed") {
+  if (!lite && implReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -207,14 +211,14 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
       kind: "next-command",
       feature,
       phase: "phase2-not-started",
-      nextCommand: "/sdd-bootstrap:bootstrap feature",
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : "/sdd-bootstrap:bootstrap feature",
       rationale: `${tasksPath} does not exist yet; Phase 2 (Draft tasks) has not been started ` +
         "(AGENTS.md Required Workflow step 4).",
     });
   }
 
   const taskReviewStatus = extractHeaderValue(tasksReadResult.data.contents, "Task-Review-Status");
-  if (taskReviewStatus !== "Passed") {
+  if (!lite && taskReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -240,7 +244,10 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
     );
   }
 
-  return ok(phaseFromTasks(feature, taskStateResult.data.tasks));
+  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  if (lite && phase.phase === "implementation") phase.nextCommand = `/sdd-ship:ship --lite specs/${feature}/tasks.md`;
+  if (lite && phase.phase === "quality-gate") phase.nextCommand = phase.nextCommand.replace("/sdd-quality-loop:quality-gate", "/sdd-lite:lite-gate");
+  return ok(phase);
 }
 
 /**

@@ -24,7 +24,8 @@ if sys.platform == 'linux':
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 GATE = HERE / 'check-workflow-state.sh'
-AUDITED_GATE_SHA256 = '8ddf68a6dea4adc4193007db61e4a024d3ea4b7cf50a9e75cc97885757b042be'
+# The jq grouping change adds no files, tools, or external dependencies.
+AUDITED_GATE_SHA256 = '6a5fd28ead3e1bdc8ec5d377c72f4925d57d92ebc7302ed306351756b834e10e'
 TOOLS = ('bash', 'jq', 'awk', 'find', 'iconv', 'sha256sum', 'cat', 'dirname', 'basename',
          'head', 'sed', 'grep', 'tr', 'sort', 'mktemp', 'rm', 'rmdir', 'cmp', 'cut', 'wc', 'tail', 'uniq')
 ENVIRONMENT = {'PATH': '/usr/bin', 'LC_ALL': 'C', 'LANG': 'C', 'TZ': 'UTC', 'HOME': '/nonexistent', 'TMPDIR': '/tmp'}
@@ -181,7 +182,12 @@ class Snapshot:
             if str(path) not in ('/', '/tmp', '/proc', '/dev'):
                 argv += ['--perms', oct(self.directories.get(path, 0o755))[2:], '--dir', str(path)]
         for path, mode, descriptor in self.descriptors:
-            argv += ['--perms', oct(mode)[2:], '--ro-bind-data', str(descriptor), str(path)]
+            # uutils validates /proc/self/exe; ro-bind-data leaves an unlinked
+            # backing inode ("dirname (deleted)"). Fixed tools live on the
+            # private root tmpfs, sealed readonly below before any execution.
+            tool = path.parent == Path('/usr/bin') and path.name in TOOLS
+            option = '--file' if tool else '--ro-bind-data'
+            argv += ['--perms', oct(mode)[2:], option, str(descriptor), str(path)]
         # Files are private readonly copies of sealed bytes; no host backing tree is mounted.
         argv += ['--remount-ro', '/', '--chdir', str(registry.parent.parent), '--']
         return argv + (command or ['/usr/bin/bash', str(GATE), '--registry', str(registry)])

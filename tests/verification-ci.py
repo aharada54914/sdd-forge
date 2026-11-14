@@ -775,7 +775,7 @@ def main(argv=None):
         if args.output and args.output.exists():
             raise ValueError('output must be create-only')
         try:
-            root, observations = args.root.resolve(), args.observations.resolve()
+            root, observations = args.root.resolve(strict=True), args.observations.resolve(strict=True)
         except RuntimeError as exc:
             raise ValueError('invalid input path resolution') from exc
         result = aggregate(root, read_json(args.plan), observations, args.run_id, args.api_head_sha)

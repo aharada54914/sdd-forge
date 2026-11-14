@@ -268,6 +268,7 @@ _loop_fixture_link_scripts() {
     plugins/sdd-review-loop/scripts/review-contract-validate.sh \
     plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
     plugins/sdd-review-loop/scripts/task-review-precheck.sh \
+    plugins/sdd-review-loop/scripts/prepare-review-assets.py \
     plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh \
     plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh \
     plugins/sdd-domain/scripts/domain-review-precheck.sh \
@@ -292,6 +293,8 @@ _loop_fixture_copy_references() {
   for rel in \
     plugins/sdd-review-loop/references/spec-review-calibration.md \
     plugins/sdd-review-loop/references/reviewer-calibration.md \
+    plugins/sdd-quality-loop/references/risk-gate-matrix.md \
+    plugins/sdd-quality-loop/references/risk-classification-policy.md \
     plugins/sdd-domain/references/domain-review-calibration.md \
     plugins/sdd-quality-loop/scripts/review-conditional-inputs.py \
     plugins/sdd-quality-loop/scripts/validate-facet-manifest.py \

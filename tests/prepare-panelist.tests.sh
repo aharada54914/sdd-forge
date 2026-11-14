@@ -3292,6 +3292,43 @@ else
     fail 'review input I/O boundaries fail closed'
 fi
 
+
+# Binary evidence must never be silently converted into reviewable text.
+BINARY_DIR="$WORK/binary-input"
+mkdir -p "$BINARY_DIR/specs/binary/verification/T-004"
+write_tasks_with_consent "$BINARY_DIR/specs/binary/tasks.md"
+for kind in png nul invalid-utf8 japanese; do
+    python3 - "$BINARY_DIR/artifact" "$kind" <<'BINARY_FIXTURE'
+from pathlib import Path
+import base64, sys
+values = {
+    'png': base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aOioAAAAASUVORK5CYII='),
+    'nul': b'ordinary\x00text',
+    'invalid-utf8': b'ordinary\xfftext',
+    'japanese': '日本語の検証入力\n'.encode('utf-8'),
+}
+Path(sys.argv[1]).write_bytes(values[sys.argv[2]])
+BINARY_FIXTURE
+    hash=$(sha256sum "$BINARY_DIR/artifact" | cut -d ' ' -f1)
+    write_impl_report "$BINARY_DIR" binary T-004 "artifact"$'\t'"$hash"
+    for mode in direct declared; do
+        input="$BINARY_DIR/artifact"
+        [[ "$mode" == declared ]] && input="$BINARY_DIR/specs/binary/verification/T-004"
+        out="$BINARY_DIR/$kind-$mode.txt"
+        printf 'retain-existing-output' > "$out"
+        run_prepare --task T-004 --feature binary --input "$input" \
+            --tasks-file "$BINARY_DIR/specs/binary/tasks.md" --project-root "$BINARY_DIR" --out "$out"
+        if [[ "$kind" == japanese ]]; then
+            if [[ "$PP_EXIT" == 0 ]] && grep -q '日本語の検証入力' "$out"; then
+                ok "binary-$mode: valid Japanese UTF-8 preserved"
+            else fail "binary-$mode: valid UTF-8 rejected: $PP_OUTPUT"; fi
+        elif [[ "$PP_EXIT" == 1 && "$PP_OUTPUT" == *'unsupported binary or invalid UTF-8'* ]] && \
+                [[ "$(cat "$out")" == retain-existing-output ]]; then
+            ok "binary-$mode: $kind rejected without replacing output"
+        else fail "binary-$mode: $kind was admitted or replaced output: $PP_OUTPUT"; fi
+    done
+done
+
 # ============================================================================
 # Summary
 # ============================================================================

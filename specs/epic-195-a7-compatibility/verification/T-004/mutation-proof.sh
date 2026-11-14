@@ -297,7 +297,7 @@ run_pair envelope-f3 'FAIL: F3 corpus envelope matches the shipped schema'
 run_pair envelope-f4 'FAIL: F4 corpus envelope matches the shipped schema'
 run_pair operator-case-sensitivity 'FAIL: operator layer rejects a mis-cased shipped state'
 run_pair language-case-sensitivity 'FAIL: language matching layer rejects a mis-cased shipped anchor'
-run_pair anchor 'FAIL: fingerprinted Required Outputs injection anchor is unchanged'
+run_pair anchor 'FAIL: Required Outputs injection anchor matches recorded baseline or reviewed successor'
 run_pair full-paths 'FAIL: full artifact paths and exact count derive from its shipped output surface'
 run_pair lite-paths 'FAIL: lite artifact paths and exact count derive from its shipped output surface'
 

@@ -33,6 +33,7 @@ class TraceabilityFreezeTests(unittest.TestCase):
                     '  sed -i.bak "s/| Code Target |/| Evidence |/" "$trace"\n')
             helpers.append(helper)
         driver = "set -euo pipefail\nROOT=" + shlex.quote(str(ROOT)) + "\n"
+        driver += '. "$ROOT/tests/lib/shell-literal.sh"\n'
         driver += 'CHECKER="$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh"\n'
         driver += 'TMP="$(mktemp -d)"\ntrap \'rm -rf "$TMP"\' EXIT\n'
         driver += "\n".join(helpers) + "\n"
@@ -112,16 +113,21 @@ printf 'ok: persisted twins reject Evidence change\n'
                         "layer_sha256": {name: digest(name) for name in layers}}
             (report / "precheck-result.json").write_text(json.dumps(precheck))
             scripts = ROOT / "plugins/sdd-review-loop/scripts"
-            # PowerShell resolves its root from PSScriptRoot rather than cwd.
+            subprocess.run(["python3", str(scripts / "prepare-review-assets.py"),
+                            "--root", str(root), "--stage", "task"], check=True,
+                           capture_output=True)
+            # Keep installed scripts byte-identical and explicitly bind the consumer root.
             isolated_scripts = root / "plugins/sdd-review-loop/scripts"
             shutil.copytree(scripts, isolated_scripts)
             for original in scripts.rglob("*"):
                 if original.is_file():
                     self.assertEqual(original.read_bytes(),
                                      (isolated_scripts / original.relative_to(scripts)).read_bytes())
-            commands = [["bash", str(scripts / "task-review-precheck.sh"), feature, "1", "1", "--verify-inputs"],
+            commands = [["bash", str(scripts / "task-review-precheck.sh"), feature, "1", "1", "--verify-inputs",
+                         "--repository-root", str(root)],
                         ["pwsh", "-NoProfile", "-File", str(isolated_scripts / "task-review-precheck.ps1"),
-                         "-Feature", feature, "-Attempt", "1", "-Round", "1", "-VerifyInputs"]]
+                         "-Feature", feature, "-Attempt", "1", "-Round", "1", "-VerifyInputs",
+                         "-RepositoryRoot", str(root)]]
             for changed in (False, True):
                 if changed:
                     (spec / "traceability.md").write_text(files["traceability.md"].replace("Planned", "Done"))

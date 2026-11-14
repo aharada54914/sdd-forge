@@ -40,6 +40,21 @@ STRUCTURED_OUTPUT_ENFORCE_TURN = ('[structured-output-enforce] You MUST call the
                                   'Call this tool now.')
 
 
+def plugin_file(relative):
+    """Resolve trusted assets beside this release, never from the reviewed project."""
+    parts = pathlib.PurePosixPath(relative).parts
+    if len(parts) < 3 or parts[0] != 'plugins' or parts[1] not in (
+            'sdd-review-loop', 'sdd-quality-loop') or '..' in parts:
+        raise ValueError('unsupported review runtime asset')
+    owner = pathlib.Path(__file__).resolve().parent.parent
+    base = (owner.parent / parts[1] if owner.name == 'sdd-review-loop' else
+            owner.parent.parent / parts[1] / owner.name)
+    path = base.joinpath(*parts[2:])
+    if not path.is_file() or path.is_symlink():
+        raise ValueError('missing trusted review runtime asset: ' + str(path))
+    return path
+
+
 def admitted_raw_hashes(root, data, fixed_inputs=None):
     """Keep raw transport observations separate from canonical task normalization."""
     entries = data['allowed_input_manifest']
@@ -68,9 +83,9 @@ def admitted_raw_hashes(root, data, fixed_inputs=None):
                 precheck.get('tasks_sha256_form') == 'normalized' and
                 precheck.get('tasks_sha256') == mismatches[0]['sha256'],
                 'normalized task input is not precheck-bound')
-        command = ['rtk', 'proxy', 'bash', str(root /
-            'plugins/sdd-review-loop/scripts/task-review-precheck.sh'), feature,
-            match[1], match[2], '--verify-inputs']
+        command = (['rtk', 'proxy'] if shutil.which('rtk') else []) + ['bash', str(plugin_file(
+            'plugins/sdd-review-loop/scripts/task-review-precheck.sh')), feature,
+            match[1], match[2], '--verify-inputs', '--repository-root', str(root)]
         if fixed_inputs:
             command.extend(['--fixed-input-record', fixed_inputs['record'],
                             '--fixed-input-snapshot', fixed_inputs['snapshot']])
@@ -1757,6 +1772,27 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
     return data, result, messages
 
 
+def validate_evaluator_text(raw, session, invocation_ref, invocation_sha256):
+    """Validate the shared plaintext contract independently of native transport."""
+    require(isinstance(raw, str), 'reviewer result is not text')
+    lines = raw.splitlines()
+    manifest_line = 'ALLOWED_INPUT_MANIFEST: ' + invocation_ref + ' ' + invocation_sha256
+    verdicts = re.findall(r'^VERDICT: (PASS|NEEDS_WORK)$', raw, re.MULTILINE)
+    checked = lines[lines.index('CHECKED:') + 1:] if 'CHECKED:' in lines else []
+    require(sum(line.startswith('RUN_ID:') for line in lines) == 1 and
+            sum(line.startswith('HOST_SESSION_ID:') for line in lines) == 1 and
+            sum(line.startswith('ALLOWED_INPUT_MANIFEST:') for line in lines) == 1 and
+            'RUN_ID: ' + session in lines and 'HOST_SESSION_ID: ' + session in lines and
+            manifest_line in lines and len(verdicts) == 1 and
+            lines.count('FINDINGS:') == 1 and lines.count('CHECKED:') == 1 and
+            any(line.startswith('- ') for line in checked),
+            'evaluator plaintext verdict contract missing')
+    if verdicts[0] == 'PASS':
+        require(not any(re.match(r'- \[(?:Critical|Major)\]', line) for line in lines),
+                'evaluator PASS has blocking findings')
+    return verdicts[0]
+
+
 def postflight(root, invocation, transcript, prompt, wrapper, receipt, *, strict=False,
                conditional_state=None, fixed_inputs=None):
     data, result, messages = native_delivery(root, invocation, transcript, prompt, wrapper,
@@ -1767,24 +1803,9 @@ def postflight(root, invocation, transcript, prompt, wrapper, receipt, *, strict
     raw = result.get('result')
     require(isinstance(raw, str), 'reviewer result is not text')
     if data['stage'] == 'quality':
-        lines = raw.splitlines()
         invocation_ref = invocation.resolve().relative_to(root.resolve()).as_posix()
-        manifest_line = 'ALLOWED_INPUT_MANIFEST: ' + invocation_ref + ' ' + sha(invocation)
-        verdicts = re.findall(r'^VERDICT: (PASS|NEEDS_WORK)$', raw, re.MULTILINE)
-        checked = lines[lines.index('CHECKED:') + 1:] if 'CHECKED:' in lines else []
-        require(sum(line.startswith('RUN_ID:') for line in lines) == 1 and
-                sum(line.startswith('HOST_SESSION_ID:') for line in lines) == 1 and
-                sum(line.startswith('ALLOWED_INPUT_MANIFEST:') for line in lines) == 1 and
-                'RUN_ID: ' + session in lines and
-                'HOST_SESSION_ID: ' + session in lines and
-                manifest_line in lines and
-                len(verdicts) == 1 and lines.count('FINDINGS:') == 1 and
-                lines.count('CHECKED:') == 1 and
-                any(line.startswith('- ') for line in checked),
-                'evaluator plaintext verdict contract missing')
-        if verdicts[0] == 'PASS':
-            require(not any(re.match(r'- \[(?:Critical|Major)\]', line)
-                            for line in lines), 'evaluator PASS has blocking findings')
+        verdict = validate_evaluator_text(raw, session, invocation_ref, sha(invocation))
+        if verdict == 'PASS':
             admitted = {p.resolve() for p in review_read_paths(root, invocation, data, fixed_inputs)[2:]}
             observed_reads = [block.get('input', {}).get('file_path')
                               for item in messages if item.get('type') == 'assistant'

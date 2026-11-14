@@ -48,7 +48,14 @@ this two-column, backtick-quoted form — keep the shape byte-precise.
 - **Test Evidence Path**: {{test_evidence_path}}
 
 `Test Evidence Path` follows the same canonical repository-relative path rules
-as output paths.
+as output paths. For tasks requiring a failing-test commit before implementation,
+link the actual RED/GREEN run logs and read-only Git evidence for the scoped RED
+commit tree, ancestry to the reviewed revision, and test revision/working-tree
+state used by each run. Record commands, outputs and exit codes; list the
+produced evidence files in Outputs with exact SHA-256 values and include them
+in the evaluator's fixed inputs. A commit ID alone does not supply this proof.
+Distinguish pre-existing other-task code from the current task's implementation,
+and record unavailable historical proof honestly; do not invent history.
 
 ## Iteration And Escalation
 
@@ -79,6 +86,12 @@ Fresh-agent reports MUST use `None` for both fallback fields. The only allowed
 fallback is `same-session-file-reload`, whose exact reason is
 `host-does-not-support-implementation-subagents` and whose evidence is a
 lowercase 64-hex SHA-256.
+
+`fresh-agent` describes the independently allocated task worker. Resuming that
+same worker on the same task does not change the isolation mode. Preserve its
+actual identity/manifest binding and interruption history; prose alone does not
+prove continuity. An orchestrator taking over implementation is different, and
+an interruption alone does not authorize the host-incapable fallback.
 
 ## Regression Tests Run
 

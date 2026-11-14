@@ -38,6 +38,10 @@
 # bundle size. If the bundle is still over --max-bytes after both tiers are
 # exhausted, this script still fails closed exactly as above.
 #
+# Text transport only: binary/NUL or invalid UTF-8 artifacts fail closed.
+# Declared binary evidence must not be omitted to manufacture a successful review.
+# Use a separately supported native attachment review for those artifacts.
+#
 # Security (design.md §6):
 #   * Fail-closed consent gate: exits non-zero without writing output unless
 #     tasks.md contains "Cross-Model: enabled" for the task, OR a valid
@@ -489,9 +493,26 @@ $script:PpiElideLines = 40
 # One file's content, elided to its first/last $PpiElideLines lines plus a
 # marker. Callers only invoke this for a file the budget loop below has
 # already decided to elide -- it is not itself threshold-gated.
+# Reject binary evidence before lossy decoding in this text-only transport.
+function Read-PpiText {
+    param([string]$FilePath)
+    $bytes = [IO.File]::ReadAllBytes($FilePath)
+    try {
+        $text = [Text.UTF8Encoding]::new($false, $true).GetString($bytes)
+    } catch [Text.DecoderFallbackException] {
+        throw "prepare-panelist-input: unsupported binary or invalid UTF-8 input; text-only panelist transport cannot review this artifact: $FilePath"
+    }
+    if ($text.IndexOf([char]0) -ge 0) {
+        throw "prepare-panelist-input: unsupported binary or invalid UTF-8 input; text-only panelist transport cannot review this artifact: $FilePath"
+    }
+    # Preserve Get-Content's existing UTF-8 BOM handling.
+    if ($text.Length -gt 0 -and $text[0] -eq [char]0xFEFF) { $text = $text.Substring(1) }
+    return $text
+}
+
 function Get-PpiElidedContent {
     param([string]$FilePath, [string]$Label)
-    $raw = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    $raw = Read-PpiText $FilePath
     $totalBytes = [System.Text.Encoding]::UTF8.GetByteCount($raw)
     $lines = Get-Content -Encoding Utf8 -LiteralPath $FilePath
     $lineCount = $lines.Count
@@ -517,7 +538,7 @@ function Add-PpiFileContent {
     if ($Elidable) {
         $content = Get-PpiElidedContent -FilePath $FilePath -Label $RelPath
     } else {
-        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+        $content = Read-PpiText $FilePath
     }
     $RawContent.Value += "# ---- $RelPath ----`n$content`n"
 }
@@ -582,7 +603,7 @@ if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
                 Where-Object { -not $_.LinkType } | Sort-Object FullName)) {
             $subPath = $f.FullName.Substring($taskVerifFull.Length + 1) -replace '\\', '/'
             $tfRel = "$SpecRoot/$Feature/verification/$TaskId/$subPath"
-            $tfBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $f.FullName))
+            $tfBytes = [System.Text.Encoding]::UTF8.GetByteCount((Read-PpiText $f.FullName))
             $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $tfBytes; AbsPath = $f.FullName; RelPath = $tfRel }
             $script:PpiSeenRelPaths.Add($tfRel) | Out-Null
         }
@@ -620,7 +641,7 @@ if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
 
             $depResult = Resolve-DeclaredOutputRow -RowPath $depPath -Root $ProjectRoot
             if ($depResult.State -eq "Matched") {
-                $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $depResult.Candidate))
+                $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Read-PpiText $depResult.Candidate))
                 $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $depBytes; AbsPath = $depResult.Candidate; RelPath = $depPath }
             } else {
                 # WFI-059: name the join that was actually attempted, not just
@@ -645,7 +666,7 @@ if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
     $script:PpiContentSuffix = $rawContent
     $rawContent = ""
 } else {
-    $script:PpiContentPrefix = Get-Content -Raw -Encoding Utf8 -LiteralPath $InputPath
+    $script:PpiContentPrefix = Read-PpiText $InputPath
     $script:PpiContentSuffix = ""
     $script:PpiElidableIndex = @()
 }
@@ -663,7 +684,7 @@ function Build-PpiStep3Content {
         if ($ElideSet -contains $cand.RelPath) {
             $body = Get-PpiElidedContent -FilePath $cand.AbsPath -Label $cand.RelPath
         } else {
-            $body = Get-Content -Raw -Encoding Utf8 -LiteralPath $cand.AbsPath
+            $body = Read-PpiText $cand.AbsPath
         }
         $content += "# ---- $($cand.RelPath) ----`n$body`n"
     }
@@ -1004,7 +1025,7 @@ function Add-PpiDeclaredOutputContent {
     }) | Out-Null
 
     if ($Candidate) {
-        $bytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate))
+        $bytes = [System.Text.Encoding]::UTF8.GetByteCount((Read-PpiText $Candidate))
         $script:PpiDeclaredElidableIndex += [PSCustomObject]@{ Bytes = $bytes; AbsPath = $Candidate; RelPath = $RowPath }
     }
 
@@ -1045,7 +1066,7 @@ function Build-PpiDeclaredContent {
             $body = Get-PpiElidedContent -FilePath $row.Candidate -Label $row.RowPath
             $content += "$header`n$body`n"
         } else {
-            $body = Get-Content -Raw -Encoding Utf8 -LiteralPath $row.Candidate
+            $body = Read-PpiText $row.Candidate
             $content += "$header`n$body`n"
         }
     }
