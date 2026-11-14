@@ -31,9 +31,9 @@ CLOUD_ROOTS = ("plugins/sdd-azure-cloud/", "plugins/sdd-aws-cloud/", "templates/
 
 
 def historical_core_paths():
-    """The preserved nine-component candidate predates cloud and payload restoration."""
+    """The preserved nine-component candidate predates cloud, payload restoration, and dashboard labels."""
     paths = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
-    return [path for path in paths if not path.startswith(CLOUD_ROOTS) and path != "install-payload.txt"]
+    return [path for path in paths if not path.startswith(CLOUD_ROOTS) and path not in ("install-payload.txt", "dashboard-labels.json")]
 
 
 def context():
@@ -142,8 +142,43 @@ class CandidatePackTests(unittest.TestCase):
         new_errors, _ = checker.validate(OWNERSHIP.parse_minimal_yaml(successor), tracked)
         self.assertEqual(new_errors, [])
 
+    def test_dashboard_successor_has_only_exact_mcp_label_ownership(self):
+        folder = ROOT / "specs/epic-197-a9-dogfood/candidate"
+        original = (folder / "project-context-restored-cloud.yaml").read_text()
+        successor = (folder / "project-context-dashboard.yaml").read_text()
+        addition = '  - pattern: "dashboard-labels.json"\n    components:\n      - "mcp"\n'
+        self.assertEqual(successor, original + addition)
+        spec = importlib.util.spec_from_file_location("a9_dashboard_candidate", ROOT / "scripts/validate-a9-candidate.py")
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
+        old = OWNERSHIP.parse_minimal_yaml(original)
+        current = OWNERSHIP.parse_minimal_yaml(successor)
+        self.assertIn("UNOWNED: dashboard-labels.json", checker.validate(old, tracked)[0])
+        self.assertEqual(checker.validate(current, tracked)[0], [])
+        result = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(current), ["dashboard-labels.json"])
+        self.assertEqual(result["records"][0]["owning_components"], ["mcp"])
+        for unknown in ("dashboard-labels.other.json", "nested/dashboard-labels.json", "Dashboard-labels.json"):
+            with self.subTest(unknown=unknown):
+                self.assertIn("UNOWNED: " + unknown, checker.validate(current, tracked + [unknown])[0])
+        for replacement in (None, {"pattern": "dashboard-labels.json", "classification": "cross-cutting"},
+                {"pattern": "dashboard-labels.json", "components": ["installer"]},
+                {"pattern": "dashboard-labels.json", "components": ["mcp", "installer"]},
+                {"pattern": "dashboard-*.json", "components": ["mcp"]}):
+            changed = copy.deepcopy(current)
+            changed["shared_paths"] = [entry for entry in changed["shared_paths"] if entry["pattern"] != "dashboard-labels.json"]
+            if replacement is not None:
+                changed["shared_paths"].append(replacement)
+            with self.subTest(rule=replacement):
+                self.assertTrue(checker.validate(changed, tracked)[0])
+
+        reassigned = copy.deepcopy(old)
+        installer = next(item for item in reassigned["components"] if item["id"] == "installer")
+        installer["paths"]["include"].append("dashboard-labels.json")
+        self.assertIn("dashboard labels must retain exact MCP ownership", checker.validate(reassigned, tracked)[0])
+
     def test_candidate_has_complete_nonoverlapping_tracked_ownership(self):
-        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml"
+        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml"
         doc = OWNERSHIP.parse_minimal_yaml(candidate.read_text())
         self.assertTrue(RESOLVER._project_context_valid(doc, ROOT))
         self.assertEqual(len(doc["components"]), 11)
@@ -155,7 +190,7 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("a9_candidate", ROOT / "scripts/validate-a9-candidate.py")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml").read_text())
+        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml").read_text())
         tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
         for index in range(len(doc["components"])):
             changed = copy.deepcopy(doc)
@@ -214,7 +249,7 @@ class CandidatePackTests(unittest.TestCase):
                 self.assertTrue(checker.validate(changed, tracked)[0])
 
     def test_payload_manifest_has_exact_unsigned_installer_ownership(self):
-        candidate = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml").read_text())
+        candidate = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml").read_text())
         live = OWNERSHIP.parse_minimal_yaml((ROOT / "sdd/project-context.yaml").read_text())
         for document, expected in ((candidate, ["installer"]), (live, [])):
             result = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(document), ["install-payload.txt"])
