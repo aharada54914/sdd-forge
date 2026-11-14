@@ -80,6 +80,10 @@ Azure Bicep と AWS CDK / CloudFormation の専用プラグインは、明示指
 bash install.sh --source-directory "$PWD" --target Codex --plugins sdd-azure-cloud,sdd-aws-cloud
 ```
 
+既存の `sdd-plugins` marketplace が別の場所を指している場合、導入はエラーで停止します。
+登録先を確認し、対象ホストの marketplace 登録をインストール先へ変更して再実行してください。
+ソース checkout の直接登録では、クラウドプラグインに必要な共有 runtime が配置されません。
+
 入口は `/sdd-azure-cloud:orchestrate` / `/sdd-aws-cloud:orchestrate` です。
 共有 runtime はこのリポジトリのインストーラーが組み立てるため、marketplace だけの直接導入では動作しません。
 既定の bootstrap / ship の導入構成は変わりません。

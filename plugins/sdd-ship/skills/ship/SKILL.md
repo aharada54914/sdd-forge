@@ -171,6 +171,11 @@ before trusting any Project Context content:
    compatibility fallback as `DISABLED_LEGACY` (gates G3/G4). From a
    valid-Context project, never fall back to legacy behaviour silently.
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 **When the presence/validity probe runs.** The handshake itself never reads

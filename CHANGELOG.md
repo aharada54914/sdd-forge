@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+- 別ソースのmarketplace登録を導入成功として扱わず停止し、登録先の修正方法を案内する（#732）。
+- Codexの実hook拒否を安全に記録する手順、domain未使用時のbootstrap継続、Lite除外文法とship再確認を補完する（#737、#738、#739）。
+- 配布Codex evaluatorを現行の入力manifest・identity・receipt契約へ同期する（#744）。
+
 ### Added
 - `sdd-implementation:sql-develop` でMicrosoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求・データ契約・変更影響を整理し、既存bootstrapへ引き継ぐ。SQL共通手順を既存の仕様化・実装・独立検証へ接続する。
 - 隔離DBでの変更・失敗回復を扱う参照試験と、既存の承認・実装完了から本番接続を自動開始しない運用引き継ぎ。[SQL開発ガイド](docs/sql-development.md)を参照。
