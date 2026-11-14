@@ -82,6 +82,25 @@ class WorkflowSession(unittest.TestCase):
                                      input_fds=[fd for _, _, fd in snapshot.descriptors])
         self.assertEqual((result[0], result[1], result[4]), (0, old, True))
 
+    def test_linked_runtime_tools_and_tmp_inputs_remain_readonly(self):
+        snapshot = session.capture(self.registry)
+        self.addCleanup(snapshot.close)
+        snapshot.seal()
+        source = self.root / 'specs/sample/requirements.md'
+        tool = Path('/usr/bin/dirname')
+        expected = session.digest(snapshot.files[tool][1])
+        command = ['/usr/bin/bash', '-c',
+                   'dirname /tmp/sample && '
+                   '! (printf MUTATED > /usr/bin/dirname) && '
+                   '! (printf MUTATED > "$1") && '
+                   '! rm /usr/bin/dirname && sha256sum /usr/bin/dirname',
+                   'runtime-boundary', str(source)]
+        result = self.actual_execute(snapshot.command(self.registry, command), '/', 10, 4096,
+                                     input_fds=[fd for _, _, fd in snapshot.descriptors])
+        self.assertEqual((result[0], result[4]), (0, True), result)
+        self.assertEqual(result[1], f'/tmp\n{expected}  /usr/bin/dirname\n'.encode())
+        self.assertEqual(source.read_text(), 'Spec-Review-Status: Pending\n')
+
     def test_audit_checks_admitted_gate_bytes_across_parent_alias_race(self):
         with tempfile.TemporaryDirectory() as directory:
             outside = Path(directory)

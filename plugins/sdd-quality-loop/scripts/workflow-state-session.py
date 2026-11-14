@@ -182,7 +182,12 @@ class Snapshot:
             if str(path) not in ('/', '/tmp', '/proc', '/dev'):
                 argv += ['--perms', oct(self.directories.get(path, 0o755))[2:], '--dir', str(path)]
         for path, mode, descriptor in self.descriptors:
-            argv += ['--perms', oct(mode)[2:], '--ro-bind-data', str(descriptor), str(path)]
+            # uutils validates /proc/self/exe; ro-bind-data leaves an unlinked
+            # backing inode ("dirname (deleted)"). Fixed tools live on the
+            # private root tmpfs, sealed readonly below before any execution.
+            tool = path.parent == Path('/usr/bin') and path.name in TOOLS
+            option = '--file' if tool else '--ro-bind-data'
+            argv += ['--perms', oct(mode)[2:], option, str(descriptor), str(path)]
         # Files are private readonly copies of sealed bytes; no host backing tree is mounted.
         argv += ['--remount-ro', '/', '--chdir', str(registry.parent.parent), '--']
         return argv + (command or ['/usr/bin/bash', str(GATE), '--registry', str(registry)])
