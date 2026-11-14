@@ -1,1 +1,0 @@
-check-cross-model: diversity check failed: vendors_distinct=1 non_anthropic_count=1 (need >=2 distinct and >=1 non-anthropic)

@@ -1,7 +1,0 @@
-{
-  "schema": "sdd-codex-host-denial/v1",
-  "runtime": "codex-cli",
-  "nonce": "5f1faaff69881e1e64ecf328e2dd691b",
-  "executed": false,
-  "raw_result": "Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:5f1faaff69881e1e64ecf328e2dd691b\n*** End Patch"
-}

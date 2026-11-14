@@ -1,9 +1,0 @@
-{
-  "checked_at": "2026-11-13T05:26:35.274930+00:00",
-  "inventory_sha256": "382c5d6971708e26bba57e45013012ae95ed5d49d8b1ad40c4ef355fe5326f7b",
-  "verified_files": 309,
-  "changed_from_745": [
-    "sdd-quality-loop/1.23.1/skills/quality-gate/SKILL.md"
-  ],
-  "all_script_role_calibration_bytes_unchanged": true
-}

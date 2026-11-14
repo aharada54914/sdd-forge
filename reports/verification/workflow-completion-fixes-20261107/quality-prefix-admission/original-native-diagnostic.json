@@ -1,7 +1,0 @@
-{
-  "command": "bash reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/scripts/validate-review-context-set.sh reports/integration/quality-T-003-v9-product-native/invocation.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
-  "exit_code": 1,
-  "started_at": "2026-11-07T12:48:35.491393+00:00",
-  "finished_at": "2026-11-07T12:48:35.961542+00:00",
-  "evidence": "reports/integration/quality-T-003-v9-canonical-diagnostic.log"
-}

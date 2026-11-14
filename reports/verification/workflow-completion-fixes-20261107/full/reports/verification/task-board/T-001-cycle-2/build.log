@@ -1,4 +1,0 @@
-$ python3 -B -c 'from pathlib import Path; [compile(Path(p).read_bytes(), p, "exec") for p in ("store.py", "tests/test_store.py")]; print("Compiled both modules after test correction")'
-Compiled both modules after test correction
-
-EXIT_CODE=0

@@ -1,6 +1,0 @@
-{
-  "install_root": "/tmp/task-board-verification-dev-tools",
-  "runtime_dependency": false,
-  "purpose": "Temporary ESLint/TypeScript verification tools for upcoming approved T-004; app runtime remains stdlib and browser native",
-  "lock_sha256": "ed23b51297df972de241212a3683f59f6f809cea8a67582ffb66652bfcbb5042"
-}

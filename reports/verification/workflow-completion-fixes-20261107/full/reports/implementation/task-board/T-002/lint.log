@@ -1,4 +1,0 @@
-Command: ['/workspace/.tools/sdd-forge-python/bin/ruff', 'check', 'server.py', 'tests/test_http.py']
-All checks passed!
-
-Exit code: 0

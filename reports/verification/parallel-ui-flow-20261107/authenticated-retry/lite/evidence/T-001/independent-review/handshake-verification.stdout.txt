@@ -1,7 +1,0 @@
-{
-  "nonce": "24eda6f335326f6ad170832bf1f6cfe6",
-  "reason": "RECORDED_RESULT_UNREADABLE",
-  "runtime": "codex-cli",
-  "schema": "sdd-hook-verify-result/v1",
-  "status": "CAPABILITY_RUNTIME_UNAVAILABLE"
-}

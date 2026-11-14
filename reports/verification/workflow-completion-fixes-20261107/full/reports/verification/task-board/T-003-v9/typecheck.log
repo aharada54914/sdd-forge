@@ -1,4 +1,0 @@
-$ /workspace/.tools/sdd-forge-python/bin/mypy --strict --cache-dir /tmp/task-board-parent-mypy-T003 scripts/generate_tokens.py tests/test_tokens.py
-Success: no issues found in 2 source files
-
-EXIT_CODE=0

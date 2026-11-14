@@ -1,4 +1,0 @@
-$ bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-contract.sh /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/specs/task-board/verification/T-005.contract.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed
-Verification contract passed for task T-005.
-
-EXIT_CODE=0

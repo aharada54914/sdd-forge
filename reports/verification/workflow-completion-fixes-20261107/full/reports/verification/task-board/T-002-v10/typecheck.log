@@ -1,4 +1,0 @@
-$ /workspace/.tools/sdd-forge-python/bin/mypy --strict --cache-dir /tmp/task-board-parent-mypy-T002 server.py tests/test_http.py
-Success: no issues found in 2 source files
-
-EXIT_CODE=0

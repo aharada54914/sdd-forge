@@ -1,7 +1,0 @@
-{
-  "plugins/sdd-implementation/scripts/model-policy.py": "228fc2fc74926742f02c2db31363cdb8bb58518fff412852e77a47237f03a182",
-  "plugins/sdd-implementation/scripts/select-agent-model.sh": "3bbd58617c5d70fc5955751675af7e1539bfea0c99ad44ae4414763e0edbe2fd",
-  "plugins/sdd-implementation/scripts/select-agent-model.ps1": "1435533a64e58093923c9a7171da2dad896c0cd68987a4696d32c7eaf702da2a",
-  "plugins/sdd-implementation/contracts/agent-model-capabilities.json": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
-  "plugins/sdd-implementation/contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b"
-}

@@ -1,7 +1,0 @@
-{
-  "scope": "disposable test application only",
-  "user_instruction": "これはただのテストなのでこのプログラムは使わないからapprovedかどうかはどうでもいい",
-  "action": "parent set T-001 Approval to Approved as test fixture",
-  "ordinary_human_file_edit_tested": false,
-  "other_gates_disabled": false
-}

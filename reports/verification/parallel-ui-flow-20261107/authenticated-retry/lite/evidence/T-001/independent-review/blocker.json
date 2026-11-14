@@ -1,7 +1,0 @@
-{
-  "command": "python3 /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce 24eda6f335326f6ad170832bf1f6cfe6 --recorded-result evidence/cli-independent-gate-stderr.log --runtime codex-cli",
-  "exit_code": 61,
-  "stderr": "check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: RECORDED_RESULT_UNREADABLE: 'evidence/cli-independent-gate-stderr.log' is not valid JSON: Expecting value: line 1 column 1 (char 0)\n",
-  "status": "CAPABILITY_RUNTIME_UNAVAILABLE",
-  "raw_native_result": "evidence/cli-independent-gate-stderr.log"
-}

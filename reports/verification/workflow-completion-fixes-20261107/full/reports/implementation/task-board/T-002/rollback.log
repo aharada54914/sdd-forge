@@ -1,9 +1,0 @@
-Command: ['python3', '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_http.py', '-k', 'test_cli_restart_and_source_restore_preserve_json', '-v']
-test_cli_restart_and_source_restore_preserve_json (test_http.CLITests.test_cli_restart_and_source_restore_preserve_json) ... ok
-
-----------------------------------------------------------------------
-Ran 1 test in 0.114s
-
-OK
-
-Exit code: 0

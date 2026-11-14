@@ -1,6 +1,0 @@
-$ ls -ld -- sdd/project-context.yaml sdd/.hook-canary-sentinel
-ls: cannot access 'sdd/project-context.yaml': No such file or directory
-ls: cannot access 'sdd/.hook-canary-sentinel': No such file or directory
-exit_code=2
-
-Resolution: Project Context physically absent; G3 DISABLED_LEGACY and C1 COMPATIBILITY_FALLBACK. Explicit user choice resolves Lite candidate. No Capability fragment is produced. Sentinel was denied and is absent; cleanup is unnecessary.

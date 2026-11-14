@@ -1,4 +1,0 @@
-$ bash /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/integration/runtime-snapshot-v6/sdd-quality-loop/1.23.1/scripts/check-traceability.sh specs/task-board/traceability.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed require-evidence
-Traceability check passed for task-board: 4 link(s).
-
-EXIT_CODE=0

@@ -1,8 +1,0 @@
-{
-  "scope": "disposable test task T-001 and design reference adoption",
-  "authorization": "User: これはただのテストなのでこのプログラムは使わないからapprovedかどうかはどうでもいい",
-  "actor": "parent test supervisor",
-  "action": "set Approval Approved, preserve Status Planned",
-  "normal_human_approval": false,
-  "time": "2026-11-07T10:53:39.577447+00:00"
-}

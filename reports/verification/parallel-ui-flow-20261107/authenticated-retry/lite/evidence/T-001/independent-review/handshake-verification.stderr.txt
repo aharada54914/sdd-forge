@@ -1,1 +1,0 @@
-check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: RECORDED_RESULT_UNREADABLE: 'evidence/cli-independent-gate-stderr.log' is not valid JSON: Expecting value: line 1 column 1 (char 0)

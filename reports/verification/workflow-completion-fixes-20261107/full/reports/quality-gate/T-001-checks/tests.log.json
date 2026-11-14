@@ -1,7 +1,0 @@
-{
-  "command": "python3 -B -m unittest discover -s tests -v",
-  "exit_code": 0,
-  "started_at": "2026-11-07T12:13:17.582584+00:00",
-  "finished_at": "2026-11-07T12:13:17.805554+00:00",
-  "evidence": "reports/quality-gate/T-001-checks/tests.log"
-}

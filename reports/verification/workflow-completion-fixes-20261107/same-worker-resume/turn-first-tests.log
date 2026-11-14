@@ -1,3 +1,0 @@
-ok: 12 independent-worker resume and orchestrator-takeover controls
-ok: turn-first orchestration enforces three-task identity and fallback fixtures
-ok: implementation report v2 enforces complete file-backed handoff fields with legacy compatibility

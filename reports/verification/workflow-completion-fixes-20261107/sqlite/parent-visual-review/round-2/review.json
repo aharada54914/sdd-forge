@@ -1,6 +1,0 @@
-{
-  "observed_at": "2026-11-13T04:56:40.794831+00:00",
-  "source": "/workspace/.tools/sdd-forge-dev/verification-workspace/sqlite-task-board-fixed/specs/sqlite-task-board/verification/T-003/round-2/screenshots/mobile.png",
-  "sha256": "9ed99c778efb99b4e53a4f5e58d95f098c1c349879f545bf6f5892f1c60e53f2",
-  "scope": "Parent visual inspection of actual post-Unicode-fix mobile screenshot. Long Japanese/astral titles wrap; literal payload text remains visible; controls do not overlap. No new visual finding. Functional/quality results are separate."
-}

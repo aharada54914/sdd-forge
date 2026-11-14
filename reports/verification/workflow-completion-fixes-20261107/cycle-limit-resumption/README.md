@@ -1,7 +1,0 @@
-# Human-decision resumption after cycle-limit escalation (#749)
-
-The live SQLite run reached the ordinary three-report limit. The script correctly returned Escalate-Human with exit 1, but quality-gate and ship lacked instructions for resuming after an applicable explicit human decision. The user instructed fixing the underlying defects and retrying until completion. The application owner must record the actual instruction/source and its match to the concrete correction; generic completion intent is insufficient.
-
-Only quality-gate/ship guidance and the existing ship successor publication hash baseline changed. Frozen predecessor bytes are retained. Scripts, counters, thresholds and CLI are unchanged. The new path preserves non-zero escalation evidence and history, requires fresh independent review and every Done condition, and stops on new out-of-scope correction or unresolved genuine judgment.
-
-Verification: cycle-limit suite passes 75 checks including Bash/PowerShell parity and unchanged 3+ report escalation. Ship migration Bash and PowerShell suites pass; mirror check and git diff check pass. Logs are adjacent. An initial ship suite run correctly detected outdated successor pins after the docs edit; the final logs reflect the updated exact live hash with original staged hashes retained. This validates existing deterministic contracts and documentation compatibility, not completion of the application or automatic proof of authorization.

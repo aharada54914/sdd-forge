@@ -1,4 +1,0 @@
-$ python3 -B scripts/generate_tokens.py
-Generated /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/design-system/build/tokens.css
-
-EXIT_CODE=0

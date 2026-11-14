@@ -1,9 +1,0 @@
-__pycache__/
-*.pyc
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
-*.sqlite3-journal
-.env
-node_modules/

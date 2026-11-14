@@ -1,4 +1,0 @@
-$ python3 --version
-Python 3.12.14
-
-exit_code=0

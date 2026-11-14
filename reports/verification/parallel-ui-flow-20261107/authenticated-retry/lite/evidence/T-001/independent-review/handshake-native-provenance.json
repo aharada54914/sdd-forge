@@ -1,7 +1,0 @@
-{
-  "source": "evidence/cli-independent-gate-stderr.log",
-  "byte_start": 463,
-  "byte_end_exclusive": 1061,
-  "sha256": "102ef9ebbfd86974266c9b82d156f003b8d0d59594a1484f3cb6c5da8bec376b",
-  "extraction": "Exact bytes after router error= through matching patch end; separator newline excluded. No normalization."
-}

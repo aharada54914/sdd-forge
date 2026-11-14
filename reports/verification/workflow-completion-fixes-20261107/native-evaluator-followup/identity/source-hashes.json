@@ -1,6 +1,0 @@
-{
-  "plugins/sdd-quality-loop/agents/evaluator.md": "e63b44c8778496f0b1e01afdf1a46db4a2c194f3a2bdc99998d1e3a6f9964af4",
-  "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "e467064ffe7646f5a1b7d64024919183e31b9c77243abf5266e57cf86673485e",
-  ".codex/agents/sdd-evaluator.toml": "bb45dd8367d523113d1a1aa6161cd8ae386f88c82bebf12efee0fe476f99ada8",
-  "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md": "a612fa43e2305af12ea4ae4962fbaf773dccd8159ff12a956ff9c0d1e9ac892a"
-}

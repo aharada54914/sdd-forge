@@ -1,9 +1,0 @@
-{
-  "scope": "local exact source with in-memory R2 fixture; not authenticated production viewing",
-  "checks": [
-    "desktop cards match actual snapshot counts and caveats",
-    "mobile cards fit viewport",
-    "reload preserves progress without browser errors"
-  ],
-  "snapshotObservedAt": "2026-11-07T12:44:07.682812+00:00"
-}

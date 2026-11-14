@@ -1,7 +1,0 @@
-{
-  "files_scanned": 118,
-  "findings": [],
-  "benign_initial_match": "risk-classification-policy.md inventory path matched unbounded sk- token prefix; checked path and tightened token boundary",
-  "excluded": "raw rollout/event streams, auth configuration, credential files, caches and Git internals",
-  "limitations": "pattern scan plus curated allowlisted artifact paths; no claim of universal secret detection"
-}

@@ -1,8 +1,0 @@
-$ python3 -B reports/integration/run_ui_stack_checks.py lint
-COMMAND: ['/workspace/.tools/sdd-forge-python/bin/ruff', 'check', '--no-cache', 'store.py', 'server.py', 'scripts/generate_tokens.py', 'tests']
-All checks passed!
-EXIT: 0
-COMMAND: ['/tmp/task-board-verification-dev-tools/node_modules/.bin/eslint', '--config', 'reports/integration/ui-eslint.config.mjs', 'web/app.js']
-EXIT: 0
-
-EXIT_CODE=0

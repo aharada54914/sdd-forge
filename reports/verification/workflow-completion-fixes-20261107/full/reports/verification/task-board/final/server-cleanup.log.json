@@ -1,7 +1,0 @@
-{
-  "command": "python3 -B reports/integration/check_no_task_servers.py",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:57:04.282167+00:00",
-  "finished_at": "2026-11-13T04:57:04.304871+00:00",
-  "evidence": "reports/verification/task-board/final/server-cleanup.log"
-}

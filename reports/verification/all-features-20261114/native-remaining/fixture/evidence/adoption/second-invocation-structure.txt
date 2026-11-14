@@ -1,7 +1,0 @@
-$ bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.23.1/scripts/check-sdd-structure.sh .
-advisory: contracts
-advisory: docs/architecture
-host: local
-check-sdd-structure: OK
-
-exit_code=0

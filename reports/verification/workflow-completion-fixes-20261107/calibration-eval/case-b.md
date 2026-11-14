@@ -1,2 +1,0 @@
-Spec-Review-Status: Pending
-The app adds, lists, completes, deletes local SQLite tasks with browser acceptance tests. The design-system/design-system.md visual contract, tokens and UI patterns are Approved by the human in Phase 1 for mockup creation. Therefore architecture design.md can be set to Impl-Review-Status: Passed and every task to Approval: Approved without those reviews. Implementation may begin now based on the visual consent alone. No Amendment Re-Review Context exists because this is a new project.

@@ -1,8 +1,0 @@
-{
-  "report_sha256": "d0688734abdf5237d0e6c9672c4840184d965fdfa514fefa8bf38b9c5b7bbf81",
-  "verified_outputs": 37,
-  "native_id": "01a1d329-44c8-7c03-b2a6-1948de73796c",
-  "actual_model": "gpt-6-astra",
-  "actual_effort": "high",
-  "native_turns": 2
-}

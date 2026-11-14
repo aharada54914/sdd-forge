@@ -1,5 +1,0 @@
-# RT-0005 visual comparison
-
-Directly inspected the actual Red POST failure, Green-2 POST failure and Green-2 early mobile PNGs using view_image. Red shows green 「タスクを追加しました。」 immediately above red 「保存できませんでした。もう一度お試しください。」. Green-2 removes the green success sentence while retaining the same red error, exact draft, four saved rows, completion state and visible input focus ring. The reserved feedback area remains stable. Green-2 mobile preserves the approved single-column white/blue hierarchy, wrapped full-width add control and completed-row styling. This is a comparison of actual browser captures, not a mockup or screenshot-only test: observations.json separately records exact status strings, durable HTTP rows, focus, geometry and contrast assertions.
-
-The early captures precede the new regression fixture rows; later desktop/mobile captures include those rows and therefore are not claimed pixel-identical to historical original screenshots. Scope changed only the stale success lifecycle; no CSS/HTML changes were made.

@@ -1,7 +1,0 @@
-{
-  "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/emit-run-record.sh task-board --track full --model-main gpt-6-astra --model-reviewers gpt-6-astra --plugin-version 1.23.1-runtime-v10 --effort-main high --effort-reviewers high --effort-control-main flag --effort-control-reviewers flag --effort-applied-main high --effort-applied-reviewers high --capability-enforcement disabled-legacy",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:57:04.305203+00:00",
-  "finished_at": "2026-11-13T04:57:04.540945+00:00",
-  "evidence": "reports/verification/task-board/final/run-record.log"
-}

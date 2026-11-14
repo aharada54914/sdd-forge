@@ -1,1 +1,0 @@
-{"name":"personal-task-board","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"python3 -m http.server 4173 --bind 127.0.0.1","lint":"node --check app.js && node --check tests/ui.mjs","typecheck":"node --check app.js","build":"node --check app.js","test":"node tests/ui.mjs"}}

@@ -1,7 +1,0 @@
-{
-  "command": "bash /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/reports/integration/runtime-snapshot-v6/sdd-quality-loop/1.23.1/scripts/check-workflow-state.sh --repository-root /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
-  "exit_code": 0,
-  "started_at": "2026-11-07T12:13:58.860772+00:00",
-  "finished_at": "2026-11-07T12:13:59.723494+00:00",
-  "evidence": "reports/quality-gate/T-001-checks/workflow-before-review.log"
-}

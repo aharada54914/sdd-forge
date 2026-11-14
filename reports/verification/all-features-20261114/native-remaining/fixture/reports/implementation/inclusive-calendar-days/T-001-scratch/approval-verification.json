@@ -1,8 +1,0 @@
-{
-  "approval_record": "evidence/approval-fixture/record.json",
-  "actor": "outer verification harness /root/native_remaining",
-  "task_digest_matches_fixture": true,
-  "reviewed_requirements_design_match": true,
-  "new_human_click_claimed": false,
-  "before_files": 66
-}

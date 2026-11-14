@@ -1,5 +1,0 @@
-advisory: CLAUDE.md
-advisory: contracts
-advisory: docs/architecture
-host: local
-check-sdd-structure: OK

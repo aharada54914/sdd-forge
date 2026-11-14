@@ -1,4 +1,0 @@
-$ python3 -B reports/integration/check_no_task_servers.py
-{"owned_task_servers_remaining": [], "root": "/workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed"}
-
-EXIT_CODE=0

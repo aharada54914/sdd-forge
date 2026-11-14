@@ -1,4 +1,0 @@
-$ /workspace/.tools/sdd-forge-python/bin/mypy --strict --cache-dir reports/implementation/task-board/T-001/mypy-cache store.py
-Success: no issues found in 1 source file
-
-EXIT CODE: 0

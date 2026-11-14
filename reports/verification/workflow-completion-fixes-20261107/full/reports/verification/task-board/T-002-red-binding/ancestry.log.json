@@ -1,7 +1,0 @@
-{
-  "command": "git merge-base --is-ancestor 398a70149c7f9da9ef8dc28faa04e5a98ea1d8ca bbab28429605f2026ec2456633ba0fc7dedc66b4",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:31:37.954969+00:00",
-  "finished_at": "2026-11-13T04:31:37.957383+00:00",
-  "evidence": "reports/verification/task-board/T-002-red-binding/ancestry.log"
-}

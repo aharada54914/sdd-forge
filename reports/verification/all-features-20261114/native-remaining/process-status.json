@@ -1,7 +1,0 @@
-{
-  "stage1_exit": 0,
-  "stage2_exit": 0,
-  "stage3_exit": 0,
-  "owned_native_process_ids_still_running": [],
-  "runtime_reinstall_or_additional_tests_after_completion": false
-}

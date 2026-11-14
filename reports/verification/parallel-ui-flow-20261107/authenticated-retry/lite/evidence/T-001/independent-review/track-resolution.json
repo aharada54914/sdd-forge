@@ -1,8 +1,0 @@
-{
-  "project_context_physically_present": false,
-  "resolution": "COMPATIBILITY_FALLBACK",
-  "track": "lite",
-  "source": "AGENTS.md spec_profile: lite",
-  "enforcement": "none",
-  "required_lite_checks": []
-}

@@ -1,4 +1,0 @@
-$ bash reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/scripts/check-placeholders.sh scripts/generate_tokens.py
-Placeholder scan passed.
-
-EXIT_CODE=0

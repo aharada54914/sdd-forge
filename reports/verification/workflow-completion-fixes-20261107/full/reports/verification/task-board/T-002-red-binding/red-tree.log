@@ -1,9 +1,0 @@
-$ git ls-tree -r 398a70149c7f9da9ef8dc28faa04e5a98ea1d8ca
-100644 blob 4b352cf8c036c12d29cbc0304b017fce3df63098	design-system/build/tokens.css
-100644 blob a7dd9d36effd261f8595d15a1eb7ff0fd15626c0	scripts/generate_tokens.py
-100644 blob 6c772c832e337b0953f0cb759004fd519a087827	store.py
-100644 blob d2bb5f736d47b9ebd4f8d3e068efb8dafa4928b5	tests/test_http.py
-100644 blob 7533e3fafb8b20635e5591b5554fc956f06367eb	tests/test_store.py
-100644 blob cdaae0c5a42dcef6dab1b2170a8f7b29697062db	tests/test_tokens.py
-
-EXIT_CODE=0

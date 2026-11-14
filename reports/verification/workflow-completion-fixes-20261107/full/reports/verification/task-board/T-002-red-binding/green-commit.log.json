@@ -1,7 +1,0 @@
-{
-  "command": "git show --format=fuller --stat bbab28429605f2026ec2456633ba0fc7dedc66b4",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:31:37.963248+00:00",
-  "finished_at": "2026-11-13T04:31:37.965596+00:00",
-  "evidence": "reports/verification/task-board/T-002-red-binding/green-commit.log"
-}

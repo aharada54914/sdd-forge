@@ -1,6 +1,0 @@
-{
-  "input": "Build a static localStorage task board.\n## Out of scope\nAuthentication is explicitly excluded; no account or sign-in feature is required.\n",
-  "exit_code": 10,
-  "stdout": "full-required: AUTH_BOUNDARY; triggers=AUTH_BOUNDARY\n",
-  "stderr": ""
-}

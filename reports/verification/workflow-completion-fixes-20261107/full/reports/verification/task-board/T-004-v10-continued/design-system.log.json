@@ -1,7 +1,0 @@
-{
-  "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-design-system.sh /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed specs/task-board/design.md web/index.html web/app.js web/styles.css",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:44:01.695635+00:00",
-  "finished_at": "2026-11-13T04:44:01.710735+00:00",
-  "evidence": "reports/verification/task-board/T-004-v10-continued/design-system.log"
-}

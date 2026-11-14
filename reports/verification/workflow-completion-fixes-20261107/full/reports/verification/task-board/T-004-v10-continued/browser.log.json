@@ -1,7 +1,0 @@
-{
-  "command": "python3 -B tests/browser_checks.py --output-dir reports/visual-evidence/task-board/T-004/quality-v10 --full",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:43:39.716199+00:00",
-  "finished_at": "2026-11-13T04:44:01.695091+00:00",
-  "evidence": "reports/verification/task-board/T-004-v10-continued/browser.log"
-}

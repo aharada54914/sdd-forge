@@ -1,4 +1,0 @@
-$ bash reports/integration/runtime-snapshot-v9/sdd-quality-loop/1.23.1/scripts/check-risk.sh specs/task-board/tasks.md T-003
-Risk check passed for task T-003.
-
-EXIT_CODE=0

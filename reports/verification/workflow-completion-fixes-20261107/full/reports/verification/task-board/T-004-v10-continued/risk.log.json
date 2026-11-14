@@ -1,7 +1,0 @@
-{
-  "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-risk.sh specs/task-board/tasks.md T-004",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:43:39.220805+00:00",
-  "finished_at": "2026-11-13T04:43:39.227396+00:00",
-  "evidence": "reports/verification/task-board/T-004-v10-continued/risk.log"
-}

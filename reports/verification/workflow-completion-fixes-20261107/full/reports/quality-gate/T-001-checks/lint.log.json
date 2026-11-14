@@ -1,7 +1,0 @@
-{
-  "command": "/workspace/.tools/sdd-forge-python/bin/ruff check --no-cache store.py tests/test_store.py",
-  "exit_code": 0,
-  "started_at": "2026-11-07T12:13:17.593390+00:00",
-  "finished_at": "2026-11-07T12:13:17.606763+00:00",
-  "evidence": "reports/quality-gate/T-001-checks/lint.log"
-}

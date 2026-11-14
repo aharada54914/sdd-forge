@@ -1,7 +1,0 @@
-{
-  "command": "bash reports/integration/runtime-snapshot-v10/sdd-quality-loop/1.23.1/scripts/check-contract.sh /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed/specs/task-board/verification/T-002.contract.json /workspace/.tools/sdd-forge-dev/verification-workspace/full-task-board-fixed",
-  "exit_code": 0,
-  "started_at": "2026-11-13T04:26:38.948154+00:00",
-  "finished_at": "2026-11-13T04:26:38.980177+00:00",
-  "evidence": "reports/verification/task-board/T-002-v10/contract.log"
-}

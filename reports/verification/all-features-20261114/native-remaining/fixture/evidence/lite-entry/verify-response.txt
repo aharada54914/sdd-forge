@@ -1,8 +1,0 @@
-$ bash /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.sh --verify-response --nonce 154b88e6f9b9667eef60689807003589 --recorded-result evidence/lite-entry/recorded-result.json --runtime codex-cli
-{
-  "nonce": "154b88e6f9b9667eef60689807003589",
-  "runtime": "codex-cli",
-  "schema": "sdd-hook-verify-result/v1",
-  "status": "HOOK_ACTIVE"
-}
-exit_code=0

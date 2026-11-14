@@ -1,1 +1,0 @@
-This is an actual native Codex transport integration test against a copied fixture project, not a completed consumer full workflow. The native reviewer identity and permission probes are real. Canonical gates must separately adopt the candidate. Independent security findings were fixed and retested.

@@ -1,3 +1,0 @@
-run-panelist-gpt: invoking /opt/codex/bin/codex exec --sandbox read-only --skip-git-repo-check -C /tmp/tmp.0Y9aBXZ0n5 - (task=T-002 feature=task-board)
-run-panelist-gpt: verdict written to specs/task-board/verification/T-002.panelist-openai.verdict.json
-specs/task-board/verification/T-002.panelist-openai.verdict.json
