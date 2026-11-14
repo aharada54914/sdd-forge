@@ -1751,7 +1751,7 @@ jobs:
       - name: Install Claude Code CLI
         shell: bash
         run: |
-          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          npm install -g --allow-scripts=@anthropic-ai/claude-code "@anthropic-ai/claude-code@${{ env.CLAUDE_CLI_VERSION }}"
           claude --version
 
       - name: Install Codex CLI (best-effort)
@@ -2002,11 +2002,222 @@ jobs:
     needs: [ci-plan]
     if: needs.ci-plan.outputs.run_cloud_native == 'true'
 
+  # Real database fixtures run once per engine on isolated Linux runners.
+  sql-contract:
+    name: SQL development contracts and distribution
+    runs-on: ubuntu-latest
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_sql_contract == 'true'
+    timeout-minutes: 10
+    steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
+      - name: Checkout exact tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test SQL contracts and FilesOnly distribution
+        shell: bash
+        run: python3 tests/verification.py --suite tests/sql-development-contract.tests.py --run --receipt "${{ runner.temp }}/verification-sql-contract.json"
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: SQL development contracts and distribution
+        run: |-
+          python3 - <<'PY_RECEIPT'
+          import hashlib, json, os
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+          PY_RECEIPT
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-sql-contract.json
+          if-no-files-found: error
+          retention-days: 14
+
+  sql-postgres:
+    name: SQL PostgreSQL 18 isolated database
+    runs-on: ubuntu-latest
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_sql_postgres == 'true'
+    timeout-minutes: 15
+    steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
+      - name: Checkout exact tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test isolated postgres migration and recovery
+        shell: bash
+        run: python3 tests/verification.py --suite tests/sql-development-postgres.tests.py --run --receipt "${{ runner.temp }}/verification-sql-postgres.json"
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: SQL PostgreSQL 18 isolated database
+        run: |-
+          python3 - <<'PY_RECEIPT'
+          import hashlib, json, os
+          from pathlib import Path
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+              output.write('proof_path=' + str(Path('../sql-postgres-proof.json').resolve()) + '\n')
+          PY_RECEIPT
+      - name: Preserve isolated SQL evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sql-postgres-proof-${{ github.run_attempt }}
+          path: ${{ steps.receipt-artifact.outputs.proof_path }}
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-sql-postgres.json
+          if-no-files-found: error
+          retention-days: 14
+
+  sql-mysql:
+    name: SQL MySQL 8.4 isolated database
+    runs-on: ubuntu-latest
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_sql_mysql == 'true'
+    timeout-minutes: 15
+    steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
+      - name: Checkout exact tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test isolated mysql migration and recovery
+        shell: bash
+        run: python3 tests/verification.py --suite tests/sql-development-mysql.tests.py --run --receipt "${{ runner.temp }}/verification-sql-mysql.json"
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: SQL MySQL 8.4 isolated database
+        run: |-
+          python3 - <<'PY_RECEIPT'
+          import hashlib, json, os
+          from pathlib import Path
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+              output.write('proof_path=' + str(Path('../sql-mysql-proof.json').resolve()) + '\n')
+          PY_RECEIPT
+      - name: Preserve isolated SQL evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sql-mysql-proof-${{ github.run_attempt }}
+          path: ${{ steps.receipt-artifact.outputs.proof_path }}
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-sql-mysql.json
+          if-no-files-found: error
+          retention-days: 14
+
+  sql-tsql:
+    name: SQL Server 2025 isolated database
+    runs-on: ubuntu-latest
+    needs: [ci-plan]
+    if: needs.ci-plan.outputs.run_sql_tsql == 'true'
+    timeout-minutes: 25
+    env:
+      DOTNET_INSTALL_DIR: ${{ github.workspace }}/../sdd-sql-dotnet
+      DOTNET_CLI_HOME: ${{ github.workspace }}/../sdd-sql-dotnet-home
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+      NUGET_PACKAGES: ${{ github.workspace }}/../sdd-sql-nuget
+    steps:
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
+      - name: Checkout exact tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install pinned .NET SDK for SQL Database Projects
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: '10.0.403'
+      - name: Install pinned SqlPackage outside the source checkout
+        shell: bash
+        run: dotnet tool install microsoft.sqlpackage --version 170.5.96 --tool-path ../sql-tsql-tools
+      - name: Test isolated tsql migration and recovery
+        shell: bash
+        run: python3 tests/verification.py --suite tests/sql-development-tsql.tests.py --run --receipt "${{ runner.temp }}/verification-sql-tsql.json"
+      - name: Bind receipt artifact to actual job identity
+        id: receipt-artifact
+        if: always()
+        shell: bash
+        env:
+          RECEIPT_JOB_NAME: SQL Server 2025 isolated database
+        run: |-
+          python3 - <<'PY_RECEIPT'
+          import hashlib, json, os
+          from pathlib import Path
+          name = json.dumps({'name': os.environ['RECEIPT_JOB_NAME']}, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
+              output.write('proof_path=' + str(Path('../sql-tsql-proof.json').resolve()) + '\n')
+              output.write('artifacts_path=' + str(Path('../tsql-artifacts').resolve()) + '\n')
+          PY_RECEIPT
+      - name: Preserve isolated SQL evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sql-tsql-proof-${{ github.run_attempt }}
+          path: |
+            ${{ steps.receipt-artifact.outputs.proof_path }}
+            ${{ steps.receipt-artifact.outputs.artifacts_path }}
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload source-attempt execution receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
+          path: ${{ runner.temp }}/verification-sql-tsql.json
+          if-no-files-found: error
+          retention-days: 14
+
   required-checks:
     name: required-checks
     runs-on: ubuntu-latest
     if: always()
-    needs: [a9-advisory-inputs, a9-advisory, posix-regression, posix-unwired-sharded, test, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, interrupted-recovery, windows-powershell, cloud-native, test-windows-heavy, coding-standards, ci-plan]
+    needs: [a9-advisory-inputs, a9-advisory, posix-regression, posix-unwired-sharded, test, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, interrupted-recovery, windows-powershell, cloud-native, test-windows-heavy, coding-standards, sql-contract, sql-postgres, sql-mysql, sql-tsql, ci-plan]
     timeout-minutes: 5
     permissions:
       contents: read
@@ -2018,6 +2229,10 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Set up Node.js 26
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26.13.0"
       - name: Install structural YAML parser
         shell: bash
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
@@ -2221,6 +2436,10 @@ jobs:
       run_mcp_tests: ${{ steps.plan.outputs.run_mcp_tests }}
       run_posix_regression: ${{ steps.plan.outputs.run_posix_regression }}
       run_posix_unwired_sharded: ${{ steps.plan.outputs.run_posix_unwired_sharded }}
+      run_sql_contract: ${{ steps.plan.outputs.run_sql_contract }}
+      run_sql_postgres: ${{ steps.plan.outputs.run_sql_postgres }}
+      run_sql_mysql: ${{ steps.plan.outputs.run_sql_mysql }}
+      run_sql_tsql: ${{ steps.plan.outputs.run_sql_tsql }}
       run_test: ${{ steps.plan.outputs.run_test }}
       run_test_windows_heavy: ${{ steps.plan.outputs.run_test_windows_heavy }}
       run_version_gates: ${{ steps.plan.outputs.run_version_gates }}

@@ -1,0 +1,15 @@
+{
+  "retrieved_at": "2026-11-05",
+  "platform": "linux/amd64",
+  "usage": "Synthetic isolated CI only; upstream image and tool licenses apply.",
+  "database": {
+    "tag": "8.4.13",
+    "image": "mysql:8.4.13@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902",
+    "source": "https://hub.docker.com/v2/repositories/library/mysql/tags/8.4.13"
+  },
+  "flyway": {
+    "tag": "13.12.1",
+    "image": "redgate/flyway:13.12.1@sha256:0d7a2da5f76b279ddde34133a3fc5e6b99f397ecdc8a18661dc7d677edbbb189",
+    "source": "https://hub.docker.com/v2/repositories/redgate/flyway/tags/13.12.1"
+  }
+}

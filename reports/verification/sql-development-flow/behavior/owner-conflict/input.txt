@@ -1,0 +1,3 @@
+Use the sdd-implementation:sql-develop skill. Source: REQUEST.md.
+
+PostgreSQL 18の在庫管理です。同じinventoryテーブルをFlyway 13.12.1とPrismaのmigrationが両方管理しています。sql-developでnullableな補足列を追加する仕様を作ってください。ローカルの使い捨てDBと合成データだけです。管理主体はまだ決めていません。

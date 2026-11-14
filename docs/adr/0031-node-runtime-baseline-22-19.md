@@ -74,8 +74,7 @@ execution (88, with the Windows-only case skipped); Bash and PowerShell
 installer and idempotency suites; coding standards tests and diff scan.
 Native Windows/macOS execution remains a CI check rather than local evidence.
 
-CI adoption is staged: the trusted base planner still requires the legacy Claude
-installation command in cli-hook-enforcement and the existing required-checks
-job shape. Their new exact forms are qualified by the validators in this change;
-activate those two workflow changes after the validators reach main. Product and
-workload runtimes already use Node 26.13.0.
+CI adoption completed on 2026-11-07 after the exact-form validators reached main:
+cli-hook-enforcement now installs the recorded Claude CLI version, and
+required-checks explicitly prepares Node 26.13.0 before installing its parser.
+See [ADR 0048](0048-shared-schema-runtime.md) for the follow-up implementation.

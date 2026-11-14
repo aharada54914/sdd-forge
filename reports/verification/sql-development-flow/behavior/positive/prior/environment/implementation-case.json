@@ -1,0 +1,7 @@
+[
+  {
+    "case": "positive-pg-namespace-ship",
+    "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace",
+    "request": "Use the sdd-ship:ship skill for specs/order-filter/tasks.md#T-001. 承認済みのquery-only修正を既存フローで実装し、独立したlite-gateによる確認まで進めてください。専用PostgreSQL18.6は既存npm testが実行sandbox内に新規作成・所有PID停止します。db/runtime.jsonの固定構成以外のDBへ接続しないでください。既存project checkはnpm testです。別コンテキスト/セッションへのレビュー委譲は可能です。独立した実行者を用意できない場合はImplementation Completeで停止し、同じ実装者の自己レビューでDoneにしないでください。"
+  }
+]

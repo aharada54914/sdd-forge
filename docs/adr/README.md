@@ -269,3 +269,4 @@ must never rely on a bare legacy number.
 | 0045 | Bounded full workflow-state batch reuse | Proposed |
 | 0046 | Vendor agent toolkits coexist; SDD Forge does not own cloud adapters | Proposed |
 | 0047 | Deny cloud deploy commands in shell tools (accident prevention) | Rejected |
+| 0048 | [Shared schema validation runtime](0048-shared-schema-runtime.md) | Accepted |

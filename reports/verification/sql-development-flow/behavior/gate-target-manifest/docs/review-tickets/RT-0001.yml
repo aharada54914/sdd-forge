@@ -1,0 +1,18 @@
+ticket_id: RT-0001
+status: open
+type: test-gap
+severity: major
+target:
+  feature: orders-note
+  task: T-001
+  files: []
+summary: "Required SQL implementation and isolated database evidence are absent."
+problem: "db/verification.json is shared/external with null resource ID. No migration or query files exist. AT-001 remains unrun; required real PostgreSQL/Flyway observations cannot be produced without an approved isolated resource."
+expected_fix:
+  - "Supply an approved isolated validation environment and trusted project commands, implement approved SQL, and collect every required acceptance observation. Never connect to the legacy target or execute the imported macro."
+references:
+  - specs/orders-note/tasks.md#T-001
+  - .run-temp/ship-PSKV3uBb/inspection.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 0

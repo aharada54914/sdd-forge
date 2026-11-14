@@ -1,0 +1,27 @@
+{
+  "failure_run": 42130313023,
+  "failure_job": 127605787799,
+  "tested_head_before_fix": "d71997bcec8ab3e6cd4aae0882e0ec507bd81e04",
+  "cause": "Expected receipt caller count still 18 after four SQL jobs were added; actual count 22.",
+  "change": "Retain existing 18 caller expectations; register four single-suite SQL callers and assert exact job/suite/empty-matrix correspondence.",
+  "producer_changed": false,
+  "receipt_binding_relaxed": false,
+  "before": {
+    "command": "python3 tests/verification-ci.tests.py BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles",
+    "exit_code": 1,
+    "log_sha256": "e5629cddbc160dcb03a26cf61c5f66fe96c3e82e73789948860c1215d834fc68"
+  },
+  "after": {
+    "command": "python3 tests/verification-ci.tests.py",
+    "exit_code": 0,
+    "tests": 92,
+    "failures": 0,
+    "log_sha256": "12cc1d25fa2579b11c9890b04c8e1cb6669837b7c6aedd82815f5251d2a33fd3",
+    "test_source_sha256": "11cc866004a0f7d96a138a739ecd5cd0a634d8ab8fe59666a934b139715c559b"
+  },
+  "independent_review": {
+    "context": "/root/sql_ci_final_review",
+    "unresolved_findings": 0,
+    "observations": "Computed actual 22 = non-SQL18 + SQL4; exact suites, empty matrices, ubuntu runner; None is valid single-suite profile; strict receipt matching unchanged; no remaining stale count found in related tests."
+  }
+}

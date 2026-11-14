@@ -208,7 +208,7 @@ class HostReviewPreflightTests(unittest.TestCase):
             'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md')]
         for path in paths:
             with self.subTest(path=path.name):
-                content = path.read_text()
+                content = path.read_text(encoding='utf-8')
                 self.assertIn('preflight-host-review.py', content)
                 self.assertIn('HOST_REVIEW_PREFLIGHT_OK', content)
 
@@ -252,6 +252,11 @@ ADDITIONAL_PROTECTIONS = (
     'scripts/observe-a9-advisory.py',
     'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py',
     'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py',
+    'plugins/sdd-quality-loop/scripts/sdd_schema.py',
+    'plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py',
+    'plugins/sdd-quality-loop/scripts/_schema_vendor/draft-07.json',
+    'plugins/sdd-quality-loop/scripts/_schema_vendor/fastjsonschema.whl',
+
     'plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py',
     'plugins/sdd-quality-loop/scripts/resolve-component-paths.py',
     'plugins/sdd-quality-loop/scripts/validate-capability-registry.py',

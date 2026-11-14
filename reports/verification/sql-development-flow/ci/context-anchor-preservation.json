@@ -1,0 +1,19 @@
+{
+  "base_commit": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+  "live_path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+  "old_anchor": [
+    "99133e6c154a928451ce2dd84f71e414e318fe53005b98ef1fd59b1acf491d9c",
+    6,
+    184
+  ],
+  "new_anchor": [
+    "99133e6c154a928451ce2dd84f71e414e318fe53005b98ef1fd59b1acf491d9c",
+    7,
+    198
+  ],
+  "anchor_digest_unchanged": true,
+  "entire_skill_bytes_unchanged_after_removing_sql_section": true,
+  "changed_fixture_field": "full_profile_heading_ordinal: 6 -> 7",
+  "old_skill_sha256": "1ca78aace3673fb5c6a261f42b601bc25bb912c1567a5f6df0a167129d5cd03e",
+  "new_skill_sha256": "29579a1abb427022cc786330d5c78c7180f619c318748250610f2bec769f9430"
+}

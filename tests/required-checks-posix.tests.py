@@ -24,6 +24,7 @@ REQUIRED = (
     'local-env-mcp-tests', 'ci-mcp-tests', 'cli-hook-enforcement',
     'posix-regression', 'posix-unwired-sharded', 'a9-advisory-inputs', 'a9-advisory',
     'coding-standards', 'windows-powershell',
+    'sql-contract', 'sql-postgres', 'sql-mysql', 'sql-tsql',
 )
 
 
@@ -59,6 +60,18 @@ class RequiredChecksTests(unittest.TestCase):
         step = self.job['steps'][-1]
         self.assertTrue(unconditional(step))
         self.assertEqual(step.get('shell', 'bash'), 'bash')
+
+    def test_sql_databases_run_once_per_engine_with_bound_receipts(self):
+        obligations = WF.plan_obligations(self.workflow, self.catalog)
+        for engine in ('postgres', 'mysql', 'tsql'):
+            suite = f'tests/sql-development-{engine}.tests.py'
+            matching = [row for row in obligations if suite in row['suites']]
+            with self.subTest(engine=engine):
+                self.assertEqual(len(matching), 1)
+                self.assertEqual(matching[0]['job'], f'sql-{engine}')
+                self.assertEqual(matching[0]['runner'], 'ubuntu-latest')
+                self.assertIs(matching[0]['receipt_required'], True)
+                self.assertIn(matching[0]['job'], self.needs)
 
     def test_native_matrix_can_cancel_but_required_verifier_always_runs(self):
         job = self.workflow['jobs']['test']

@@ -1,0 +1,53 @@
+{
+  "run_id": 42145719843,
+  "head_revision": "a032fea171333637b6f0c171bd08f7bcf78a522b",
+  "base_revision": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+  "scope": "Three isolated real-engine suites; not overall workflow acceptance or cloud acceptance.",
+  "artifacts": [
+    {
+      "engine": "postgres",
+      "artifact_id": 13469903506,
+      "archive_sha256": "f47077e00e8da6115f778a6dae0ba4ef1b14a7d88c6ed5e069b1ae96e170cac1",
+      "proof_sha256": "38e3685c2995d9f3e86cf099f0195cd97388d1be54a6a993c7c8a2c9ac814a1f",
+      "tested_revision": "ee40807f7cdeceb08dd72bbfed313f49575f6d20",
+      "current_inputs_match": true,
+      "check_records": 60,
+      "result": "PASS",
+      "versions": {
+        "database": "18.6 (Debian 18.6-1.pgdg13+2)",
+        "flyway": "13.12.1"
+      }
+    },
+    {
+      "engine": "mysql",
+      "artifact_id": 13470222443,
+      "archive_sha256": "58e986a73eeee13caeddf4bc9985bba0c6ba68031fb17f2c467bc526d1adc73e",
+      "proof_sha256": "e380b2edcb2d07f1ede56c0a186f75330f569806f383e9fc5e449c028b68d661",
+      "tested_revision": "ee40807f7cdeceb08dd72bbfed313f49575f6d20",
+      "current_inputs_match": true,
+      "check_records": 68,
+      "result": "PASS",
+      "versions": {
+        "database": "8.4.13",
+        "flyway": "13.12.1"
+      }
+    },
+    {
+      "engine": "tsql",
+      "artifact_id": 13470705584,
+      "archive_sha256": "04755447ce891df78ee1a9cdd4886de2a4b539b328675c98c1a0391cb3e275d9",
+      "proof_sha256": "b713d29275e8c4aa9003d9cfe5e3d68a143d785b6e5cbc445d08d3fb5f89e961",
+      "tested_revision": "ee40807f7cdeceb08dd72bbfed313f49575f6d20",
+      "current_inputs_match": true,
+      "check_records": 48,
+      "result": "PASS",
+      "versions": {
+        "dotnet": "10.0.403",
+        "sqlpackage": "170.5.96.0",
+        "microsoft_build_sql": "2.3.0",
+        "sql_server": "17.0.5035.5|Enterprise Developer Edition (64-bit)",
+        "sqlcmd": "Microsoft (R) SQL Server Command Line Tool\nVersion 18.7.0001.1 Linux\nCopyright (C) 2017 Microsoft Corporation. All rights reserved."
+      }
+    }
+  ]
+}

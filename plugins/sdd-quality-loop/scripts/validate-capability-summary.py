@@ -12,45 +12,41 @@ this validator's own `canonicalizer-invocation-failed` diagnostic.
 
 <path> ending in .json is loaded directly via stdlib `json.load` -- this is
 NOT a YAML parsing path of any kind; it exists so the regression suite can
-exercise `validate_document` (the actual hand-rolled schema engine) against
+exercise `validate_document` (the shared schema adapter) against
 already-canonical JSON fixtures, independent of whichever tool eventually
 turns a `capability-summary.yaml` into that structure (design.md YAML parse
 contract, shared verbatim with `validate-facet-manifest`).
 
-This module implements the same hand-rolled, stdlib-only subset of JSON
-Schema draft-07 as `validate-facet-manifest.py` (INV-014: no third-party
-`jsonschema` dependency; design.md's own `validate-capability-summary`
-contract: "reusing T-001's hand-rolled draft-07 subset engine's same keyword
-coverage, no new keyword needed"). This is an independent copy of that
-engine -- design.md defines four standalone validator scripts, none of which
-import from a sibling script -- not a shared module. Implemented keywords:
-type (incl. array-form/union types), required, additionalProperties (bool or
-schema), properties, propertyNames, pattern, enum, const, uniqueItems,
-minItems, minLength, if/then/else, not, oneOf, boolean subschema values,
-items, $ref/definitions (same-document fragments only). `$schema`/`$id`/
-`title` are annotation keywords, not constraint keywords, and are
-intentionally outside this engine's constraint set (Discovery contract
-checks `$schema`/`$id` separately).
-
-`contracts/capability-summary.schema.json` itself only exercises a subset of
-that coverage (`type`, `additionalProperties`, `required`, `properties`,
-`const`, `pattern`, `items`, `uniqueItems`, `minLength` -- `feature`'s own
-`pattern` constraint on `^[a-z0-9][a-z0-9-]*$`). This engine still ships the
-full keyword set so `pattern` (and every other keyword) is actually enforced
-rather than silently unconstrained.
-
-No semantic check beyond schema conformance exists for this script --
-design.md's `validate-capability-summary` contract: "No semantic check
-beyond schema conformance is needed for this script -- every REQ-002
-invariant is schema-expressible now that there is only one branch."
+Schema validation uses the packaged shared Draft 7 adapter. CLI arguments,
+diagnostic IDs and semantic checks remain local to this entry point.
 """
 import argparse
 import json
+import hashlib
+import importlib.util
 import os
-import re
 import subprocess
 import sys
 from collections import namedtuple
+
+if sys.version_info < (3, 10):
+    raise SystemExit("capability-summary: schema-runtime-unavailable: Python >= 3.10 required")
+
+# Cache by installed location: importlib callers may load multiple checkouts.
+_schema_dir = os.path.dirname(os.path.realpath(__file__))
+_schema_name = '_sdd_schema_' + hashlib.sha256(_schema_dir.encode()).hexdigest()
+if _schema_name not in sys.modules:
+    _schema_spec = importlib.util.spec_from_file_location(_schema_name, os.path.join(_schema_dir, 'sdd_schema.py'))
+    _shared_schema = importlib.util.module_from_spec(_schema_spec)
+    sys.modules[_schema_name] = _shared_schema
+    try:
+        _schema_spec.loader.exec_module(_shared_schema)
+    except BaseException:
+        del sys.modules[_schema_name]
+        raise
+_shared_schema = sys.modules[_schema_name]
+_validate = _shared_schema._validate
+schema_runtime_files = _shared_schema.runtime_files
 
 Diagnostic = namedtuple("Diagnostic", ["check_id", "pointer", "message"])
 
@@ -176,226 +172,15 @@ def load_summary(path):
 
 
 # --------------------------------------------------------------------------
-# Hand-rolled draft-07 subset schema engine (independent copy of
-# validate-facet-manifest.py's own engine; see module docstring).
+# Shared Draft 7 schema adapter.
 # --------------------------------------------------------------------------
-
-def _escape_pointer_token(token):
-    return str(token).replace("~", "~0").replace("/", "~1")
-
-
-# Draft-07 `pattern` values follow ECMA-262 regex semantics (no
-# `re.MULTILINE`), where a bare, non-multiline `$` asserts end-of-string
-# only. Python's `re` module's `$` is more permissive: it also matches
-# immediately before a single trailing "\n". That divergence means an
-# instance like "epic-192-a4-facet-manifest\n" wrongly satisfies a naive
-# `re.search("^[a-z0-9][a-z0-9-]*$", instance)`, silently admitting a
-# trailing-newline value the schema author intended to reject. `\Z` is
-# Python's strict absolute-end-of-string anchor with no such exception, so
-# every unescaped `$` outside a `[...]` character class is rewritten to
-# `\Z` before compiling. Diagnostic text still reports the original,
-# untranslated pattern string.
-_PATTERN_CACHE = {}
-
-
-def _ecma_anchor(pattern):
-    """Rewrite unescaped, non-character-class `$` to `\\Z` (see module note
-    above). Walks the pattern tracking backslash-escapes (an escape
-    consumes exactly the following character, whatever it is) and `[...]`
-    character-class state, including the ECMA-262/POSIX convention that a
-    `]` in the first position of a class (optionally right after a leading
-    `^`) is a literal member, not the closing bracket."""
-    out = []
-    i = 0
-    length = len(pattern)
-    in_class = False
-    while i < length:
-        ch = pattern[i]
-        if ch == "\\" and i + 1 < length:
-            out.append(ch)
-            out.append(pattern[i + 1])
-            i += 2
-            continue
-        if not in_class:
-            if ch == "[":
-                in_class = True
-                out.append(ch)
-                i += 1
-                if i < length and pattern[i] == "^":
-                    out.append(pattern[i])
-                    i += 1
-                if i < length and pattern[i] == "]":
-                    out.append(pattern[i])
-                    i += 1
-                continue
-            if ch == "$":
-                out.append(r"\Z")
-                i += 1
-                continue
-            out.append(ch)
-            i += 1
-            continue
-        else:
-            if ch == "]":
-                in_class = False
-            out.append(ch)
-            i += 1
-    return "".join(out)
-
-
-def _compile_pattern(pattern):
-    """Compile a schema-supplied `pattern` under ECMA-262 `$` semantics,
-    caching the compiled regex (schema patterns repeat across many
-    instances/fixtures within a single validator invocation)."""
-    compiled = _PATTERN_CACHE.get(pattern)
-    if compiled is None:
-        compiled = re.compile(_ecma_anchor(pattern))
-        _PATTERN_CACHE[pattern] = compiled
-    return compiled
-
-
-def _type_matches(value, type_spec):
-    if isinstance(type_spec, list):
-        return any(_type_matches(value, t) for t in type_spec)
-    if type_spec == "object":
-        return isinstance(value, dict)
-    if type_spec == "array":
-        return isinstance(value, list)
-    if type_spec == "string":
-        return isinstance(value, str)
-    if type_spec == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    if type_spec == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    if type_spec == "boolean":
-        return isinstance(value, bool)
-    if type_spec == "null":
-        return value is None
-    return False
-
-
-def _resolve_ref(ref, root_schema):
-    if not ref.startswith("#/"):
-        raise ValueError(f"unsupported $ref (not a same-document fragment): {ref}")
-    node = root_schema
-    for part in ref[2:].split("/"):
-        part = part.replace("~1", "/").replace("~0", "~")
-        node = node[part]
-    return node
-
-
-def _schema_matches(instance, schema, root_schema):
-    """True if instance satisfies schema with zero diagnostics."""
-    probe = []
-    _validate(instance, schema, root_schema, "", probe)
-    return not probe
-
-
-def _json_equal(left, right):
-    """JSON Schema equality distinguishes booleans and compares numbers by value."""
-    if type(left) in (int, float) and type(right) in (int, float):
-        return left == right
-    if type(left) is not type(right):
-        return False
-    if isinstance(left, list):
-        return len(left) == len(right) and all(_json_equal(a, b) for a, b in zip(left, right))
-    if isinstance(left, dict):
-        return left.keys() == right.keys() and all(_json_equal(left[k], right[k]) for k in left)
-    return left == right
-
-
-def _validate(instance, schema, root_schema, pointer, diags):
-    if schema is True:
-        return
-    if schema is False:
-        diags.append((pointer, "value not allowed (schema: false)"))
-        return
-    if not isinstance(schema, dict):
-        raise ValueError(f"malformed schema node at {pointer!r}: {schema!r}")
-
-    if "$ref" in schema:
-        resolved = _resolve_ref(schema["$ref"], root_schema)
-        _validate(instance, resolved, root_schema, pointer, diags)
-        return
-
-    if "const" in schema:
-        if not _json_equal(instance, schema["const"]):
-            diags.append((pointer, f"expected const {schema['const']!r}, got {instance!r}"))
-            return
-
-    if "enum" in schema:
-        if not any(_json_equal(instance, option) for option in schema["enum"]):
-            diags.append((pointer, f"expected one of {schema['enum']!r}, got {instance!r}"))
-            return
-
-    if "type" in schema:
-        if not _type_matches(instance, schema["type"]):
-            diags.append((pointer, f"expected type {schema['type']!r}, got {type(instance).__name__}"))
-            return
-
-    if "not" in schema:
-        if _schema_matches(instance, schema["not"], root_schema):
-            diags.append((pointer, "value matched a schema under 'not'"))
-
-    if "oneOf" in schema:
-        matches = sum(1 for sub in schema["oneOf"] if _schema_matches(instance, sub, root_schema))
-        if matches != 1:
-            diags.append((pointer, f"expected exactly one 'oneOf' branch to match, {matches} matched"))
-
-    if "if" in schema:
-        if _schema_matches(instance, schema["if"], root_schema):
-            if "then" in schema:
-                _validate(instance, schema["then"], root_schema, pointer, diags)
-        else:
-            if "else" in schema:
-                _validate(instance, schema["else"], root_schema, pointer, diags)
-
-    if isinstance(instance, str):
-        if "pattern" in schema and not _compile_pattern(schema["pattern"]).search(instance):
-            diags.append((pointer, f"does not match pattern {schema['pattern']!r}"))
-        if "minLength" in schema and len(instance) < schema["minLength"]:
-            diags.append((pointer, f"length {len(instance)} < minLength {schema['minLength']}"))
-
-    if isinstance(instance, dict):
-        for req in schema.get("required", []):
-            if req not in instance:
-                diags.append((f"{pointer}/{_escape_pointer_token(req)}", f"missing required property {req!r}"))
-        properties = schema.get("properties", {})
-        for key, value in instance.items():
-            if key in properties:
-                _validate(value, properties[key], root_schema, f"{pointer}/{_escape_pointer_token(key)}", diags)
-        if "propertyNames" in schema:
-            for key in instance.keys():
-                _validate(key, schema["propertyNames"], root_schema, f"{pointer}/{_escape_pointer_token(key)}", diags)
-        additional = schema.get("additionalProperties", True)
-        if additional is not True:
-            extra_keys = [k for k in instance.keys() if k not in properties]
-            if additional is False:
-                for key in extra_keys:
-                    diags.append((f"{pointer}/{_escape_pointer_token(key)}", "additional property not allowed"))
-            else:
-                for key in extra_keys:
-                    _validate(instance[key], additional, root_schema, f"{pointer}/{_escape_pointer_token(key)}", diags)
-
-    if isinstance(instance, list):
-        if "items" in schema:
-            items_schema = schema["items"]
-            for index, element in enumerate(instance):
-                _validate(element, items_schema, root_schema, f"{pointer}/{index}", diags)
-        if schema.get("uniqueItems"):
-            seen_items = []
-            for index, element in enumerate(instance):
-                if any(_json_equal(element, prior) for prior in seen_items):
-                    diags.append((f"{pointer}/{index}", "duplicate item (uniqueItems violated)"))
-                else:
-                    seen_items.append(element)
-        if "minItems" in schema and len(instance) < schema["minItems"]:
-            diags.append((pointer, f"array length {len(instance)} < minItems {schema['minItems']}"))
-
 
 def validate_against_schema(document, schema):
     raw = []
-    _validate(document, schema, schema, "", raw)
+    try:
+        _validate(document, schema, schema, "", raw)
+    except ValueError as exc:
+        raw.append(("", f"invalid schema: {exc}"))
     return [Diagnostic("schema-invalid", pointer, message) for pointer, message in raw]
 
 

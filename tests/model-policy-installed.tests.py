@@ -1901,7 +1901,7 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.prep.assert_unchanged_world()
 
     def fence(self, installed, output, caller=INVESTIGATION_CALLER):
-        source = (installed / caller).read_text()
+        source = (installed / caller).read_text(encoding='utf-8')
         fences = [body for body in re.findall(r'```bash\n(.*?)```', source, re.S) if 'claude-entry' in body]
         self.assertEqual(len(fences), 1, 'maintained bootstrap lacks exactly one pre-allocation investigator fence')
         script = fences[0]
@@ -2417,7 +2417,7 @@ class InstalledClaudeImplementerTests(unittest.TestCase):
             'report': str(self.report), 'task_ref': self.task_ref, 'task_file': str(self.task_file),
             'tasks_before': self.tasks_before, 'project_root': str(case.root), 'run_id': case.run_id,
             'public_test': str(self.public_test), 'precheck': str(self.precheck),
-            'sources': {p: (ROOT / p).read_text() for p in IMPLEMENTER_SOURCES},
+            'sources': {p: (ROOT / p).read_text(encoding='utf-8') for p in IMPLEMENTER_SOURCES},
             'instructions': (case.root / self.prompt).read_text(),
             'canary_name': ENV_CANARY, 'canary_value': ENV_CANARY_VALUE}
         prep.executable.write_bytes((ROOT / IMPLEMENTER_RECORDER).read_bytes())
@@ -6751,7 +6751,12 @@ class InstalledDomainCallerTests(unittest.TestCase):
 
 
 # Actual installed protected review callers; only the external native CLI is a recording fixture.
-PROTECTED_CALLER_RUNTIME: tuple[str, ...] = ('contracts/agent-model-capabilities.v2.json', 'contracts/approval-sidecar.schema.json', 'contracts/approver-registry.schema.json', 'contracts/concept-test.v1.schema.json', 'contracts/domain-contract.v1.schema.json', 'contracts/domain-contract.v2.schema.json', 'contracts/model-launch-controls.schema.json', 'contracts/model-policy.v1.json', 'contracts/workflow-state-registry.schema.json', 'plugins/sdd-domain/scripts/validate-concept-test.py', 'plugins/sdd-domain/scripts/validate-domain-contract.ps1', 'plugins/sdd-domain/scripts/validate-domain-contract.sh', 'plugins/sdd-implementation/scripts/model-policy.py', 'plugins/sdd-implementation/scripts/select-agent-model.ps1', 'plugins/sdd-implementation/scripts/select-agent-model.sh', 'plugins/sdd-quality-loop/references/risk-classification-policy.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py', 'plugins/sdd-quality-loop/scripts/check-risk.sh', 'plugins/sdd-quality-loop/scripts/check-workflow-state.sh', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py', 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh', 'plugins/sdd-review-loop/references/review-context-boundary.md', 'plugins/sdd-review-loop/references/reviewer-calibration.md', 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py', 'plugins/sdd-review-loop/scripts/fixed-review-state.py', 'plugins/sdd-review-loop/scripts/impl-review-precheck.sh', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh', 'plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh', 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/task-review-precheck.sh', 'plugins/sdd-review-loop/scripts/validate-layer-traceability.py', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md')
+PROTECTED_CALLER_RUNTIME: tuple[str, ...] = ('contracts/agent-model-capabilities.v2.json', 'contracts/approval-sidecar.schema.json', 'contracts/approver-registry.schema.json', 'contracts/concept-test.v1.schema.json', 'contracts/domain-contract.v1.schema.json', 'contracts/domain-contract.v2.schema.json', 'contracts/model-launch-controls.schema.json', 'contracts/model-policy.v1.json', 'contracts/workflow-state-registry.schema.json', 'plugins/sdd-domain/scripts/validate-concept-test.py', 'plugins/sdd-domain/scripts/validate-domain-contract.ps1', 'plugins/sdd-domain/scripts/validate-domain-contract.sh', 'plugins/sdd-implementation/scripts/model-policy.py', 'plugins/sdd-implementation/scripts/select-agent-model.ps1', 'plugins/sdd-implementation/scripts/select-agent-model.sh', 'plugins/sdd-quality-loop/references/risk-classification-policy.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py', 'plugins/sdd-quality-loop/scripts/check-risk.sh', 'plugins/sdd-quality-loop/scripts/check-workflow-state.sh', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py',
+    'plugins/sdd-quality-loop/scripts/sdd_schema.py',
+    'plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py',
+    'plugins/sdd-quality-loop/scripts/_schema_vendor/draft-07.json',
+    'plugins/sdd-quality-loop/scripts/_schema_vendor/fastjsonschema.whl',
+ 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh', 'plugins/sdd-review-loop/references/review-context-boundary.md', 'plugins/sdd-review-loop/references/reviewer-calibration.md', 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py', 'plugins/sdd-review-loop/scripts/fixed-review-state.py', 'plugins/sdd-review-loop/scripts/impl-review-precheck.sh', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh', 'plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh', 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/task-review-precheck.sh', 'plugins/sdd-review-loop/scripts/validate-layer-traceability.py', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md')
 PROTECTED_CALLER_RUNTIME += tuple('plugins/sdd-review-loop/agents/' + role + '.md' for role in
                                   ('impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b'))
 PROTECTED_RECORDER = 'tests/fixtures/model-policy-installed/recording-protected.py'
@@ -7442,7 +7447,7 @@ class InstalledDefaultNativeCallerCandidateTests(unittest.TestCase):
         self.assertEqual(sum(len(v) for v in _DEFAULT_NATIVE_BOUNDARIES.values()), 22)
         self.assertEqual(len(_DEFAULT_NATIVE_HOSTS), 4)
         for rel in _DEFAULT_NATIVE_BOUNDARIES:
-            source = (root / rel).read_text()
+            source = (root / rel).read_text(encoding='utf-8')
             fence = self.boundary(source, rel)
             title = '## Managed allocation boundary\n'
             start = source.index(title)

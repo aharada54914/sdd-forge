@@ -1,0 +1,3 @@
+Use project-local .run-temp for temporary evidence, without reusing any other invocation evidence.
+
+Use the sdd-ship:ship skill for specs/orders-note-postgres-intake/tasks.md#T-001. 生成済み仕様の承認済みT-001を通常経路で進めてください。未提供のCLI、DB設定、実行先の情報を事実として扱い、必要な判断や入力を推測で埋めないでください。SQL実装とDB接続は承認していません。

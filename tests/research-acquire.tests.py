@@ -147,6 +147,8 @@ class Acquire(unittest.TestCase):
                          'validate-facet-manifest.py', 'canonicalize-sdd-yaml.py'):
                 shutil.copyfile(a.QUALITY / name, scripts / name)
                 (scripts / name).chmod(0o644)
+            shutil.copyfile(a.QUALITY / 'sdd_schema.py', scripts / 'sdd_schema.py')
+            shutil.copytree(a.QUALITY / '_schema_vendor', scripts / '_schema_vendor')
             shutil.copyfile(a.QUALITY.parent / 'contracts/research-evidence.schema.json',
                             contracts / 'research-evidence.schema.json')
             (contracts / 'research-evidence.schema.json').chmod(0o644)

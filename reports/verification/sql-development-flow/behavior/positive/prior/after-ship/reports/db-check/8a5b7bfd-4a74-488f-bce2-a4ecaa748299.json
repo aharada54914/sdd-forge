@@ -1,0 +1,26 @@
+{
+  "run_id": "8a5b7bfd-4a74-488f-bce2-a4ecaa748299",
+  "isolation": "per-check-network-namespace-loopback",
+  "source_query_sha256": "5db1d669f4aaa8a2ce486c1cd5acb4679a1390927892afbb37303494e3093068",
+  "psql_sha256": "01dec2b7da39893feb605908b93ad1aab0b1b8dc76276f7a9addd1cf618e924b",
+  "namespace": "net:[4026532280]",
+  "data_directory": "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace/.run-temp/owned-pg-ytyt01re/data",
+  "port": 33501,
+  "owned_pid": 19,
+  "checks": [
+    {
+      "minimum": 100,
+      "expected": [
+        "4|500|large",
+        "2|100|注文",
+        "3|100|same"
+      ],
+      "observed": [
+        "4|500|large"
+      ]
+    }
+  ],
+  "error": "inclusive minimum=100: expected ['4|500|large', '2|100|注文', '3|100|same'], observed ['4|500|large']",
+  "cleanup": true,
+  "result": "FAIL"
+}

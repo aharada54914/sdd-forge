@@ -1,0 +1,56 @@
+[
+  {
+    "command_sha256": "69bb94f4e147ae18275396f770aa9b42d294e5a15b8e117048bb975f13172824",
+    "command": "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'REQUEST.md' -g 'tasks.md' -g '*SKILL.md' -g 'package.json' -g '*sql*' -g '*quality*' -g '*evidence*'\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "298bb3f320c0b35ce61cd14aa6471e4bed76ff0dc6e7c1c90df6dfd482cbb65e",
+    "command": "/bin/bash -lc 'cat <installed-cache>/sdd-ship/1.23.1/skills/ship/SKILL.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "d5a22d4e2cd7a019625a353755c444ca745158a8dc0859bb4ffb2b35ccb3c9b7",
+    "command": "/bin/bash -lc 'cat AGENTS.md REQUEST.md specs/orders-note/tasks.md; cat <installed-cache>/sdd-lite/1.23.1/skills/lite-gate/SKILL.md; rg --files scripts specs sdd'",
+    "exit_code": 2,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "3e5bfe1e875e82ebdf58a4e6f237b908848fcd6a0c37d2500d84cb88b7d9d677",
+    "command": "/bin/bash -lc \"bash scripts/check-sdd-structure.sh; rg --files -uu | head -70; rg --files /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins | rg 'check-hook-activation-handshake|check-risk-upgrade.sh|sql-development-policy|postgresql|run-lite-gate.py'\"",
+    "exit_code": 0,
+    "output_excerpt": "host: local\ncheck-sdd-structure: OK\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/lock\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/9dd97d39325acd27/1071122\n.git/HEAD\n.git/config\nAGENTS.md\n.git/info/exclude\n.git/description\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/fef4258cbb650f1a/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/f99237479ad5b6dd/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/fac3cf7a39e31a5c/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/d40bdb1f454c404f/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/c9cfe662367f972e/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/ecf6be8cb103d1c3/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/9dddf21f25fb79fe/1071122\n.run-temp/codex-bwrap-synthetic-mount-targets-1000/063cebc15e007869/1071122\n.git/hooks/pre-applypatch.sample\n.git/hooks/pre-receive.s"
+  },
+  {
+    "command_sha256": "deff40c553aea0b8963cb1426751516a75dd3c87e5b551d3aa0fe7e412e69b47",
+    "command": "/bin/bash -lc 'python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --help; cat specs/orders-note/requirements.md specs/orders-note/design.md reports/implementation/T-001.md README.md db/verification.json db/inspect_macro.py; cat <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/sql-development-policy.md <installed-cache>/sdd-implementation/1.23.1/skills/sql-develop/references/postgresql.md'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "e0a805c40745ac1adfff6f8f8a9306a775359adc1cebe4bba613d7ad041754a8",
+    "command": "/bin/bash -lc 'mkdir -p .run-temp; mktemp -d .run-temp/ship-T-001-XXXXXXXX; python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --emit-challenge'",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "c5aac1cd2460923ef9275f2cec654c38ec1d92c32717dd4b910eb6f090ae83e3",
+    "command": "/bin/bash -lc \"rg -n 'codex|recorded|raw_result' <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py\"",
+    "exit_code": 0,
+    "output_excerpt": null
+  },
+  {
+    "command_sha256": "255dda017cbababce88de0eb8ea5c0edfb722df1e007c2371058acc8fe7be1e6",
+    "command": "/bin/bash -lc \"python3 -B <installed-cache>/sdd-quality-loop/1.23.1/scripts/check-hook-activation-handshake.py --verify-response --nonce 43a0401c8330f525171925273ba3fbef --recorded-result .run-temp/ship-T-001-AGaVPsKG/handshake.json --runtime codex-cli; python3 - <<'PY'\nfrom pathlib import Path\np=Path('.run-temp/ship-T-001-AGaVPsKG/risk-input.txt')\np.write_text('## T-001'+Path('specs/orders-note/tasks.md').read_text().split('## T-001',1)[1]+'\\\\n'+Path('specs/orders-note/requirements.md').read_text())\nprint('Project Context present:',Path('sdd/project-context.yaml').exists())\nPY\nbash <installed-cache>/sdd-lite/1.23.1/scripts/check-risk-upgrade.sh .run-temp/ship-T-001-AGaVPsKG/risk-input.txt\npython3 -B <installed-cache>/sdd-lite/1.23.1/lib/run-lite-gate.py --help\"",
+    "exit_code": 0,
+    "output_excerpt": "{\n  \"nonce\": \"43a0401c8330f525171925273ba3fbef\",\n  \"runtime\": \"codex-cli\",\n  \"schema\": \"sdd-hook-verify-result/v1\",\n  \"status\": \"HOOK_ACTIVE\"\n}\nProject Context present: False\nfull-required: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL,SECRET\nusage: run-lite-gate.py [-h] [--summary SUMMARY] [--check CHECK]\n                        [--output OUTPUT] [--full-gate-promotion]\n                        --enforcement {none,advisory,required} --repo-root\n                        REPO_ROOT --runtime {posix,powershell}\n                        [--timeout TIMEOUT]\n                        [--max-output-bytes MAX_OUTPUT_BYTES]\n                        [--measure-dir MEASURE_DIR]\n                        [--measure-parent MEASURE_PARENT]\n\nExecute Registry-sourced Lite checks with a bounded argv-direct contract. This\nis the executable counterpart of lite-gate's Step 2b. It deliberately captures\nchild output in"
+  },
+  {
+    "command_sha256": "48f8fd95d1795223d87e1665564ca86bdc9d8c3fad9d70041050e11cd7515d61",
+    "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nimport subprocess,json\nroot=Path('.run-temp/ship-T-001-AGaVPsKG')\ncmd=['bash','<installed-cache>/sdd-lite/1.23.1/scripts/check-risk-upgrade.sh',str(root/'risk-input.txt')]\nr=subprocess.run(cmd,capture_output=True,text=True)\nmissing=[str(p) for p in [Path('specs/orders-note/acceptance-tests.md'),Path('specs/orders-note/traceability.md')] if not p.exists()]\n(root/'track-resolution.json').write_text(json.dumps({'command':cmd,'exit_code':r.returncode,'stdout':r.stdout,'stderr':r.stderr,'project_context_present':Path('sdd/project-context.yaml').exists(),'resolved_track':'full','missing_full_track_artifacts':missing,'gate_invoked':False,'database_execution':'not executed; no verified isolated resource or credentials','status_changed':False},indent=2)+'\\\\n')\nprint(r.stdout,end='')\nprint('Missing:',', '.join(missing))\nprint('[sdd-ship] Track: full (risk-upgrade)')\nprint('[sdd-ship] Full-track artifacts unavailable. Run /sdd-bootstrap:bootstrap for the full track.')\nPY\"",
+    "exit_code": 0,
+    "output_excerpt": "full-required: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL,SECRET\nMissing: specs/orders-note/acceptance-tests.md, specs/orders-note/traceability.md\n[sdd-ship] Track: full (risk-upgrade)\n[sdd-ship] Full-track artifacts unavailable. Run /sdd-bootstrap:bootstrap for the full track.\n"
+  }
+]

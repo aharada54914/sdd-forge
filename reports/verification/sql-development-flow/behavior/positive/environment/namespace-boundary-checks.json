@@ -1,0 +1,126 @@
+{
+  "host_namespace": "net:[4026531833]",
+  "results": [
+    {
+      "name": "baseline-real-db",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/verify-codex",
+        "-c",
+        "permissions.sql_positive={extends=\":workspace\",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}",
+        "-c",
+        "features.network_proxy=true",
+        "sandbox",
+        "-P",
+        "sql_positive",
+        "--cd",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace",
+        "--",
+        "python3",
+        "checks/acceptance.py"
+      ],
+      "exit_code": 1,
+      "stdout": "DB check FAIL cleanup True run 8a5b7bfd-4a74-488f-bce2-a4ecaa748299\n",
+      "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\ninclusive minimum=100: expected ['4|500|large', '2|100|\u6ce8\u6587', '3|100|same'], observed ['4|500|large']\n"
+    },
+    {
+      "name": "host-loopback-denied",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/verify-codex",
+        "-c",
+        "permissions.sql_positive={extends=\":workspace\",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}",
+        "-c",
+        "features.network_proxy=true",
+        "sandbox",
+        "-P",
+        "sql_positive",
+        "--cd",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace",
+        "--",
+        "python3",
+        "-c",
+        "import socket,sys\ns=socket.socket();s.settimeout(2)\ntry:s.connect((\"127.0.0.1\",37193))\nexcept OSError as e:print(type(e).__name__,e.errno);sys.exit(0)\nprint(\"UNEXPECTED_CONNECTED\");sys.exit(1)"
+      ],
+      "exit_code": 0,
+      "stdout": "ConnectionRefusedError 111\n",
+      "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\n"
+    },
+    {
+      "name": "direct-external-denied",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/verify-codex",
+        "-c",
+        "permissions.sql_positive={extends=\":workspace\",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}",
+        "-c",
+        "features.network_proxy=true",
+        "sandbox",
+        "-P",
+        "sql_positive",
+        "--cd",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace",
+        "--",
+        "curl",
+        "--noproxy",
+        "*",
+        "--connect-timeout",
+        "3",
+        "--max-time",
+        "5",
+        "--silent",
+        "--show-error",
+        "https://1.1.1.1"
+      ],
+      "exit_code": 7,
+      "stdout": "",
+      "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\ncurl: (7) Failed to connect to 1.1.1.1 port 443 after 0 ms: Could not connect to server\n"
+    },
+    {
+      "name": "proxied-external-denied",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/verify-codex",
+        "-c",
+        "permissions.sql_positive={extends=\":workspace\",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}",
+        "-c",
+        "features.network_proxy=true",
+        "sandbox",
+        "-P",
+        "sql_positive",
+        "--cd",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace",
+        "--",
+        "curl",
+        "--connect-timeout",
+        "3",
+        "--max-time",
+        "5",
+        "--silent",
+        "--show-error",
+        "https://example.com"
+      ],
+      "exit_code": 56,
+      "stdout": "",
+      "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\ncurl: (56) CONNECT tunnel failed, response 403\n"
+    },
+    {
+      "name": "namespace",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/verify-codex",
+        "-c",
+        "permissions.sql_positive={extends=\":workspace\",network={enabled=true,domains={},unix_sockets={},allow_local_binding=false,dangerously_allow_all_unix_sockets=false,dangerously_allow_non_loopback_proxy=false}}",
+        "-c",
+        "features.network_proxy=true",
+        "sandbox",
+        "-P",
+        "sql_positive",
+        "--cd",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/positive-pg-namespace",
+        "--",
+        "python3",
+        "-c",
+        "import os;print(os.readlink(\"/proc/self/ns/net\"))"
+      ],
+      "exit_code": 0,
+      "stdout": "net:[4026532280]\n",
+      "stderr": "auth codex-dev: current\nauth codex-verify: preserved-local-file\n"
+    }
+  ]
+}

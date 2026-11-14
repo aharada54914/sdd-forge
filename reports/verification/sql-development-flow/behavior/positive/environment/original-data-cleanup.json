@@ -1,0 +1,11 @@
+{
+  "resource_id": "f9c04b3b-21d1-43b1-9084-fba6c4737be3",
+  "data_directory": "/tmp/sql-flow-pg-positive-q3wc_i5b/data",
+  "file_count": 1279,
+  "bytes": 48064677,
+  "server_log_sha256": "e8571ce7d2ce18bdd99397e6928ecd105535366fb8737a9e749768ef429a0548",
+  "verified_stopped": true,
+  "removed_at": "2026-11-05T22:57:57.400700+00:00",
+  "scope": "Only original task-owned synthetic PostgreSQL datadir; build/source/log/evidence retained.",
+  "data_directory_absent": true
+}

@@ -36653,37 +36653,6 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// src/tools/env.ts
-import os from "node:os";
-
-// src/envelope.ts
-function ok(data) {
-  return { ok: true, data };
-}
-function err(code, message, details) {
-  const error62 = details === void 0 ? { code, message } : { code, message, details };
-  return { ok: false, error: error62 };
-}
-
-// src/allowlist.ts
-var ALLOWLIST = [
-  { name: "node", command: "node", args: ["--version"], versionStream: "stdout" },
-  { name: "npm", command: "npm", args: ["--version"], versionStream: "stdout" },
-  { name: "pnpm", command: "pnpm", args: ["--version"], versionStream: "stdout" },
-  { name: "yarn", command: "yarn", args: ["--version"], versionStream: "stdout" },
-  { name: "bun", command: "bun", args: ["--version"], versionStream: "stdout" },
-  { name: "deno", command: "deno", args: ["--version"], versionStream: "stdout" },
-  { name: "git", command: "git", args: ["--version"], versionStream: "stdout" },
-  { name: "gh", command: "gh", args: ["--version"], versionStream: "stdout" },
-  { name: "python3", command: "python3", args: ["--version"], versionStream: "stdout" },
-  { name: "go", command: "go", args: ["--version"], versionStream: "stdout" },
-  { name: "rustc", command: "rustc", args: ["--version"], versionStream: "stdout" },
-  { name: "cargo", command: "cargo", args: ["--version"], versionStream: "stdout" },
-  { name: "java", command: "java", args: ["-version"], versionStream: "stderr" },
-  { name: "docker", command: "docker", args: ["--version"], versionStream: "stdout" }
-];
-var ALLOWLIST_NAMES = new Set(ALLOWLIST.map((e) => e.name));
-
 // src/probe-engine.ts
 import { execFile } from "node:child_process";
 import path from "node:path";
@@ -36812,6 +36781,37 @@ var probeEngine = defaultEngine.probe;
 var __clearProbeCache = defaultEngine.clearCache;
 
 // src/tools/env.ts
+import os from "node:os";
+
+// src/envelope.ts
+function ok(data) {
+  return { ok: true, data };
+}
+function err(code, message, details) {
+  const error62 = details === void 0 ? { code, message } : { code, message, details };
+  return { ok: false, error: error62 };
+}
+
+// src/allowlist.ts
+var ALLOWLIST = [
+  { name: "node", command: "node", args: ["--version"], versionStream: "stdout" },
+  { name: "npm", command: "npm", args: ["--version"], versionStream: "stdout" },
+  { name: "pnpm", command: "pnpm", args: ["--version"], versionStream: "stdout" },
+  { name: "yarn", command: "yarn", args: ["--version"], versionStream: "stdout" },
+  { name: "bun", command: "bun", args: ["--version"], versionStream: "stdout" },
+  { name: "deno", command: "deno", args: ["--version"], versionStream: "stdout" },
+  { name: "git", command: "git", args: ["--version"], versionStream: "stdout" },
+  { name: "gh", command: "gh", args: ["--version"], versionStream: "stdout" },
+  { name: "python3", command: "python3", args: ["--version"], versionStream: "stdout" },
+  { name: "go", command: "go", args: ["--version"], versionStream: "stdout" },
+  { name: "rustc", command: "rustc", args: ["--version"], versionStream: "stdout" },
+  { name: "cargo", command: "cargo", args: ["--version"], versionStream: "stdout" },
+  { name: "java", command: "java", args: ["-version"], versionStream: "stderr" },
+  { name: "docker", command: "docker", args: ["--version"], versionStream: "stdout" }
+];
+var ALLOWLIST_NAMES = new Set(ALLOWLIST.map((e) => e.name));
+
+// src/tools/env.ts
 var CLI_NAME_VALUES = ALLOWLIST.map((e) => e.name);
 var toolchainInput = external_exports.object({
   names: external_exports.array(external_exports.enum(CLI_NAME_VALUES)).optional()
@@ -36875,6 +36875,7 @@ function toCallToolResult(result) {
   };
 }
 function buildServer(options = {}) {
+  const probeOptions = { ...options, probe: options.probe ?? createProbeEngine().probe };
   const server = new McpServer({
     name: "local-env-mcp",
     version: "0.1.0"
@@ -36894,7 +36895,7 @@ function buildServer(options = {}) {
       description: "Probes the fixed 14-CLI allowlist (or the subset named in `names`) with execFile --version and returns a normalized version string per available CLI. Missing CLIs are reported available:false; the whole response stays ok:true. Accepts no command, argument, or path input.",
       inputSchema: TOOLCHAIN_TOOL_INPUT_SHAPE
     },
-    async ({ names }) => toCallToolResult(await getToolchainVersions({ names }, options))
+    async ({ names }) => toCallToolResult(await getToolchainVersions({ names }, probeOptions))
   );
   server.registerTool(
     "list_available_clis",
@@ -36902,7 +36903,7 @@ function buildServer(options = {}) {
       title: "List available CLIs",
       description: "Reports availability (present/absent) for each CLI in the fixed 14-CLI allowlist, without version strings. Takes no input."
     },
-    async () => toCallToolResult(await listAvailableClis(options))
+    async () => toCallToolResult(await listAvailableClis(probeOptions))
   );
   return server;
 }
