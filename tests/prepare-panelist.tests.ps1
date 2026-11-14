@@ -3141,6 +3141,38 @@ if ($LASTEXITCODE -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
     ok "max-bytes-inprocess-zero: in-process numeric 0 is a real zero cap"
 } else { fail "max-bytes-inprocess-zero: expected exit 1/no output, got $LASTEXITCODE" }
 
+
+# Real binary artifacts are unsupported by this text-only transport.
+$binaryDir = Join-Path $Work 'binary-input'
+New-Item -ItemType Directory -Path (Join-Path $binaryDir 'specs/binary/verification/T-004') -Force | Out-Null
+Write-TasksWithConsent (Join-Path $binaryDir 'specs/binary/tasks.md')
+$binaryCases = @{
+    png = [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aOioAAAAASUVORK5CYII=')
+    nul = [byte[]]@(65, 0, 66)
+    'invalid-utf8' = [byte[]]@(65, 255, 66)
+    japanese = [Text.Encoding]::UTF8.GetBytes("日本語の検証入力`n")
+}
+foreach ($kind in @('png', 'nul', 'invalid-utf8', 'japanese')) {
+    $artifact = Join-Path $binaryDir 'artifact'
+    [IO.File]::WriteAllBytes($artifact, $binaryCases[$kind])
+    $hash = (Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
+    Write-ImplReport $binaryDir binary T-004 @('artifact') @($hash)
+    foreach ($mode in @('direct', 'declared')) {
+        $inputPath = if ($mode -eq 'direct') { $artifact } else { Join-Path $binaryDir 'specs/binary/verification/T-004' }
+        $out = Join-Path $binaryDir "$kind-$mode.txt"
+        [IO.File]::WriteAllText($out, 'retain-existing-output')
+        Invoke-Prepare -ArgList @('--task', 'T-004', '--feature', 'binary', '--input', $inputPath,
+            '--tasks-file', (Join-Path $binaryDir 'specs/binary/tasks.md'), '--project-root', $binaryDir, '--out', $out)
+        $outputText = [IO.File]::ReadAllText($out)
+        if ($kind -eq 'japanese') {
+            if ($PP_Exit -eq 0 -and $outputText.Contains('日本語の検証入力')) { ok "binary-${mode}: valid Japanese UTF-8 preserved" }
+            else { fail "binary-${mode}: valid UTF-8 rejected: $PP_Output" }
+        } elseif ($PP_Exit -eq 1 -and $PP_Output.Contains('unsupported binary or invalid UTF-8') -and $outputText -ceq 'retain-existing-output') {
+            ok "binary-${mode}: $kind rejected without replacing output"
+        } else { fail "binary-${mode}: $kind admitted or replaced output: $PP_Output" }
+    }
+}
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
