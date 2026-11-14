@@ -18,6 +18,11 @@ session = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(session)
 
 
+class GateAuditBinding(unittest.TestCase):
+    def test_current_gate_has_reviewed_dependency_binding(self):
+        self.assertEqual(session.AUDITED_GATE_SHA256, session.digest(session.GATE.read_bytes()))
+
+
 @unittest.skipUnless(sys.platform == 'linux' and shutil.which('bwrap'), 'Linux bubblewrap profile required')
 class WorkflowSession(unittest.TestCase):
     @classmethod

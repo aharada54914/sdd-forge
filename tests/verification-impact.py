@@ -160,6 +160,9 @@ def sha(value):
     return hashlib.sha256(value).hexdigest()
 
 
+MAX_JSON_CONTAINER_DEPTH = 1000
+
+
 def strict_json(value):
     def unique(pairs):
         result = {}
@@ -178,6 +181,16 @@ def strict_json(value):
         result = json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
         if not isinstance(result, dict):
             raise ValueError('JSON object required')
+        # Codec recursion limits differ across Python versions. Bound nesting
+        # explicitly while leaving flat collections and integer values intact.
+        pending = [(result, 1)]
+        while pending:
+            container, depth = pending.pop()
+            if depth > MAX_JSON_CONTAINER_DEPTH:
+                raise ValueError('JSON nesting exceeds input limit')
+            items = container.values() if isinstance(container, dict) else container
+            pending.extend((item, depth + 1) for item in items
+                           if isinstance(item, (dict, list)))
         canonical(result)  # Also reject overflow such as 1e999.
     except RecursionError as exc:
         raise ValueError('JSON nesting exceeds codec limit') from exc

@@ -15,7 +15,7 @@ FEATURE="${1:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ATTEMPT="${2:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ROUND="${3:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 repository_root=""
-review_options=()
+review_options=("$1" "$2" "$3")
 for ((review_index=4; review_index<=$#; review_index++)); do
   review_option="${!review_index}"
   if [[ "$review_option" == --repository-root ]]; then
@@ -26,7 +26,7 @@ for ((review_index=4; review_index<=$#; review_index++)); do
     review_options+=("$review_option")
   fi
 done
-set -- "$1" "$2" "$3" "${review_options[@]}"
+set -- "${review_options[@]}"
 MODE="${4:-}"
 
 SPECS_DIR="specs/${FEATURE}"

@@ -25,7 +25,7 @@ class FixedPowerShellPrechecks(unittest.TestCase):
     def fixture(self, stage, *, normalized=False, omitted=None, layers=False, adr=False):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
-        base = Path(temp.name)
+        base = Path(temp.name).resolve()
         repo = base / 'repo'
         repo.mkdir()
         shutil.copytree(SCRIPTS, repo / 'plugins/sdd-review-loop/scripts')
@@ -62,6 +62,14 @@ class FixedPowerShellPrechecks(unittest.TestCase):
         (repo / calibration).parent.mkdir(parents=True)
         (repo / calibration).write_bytes(b'calibration\n')
         paths.append(calibration)
+        for reference in (
+            'plugins/sdd-review-loop/references/reviewer-calibration.md',
+            'plugins/sdd-quality-loop/references/risk-gate-matrix.md',
+            'plugins/sdd-quality-loop/references/risk-classification-policy.md',
+        ):
+            target = repo / reference
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / reference, target)
         (repo / 'specs/workflow-state-registry.json').write_text('{"entries":[]}')
         def git(*args):
             return subprocess.check_output(['git', '-C', str(repo), *args], text=True).strip()

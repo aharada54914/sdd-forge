@@ -49,13 +49,18 @@ def sample_plan():
 
 class WireTests(unittest.TestCase):
     def test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits(self):
-        good = {'flat': list(range(3001)), 'seconds': 10 ** 400}
+        good = {'flat': list(range(3001)), 'seconds': 10 ** 400,
+                'text': '[' * 10001 + ']' * 10001}
         self.assertEqual(IMPACT.strict_json(IMPACT.canonical(good)), good)
         raw = b'{"nested":' + b'[' * 10000 + b'0' + b']' * 10000 + b'}'
         self.assertLess(len(raw), 32 * 1024 * 1024)
         for payload in (raw, raw.decode('utf-8')):
             with self.subTest(input_type=type(payload).__name__), self.assertRaises(ValueError):
                 IMPACT.strict_json(payload)
+        excessive_depth = IMPACT.MAX_JSON_CONTAINER_DEPTH + 1
+        nested_object = b'{"a":' * excessive_depth + b'0' + b'}' * excessive_depth
+        with self.assertRaises(ValueError):
+            IMPACT.strict_json(nested_object)
         self.assertEqual(IMPACT.strict_json(b'{"valid":true}'), {'valid': True})
 
     def signed(self, plan):

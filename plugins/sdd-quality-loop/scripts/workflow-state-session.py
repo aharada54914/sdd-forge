@@ -24,7 +24,8 @@ if sys.platform == 'linux':
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 GATE = HERE / 'check-workflow-state.sh'
-AUDITED_GATE_SHA256 = '9d252c029f5c21b8f474081ffa22843edfd55b855576cb3a8d04455c9620f58f'
+# The jq grouping change adds no files, tools, or external dependencies.
+AUDITED_GATE_SHA256 = '6a5fd28ead3e1bdc8ec5d377c72f4925d57d92ebc7302ed306351756b834e10e'
 TOOLS = ('bash', 'jq', 'awk', 'find', 'iconv', 'sha256sum', 'cat', 'dirname', 'basename',
          'head', 'sed', 'grep', 'tr', 'sort', 'mktemp', 'rm', 'rmdir', 'cmp', 'cut', 'wc', 'tail', 'uniq')
 ENVIRONMENT = {'PATH': '/usr/bin', 'LC_ALL': 'C', 'LANG': 'C', 'TZ': 'UTC', 'HOME': '/nonexistent', 'TMPDIR': '/tmp'}
