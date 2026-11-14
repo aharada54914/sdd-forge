@@ -6,6 +6,10 @@ Origin verified: `https://github.com/aharada54914/sdd-forge.git`.
 
 - #756: workflow completion fixes and verification; current working branch.
 - #760: draft dashboard consolidation; all four dashboard branch histories retained.
+  Head `bf86ec02` incorporates #756 through `3b35c258`; source conflicts were
+  resolved while preserving both Lite routing and dashboard report lookups.
+  Combined MCP 339 tests, Chromium 23 checks, type/build, catalog/repository
+  checks and SQL contract 4 tests passed. Recovery-fixture follow-up is separate.
 - #754: separate AWS workflow work, preserved.
 - #722: dependency update, preserved.
 
