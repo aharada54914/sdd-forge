@@ -6,6 +6,8 @@
 - 別ソースのmarketplace登録を導入成功として扱わず停止し、登録先の修正方法を案内する（#732）。
 - Codexの実hook拒否を安全に記録する手順、domain未使用時のbootstrap継続、Lite除外文法とship再確認を補完する（#737、#738、#739）。
 - 配布Codex evaluatorを現行の入力manifest・identity・receipt契約へ同期する（#744）。
+- ブラインド評価用の入力から、証拠JSONに含まれる一次評価の判定・報告参照を除外する。現在タスクの検証領域と識別子が一致する証拠だけを対象とし、業務データ・実行チェック・元の証拠ファイルは保持する（#771）。
+- GPT／Geminiパネルの明示モデル指定を出力メタデータと照合し、不一致の判定を保存しない（#772）。
 
 ### Added
 - `sdd-implementation:sql-develop` でMicrosoft SQL Server／Azure SQL、PostgreSQL、MySQLの要求・データ契約・変更影響を整理し、既存bootstrapへ引き継ぐ。SQL共通手順を既存の仕様化・実装・独立検証へ接続する。
