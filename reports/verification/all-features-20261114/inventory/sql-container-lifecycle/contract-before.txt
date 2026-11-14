@@ -1,0 +1,50 @@
+test_completed_flyway_is_released_after_result_capture (sql_contract_reproduction.SqlSkillDistributionTests.test_completed_flyway_is_released_after_result_capture) ...
+  test_completed_flyway_is_released_after_result_capture (sql_contract_reproduction.SqlSkillDistributionTests.test_completed_flyway_is_released_after_result_capture) (upstream_exit=0) ... FAIL
+  test_completed_flyway_is_released_after_result_capture (sql_contract_reproduction.SqlSkillDistributionTests.test_completed_flyway_is_released_after_result_capture) (upstream_exit=9) ... FAIL
+test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails (sql_contract_reproduction.SqlSkillDistributionTests.test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails) ...
+  test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails (sql_contract_reproduction.SqlSkillDistributionTests.test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails) (failure='ownership') ... FAIL
+
+======================================================================
+FAIL: test_completed_flyway_is_released_after_result_capture (sql_contract_reproduction.SqlSkillDistributionTests.test_completed_flyway_is_released_after_result_capture) (upstream_exit=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/sql-development-contract.tests.py", line 50, in test_completed_flyway_is_released_after_result_capture
+    self.assertEqual(removed, ['migration'])
+AssertionError: Lists differ: [] != ['migration']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'migration'
+
+- []
++ ['migration']
+
+======================================================================
+FAIL: test_completed_flyway_is_released_after_result_capture (sql_contract_reproduction.SqlSkillDistributionTests.test_completed_flyway_is_released_after_result_capture) (upstream_exit=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/sql-development-contract.tests.py", line 50, in test_completed_flyway_is_released_after_result_capture
+    self.assertEqual(removed, ['migration'])
+AssertionError: Lists differ: [] != ['migration']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'migration'
+
+- []
++ ['migration']
+
+======================================================================
+FAIL: test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails (sql_contract_reproduction.SqlSkillDistributionTests.test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails) (failure='ownership')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/sql-development-contract.tests.py", line 71, in test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails
+    patch.object(fixture, 'docker', side_effect=daemon), self.assertRaises(RuntimeError):
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.060s
+
+FAILED (failures=3)
+Loaded unchanged pre-fix helper source; ROOT and __file__ rebound solely for fixture metadata path/git lookup.

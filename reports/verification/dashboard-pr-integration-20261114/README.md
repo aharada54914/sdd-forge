@@ -46,6 +46,30 @@ invoked explicitly, outside the Python/Bash/PowerShell catalog runner.
   Claude Design account integration are not established by these checks.
 - Windows daemon behavior, PowerShell installer payload, and the entire repository
   regression matrix were not rerun here. Skips above are retained, not counted as passes.
-- PR #756 contains separate workflow completion fixes. This integration does not
-  incorporate or certify those changes; merge-order conflicts must be checked again
-  against its latest head before either branch is merged.
+- PR #756 was subsequently integrated as described below. Both PRs still require
+  their own CI and review; intended merge order is #756 followed by #760.
+
+## Follow-up: integrate PR #756
+
+Merged workflow completion head `71767d3e` in commit `0418a9d4`, retaining
+the dashboard's per-snapshot report lookup and Lite's profile-aware command
+routing together. The catalog keeps both branches' registrations, and the MCP
+bundle was rebuilt from the merged sources. `path-guard.ts` and the ship skill
+merged automatically. A new dashboard regression covers Lite Planned →
+Implementation Complete → Done and changing quality evidence from PASS to FAIL
+between refreshes; stale Done state must not survive the change.
+
+Fresh validation after this source merge: typecheck/build passed, all 339 MCP
+tests passed (including the new integration regression), Chromium's 23 checks
+passed without page errors, catalog 15 tests (1 skipped) and repository validator
+passed. The original 333-test run above remains evidence for the earlier tree.
+A redundant direct TypeScript test invocation using uninstalled `tsx` failed at
+loader startup; the supported `npm test` compilation/runner succeeded.
+
+Then incorporated PR #756 head `3b35c258` (SQL fixture/test correction and
+branch-organization evidence) without conflicts. This later merge changes no
+MCP/dashboard source. SQL database service proofs remain the originating run's
+evidence; no duplicate live database run is claimed here.
+
+`python3 tests/sql-development-contract.tests.py` also passed all 4 tests on
+the final combined tree.
