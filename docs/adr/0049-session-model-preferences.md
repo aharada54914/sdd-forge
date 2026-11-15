@@ -24,7 +24,9 @@ allocation of a disabled role fails until the user reselects. Do not require use
 to install all three vendors simply to confirm a single-vendor session.
 
 Codex discovery reuses its existing documented model/list adapter. Claude and Gemini
-aliases and configured IDs are explicitly unverified candidates. Claude effort
+aliases and configured IDs are explicitly unverified candidates. Gemini versions
+advertising the public models command are queried for listed IDs; the help probe
+prevents older versions treating command text as an inference prompt. Claude effort
 choices require the installed public CLI help to advertise the carrier. Gemini
 has no admitted generic effort carrier here and offers CLI default. Never convert
 these candidates into a model-policy observation or infer inference availability.
@@ -49,3 +51,12 @@ Main changes still require the host's standard model/effort UI and explicit user
 acknowledgment. Configured selection is not backend identity proof. Gemini generic
 independent review remains unavailable rather than using an unisolated process.
 Check the current role/transport admission tables before adding another adapter.
+
+## Native verification follow-up
+
+Claude loads the conventional hooks/hooks.json in addition to the manifest-selected
+hook config. Codex therefore uses the explicit hooks/codex-hooks.json path so a
+Claude session does not execute the Codex startup instruction as well. Gemini
+interprets hook timeouts in milliseconds; its ten-second budget is 10000, while
+Claude/Codex keep their native timeout units. These were confirmed using the real
+CLI builds in the isolated verification workspace, independently of inference.

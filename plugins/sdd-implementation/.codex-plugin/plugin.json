@@ -22,5 +22,5 @@
     ],
     "defaultPrompt": "Use the implement-tasks skill for specs/<feature>/tasks.md to implement all approved tasks in order."
   },
-  "hooks": "./hooks/hooks.json"
+  "hooks": "./hooks/codex-hooks.json"
 }

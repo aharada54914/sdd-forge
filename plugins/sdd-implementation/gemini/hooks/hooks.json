@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "python3 \"${extensionPath}/../scripts/session-model-start.py\" --host gemini-cli",
-            "timeout": 10
+            "timeout": 10000
           }
         ]
       }

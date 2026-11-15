@@ -292,6 +292,29 @@ class Startup(unittest.TestCase):
         self.assertEqual(set(observed['providers']), set(m.HOSTS))
         self.assertTrue(all(not x['selectable'] and x['verification'] == 'unverified' for x in observed['models']))
 
+    def test_gemini_public_model_list_is_discovered_without_inference(self):
+        responses = [SimpleNamespace(returncode=0, stdout='  gemini models [command]  Manage models.'),
+                     SimpleNamespace(returncode=0, stdout='[{"modelId":"gemini-native"},{"modelId":"auto"}]')]
+        with patch.object(m.shutil, 'which', return_value='/fixture/gemini'), \
+                patch.object(m.subprocess, 'run', side_effect=responses) as run:
+            self.assertEqual(m.gemini_models(), ('listed', ['gemini-native', 'auto']))
+            self.assertEqual(run.call_args_list[1].args[0], ['/fixture/gemini', 'models', '--output-format', 'json'])
+
+    def test_older_gemini_without_models_command_never_receives_a_query(self):
+        with patch.object(m.shutil, 'which', return_value='/fixture/gemini'), \
+                patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='gemini [query..]')) as run:
+            self.assertEqual(m.gemini_models(), ('unverified', []))
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(run.call_args.args[0], ['/fixture/gemini', '--help'])
+
+    def test_invalid_gemini_model_list_is_not_adopted(self):
+        for raw in ('{}', '[{"modelId":"--model=oops"}]', '[{"modelId":"x"},{"modelId":"x"}]', 'invalid'):
+            with self.subTest(raw=raw), patch.object(m.shutil, 'which', return_value='/fixture/gemini'), \
+                    patch.object(m.subprocess, 'run', side_effect=[
+                        SimpleNamespace(returncode=0, stdout='gemini models [command]'),
+                        SimpleNamespace(returncode=0, stdout=raw)]):
+                self.assertEqual(m.gemini_models(), ('unavailable', []))
+
     def test_claude_effort_options_require_installed_public_carrier(self):
         with patch.object(m.shutil, 'which', return_value='/fixture/claude'), patch.object(m.subprocess, 'run',
                 return_value=SimpleNamespace(returncode=0, stdout='--effort <level> choices: low, medium, high')):
@@ -336,9 +359,12 @@ class Startup(unittest.TestCase):
             data = json.loads((root / manifest).read_text())
             config = json.loads((root / data['hooks']).read_text())
             self.assertIn('SessionStart', config['hooks'])
+        self.assertFalse((root / 'hooks/hooks.json').exists(), 'Claude also auto-loads the conventional hooks file')
+        self.assertEqual(json.loads((root / '.codex-plugin/plugin.json').read_text())['hooks'], './hooks/codex-hooks.json')
         ext = root / 'gemini'
         self.assertEqual(json.loads((ext / 'gemini-extension.json').read_text())['contextFileName'], 'GEMINI.md')
         self.assertIn('${extensionPath}', (ext / 'hooks/hooks.json').read_text())
+        self.assertEqual(json.loads((ext / 'hooks/hooks.json').read_text())['hooks']['SessionStart'][0]['hooks'][0]['timeout'], 10000)
 
 
 @unittest.skipIf(os.name == 'nt', 'POSIX CLI doubles; Windows quoting has separate native argument suites')
@@ -380,6 +406,11 @@ class GeminiInstaller(unittest.TestCase):
             if plugins == 'sdd-bootstrap':
                 self.assertEqual(calls, [['extensions', 'link', str(installed / 'plugins/sdd-implementation/gemini')]])
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/session-models.py').is_file())
+                plugin = installed / 'plugins/sdd-implementation'
+                for manifest in ('.claude-plugin/plugin.json', '.codex-plugin/plugin.json'):
+                    selected_hook = json.loads((plugin / manifest).read_text())['hooks']
+                    self.assertTrue((plugin / selected_hook).is_file())
+                self.assertFalse((plugin / 'hooks/hooks.json').exists())
                 if runtime == 'bash':
                     args = ['bash', str(ROOT / 'uninstall.sh'), '--install-root', str(installed),
                             '--target', 'Gemini', '--plugins', 'sdd-implementation', '--keep-files',

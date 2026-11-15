@@ -223,6 +223,35 @@ def claude_efforts():
     return []
 
 
+def gemini_models():
+    """Probe the public command before using it: older CLIs treat positional text as a prompt."""
+    executable = shutil.which('gemini')
+    if executable is None:
+        return 'unverified', []
+    try:
+        help_result = subprocess.run([executable, '--help'], capture_output=True, text=True, timeout=10)
+        if help_result.returncode:
+            return 'unavailable', []
+        if not re.search(r'(?m)^\s*gemini models(?:\s|$)', help_result.stdout):
+            return 'unverified', []
+        result = subprocess.run([executable, 'models', '--output-format', 'json'],
+                                capture_output=True, text=True, timeout=15)
+        if result.returncode or len(result.stdout.encode()) > MAX_BYTES:
+            return 'unavailable', []
+        data = json.loads(result.stdout)
+        if not isinstance(data, list):
+            return 'unavailable', []
+        ids = []
+        for row in data:
+            name = row.get('modelId') if isinstance(row, dict) else None
+            if not isinstance(name, str) or not IDENTIFIER.fullmatch(name) or name in ids:
+                return 'unavailable', []
+            ids.append(name)
+        return 'listed', ids
+    except (OSError, subprocess.SubprocessError, UnicodeError, ValueError):
+        return 'unavailable', []
+
+
 def discover():
     """Refresh all providers without login, credential writes, or inference probes."""
     result, providers = [], {}
@@ -240,6 +269,18 @@ def discover():
         for name in names:
             result.append({'host': host, 'model': name, 'efforts': advertised_claude_efforts if host == 'claude-code' and name in ('sonnet', 'opus') else [], 'source': url,
                            'verification': 'unverified', 'selectable': installed})
+    if providers['gemini-cli']['installed']:
+        status, ids = gemini_models()
+        providers['gemini-cli']['status'] = status
+        if status == 'listed':
+            providers['gemini-cli']['reason'] = 'CLIの一覧に掲載。現在の認証での推論権限は未確認です。'
+            listed = [{'host': 'gemini-cli', 'model': name, 'efforts': [],
+                       'source': 'gemini models --output-format json', 'verification': 'listed',
+                       'selectable': True} for name in ids]
+            # The native listing supersedes the same alias, while unlisted aliases remain unverified.
+            result = [x for x in result if x['host'] != 'gemini-cli' or x['model'] not in ids] + listed
+        elif status == 'unavailable':
+            providers['gemini-cli']['reason'] = 'CLIのモデル一覧を取得できません。未確認候補から選ぶか再取得してください。'
     if providers['codex-cli']['installed']:
         helper = load_policy()
         try:
