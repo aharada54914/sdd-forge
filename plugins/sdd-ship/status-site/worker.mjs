@@ -1,4 +1,5 @@
 // Served only behind the private Sites access policy. No workflow write endpoint.
+__DECISION_CODE__
 const page = __DASHBOARD_PAGE__;
 const MAX_BYTES = 2 * 1024 * 1024;
 const headers = { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
@@ -12,6 +13,7 @@ export function validSnapshot(s) {
   if (!s.data || typeof s.data.project !== 'string' || !Array.isArray(s.data.features) || !Array.isArray(s.data.tasks)) return false;
   if (!s.checkedAt || !s.lastSuccessAt || !s.changedAt || !/^[a-f0-9]{64}$/.test(s.revision)) return false;
   if (s.data.features.length > 1000 || s.data.tasks.length > 10000) return false;
+  if (s.data.decisionSets !== undefined && (!Array.isArray(s.data.decisionSets) || s.data.decisionSets.length > 1000 || !s.data.decisionSets.every(d => d && typeof d.feature === 'string' && s.data.features.some(f => f && f.id === d.feature) && typeof d.source === 'string' && typeof d.stale === 'boolean' && validDecisions(d.decisions)))) return false;
   const features = new Set(); const keys = new Set();
   for (const f of s.data.features) {
     if (!f || ['id','phase','nextCommand'].some(k => typeof f[k] !== 'string') || !Array.isArray(f.warnings) || f.warnings.some(w => typeof w !== 'string') || features.has(f.id)) return false;

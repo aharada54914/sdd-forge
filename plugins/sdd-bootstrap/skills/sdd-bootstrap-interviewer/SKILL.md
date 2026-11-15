@@ -10,6 +10,31 @@ user-invocable: false
 Prepare work for implementation. This skill creates specifications and approved
 task contracts; it does not implement application code.
 
+## Visual specification decisions
+
+Before an important specification choice or approval, present the problem,
+option diagrams and a comparison of benefit, drawback and scope, then explain
+one recommendation. Ask one decision at a time with 2–3 viable options; accept
+another proposal or deferral. Simple fact checks stay concise. Never invent
+metrics or choices. Use screen schematics for UI, flows for processing, and
+state sequences for lifecycle decisions, including plain text alternatives.
+
+When the existing status dashboard is available, follow
+`<installed-root>/plugins/sdd-ship/skills/status/references/spec-decisions.md`
+and update its **仕様の相談** view on the parent's retained Site/Artifact.
+Read that reference before generating the optional decisions projection. Do not
+create a separate presentation identity. If the status plugin or host surface
+is unavailable, report the missing presentation capability and show Mermaid
+plus a Markdown comparison table in conversation (numbered flow if Mermaid
+cannot render). This works without DesignSync or supplied mockups.
+
+A displayed default or local choice is never approval. Obtain the explicit
+conversational answer for the current specification revision, record decision ID,
+option, rationale, user-message reference and related requirements in canonical
+Markdown or its sanctioned addendum, and regenerate the display. Deferral leaves
+the decision unresolved. Important changes require reapproval; preserve existing
+task approval, domain confirmation, review gates and frozen-artifact rules.
+
 ## Managed allocation boundary
 
 Affected policy roles: `investigator`.
