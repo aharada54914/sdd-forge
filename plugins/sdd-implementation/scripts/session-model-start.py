@@ -20,7 +20,8 @@ def context(host, event):
     binding = json.dumps({'host': host, 'session_id': session, 'script': script}, ensure_ascii=False)
     return ('SDD_FORGE_SESSION_MODELS: 非対話実行（codex exec、claude -p、gemini -p）、CI、ワーカーではこの案内を無視し、入力待ちせず従来動作を維持してください。'
             '対話実行であることを確認できる新規セッションに限り、最初の応答でmodel-selectionスキルを使い、'
-            'モデル候補を取得して前回設定を提示してください。メインと役割別のモデル・対応する推論設定を'
+            '共通のモデル選択UIで各CLIアダプターが取得したプロバイダー・モデル・対応する推論強度を提示してください。固定候補は作りません。'
+            '使用者の選択を記録し、前回設定と役割別設定を提示してください。メインと役割別のモデル・対応する推論設定を'
             'ユーザーが確認するまでSDD作業や委任を開始しないでください。非対話実行では従来動作を維持します。'
             '再開・compact・サブエージェントでは再確認しません。起動したCLIの標準/model操作を案内し、'
             'メインへの適用確認とユーザーの承認後だけconfirm --main-appliedを実行します。'

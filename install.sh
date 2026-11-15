@@ -981,6 +981,7 @@ REQUIRED_PATHS=(
     # Managed prepare/launch runtime closure read by the installed entry and helper.
     "plugins/sdd-implementation/scripts/managed-model-entry.py"
     "plugins/sdd-implementation/scripts/session-models.py"
+    "plugins/sdd-implementation/scripts/model-discovery.py"
     "plugins/sdd-implementation/scripts/session-model-start.py"
     "plugins/sdd-implementation/scripts/session-panelist.py"
     "plugins/sdd-implementation/skills/model-selection/SKILL.md"

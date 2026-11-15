@@ -43,7 +43,7 @@ class Sessions(unittest.TestCase):
         self.project = self.base / 'project'
         self.project.mkdir()
         self.store = m.Store(self.project, self.base / 'private')
-        self.discovery = patch.object(m, 'discover', side_effect=catalog)
+        self.discovery = patch.object(m, 'discover', side_effect=lambda *_: catalog())
         self.discovery.start()
         self.addCleanup(self.discovery.stop)
         m.begin(self.store, 'codex-cli', 'one')
@@ -63,6 +63,48 @@ class Sessions(unittest.TestCase):
         self.assertEqual(m.confirm(self.store, 'one', True)['status'], 'confirmed')
         with self.assertRaisesRegex(m.SelectionError, '無効'):
             m.selection(self.store, 'one', 'panelist-gemini')
+
+    def test_dynamic_native_effort_and_context_model_survive_save_and_schema(self):
+        state = self.store.state('one')
+        state['catalog']['models'].append({'host': 'claude-code', 'model': 'claude-new[1m]',
+            'efforts': ['medium', 'ultra'], 'source': 'native fixture', 'verification': 'listed',
+            'selectable': True, 'display_name': 'New model', 'default_effort': 'medium'})
+        m.write_json(self.store.path('one'), state)
+        self.configure()
+        m.set_choice(self.store, 'one', 'investigator', 'claude-code', 'claude-new[1m]', 'ultra')
+        m.confirm(self.store, 'one', True)
+        self.assertEqual(m.selection(self.store, 'one', 'investigator')['effort'], 'ultra')
+        import jsonschema
+        jsonschema.validate(self.store.state('one'), json.loads((ROOT / 'contracts/session-model-selection.schema.json').read_text()))
+
+    def test_expired_picker_refresh_preserves_pending_choices_and_requires_confirmation(self):
+        self.configure(); m.confirm(self.store, 'one', True)
+        state = self.store.state('one')
+        state['catalog']['observed_at'] = '2000-01-01T00:00:00Z'
+        m.write_json(self.store.path('one'), state)
+        refreshed = m.begin(self.store, 'codex-cli', 'one')
+        self.assertEqual(refreshed['status'], 'pending')
+        self.assertEqual(refreshed['roles'], state['roles'])
+        with self.assertRaises(m.SelectionError):
+            m.selection(self.store, 'one', 'investigator')
+        self.assertFalse(m.catalog_stale(refreshed['catalog']))
+
+    def test_expiry_does_not_reopen_cancelled_session(self):
+        state = self.store.state('one')
+        state['status'] = 'cancelled'
+        state['catalog']['observed_at'] = '2000-01-01T00:00:00Z'
+        m.write_json(self.store.path('one'), state)
+        self.assertEqual(m.begin(self.store, 'codex-cli', 'one')['status'], 'cancelled')
+        self.assertEqual(m.begin(self.store, 'codex-cli', 'one', True)['status'], 'pending')
+
+    def test_refresh_rejects_retired_effort_without_substitution(self):
+        self.configure(); m.confirm(self.store, 'one', True)
+        changed = catalog(); changed['models'][0]['efforts'] = ['low']
+        with patch.object(m, 'discover', return_value=changed):
+            m.begin(self.store, 'codex-cli', 'one', True)
+        with self.assertRaises(m.SelectionError):
+            m.confirm(self.store, 'one', True)
+        self.assertEqual(self.store.state('one')['main']['effort'], 'high')
 
     def test_cli_error_is_typed_without_traceback(self):
         result = subprocess.run([sys.executable, str(SCRIPTS / 'session-models.py'),
@@ -286,42 +328,6 @@ class Startup(unittest.TestCase):
         self.assertEqual(r.returncode, 0)
         self.assertEqual(r.stdout, '')
 
-    def test_discovery_labels_official_candidates_honestly(self):
-        with patch.object(m.shutil, 'which', return_value=None):
-            observed = m.discover()
-        self.assertEqual(set(observed['providers']), set(m.HOSTS))
-        self.assertTrue(all(not x['selectable'] and x['verification'] == 'unverified' for x in observed['models']))
-
-    def test_gemini_public_model_list_is_discovered_without_inference(self):
-        responses = [SimpleNamespace(returncode=0, stdout='  gemini models [command]  Manage models.'),
-                     SimpleNamespace(returncode=0, stdout='[{"modelId":"gemini-native"},{"modelId":"auto"}]')]
-        with patch.object(m.shutil, 'which', return_value='/fixture/gemini'), \
-                patch.object(m.subprocess, 'run', side_effect=responses) as run:
-            self.assertEqual(m.gemini_models(), ('listed', ['gemini-native', 'auto']))
-            self.assertEqual(run.call_args_list[1].args[0], ['/fixture/gemini', 'models', '--output-format', 'json'])
-
-    def test_older_gemini_without_models_command_never_receives_a_query(self):
-        with patch.object(m.shutil, 'which', return_value='/fixture/gemini'), \
-                patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='gemini [query..]')) as run:
-            self.assertEqual(m.gemini_models(), ('unverified', []))
-            self.assertEqual(run.call_count, 1)
-            self.assertEqual(run.call_args.args[0], ['/fixture/gemini', '--help'])
-
-    def test_invalid_gemini_model_list_is_not_adopted(self):
-        for raw in ('{}', '[{"modelId":"--model=oops"}]', '[{"modelId":"x"},{"modelId":"x"}]', 'invalid'):
-            with self.subTest(raw=raw), patch.object(m.shutil, 'which', return_value='/fixture/gemini'), \
-                    patch.object(m.subprocess, 'run', side_effect=[
-                        SimpleNamespace(returncode=0, stdout='gemini models [command]'),
-                        SimpleNamespace(returncode=0, stdout=raw)]):
-                self.assertEqual(m.gemini_models(), ('unavailable', []))
-
-    def test_claude_effort_options_require_installed_public_carrier(self):
-        with patch.object(m.shutil, 'which', return_value='/fixture/claude'), patch.object(m.subprocess, 'run',
-                return_value=SimpleNamespace(returncode=0, stdout='--effort <level> choices: low, medium, high')):
-            self.assertEqual(m.claude_efforts(), ['low', 'medium', 'high'])
-        with patch.object(m.shutil, 'which', return_value=None):
-            self.assertEqual(m.claude_efforts(), [])
-
     def test_fallback_is_reachable_from_both_public_entries(self):
         for path in ['plugins/sdd-bootstrap/skills/bootstrap/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md']:
             self.assertIn('skills/model-selection/SKILL.md', (ROOT / path).read_text())
@@ -406,6 +412,7 @@ class GeminiInstaller(unittest.TestCase):
             if plugins == 'sdd-bootstrap':
                 self.assertEqual(calls, [['extensions', 'link', str(installed / 'plugins/sdd-implementation/gemini')]])
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/session-models.py').is_file())
+                self.assertTrue((installed / 'plugins/sdd-implementation/scripts/model-discovery.py').is_file())
                 plugin = installed / 'plugins/sdd-implementation'
                 for manifest in ('.claude-plugin/plugin.json', '.codex-plugin/plugin.json'):
                     selected_hook = json.loads((plugin / manifest).read_text())['hooks']

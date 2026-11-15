@@ -21,16 +21,17 @@
         },
         "model": {
           "type": "string",
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/\\[\\]-]{0,127}$"
         },
         "effort": {
-          "enum": [
-            null,
-            "low",
-            "medium",
-            "high",
-            "xhigh",
-            "max"
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!default$)[a-z][a-z0-9_-]{0,31}$"
+            }
           ]
         }
       }
@@ -242,6 +243,17 @@
                     },
                     "reason": {
                       "type": "string"
+                    },
+                    "auth_mode": {
+                      "enum": [
+                        "unknown",
+                        "api-key",
+                        "oauth",
+                        "subscription",
+                        "external",
+                        "cli-managed"
+                      ],
+                      "description": "CLI-reported authentication route; cli-managed means the CLI chooses its existing auth and billing route, not inferred subscription access."
                     }
                   }
                 },
@@ -266,6 +278,17 @@
                     },
                     "reason": {
                       "type": "string"
+                    },
+                    "auth_mode": {
+                      "enum": [
+                        "unknown",
+                        "api-key",
+                        "oauth",
+                        "subscription",
+                        "external",
+                        "cli-managed"
+                      ],
+                      "description": "CLI-reported authentication route; cli-managed means the CLI chooses its existing auth and billing route, not inferred subscription access."
                     }
                   }
                 },
@@ -290,6 +313,17 @@
                     },
                     "reason": {
                       "type": "string"
+                    },
+                    "auth_mode": {
+                      "enum": [
+                        "unknown",
+                        "api-key",
+                        "oauth",
+                        "subscription",
+                        "external",
+                        "cli-managed"
+                      ],
+                      "description": "CLI-reported authentication route; cli-managed means the CLI chooses its existing auth and billing route, not inferred subscription access."
                     }
                   }
                 }
@@ -318,20 +352,16 @@
                   },
                   "model": {
                     "type": "string",
-                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/\\[\\]-]{0,127}$"
                   },
                   "efforts": {
                     "type": "array",
                     "uniqueItems": true,
                     "items": {
-                      "enum": [
-                        "low",
-                        "medium",
-                        "high",
-                        "xhigh",
-                        "max"
-                      ]
-                    }
+                      "type": "string",
+                      "pattern": "^(?!default$)[a-z][a-z0-9_-]{0,31}$"
+                    },
+                    "description": "Per-model values returned by the native discovery adapter. Launch adapters retain their own supported-value checks. Empty means no selectable effort was exposed."
                   },
                   "source": {
                     "type": "string"
@@ -344,6 +374,22 @@
                   },
                   "selectable": {
                     "type": "boolean"
+                  },
+                  "display_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "default_effort": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^(?!default$)[a-z][a-z0-9_-]{0,31}$"
+                      }
+                    ]
                   }
                 }
               }

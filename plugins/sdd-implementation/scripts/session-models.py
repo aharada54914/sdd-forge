@@ -13,8 +13,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
-import subprocess
 import sys
 import tempfile
 
@@ -23,8 +21,10 @@ ROLES = ('implementer', 'investigator', 'spec-reviewer-a', 'spec-reviewer-b',
          'impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b',
          'evaluator', 'domain-reviewer-a', 'domain-reviewer-b', 'workflow-auditor-a',
          'workflow-auditor-b', 'diagnosis', 'self-improvement', 'panelist-gpt', 'panelist-gemini')
-EFFORTS = ('low', 'medium', 'high', 'xhigh', 'max')
+EFFORT_IDENTIFIER = re.compile(r'[a-z][a-z0-9_-]{0,31}')
+CATALOG_TTL_SECONDS = 15 * 60
 IDENTIFIER = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}')
+MODEL_IDENTIFIER = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/\[\]-]{0,127}')
 HERE = Path(__file__).resolve().parent
 MAX_BYTES = 2 * 1024 * 1024
 
@@ -96,8 +96,9 @@ def write_json(path, value):
 def choice(value):
     if (not isinstance(value, dict) or set(value) != {'host', 'model', 'effort'}
             or value['host'] not in HOSTS or not isinstance(value['model'], str)
-            or not IDENTIFIER.fullmatch(value['model'])
-            or value['effort'] is not None and value['effort'] not in EFFORTS):
+            or not MODEL_IDENTIFIER.fullmatch(value['model'])
+            or value['effort'] is not None and (not isinstance(value['effort'], str)
+                or not EFFORT_IDENTIFIER.fullmatch(value['effort']) or value['effort'] == 'default')):
         raise SelectionError('モデル設定の形式が不正です。')
     return value
 
@@ -207,99 +208,12 @@ def load_policy():
     return module
 
 
-def claude_efforts():
-    executable = shutil.which('claude')
-    if executable is None:
-        return []
-    try:
-        help_result = subprocess.run([executable, '--help'], capture_output=True, text=True, timeout=5)
-        if help_result.returncode:
-            return []
-        match = re.search(r'--effort[^\n]*(?:\n[^\n]*)?', help_result.stdout)
-        if match:
-            return [e for e in ('low', 'medium', 'high') if re.search(r'\b' + e + r'\b', match[0])]
-    except (OSError, subprocess.SubprocessError, UnicodeError):
-        pass
-    return []
-
-
-def gemini_models():
-    """Probe the public command before using it: older CLIs treat positional text as a prompt."""
-    executable = shutil.which('gemini')
-    if executable is None:
-        return 'unverified', []
-    try:
-        help_result = subprocess.run([executable, '--help'], capture_output=True, text=True, timeout=10)
-        if help_result.returncode:
-            return 'unavailable', []
-        if not re.search(r'(?m)^\s*gemini models(?:\s|$)', help_result.stdout):
-            return 'unverified', []
-        result = subprocess.run([executable, 'models', '--output-format', 'json'],
-                                capture_output=True, text=True, timeout=15)
-        if result.returncode or len(result.stdout.encode()) > MAX_BYTES:
-            return 'unavailable', []
-        data = json.loads(result.stdout)
-        if not isinstance(data, list):
-            return 'unavailable', []
-        ids = []
-        for row in data:
-            name = row.get('modelId') if isinstance(row, dict) else None
-            if not isinstance(name, str) or not IDENTIFIER.fullmatch(name) or name in ids:
-                return 'unavailable', []
-            ids.append(name)
-        return 'listed', ids
-    except (OSError, subprocess.SubprocessError, UnicodeError, ValueError):
-        return 'unavailable', []
-
-
-def discover():
-    """Refresh all providers without login, credential writes, or inference probes."""
-    result, providers = [], {}
-    advertised_claude_efforts = claude_efforts()
-    sources = {
-        'claude-code': ('https://code.claude.com/docs/en/model-config', ['sonnet', 'opus', 'haiku']),
-        'gemini-cli': ('https://geminicli.com/docs/cli/model/', ['auto', 'pro', 'flash', 'flash-lite']),
-        'codex-cli': ('https://developers.openai.com/codex/models', []),
-    }
-    for host, executable in HOSTS.items():
-        installed = shutil.which(executable) is not None
-        providers[host] = {'installed': installed, 'status': 'unverified', 'reason':
-                           '公式のCLI候補。現在の認証での利用可否は未確認です。' if installed else 'CLIが見つかりません。'}
-        url, names = sources[host]
-        for name in names:
-            result.append({'host': host, 'model': name, 'efforts': advertised_claude_efforts if host == 'claude-code' and name in ('sonnet', 'opus') else [], 'source': url,
-                           'verification': 'unverified', 'selectable': installed})
-    if providers['gemini-cli']['installed']:
-        status, ids = gemini_models()
-        providers['gemini-cli']['status'] = status
-        if status == 'listed':
-            providers['gemini-cli']['reason'] = 'CLIの一覧に掲載。現在の認証での推論権限は未確認です。'
-            listed = [{'host': 'gemini-cli', 'model': name, 'efforts': [],
-                       'source': 'gemini models --output-format json', 'verification': 'listed',
-                       'selectable': True} for name in ids]
-            # The native listing supersedes the same alias, while unlisted aliases remain unverified.
-            result = [x for x in result if x['host'] != 'gemini-cli' or x['model'] not in ids] + listed
-        elif status == 'unavailable':
-            providers['gemini-cli']['reason'] = 'CLIのモデル一覧を取得できません。未確認候補から選ぶか再取得してください。'
-    if providers['codex-cli']['installed']:
-        helper = load_policy()
-        try:
-            with helper.CodexClient('session-model-picker') as client:
-                observed = client.capture(purpose='diagnostic').observation
-                for model in observed['models']:
-                    result.append({'host': 'codex-cli', 'model': model['native_id'],
-                                   'efforts': model['efforts'], 'source': 'codex app-server model/list',
-                                   'verification': 'listed', 'selectable': model['available']})
-                providers['codex-cli'].update(status='listed', reason='CLIの一覧に掲載。推論の実行権限を保証するものではありません。')
-        except (helper.PolicyError, OSError, ValueError):
-            providers['codex-cli'].update(status='unavailable', reason='モデル一覧を取得できません。CLIの認証と接続を確認して再取得してください。')
-    # Configured model names are candidates, not attestations; never inspect credential files.
-    for host, key in [('claude-code', 'ANTHROPIC_MODEL'), ('gemini-cli', 'GEMINI_MODEL')]:
-        name = os.environ.get(key, '')
-        if IDENTIFIER.fullmatch(name) and not any(x['host'] == host and x['model'] == name for x in result):
-            result.append({'host': host, 'model': name, 'efforts': [], 'source': key,
-                           'verification': 'unverified', 'selectable': providers[host]['installed']})
-    return {'observed_at': now(), 'providers': providers, 'models': result}
+def discover(project=None):
+    path = HERE / 'model-discovery.py'
+    spec = importlib.util.spec_from_file_location('session_model_discovery', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.discover(project)
 
 
 def validate_catalog(value):
@@ -308,16 +222,21 @@ def validate_catalog(value):
             or not isinstance(value['providers'], dict) or set(value['providers']) != set(HOSTS)):
         raise SelectionError('保存されたモデル一覧が不正です。一覧を再取得してください。')
     for provider in value['providers'].values():
-        if (not isinstance(provider, dict) or set(provider) != {'installed', 'status', 'reason'}
+        if (not isinstance(provider, dict) or not {'installed', 'status', 'reason'} <= set(provider)
+                or set(provider) - {'installed', 'status', 'reason', 'auth_mode'}
+                or provider.get('auth_mode', 'unknown') not in ('unknown', 'api-key', 'oauth', 'subscription', 'external', 'cli-managed')
                 or type(provider['installed']) is not bool
                 or provider['status'] not in ('listed', 'unverified', 'unavailable')
                 or not isinstance(provider['reason'], str)):
             raise SelectionError('保存されたCLIの確認状態が不正です。')
     seen = set()
     for model in value['models']:
-        if (not isinstance(model, dict) or set(model) != {'host', 'model', 'efforts', 'source', 'verification', 'selectable'}
-                or not isinstance(model['efforts'], list) or any(e not in EFFORTS for e in model['efforts'])
+        if (not isinstance(model, dict) or not {'host', 'model', 'efforts', 'source', 'verification', 'selectable'} <= set(model)
+                or set(model) - {'host', 'model', 'efforts', 'source', 'verification', 'selectable', 'display_name', 'default_effort'}
+                or 'display_name' in model and (not isinstance(model['display_name'], str) or not model['display_name'] or len(model['display_name']) > 200)
+                or not isinstance(model['efforts'], list) or any(not isinstance(e, str) or not EFFORT_IDENTIFIER.fullmatch(e) or e == 'default' for e in model['efforts'])
                 or len(set(model['efforts'])) != len(model['efforts'])
+                or model.get('default_effort') is not None and model['default_effort'] not in model['efforts']
                 or not isinstance(model['source'], str) or type(model['selectable']) is not bool
                 or model['verification'] not in ('listed', 'unverified')):
             raise SelectionError('保存されたモデル候補が不正です。')
@@ -337,20 +256,31 @@ def candidate(state, item):
     return matches[0]
 
 
+def catalog_stale(catalog):
+    try:
+        observed = datetime.fromisoformat(catalog['observed_at'].replace('Z', '+00:00'))
+        age = (datetime.now(timezone.utc) - observed).total_seconds()
+        return age < 0 or age >= CATALOG_TTL_SECONDS
+    except (ValueError, TypeError):
+        return True
+
+
 def begin(store, host, session, refresh=False):
     with store.locked():
+        state = None
         if store.path(session).exists():
             state = store.state(session)
             if state['host'] != host:
                 raise SelectionError('同じセッションIDを別のCLIで利用できません。')
-            if not refresh:
+            if not refresh and (state['status'] == 'cancelled' or not catalog_stale(state['catalog'])):
                 return state
-        catalog = discover()
+        catalog = discover(store.project)
         previous = store.profile()
+        main = state['main'] if state else previous['mains'].get(host)
+        roles = state['roles'] if state else {role: previous['roles'].get(role) for role in ROLES}
         state = {'schema': 'session-model-selection/v1', 'project_id': store.project_id,
                  'session_id': session, 'host': host, 'status': 'pending', 'catalog': catalog,
-                 'main': previous['mains'].get(host),
-                 'roles': {role: previous['roles'].get(role) for role in ROLES}, 'confirmed_at': None}
+                 'main': main, 'roles': roles, 'confirmed_at': None}
         write_json(store.path(session), state)
         return state
 
@@ -464,7 +394,7 @@ def main():
             cmd.add_argument('--host', choices=HOSTS, required=True)
             cmd.add_argument('--model', required=True)
         if name == 'set':
-            cmd.add_argument('--effort', choices=('default', *EFFORTS), default='default')
+            cmd.add_argument('--effort', default='default', help='一覧が返した推論強度、またはdefault（CLI既定）')
         if name == 'confirm':
             cmd.add_argument('--main-applied', action='store_true')
         if name == 'request':
@@ -502,7 +432,7 @@ def main():
                 write_json(store.path(args.session), result)
         else:
             result = store.state(args.session)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        print(json.dumps(result, ensure_ascii=False, separators=(',', ':')))
         return 0
     except (SelectionError, OSError, ValueError, KeyError, TypeError) as exc:
         print(json.dumps({'schema': 'session-model-error/v1', 'reason': 'selection-required',

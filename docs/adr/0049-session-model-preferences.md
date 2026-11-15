@@ -23,13 +23,29 @@ preference per host and a shared role map. Unused roles can be explicitly disabl
 allocation of a disabled role fails until the user reselects. Do not require users
 to install all three vendors simply to confirm a single-vendor session.
 
-Codex discovery reuses its existing documented model/list adapter. Claude and Gemini
-aliases and configured IDs are explicitly unverified candidates. Gemini versions
-advertising the public models command are queried for listed IDs; the help probe
-prevents older versions treating command text as an inference prompt. Claude effort
-choices require the installed public CLI help to advertise the carrier. Gemini
-has no admitted generic effort carrier here and offers CLI default. Never convert
-these candidates into a model-policy observation or infer inference availability.
+Model Discovery Interface lives in `model-discovery.py`: each CLI adapter returns
+normalized IDs, display names, per-model efforts, default effort when exposed,
+authentication-route classification and an explicit failure state. The shared
+skill UI presents provider, model, effort and refresh; it never creates fixed
+model or effort candidates. The selection store and launch admission remain separate.
+
+Codex uses App Server `model/list` with pagination and `includeHidden=false`.
+Claude uses the same control initialize response consumed by the official Agent
+SDK's `supportedModels()`, including `supportedEffortLevels` and model IDs with
+context suffixes. Gemini uses ACP `session/new` after the CLI resolves its existing
+authentication, rather than the unauthenticated `models` command. Its current ACP
+ModelInfo does not expose effort choices: CLI default is the only offered value.
+The adapters invoke no model prompt and no direct provider API. OAuth/API-key/
+external backend resolution stays with the CLI; no login or credential copying and
+no API-key fallback is performed. `cli-managed` explicitly leaves billing mode
+unclassified. A returned list is CLI-scoped, not proof of entitlement or inference.
+
+Refresh on each new interactive session, on explicit request/authentication change,
+and when reopening a picker whose catalog is at least 15 minutes old. Cancelled
+sessions stay cancelled until an explicit refresh. A refresh
+invalidates confirmation and rechecks saved choices. No background login/daemon is
+introduced. Old v1 preferences remain readable; optional catalog metadata is
+additive. A native-listed choice must still satisfy each existing launch adapter.
 
 Keep selection and native launch admission separate. Codex review passes explicit
 model and effort through the existing isolated idle-thread launcher, verifies its
