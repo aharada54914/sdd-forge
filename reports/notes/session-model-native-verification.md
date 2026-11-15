@@ -1,5 +1,8 @@
 # Claude・Gemini実CLI検証
 
+認証付き検証の再開結果は [session-model-authenticated-verification.md](session-model-authenticated-verification.md) を参照。
+以下は認証準備前の検証履歴として保持する。
+
 実施日: 2026-11-15 UTC
 対象: セッション開始時のモデル選択。結果は認証付き推論の成功とは区別する。
 
