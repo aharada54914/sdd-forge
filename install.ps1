@@ -3,7 +3,7 @@ param(
     [string]$Repository = "aharada54914/sdd-forge",
     [string]$Ref = "main",
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
-    [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
+    [ValidateSet("All", "Codex", "Claude", "Copilot", "Gemini", "FilesOnly")]
     [string]$Target = "All",
     [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
@@ -223,6 +223,18 @@ function Update-ClaudePlugins {
     else {
         Write-Host "sdd-forge: upgraded $upgraded Claude plugin(s)."
     }
+}
+
+function Install-GeminiExtension {
+    param([string]$MarketplaceRoot)
+    if ($SkipPluginInstall -or $Plugins -cnotcontains "sdd-implementation") { return }
+    if (-not (Get-Command gemini -ErrorAction SilentlyContinue)) {
+        if ($Target -eq "Gemini") { throw 'Gemini CLI was not found in PATH.' }
+        Write-Warning 'Gemini CLI was not found. Model selection extension registration was skipped.'
+        return
+    }
+    Invoke-IdempotentPluginCommand -Label 'the Gemini model selection extension' -Command 'gemini' -Arguments @(
+        'extensions', 'link', (Join-Path $MarketplaceRoot 'plugins/sdd-implementation/gemini'))
 }
 
 function Install-CodexPlugins {
@@ -724,6 +736,10 @@ function Get-RequiredPaths {
     $paths = @(
         # Managed prepare/launch runtime closure read by the installed entry and helper.
         "plugins/sdd-implementation/scripts/managed-model-entry.py",
+        "plugins/sdd-implementation/scripts/session-models.py",
+        "plugins/sdd-implementation/scripts/session-model-start.py",
+        "plugins/sdd-implementation/skills/model-selection/SKILL.md",
+        "plugins/sdd-implementation/gemini/gemini-extension.json",
         "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",
@@ -1215,6 +1231,9 @@ try {
     }
     if ($Target -in @("All", "Copilot")) {
         Install-CopilotPlugins $resolvedInstallRoot
+    }
+    if ($Target -in @("All", "Gemini")) {
+        Install-GeminiExtension $resolvedInstallRoot
     }
     Register-McpServers -InstallRootPath $resolvedInstallRoot
 

@@ -35,7 +35,7 @@ Usage: install.sh [options]
   --repository <owner/repo>      Default: aharada54914/sdd-forge
   --ref <ref>                    Default: main
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
-  --target All|Codex|Claude|Copilot|FilesOnly
+  --target All|Codex|Claude|Copilot|Gemini|FilesOnly
                                  Default: All
   --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: sdd-bootstrap,sdd-ship
@@ -74,8 +74,8 @@ done
 
 # Validate --target
 case "$TARGET" in
-    All|Codex|Claude|Copilot|FilesOnly) ;;
-    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, or FilesOnly)" >&2; usage ;;
+    All|Codex|Claude|Copilot|Gemini|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, Gemini, or FilesOnly)" >&2; usage ;;
 esac
 
 # Validate --plugins
@@ -214,6 +214,23 @@ run_idempotent_plugin_command() {
 target_requires() {
     # Returns 0 if $TARGET is exactly the given value (hard-error context)
     [[ "$TARGET" == "$1" ]]
+}
+
+install_gemini_extension() {
+    local marketplace_root="$1"
+    [[ $SKIP_PLUGIN_INSTALL -eq 0 ]] || return 0
+    [[ ",$PLUGINS," == *,sdd-implementation,* ]] || return 0
+    if ! command -v gemini >/dev/null 2>&1; then
+        if target_requires Gemini; then
+            echo "Error: Gemini CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Gemini CLI was not found. Model selection extension registration was skipped." >&2
+        return 0
+    fi
+    # Linking the installed local directory preserves sibling scripts and skills.
+    run_idempotent_plugin_command "the Gemini model selection extension" \
+        gemini extensions link "$marketplace_root/plugins/sdd-implementation/gemini" || return 1
 }
 
 install_codex_plugins() {
@@ -963,6 +980,10 @@ fi
 REQUIRED_PATHS=(
     # Managed prepare/launch runtime closure read by the installed entry and helper.
     "plugins/sdd-implementation/scripts/managed-model-entry.py"
+    "plugins/sdd-implementation/scripts/session-models.py"
+    "plugins/sdd-implementation/scripts/session-model-start.py"
+    "plugins/sdd-implementation/skills/model-selection/SKILL.md"
+    "plugins/sdd-implementation/gemini/gemini-extension.json"
     "plugins/sdd-implementation/scripts/model-policy.py"
     "plugins/sdd-implementation/scripts/select-agent-model.sh"
     "plugins/sdd-implementation/scripts/select-agent-model.ps1"
@@ -1360,6 +1381,9 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     install_copilot_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
+    install_gemini_extension "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
 install_mcp_servers "$RESOLVED_INSTALL_ROOT" || exit 1
 

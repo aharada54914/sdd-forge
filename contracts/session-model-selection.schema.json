@@ -1,0 +1,785 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/session-model-selection.schema.json",
+  "title": "Private project preferences and confirmed session model selection",
+  "$defs": {
+    "choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host",
+        "model",
+        "effort"
+      ],
+      "properties": {
+        "host": {
+          "enum": [
+            "claude-code",
+            "codex-cli",
+            "gemini-cli"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+        },
+        "effort": {
+          "enum": [
+            null,
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      }
+    },
+    "disabled": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disabled"
+      ],
+      "properties": {
+        "disabled": {
+          "const": true
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project_id",
+        "mains",
+        "roles"
+      ],
+      "properties": {
+        "schema": {
+          "const": "session-model-preferences/v1"
+        },
+        "project_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mains": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "claude-code": {
+              "$ref": "#/$defs/choice"
+            },
+            "codex-cli": {
+              "$ref": "#/$defs/choice"
+            },
+            "gemini-cli": {
+              "$ref": "#/$defs/choice"
+            }
+          }
+        },
+        "roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "implementer": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "investigator": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "spec-reviewer-a": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "spec-reviewer-b": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "impl-reviewer-a": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "impl-reviewer-b": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "task-reviewer-a": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "task-reviewer-b": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "evaluator": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "domain-reviewer-a": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "domain-reviewer-b": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "workflow-auditor-a": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "workflow-auditor-b": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "diagnosis": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "self-improvement": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "panelist-gpt": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            },
+            "panelist-gemini": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/choice"
+                },
+                {
+                  "$ref": "#/$defs/disabled"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project_id",
+        "session_id",
+        "host",
+        "status",
+        "catalog",
+        "main",
+        "roles",
+        "confirmed_at"
+      ],
+      "properties": {
+        "schema": {
+          "const": "session-model-selection/v1"
+        },
+        "project_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+        },
+        "host": {
+          "enum": [
+            "claude-code",
+            "codex-cli",
+            "gemini-cli"
+          ]
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "confirmed",
+            "cancelled"
+          ]
+        },
+        "catalog": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "observed_at",
+            "providers",
+            "models"
+          ],
+          "properties": {
+            "observed_at": {
+              "type": "string"
+            },
+            "providers": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "claude-code",
+                "codex-cli",
+                "gemini-cli"
+              ],
+              "properties": {
+                "claude-code": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "installed",
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "listed",
+                        "unverified",
+                        "unavailable"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "codex-cli": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "installed",
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "listed",
+                        "unverified",
+                        "unavailable"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "gemini-cli": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "installed",
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "listed",
+                        "unverified",
+                        "unavailable"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "host",
+                  "model",
+                  "efforts",
+                  "source",
+                  "verification",
+                  "selectable"
+                ],
+                "properties": {
+                  "host": {
+                    "enum": [
+                      "claude-code",
+                      "codex-cli",
+                      "gemini-cli"
+                    ]
+                  },
+                  "model": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+                  },
+                  "efforts": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "enum": [
+                        "low",
+                        "medium",
+                        "high",
+                        "xhigh",
+                        "max"
+                      ]
+                    }
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "verification": {
+                    "enum": [
+                      "listed",
+                      "unverified"
+                    ]
+                  },
+                  "selectable": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "main": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/choice"
+            }
+          ]
+        },
+        "roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "implementer",
+            "investigator",
+            "spec-reviewer-a",
+            "spec-reviewer-b",
+            "impl-reviewer-a",
+            "impl-reviewer-b",
+            "task-reviewer-a",
+            "task-reviewer-b",
+            "evaluator",
+            "domain-reviewer-a",
+            "domain-reviewer-b",
+            "workflow-auditor-a",
+            "workflow-auditor-b",
+            "diagnosis",
+            "self-improvement",
+            "panelist-gpt",
+            "panelist-gemini"
+          ],
+          "properties": {
+            "implementer": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "investigator": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "spec-reviewer-a": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "spec-reviewer-b": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "impl-reviewer-a": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "impl-reviewer-b": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "task-reviewer-a": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "task-reviewer-b": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "evaluator": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "domain-reviewer-a": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "domain-reviewer-b": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "workflow-auditor-a": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "workflow-auditor-b": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "diagnosis": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "self-improvement": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "panelist-gpt": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            },
+            "panelist-gemini": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/choice"
+                    },
+                    {
+                      "$ref": "#/$defs/disabled"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  ]
+}

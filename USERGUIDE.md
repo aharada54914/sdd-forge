@@ -372,3 +372,50 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 | 12. トラブルシューティング | [docs/troubleshooting.md](docs/troubleshooting.md) |
 
 文書中心の固有手順は `project-skill.py seal --root . --name <name> --document-only --check <check-id>` で記録できます。実行可能な手順ではないため draft/not-run を保持し、試行・保守から成功判定は生成されません。
+
+## セッション開始時のモデル選択
+
+新規の対話セッションでは、Claude Code・Codex CLIのSessionStartフックが
+`model-selection` を案内します。フックが使えない場合はbootstrap／shipの入口から確認します。
+モデル候補と前回設定を確認してから、メインと役割別のモデル・対応する推論設定を選びます。
+メインには起動したCLIのモデルを選び、標準の `/model` 等で変更を適用して確認してください。
+サブエージェントは別会社のモデルも選べますが、各役割に対応する安全な起動経路が必要です。
+
+Gemini CLI用のモデル選択extensionは、インストーラーの `--target Gemini`
+（PowerShellは `-Target Gemini`）または `All` で登録します。
+`sdd-implementation` が選択されている必要があります（既定のshipから自動で含まれます）。
+これはモデル選択のextensionで、SDDの全機能をGeminiへ移植するものではありません。
+各CLI側で必要なフックの有効化・信頼を確認してください。インストールだけで稼働証明とはしません。
+
+- 一覧の `listed` はCLI一覧への掲載、`unverified` は公式のalias・設定由来の未確認候補です。
+  いずれも現在のアカウントの推論権限を保証しません。Claude/Geminiには現在の認証での完全一覧取得を保証しません。
+- 推論の強さは確認できた選択肢と「CLI既定」から選びます。Geminiには現在CLI既定だけを提示します。
+- 未使用の役割は明示的に無効にできます。その役割を実行する際には停止して再選択を求めます。
+  GPT/Geminiのpanelistは、それぞれ元の会社に固定してクロスモデル検証の多様性を維持します。
+- Geminiの汎用独立レビューなど、対応アダプターがない組み合わせは停止します。
+  設定を保存しただけで実行可能とは扱わず、別のCLI／モデルを選び直してください。
+- 起動失敗時に別モデルへ自動で切り替えません。新しいAPIキー管理は追加せず、各CLIの既存ログインを使います。
+
+個人設定は `XDG_CONFIG_HOME/sdd-forge/model-profiles/`（未設定なら
+`~/.config/sdd-forge/model-profiles/`）にプロジェクトの実パスのハッシュ別に保存します。
+Gitには保存しません。メインはCLI別、役割別設定はそのプロジェクト共通です。
+非対話実行・CI・ワーカー・resume・compactでは確認を繰り返しません。
+ホストが対話性を通知しない場合も、注入する案内は対話時に限定します。
+自動化では必要に応じて `SDD_SESSION_NONINTERACTIVE=1` で案内自体を抑制できます。
+
+手動操作は、インストールしたsdd-implementationの `scripts/session-models.py` で行えます。
+引数のパスはプロジェクトをcwdとして指定します。
+
+```text
+python3 <scripts>/session-models.py begin --host codex-cli --session <session-id>
+python3 <scripts>/session-models.py set --session <session-id> --role main --host codex-cli --model <model-id> --effort high
+python3 <scripts>/session-models.py disable --session <session-id> --role panelist-gemini
+python3 <scripts>/session-models.py status --session <session-id>
+python3 <scripts>/session-models.py confirm --session <session-id> --main-applied
+```
+
+初回は各役割を選択または無効化します。次回は前回設定を一括確認できます。
+候補を再取得する場合は `begin --refresh`、未掲載の具体的IDは `add-candidate`
+（未確認候補として追加）、中止は `cancel` を使います。設定変更・再取得後は再確認が必要です。
+CLI/API契約は `contracts/session-model-selection.schema.json` と
+`plugins/sdd-implementation/skills/model-selection/SKILL.md` を参照してください。

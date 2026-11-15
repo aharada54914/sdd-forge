@@ -19,7 +19,8 @@ spec.loader.exec_module(module)
 
 class LaunchTests(unittest.TestCase):
     def run_case(self, *, reserve_ok=True, mutate=False, identity_bad=False, profile_bad=False,
-                 output_bad=False, event_bad=False, timeout=False, path_escape=False, quality=False, no_inspection=False):
+                 output_bad=False, event_bad=False, timeout=False, path_escape=False, quality=False, no_inspection=False,
+                 selected_model=None, selected_effort=None, model_bad=False, effort_bad=False):
         calls = []
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
@@ -38,7 +39,7 @@ class LaunchTests(unittest.TestCase):
             args = SimpleNamespace(repository_root=root, invocation=invocation,
                 manifest_sha256=module.sha(invocation), output=root / 'output',
                 codex='/bin/true', fixed_input_record=None, fixed_input_snapshot=None,
-                runtime='bash', timeout=10)
+                runtime='bash', timeout=10, selected_model=selected_model, selected_effort=selected_effort)
             if path_escape:
                 args.output = root / '..' / ('escape-' + root.name)
             class FakeRpc:
@@ -51,11 +52,20 @@ class LaunchTests(unittest.TestCase):
                         return {'config': {'mcp_servers': {}, 'features': dict.fromkeys(
                             ('plugins', 'apps', 'hooks', 'multi_agent'), False), 'web_search': 'disabled'}}
                     if method == 'thread/start':
-                        return {'thread': {'id': 'host-allocated', 'turns': [1] if identity_bad else [],
+                        if selected_model:
+                            assert params['model'] == selected_model
+                        if selected_effort:
+                            assert params['config']['model_reasoning_effort'] == selected_effort
+                        return {'model': 'different' if model_bad else selected_model,
+                                'reasoningEffort': 'different' if effort_bad else selected_effort, 'thread': {'id': 'host-allocated', 'turns': [1] if identity_bad else [],
                                            'status': {'type': 'idle'},
                                            'environments': [{'environmentId': 'local', 'cwd': self.cwd}]},
                                 'activePermissionProfile': {'id': 'wrong' if profile_bad else module.PROFILE}}
                     if method == 'turn/start':
+                        if selected_model:
+                            assert params['model'] == selected_model
+                        if selected_effort:
+                            assert params['effort'] == selected_effort
                         self.events = [{'method': 'item/completed', 'params': {
                             'threadId': 'wrong' if event_bad else 'host-allocated', 'turnId': 'turn-1',
                             'item': {'type': 'agentMessage', 'text': json.dumps({
@@ -118,7 +128,7 @@ class LaunchTests(unittest.TestCase):
                  patch.object(module.launcher, 'checked_input_paths'), \
                  patch.object(module.preflight, 'preflight'), \
                  patch.object(module.subprocess, 'run', side_effect=reserve):
-                failed = not reserve_ok or mutate or identity_bad or profile_bad or output_bad or event_bad or timeout or path_escape or no_inspection
+                failed = not reserve_ok or mutate or identity_bad or profile_bad or output_bad or event_bad or timeout or path_escape or no_inspection or model_bad or effort_bad
                 if failed:
                     with self.assertRaises((ValueError, TimeoutError)):
                         module.launch(args)
@@ -133,6 +143,24 @@ class LaunchTests(unittest.TestCase):
             if calls:
                 self.assertEqual(calls[-1], 'close')
             return calls
+
+    def test_selected_model_and_effort_reach_native_thread_and_turn(self):
+        calls = self.run_case(selected_model='fixture-model', selected_effort='high')
+        self.assertLess(calls.index('reserve'), calls.index('turn/start'))
+
+    def test_model_mismatch_stops_before_reservation_or_work(self):
+        calls = self.run_case(selected_model='fixture-model', model_bad=True)
+        self.assertNotIn('reserve', calls)
+        self.assertNotIn('turn/start', calls)
+
+    def test_effort_mismatch_stops_before_reservation_or_work(self):
+        calls = self.run_case(selected_model='fixture-model', selected_effort='high', effort_bad=True)
+        self.assertNotIn('reserve', calls)
+        self.assertNotIn('turn/start', calls)
+
+    def test_effort_without_model_is_rejected(self):
+        with self.assertRaises(ValueError):
+            module.selected_controls(SimpleNamespace(selected_effort='high'), ROOT, 'spec-reviewer-a')
 
     def test_quality_delivery_reserves_before_model(self):
         calls = self.run_case(quality=True)

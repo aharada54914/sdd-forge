@@ -11,6 +11,14 @@ bug fix, refactor, or new project. This skill orchestrates investigation,
 Phase 1 specification, implementation-policy review, Phase 2 task decomposition,
 and task-decomposition review.
 
+## 新規対話セッションのモデル確認
+
+新規の対話セッションでは、最初のSDD作業・委任前に、同じインストール版の
+sdd-implementationの `skills/model-selection/SKILL.md` を読み、メインと役割別モデルを確認する。
+SessionStartで確認済みなら繰り返さない。フックが使えない場合もこの入口から確認する。
+非対話実行、resume、compact、既にバインド済みのワーカーは従来動作を維持する。
+モデルの選択は、以下の管理された起動境界や独立レビューの要件を解除しない。
+
 ## Managed allocation boundary
 
 Affected policy roles: `investigator`.

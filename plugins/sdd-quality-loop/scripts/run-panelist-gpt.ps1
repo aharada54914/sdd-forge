@@ -45,6 +45,15 @@ param()
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
 
+# Session selection delegates back to this unchanged collection path after binding.
+if ($args -ccontains '--model-session') {
+    $sessionDriver = Join-Path $PSScriptRoot '../../sdd-implementation/scripts/session-panelist.py'
+    $sessionArgs = @($sessionDriver, '--vendor', 'gpt', '--shell', 'powershell',
+        '--powershell', [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) + $args
+    $sessionProcess = Start-Process -FilePath 'python3' -ArgumentList (ConvertTo-SddNativeArgumentString $sessionArgs) -NoNewWindow -PassThru -Wait
+    exit $sessionProcess.ExitCode
+}
+
 # Selected-control runs are owned by the shared Python driver (validation, typed errors).
 $selectedControlFlags = @("--model-controls", "--model-controls-sha256", "--run-id", "--session-id")
 if (@($args | Where-Object { $selectedControlFlags -ccontains $_ }).Count -gt 0) {

@@ -199,6 +199,27 @@ def check_result(result, data):
     require(entries == data['allowed_input_manifest'], 'reviewer input manifest mismatch')
 
 
+def selected_controls(args, root, role):
+    """Explicit session preferences never change the unmanaged review permission boundary."""
+    model = getattr(args, 'selected_model', None)
+    effort = getattr(args, 'selected_effort', None)
+    session = getattr(args, 'model_session', None)
+    if session:
+        helper = module('codex_session_preferences',
+                        Path(__file__).resolve().parents[2] / 'sdd-implementation/scripts/session-models.py')
+        selected = helper.selection(helper.Store(root, getattr(args, 'model_config_home', None)),
+                                    session, 'evaluator' if role == 'sdd-evaluator' else role)
+        require(selected['host'] == 'codex-cli', 'selected role requires another native CLI')
+        require(model in (None, selected['model']) and effort in (None, selected['effort']),
+                'explicit model controls conflict with confirmed session selection')
+        model, effort = selected['model'], selected['effort']
+    require(model is None or isinstance(model, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}', model),
+            'invalid selected model')
+    require(effort is None or effort in ('low', 'medium', 'high', 'xhigh'), 'invalid selected effort')
+    require(effort is None or model is not None, 'selected effort requires an explicit selected model')
+    return model, effort
+
+
 def launch(args):
     root = args.repository_root.resolve(strict=True)
     template = args.invocation.resolve(strict=True)
@@ -211,6 +232,7 @@ def launch(args):
             and data.get('read_only') is True, 'unsupported review boundary')
     require(not any(key.startswith('model_') for key in data),
             'managed model routing requires its admitted managed transport')
+    selected_model, selected_effort = selected_controls(args, root, data['role'])
     fixed = transport.fixed_input_binding(root, data, args.fixed_input_record, args.fixed_input_snapshot)
     launcher.checked_input_paths(root, data, fixed)
     hashes = transport.admitted_raw_hashes(root, data, fixed)
@@ -268,11 +290,22 @@ def launch(args):
             save('permission-probes.json', probe_permissions(rpc, scratch, outside))
             role = transport.plugin_file('plugins/sdd-quality-loop/agents/evaluator.md' if stage == 'quality' else
                                          'plugins/sdd-review-loop/agents/' + data['role'] + '.md')
-            allocation = rpc.request('thread/start', {
+            model_options = {'model': selected_model} if selected_model else {}
+            native_config = {'project_doc_max_bytes': 0}
+            if selected_effort:
+                native_config['model_reasoning_effort'] = selected_effort
+            allocation = rpc.request('thread/start', {**model_options,
                 'cwd': str(scratch), 'permissions': PROFILE, 'approvalPolicy': 'never',
                 'selectedCapabilityRoots': [],
                 'baseInstructions': 'Independent read-only review. Read only the invocation and its listed files. Return the role-required output. No changes, external tools, network, inherited history, or other reviewer reports. Runtime tools verified before launch: /bin/cat for reads and /usr/bin/python3 -I -B for standard-library JSON/SHA-256 verification. Use these absolute executable paths; bare command names may be unavailable in the isolated tool shell. Compute receipt and manifest hashes from admitted bytes; do not substitute a claimed hash for verification.',
-                'developerInstructions': role.read_text(), 'config': {'project_doc_max_bytes': 0}})
+                'developerInstructions': role.read_text(), 'config': native_config})
+            if selected_model:
+                require(allocation.get('model') == selected_model, 'native reviewer model differs from selected model')
+                if selected_effort:
+                    require(allocation.get('reasoningEffort') == selected_effort,
+                            'native reviewer effort differs from selected effort')
+                save('selected-model.json', {'model': selected_model, 'effort': selected_effort,
+                                            'proof': 'native-configured-only'})
             save('idle-allocation.json', allocation)
             thread = allocation['thread']
             identity = thread['id']
@@ -345,7 +378,8 @@ def launch(args):
                     'After that direct read, use the verified Python runtime for additional admitted-file/hash inspection as needed. '
                     'Do not claim to rerun tests that need writes, network, or undeclared dependencies; list tests not rerun. '
                     'Missing evidence means NEEDS_WORK, not PASS. The receipt is not product evidence.')
-            started = rpc.request('turn/start', {'threadId': identity, 'permissions': PROFILE,
+            turn_options = {**model_options, **({'effort': selected_effort} if selected_effort else {})}
+            started = rpc.request('turn/start', {**turn_options, 'threadId': identity, 'permissions': PROFILE,
                 'approvalPolicy': 'never', 'input': [{'type': 'text', 'text_elements': [], 'text':
                 'Read invocation.json and only its listed files. Verify your launch using this caller receipt and the manifest; do not read the ledger or reserve again.\n' + receipt + '\n' + output_instruction}]})
             turn_id = started['turn']['id']
@@ -403,6 +437,10 @@ def main():
     parser.add_argument('--fixed-input-record', type=Path)
     parser.add_argument('--fixed-input-snapshot', type=Path)
     parser.add_argument('--timeout', type=int, default=600)
+    parser.add_argument('--selected-model')
+    parser.add_argument('--selected-effort', choices=('low', 'medium', 'high', 'xhigh'))
+    parser.add_argument('--model-session', help='confirmed project-private selection session ID')
+    parser.add_argument('--model-config-home', type=Path)
     args = parser.parse_args()
     try:
         require(10 <= args.timeout <= 1800, 'timeout outside 10..1800 seconds')

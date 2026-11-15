@@ -9,6 +9,58 @@ disable-model-invocation: true
 Orchestrate approved tasks from implementation through quality verification to Done.
 This skill does not write specifications; use `/sdd-bootstrap:bootstrap` for that.
 
+## 新規対話セッションのモデル確認
+
+新規の対話セッションでは、最初のSDD作業・委任前に、同じインストール版の
+sdd-implementationの `skills/model-selection/SKILL.md` を読み、メインと役割別モデルを確認する。
+SessionStartで確認済みなら繰り返さない。フックが使えない場合もこの入口から確認する。
+非対話実行、resume、compact、既にバインド済みのワーカーは従来動作を維持する。
+モデルの選択は、以下の管理された起動境界や独立レビューの要件を解除しない。
+
+## Managed allocation boundary
+
+Affected policy roles: `implementer`.
+
+Apply this boundary only when the caller explicitly selects managed routing
+with a policy request or model controls, or this allocation continues that
+managed workflow. With no managed input, retain the legacy invocation and model
+hints below. Once managed is selected, do not switch that workflow to legacy
+because selection, validation or launch fails. No new environment toggle is
+required, and this boundary does not grant delegation or execution permission.
+
+For a managed allocation, apply in the allocating parent before an unbound
+forked Skill/Agent, native role, or fresh context receives work, and before any
+identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply in the Lite/Full implementation parent before the relevant single-task or batch allocation. Keep the bound Lite Claude dispatch and the downstream known-matching batch route. Later quality/cross-model handoffs retain their own boundaries and existing consent.
+
+
 ## Invocation
 
 Claude Code:
@@ -75,6 +127,11 @@ which source was acted on. Always act on the `## Step 1` conclusion in that
 case, never the probe's.
 
 ## Step 1 — Target Selection
+
+An explicitly requested investigation, performance study, isolated prototype or
+handoff may return to bootstrap's optional purpose playbook. A decision packet
+can display pinned evidence; recheck its digest and inputs on resume. The packet
+does not replace this skill's target, track or approval checks and never sets Done.
 
 ### With a path argument
 
@@ -222,6 +279,12 @@ this table.
 
 ### Risk-upgrade scan
 
+Keep the selected task block and requirements complete, including exclusions and
+approval notes. `check-risk-upgrade` owns the bounded non-requirement grammar in
+`sdd-lite/references/risk-upgrade-policy.md`; do not prefilter sections or reword
+risks to pass. Positive requirements override nominal exclusions during review.
+
+
 A resolved `full` track is the only scan bypass. For every route that could
 resolve to **LITE** — `NO_OP_LITE`, or any remaining default, profile, or
 `--lite` route of the compatibility fallback — build a local UTF-8 input by
@@ -279,6 +342,38 @@ to implement-tasks.
 Invoke `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN` for
 each Approved + Planned/In-Progress task in tasks.md order. Lite track has no
 dependency graph; implement tasks in document order.
+
+#### Managed Claude dispatch (opt-in)
+
+For explicitly selected managed routing on Claude Code, run the entry below from the parent orchestrator
+before invoking the implement-task Skill, which could otherwise start
+implementation in this context. For each Approved + Planned/In-Progress task in
+tasks.md order, write `<prompt-file>` under `<repository-root>` naming the exact
+`specs/<feature>/tasks.md#T-NNN` and that task's Scope, compute its raw SHA-256
+as `<prompt-sha256>`, use a fresh canonical UUID for `<session-id>` and a new
+output directory, and supply the current scoped policy request and registry, the
+explicit installed Claude executable and the existing verified configuration
+observation unchanged. The entry loads the complete original implement-task
+Skill and its seven fixed supporting sources into one fresh single-task context,
+which executes the Skill once as its orchestrator and status writer under
+normal native permissions. This parent only dispatches and receives: it does not
+implement the task or repeat the child's status, report or approval handling. A
+typed failure stops this handoff; do not retry through an unmanaged Skill or
+Agent call. On success continue the existing flow.
+
+```bash
+cd "<repository-root>" || exit 1
+python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
+  --request "<policy-request>" --registry "<registry>" \
+  --role implementer --host claude-code --run-id "<run-id>" \
+  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
+  --require-actual-id false --executable "<claude-executable>" \
+  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
+```
+
+When managed inputs are absent, use the legacy route above. A managed allocation
+on another host needs its own admitted binding or the refusal in the allocation
+boundary; an unsupported managed route cannot retry through legacy.
 
 ### Resume behaviour
 
@@ -358,9 +453,16 @@ For each task at `Implementation Complete`, in tasks.md document order:
    - `continue` (exit 0): fewer than three reports — proceed to invoke
      quality-gate for T-NNN.
    - `Escalate-Human` (non-zero exit): three or more reports and the task is
-     still not Done — do **not** invoke quality-gate again and do **not** prompt
-     for fix-by-review-ticket; stop and instruct the human to investigate
-     manually.
+     still not Done — stop autonomous retries and surface the remaining
+     findings for a human decision. Do not automatically invoke quality-gate
+     or fix-by-review-ticket again. If a human has explicitly authorized the
+     applicable correction and further review, follow **Resuming After A Human
+     Decision** in `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`:
+     record the authorizer, instruction source, feature/task, correction scope
+     and remaining findings, then obtain fresh independent review and all
+     required gate evidence. A general wish to finish is insufficient. Preserve
+     the limit's non-zero exit and all report history; this is a documented
+     human-authorized continuation, not a successful cycle-limit check.
 
    Because each quality-gate run writes a durable timestamped report under
    `reports/quality-gate/`, this limit is computed from disk and holds across
@@ -430,6 +532,7 @@ IDLE
    ├── task Done → continue loop
    ├── task Blocked → STOP (surface review tickets)
    └── ≥3 disk gate reports for task and not Done → STOP (Escalate-Human)
+       └── explicit applicable human decision → documented scoped continuation
 → COMPLETION_CHECK   (all targeted tasks Done?)
    └── yes → [--retro or all-Done] RETROSPECTIVE → DONE
 ```

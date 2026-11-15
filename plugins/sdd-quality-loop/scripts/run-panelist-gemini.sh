@@ -35,6 +35,13 @@
 
 # Shared collection-layer helpers (timeout/arg validation, bounded runner).
 _script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+# Explicit session preferences retain the original collection, consent and result validation.
+for _session_arg in "$@"; do
+    if [ "$_session_arg" = --model-session ]; then
+        exec python3 "$_script_dir/../../sdd-implementation/scripts/session-panelist.py" \
+            --vendor gemini --shell bash "$@"
+    fi
+done
 # Selected-control runs are owned by the shared Python driver (validation, typed errors).
 for _selected_arg in "$@"; do
     case "$_selected_arg" in
