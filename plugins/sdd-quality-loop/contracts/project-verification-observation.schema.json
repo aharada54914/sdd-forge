@@ -18,7 +18,8 @@
       "enum": [
         "project-verification-observation/v1",
         "project-verification-observation/v2",
-        "project-verification-observation/v3"
+        "project-verification-observation/v3",
+        "project-verification-observation/v4"
       ]
     },
     "mode": {
@@ -183,7 +184,10 @@
   "if": {
     "properties": {
       "schema": {
-        "const": "project-verification-observation/v3"
+        "enum": [
+          "project-verification-observation/v3",
+          "project-verification-observation/v4"
+        ]
       }
     }
   },

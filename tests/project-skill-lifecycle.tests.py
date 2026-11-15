@@ -407,6 +407,77 @@ class Lifecycle(unittest.TestCase):
         m = A.maintain(self.root, "verify-app", self.root / r["receipt"], 1)
         self.assertEqual(m["status"], "clean")
         self.assertEqual(len(m["results"]), 1)
+        self.assertFalse(r["feature_coverage"]["complete"])
+        self.assertEqual(r["feature_coverage"]["features"], [])
+
+    def map_features(self, mappings):
+        directory = self.skill / "features"
+        directory.mkdir(exist_ok=True)
+        (directory / "README.md").write_text("\n".join(f"[{name}]({name}.md)" for name in mappings), encoding="utf-8")
+        for name, check in mappings.items():
+            (directory / (name + ".md")).write_text("Check ID: " + check + "\n", encoding="utf-8")
+
+    def test_feature_coverage_partial_run_and_complete_maintenance(self):
+        if sys.platform != "linux":
+            self.skipTest("Linux process ownership")
+        self.map_features({"login": "login", "logout": "logout"})
+        (self.skill / "run.py").write_text('import os\nprint(os.environ["SDD_PROJECT_SKILL_CHECK_ID"])\n', encoding="utf-8")
+        A.seal(self.root, "verify-app", Path(sys.executable).name, "run.py", ["login", "logout"], [])
+        with patch.dict(os.environ, {"SDD_PROJECT_SKILL_CHECK_ID": "caller-cannot-select"}):
+            result = A.run(self.root, "verify-app", "login")
+            self.assertEqual((self.root / result["stdout"]["path"]).read_text().strip(), "login")
+        coverage = result["feature_coverage"]
+        self.assertFalse(coverage["complete"])
+        self.assertEqual([row["status"] for row in coverage["features"]], ["check-passed", "not-run"])
+        persisted = json.loads((self.root / result["receipt"]).read_text())
+        self.assertEqual(persisted["feature_coverage"], coverage)
+        maintained = A.maintain(self.root, "verify-app", self.root / result["receipt"], 2)
+        self.assertEqual(maintained["status"], "clean")
+        self.assertTrue(maintained["feature_coverage"]["complete"])
+        self.assertTrue(all((self.root / row["receipt"]).is_file() for row in maintained["feature_coverage"]["features"]))
+        cli = [sys.executable, str(Path(A.__file__)), "run", "--root", str(self.root), "--name", "verify-app", "--check", "logout"]
+        completed = subprocess.run(cli, text=True, capture_output=True, check=False)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        actual = json.loads(completed.stdout)
+        self.assertEqual([row["status"] for row in actual["feature_coverage"]["features"]], ["not-run", "check-passed"])
+        maintained_cli = subprocess.run([sys.executable, str(Path(A.__file__)), "maintain", "--root", str(self.root), "--name", "verify-app", "--baseline", str(self.root / actual["receipt"]), "--timeout", "2"], text=True, capture_output=True, check=False)
+        self.assertEqual(maintained_cli.returncode, 0, maintained_cli.stderr)
+        self.assertTrue(json.loads(maintained_cli.stdout)["feature_coverage"]["complete"])
+
+    def test_shared_success_does_not_prove_individual_features(self):
+        self.map_features({"login": "smoke", "logout": "smoke"})
+        self.seal('print("ok")')
+        result = self.run_skill()
+        self.assertEqual([row["status"] for row in result["feature_coverage"]["features"]], ["unassessed", "unassessed"])
+        maintained = A.maintain(self.root, "verify-app", self.root / result["receipt"], 2)
+        self.assertEqual((maintained["status"], maintained["classification"]), ("blocked", "harness-gap"))
+
+    def test_feature_coverage_failure_prerequisites_document_and_invalid_map(self):
+        self.map_features({"inspect": "smoke"})
+        manifest = {"checks": ["smoke"]}
+        def summarize(outcome, **extra):
+            return A.feature_coverage(self.root, "verify-app", manifest, [{"check_id": "smoke", "outcome": outcome, **extra}])
+        for outcome, status in [("unavailable", "unreachable"), ("not-run", "not-run"), ("failed", "check-failed")]:
+            coverage = summarize(outcome, reason="recorded-reason")
+            self.assertFalse(coverage["complete"])
+            self.assertEqual((coverage["features"][0]["status"], coverage["features"][0]["reason"]), (status, "recorded-reason"))
+        self.assertEqual(summarize("passed")["features"][0]["status"], "unassessed")
+        unknown = summarize("unexpected", cleanup=True, observation_written=True)
+        self.assertFalse(unknown["complete"])
+        self.assertEqual(unknown["features"][0]["status"], "unassessed")
+        (self.skill / "features/README.md").write_text("[Missing](missing.md)\n", encoding="utf-8")
+        coverage = summarize("passed", cleanup=True, observation_written=True)
+        self.assertFalse(coverage["complete"])
+        self.assertEqual(coverage["issues"]["dangling_index"], ["missing.md"])
+        self.assertEqual(coverage["features"][0]["status"], "unassessed")
+
+    def test_empty_feature_map_is_blocked(self):
+        self.map_features({})
+        self.seal('print("ok")')
+        result = self.run_skill()
+        maintained = A.maintain(self.root, "verify-app", self.root / result["receipt"], 2)
+        self.assertEqual(maintained["status"], "blocked")
+        self.assertTrue(maintained["feature_coverage"]["issues"]["empty_map"])
 
     def test_maintenance_source_drift(self):
         self.seal('from pathlib import Path\nprint(Path("input.txt").read_text())')

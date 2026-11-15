@@ -150,6 +150,18 @@ Target: {{target_count}}
 <!-- Describe how the next task cycle will confirm the improvement. -->
 <!-- Reference the specific metric rows from the retrospective template. -->
 
+### Regression connection
+
+| Recurring failure / incident evidence | Disposition | Registered regression suite | RED / GREEN evidence or judgment reason |
+|---|---|---|---|
+| {{incident_reference}} | {{existing-check/new-check/design-elimination/judgment}} | {{catalog_suite_or_none}} | {{evidence_or_reason}} |
+
+<!-- For repeated machine-checkable failures, link an existing regression or add -->
+<!-- a source-backed RED/GREEN check. Design elimination still needs a negative -->
+<!-- control. Judgment needs a concrete reason it cannot be checked automatically. -->
+<!-- New instructions alone do not demonstrate prevention. Keep approved/frozen -->
+<!-- WFIs unchanged; add evidence to Result and the existing retention checklist. -->
+
 ## Rollback-Plan
 
 {{rollback_plan}}
