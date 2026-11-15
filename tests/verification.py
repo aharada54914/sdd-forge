@@ -192,6 +192,12 @@ def retention_checks(path, catalog):
     """Resolve the existing Markdown checklist to catalog-owned commands only."""
     entries, columns, seen = [], None, set()
     for line in path.read_text(encoding='utf-8').splitlines():
+        stripped = line.lstrip()
+        indentation = len(line) - len(stripped)
+        if stripped.startswith('|'):
+            if indentation > 3 or line[:indentation] != ' ' * indentation:
+                raise ValueError('unsupported retention indentation')
+            line = stripped
         if not line.startswith('|'):
             columns = None
             continue
@@ -199,7 +205,11 @@ def retention_checks(path, catalog):
         if cells[0] == 'Source WFI':
             columns = cells
             continue
-        if columns is None or all(re.fullmatch(r':?-+:?', cell) for cell in cells):
+        if columns is None:
+            if re.fullmatch(r'WFI-[0-9]{3,}', cells[0]):
+                raise ValueError('retention row without header')
+            continue
+        if all(re.fullmatch(r':?-+:?', cell) for cell in cells):
             continue
         if len(cells) != len(columns) or len(set(columns)) != len(columns):
             raise ValueError('invalid retention table')

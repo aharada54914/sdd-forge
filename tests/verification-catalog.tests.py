@@ -189,6 +189,25 @@ class CatalogTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertFalse((ROOT / 'marker').exists())
 
+    def test_retention_indentation_cannot_hide_pending_or_failed_rows(self):
+        header = '| Source WFI | Regression Suites | Judgment Reason |\n|---|---|---|\n'
+        linked = '| WFI-001 | tests/a.tests.py | |\n'
+        pending = '| WFI-002 | | requires context |\n'
+        for spaces in range(4):
+            prefix = ' ' * spaces
+            with self.subTest(spaces=spaces):
+                for text in (header + linked + prefix + pending,
+                             '\n'.join(prefix + line for line in (header + linked + pending).splitlines()) + '\n'):
+                    entries = self.retention(text)
+                    result = V.retention_result(entries, [{'suite': self.paths[0], 'status': 'passed'}])
+                    self.assertFalse(result['complete'])
+                    self.assertEqual([row['status'] for row in result['entries']], ['passed', 'judgment-required'])
+        for prefix in ('    ', '\t', ' \t', '\u00a0'):
+            with self.subTest(prefix=repr(prefix)), self.assertRaises(ValueError):
+                self.retention(header + linked + prefix + pending)
+        with self.assertRaises(ValueError):
+            self.retention(header + linked + '\n' + pending)
+
     def test_malformed_runtime_arguments_rejected(self):
         self.catalog['suites'][0]['args'] = '--not-an-array'
         with self.assertRaises(ValueError):
