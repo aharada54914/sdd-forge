@@ -44,7 +44,7 @@ def plugin_file(relative):
     """Resolve trusted assets beside this release, never from the reviewed project."""
     parts = pathlib.PurePosixPath(relative).parts
     if len(parts) < 3 or parts[0] != 'plugins' or parts[1] not in (
-            'sdd-review-loop', 'sdd-quality-loop') or '..' in parts:
+            'sdd-review-loop', 'sdd-quality-loop', 'sdd-implementation') or '..' in parts:
         raise ValueError('unsupported review runtime asset')
     owner = pathlib.Path(__file__).resolve().parent.parent
     base = (owner.parent / parts[1] if owner.name == 'sdd-review-loop' else

@@ -26,7 +26,12 @@ def command(selected, vendor, shell, arguments, powershell="pwsh"):
             del rest[positions[0]:positions[0] + 2]
     if vendor == 'gemini' and selected['effort'] is not None:
         raise models.SelectionError('Gemini panelistに対応する推論設定の起動引数がありません。')
-    path = HERE.parents[1] / 'sdd-quality-loop/scripts' / ('run-panelist-' + vendor + ('.sh' if shell == 'bash' else '.ps1'))
+    owner = HERE.parent
+    quality = (owner.parent / 'sdd-quality-loop' if owner.name == 'sdd-implementation' else
+               owner.parent.parent / 'sdd-quality-loop' / owner.name)
+    path = quality / 'scripts' / ('run-panelist-' + vendor + ('.sh' if shell == 'bash' else '.ps1'))
+    if not path.is_file() or path.is_symlink():
+        raise models.SelectionError('同じリリースのpanelist収集スクリプトが見つかりません。')
     argv = ['bash', str(path)] if shell == 'bash' else [powershell, '-NoProfile', '-File', str(path)]
     argv += rest + ['--model', selected['model']]
     if selected['effort'] is not None:

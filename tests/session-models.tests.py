@@ -301,6 +301,41 @@ class Sessions(unittest.TestCase):
                 m.policy_request(self.store, 'one', 'investigator', {**request, 'cli': {'model_id': 'different', 'policy': 'pinned'}})
 
 
+class VersionedPanelists(unittest.TestCase):
+    def test_wrappers_and_return_path_use_matching_plugin_version(self):
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder); project = base / 'project'; project.mkdir()
+            cache = base / 'cache/sdd-plugins'
+            impl = cache / 'sdd-implementation/1.23.1/scripts'
+            quality = cache / 'sdd-quality-loop/1.23.1/scripts'
+            impl.mkdir(parents=True); (quality / 'lib').mkdir(parents=True)
+            for name in ('session-models.py', 'session-panelist.py'):
+                shutil.copyfile(SCRIPTS / name, impl / name)
+            shutil.copyfile(ROOT / 'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1', quality / 'lib/native-arguments.ps1')
+            pwsh = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
+            runtimes = [('bash', ['bash'])]
+            if pwsh:
+                runtimes.append(('powershell', [pwsh, '-NoProfile', '-File']))
+            for vendor in ('gpt', 'gemini'):
+                for shell, prefix in runtimes:
+                    suffix = '.sh' if shell == 'bash' else '.ps1'
+                    target = quality / ('run-panelist-' + vendor + suffix)
+                    shutil.copyfile(ROOT / 'plugins/sdd-quality-loop/scripts' / target.name, target)
+                    result = subprocess.run(prefix + [str(target), '--model-session', 'absent',
+                        '--model-config-home', str(base / 'private')], cwd=project,
+                        capture_output=True, text=True, timeout=15)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn('SESSION_MODEL_SELECTION_REQUIRED', result.stderr)
+                    self.assertIn('設定ファイル', result.stderr)
+                    host = 'codex-cli' if vendor == 'gpt' else 'gemini-cli'
+                    with patch.object(panelist, 'HERE', impl):
+                        args = panelist.command({'host': host, 'model': 'fixture', 'effort': None}, vendor, shell, [])
+                        self.assertIn(str(target), args)
+                    target.unlink()
+                    with patch.object(panelist, 'HERE', impl), self.assertRaises(panelist.models.SelectionError):
+                        panelist.command({'host': host, 'model': 'fixture', 'effort': None}, vendor, shell, [])
+
+
 class Startup(unittest.TestCase):
     def test_new_session_injects_selection_context(self):
         value = hook.context('codex-cli', {'source': 'startup', 'session_id': 'native-id'})

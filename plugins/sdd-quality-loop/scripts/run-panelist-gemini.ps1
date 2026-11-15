@@ -30,7 +30,17 @@ $ErrorActionPreference = "Stop"
 
 # Session selection delegates back to this unchanged collection path after binding.
 if ($args -ccontains '--model-session') {
-    $sessionDriver = Join-Path $PSScriptRoot '../../sdd-implementation/scripts/session-panelist.py'
+    $sessionOwner = Split-Path $PSScriptRoot -Parent
+    $sessionVersion = Split-Path $sessionOwner -Leaf
+    $sessionDriver = Join-Path $sessionOwner '../sdd-implementation/scripts/session-panelist.py'
+    if ($sessionVersion -cne 'sdd-quality-loop') {
+        $sessionDriver = Join-Path $sessionOwner "../../sdd-implementation/$sessionVersion/scripts/session-panelist.py"
+    }
+    if (-not (Test-Path -LiteralPath $sessionDriver -PathType Leaf) -or
+        ((Get-Item -LiteralPath $sessionDriver).Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        [Console]::Error.WriteLine('SESSION_MODEL_SELECTION_REQUIRED: matching plugin release is unavailable')
+        exit 2
+    }
     $sessionArgs = @($sessionDriver, '--vendor', 'gemini', '--shell', 'powershell',
         '--powershell', [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) + $args
     $sessionProcess = Start-Process -FilePath 'python3' -ArgumentList (ConvertTo-SddNativeArgumentString $sessionArgs) -NoNewWindow -PassThru -Wait

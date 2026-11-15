@@ -82,3 +82,10 @@ Geminiの現行ACP ModelInfoにはモデル別推論強度がなく、権限モ�
 設計・実装根拠は [ADR 0050](../../docs/adr/0050-session-model-preferences.md)、
 集計は [model-discovery-adapters-results.json](../verification/model-discovery-adapters-results.json)。
 実機の私有証拠は `verification-workspace/native-session-models/auth-resume/` に保持する。
+
+## PR #780 のインストール配置回帰
+
+バージョン付きプラグインキャッシュでも、レビュー起動とpanelistの往復が同じリリースの
+session-models/session-panelistを解決するよう修正した。別バージョンへのフォールバックは行わない。
+追加回帰を含むモデル設定43件、Codexレビュー起動22件（1件skip）が成功。
+モデル設定の回帰はBashとPowerShellの両方でバージョン付き配置を実行した。

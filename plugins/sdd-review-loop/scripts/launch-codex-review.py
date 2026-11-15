@@ -206,7 +206,7 @@ def selected_controls(args, root, role):
     session = getattr(args, 'model_session', None)
     if session:
         helper = module('codex_session_preferences',
-                        Path(__file__).resolve().parents[2] / 'sdd-implementation/scripts/session-models.py')
+                        transport.plugin_file('plugins/sdd-implementation/scripts/session-models.py'))
         selected = helper.selection(helper.Store(root, getattr(args, 'model_config_home', None)),
                                     session, 'evaluator' if role == 'sdd-evaluator' else role)
         require(selected['host'] == 'codex-cli', 'selected role requires another native CLI')
