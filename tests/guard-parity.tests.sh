@@ -725,6 +725,19 @@ cloud_guard_check() {
 if ! command -v pwsh >/dev/null 2>&1; then
     echo 'SKIP: cloud PowerShell guard controls require pwsh'
 fi
+# Dashboard skill entry points are executable chain inputs, not writable output.
+for dashboard_path in \
+    plugins/sdd-ship/scripts/dashboard-runtime.py \
+    plugins/sdd-ship/scripts/publish-dashboard.py; do
+    cloud_guard_check "dashboard write $dashboard_path" 2 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$dashboard_path\",\"content\":\"replacement\"}}"
+    cloud_guard_check "dashboard redirect $dashboard_path" 2 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"printf replacement > $dashboard_path\"}}"
+    cloud_guard_check "dashboard read $dashboard_path" 0 \
+        "{\"tool_name\":\"read\",\"tool_input\":{\"file_path\":\"$dashboard_path\"}}"
+    cloud_guard_check "dashboard execution $dashboard_path" 0 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"python3 $dashboard_path --help\"}}"
+done
 for cloud_path in \
     plugins/sdd-azure-cloud/scripts/cloud.py \
     plugins/sdd-aws-cloud/scripts/cloud.py \

@@ -13,10 +13,12 @@ Use Bash only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
-The caller gives you a fresh nonblank run ID and a nonblank
-`host_session_id`, both unused by every other implementation, review, or evaluation
-context, and a persisted allowed-input manifest. These two fields may contain
-the same actual native context ID within this invocation. Every manifest entry
+The caller gives you a fresh nonblank run ID and a nonblank `host_session_id`.
+Each value must be unused by every other implementation, review, or evaluation
+context. The caller also supplies a persisted allowed-input manifest. These two
+ID fields may contain the same actual native context ID within this invocation.
+Never invent a second ID merely to make the two fields unequal.
+Every manifest entry
 contains one canonical repository-relative path and its lowercase SHA-256.
 Reject the invocation before reading substantive inputs when the manifest is missing,
 contains an unlisted path, has a hash mismatch, relies on chat-only input, or

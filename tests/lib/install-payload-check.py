@@ -53,6 +53,15 @@ CLOSURE = [
     "contracts/agent-model-capabilities.v2.json",
     "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
     "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "plugins/sdd-ship/skills/status/SKILL.md",
+    "plugins/sdd-ship/scripts/publish-dashboard.py",
+    "plugins/sdd-ship/scripts/dashboard-runtime.py",
+    "plugins/sdd-ship/status-site/observations.js",
+    "plugins/sdd-ship/status-site/build.mjs",
+    "plugins/sdd-ship/status-site/worker.mjs",
+    "plugins/sdd-ship/status-site/service/sdd-dashboard.service",
+    "contracts/sdd-dashboard.v1.schema.json",
+    "docs/hosted-status-views.md",
     "plugins/sdd-quality-loop/scripts/sdd_schema.py",
     "plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py",
     "plugins/sdd-quality-loop/scripts/_schema_vendor/manifest.json",
@@ -234,7 +243,7 @@ class Fixture:
         listing = git(repo, "ls-files", "-z", "--cached", "--others", "--exclude-standard").stdout.split("\0")
         for rel in sorted({r for r in listing if r}):
             src = repo / rel
-            if ("/" not in rel or rel.startswith(RUNTIME_DIRS)) and clean(rel) \
+            if ("/" not in rel or rel.startswith(RUNTIME_DIRS) or rel in CLOSURE) and clean(rel) \
                     and src.is_file() and not src.is_symlink():
                 (self.path / rel).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, self.path / rel)

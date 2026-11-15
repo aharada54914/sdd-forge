@@ -87,6 +87,9 @@ def validate(document, tracked_paths, phase="phase1"):
     cloud_rules = [entry for entry in shared if entry["pattern"] == "templates/cloud/**"]
     if cloud_rules != ([cloud_shared] if restored_cloud else []):
         errors.append("restored cloud templates must retain exact bounded provider ownership")
+    dashboard_rules = [entry for entry in shared if entry["pattern"] == "dashboard-labels.json"]
+    if (dashboard_rules or "dashboard-labels.json" in tracked_paths) and dashboard_rules != [{"pattern": "dashboard-labels.json", "components": ["mcp"]}]:
+        errors.append("dashboard labels must retain exact MCP ownership")
     for entry in shared:
         if "*" in entry["pattern"] and entry["pattern"] not in growing and not (restored_cloud and entry == cloud_shared):
             errors.append("unapproved broad shared rule: " + entry["pattern"])
@@ -248,7 +251,7 @@ def release_commits(cycle):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml")
+    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml")
     parser.add_argument("--phase", choices=("phase1", "phase2"), default="phase1")
     for name in ("baseline", "registry", "resolver-evidence", "manifest", "release-evidence"):
         parser.add_argument("--" + name, type=Path)

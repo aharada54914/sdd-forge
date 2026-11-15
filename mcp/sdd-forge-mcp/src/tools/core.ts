@@ -20,7 +20,7 @@ import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { listQualityReports, type QualityReportEntry } from "../parsers/quality-report.js";
 import { listReviewTickets, type ReviewTicketEntry } from "../parsers/review-ticket.js";
 import { extractHeaderValue } from "../parsers/spec-header.js";
-import { createReportLookup } from "../parsers/report-lookup.js";
+import { createReportLookup, type ReportLookup } from "../parsers/report-lookup.js";
 import { parseTaskState } from "../parsers/tasks.js";
 import type { TaskEntry, TaskStateData } from "../parsers/task-types.js";
 import { guardedRead } from "../path-guard.js";
@@ -162,12 +162,12 @@ export function getSpecStatus(root: SddRoot, feature: string): Result<SpecStatus
 // --- get_task_state ------------------------------------------------------
 
 /** `get_task_state`: shell-equivalent tasks.md state-machine verdict (T-002's parser, unchanged). */
-export function getTaskState(root: SddRoot, feature: string): Result<TaskStateData> {
+export function getTaskState(root: SddRoot, feature: string, reports?: ReportLookup): Result<TaskStateData> {
   const featureResult = validateFeature(feature);
   if (!featureResult.ok) {
     return featureResult;
   }
-  return parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+  return parseTaskState(root, feature, `specs/${feature}/tasks.md`, undefined, undefined, reports);
 }
 
 // --- list_approved_tasks / list_blocked_tasks ----------------------------
@@ -259,12 +259,12 @@ export type { NextCommandData } from "../next-command.js";
  * state -> next-command mapping to `next-command.ts` (design.md
  * "Architecture" / "API / Contract Plan", REQ-011).
  */
-export function getNextSddCommand(root: SddRoot, feature?: string): Result<NextCommandData> {
+export function getNextSddCommand(root: SddRoot, feature?: string, reports?: ReportLookup): Result<NextCommandData> {
   if (feature !== undefined) {
     const featureResult = validateFeature(feature);
     if (!featureResult.ok) {
       return featureResult;
     }
   }
-  return computeNextSddCommand(root, feature);
+  return computeNextSddCommand(root, feature, reports);
 }
