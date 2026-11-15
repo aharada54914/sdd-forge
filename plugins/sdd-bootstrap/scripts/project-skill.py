@@ -212,7 +212,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
     admitted_modes = V.executable_modes(root, admitted)
     document_only = manifest.get("method") == "document"
     runtime_binding = (
-        {"runtime_path": None} if document_only else V.runtime_environment(manifest)
+        {"runtime_path": None} if document_only else V.runtime_environment(manifest, check)
     )
     runtime = runtime_binding["runtime_path"]
     missing = ([] if runtime else ["runtime"]) + [
@@ -221,7 +221,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
     if document_only:
         missing = []
     observation = {
-        "schema": "project-verification-observation/v3",
+        "schema": "project-verification-observation/v4",
         "mode": "task" if task else "trial",
         "skill": name,
         "check_id": check,
@@ -298,7 +298,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             if task:
                 V.source_records(execution, manifest, task, observation, skill_closure)
             if not missing and not document_only:
-                if V.runtime_environment(manifest) != runtime_binding:
+                if V.runtime_environment(manifest, check) != runtime_binding:
                     raise ValueError("runtime-changed")
                 started = datetime.datetime.now(datetime.timezone.utc).strftime(
                     "%Y-%m-%dT%H:%M:%SZ"
@@ -312,10 +312,10 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                     execution,
                     timeout,
                     output_limit,
-                    env=V.execution_environment(),
+                    env=V.execution_environment(check),
                 )
                 result["reason"] = reason
-                if V.runtime_environment(manifest) != runtime_binding:
+                if V.runtime_environment(manifest, check) != runtime_binding:
                     raise ValueError("runtime-changed")
                 if code is not None:
                     observation.update(
@@ -402,11 +402,71 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
         V.validate(root, name, destination, task_path)
     result["exit_code"] = observation.get("exit_code")
     result["observation_written"] = failure is None
+    result["receipt"] = log_stem.with_suffix(".receipt.json").relative_to(root).as_posix()
+    result["feature_coverage"] = feature_coverage(root, name, manifest, [result])
     save(log_stem.with_suffix(".receipt.json"), result, exclusive=True)
-    result["receipt"] = (
-        log_stem.with_suffix(".receipt.json").relative_to(root).as_posix()
-    )
     return result
+
+
+def feature_coverage(root, name, manifest, results):
+    """Summarize mapped checks, never infer individual paths from a shared check."""
+    directory = root / "sdd/skills" / name / "features"
+    coverage = {"scope": "declared-checks-only", "complete": False, "features": [], "issues": {}}
+    if not directory.exists():
+        return coverage
+    files = sorted(p.name for p in directory.glob("*.md") if p.name != "README.md")
+    index = directory / "README.md"
+    indexed = set(re.findall(r"\]\(([^)]+\.md)\)", index.read_text(encoding="utf-8"))) if index.is_file() else set()
+    mappings = {}
+    unmapped = []
+    for filename in files:
+        matches = re.findall(
+            r"^Check ID:[ \t]*([a-z0-9][a-z0-9-]*)[ \t]*$",
+            (directory / filename).read_text(encoding="utf-8"), re.M,
+        )
+        if len(matches) != 1 or matches[0] not in manifest["checks"]:
+            unmapped.append(filename)
+        else:
+            mappings[filename] = matches[0]
+    missing = [filename for filename in files if filename not in indexed]
+    dangling = sorted(indexed - set(files))
+    if not files or missing or dangling or unmapped:
+        coverage["issues"] = {
+            "missing_index": missing, "dangling_index": dangling, "unmapped_features": unmapped,
+            "empty_map": not files,
+        }
+    by_check = {result["check_id"]: result for result in results}
+    for filename in files:
+        check = mappings.get(filename)
+        result = by_check.get(check)
+        status, reason = "not-run", "check-not-executed"
+        if filename in unmapped or filename in missing:
+            status, reason = "unassessed", "invalid-feature-map"
+        elif result:
+            outcome = result["outcome"]
+            if outcome == "unavailable":
+                status, reason = "unreachable", result.get("reason") or "prerequisite-unavailable"
+            elif outcome == "not-run":
+                status, reason = "not-run", result.get("reason") or "entry-not-executed"
+            elif outcome == "failed":
+                status, reason = "check-failed", result.get("reason") or "check-failed"
+            elif outcome != "passed":
+                status, reason = "unassessed", "unknown-check-outcome"
+            elif not result.get("cleanup") or not result.get("observation_written"):
+                status, reason = "unassessed", "execution-evidence-incomplete"
+            elif list(mappings.values()).count(check) > 1:
+                status, reason = "unassessed", "shared-check-does-not-prove-each-feature"
+            else:
+                status, reason = "check-passed", "declared-check-passed"
+        coverage["features"].append({
+            "feature": filename, "check_id": check, "status": status, "reason": reason,
+            "receipt": result.get("receipt") if result else None,
+            "observation": result.get("observation") if result else None,
+        })
+    coverage["complete"] = bool(files) and not coverage["issues"] and all(
+        row["status"] == "check-passed" for row in coverage["features"]
+    )
+    return coverage
 
 
 def maintain(root, name, baseline, timeout):
@@ -424,42 +484,17 @@ def maintain(root, name, baseline, timeout):
         V.relative(path, "baseline-input-invalid")
         if not isinstance(sha, str) or not re.fullmatch("[0-9a-f]{64}", sha):
             raise ValueError("baseline-input-invalid")
-    feature_dir = root / "sdd/skills" / name / "features"
-    feature_files, feature_checks = [], {}
-    if feature_dir.exists():
-        feature_files = sorted(
-            p.name for p in feature_dir.glob("*.md") if p.name != "README.md"
-        )
-        index = feature_dir / "README.md"
-        indexed = (
-            set(re.findall(r"\]\(([^)]+\.md)\)", index.read_text(encoding="utf-8")))
-            if index.is_file()
-            else set()
-        )
-        missing = [path for path in feature_files if path not in indexed]
-        dangling = sorted(indexed - set(feature_files))
-        unmapped = []
-        for path in feature_files:
-            matches = re.findall(
-                r"^Check ID:[ \t]*([a-z0-9][a-z0-9-]*)[ \t]*$",
-                (feature_dir / path).read_text(encoding="utf-8"),
-                re.M,
-            )
-            if len(matches) != 1 or matches[0] not in manifest["checks"]:
-                unmapped.append(path)
-            else:
-                feature_checks[path] = matches[0]
-        if missing or dangling or unmapped:
-            return {
-                "status": "blocked",
-                "classification": "harness-gap",
-                "missing_index": missing,
-                "dangling_index": dangling,
-                "unmapped_features": unmapped,
-                "results": [],
-                "unexecuted": feature_files,
-                "unexecuted_checks": list(manifest["checks"]),
-            }
+    coverage = feature_coverage(root, name, manifest, [])
+    if coverage["issues"]:
+        return {
+            "status": "blocked",
+            "classification": "harness-gap",
+            **coverage["issues"],
+            "feature_coverage": coverage,
+            "results": [],
+            "unexecuted": [row["feature"] for row in coverage["features"]],
+            "unexecuted_checks": list(manifest["checks"]),
+        }
     results = [
         run(
             root,
@@ -472,8 +507,11 @@ def maintain(root, name, baseline, timeout):
         )
         for check in manifest["checks"]
     ]
+    coverage = feature_coverage(root, name, manifest, results)
     changed = any(result["inputs"] != old["inputs"] for result in results)
-    blocked = any(result["outcome"] != "passed" for result in results)
+    blocked = any(result["outcome"] != "passed" for result in results) or bool(
+        coverage["features"] and not coverage["complete"]
+    )
     unexecuted_checks = [
         result["check_id"]
         for result in results
@@ -485,14 +523,18 @@ def maintain(root, name, baseline, timeout):
         if any(r["reason"] == "procedure-not-executable" for r in results)
         else "environment-unavailable"
         if any(r["outcome"] in ("unavailable", "not-run") for r in results)
+        else "harness-gap"
+        if any(row["status"] == "unassessed" for row in coverage["features"])
         else "product-regression-or-harness-gap"
         if blocked
         else "source-drift"
         if changed
         else "none",
         "results": results,
+        "feature_coverage": coverage,
         "unexecuted": [
-            path for path in feature_files if feature_checks[path] in unexecuted_checks
+            row["feature"] for row in coverage["features"]
+            if row["status"] in ("not-run", "unreachable")
         ],
         "unexecuted_checks": unexecuted_checks,
     }

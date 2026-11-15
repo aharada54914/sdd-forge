@@ -109,6 +109,86 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text()), {'results': []})
         self.assertEqual(list(self.root.glob('receipt.json.*')), [])
 
+    def test_python_runtime_prefers_dispatcher_name_without_changing_fallback(self):
+        alias = self.root / 'python3'
+        sibling = self.root / 'python'
+        try:
+            alias.symlink_to(sys.executable)
+            sibling.symlink_to(sys.executable)
+        except OSError:
+            self.skipTest('interpreter symlink unavailable')
+        with patch.object(V.shutil, 'which', return_value=str(alias)), patch.object(V.sys, 'executable', str(sibling)):
+            self.assertEqual(V.runtime_command('python'), [str(alias), '-B'])
+        with patch.object(V.shutil, 'which', return_value=str(alias)):
+            self.assertEqual(V.runtime_command('python'), [sys.executable, '-B'])
+        with patch.object(V.shutil, 'which', return_value=None):
+            self.assertEqual(V.runtime_command('python'), [sys.executable, '-B'])
+        sibling.unlink()
+        sibling.write_bytes(b'different runtime')
+        with patch.object(V.shutil, 'which', return_value=str(alias)), patch.object(V.sys, 'executable', str(sibling)):
+            self.assertEqual(V.runtime_command('python'), [str(sibling), '-B'])
+
+    def retention(self, text):
+        path = self.root / 'retention.md'
+        path.write_text(text, encoding='utf-8')
+        return V.retention_checks(path, self.load())
+
+    def test_retention_runs_registered_regression_and_reports_real_failure(self):
+        entries = self.retention('| Source WFI | Regression Suites | Judgment Reason |\n|---|---|---|\n| WFI-001 | tests/a.tests.py tests/b.tests.py | |\n')
+        (self.root / self.paths[0]).write_text('raise SystemExit(7)\n')
+        receipt, code = V.execute(self.load(), entries[0]['suites'], self.root)
+        self.assertEqual(code, 1)
+        result = V.retention_result(entries, receipt['results'])
+        self.assertFalse(result['complete'])
+        self.assertEqual(result['entries'][0]['status'], 'failed')
+        (self.root / self.paths[0]).write_text('print("fixed")\n')
+        receipt, code = V.execute(self.load(), entries[0]['suites'], self.root)
+        self.assertEqual(code, 0)
+        self.assertTrue(V.retention_result(entries, receipt['results'])['complete'])
+
+    def test_retention_judgment_legacy_and_skipped_are_not_success(self):
+        entries = self.retention('| Source WFI | Regression Suites | Judgment Reason |\n|---|---|---|\n| WFI-001 | tests/a.tests.py | |\n| WFI-002 | | requires context |\n| WFI-003 | | |\n')
+        result = V.retention_result(entries, [{'suite': self.paths[0], 'status': 'skipped'}])
+        self.assertEqual([row['status'] for row in result['entries']], ['not-run', 'judgment-required', 'unlinked'])
+        self.assertFalse(result['complete'])
+        legacy = self.retention('| Source WFI | Condition |\n|---|---|\n| WFI-004 | older format |\n')
+        self.assertEqual(legacy[0]['status'], 'unlinked')
+
+    def test_retention_rejects_injection_duplicates_unknown_and_malformed_rows(self):
+        header = '| Source WFI | Regression Suites | Judgment Reason |\n|---|---|---|\n'
+        for body in (
+            '| WFI-001 | tests/missing.tests.py | |\n',
+            '| WFI-001 | $(touch marker) | |\n',
+            '| WFI-001 | ../outside | |\n',
+            '| WFI-001 | tests/a.tests.py | conflicting reason |\n',
+            '| WFI-001 | tests/a.tests.py tests/a.tests.py | |\n',
+            '| WFI-001 | | |\n| WFI-001 | | |\n',
+            '| WFI-001 | |\n',
+            '',
+        ):
+            with self.subTest(body=body), self.assertRaises(ValueError):
+                self.retention(header + body)
+
+    def test_retention_cli_exit_codes_and_pinned_receipt(self):
+        path = self.root / 'retention-cli.md'
+        receipt = self.root / 'retention-receipt.json'
+        header = '| Source WFI | Regression Suites | Judgment Reason |\n|---|---|---|\n'
+        command = [sys.executable, str(ROOT / 'tests/verification.py'), '--retention', '--checklist', str(path), '--run', '--receipt', str(receipt)]
+        linked = header + '| WFI-001 | tests/verification-impact.tests.py | |\n'
+        for body, code in [(linked, 0), (linked + '| WFI-002 | | needs report review |\n', 1)]:
+            path.write_text(body, encoding='utf-8')
+            result = subprocess.run(command, text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, code, result.stderr)
+            actual = json.loads(receipt.read_text())
+            self.assertEqual(actual['selected'], ['tests/verification-impact.tests.py'])
+            self.assertEqual(actual['retention']['complete'], code == 0)
+            self.assertEqual(actual['retention']['checklist_sha256'], V.hashlib.sha256(path.read_bytes()).hexdigest())
+        for extra in (['--shard-count', '2'], []):
+            path.write_text(header + '| WFI-001 | $(touch marker) | |\n', encoding='utf-8')
+            result = subprocess.run(command + extra, text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 2)
+            self.assertFalse((ROOT / 'marker').exists())
+
     def test_malformed_runtime_arguments_rejected(self):
         self.catalog['suites'][0]['args'] = '--not-an-array'
         with self.assertRaises(ValueError):

@@ -38,13 +38,16 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def execution_environment():
+def execution_environment(check=None):
     # These are shell bookkeeping, not caller inputs; also remove them at execution.
-    return {key: value for key, value in os.environ.items()
-            if key not in ("_", "SHLVL", "PWD", "OLDPWD")}
+    environment = {key: value for key, value in os.environ.items()
+                   if key not in ("_", "SHLVL", "PWD", "OLDPWD")}
+    if check is not None:
+        environment["SDD_PROJECT_SKILL_CHECK_ID"] = check
+    return environment
 
 
-def runtime_environment(manifest):
+def runtime_environment(manifest, check=None):
     """Fingerprint declared executables and inherited variables without executing tools."""
     tools = []
     declared = [(name, shutil.which(name)) for name in [manifest["runtime"], *manifest["requires"]]]
@@ -82,7 +85,7 @@ def runtime_environment(manifest):
                 fail("runtime-changed")
         tools.append(item)
     return {"runtime_path": tools[0]["path"], "toolchain": tools,
-            "variables_sha256": digest(json.dumps(execution_environment(), sort_keys=True).encode())}
+            "variables_sha256": digest(json.dumps(execution_environment(check), sort_keys=True).encode())}
 
 
 def _pairs(pairs):
@@ -374,7 +377,7 @@ def _validate(root, skill, observation_path=None, task_input_path=None):
     records = source_records(root, manifest, task, obs, closure)
     if tree_digest(records) != obs["source"]["tree_sha256"]:
         fail("source-mismatch")
-    if obs["schema"] == "project-verification-observation/v3":
+    if obs["schema"] in ("project-verification-observation/v3", "project-verification-observation/v4"):
         if obs["source"].get("executable_modes_sha256") != tree_digest(executable_modes(root, records)):
             fail("source-mismatch")
     if ran:
@@ -383,7 +386,7 @@ def _validate(root, skill, observation_path=None, task_input_path=None):
             return manifest, obs, "legacy-runtime-unbound"
         if obs["schema"] == "project-verification-observation/v2":
             return manifest, obs, "legacy-source-modes-unbound"
-        current = runtime_environment(manifest)
+        current = runtime_environment(manifest, obs["check_id"] if obs["schema"] == "project-verification-observation/v4" else None)
         if any(env.get(key) != value for key, value in current.items()):
             fail("runtime-changed")
     return manifest, obs, ("trial-" if obs["mode"] == "trial" else "") + obs["outcome"]

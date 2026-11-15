@@ -117,7 +117,11 @@ def shard_suites(paths, count, weights):
 def runtime_command(runtime, powershell=None, host_args=None):
     host_args = host_args or []
     if runtime == 'python':
-        return [sys.executable, '-B'] + host_args
+        candidate = shutil.which('python3')
+        current = Path(sys.executable)
+        # Preserve explicit virtualenvs and different runtimes; normalize sibling aliases only.
+        executable = candidate if candidate and Path(candidate).parent == current.parent and Path(candidate).resolve() == current.resolve() else sys.executable
+        return [executable, '-B'] + host_args
     if runtime == 'powershell':
         executable = shutil.which(powershell or 'pwsh')
         return [executable, '-NoProfile'] + host_args + ['-File'] if executable else None
@@ -184,11 +188,56 @@ def write_receipt(path, receipt):
             temporary.unlink(missing_ok=True)
 
 
+def retention_checks(path, catalog):
+    """Resolve the existing Markdown checklist to catalog-owned commands only."""
+    entries, columns, seen = [], None, set()
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if not line.startswith('|'):
+            columns = None
+            continue
+        cells = [cell.strip() for cell in line.strip().strip('|').split('|')]
+        if cells[0] == 'Source WFI':
+            columns = cells
+            continue
+        if columns is None or all(re.fullmatch(r':?-+:?', cell) for cell in cells):
+            continue
+        if len(cells) != len(columns) or len(set(columns)) != len(columns):
+            raise ValueError('invalid retention table')
+        row = dict(zip(columns, cells))
+        identity = row['Source WFI']
+        if not re.fullmatch(r'WFI-[0-9]{3,}', identity) or identity in seen:
+            raise ValueError('invalid or duplicate retention identity')
+        seen.add(identity)
+        suites = row.get('Regression Suites', '').split()
+        judgment = row.get('Judgment Reason', '')
+        if len(suites) != len(set(suites)) or any(suite not in catalog['_suites'] for suite in suites):
+            raise ValueError('unregistered retention suite')
+        if suites and judgment:
+            raise ValueError('ambiguous retention disposition')
+        entries.append({'wfi': identity, 'suites': suites, 'reason': judgment or None,
+                        'status': 'pending' if suites else 'judgment-required' if judgment else 'unlinked'})
+    if not entries:
+        raise ValueError('empty retention checklist')
+    return entries
+
+
+def retention_result(entries, results):
+    statuses = {row['suite']: row['status'] for row in results}
+    for entry in entries:
+        if entry['suites']:
+            entry['status'] = ('passed' if all(statuses.get(suite) == 'passed' for suite in entry['suites'])
+                               else 'failed' if any(statuses.get(suite) == 'failed' for suite in entry['suites'])
+                               else 'not-run')
+    return {'entries': entries, 'complete': all(entry['status'] == 'passed' for entry in entries),
+            'authority': 'observations-only; no WFI status or task approval changes'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     selection = parser.add_mutually_exclusive_group(required=True)
     selection.add_argument('--profile')
     selection.add_argument('--suite')
+    selection.add_argument('--retention', action='store_true')
     action = parser.add_mutually_exclusive_group()
     action.add_argument('--list', action='store_true')
     action.add_argument('--run', action='store_true')
@@ -199,6 +248,7 @@ def main():
     parser.add_argument('--shard-count', type=int, default=1)
     parser.add_argument('--receipt', type=Path)
     parser.add_argument('--powershell')
+    parser.add_argument('--checklist', type=Path, default=ROOT / 'docs/workflow-improvements/retention-checklist.md')
     parser.add_argument('--measure-dir', type=Path)
     parser.add_argument('--measure-parent')
     args = parser.parse_args()
@@ -206,7 +256,16 @@ def main():
         if (args.measure_dir or args.measure_parent) and not args.run:
             raise ValueError('measurement requires run')
         catalog = load_catalog(args.catalog, ROOT)
-        if args.suite:
+        retention = None
+        if args.retention:
+            if args.shard_count != 1 or args.shard_index != 0:
+                raise ValueError('retention checks cannot be sharded')
+            checklist_bytes = args.checklist.read_bytes()
+            retention = retention_checks(args.checklist, catalog)
+            if args.checklist.read_bytes() != checklist_bytes:
+                raise ValueError('retention checklist changed during selection')
+            paths = list(dict.fromkeys(suite for entry in retention for suite in entry['suites']))
+        elif args.suite:
             if args.suite not in catalog['_suites']:
                 raise ValueError('unregistered suite')
             paths = [args.suite]
@@ -225,7 +284,8 @@ def main():
         if not args.run:
             print(json.dumps({'schema': 'verification-plan/v1', 'profile': args.profile,
                               'selected': selected, 'shard_index': args.shard_index,
-                              'shard_count': args.shard_count}, indent=2))
+                              'shard_count': args.shard_count,
+                              **({'retention': retention_result(retention, [])} if retention is not None else {})}, indent=2))
             return 0
         measurement = None
         if args.measure_parent and not args.measure_dir:
@@ -243,6 +303,10 @@ def main():
             except module.MeasurementError as exc:
                 raise ValueError('invalid measurement configuration') from exc
         receipt, code = execute(catalog, selected, ROOT, args.profile, args.powershell, measurement)
+        if retention is not None:
+            receipt['retention'] = retention_result(retention, receipt['results'])
+            receipt['retention']['checklist_sha256'] = hashlib.sha256(checklist_bytes).hexdigest()
+            code = int(bool(code) or not receipt['retention']['complete'])
         if args.receipt:
             write_receipt(args.receipt, receipt)
         else:

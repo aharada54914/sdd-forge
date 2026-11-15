@@ -226,6 +226,19 @@ set the source WFI's `Status: Regressed`, record the evidence in its
 pattern candidate for a follow-up WFI. Retention answers the question most
 loops forget: do previously fixed failure modes stay fixed?
 
+When this source repository's `tests/verification.py` and verification catalog
+are present, run `python3 tests/verification.py --retention --run --receipt
+<report-directory>/retention.json` and retain its actual exit code. This executes
+only catalog-owned suites linked from the existing checklist. `unlinked`,
+`judgment-required`, missing runtimes and skipped checks stay incomplete; inspect
+the source evidence separately. No command changes WFI status or approves work.
+Other projects retain their adopted commands; do not assume they have this runner.
+For repeated machine-checkable failures, connect the Verification Plan to an
+existing regression or a source-backed RED/GREEN check. A design fix needs a
+negative control; a judgment-only disposition needs a concrete automation limit.
+Add links to the existing checklist when verification supports them, preserving
+incident references and frozen WFI bodies. Instructions alone do not prove a fix.
+
 Before crediting or blaming any WFI, read the transcripts or reports behind the
 changed metric: grading artifacts can masquerade as effects.
 
@@ -557,6 +570,15 @@ metric shifts across a model change must not be attributed to WFIs.
 
    <!-- Describe how the next task cycle will confirm the improvement. -->
    <!-- Reference the specific metric rows from the retrospective template. -->
+
+   ### Regression connection
+
+   | Recurring failure / incident evidence | Disposition | Registered regression suite | RED / GREEN evidence or judgment reason |
+   |---|---|---|---|
+   | {{incident_reference}} | {{existing-check/new-check/design-elimination/judgment}} | {{catalog_suite_or_none}} | {{evidence_or_reason}} |
+
+   <!-- Link repeated machine-checkable failures to checks and RED/GREEN evidence. -->
+   <!-- Design elimination needs a negative control; judgment needs a concrete limit. -->
 
    ## Rollback-Plan
 
