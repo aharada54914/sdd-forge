@@ -190,7 +190,18 @@ class ConceptTests(unittest.TestCase):
 
     def test_reachable_gate_and_manifests(self):
         bootstrap = (ROOT / 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md').read_text(encoding='utf-8')
-        self.assertLess(bootstrap.index('`concept-test`'), bootstrap.index("Run `domain-sync`"))
+        intake = bootstrap.split('## Intake And Investigation', 1)[1].split('2. Attempt read-only URL retrieval', 1)[0]
+        concept_gate = intake.index('`concept-test` skill first')
+        domain_probe = intake.index('Before resolving the optional `domain-sync` skill')
+        absent_skip = intake.index('`domain-sync skipped: no domain/ directory`')
+        present_domain = intake.index('If `domain/` exists')
+        domain_sync = intake.index("run `domain-sync`'s detection logic")
+        self.assertLess(concept_gate, domain_probe)
+        self.assertLess(domain_probe, absent_skip)
+        self.assertLess(absent_skip, present_domain)
+        self.assertLess(present_domain, domain_sync)
+        self.assertIn('physically exists at the project root', intake)
+        self.assertIn('do not require or install `sdd-domain` for this case', intake)
         self.assertIn('BLOCK, DEFER, and REJECT', bootstrap)
         skill = (ROOT / 'plugins/sdd-domain/skills/concept-test/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('Every\n   nonzero exit stops domain-sync and subsequent generation', skill)

@@ -49,6 +49,11 @@ lite ゲートとして実行してよいか、full quality-gate に切り替え
    `CAPABILITY_RUNTIME_UNAVAILABLE` で停止する。レガシー動作へ黙って
    フォールバックしない。
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 次にトラックを解決する。**物理的存在の確認が先、承認検証が後**である。

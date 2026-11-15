@@ -92,7 +92,7 @@ cat > "$STUB_BIN/codex" <<STUBEOF
 #!/bin/sh
 printf '%s\n' "\$@" > $(shell_literal "$ARGV_FILE")
 : > $(shell_literal "$MARKER_FILE")
-printf '%s\n' $(shell_literal "$STUB_JSON")
+python3 -c 'import json,sys; d=json.loads(sys.argv[1]); a=sys.argv[2:]; d["model"]=a[a.index("--model")+1] if "--model" in a else d["model"]; print(json.dumps(d))' $(shell_literal "$STUB_JSON") "\$@"
 exit 0
 STUBEOF
 chmod +x "$STUB_BIN/codex"

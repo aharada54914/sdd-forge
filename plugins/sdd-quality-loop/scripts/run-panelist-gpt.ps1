@@ -230,6 +230,9 @@ Rules:
 '@
 
     $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
+    if ($Model) {
+        $promptText += "`nThe explicit CLI model is $Model. Return that exact string in model; do not infer it from the bundle.`n"
+    }
     $combined = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
     $combinedFile = Join-Path $scratch "combined.txt"
     Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
@@ -431,6 +434,9 @@ Rules:
     }
 
     # Normalize fields
+    if ($Model -and ($verdict.model -isnot [string] -or $verdict.model -cne $Model)) {
+        [Console]::Error.WriteLine('run-panelist-gpt: returned model does not match explicit CLI model'); exit 1
+    }
     $verdict.task_id = $TaskId
     $verdict.feature = $Feature
     $verdict.vendor  = "openai"

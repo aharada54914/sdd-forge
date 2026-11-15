@@ -286,6 +286,8 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-quality-loop/scripts/workflow-state-session.py',
     'plugins/sdd-bootstrap/scripts/project-skill.py',
     'plugins/sdd-bootstrap/scripts/research-sources.py',
+    'plugins/sdd-ship/scripts/dashboard-runtime.py',
+    'plugins/sdd-ship/scripts/publish-dashboard.py',
 )
 # Explicit cloud recovery extension: retain the T-003 unrelated baseline hash.
 # Includes the provider import closure and trusted tool pins reviewed with it.
