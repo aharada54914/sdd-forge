@@ -1,4 +1,4 @@
-# ADR 0049: Session model preferences without weakening launch admission
+# ADR 0050: Session model preferences without weakening launch admission
 
 Date: 2026-11-15
 Status: Accepted for implementation under the user's Work development authorization

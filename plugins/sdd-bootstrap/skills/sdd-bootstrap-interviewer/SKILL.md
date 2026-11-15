@@ -92,8 +92,13 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
     `concept-test` skill first. Its deterministic validator must return
     CONTINUE before domain-sync or any generation. BLOCK, DEFER, and REJECT
     stop this flow. Do not substitute an LLM verdict for evidence validation.
-1b. Run `domain-sync`'s detection logic (project root, feature slug) before
-    generating any Phase 1 artifact. If it reports a skip or warning line,
+1b. Before resolving the optional `domain-sync` skill, check whether `domain/`
+    physically exists at the project root. If absent, record exactly
+    `domain-sync skipped: no domain/ directory` once and continue to step 2;
+    do not require or install `sdd-domain` for this case. If `domain/` exists,
+    run `domain-sync`'s detection logic (project root, feature slug) before
+    generating any Phase 1 artifact. Do not invent injection or validation
+    results when that installed skill is unavailable. If it reports a skip or warning line,
     proceed exactly as if `domain/` were absent — record the line and
     continue to step 2 with no other change to this flow. If it reports an
     injection, carry its `Bounded-Context:` field text, canonical terms, and
@@ -355,6 +360,11 @@ handshake first:
    with `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy
    behaviour silently.
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 Then resolve the track, checking physical presence FIRST and approval
@@ -488,3 +498,28 @@ the user that implementation starts with `implement-task` only after approval.
 After creating a new spec directory, append its path (`specs/<feature>/`) to
 the **Active Spec Directories** list in `AGENTS.md`. If the list does not exist
 yet, add it as a new section under `## Sources Of Truth`.
+
+## Visual specification decisions
+
+Before an important specification choice or approval, present the problem,
+option diagrams and a comparison of benefit, drawback and scope, then explain
+one recommendation. Ask one decision at a time with 2–3 viable options; accept
+another proposal or deferral. Simple fact checks stay concise. Never invent
+metrics or choices. Use screen schematics for UI, flows for processing, and
+state sequences for lifecycle decisions, including plain text alternatives.
+
+When the existing status dashboard is available, follow
+`<installed-root>/plugins/sdd-ship/skills/status/references/spec-decisions.md`
+and update its **仕様の相談** view on the parent's retained Site/Artifact.
+Read that reference before generating the optional decisions projection. Do not
+create a separate presentation identity. If the status plugin or host surface
+is unavailable, report the missing presentation capability and show Mermaid
+plus a Markdown comparison table in conversation (numbered flow if Mermaid
+cannot render). This works without DesignSync or supplied mockups.
+
+A displayed default or local choice is never approval. Obtain the explicit
+conversational answer for the current specification revision, record decision ID,
+option, rationale, user-message reference and related requirements in canonical
+Markdown or its sanctioned addendum, and regenerate the display. Deferral leaves
+the decision unresolved. Important changes require reapproval; preserve existing
+task approval, domain confirmation, review gates and frozen-artifact rules.

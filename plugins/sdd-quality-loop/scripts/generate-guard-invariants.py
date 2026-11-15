@@ -102,6 +102,8 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
     "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
     "plugins/sdd-ship/skills/ship/SKILL.md",
+    "plugins/sdd-ship/scripts/dashboard-runtime.py",
+    "plugins/sdd-ship/scripts/publish-dashboard.py",
     # WFI-040 step (a): scripts the enforcement and verification chain executes
     # -- named by a file under .github/workflows/, by tests/run-all.*, or by a
     # SKILL.md -- that matched no protected suffix before this change.

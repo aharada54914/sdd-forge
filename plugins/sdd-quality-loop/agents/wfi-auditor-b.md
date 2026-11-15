@@ -62,6 +62,13 @@ all four of the following:
 A metric or plan missing any element is a Major finding. Quote what is present
 and name what is absent.
 
+For recurring machine-checkable failures, also assess the Verification Plan's
+regression connection: an existing registered suite or a new source-backed
+RED/GREEN check, or design elimination with a negative control. A judgment-only
+disposition needs a concrete reason automation cannot assess the condition.
+Extra prose instructions alone are not prevention evidence. For older or frozen
+WFIs, accept an explicit Result addendum rather than rewriting approved content.
+
 ## SCOPE-PROPORTIONAL (Major)
 
 Assess whether the proposed change is proportional to the stated friction:

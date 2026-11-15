@@ -494,6 +494,36 @@ $script:PpiElideLines = 40
 # marker. Callers only invoke this for a file the budget loop below has
 # already decided to elide -- it is not itself threshold-gated.
 # Reject binary evidence before lossy decoding in this text-only transport.
+# Resolve trusted direct-input aliases for evidence identity without changing
+# the existing declared-output rule that rejects symbolic-link components.
+# LinkType/Target are available on PowerShell 5.1, unlike ResolveLinkTarget.
+function Get-PpiPhysicalPath {
+    param([string]$Path)
+    $resolved = [IO.Path]::GetFullPath($Path)
+    for ($hops = 0; $hops -lt 40; $hops++) {
+        $root = [IO.Path]::GetPathRoot($resolved)
+        $parts = @($resolved.Substring($root.Length) -split '[\\/]')
+        $current = $root
+        $followed = $false
+        for ($index = 0; $index -lt $parts.Count; $index++) {
+            if (-not $parts[$index]) { continue }
+            $current = Join-Path $current $parts[$index]
+            $item = Get-Item -Force -LiteralPath $current -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -in @('SymbolicLink', 'Junction')) {
+                $target = @($item.Target)[0]
+                if (-not $target) { throw "prepare-panelist-input: cannot resolve input link: $current" }
+                if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path (Split-Path $current) $target }
+                for ($rest = $index + 1; $rest -lt $parts.Count; $rest++) { $target = Join-Path $target $parts[$rest] }
+                $resolved = [IO.Path]::GetFullPath($target)
+                $followed = $true
+                break
+            }
+        }
+        if (-not $followed) { return $resolved }
+    }
+    throw "prepare-panelist-input: input link resolution exceeded 40 hops: $Path"
+}
+
 function Read-PpiText {
     param([string]$FilePath)
     $bytes = [IO.File]::ReadAllBytes($FilePath)
@@ -507,6 +537,27 @@ function Read-PpiText {
     }
     # Preserve Get-Content's existing UTF-8 BOM handling.
     if ($text.Length -gt 0 -and $text[0] -eq [char]0xFEFF) { $text = $text.Substring(1) }
+    # Keep execution facts, but never disclose the primary review in blind input.
+    $canonical = [IO.Path]::GetFullPath((Join-Path (Split-Path (Get-PpiPhysicalPath $TasksFile)) "verification/$TaskId.evidence.json"))
+    $source = Get-PpiPhysicalPath $FilePath
+    $pathComparison = if ([IO.Path]::DirectorySeparatorChar -eq [char]92) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    $taskEvidenceDir = [IO.Path]::GetFullPath((Join-Path (Split-Path $canonical) $TaskId)) + [IO.Path]::DirectorySeparatorChar
+    if ([string]::Equals($source, $canonical, $pathComparison) -or ($source.EndsWith('.evidence.json', $pathComparison) -and
+        $source.StartsWith($taskEvidenceDir, $pathComparison))) {
+        $evidence = $text | ConvertFrom-Json -ErrorAction Stop
+        if ($evidence.task_id -ceq $TaskId -and $evidence.feature -ceq $Feature -and
+            $evidence.checks -is [array] -and
+            ($evidence.PSObject.Properties['review_verdict'] -or $evidence.PSObject.Properties['quality_report'])) {
+            $report = $evidence.quality_report
+            $evidence.PSObject.Properties.Remove('quality_report')
+            $evidence.PSObject.Properties.Remove('review_verdict')
+            if ($evidence.PSObject.Properties['artifacts']) {
+                $evidence.artifacts = @($evidence.artifacts | Where-Object { -not ($report -and $_.path -ceq $report) })
+            }
+            $evidence | Add-Member -Force -NotePropertyName panelist_projection -NotePropertyValue 'Primary review outcome omitted for blind review; execution evidence retained.'
+            $text = ($evidence | ConvertTo-Json -Depth 100) + "`n"
+        }
+    }
     return $text
 }
 
@@ -514,7 +565,7 @@ function Get-PpiElidedContent {
     param([string]$FilePath, [string]$Label)
     $raw = Read-PpiText $FilePath
     $totalBytes = [System.Text.Encoding]::UTF8.GetByteCount($raw)
-    $lines = Get-Content -Encoding Utf8 -LiteralPath $FilePath
+    $lines = @($raw.TrimEnd("`r", "`n") -split '\r?\n')
     $lineCount = $lines.Count
     $n = [Math]::Min($script:PpiElideLines, $lineCount)
     $headText = ($lines[0..($n - 1)] -join "`n")

@@ -9,6 +9,31 @@ user-invocable: false
 
 社内・部署内アプリ向けの軽量仕様を作る。要件・設計・タスクの3ファイルのみを生成し、traceability/ADR/受入テストの重い記述は任意とする。アプリのコードは実装しない。
 
+## Visual specification decisions
+
+Before an important specification choice or approval, present the problem,
+option diagrams and a comparison of benefit, drawback and scope, then explain
+one recommendation. Ask one decision at a time with 2–3 viable options; accept
+another proposal or deferral. Simple fact checks stay concise. Never invent
+metrics or choices. Use screen schematics for UI, flows for processing, and
+state sequences for lifecycle decisions, including plain text alternatives.
+
+When the existing status dashboard is available, follow
+`<installed-root>/plugins/sdd-ship/skills/status/references/spec-decisions.md`
+and update its **仕様の相談** view on the parent's retained Site/Artifact.
+Read that reference before generating the optional decisions projection. Do not
+create a separate presentation identity. If the status plugin or host surface
+is unavailable, report the missing presentation capability and show Mermaid
+plus a Markdown comparison table in conversation (numbered flow if Mermaid
+cannot render). This works without DesignSync or supplied mockups.
+
+A displayed default or local choice is never approval. Obtain the explicit
+conversational answer for the current specification revision, record decision ID,
+option, rationale, user-message reference and related requirements in canonical
+Markdown or its sanctioned addendum, and regenerate the display. Deferral leaves
+the decision unresolved. Important changes require reapproval; preserve existing
+task approval, domain confirmation, review gates and frozen-artifact rules.
+
 ## Invocation
 
 Codex:
@@ -54,6 +79,11 @@ Claude Code:
    に入ったことがないため、`DISABLED_LEGACY` として互換フォールバックを続行
    する (ゲート G3/G4)。妥当な Context を持つプロジェクトから、レガシー動作へ
    黙ってフォールバックしてはならない。
+
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
 
 <!-- /sdd:handshake-wiring -->
 
@@ -231,6 +261,12 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
    - `requirements.md`（`templates/requirements-lite.md`）
    - `design.md`（`templates/design-lite.md`）
    - `tasks.md`（`templates/tasks-lite.md`）
+   実際に対象外としたリスク語は [risk-upgrade-policy](../../references/risk-upgrade-policy.md) の
+   bounded exclusion 文法で記述する。閉じた語彙にない通常の対象外項目は
+   別の見出しに置き、同じ除外節へ混在させない。正の要求を除外扱いにしない。
+   生成後、ship と同じ「タスクブロック全体 + requirements.md」を無加工で
+   risk checker に渡して再確認する。書式上の不整合は範囲を変えずに修正し、
+   実際の昇格理由が残る場合は既存の Full 昇格手順に従う。
 4. UI アプリで人間が希望する場合のみ、`design-sync-loop` スキル
    （sdd-bootstrap プラグインの内部スキル）を実行する。外部操作の前に同スキルの
    `resolve-design-sync.py` 判定を実行し、manual/skip では外部操作を行わない。モックアップは

@@ -232,8 +232,8 @@ test("every tool's input schema never declares a root parameter", async () => {
   const fixture = await makeCoreToolsFixture("core-tools-no-root-param");
   try {
     const { tools } = await fixture.client.listTools();
-    // 8 core tools (T-004) + 5 evidence tools (T-005) + evidence_deep_verify (evidence-deep-verify T-004).
-    assert.ok(tools.length === 14, `expected 14 tools, got ${tools.length}`);
+    // Existing 14 tools plus the read-only dashboard snapshot.
+    assert.ok(tools.length === 15, `expected 15 tools, got ${tools.length}`);
     for (const tool of tools) {
       const properties = (tool.inputSchema as { properties?: Record<string, unknown> }).properties ?? {};
       assert.ok(!("root" in properties), `tool ${tool.name} must not declare a root input parameter`);
@@ -257,4 +257,18 @@ test("invalid feature argument shape is rejected as invalid-input", async () => 
   } finally {
     await fixture.cleanup();
   }
+});
+
+test('get_dashboard_snapshot: real MCP response is schema-valid and read-only', async () => {
+  const fixture = await makeCoreToolsFixture('core-tools-dashboard');
+  try {
+    const envelope = parseEnvelope(await fixture.client.callTool({ name: 'get_dashboard_snapshot', arguments: {} }));
+    assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
+    const data = (envelope as { data: { kind: string; snapshot: { schema: string; data: { tasks: unknown[] } | null } } }).data;
+    assert.equal(data.kind, 'dashboard-snapshot');
+    assert.equal(data.snapshot.schema, 'sdd-dashboard/v1');
+    assert.ok(data.snapshot.data?.tasks.length);
+    const tool = (await fixture.client.listTools()).tools.find(t => t.name === 'get_dashboard_snapshot');
+    assert.equal(tool?.annotations?.readOnlyHint, true);
+  } finally { await fixture.cleanup(); }
 });

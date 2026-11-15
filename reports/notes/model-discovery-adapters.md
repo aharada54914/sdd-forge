@@ -79,6 +79,6 @@ Geminiの現行ACP ModelInfoにはモデル別推論強度がなく、権限モ�
 既存の役割別起動アダプター・モデルポリシーが対応しないIDや努力値は従来どおり停止する。
 この変更で全役割の新しい起動経路や、起動ポリシーの値域拡大を行ったわけではない。
 
-設計・実装根拠は [ADR 0049](../../docs/adr/0049-session-model-preferences.md)、
+設計・実装根拠は [ADR 0050](../../docs/adr/0050-session-model-preferences.md)、
 集計は [model-discovery-adapters-results.json](../verification/model-discovery-adapters-results.json)。
 実機の私有証拠は `verification-workspace/native-session-models/auth-resume/` に保持する。

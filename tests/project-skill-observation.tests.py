@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import shlex
+import shutil
 from unittest.mock import patch
 import unittest
 
@@ -202,6 +203,28 @@ class Contracts(unittest.TestCase):
 
     def test_valid_trial(self):
         self.assertEqual(self.validate()[2], "trial-passed")
+
+    def test_runner_interpreter_alias_is_still_bound(self):
+        alias = self.root / "python-alias"
+        try:
+            alias.symlink_to(sys.executable)
+        except OSError:
+            self.skipTest("interpreter symlink unavailable")
+        with patch.object(V.sys, "executable", str(alias)):
+            self.invalid("runtime-changed")
+
+    def test_v4_binds_selected_check_in_the_effective_environment(self):
+        self.obs["schema"] = "project-verification-observation/v4"
+        with patch.dict(os.environ, {"SDD_PROJECT_SKILL_CHECK_ID": "caller-value"}):
+            effective = V.execution_environment("smoke")
+            self.assertEqual(effective["SDD_PROJECT_SKILL_CHECK_ID"], "smoke")
+            self.obs["environment"].update(V.runtime_environment(self.manifest, "smoke"))
+            self.assertEqual(self.obs["environment"]["variables_sha256"], V.digest(json.dumps(effective, sort_keys=True).encode()))
+            self.write_observation()
+            self.assertEqual(self.validate()[2], "trial-passed")
+            self.obs["environment"].update(V.runtime_environment(self.manifest))
+            self.write_observation()
+            self.invalid("runtime-changed")
 
     def test_valid_task(self):
         self.task()
@@ -449,6 +472,11 @@ class Contracts(unittest.TestCase):
         ):
             if command[0] == "bash" and os.name == "nt":
                 continue
+            # Bind each observation to the interpreter its actual entry point uses.
+            interpreter = (shutil.which("python3") or shutil.which("python")) if command[0] == "bash" else sys.executable
+            with patch.object(V.sys, "executable", interpreter):
+                self.obs["environment"].update(V.runtime_environment(self.manifest))
+            self.observation.write_text(json.dumps(self.obs), encoding="utf-8")
             result = subprocess.run(
                 [
                     *command,

@@ -518,8 +518,9 @@ fi
 # precede this unchanged anchor.
 # Once Epic A5's caller insertion point is present, this comparison is
 # active and gates pass/fail; the recorded window is the capability phase
-# through the adjacent full-profile heading (lines 159-198 after the SQL
-# reference insertion). The 40-line window remains byte-identical to main
+# through the adjacent full-profile heading (lines 164-203 after the SQL
+# reference and optional-domain preflight insertions). The 40-line window
+# remains byte-identical to main
 # 75c6919b:145-184; only its location and heading ordinal changed.
 # AC-036 is not
 # one of T-010's five fixed manifest entries, so its T-008-local probe remains
@@ -590,14 +591,14 @@ else
 fi
 
 A5_SKILL_MD="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 159 198 \
+A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 164 203 \
   "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" \
   "### Full-Profile Layer Interview" 7 2>&1)" || true
 # The live check activates only after A5's interviewer caller exists.  The
 # spec directory and resolver scripts may be staged before that insertion
 # point, so directory presence is not evidence that the live contract is wired.
 if [[ -f "$A5_SKILL_MD" ]] && grep -Fq 'resolve-project-context' "$A5_SKILL_MD"; then
-  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 159 198 \
+  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 164 203 \
       "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" \
       "### Full-Profile Layer Interview" 7 >/dev/null; then
     ok "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"

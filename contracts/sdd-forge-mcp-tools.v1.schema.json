@@ -8,6 +8,435 @@
     { "$ref": "#/$defs/errorEnvelope" }
   ],
   "$defs": {
+    "dashboardSnapshotData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "snapshot"
+      ],
+      "properties": {
+        "kind": {
+          "const": "dashboard-snapshot"
+        },
+        "snapshot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema",
+            "revision",
+            "checkedAt",
+            "changedAt",
+            "lastSuccessAt",
+            "attemptedAt",
+            "error",
+            "data"
+          ],
+          "properties": {
+            "schema": {
+              "const": "sdd-dashboard/v1"
+            },
+            "revision": {
+              "type": "string",
+              "pattern": "^([a-f0-9]{64})?$"
+            },
+            "checkedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+            },
+            "changedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+            },
+            "lastSuccessAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+            },
+            "attemptedAt": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+            },
+            "error": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "data": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "project",
+                    "features",
+                    "tasks"
+                  ],
+                  "properties": {
+                    "project": {
+                      "type": "string"
+                    },
+                    "features": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "phase",
+                          "nextCommand",
+                          "warnings"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "phase": {
+                            "type": "string"
+                          },
+                          "nextCommand": {
+                            "type": "string"
+                          },
+                          "warnings": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          }
+                        }
+                      }
+                    },
+                    "tasks": {
+                      "type": "array",
+                      "maxItems": 10000,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "key",
+                          "id",
+                          "feature",
+                          "title",
+                          "body",
+                          "status",
+                          "approval",
+                          "risk",
+                          "release",
+                          "source",
+                          "failures"
+                        ],
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "feature": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "body": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "approval": {
+                            "type": "string"
+                          },
+                          "risk": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string"
+                          },
+                          "release": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "failures": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "decisionSets": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "feature",
+                          "source",
+                          "stale",
+                          "decisions"
+                        ],
+                        "properties": {
+                          "feature": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string"
+                          },
+                          "stale": {
+                            "type": "boolean"
+                          },
+                          "decisions": {
+                            "type": "array",
+                            "maxItems": 100,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "id",
+                                "title",
+                                "problem",
+                                "status",
+                                "basis",
+                                "options",
+                                "recommended",
+                                "reason",
+                                "selected",
+                                "resolution"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[A-Z][A-Z0-9-]{0,39}$"
+                                },
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 2000
+                                },
+                                "problem": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 2000
+                                },
+                                "status": {
+                                  "enum": [
+                                    "pending",
+                                    "decided",
+                                    "deferred"
+                                  ]
+                                },
+                                "basis": {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "maxItems": 10,
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "path",
+                                      "sha256"
+                                    ],
+                                    "properties": {
+                                      "path": {
+                                        "enum": [
+                                          "requirements.md",
+                                          "design.md",
+                                          "ux-spec.md",
+                                          "frontend-spec.md",
+                                          "infra-spec.md",
+                                          "security-spec.md"
+                                        ]
+                                      },
+                                      "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                      }
+                                    }
+                                  }
+                                },
+                                "options": {
+                                  "type": "array",
+                                  "minItems": 2,
+                                  "maxItems": 3,
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "id",
+                                      "title",
+                                      "benefit",
+                                      "drawback",
+                                      "impact",
+                                      "diagram"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Z][A-Z0-9-]{0,39}$"
+                                      },
+                                      "title": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2000
+                                      },
+                                      "benefit": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2000
+                                      },
+                                      "drawback": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2000
+                                      },
+                                      "impact": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2000
+                                      },
+                                      "diagram": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "required": [
+                                          "kind",
+                                          "steps"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "enum": [
+                                              "flow",
+                                              "screen",
+                                              "states"
+                                            ]
+                                          },
+                                          "steps": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "maxItems": 8,
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 2000
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "recommended": {
+                                  "type": "string",
+                                  "pattern": "^[A-Z][A-Z0-9-]{0,39}$"
+                                },
+                                "reason": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 2000
+                                },
+                                "selected": {
+                                  "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "pattern": "^[A-Z][A-Z0-9-]{0,39}$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "resolution": {
+                                  "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 2000
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "data": {
+                    "type": "null"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  },
+                  "checkedAt": {
+                    "type": "null"
+                  },
+                  "lastSuccessAt": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "revision": {
+                    "pattern": "^[a-f0-9]{64}$",
+                    "type": "string"
+                  },
+                  "checkedAt": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+                  },
+                  "lastSuccessAt": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+                  },
+                  "changedAt": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
     "okEnvelope": {
       "type": "object",
       "additionalProperties": false,
@@ -28,7 +457,8 @@
             { "$ref": "#/$defs/evidenceMissingData" },
             { "$ref": "#/$defs/contractChecksSummaryData" },
             { "$ref": "#/$defs/traceabilityComparisonData" },
-            { "$ref": "#/$defs/evidenceDeepVerifyData" }
+            { "$ref": "#/$defs/evidenceDeepVerifyData" },
+            { "$ref": "#/$defs/dashboardSnapshotData" }
           ]
         }
       }
