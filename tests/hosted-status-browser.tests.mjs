@@ -26,18 +26,18 @@ try{
  await page.goto(url);await page.locator('#freshness[data-state=live]').waitFor();
  const summary=page.locator('#content details summary').first();await summary.click();await summary.focus();
  for(let i=0;i<3;i++){await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();await page.waitForTimeout(100);assert.equal(await page.locator('#content details[open]').count(),1);}
- await summary.focus();writeFileSync(file,tasks('Changed while focused'));await page.waitForTimeout(11000);
+ await summary.focus();writeFileSync(file,tasks('Changed while focused'));await page.waitForFunction(()=>snapshot?.data?.tasks[0]?.title==='Changed while focused');
  assert.equal(await page.locator('#content details[open]').count(),1);assert.equal(await page.evaluate(()=>document.activeElement.tagName),'SUMMARY');
- await page.locator('#pause').click();const frozen=await page.locator('#freshness').innerText();writeFileSync(file,tasks('Changed while paused'));await page.waitForTimeout(11000);
- assert.equal(await page.locator('#freshness').getAttribute('data-state'),'paused');await page.locator('nav a[href="#list"]').click();assert.ok((await page.locator('#content').innerText()).includes('Changed while focused'));assert.ok(!(await page.locator('#content').innerText()).includes('Changed while paused'));
+ await page.locator('#pause').click();const frozen=await page.locator('#freshness').innerText();writeFileSync(file,tasks('Changed while paused'));await page.waitForFunction(()=>latest?.data?.tasks[0]?.title==='Changed while paused');
+ assert.equal(await page.locator('#freshness').getAttribute('data-state'),'paused');await page.locator('nav a[href="#list"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);assert.ok((await page.locator('#content').innerText()).includes('Changed while focused'));assert.ok(!(await page.locator('#content').innerText()).includes('Changed while paused'));
  await page.locator('#pause').click();assert.ok((await page.locator('#content').innerText()).includes('Changed while paused'));
- writeFileSync(file,tasks());await page.waitForTimeout(11000);await page.locator('nav a[href="#overview"]').click();
+ writeFileSync(file,tasks());await page.waitForFunction(()=>snapshot?.data?.tasks[0]?.title==='First');await page.locator('nav a[href="#overview"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);
  checks.push('three-refresh-disclosure-focus-and-pause-resume');
  const basisFile=join(root,'specs/demo/requirements.md');
  const requirements='# Requirements\nSpec-Review-Status: Pending\n';
  const decisions={schema:'sdd-decisions/v1',decisions:[{id:'Q-001',title:'保存ボタンをどこに置く？',problem:'スクロールしないと保存が見えません',status:'pending',basis:[{path:'requirements.md',sha256:createHash('sha256').update(requirements).digest('hex')}],options:['A','B'].map(id=>({id,title:id==='A'?'下に固定':'右上に置く',benefit:'いつでも見える',drawback:'表示領域を使う',impact:'本の登録画面',diagram:{kind:'screen',steps:id==='A'?['本を登録','入力欄','下部の保存ボタン']:['本を登録 · 右上に保存','入力欄']}})),recommended:'A',reason:'親指で押せる',selected:null,resolution:null}]};
  const decisionsFile=join(root,'specs/demo/decisions.json'); writeFileSync(decisionsFile,JSON.stringify(decisions));
- await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();await page.locator('nav a[href="#decisions"]').click();
+ await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();await page.locator('nav a[href="#decisions"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);
  await page.getByRole('heading',{name:'Q-001 · 保存ボタンをどこに置く？'}).waitFor();
  const a=page.getByRole('button',{name:'A · 下に固定',exact:true}); await a.focus();await page.keyboard.press('Enter');
  assert.ok((await page.getByRole('textbox',{name:'Q-001の会話へ送る回答文'}).inputValue()).includes('Aを選びます'));
@@ -49,25 +49,28 @@ try{
  assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),true);
  assert.equal(await page.getByRole('textbox',{name:'Q-001の会話へ送る回答文'}).inputValue(),'');
  writeFileSync(basisFile,requirements);await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
+ await page.waitForFunction(()=>document.querySelector('[data-focus-key="demo/Q-001/A"]')?.disabled===false);
  await page.route('**/api/dashboard',route=>route.fulfill({status:503,body:'unavailable'})); await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
  assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),true);
  await page.unroute('**/api/dashboard');await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
- assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),false);
+ await page.waitForFunction(()=>document.querySelector('[data-focus-key="demo/Q-001/A"]')?.disabled===false);
  await page.locator('#pause').click();assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),true);await page.locator('#pause').click();
  const healthy=await page.evaluate(async()=>await(await fetch('api/dashboard')).json());
  await page.route('**/api/dashboard',route=>route.fulfill({json:{...healthy,error:'source-failed',attemptedAt:new Date().toISOString()}}));await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
  assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),true);await page.unroute('**/api/dashboard');await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
- assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),false);
- await page.clock.install({time:new Date()}); await page.clock.fastForward(61000);
+ await page.waitForFunction(()=>document.querySelector('[data-focus-key="demo/Q-001/A"]')?.disabled===false);
+ await page.route('**/api/dashboard',route=>route.fulfill({json:{...healthy,attemptedAt:new Date().toISOString(),checkedAt:new Date(Date.now()-61000).toISOString(),lastSuccessAt:new Date(Date.now()-61000).toISOString(),changedAt:new Date(Date.now()-61000).toISOString()}}));
+ await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
  assert.equal(await page.getByRole('button',{name:'A · 下に固定',exact:true}).isDisabled(),true);
- await page.clock.setSystemTime(new Date(healthy.attemptedAt));await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
+ await page.unroute('**/api/dashboard');await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();
+ await page.waitForFunction(()=>document.querySelector('[data-focus-key="demo/Q-001/A"]')?.disabled===false);
 
  await page.screenshot({path:join(output,'spec-decisions-desktop.png'),fullPage:true});
  for(const width of [640,320]){await page.setViewportSize({width,height:800});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
  await page.screenshot({path:join(output,'spec-decisions-mobile.png'),fullPage:true});await page.setViewportSize({width:1440,height:950});
  checks.push('spec-decisions-keyboard-draft-deferral-source-drift-and-reflow');
 
- for(const width of [640,320]){await page.setViewportSize({width,height:800});for(const v of ['overview','timeline','backlog','board','list','releases','decisions']){await page.locator('nav a[href="#'+v+'"]').click();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'reflow '+width+' '+v);}}await page.setViewportSize({width:1440,height:950});await page.locator('nav a[href="#overview"]').click();
+ for(const width of [640,320]){await page.setViewportSize({width,height:800});for(const v of ['overview','timeline','backlog','board','list','releases','decisions']){await page.locator('nav a[href="#'+v+'"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'reflow '+width+' '+v);}}await page.setViewportSize({width:1440,height:950});await page.locator('nav a[href="#overview"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);
  assert.equal(await page.locator('#search').evaluate(n=>getComputedStyle(n).fontSize),'16px');assert.ok(await page.locator('#pause').evaluate(n=>n.getBoundingClientRect().height>=44));
  checks.push('320px-reflow-readable-controls');
  assert.ok((await page.locator('#content').innerText()).includes('要件の確認'));
@@ -83,16 +86,16 @@ try{
  assert.ok(!visible.includes('/internal:command'));
  await page.locator('details summary').first().click();assert.ok((await page.locator('details').first().innerText()).includes('/internal:command'));
  assert.equal(await page.locator('#feature option[value="shared-review-launch-repair"]').innerText(),'レビュー実行環境の不具合修正');
- await page.locator('nav a[href="#list"]').click();assert.ok((await page.locator('#content').innerText()).includes('承認済み (manager)'));assert.ok((await page.locator('#content').innerText()).includes('実装済み・検証待ち'));
+ await page.locator('nav a[href="#list"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);assert.ok((await page.locator('#content').innerText()).includes('承認済み (manager)'));assert.ok((await page.locator('#content').innerText()).includes('実装済み・検証待ち'));
  await page.locator('#search').fill('レビュー実行環境');assert.equal(await page.locator('tbody tr').count(),1);await page.locator('#search').fill('');
- await page.locator('nav a[href="#overview"]').click();await page.getByRole('button',{name:'品質確認待ち · 1',exact:true}).click();assert.equal(new URL(page.url()).hash,'#list');assert.equal(await page.locator('tbody tr').count(),1);await page.getByRole('button',{name:'対応事項の絞り込みを解除'}).click();
+ await page.locator('nav a[href="#overview"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);await page.getByRole('button',{name:'品質確認待ち · 1',exact:true}).click();assert.equal(new URL(page.url()).hash,'#list');assert.equal(await page.locator('tbody tr').count(),1);await page.getByRole('button',{name:'対応事項の絞り込みを解除'}).click();
  checks.push('attention-summary-drilldown');
  checks.push('japanese-phases-theme-search-and-preserved-technical-details');
  await page.unroute('**/api/dashboard');await page.reload();await page.locator('#freshness[data-state=live]').waitFor();
  for(const [v,label] of Object.entries({overview:'概要',timeline:'タイムライン',backlog:'バックログ',board:'ボード',list:'一覧',releases:'リリース'})){
-  await page.locator('nav a[href="#'+v+'"]').click();await page.locator('#title').filter({hasText:label}).waitFor();assert.ok((await page.locator('#content').innerText()).length>0);checks.push('view:'+v);
+  await page.locator('nav a[href="#'+v+'"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);await page.locator('#title').filter({hasText:label}).waitFor();assert.ok((await page.locator('#content').innerText()).length>0);checks.push('view:'+v);
  }
- await page.locator('nav a[href="#board"]').click();await page.locator('.card').filter({hasText:'First'}).focus();await page.keyboard.press('Enter');await page.locator('dialog[open]').waitFor();assert.equal(await page.evaluate(()=>window.injected),undefined);await page.keyboard.press('Escape');assert.equal(await page.locator('dialog[open]').count(),0);checks.push('detail-safe-text-and-keyboard');
+ await page.locator('nav a[href="#board"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);await page.locator('.card').filter({hasText:'First'}).focus();await page.keyboard.press('Enter');await page.locator('dialog[open]').waitFor();assert.equal(await page.evaluate(()=>window.injected),undefined);await page.keyboard.press('Escape');assert.equal(await page.locator('dialog[open]').count(),0);checks.push('detail-safe-text-and-keyboard');
  await page.locator('#search').fill('not found');assert.equal(await page.locator('.card').count(),0);await page.locator('#search').fill('First');assert.equal(await page.locator('.card').count(),1);await page.locator('#search').fill('');checks.push('search');
  await page.locator('#feature').selectOption('demo');await page.reload();await page.locator('#freshness[data-state=live]').waitFor();assert.equal(await page.locator('#feature').inputValue(),'demo');assert.equal(new URL(page.url()).hash,'#board');checks.push('reload-selection');
  await page.evaluate(()=>localStorage.setItem('sdd-dashboard:'+location.pathname,'null'));await page.reload();await page.locator('#freshness[data-state=live]').waitFor();assert.equal(await page.locator('#feature').inputValue(),'');checks.push('corrupt-preferences-recovery');
@@ -103,7 +106,7 @@ try{
  await page.locator('#activity summary').click();await page.locator('#activity-events').getByText(/正本の読み込み失敗/).waitFor();assert.ok((await page.locator('#activity-summary').innerText()).includes('未確認'));await page.locator('#acknowledge').click();assert.ok((await page.locator('#activity-summary').innerText()).includes('未確認 0件'));await page.reload();await page.locator('#freshness[data-state=error]').waitFor();assert.ok((await page.locator('#activity-summary').innerText()).includes('未確認 0件'));checks.push('history-failure-notification-and-persistent-ack');
  writeFileSync(file,tasks('Recovered','In Progress'));await page.locator('.card').filter({hasText:'Recovered'}).waitFor({timeout:16000});await page.locator('#freshness[data-state=live]').waitFor();checks.push('recovery');
  await page.screenshot({path:join(output,'board-desktop.png'),fullPage:true});
- await page.setViewportSize({width:390,height:844});await page.locator('#mobile-feature').selectOption('demo');await page.locator('nav a[href="#list"]').click();await page.locator('#content button').first().click();await page.locator('dialog[open]').waitFor();await page.screenshot({path:join(output,'detail-mobile.png'),fullPage:true});await page.locator('#close').click();checks.push('mobile');
+ await page.setViewportSize({width:390,height:844});await page.locator('#mobile-feature').selectOption('demo');await page.locator('nav a[href="#list"]').click();await page.waitForFunction(()=>document.querySelector('#title').textContent===VIEWS[location.hash.slice(1)]);await page.locator('#content button').first().click();await page.locator('dialog[open]').waitFor();await page.screenshot({path:join(output,'detail-mobile.png'),fullPage:true});await page.locator('#close').click();checks.push('mobile');
  await page.route('**/api/dashboard',async route=>{const stale={...failed,error:null,attemptedAt:new Date().toISOString(),checkedAt:new Date(Date.now()-61000).toISOString()};await route.fulfill({json:stale})});await page.locator('#refresh').click();await page.locator('#refresh:not([disabled])').waitFor();await page.locator('#freshness[data-state=stale]').waitFor();checks.push('stale-source-with-live-http');
  const artifact=await browser.newPage();
  const artifactHtml=execFileSync('node',[entry,'--root',root,'--dashboard-html','--parent-service','claude'],{encoding:'utf8',stdio:['ignore','pipe','ignore']});

@@ -26,8 +26,10 @@ not a formal workflow gate verdict, native-host deployment claim or task approva
 | Full MCP suite including dashboard, API contract and read-only checks | PASS, 342 tests |
 | Worker and observations suites | PASS, 11 tests |
 | Bash real-installer payload checks (local/archive fixtures) | PASS, 13 tests with 4 platform/environment skips |
-| Human-copy mirror freshness | PASS; only stale applied mirrors refreshed, pending bundles preserved |
-| Browser regressions | In progress at checkpoint; final result recorded below |
+| Human-copy mirror freshness | PASS; frozen predecessors preserved, exact live successor hashes updated |
+| Browser regressions | PASS, 24 scenarios, zero page errors; 320px/640px reflow and keyboard draft selection |
+| Publisher / local supervisor | PASS, 6 / 4 tests |
+| Loop consistency | PASS, 34 assertions; existing caller fingerprint preserved |
 
 Independent read-only code review identified stale/error control updates, SHA
 value type validation, null feature validation and response focus restoration.
@@ -43,3 +45,18 @@ are not claimed verified. Native Claude Artifact creation/remote connector and
 actual private Site deployment are not exercised in this environment. Browser
 adapter tests only establish shared page/connector logic. Installer platform skips
 are not counted as successful platform execution. Merge requires repository CI.
+
+## Final local evidence
+
+`browser-checks.json` contains the actual browser scenario results. Desktop and
+mobile screenshots were captured and visually inspected in the task workspace;
+they are not proof of native publication. Browser tests wait for observed data
+and view changes rather than fixed sleeps for those transitions.
+
+The first CI run exposed the existing capability-interview fingerprint's fixed
+line window and heading ordinal. The added interview guidance was moved after
+that protected window; its exact digest and ordinal 7 remain unchanged, and the
+loop suite passes. Frozen staged Lite predecessors were restored after the mirror
+sync helper attempted to refresh them; the existing explicit successor fixture
+now pins only the updated live skill hash. No frozen review copy is changed in
+the final PR diff.
