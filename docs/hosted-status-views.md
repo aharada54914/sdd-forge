@@ -288,3 +288,11 @@ and depend on the protected publisher startup/credential integration in
 are not persisted by this runtime. Until that integration is verified, check
 collector status and remote delivery separately after recreation or resumption;
 retained or stale data must never be presented as fresh delivery.
+
+## Optional shared question hub
+
+The six-view read-only contract is unchanged. A separately authorized `/hub`
+route can collect questions from registered sessions, deliver answers with explicit
+receipts and manage an opt-in away queue. It uses independent owner/session
+credentials, not the snapshot publisher credential. It does not write canonical
+workflow state. See [session hub setup and limits](session-hub.md).

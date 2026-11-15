@@ -50,6 +50,8 @@
     ]
   },
   "suites": [
+    {"path": "tests/session-hub.tests.py", "runtime": "python"},
+    {"path": "tests/merge-readiness.tests.py", "runtime": "python"},
     {"path": "tests/dashboard-publisher.tests.py", "runtime": "python"},
     {"path": "tests/dashboard-runtime.tests.py", "runtime": "python"},
     {"path": "tests/workflow-state-installed-root.tests.py", "runtime": "python"},
@@ -488,6 +490,8 @@
     ],
     "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
+      "tests/session-hub.tests.py",
+      "tests/merge-readiness.tests.py",
       "tests/dashboard-publisher.tests.py",
       "tests/dashboard-runtime.tests.py",
       "tests/workflow-state-installed-root.tests.py",
@@ -877,6 +881,8 @@
       "tests/model-policy-launch-platform.tests.py"
     ],
     "ci-posix-fallback": [
+      "tests/session-hub.tests.py",
+      "tests/merge-readiness.tests.py",
       "tests/ci-suite-wiring.tests.sh",
       "tests/ci-claude-install.tests.sh",
       "tests/wfi-034-scratch-metric.tests.sh",

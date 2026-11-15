@@ -181,3 +181,25 @@ no email/Slack dispatch. In Artifacts, an optional
 the same authorized runtime's history endpoint through a real native connector;
 if it is not reachable/declared, show history unavailable. Do not invent an MCP
 tool or claim full history support from the snapshot-only connector.
+
+## Optional shared question hub
+
+When the user requests a common question inbox or away execution, reuse this
+parent's existing Site/Artifact identity and consult `docs/session-hub.md` in the
+source checkout. The Site build includes `/hub` but it stays disabled until its
+explicit owner/project configuration is supplied. Its question answers never
+approve tasks or alter the read-only dashboard/MCP contract. Never reuse the
+snapshot publisher token as a hub owner/session token.
+
+`session-hub/cli.mjs` registers sessions, submits questions, retrieves answers and
+confirms their request IDs through the authorized HTTP service. Participation
+requires the session to use that service. Current delivery is pull plus receipt;
+never claim arbitrary existing-chat push or automatic conversation resumption.
+Claude can use the self-contained `session-hub/artifact.mjs` output only after
+actual declared remote read/action connectors are bound. Missing native adapters
+remain disconnected, rather than falling back to another host or embedding secrets.
+
+Away mode is opt-in, default off, and requires a separately launched POSIX
+`session-hub/runner.mjs` with a local argv allowlist, start-resource budget and
+per-command timeout. No automatic merge/publication or execution after workspace
+shutdown is implied. Preserve existing routing, privacy and readiness evidence.
