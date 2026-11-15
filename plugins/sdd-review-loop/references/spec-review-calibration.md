@@ -28,6 +28,26 @@ The specification review gate reviews only Phase 1 artifacts:
 Do not require design decisions, task decomposition, implementation commands,
 test files, or quality-gate evidence. Those belong to later gates.
 
+## Phase 1 drafts and visual consent
+
+Full bootstrap creates `design.md`, the four layer specifications and proposed
+ADRs during Phase 1; their existence or citation is not evidence that an
+implementation-policy or task review passed. Likewise, `design-sync-loop`
+approves the visual design-system contract, tokens and UI patterns before
+mockup generation in Phase 1. That scoped visual approval, a supplied visual
+reference and its provenance are legitimate specification inputs, even while
+`Spec-Review-Status: Pending`. They do not require an Amendment Re-Review Context.
+
+Distinguish this visual consent from architecture/workflow authorization. Never
+infer `Impl-Review-Status: Passed`, task `Approval: Approved`, permission to
+implement, or a quality-gate verdict from approved visual assets. A claim that
+visual consent authorizes any of those transitions remains an approval-boundary
+finding under the ordinary severity rules. Actual implementation or executable
+task approval ahead of the required reviews remains a phase-sequencing violation.
+When "design approved" is ambiguous, use the cited artifact and stated scope;
+do not classify a documented design-system-only approval as later-phase work.
+This distinction does not waive review, task approval, provenance or egress gates.
+
 ## Finding Evidence Gate
 
 Before emitting a FAIL finding, cite all of the following:
@@ -64,7 +84,8 @@ A specification package can be legitimately re-reviewed after a human
 approved a post-implementation amendment (for example, correcting or
 extending Phase 1 artifacts once implementation, task, or quality-gate work
 already exists for this feature). Ordinarily this gate treats the mere
-existence or citing of any later-phase artifact while `Spec-Review-Status` is
+existence or citing of actual later-phase work (excluding the Phase 1 drafts
+and scoped visual consent defined above) while `Spec-Review-Status` is
 `Pending` as an unsafe or unauthorized workflow-boundary violation -- a
 "phase-sequencing" finding -- because a spec package should not describe work
 from a phase it has not yet been approved to unlock. An amendment re-review

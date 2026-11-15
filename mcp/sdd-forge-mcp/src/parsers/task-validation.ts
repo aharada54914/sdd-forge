@@ -45,6 +45,7 @@ export function finishTask(
   failures: TaskFailure[],
   tasks: TaskEntry[],
   reportLookup?: ReportLookup,
+  profile: "full" | "lite" = "full",
 ): void {
   const taskId = draft.id;
   const fail = (rule: string, message: string): void => {
@@ -60,6 +61,9 @@ export function finishTask(
     approval = draft.approval;
   }
   const isApproved = isApprovedShape(draft.approval);
+  if (profile === "lite" && (draft.risk === "high" || draft.risk === "critical")) {
+    fail("lite-full-upgrade-required", `${taskId} declares ${draft.risk} risk; Full workflow validation is required`);
+  }
 
   let status: Status | undefined;
   if (draft.status === "") {
@@ -78,17 +82,22 @@ export function finishTask(
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
 
-  if (status === "Done") {
+  if (status === "Done" && profile === "full") {
     validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
 
-  if (status === "Implementation Complete") {
+  if (status === "Implementation Complete" || (status === "Done" && profile === "lite")) {
     if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
       fail(
         "impl-complete-report-missing",
         `${taskId} is Implementation Complete but no implementation report in ${implReportsDir} mentions it`,
       );
     }
+  }
+
+  if (status === "Done" && profile === "lite" &&
+      !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
+    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
   }
 
   let blockersNonEmpty = false;
@@ -105,7 +114,7 @@ export function finishTask(
     blockersNonEmpty = draft.blockersContent !== "";
   }
 
-  if (status === "Done" && draft.risk === "critical") {
+  if (profile === "full" && status === "Done" && draft.risk === "critical") {
     validateCriticalTwoPersonApproval(taskId, draft, fail);
   }
 

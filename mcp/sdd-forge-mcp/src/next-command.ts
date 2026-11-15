@@ -1,3 +1,4 @@
+import type { ReportLookup } from './parsers/report-lookup.js';
 /**
  * `get_next_sdd_command`'s deterministic state -> next-command mapping
  * (design.md "Architecture" / "API / Contract Plan", REQ-011, AC-012).
@@ -17,6 +18,7 @@
  * assuming a phase.
  */
 
+import { workflowProfile } from "./profile.js";
 import { err, ok, type Result } from "./envelope.js";
 import { parseActiveSpecDirectories } from "./parsers/agents-md.js";
 import { extractHeaderValue } from "./parsers/spec-header.js";
@@ -137,7 +139,10 @@ function phaseFromTasks(
  * Required Workflow steps 1-8 in order, stopping at the first gate that has
  * not yet passed.
  */
-function nextCommandForFeature(root: SddRoot, feature: string): Result<NextCommandData> {
+function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportLookup): Result<NextCommandData> {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
+  const lite = profile.data === "lite";
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
@@ -151,14 +156,14 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
       kind: "next-command",
       feature,
       phase: "phase1-not-started",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : `/sdd-bootstrap:bootstrap feature ${feature}`,
       rationale: `${requirementsPath} does not exist yet; Phase 1 (requirements, design, ` +
         "acceptance tests) has not been started (AGENTS.md Required Workflow step 1).",
     });
   }
 
   const specReviewStatus = extractHeaderValue(requirementsResult.data.contents, "Spec-Review-Status");
-  if (specReviewStatus !== "Passed") {
+  if (!lite && specReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -185,7 +190,7 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
   }
 
   const implReviewStatus = extractHeaderValue(designResult.data.contents, "Impl-Review-Status");
-  if (implReviewStatus !== "Passed") {
+  if (!lite && implReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -207,14 +212,14 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
       kind: "next-command",
       feature,
       phase: "phase2-not-started",
-      nextCommand: "/sdd-bootstrap:bootstrap feature",
+      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : "/sdd-bootstrap:bootstrap feature",
       rationale: `${tasksPath} does not exist yet; Phase 2 (Draft tasks) has not been started ` +
         "(AGENTS.md Required Workflow step 4).",
     });
   }
 
   const taskReviewStatus = extractHeaderValue(tasksReadResult.data.contents, "Task-Review-Status");
-  if (taskReviewStatus !== "Passed") {
+  if (!lite && taskReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
@@ -226,7 +231,7 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
     });
   }
 
-  const taskStateResult = parseTaskState(root, feature, tasksPath);
+  const taskStateResult = parseTaskState(root, feature, tasksPath, undefined, undefined, reports);
   if (!taskStateResult.ok) {
     return taskStateResult;
   }
@@ -240,7 +245,10 @@ function nextCommandForFeature(root: SddRoot, feature: string): Result<NextComma
     );
   }
 
-  return ok(phaseFromTasks(feature, taskStateResult.data.tasks));
+  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  if (lite && phase.phase === "implementation") phase.nextCommand = `/sdd-ship:ship --lite specs/${feature}/tasks.md`;
+  if (lite && phase.phase === "quality-gate") phase.nextCommand = phase.nextCommand.replace("/sdd-quality-loop:quality-gate", "/sdd-lite:lite-gate");
+  return ok(phase);
 }
 
 /**
@@ -301,14 +309,14 @@ function autoSelectFeature(root: SddRoot): Result<string> {
  * single active feature first (sdd-ship:run's zero-argument rule) and then
  * applies the same gate walk.
  */
-export function getNextSddCommand(root: SddRoot, feature?: string): Result<NextCommandData> {
+export function getNextSddCommand(root: SddRoot, feature?: string, reports?: ReportLookup): Result<NextCommandData> {
   if (feature !== undefined) {
-    return nextCommandForFeature(root, feature);
+    return nextCommandForFeature(root, feature, reports);
   }
 
   const selected = autoSelectFeature(root);
   if (!selected.ok) {
     return selected;
   }
-  return nextCommandForFeature(root, selected.data);
+  return nextCommandForFeature(root, selected.data, reports);
 }

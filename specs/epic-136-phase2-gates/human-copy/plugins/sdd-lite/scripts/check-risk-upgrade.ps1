@@ -20,8 +20,8 @@ param(
 )
 
 # epic-194-a6-lite-integration T-002 (REQ-002): extended with an optional
-# -CapabilityReasons <fragment-path> parameter. Omitted entirely -> byte-
-# identical to the pre-T-002 script (AC-007). Supplied -> unreadable/
+# -CapabilityReasons <fragment-path> parameter. Omission preserves legacy
+# keywords except #727 non-requirement grammar. Supplied -> unreadable/
 # malformed/shape-invalid fragment is a hard error, exit 2, no trigger
 # reporting (Blocker [B3]); a valid fragment's eligible:$false entries
 # contribute their own upgrade_reasons tokens, or a synthetic
@@ -87,6 +87,51 @@ try {
 
 $normalized = ConvertTo-AsciiLower $source
 $normalized = $normalized.Replace("`r`n", "`n").Replace("`r", "`n")
+# Mirror the bounded non-requirement grammar of the sh checker.
+$exclusionNoun = 'accounts?|auth|authentication|authorization|oauth|oidc|servers?|sharing|sync|' +
+    'editing|priorities|drag and drop|deployment|remote publication|tokens?|' +
+    'credentials?|passwords?|private keys?|mcp|external apis?|third-party apis?|' +
+    'third party apis?|secrets?|github actions'
+$exclusionItems = ' {0,3}[-*][ \t]+(?:' + $exclusionNoun +
+    ')(?:[ \t]*(?:,[ \t]*(?:and[ \t]+)?|[ \t]+and[ \t]+)(?:' + $exclusionNoun + '))*[ \t]*\.?[ \t]*'
+$scopeHeadings = @('scope exclusions', 'out of scope', [regex]::Unescape('\u30b9\u30b3\u30fc\u30d7\u5916'))
+$section = ''
+$fence = ''
+$excluded = New-Object 'System.Collections.Generic.List[int]'
+$exclusionValid = $true
+$lines = New-Object 'System.Collections.Generic.List[string]'
+foreach ($lineValue in $normalized.Split("`n")) {
+    $line = $lineValue
+    $marker = [regex]::Match($line, '^ {0,3}(`{3,}|~{3,})')
+    if ($marker.Success) {
+        $exclusionValid = $false
+        $character = $marker.Groups[1].Value.Substring(0, 1)
+        if ($fence -eq '') { $fence = $marker.Groups[1].Value }
+        elseif ($fence.Substring(0, 1) -ceq $character -and $marker.Groups[1].Value.Length -ge $fence.Length -and $line.Substring($marker.Index + $marker.Length).Trim() -eq '') { $fence = '' }
+        $lines.Add($line)
+        continue
+    }
+    if ($fence -ne '') { $lines.Add($line); continue }
+    $heading = [regex]::Match($line, '\A {0,3}(#{1,6})[ \t]+([^#]+?)[ \t]*#*[ \t]*\z')
+    if ($heading.Success) {
+        if ($exclusionValid) { foreach ($index in $excluded) { $lines[$index] = '' } }
+        $excluded.Clear()
+        $exclusionValid = $true
+        $section = $heading.Groups[2].Value.Trim()
+    } elseif ($scopeHeadings -ccontains $section -and [regex]::IsMatch($line, '\A' + $exclusionItems + '\z')) {
+        $excluded.Add($lines.Count)
+    } elseif ($scopeHeadings -ccontains $section -and $line.Trim() -ne '') {
+        $exclusionValid = $false
+    } elseif ($section -ceq 'blockers') {
+        $line = $line.Replace(
+            'general authorization to create and test does not supply that task approval.',
+            'general permission to create and test does not supply that task approval.'
+        )
+    }
+    $lines.Add($line)
+}
+if ($exclusionValid) { foreach ($index in $excluded) { $lines[$index] = '' } }
+$normalized = $lines -join "`n"
 $normalized = [regex]::Replace($normalized, '[ \t\n]+', ' ')
 $normalized = [regex]::Replace(
     $normalized,

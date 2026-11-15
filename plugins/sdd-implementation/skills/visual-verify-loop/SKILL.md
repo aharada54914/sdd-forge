@@ -25,9 +25,16 @@ implementation report and return:
 ## App-Type Detection
 
 - **Web**: a dev server can be started (`.claude/launch.json`, or a dev
-  script in `package.json`) — use the Claude Preview MCP tools
+  script in `package.json`) — prefer the Claude Preview MCP tools
   (`preview_start`, `preview_screenshot`, `preview_snapshot`,
-  `preview_inspect`, `preview_resize`).
+  `preview_inspect`, `preview_resize`). If unavailable, use an available
+  browser automation tool or the project's installed Playwright with a real
+  browser. Start the project's documented local server, wait for readiness,
+  and capture the same screenshots, accessibility/DOM state, computed styles,
+  and desktop/mobile viewport evidence. Record the actual tool and browser;
+  never label Playwright evidence as Claude Preview evidence. Stop servers
+  started by this verification when finished. Do not install an unapproved
+  remote service or replace runtime checks with static HTML inspection.
 - **WPF desktop**: a WPF project is present — use the `wpf-visual-verify`
   skill (off-screen RenderTargetBitmap rendering to PNG).
 - **Neither, or the tools are unavailable in this environment**: record

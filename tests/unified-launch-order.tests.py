@@ -134,7 +134,7 @@ class LaunchOrderTests(unittest.TestCase):
                         stdout=('invalid' if failure == 'common-result' else
                             'HOST_REVIEW_PREFLIGHT_OK inputs=4 permission-proof=not-established '
                             'reservation=not-performed\n'), stderr='injected input failure')
-                self.assertEqual(command[-1], '--verify-inputs')
+                self.assertEqual(command[-3:], ['--verify-inputs', '--repository-root', str(root)])
                 if not output.exists():
                     events.append('precheck-before-output')
                 if failure == 'precheck-drift':

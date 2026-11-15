@@ -90,3 +90,22 @@ transport を追加する場合は本仕様の改訂と新 ADR を必須とす�
 
 - なし（OQ-001: Codex 登録手段は design.md 管理。installer が書き込むのは
   クライアント設定であり本サーバーの信頼境界外）。
+
+## Evidence integrity verification exception (issue #755)
+
+Content-returning MCP tools retain the B2 allowlist above. Evidence manifests may
+reference artifacts elsewhere inside the project, so the internal
+`guardedArtifactMatches` operation checks their raw-byte SHA-256 without returning
+file contents or digests. This operation is available only to manifest validation,
+not as a tool/resource or arbitrary-path read API. It uses the same input-shape,
+realpath, denylist, regular-file and 2 MiB checks, with repository containment in
+place of the content allowlist. External symlink targets, `.env`, the approval
+flag and signing-key aliases remain denied. A guard failure is reported as
+unverifiable evidence, not a missing-file assertion or a PASS.
+
+The bounded integrity result may disclose whether a manifest's expected hash
+matches a repository-local artifact. This is an explicit integrity-check boundary,
+not authorization to expose that artifact's contents through evidence inspection.
+Binary artifacts are hashed as bytes; UTF-8 decoding would change their digest.
+Regression coverage: `tests/workflow-profile-artifacts.test.ts` plus existing path
+security and no-secrets suites.

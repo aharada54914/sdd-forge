@@ -22,6 +22,7 @@
  * exit 1 — surfaced as a `fail` verdict rather than `cannot-parse`.
  */
 
+import { workflowProfile } from "../profile.js";
 import { ok, type Result } from "../envelope.js";
 import { guardedRead } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
@@ -73,6 +74,8 @@ export function parseTaskState(
   implReportsDir = "reports/implementation",
   reportLookup: ReportLookup = createReportLookup(),
 ): Result<TaskStateData> {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
   const fileResult = guardedRead(root, relTasksFilePath);
   if (!fileResult.ok) {
     return fileResult;
@@ -88,7 +91,7 @@ export function parseTaskState(
 
   const finish = (): void => {
     if (draft !== undefined) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
+      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
     }
   };
 

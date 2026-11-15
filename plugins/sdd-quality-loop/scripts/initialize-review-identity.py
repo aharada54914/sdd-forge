@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Register the invoking Copilot host from its native session-start event."""
+"""Register an invoking host from its original native session metadata."""
 import argparse
 import hashlib
 import json
@@ -84,11 +84,41 @@ def directory(root, relative):
     return current
 
 
-def initialize(root, events):
+def codex_identity(root, rollout):
+    rollout = regular_file(Path(rollout))
+    native_home = Path(os.environ.get('CODEX_HOME') or Path.home() / '.codex').absolute()
+    relative = rollout.relative_to(native_home / 'sessions')
+    if len(relative.parts) != 4 or not re.fullmatch(r'\d{4}/\d{2}/\d{2}', '/'.join(relative.parts[:3])):
+        raise ValueError('use the original Codex sessions rollout file')
+    with rollout.open('rb') as source:
+        first = source.readline(1048577)
+    if len(first) > 1048576:
+        raise ValueError('native session metadata is too large')
+    event = json.loads(first, object_pairs_hook=unique_object)
+    if not isinstance(event, dict) or event.get('type') != 'session_meta':
+        raise ValueError('native Codex session metadata is missing')
+    data = event.get('payload')
+    if not isinstance(data, dict) or data.get('originator') not in ('codex_exec', 'codex_cli_rs', 'codex_vscode'):
+        raise ValueError('unsupported native Codex producer')
+    session = data.get('id')
+    if not isinstance(session, str) or not re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', session):
+        raise ValueError('invalid native Codex session identity')
+    if not re.fullmatch(r'rollout-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-' + re.escape(session) + r'\.jsonl', rollout.name):
+        raise ValueError('native Codex session identity does not match its filename')
+    if data.get('source') not in ('exec', 'cli', 'vscode') or data.get('forked_from_id'):
+        raise ValueError('host registration requires an original Codex session')
+    if not isinstance(data.get('cwd'), str) or Path(data['cwd']).resolve(strict=True) != root:
+        raise ValueError('native session belongs to another project')
+    # Codex allocates a thread identity, not an independent session-start event ID.
+    # Preserve that host-issued identity in both fields rather than inventing one.
+    return session, session
+
+
+def initialize(root, events, provider='copilot'):
     root = Path(root).resolve(strict=True)
     if not root.is_dir():
         raise ValueError('project root is not a directory')
-    run, session = native_identity(root, events)
+    run, session = codex_identity(root, events) if provider == 'codex' else native_identity(root, events)
     destination = directory(root, 'reports/review-context')
     ledger = destination / 'identity-ledger.json'
     lock = destination / 'identity-ledger.json.lock'
@@ -101,8 +131,14 @@ def initialize(root, events):
         # with a convenient new first record, including after a failed review.
         for name in ('spec-review', 'impl-review', 'task-review', 'domain-review', 'quality-gate', 'implementation'):
             history = root / 'reports' / name
-            if history.is_symlink() or (history.exists() and redirected(history)) or (history.exists() and (not history.is_dir() or any(history.rglob('*')))):
+            if history.is_symlink() or (history.exists() and redirected(history)) or (history.exists() and not history.is_dir()):
                 raise ValueError('prior review or implementation history prevents initialization')
+            for entry in history.rglob('*'):
+                # sdd-adopt seeds empty direct .gitkeep files before registration.
+                # Only that exact inert scaffold is not prior review evidence.
+                if (entry.parent != history or entry.name != '.gitkeep' or redirected(entry)
+                        or not entry.is_file() or entry.stat().st_size != 0 or entry.stat().st_nlink != 1):
+                    raise ValueError('prior review or implementation history prevents initialization')
         if any(path.name != lock.name for path in destination.iterdir()):
             raise ValueError('prior review-context evidence prevents initialization')
         record = dict(sequence=1, stage='host', role='orchestrator', run_id=run,
@@ -128,10 +164,13 @@ def initialize(root, events):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', required=True)
-    parser.add_argument('--copilot-events', required=True)
+    native = parser.add_mutually_exclusive_group(required=True)
+    native.add_argument('--copilot-events')
+    native.add_argument('--codex-rollout')
     args = parser.parse_args()
     try:
-        initialize(args.root, args.copilot_events)
+        initialize(args.root, args.codex_rollout or args.copilot_events,
+                   'codex' if args.codex_rollout else 'copilot')
         print('REVIEW_HOST_REGISTERED')
         return 0
     except (OSError, ValueError, TypeError, KeyError):

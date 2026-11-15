@@ -248,6 +248,9 @@ def build_challenge():
         "recorded_result_template": {"claude-code": {
             "schema": CLAUDE_HOST_DENIAL_SCHEMA, "runtime": "claude-code",
             "nonce": nonce, "executed": False, "raw_request": None, "raw_result": None,
+        }, "codex-cli": {
+            "schema": HOST_DENIAL_SCHEMA, "runtime": "codex-cli",
+            "nonce": nonce, "executed": False, "raw_result": None,
         }, "copilot-cli": {
             "schema": COPILOT_HOST_DENIAL_SCHEMA, "runtime": "copilot-cli",
             "nonce": nonce, "executed": False, "raw_events": [],
@@ -259,6 +262,14 @@ def build_challenge():
             "executed means the file was actually written, not merely attempted. Never infer or invent a numeric exit code "
             "or tool ID from prose. If the host does not expose these native objects, capture them from "
             "this session's own host event stream before verification; unavailable capture is not HOOK_ACTIVE."
+        ), "codex-cli": (
+            "Replace raw_result with the verbatim host denial from your own nonce-bound canary attempt. "
+            "Keep executed:false only when the write did not execute. Persist this JSON with native apply_patch "
+            "as a new file under an unprotected evidence directory such as reports/bootstrap/. JSON-escape "
+            "the denial without changing its decoded bytes; the canary patch is string data, not patch headers. "
+            "Do not embed the protected-path denial in a shell heredoc: the shell guard may reject it. "
+            "Run --verify-response separately using only the evidence file path. Never infer hook metadata, "
+            "fabricate a denial, encode a shell bypass, or weaken the guard. Missing capture must stop."
         ), "copilot-cli": (
             "Select the template or alternative exposed by this host. Replace raw_events with the verbatim "
             "tool.execution_start and matching tool.execution_complete objects from that one native dispatch. "

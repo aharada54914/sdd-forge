@@ -5,7 +5,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset | --recover-interrupted=<record>]" >&2
+  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--repository-root <directory>] [--verify-inputs | --edit-summary=<text> --reset | --recover-interrupted=<record>]" >&2
   exit 1
 }
 
@@ -28,7 +28,7 @@ is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 [[ $# -ge 3 ]] || usage
 feature="$1"; attempt="$2"; round="$3"; shift 3
 edit_summary=""; reset=false; verify_inputs=false; recover_interrupted=""
-fixed_input_record=""; fixed_input_snapshot=""
+fixed_input_record=""; fixed_input_snapshot=""; repository_root=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --edit-summary=*) edit_summary="${1#*=}" ;;
@@ -37,6 +37,7 @@ while [[ $# -gt 0 ]]; do
     --verify-inputs) verify_inputs=true ;;
     --fixed-input-record) fixed_input_record="${2:?missing fixed record}"; shift ;;
     --fixed-input-snapshot) fixed_input_snapshot="${2:?missing fixed snapshot}"; shift ;;
+    --repository-root) [[ -z "$repository_root" && $# -ge 2 && -n "$2" ]] || fail "duplicate or empty repository root"; repository_root="$2"; shift ;;
     *) usage ;;
   esac
   shift
@@ -67,7 +68,17 @@ else
   [[ "$attempt" -eq 1 || "$round" -gt 1 ]] || fail "a new attempt requires --reset"
 fi
 
-repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+script_dir="$(cd "$(dirname "$0")" && pwd -P)"
+plugin_root="$(cd "$script_dir/.." && pwd -P)"
+# Source-checkout callers retain their historical default. Installed packages
+# operate on the invoking project, never on the versioned plugin cache.
+if [[ -z "$repository_root" ]]; then
+  repository_root="$PWD"
+  if [[ "$plugin_root" == */plugins/sdd-review-loop && -e "$plugin_root/../../.git" ]]; then
+    repository_root="$(cd "$plugin_root/../.." && pwd -P)"
+  fi
+fi
+repo_root="$(cd "$repository_root" && pwd -P)" || fail "repository root must be an existing directory"
 specs_root="${repo_root}/specs"
 reports_root="${repo_root}/reports"
 reports_base="${reports_root}/spec-review"
@@ -78,8 +89,12 @@ calibration="${repo_root}/plugins/sdd-review-loop/references/spec-review-calibra
 investigation="${spec_dir}/investigation.md"
 report_root="${repo_root}/reports/spec-review/${feature}"
 report_dir="${report_root}/attempt-${attempt}/round-${round}"
-. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+. "$script_dir/lib/fixed-input-source.sh"
 fixed_input_init "$verify_inputs"
+asset_options=(--root "$repo_root" --stage spec)
+[[ "$verify_inputs" == true ]] && asset_options+=(--verify-only)
+python3 "$script_dir/prepare-review-assets.py" "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
+
 if [[ -n "$fixed_source_map" ]]; then
   requirements=$(fixed_input_path "$requirements")
   acceptance=$(fixed_input_path "$acceptance")
@@ -641,7 +656,7 @@ PY
     [.allowed_input_manifest[] | {path:(.path | relative_path),sha256}] | sort_by(.path)' "$repo_root/$invocation") || return 1
   validate_reviewer_output "$report_root/attempt-${source_attempt}/round-${source_round}/reviewer-a.json" spec-reviewer-a "$expected_manifest" \
     "$(jq -r .run_id "$repo_root/$invocation")" "$(jq -r .host_session_id "$repo_root/$invocation")" || return 1
-  bash "$repo_root/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh" "$repo_root/$invocation" "$repo_root" >/dev/null || return 1
+  bash "$(review_plugin_file plugins/sdd-quality-loop/scripts/validate-review-context-set.sh)" "$repo_root/$invocation" "$repo_root" >/dev/null || return 1
 }
 
 if [[ "$round" -gt 1 ]]; then
@@ -726,7 +741,7 @@ foundation_contract="${report_root}/.review-contract-${attempt}-${round}-$$.json
 trap 'rm -f "$foundation_contract"; rmdir "$lock_dir" 2>/dev/null || true' EXIT
 jq -n --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" --arg input_sha256 "$input_sha" \
   '{schema:"review-contract/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,input_sha256:$input_sha256,run_id:"spec-precheck",verdict:"PASS"}' > "$foundation_contract"
-"${repo_root}/plugins/sdd-review-loop/scripts/review-contract-validate.sh" --feature "$feature" --attempt "$attempt" --round "$round" --stage spec --report-root "$report_root" --contract "$foundation_contract" >/dev/null
+"${script_dir}/review-contract-validate.sh" --repository-root "$repo_root" --feature "$feature" --attempt "$attempt" --round "$round" --stage spec --report-root "$report_root" --contract "$foundation_contract" >/dev/null
 rm -f "$foundation_contract"
 
 # Reset is the sole exceptional transition that restores Pending. It occurs only

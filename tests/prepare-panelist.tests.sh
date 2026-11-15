@@ -3292,6 +3292,116 @@ else
     fail 'review input I/O boundaries fail closed'
 fi
 
+
+# Binary evidence must never be silently converted into reviewable text.
+BINARY_DIR="$WORK/binary-input"
+mkdir -p "$BINARY_DIR/specs/binary/verification/T-004"
+write_tasks_with_consent "$BINARY_DIR/specs/binary/tasks.md"
+for kind in png nul invalid-utf8 japanese; do
+    python3 - "$BINARY_DIR/artifact" "$kind" <<'BINARY_FIXTURE'
+from pathlib import Path
+import base64, sys
+values = {
+    'png': base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aOioAAAAASUVORK5CYII='),
+    'nul': b'ordinary\x00text',
+    'invalid-utf8': b'ordinary\xfftext',
+    'japanese': '日本語の検証入力\n'.encode('utf-8'),
+}
+Path(sys.argv[1]).write_bytes(values[sys.argv[2]])
+BINARY_FIXTURE
+    hash=$(sha256sum "$BINARY_DIR/artifact" | cut -d ' ' -f1)
+    write_impl_report "$BINARY_DIR" binary T-004 "artifact"$'\t'"$hash"
+    for mode in direct declared; do
+        input="$BINARY_DIR/artifact"
+        [[ "$mode" == declared ]] && input="$BINARY_DIR/specs/binary/verification/T-004"
+        out="$BINARY_DIR/$kind-$mode.txt"
+        printf 'retain-existing-output' > "$out"
+        run_prepare --task T-004 --feature binary --input "$input" \
+            --tasks-file "$BINARY_DIR/specs/binary/tasks.md" --project-root "$BINARY_DIR" --out "$out"
+        if [[ "$kind" == japanese ]]; then
+            if [[ "$PP_EXIT" == 0 ]] && grep -q '日本語の検証入力' "$out"; then
+                ok "binary-$mode: valid Japanese UTF-8 preserved"
+            else fail "binary-$mode: valid UTF-8 rejected: $PP_OUTPUT"; fi
+        elif [[ "$PP_EXIT" == 1 && "$PP_OUTPUT" == *'unsupported binary or invalid UTF-8'* ]] && \
+                [[ "$(cat "$out")" == retain-existing-output ]]; then
+            ok "binary-$mode: $kind rejected without replacing output"
+        else fail "binary-$mode: $kind was admitted or replaced output: $PP_OUTPUT"; fi
+    done
+done
+
+# Business fixtures with review-like keys are review targets, not primary feedback.
+app_root="$WORK/application-evidence"
+mkdir -p "$app_root/specs/feat/verification" "$app_root/data"
+write_tasks_with_consent "$app_root/specs/feat/tasks.md" T-004
+for case in outside wrong-task wrong-feature business-schema; do
+    app_source="$app_root/data/customer.evidence.json"
+    app_task=T-004; app_feature=feat
+    if [[ "$case" != outside ]]; then app_source="$app_root/specs/feat/verification/T-004.evidence.json"; fi
+    [[ "$case" == wrong-task ]] && app_task=T-999
+    [[ "$case" == wrong-feature ]] && app_feature=other
+    printf '{"task_id":"%s","feature":"%s","checks":[],"review_verdict":"BUSINESS_DECISION","quality_report":"BUSINESS_REPORT"}' "$app_task" "$app_feature" > "$app_source"
+    [[ "$case" == business-schema ]] && printf '{"review_verdict":"BUSINESS_DECISION","quality_report":"BUSINESS_REPORT"}' > "$app_source"
+    run_prepare --task T-004 --feature feat --project-root "$app_root" --tasks-file "$app_root/specs/feat/tasks.md" --input "$app_source" --out "$app_root/$case.txt"
+    if [[ "$PP_EXIT" == 0 ]] && grep -q BUSINESS_DECISION "$app_root/$case.txt" && grep -q BUSINESS_REPORT "$app_root/$case.txt"; then
+        ok "business-$case: application review fields retained"
+    else fail "business-$case: application content changed: $PP_OUTPUT"; fi
+done
+
+# Primary review outcomes must not travel beside real execution evidence.
+blind_root="$WORK/blind-evidence"
+mkdir -p "$blind_root/specs/feat/verification"
+write_tasks_with_consent "$blind_root/specs/feat/tasks.md" T-004
+blind_source="$blind_root/specs/feat/verification/T-004.evidence.json"
+printf '%s\n' '{"task_id":"T-004","feature":"feat","review_verdict":{"verdict":"PRIMARY_REVIEW_SECRET"},"quality_report":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","checks":[{"id":"unit-tests","evidence":"actual-test-facts"}],"artifacts":[{"path":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","sha256":"original-review-hash"},{"path":"tests.log","sha256":"execution-hash"}]}' > "$blind_source"
+cp "$blind_source" "$blind_root/original.json"
+for mode in file directory; do
+    blind_input="$blind_source"
+    [[ "$mode" == directory ]] && blind_input="$blind_root"
+    run_prepare --task T-004 --feature feat --project-root "$blind_root" --tasks-file "$blind_root/specs/feat/tasks.md" --input "$blind_input" --out "$blind_root/$mode.txt"
+    if [[ "$PP_EXIT" == 0 ]] && ! grep -q PRIMARY_REVIEW_SECRET "$blind_root/$mode.txt" &&
+       grep -q actual-test-facts "$blind_root/$mode.txt" && grep -q execution-hash "$blind_root/$mode.txt" &&
+       grep -q panelist_projection "$blind_root/$mode.txt" && cmp -s "$blind_source" "$blind_root/original.json"; then
+        ok "blind-$mode: primary feedback excluded; execution facts and source preserved"
+    else fail "blind-$mode: projection failed: $PP_OUTPUT"; fi
+done
+
+ln "$app_root/data/customer.evidence.json" "$app_root/customer-hardlink.json"
+run_prepare --task T-004 --feature feat --project-root "$app_root" --tasks-file "$app_root/specs/feat/tasks.md" --input "$app_root/customer-hardlink.json" --out "$app_root/hardlink.txt"
+if [[ "$PP_EXIT" == 0 ]] && grep -q BUSINESS_DECISION "$app_root/hardlink.txt" && grep -q BUSINESS_REPORT "$app_root/hardlink.txt"; then ok 'business-hardlink: application hard link remains intact'; else fail "business-hardlink: application input changed: $PP_OUTPUT"; fi
+
+# Trusted direct aliases must resolve to the same canonical blind evidence.
+ln -s "$blind_source" "$blind_root/evidence-alias.json"
+ln -s "$blind_root/specs/feat/verification" "$blind_root/verification-alias"
+ln -s specs/feat/verification/T-004.evidence.json "$blind_root/relative-alias.json"
+for alias in "$blind_root/evidence-alias.json" "$blind_root/verification-alias/T-004.evidence.json" "$blind_root/relative-alias.json"; do
+    run_prepare --task T-004 --feature feat --project-root "$blind_root" --tasks-file "$blind_root/specs/feat/tasks.md" --input "$alias" --out "$blind_root/alias.txt"
+    if [[ "$PP_EXIT" == 0 ]] && ! grep -q PRIMARY_REVIEW_SECRET "$blind_root/alias.txt" && grep -q actual-test-facts "$blind_root/alias.txt"; then
+        ok 'blind-alias: canonical evidence remains blind through direct link'
+    else fail "blind-alias: feedback leaked or direct alias failed: $PP_OUTPUT"; fi
+done
+
+ln -s "$app_root/data/customer.evidence.json" "$app_root/customer-alias.json"
+run_prepare --task T-004 --feature feat --project-root "$app_root" --tasks-file "$app_root/specs/feat/tasks.md" --input "$app_root/customer-alias.json" --out "$app_root/alias.txt"
+if [[ "$PP_EXIT" == 0 ]] && grep -q BUSINESS_DECISION "$app_root/alias.txt" && grep -q BUSINESS_REPORT "$app_root/alias.txt"; then ok 'business-alias: direct application link remains intact'; else fail "business-alias: application alias changed: $PP_OUTPUT"; fi
+ln -s loop.json "$blind_root/loop.json"
+run_prepare --task T-004 --feature feat --project-root "$blind_root" --tasks-file "$blind_root/specs/feat/tasks.md" --input "$blind_root/loop.json" --out "$blind_root/loop.txt"
+if [[ "$PP_EXIT" != 0 && ! -e "$blind_root/loop.txt" ]]; then ok 'blind-loop: cyclic direct input rejected without output'; else fail 'blind-loop: cyclic input accepted'; fi
+
+mkdir -p "$blind_root/specs/feat/verification/T-004"
+blind_large="$blind_root/specs/feat/verification/T-004/large.evidence.json"
+python3 - "$blind_large" <<'BLIND_FIXTURE'
+import json, sys
+from pathlib import Path
+Path(sys.argv[1]).write_text(json.dumps({'task_id': 'T-004', 'feature': 'feat', 'checks': [{'evidence': 'execution-facts-' + 'x' * 250} for _ in range(1000)], 'review_verdict': {'verdict': 'PRIMARY_REVIEW_SECRET'}}, indent=2))
+BLIND_FIXTURE
+cp "$blind_large" "$blind_root/original-large.json"
+run_prepare --task T-004 --feature feat --project-root "$blind_root" --tasks-file "$blind_root/specs/feat/tasks.md" --input "$blind_root" --max-bytes 16000 --out "$blind_root/elided.txt"
+if [[ "$PP_EXIT" == 0 ]] && grep -q 'bytes elided' "$blind_root/elided.txt" &&
+   ! grep -q PRIMARY_REVIEW_SECRET "$blind_root/elided.txt" && grep -q execution-facts "$blind_root/elided.txt" &&
+   cmp -s "$blind_large" "$blind_root/original-large.json"; then
+    ok 'blind-elision: projected evidence stays blind after head/tail elision; source unchanged'
+else fail "blind-elision: projection failed: $PP_OUTPUT"; fi
+
 # ============================================================================
 # Summary
 # ============================================================================

@@ -163,6 +163,9 @@ class DockerFixture:
         logs = self.docker(["logs", container], label=f"Flyway {operation} result")
         # Use the upstream process exit, not the exit status of `docker logs`.
         code = int(result.stdout.strip())
+        # Retaining each completed migration copies the full image on vfs daemons.
+        # Exit status and logs are already captured; database containers stay live.
+        self._remove_container(container)
         return subprocess.CompletedProcess(["flyway", operation], code, logs.stdout, logs.stderr)
 
     def _owned(self, kind, resource):
@@ -173,6 +176,22 @@ class DockerFixture:
         if labels.get(LABEL) != self.run_id:
             raise RuntimeError(f"refusing cleanup of unowned {kind}")
 
+    def _container_absent(self, container):
+        # A successful listing avoids Docker-version/localization-dependent errors.
+        # Include stopped containers and select the exact run-owned ID or name.
+        selector = ('id=' + container if re.fullmatch(r'[0-9a-f]{64}', container)
+                    else 'name=^/' + re.escape(container) + '$')
+        remaining = self.docker(['container', 'ls', '--all', '--quiet', '--no-trunc',
+                                 '--filter', selector], label='confirm container absent')
+        return not remaining.stdout.strip()
+
+    def _remove_container(self, container):
+        self._owned("container", container)
+        self.docker(["rm", "--force", "--volumes", container], label="remove owned container")
+        if not self._container_absent(container):
+            raise RuntimeError("could not confirm owned container removal")
+        self.containers.remove(container)
+
     def finish(self, error=None):
         cleanup_errors = []
         for pending in self.pending_containers:
@@ -180,17 +199,13 @@ class DockerFixture:
                 probe = self.docker(["inspect", pending], expected=None, label="inspect pending create")
                 if probe.returncode == 0:
                     self.containers.append(pending)
-                elif probe.returncode != 1 or "No such object" not in probe.stderr:
+                elif not self._container_absent(pending):
                     cleanup_errors.append("could not determine pending container state")
             except Exception as exc:
                 cleanup_errors.append(self.redact(str(exc)))
-        for container in reversed(self.containers):
+        for container in reversed(self.containers[:]):
             try:
-                self._owned("container", container)
-                self.docker(["rm", "--force", "--volumes", container], label="remove owned container")
-                absent = self.docker(["inspect", container], expected=None, label="confirm container removed")
-                if absent.returncode != 1 or "No such object" not in absent.stderr:
-                    raise RuntimeError("could not confirm owned container removal")
+                self._remove_container(container)
             except Exception as exc:
                 cleanup_errors.append(self.redact(str(exc)))
         if self.network:

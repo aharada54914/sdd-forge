@@ -642,9 +642,32 @@ def _write_content_increases(file_path, new_content):
     return False
 
 
+def _shell_is_evidence_write(tool_name, command, directories):
+    if tool_name.lower() not in ("bash", "shell", "exec_command", "exec") or not isinstance(command, str):
+        return False
+    try:
+        root = directories[-1] if directories else os.getcwd()
+        result = subprocess.run(["python3", "-I", "-B", str(Path(__file__).with_name("classify-evidence-write.py"))],
+                                input=json.dumps({"command": command, "root": root}), text=True,
+                                capture_output=True, timeout=3, check=True, encoding="utf-8")
+        return json.loads(result.stdout) is True
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return False
+
+
 def _looks_like_patch(command):
-    """Return True if command string looks like a Codex apply_patch envelope."""
-    return isinstance(command, str) and "*** Begin Patch" in command
+    """Distinguish patch execution from a quoted patch in diagnostic evidence."""
+    if not isinstance(command, str) or "*** Begin Patch" not in command:
+        return False
+    if command.lstrip().startswith("*** Begin Patch"):
+        return True
+    tokens = _tokenize_shell_command(command)
+    # Preserve conservative handling of unmodeled syntax and shell patch carriers.
+    # A Python string containing a denial is not itself a patch invocation.
+    return tokens is None or any(
+        kind == "word" and re.search(r"(?:^|[^A-Za-z0-9_.-])apply_patch(?:[^A-Za-z0-9_.-]|$)", text)
+        for kind, text in tokens)
+
 
 
 def _patch_increases(patch):
@@ -2316,7 +2339,7 @@ def main():
                         return
 
         # Check 2b: Approval guard (bypassed by valid sudo).
-        if approval_increases(payload) and not sudo_active():
+        if approval_increases(payload) and not sudo_active() and not _shell_is_evidence_write(tool_name, tool_input.get("command"), directories):
             emit("deny", APPROVAL_MSG, mode)
 
         # Check 2b-2: Domain-model approval guard (bypassed by valid sudo,

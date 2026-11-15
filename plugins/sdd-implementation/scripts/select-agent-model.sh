@@ -11,14 +11,20 @@ case "$0" in
   */*) script_directory="${0%/*}"; [[ -n "$script_directory" ]] || script_directory=/ ;;
   *) script_directory=. ;;
 esac
-helper_path="$(cd -- "$script_directory" && pwd)/model-policy.py"
+script_directory="$(cd -- "$script_directory" && pwd)"
+helper_path="$script_directory/model-policy.py"
+# Source checkouts keep the canonical root contracts; packaged plugins own mirrors.
+case "$script_directory" in
+  */plugins/sdd-implementation/scripts) registry_directory="$(cd -- "$script_directory/../../.." && pwd)/contracts" ;;
+  *) registry_directory="$(cd -- "$script_directory/.." && pwd)/contracts" ;;
+esac
 risk=""
 candidates=()
 failure_class=""
 failure_history=""
 previous_tier=""
 consecutive_failures="0"
-registry="$(cd -- "$script_directory/../../.." && pwd)/contracts/agent-model-capabilities.json"
+registry="$registry_directory/agent-model-capabilities.json"
 candidates_file=""
 required_tier=""
 minimum_tier=""
@@ -185,7 +191,7 @@ try:
         options = {key: value for key, value in values.items() if key in supplied}
         if "registry" not in supplied:
             from pathlib import Path
-            registry_path = str(Path(helper_path).resolve().parents[3] / "contracts/agent-model-capabilities.v2.json")
+            registry_path = str(mp.default_capability_registry())
         if policy_engine_only == "true":
             import os
             with os.fdopen(3, "rb") as context_stream:

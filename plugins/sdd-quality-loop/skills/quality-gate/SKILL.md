@@ -12,6 +12,46 @@ user-invocable: false
 
 Use after `implement-task` has set a task to `Implementation Complete`.
 
+## Native Codex evaluator route
+
+For an unmanaged local Codex allocation without an idle sub-agent API, use the
+installed review plugin's `scripts/launch-codex-review.py` with the ordinary
+`stage: quality`, `role: sdd-evaluator` invocation template. Do not reserve its
+placeholder IDs. The launcher allocates a genuinely idle native thread, replaces
+only the run/session/ledger continuation fields and its own fresh `scratch_root`,
+then runs the existing evaluator delivery helper before the first model turn.
+The original caller template remains pinned and unchanged. Preserve `task_id`,
+`implementation_manifest`, gate-report and supplemental-delivery declarations,
+and every required input. Missing implementation binding is a launch failure.
+Managed model routing retains its admitted managed route; this is not a fallback
+from a managed failure and does not change the configured Codex evaluator tier.
+
+```bash
+python3 -I -B "$SDD_REVIEW_SCRIPTS/launch-codex-review.py" \
+  "$repository_root" "$invocation" --manifest-sha256 "$invocation_sha256" \
+  --output "$new_output_directory" --timeout 600
+```
+
+Use a new repository-contained output directory. Forward both fixed-input options
+when selected. This route requires Linux and native named permission profiles.
+It verifies inside read, outside read denial, write denial and network denial;
+there is no generic read-only fallback. The child permits only the projected
+inputs, its invocation and minimal native runtime files. External tools and
+plugins are disabled inside this child; parent workflow guards remain active.
+The canonical `preflight-evaluator-delivery.py` performs scratch hash readback
+and delegates the reservation, preserving the implementation identity binding
+and feature-wide scratch isolation checks. Do not separately reserve this route.
+
+`evaluator.txt` is an independently produced candidate, not a quality gate report.
+The shared plaintext validator checks identity, exact persisted manifest pin,
+verdict, findings and checked evidence. A PASS also requires an observed native
+read of an admitted file. The read-only child must list tests it could not rerun;
+missing dependencies, writes or network are never silently enabled to get PASS.
+Use the usual quality-gate persistence and task-state checks to adopt the result.
+Keep `delivery.json`, native events, permission probes and the reservation receipt
+as transport evidence. Timeout, stale inputs, false identity, or missing delivery
+binding stops without adopting a result; a consumed reservation stays in history.
+
 ## Managed allocation boundary
 
 Affected policy roles: `evaluator`.
@@ -194,7 +234,14 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
      current state, since no `project-context.yaml` exists yet),
      `advisory` (full six-Fail-condition evaluation and recording, always
      exit 0), `required` (identical evaluation, exit non-zero iff a Fail
-     condition triggers). This documented invocation is defense-in-depth,
+     condition triggers).
+     This is a required invocation with a legitimate applicability result, not
+     an optional waiver or a claim that coverage was substantively evaluated.
+     Preserve its actual command, exit status, configuration/input provenance and
+     producer-bound JSON in evaluator inputs. Do not force capability activation
+     solely because the contract check has `required: true`. Missing execution,
+     parse errors or enabled-mode missing coverage never qualify as this N/A.
+     This documented invocation is defense-in-depth,
      not the reachability guarantee — `check-component-coverage` is
      registered in `check-contract`'s own protected tier-minimum required-
      check-set (INV-017), which is what actually closes the gap were this
@@ -312,7 +359,9 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
    authorizes an evaluator input.
    Reverify every hash immediately before launch and bind the manifest path/hash,
-   a fresh run ID, and a distinct host-session ID into the evaluator result.
+   a fresh run ID and a host-session ID unused by every other context into the
+   evaluator result. These fields may be identical within this invocation;
+   never invent a second native identifier merely to make them unequal.
    Persist a one-role `review-context-invocation/v2` manifest for the evaluator.
    Set its `task_id` to the current T-NNN and require the sole implementation
    report path, report heading, and `Task ID` field to match that exact task.
@@ -453,10 +502,11 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
    quality-gate report and classify the finding `Accepted`; do not edit the
    frozen implementation report to reconcile it.
 10. Apply only safe fixes allowed by `auto-fix-policy.md`.
-11. Repeat critical review for a maximum of 3 cycles.
+11. Repeat critical review autonomously for a maximum of 3 cycles.
     Stop earlier when the remaining issue requires human decision, missing
     evidence cannot be produced, or the fix belongs to `fix-by-review-ticket` or
     an upstream review loop. Do not downgrade a finding merely to end the loop.
+    After escalation, follow Resuming After A Human Decision below.
 12. For UI changes, use available browser or Playwright tooling to verify the
     rendered screen, DOM, and console, and when feasible perform the smoke
     run described in `deterministic-check-policy.md`.
@@ -478,6 +528,28 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
     `validate-implementation-report.sh` present-and-format-only check):
     name the model and effort the gate's own critical-review pass ran
     under. (WFI-020)
+
+### Resuming After A Human Decision
+
+`Escalate-Human` ends autonomous retries; it is not a failed quality check that
+can be relabeled as success. After a human explicitly authorizes further
+correction and review, record in the current handoff and next gate report who
+authorized it, the actual instruction and its conversation/artifact reference,
+the affected feature/task, the correction scope, and remaining findings.
+An existing explicit retry instruction may apply: explain its concrete match
+to this correction instead of asking again. A general wish to finish, routine
+approval, or Sudo Mode alone does not authorize retries beyond the limit.
+
+Within that recorded scope, perform the authorized correction through the
+applicable workflow and obtain a fresh independent review on the corrected
+inputs. Re-run all required deterministic checks and satisfy every Done
+Decision condition. Preserve every prior report, counter, finding and verdict;
+keep the cycle-limit script's actual `Escalate-Human` output and non-zero exit
+in the evidence, describing this continuation as human-authorized rather than
+claiming the limit passed. Do not reset history, invent an override flag, or
+use a previous PASS for changed inputs. A new out-of-scope correction or an
+unresolved genuine human judgment still stops the gate. The recorded decision
+authorizes only its stated scope, not an unlimited autonomous retry loop.
 
 ### Sudo Mode
 

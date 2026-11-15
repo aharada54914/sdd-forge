@@ -26,6 +26,20 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
+# Preserve the canonical source layout; marketplace packages carry local mirrors.
+$selectorPluginRoot = Split-Path -Parent $PSScriptRoot
+$selectorPluginsRoot = Split-Path -Parent $selectorPluginRoot
+$selectorSourceLayout = ((Split-Path -Leaf $selectorPluginRoot) -ceq 'sdd-implementation' -and
+                         (Split-Path -Leaf $selectorPluginsRoot) -ceq 'plugins')
+$selectorContractRoot = if ($selectorSourceLayout) {
+  Join-Path (Split-Path -Parent $selectorPluginsRoot) 'contracts'
+} else { Join-Path $selectorPluginRoot 'contracts' }
+$selectorQualityRoot = if ($selectorSourceLayout) {
+  Join-Path $selectorPluginsRoot 'sdd-quality-loop'
+} elseif ((Split-Path -Leaf $selectorPluginsRoot) -ceq 'sdd-implementation') {
+  Join-Path (Join-Path (Split-Path -Parent $selectorPluginsRoot) 'sdd-quality-loop') (Split-Path -Leaf $selectorPluginRoot)
+} else { Join-Path $selectorPluginsRoot 'sdd-quality-loop' }
+
 function Read-SelectorJson([string]$Path) {
   $raw = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $Path).Path)
   $options = @{}
@@ -41,7 +55,7 @@ $policyHelper = Join-Path $PSScriptRoot 'model-policy.py'
 function Invoke-PolicyBridge([string]$CommandName, [string]$InputJson) {
   # Use the existing native argv encoder and byte streams on both 5.1 and 7.
   # PowerShell's pipeline otherwise encodes Unicode JSON using the host code page.
-  . (Join-Path $PSScriptRoot '../../sdd-quality-loop/scripts/lib/native-arguments.ps1')
+  . (Join-Path $selectorQualityRoot 'scripts/lib/native-arguments.ps1')
   $start = [Diagnostics.ProcessStartInfo]::new()
   $start.FileName = 'python3'
   $start.Arguments = ConvertTo-SddNativeArgumentString @('-B', $policyHelper, $CommandName)
@@ -103,7 +117,7 @@ if ($PolicyEngineOnly -and -not $policyMode) {
 }
 if ($policyMode) {
   if (-not $Registry) {
-    $Registry = Join-Path (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../../..')).Path 'contracts/agent-model-capabilities.v2.json'
+    $Registry = Join-Path $selectorContractRoot 'agent-model-capabilities.v2.json'
   }
   $optionNames = @{Risk='risk'; Role='role'; HostName='host'; RequestedEffort='requested_effort';
     RequiredTier='required_tier'; MinimumTier='minimum_tier'; FailureClass='failure_class';
@@ -170,8 +184,7 @@ if ([string]::IsNullOrWhiteSpace($DeterministicRuntimeCommand) -or
   exit 0
 }
 if (-not $Registry) {
-  $Registry = Join-Path (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../../..')).Path `
-    'contracts/agent-model-capabilities.json'
+  $Registry = Join-Path $selectorContractRoot 'agent-model-capabilities.json'
 }
 
 # RT-20260821-009: registry-designated same-tier fallbacks must never win an

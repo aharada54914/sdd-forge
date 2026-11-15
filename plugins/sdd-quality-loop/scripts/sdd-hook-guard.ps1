@@ -828,6 +828,57 @@ function Tokenize-ShellCommand {
     return @{ Tokens = $tokens }
 }
 
+function Test-EvidenceWrite {
+    param([string]$ToolName, [string]$Command, $Directories)
+    if (@('bash','shell','exec_command','exec') -notcontains $ToolName) { return $false }
+    $process = $null
+    try {
+        $root = (Get-Location).ProviderPath
+        if (@($Directories).Count) { $root = @($Directories)[-1] }
+        $helper = Join-Path $PSScriptRoot 'classify-evidence-write.py'
+        if ($helper.Contains('"')) { return $false }
+        $start = New-Object System.Diagnostics.ProcessStartInfo
+        $start.FileName = 'python3'
+        $start.Arguments = '-I -B "' + $helper + '"'
+        $start.UseShellExecute = $false
+        $start.CreateNoWindow = $true
+        $start.RedirectStandardInput = $true
+        $start.RedirectStandardOutput = $true
+        $start.RedirectStandardError = $true
+        $process = New-Object System.Diagnostics.Process
+        $process.StartInfo = $start
+        if (-not $process.Start()) { return $false }
+        $clock = [Diagnostics.Stopwatch]::StartNew()
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        $inputWrite = $process.StandardInput.WriteAsync((@{command=$Command;root=$root} | ConvertTo-Json -Depth 5 -Compress))
+        if (-not $inputWrite.Wait([Math]::Max(0,3000-[int]$clock.ElapsedMilliseconds))) { return $false }
+        $process.StandardInput.Close()
+        if (-not $process.WaitForExit([Math]::Max(0,3000-[int]$clock.ElapsedMilliseconds))) { return $false }
+        if ($process.ExitCode -ne 0 -or -not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout,$stderr),[Math]::Max(0,3000-[int]$clock.ElapsedMilliseconds))) { return $false }
+        return $stdout.GetAwaiter().GetResult().Trim() -ceq 'true'
+    } catch { return $false }
+    finally {
+        if ($null -ne $process) {
+            try { if (-not $process.HasExited) { try { $process.Kill($true) } catch { $process.Kill() }; [void]$process.WaitForExit(3000) } } catch { }
+            finally { $process.Dispose() }
+        }
+    }
+}
+
+function Test-LooksLikePatch {
+    param([string]$Command)
+    if (-not $Command.Contains("*** Begin Patch")) { return $false }
+    if ($Command.TrimStart().StartsWith("*** Begin Patch")) { return $true }
+    $parsed = Tokenize-ShellCommand $Command
+    # Quoted diagnostic evidence is data; unknown syntax and patch carriers stay conservative.
+    if ($null -eq $parsed) { return $true }
+    foreach ($token in $parsed.Tokens) {
+        if ($token[0] -eq "word" -and $token[1] -cmatch '(?:^|[^A-Za-z0-9_.-])apply_patch(?:[^A-Za-z0-9_.-]|$)') { return $true }
+    }
+    return $false
+}
+
 function Get-ShellTokenBasename {
     # Issue #62: lowercased final path component of a token (verb matching).
     param([string]$Tok)
@@ -1635,7 +1686,7 @@ function Test-ImplReviewStatusPassedIncreases {
     $filePath = [string]$toolInput.file_path
 
     $patchCommand = [string]$toolInput.command
-    if ($toolName -eq "apply_patch" -or $patchCommand.Contains("*** Begin Patch")) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $patchCommand)) {
         $sections = @()
         $current = $null
         foreach ($line in ($patchCommand -split "\r?\n")) {
@@ -1749,7 +1800,7 @@ function Test-DomainModelApprovalIncreases {
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
     # Codex apply_patch: raw patch envelope in tool_input.command.
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         return Test-DomainModelPatchIncreases $command
     }
 
@@ -1823,7 +1874,7 @@ function Test-WfiApprovalIncreases {
     $command = $null
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         return Test-WfiPatchIncreases $command
     }
 
@@ -1918,7 +1969,7 @@ function Test-SecondApprovalIncreases {
     $command = $null
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         return Test-SecondApprovalPatchIncreases $command
     }
 
@@ -2054,7 +2105,7 @@ function Test-AgentRoleInvalid {
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
     # Codex apply_patch: check Add File sections for agent role paths.
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         return Test-PatchWritesInvalidAgentRole $command
     }
 
@@ -2127,7 +2178,7 @@ function Test-ApprovalIncreases {
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
     # Codex apply_patch: raw patch envelope in tool_input.command.
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         return Test-PatchIncreases $command
     }
 
@@ -2337,7 +2388,7 @@ try {
     }
 
     # apply_patch: check for SDD_SUDO targets.
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         foreach ($line in ($command -split "`n")) {
             $m = [regex]::Match($line, "^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$")
             if ($m.Success) {
@@ -2355,7 +2406,7 @@ try {
         if (Test-ShellTargetsProtectedGateFile $command $executionDirectories ($toolName -eq 'bash')) { Emit-Decision "deny" $GateProtectMsg }
     }
 
-    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+    if ($toolName -eq "apply_patch" -or (Test-LooksLikePatch $command)) {
         foreach ($line in ($command -split "`n")) {
             $m = [regex]::Match($line, "^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$")
             if ($m.Success) {
@@ -2370,7 +2421,7 @@ try {
     }
 
     # Check 2b: Approval guard (bypassed by valid sudo).
-    if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $ApprovalMsg }
+    if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive) -and -not (Test-EvidenceWrite $toolName $command $executionDirectories)) { Emit-Decision "deny" $ApprovalMsg }
 
     # Check 2b-2: Domain-model approval guard (bypassed by valid sudo, same
     # class as the tasks.md Approval guard above -- NOT the never-bypassable

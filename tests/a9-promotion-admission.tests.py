@@ -72,7 +72,7 @@ class Fixture:
         # The copied plugin tree includes both restored providers. Only the
         # disposable fixture signs this matching, otherwise unsigned candidate.
         baseline = CORE.PREFLIGHT.read_document(
-            ROOT / 'specs/epic-197-a9-dogfood/candidate/project-context-restored-cloud.yaml')
+            ROOT / 'specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml')
         existing = {x['pattern'] for x in baseline['shared_paths']}
         for path in list(CORE.TARGETS) + [CORE.FIXED['approvers']]:
             if path not in existing:

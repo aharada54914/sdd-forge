@@ -14,6 +14,19 @@ set -euo pipefail
 FEATURE="${1:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ATTEMPT="${2:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ROUND="${3:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
+repository_root=""
+review_options=("$1" "$2" "$3")
+for ((review_index=4; review_index<=$#; review_index++)); do
+  review_option="${!review_index}"
+  if [[ "$review_option" == --repository-root ]]; then
+    [[ -z "$repository_root" && "$review_index" -lt $# ]] || { echo 'ERROR: duplicate or empty repository root' >&2; exit 1; }
+    ((review_index+=1)); repository_root="${!review_index}"
+    [[ -n "$repository_root" ]] || { echo 'ERROR: empty repository root' >&2; exit 1; }
+  else
+    review_options+=("$review_option")
+  fi
+done
+set -- "${review_options[@]}"
 MODE="${4:-}"
 
 SPECS_DIR="specs/${FEATURE}"
@@ -26,7 +39,16 @@ IMPL_REPORT_ROOT="reports/impl-review/${FEATURE}"
 CALIBRATION_MD="plugins/sdd-review-loop/references/reviewer-calibration.md"
 REGISTRY="specs/workflow-state-registry.json"
 LAYER_FILES=("ux-spec.md" "frontend-spec.md" "infra-spec.md" "security-spec.md")
-repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+script_dir="$(cd "$(dirname "$0")" && pwd -P)"
+plugin_root="$(cd "$script_dir/.." && pwd -P)"
+if [[ -z "$repository_root" ]]; then
+  repository_root="$PWD"
+  if [[ "$plugin_root" == */plugins/sdd-review-loop && -e "$plugin_root/../../.git" ]]; then
+    repository_root="$(cd "$plugin_root/../.." && pwd -P)"
+  fi
+fi
+repo_root="$(cd "$repository_root" && pwd -P)" || exit 1
+cd "$repo_root" || exit 1
 calibration_sha256=""
 
 fail() { echo "ERROR: impl-review-precheck: $*" >&2; exit 1; }
@@ -194,8 +216,12 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
 [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] ||
   fail "unknown mode: $MODE"
-. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+. "$script_dir/lib/fixed-input-source.sh"
 fixed_input_options "${@:5}"
+asset_options=(--root "$repo_root" --stage impl)
+[[ "$MODE" == --verify-inputs ]] && asset_options+=(--verify-only)
+python3 "$script_dir/prepare-review-assets.py" "${asset_options[@]}" >/dev/null || fail "review reference projection failed"
+
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -283,12 +309,12 @@ if [[ "$MODE" == "--provenance-rereview" ]]; then
   done < <(find "$IMPL_REPORT_ROOT" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
   [[ "$prior_pass" == "true" ]] ||
     fail "provenance re-review requires a prior persisted impl-review PASS verdict"
-  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" --opening "impl:${ATTEMPT}:${ROUND}"; then
+  if ! bash "$(review_plugin_file plugins/sdd-quality-loop/scripts/check-workflow-state.sh)" --repository-root "$repo_root" --feature "$FEATURE" --opening "impl:${ATTEMPT}:${ROUND}"; then
     echo "NOTE: impl-review-precheck: canonical workflow-state validation failed;" \
       "proceeding under --provenance-rereview (impl-stage evidence re-binding in progress)." >&2
   fi
 else
-  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" --opening "impl:${ATTEMPT}:${ROUND}" ||
+  bash "$(review_plugin_file plugins/sdd-quality-loop/scripts/check-workflow-state.sh)" --repository-root "$repo_root" --feature "$FEATURE" --opening "impl:${ATTEMPT}:${ROUND}" ||
     fail "canonical workflow-state validation failed"
 fi
 
@@ -626,7 +652,7 @@ trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
   '{schema:"review-contract/v1",stage:"impl",feature:$feature,attempt:$attempt,round:$round,input_sha256:$input_sha256,run_id:"impl-precheck",verdict:"PASS"}' > "$foundation_contract"
 mkdir -p "reports/impl-review"
-"${repo_root}/plugins/sdd-review-loop/scripts/review-contract-validate.sh" --feature "$FEATURE" --attempt "$ATTEMPT" --round "$ROUND" --stage impl --report-root "$IMPL_REPORT_ROOT" --contract "$foundation_contract" >/dev/null
+"${script_dir}/review-contract-validate.sh" --repository-root "$repo_root" --feature "$FEATURE" --attempt "$ATTEMPT" --round "$ROUND" --stage impl --report-root "$IMPL_REPORT_ROOT" --contract "$foundation_contract" >/dev/null
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 6: Create output directory and write precheck-result.json

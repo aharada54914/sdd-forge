@@ -55,6 +55,11 @@ Claude Code:
    する (ゲート G3/G4)。妥当な Context を持つプロジェクトから、レガシー動作へ
    黙ってフォールバックしてはならない。
 
+
+For Codex, use the challenge's `recorded_result_template` and
+`capture_instructions` to save the actual denial with native `apply_patch`.
+Shell commands embedding the protected canary path may themselves be denied.
+
 <!-- /sdd:handshake-wiring -->
 
 **存在・妥当性プローブを実行する時点**: ハンドシェイク自身は Project Context
@@ -179,6 +184,11 @@ all) is the only condition that legitimately falls through to the
 one-argument call; every failure encountered once a Project Context is
 confirmed to exist is a Block, never a silent degrade.
 
+Preserve the complete source, including scope exclusions and workflow approval
+notes. The checker applies only the bounded non-requirement grammar documented
+in `references/risk-upgrade-policy.md`; never reword or remove a real risk to
+force lite eligibility. Conflicting positive requirements still require full.
+
 Run the platform-local checker against the resolved source file, passing the
 fragment path (when one was produced) as the second argument:
 
@@ -226,6 +236,12 @@ SQLを扱わない案件はこの追加手順を適用しない。SQL対象な�
    - `requirements.md`（`templates/requirements-lite.md`）
    - `design.md`（`templates/design-lite.md`）
    - `tasks.md`（`templates/tasks-lite.md`）
+   実際に対象外としたリスク語は [risk-upgrade-policy](../../references/risk-upgrade-policy.md) の
+   bounded exclusion 文法で記述する。閉じた語彙にない通常の対象外項目は
+   別の見出しに置き、同じ除外節へ混在させない。正の要求を除外扱いにしない。
+   生成後、ship と同じ「タスクブロック全体 + requirements.md」を無加工で
+   risk checker に渡して再確認する。書式上の不整合は範囲を変えずに修正し、
+   実際の昇格理由が残る場合は既存の Full 昇格手順に従う。
 4. UI アプリで人間が希望する場合のみ、`design-sync-loop` スキル
    （sdd-bootstrap プラグインの内部スキル）を実行する。外部操作の前に同スキルの
    `resolve-design-sync.py` 判定を実行し、manual/skip では外部操作を行わない。モックアップは

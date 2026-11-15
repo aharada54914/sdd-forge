@@ -4,6 +4,9 @@ import copy
 import hashlib
 import importlib.util
 import json
+import shutil
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -375,7 +378,51 @@ def check_extended_successors() -> int:
     return checks
 
 
+def check_candidate_sync() -> None:
+    """The real sync CLI must update candidate hashes without touching pending bytes."""
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        scripts = root / "scripts"
+        scripts.mkdir()
+        for name in ("sync-human-copy-mirrors.py", "human_copy_mirrors.py"):
+            shutil.copyfile(ROOT / "scripts" / name, scripts / name)
+        bundle = root / "specs/fixture/drafts/human-copy-candidate"
+        manifest = bundle / "MANIFEST.sha256.candidate"
+        for rel, staged in (("plugins/stale.txt", "base\n"),
+                            ("plugins/pending.txt", "reviewed pending\n")):
+            live = root / rel
+            live.parent.mkdir(parents=True, exist_ok=True)
+            live.write_text("base\n")
+            candidate = bundle / (rel + ".candidate")
+            candidate.parent.mkdir(parents=True, exist_ok=True)
+            candidate.write_text(staged)
+        base_digest, pending_digest = sha("base\n"), sha("reviewed pending\n")
+        updated_digest = sha("updated\n")
+        manifest.write_text(f"{base_digest}  plugins/stale.txt\n"
+                            f"{pending_digest}  plugins/pending.txt\n")
+        for args in (["init", "-q"], ["add", "."],
+                     ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                      "commit", "-qm", "baseline"],
+                     ["update-ref", "refs/remotes/origin/main", "HEAD"]):
+            subprocess.run(["git", *args], cwd=root, check=True, capture_output=True)
+        (root / "plugins/stale.txt").write_text("updated\n")
+        (root / "plugins/pending.txt").write_text("updated\n")
+        before = {p: p.read_bytes() for p in bundle.rglob("*") if p.is_file()}
+        command = [sys.executable, str(scripts / "sync-human-copy-mirrors.py")]
+        check = subprocess.run([*command, "--check"], cwd=root, capture_output=True, text=True)
+        assert check.returncode == 1, check.stdout + check.stderr
+        assert all(p.read_bytes() == content for p, content in before.items())
+        result = subprocess.run(command, cwd=root, capture_output=True, text=True)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert (bundle / "plugins/stale.txt.candidate").read_text() == "updated\n"
+        assert (bundle / "plugins/pending.txt.candidate").read_bytes() == before[bundle / "plugins/pending.txt.candidate"]
+        assert manifest.read_text() == (f"{updated_digest}  plugins/stale.txt\n"
+                                        f"{pending_digest}  plugins/pending.txt\n")
+    print("candidate sync CLI: check-only, byte sync, manifest refresh and pending preservation passed")
+
+
 def main() -> None:
+    check_candidate_sync()
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         setup_bundle(root)

@@ -35,6 +35,13 @@ code or changes task approval/required verification.
    retained receipts, measured side effects and limitations. Source-only review is
    never a clean maintenance result. Leave the prior evidence unchanged.
 
+Read the returned `feature_coverage` rows as well as check results. Missing or
+empty maps are not full coverage. Shared checks cannot establish separate feature
+success; split them into independently selected checks before claiming a complete
+map. The runner blocks maintenance of an existing map that remains unassessed.
+`unreachable` identifies missing execution prerequisites, not proof that a product
+route is impossible. Retain the reason and the unexecuted feature names.
+
 A documentation-only v2 procedure remains `blocked / procedure-not-executable`
 on maintenance. Source/host-wrapper checks cannot turn it into clean execution
 or a passing task check. Preserve its draft status and identify the unexecuted steps.

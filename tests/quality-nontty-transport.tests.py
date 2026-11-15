@@ -826,6 +826,13 @@ class QualityTransport(unittest.TestCase):
                              'lib/fixed-input-source.sh'):
                 shutil.copyfile(ROOT / 'plugins/sdd-review-loop/scripts' / relative,
                                 scripts / relative)
+            for relative in ('plugins/sdd-review-loop/references/spec-review-calibration.md',
+                             'plugins/sdd-review-loop/references/reviewer-calibration.md',
+                             'plugins/sdd-quality-loop/references/risk-gate-matrix.md',
+                             'plugins/sdd-quality-loop/references/risk-classification-policy.md'):
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / relative, target)
             registry = root / 'specs/workflow-state-registry.json'
             registry.parent.mkdir(parents=True)
             registry.write_text('{"entries": []}')

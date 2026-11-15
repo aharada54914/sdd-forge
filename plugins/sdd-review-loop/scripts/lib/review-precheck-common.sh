@@ -159,7 +159,7 @@ persisted_conditional_inputs() {
       research_args=(--history-contract "$history_contract")
     fi
   fi
-    conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
+    conditional_inputs=$(python3 "$(review_plugin_file plugins/sdd-quality-loop/scripts/review-conditional-inputs.py)" \
       --root "$repo_root" --feature "$FEATURE" --stage "$stage" "${research_args[@]}") || fail "persisted conditional inputs cannot be resolved"
     conditional_inputs=$(jq -ce --slurpfile contracts "$contract" --arg feature "$FEATURE" --arg repo "${repo_root}/" '
       def relative:

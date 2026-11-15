@@ -152,6 +152,9 @@ Rules:
     # complete instructions and sanitized bundle in the redirected UTF-8 file.
     $cliPrompt = 'Review the complete instructions and sanitized input on stdin.'
     $bundleContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $InputPath
+    if ($Model) {
+        $promptText += "`nThe explicit CLI model is $Model. Return that exact string in model; do not infer it from the bundle.`n"
+    }
     $stdinContent = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
     $stdinBundleFile = Join-Path $scratch "stdin-bundle.txt"
     [IO.File]::WriteAllText($stdinBundleFile, $stdinContent, [Text.UTF8Encoding]::new($false))
@@ -295,6 +298,9 @@ Rules:
         [Console]::Error.WriteLine("run-panelist-gemini: verdict must be PASS or NEEDS_WORK"); exit 1
     }
 
+    if ($Model -and ($verdict.model -isnot [string] -or $verdict.model -cne $Model)) {
+        [Console]::Error.WriteLine('run-panelist-gemini: returned model does not match explicit CLI model'); exit 1
+    }
     $verdict.task_id = $TaskId
     $verdict.feature = $Feature
     $verdict.vendor  = "google"

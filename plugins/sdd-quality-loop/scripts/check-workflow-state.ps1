@@ -630,7 +630,7 @@ function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stag
     }
     # Keep legacy contracts independent of current conditional files.
     if (-not $hasConditional) { return }
-    $resolver = Join-Path $RepositoryRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'
+    $resolver = Join-Path $PSScriptRoot 'review-conditional-inputs.py'
     $researchArgs = @()
     if (-not $hasResearch) { $researchArgs = @('--without-research') }
     elseif ($Contract.stage -ceq 'impl' -and $Contract.verdict -cin @('NEEDS_WORK', 'BLOCKED')) {
@@ -713,8 +713,12 @@ function Test-ManifestPaths(
     return $true
 }
 
-$ScriptRoot = (Resolve-Path (Join-Path $PSScriptRoot "../../..")).Path
-$Registry = Join-Path $ScriptRoot "specs/workflow-state-registry.json"
+$PackageRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$SourceRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+$ScriptRoot = $SourceRoot
+if (-not (Test-Path -LiteralPath (Join-Path $SourceRoot 'contracts/workflow-state-registry.schema.json'))) { $ScriptRoot = (Get-Location).ProviderPath }
+$Registry = ''
+$ExplicitRepositoryRoot = ''
 $FeatureFilter = ""
 $script:OpeningStage = ""
 $script:OpeningAttempt = 0
@@ -724,6 +728,11 @@ for ($i = 0; $i -lt $args.Count; $i++) {
         "--feature" {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--feature requires a value" }
             $FeatureFilter = [string]$args[$i]
+        }
+        { $_ -ceq '--repository-root' -or $_ -ceq '-RepositoryRoot' } {
+            if (++$i -ge $args.Count -or -not [string]$args[$i] -or -not (Test-Path -LiteralPath ([string]$args[$i]) -PathType Container)) { Stop-WorkflowState 'repository' 'cli-usage' '--repository-root requires a directory' }
+            $ExplicitRepositoryRoot = (Resolve-Path -LiteralPath ([string]$args[$i])).Path
+            $ScriptRoot = $ExplicitRepositoryRoot
         }
         "--registry" {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--registry requires a value" }
@@ -742,6 +751,7 @@ for ($i = 0; $i -lt $args.Count; $i++) {
         default { Stop-WorkflowState "repository" "cli-usage" "unknown argument: $($args[$i])" }
     }
 }
+if (-not $Registry) { $Registry = Join-Path $ScriptRoot "specs/workflow-state-registry.json" }
 if ($FeatureFilter -and $FeatureFilter -cnotmatch "^[a-z0-9][a-z0-9-]*$") {
     Stop-WorkflowState $FeatureFilter "cli-usage" "invalid feature slug"
 }
@@ -839,7 +849,8 @@ function Test-RegistrySchema($RegistryData, [string]$SchemaPath) {
     return $true
 }
 
-$Schema = Join-Path $ScriptRoot "contracts/workflow-state-registry.schema.json"
+$Schema = Join-Path $SourceRoot "contracts/workflow-state-registry.schema.json"
+if (-not (Test-Path -LiteralPath $Schema -PathType Leaf)) { $Schema = Join-Path $PackageRoot "contracts/workflow-state-registry.schema.json" }
 if (-not (Test-Path -LiteralPath $Schema -PathType Leaf)) {
     Stop-WorkflowState "repository" "registry-schema" "registry schema is unavailable"
 }
@@ -849,6 +860,7 @@ if (-not (Test-RegistrySchema $RegistryData $Schema)) {
 
 $SpecsRoot = (Resolve-Path (Split-Path -Parent $Registry)).Path
 $RepoRoot = (Resolve-Path (Join-Path $SpecsRoot "..")).Path
+if ($ExplicitRepositoryRoot -and $ExplicitRepositoryRoot -cne $RepoRoot) { Stop-WorkflowState 'repository' 'cli-usage' 'registry is outside the selected repository' }
 $duplicate = @($RegistryData.entries | Group-Object feature | Where-Object Count -gt 1 | Select-Object -First 1)
 if ($duplicate) { Stop-WorkflowState $duplicate[0].Name "registry-duplicate" "feature is registered more than once" }
 $declared = [Collections.Generic.Dictionary[string,bool]]::new([StringComparer]::Ordinal)

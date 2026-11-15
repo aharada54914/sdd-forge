@@ -27,7 +27,13 @@ def exercise(fixture, repo, runtime, variant):
         manifest_path = root / data["implementation_manifest"]["path"]
         task_data = json.loads(manifest_path.read_text())
         report = root / "reports/implementation/f/T-001.md"
-        if variant == "missing-inputs":
+        if variant == "same-native-context":
+            data.update(run_id="next-native", host_session_id="next-native")
+        elif variant == "reused-implementation-run":
+            data.update(run_id="fixture-task-run", host_session_id="fixture-task-run")
+        elif variant == "reused-reserved-context":
+            data.update(run_id="impl", host_session_id="impl")
+        elif variant == "missing-inputs":
             task_data.pop("allowed_inputs")
         elif variant == "string-inputs":
             task_data["allowed_inputs"] = "specs/f/requirements.md"
@@ -135,6 +141,22 @@ def main():
                 else:
                     expected = "REVIEW_CONTEXT_IDENTITY: implementation manifest task/run/session/inputs is invalid"
                 passed = passed and all(expected in result.stderr for result in (pre, reserve))
+            failures += not passed
+            count += 1
+            print(f"{'PASS' if passed else 'FAIL'} {runtime} {variant}: "
+                  f"preflight={pre.returncode}, reserve={reserve.returncode}, "
+                  f"preflight-ledger-unchanged={pre_unchanged}, reserve-ledger-unchanged={reserve_unchanged}")
+            if not passed:
+                print("PREFLIGHT", pre.stdout, pre.stderr)
+                print("RESERVE", reserve.stdout, reserve.stderr)
+        for variant in ("same-native-context", "reused-implementation-run", "reused-reserved-context"):
+            pre, reserve, pre_unchanged, reserve_unchanged = exercise(fixture, repo, runtime, variant)
+            valid = variant == "same-native-context"
+            expected_pre = 1 if variant == "reused-reserved-context" else 0
+            passed = (pre.returncode == expected_pre and reserve.returncode == (0 if valid else 1)
+                      and pre_unchanged and reserve_unchanged == (not valid))
+            if not valid:
+                passed = passed and "REVIEW_CONTEXT_IDENTITY" in reserve.stderr
             failures += not passed
             count += 1
             print(f"{'PASS' if passed else 'FAIL'} {runtime} {variant}: "

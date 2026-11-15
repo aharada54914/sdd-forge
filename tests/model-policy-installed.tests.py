@@ -3846,6 +3846,7 @@ SPEC_CALLER_RUNTIME = sorted({
     *('plugins/sdd-review-loop/scripts/' + name for name in (
         'launch-impl-review.py', 'validate-nontty-spec-launch.py', 'preflight-host-review.py',
         'probe-nontty-review.py', 'nontty-impl-pretool-guard.mjs', 'spec-review-precheck.sh',
+        'prepare-review-assets.py',
         'review-contract-validate.sh', 'lib/fixed-input-source.sh')),
     *('plugins/sdd-quality-loop/scripts/' + name for name in (
         'validate-review-context-set.sh', 'review-conditional-inputs.py'))})
@@ -5702,10 +5703,14 @@ class InstalledClaudeWfiTests(unittest.TestCase):
         with self.subTest(blocked='node-absent-from-captured-path'):
             filtered = case.base / 'path-without-node'
             filtered.mkdir()
-            for directory in case.environment['PATH'].split(os.pathsep):
+            dangling_paths = [case.base / 'dangling-path-a', case.base / 'dangling-path-b']
+            for directory in dangling_paths:
+                directory.mkdir()
+                (directory / 'dangling-tool').symlink_to(case.base / 'missing-tool')
+            for directory in [*map(str, dangling_paths), *case.environment['PATH'].split(os.pathsep)]:
                 if os.path.isdir(directory):
                     for entry in os.scandir(directory):
-                        if entry.name not in ('node', 'nodejs') and not (filtered / entry.name).exists():
+                        if entry.name not in ('node', 'nodejs') and not os.path.lexists(filtered / entry.name):
                             (filtered / entry.name).symlink_to(entry.path)
             self.blocked(installed, 'a', {'config-invalid', 'input-invalid'}, env={'PATH': str(filtered)})
         for label, path in [('guard', installed / WFI_GUARD), ('role', installed / WFI_ROLES['a']),

@@ -1,3 +1,13 @@
+function Get-ReviewPluginFile([string]$Relative) {
+  if ($Relative -cnotmatch '^plugins/(sdd-review-loop|sdd-quality-loop)/(.+)$') { throw "unsupported review asset: $Relative" }
+  $package = $Matches[1]; $remainder = $Matches[2]
+  $owner = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
+  if ((Split-Path -Leaf $owner) -ceq 'sdd-review-loop') {
+    return Join-Path (Split-Path -Parent $owner) "$package/$remainder"
+  }
+  return Join-Path (Split-Path -Parent (Split-Path -Parent $owner)) "$package/$(Split-Path -Leaf $owner)/$remainder"
+}
+
 function Get-FixedInputSources {
   param([string]$Root, [string]$Record, [string]$Snapshot, [bool]$VerifyInputs)
   if ([bool]$Record -ne [bool]$Snapshot) { throw 'fixed input record and snapshot must be supplied together' }

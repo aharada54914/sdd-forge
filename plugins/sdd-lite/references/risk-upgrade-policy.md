@@ -38,7 +38,38 @@ boundary and underscore is not. Bounded `design token` and `design tokens`
 phrases are excluded without suppressing a separate trigger such as
 `token-value`, `design-token`, or `token` followed by a non-ASCII character.
 
-## Ordered trigger matrix (unchanged, keyword-derived)
+## Bounded non-requirement context (#727)
+
+The complete source is still scanned; callers must not delete excluded scope,
+approval text, or other requirements to obtain `lite-eligible`. Before whitespace
+normalization, the checker recognizes only these bounded non-requirements:
+
+- Markdown `Scope exclusions`, `Out of scope`, or `スコープ外` headings (ASCII
+  case-insensitive), whose entire body until the next heading consists of blank
+  lines and `-` / `*` bullets containing only the closed noun vocabulary below.
+  Bullets permit comma/`and` separators and a final period. Unsupported prose,
+  unknown list items, verbs, conditions, or a code fence make that whole body
+  remain scanned. A heading inside a fenced block never establishes exclusion
+  context; short/malformed closing fences do not escape it.
+- Within a `Blockers` heading only, the exact sentence `General authorization to
+  create and test does not supply that task approval.` denotes workflow task
+  permission, not product access control. Only its `authorization` word is
+  normalized to `permission`; all surrounding text is scanned normally.
+
+The closed noun vocabulary is: account(s), auth, authentication, authorization,
+oauth, oidc, server(s), sharing, sync, editing, priorities, drag and drop,
+deployment, remote publication, token(s), credential(s), password(s), private
+key(s), mcp, external api(s), third-party api(s), third party api(s), secret(s),
+github actions. This is intentionally conservative: arbitrary negation is not
+interpreted, and unsupported declarations still require full review. A positive
+requirement elsewhere, even for the same excluded noun, continues to trigger.
+Capability-derived ineligibility is never filtered by this source-text grammar.
+
+This narrows a lexical false positive, not a proof that a document is safe:
+contradictory or indirect requirements still require the skill's semantic review.
+Do not use exclusions to conceal an actual requested capability.
+
+## Ordered trigger matrix (keyword-derived)
 
 The first matching row is the primary diagnostic when any keyword row
 matches. All matching IDs are emitted in this exact order.
@@ -52,7 +83,7 @@ matches. All matching IDs are emitted in this exact order.
 | 5 | `SECRET` | whole-token `secret` or `secrets` | No substring such as `secretion`. |
 | 6 | `GITHUB_ACTIONS` | `github actions` separated by normalized whitespace | No substring such as `github-actionable`. |
 
-This table is unchanged by T-002: no new keyword row is added, and no
+The trigger table is unchanged by T-002 and #727: no new keyword row is added, and no
 Predicate-DSL/Registry-matching logic of the script's own is introduced
 (requirements.md AC-009).
 

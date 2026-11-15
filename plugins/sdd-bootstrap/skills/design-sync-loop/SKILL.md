@@ -30,7 +30,36 @@ section below before probing; provider absence must not suppress local artifacts
    `design tools unavailable — manual workflow used` in the layer file's
    `Design-Source` section, follow the manual fallback
    `../sdd-bootstrap-interviewer/references/claude-design-workflow.md`, and
-   return to the caller. Never block the specification flow.
+   return to the caller. Never block the specification flow. Before returning,
+   if the user requested design improvement and an authorized alternative
+   design provider is actually available, follow the Alternative reference
+   provider section below. Do not report that alternative as DesignSync or
+   Claude Design connectivity.
+
+## Alternative reference provider
+
+This is a one-way design-reference path, not project synchronization. Use it
+only for a UI/custom target when the user requested design work and the host
+offers a working design or image-generation tool. Discover the tool first;
+never invent an endpoint or assume another host has the same capability.
+
+- Reuse the approved design-system contract and the user's authorized scope.
+  For a new reference, send a minimal synthetic UI brief with no repository
+  contents or user data. Uploading existing screenshots or source requires
+  the same destination-scoped egress checks as the main loop; an unavailable
+  DesignSync destination does not authorize a different destination.
+- Invoke the real provider and retain its returned reference artifact under
+  `specs/<feature>/mockups/`. Record provider/tool name, brief, artifact path,
+  and actual result in `Design-Source`. A failed invocation is unavailable,
+  not a generated design. Generated image text, counts, and controls are
+  illustrative; requirements and the design-system contract remain canonical.
+- Review the reference under the project's existing approval policy. Map
+  selected visual changes to tokens, patterns, and UX acceptance criteria;
+  do not add decorative controls without behavior or silently add features.
+- Continue implementation with `visual-verify-loop`: compare actual desktop
+  and mobile screenshots, exercise controls and persistence, and record the
+  before/after findings. Reference generation alone proves neither working
+  UI improvement nor provider synchronization.
 
 ## Ensure design-system/
 

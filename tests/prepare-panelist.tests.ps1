@@ -3141,6 +3141,123 @@ if ($LASTEXITCODE -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
     ok "max-bytes-inprocess-zero: in-process numeric 0 is a real zero cap"
 } else { fail "max-bytes-inprocess-zero: expected exit 1/no output, got $LASTEXITCODE" }
 
+
+# Real binary artifacts are unsupported by this text-only transport.
+$binaryDir = Join-Path $Work 'binary-input'
+New-Item -ItemType Directory -Path (Join-Path $binaryDir 'specs/binary/verification/T-004') -Force | Out-Null
+Write-TasksWithConsent (Join-Path $binaryDir 'specs/binary/tasks.md')
+$binaryCases = @{
+    png = [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aOioAAAAASUVORK5CYII=')
+    nul = [byte[]]@(65, 0, 66)
+    'invalid-utf8' = [byte[]]@(65, 255, 66)
+    japanese = [Text.Encoding]::UTF8.GetBytes("日本語の検証入力`n")
+}
+foreach ($kind in @('png', 'nul', 'invalid-utf8', 'japanese')) {
+    $artifact = Join-Path $binaryDir 'artifact'
+    [IO.File]::WriteAllBytes($artifact, $binaryCases[$kind])
+    $hash = (Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
+    Write-ImplReport $binaryDir binary T-004 @('artifact') @($hash)
+    foreach ($mode in @('direct', 'declared')) {
+        $inputPath = if ($mode -eq 'direct') { $artifact } else { Join-Path $binaryDir 'specs/binary/verification/T-004' }
+        $out = Join-Path $binaryDir "$kind-$mode.txt"
+        [IO.File]::WriteAllText($out, 'retain-existing-output')
+        Invoke-Prepare -ArgList @('--task', 'T-004', '--feature', 'binary', '--input', $inputPath,
+            '--tasks-file', (Join-Path $binaryDir 'specs/binary/tasks.md'), '--project-root', $binaryDir, '--out', $out)
+        $outputText = [IO.File]::ReadAllText($out)
+        if ($kind -eq 'japanese') {
+            if ($PP_Exit -eq 0 -and $outputText.Contains('日本語の検証入力')) { ok "binary-${mode}: valid Japanese UTF-8 preserved" }
+            else { fail "binary-${mode}: valid UTF-8 rejected: $PP_Output" }
+        } elseif ($PP_Exit -eq 1 -and $PP_Output.Contains('unsupported binary or invalid UTF-8') -and $outputText -ceq 'retain-existing-output') {
+            ok "binary-${mode}: $kind rejected without replacing output"
+        } else { fail "binary-${mode}: $kind admitted or replaced output: $PP_Output" }
+    }
+}
+
+# Business fixtures with review-like keys are review targets, not primary feedback.
+$appRoot = Join-Path $Work 'application-evidence'
+New-Item -ItemType Directory -Force "$appRoot/specs/feat/verification", "$appRoot/data" | Out-Null
+Write-TasksWithConsent "$appRoot/specs/feat/tasks.md" T-004
+foreach ($case in @('outside', 'wrong-task', 'wrong-feature', 'business-schema')) {
+    $appSource = if ($case -eq 'outside') { "$appRoot/data/customer.evidence.json" } else { "$appRoot/specs/feat/verification/T-004.evidence.json" }
+    $appTask = if ($case -eq 'wrong-task') { 'T-999' } else { 'T-004' }
+    $appFeature = if ($case -eq 'wrong-feature') { 'other' } else { 'feat' }
+    $appData = @{ task_id = $appTask; feature = $appFeature; checks = @(); review_verdict = 'BUSINESS_DECISION'; quality_report = 'BUSINESS_REPORT' } | ConvertTo-Json
+    if ($case -eq 'business-schema') { $appData = '{"review_verdict":"BUSINESS_DECISION","quality_report":"BUSINESS_REPORT"}' }
+    [IO.File]::WriteAllText($appSource, $appData)
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $appRoot, '--tasks-file', "$appRoot/specs/feat/tasks.md", '--input', $appSource, '--out', "$appRoot/$case.txt")
+    $result = if (Test-Path "$appRoot/$case.txt") { [IO.File]::ReadAllText("$appRoot/$case.txt") } else { '' }
+    if ($PP_Exit -eq 0 -and $result.Contains('BUSINESS_DECISION') -and $result.Contains('BUSINESS_REPORT')) {
+        ok "business-${case}: application review fields retained"
+    } else { fail "business-${case}: application content changed: $PP_Output" }
+}
+
+# Primary review outcomes must not travel beside real execution evidence.
+$blindRoot = Join-Path $Work 'blind-evidence'
+New-Item -ItemType Directory -Force "$blindRoot/specs/feat/verification" | Out-Null
+Write-TasksWithConsent "$blindRoot/specs/feat/tasks.md" T-004
+$blindSource = "$blindRoot/specs/feat/verification/T-004.evidence.json"
+$original = '{"task_id":"T-004","feature":"feat","review_verdict":{"verdict":"PRIMARY_REVIEW_SECRET"},"quality_report":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","checks":[{"id":"unit-tests","evidence":"actual-test-facts"}],"artifacts":[{"path":"reports/quality-gate/PRIMARY_REVIEW_SECRET.md","sha256":"original-review-hash"},{"path":"tests.log","sha256":"execution-hash"}]}'
+[IO.File]::WriteAllText($blindSource, $original)
+foreach ($mode in @('file', 'directory')) {
+    $blindInput = if ($mode -eq 'file') { $blindSource } else { $blindRoot }
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', $blindInput, '--out', "$blindRoot/$mode.txt")
+    $result = if (Test-Path "$blindRoot/$mode.txt") { [IO.File]::ReadAllText("$blindRoot/$mode.txt") } else { '' }
+    if ($PP_Exit -eq 0 -and -not $result.Contains('PRIMARY_REVIEW_SECRET') -and
+        $result.Contains('actual-test-facts') -and $result.Contains('execution-hash') -and
+        $result.Contains('panelist_projection') -and [IO.File]::ReadAllText($blindSource) -ceq $original) {
+        ok "blind-${mode}: primary feedback excluded; execution facts and source preserved"
+    } else { fail "blind-${mode}: projection failed: $PP_Output" }
+}
+
+# Hard links are ordinary application files, not symbolic-link targets.
+New-Item -ItemType HardLink -Path "$appRoot/customer-hardlink.json" -Target "$appRoot/data/customer.evidence.json" -ErrorAction Stop | Out-Null
+Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $appRoot, '--tasks-file', "$appRoot/specs/feat/tasks.md", '--input', "$appRoot/customer-hardlink.json", '--out', "$appRoot/hardlink.txt")
+$result = if (Test-Path "$appRoot/hardlink.txt") { [IO.File]::ReadAllText("$appRoot/hardlink.txt") } else { '' }
+if ($PP_Exit -eq 0 -and $result.Contains('BUSINESS_DECISION') -and $result.Contains('BUSINESS_REPORT')) { ok 'business-hardlink: application hard link remains intact' } else { fail "business-hardlink: application input changed: $PP_Output" }
+
+# Trusted direct aliases retain their existing support and blind identity.
+try {
+    New-Item -ItemType SymbolicLink -Path "$blindRoot/evidence-alias.json" -Target $blindSource -ErrorAction Stop | Out-Null
+    New-Item -ItemType SymbolicLink -Path "$blindRoot/verification-alias" -Target "$blindRoot/specs/feat/verification" -ErrorAction Stop | Out-Null
+    New-Item -ItemType SymbolicLink -Path "$blindRoot/relative-alias.json" -Target 'specs/feat/verification/T-004.evidence.json' -ErrorAction Stop | Out-Null
+    foreach ($alias in @("$blindRoot/evidence-alias.json", "$blindRoot/verification-alias/T-004.evidence.json", "$blindRoot/relative-alias.json")) {
+        Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', $alias, '--out', "$blindRoot/alias.txt")
+        $result = if (Test-Path "$blindRoot/alias.txt") { [IO.File]::ReadAllText("$blindRoot/alias.txt") } else { '' }
+        if ($PP_Exit -eq 0 -and -not $result.Contains('PRIMARY_REVIEW_SECRET') -and $result.Contains('actual-test-facts')) {
+            ok 'blind-alias: canonical evidence remains blind through direct link'
+        } else { fail "blind-alias: feedback leaked or direct alias failed: $PP_Output" }
+    }
+    New-Item -ItemType SymbolicLink -Path "$appRoot/customer-alias.json" -Target "$appRoot/data/customer.evidence.json" -ErrorAction Stop | Out-Null
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $appRoot, '--tasks-file', "$appRoot/specs/feat/tasks.md", '--input', "$appRoot/customer-alias.json", '--out', "$appRoot/alias.txt")
+    $result = if (Test-Path "$appRoot/alias.txt") { [IO.File]::ReadAllText("$appRoot/alias.txt") } else { '' }
+    if ($PP_Exit -eq 0 -and $result.Contains('BUSINESS_DECISION') -and $result.Contains('BUSINESS_REPORT')) { ok 'business-alias: direct application link remains intact' } else { fail "business-alias: application alias changed: $PP_Output" }
+    New-Item -ItemType SymbolicLink -Path "$blindRoot/loop.json" -Target 'loop.json' -ErrorAction Stop | Out-Null
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', "$blindRoot/loop.json", '--out', "$blindRoot/loop.txt")
+    if ($PP_Exit -ne 0 -and -not (Test-Path "$blindRoot/loop.txt")) { ok 'blind-loop: cyclic direct input rejected without output' } else { fail 'blind-loop: cyclic input accepted' }
+} catch { Write-Host "SKIP: host cannot create direct test symlinks: $_" }
+if ([IO.Path]::DirectorySeparatorChar -eq [char]92) {
+    New-Item -ItemType Junction -Path "$blindRoot/verification-junction" -Target "$blindRoot/specs/feat/verification" -ErrorAction Stop | Out-Null
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', "$blindRoot/verification-junction/T-004.evidence.json", '--out', "$blindRoot/junction.txt")
+    $result = if (Test-Path "$blindRoot/junction.txt") { [IO.File]::ReadAllText("$blindRoot/junction.txt") } else { '' }
+    if ($PP_Exit -eq 0 -and -not $result.Contains('PRIMARY_REVIEW_SECRET') -and $result.Contains('actual-test-facts')) { ok 'blind-junction: Windows junction remains blind' } else { fail "blind-junction: canonical identity lost: $PP_Output" }
+    Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', $blindSource.ToUpperInvariant(), '--out', "$blindRoot/case.txt")
+    $result = if (Test-Path "$blindRoot/case.txt") { [IO.File]::ReadAllText("$blindRoot/case.txt") } else { '' }
+    if ($PP_Exit -eq 0 -and -not $result.Contains('PRIMARY_REVIEW_SECRET') -and $result.Contains('actual-test-facts')) {
+        ok 'blind-case: Windows same-file case alias remains blind'
+    } else { fail "blind-case: canonical identity lost: $PP_Output" }
+}
+
+New-Item -ItemType Directory -Force "$blindRoot/specs/feat/verification/T-004" | Out-Null
+$blindLarge = "$blindRoot/specs/feat/verification/T-004/large.evidence.json"
+$largeOriginal = @{ task_id = 'T-004'; feature = 'feat'; checks = @(1..1000 | ForEach-Object { @{ evidence = ('execution-facts-' + ('x' * 250)) } }); review_verdict = @{ verdict = 'PRIMARY_REVIEW_SECRET' } } | ConvertTo-Json -Depth 10
+[IO.File]::WriteAllText($blindLarge, $largeOriginal)
+Invoke-Prepare @('--task', 'T-004', '--feature', 'feat', '--project-root', $blindRoot, '--tasks-file', "$blindRoot/specs/feat/tasks.md", '--input', $blindRoot, '--max-bytes', '16000', '--out', "$blindRoot/elided.txt")
+$elidedResult = if (Test-Path "$blindRoot/elided.txt") { [IO.File]::ReadAllText("$blindRoot/elided.txt") } else { '' }
+if ($PP_Exit -eq 0 -and $elidedResult.Contains('bytes elided') -and -not $elidedResult.Contains('PRIMARY_REVIEW_SECRET') -and
+    $elidedResult.Contains('execution-facts') -and [IO.File]::ReadAllText($blindLarge) -ceq $largeOriginal) {
+    ok 'blind-elision: projected evidence stays blind after head/tail elision; source unchanged'
+} else { fail "blind-elision: projection failed: $PP_Output" }
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }

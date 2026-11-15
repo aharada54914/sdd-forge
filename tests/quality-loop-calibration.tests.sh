@@ -39,4 +39,14 @@ if grep -Fq 'blocked_ticket_or_waiver' "$quality_report"; then
   fail "quality report must not imply waivers can unblock in-scope cannot-verify items"
 fi
 
+# Required invocation and canonical applicability are separate obligations.
+for term in '## Executed Gate Applicability' 'satisfies the required invocation without claiming substantive coverage' 'A missing execution or an unsupported N/A claim' 'configuration parse errors' 'Missing Facet' 'acceptance criterion independently demands active coverage'; do
+  grep -Fq "$term" "$ROOT/$QUALITY_REF" || fail "applicability calibration missing: $term"
+done
+for role in plugins/sdd-quality-loop/agents/evaluator.md plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md .codex/agents/sdd-evaluator.toml; do
+  for term in '# Deterministic Gate Applicability' 'not-applicable (disabled-legacy)' 'Missing execution, an unsupported N/A claim, enabled-mode missing coverage' 'active-coverage acceptance criterion separately'; do
+    grep -Fq "$term" "$ROOT/$role" || fail "$role lacks applicability distinction: $term"
+  done
+done
+
 printf 'ok: quality loop calibration is synchronized\n'

@@ -123,7 +123,7 @@ try {
         Set-LoopStatusField $specRequirementsPath "Spec-Review-Status" "Passed"
         Add-Content -LiteralPath $specRequirementsPath -Value "`n<!-- same-turn edit recorded while still Passed -->`n"
         $specResetScriptPath = Join-Path $specRoot "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
-        & $specResetScriptPath $specFeature 2 1 "--reset" | Out-Null
+        & $specResetScriptPath $specFeature 2 1 "--reset" -RepositoryRoot $specRoot | Out-Null
         $specResetExitCode = $LASTEXITCODE
         if ($specResetExitCode -eq 0) {
             Test-Ok "TEST-018.1: same-turn edit + reset (attempt 2 round 1) exits success"
@@ -546,10 +546,11 @@ Body text unrelated to any check.
         Test-Ok "TEST-019.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window"
     }
 
-    # SQL references add 14 lines and one heading before the byte-identical
-    # capability window (main 75c6919b:145-184); the expected digest is unchanged.
+    # SQL references and optional-domain preflight add 19 lines and one heading
+    # before the byte-identical capability window (main 75c6919b:145-184).
+    # The expected digest and heading ordinal are unchanged.
     $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 159 -End 198 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 7
+    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 164 -End 203 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 7
     # The live check activates only after A5's interviewer caller exists. The
     # spec directory may be staged before that insertion point is wired.
     $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and

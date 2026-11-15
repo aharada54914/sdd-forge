@@ -86,7 +86,8 @@ $stubJson = '{"schema":"cross-model-verdict/v1","task_id":"stub","feature":"stub
 
 if ($IsLinux -or $IsMacOS) {
     $stubCodex = Join-Path $stubBin "codex"
-    $stubScript = "#!/bin/sh`nprintf '%s\n' `"`$@`" > `"$argvFile`"`n: > `"$markerFile`"`nprintf '%s\n' '$stubJson'`nexit 0`n"
+    $modelWriter = 'import json,sys; d=json.loads(sys.argv[1]); a=sys.argv[2:]; d["model"]=a[a.index("--model")+1] if "--model" in a else d["model"]; print(json.dumps(d))'
+    $stubScript = "#!/bin/sh`nprintf '%s\n' `"`$@`" > `"$argvFile`"`n: > `"$markerFile`"`npython3 -c '$modelWriter' '$stubJson' `"`$@`"`nexit 0`n"
     Set-Content -NoNewline -Path $stubCodex -Value $stubScript
     & chmod +x $stubCodex
     $testPath = "${stubBin}:${safePathUnix}"
@@ -94,7 +95,7 @@ if ($IsLinux -or $IsMacOS) {
     # Windows: a .cmd wrapper (native CreateProcess-resolvable extension)
     # delegates to a pwsh worker script for reliable argv/JSON handling.
     $workerPs1 = Join-Path $stubBin "codex-worker.ps1"
-    $workerContent = "`$argvFile = '$argvFile'`n`$markerFile = '$markerFile'`nforeach (`$a in `$args) { Add-Content -LiteralPath `$argvFile -Value `$a }`nNew-Item -ItemType File -Path `$markerFile -Force | Out-Null`nWrite-Output '$stubJson'`nexit 0`n"
+    $workerContent = "`$argvFile = '$argvFile'`n`$markerFile = '$markerFile'`nforeach (`$a in `$args) { Add-Content -LiteralPath `$argvFile -Value `$a }`nNew-Item -ItemType File -Path `$markerFile -Force | Out-Null`n`$d = '$stubJson' | ConvertFrom-Json`n`$i = [Array]::IndexOf(`$args, '--model')`nif (`$i -ge 0) { `$d.model = `$args[`$i + 1] }`n`$d | ConvertTo-Json -Compress`nexit 0`n"
     Set-Content -Path $workerPs1 -Value $workerContent
     $stubCodexCmd = Join-Path $stubBin "codex.cmd"
     # Uses the resolved $powerShellHost path, not the bare "pwsh" name --

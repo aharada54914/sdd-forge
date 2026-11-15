@@ -331,6 +331,18 @@ verify_implementation_binding() {
     fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
 }
 
+quality_delivery_input_is_declared() {
+  local path=$1 expected_hash=$2
+  evaluator_output_is_declared \
+    "$path" "$expected_hash" \
+    "$repository_root/$implementation_report_path" '## Outputs' ||
+  implementation_report_legacy_declares \
+    "$path" "$expected_hash" \
+    "$repository_root/$implementation_report_path" ||
+  gate_report_output_is_declared "$path" "$expected_hash" ||
+  jq -e --arg path "$path" --arg sha "$expected_hash" 'any(.[]; .path == $path and .sha256 == $sha)' <<<"$supplemental_delivery_inputs" >/dev/null
+}
+
 conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
@@ -347,6 +359,11 @@ path_is_authorized() {
   fi
   if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$ ]] &&
       [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$ ]]; then
+    # Exact quality delivery declarations are independent of optional concept inputs.
+    if [[ "$stage:$role" == quality:sdd-evaluator ]] &&
+        quality_delivery_input_is_declared "$path" "$expected_hash"; then
+      return 0
+    fi
     case "$stage:$path" in
       *:specs/"$feature"/concept-test*) ;;
       *:domain/context-map.md|*:domain/domain-contract.json|\
@@ -405,14 +422,7 @@ path_is_authorized() {
         [[ "$path" == plugins/sdd-quality-loop/references/quality-gate-calibration.md ]] ||
         [[ "$path" == "$implementation_report_path" ]] ||
         [[ -n "$implementation_manifest_path" && "$path" == "$implementation_manifest_path" ]] ||
-        evaluator_output_is_declared \
-          "$path" "$expected_hash" \
-          "$repository_root/$implementation_report_path" '## Outputs' ||
-        implementation_report_legacy_declares \
-          "$path" "$expected_hash" \
-          "$repository_root/$implementation_report_path" ||
-        gate_report_output_is_declared "$path" "$expected_hash" ||
-        jq -e --arg path "$path" --arg sha "$expected_hash" 'any(.[]; .path == $path and .sha256 == $sha)' <<<"$supplemental_delivery_inputs" >/dev/null
+        quality_delivery_input_is_declared "$path" "$expected_hash"
       ;;
     domain:domain-reviewer-a|domain:domain-reviewer-b)
       [[ "$path" =~ ^domain/(domain-story|event-storming|concept-model|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||

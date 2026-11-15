@@ -38,6 +38,10 @@
 # bundle size. If the bundle is still over --max-bytes after both tiers are
 # exhausted, this script still fails closed exactly as above.
 #
+# Text transport only: binary/NUL or invalid UTF-8 artifacts fail closed.
+# Declared binary evidence must not be omitted to manufacture a successful review.
+# Use a separately supported native attachment review for those artifacts.
+#
 # Security (design.md §6):
 #   * Fail-closed consent gate: exits non-zero without writing output unless
 #     tasks.md contains "Cross-Model: enabled" for the task, OR a valid
@@ -489,11 +493,79 @@ $script:PpiElideLines = 40
 # One file's content, elided to its first/last $PpiElideLines lines plus a
 # marker. Callers only invoke this for a file the budget loop below has
 # already decided to elide -- it is not itself threshold-gated.
+# Reject binary evidence before lossy decoding in this text-only transport.
+# Resolve trusted direct-input aliases for evidence identity without changing
+# the existing declared-output rule that rejects symbolic-link components.
+# LinkType/Target are available on PowerShell 5.1, unlike ResolveLinkTarget.
+function Get-PpiPhysicalPath {
+    param([string]$Path)
+    $resolved = [IO.Path]::GetFullPath($Path)
+    for ($hops = 0; $hops -lt 40; $hops++) {
+        $root = [IO.Path]::GetPathRoot($resolved)
+        $parts = @($resolved.Substring($root.Length) -split '[\\/]')
+        $current = $root
+        $followed = $false
+        for ($index = 0; $index -lt $parts.Count; $index++) {
+            if (-not $parts[$index]) { continue }
+            $current = Join-Path $current $parts[$index]
+            $item = Get-Item -Force -LiteralPath $current -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -in @('SymbolicLink', 'Junction')) {
+                $target = @($item.Target)[0]
+                if (-not $target) { throw "prepare-panelist-input: cannot resolve input link: $current" }
+                if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path (Split-Path $current) $target }
+                for ($rest = $index + 1; $rest -lt $parts.Count; $rest++) { $target = Join-Path $target $parts[$rest] }
+                $resolved = [IO.Path]::GetFullPath($target)
+                $followed = $true
+                break
+            }
+        }
+        if (-not $followed) { return $resolved }
+    }
+    throw "prepare-panelist-input: input link resolution exceeded 40 hops: $Path"
+}
+
+function Read-PpiText {
+    param([string]$FilePath)
+    $bytes = [IO.File]::ReadAllBytes($FilePath)
+    try {
+        $text = [Text.UTF8Encoding]::new($false, $true).GetString($bytes)
+    } catch [Text.DecoderFallbackException] {
+        throw "prepare-panelist-input: unsupported binary or invalid UTF-8 input; text-only panelist transport cannot review this artifact: $FilePath"
+    }
+    if ($text.IndexOf([char]0) -ge 0) {
+        throw "prepare-panelist-input: unsupported binary or invalid UTF-8 input; text-only panelist transport cannot review this artifact: $FilePath"
+    }
+    # Preserve Get-Content's existing UTF-8 BOM handling.
+    if ($text.Length -gt 0 -and $text[0] -eq [char]0xFEFF) { $text = $text.Substring(1) }
+    # Keep execution facts, but never disclose the primary review in blind input.
+    $canonical = [IO.Path]::GetFullPath((Join-Path (Split-Path (Get-PpiPhysicalPath $TasksFile)) "verification/$TaskId.evidence.json"))
+    $source = Get-PpiPhysicalPath $FilePath
+    $pathComparison = if ([IO.Path]::DirectorySeparatorChar -eq [char]92) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    $taskEvidenceDir = [IO.Path]::GetFullPath((Join-Path (Split-Path $canonical) $TaskId)) + [IO.Path]::DirectorySeparatorChar
+    if ([string]::Equals($source, $canonical, $pathComparison) -or ($source.EndsWith('.evidence.json', $pathComparison) -and
+        $source.StartsWith($taskEvidenceDir, $pathComparison))) {
+        $evidence = $text | ConvertFrom-Json -ErrorAction Stop
+        if ($evidence.task_id -ceq $TaskId -and $evidence.feature -ceq $Feature -and
+            $evidence.checks -is [array] -and
+            ($evidence.PSObject.Properties['review_verdict'] -or $evidence.PSObject.Properties['quality_report'])) {
+            $report = $evidence.quality_report
+            $evidence.PSObject.Properties.Remove('quality_report')
+            $evidence.PSObject.Properties.Remove('review_verdict')
+            if ($evidence.PSObject.Properties['artifacts']) {
+                $evidence.artifacts = @($evidence.artifacts | Where-Object { -not ($report -and $_.path -ceq $report) })
+            }
+            $evidence | Add-Member -Force -NotePropertyName panelist_projection -NotePropertyValue 'Primary review outcome omitted for blind review; execution evidence retained.'
+            $text = ($evidence | ConvertTo-Json -Depth 100) + "`n"
+        }
+    }
+    return $text
+}
+
 function Get-PpiElidedContent {
     param([string]$FilePath, [string]$Label)
-    $raw = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    $raw = Read-PpiText $FilePath
     $totalBytes = [System.Text.Encoding]::UTF8.GetByteCount($raw)
-    $lines = Get-Content -Encoding Utf8 -LiteralPath $FilePath
+    $lines = @($raw.TrimEnd("`r", "`n") -split '\r?\n')
     $lineCount = $lines.Count
     $n = [Math]::Min($script:PpiElideLines, $lineCount)
     $headText = ($lines[0..($n - 1)] -join "`n")
@@ -517,7 +589,7 @@ function Add-PpiFileContent {
     if ($Elidable) {
         $content = Get-PpiElidedContent -FilePath $FilePath -Label $RelPath
     } else {
-        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+        $content = Read-PpiText $FilePath
     }
     $RawContent.Value += "# ---- $RelPath ----`n$content`n"
 }
@@ -582,7 +654,7 @@ if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
                 Where-Object { -not $_.LinkType } | Sort-Object FullName)) {
             $subPath = $f.FullName.Substring($taskVerifFull.Length + 1) -replace '\\', '/'
             $tfRel = "$SpecRoot/$Feature/verification/$TaskId/$subPath"
-            $tfBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $f.FullName))
+            $tfBytes = [System.Text.Encoding]::UTF8.GetByteCount((Read-PpiText $f.FullName))
             $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $tfBytes; AbsPath = $f.FullName; RelPath = $tfRel }
             $script:PpiSeenRelPaths.Add($tfRel) | Out-Null
         }
@@ -620,7 +692,7 @@ if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
 
             $depResult = Resolve-DeclaredOutputRow -RowPath $depPath -Root $ProjectRoot
             if ($depResult.State -eq "Matched") {
-                $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $depResult.Candidate))
+                $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Read-PpiText $depResult.Candidate))
                 $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $depBytes; AbsPath = $depResult.Candidate; RelPath = $depPath }
             } else {
                 # WFI-059: name the join that was actually attempted, not just
@@ -645,7 +717,7 @@ if ((Get-Item -LiteralPath $InputPath).PSIsContainer) {
     $script:PpiContentSuffix = $rawContent
     $rawContent = ""
 } else {
-    $script:PpiContentPrefix = Get-Content -Raw -Encoding Utf8 -LiteralPath $InputPath
+    $script:PpiContentPrefix = Read-PpiText $InputPath
     $script:PpiContentSuffix = ""
     $script:PpiElidableIndex = @()
 }
@@ -663,7 +735,7 @@ function Build-PpiStep3Content {
         if ($ElideSet -contains $cand.RelPath) {
             $body = Get-PpiElidedContent -FilePath $cand.AbsPath -Label $cand.RelPath
         } else {
-            $body = Get-Content -Raw -Encoding Utf8 -LiteralPath $cand.AbsPath
+            $body = Read-PpiText $cand.AbsPath
         }
         $content += "# ---- $($cand.RelPath) ----`n$body`n"
     }
@@ -1004,7 +1076,7 @@ function Add-PpiDeclaredOutputContent {
     }) | Out-Null
 
     if ($Candidate) {
-        $bytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate))
+        $bytes = [System.Text.Encoding]::UTF8.GetByteCount((Read-PpiText $Candidate))
         $script:PpiDeclaredElidableIndex += [PSCustomObject]@{ Bytes = $bytes; AbsPath = $Candidate; RelPath = $RowPath }
     }
 
@@ -1045,7 +1117,7 @@ function Build-PpiDeclaredContent {
             $body = Get-PpiElidedContent -FilePath $row.Candidate -Label $row.RowPath
             $content += "$header`n$body`n"
         } else {
-            $body = Get-Content -Raw -Encoding Utf8 -LiteralPath $row.Candidate
+            $body = Read-PpiText $row.Candidate
             $content += "$header`n$body`n"
         }
     }

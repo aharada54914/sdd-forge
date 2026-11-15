@@ -19,6 +19,83 @@ SKILL = Path('plugins/sdd-implementation/skills/sql-develop')
 
 
 class SqlSkillDistributionTests(unittest.TestCase):
+    def test_completed_flyway_is_released_after_result_capture(self):
+        for code in (0, 9):
+            with self.subTest(upstream_exit=code), tempfile.TemporaryDirectory() as folder:
+                fixture = DockerFixture('contract', Path(folder) / 'proof.json', [])
+                fixture.containers = ['database', 'migration']
+                removed = []
+
+                def daemon(args, **kwargs):
+                    if args == ['wait', 'migration']:
+                        return subprocess.CompletedProcess(args, 0, str(code), '')
+                    if args == ['logs', 'migration']:
+                        self.assertFalse(removed, 'logs must precede container removal')
+                        return subprocess.CompletedProcess(args, 0, '{"operation":"migrate"}', 'warning')
+                    if args == ['inspect', 'migration']:
+                        labels = {'sdd.sql.test-run': fixture.run_id}
+                        return subprocess.CompletedProcess(args, 0, json.dumps([{'Config': {'Labels': labels}}]), '')
+                    if args[0] == 'container':
+                        self.assertTrue(removed)
+                        self.assertEqual(args, ['container', 'ls', '--all', '--quiet', '--no-trunc',
+                                                '--filter', 'name=^/migration$'])
+                        return subprocess.CompletedProcess(args, 0, '', '')
+                    self.assertEqual(args, ['rm', '--force', '--volumes', 'migration'])
+                    removed.append('migration')
+                    return subprocess.CompletedProcess(args, 0, 'migration', '')
+
+                with patch.object(fixture, 'start_container', return_value='migration'), \
+                        patch.object(fixture, 'docker', side_effect=daemon):
+                    result = fixture.flyway('image', 'url', 'user', 'password', folder, 'migrate')
+                self.assertEqual(result.returncode, code)
+                self.assertEqual(result.stdout, '{"operation":"migrate"}')
+                self.assertEqual(result.stderr, 'warning')
+                self.assertEqual(removed, ['migration'])
+                self.assertEqual(fixture.containers, ['database'])
+
+    def test_flyway_keeps_cleanup_registration_when_capture_or_ownership_fails(self):
+        for failure in ('logs', 'ownership'):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as folder:
+                fixture = DockerFixture('contract', Path(folder) / 'proof.json', [])
+                fixture.containers = ['migration']
+
+                def daemon(args, **kwargs):
+                    self.assertNotEqual(args[0], 'rm', 'uncaptured or unowned containers must not be removed')
+                    if args[0] == 'wait':
+                        return subprocess.CompletedProcess(args, 0, '0', '')
+                    if args[0] == 'logs':
+                        if failure == 'logs':
+                            raise RuntimeError('log capture failed')
+                        return subprocess.CompletedProcess(args, 0, '{}', '')
+                    self.assertEqual(args, ['inspect', 'migration'])
+                    return subprocess.CompletedProcess(args, 0, '[{"Config":{"Labels":{}}}]', '')
+
+                with patch.object(fixture, 'start_container', return_value='migration'), \
+                        patch.object(fixture, 'docker', side_effect=daemon), self.assertRaises(RuntimeError):
+                    fixture.flyway('image', 'url', 'user', 'password', folder, 'migrate')
+                self.assertEqual(fixture.containers, ['migration'])
+
+    def test_container_absence_requires_successful_complete_listing(self):
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = DockerFixture('contract', Path(folder) / 'proof.json', [])
+            container = 'a' * 64
+            for stdout, absent in (('', True), (container + '\n', False)):
+                with self.subTest(stdout=stdout), patch.object(fixture, 'docker', return_value=
+                        subprocess.CompletedProcess([], 0, stdout, '')) as daemon:
+                    self.assertEqual(fixture._container_absent(container), absent)
+                    daemon.assert_called_once_with(
+                        ['container', 'ls', '--all', '--quiet', '--no-trunc', '--filter', 'id=' + container],
+                        label='confirm container absent')
+            with patch.object(fixture, 'docker', side_effect=RuntimeError('daemon unavailable')):
+                with self.assertRaisesRegex(RuntimeError, 'daemon unavailable'):
+                    fixture._container_absent(container)
+            fixture.containers = [container]
+            with patch.object(fixture, '_owned'), patch.object(fixture, 'docker'), \
+                    patch.object(fixture, '_container_absent', return_value=False):
+                with self.assertRaisesRegex(RuntimeError, 'could not confirm'):
+                    fixture._remove_container(container)
+            self.assertEqual(fixture.containers, [container])
+
     def test_locked_database_images_pass_before_any_daemon_operation(self):
         with tempfile.TemporaryDirectory(prefix='sql-image-contract-') as folder:
             fixture = DockerFixture('contract', Path(folder) / 'proof.json', [])

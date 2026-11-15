@@ -34,7 +34,7 @@ fi
 payload="$(cat)"
 
 if command -v python3 >/dev/null 2>&1; then
-  PAYLOAD="$payload" python3 "$dir/sdd-hook-guard.py" "$@"
+  PAYLOAD="$payload" command python3 "$dir/sdd-hook-guard.py" "$@"
   exit $?
 fi
 

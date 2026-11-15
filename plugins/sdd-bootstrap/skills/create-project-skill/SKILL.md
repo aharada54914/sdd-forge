@@ -55,6 +55,16 @@ checks or Done state.
    does not validate the entire map. Keep source/watch references and the rerun
    command with the skill. For a changed procedure use `maintain-project-skill`.
 
+The runner includes `feature_coverage` in its immutable trial receipt and CLI
+result. Each feature names its Check ID, check status and evidence reference;
+unselected checks remain `not-run`, unavailable prerequisites are `unreachable`
+at the execution boundary, and shared checks remain `unassessed` after success.
+`check-passed` means the declared check passed, not that all user paths work.
+Helpers can dispatch their declared checks using `SDD_PROJECT_SKILL_CHECK_ID`,
+which the runner sets from the selected manifest check, overriding caller input.
+No map means unknown coverage (`complete: false`). This summary grants no gate,
+task approval or Done authority and does not replace the bound observation.
+
 Documentation-only procedures use the same sealing command with `--document-only`
 instead of `--runtime` / `--entry` (and without `--requires`). This emits
 `project-skill-manifest/v2` with `method: document`, null runtime/entry and empty

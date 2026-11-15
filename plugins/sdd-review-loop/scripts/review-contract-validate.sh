@@ -3,7 +3,7 @@
 # validating the contract identity and a report root contained by this repository.
 set -euo pipefail
 
-feature="" attempt="" round="" stage="" report_root="" contract=""
+feature="" attempt="" round="" stage="" report_root="" contract="" repository_root=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --feature) feature="${2:?missing feature}"; shift 2 ;;
@@ -12,6 +12,7 @@ while [[ $# -gt 0 ]]; do
     --stage) stage="${2:?missing stage}"; shift 2 ;;
     --report-root) report_root="${2:?missing report root}"; shift 2 ;;
     --contract) contract="${2:?missing contract}"; shift 2 ;;
+    --repository-root) [[ -z "$repository_root" && $# -ge 2 && -n "$2" ]] || { echo "ERROR: duplicate or empty repository root" >&2; exit 1; }; repository_root="$2"; shift 2 ;;
     *) echo "ERROR: unknown argument: $1" >&2; exit 1 ;;
   esac
 done
@@ -23,7 +24,14 @@ fail() { echo "ERROR: review-contract-validate: $1" >&2; exit 1; }
 [[ "$stage" =~ ^(spec|impl|task)$ ]] || fail "stage must be spec, impl, or task"
 [[ -f "$contract" ]] || fail "contract does not exist"
 
-repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+if [[ -z "$repository_root" ]]; then
+  plugin_root="$(cd "$(dirname "$0")/.." && pwd -P)"
+  repository_root="$PWD"
+  if [[ "$plugin_root" == */plugins/sdd-review-loop && -e "$plugin_root/../../.git" ]]; then
+    repository_root="$(cd "$plugin_root/../.." && pwd -P)"
+  fi
+fi
+repo_root="$(cd "$repository_root" && pwd -P)" || fail "repository root must be an existing directory"
 reports_root="${repo_root}/reports"
 root_parent="$(dirname "$report_root")"
 [[ -d "$root_parent" ]] || fail "report root parent does not exist"

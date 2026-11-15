@@ -1,0 +1,415 @@
+{
+  "baseline": "941fd7d5",
+  "schema": "verification-feedback-results/v1",
+  "checks": [
+    {
+      "suite": "tests/project-skill-observation.tests.py",
+      "unittest_count": 42,
+      "output_sha256": "c0526c827f2f69b60ca8f9209d24abe63ab36b1527df3fba03b67928cdb10d90",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/project-skill-observation.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/project-skill-observation.tests.py",
+            "source_sha256": "c47514aa73c3c87c950da2a41b2a1559eb1c5d499ac390d996d5821112c5f889",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 3.140172
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/project-skill-lifecycle.tests.py",
+      "unittest_count": 48,
+      "output_sha256": "af9e2fc3d316035647225ddc9148b3b803f87430a80de1b184f1190130e2695e",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/project-skill-lifecycle.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/project-skill-lifecycle.tests.py",
+            "source_sha256": "c268ddf7bd7c6b2de8f06bed29649b15189e2b358482b38bd6f2ef3bdc8082c5",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 9.814994
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/project-skill-profiles.tests.py",
+      "unittest_count": 5,
+      "output_sha256": "44733b08c861eb984da0e89f97c6783030db7146536d7cfbf229b628cbf56cfd",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/project-skill-profiles.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/project-skill-profiles.tests.py",
+            "source_sha256": "a562464f3ba0a19aa5d9c07060c338e56e50a2bcc39871f356d1fa64ad95fe28",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 4.146141
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/project-skill-formal.tests.py",
+      "unittest_count": 6,
+      "output_sha256": "eba2d6350399ff123f178e1e8ee734812d5a6909511f335eff6f5c0286a10191",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/project-skill-formal.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/project-skill-formal.tests.py",
+            "source_sha256": "f6428a407327850db0da84b55cae4bdf3845924b05be1f0f5f3d253c813bd2e4",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 1.157725
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/project-evidence-collector.tests.py",
+      "unittest_count": 21,
+      "output_sha256": "cd1a47641af457bb25888949fedb05be8abc37aad5d322c06dc4010eec25469a",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/project-evidence-collector.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/project-evidence-collector.tests.py",
+            "source_sha256": "25e9d70ef5726955619b8ce91272197d49dc17379d4ad4bffe59fe45a6366b91",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 10.072398
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/verification-catalog.tests.py",
+      "unittest_count": 20,
+      "output_sha256": "facf5fa3c1154d05ee26c13c973e0c21846fbe2233602b6aee226abc1a4863ee",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/verification-catalog.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/verification-catalog.tests.py",
+            "source_sha256": "8302297402f766c8729e2066bf71407faa5e822cbef468ede10ddc50695ae9d7",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 2.816236
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/verification-ci.tests.py",
+      "unittest_count": 93,
+      "output_sha256": "9e511aff9748f05ce07b054cf2f84f6acc155a208ef48c83ce9859b4c4b19be5",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/verification-ci.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/verification-ci.tests.py",
+            "source_sha256": "e92f4c35acfa9f0097ca738ca34729bbeed9bb87a2b134679d7c9134faf8b1fe",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 57.382137
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/verification-ci-plan.tests.py",
+      "unittest_count": 61,
+      "output_sha256": "bc13a36b8f5e99645b9226ba5e546eed5e7d18778c36fecd448cf58d2eaa1b54",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/verification-ci-plan.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/verification-ci-plan.tests.py",
+            "source_sha256": "5d2c9f1ea11c44001c076caf85eaed328c1b3efc6779f6192793148afbfa0ddd",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 20.990248
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/verification-impact.tests.py",
+      "unittest_count": 6,
+      "output_sha256": "263bcdc28517083e2b7df94a0323c1e414caa41482965bbbd3ea4d1eec0a558b",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/verification-impact.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/verification-impact.tests.py",
+            "source_sha256": "ea2cfffba83708cba04caa2b709731840c70d770943611985a5edf3971878fb9",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.131026
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    },
+    {
+      "suite": "tests/run-measurement.tests.py",
+      "unittest_count": 20,
+      "output_sha256": "259e591212829da34c20e44b6f6411d8e25caf2b0994fee29d332ae6b92d383b",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_before": false,
+        "reusable": false,
+        "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+        "selected": [
+          "tests/run-measurement.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/run-measurement.tests.py",
+            "source_sha256": "d856b8fde1a0d2ffa71843d28e655cead22a69a4b0b8d8f83926e4da25ce59bd",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.267896
+          }
+        ],
+        "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+        "clean_after": false
+      }
+    }
+  ],
+  "unit_test_total": 322,
+  "retention": {
+    "schema": "verification-receipt/v1",
+    "profile": null,
+    "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+    "clean_before": false,
+    "reusable": false,
+    "catalog_sha256": "e2cb6b06a6975bef72958ac1e0087833d017f4f058f2d93cf145f301107917b5",
+    "selected": [
+      "tests/second-approval-mask.tests.sh"
+    ],
+    "results": [
+      {
+        "suite": "tests/second-approval-mask.tests.sh",
+        "source_sha256": "f114f32a13abc85cd25e7ff5b6d02ff34ddf1241402033a9232566f580b4cb14",
+        "status": "passed",
+        "exit_code": 0,
+        "seconds": 41.433868
+      }
+    ],
+    "revision_after": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+    "clean_after": false,
+    "retention": {
+      "entries": [
+        {
+          "wfi": "WFI-002",
+          "suites": [],
+          "reason": "Manual-review deviations require period-specific report and authorization evidence; a unit check cannot establish that history.",
+          "status": "judgment-required"
+        },
+        {
+          "wfi": "WFI-007",
+          "suites": [],
+          "reason": "First-commit and later move history require inspecting the selected implementation reports and Git history.",
+          "status": "judgment-required"
+        },
+        {
+          "wfi": "WFI-008",
+          "suites": [],
+          "reason": "The condition concerns every newly completed feature in the period; unit fixtures alone do not inventory those bundles.",
+          "status": "judgment-required"
+        },
+        {
+          "wfi": "WFI-011",
+          "suites": [],
+          "reason": "Determining whether a factual premise is wrong requires source-context review, beyond lexical citation presence.",
+          "status": "judgment-required"
+        },
+        {
+          "wfi": "WFI-004",
+          "suites": [
+            "tests/second-approval-mask.tests.sh"
+          ],
+          "reason": null,
+          "status": "passed"
+        }
+      ],
+      "complete": false,
+      "authority": "observations-only; no WFI status or task approval changes",
+      "checklist_sha256": "b209f6589ff479118da45b634066921f606491358796167bfdc9b3caa53083b7"
+    }
+  },
+  "baseline_red": [
+    {
+      "category": "runtime",
+      "exit_code": 1,
+      "output_sha256": "686c670ce21cd4a65bd3c5a74ddace62dafec5095e83e30430a6e3f606467b06"
+    },
+    {
+      "category": "feature",
+      "exit_code": 1,
+      "output_sha256": "2a5610f2d5b377c25247cb2b25d147937c141960b08d82915556694af03c0314"
+    },
+    {
+      "category": "retention",
+      "exit_code": 1,
+      "output_sha256": "db2e3c95847c60fc8be60845292ca425927b85e8b1a9be104017e4503ff19d0b"
+    }
+  ],
+  "limits": [
+    "Local Linux verification, not remote CI or all-platform correctness.",
+    "Receipts record a dirty tree and are not reusable gate evidence.",
+    "WFI-002/007/008/011 remain judgment-required."
+  ],
+  "native_python_scan": {
+    "schema": "coding-standards-scan/v1",
+    "mode": "diff",
+    "revision": "941fd7d5c1573da55002dd141c7ab56043c5f761",
+    "status": "complete",
+    "population_count": 12374,
+    "selected_count": 6,
+    "inspected_count": 6,
+    "excluded": [],
+    "findings": [],
+    "tools": [
+      {
+        "language": "python",
+        "status": "executed",
+        "version": "ruff 0.13.3",
+        "target_count": 6
+      }
+    ],
+    "sources": [
+      {
+        "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+        "git_blob": "d09b5528be6dfd810e8419ec0234be0fbb9f91f5",
+        "source_sha256": "64ae7b5fce96758f329b2fb2bc3da64c9769b087596e802b516d4f24d8ff7fc2"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+        "git_blob": "b66de9840dc7f8faa7e1f8c220f80a5ab8f8099c",
+        "source_sha256": "a90d0d0e23ff68eb91bbef8ccd26f94722f30a38f4e1158f9c55ec38382be0d0"
+      },
+      {
+        "path": "tests/project-skill-lifecycle.tests.py",
+        "git_blob": "58653dba81d90b7e59185c0889f5de28d3c78aaf",
+        "source_sha256": "c268ddf7bd7c6b2de8f06bed29649b15189e2b358482b38bd6f2ef3bdc8082c5"
+      },
+      {
+        "path": "tests/project-skill-observation.tests.py",
+        "git_blob": "0d2e258ae8de62e68a58b6a8edf5d669636a3640",
+        "source_sha256": "c47514aa73c3c87c950da2a41b2a1559eb1c5d499ac390d996d5821112c5f889"
+      },
+      {
+        "path": "tests/verification-catalog.tests.py",
+        "git_blob": "68df1f0bc5012da3a35e2c418a4e4186752ee540",
+        "source_sha256": "8302297402f766c8729e2066bf71407faa5e822cbef468ede10ddc50695ae9d7"
+      },
+      {
+        "path": "tests/verification.py",
+        "git_blob": "d88672b91729fee213dcfe272bfcf2f5f2972f1c",
+        "source_sha256": "3ea1f951fab7334025450487b6abca88d34f90fd1a49fa548498279c1f9de116"
+      }
+    ],
+    "manual_review": "unknown",
+    "manual_unreviewed_count": 12374,
+    "outside_native_selection_count": 11,
+    "finding_count": 0
+  }
+}

@@ -341,7 +341,9 @@ export async function githubGetText(
   request: GithubGetRequest,
   fetchImpl: GithubTextFetch = defaultTextFetch,
 ): Promise<GithubGetTextOutcome> {
-  const result = await requestGithub(request, "text/plain", fetchImpl);
+  // The API negotiates its redirect with the GitHub media type, even though
+  // the redirected successful job-log body is plain text.
+  const result = await requestGithub(request, "application/vnd.github+json", fetchImpl);
   if (!result.ok) return result;
   const response = result.data;
 

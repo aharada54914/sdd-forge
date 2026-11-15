@@ -23,11 +23,12 @@ class VerifyInputsTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = pathlib.Path(self.temp.name)
+        self.root = pathlib.Path(self.temp.name).resolve()
         scripts = self.root / "plugins/sdd-review-loop/scripts"
         scripts.mkdir(parents=True)
         shutil.copytree(SCRIPTS / 'lib', scripts / 'lib')
         for name in ("spec-review-precheck.sh", "spec-review-precheck.ps1",
+                     "prepare-review-assets.py",
                      "review-contract-validate.sh", "review-contract-validate.ps1"):
             shutil.copy2(SCRIPTS / name, scripts / name)
         self.spec = self.root / "specs/example"
@@ -69,7 +70,7 @@ class VerifyInputsTest(unittest.TestCase):
             argv = ["pwsh", "-NoProfile", "-File", str(script), "-Feature", "example",
                     "-Attempt", attempt, "-Round", round_number, "-VerifyInputs"]
         before = self.snapshot()
-        result = subprocess.run(argv, capture_output=True, text=True)
+        result = subprocess.run(argv, cwd=self.root, capture_output=True, text=True)
         self.assertEqual(before, self.snapshot(), f"{shell} mutated fixture: {result.stderr}")
         return result
 
@@ -104,7 +105,7 @@ class VerifyInputsTest(unittest.TestCase):
                     shutil.rmtree(report_root, ignore_errors=True)
                     self.requirements.write_bytes(requirements)
                     (self.spec / "design.md").write_bytes(design_bytes)
-                    result = subprocess.run(argv, capture_output=True, text=True)
+                    result = subprocess.run(argv, cwd=self.root, capture_output=True, text=True)
                     self.assertEqual(result.returncode == 0, expected, result.stdout + result.stderr)
                     self.assertEqual(self.requirements.read_bytes(), requirements)
                     self.assertEqual((self.spec / "design.md").read_bytes(), design_bytes)
@@ -210,7 +211,7 @@ class VerifyInputsTest(unittest.TestCase):
         else:
             argv = ["pwsh", "-NoProfile", "-File", str(script), "-Feature", "example",
                     "-Attempt", "1", "-Round", "2", "-EditSummary", "fixed"]
-        return subprocess.run(argv, capture_output=True, text=True)
+        return subprocess.run(argv, cwd=self.root, capture_output=True, text=True)
 
     def test_historical_conditional_contracts(self):
         domain_paths = ("domain/context-map.md", "domain/domain-contract.json")

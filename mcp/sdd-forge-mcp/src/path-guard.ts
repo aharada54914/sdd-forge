@@ -9,19 +9,23 @@
  *      judged by their real target, not the link path).
  *   c. Allowlist prefix match against the resolved root: `specs/`, `reports/`,
  *      `docs/review-tickets/`, `docs/workflow-improvements/` directories, and
- *      the single file `AGENTS.md`.
+ *      the files `AGENTS.md` and optional `dashboard-labels.json`.
  *   d. Denylist: the flag file, evidence signing key material, and `.env`
  *      files are always denied — even when reached through an allowlisted
  *      directory via a symlink.
  *   e. File size limit: 2 MiB (2 * 1024 * 1024 bytes).
  *   f. Existence check.
  *
+ * Manifest-only artifact hashing additionally permits repository-contained
+ * paths outside the content allowlist; it returns only a comparison result.
+ *
  * Nothing in this module reads the values of SDD_EVIDENCE_KEY /
  * SDD_EVIDENCE_KEY_FILE — only their presence as denylisted *names* matters,
  * and no environment variable value is ever echoed in an error.
  */
 
-import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { err, ok, type Result } from "./envelope.js";
@@ -35,8 +39,8 @@ const ALLOWLISTED_DIRECTORIES = [
   "docs/workflow-improvements",
 ] as const;
 
-/** The only single-file allowlist entry. */
-const ALLOWLISTED_FILES = ["AGENTS.md"] as const;
+/** Explicit project metadata files; no other root files are readable. */
+const ALLOWLISTED_FILES = ["AGENTS.md", "dashboard-labels.json"] as const;
 
 /**
  * Base names that are always denied, regardless of which allowlisted
@@ -176,6 +180,12 @@ export function resolveGuarded(
   root: SddRoot,
   relPath: string,
 ): Result<{ resolvedPath: string; size: number }> {
+  return resolveFile(root, relPath, false);
+}
+
+function resolveFile(
+  root: SddRoot, relPath: string, artifactOnly: boolean,
+): Result<{ resolvedPath: string; size: number }> {
   const shapeError = validateInputShape(relPath);
   if (shapeError !== undefined) {
     return shapeError;
@@ -193,7 +203,7 @@ export function resolveGuarded(
     });
   }
 
-  if (!isAllowlisted(root, resolvedPath)) {
+  if (!(artifactOnly ? isWithin(root.path, resolvedPath) : isAllowlisted(root, resolvedPath))) {
     return err("path-denied", "Path is outside the allowlisted directories.", {
       rule: "allowlist",
     });
@@ -232,10 +242,25 @@ export function resolveGuarded(
   return ok({ resolvedPath, size });
 }
 
+/** Manifest-only integrity check. No bytes or digest are returned to tool callers.
+ * Canonical bundles can reference any repo-local artifact; content-read tools
+ * retain their narrower allowlist. All other path and size guards still apply.
+ */
+export function guardedArtifactMatches(root: SddRoot, relPath: string, expected: string): Result<boolean> {
+  const result = resolveFile(root, relPath, true);
+  if (!result.ok) return result;
+  try {
+    const bytes = readFileSync(result.data.resolvedPath);
+    return ok(createHash("sha256").update(bytes).digest("hex") === expected);
+  } catch {
+    return err("not-found", `Unable to read artifact: ${relPath}`, { file: relPath, rule: "readable" });
+  }
+}
+
 /**
- * Reads a file's UTF-8 contents after passing every path-guard check. This is
- * the only function in the codebase that may call `readFileSync` on
- * user-influenced paths.
+ * Reads a file's UTF-8 contents after passing every path-guard check.
+ * Content-returning reads use this function; manifest integrity checks use
+ * guardedArtifactMatches without returning bytes.
  */
 export function guardedRead(root: SddRoot, relPath: string): Result<GuardedFile> {
   const guardResult = resolveGuarded(root, relPath);
@@ -453,4 +478,12 @@ function resolveGuardedDirectory(
   }
 
   return ok({ resolvedPath });
+}
+
+/** Presence only: never read Project Context contents through the tool allowlist.
+ * A dangling link or unreadable entry counts as present, preventing fallback.
+ */
+export function hasProjectContext(root: SddRoot): boolean {
+  try { lstatSync(join(root.path, "sdd/project-context.yaml")); return true; }
+  catch (error) { return !(error instanceof Error && "code" in error && error.code === "ENOENT"); }
 }

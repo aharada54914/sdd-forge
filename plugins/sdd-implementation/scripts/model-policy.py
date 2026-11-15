@@ -1324,6 +1324,14 @@ def _validate_selector_options(options, request):
         raise _config('Selector recurrence requires a failure class, previous tier and positive attempt.')
 
 
+def default_capability_registry():
+    """Use the source contract or this package's fixed mirror, never caller cwd."""
+    plugin = Path(__file__).resolve().parent.parent
+    root = plugin.parent.parent if (plugin.name == 'sdd-implementation' and
+                                   plugin.parent.name == 'plugins') else plugin
+    return root / 'contracts/agent-model-capabilities.v2.json'
+
+
 def prepare_policy(request_path, registry_path, *, options=None, environment=None, capture=None, now=None):
     """Normalize policy/configuration and availability without choosing a tier, effort or winner."""
     request = _config_read(request_path)

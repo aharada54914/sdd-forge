@@ -122,6 +122,9 @@ make_stubs() {
             other_install_body="echo '${MSG_PLUGIN_ADDED}' >&2; exit 1"
             plugin_update_body="echo '${MSG_PLUGIN_CURRENT}'; exit 0"
             ;;
+        source-conflict)
+            marketplace_add_body="echo 'Error: marketplace already added from a different source' >&2; exit 1"
+            ;;
         unrelated-failure)
             marketplace_add_body="echo '${MSG_UNRELATED}' >&2; exit 1"
             ;;
@@ -366,6 +369,14 @@ echo "$OUT" | grep -qF "plugin marketplace add" \
     || { fail "a registration-phase failure did not name the failing registration"; _c7_ok=0; }
 rm -rf "$TEST_ROOT"
 [[ $_c7_ok -eq 1 ]] && ok "a registration-phase failure keeps the new version and names what failed"
+
+run_case source-conflict 0
+if [[ $RC -eq 0 ]] || echo "$LOG" | grep -qF 'codex plugin add'; then
+    fail "a source conflict must stop before installing plugins from the wrong marketplace"
+else
+    ok "a source conflict stops before plugin installation"
+fi
+rm -rf "$TEST_ROOT"
 
 # ---------------------------------------------------------------------------
 # Summary

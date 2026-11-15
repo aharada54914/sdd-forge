@@ -148,7 +148,7 @@
           "path": "mcp/ci-mcp/src/github-client.ts",
           "line_start": 338,
           "line_end": 360,
-          "keyword": "await requestGithub(request, \"text/plain\", fetchImpl)"
+          "keyword": "await requestGithub(request, \"application/vnd.github+json\", fetchImpl)"
         }
       ],
       "reverify_command": "sed -n '4,18p' mcp/ci-mcp/src/server.ts; sed -n '103,159p' mcp/ci-mcp/src/github-client.ts; sed -n '338,360p' mcp/ci-mcp/src/github-client.ts"

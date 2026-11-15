@@ -11,6 +11,22 @@ Run this after Phase 1 artifacts exist and before `impl-review-loop`. It is the
 only workflow mechanism permitted to change `Spec-Review-Status: Pending` to
 `Spec-Review-Status: Passed`.
 
+## Installed project roots
+
+Run prechecks from the consumer project root. Versioned plugin caches and flat
+installations resolve runtime code beside the installed script; they never use
+the installation as the project. To select a project explicitly, append
+`--repository-root <absolute-project-root>` (PowerShell: `-RepositoryRoot`).
+Source-checkout invocations retain their checkout-root default for compatibility.
+
+Prechecks project only their required bundled calibration/risk reference inputs
+into canonical `plugins/.../references/` paths under the consumer project. The
+bytes must match the trusted installed references: existing differing files or
+linked paths block the gate, and input verification never repairs them. Runtime
+scripts remain installed; users do not copy a plugin tree into their project.
+The canonical reference paths and all review identity/hash requirements remain
+unchanged.
+
 ## Managed allocation boundary
 
 Affected policy roles: `spec-reviewer-a`, `spec-reviewer-b`.
@@ -55,6 +71,54 @@ fallback evidence and all review isolation requirements remain unchanged.
 Apply separately to reviewer A or B before identity allocation and reservation. Keep the admitted managed Claude sequential launch and sanitized B input. Entered bound reviewers retain their readonly procedure without another selection.
 
 
+## Native Codex reviewer route
+
+For a local Codex host without an idle sub-agent allocation API, use the installed
+`launch-codex-review.py` before concluding that independent review is unavailable.
+This route is for unmanaged spec/impl/task A and B allocations only. An explicitly
+selected managed workflow must retain its admitted managed transport; never use
+this route to recover from a managed-routing failure.
+
+Prepare the normal `review-context-invocation/v2` file-manifest template after
+precheck, with the exact role-specific allowed inputs. Its run/session IDs are
+placeholders only: this launcher replaces them with a newly allocated, idle native
+thread ID, pins the current ledger, runs canonical preflight, and reserves that
+identity before the first model turn. Do not reserve the placeholder IDs yourself.
+
+```bash
+python3 -I -B "$SDD_REVIEW_SCRIPTS/launch-codex-review.py" \
+  "$repository_root" "$invocation" --manifest-sha256 "$invocation_sha256" \
+  --output "$new_output_directory" --timeout 600
+```
+
+Resolve `SDD_REVIEW_SCRIPTS` from this installed plugin's `scripts` directory.
+The output must be a new directory inside the reviewed repository. Forward both
+`--fixed-input-record` and `--fixed-input-snapshot` unchanged when using fixed Git
+inputs. `--runtime powershell` selects the existing PowerShell validators.
+The current native permission probe requires Linux, `/bin/cat`, `/bin/sh`, and
+`/usr/bin/python3`, and a Codex app-server supporting named permission profiles.
+Missing capabilities stop before a model turn; never fall back to unrestricted
+or generic read-only execution. The inherited Codex account/model configuration
+is retained; external MCP tools, plugins, hooks, Apps, web search, and delegation
+are disabled only inside this isolated reviewer process. Parent workflow guards
+remain enabled.
+
+The launcher projects only admitted files into a temporary directory, allows
+reads of that projection and native runtime files, denies writes/network, and
+probes inside read, outside read, write, and network denial through the native
+host before reservation. The reviewer receives the invocation and validator
+receipt, never the identity ledger. Raw hashes also pin lifecycle-normalized
+task inputs without changing their canonical declared hash.
+
+On success, `reviewer.json` is a candidate with the actual native identity;
+`delivery.json`, `idle-allocation.json`, `permission-probes.json`, reservation
+stdout/stderr, and native events are transport evidence. Adopt it only through
+the usual role-specific output checks, A-to-B sanitization, merge, and persisted
+workflow-state validator. A `NEEDS_WORK` or `BLOCKED` review is not a transport
+failure and must remain visible. On timeout, reservation failure, changed input,
+or identity mismatch, no candidate is adopted. Keep the consumed reservation
+and diagnostics, correct the cause, then allocate a new identity for a retry.
+
 ## Invocation
 
 ```text
@@ -68,6 +132,17 @@ Reached by entering at `/sdd-bootstrap:bootstrap` and following this file. The
 argument shape above is what the orchestrator supplies, not a slash command.
 
 ## Preconditions
+
+On a fresh project, register the invoking host before the first precheck
+creates review history. Use the installed quality plugin's
+`scripts/initialize-review-identity.py --root <consumer-root>` with
+`--codex-rollout <original CODEX_HOME/sessions/.../rollout-....jsonl>` for
+Codex or `--copilot-events <original native events.jsonl>` for Copilot.
+Use only metadata issued by the current host for this project. Never create
+or copy native metadata to satisfy admission. Existing ledgers are reused
+and validated, never reset; missing ledgers with prior review history require
+recovery, not a fresh initializer. This registers the orchestrator only and
+does not reserve reviewers or waive their independent-context requirements.
 
 Read `specs/<feature>/requirements.md` and `acceptance-tests.md`. The
 requirements header must be `Spec-Review-Status: Pending`. Determine the next

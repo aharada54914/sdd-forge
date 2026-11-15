@@ -27,6 +27,14 @@ REQUIREMENTS_TEMPLATE = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/
 REVIEWED_REQUIREMENTS_SHA256 = '903a725c445fac4505dfea3a3ac7aaf13b37fdb103ccffc1d1a6d1608dc940b5'
 OLD_REQUIREMENTS_PREFIX = b'# Requirements: {{feature_name}}\n\n'
 REVIEWED_REQUIREMENTS_PREFIX = OLD_REQUIREMENTS_PREFIX + b'Spec-Review-Status: Pending\n\n'
+DESIGN_TEMPLATE = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md'
+REVIEWED_DESIGN_SHA256 = '17c69864fd42ca609fc604699abbe7f4c5860483f844a0cd37bcd63bb6838da5'
+ADR_GUIDANCE = b'''
+Fill `adr_ref` with the full repository-relative path (for example,
+docs/adr/0001-storage.md) inside one pair of backticks. This exact inline
+declaration admits the ADR to implementation review; a bare identifier,
+relative Markdown link, or fenced example does not authorize its contents.
+'''
 DOCUMENTS = ('requirements', 'acceptance-tests', 'design', 'ux-spec',
              'frontend-spec', 'infra-spec', 'security-spec')
 
@@ -61,6 +69,10 @@ class CompatibilityTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_REQUIREMENTS_SHA256)
             self.assertTrue(content.startswith(REVIEWED_REQUIREMENTS_PREFIX))
             content = OLD_REQUIREMENTS_PREFIX + content[len(REVIEWED_REQUIREMENTS_PREFIX):]
+        if path == DESIGN_TEMPLATE:
+            # cc09eee8 documents the existing explicit ADR admission contract.
+            self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_DESIGN_SHA256)
+            content = content.replace(b"`{{adr_ref}}`", b"{{adr_ref}}", 1).replace(ADR_GUIDANCE, b"", 1)
         self.assertEqual(hashlib.sha256(content).hexdigest(), expected)
 
     def test_005_007_reviewed_contracts_templates_and_checks_unchanged(self):
@@ -97,6 +109,19 @@ class CompatibilityTests(unittest.TestCase):
             self.assert_reviewed_consumer(consumer, (ROOT / consumer).read_bytes() + b'changed', baseline[consumer])
         with self.assertRaises(AssertionError):
             self.assert_reviewed_consumer(consumer, (ROOT / consumer).read_bytes(), '0' * 64)
+
+    def test_reviewed_adr_guidance_requires_exact_change_and_original_baseline(self):
+        baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())['sha256']
+        content = (ROOT / DESIGN_TEMPLATE).read_bytes()
+        expected = baseline[DESIGN_TEMPLATE]
+        self.assert_reviewed_consumer(DESIGN_TEMPLATE, content, expected)
+        for changed in (content.replace(ADR_GUIDANCE, b'', 1),
+                        content.replace(b'`{{adr_ref}}`', b'{{adr_ref}}', 1),
+                        content + ADR_GUIDANCE, content + b'changed'):
+            with self.subTest(content_sha=hashlib.sha256(changed).hexdigest()), self.assertRaises(AssertionError):
+                self.assert_reviewed_consumer(DESIGN_TEMPLATE, changed, expected)
+        with self.assertRaises(AssertionError):
+            self.assert_reviewed_consumer(DESIGN_TEMPLATE, content, REVIEWED_DESIGN_SHA256)
 
     def test_additive_override_contract_preserves_existing_context_boundaries(self):
         resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')

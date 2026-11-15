@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 FEATURE="task-layer-inputs-fixture"
 WORK_ROOT="$(mktemp -d)"
+WORK_ROOT="$(cd "$WORK_ROOT" && pwd -P)"
 SPEC_DIR="$WORK_ROOT/specs/$FEATURE"
 REPORT_DIR="$WORK_ROOT/reports/task-review/$FEATURE/attempt-1/round-1"
 REGISTRY="$WORK_ROOT/specs/workflow-state-registry.json"

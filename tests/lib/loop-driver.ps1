@@ -239,6 +239,7 @@ function Copy-LoopFixtureScripts([string]$Root) {
         "plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1",
         "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+        "plugins/sdd-review-loop/scripts/prepare-review-assets.py",
         "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1",
         "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
         "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
@@ -267,6 +268,8 @@ function Copy-LoopFixtureReferences([string]$Root) {
     $rels = @(
         "plugins/sdd-review-loop/references/spec-review-calibration.md",
         "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "plugins/sdd-quality-loop/references/risk-classification-policy.md",
         "plugins/sdd-domain/references/domain-review-calibration.md",
         "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
         "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
@@ -632,7 +635,7 @@ function Invoke-LoopDriveSpecRound {
     $skillOrderValue = & jq -cn --arg v $scriptRelSh '$v'
     if ($LASTEXITCODE -ne 0) { return $false }
     if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
-    & $scriptPath @precheckArgs | Out-Null
+    & $scriptPath @precheckArgs -RepositoryRoot $script:LoopFixtureRoot | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
     $roundDir = Join-Path $script:LoopFixtureRoot "reports/spec-review/$feature/attempt-$Attempt/round-$Round"
@@ -892,7 +895,7 @@ function Invoke-LoopDriveImplRound {
     $skillOrderValue = & jq -cn --arg v $scriptRel '$v'
     if ($LASTEXITCODE -ne 0) { return $false }
     if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
-    & $scriptPath $feature $Attempt $Round | Out-Null
+    & $scriptPath $feature $Attempt $Round -RepositoryRoot $script:LoopFixtureRoot | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
     $roundDir = Join-Path $script:LoopFixtureRoot "reports/impl-review/$feature/attempt-$Attempt/round-$Round"
@@ -1068,7 +1071,7 @@ function Invoke-LoopDriveTaskRound {
     $skillOrderValue = & jq -cn --arg v $scriptRel '$v'
     if ($LASTEXITCODE -ne 0) { return $false }
     if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
-    & $scriptPath $feature $Attempt $Round | Out-Null
+    & $scriptPath $feature $Attempt $Round -RepositoryRoot $script:LoopFixtureRoot | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
     $roundDir = Join-Path $script:LoopFixtureRoot "reports/task-review/$feature/attempt-$Attempt/round-$Round"

@@ -1043,6 +1043,10 @@ print("true" if result.stdout else "false")
             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
             $verifiedAdrInputs.ContainsKey($declaredInput.path) -and
             $verifiedAdrInputs[$declaredInput.path] -ceq $declaredInput.sha256
+        } elseif ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
+            (Test-AuthorizedPath $document.stage $document.role $document.feature $declaredInput.path $declaredInput.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)) {
+            # Exact delivery declarations do not require optional concept inputs.
+            $true
         } elseif ($isConditionalInput) {
             $allowedConditionalPaths = if ($document.stage -cne 'impl') {
                 @('domain/context-map.md', 'domain/domain-contract.json')
