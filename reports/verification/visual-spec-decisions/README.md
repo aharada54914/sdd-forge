@@ -30,6 +30,8 @@ not a formal workflow gate verdict, native-host deployment claim or task approva
 | Browser regressions | PASS, 24 scenarios, zero page errors; 320px/640px reflow and keyboard draft selection |
 | Publisher / local supervisor | PASS, 6 / 4 tests |
 | Loop consistency | PASS, 34 assertions; existing caller fingerprint preserved |
+| Track-selection migration, Bash / PowerShell | PASS, 164 / 170 assertions |
+| Repository workflow-state, PowerShell / POSIX | PASS; new feature registered as full with formal review statuses Pending |
 
 Independent read-only code review identified stale/error control updates, SHA
 value type validation, null feature validation and response focus restoration.
@@ -60,3 +62,9 @@ loop suite passes. Frozen staged Lite predecessors were restored after the mirro
 sync helper attempted to refresh them; the existing explicit successor fixture
 now pins only the updated live skill hash. No frozen review copy is changed in
 the final PR diff.
+
+The next CI run caught the new specification directory missing from the separate
+workflow-state registry. It is now registered as full, with requirements, design
+and acceptance documents preserving Pending formal review statuses. Both real
+workflow-state validators pass; no legacy exemption, false Passed status or
+approval bypass was introduced to admit it.
