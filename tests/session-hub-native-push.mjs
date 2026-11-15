@@ -22,4 +22,8 @@ try {
  if(!item)process.exitCode=1;
  await peer.request('thread/archive',{threadId:target});target=null;
 
+} catch(error) {
+ const value={status:'FAIL',scope:'native Codex existing-thread input delivery',error:'native-transport-unavailable',threadId:target||null};
+ await writeFile(process.env.SDD_NATIVE_PUSH_OUTPUT || '/tmp/sdd-native-push-result.json',JSON.stringify(value,null,2));
+ console.log(JSON.stringify(value));process.exitCode=1;
 }finally{if(target)try{await peer.request('thread/archive',{threadId:target});}catch{}peer.close();await rm(directory,{recursive:true,force:true});}

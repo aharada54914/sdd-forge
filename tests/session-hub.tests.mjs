@@ -144,6 +144,8 @@ test('direct messages and answers are claimed once, scoped to the registered des
   state=await f.owner.command(state,'register',{id:'worker',label:'Codex',tokenHash:await digest(f.sessionToken),transport:'codex',destination:thread});
   await assert.rejects(f.worker.command(await f.worker.read(),'message',{id:'not-owner',sessionId:'worker',text:'test'}),/owner-required/);
   state=await f.owner.command(state,'message',{id:'push-message',sessionId:'worker',text:'Continue this existing conversation.'});
+  await assert.rejects(f.owner.command(state,'register',{id:'worker',label:'Moved',tokenHash:await digest(f.sessionToken),transport:'codex',destination:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'}),/pending-deliveries/);
+  assert.equal((await f.owner.command(state,'message',{id:'push-message',sessionId:'worker',text:'Continue this existing conversation.'})).messages.length,1);
   const executable=join(f.directory,'codex-fixture');const log=join(f.directory,'rpc.jsonl');
   await writeFile(executable,'#!'+process.execPath+'\n'+`
 import {createInterface} from 'node:readline';import {appendFileSync} from 'node:fs';
@@ -163,6 +165,8 @@ console.log(JSON.stringify({id:r.id,result}));});
   await f.owner.command(state,'answer',{id:'question',optionId:'a',requestId:'answer-push'});
   state=await f.worker.read();assert.equal(state.questions[0].status,'answered');assert.equal(state.messages[1].destination,thread);
   assert.equal(state.messages[1].requestId,'answer-push');
+  assert.equal(await deliverOne(cfg),true);
+  state=await f.owner.read();assert.equal(state.messages[1].status,'accepted');assert.equal(state.questions[0].status,'answered');
   const methods=[];
   const peer={request:async(method,params)=>{methods.push(method);if(method==='thread/read')return {thread:{id:thread,turns:[{id:'active',status:'inProgress'}]}};if(method==='turn/steer'){assert.equal(params.expectedTurnId,'active');return {turnId:'active'};}return {};}};
   assert.equal(await sendCodex(peer,thread,'steer','message-id'),'active');assert.equal(methods.includes('turn/start'),false);

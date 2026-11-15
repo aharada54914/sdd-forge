@@ -56,6 +56,14 @@ On failures diagnose the exact instance; never kill by process name or delete an
 ## Helpers
 
 `tests/session-hub-browser.mjs`, `tests/session-hub.tests.mjs`,
-`tests/merge-readiness.tests.py`, and `scripts/merge-readiness.py`.
+`tests/merge-readiness.tests.py`, `tests/session-hub-native-push.mjs`,
+`tests/session-hub-production.mjs`, and `scripts/merge-readiness.py`.
+
+The native push helper creates and archives its own read-only scratch thread,
+then checks the exact message in its transcript; a model failure remains recorded.
+The production helper reads `{url,project,token,serviceToken}` through protected
+stdin and writes labeled test records. Use only the explicitly authorized Site.
+`/mcp` OAuth acceptance is separate from service-authenticated HTTP. Neither
+helper is a substitute for a Claude.ai-signed session and native Artifact viewer.
 For changes reconcile the map and rerun with the locally adapted
 `pstack-maintain-verification-skill`; do not infer whole-app coverage from this subset.
