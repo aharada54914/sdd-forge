@@ -288,3 +288,24 @@ and depend on the protected publisher startup/credential integration in
 are not persisted by this runtime. Until that integration is verified, check
 collector status and remote delivery separately after recreation or resumption;
 retained or stale data must never be presented as fresh delivery.
+
+## 仕様の相談（既存画面への追加）
+
+既存の6つの進捗ビューに **仕様の相談** (`#decisions`) を追加しました。
+full/lite/domain の重要な仕様判断では、問題、案ごとの画面構成・フロー・
+状態遷移図、同じ軸の比較表、推奨理由を示して一つずつ回答できます。
+画面内では案・別案・保留を仮選択し、生成された回答文を会話に送ります。
+ブラウザー操作だけで仕様・承認・タスク状態が書き換わることはありません。
+
+データは既存 `get_dashboard_snapshot` / CLI stream の optional
+`data.decisionSets` に含まれ、SitesとArtifactsで同じ画面を使います。
+生成元は `specs/<feature>/decisions.json`（`sdd-decisions/v1`）。
+正本は既存のMarkdown仕様です。関連仕様のSHA-256が一致しなければ古い図表として
+選択を停止します。形式が壊れた場合は既存の取得失敗・最終正常データ表示を使います。
+既存プロジェクトや古いスナップショットにデータ追加は必須ではありません。
+
+詳しいフィールドと回答の記録方法は
+[spec-decisions.md](../plugins/sdd-ship/skills/status/references/spec-decisions.md)。
+表示機能が使えない場合も、会話中の図と比較表で判断できます。
+既存Site/Artifactの識別子・非公開設定・認証・収集処理を再利用し、
+このために別のサイトや承認APIを作りません。

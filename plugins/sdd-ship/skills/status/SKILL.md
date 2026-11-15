@@ -1,6 +1,6 @@
 ---
 name: status
-description: Show a read-only Jira-style six-view SDD dashboard in the initiating parent's Sites or Claude Artifacts, with source freshness and failure visibility.
+description: Show a read-only Jira-style seven-view SDD dashboard in the initiating parent's Sites or Claude Artifacts, with source freshness and failure visibility.
 disable-model-invocation: true
 ---
 
@@ -9,6 +9,14 @@ disable-model-invocation: true
 Use when the user requests a status board or dashboard, including during bootstrap
 or ship. The initiating parent owns presentation; do not delegate host selection,
 creation, publication, credentials or the active presentation identity to workers.
+
+## Specification decisions
+
+Use the existing presentation's **仕様の相談** view for important specification
+choices. Read `references/spec-decisions.md` before preparing decisions. This
+extends the same snapshot and private Site/Artifact; local draft selection never
+writes workflow state or authorizes implementation. Existing six progress views
+remain available.
 
 ## Independent local runtime (every entry/resume)
 
@@ -151,7 +159,7 @@ https://code.claude.com/docs/en/artifacts#pull-live-data-with-mcp-connectors
 
 ## Verification and handoff
 
-Verify six tabs, search/filter, task details, reload selection, no-source and
+Verify seven tabs, search/filter, task details, reload selection, no-source and
 undefined-release states. Change a disposable source task while the assistant
 is idle: confirm automatic update; break parsing: confirm last-good data and
 unchanged source-confirmation time; stop the collector: confirm stale/error;
