@@ -179,7 +179,9 @@ class Store:
 
     def state(self, session):
         value = read_json(self.path(session))
-        if (not isinstance(value, dict) or value.get('schema') != 'session-model-selection/v1'
+        if (not isinstance(value, dict)
+                or set(value) != {'schema', 'project_id', 'session_id', 'host', 'status', 'catalog', 'main', 'roles', 'confirmed_at'}
+                or value.get('schema') != 'session-model-selection/v1'
                 or value.get('project_id') != self.project_id or value.get('session_id') != session
                 or value.get('host') not in HOSTS or value.get('status') not in ('pending', 'confirmed', 'cancelled')):
             raise SelectionError('セッション設定が一致しません。')
@@ -190,6 +192,10 @@ class Store:
         for role, item in value['roles'].items():
             if item is not None:
                 role_choice(role, item)
+        validate_catalog(value['catalog'])
+        if value['status'] == 'confirmed' and (value['main'] is None or any(x is None for x in value['roles'].values())
+                or not isinstance(value['confirmed_at'], str) or not value['confirmed_at']):
+            raise SelectionError('確定済みセッションの確認記録が不足しています。')
         return value
 
 
@@ -253,6 +259,32 @@ def discover():
             result.append({'host': host, 'model': name, 'efforts': [], 'source': key,
                            'verification': 'unverified', 'selectable': providers[host]['installed']})
     return {'observed_at': now(), 'providers': providers, 'models': result}
+
+
+def validate_catalog(value):
+    if (not isinstance(value, dict) or set(value) != {'observed_at', 'providers', 'models'}
+            or not isinstance(value['observed_at'], str) or not isinstance(value['models'], list)
+            or not isinstance(value['providers'], dict) or set(value['providers']) != set(HOSTS)):
+        raise SelectionError('保存されたモデル一覧が不正です。一覧を再取得してください。')
+    for provider in value['providers'].values():
+        if (not isinstance(provider, dict) or set(provider) != {'installed', 'status', 'reason'}
+                or type(provider['installed']) is not bool
+                or provider['status'] not in ('listed', 'unverified', 'unavailable')
+                or not isinstance(provider['reason'], str)):
+            raise SelectionError('保存されたCLIの確認状態が不正です。')
+    seen = set()
+    for model in value['models']:
+        if (not isinstance(model, dict) or set(model) != {'host', 'model', 'efforts', 'source', 'verification', 'selectable'}
+                or not isinstance(model['efforts'], list) or any(e not in EFFORTS for e in model['efforts'])
+                or len(set(model['efforts'])) != len(model['efforts'])
+                or not isinstance(model['source'], str) or type(model['selectable']) is not bool
+                or model['verification'] not in ('listed', 'unverified')):
+            raise SelectionError('保存されたモデル候補が不正です。')
+        choice({'host': model['host'], 'model': model['model'], 'effort': None})
+        key = (model['host'], model['model'])
+        if key in seen:
+            raise SelectionError('保存されたモデル候補に重複があります。')
+        seen.add(key)
 
 
 def candidate(state, item):
@@ -374,7 +406,7 @@ def policy_request(store, session, role, request):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument('--project', type=Path, default=Path.cwd())
     parser.add_argument('--config-home', type=Path, help='プロジェクト外の個人設定ルート')
     sub = parser.add_subparsers(dest='command', required=True)

@@ -23,7 +23,9 @@ disable-model-invocation: false
    初回は共通モデルを提案してよいが、ユーザーの同意なくモデルを決めない。
    メインは起動したCLIのモデルだけ。サブは別会社も選べる。
    panelist-gptはCodex、panelist-geminiはGeminiを維持してクロスモデル検証の多様性を保つ。
-   全社モデルがすべての役割で実行可能とは限らない。下記の実行経路の制約も先に説明する。
+   全社モデルがすべての役割で実行可能とは限らない。下記の実行経路を確認し、
+   設定表に「対応する起動経路／ポリシー検証が必要／アダプター未対応」の列を付ける。
+   未対応の組み合わせは確定前に説明し、対応CLIへの変更または役割の無効化を提案する。
 4. `unverified` は現在の認証で利用可能と未確認、`listed` はCLI一覧への掲載のみ。
    推論の実行権限や実際のバックエンドモデルを保証しない。CLI未導入の候補は選べない。
    表示された `efforts` と「CLI既定」だけを提示し、未確認の推論値を推測しない。
@@ -52,8 +54,9 @@ disable-model-invocation: false
   プロジェクト内の新しい要求ファイルとして保存して、元のmanaged-entry/launcherへ渡す。
   入力要求のhostは選択CLI、roleは選択役割に一致させる。起動の新しい観測・バインド・権限検証は
   従来どおり実行する。候補一覧をmodel-observationへ変換しない。
-- **クロスモデルpanelist**: 既存のrun-panelist-gpt/run-panelist-geminiへ選択した `--model` を渡す。
-  GPTの明示推論設定は既存 `--effort` へ渡す。元の入力サニタイズ・同意・結果検証を維持する。
+- **クロスモデルpanelist**: 既存のrun-panelist-gpt/run-panelist-geminiへ `--model-session <id>` を渡す。
+  独自の保存先なら `--model-config-home <path>` も渡す。Bash・PowerShellとも
+  アダプターが確定済みモデルとGPTの明示推論設定を元の `--model`／`--effort` へ渡す。元の入力サニタイズ・同意・結果検証を維持する。
   管理された起動では上記requestを使い、legacyへ切り替えない。
 - **対応経路がない場合**: 対象役割を停止し、利用できない経路を具体的に示して再選択を求める。
   現在、Geminiの汎用独立レビュー用アダプターはない。Claudeも全役割がmanaged-entryに対応するわけではない。

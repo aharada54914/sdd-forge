@@ -126,7 +126,7 @@ while [[ $dependencies_changed -eq 1 ]]; do
     for plugin in "${PLUGIN_LIST[@]}"; do
         dependencies=()
         case "$plugin" in
-            sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+            sdd-bootstrap) dependencies=(sdd-review-loop sdd-implementation) ;;
             sdd-azure-cloud|sdd-aws-cloud) dependencies=(sdd-quality-loop) ;;
             sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
             sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
@@ -982,6 +982,7 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/scripts/managed-model-entry.py"
     "plugins/sdd-implementation/scripts/session-models.py"
     "plugins/sdd-implementation/scripts/session-model-start.py"
+    "plugins/sdd-implementation/scripts/session-panelist.py"
     "plugins/sdd-implementation/skills/model-selection/SKILL.md"
     "plugins/sdd-implementation/gemini/gemini-extension.json"
     "plugins/sdd-implementation/scripts/model-policy.py"

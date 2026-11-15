@@ -246,7 +246,7 @@ resolve_registered_plugins() {
         for plugin in "${resolved[@]}"; do
             local -a dependencies=()
             case "$plugin" in
-                sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+                sdd-bootstrap) dependencies=(sdd-review-loop sdd-implementation) ;;
                 sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
                 sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
                 sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;

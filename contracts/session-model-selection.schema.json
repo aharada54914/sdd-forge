@@ -46,6 +46,26 @@
           "const": true
         }
       }
+    },
+    "roleChoice": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/choice"
+        },
+        {
+          "$ref": "#/$defs/disabled"
+        }
+      ]
+    },
+    "pendingRoleChoice": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/roleChoice"
+        }
+      ]
     }
   },
   "oneOf": [
@@ -86,174 +106,55 @@
           "additionalProperties": false,
           "properties": {
             "implementer": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "investigator": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "spec-reviewer-a": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "spec-reviewer-b": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "impl-reviewer-a": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "impl-reviewer-b": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "task-reviewer-a": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "task-reviewer-b": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "evaluator": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "domain-reviewer-a": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "domain-reviewer-b": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "workflow-auditor-a": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "workflow-auditor-b": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "diagnosis": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "self-improvement": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "panelist-gpt": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             },
             "panelist-gemini": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/choice"
-                },
-                {
-                  "$ref": "#/$defs/disabled"
-                }
-              ]
+              "$ref": "#/$defs/roleChoice"
             }
           }
         }
@@ -483,293 +384,55 @@
           ],
           "properties": {
             "implementer": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "investigator": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "spec-reviewer-a": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "spec-reviewer-b": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "impl-reviewer-a": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "impl-reviewer-b": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "task-reviewer-a": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "task-reviewer-b": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "evaluator": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "domain-reviewer-a": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "domain-reviewer-b": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "workflow-auditor-a": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "workflow-auditor-b": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "diagnosis": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "self-improvement": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "panelist-gpt": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             },
             "panelist-gemini": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "$ref": "#/$defs/choice"
-                    },
-                    {
-                      "$ref": "#/$defs/disabled"
-                    }
-                  ]
-                }
-              ]
+              "$ref": "#/$defs/pendingRoleChoice"
             }
           }
         },

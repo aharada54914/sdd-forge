@@ -62,3 +62,15 @@ The existing Bash suites completed successfully on 2026-11-15:
 
 These are deterministic verifier tests, not live native hook attestation or
 feature acceptance tests. No feature implementation has been verified.
+
+## Resolution after implementation
+
+The user explicitly authorized development skills, independent review and tests
+for this Work session instead of the consumer SDD approval workflow. Implementation
+therefore proceeded without pretending that Work's tool dispatch is the native CLI
+hook lifecycle, and without inventing a Project Context signature key. The feature
+was implemented and tested under that authorized route. No normal-user guard,
+sidecar, approval registry, hook trust setting or future-session instruction was
+changed to manufacture a passing startup check. For future Work development,
+make that distinction explicit in the development entry workflow; for real plugin
+use, keep native runtime and signature checks intact.

@@ -34,7 +34,7 @@ while ($dependenciesChanged) {
     $dependenciesChanged = $false
     foreach ($plugin in @($Plugins)) {
         $dependencies = switch -CaseSensitive ($plugin) {
-            "sdd-bootstrap" { @("sdd-review-loop"); break }
+            "sdd-bootstrap" { @("sdd-review-loop", "sdd-implementation"); break }
             "sdd-azure-cloud" { @("sdd-quality-loop"); break }
             "sdd-aws-cloud" { @("sdd-quality-loop"); break }
             "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
@@ -738,6 +738,7 @@ function Get-RequiredPaths {
         "plugins/sdd-implementation/scripts/managed-model-entry.py",
         "plugins/sdd-implementation/scripts/session-models.py",
         "plugins/sdd-implementation/scripts/session-model-start.py",
+        "plugins/sdd-implementation/scripts/session-panelist.py",
         "plugins/sdd-implementation/skills/model-selection/SKILL.md",
         "plugins/sdd-implementation/gemini/gemini-extension.json",
         "plugins/sdd-implementation/scripts/model-policy.py",

@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import os
+import shutil
 from pathlib import Path
 from types import SimpleNamespace
 import subprocess
@@ -88,6 +89,19 @@ class Sessions(unittest.TestCase):
     def test_main_cannot_move_to_another_cli(self):
         with self.assertRaises(m.SelectionError):
             m.set_choice(self.store, 'one', 'main', 'claude-code', 'sonnet', None)
+
+    def test_powershell_panelist_session_bridge_rejects_explicit_conflict(self):
+        executable = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
+        if not executable:
+            self.skipTest('PowerShell not configured')
+        self.configure(); m.confirm(self.store, 'one', True)
+        result = subprocess.run([executable, '-NoProfile', '-File',
+                                 str(ROOT / 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1'),
+                                 '--model-session', 'one', '--model-config-home', str(self.base / 'private'),
+                                 '--model', 'different'], cwd=self.project, capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn('SESSION_MODEL_SELECTION_REQUIRED', result.stderr)
+        self.assertIn('競合', result.stderr)
 
     def test_cross_provider_role_selection_and_confirmation(self):
         self.configure()
@@ -176,6 +190,19 @@ class Sessions(unittest.TestCase):
             m.confirm(self.store, 'one', True)
         with self.assertRaises(m.SelectionError):
             m.set_choice(self.store, 'one', 'main', 'codex-cli', 'fixture-gpt', None)
+
+    def test_malformed_confirmation_and_catalog_fail_closed(self):
+        self.configure(); m.confirm(self.store, 'one', True)
+        state = self.store.state('one')
+        original = json.loads(json.dumps(state))
+        state['confirmed_at'] = None
+        m.write_json(self.store.path('one'), state)
+        with self.assertRaises(m.SelectionError):
+            m.selection(self.store, 'one', 'investigator')
+        original['catalog']['models'][0]['selectable'] = 'false'
+        m.write_json(self.store.path('one'), original)
+        with self.assertRaises(m.SelectionError):
+            self.store.state('one')
 
     def test_private_storage_is_not_in_project(self):
         with self.assertRaises(m.SelectionError):
@@ -276,6 +303,22 @@ class Startup(unittest.TestCase):
         for path in ['plugins/sdd-bootstrap/skills/bootstrap/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md']:
             self.assertIn('skills/model-selection/SKILL.md', (ROOT / path).read_text())
 
+    def test_panelist_parser_preserves_explicit_model_argument(self):
+        with tempfile.TemporaryDirectory() as config:
+            result = subprocess.run([sys.executable, str(SCRIPTS / 'session-panelist.py'), '--vendor', 'gpt',
+                                     '--shell', 'bash', '--model-session', 'missing-session', '--model-config-home', config,
+                                     '--model', 'fixture'], cwd=ROOT, capture_output=True, text=True, timeout=5)
+        self.assertNotIn('ambiguous option', result.stderr)
+        self.assertIn('SESSION_MODEL_SELECTION_REQUIRED', result.stderr)
+
+    def test_panelist_forwarded_arguments_cannot_replace_wrapper_vendor(self):
+        with tempfile.TemporaryDirectory() as config:
+            result = subprocess.run(['bash', str(ROOT / 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh'),
+                                     '--model-session', 'missing-session', '--model-config-home', config,
+                                     '--vendor=gemini'], cwd=ROOT, capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('duplicate session adapter control', result.stderr)
+
     def test_panelist_bridge_preserves_collection_arguments(self):
         selected = {'host': 'codex-cli', 'model': 'fixture-model', 'effort': 'high'}
         command = panelist.command(selected, 'gpt', 'bash', ['--task', 'T-001', '--input', 'input bundle.json'])
@@ -296,6 +339,70 @@ class Startup(unittest.TestCase):
         ext = root / 'gemini'
         self.assertEqual(json.loads((ext / 'gemini-extension.json').read_text())['contextFileName'], 'GEMINI.md')
         self.assertIn('${extensionPath}', (ext / 'hooks/hooks.json').read_text())
+
+
+@unittest.skipIf(os.name == 'nt', 'POSIX CLI doubles; Windows quoting has separate native argument suites')
+class GeminiInstaller(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.payload = load('session_install_payload', ROOT / 'tests/lib/install-payload-check.py')
+        cls.fixture = cls.payload.Fixture(ROOT)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.fixture.close()
+
+    def run_install(self, runtime, plugins='sdd-bootstrap'):
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            env = self.payload.scenario_env(base)
+            binary = base / 'bin'; binary.mkdir()
+            log = base / 'gemini-log.jsonl'
+            fake = binary / 'gemini'
+            fake.write_text('#!' + sys.executable + '\nimport json,os,sys\nwith open(os.environ["GEMINI_TEST_LOG"],"a") as f: f.write(json.dumps(sys.argv[1:])+"\\n")\n')
+            fake.chmod(0o755)
+            env.update(PATH=str(binary) + os.pathsep + os.environ['PATH'], GEMINI_TEST_LOG=str(log))
+            installed = base / 'installed root'
+            if runtime == 'bash':
+                args = ['bash', str(ROOT / 'install.sh'), '--source-directory', str(self.fixture.path),
+                        '--install-root', str(installed), '--target', 'Gemini', '--plugins', plugins,
+                        '--skip-mcp', '--skip-agent-install']
+            else:
+                executable = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
+                if not executable:
+                    self.skipTest('PowerShell not configured')
+                args = [executable, '-NoProfile', '-File', str(ROOT / 'install.ps1'),
+                        '-SourceDirectory', str(self.fixture.path), '-InstallRoot', str(installed),
+                        '-Target', 'Gemini', '-Plugins', plugins, '-SkipMcp', '-SkipAgentInstall']
+            result = subprocess.run(args, capture_output=True, text=True, env=env, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stdout[-2000:] + result.stderr[-2000:])
+            calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+            if plugins == 'sdd-bootstrap':
+                self.assertEqual(calls, [['extensions', 'link', str(installed / 'plugins/sdd-implementation/gemini')]])
+                self.assertTrue((installed / 'plugins/sdd-implementation/scripts/session-models.py').is_file())
+                if runtime == 'bash':
+                    args = ['bash', str(ROOT / 'uninstall.sh'), '--install-root', str(installed),
+                            '--target', 'Gemini', '--plugins', 'sdd-implementation', '--keep-files',
+                            '--skip-mcp-uninstall', '--skip-agent-uninstall']
+                else:
+                    args = [executable, '-NoProfile', '-File', str(ROOT / 'uninstall.ps1'),
+                            '-InstallRoot', str(installed), '-Target', 'Gemini', '-Plugins', 'sdd-implementation',
+                            '-KeepFiles', '-SkipMcpUninstall', '-SkipAgentUninstall']
+                result = subprocess.run(args, capture_output=True, text=True, env=env, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                calls = [json.loads(line) for line in log.read_text().splitlines()]
+                self.assertEqual(calls[-1], ['extensions', 'uninstall', 'sdd-forge-model-selection'])
+            else:
+                self.assertEqual(calls, [])
+
+    def test_bash_bootstrap_installs_picker_and_unregisters_gemini(self):
+        self.run_install('bash')
+
+    def test_powershell_bootstrap_installs_picker_and_unregisters_gemini(self):
+        self.run_install('powershell')
+
+    def test_unselected_implementation_does_not_register_extension(self):
+        self.run_install('bash', 'sdd-review-loop')
 
 
 if __name__ == '__main__':

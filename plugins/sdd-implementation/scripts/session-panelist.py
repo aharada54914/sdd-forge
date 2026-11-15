@@ -35,12 +35,16 @@ def command(selected, vendor, shell, arguments, powershell="pwsh"):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument('--vendor', choices=('gpt', 'gemini'), required=True)
     parser.add_argument('--shell', choices=('bash', 'powershell'), required=True)
     parser.add_argument('--model-session', required=True)
     parser.add_argument('--powershell', default='pwsh')
     parser.add_argument('--model-config-home', type=Path)
+    # Wrapper-owned controls must not be replaced by forwarded collector arguments.
+    for flag in ('--vendor', '--shell', '--powershell', '--model-session', '--model-config-home'):
+        if sum(arg == flag or arg.startswith(flag + '=') for arg in sys.argv[1:]) > 1:
+            parser.error('duplicate session adapter control: ' + flag)
     args, rest = parser.parse_known_args()
     try:
         store = models.Store(Path.cwd(), args.model_config_home)

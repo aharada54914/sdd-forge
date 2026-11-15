@@ -13,8 +13,11 @@ and task-decomposition review.
 
 ## 新規対話セッションのモデル確認
 
-新規の対話セッションでは、最初のSDD作業・委任前に、同じインストール版の
-sdd-implementationの `skills/model-selection/SKILL.md` を読み、メインと役割別モデルを確認する。
+新規の対話セッションでは、最初のSDD作業・委任前に、ホストのスキル索引から
+`model-selection` を解決してメインと役割別モデルを確認する。索引で非表示なら、ホストが
+現在有効として登録するsdd-implementationのplugin root／manifestから
+`skills/model-selection/SKILL.md` を解決する。隣接ディレクトリや別versionのcacheを推測しない。
+未導入ならsdd-implementationの導入を案内して停止する。
 SessionStartで確認済みなら繰り返さない。フックが使えない場合もこの入口から確認する。
 非対話実行、resume、compact、既にバインド済みのワーカーは従来動作を維持する。
 モデルの選択は、以下の管理された起動境界や独立レビューの要件を解除しない。
