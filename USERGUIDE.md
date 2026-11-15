@@ -387,11 +387,14 @@ Gemini CLI用のモデル選択extensionは、インストーラーの `--target
 これはモデル選択のextensionで、SDDの全機能をGeminiへ移植するものではありません。
 各CLI側で必要なフックの有効化・信頼を確認してください。インストールだけで稼働証明とはしません。
 
-- 一覧の `listed` はCLI一覧への掲載、`unverified` は公式のalias・設定由来の未確認候補です。
-  いずれも現在のアカウントの推論権限を保証しません。Claude/Geminiには現在の認証での完全一覧取得を保証しません。
-  対応するGemini CLIでは公開の `gemini models --output-format json` から候補を取得します。
-  古い版は先にhelpで対応を確認し、モデル名を通常プロンプトとして送らないようにします。
-- 推論の強さは確認できた選択肢と「CLI既定」から選びます。Geminiには現在CLI既定だけを提示します。
+- 共通の選択UIは各CLIの既存認証を使い、ClaudeのSDK制御プロトコル、CodexのApp Server
+  `model/list`、Geminiの認証後のACPセッションからモデル一覧を取得します。
+  固定のモデル名や環境変数の値で候補を補わず、取得できない場合は理由と更新操作を表示します。
+- 一覧の `listed` はCLIから取得した候補、`unverified` は使用者が追加した未確認候補です。
+  いずれも推論成功を保証しません。APIキー・OAuth・ChatGPTの認証経路と課金枠を混同せず、
+  CLI管理で方式が分からない場合は未確認と表示します。別の認証方式へ自動で切り替えません。
+- 推論の強さはモデルごとに取得した選択肢と「CLI既定」から選びます。
+  Geminiの現行ACPにはモデル別推論強度がないため、CLI既定だけを提示します。
 - 未使用の役割は明示的に無効にできます。その役割を実行する際には停止して再選択を求めます。
   GPT/Geminiのpanelistは、それぞれ元の会社に固定してクロスモデル検証の多様性を維持します。
 - Geminiの汎用独立レビューなど、対応アダプターがない組み合わせは停止します。
@@ -419,5 +422,7 @@ python3 <scripts>/session-models.py confirm --session <session-id> --main-applie
 初回は各役割を選択または無効化します。次回は前回設定を一括確認できます。
 候補を再取得する場合は `begin --refresh`、未掲載の具体的IDは `add-candidate`
 （未確認候補として追加）、中止は `cancel` を使います。設定変更・再取得後は再確認が必要です。
+新規セッションと、15分以上古い一覧で選択画面を開き直した際にも更新します。
+取得した新しい推論強度でも、役割別の起動経路が未対応なら停止して再選択を求めます。
 CLI/API契約は `contracts/session-model-selection.schema.json` と
 `plugins/sdd-implementation/skills/model-selection/SKILL.md` を参照してください。
