@@ -1,7 +1,7 @@
 import { choiceButton } from './components.mjs';
 const $ = id => document.getElementById(id);
 const node = (tag, text) => { const n = document.createElement(tag); n.textContent = text; return n; };
-const labels = { open:'要回答', answered:'回答済み・受領待ち', received:'受領済み', expired:'期限切れ', queued:'実行待ち', running:'実行中', succeeded:'成功', failed:'失敗', cancelled:'取消済み', uncertain:'結果不明・確認が必要' };
+const labels = { open:'要回答', answered:'回答済み・受領待ち', received:'受領済み', expired:'期限切れ', queued:'実行待ち', running:'実行中', succeeded:'成功', failed:'失敗', cancelled:'取消済み', uncertain:'結果不明・確認が必要',sending:'送信中',accepted:'送信先が受付済み（受領・作業完了は未確認）' };
 let state = null, busy = false, readBusy = false, signature = '', lastSuccess = 0;
 async function timed(promise) {
   let timer;
@@ -56,7 +56,13 @@ function render() {
   const selected = $('session').value;
   $('session').replaceChildren(...state.sessions.map(s => { const o = node('option', s.label); o.value = s.id; return o; }));
   if (state.sessions.some(s => s.id === selected)) $('session').value = selected;
-  $('sessions').replaceChildren(...state.sessions.map(s => node('li', s.label + ' · 回答取得方式（受領確認あり）')));
+  $('sessions').replaceChildren(...state.sessions.map(s => node('li', s.label + ' · ' + (s.transport === 'pull' ? '回答取得方式（受領確認あり）' : s.transport + ' 直接送信'))));
+  const pushSelected = $('push-session').value;
+  const pushSessions = state.sessions.filter(s => ['codex','claude-cloud'].includes(s.transport));
+  $('push-session').replaceChildren(...pushSessions.map(s => {const o=node('option',s.label);o.value=s.id;return o;}));
+  if (pushSessions.some(s => s.id === pushSelected)) $('push-session').value = pushSelected;
+  $('send-message').querySelector('button').disabled = !pushSessions.length;
+  $('messages').replaceChildren(...(state.messages || []).map(m => node('li',m.sessionId + ' · ' + labels[m.status] + (m.error ? ' · ' + m.error : ''))));
   $('away-state').textContent = state.away ? '有効：ワーカーが空き資源を確認して実行します' : '無効：新規着手を停止中';
   $('away').textContent = state.away ? '離席モードを無効にする' : '離席モードを有効にする'; $('away').setAttribute('aria-pressed', String(state.away));
   $('jobs').replaceChildren(...state.jobs.map(j => {
@@ -75,6 +81,7 @@ $('refresh').onclick = read;
 $('filter').onchange = render;
 $('away').onclick = () => action('away', { enabled:!state.away });
 $('enqueue').onsubmit = event => { event.preventDefault(); action('enqueue', {id:crypto.randomUUID(), sessionId:$('session').value, commandId:$('command').value, title:$('job-title').value, approved:true}); };
+$('send-message').onsubmit = event => {event.preventDefault();action('message',{id:crypto.randomUUID(),sessionId:$('push-session').value,text:$('message-text').value});};
 $('login').onsubmit = async event => {
   event.preventDefault();
   try { await response(await fetch('/api/hub/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:$('token').value})})); $('token').value = ''; await read(); }

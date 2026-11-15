@@ -7,7 +7,7 @@ export function apiClient({ url, token, project, serviceToken }) {
     const r = await fetch(new URL(path, base), {method:command ? 'POST' : 'GET', redirect:'error', signal:AbortSignal.timeout(15000),
       headers:{Authorization:'Bearer ' + token, ...(serviceToken ? {'OAI-Sites-Authorization':'Bearer ' + serviceToken} : {}), ...(command ? {'Content-Type':'application/json'} : {})},
       ...(command ? {body:JSON.stringify(command)} : {})});
-    const body = await r.json(); if (!r.ok) { const e = new Error(body.error || 'request-failed'); e.status = r.status; throw e; }
+    let body; try {body=await r.json();} catch {const e=new Error('http-'+r.status);e.status=r.status;throw e;} if (!r.ok) { const e = new Error(body.error || 'request-failed'); e.status = r.status; throw e; }
     if (body.schema !== 'sdd-session-hub/v1' || body.project !== project) throw new Error('project-mismatch');
     return body;
   }

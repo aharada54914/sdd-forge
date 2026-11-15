@@ -1,7 +1,7 @@
 # Questions and delivery
 
 ## Sub-features
-Shared inbox, real component alternatives, selection, delivery, receipt, freshness and isolation.
+Shared inbox, real component alternatives, selection, delivery, receipt, freshness, isolation and existing-session push.
 
 ## How to get to it (user POV)
 Open `/hub`, enter the local owner token, choose a component, switch to receipt-waiting
@@ -15,3 +15,12 @@ Success is the selected option at the real session API, then visible received st
 ## Gotchas
 Native Artifact requires real read/write adapters and consent. Missing adapters must remain
 visible failures. Browser screenshots do not prove native hosted connectivity.
+
+## Existing conversation push
+
+Register a Codex UUID or Claude Code cloud ID as owner, then use the real send form.
+`tests/session-hub.tests.mjs` drives the bridge through the actual HTTP outbox with
+controlled native-process transports, checking single dispatch and exact target.
+For native proof, start the existing host outside this harness, send to an explicitly
+authorized test conversation, and read its transcript. Store the host receipt separately
+from completion. No fixture can establish production Claude login or native OAuth.

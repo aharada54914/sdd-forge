@@ -112,12 +112,18 @@ test('Sites embedded worker preserves owner/session boundary and R2 conditional 
   assert.equal((await worker.fetch(req('/api/hub',{'X-SDD-Publisher':'publisher'}),env)).status,401);
   assert.equal((await worker.fetch(req('/hub',{'oai-authenticated-user-id':'viewer'}),env)).status,403);
   assert.equal((await worker.fetch(req('/hub',{'oai-authenticated-user-id':'owner'}),env)).status,200);
+  const emailEnv={...env,SDD_HUB_OWNER_ID:null,SDD_HUB_OWNER_EMAIL:'owner@example.test'};
+  assert.equal((await worker.fetch(req('/hub',{'oai-authenticated-user-id':'signed','oai-authenticated-user-email':'owner@example.test'}),emailEnv)).status,200);
+  assert.equal((await worker.fetch(req('/hub',{'oai-authenticated-user-id':'signed','oai-authenticated-user-email':'other@example.test'}),emailEnv)).status,403);
+  assert.equal((await worker.fetch(req('/hub',{'oai-authenticated-user-email':'owner@example.test'}),emailEnv)).status,403);
   const headers={authorization:'Bearer '+owner};
   const command={project:'p',expectedRevision:0,action:'away',input:{enabled:true}};
   assert.equal((await worker.fetch(req('/api/hub/command',headers,command),env)).status,200);
   assert.equal((await worker.fetch(req('/api/hub/command',headers,command),env)).status,409);
   const rpc = (method,params,auth=headers) => worker.fetch(req('/mcp',auth,{jsonrpc:'2.0',id:1,method,params}),env);
   assert.equal((await rpc('tools/list',{},{})).status,401);
+  const initialized = await (await rpc('initialize',{protocolVersion:'2025-06-18'})).json();
+  assert.equal(initialized.result.protocolVersion,'2025-06-18');
   const listed = await (await rpc('tools/list')).json();
   assert.equal(listed.result.tools[0].name,'sdd_hub_read');
   const read = await (await rpc('tools/call',{name:'sdd_hub_read'})).json();
@@ -127,4 +133,55 @@ test('Sites embedded worker preserves owner/session boundary and R2 conditional 
   assert.equal(written.result.isError,false);
   assert.equal(JSON.parse(written.result.content[0].text).away,false);
 
+});
+
+test('direct messages and answers are claimed once, scoped to the registered destination', async t => {
+  const {sendCodex,deliverOne}=await import('../plugins/sdd-ship/session-hub/push.mjs');
+  const {writeFile,chmod}=await import('node:fs/promises');
+  const f=await fixture(t);const thread='11111111-2222-4333-8444-555555555555';
+  let state=await f.owner.read();
+  await assert.rejects(f.owner.command(state,'register',{id:'worker',label:'bad',tokenHash:await digest(f.sessionToken),transport:'codex',destination:'https://chatgpt.com/c/foo'}),/unsupported-conversation/);
+  state=await f.owner.command(state,'register',{id:'worker',label:'Codex',tokenHash:await digest(f.sessionToken),transport:'codex',destination:thread});
+  await assert.rejects(f.worker.command(await f.worker.read(),'message',{id:'not-owner',sessionId:'worker',text:'test'}),/owner-required/);
+  state=await f.owner.command(state,'message',{id:'push-message',sessionId:'worker',text:'Continue this existing conversation.'});
+  const executable=join(f.directory,'codex-fixture');const log=join(f.directory,'rpc.jsonl');
+  await writeFile(executable,'#!'+process.execPath+'\n'+`
+import {createInterface} from 'node:readline';import {appendFileSync} from 'node:fs';
+createInterface({input:process.stdin}).on('line',line=>{const r=JSON.parse(line);if(r.id===undefined)return;appendFileSync(${JSON.stringify(log)},line+'\\n');let result={};
+if(r.method==='thread/read'||r.method==='thread/resume')result={thread:{id:${JSON.stringify(thread)},turns:[]}};
+if(r.method==='turn/start')result={turn:{id:'native-turn'}};
+console.log(JSON.stringify({id:r.id,result}));});
+`);await chmod(executable,0o700);
+  const cfg={url:f.host.url,project:'project',token:f.sessionToken,sessionId:'worker',transport:'codex',destination:thread,binary:executable};
+  const results=await Promise.all([deliverOne(cfg),deliverOne(cfg)]);assert.equal(results.filter(Boolean).length,1);
+  state=await f.owner.read();assert.equal(state.messages[0].status,'accepted');assert.equal(state.messages[0].receipt,'native-turn');
+  const calls=(await readFile(log,'utf8')).trim().split('\n').map(JSON.parse);
+  assert.equal(calls.filter(r=>r.method==='turn/start').length,1);
+  assert.equal(calls.find(r=>r.method==='turn/start').params.threadId,thread);
+  assert.equal(calls.some(r=>r.method==='thread/start'),false);
+  state=await f.worker.command(await f.worker.read(),'ask',ask);
+  await f.owner.command(state,'answer',{id:'question',optionId:'a',requestId:'answer-push'});
+  state=await f.worker.read();assert.equal(state.questions[0].status,'answered');assert.equal(state.messages[1].destination,thread);
+  assert.equal(state.messages[1].requestId,'answer-push');
+  const methods=[];
+  const peer={request:async(method,params)=>{methods.push(method);if(method==='thread/read')return {thread:{id:thread,turns:[{id:'active',status:'inProgress'}]}};if(method==='turn/steer'){assert.equal(params.expectedTurnId,'active');return {turnId:'active'};}return {};}};
+  assert.equal(await sendCodex(peer,thread,'steer','message-id'),'active');assert.equal(methods.includes('turn/start'),false);
+});
+
+test('Claude cloud adapter requires account sign-in and passes text on stdin to the exact existing session', async t => {
+  const {sendClaude}=await import('../plugins/sdd-ship/session-hub/push.mjs');
+  const {writeFile,chmod}=await import('node:fs/promises');const f=await fixture(t);
+  const executable=join(f.directory,'claude-fixture');const received=join(f.directory,'message.json');
+  const script=method=>'#!'+process.execPath+'\n'+`
+import {writeFileSync} from 'node:fs';
+if(process.argv[2]==='auth')console.log(JSON.stringify({loggedIn:true,authMethod:${JSON.stringify(method)},apiProvider:'firstParty'}));
+else {let raw='';for await(const b of process.stdin)raw+=b;writeFileSync(${JSON.stringify(received)},JSON.stringify({args:process.argv.slice(2),text:raw}));console.log('Message queued');}
+`;
+  await writeFile(executable,script('api_key'));await chmod(executable,0o700);
+  await assert.rejects(sendClaude(executable,'session_existing','hello'),/claude-login-required/);
+  await assert.rejects(readFile(received),/ENOENT/);
+  await writeFile(executable,script('oauth'));await chmod(executable,0o700);
+  assert.equal(await sendClaude(executable,'https://claude.ai/code/session_existing','private message'),'session_existing');
+  const observed=JSON.parse(await readFile(received,'utf8'));assert.deepEqual(observed.args,['-p','--cloud','session_existing']);assert.equal(observed.text,'private message');
+  await assert.rejects(sendClaude(executable,'https://attacker.test/session_x','hello'),/unsupported-conversation/);
 });

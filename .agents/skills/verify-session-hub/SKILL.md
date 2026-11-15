@@ -42,7 +42,7 @@ Never replace this journey with internal setters or fixtures claiming native suc
 
 The browser harness retains desktop/mobile screenshots and `result.json` with
 source revision, dirty paths, input hashes, observed actions, exit status and errors.
-The feature map distinguishes tested local surfaces from unverified native connections.
+The feature map distinguishes local, production service HTTP, native host acceptance and unverified OAuth/Claude connections.
 Capture command exit codes too. CI verification fixtures do not establish a live PR verdict.
 For live merge-readiness, use the guide's existing trusted CI plan/collection and gh read access;
 record the report and target PR revisions. No merge is part of this skill.

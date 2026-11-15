@@ -49,6 +49,13 @@ try {
     commands:{verify:{argv:[process.execPath,'-e',"require('node:fs').writeFileSync(process.argv[1],'verified')",effect],cwd:directory,timeoutMs:5000}}}),true);
   assert.equal(await readFile(effect,'utf8'),'verified');
   await page.locator('#refresh').click();await page.locator('#jobs').getByText('離席中の検証 · 成功',{exact:true}).waitFor();checks.push('ui-approved-job-to-real-worker-side-effect');
+  state=await owner.read();
+  await owner.command(state,'register',{id:'existing-codex',label:'既存Codex会話',tokenHash:await digest(randomBytes(32).toString('hex')),transport:'codex',destination:'11111111-2222-4333-8444-555555555555'});
+  await page.locator('#refresh').click();await page.locator('#push-session option').filter({hasText:'既存Codex会話'}).waitFor({state:'attached'});
+  await page.locator('#message-text').fill('この既存会話に検証メッセージを送る');await page.locator('#send-message button').click();
+  await page.locator('#messages').getByText('existing-codex · 実行待ち',{exact:true}).waitFor();
+  const message=(await owner.read()).messages.at(-1);assert.equal(message.destination,'11111111-2222-4333-8444-555555555555');
+  assert.equal(message.text,'この既存会話に検証メッセージを送る');checks.push('ui-message-targets-registered-existing-conversation');
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:join(output,'hub-mobile.png'),fullPage:true});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);checks.push('mobile-no-horizontal-overflow');

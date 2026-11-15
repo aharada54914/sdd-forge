@@ -73,9 +73,62 @@ service accessは窓口の操作権限とは別で、両方必要。資格情報
 登録済みセッションは自分の質問・作業だけを読める。他セッションの操作は拒否する。
 登録を更新するとトークンをローテーションできる。実行中のローテーションは避ける。
 
-**現実装の配送はpull＋受領確認。** 任意の既存ChatGPT／Claudeセッションへのpushや
-会話の自動再開は実装済みとしない。セッションはCLI／正規コネクタを利用して参加する必要がある。
-ネイティブ送信APIを実証できた場合も、この質問ID・requestId・受領契約に接続する。
+## 既存会話への直接push
+
+登録時に `input.transport` と `input.destination` を指定する。
+新しい会話を作らず、明示した既存会話へ送る。
+
+| transport | destination | 実際の送信経路 |
+| --- | --- | --- |
+| `pull`（既定） | 不要 | 元セッションが回答を取得・受領確認 |
+| `codex` | 既存スレッドUUID | 動いているCodex app-serverの `turn/steer` または `thread/resume` → `turn/start` |
+| `claude-cloud` | `session_…`／`cse_…` またはclaude.ai/codeのURL | 公式CLIの `claude -p --cloud <id>`、本文はstdin |
+
+所有者が窓口の「既存会話へ送信」で登録済み会話を選ぶか、
+CLIの `message` 操作に `{id,sessionId,text}` を渡す。
+push登録のセッションへの質問回答も、同じ配送キューに自動登録する。
+所有者以外は任意のメッセージを作れず、配送係は自分の登録先だけを扱える。
+送信先に任意のURL・シェルコマンドを指定することはできない。
+
+受信側が回答を取りに来る必要はない。送信元の配送ブリッジを、
+既存ホストの認証とCodex制御ソケットにアクセスできる環境で起動する。
+Sites上ではローカルCLIを実行できないため、ブリッジはSitesの外で動かす。
+
+```sh
+node plugins/sdd-ship/session-hub/push.mjs
+```
+
+stdin設定例（資格情報は引数・ファイルに保存しない）:
+
+```json
+{"url":"https://your-private-site.chatgpt.site","project":"my-project","token":"<session token>","serviceToken":"<existing Site service credential>","sessionId":"worker","transport":"codex","destination":"<existing thread UUID>","binary":"/absolute/path/to/codex","socket":"/absolute/path/to/app-server-control.sock"}
+```
+
+`socket` は省略すると既存のローカルdaemonの既定ソケットを使う。
+ブリッジはdaemonを起動・更新せず、セッションのモデル・権限・sandboxを指定し直さない。
+稼働中のturnへはexpectedTurnIdを照合してsteerする。アイドル時だけresume/startする。
+新しいスレッドを作る `thread/start` は使わない。
+Claudeでは `transport:"claude-cloud"`、対応するdestinationとCLI絶対パスを指定する。
+claude.aiサインインと組織のcloud-session許可が必要で、APIキーだけでは送れない。
+
+配送状態は `queued` → `sending` → `accepted`／`failed`／`uncertain`。
+`accepted` はホストが受付したことだけを表す。元セッションの受領・モデル応答・
+作業完了や正本Approvalとは別で、質問は `receive` まで受領待ちのまま。
+送信開始をCASで確保し、クラッシュ・タイムアウト時に自動で再送しない。
+同一セッションへの送信は直列化する。送信中に宛先を変更する登録更新は拒否する。
+期限を超えたsendingは結果不明と表示し、所有者がネイティブ履歴を確認してから
+`resolve-delivery:{id,checked:true}` で確定する。明示的に再送する場合は新しいmessage IDを使う。
+
+通常のChatGPT Web会話（chatgpt.com/c/…）やClaude Webチャット全般へ送る共通APIは
+確認できておらず、これらのURLは未対応として拒否する。UUIDを知るだけで他人の会話へ
+送れる機能ではない。ホストの認証・アクセス権と、その環境へ接続したブリッジが必要。
+Artifactの「Send to Claude」コメント通知は元の作者セッションへ届くネイティブ機能だが、
+任意の他会話へのルーティングAPIではない。
+
+公式根拠:
+[Codex app-server](https://learn.chatgpt.com/docs/app-server)、
+[Claude cloud follow-ups](https://code.claude.com/docs/en/claude-code-on-the-web#send-follow-ups-from-the-cli)、
+[Artifact comments](https://code.claude.com/docs/en/artifacts#let-claude-reply-to-comments-on-its-own)。
 
 ## SitesとArtifacts
 
@@ -84,6 +137,7 @@ R2 `BUCKET` に加え、ランタイムで以下を設定する。秘密値はSi
 
 - `SDD_HUB_PROJECT`: 固定プロジェクトID。英数字・`_`・`-`、80文字以内。
 - `SDD_HUB_OWNER_ID`: 操作を許可する、Sitesが認証したSite内ユーザーID。
+- `SDD_HUB_OWNER_EMAIL`: IDが未取得の場合に、Sitesが認証した所有者メールで照合できる。
 - `SDD_HUB_OWNER_TOKEN`: CLI／機械操作向けの別の乱数hex64文字。publisherとは共有しない。
 
 未設定なら `/hub` は503。閲覧権限だけのユーザーは403。Cookie利用のPOSTは同一Origin必須。
@@ -104,7 +158,9 @@ Siteは `/mcp` で `sdd_hub_read` と `sdd_hub_command` を公開できる。
 既存 `.openai/hosting.json` のcapabilitiesを保持して `mcp` を追加し、私有のまま再公開する。
 Sitesが生成するプラグインを対象ホストへ正規に接続し、読取結果のJSONと操作結果を
 上記アダプターに結び付ける。MCPもUIと同じ所有者／セッション認可を通す。
-この環境でネイティブClaude発行／Sites本番接続は未検証。
+本番検証の最新状況は `reports/verification/session-hub-production-20261115/` を参照する。
+MCP用OAuthとSiteの機械用service accessは別であり、後者だけで `/mcp` の認証を回避しない。
+MCP2026のdiscoveryに加え、標準のinitialize／initialized（2025-03-26／2025-06-18）にも応答する。
 
 ## 実部品の比較
 
@@ -149,7 +205,7 @@ shellを使わず、絶対パスのargvを実行する。子プロセスにはPA
 ワーカー／子プロセスが止まったことを確認後、ownerが
 `resolve:{id,workerStopped:true}` を送る。再実行する場合は副作用を確認して新しい作業IDで登録する。
 起動の常駐化・OS停止中の実行・自動マージ／公開は設定しない。
-最大500セッション・500質問・500作業、保存状態1MiB。上限到達は明示エラーで返し、
+最大500セッション・500質問・500作業・500メッセージ、保存状態1MiB。上限到達は明示エラーで返し、
 未解決データを自動削除しない。長期運用のアーカイブ／保持ポリシーは今後の拡張点。
 
 ## マージ前検証
@@ -171,3 +227,5 @@ exit 0は取得時点のready、1はblocked、2は判定不能。GitHub認証は
 rulesetを適用する。ブランチ保護設定の変更や自動マージは行わない。
 
 再現可能な検証手順は [.agents/skills/verify-session-hub](../.agents/skills/verify-session-hub/SKILL.md)。
+
+このクラウド環境でNodeの外向き通信にプロキシが必要な場合は、Node標準の `NODE_USE_ENV_PROXY=1` を設定する。

@@ -61,26 +61,8 @@ async function boundedBody(request) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    // Hub has its own owner/session authorization; publisher credentials confer no control access.
-    if (url.pathname === '/mcp' || url.pathname === '/hub' || url.pathname.startsWith('/hub/') || url.pathname === '/api/hub' || url.pathname.startsWith('/api/hub/')) {
-      const viewer = request.headers.get('oai-authenticated-user-id');
-      const bearer = request.headers.get('authorization')?.match(/^Bearer ([a-f0-9]{64})$/)?.[1];
-      const ownerToken = env.SDD_HUB_OWNER_TOKEN;
-      const isOwner = Boolean(viewer && env.SDD_HUB_OWNER_ID && viewer === env.SDD_HUB_OWNER_ID) ||
-        Boolean(bearer && ownerToken && await hub.digest(bearer) === await hub.digest(ownerToken));
-      if (!env.SDD_HUB_PROJECT || !env.BUCKET) return json({error:'hub-not-configured'},503);
-      if (url.pathname === '/hub' || url.pathname.startsWith('/hub/')) {
-        if (!isOwner) return json({error:'owner-required'},403);
-        return hub.assetResponse(url.pathname,hubAssets) || json({error:'not-found'},404);
-      }
-      const store = {
-        async load() { const value = await env.BUCKET.get('hub.json'); return {state:value ? await value.json() : null, etag:value?.etag}; },
-        async save(state,etag) { return Boolean(await env.BUCKET.put('hub.json',JSON.stringify(state),{
-          onlyIf:etag ? {etagMatches:etag} : {etagDoesNotMatch:'*'}, httpMetadata:{contentType:'application/json'}})); }
-      };
-      const options = {project:env.SDD_HUB_PROJECT,store,isOwner};
-      return url.pathname === '/mcp' ? hub.mcpRequest(request,options) : hub.hubRequest(request,options);
-    }
+    const hubResponse = await hub.handleHostedHub(request,env,hubAssets);
+    if (hubResponse) return hubResponse;
     const isPublisher = await publisher(request, env);
     const viewer = request.headers.get('oai-authenticated-user-id');
     if (!viewer && !isPublisher) return json({ error: 'authentication-required' }, 401);

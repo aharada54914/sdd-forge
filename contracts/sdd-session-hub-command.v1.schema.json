@@ -31,7 +31,11 @@
         "finish",
         "cancel",
         "resolve",
-        "verification"
+        "verification",
+        "message",
+        "resolve-delivery",
+        "dispatch",
+        "delivery"
       ]
     },
     "input": {

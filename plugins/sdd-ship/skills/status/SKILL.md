@@ -193,8 +193,11 @@ snapshot publisher token as a hub owner/session token.
 
 `session-hub/cli.mjs` registers sessions, submits questions, retrieves answers and
 confirms their request IDs through the authorized HTTP service. Participation
-requires the session to use that service. Current delivery is pull plus receipt;
-never claim arbitrary existing-chat push or automatic conversation resumption.
+requires the session to use that service. Delivery supports pull plus receipt, or an explicitly registered existing Codex
+thread / Claude Code cloud session through `session-hub/push.mjs`. Use the native
+host's authentication and exact destination. Accepted delivery does not establish
+model completion or task approval. General ChatGPT Web / Claude Web chat URLs are
+unsupported; never claim those arbitrary chats can be resumed by the bridge.
 Claude can use the self-contained `session-hub/artifact.mjs` output only after
 actual declared remote read/action connectors are bound. Missing native adapters
 remain disconnected, rather than falling back to another host or embedding secrets.
