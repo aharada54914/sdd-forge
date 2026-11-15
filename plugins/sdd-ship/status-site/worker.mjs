@@ -62,7 +62,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     // Hub has its own owner/session authorization; publisher credentials confer no control access.
-    if (url.pathname === '/hub' || url.pathname.startsWith('/hub/') || url.pathname === '/api/hub' || url.pathname.startsWith('/api/hub/')) {
+    if (url.pathname === '/mcp' || url.pathname === '/hub' || url.pathname.startsWith('/hub/') || url.pathname === '/api/hub' || url.pathname.startsWith('/api/hub/')) {
       const viewer = request.headers.get('oai-authenticated-user-id');
       const bearer = request.headers.get('authorization')?.match(/^Bearer ([a-f0-9]{64})$/)?.[1];
       const ownerToken = env.SDD_HUB_OWNER_TOKEN;
@@ -78,7 +78,8 @@ export default {
         async save(state,etag) { return Boolean(await env.BUCKET.put('hub.json',JSON.stringify(state),{
           onlyIf:etag ? {etagMatches:etag} : {etagDoesNotMatch:'*'}, httpMetadata:{contentType:'application/json'}})); }
       };
-      return hub.hubRequest(request,{project:env.SDD_HUB_PROJECT,store,isOwner});
+      const options = {project:env.SDD_HUB_PROJECT,store,isOwner};
+      return url.pathname === '/mcp' ? hub.mcpRequest(request,options) : hub.hubRequest(request,options);
     }
     const isPublisher = await publisher(request, env);
     const viewer = request.headers.get('oai-authenticated-user-id');

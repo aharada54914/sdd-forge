@@ -116,4 +116,15 @@ test('Sites embedded worker preserves owner/session boundary and R2 conditional 
   const command={project:'p',expectedRevision:0,action:'away',input:{enabled:true}};
   assert.equal((await worker.fetch(req('/api/hub/command',headers,command),env)).status,200);
   assert.equal((await worker.fetch(req('/api/hub/command',headers,command),env)).status,409);
+  const rpc = (method,params,auth=headers) => worker.fetch(req('/mcp',auth,{jsonrpc:'2.0',id:1,method,params}),env);
+  assert.equal((await rpc('tools/list',{},{})).status,401);
+  const listed = await (await rpc('tools/list')).json();
+  assert.equal(listed.result.tools[0].name,'sdd_hub_read');
+  const read = await (await rpc('tools/call',{name:'sdd_hub_read'})).json();
+  assert.equal(JSON.parse(read.result.content[0].text).away,true);
+  const native = {'oai-authenticated-user-id':'owner'};
+  const written = await (await rpc('tools/call',{name:'sdd_hub_command',arguments:{command:{...command,expectedRevision:1,input:{enabled:false}}}},native)).json();
+  assert.equal(written.result.isError,false);
+  assert.equal(JSON.parse(written.result.content[0].text).away,false);
+
 });

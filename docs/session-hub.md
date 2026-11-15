@@ -100,6 +100,10 @@ node plugins/sdd-ship/session-hub/artifact.mjs > /tmp/sdd-session-hub.html
 ベンダーAPI名ではない。親ホストで実在する宣言済みリモートコネクタへ結び付ける。
 読取・操作権限とネイティブの同意フローをそれぞれ確認する。HTMLにトークンを埋め込まない。
 アダプターがなければ画面は未接続と表示する。ローカルstdio MCPだけでは接続成立としない。
+Siteは `/mcp` で `sdd_hub_read` と `sdd_hub_command` を公開できる。
+既存 `.openai/hosting.json` のcapabilitiesを保持して `mcp` を追加し、私有のまま再公開する。
+Sitesが生成するプラグインを対象ホストへ正規に接続し、読取結果のJSONと操作結果を
+上記アダプターに結び付ける。MCPもUIと同じ所有者／セッション認可を通す。
 この環境でネイティブClaude発行／Sites本番接続は未検証。
 
 ## 実部品の比較

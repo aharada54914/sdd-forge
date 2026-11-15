@@ -150,6 +150,6 @@ export function transition(current, command, actor, now = Date.now()) {
     default: fail('unknown-action');
   }
   state.revision++;
-  if (JSON.stringify(state).length > 1024 * 1024) fail('capacity-reached', 409);
+  if (new TextEncoder().encode(JSON.stringify(state)).length > 1024 * 1024) fail('capacity-reached', 409);
   return state;
 }

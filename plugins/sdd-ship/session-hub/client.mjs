@@ -3,12 +3,17 @@ const $ = id => document.getElementById(id);
 const node = (tag, text) => { const n = document.createElement(tag); n.textContent = text; return n; };
 const labels = { open:'要回答', answered:'回答済み・受領待ち', received:'受領済み', expired:'期限切れ', queued:'実行待ち', running:'実行中', succeeded:'成功', failed:'失敗', cancelled:'取消済み', uncertain:'結果不明・確認が必要' };
 let state = null, busy = false, readBusy = false, signature = '', lastSuccess = 0;
+async function timed(promise) {
+  let timer;
+  try { return await Promise.race([promise,new Promise((_,reject) => {timer=setTimeout(() => reject(new Error('応答がタイムアウトしました')),15000);})]); }
+  finally { clearTimeout(timer); }
+}
 async function read() {
   if (readBusy || busy) return;
   readBusy = true;
   try {
     if (document.body.dataset.mode === 'artifacts' && typeof window.sddHubRead !== 'function') throw new Error('Artifactの読取コネクタが未接続です');
-    const next = window.sddHubRead ? await window.sddHubRead() : await response(await fetch('/api/hub', { cache:'no-store' }));
+    const next = window.sddHubRead ? await timed(window.sddHubRead()) : await response(await fetch('/api/hub', { cache:'no-store', signal:AbortSignal.timeout(15000) }));
     if (next?.schema !== 'sdd-session-hub/v1' || !Array.isArray(next.questions)) throw new Error('invalid-response');
     state = next; lastSuccess = Date.now(); $('login').hidden = true; render();
     $('notice').textContent = '最終確認: ' + new Date(lastSuccess).toLocaleTimeString(); $('notice').className = '';
@@ -25,7 +30,7 @@ async function action(action, input) {
   try {
     if (document.body.dataset.mode === 'artifacts' && typeof window.sddHubAction !== 'function') throw new Error('Artifactの操作コネクタが未接続です');
     const command = { project:state.project, expectedRevision:state.revision, action, input };
-    const next = window.sddHubAction ? await window.sddHubAction(command) : await response(await fetch('/api/hub/command', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(command) }));
+    const next = window.sddHubAction ? await timed(window.sddHubAction(command)) : await response(await fetch('/api/hub/command', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(command), signal:AbortSignal.timeout(15000) }));
     state = next; render(); $('notice').textContent = '保存しました';
   } catch (error) { $('notice').textContent = '保存できません: ' + error.message + '。更新して内容を確認してください。'; $('notice').className = 'error'; }
   finally { busy = false; }
