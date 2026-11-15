@@ -12,6 +12,12 @@ AUDIT_CYCLE="$ROOT/plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md"
 
 fail() { printf 'not ok: %s\n' "$1" >&2; exit 1; }
 
+for file in "$SKILL" "$WFI_TEMPLATE"; do
+  grep -Fq '### Regression connection' "$file" || fail 'missing regression connection'
+  grep -Fq 'existing-check/new-check/design-elimination/judgment' "$file" || fail 'missing regression dispositions'
+done
+grep -Fq 'Extra prose instructions alone are not prevention evidence' "$AUDITOR_B" || fail 'missing executable-prevention audit'
+
 for section in \
   'Sample Size' \
   'Data Completeness' \

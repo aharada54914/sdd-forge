@@ -25,6 +25,12 @@ skill; the quality-loop validator checks those contracts. A trial observation is
 not task evidence, and neither validation nor generation grants task approval or
 changes the existing quality-gate owner. The owned process-tree runner currently
 supports Linux; unsupported hosts report not-run. Historical v1/v2 observations remain readable but cannot project fresh execution evidence. See [ADR-0040](docs/adr/0040-project-skill-observation-ownership.md).
+
+V4 retains the v3 bindings and additionally binds the effective environment after
+the runner selects `SDD_PROJECT_SKILL_CHECK_ID`; v3 keeps its original inherited
+environment semantics. Trial receipts and maintenance results include conservative
+`feature_coverage` summaries without granting task evidence or gate authority.
+See [ADR-0049](docs/adr/0049-verification-feedback-observations.md).
 ## Passive exploration and decisions
 
 `workflow-playbook-request/v1` selects an advisory method without changing a
