@@ -162,3 +162,19 @@ release commit passes required CI and the release runbook. Current related open 
 are #781 and #780; #722 is the visible Claude Code Action dependency update, but the
 other session's final target PR has been requested rather than silently assumed.
 No release tag or GitHub Release is created while that condition is unconfirmed.
+
+## Release gate confirmation and CI repair — 2026-11-16 JST
+
+The user confirmed #722 as the separately managed Claude Code Actions PR.
+Release remains gated on #781, #780 and #722 all being merged, followed by the
+exact release commit's required CI and the release runbook. #722 is handled by
+the other session; this branch does not edit that PR or bypass its checks.
+
+The first full PR CI found six newly tracked root paths without candidate
+ownership. An unsigned `project-context-session-hub.yaml` successor now adds
+only those exact skill/map/script paths. Earlier candidates and the signed live
+Context remain byte-for-byte unchanged. Historical regression tests use their
+bounded pre-hub inventory, while the successor validates every current tracked
+path and rejects missing/broad ownership declarations. Local validation and the
+38 candidate/Pack tests pass; the full A9 regression chain is recorded separately
+when complete. No activation, approval or promotion was performed by this repair.

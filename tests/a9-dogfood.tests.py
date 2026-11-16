@@ -30,9 +30,16 @@ PREDICATE = load("evaluate-predicate")
 CLOUD_ROOTS = ("plugins/sdd-azure-cloud/", "plugins/sdd-aws-cloud/", "templates/cloud/")
 
 
-def historical_core_paths():
-    """The preserved nine-component candidate predates cloud, payload restoration, and dashboard labels."""
+HUB_SHARED_PATHS = ('.agents/skills/verify-session-hub/SKILL.md', '.agents/skills/verify-session-hub/features/README.md', '.agents/skills/verify-session-hub/features/questions.md', '.agents/skills/verify-session-hub/features/away.md', '.agents/skills/verify-session-hub/features/verification.md', 'scripts/merge-readiness.py')
+
+def pre_hub_paths():
     paths = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
+    return [path for path in paths if path not in HUB_SHARED_PATHS]
+
+
+def historical_core_paths():
+    """The preserved nine-component candidate predates cloud, payload restoration, dashboard labels and the session hub."""
+    paths = pre_hub_paths()
     return [path for path in paths if not path.startswith(CLOUD_ROOTS) and path not in ("install-payload.txt", "dashboard-labels.json")]
 
 
@@ -151,7 +158,7 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("a9_dashboard_candidate", ROOT / "scripts/validate-a9-candidate.py")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
+        tracked = pre_hub_paths()
         old = OWNERSHIP.parse_minimal_yaml(original)
         current = OWNERSHIP.parse_minimal_yaml(successor)
         self.assertIn("UNOWNED: dashboard-labels.json", checker.validate(old, tracked)[0])
@@ -177,8 +184,31 @@ class CandidatePackTests(unittest.TestCase):
         installer["paths"]["include"].append("dashboard-labels.json")
         self.assertIn("dashboard labels must retain exact MCP ownership", checker.validate(reassigned, tracked)[0])
 
+    def test_session_hub_successor_covers_exact_new_paths_without_rewriting_history(self):
+        folder = ROOT / 'specs/epic-197-a9-dogfood/candidate'
+        original = (folder / 'project-context-dashboard.yaml').read_text()
+        successor = (folder / 'project-context-session-hub.yaml').read_text()
+        addition = ''.join('  - pattern: "' + path + '"\n    classification: "cross-cutting"\n' for path in HUB_SHARED_PATHS)
+        self.assertEqual(successor, original + addition)
+        spec = importlib.util.spec_from_file_location('a9_hub_candidate', ROOT / 'scripts/validate-a9-candidate.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        tracked = subprocess.check_output(['git', 'ls-files'], cwd=ROOT, text=True).splitlines()
+        old = OWNERSHIP.parse_minimal_yaml(original)
+        current = OWNERSHIP.parse_minimal_yaml(successor)
+        self.assertEqual(checker.validate(current, tracked)[0], [])
+        for path in HUB_SHARED_PATHS:
+            self.assertIn('UNOWNED: ' + path, checker.validate(old, tracked)[0])
+            changed = copy.deepcopy(current)
+            changed['shared_paths'] = [row for row in changed['shared_paths'] if row['pattern'] != path]
+            self.assertIn('UNOWNED: ' + path, checker.validate(changed, tracked)[0])
+        changed = copy.deepcopy(current)
+        changed['shared_paths'].append({'pattern': '.agents/**', 'classification': 'cross-cutting'})
+        self.assertTrue(checker.validate(changed, tracked)[0])
+        self.assertIn('UNOWNED: scripts/merge-readiness-other.py', checker.validate(current, tracked + ['scripts/merge-readiness-other.py'])[0])
+
     def test_candidate_has_complete_nonoverlapping_tracked_ownership(self):
-        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml"
+        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-session-hub.yaml"
         doc = OWNERSHIP.parse_minimal_yaml(candidate.read_text())
         self.assertTrue(RESOLVER._project_context_valid(doc, ROOT))
         self.assertEqual(len(doc["components"]), 11)
@@ -190,7 +220,7 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("a9_candidate", ROOT / "scripts/validate-a9-candidate.py")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-dashboard.yaml").read_text())
+        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-session-hub.yaml").read_text())
         tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
         for index in range(len(doc["components"])):
             changed = copy.deepcopy(doc)
