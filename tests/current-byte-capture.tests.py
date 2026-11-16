@@ -58,13 +58,13 @@ class CurrentCaptureTests(unittest.TestCase):
 
     def capture(self):
         CAPTURE.capture(self.product, self.fixture, self.destination, CANONICAL, RUNTIME)
-        targets = json.loads((CANONICAL / 'manifest.json').read_text())['targets']
+        targets = json.loads((CANONICAL / 'manifest.json').read_text(encoding='utf-8'))['targets']
         return {row['name'] for row in targets
                 if (self.destination / row['path']).read_bytes() !=
                 (self.destination / 'expected' / row['path']).read_bytes()}
 
     def inject_generator(self, statements):
-        original = (self.product / GENERATOR).read_text()
+        original = (self.product / GENERATOR).read_text(encoding='utf-8')
         self.edit(GENERATOR, original.replace('if __name__ == "__main__":', statements + '\nif __name__ == "__main__":'))
 
     def test_real_f1_and_f2_fixture_cwd_and_marker_reach_current_generator(self):
@@ -84,7 +84,7 @@ class CurrentCaptureTests(unittest.TestCase):
                 self.inject_generator(statements)
                 mismatches = self.capture()
                 output = (self.destination / 'targets/deterministic-script-output.bin').read_bytes()
-                status = (self.destination / 'targets/exit-code.txt').read_text().strip()
+                status = (self.destination / 'targets/exit-code.txt').read_text(encoding='utf-8').strip()
                 # Report fixed tags only; raw child tracebacks contain temporary paths.
                 tags = ('fixture cwd mismatch', 'fixture Context unexpectedly present', 'fixture marker mismatch')
                 diagnostic = next((tag for tag in tags if tag.encode() in output), 'no fixture assertion diagnostic')
@@ -127,7 +127,7 @@ class CurrentCaptureTests(unittest.TestCase):
                               'assert not Path("sdd/approver-registry.yaml").exists()\n'
                               'assert Path("AGENTS.md").read_bytes() == b"spec_profile: lite\\n"')
         self.assertEqual(set(), self.capture())
-        installed = (self.destination / 'targets/install-result.sha256').read_text()
+        installed = (self.destination / 'targets/install-result.sha256').read_text(encoding='utf-8')
         for name in names:
             self.assertNotIn('  ' + name + '\n', installed)
 
@@ -157,11 +157,11 @@ class CurrentCaptureTests(unittest.TestCase):
         name = 'install.ps1' if RUNTIME == 'powershell' else 'install.sh'
         if RUNTIME == 'powershell':
             # Mutate real installed payload immediately before success returns.
-            text = (self.product / name).read_text()
+            text = (self.product / name).read_text(encoding='utf-8')
             self.assertIn('$resolvedInstallRoot', text)
             mutation = '\nRemove-Item (Join-Path $resolvedInstallRoot "README.md")\n[IO.File]::WriteAllText((Join-Path $resolvedInstallRoot "unexpected.txt"), "extra")\n[IO.File]::WriteAllText((Join-Path $resolvedInstallRoot "PLUGIN-CONTRACTS.md"), "corrupt")\n'
         else:
-            text = (self.product / name).read_text()
+            text = (self.product / name).read_text(encoding='utf-8')
             mutation = '\nrm "$RESOLVED_INSTALL_ROOT/README.md"\nprintf extra > "$RESOLVED_INSTALL_ROOT/unexpected.txt"\nprintf corrupt > "$RESOLVED_INSTALL_ROOT/PLUGIN-CONTRACTS.md"\n'
         self.edit(name, text + mutation)
         self.assertIn('install-result', self.capture())
@@ -172,8 +172,8 @@ class CurrentCaptureTests(unittest.TestCase):
         self.inject_generator('Path("install-payload.txt").write_bytes('
                               'Path("install-payload.txt").read_bytes() + b"\\n.github/\\n")')
         self.assertIn('install-result', self.capture())
-        installed = (self.destination / 'targets/install-result.sha256').read_text()
-        expected = (self.destination / 'expected/targets/install-result.sha256').read_text()
+        installed = (self.destination / 'targets/install-result.sha256').read_text(encoding='utf-8')
+        expected = (self.destination / 'expected/targets/install-result.sha256').read_text(encoding='utf-8')
         self.assertIn('  .github/workflows/test.yml\n', installed)
         self.assertNotIn('  .github/workflows/test.yml\n', expected)
 
@@ -192,7 +192,7 @@ class CurrentCaptureTests(unittest.TestCase):
 
     def test_current_source_data_additions_and_edits_are_copied_exactly(self):
         template = next(name for name in CAPTURE.indexed_source(self.product) if name.startswith('plugins/') and '/templates/' in name)
-        self.edit(template, (self.product / template).read_text() + '\nCurrent input bytes.\n')
+        self.edit(template, (self.product / template).read_text(encoding='utf-8') + '\nCurrent input bytes.\n')
         self.assertEqual(set(), self.capture())
 
     def run_suite(self, env):
@@ -215,7 +215,7 @@ class CurrentCaptureTests(unittest.TestCase):
 
     def test_matching_wrong_cli_documents_cannot_define_expected_behavior(self):
         for name in ('plugins/sdd-ship/skills/ship/SKILL.md', 'PLUGIN-CONTRACTS.md'):
-            text = (self.product / name).read_text()
+            text = (self.product / name).read_text(encoding='utf-8')
             self.edit(name, text.replace('FULL', 'LITE'))
         result = self.run_suite({})
         self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
