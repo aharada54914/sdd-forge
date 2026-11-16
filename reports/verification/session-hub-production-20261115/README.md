@@ -134,3 +134,31 @@ Site Worker exposes it immediately when SDD_HUB_PROJECT is configured rather
 than waiting for a successful asynchronous hub read. Local-only and unconfigured
 surfaces retain the availability check. Build and actual generated Worker checks
 confirm the link points to `/hub` and is visible for a configured Site.
+
+## Authenticated native MCP retest — 2026-11-16 JST
+
+The updated Site tools are now present in this conversation. The actual
+`sdd_hub_read` invocation succeeded through the user's native OAuth connection.
+Using `sdd_hub_command`, the test registered a dedicated session, created its
+question and answered it; the target session retrieved that answer and confirmed
+receipt through authenticated HTTP. A final native `sdd_hub_read` verified the
+same requestId and `received` state at production revision 16.
+See [native-mcp-20261116.json](native-mcp-20261116.json).
+This supersedes the earlier native-MCP-unverified status; ordinary service-token
+requests to `/mcp` are still not used as substitutes for OAuth.
+
+Claude CLI was rechecked: it still reports API-key auth and no existing sessions.
+The native Codex transcript test again persisted the exact message, with model
+execution still failing `unauthorized`. Those boundaries remain unresolved.
+
+The feature PR is [#781](https://github.com/aharada54914/sdd-forge/pull/781).
+Latest main was merged while retaining both visual specification decisions and
+the question hub; local verification passes 342 MCP tests and 15 hub/Worker tests.
+CI for the merged PR head must finish before any merge/release claim.
+
+The user's release condition is mandatory: publish only after all intended changes,
+including the separately managed Claude Code Actions work, are merged, and the exact
+release commit passes required CI and the release runbook. Current related open PRs
+are #781 and #780; #722 is the visible Claude Code Action dependency update, but the
+other session's final target PR has been requested rather than silently assumed.
+No release tag or GitHub Release is created while that condition is unconfirmed.
