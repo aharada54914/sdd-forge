@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "mcpStatus": 401,
+  "url": "https://sdd-forge-status-20261105.jrmagneticlevitation.chatgpt.site",
+  "project": "sdd-forge",
+  "checks": [
+    "production-owner-read",
+    "anonymous-denied-401",
+    "production-hub-assets",
+    "production-R2-question-answer-receipt"
+  ],
+  "questionId": "verify-3f6932e5-9b85-42a7-a597-24ce4f3802f5",
+  "sessionId": "verify-1ab990df-8fbf-4b77-8f36-bb1c2b44b346",
+  "scope": "production service-authenticated HTTP and real R2; browser visitor consent not verified"
+}

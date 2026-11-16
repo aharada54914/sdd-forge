@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "surface": "production native Sites MCP OAuth",
+  "project": "sdd-forge",
+  "siteVersion": 20,
+  "revision": 16,
+  "sessionId": "native-74ae67de-48fe-41e4-9d5c-70f6d66c7989",
+  "questionId": "native-a8e4efde-f338-4b9c-9329-8b29d98c92db",
+  "requestId": "5e716ae5-8460-4ee5-9862-7fdef7fe95b9",
+  "answer": "verified",
+  "questionStatus": "received",
+  "checked": [
+    "native sdd_hub_read",
+    "native sdd_hub_command register",
+    "native sdd_hub_command ask",
+    "native sdd_hub_command answer",
+    "target session HTTP receive",
+    "native sdd_hub_read persisted receipt"
+  ],
+  "scope": "Native owner OAuth read/write and actual production R2 receipt; Claude Code cloud/Artifacts auth is separate"
+}
