@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "checks": [
+    "doctor-empty-hub",
+    "login-real-component-choice-and-delivery",
+    "session-receipt-visible",
+    "ui-approved-job-to-real-worker-side-effect",
+    "mobile-no-horizontal-overflow",
+    "failed-read-retains-last-good-state",
+    "artifact-missing-native-connector-fails-visibly"
+  ],
+  "errors": [],
+  "inputHashes": {
+    "plugins/sdd-ship/session-hub/.gitignore": "4be240c044628ad5da1dbe96cd70fa864cccc61c2fef1d9ee711620be448369c",
+    "plugins/sdd-ship/session-hub/.storybook/main.mjs": "6ec8db6650d32901c1e34a8d1ab916ac1b29fc74c1e1f67c1f195828c491cca4",
+    "plugins/sdd-ship/session-hub/.storybook/preview.mjs": "38c9266ba9a1398e2865db269e18fb52ba1e834c45f27c8a074ce74d6d2c026b",
+    "plugins/sdd-ship/session-hub/api.mjs": "41fd9fce4fea5c534da7051876b15ccc250f4ba88a16a95b6b42c983ad2ed5ba",
+    "plugins/sdd-ship/session-hub/artifact.mjs": "fc628e1b92d9016b3786a9758c37430f5c92cb571083cb709bff5d652fef3f48",
+    "plugins/sdd-ship/session-hub/asset-response.mjs": "3239f5290b694acdf98c444c501b010d8cb64d4c6e0f14f3721fd4b96a59394b",
+    "plugins/sdd-ship/session-hub/assets.mjs": "74a3b20ac0529bf9a05786f1f27041bf99e11338f41a7d9506b10a5d46f162b9",
+    "plugins/sdd-ship/session-hub/build.mjs": "051dea95c54f12bf86f9956325c96b56f979c46114f8f16c673c7d813a36d276",
+    "plugins/sdd-ship/session-hub/cli.mjs": "e78bdc6f3ee1402b132bc30e18adf91f2e7a6ca3bffbeec8007c03da4950efb1",
+    "plugins/sdd-ship/session-hub/client.mjs": "942295bab6d36a1fa9564082dff50fe10647c334d42e36fa3b7cf7b8a8805a88",
+    "plugins/sdd-ship/session-hub/components.mjs": "d6e4422edd9b89bcadcefc50c48bb09022bf1efd925a3820400529b29a04942e",
+    "plugins/sdd-ship/session-hub/core.mjs": "51d4d6bf079971c3bd433ed9e7744877fb28eaa80332b1ee3ac0faae9471539c",
+    "plugins/sdd-ship/session-hub/http.mjs": "58a4bcce2efb20daed38e0e9c22ae7e1421acb232e53d4b1d1859a14cb29fc46",
+    "plugins/sdd-ship/session-hub/hub.css": "46ceae64a0488647cc50d3a12d47def0cc27ab0c2f9e47b7b26fc0b5ff68edb7",
+    "plugins/sdd-ship/session-hub/hub.html": "73b0f23072a4d1ba54c76edc98396c5701a1be3acf0c6bc2ac3c0e3f878c4080",
+    "plugins/sdd-ship/session-hub/local.mjs": "d37e400a7d98dd3c8d6d94d4c7b4dfced7e003358b0f3b3aa1e6fcde4c99c4f7",
+    "plugins/sdd-ship/session-hub/mcp.mjs": "366847b1f0237a61c0198d355899a8d0ab2928aef284dc27d5b37ea736108c0d",
+    "plugins/sdd-ship/session-hub/package-lock.json": "0073a85dc0a8a4c97947f9f19858ffa8020fe85805cebec65039fb08527b7f3f",
+    "plugins/sdd-ship/session-hub/package.json": "f450d10be84b2cfc2b4c85f9980e7b9f422a075bd31bb804c12cb97f9c1187c5",
+    "plugins/sdd-ship/session-hub/runner.mjs": "62caa42cf22d80df019f7fa2142f6cf4218c034e3414272ac9da216f90058802",
+    "plugins/sdd-ship/session-hub/stories/choice.stories.js": "3eb89e5731edcfe03a45231c6aa16bdb40500230fa3c2b294fea7baff1c6f73f",
+    "scripts/merge-readiness.py": "c6c5b8b8edb6c32a31c5e10b5f1701f7af37a5e20d111a35e4f88d9d4eaacd68",
+    "tests/session-hub-browser.mjs": "6914e3b7e9c74aaa5377be2fd5509e1e67ac42ef485ec29b2143f559731d1af8"
+  },
+  "exitCode": 0,
+  "revision": "86c71ff9c547f32be61e67bf13fd807372a5714f",
+  "dirty": [
+    ""
+  ],
+  "note": "Local HTTP and browser evidence. Native Claude/Sites connections and GitHub live PR verdict are not verified."
+}

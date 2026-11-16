@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { embeddedHub } from '../plugins/sdd-ship/session-hub/build.mjs';
 const source = readFileSync(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8').replace('__DASHBOARD_PAGE__',JSON.stringify('<html>test</html>')).replace('__DECISION_CODE__',readFileSync(new URL('../plugins/sdd-ship/status-site/decisions.js',import.meta.url),'utf8')).replace('__OBSERVATION_CODE__',readFileSync(new URL('../plugins/sdd-ship/status-site/observations.js',import.meta.url),'utf8'));
-const {default:worker, validSnapshot, validHealth} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const {default:worker, validSnapshot, validHealth} = await import('data:text/javascript;base64,'+Buffer.from(source.replace('__HUB_CODE__', embeddedHub())).toString('base64'));
 const snapshot = () => ({schema:'sdd-dashboard/v1',revision:'a'.repeat(64),attemptedAt:'2026-01-01T00:00:00Z',checkedAt:'2026-01-01T00:00:00Z',lastSuccessAt:'2026-01-01T00:00:00Z',changedAt:'2026-01-01T00:00:00Z',error:null,data:{project:'test',features:[],tasks:[]}});
 function env() { let body=null;let etag=0;return { SDD_PUBLISHER_TOKEN:'test-only', BUCKET:{async get(){return body===null?null:{etag:String(etag),text:async()=>body,json:async()=>JSON.parse(body)}},async put(key,value,options){if(options.onlyIf.etagMatches!==undefined&&options.onlyIf.etagMatches!==String(etag))return null;body=value;etag++;return {etag:String(etag)}}} }; }
 const request=(path,method='GET',body,authenticated=true)=>new Request('https://example.test'+path,{method,headers:authenticated?{'X-SDD-Publisher':'test-only'}:{},...(body?{body:JSON.stringify(body)}:{})});

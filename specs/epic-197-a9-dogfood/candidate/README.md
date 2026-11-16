@@ -8,10 +8,14 @@ retained `project-context.yaml`: it adds ownership for the repository's formal
 reservation verification skill. The unsigned
 `project-context-restored-cloud.yaml` adds the two cloud components, their
 bounded template ownership, and the exact installer-owned `install-payload.txt`
-path. The candidate validator now defaults to the unsigned
-`project-context-dashboard.yaml`, which adds only the exact root
-`dashboard-labels.json` path with MCP ownership. It preserves all earlier
-candidates and the signed live Context.
+path. The unsigned `project-context-dashboard.yaml` adds only the exact root
+`dashboard-labels.json` path with MCP ownership. The validator now defaults to
+`project-context-session-hub.yaml`, which appends six exact cross-cutting paths:
+the project-local question-hub verification skill and its four feature-map files,
+and `scripts/merge-readiness.py`. No wildcard expands ownership of other agent
+skills or root scripts. All earlier candidate bytes and the signed live Context
+are preserved. Historical-candidate tests use the explicitly bounded pre-hub
+file inventory; the current candidate must classify every actual tracked path.
 Historical observations remain bound to the original candidate;
 new promotion evidence and independent approval must bind the successor's
 actual bytes. This change does not activate the Context or authorize promotion.
