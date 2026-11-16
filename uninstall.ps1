@@ -2,7 +2,7 @@
 param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [string]$MarketplaceName = "sdd-plugins",
-    [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
+    [ValidateSet("All", "Codex", "Claude", "Copilot", "Gemini", "FilesOnly")]
     [string]$Target = "All",
     [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud"),
@@ -324,6 +324,10 @@ if ($Target -in @("All", "Claude")) {
 }
 if ($Target -in @("All", "Copilot")) {
     Uninstall-CopilotPlugin
+}
+if ($Target -in @("All", "Gemini") -and -not $SkipPluginUninstall -and
+    $Plugins -ccontains 'sdd-implementation' -and (Get-Command gemini -ErrorAction SilentlyContinue)) {
+    Invoke-BestEffortPluginCommand 'gemini' @('extensions', 'uninstall', 'sdd-forge-model-selection')
 }
 # IDE-client MCP unregistration mirrors install.ps1's registration scoping:
 # Cursor has no dedicated -Target value, so it participates in All only; VS Code

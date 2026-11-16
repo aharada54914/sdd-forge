@@ -328,6 +328,15 @@ CLOUD_PROTECTIONS = (
 MODEL_PROTECTIONS = (
     'plugins/sdd-implementation/scripts/model-policy.py',
     'plugins/sdd-implementation/scripts/managed-model-entry.py',
+    'plugins/sdd-implementation/scripts/session-models.py',
+    'plugins/sdd-implementation/scripts/model-discovery.py',
+    'plugins/sdd-implementation/scripts/session-model-start.py',
+    'plugins/sdd-implementation/scripts/session-panelist.py',
+    'plugins/sdd-implementation/skills/model-selection/SKILL.md',
+    'plugins/sdd-implementation/gemini/gemini-extension.json',
+    'plugins/sdd-implementation/hooks/claude-hooks.json',
+    'plugins/sdd-implementation/hooks/codex-hooks.json',
+    'plugins/sdd-implementation/gemini/hooks/hooks.json',
     QUALITY_SCRIPTS + 'run-panelist-gpt.ps1',
     QUALITY_SCRIPTS + 'run-panelist-gemini.ps1',
 )

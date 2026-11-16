@@ -1,0 +1,114 @@
+{
+  "schema": "session-model-native-verification/v1",
+  "date": "2026-11-15",
+  "scope": "isolated verification-workspace; real official CLIs; no authenticated inference",
+  "versions": {
+    "claude": "2.1.325",
+    "gemini": "0.68.0",
+    "node": "26.13.0"
+  },
+  "claude": {
+    "plugin_validation": "passed; optional icon warning only",
+    "authentication": {
+      "logged_in": false,
+      "method": "none"
+    },
+    "startup_hook": {
+      "observed_in": "real headless host debug log",
+      "execution_count": 1,
+      "correct_host": true,
+      "exit_code_zero": true,
+      "additional_context_accepted": true
+    },
+    "headless": {
+      "exit_code": 1,
+      "result": "Not logged in; Please run /login",
+      "waiting_for_confirmation": false
+    },
+    "interactive": "native theme and login method UI reached; no OAuth started"
+  },
+  "gemini": {
+    "extension_link": "real CLI linked and enabled in isolated configuration after normal trust/extension confirmation",
+    "startup_hooks": [
+      {
+        "hook_event_name": "SessionStart",
+        "duration_ms": 39,
+        "success": true,
+        "exit_code": 0,
+        "interactive": true
+      }
+    ],
+    "headless": {
+      "exit_code": 41,
+      "error": "No auth method configured",
+      "waiting_for_confirmation": false
+    },
+    "discovery": [
+      {
+        "model": "pro",
+        "verification": "unverified"
+      },
+      {
+        "model": "flash",
+        "verification": "unverified"
+      },
+      {
+        "model": "flash-lite",
+        "verification": "unverified"
+      },
+      {
+        "model": "auto",
+        "verification": "listed"
+      },
+      {
+        "model": "gemini-2.5-pro",
+        "verification": "listed"
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "verification": "listed"
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "verification": "listed"
+      }
+    ]
+  },
+  "fixed_defects": [
+    {
+      "id": "NATIVE-FIX-001",
+      "problem": "Claude auto-loaded conventional hooks/hooks.json as well as manifest-specific hook, causing duplicate startup and wrong codex host metadata",
+      "fix": "Codex uses explicit hooks/codex-hooks.json; native Claude re-run observed one correct hook"
+    },
+    {
+      "id": "NATIVE-FIX-002",
+      "problem": "Gemini timeout 10 was milliseconds, too short for Python startup",
+      "fix": "Gemini timeout set to10000ms; actual native interactive hook succeeded in39ms"
+    }
+  ],
+  "capability_improvement": "Capability-probed public Gemini model listing added; advertised listing is not inference access proof",
+  "not_verified": [
+    "authenticated Claude/Gemini model response",
+    "first model response following selection instructions",
+    "native main model/effort switch followed by inference",
+    "subagent model delivery"
+  ],
+  "auth_followup": "User was asked to choose OAuth or safe environment configuration; no answer or usable credentials received",
+  "private_evidence_location": "verification-workspace/native-session-models (task logs only; not committed)",
+  "regression": {
+    "session_models": {
+      "passed": 43
+    },
+    "installer_payload_bash": {
+      "passed": 11,
+      "skipped": 2
+    },
+    "python_syntax": "passed",
+    "diff_check": "passed",
+    "independent_source_review": {
+      "reviewer": "/root/design_review",
+      "new_major": 0,
+      "new_critical": 0
+    }
+  }
+}

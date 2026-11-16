@@ -34,7 +34,7 @@ Usage: uninstall.sh [options]
 
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --marketplace-name <name>      Registered marketplace name. Default: sdd-plugins
-  --target All|Codex|Claude|Copilot|FilesOnly
+  --target All|Codex|Claude|Copilot|Gemini|FilesOnly
                                  Default: All
   --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: all plugins
@@ -82,8 +82,8 @@ fi
 
 # Validate --target
 case "$TARGET" in
-    All|Codex|Claude|Copilot|FilesOnly) ;;
-    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, or FilesOnly)" >&2; usage ;;
+    All|Codex|Claude|Copilot|Gemini|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, Gemini, or FilesOnly)" >&2; usage ;;
 esac
 
 # Validate --plugins
@@ -495,6 +495,11 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     uninstall_copilot_plugins || exit 1
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
+    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]] && [[ ",$PLUGINS," == *,sdd-implementation,* ]] && command -v gemini >/dev/null 2>&1; then
+        try_plugin_command gemini extensions uninstall sdd-forge-model-selection
+    fi
 fi
 # IDE-client MCP unregistration mirrors install.sh's registration scoping:
 # Cursor has no dedicated --target value, so it participates in All only; VS

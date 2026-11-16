@@ -1,0 +1,43 @@
+{
+  "schema": "session-model-authenticated-verification/v1",
+  "date": "2026-11-15",
+  "timezone": "Asia/Tokyo",
+  "implementation_revision": "d45f5b40147836587861d5db5978ab3567860a02",
+  "scope": "isolated native CLI authentication, discovery and main model switching; not role delivery or quality-gate completion",
+  "versions": {"claude": "2.1.325", "gemini": "0.68.0", "node": "24.19.0"},
+  "authentication": {
+    "credential_values_recorded": false,
+    "claude": {"method": "api_key", "status_exit_code": 0, "logged_in": true, "inference_verified": true},
+    "gemini": {"method": "gemini-api-key", "inference_verified": true, "initial_untrusted_workspace_exit_code": 55}
+  },
+  "claude": {
+    "plugin_validate_exit_code": 0,
+    "headless": {"exit_code": 0, "expected_response": true, "requested_model": "sonnet", "reported_model": "claude-sonnet-5-5"},
+    "interactive_selection": {"skill_loaded": true, "begin_executed": true, "state": "pending", "approval_requested": true, "individual_17_role_table_present": false, "initial_path_missing_cli_bins": true},
+    "native_switch": {"model_command": "/model haiku", "effort_command": "/effort low", "cli_accepted": true, "expected_response": true, "transcript_model": "claude-haiku-5-5", "server_effort_verified": false}
+  },
+  "gemini": {
+    "extension_linked": true,
+    "interactive_startup_hook_execution_displayed": true,
+    "initial_selection_response": "not completed; interrupted after approximately two minutes; cause unknown",
+    "headless": [
+      {"requested_model": "gemini-3.1-flash-lite", "reported_model": "gemini-3.5-flash-lite", "exit_code": 0, "expected_response": true, "repetitions": 2},
+      {"requested_model": "gemini-3.5-flash", "reported_model": "gemini-3.8-flash", "exit_code": 0, "expected_response": true, "repetitions": 1}
+    ],
+    "native_switch": {"operation": "/model then Manual", "selected_model": "gemini-3.5-flash-lite", "transcript_model": "gemini-3.5-flash-lite", "expected_response": true},
+    "public_listing_matches_interactive_menu": false,
+    "model_name_mismatch_cause": "undetermined"
+  },
+  "discovery_after_path_correction": {"claude_installed": true, "gemini_installed": true, "claude_efforts": ["low", "medium", "high"], "gemini_status": "listed", "interactive_flow_repeated": false},
+  "regression": {"session_models": {"tests": 43, "passed": 43, "skipped": 0, "powershell_configured": true}},
+  "not_verified": [
+    "complete interactive selection after PATH correction",
+    "Gemini initial selection response",
+    "17-role table, confirmation and saved preference re-confirmation",
+    "protected role launcher delivery and failure reselection",
+    "server-side effort application",
+    "cause and handling of Gemini requested/reported model mismatch"
+  ],
+  "private_evidence_location": "verification-workspace/native-session-models/auth-resume",
+  "report": "reports/notes/session-model-authenticated-verification.md"
+}

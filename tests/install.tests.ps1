@@ -309,7 +309,7 @@ function Resolve-ExpectedPlugins {
         $changed = $false
         foreach ($plugin in @($resolved)) {
             $dependencies = switch ($plugin) {
-                "sdd-bootstrap" { @("sdd-review-loop"); break }
+                "sdd-bootstrap" { @("sdd-review-loop", "sdd-implementation"); break }
                 "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
                 "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
                 "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }

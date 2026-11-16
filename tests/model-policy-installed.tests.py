@@ -697,7 +697,18 @@ IMPLEMENTER_RECORDER = 'tests/fixtures/model-policy-installed/recording-implemen
 SHIP_CALLER = 'plugins/sdd-ship/skills/ship/SKILL.md'
 
 
-MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS])
+SESSION_RUNTIME = [
+    'plugins/sdd-implementation/scripts/session-models.py',
+    'plugins/sdd-implementation/scripts/model-discovery.py',
+    'plugins/sdd-implementation/scripts/session-model-start.py',
+    'plugins/sdd-implementation/scripts/session-panelist.py',
+    'plugins/sdd-implementation/skills/model-selection/SKILL.md',
+    'plugins/sdd-implementation/gemini/gemini-extension.json',
+    'plugins/sdd-implementation/hooks/claude-hooks.json',
+    'plugins/sdd-implementation/hooks/codex-hooks.json',
+    'plugins/sdd-implementation/gemini/hooks/hooks.json',
+]
+MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS, *SESSION_RUNTIME])
 # Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
 # installs prove this minimal package satisfies the actual installer contract.
 INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json', *CODEX,
@@ -7196,7 +7207,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         result, payload = self.native(prepared, extra_env={'SDD_ACTION_FIXTURE_EXIT': '23'})
         self.assertEqual((result.returncode, result.stdout), (23, payload), result.stderr.decode())
         source = (ROOT / '.github/workflows/self-improvement.yml').read_text()
-        for text in ('anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6',
+        for text in ('anthropics/claude-code-action@c0949c50a78c1ec8ce2647db36629b870e715d0c',
                      'path_to_claude_code_executable: ${{ steps.managed_self_improvement.outputs.executable }}',
                      "vars.SDD_SELF_IMPROVEMENT_REQUEST == '' && '--model claude-sonnet-5'",
                      "format('--model {0} --effort {1} --session-id {2}', steps.managed_self_improvement.outputs.model, steps.managed_self_improvement.outputs.effort, steps.managed_self_improvement.outputs.session_id)",
