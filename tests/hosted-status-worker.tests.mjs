@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-const source = readFileSync(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8').replace('__DASHBOARD_PAGE__',JSON.stringify('<html>test</html>')).replace('__OBSERVATION_CODE__',readFileSync(new URL('../plugins/sdd-ship/status-site/observations.js',import.meta.url),'utf8'));
+const source = readFileSync(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8').replace('__DASHBOARD_PAGE__',JSON.stringify('<html>test</html>')).replace('__DECISION_CODE__',readFileSync(new URL('../plugins/sdd-ship/status-site/decisions.js',import.meta.url),'utf8')).replace('__OBSERVATION_CODE__',readFileSync(new URL('../plugins/sdd-ship/status-site/observations.js',import.meta.url),'utf8'));
 const {default:worker, validSnapshot, validHealth} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const snapshot = () => ({schema:'sdd-dashboard/v1',revision:'a'.repeat(64),attemptedAt:'2026-01-01T00:00:00Z',checkedAt:'2026-01-01T00:00:00Z',lastSuccessAt:'2026-01-01T00:00:00Z',changedAt:'2026-01-01T00:00:00Z',error:null,data:{project:'test',features:[],tasks:[]}});
 function env() { let body=null;let etag=0;return { SDD_PUBLISHER_TOKEN:'test-only', BUCKET:{async get(){return body===null?null:{etag:String(etag),text:async()=>body,json:async()=>JSON.parse(body)}},async put(key,value,options){if(options.onlyIf.etagMatches!==undefined&&options.onlyIf.etagMatches!==String(etag))return null;body=value;etag++;return {etag:String(etag)}}} }; }
@@ -65,4 +65,12 @@ test('observations share snapshot CAS, remain private and cannot be supplied by 
  assert.equal((await worker.fetch(request('/api/snapshot','PUT',s),e)).status,409);
  assert.deepEqual((await(await worker.fetch(request('/api/observations'),e)).json()).events,observations.events);
  assert.equal('_observations' in await(await worker.fetch(request('/api/dashboard'),e)).json(),false);
+});
+
+test('decision validator is identical across installed worker and collector; malformed projection is refused', () => {
+ assert.equal(readFileSync(new URL('../plugins/sdd-ship/status-site/decisions.js',import.meta.url),'utf8'),readFileSync(new URL('../mcp/sdd-forge-mcp/src/dashboard/decisions.js',import.meta.url),'utf8'));
+ const s=snapshot();s.data.decisionSets=[{feature:'missing',source:'x',stale:false,decisions:[]}];assert.equal(validSnapshot(s),false);
+ s.data.features=[{id:'demo',phase:'unknown',nextCommand:'',warnings:[]}];s.data.decisionSets[0].feature='demo';assert.equal(validSnapshot(s),true);
+ s.data.decisionSets[0].decisions=[{id:'Q-001'}];assert.equal(validSnapshot(s),false);
+ s.data.features=[null];s.data.decisionSets[0].decisions=[];assert.equal(validSnapshot(s),false);
 });

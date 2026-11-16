@@ -449,6 +449,10 @@
     {
       "feature": "a9-interrupted-review-recovery",
       "profile": "full"
+    },
+    {
+      "feature": "visual-spec-decisions",
+      "profile": "full"
     }
   ]
 }
