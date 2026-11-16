@@ -7196,7 +7196,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         result, payload = self.native(prepared, extra_env={'SDD_ACTION_FIXTURE_EXIT': '23'})
         self.assertEqual((result.returncode, result.stdout), (23, payload), result.stderr.decode())
         source = (ROOT / '.github/workflows/self-improvement.yml').read_text()
-        for text in ('anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6',
+        for text in ('anthropics/claude-code-action@c0949c50a78c1ec8ce2647db36629b870e715d0c',
                      'path_to_claude_code_executable: ${{ steps.managed_self_improvement.outputs.executable }}',
                      "vars.SDD_SELF_IMPROVEMENT_REQUEST == '' && '--model claude-sonnet-5'",
                      "format('--model {0} --effort {1} --session-id {2}', steps.managed_self_improvement.outputs.model, steps.managed_self_improvement.outputs.effort, steps.managed_self_improvement.outputs.session_id)",
