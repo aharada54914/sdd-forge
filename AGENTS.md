@@ -152,6 +152,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/sdd-domain-concept-test/`
 - `specs/shared-review-launch-repair/`
 - `specs/sql-development-flow/`
+- `specs/visual-spec-decisions/`
 
 ## Source Artifact Locations
 

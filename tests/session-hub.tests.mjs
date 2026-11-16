@@ -102,7 +102,7 @@ test('expired questions and leases fail closed; lease recovery requires stopped 
 });
 test('Sites embedded worker preserves owner/session boundary and R2 conditional writes', async () => {
   const source=(await readFile(new URL('../plugins/sdd-ship/status-site/worker.mjs',import.meta.url),'utf8'))
-    .replace('__DASHBOARD_PAGE__',JSON.stringify('dashboard')).replace('__OBSERVATION_CODE__',await readFile(new URL('../plugins/sdd-ship/status-site/observations.js',import.meta.url),'utf8')).replace('__HUB_CODE__',embeddedHub());
+    .replace('__DECISION_CODE__',await readFile(new URL('../plugins/sdd-ship/status-site/decisions.js',import.meta.url),'utf8')).replace('__DASHBOARD_PAGE__',JSON.stringify('dashboard')).replace('__OBSERVATION_CODE__',await readFile(new URL('../plugins/sdd-ship/status-site/observations.js',import.meta.url),'utf8')).replace('__HUB_CODE__',embeddedHub());
   const {default:worker}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
   let value=null,revision=0;const owner=token();
   const env={SDD_HUB_PROJECT:'p',SDD_HUB_OWNER_ID:'owner',SDD_HUB_OWNER_TOKEN:owner,SDD_PUBLISHER_TOKEN:'publisher',BUCKET:{

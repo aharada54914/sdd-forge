@@ -57,6 +57,8 @@ CLOSURE = [
     "plugins/sdd-ship/scripts/publish-dashboard.py",
     "plugins/sdd-ship/scripts/dashboard-runtime.py",
     "plugins/sdd-ship/status-site/observations.js",
+    "plugins/sdd-ship/status-site/decisions.js",
+    "plugins/sdd-ship/skills/status/references/spec-decisions.md",
     "plugins/sdd-ship/status-site/build.mjs",
     "plugins/sdd-ship/status-site/worker.mjs",
     "plugins/sdd-ship/status-site/service/sdd-dashboard.service",

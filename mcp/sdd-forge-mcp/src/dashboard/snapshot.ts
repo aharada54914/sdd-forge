@@ -5,6 +5,7 @@ import { guardedRead } from '../path-guard.js';
 import { parseActiveSpecDirectories } from '../parsers/agents-md.js';
 import { getSpecStatus, getTaskState, getNextSddCommand } from '../tools/core.js';
 import type { SddRoot } from '../root.js';
+import { readDecisions, type DecisionSet } from './decision-reader.js';
 
 export const SCHEMA = 'sdd-dashboard/v1';
 export interface DashboardTask {
@@ -16,6 +17,7 @@ export interface DashboardData {
   project: string;
   features: { id: string; displayName?: string; phase: string; nextCommand: string; warnings: string[] }[];
   tasks: DashboardTask[];
+  decisionSets?: DecisionSet[];
 }
 export interface Snapshot {
   schema: string; revision: string; checkedAt: string | null; changedAt: string | null;
@@ -46,6 +48,8 @@ function readData(root: SddRoot): { data: DashboardData; digest: string } {
   const reports = createReportLookup();
   const hash = createHash('sha256').update(JSON.stringify(specs.data));
   for (const { feature } of specs.data) {
+    const decisions = readDecisions(root, feature);
+    if (decisions) (data.decisionSets ??= []).push(decisions);
     const source = `specs/${feature}/tasks.md`;
     const file = guardedRead(root, source);
     const spec = getSpecStatus(root, feature);

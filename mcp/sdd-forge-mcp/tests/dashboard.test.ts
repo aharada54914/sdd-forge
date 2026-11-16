@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { rmSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, statSync, utimesSync, writeFileSync, symlinkSync } from 'node:fs';
@@ -134,5 +136,50 @@ test('Lite dashboard routes preserve evidence validation across refreshes', () =
     const invalid = reader.sample();
     assert.notEqual(invalid.data?.features[0]?.phase, 'done');
     assert.ok(invalid.data?.features[0]?.warnings.length);
+  } finally { f.cleanup(); }
+});
+
+function decisionFile(f: ReturnType<typeof fixture>) {
+  return {schema:'sdd-decisions/v1',decisions:[{
+    id:'Q-001',title:'Save placement',problem:'Save is hidden',status:'pending',
+    basis:[{path:'requirements.md',sha256:createHash('sha256').update(readFileSync(join(f.dir,'specs/demo/requirements.md'))).digest('hex')}],
+    options:['A','B'].map(id=>({id,title:id,benefit:'Visible',drawback:'Space',impact:'Form',diagram:{kind:'screen',steps:['Title','Fields','Save']}})),
+    recommended:'A',reason:'Reachable',selected:null,resolution:null
+  }]};
+}
+test('decisions exist before tasks; basis drift, regeneration and removal change the projection', () => {
+  const f=fixture();
+  try {
+    rmSync(join(f.dir,'specs/demo/tasks.md'));
+    const reader=new DashboardReader(f.root); const base=reader.sample();
+    const file=decisionFile(f); writeFile(f.dir,'specs/demo/decisions.json',JSON.stringify(file));
+    const first=reader.sample(); assert.equal(first.error,null); assert.equal(first.data?.decisionSets?.[0]?.stale,false); assert.notEqual(first.revision,base.revision);
+    writeFile(f.dir,'specs/demo/requirements.md','# Changed requirements');
+    const drift=reader.sample(); assert.equal(drift.data?.decisionSets?.[0]?.stale,true); assert.notEqual(drift.revision,first.revision);
+    writeFile(f.dir,'specs/demo/decisions.json',JSON.stringify(decisionFile(f)));
+    assert.equal(reader.sample().data?.decisionSets?.[0]?.stale,false);
+    rmSync(join(f.dir,'specs/demo/decisions.json')); assert.equal(reader.sample().data?.decisionSets,undefined);
+  } finally { f.cleanup(); }
+});
+test('invalid decisions retain last-good; duplicate choices, foreign paths and unreviewed resolutions reject', () => {
+  const f=fixture();
+  try {
+    const reader=new DashboardReader(f.root), file=decisionFile(f);
+    writeFile(f.dir,'specs/demo/decisions.json',JSON.stringify(file)); const good=reader.sample();
+    for(const change of [
+      (v: ReturnType<typeof decisionFile>)=>v.decisions[0].options.push(v.decisions[0].options[0]),
+      (v: ReturnType<typeof decisionFile>)=>v.decisions[0].basis[0].path='../other/requirements.md',
+      (v: ReturnType<typeof decisionFile>)=>v.decisions[0].status='decided',
+      (v: ReturnType<typeof decisionFile>)=>v.decisions[0].recommended='Z',
+      (v: ReturnType<typeof decisionFile>)=>Object.assign(v.decisions[0],{secret:'must not be projected'}),
+      (v: ReturnType<typeof decisionFile>)=>v.decisions[0].options[0].diagram.steps=[],
+      (v: ReturnType<typeof decisionFile>)=>Object.assign(v.decisions[0].basis[0],{sha256:['a'.repeat(64)]}),
+    ]) {
+      const bad=structuredClone(file);change(bad);writeFile(f.dir,'specs/demo/decisions.json',JSON.stringify(bad));
+      const failed=reader.sample();assert.ok(failed.error);assert.deepEqual(failed.data,good.data);assert.equal(failed.checkedAt,good.checkedAt);
+    }
+    rmSync(join(f.dir,'specs/demo/decisions.json'));writeFile(f.dir,'.env','PRIVATE_DECISION_SENTINEL');
+    symlinkSync(join(f.dir,'.env'),join(f.dir,'specs/demo/decisions.json'));
+    const failed=reader.sample();assert.ok(failed.error);assert.ok(!JSON.stringify(failed).includes('PRIVATE_DECISION_SENTINEL'));
   } finally { f.cleanup(); }
 });

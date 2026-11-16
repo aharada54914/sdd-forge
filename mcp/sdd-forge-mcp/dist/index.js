@@ -41048,8 +41048,48 @@ function registerResources(server, root) {
 }
 
 // src/dashboard/snapshot.ts
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 import { basename } from "node:path";
+
+// src/dashboard/decision-reader.ts
+import { createHash as createHash2 } from "node:crypto";
+
+// src/dashboard/decisions.js
+function validDecisions(rows) {
+  const text = (v) => typeof v === "string" && v.trim().length > 0 && v.length <= 2e3;
+  const keys = (v, names) => v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === names.length && Object.keys(v).every((k) => names.includes(k));
+  const id = (v) => typeof v === "string" && /^[A-Z][A-Z0-9-]{0,39}$/.test(v);
+  const unique = (values) => new Set(values).size === values.length;
+  return Array.isArray(rows) && rows.length <= 100 && rows.every(
+    (d) => keys(d, ["id", "title", "problem", "status", "basis", "options", "recommended", "reason", "selected", "resolution"]) && id(d.id) && text(d.title) && text(d.problem) && ["pending", "decided", "deferred"].includes(d.status) && Array.isArray(d.basis) && d.basis.length > 0 && d.basis.length <= 10 && d.basis.every((b) => keys(b, ["path", "sha256"]) && typeof b.path === "string" && /^(requirements|design|ux-spec|frontend-spec|infra-spec|security-spec)\.md$/.test(b.path) && typeof b.sha256 === "string" && /^[a-f0-9]{64}$/.test(b.sha256)) && unique(d.basis.map((b) => b.path)) && Array.isArray(d.options) && d.options.length >= 2 && d.options.length <= 3 && d.options.every((o) => keys(o, ["id", "title", "benefit", "drawback", "impact", "diagram"]) && id(o.id) && text(o.title) && text(o.benefit) && text(o.drawback) && text(o.impact) && keys(o.diagram, ["kind", "steps"]) && ["flow", "screen", "states"].includes(o.diagram.kind) && Array.isArray(o.diagram.steps) && o.diagram.steps.length > 0 && o.diagram.steps.length <= 8 && o.diagram.steps.every(text)) && unique(d.options.map((o) => o.id)) && d.options.some((o) => o.id === d.recommended) && text(d.reason) && (d.selected === null || d.options.some((o) => o.id === d.selected)) && (d.status === "decided" ? d.selected !== null && text(d.resolution) : d.selected === null && d.resolution === null)
+  ) && unique(rows.map((d) => d.id));
+}
+
+// src/dashboard/decision-reader.ts
+function readDecisions(root, feature) {
+  const source = `specs/${feature}/decisions.json`;
+  const file2 = guardedRead(root, source);
+  if (!file2.ok) {
+    if (file2.error.code === "not-found") return;
+    throw new Error(`${source}: ${file2.error.code}`);
+  }
+  let value;
+  try {
+    value = JSON.parse(file2.data.contents);
+  } catch {
+    throw new Error(`${source}: \u4ED5\u69D8\u76F8\u8AC7\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
+  }
+  if (!value || Object.keys(value).length !== 2 || value.schema !== "sdd-decisions/v1" || !validDecisions(value.decisions)) throw new Error(`${source}: \u4ED5\u69D8\u76F8\u8AC7\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059`);
+  const decisions = value.decisions;
+  let stale = false;
+  for (const decision of decisions) for (const basis of decision.basis) {
+    const input2 = guardedRead(root, `specs/${feature}/${basis.path}`);
+    if (!input2.ok || createHash2("sha256").update(input2.data.contents).digest("hex") !== basis.sha256) stale = true;
+  }
+  return { feature, source, stale, decisions };
+}
+
+// src/dashboard/snapshot.ts
 var SCHEMA = "sdd-dashboard/v1";
 function selectPresentation(parentService) {
   if (parentService === "chatgpt") return "sites";
@@ -41073,8 +41113,10 @@ function readData(root) {
   if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
   const data = { project: basename(root.path), features: [], tasks: [] };
   const reports = createReportLookup();
-  const hash2 = createHash2("sha256").update(JSON.stringify(specs.data));
+  const hash2 = createHash3("sha256").update(JSON.stringify(specs.data));
   for (const { feature } of specs.data) {
+    const decisions = readDecisions(root, feature);
+    if (decisions) (data.decisionSets ??= []).push(decisions);
     const source = `specs/${feature}/tasks.md`;
     const file2 = guardedRead(root, source);
     const spec = getSpecStatus(root, feature);
@@ -41168,7 +41210,7 @@ var DashboardReader = class {
 };
 
 // src/tools/evidence.ts
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 
 // src/parsers/evidence.ts
 var REQUIRED_BUNDLE_FIELDS = [
@@ -41745,7 +41787,7 @@ function evidenceCompareToTraceability(root, feature) {
 var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;
 var GIT_COMMIT_PATTERN = /^[0-9a-f]{40}$/;
 function sha256OfContents(contents) {
-  return createHash3("sha256").update(contents, "utf-8").digest("hex");
+  return createHash4("sha256").update(contents, "utf-8").digest("hex");
 }
 function escapeRegExp2(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -41792,7 +41834,7 @@ function recomputeSpecRevision(root, feature, bundle) {
     `specs/${feature}/design.md`,
     `specs/${feature}/acceptance-tests.md`
   ];
-  const hasher = createHash3("sha256");
+  const hasher = createHash4("sha256");
   const filesHashed = [];
   let foundAny = false;
   for (const relPath of specFiles) {
@@ -42195,16 +42237,18 @@ function observationView(stored, now = Date.now()) {
 import { randomBytes, timingSafeEqual } from "node:crypto";
 
 // ui/dashboard-page.ts
-import { createHash as createHash4 } from "node:crypto";
+import { createHash as createHash5 } from "node:crypto";
 function dashboardPage(mode = "http") {
   const page = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
 :root{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#172b4d;background:#fff;--line:#767676;--blue:#0031d8;--muted:#505f79;--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--radius-control:8px;--radius-panel:12px;--success:#216e4e;--warning:#705400;--error:#ae2a19}
 *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,a,select{touch-action:manipulation}button{cursor:pointer}button,a,input,select,summary{scroll-margin:16px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:4px solid #000;outline-offset:3px;box-shadow:0 0 0 3px #ffd43d}button{min-height:44px}a,summary{min-height:44px}summary{cursor:pointer;padding:8px 0}a{display:inline-flex;align-items:center}header{min-height:72px;border-bottom:1px solid #dfe1e6;display:flex;align-items:center;padding:16px 24px;gap:24px;flex-wrap:wrap}.logo{font-size:24px;font-weight:700;color:#0747a6}.readonly{color:var(--muted);font-size:14px;margin-left:auto}.shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);min-height:calc(100vh - 72px)}aside.sidebar{padding:32px 24px;background:#f4f5f7;border-right:1px solid #dfe1e6}.project-icon{background:#deebff;color:var(--blue);border-radius:8px;display:inline-grid;place-items:center;width:48px;height:48px;font-weight:700;margin-bottom:16px}.eyebrow{font-size:14px;font-weight:700;color:var(--muted)}.project{font-weight:700;overflow-wrap:anywhere;margin:8px 0 24px}label{display:block;font-size:16px;color:var(--muted)}select,input{border:1px solid var(--line);border-radius:var(--radius-control);padding:8px;min-height:44px;background:white;color:#172b4d;max-width:100%}.sidebar select{width:100%;margin-top:8px}.side-note{font-size:14px;color:var(--muted);margin-top:32px}main{padding:24px 32px;min-width:0}.breadcrumb{color:var(--muted);font-size:14px;overflow-wrap:anywhere}h1{font-size:32px;margin:8px 0 24px}nav{display:flex;gap:24px;border-bottom:2px solid #dfe1e6;flex-wrap:wrap}nav a{color:var(--muted);text-decoration:none;padding:8px 0;border-bottom:3px solid transparent}nav a[aria-current=page]{color:var(--blue);border-color:var(--blue);font-weight:700}.toolbar{display:flex;gap:16px;margin:24px 0;flex-wrap:wrap;align-items:end}.toolbar input{width:100%}.toolbar label{flex:1;min-width:min(240px,100%)}.refresh,.pause{background:var(--blue);color:white;border:1px solid var(--blue);border-radius:var(--radius-control);padding:8px 16px}.pause{background:white;color:var(--blue)}.banner{border:1px solid #216e4e;background:#eefaf4;color:var(--success);border-radius:8px;padding:16px;margin-top:24px;font-size:16px;overflow-wrap:anywhere}.banner[data-state=stale],.banner[data-state=paused]{background:#fff8e6;border-color:#705400;color:var(--warning)}.banner[data-state=error]{background:#fff1f0;border-color:#ae2a19;color:var(--error)}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;margin-bottom:24px}.metric{border:1px solid var(--line);border-radius:12px;padding:16px;background:white;color:inherit;text-align:left}.metric strong{display:block;font-size:32px;line-height:1.5}.panel{border:1px solid #dfe1e6;border-radius:12px;padding:24px;margin-bottom:24px}h2{font-size:24px;margin:0 0 16px}h3{font-size:20px;margin:0 0 16px}.board{display:grid;grid-template-columns:repeat(5,minmax(240px,1fr));gap:32px;overflow-x:auto;padding:8px 8px 16px}.column{background:#f4f5f7;border-radius:12px;padding:16px;min-height:160px}.column h2{font-size:16px;color:var(--muted);margin:0 0 16px}.card{display:block;text-align:left;background:white;border:1px solid var(--line);border-radius:8px;padding:16px;width:100%;margin-bottom:16px;color:inherit}.card:hover{border-color:var(--blue)}.card-title{display:block;margin:8px 0 16px;font-size:16px;overflow-wrap:anywhere}.key{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-block;font-size:14px;font-weight:700;padding:4px 8px;border-radius:8px;background:#ebecf0;overflow-wrap:anywhere}.badge[data-status="In Progress"]{color:#0747a6;background:#deebff}.badge[data-status="Done"]{color:#216e4e;background:#dcfff1}.badge[data-status="Implementation Complete"]{color:#5e4db2;background:#eae6ff}.badge[data-status="Blocked"]{color:#ae2a19;background:#ffebe6}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:16px}th{font-size:16px;color:var(--muted);font-weight:700}th,td{padding:16px;border-bottom:1px solid #dfe1e6}td button{border:0;background:none;color:var(--blue);text-align:left;text-decoration:underline;min-height:44px;min-width:44px}.empty{padding:32px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.phase{display:grid;grid-template-columns:minmax(160px,1fr) minmax(240px,2fr);gap:32px;padding:16px 0;border-bottom:1px solid #dfe1e6;overflow-wrap:anywhere}.phase small{display:block;font-size:14px}.track{display:flex;gap:4px;align-items:center}.segment{height:16px;flex:1;background:#ebecf0;border-radius:4px}.segment.active{background:#0052cc}.segment.done{background:#216e4e}progress{width:100%;accent-color:#0031d8}dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(720px,100%);height:100%;max-height:100%;max-width:100%;border:0;border-left:1px solid var(--line);padding:24px;box-shadow:-8px 0 32px #091e4240}dialog::backdrop{background:#091e4266}dialog .close{float:right;border:1px solid var(--line);background:#f4f5f7;border-radius:8px;padding:8px 16px}dialog h2{padding-top:24px;font-size:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace;background:#f4f5f7;padding:16px;border-radius:8px}.issue-warning{color:var(--error);font-size:14px}footer{margin-top:32px;font-size:14px;color:var(--muted)}.skip{position:absolute;left:16px;top:-100px;background:white;z-index:10;padding:8px}.skip:focus{top:8px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.monitor{font-size:14px;overflow-wrap:anywhere}.mobile-feature{display:none}[hidden]{display:none!important}@media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{display:none}main{padding:24px 16px}.mobile-feature{display:block}.phase{grid-template-columns:1fr;gap:16px}.board{grid-template-columns:1fr;overflow:visible;padding:0}.column{min-height:0}.toolbar{align-items:stretch}.toolbar>*{max-width:100%}header{gap:16px;padding:16px}.metrics{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}.panel{padding:16px}h1{font-size:28px}}
+.decision-comparison table{min-width:600px}.decision-diagrams{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:24px}.decision-diagrams section{min-width:0;overflow-wrap:anywhere}.decision-flow,.decision-states{display:flex;flex-wrap:wrap;gap:16px;list-style-position:inside;padding:0}.decision-flow li:not(:last-child)::after,.decision-states li:not(:last-child)::after{content:" \u2192"}.decision-diagrams li{padding:8px;border:1px solid var(--line);border-radius:8px}.decision-screen{padding:16px;list-style-position:inside;background:#f4f5f7}.decision-screen li{margin-bottom:8px}fieldset{min-width:0;margin:16px 0;display:flex;flex-wrap:wrap;gap:8px}textarea{font:inherit;width:100%;max-width:100%;padding:8px}td{overflow-wrap:anywhere}
 </style></head><body><a class="skip" href="#main">\u672C\u6587\u3078\u79FB\u52D5</a><header><span class="logo">\u25B0 SDD Forge</span><span class="muted">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</span><span class="readonly">\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span><a href="/hub" id="hub-link" class="refresh" hidden>\u8CEA\u554F\u7A93\u53E3</a></header><div class="shell"><aside class="sidebar"><div class="project-icon">SF</div><div class="eyebrow">\u958B\u767A\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8</div><div class="project" id="project">\u63A5\u7D9A\u5F85\u3061</div><label>\u958B\u767A\u30C6\u30FC\u30DE<select id="feature"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select></label><p class="side-note">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306B\u767B\u9332\u3055\u308C\u305F\u4ED5\u69D8\u30FB\u30BF\u30B9\u30AF\u3092\u8868\u793A\u3057\u307E\u3059\u3002<br>\u5B9F\u88C5\u304C\u7D42\u308F\u3063\u3066\u3082\u3001\u54C1\u8CEA\u78BA\u8A8D\u304C\u6E08\u3080\u307E\u3067\u306F\u5B8C\u4E86\u306B\u306A\u308A\u307E\u305B\u3093\u3002</p></aside><main id="main" tabindex="-1"><div class="breadcrumb">\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8 / <span id="crumb">SDD Forge</span></div><h1 id="title" tabindex="-1">\u6982\u8981</h1><nav aria-label="\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30D3\u30E5\u30FC" id="tabs"></nav><div class="banner" id="freshness" data-state="stale">\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059\u2026</div><div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div class="toolbar"><label>\u8AB2\u984C\u3092\u691C\u7D22<input id="search" type="search" aria-label="\u8AB2\u984C\u3092\u691C\u7D22" placeholder="\u8AB2\u984C\u30AD\u30FC\u30FB\u30BF\u30A4\u30C8\u30EB\u30FB\u672C\u6587\u3067\u691C\u7D22"></label><select id="filter" aria-label="\u72B6\u614B\u3067\u7D5E\u308A\u8FBC\u307F"><option value="">\u3059\u3079\u3066\u306E\u72B6\u614B</option></select><select id="mobile-feature" class="mobile-feature" aria-label="\u958B\u767A\u30C6\u30FC\u30DE"><option value="">\u3059\u3079\u3066\u306E\u958B\u767A\u30C6\u30FC\u30DE</option></select><button class="pause" id="pause" aria-pressed="false">\u8868\u793A\u66F4\u65B0\u3092\u4E00\u6642\u505C\u6B62</button><button class="refresh" id="refresh">\u4ECA\u3059\u3050\u66F4\u65B0</button></div><div id="content" aria-live="polite"></div><details id="activity" class="panel"><summary id="activity-summary">\u901A\u77E5\u30FB\u5909\u66F4\u5C65\u6B74</summary><p id="activity-state" role="status">\u5C65\u6B74\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p><p>\u89B3\u6E2C\u3067\u304D\u305F\u5909\u5316\u3092\u8A18\u9332\u3057\u307E\u3059\u3002\u5B9F\u969B\u306E\u64CD\u4F5C\u6642\u523B\u30FB\u64CD\u4F5C\u3057\u305F\u4EBA\u306F\u63A8\u6E2C\u3057\u307E\u305B\u3093\u3002\u76F4\u8FD130\u65E5\u30FB\u6700\u5927200\u4EF6\u3067\u3059\u3002</p><button id="acknowledge" class="pause">\u8868\u793A\u4E2D\u306E\u901A\u77E5\u3092\u78BA\u8A8D\u6E08\u307F\u306B\u3059\u308B</button><ol id="activity-events"></ol></details><details class="monitor"><summary>\u89B3\u6E2C\u57FA\u76E4\u306E\u7A3C\u50CD\u72B6\u6CC1</summary><p id="monitor-status">\u7A3C\u50CD\u60C5\u5831\u3092\u78BA\u8A8D\u3057\u3066\u3044\u307E\u3059</p></details><footer>\u8868\u793A\u5185\u5BB9\u306F\u8A18\u9332\u306B\u57FA\u3065\u304D\u307E\u3059\u3002\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061\u3001\u5B8C\u4E86\u3001\u516C\u958B\u6E08\u307F\u306F\u305D\u308C\u305E\u308C\u5225\u306E\u72B6\u614B\u3067\u3059\u3002</footer></main></div><dialog id="detail" aria-labelledby="detail-title"><button class="close" id="close">\u9589\u3058\u308B \xD7</button><div id="detail-content"></div></dialog><script>
+${validDecisions.toString()}
 if (${JSON.stringify(mode)} === 'http') fetch('/api/hub', {cache:'no-store'}).then(r => { if (r.ok) document.getElementById('hub-link').hidden = false; }).catch(() => {});
 const PAGE_VERSION = "__SDD_PAGE_VERSION__";
 const MODE = ${JSON.stringify(mode)};
-const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9" };
+const VIEWS = { overview: "\u6982\u8981", timeline: "\u30BF\u30A4\u30E0\u30E9\u30A4\u30F3", backlog: "\u30D0\u30C3\u30AF\u30ED\u30B0", board: "\u30DC\u30FC\u30C9", list: "\u4E00\u89A7", releases: "\u30EA\u30EA\u30FC\u30B9", decisions: "\u4ED5\u69D8\u306E\u76F8\u8AC7" };
 const STATES = ["Planned", "In Progress", "Blocked", "Implementation Complete", "Done"];
 const LABELS = { "Planned": "\u4E88\u5B9A", "In Progress": "\u9032\u884C\u4E2D", "Blocked": "\u5BFE\u5FDC\u5F85\u3061\u30FB\u9032\u884C\u505C\u6B62", "Implementation Complete": "\u5B9F\u88C5\u6E08\u307F\u30FB\u691C\u8A3C\u5F85\u3061", "Done": "\u5B8C\u4E86\uFF08\u53F0\u5E33\u4E0A\uFF09", "Draft": "\u627F\u8A8D\u5F85\u3061", "Approved": "\u627F\u8A8D\u6E08\u307F", "Rejected": "\u5374\u4E0B", "low": "\u4F4E", "medium": "\u4E2D", "high": "\u9AD8", "critical": "\u6700\u91CD\u8981", "unknown": "\u672A\u78BA\u8A8D" };
 // Display aliases only: canonical phases, commands and identifiers stay unchanged.
@@ -42274,6 +42318,7 @@ function filtered() {
   return (snapshot?.data?.tasks || []).filter((t) => (!feature || t.feature === feature) && (!filter || t.status === filter) && needs(t, attention) && (!query || (featureName(t.feature) + " " + t.key + " " + t.title + " " + t.body).toLowerCase().includes(query.toLowerCase())));
 }
 function freshness() {
+  syncDecisionControls();
   const s = snapshot;
   const date = (value) => value ? new Date(value).toLocaleString("ja-JP") : "\u672A\u78BA\u8A8D";
   const stale = !s?.checkedAt || Date.now() - Date.parse(s.checkedAt) > 6e4;
@@ -42375,6 +42420,65 @@ function list(tasks) {
   wrap.append(table);
   return wrap;
 }
+function decisionUnavailable() {
+  return paused || !!latest?.error || !!transportError || !snapshot?.checkedAt || Date.now()-Date.parse(snapshot.checkedAt)>60000;
+}
+function syncDecisionControls() {
+  const unavailable=decisionUnavailable();
+  for (const b of document.querySelectorAll("[data-decision-locked]")) b.disabled=unavailable || b.dataset.decisionLocked === "true";
+  for (const t of document.querySelectorAll("[data-decision-response]")) t.disabled=unavailable;
+}
+function decisionView(container) {
+  const sets = (snapshot.data.decisionSets || []).filter(s => !feature || s.feature === feature);
+  const rows = sets.flatMap(s => s.decisions.map(d => ({s,d}))).filter(({d}) => !query || (d.title + d.problem).toLowerCase().includes(query.toLowerCase()));
+  if (!rows.length) { container.append(el("p", "\u4ED5\u69D8\u306E\u76F8\u8AC7\u306F\u307E\u3060\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002", "empty")); return; }
+  container.append(el("p", "\u4EEE\u9078\u629E\u306F\u3053\u306E\u753B\u9762\u5185\u3060\u3051\u3067\u3059\u3002\u56DE\u7B54\u6587\u3092\u4F1A\u8A71\u3078\u9001\u308A\u3001\u4ED5\u69D8\u306E\u53CD\u6620\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u30BF\u30B9\u30AF\u627F\u8A8D\u306F\u5225\u306E\u624B\u9806\u3067\u3059\u3002"));
+  if (!rows.some(({s,d}) => s.feature+"/"+d.id === decisionKey)) decisionKey=rows[0].s.feature+"/"+rows[0].d.id;
+  const picker=el("select"); picker.setAttribute("aria-label","\u76F8\u8AC7\u3059\u308B\u4ED5\u69D8\u3092\u9078\u629E"); picker.dataset.focusKey="decision-picker";
+  rows.forEach(({s,d},i)=>{const option=el("option",(i+1)+" / "+rows.length+" \xB7 "+d.title); option.value=s.feature+"/"+d.id; picker.append(option);});
+  picker.value=decisionKey; picker.onchange=()=>{decisionKey=picker.value;render();}; container.append(picker);
+  rows.forEach(({s,d}, index) => {
+    if(s.feature+"/"+d.id!==decisionKey) return;
+    const panel = el("section", undefined, "panel");
+    panel.append(el("p", featureName(s.feature) + " \xB7 " + (index+1) + " / " + rows.length + " \xB7 " + ({pending:"\u56DE\u7B54\u5F85\u3061",decided:"\u6C7A\u5B9A\u8A18\u9332\u3042\u308A",deferred:"\u4FDD\u7559"}[d.status])), el("h2", d.id + " \xB7 " + d.title), el("p", d.problem));
+    if (s.stale) panel.append(el("p", "\u53C2\u7167\u4ED5\u69D8\u304C\u5909\u66F4\u3055\u308C\u3066\u3044\u307E\u3059\u3002\u56F3\u8868\u306E\u66F4\u65B0\u3068\u518D\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002", "issue-warning"));
+    const diagrams = el("div", undefined, "decision-diagrams");
+    for (const o of d.options) {
+      const sketch = el("section"); sketch.append(el("h3", o.id + " \xB7 " + o.title));
+      const flow = el("ol", undefined, "decision-" + o.diagram.kind);
+      flow.setAttribute("aria-label", o.title + "\u306E" + ({flow:"\u51E6\u7406\u30D5\u30ED\u30FC",screen:"\u753B\u9762\u69CB\u6210\uFF08\u4E0A\u304B\u3089\u9806\uFF09",states:"\u72B6\u614B\u9077\u79FB"}[o.diagram.kind]));
+      for (const step of o.diagram.steps) flow.append(el("li", step));
+      sketch.append(flow); diagrams.append(sketch);
+    }
+    panel.append(diagrams);
+    const wrap = el("div", undefined, "table-wrap decision-comparison"), table = el("table"), head = el("tr"), thead = el("thead"), body = el("tbody");
+    for (const label of ["\u6848", "\u52B9\u679C", "\u4E0D\u5229\u76CA", "\u5F71\u97FF\u7BC4\u56F2"]) { const th=el("th",label); th.scope="col"; head.append(th); }
+    thead.append(head); table.append(thead);
+    for (const o of d.options) { const row=el("tr"); for(const value of [o.id+" \xB7 "+o.title,o.benefit,o.drawback,o.impact]) row.append(el("td",value)); body.append(row); }
+    table.append(body); wrap.append(table); panel.append(wrap,el("p", "\u63A8\u5968: " + d.recommended + " \xB7 " + d.reason));
+    if (d.status === "decided") panel.append(el("p", "\u8A18\u9332\u3055\u308C\u305F\u9078\u629E: " + d.selected + " \xB7 " + d.resolution));
+    const group=el("fieldset"), legend=el("legend","\u56DE\u7B54\u3092\u4EEE\u9078\u629E"); group.append(legend);
+    const result=el("textarea"); result.readOnly=true; result.rows=3; result.dataset.decisionResponse="true"; result.dataset.focusKey=s.feature+"/"+d.id+"/response"; result.disabled=decisionUnavailable(); result.setAttribute("aria-label",d.id+"\u306E\u4F1A\u8A71\u3078\u9001\u308B\u56DE\u7B54\u6587");
+    const resultStatus=el("p"); resultStatus.setAttribute("role","status");
+    for (const [id,label] of [...d.options.map(o=>[o.id,o.id+" \xB7 "+o.title]),["other","\u5225\u6848"],["defer","\u4FDD\u7559"]]) {
+      const button=el("button",label,"pause"); button.type="button"; button.dataset.decisionLocked=String(s.stale || d.status === "decided"); button.disabled=button.dataset.decisionLocked === "true" || decisionUnavailable();
+      button.dataset.focusKey=s.feature+"/"+d.id+"/"+id; button.setAttribute("aria-pressed","false");
+      button.onclick=()=>{ if(decisionUnavailable() || s.stale || d.status === "decided") { syncDecisionControls(); return; } for(const b of group.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b===button));
+        result.value=s.feature+" / "+d.id+"\uFF08\u8868\u793A\u7248 "+snapshot.revision+"\uFF09: "+(id==="defer"?"\u4FDD\u7559\u3057\u307E\u3059\u3002":id==="other"?"\u5225\u6848\u3092\u76F8\u8AC7\u3057\u307E\u3059\uFF1A":id+"\u3092\u9078\u3073\u307E\u3059\u3002\u4ED5\u69D8\u3078\u53CD\u6620\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
+        resultStatus.textContent="\u4EEE\u9078\u629E: "+label+"\u3002\u4E0B\u306E\u56DE\u7B54\u6587\u3092\u4F1A\u8A71\u3078\u9001\u3063\u3066\u304F\u3060\u3055\u3044\u3002";
+        decisionDrafts.set(s.feature+"/"+d.id,{revision:snapshot.revision,id,text:result.value});
+      }; group.append(button);
+    }
+    const saved=decisionDrafts.get(s.feature+"/"+d.id);
+    if (saved && saved.revision===snapshot.revision && !s.stale && d.status!=="decided") {
+      result.value=saved.text;
+      for(const b of group.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.focusKey.endsWith("/"+saved.id)));
+    }
+    panel.append(group,resultStatus,result,el("p","\u6B63\u672C\u3078\u306E\u53C2\u7167: "+s.source+" / "+d.basis.map(b=>b.path).join(", "),"muted")); container.append(panel);
+  });
+}
+let decisionKey = "";
+const decisionDrafts = new Map();
 function render() {
   const v = view();
   $("title").textContent = VIEWS[v];
@@ -42393,7 +42497,7 @@ function render() {
   const tasks = filtered();
   $("project").textContent = data.project;
   $("crumb").textContent = data.project;
-  if (v === "overview") {
+  if (v === "decisions") { decisionView(c); } else if (v === "overview") {
     const actionPanel = el("section", undefined, "panel");
     actionPanel.append(el("h2", "\u7BA1\u7406\u8005\u306E\u5BFE\u5FDC\u304C\u5FC5\u8981\u306A\u8AB2\u984C"));
     const actions = el("div", undefined, "metrics");
@@ -42514,6 +42618,7 @@ function validSnapshot(s) {
   if (s.data === null) return typeof s.error === "string" && s.checkedAt === null;
   if (!s.checkedAt || !s.lastSuccessAt || !s.changedAt || typeof s.data?.project !== "string" || !Array.isArray(s.data.features) || !Array.isArray(s.data.tasks)) return false;
   if (s.data.features.length > 1e3 || s.data.tasks.length > 1e4) return false;
+  if (s.data.decisionSets !== undefined && (!Array.isArray(s.data.decisionSets) || s.data.decisionSets.length > 1000 || !s.data.decisionSets.every(d => d && typeof d.feature === "string" && s.data.features.some(f => f && f.id === d.feature) && typeof d.source === "string" && typeof d.stale === "boolean" && validDecisions(d.decisions)))) return false;
   return s.data.features.every((f) => f && ["id", "phase", "nextCommand"].every((k) => typeof f[k] === "string") && Array.isArray(f.warnings) && f.warnings.every((w) => typeof w === "string")) && s.data.tasks.every((t) => t && ["key", "id", "feature", "title", "body", "status", "approval", "risk", "source"].every((k) => typeof t[k] === "string") && (t.release === null || typeof t.release === "string") && Array.isArray(t.failures) && t.failures.every((f) => typeof f === "string"));
 }
 async function readArtifact() {
@@ -42671,7 +42776,7 @@ setInterval(refresh, 5e3);
 render();
 refresh();
 </script></body></html>`;
-  return page.replace("__SDD_PAGE_VERSION__", createHash4("sha256").update(page).digest("hex").slice(0, 12));
+  return page.replace("__SDD_PAGE_VERSION__", createHash5("sha256").update(page).digest("hex").slice(0, 12));
 }
 
 // src/status-view.ts
