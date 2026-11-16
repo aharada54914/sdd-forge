@@ -142,7 +142,8 @@ class Store:
             if os.name == 'nt':
                 import msvcrt
                 if not target.stat().st_size:
-                    stream.write(b'0'); stream.flush()
+                    stream.write(b'0')
+                    stream.flush()
                 stream.seek(0)
                 msvcrt.locking(stream.fileno(), msvcrt.LK_LOCK, 1)
             else:

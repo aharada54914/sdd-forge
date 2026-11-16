@@ -264,14 +264,16 @@ class LaunchTests(unittest.TestCase):
             helper_path = impl_scripts / 'session-models.py'
             shutil.copyfile(ROOT / 'plugins/sdd-implementation/scripts/session-models.py', helper_path)
             helper = module.module('versioned_session_fixture', helper_path)
-            project = base / 'project'; project.mkdir()
+            project = base / 'project'
+            project.mkdir()
             store = helper.Store(project, base / 'private')
             item = {'host': 'codex-cli', 'model': 'fixture-native', 'effort': 'high'}
             catalog = {'observed_at': helper.now(), 'providers': {h: {'installed': True,
                 'status': 'listed', 'reason': 'fixture'} for h in helper.HOSTS}, 'models': [
                 {'host': 'codex-cli', 'model': 'fixture-native', 'efforts': ['high'],
                  'source': 'fixture', 'verification': 'listed', 'selectable': True}]}
-            roles = {r: {'disabled': True} for r in helper.ROLES}; roles['spec-reviewer-a'] = item
+            roles = {r: {'disabled': True} for r in helper.ROLES}
+            roles['spec-reviewer-a'] = item
             helper.write_json(store.path('session'), {'schema': 'session-model-selection/v1',
                 'project_id': store.project_id, 'session_id': 'session', 'host': 'codex-cli',
                 'status': 'confirmed', 'catalog': catalog, 'main': item, 'roles': roles,
@@ -280,7 +282,8 @@ class LaunchTests(unittest.TestCase):
             with patch.object(module, '__file__', str(review_scripts / 'launch-codex-review.py')), \
                     patch.object(module.transport, '__file__', str(review_scripts / 'validate-nontty-spec-launch.py')):
                 self.assertEqual(module.selected_controls(args, project, 'spec-reviewer-a'), ('fixture-native', 'high'))
-                other = impl_scripts.parent.parent / '2.0.0/scripts'; other.mkdir(parents=True)
+                other = impl_scripts.parent.parent / '2.0.0/scripts'
+                other.mkdir(parents=True)
                 helper_path.rename(other / helper_path.name)
                 with self.assertRaisesRegex(ValueError, 'missing trusted review runtime asset'):
                     module.selected_controls(args, project, 'spec-reviewer-a')

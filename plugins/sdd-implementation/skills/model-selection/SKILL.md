@@ -2,6 +2,7 @@
 name: model-selection
 description: 新規対話セッションのメインとsdd-forgeの役割別モデル・推論設定を選択し、前回設定を確認する。起動時の案内、設定変更、モデル起動失敗後の再選択に使う。
 disable-model-invocation: false
+user-invocable: false
 ---
 
 # セッションのモデル選択

@@ -78,7 +78,8 @@ class Sessions(unittest.TestCase):
         jsonschema.validate(self.store.state('one'), json.loads((ROOT / 'contracts/session-model-selection.schema.json').read_text()))
 
     def test_expired_picker_refresh_preserves_pending_choices_and_requires_confirmation(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         state = self.store.state('one')
         state['catalog']['observed_at'] = '2000-01-01T00:00:00Z'
         m.write_json(self.store.path('one'), state)
@@ -98,8 +99,10 @@ class Sessions(unittest.TestCase):
         self.assertEqual(m.begin(self.store, 'codex-cli', 'one', True)['status'], 'pending')
 
     def test_refresh_rejects_retired_effort_without_substitution(self):
-        self.configure(); m.confirm(self.store, 'one', True)
-        changed = catalog(); changed['models'][0]['efforts'] = ['low']
+        self.configure()
+        m.confirm(self.store, 'one', True)
+        changed = catalog()
+        changed['models'][0]['efforts'] = ['low']
         with patch.object(m, 'discover', return_value=changed):
             m.begin(self.store, 'codex-cli', 'one', True)
         with self.assertRaises(m.SelectionError):
@@ -120,7 +123,8 @@ class Sessions(unittest.TestCase):
         schema = json.loads((ROOT / 'contracts/session-model-selection.schema.json').read_text())
         jsonschema.Draft202012Validator.check_schema(schema)
         jsonschema.validate(self.store.state('one'), schema)
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         jsonschema.validate(self.store.state('one'), schema)
         jsonschema.validate(self.store.profile(), schema)
 
@@ -136,7 +140,8 @@ class Sessions(unittest.TestCase):
         executable = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
         if not executable:
             self.skipTest('PowerShell not configured')
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         result = subprocess.run([executable, '-NoProfile', '-File',
                                  str(ROOT / 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1'),
                                  '--model-session', 'one', '--model-config-home', str(self.base / 'private'),
@@ -157,13 +162,15 @@ class Sessions(unittest.TestCase):
         self.configure()
         with self.assertRaises(m.SelectionError):
             m.confirm(self.store, 'one')
-        state = self.store.state('one'); state['roles']['evaluator'] = None
+        state = self.store.state('one')
+        state['roles']['evaluator'] = None
         m.write_json(self.store.path('one'), state)
         with self.assertRaises(m.SelectionError):
             m.confirm(self.store, 'one', True)
 
     def test_previous_preferences_are_not_session_confirmation(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         second = m.begin(self.store, 'codex-cli', 'two')
         self.assertEqual(second['main']['model'], 'fixture-gpt')
         self.assertEqual(second['status'], 'pending')
@@ -171,7 +178,8 @@ class Sessions(unittest.TestCase):
         self.assertEqual(m.selection(self.store, 'two', 'evaluator')['model'], 'fixture-gpt')
 
     def test_separate_cli_main_does_not_overwrite_prior_main(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         m.begin(self.store, 'claude-code', 'claude')
         m.set_choice(self.store, 'claude', 'main', 'claude-code', 'sonnet', None)
         m.confirm(self.store, 'claude', True)
@@ -180,7 +188,8 @@ class Sessions(unittest.TestCase):
     def test_unknown_and_nonselectable_candidates_are_rejected(self):
         with self.assertRaises(m.SelectionError):
             m.set_choice(self.store, 'one', 'main', 'codex-cli', 'unknown', None)
-        state = self.store.state('one'); state['catalog']['models'][0]['selectable'] = False
+        state = self.store.state('one')
+        state['catalog']['models'][0]['selectable'] = False
         m.write_json(self.store.path('one'), state)
         with self.assertRaises(m.SelectionError):
             m.set_choice(self.store, 'one', 'main', 'codex-cli', 'fixture-gpt', None)
@@ -190,7 +199,8 @@ class Sessions(unittest.TestCase):
             m.set_choice(self.store, 'one', 'investigator', 'gemini-cli', 'flash', 'high')
 
     def test_edit_invalidates_confirmation(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         m.set_choice(self.store, 'one', 'evaluator', 'codex-cli', 'fixture-gpt', 'low')
         with self.assertRaises(m.SelectionError):
             m.selection(self.store, 'one', 'evaluator')
@@ -201,15 +211,18 @@ class Sessions(unittest.TestCase):
                 m.set_choice(self.store, 'one', role, host, name, None)
 
     def test_new_catalog_rechecks_saved_model(self):
-        self.configure(); m.confirm(self.store, 'one', True)
-        changed = catalog(); changed['models'] = changed['models'][1:]
+        self.configure()
+        m.confirm(self.store, 'one', True)
+        changed = catalog()
+        changed['models'] = changed['models'][1:]
         with patch.object(m, 'discover', return_value=changed):
             m.begin(self.store, 'codex-cli', 'two')
         with self.assertRaises(m.SelectionError):
             m.confirm(self.store, 'two', True)
 
     def test_begin_is_idempotent_but_refresh_invalidates_confirmation(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         self.assertEqual(m.begin(self.store, 'codex-cli', 'one')['status'], 'confirmed')
         self.assertEqual(m.begin(self.store, 'codex-cli', 'one', True)['status'], 'pending')
 
@@ -226,7 +239,8 @@ class Sessions(unittest.TestCase):
         m.set_choice(self.store, 'one', 'investigator', 'gemini-cli', 'gemini-custom', None)
 
     def test_cancel_blocks_configuration_and_confirmation(self):
-        state = self.store.state('one'); state['status'] = 'cancelled'
+        state = self.store.state('one')
+        state['status'] = 'cancelled'
         m.write_json(self.store.path('one'), state)
         with self.assertRaises(m.SelectionError):
             m.confirm(self.store, 'one', True)
@@ -234,7 +248,8 @@ class Sessions(unittest.TestCase):
             m.set_choice(self.store, 'one', 'main', 'codex-cli', 'fixture-gpt', None)
 
     def test_malformed_confirmation_and_catalog_fail_closed(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         state = self.store.state('one')
         original = json.loads(json.dumps(state))
         state['confirmed_at'] = None
@@ -262,14 +277,16 @@ class Sessions(unittest.TestCase):
             self.store.path('../escape')
 
     def test_project_isolation(self):
-        other = self.base / 'other'; other.mkdir()
+        other = self.base / 'other'
+        other.mkdir()
         second = m.Store(other, self.base / 'private')
         self.assertNotEqual(self.store.root, second.root)
         self.assertFalse(second.path('one').exists())
 
     @unittest.skipIf(os.name == 'nt', 'symlink permissions vary on Windows')
     def test_profile_symlink_is_never_overwritten(self):
-        outside = self.base / 'outside'; outside.write_text('{}')
+        outside = self.base / 'outside'
+        outside.write_text('{}')
         self.store.profile_path.symlink_to(outside)
         with self.assertRaises(m.SelectionError):
             self.store.profile()
@@ -281,7 +298,8 @@ class Sessions(unittest.TestCase):
             self.store.profile()
 
     def test_request_bridge_preserves_observation_and_requires_host_match(self):
-        self.configure(); m.confirm(self.store, 'one', True)
+        self.configure()
+        m.confirm(self.store, 'one', True)
         request = {'role': 'investigator', 'host': 'codex-cli', 'policy_path': 'policy.json',
                    'cli': {'model_id': None, 'policy': None}, 'requested_effort': None,
                    'observation_path': 'original-observation.json'}
@@ -304,11 +322,14 @@ class Sessions(unittest.TestCase):
 class VersionedPanelists(unittest.TestCase):
     def test_wrappers_and_return_path_use_matching_plugin_version(self):
         with tempfile.TemporaryDirectory() as folder:
-            base = Path(folder); project = base / 'project'; project.mkdir()
+            base = Path(folder)
+            project = base / 'project'
+            project.mkdir()
             cache = base / 'cache/sdd-plugins'
             impl = cache / 'sdd-implementation/1.23.1/scripts'
             quality = cache / 'sdd-quality-loop/1.23.1/scripts'
-            impl.mkdir(parents=True); (quality / 'lib').mkdir(parents=True)
+            impl.mkdir(parents=True)
+            (quality / 'lib').mkdir(parents=True)
             for name in ('session-models.py', 'session-panelist.py'):
                 shutil.copyfile(SCRIPTS / name, impl / name)
             shutil.copyfile(ROOT / 'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1', quality / 'lib/native-arguments.ps1')
@@ -423,7 +444,8 @@ class GeminiInstaller(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder)
             env = self.payload.scenario_env(base)
-            binary = base / 'bin'; binary.mkdir()
+            binary = base / 'bin'
+            binary.mkdir()
             log = base / 'gemini-log.jsonl'
             fake = binary / 'gemini'
             fake.write_text('#!' + sys.executable + '\nimport json,os,sys\nwith open(os.environ["GEMINI_TEST_LOG"],"a") as f: f.write(json.dumps(sys.argv[1:])+"\\n")\n')

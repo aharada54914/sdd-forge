@@ -697,7 +697,18 @@ IMPLEMENTER_RECORDER = 'tests/fixtures/model-policy-installed/recording-implemen
 SHIP_CALLER = 'plugins/sdd-ship/skills/ship/SKILL.md'
 
 
-MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS])
+SESSION_RUNTIME = [
+    'plugins/sdd-implementation/scripts/session-models.py',
+    'plugins/sdd-implementation/scripts/model-discovery.py',
+    'plugins/sdd-implementation/scripts/session-model-start.py',
+    'plugins/sdd-implementation/scripts/session-panelist.py',
+    'plugins/sdd-implementation/skills/model-selection/SKILL.md',
+    'plugins/sdd-implementation/gemini/gemini-extension.json',
+    'plugins/sdd-implementation/hooks/claude-hooks.json',
+    'plugins/sdd-implementation/hooks/codex-hooks.json',
+    'plugins/sdd-implementation/gemini/hooks/hooks.json',
+]
+MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS, *SESSION_RUNTIME])
 # Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
 # installs prove this minimal package satisfies the actual installer contract.
 INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json', *CODEX,

@@ -3,7 +3,6 @@
 import importlib.util
 import json
 from pathlib import Path
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -18,7 +17,8 @@ spec.loader.exec_module(d)
 class Discovery(unittest.TestCase):
     def client(self):
         p = patch.object(d, 'NativeClient')
-        factory = p.start(); self.addCleanup(p.stop)
+        factory = p.start()
+        self.addCleanup(p.stop)
         return factory.return_value.__enter__.return_value
 
     def test_codex_uses_existing_subscription_and_paginates_visible_models(self):
@@ -40,7 +40,8 @@ class Discovery(unittest.TestCase):
         self.assertNotIn('PRIVATE', json.dumps(rows))
 
     def test_codex_auth_failure_and_cursor_cycle_do_not_return_partial_list(self):
-        client = self.client(); client.request.side_effect = [{}, {'account': None}]
+        client = self.client()
+        client.request.side_effect = [{}, {'account': None}]
         with self.assertRaisesRegex(d.DiscoveryError, 'authentication'):
             d.codex('codex', '.')
         client.request.side_effect = [{}, {'account': {'type': 'apiKey'}},
