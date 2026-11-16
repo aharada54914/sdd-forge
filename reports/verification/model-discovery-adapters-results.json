@@ -1,0 +1,86 @@
+{
+  "schema": "native-model-discovery-verification/v1",
+  "date": "2026-11-15",
+  "timezone": "Asia/Tokyo",
+  "scope": "native catalog discovery without inference; Claude interactive picker and pending choice",
+  "versions": {
+    "claude": "2.1.325",
+    "gemini": "0.68.0",
+    "node": "24.19.0"
+  },
+  "providers": {
+    "claude-code": {
+      "status": "listed",
+      "auth_mode": "api-key",
+      "model_count": 5,
+      "effort_values": [
+        "high",
+        "low",
+        "max",
+        "medium",
+        "xhigh"
+      ]
+    },
+    "codex-cli": {
+      "status": "listed",
+      "auth_mode": "subscription",
+      "model_count": 8,
+      "effort_values": [
+        "high",
+        "low",
+        "max",
+        "medium",
+        "ultra",
+        "xhigh"
+      ]
+    },
+    "gemini-cli": {
+      "status": "listed",
+      "auth_mode": "cli-managed",
+      "model_count": 6,
+      "effort_values": []
+    }
+  },
+  "tests": {
+    "session_models": {
+      "passed": 42,
+      "skipped": 0
+    },
+    "model_discovery": {
+      "passed": 11,
+      "skipped": 0
+    },
+    "codex_review_launcher": {
+      "passed": 20,
+      "skipped": 1
+    },
+    "verification_catalog": {
+      "passed": 14,
+      "skipped": 1
+    },
+    "installer_payload_bash": {
+      "passed": 9,
+      "skipped": 4
+    }
+  },
+  "claude_interactive": {
+    "providers_observed": 3,
+    "model_rows_observed": 19,
+    "selected_main": {
+      "model": "sonnet",
+      "effort": "medium"
+    },
+    "state_after_choice": "pending",
+    "unselected_roles": 17,
+    "delegation_performed": false,
+    "full_json_parse_recheck": "passed after skill/output correction"
+  },
+  "limitations": [
+    "Gemini ACP exposes no per-model effort choices; CLI default only",
+    "Native list is CLI-scoped, not inference entitlement or backend identity proof",
+    "No new native role-launch admission or effort carrier was added",
+    "Live Claude OAuth discovery and Gemini OAuth discovery were not tested; existing native auth handling is used"
+  ],
+  "raw_credentials_saved": false,
+  "private_evidence": "verification-workspace/native-session-models/auth-resume"
+}

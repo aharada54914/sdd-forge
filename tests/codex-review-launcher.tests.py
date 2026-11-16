@@ -20,7 +20,8 @@ spec.loader.exec_module(module)
 
 class LaunchTests(unittest.TestCase):
     def run_case(self, *, reserve_ok=True, mutate=False, identity_bad=False, profile_bad=False,
-                 output_bad=False, event_bad=False, timeout=False, path_escape=False, quality=False, no_inspection=False):
+                 output_bad=False, event_bad=False, timeout=False, path_escape=False, quality=False, no_inspection=False,
+                 selected_model=None, selected_effort=None, model_bad=False, effort_bad=False):
         calls = []
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
@@ -39,7 +40,7 @@ class LaunchTests(unittest.TestCase):
             args = SimpleNamespace(repository_root=root, invocation=invocation,
                 manifest_sha256=module.sha(invocation), output=root / 'output',
                 codex='/bin/true', fixed_input_record=None, fixed_input_snapshot=None,
-                runtime='bash', timeout=10)
+                runtime='bash', timeout=10, selected_model=selected_model, selected_effort=selected_effort)
             if path_escape:
                 args.output = root / '..' / ('escape-' + root.name)
             class FakeRpc:
@@ -52,11 +53,20 @@ class LaunchTests(unittest.TestCase):
                         return {'config': {'mcp_servers': {}, 'features': dict.fromkeys(
                             ('plugins', 'apps', 'hooks', 'multi_agent'), False), 'web_search': 'disabled'}}
                     if method == 'thread/start':
-                        return {'thread': {'id': 'host-allocated', 'turns': [1] if identity_bad else [],
+                        if selected_model:
+                            assert params['model'] == selected_model
+                        if selected_effort:
+                            assert params['config']['model_reasoning_effort'] == selected_effort
+                        return {'model': 'different' if model_bad else selected_model,
+                                'reasoningEffort': 'different' if effort_bad else selected_effort, 'thread': {'id': 'host-allocated', 'turns': [1] if identity_bad else [],
                                            'status': {'type': 'idle'},
                                            'environments': [{'environmentId': 'local', 'cwd': self.cwd}]},
                                 'activePermissionProfile': {'id': 'wrong' if profile_bad else module.PROFILE}}
                     if method == 'turn/start':
+                        if selected_model:
+                            assert params['model'] == selected_model
+                        if selected_effort:
+                            assert params['effort'] == selected_effort
                         self.events = [{'method': 'item/completed', 'params': {
                             'threadId': 'wrong' if event_bad else 'host-allocated', 'turnId': 'turn-1',
                             'item': {'type': 'agentMessage', 'text': json.dumps({
@@ -119,7 +129,7 @@ class LaunchTests(unittest.TestCase):
                  patch.object(module.launcher, 'checked_input_paths'), \
                  patch.object(module.preflight, 'preflight'), \
                  patch.object(module.subprocess, 'run', side_effect=reserve):
-                failed = not reserve_ok or mutate or identity_bad or profile_bad or output_bad or event_bad or timeout or path_escape or no_inspection
+                failed = not reserve_ok or mutate or identity_bad or profile_bad or output_bad or event_bad or timeout or path_escape or no_inspection or model_bad or effort_bad
                 if failed:
                     with self.assertRaises((ValueError, TimeoutError)):
                         module.launch(args)
@@ -134,6 +144,24 @@ class LaunchTests(unittest.TestCase):
             if calls:
                 self.assertEqual(calls[-1], 'close')
             return calls
+
+    def test_selected_model_and_effort_reach_native_thread_and_turn(self):
+        calls = self.run_case(selected_model='fixture-model', selected_effort='high')
+        self.assertLess(calls.index('reserve'), calls.index('turn/start'))
+
+    def test_model_mismatch_stops_before_reservation_or_work(self):
+        calls = self.run_case(selected_model='fixture-model', model_bad=True)
+        self.assertNotIn('reserve', calls)
+        self.assertNotIn('turn/start', calls)
+
+    def test_effort_mismatch_stops_before_reservation_or_work(self):
+        calls = self.run_case(selected_model='fixture-model', selected_effort='high', effort_bad=True)
+        self.assertNotIn('reserve', calls)
+        self.assertNotIn('turn/start', calls)
+
+    def test_effort_without_model_is_rejected(self):
+        with self.assertRaises(ValueError):
+            module.selected_controls(SimpleNamespace(selected_effort='high'), ROOT, 'spec-reviewer-a')
 
     def test_quality_delivery_reserves_before_model(self):
         calls = self.run_case(quality=True)
@@ -224,6 +252,41 @@ class LaunchTests(unittest.TestCase):
             else:
                 result['manifest'] = {'allowed_inputs': []}
             module.check_result(result, data)
+
+    def test_session_preferences_resolve_same_versioned_plugin_release(self):
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            cache = base / 'cache/sdd-plugins'
+            version = '1.23.1'
+            review_scripts = cache / 'sdd-review-loop' / version / 'scripts'
+            impl_scripts = cache / 'sdd-implementation' / version / 'scripts'
+            impl_scripts.mkdir(parents=True)
+            helper_path = impl_scripts / 'session-models.py'
+            shutil.copyfile(ROOT / 'plugins/sdd-implementation/scripts/session-models.py', helper_path)
+            helper = module.module('versioned_session_fixture', helper_path)
+            project = base / 'project'
+            project.mkdir()
+            store = helper.Store(project, base / 'private')
+            item = {'host': 'codex-cli', 'model': 'fixture-native', 'effort': 'high'}
+            catalog = {'observed_at': helper.now(), 'providers': {h: {'installed': True,
+                'status': 'listed', 'reason': 'fixture'} for h in helper.HOSTS}, 'models': [
+                {'host': 'codex-cli', 'model': 'fixture-native', 'efforts': ['high'],
+                 'source': 'fixture', 'verification': 'listed', 'selectable': True}]}
+            roles = {r: {'disabled': True} for r in helper.ROLES}
+            roles['spec-reviewer-a'] = item
+            helper.write_json(store.path('session'), {'schema': 'session-model-selection/v1',
+                'project_id': store.project_id, 'session_id': 'session', 'host': 'codex-cli',
+                'status': 'confirmed', 'catalog': catalog, 'main': item, 'roles': roles,
+                'confirmed_at': helper.now()})
+            args = SimpleNamespace(model_session='session', model_config_home=base / 'private')
+            with patch.object(module, '__file__', str(review_scripts / 'launch-codex-review.py')), \
+                    patch.object(module.transport, '__file__', str(review_scripts / 'validate-nontty-spec-launch.py')):
+                self.assertEqual(module.selected_controls(args, project, 'spec-reviewer-a'), ('fixture-native', 'high'))
+                other = impl_scripts.parent.parent / '2.0.0/scripts'
+                other.mkdir(parents=True)
+                helper_path.rename(other / helper_path.name)
+                with self.assertRaisesRegex(ValueError, 'missing trusted review runtime asset'):
+                    module.selected_controls(args, project, 'spec-reviewer-a')
 
     def test_runtime_asset_does_not_use_reviewed_project(self):
         self.assertEqual(module.transport.plugin_file('plugins/sdd-quality-loop/scripts/validate-review-context-set.sh'),

@@ -1,0 +1,494 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/session-model-selection.schema.json",
+  "title": "Private project preferences and confirmed session model selection",
+  "$defs": {
+    "choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host",
+        "model",
+        "effort"
+      ],
+      "properties": {
+        "host": {
+          "enum": [
+            "claude-code",
+            "codex-cli",
+            "gemini-cli"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/\\[\\]-]{0,127}$"
+        },
+        "effort": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!default$)[a-z][a-z0-9_-]{0,31}$"
+            }
+          ]
+        }
+      }
+    },
+    "disabled": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disabled"
+      ],
+      "properties": {
+        "disabled": {
+          "const": true
+        }
+      }
+    },
+    "roleChoice": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/choice"
+        },
+        {
+          "$ref": "#/$defs/disabled"
+        }
+      ]
+    },
+    "pendingRoleChoice": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/roleChoice"
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project_id",
+        "mains",
+        "roles"
+      ],
+      "properties": {
+        "schema": {
+          "const": "session-model-preferences/v1"
+        },
+        "project_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mains": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "claude-code": {
+              "$ref": "#/$defs/choice"
+            },
+            "codex-cli": {
+              "$ref": "#/$defs/choice"
+            },
+            "gemini-cli": {
+              "$ref": "#/$defs/choice"
+            }
+          }
+        },
+        "roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "implementer": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "investigator": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "spec-reviewer-a": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "spec-reviewer-b": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "impl-reviewer-a": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "impl-reviewer-b": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "task-reviewer-a": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "task-reviewer-b": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "evaluator": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "domain-reviewer-a": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "domain-reviewer-b": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "workflow-auditor-a": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "workflow-auditor-b": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "diagnosis": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "self-improvement": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "panelist-gpt": {
+              "$ref": "#/$defs/roleChoice"
+            },
+            "panelist-gemini": {
+              "$ref": "#/$defs/roleChoice"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "project_id",
+        "session_id",
+        "host",
+        "status",
+        "catalog",
+        "main",
+        "roles",
+        "confirmed_at"
+      ],
+      "properties": {
+        "schema": {
+          "const": "session-model-selection/v1"
+        },
+        "project_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+        },
+        "host": {
+          "enum": [
+            "claude-code",
+            "codex-cli",
+            "gemini-cli"
+          ]
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "confirmed",
+            "cancelled"
+          ]
+        },
+        "catalog": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "observed_at",
+            "providers",
+            "models"
+          ],
+          "properties": {
+            "observed_at": {
+              "type": "string"
+            },
+            "providers": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "claude-code",
+                "codex-cli",
+                "gemini-cli"
+              ],
+              "properties": {
+                "claude-code": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "installed",
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "listed",
+                        "unverified",
+                        "unavailable"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "auth_mode": {
+                      "enum": [
+                        "unknown",
+                        "api-key",
+                        "oauth",
+                        "subscription",
+                        "external",
+                        "cli-managed"
+                      ],
+                      "description": "CLI-reported authentication route; cli-managed means the CLI chooses its existing auth and billing route, not inferred subscription access."
+                    }
+                  }
+                },
+                "codex-cli": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "installed",
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "listed",
+                        "unverified",
+                        "unavailable"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "auth_mode": {
+                      "enum": [
+                        "unknown",
+                        "api-key",
+                        "oauth",
+                        "subscription",
+                        "external",
+                        "cli-managed"
+                      ],
+                      "description": "CLI-reported authentication route; cli-managed means the CLI chooses its existing auth and billing route, not inferred subscription access."
+                    }
+                  }
+                },
+                "gemini-cli": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "installed",
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "listed",
+                        "unverified",
+                        "unavailable"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "auth_mode": {
+                      "enum": [
+                        "unknown",
+                        "api-key",
+                        "oauth",
+                        "subscription",
+                        "external",
+                        "cli-managed"
+                      ],
+                      "description": "CLI-reported authentication route; cli-managed means the CLI chooses its existing auth and billing route, not inferred subscription access."
+                    }
+                  }
+                }
+              }
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "host",
+                  "model",
+                  "efforts",
+                  "source",
+                  "verification",
+                  "selectable"
+                ],
+                "properties": {
+                  "host": {
+                    "enum": [
+                      "claude-code",
+                      "codex-cli",
+                      "gemini-cli"
+                    ]
+                  },
+                  "model": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/\\[\\]-]{0,127}$"
+                  },
+                  "efforts": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^(?!default$)[a-z][a-z0-9_-]{0,31}$"
+                    },
+                    "description": "Per-model values returned by the native discovery adapter. Launch adapters retain their own supported-value checks. Empty means no selectable effort was exposed."
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "verification": {
+                    "enum": [
+                      "listed",
+                      "unverified"
+                    ]
+                  },
+                  "selectable": {
+                    "type": "boolean"
+                  },
+                  "display_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "default_effort": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^(?!default$)[a-z][a-z0-9_-]{0,31}$"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "main": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/choice"
+            }
+          ]
+        },
+        "roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "implementer",
+            "investigator",
+            "spec-reviewer-a",
+            "spec-reviewer-b",
+            "impl-reviewer-a",
+            "impl-reviewer-b",
+            "task-reviewer-a",
+            "task-reviewer-b",
+            "evaluator",
+            "domain-reviewer-a",
+            "domain-reviewer-b",
+            "workflow-auditor-a",
+            "workflow-auditor-b",
+            "diagnosis",
+            "self-improvement",
+            "panelist-gpt",
+            "panelist-gemini"
+          ],
+          "properties": {
+            "implementer": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "investigator": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "spec-reviewer-a": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "spec-reviewer-b": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "impl-reviewer-a": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "impl-reviewer-b": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "task-reviewer-a": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "task-reviewer-b": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "evaluator": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "domain-reviewer-a": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "domain-reviewer-b": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "workflow-auditor-a": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "workflow-auditor-b": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "diagnosis": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "self-improvement": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "panelist-gpt": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            },
+            "panelist-gemini": {
+              "$ref": "#/$defs/pendingRoleChoice"
+            }
+          }
+        },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/session-model-start.py\" --host codex-cli",
+            "timeout": 10,
+            "command_windows": "python \"${CLAUDE_PLUGIN_ROOT}\\scripts\\session-model-start.py\" --host codex-cli"
+          }
+        ]
+      }
+    ]
+  }
+}

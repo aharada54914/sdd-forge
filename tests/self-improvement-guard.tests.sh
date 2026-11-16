@@ -450,7 +450,7 @@ assert '        if:' not in action, 'action must retain the default success() ga
 assert "vars.SDD_SELF_IMPROVEMENT_REQUEST == '' && '--model claude-sonnet-5'" in action
 assert "format('--model {0} --effort {1} --session-id {2}', steps.managed_self_improvement.outputs.model, steps.managed_self_improvement.outputs.effort, steps.managed_self_improvement.outputs.session_id)" in action
 assert 'path_to_claude_code_executable: ${{ steps.managed_self_improvement.outputs.executable }}' in action
-assert 'anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6' in action
+assert 'anthropics/claude-code-action@c0949c50a78c1ec8ce2647db36629b870e715d0c' in action
 script = '\n'.join(line[10:] for line in prepare.split('        run: |\n', 1)[1].splitlines())
 with tempfile.TemporaryDirectory(prefix='self-improvement-route-') as temporary:
     root = Path(temporary)

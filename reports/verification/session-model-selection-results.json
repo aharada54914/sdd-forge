@@ -1,0 +1,75 @@
+{
+  "schema": "session-model-development-verification/v1",
+  "date": "2026-11-15",
+  "workflow": "user-authorized Work development; no consumer SDD gate verdict",
+  "checks": {
+    "session_models": {
+      "passed": 40,
+      "failed": 0
+    },
+    "codex_review_launcher": {
+      "passed": 20,
+      "skipped": 1
+    },
+    "model_policy": {
+      "passed": 62
+    },
+    "model_policy_launch": {
+      "passed": 57
+    },
+    "selector_package": {
+      "passed": 8
+    },
+    "verification_catalog": {
+      "passed": 14,
+      "skipped": 1
+    },
+    "installer_bash": {
+      "passed_assertions": 79
+    },
+    "install_uninstall_matrix": {
+      "passed_assertions": 20
+    },
+    "uninstaller_bash": {
+      "passed_assertions": 25
+    },
+    "installer_idempotency": {
+      "passed_assertions": 7
+    },
+    "cross_model_bash": {
+      "passed_assertions": 84
+    },
+    "syntax": [
+      "Python",
+      "Bash",
+      "PowerShell"
+    ],
+    "diff_check": "passed",
+    "ship_track_migration": {
+      "passed_assertions": 164
+    },
+    "mirror_freshness": "passed; frozen predecessors preserved"
+  },
+  "live_discovery": {
+    "cwd": "isolated verification workspace",
+    "codex_listed_models": 11,
+    "claude_cli_installed": false,
+    "gemini_cli_installed": false,
+    "inference_called": false,
+    "proves": "model listing only"
+  },
+  "not_verified": [
+    "real Claude/Gemini startup and inference",
+    "native main-model switch",
+    "actual backend delivery identity",
+    "opt-in native reviewer permission canary"
+  ],
+  "independent_review": {
+    "reviewer": "/root/design_review",
+    "final_targeted_findings": {
+      "critical": 0,
+      "major": 0
+    },
+    "consumer_sdd_verdict": false
+  }
+}

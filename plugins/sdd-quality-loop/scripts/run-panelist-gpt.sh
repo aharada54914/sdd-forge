@@ -56,6 +56,23 @@
 
 # Shared collection-layer helpers (timeout/arg validation, bounded runner).
 _script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+# Explicit session preferences retain the original collection, consent and result validation.
+for _session_arg in "$@"; do
+    if [ "$_session_arg" = --model-session ]; then
+        _session_owner="$(dirname "$_script_dir")"
+        _session_version="${_session_owner##*/}"
+        _session_driver="$_session_owner/../sdd-implementation/scripts/session-panelist.py"
+        if [ "$_session_version" != sdd-quality-loop ]; then
+            _session_driver="$_session_owner/../../sdd-implementation/$_session_version/scripts/session-panelist.py"
+        fi
+        if [ ! -f "$_session_driver" ] || [ -L "$_session_driver" ]; then
+            printf 'SESSION_MODEL_SELECTION_REQUIRED: matching plugin release is unavailable\n' >&2
+            exit 2
+        fi
+        exec python3 "$_session_driver" \
+            --vendor gpt --shell bash "$@"
+    fi
+done
 # Selected-control runs are owned by the shared Python driver (validation, typed errors).
 for _selected_arg in "$@"; do
     case "$_selected_arg" in
