@@ -120,3 +120,17 @@ Optional live helpers are `tests/session-hub-production.mjs` (protected JSON std
 requires existing Site credentials and writes labeled test records) and
 `tests/session-hub-native-push.mjs` (native scratch-thread lifecycle).
 Neither helper is part of routine offline CI and neither requests or persists new keys.
+
+
+## Header navigation follow-up — 2026-11-16 JST
+
+The deployed Site initially preserved an older status page without the hub link.
+Site-source commit `da51089c287531519189e45d17f041db7e437e57` adds a visible
+**質問窓口** link in its header. Deployment
+`appgdep_6afa3e7fbcc4819183df9be3dd6fdc61` succeeded with saved version
+`appgprj_6aecf6e64d708191a9b516463b5daac3~appgver_ab63969fd494819189c5180fa1498977`.
+The repository's shared page now uses the same label/button treatment, and the
+Site Worker exposes it immediately when SDD_HUB_PROJECT is configured rather
+than waiting for a successful asynchronous hub read. Local-only and unconfigured
+surfaces retain the availability check. Build and actual generated Worker checks
+confirm the link points to `/hub` and is visible for a configured Site.

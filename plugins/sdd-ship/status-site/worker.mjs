@@ -68,7 +68,7 @@ export default {
     if (!viewer && !isPublisher) return json({ error: 'authentication-required' }, 401);
     const origin = request.headers.get('origin');
     if (origin && origin !== url.origin) return json({ error: 'origin-denied' }, 403);
-    if (request.method === 'GET' && url.pathname === '/') return new Response(page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'self'" } });
+    if (request.method === 'GET' && url.pathname === '/') return new Response(env.SDD_HUB_PROJECT ? page.replace('id="hub-link" class="refresh" hidden','id="hub-link" class="refresh"') : page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'self'" } });
     if (!env.BUCKET) return json({ error: 'storage-unavailable' }, 503);
     if (url.pathname === '/api/health') {
       if (request.method === 'GET') {
