@@ -1,6 +1,7 @@
 // Served only behind the private Sites access policy. No workflow write endpoint.
 __DECISION_CODE__
 const page = __DASHBOARD_PAGE__;
+__HUB_CODE__
 const MAX_BYTES = 2 * 1024 * 1024;
 const headers = { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
 const json = (value, status = 200) => Response.json(value, { status, headers });
@@ -62,12 +63,14 @@ async function boundedBody(request) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const hubResponse = await hub.handleHostedHub(request,env,hubAssets);
+    if (hubResponse) return hubResponse;
     const isPublisher = await publisher(request, env);
     const viewer = request.headers.get('oai-authenticated-user-id');
     if (!viewer && !isPublisher) return json({ error: 'authentication-required' }, 401);
     const origin = request.headers.get('origin');
     if (origin && origin !== url.origin) return json({ error: 'origin-denied' }, 403);
-    if (request.method === 'GET' && url.pathname === '/') return new Response(page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'self'" } });
+    if (request.method === 'GET' && url.pathname === '/') return new Response(env.SDD_HUB_PROJECT ? page.replace('id="hub-link" class="refresh" hidden','id="hub-link" class="refresh"') : page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'self'" } });
     if (!env.BUCKET) return json({ error: 'storage-unavailable' }, 503);
     if (url.pathname === '/api/health') {
       if (request.method === 'GET') {

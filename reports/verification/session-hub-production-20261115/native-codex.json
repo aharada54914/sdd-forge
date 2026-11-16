@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "exactMessageVerified": true,
+  "scope": "native Codex existing-thread input delivery",
+  "threadId": "01a1e152-9c7c-7e91-9f53-c1c5365d14bd",
+  "turnId": "01a1e152-9e50-7611-9d28-c8f60b2a23c1",
+  "messagePersisted": true,
+  "turnStatus": "failed",
+  "modelCompletionVerified": false,
+  "errorCode": "unauthorized"
+}
