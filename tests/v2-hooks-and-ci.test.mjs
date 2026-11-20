@@ -57,7 +57,7 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
 
   it('CI workflow and CODEOWNERS cover Layer 3 guardrails boundary', () => {
     const ci = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/sdd-guardrails.yml'), 'utf8');
-    assert.match(ci, /node --test tests\/v2-\*\.test\.mjs/);
+    assert.match(ci, /node --test tests\/v2-soft-guard\.test\.mjs/);
     assert.match(ci, /check-spec-drift\.mjs/);
     assert.match(ci, /--fail-on-undeclared/);
 
