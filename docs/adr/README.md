@@ -272,4 +272,4 @@ must never rely on a bare legacy number.
 | 0048 | [Shared schema validation runtime](0048-shared-schema-runtime.md) | Accepted |
 | 0049 | [Verification feedback remains observational](0049-verification-feedback-observations.md) | Proposed |
 | 0050 | [Session model preferences without weakening launch admission](0050-session-model-preferences.md) | Accepted |
-| 0051 | [Lightweight Guardrails and SDD Core Consolidation](0051-lightweight-guardrails-and-sdd-core.md) | Proposed |
+| 0051 | [Lightweight Guardrails and SDD Core Consolidation](0051-lightweight-guardrails-and-sdd-core.md) | Accepted |

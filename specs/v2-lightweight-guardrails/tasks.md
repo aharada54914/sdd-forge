@@ -61,9 +61,9 @@ Risk: standard
 
 ---
 
-## T-004 Phase 3–4: SDD Full 廃止・フック切替・CI ガバナンス刷新（次フェーズ）
+## T-004 Phase 3–4: SDD Full 廃止・フック切替・CI ガバナンス刷新
 Approval: Draft
-Status: Planned
+Status: Implementation Complete
 Risk: high
 
 ### Scope

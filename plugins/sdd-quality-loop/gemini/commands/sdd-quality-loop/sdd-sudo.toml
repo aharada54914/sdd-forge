@@ -1,8 +1,0 @@
-description = "Display human-operated SDD sudo mode procedures and status boundaries (never creates or edits SDD_SUDO)."
-prompt = """
-Read and execute the skill instructions at `../skills/sdd-sudo/SKILL.md` (relative to this Gemini extension root).
-
-Arguments: {{args}}
-
-Remember: agents must never create, modify, or delete SDD_SUDO or read signing keys.
-"""

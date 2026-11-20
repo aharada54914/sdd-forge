@@ -1,6 +1,6 @@
 # ADR 0051: Lightweight Guardrails and SDD Core Consolidation
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-11-21
 

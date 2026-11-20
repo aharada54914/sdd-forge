@@ -1,372 +1,89 @@
 # SDD Forge
 
-v1.26.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI、Gemini CLI の 4 環境に対応します。
+v2.0.0 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Gemini CLI の 4 環境に対応します。
 
-外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
-[research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
-[調査・取得・原文照合・更新確認の手順](plugins/sdd-bootstrap/references/research-workflow.md)を参照してください。資料や引用の検証は、内容の真偽やタスク承認を自動確定しません。
-
-## クイックスタート（2コマンド）
+## クイックスタート（2 コマンド）
 
 ```bash
-# Step 1: 仕様化フェーズ — 要件から承認済みタスクまで
+# Step 1: 仕様化フェーズ（SDD Core 仕様生成 + 1パス統合レビュー）
 /sdd-bootstrap:bootstrap feature https://github.com/your-org/your-repo/issues/42
-# → 人間が tasks.md の Approval: Draft を Approval: Approved に変更
+# → 人間が specs/<feature>/tasks.md の Approval: Draft を Approval: Approved に変更
 
-# Step 2: 実装・品質保証フェーズ — 承認済みタスクから Done まで
+# Step 2: 実装・品質保証フェーズ（ベースライン固定 → 自律実装 → 統合 sdd-gate → Done）
 /sdd-ship:ship specs/<feature>/tasks.md
 ```
 
-> **lite トラック（限定された通常の不具合修正・社内アプリ向け）**: `/sdd-bootstrap:bootstrap feature --lite <source>` → `/sdd-ship:ship --lite specs/<feature>/tasks.md`
-> 通常の不具合修正は `/sdd-bootstrap:bootstrap bugfix --lite <source>` から開始できます。短い受け入れ条件を定め、実装後に一度の独立レビューと関連回帰を確認します。既存のリスク昇格と full プロファイルの保護は維持され、重大な変更や影響不明な変更を自動で Lite に降格しません。
+> **v2.0.0 での主な刷新（[ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md)）**:
+> - 重厚な **SDD Full**（3 連レビューループ・7 層仕様・外部鍵署名・224 ファイル物理ロック・7,247 行の 4 言語フック・カナリア儀式・ADR-0023 `ERROR_STOP`）と、軽すぎる **SDD Lite**（事前レビューゼロ）を廃止し、**単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ統合しました。
+> - **「Local Soft, Boundary Firm」** 設計により、ローカルでは AI の自律的な探索・テスト・実装を妨げず、承認済み仕様ファイルの意図しない改変（ゴールポスト移動）だけをソフトガード＋Spec Drift 検知＋PR/CI で確実に抑止します。
 
-
-### 全体の流れ
-
-```mermaid
-flowchart TD
-    A([Issue / 要件]) --> P1["仕様・設計<br/>sdd-bootstrap Phase 1"]
-    P1 --> R1{{"spec-review-loop<br/>仕様の独立レビュー"}}
-    R1 --> R2{{"impl-review-loop<br/>実装方針の独立レビュー"}}
-    R2 --> P2["タスク分解<br/>sdd-bootstrap Phase 2"]
-    P2 --> R3{{"task-review-loop<br/>タスク分解の独立レビュー"}}
-    R3 --> H[/"人間が承認<br/>Approval: Approved"/]
-    H --> I["実装<br/>sdd-implementation"]
-    I --> Q{{"品質ゲート<br/>sdd-quality-loop"}}
-    Q -->|指摘あり| X["fix-by-review-ticket"]
-    X --> Q
-    Q -->|全合格| Z([Done])
-```
-
-> 六角形は独立レビュー・ゲート、平行四辺形は人間の操作です。各レビューで `NEEDS_WORK` / `BLOCKED` となった場合は、人間が修正して再実行します。差し戻しを含む詳細な図は [開発フローガイド](docs/workflow-guide.md#全体フロー図-feature--fullstack) にあります。
-
-### どのトラックで始めるか
+## 全体の流れ（SDD Core 単一トラック）
 
 ```mermaid
 flowchart TD
-    S([始めたいこと]) --> N["新機能・リファクタ"]
-    S --> B["不具合の修正"]
-    S --> A["既存プロジェクトへの導入"]
-    A --> AD[/"/sdd-adopt を先に実行"/]
-    AD --> N
-    N --> F["Full（既定）<br/>bootstrap feature → ship"]
-    N -.->|"新機能が限定的な社内アプリ向け"| L["Lite<br/>bootstrap feature --lite → ship --lite<br/>lite-spec → 単一承認 → implement-task → lite-gate"]
-    B --> Q{"原因不明・再現困難<br/>回帰・性能退行?"}
-    Q -->|はい| D["diagnose<br/>診断 → lite-spec → 承認 → 実装 → lite-gate"]
-    Q -->|いいえ| BL["bootstrap bugfix --lite<br/>短い受け入れ条件・独立レビュー1回"]
+    A(["Issue / 要件"]) --> B["sdd-core-spec\nrequirements (REQ+AC) / design / tasks"]
+    B --> C{"spec-check\n1体・1パス統合レビュー\n(Risk: low は自動スキップ)"}
+    C -->|NEEDS_FIX| B
+    C -->|PASS / PASS_WITH_NOTES| H[/"人間が承認\nApproval: Approved"/]
+    H --> BL["record-spec-baseline.mjs\n仕様ハッシュ + REQ/AC を記録"]
+    BL --> I["自律実装\nimplement-task / implement-tasks\n(sdd-soft-guard.mjs が承認済み仕様のみ保護)"]
+    I --> G{"sdd-gate\nテスト再実行 + check-spec-drift + 独立レビュー1回"}
+    G -->|FAIL / UNDECLARED_DRIFT| I
+    G -->|PASS| Z(["Done → PR / CI sdd-guardrails"])
 ```
 
-> Project Context が `spec_profile: full` を宣言している場合、`--lite` は `ERROR_STOP` で停止します。重大な変更や影響不明な変更は自動で Lite に降格されません。判定の正本は [トラック選択契約（ADR-0023）](docs/workflow-guide.md#トラック選択契約adr-0023) です。
->
-> **Brownfield 既存プロジェクトへの導入**: 上記フローの前に `/sdd-adopt` を実行してください（[詳細](docs/workflow-guide.md)）。
->
-> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。上図参照。
+## 3 層ソフト・ガードレール（Lightweight Guardrails）
 
-## Getting Started
+| 層 | コンポーネント | 役割 |
+|---|---|---|
+| **Layer 1: 編集時ソフトガード** | `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs` | Node.js ESM 単一実装（4 環境対応）。① `AGENT_STOP` 緊急停止 ② `Approval: Approved` 自己追加抑止 ③ 承認済み仕様本文の編集検知（既定 `confirm`、`sdd/guardrails.yaml` で `warn`/`confirm`/`strict` 設定可）。`Bash` / `shell` / `run_shell_command` / `Read` 等は一切ブロックしません。 |
+| **Layer 2: Spec Drift 検知** | `record-spec-baseline.mjs` / `check-spec-drift.mjs` / `run-sdd-gate.mjs` | 外部署名鍵不要。承認時の仕様契約ハッシュ・`REQ-*` / `AC-*` と比較し、`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` を決定論的に判定（`tasks.md` の `Status:` 更新は誤検知なし）。 |
+| **Layer 3: マージ境界ガバナンス** | `.github/workflows/sdd-guardrails.yml` + `CODEOWNERS` | PR 上で自動テスト＋Spec Drift チェックを実行し、ガード・仕様変更に人間のレビューを強制します。 |
 
-プラグインのインストール手順は本ファイルの [インストール](#インストール) 節を、運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
-**初めての方は workflow-guide.md の正常系フローからお読みください。**
+### リスクレベル別の滑らかな伸縮
 
-調査・性能確認・隔離試作・引き継ぎには、bootstrap の用途別プレイブックと
-[判断資料](plugins/sdd-bootstrap/references/decision-packet.md)を利用できます。
-比較案の選択と、通常のタスク承認・品質ゲートは別に扱います。
+| リスク | 想定用途 | `spec-check`（着工前） | ソフトガード | `sdd-gate`（完了前） |
+|---|---|---|---|---|
+| **`low`** | 小規模バグ修正（`diagnose` 経由）、ドキュメント | 自動スキップ | `sdd/guardrails.yaml` 準拠 | テスト・プレースホルダー・Spec Drift 確認 |
+| **`standard`** *(既定)* | 通常の新機能・API/UI 追加・中規模変更 | **1 パス統合チェック** | **既定 `confirm`** | テスト + Spec Drift + AC 突合 + 独立レビュー 1 回 |
+| **`high`** | 認証/認可・決済・PII・DB 移行・破壊的契約変更 | **1 パス統合チェック（厳格項目）** + 任意 ADR | `confirm` / `strict` | 上記 + セキュリティ・回帰・ロールバック確認 + PR CODEOWNERS |
 
-### Azure / AWS のクラウド操作
-
-Azure Bicep と AWS CDK / CloudFormation の専用プラグインは、明示指定で導入します。
-レビュー済みの checkout で次を実行してください。
-
-```bash
-bash install.sh --source-directory "$PWD" --target Codex --plugins sdd-azure-cloud,sdd-aws-cloud
-```
-
-既存の `sdd-plugins` marketplace が別の場所を指している場合、導入はエラーで停止します。
-登録先を確認し、対象ホストの marketplace 登録をインストール先へ変更して再実行してください。
-ソース checkout の直接登録では、クラウドプラグインに必要な共有 runtime が配置されません。
-
-入口は `/sdd-azure-cloud:orchestrate` / `/sdd-aws-cloud:orchestrate` です。
-共有 runtime はこのリポジトリのインストーラーが組み立てるため、marketplace だけの直接導入では動作しません。
-既定の bootstrap / ship の導入構成は変わりません。
-
-ローカルの `route` / `plan` / `validate` と、保護された CI の `prepare` / `apply` は権限が異なります。
-実クラウドの受入 TEST-003/005/009 は sandbox 未提供のため BLOCKED のままです。
-現在のツール固定値は Linux x64 用で、Windows の導入成功はクラウド実行対応を意味しません。
-使う前に [クラウド対応ガイド](docs/cloud/README.md)と
-[実行契約・導入・復旧手順](docs/cloud-orchestration.md)を確認してください。
-
-`install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
-
-### MCP サーバー
-
-MCP サーバーが提供する情報は SDD ワークフローに対して常に **助言的（advisory）** です。エージェントは各 tool の応答を判断材料として利用します。ただし、その応答によって `tasks.md` の Approval / Status 判定や品質ゲートの合否確認といったファイルベースの手続きを自動的に進めたり、判定を上書きしたりすることはありません。SDD ワークフローの決定権は常にファイルベースの手続き側にあり、MCP はそれを補助する情報源にとどまります。
-
-この read-only な助言層としての位置づけを維持するため、write tool（状態を変更・作成・進行させる tool）をこれらの MCP サーバーに追加しない方針を継続しています。以下の `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` はいずれも読み取り専用の tool のみを登録しており、将来の機能拡張であってもこの方針は変わりません。
-
-#### sdd-forge-mcp
-
-`sdd-forge-mcp` は、対象リポジトリの SDD 状態（spec / タスク / レビューチケット / 品質ゲート結果 / evidence）を構造化データとして読み取るための **read-only** MCP サーバーです。書き込み API は一切持たず、stdio 経由で MCP クライアント（Claude Code / Codex）から子プロセスとして起動されます。
-
-任意で、プロジェクトの現在状態をブラウザで確認できます。インストール先の `sdd-forge-mcp` を次のように起動し、表示されたURLを**同じマシンのブラウザ**で開きます。`--root` には対象プロジェクトを指定します。
-
-```bash
-node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root <プロジェクト>
-```
-
-127.0.0.1でのみ待ち受けます。Ctrl+C で停止します。URLには実行ごとに変わるアクセス用の値が含まれるため共有しないでください。更新ボタンは同じ読取処理を再実行し、画面からコマンドや承認を実行しません。リモート端末への公開機能ではありません。通常のMCP起動に `--status-ui` は不要です。
-
-#### local-env-mcp
-
-`local-env-mcp` は、ローカル開発環境の情報を読み取るための **read-only** MCP サーバーです。実行機能を一切持たず、次の 3 つの構造化 JSON ツールで環境情報を提供します。
-
-- `get_os_info`: プラットフォーム・CPU・メモリ・OS バージョン・Node.js ランタイムバージョン
-- `get_toolchain_versions`: コンパイル時に固定された 14 種の CLI（node/npm/pnpm/yarn/bun/deno/git/gh/python3/go/rustc/cargo/java/docker）のバージョン一括取得
-- `list_available_clis`: 上記 14 種の CLI の可用性を確認
-
-**セキュリティ境界**: 入力スキーマにコマンド・引数・パスを受け取るフィールドがなく、プローブ対象は外部入力から到達不可のコンパイル時固定リストのみです。環境変数値・ユーザー名・ホスト名は応答に含まれません。
-
-**自動登録**: installer は Cursor (`~/.cursor/mcp.json`)、VS Code（ユーザープロファイル `mcp.json`）、Gemini CLI (`~/.gemini/settings.json`) への自動登録も行います。詳細は [USERGUIDE.md](USERGUIDE.md) を参照してください。
-
-#### ci-mcp
-
-`ci-mcp` は、GitHub Actions の CI 状態（ワークフロー実行・ジョブ・ジョブログ・成果物メタデータ）を読み取るための **read-only** MCP サーバーです。write API・write ツールは一切持たず、GitHub REST API には固定ホスト `https://api.github.com` への GET リクエストのみ発行します。サブプロセスは実行しません。提供するツールは次の 5 つです。
-
-- `list_workflow_runs`: ワークフロー実行一覧（branch/status/event/perPage 絞り込み対応）
-- `get_workflow_run`: 単一ワークフロー実行の詳細
-- `list_run_jobs`: ワークフロー実行のジョブ一覧
-- `list_run_artifacts`: 成果物メタデータ一覧（バイナリ本体は返さない）
-- `get_job_log`: ジョブのプレーンテキストログ（256 KiB 末尾優先 truncate 付き）
-
-**セキュリティ境界**: write 機能はありません。GET 専用でホストは固定されており、書き換えはできません。トークンは環境変数からのみ読み取り、応答やログには出力しません。`git`/`gh` などの exec は行わず、上流エラーは決定論的に正規化し、本文を転載しません。
-
-**トークン設定**: 実行時に read-only の GitHub PAT が必要です。`CI_MCP_GITHUB_TOKEN`（優先）→ `GH_READONLY_TOKEN` → `GITHUB_TOKEN` の順に最初に非空の値を採用します。installer はトークン値を一切保存・生成しません。詳細・`CI_MCP_REPO` の使い方・各クライアントへの自動/手動登録手順は [USERGUIDE.md](USERGUIDE.md#ci-mcp) を参照してください。
-
-導入オプションの詳細とトラブルシュートは [USERGUIDE.md](USERGUIDE.md#mcp-サーバー) を参照してください。
+設定をカスタマイズする場合は [`sdd/guardrails.example.yaml`](sdd/guardrails.example.yaml) を `sdd/guardrails.yaml` へコピーして編集してください（スキーマ: [`contracts/guardrails.schema.json`](contracts/guardrails.schema.json)）。設定ファイル不在でも安全な既定値（`mode: confirm`）でそのまま動作します。
 
 ## インストール
 
-リポジトリ直下の `install.sh`（macOS / Linux）または `install.ps1`（Windows）を実行します。プラグイン本体を INSTALL_ROOT に配置し、各 CLI（Codex / Claude / Copilot / Gemini）へ marketplace・プラグイン・拡張機能を登録し、Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）と MCP サーバーを設定します。
+前提ランタイムは **Node.js >= 20 LTS** のみです（v1 系の過剰な `Node >= 26.13.0` / `Claude >= 2.1.295` 強制停止と 4 言語パリティ要件は撤廃しました）。
 
 ```bash
-# macOS / Linux — 既定（sdd-bootstrap,sdd-ship + 依存の自動解決、MCP 3種すべて）
-./install.sh
-
-# 手元のクローンからインストールする（ダウンロードを行わない）
+# macOS / Linux — 既定（sdd-bootstrap, sdd-ship + 依存自動解決 + 読み取り専用 MCP 3 種）
 ./install.sh --source-directory .
 
-# 対象環境とプラグインを絞る（Gemini CLI の例も含む）
-./install.sh --target Claude --plugins sdd-bootstrap,sdd-lite
-./install.sh --target Gemini --plugins sdd-bootstrap,sdd-ship,sdd-domain
-
-# MCP サーバーを入れない / 一部だけ入れる
-./install.sh --skip-mcp
-./install.sh --mcp sdd-forge-mcp,local-env-mcp
+# 対象環境を指定（All | Codex | Claude | Copilot | Gemini | FilesOnly）
+./install.sh --source-directory . --target Claude
 ```
 
 ```powershell
 # Windows
-./install.ps1
 ./install.ps1 -SourceDirectory .
-./install.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-lite
-./install.ps1 -Target Gemini -Plugins sdd-bootstrap,sdd-ship,sdd-domain
-./install.ps1 -SkipMcp
 ```
 
-**Windows で手元のクローンから導入する場合**: 書き込み可能な短いパスを使い、最初のチェックアウトから Git の長いパス対応を有効にしてください。次の例では、まだ存在しない `C:\src\sdd-forge` に取得します。
+### プラグイン構成
 
-```powershell
-git -c core.longpaths=true clone https://github.com/aharada54914/sdd-forge.git C:\src\sdd-forge
-if ($LASTEXITCODE -ne 0) { throw 'clone に失敗しました。導入せず、エラーを確認してください。' }
-Set-Location C:\src\sdd-forge
-git config core.longpaths true
-.\install.ps1 -SourceDirectory .
-```
+- コア（既定導入）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-review-loop`
+- オプトイン専門レーン（明示指定・不在時オーバーヘッドゼロ）: `sdd-domain`（DDD） / `sdd-azure-cloud` / `sdd-aws-cloud`
+- 読み取り専用 MCP サーバー（助言層）: `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`
 
-最初の `-c` は clone 中に適用し、その後の `git config` はこのリポジトリだけに設定を保存します。ユーザー全体の Git 設定は変更しません。Git の設定だけでは Windows や各アプリのパス長制限は解除されないため、深い `%APPDATA%` 配下などは避けてください。`Filename too long` などでチェックアウトに失敗したソースは、`-SourceDirectory` に渡さないでください。既存の作業や未コミット変更を残したまま、別の短い空きパスへ取得し直します。設定を後から変えるだけでは、欠けたファイルは復元されません。
-
-主なオプションは次のとおりです。`.sh` / `.ps1` で共通ですが、PowerShell では `-CamelCase` で指定します。
-
-| オプション | 説明 |
-|---|---|
-| `--repository <owner/repo>` | 取得元リポジトリ。既定は `aharada54914/sdd-forge` |
-| `--ref <ref>` | 取得する ref。既定は `main` |
-| `--install-root <path>` | インストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
-| `--target All\|Codex\|Claude\|Copilot\|Gemini\|FilesOnly` | 対象環境。既定は `All`。`Gemini` は各選択プラグインの Gemini 拡張リンクと `~/.gemini/settings.json` への MCP 登録を実施。`FilesOnly` は CLI 登録をスキップしファイル配置のみ |
-| `--plugins <comma>` | 対象プラグイン。既定は **`sdd-bootstrap,sdd-ship`**（全プラグインではありません） |
-| `--skip-plugin-install` | CLI へのプラグイン登録をスキップ |
-| `--skip-agent-install` | Codex エージェント TOML のコピーをスキップ |
-| `--source-directory <path>` | ダウンロードの代わりにローカルディレクトリを使用 |
-| `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
-| `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
-
-**PowerShell で Claude の実行先を指定する場合**: `-ClaudeCommand`、環境変数 `SDD_CLAUDE_BIN`、PATH 上の `claude` の順に選択します。PATH の先頭に古い shim などが残る場合は、実際に利用できる CLI を明示してください。値は実行ファイル・スクリプトのパスまたはコマンド名で、追加引数を含むコマンドラインは指定できません。
-
-```powershell
-.\install.ps1 -Target Claude -ClaudeCommand 'C:\tools\claude.exe' -SourceDirectory .
-```
-
-`All` / `Claude` を対象にする場合、選択した CLI の `--version` を 30 秒以内に確認してからインストール先を更新します。起動失敗・非ゼロ終了・タイムアウト時は、インストール先を変更せず終了します。`-SkipPluginInstall` でも marketplace 登録は行うため、この確認は必要です。`FilesOnly` / `Codex` / `Copilot` では Claude の検出・確認は行いません。`All` で CLI が見つからず、実行先の明示や `-RequireClaude` もない場合は、従来どおり Claude への登録をスキップします。この実行先指定は `install.ps1` のオプションです。
-
-`--plugins` に指定できる名前は次の 9 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud`。
-
-**依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます。自動追加された分は警告として表示されます。
-
-| 指定したプラグイン | 自動的に追加される依存 |
-|---|---|
-| `sdd-bootstrap` | `sdd-review-loop` |
-| `sdd-domain` | `sdd-bootstrap` / `sdd-quality-loop` / `sdd-review-loop` |
-| `sdd-lite` | `sdd-bootstrap` / `sdd-implementation` / `sdd-quality-loop` |
-| `sdd-ship` | `sdd-bootstrap` / `sdd-review-loop` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` |
-| `sdd-azure-cloud` / `sdd-aws-cloud` | `sdd-quality-loop` |
-
-したがって既定の `sdd-bootstrap,sdd-ship` を指定した場合、6 プラグインが登録されます。`sdd-domain` とクラウド用の 2 プラグインは明示指定で導入します。
-
-> **`sdd-domain` は明示指定で導入できます。** Bash は `./install.sh --plugins sdd-domain`、PowerShell は `./install.ps1 -Plugins sdd-domain` を実行してください。必要な `sdd-bootstrap`・`sdd-quality-loop` と、bootstrap の依存先 `sdd-review-loop` も自動登録されます。既定のインストール構成には含まれません。全体アンインストールでは登録解除され、domain だけを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使います（依存プラグインと共有ファイルは保持）。
-
-**Python の要件**: Facet Manifest・Capability Summary・Context Projection の検証と、これらを利用するproject-skill・レビュー経路には **Python >= 3.10** が必要です。JSON Schema 検証ライブラリは固定バージョンを同梱しており、利用時の `pip install` やネットワーク接続は不要です。
-
-**Node.js の要件**: 同梱の MCP サーバーと Claude 用の安全フックには **Node.js >= 26.13.0** が必要です。`All` / `Claude` で、依存を含む対象に `sdd-quality-loop` があり、実際に Claude へプラグインを登録する場合、インストーラは `node --version` を 30 秒以内に確認します。未検出・古いバージョン・起動失敗の場合は、インストール先を変更せず終了します。`-SkipPluginInstall` / `--skip-plugin-install` や `FilesOnly` など、安全フックを登録しない場合の MCP は任意です。Node の要件を満たさなければ MCP の配置・登録のみ警告付きでスキップします。
-
-**Claude の安全フックを有効にするには**: **Claude Code >= 2.1.295** を使ってください。安全フックを登録する際は Claude のバージョンも確認し、要件を満たさなければインストール先を変更せず終了します。対応版では `onFailure: block` により、Node が見つからないなどのフック起動失敗時も対象の操作を止めます。旧版のこの動作は保証できないため、先に更新してください。フックと MCP は実行時に `node` を起動するので、インストール時だけでなく **Claude を起動する環境の PATH** にも Node が必要です。
-
-インストール成功だけでは、実際のホストでフックが動いた証明にはなりません。bootstrap の[有効化確認](plugins/sdd-bootstrap/skills/bootstrap/SKILL.md#track-selection)で、そのセッション自身のツール呼び出しと毎回新しいチャレンジを使って `HOOK_ACTIVE` を確認します。それ以外の結果は `CAPABILITY_RUNTIME_UNAVAILABLE` として作業を停止し、Node・PATH・ホスト設定を復旧してから確認し直してください。Node の削除・更新や実行環境の変更後も再確認が必要です。起動エラーや単なるコマンド失敗を、フックが操作を拒否した証拠として扱わないでください。
-
-**Gemini CLI の安全フックと拡張機能**: 全 9 プラグインに Gemini 拡張マニフェスト（`gemini-extension.json`・`GEMINI.md`・カスタム TOML コマンド）を同梱しています。`sdd-quality-loop` は `plugins/sdd-quality-loop/gemini/hooks/hooks.json` により `BeforeTool` フックで `sdd-hook-guard.py --emit gemini` を実行し、`write_file` / `replace` / `run_shell_command` に対する自己承認・保護ファイル改ざん・`SDD_SUDO` / `AGENT_STOP` 違反をフェイルクローズで拒否します。bootstrap / ship 開始時は `check-hook-activation-handshake --verify-response --runtime gemini-cli`（`sdd-gemini-host-denial/v1` または `--emit gemini` 決定オブジェクト）で `HOOK_ACTIVE` を確認してください。
-
-**その他の前提**: リモートからのインストールには GitHub CLI で認証済みのセッション（`gh auth login`）が必要です。`--source-directory` を使う場合は不要です。環境変数 `SDD_CODEX_HOME` / `SDD_CURSOR_DIR` / `SDD_GEMINI_DIR` / `SDD_VSCODE_USER_DIR` で、それぞれ `~/.codex` / `~/.cursor` / `~/.gemini` / VS Code ユーザープロファイルの位置を上書きできます。
-
-## アンインストール
-
-`install.sh` / `install.ps1` が登録した内容を取り消します。各 CLI（Codex / Claude / Copilot / Gemini）からプラグイン・拡張機能・marketplace と MCP 登録を解除し、インストール済みファイル（既定では `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`）と Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）を削除します。
+### アンインストール
 
 ```bash
-# macOS / Linux — 全環境からアンインストール（既定で全プラグイン対象）
 ./uninstall.sh
-
-# 登録だけ解除し、ファイルは残す
-./uninstall.sh --keep-files
-
-# 特定環境・特定プラグインだけ対象にする
-./uninstall.sh --target Claude --plugins sdd-bootstrap,sdd-ship
 ```
-
-```powershell
-# Windows
-./uninstall.ps1
-./uninstall.ps1 -KeepFiles
-./uninstall.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-ship
-```
-
-主なオプションは次のとおりです。`.sh` / `.ps1` で共通ですが、PowerShell では `-CamelCase` で指定します。
-
-| オプション | 説明 |
-|---|---|
-| `--install-root <path>` | 削除対象のインストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
-| `--marketplace-name <name>` | 登録済み marketplace 名。既定は `sdd-plugins` |
-| `--target All\|Codex\|Claude\|Copilot\|Gemini\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
-| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud` から小文字で選択。既定はこの 9 件すべて |
-| `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
-| `--skip-plugin-uninstall` | CLI からのプラグイン／marketplace 登録解除をスキップ |
-| `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |
-| `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
-| `--skip-mcp-uninstall` | MCP の実体削除・登録解除をスキップ |
-
-登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。Codex エージェントロールは **本プロジェクトがインストールしたファイルのみ** を削除し、利用者自身が `~/.codex/agents/` に置いたファイルは（`sdd-*` という名前のものを含め）削除しません。また `--plugins` で一部のみ指定した場合は、そこからインストールされた他のプラグインも削除されることを防ぐため、marketplace を削除しません。
-
-## プロジェクト固有のスキル
-
-既存アプリの確認・診断などの手順を再利用したい場合は、bootstrap に
-プロジェクト固有スキルの作成を依頼できます。手順の変更時は保守を依頼し、
-実際の実行結果と未実行の項目を確認します。作成や形式検証だけでタスクの
-承認・品質ゲートの合格にはなりません。実行時のプロセス管理は Linux 対応で、
-未対応ホストでは未実行として扱います。
-
-## 特徴
-
-- **仕様レビューループ (`spec-review-loop`)**: requirements.md と acceptance-tests.md に対して `spec-reviewer-a/b` が独立してレビューし、`Spec-Review-Status: Passed` になるまで実装方針レビューを開始させません。
-- **実装方針レビューループ (`impl-review-loop`)**: design.md に対して `impl-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
-- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係のサイクル検出と、Blockers の正準形式の検証を含みます。
-- **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
-- **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・概念モデル・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、v2 モデルでは feature の Concept Test で提案と人間判断を記録してから、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。インストーラで `--plugins sdd-domain`（PowerShell: `-Plugins sdd-domain`）を明示指定すると導入できます。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
-- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
-- **統一デザインシステム統合**: UI アプリでは `ds_profile: custom` を選ぶと、プロジェクト直下の `design-system/`（W3C DTCG 準拠 design-tokens.json・design-system.md・ui-patterns.md）を契約として生成・強制します。仕様段階は `design-sync-loop`（ui-ux-pro-max シード生成 / Figma DTCG 取込 / 外部デザイン往復の `resolve-design-sync.py` + `validate-design-sync-receipt.py` 契約検証。代替 provider を用いる場合は adapter・機能差分を明示し `claude_design_connected: true` を偽装しない）、実装段階は `visual-verify-loop`（Claude Preview / wpf-visual-verify による視覚検証）、品質検証は `check-design-system`（warn 開始の決定論ゲート）の3層で支えます。a11y 基準は WCAG 2.2 AA。非 UI プロジェクトへのオーバーヘッドはゼロです。
-- **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
-- **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
-- **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
-- **独立した批判レビュー**: 実装者とは別の `sdd-evaluator` エージェント (またはセッション) が新しい視点で検証します。
-- **sudoモード**: 有効な署名付きトークンにより、*承認待ち*（タスク承認・`accepted` 差分・定型サインオフ）を期限付きで自動通過。判断フォーク・critical 二者承認・AGENT_STOP・決定論的ゲートは維持する。現行ホストのチャット／slash 自動発行は未対応で、agent は明示呼出後もトークンを操作できない。人間による手順と対応範囲は [`/sdd-sudo` スキル](plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md) を参照。
-- **リスク適応ゲート**: タスクごとに `Risk:` 階層 (`low / medium / high / critical`) を設定し、階層に比例した決定論的ゲートセットを強制します。新ゲート `check-risk`（階層と `Risk Rationale` を検証）・`check-traceability`（REQ→AC→TEST→証跡チェーンを検証）を追加。`check-contract` は階層最小セットの superset 強制（Pass 4）と TDD Red→Green 証跡（Pass 5）を実施。高/critical はプロベナンス付き evidence bundle を必須とし、critical は HMAC-SHA256 署名 + クリーンツリー強制。非コード (`stack: shell/docs/spec`) リポジトリでは compile 系チェックを理由付きで waive 可能。正準対応表: [`risk-gate-matrix.md`](plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
-- **4環境に対応**: Claude Code、Codex CLI、Copilot CLI、Gemini CLI の 4 環境でスキル・拡張機能・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
-- **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズの診断手順を実行し、軽量トラックの開始手順も兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。
 
 ## ドキュメントマップ
 
-目的別の詳しい案内は [docs/README.md](docs/README.md) にまとめています。
-
-```mermaid
-flowchart LR
-    R([README]) --> U["初めて使う"] --> UG["USERGUIDE"]
-    R --> F["開発フローを確認"] --> WG["workflow-guide"]
-    R --> A["仕組みを理解する"] --> AO["architecture/overview"]
-    R --> M["すべての文書"] --> DR["docs/README"]
-```
-
-| 目的 | ドキュメント |
-|---|---|
-| 使い始める | [USERGUIDE.md](USERGUIDE.md)（MCP サーバー / エージェントルーティング） |
-| 開発フローを知る | [docs/workflow-guide.md](docs/workflow-guide.md) |
-| 仕組みを理解する | [docs/architecture/overview.md](docs/architecture/overview.md) / [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) |
-| スキル・エージェントを調べる | [docs/skill-reference.md](docs/skill-reference.md) |
-| 困ったとき | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| 変更履歴・移行 | [CHANGELOG.md](CHANGELOG.md) |
-| 互換性と復旧後の検証範囲を確認する | [復旧記録](https://github.com/aharada54914/sdd-forge/blob/aa7ba8d3b59399f0c69a6cfa59c3d35a65b1414a/docs/contributor/release-parity-recovery.md) |
-| SQLを使うアプリ・DB変更を開発する | [SQL開発ガイド](docs/sql-development.md)（Microsoft SQL／PostgreSQL／MySQL、隔離DBでの検証と運用引き継ぎ） |
-| Azure / AWS での開発 | [docs/cloud/README.md](docs/cloud/README.md)（明示導入するクラウド操作と受入の制限）、[実行契約・復旧手順](docs/cloud-orchestration.md) |
-| 本体のコーディング規約 | [言語別規約・監査範囲](docs/contributor/coding-standards.md)（導入先には採用済み規約を適用） |
-
-## 週次セルフ改善 (自動運用)
-
-2026-10-05 の確認では、[GitHub Actions の週次監査](.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[週次監査ガイド](docs/contributor/weekly-local-codex-audit.md)を参照してください。
-
-過去の「Actions 無効化済み」という移行記録を現在の状態と扱わず、新規登録や変更の前に両経路の設定・実行履歴を確認してください。今後の正本の選択やスケジュール変更は所有者が判断します。
-
-## 変更履歴
-
-詳しい変更履歴と版移行ガイドは [CHANGELOG.md](CHANGELOG.md) をご参照ください。
-
-### 親サービスで開く6ビューの観測画面
-
-`/sdd-ship:status` は、起動した親がChatGPTならSites、ClaudeならArtifactsを
-選びます。子エージェントのモデルやサービスは表示先に影響しません。
-既存ファイルが正本のままで、画面から承認・タスク状態を変更しません。
-概要、タイムライン、バックログ、ボード、一覧、リリースに加え、検索・絞り込み、
-課題詳細、自動更新、最終確認／内容更新の時刻、取得失敗時の最後の正常データを表示します。
-
-ローカルで確認する場合:
-
-```sh
-node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --root <プロジェクト> --dashboard
-```
-
-これはローカル検証用です。Sites/Artifactsへの公開と接続は
-[statusスキル](plugins/sdd-ship/skills/status/SKILL.md)の手順に従います。
-Sitesでは独立したcollectorと私有ストレージを使い、Artifactsでは親ホストの
-ネイティブ作成機能と閲覧アカウントの読取コネクタが必要です。
-ローカルstdio MCPを登録しただけではArtifactsから継続取得できません。
-接続機能がない場合は未接続と表示し、他方のサービスへ自動転送しません。
-
-5秒周期で取得し、正本の正常確認から60秒を超えると警告します。
-複数リポジトリ／worktree の同時収集には `publish-dashboard.py` / `dashboard-runtime.py` の `--sources-config` を利用できます（副収集元は ID 名前空間付きで非破壊統合）。
-認証失効時は `publisherState: "credentials-required"` へ遷移し、`dashboard-runtime.py authorize`（またはローカル `POST /authorize`）でインメモリ資格情報を再投入できます。
-`guaranteeScope` に示すとおり子プロセス再起動（`childRestartSupported: true`）は現ワークスペース内で対応しますが、ワークスペース停止後の無人再開および無人でのネイティブ資格情報更新は保証外です。
-collectorが停止してもSiteは残りますが、データは更新されません。
-`Release:` をタスク本文に明記した場合にリリース所属を表示します。
-未指定なら「リリース未定義」とし、Doneをリリース済みとは扱いません。
-詳細・起動手順・検証範囲は[運用ガイド](docs/hosted-status-views.md)を参照してください。
-
-### 複数セッションの質問窓口と離席実行
-
-同じSiteの `/hub` に質問を集め、回答と元セッションの受領を確認できます。
-独立した認可で有効化する追加機能です。離席モードでは事前許可したローカルコマンドを
-資源の空きを見て1件ずつ実行します。Storybookと窓口は同じ選択部品を使います。
-既存の読み取り専用画面・MCPと正本の承認状態は維持します。
-接続・起動・検証と未対応範囲は[質問窓口ガイド](docs/session-hub.md)を参照してください。
+- [docs/workflow-guide.md](docs/workflow-guide.md) — SDD Core 開発フロー・仕様変更（Spec Amendments）手順
+- [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) — v2 脅威モデル（Local Soft, Boundary Firm）
+- [docs/adr/0051-lightweight-guardrails-and-sdd-core.md](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) — v2 設計決定記録（ADR-0051）
+- [USERGUIDE.md](USERGUIDE.md) — MCP サーバー・運用詳細
+- [docs/sql-development.md](docs/sql-development.md) — SQL / DB 変更ガイド
+- [docs/cloud/README.md](docs/cloud/README.md) — Azure / AWS オプトイン運用ガイド

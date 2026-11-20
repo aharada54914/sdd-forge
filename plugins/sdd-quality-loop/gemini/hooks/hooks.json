@@ -5,10 +5,10 @@
         "matcher": "*",
         "hooks": [
           {
-            "name": "sdd-hook-guard",
+            "name": "sdd-soft-guard",
             "type": "command",
-            "command": "python3 \"${extensionPath}/../scripts/sdd-hook-guard.py\" --emit gemini",
-            "timeout": 30000
+            "command": "node \"${extensionPath}/../scripts/v2/sdd-soft-guard.mjs\" --emit gemini",
+            "timeout": 15000
           }
         ]
       }

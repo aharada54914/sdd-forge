@@ -1,0 +1,76 @@
+name: SDD Guardrails (v2)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "feat/v2-*"]
+
+permissions:
+  contents: read
+
+jobs:
+  guardrails-and-spec-drift:
+    name: Lightweight Guardrails & Spec Drift Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (20 LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run v2 Lightweight Guardrails test suite
+        run: node --test tests/v2-*.test.mjs
+
+      - name: Check Spec Drift across all baselined features
+        run: |
+          node - <<'EOF'
+          import { spawnSync } from 'node:child_process';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const specsRoot = path.resolve('specs');
+          const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+          let failed = false;
+          let checked = 0;
+
+          if (fs.existsSync(specsRoot)) {
+            for (const entry of fs.readdirSync(specsRoot, { withFileTypes: true })) {
+              if (!entry.isDirectory()) continue;
+              const baseline = path.join(specsRoot, entry.name, '.spec-baseline.json');
+              if (!fs.existsSync(baseline)) continue;
+              checked += 1;
+              const res = spawnSync(
+                process.execPath,
+                [
+                  'plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs',
+                  '--feature',
+                  entry.name,
+                  '--format',
+                  'markdown',
+                  '--fail-on-undeclared',
+                ],
+                { encoding: 'utf8' },
+              );
+              process.stdout.write(res.stdout || '');
+              if (summaryPath && res.stdout) {
+                fs.appendFileSync(summaryPath, `${res.stdout}\n`, 'utf8');
+              }
+              if (res.status !== 0) {
+                failed = true;
+              }
+            }
+          }
+
+          if (checked === 0) {
+            const msg = 'No baselined specs (`specs/*/.spec-baseline.json`) found in this PR.\n';
+            process.stdout.write(msg);
+            if (summaryPath) fs.appendFileSync(summaryPath, msg, 'utf8');
+          }
+          if (failed) {
+            process.exit(1);
+          }
+          EOF
