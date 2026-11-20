@@ -36,7 +36,7 @@ The real threat in daily AI-assisted engineering is rarely a malicious adversary
    - Retire the binary `full` / `lite` track split and ADR-0023's `ERROR_STOP` contract.
    - Establish **one** standard workflow (`SDD Core`) that strengthens Lite where it was too thin while eliminating Full's ceremony:
      - Structured 3-file core (`requirements.md` with mandatory testable `AC-*`, `design.md`, `tasks.md` with `Risk: low | standard | high`).
-     - A single-pass, single-reviewer pre-implementation check (`spec-check`), auto-skipped on `Risk: low`.
+     - A risk-scaled single-pass pre-implementation check (`spec-check`): auto-skipped on `Risk: low`, single-reviewer integrated pass on `Risk: standard`, and 2-perspective parallel pass (Reviewer A: Spec/AC completeness + Reviewer B: Design/Security/Rollback critique) on `Risk: high` — without legacy multi-round `attempt`/`--reset` state machines.
      - Baseline capture upon human approval, autonomous implementation under soft guardrails, and an independent single-pass `sdd-gate` combining deterministic test execution + `check-spec-drift` + AC verification.
    - Risk scales smoothly (`low` / `standard` / `high`) via additive checks rather than jumping between incompatible tracks.
 

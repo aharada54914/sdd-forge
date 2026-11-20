@@ -70,12 +70,13 @@ Source: <GitHub/GitLab issue URL or requirement text>
      - `tasks.md`（`Approval: Draft`, `Status: Planned`, `Risk: low|standard|high`, `Scope`, `Done When`, `Blockers`, `## Spec Amendments`）
    - `Risk: high` のタスクを含む場合のみ、必要に応じて ADR（`docs/adr/`）や詳細な `acceptance-tests.md` を追加する。
 
-2. **Step 2 — 統合軽量レビュー（`spec-check`・1体1パス）**:
-   - `sdd/guardrails.yaml` の `review.pre_impl_check` に従って判定:
+2. **Step 2 — リスク連動 1 パス統合レビュー（`spec-check`）**:
+   - `sdd/guardrails.yaml` の `review.pre_impl_check` と最高 `Risk:` 階層に従って実行:
      - `off` または `--skip-check`、あるいは `auto` かつ全タスクが `Risk: low` → スキップして Step 3 へ。
-     - それ以外 → `/sdd-review-loop:spec-check` を 1 回だけ実行し、`reports/spec-check/<feature>.md` を出力。
+     - `Risk: standard` → `/sdd-review-loop:spec-check`（**`single` モード: 1 体 1 パス**）を実行。
+     - `Risk: high` → `/sdd-review-loop:spec-check`（**`dual-parallel` モード: Reviewer A [仕様・AC 網羅] ＋ Reviewer B [設計・セキュリティ・移行批判] の 2 視点並列 1 パス**）を実行し、1 枚の `reports/spec-check/<feature>.md` へ統合。
    - `PASS` / `PASS_WITH_NOTES` → そのまま Step 3 へ進む。
-   - `NEEDS_FIX` → 指摘された Blocker と修正案を人間へ提示し、仕様を修正してから再度確認する。
+   - `NEEDS_FIX` → 指摘された Blocker と修正案を人間へ提示し、仕様を修正してから再度 `spec-check` を実行する（`attempt` / `--reset` は不要）。
 
 3. **Step 3 — 人間による承認ゲート**:
    - 生成した仕様ファイル、各タスクの `Risk:`、未解決の `Open Questions`、`spec-check` 結果を人間へ提示する。

@@ -45,8 +45,8 @@ flowchart TD
 | リスク | 想定用途 | `spec-check`（着工前） | ソフトガード | `sdd-gate`（完了前） |
 |---|---|---|---|---|
 | **`low`** | 小規模バグ修正（`diagnose` 経由）、ドキュメント | 自動スキップ | `sdd/guardrails.yaml` 準拠 | テスト・プレースホルダー・Spec Drift 確認 |
-| **`standard`** *(既定)* | 通常の新機能・API/UI 追加・中規模変更 | **1 パス統合チェック** | **既定 `confirm`** | テスト + Spec Drift + AC 突合 + 独立レビュー 1 回 |
-| **`high`** | 認証/認可・決済・PII・DB 移行・破壊的契約変更 | **1 パス統合チェック（厳格項目）** + 任意 ADR | `confirm` / `strict` | 上記 + セキュリティ・回帰・ロールバック確認 + PR CODEOWNERS |
+| **`standard`** *(既定)* | 通常の新機能・API/UI 追加・中規模変更 | **1 体・1 パス統合チェック** | **既定 `confirm`** | テスト + Spec Drift + AC 突合 + 独立レビュー 1 回 |
+| **`high`** | 認証/認可・決済・PII・DB 移行・破壊的契約変更 | **2 視点並列・1 パス（仕様/AC + 設計/セキュリティ）** + 任意 ADR | `confirm` / `strict` | 上記 + セキュリティ・回帰・ロールバック確認 + PR CODEOWNERS |
 
 設定をカスタマイズする場合は [`sdd/guardrails.example.yaml`](sdd/guardrails.example.yaml) を `sdd/guardrails.yaml` へコピーして編集してください（スキーマ: [`contracts/guardrails.schema.json`](contracts/guardrails.schema.json)）。設定ファイル不在でも安全な既定値（`mode: confirm`）でそのまま動作します。
 

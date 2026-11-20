@@ -14,7 +14,7 @@ SDD Forge v2（[ADR-0051](adr/0051-lightweight-guardrails-and-sdd-core.md)）で
 ```mermaid
 flowchart TD
     A(["Issue / 要件"]) --> B["sdd-core-spec\nrequirements.md (REQ + AC)\ndesign.md / tasks.md"]
-    B --> C{"spec-check\n1体・1パス統合チェック\n(Risk: low は自動スキップ)"}
+    B --> C{"spec-check\nリスク連動1パス統合チェック\n(low:省略 / standard:1体 / high:2視点並列)"}
     C -->|NEEDS_FIX| B
     C -->|PASS / PASS_WITH_NOTES| H[/"人間: Approval: Approved"/]
     H --> BL["record-spec-baseline.mjs\n.spec-baseline.json 記録"]

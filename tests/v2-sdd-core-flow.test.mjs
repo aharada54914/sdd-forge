@@ -232,6 +232,18 @@ describe('Phase 2 SDD Core skill & template contracts', () => {
     assert.match(gate, /check-spec-drift\.mjs/);
   });
 
+  it('spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes', () => {
+    const specCheck = fs.readFileSync(
+      path.join(REPO_ROOT, 'plugins/sdd-review-loop/skills/spec-check/SKILL.md'),
+      'utf8',
+    );
+    assert.match(specCheck, /dual-parallel/);
+    assert.match(specCheck, /Reviewer A/);
+    assert.match(specCheck, /Reviewer B/);
+    assert.match(specCheck, /Risk: high/);
+    assert.doesNotMatch(specCheck, /--reset --feature/);
+  });
+
   it('SDD Core templates include REQ/AC/Risk structure and Spec Amendments section', () => {
     const req = fs.readFileSync(
       path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-core-spec/templates/requirements.md'),
