@@ -2,7 +2,7 @@
 
 ## T-001 設計・ADR-0051・設定スキーマの整備
 Approval: Draft
-Status: Planned
+Status: Implementation Complete
 Risk: standard
 
 ### Scope
@@ -21,7 +21,7 @@ Risk: standard
 
 ## T-002 ソフトガード & Spec Drift プロトタイプ実装（Node.js ESM）
 Approval: Draft
-Status: Planned
+Status: Implementation Complete
 Risk: standard
 
 ### Scope
@@ -39,16 +39,22 @@ Risk: standard
 
 ---
 
-## T-003 Phase 2: SDD Core スキル統合（次フェーズ）
+## T-003 Phase 2: SDD Core スキル統合
 Approval: Draft
-Status: Planned
+Status: Implementation Complete
 Risk: standard
 
 ### Scope
-- `sdd-bootstrap`, `spec-check`（新設）, `sdd-ship`, `sdd-gate` の統合と `sdd-lite` 吸収
+- `plugins/sdd-bootstrap/skills/sdd-core-spec/`（新テンプレート 3 種 + スキル）
+- `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md`（SDD Core 単一トラック化）
+- `plugins/sdd-review-loop/skills/spec-check/SKILL.md`（1 体 1 パス統合レビュー新設）
+- `plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md`, `templates/sdd-gate-report.md`, `scripts/v2/run-sdd-gate.mjs`
+- `plugins/sdd-ship/skills/ship/SKILL.md`（SDD Core 単一トラック化）
+- `plugins/sdd-lite/references/lite-flow-policy.md`（SDD Core 統合案内）
 
 ### Done When
 - 単一トラック `SDD Core` で仕様作成→1パス統合レビュー→承認＆ベースライン記録→実装→`sdd-gate` が完走できる
+- `node --test tests/v2-sdd-core-flow.test.mjs` が全件 PASS する
 
 ### Blockers
 - T-002

@@ -1,30 +1,14 @@
-# Lite Flow Policy
+# Lite Flow Policy (Consolidated into SDD Core in v2.0.0 — ADR-0051)
 
-sdd-lite は影響範囲が限定された通常の不具合修正や社内・部署内アプリ向けの軽量トラック。完全版 SDD の部分集合であり、加算的に昇格できる。
+> **移行案内（ADR-0051）**: `sdd-lite` および旧 `SDD Full` の二極トラック構成は、**SDD Forge v2 の単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ発展的に統合されました。
 
-## 維持するもの（核）
-- 単一の人間承認。AI は `tasks.md` の `Approval: Approved` を増やせない。既存 hook-guard が保護する。
-- kill-switch（`AGENT_STOP`）常時有効。
-- 一度の独立した実装後レビュー。lite-gate が検証コマンドを自分で実行し、短い受け入れ条件と関連回帰を確認する。実行証跡は共通実行器で生成し、レポートから参照する。
-- 既存のリスク昇格・Project Context 検証。full 指定は格下げしない。タスクが low と自己申告しても Lite の許可根拠にはならない。フック・認証・証跡・配布などの重大な変更や影響不明な変更は full を使用する。
+## 新しい標準フロー（SDD Core）での対応
 
-## 省くもの
-- traceability.md、ADR 必須化、受入テストの厳密記述。
-- evidence.json バンドル（SHA256/git_commit/署名/provenance）。
-- contract.json（lite 品質レポートで代替）。
-- cross-model 検証、critical 階層、二者承認、WFI/retrospective、品質ゲート多重サイクル、リスク階層強制。
-
-## 状態モデル
-- `Approval: Draft|Approved`、`Status: Planned|In Progress|Implementation Complete|Blocked|Done`。
-- 遷移検証は `check-task-state-lite` が行う。Done は impl報告 + 品質レポート VERDICT:PASS を要求し、evidence.json は不要。
-
-## 昇格（full SDD へ）
-| 追加 | 有効化 |
+| 旧 `sdd-lite` の用途 | 新 `SDD Core` での指定 |
 |---|---|
-| `Risk:` + `Risk Rationale:` | 階層強制（check-risk / check-contract Pass4） |
-| 本体 `check-task-state` を使用 | evidence-bundle 必須・Done の機械的証明 |
-| `cross_model: required` | クロスモデル検証 |
-| critical タスク | 二者承認 + 署名 + provenance |
-| `traceability.md` | REQ→AC→TEST→証跡チェーン |
+| 小規模バグ修正・1〜2 ファイルの限定変更 | `/sdd-bootstrap:bootstrap bugfix --risk low <source>` → `/sdd-ship:ship`（`spec-check` 自動スキップ） |
+| 通常の機能開発・社内アプリ | `/sdd-bootstrap:bootstrap feature <source>`（既定 `Risk: standard`：1 パス `spec-check` + `sdd-gate` + Spec Drift 検知） |
+| 認証/決済/DB移行などの高リスク変更 | `/sdd-bootstrap:bootstrap feature --risk high <source>`（強制昇格エラーなし、同じワークフロー内で厳格チェックを加算） |
 
-成果物の場所・命名は full SDD と同一（`specs/<feature>/`, `reports/`）。sdd-lite を外して sdd-bootstrap / quality-loop の本フローへ連続的に移行できる。
+- 旧 `--lite` / `--full` フラグは互換エイリアスとしてそれぞれ `--risk low` / `--risk high` に安全にマッピングされます（ADR-0023 の `ERROR_STOP` は廃止）。
+- `plugins/sdd-lite/` プラグイン本体は Phase 3 クリーンアップで正式に廃止・削除される予定です。詳細は `docs/adr/0051-lightweight-guardrails-and-sdd-core.md` を参照してください。

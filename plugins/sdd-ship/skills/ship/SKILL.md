@@ -1,611 +1,94 @@
 ---
 name: ship
-description: Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow. Run after /sdd-bootstrap:bootstrap and human task approval.
+description: Implement approved SDD Core tasks under lightweight soft guardrails, verify with sdd-gate (deterministic tests + spec-drift check + independent 1-pass review), and transition passed tasks to Done.
 disable-model-invocation: true
 ---
 
-# SDD Ship
+# SDD Ship (SDD Core v2)
 
-Orchestrate approved tasks from implementation through quality verification to Done.
-This skill does not write specifications; use `/sdd-bootstrap:bootstrap` for that.
-
-## 新規対話セッションのモデル確認
-
-新規の対話セッションでは、最初のSDD作業・委任前に、ホストのスキル索引から
-`model-selection` を解決してメインと役割別モデルを確認する。索引で非表示なら、ホストが
-現在有効として登録するsdd-implementationのplugin root／manifestから
-`skills/model-selection/SKILL.md` を解決する。隣接ディレクトリや別versionのcacheを推測しない。
-未導入ならsdd-implementationの導入を案内して停止する。
-SessionStartで確認済みなら繰り返さない。フックが使えない場合もこの入口から確認する。
-非対話実行、resume、compact、既にバインド済みのワーカーは従来動作を維持する。
-モデルの選択は、以下の管理された起動境界や独立レビューの要件を解除しない。
-
-## Requested status dashboard
-
-When a dashboard is requested, the initiating parent follows
-`<installed-root>/plugins/sdd-ship/skills/status/SKILL.md` before delegating
-presentation work. Bind ChatGPT to Sites or Claude to Artifacts using the
-parent service, retain the selected presentation identity, and never change it
-because a child uses another service/model. Read-only display never advances a
-workflow gate. Missing presentation capability is reported independently of the
-already-authorized development work. On entry/resume of a requested dashboard,
-run the status skill's idempotent local runtime start for this project/environment
-before checking the retained parent presentation. No external permanent host
-is required.
-
-## Managed allocation boundary
-
-Affected policy roles: `implementer`.
-
-Apply this boundary only when the caller explicitly selects managed routing
-with a policy request or model controls, or this allocation continues that
-managed workflow. With no managed input, retain the legacy invocation and model
-hints below. Once managed is selected, do not switch that workflow to legacy
-because selection, validation or launch fails. No new environment toggle is
-required, and this boundary does not grant delegation or execution permission.
-
-For a managed allocation, apply in the allocating parent before an unbound
-forked Skill/Agent, native role, or fresh context receives work, and before any
-identity reservation. This
-boundary takes precedence over later native/default launch guidance for these
-roles. It does not add an availability or authority gate.
-
-Keep an already admitted managed entry with its validated selection/controls and
-matching role, host, run/session and workload. Keep a concretely known matching
-batch startup and fixed generated Codex configuration under their original
-contracts. An already bound worker continues its original procedure: do not
-select again, allocate again, or run this refusal inside that same worker.
-A bound parent does not bind a new child, role or session: each new allocation
-needs its own admitted selection/carrier binding or takes the refusal below.
-
-When this operation has no admitted binding of the selected model and effort to
-its actual native carrier, substitute the next affected policy role and actual
-host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
-
-```bash
-python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
-  --role "<policy-role>" --host "<host>"
-```
-
-Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
-before work or reservation. Do not fall through to an old model hint, alias,
-unbound native default or another parent session; do not count allocation alone
-as selection proof. This refusal does not assert host incapability and never
-authorizes same-session reload. Original host-incapable-only implementation
-fallback evidence and all review isolation requirements remain unchanged.
-
-Apply in the Lite/Full implementation parent before the relevant single-task or batch allocation. Keep the bound Lite Claude dispatch and the downstream known-matching batch route. Later quality/cross-model handoffs retain their own boundaries and existing consent.
-
+承認済みタスクを実装から品質検証・`Done` まで一貫して進める、2 コマンドワークフローの第 2 ステップ（ADR-0051）。
+ローカルの過剰な物理ロックやカナリア儀式を排し、**ベースライン記録 → 自律実装（ソフトガード保護）→ 統合 `sdd-gate`** のシンプルな 3 段構成で高 DX と仕様保全を両立する。
 
 ## Invocation
 
-Claude Code:
+Claude Code / Gemini CLI:
 
 ```txt
 /sdd-ship:ship specs/<feature>/tasks.md
 /sdd-ship:ship specs/<feature>/tasks.md#T-001
 /sdd-ship:ship
-/sdd-ship:ship --lite specs/<feature>/tasks.md
-/sdd-ship:ship --full specs/<feature>/tasks.md
-/sdd-ship:ship --verify specs/<feature>/tasks.md
-/sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
-Codex / Gemini CLI:
+Codex CLI / Copilot CLI:
 
 ```txt
 Use the ship skill for specs/<feature>/tasks.md
-Use the ship skill (no argument — context-aware selection)
-```
-
-Gemini CLI (via linked `sdd-ship` extension command):
-
-```txt
-/sdd-ship:ship specs/<feature>/tasks.md
-/sdd-ship:ship --lite specs/<feature>/tasks.md
+Use the ship skill (no argument — auto-select single approved active feature)
 ```
 
 ### Flags
 
-| Flag | Effect |
+| Flag | 効果 |
 |---|---|
-| `--lite` | Force lite track (lite-gate) regardless of AGENTS.md spec_profile |
-| `--full` | Force full track (quality-gate); verifies acceptance-tests.md + traceability.md exist |
-| `--verify` | Before quality-gate, run cross-model-verify for tasks that have `Cross-Model: enabled` |
-| `--retro` | Run workflow-retrospective after all tasks reach Done |
-
-**`--fix RT-NNN` is NOT a sdd-ship flag.** Apply a review ticket directly:
-`/sdd-quality-loop:fix-by-review-ticket docs/review-tickets/RT-NNN.yml`
+| `--skip-drift` | 緊急時のみ Spec Drift チェックをスキップ（レポートに明記される） |
+| `--retro` | 全タスク `Done` 後に任意の回顧を実行 |
+| `--lite` / `--full` *(互換エイリアス)* | v2 ではトラック分岐を廃止。指定されても停止せず単一の `SDD Core` フロー（各タスクの `Risk:` に従う）で実行する |
 
 ## Preconditions
 
-Before doing any work, verify that `AGENTS.md` exists at the repository root and
-that `scripts/check-sdd-structure.sh` (or `.ps1`) reports no `missing:` items.
-If either check fails, stop immediately and direct the user to run
-`/sdd-bootstrap:bootstrap adopt`. Do not proceed without it.
-
-Do **not** invoke `sdd-sudo`, create `SDD_SUDO`, or modify the `SDD_SUDO` file.
-Sudo management is always a separate human action.
-
-## MCP Preflight (Advisory)
-
-Attempt `get_next_sdd_command` with no arguments; if it is unavailable or
-the call fails, continue with the file-based flow below.
-
-`get_next_sdd_command` is read-only: it only reads repository state and
-returns a suggestion, never writing or mutating anything. Its answer is
-advisory — it does not decide the target, the track, or any step that
-follows. `## Step 1 — Target Selection` below remains the sole decision
-procedure, and nothing this step reads changes what `## Step 1` concludes.
-
-This step is unconditional: apply it the same way regardless of invocation
-form (a `specs/<feature>/tasks.md` path argument, an optional `#T-NNN` task
-selector, or the zero-argument auto-select form) and regardless of track
-(full / lite) — do not skip or gate it by invocation form or track. Do not
-surface the unavailability or the failure to the user as a run failure.
-
-If the probe's suggestion and the conclusion `## Step 1 — Target Selection`
-reaches disagree, state in the output both that a disagreement occurred and
-which source was acted on. Always act on the `## Step 1` conclusion in that
-case, never the probe's.
+1. リポジトリルートに `AGENTS.md` が存在すること（未整備時は `/sdd-bootstrap:bootstrap adopt` を案内して停止）。
+2. **MCP Preflight（任意・助言のみ）**: `get_next_sdd_command` が利用可能なら参照してよいが、ファイルベースの対象選定を常に正とする。
+3. 進捗ダッシュボードが要求された場合は `/sdd-ship:status` の読み取り専用表示を併用できる（画面表示だけで承認・Done は進まない）。
 
 ## Step 1 — Target Selection
 
-An explicitly requested investigation, performance study, isolated prototype or
-handoff may return to bootstrap's optional purpose playbook. A decision packet
-can display pinned evidence; recheck its digest and inputs on resume. The packet
-does not replace this skill's target, track or approval checks and never sets Done.
+- 引数 `specs/<feature>/tasks.md`（または `#T-NNN`）があればそれを対象とする。
+- 引数なしの場合、`AGENTS.md` の `## Active Spec Directories`（または `specs/*/tasks.md`）から `Approval: Approved` かつ `Status: Planned` / `In Progress` のタスクを持つフィーチャーを探す:
+  - 1 件一致 → `[sdd-ship AUTO-SELECT] specs/<feature>/tasks.md` を表示して続行。
+  - 0 件 → 承認済みタスクが無い旨を案内して停止。
+  - 複数一致 → 候補一覧を表示し、パス指定での再実行を案内して停止。
 
-### With a path argument
+## Step 2 — Baseline Snapshot（ソフトガードレール有効化）
 
-Use the given `specs/<feature>/tasks.md` (with optional `#T-NNN` task selector).
-If `#T-NNN` is given, only process that single task.
-
-### Zero-argument (no path given)
-
-1. Read `AGENTS.md` at the repository root. Look for an `## Active Spec Directories`
-   section listing feature paths.
-2. For each listed path, check `specs/<feature>/tasks.md` for at least one task
-   with `Approval: Approved` and `Status: Planned` or `Status: In Progress`.
-3. **Exactly one match**: print `[sdd-ship AUTO-SELECT] specs/<feature>/tasks.md`
-   and proceed without asking the user.
-4. **Zero matches**: print "No active features with Approval: Approved tasks found.
-   Run /sdd-bootstrap:bootstrap first." and stop.
-5. **Multiple matches**: list all candidates with task counts and print
-   "Multiple active features found. Re-run: /sdd-ship:ship specs/<feature>/tasks.md"
-   and stop without touching any feature.
-
-## Step 2 — Track Detection
-
-This is `sdd-ship`'s Capability-Mode-relevant entry point. Run the
-hook-activation handshake HERE, as the first Capability-Mode-relevant action,
-before trusting any Project Context content:
-
-<!-- sdd:handshake-wiring v1 -->
-
-1. `check-hook-activation-handshake --emit-challenge` — returns a fresh
-   single-use nonce and the canary target `sdd/.hook-canary-sentinel`. If a
-   sentinel from an earlier run is already present, perform and record one
-   cleanup attempt first; the new challenge proceeds either way.
-2. This agent session makes its **own** real tool-call attempt against that
-   canary target, using the per-runtime template the challenge carries, and
-   records the raw result verbatim. The tool never performs the probe write
-   itself.
-3. `check-hook-activation-handshake --verify-response --nonce <nonce>
-   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli|gemini-cli>`.
-4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome stops
-   **Capability Mode only**, and which projects that stops is decided by the
-   gate table below, not by this step alone: stop with
-   `CAPABILITY_RUNTIME_UNAVAILABLE` if and ONLY if this project's Project
-   Context is physically present and valid (gate G2); if it is physically
-   absent, the project never entered Capability Mode, so continue on the
-   compatibility fallback as `DISABLED_LEGACY` (gates G3/G4). From a
-   valid-Context project, never fall back to legacy behaviour silently.
-
-
-For Codex, use the challenge's `recorded_result_template` and
-`capture_instructions` to save the actual denial with native `apply_patch`.
-Shell commands embedding the protected canary path may themselves be denied.
-
-<!-- /sdd:handshake-wiring -->
-
-**When the presence/validity probe runs.** The handshake itself never reads
-the Project Context, so step 4 records an outcome without yet knowing which
-gate row applies. The physical-presence-and-validity probe that decides G1/G2
-from G3/G4 is the FIRST step of "Track resolution" below, and it runs THERE —
-after the handshake, before any track is chosen. This section precedes track
-resolution because it is normative about the handshake's meaning; it is not an
-instruction to probe earlier.
-
-### What a non-`HOOK_ACTIVE` handshake does and does not stop
-
-Step 4 above stops **Capability Mode**, not every invocation of this skill.
-Which of the two it is depends on whether this project ever entered Capability
-Mode, and the table below is normative in BOTH directions:
-
-<!-- sdd:capability-gate-scope v1 -->
-
-| Gate | Project Context | Handshake | Resolution |
-|---|---|---|---|
-| G1 | physically present and valid | `HOOK_ACTIVE` | `CAPABILITY_MODE` |
-| G2 | physically present and valid | not `HOOK_ACTIVE` | `CAPABILITY_RUNTIME_UNAVAILABLE` |
-| G3 | physically absent | `HOOK_ACTIVE` | `DISABLED_LEGACY` |
-| G4 | physically absent | not `HOOK_ACTIVE` | `DISABLED_LEGACY` |
-
-<!-- /sdd:capability-gate-scope -->
-
-- **G2 — stop.** A project that HAS a valid Project Context has entered
-  Capability Mode, so a handshake that could not observe a genuine,
-  nonce-matched denial MUST stop with `CAPABILITY_RUNTIME_UNAVAILABLE`, and
-  MUST NOT degrade to the compatibility-fallback path below. That degradation
-  is precisely the silent downgrade ADR-0023 exists to close: `design.md:1112`
-  requires the calling skill to stop **Capability Mode**, never to silently
-  fall back to legacy.
-- **G4 — continue.** A project that has NO Project Context never entered
-  Capability Mode. It sits in ADR-0016's `disabled-legacy`, which is "a
-  normal, expected condition for a project with no Project Context, not an
-  error" (`requirements.md:1821-1827`), and which
-  `CAPABILITY_RUNTIME_UNAVAILABLE` is "never conflated with"
-  (`design.md:1734`). The handshake gates `HOOK_ACTIVE`-gated behaviour only
-  (`requirements.md:1078`), so a non-`HOOK_ACTIVE` result does not stop such a
-  project: it continues on the compatibility fallback below.
-
-The prohibited transition is Capability Mode → legacy. Legacy → legacy is not
-a downgrade, and G4 must never be reported as `CAPABILITY_RUNTIME_UNAVAILABLE`
-merely because G2 is.
-
-### Track resolution
-
-Resolve the track next. **Physical presence is decided FIRST and alone;
-REQ-005 approval validation runs SECOND, only once the file is known to
-exist.** A `sdd/project-context.yaml` that exists but fails
-`validate-approval-sidecar` is **not** the same as one that is absent —
-treating the two alike is the fail-open ADR-0023 closes.
-
-<!-- sdd:track-selection-contract v1 -->
-
-| Case | Project Context | Flag | Resolution |
-|---|---|---|---|
-| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
-| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
-| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
-| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
-| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
-| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
-
-<!-- /sdd:track-selection-contract -->
-
-- `COMPATIBILITY_FALLBACK` (C1 only) — apply the compatibility fallback below,
-  unchanged from the pre-ADR-0023 contract.
-- `PROJECT_CONTEXT_INVALID` (C2) — stop before any task is started and print
-  `[sdd-ship] PROJECT_CONTEXT_INVALID: sdd/project-context.yaml is present but
-  its approval could not be verified.` Do not start implementation, do not
-  invoke any gate, do not change any `Status`, and do not fall through to C1's
-  fallback or to an implicit `full`/`lite` selection.
-- `PROMOTE_FULL` (C3) — resolved track is `full`. Print
-  `[sdd-ship] Track: full (PROMOTE_FULL)`, then verify the full-track
-  artifacts as described below.
-- `NO_OP_FULL` (C6) — resolved track is `full`. Print
-  `[sdd-ship] Track: full (NO_OP_FULL)`, then verify the full-track artifacts
-  as described below.
-- `NO_OP_LITE` (C4) — resolved track is `lite`. Print
-  `[sdd-ship] Track: lite (NO_OP_LITE)` and run the risk-upgrade scan below
-  before starting any task.
-- `ERROR_STOP` (C5) — `--lite` against a declared `full` profile would loosen
-  the declared profile. Stop before any task is started and print
-  `[sdd-ship] ERROR_STOP: --lite cannot downgrade a Project Context declaring
-  spec_profile: full. Re-run without --lite.` It is never silently ignored and
-  never silently honoured.
-
-**Full-track artifact verification** (`PROMOTE_FULL`, `NO_OP_FULL`, and the
-fallback's `--full` route): verify that `specs/<feature>/acceptance-tests.md`
-and `specs/<feature>/traceability.md` both exist. If either is missing, stop
-and instruct the user to run full-track sdd-bootstrap.
-
-`PLUGIN-CONTRACTS.md`'s Track Detection section is the normative source for
-this table.
-
-### Risk-upgrade scan
-
-Keep the selected task block and requirements complete, including exclusions and
-approval notes. `check-risk-upgrade` owns the bounded non-requirement grammar in
-`sdd-lite/references/risk-upgrade-policy.md`; do not prefilter sections or reword
-risks to pass. Positive requirements override nominal exclusions during review.
-
-
-A resolved `full` track is the only scan bypass. For every route that could
-resolve to **LITE** — `NO_OP_LITE`, or any remaining default, profile, or
-`--lite` route of the compatibility fallback — build a local UTF-8 input by
-concatenating the selected task's complete `## T-NNN` block followed by that
-feature's `requirements.md`. Both inputs are mandatory; do not retrieve remote
-issue text and do not use a partial task block.
-
-Run the platform-local checker before considering a lite branch:
-
-```txt
-plugins/sdd-lite/scripts/check-risk-upgrade.sh <task-block-plus-requirements>
-powershell -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-lite/scripts/check-risk-upgrade.ps1 -Path <task-block-plus-requirements>
-```
-
-- Exit 10 with `full-required: <primary-id>; triggers=<ordered-ids>` forces
-  **FULL** track even when `--lite` was requested. Print the checker diagnostic
-  followed by `[sdd-ship] Track: full (risk-upgrade)` and verify the full-track
-  `acceptance-tests.md` and `traceability.md` artifacts before task start. If either is absent, stop before task start and print `[sdd-ship] Full-track artifacts unavailable. Run /sdd-bootstrap:bootstrap for the full track.`
-- Exit 2 with `risk-upgrade: input unavailable` is fail-closed: stop before
-  implementation or the lite gate, print that diagnostic, and direct the user
-  to restore the selected task block and requirements or run full bootstrap.
-- Exit 0 with `lite-eligible` allows the resolved lite track to proceed.
-
-### Compatibility fallback (no Project Context)
-
-Reached only from case C1, and unchanged from the pre-ADR-0023 contract.
-Execute in this priority order (first match wins):
-
-1. `--full` flag present → **FULL** track. Print `[sdd-ship] Track: full (--full override)`.
-   Verify that `specs/<feature>/acceptance-tests.md` and `specs/<feature>/traceability.md`
-   both exist. If either is missing, stop and instruct the user to run full-track
-   sdd-bootstrap or drop `--full` and use `--lite`.
-2. `--lite` flag present → **LITE** track. Print `[sdd-ship] Track: lite (--lite override)`.
-3. Read `AGENTS.md`. If `spec_profile: lite` appears on any line → **LITE** track.
-   Print `[sdd-ship] Track: lite (spec_profile: lite in AGENTS.md)`.
-4. Default → **FULL** track. Print `[sdd-ship] Track: full (no lite profile detected)`.
-
-The track message is always printed **before** any task is started.
-If the wrong track is selected, the user can cancel (Ctrl-C) and re-run with
-the correct `--lite` or `--full` flag.
-
-## Step 3 — Implementation Loop
-
-### Full track
-
-Invoke `/sdd-implementation:implement-tasks specs/<feature>/tasks.md`.
-That skill handles dependency ordering, per-task state transitions
-(Planned → In Progress → Implementation Complete), and implementation reports.
-
-Do **not** re-implement the dependency resolution logic here; delegate entirely
-to implement-tasks.
-
-### Lite track
-
-Invoke `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN` for
-each Approved + Planned/In-Progress task in tasks.md order. Lite track has no
-dependency graph; implement tasks in document order.
-
-#### Managed Claude dispatch (opt-in)
-
-For explicitly selected managed routing on Claude Code, run the entry below from the parent orchestrator
-before invoking the implement-task Skill, which could otherwise start
-implementation in this context. For each Approved + Planned/In-Progress task in
-tasks.md order, write `<prompt-file>` under `<repository-root>` naming the exact
-`specs/<feature>/tasks.md#T-NNN` and that task's Scope, compute its raw SHA-256
-as `<prompt-sha256>`, use a fresh canonical UUID for `<session-id>` and a new
-output directory, and supply the current scoped policy request and registry, the
-explicit installed Claude executable and the existing verified configuration
-observation unchanged. The entry loads the complete original implement-task
-Skill and its seven fixed supporting sources into one fresh single-task context,
-which executes the Skill once as its orchestrator and status writer under
-normal native permissions. This parent only dispatches and receives: it does not
-implement the task or repeat the child's status, report or approval handling. A
-typed failure stops this handoff; do not retry through an unmanaged Skill or
-Agent call. On success continue the existing flow.
+最初の実装タスクに着手する**前**に、`specs/<feature>/.spec-baseline.json` の存在を確認する。
+まだ存在しない場合は、承認済み仕様のスナップショットを自動記録する（外部署名鍵は不要）:
 
 ```bash
-cd "<repository-root>" || exit 1
-python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
-  --request "<policy-request>" --registry "<registry>" \
-  --role implementer --host claude-code --run-id "<run-id>" \
-  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
-  --require-actual-id false --executable "<claude-executable>" \
-  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
+node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs" \
+  --feature "<feature>" --root "<repo-root>"
 ```
 
-When managed inputs are absent, use the legacy route above. A managed allocation
-on another host needs its own admitted binding or the refusal in the allocation
-boundary; an unsupported managed route cannot retry through legacy.
+これにより、実装中に承認済み仕様本文（REQ / AC / Design）が意図せず書き換えられた場合、
+- **Layer 1**: `sdd-soft-guard.mjs` が編集時に `confirm` / `warn` / `strict` で検知・抑止し、
+- **Layer 2**: `sdd-gate` と CI の `check-spec-drift.mjs` が無断改変・AC 削除を確実に捕捉する。
 
-### Resume behaviour
+## Step 3 — Autonomous Implementation Loop
 
-On re-invocation after interruption, skip tasks already at `Implementation Complete`
-or `Done`. Resume from the first eligible task (Approved + Planned or In Progress).
+対象となる承認済みタスク（`Approval: Approved` かつ `Status: Planned` または `In Progress`）を実装する:
+- 単一タスク（`#T-NNN` 指定）→ `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN`
+- 複数タスク → `/sdd-implementation:implement-tasks specs/<feature>/tasks.md`（`### Blockers` の依存順に実行）
 
-## Step 4 — Quality Gate Loop
+実装ルール:
+- 通常のソース編集・テスト実行・`Bash` 探索はソフトガードによって一切妨げられない。
+- 実装中に仕様の誤り・変更必要性に気づいた場合は、勝手に仕様本文を書き換えてテストを通そうとせず、ユーザーへ相談して合意のうえ `## Spec Amendments` に理由を追記してから修正する。
+- 中断後の再実行時は、既に `Implementation Complete` / `Done` のタスクをスキップして再開する。
 
-Execute after all targeted tasks reach `Implementation Complete`.
+## Step 4 — Unified Quality Gate（`sdd-gate`）
 
-### Full track
+対象タスクが `Status: Implementation Complete` に到達したら、各タスクについて `/sdd-quality-loop:sdd-gate` を実行する:
 
-For each task at `Implementation Complete`, in tasks.md document order:
-
-1. **Cross-model verification runs before the gate.** A task whose tasks.md
-   entry carries `Risk: critical` or `Security-Sensitive: true` MUST have
-   cross-model verification run in this same ship invocation before it reaches
-   the quality gate, **regardless of whether `--verify` was passed**. For each
-   such task, invoke
-   `/sdd-quality-loop:cross-model-verify specs/<feature>/tasks.md#T-NNN` before
-   the gate.
-   - **Human-gated waiver.** Skip the required cross-model run for such a task
-     only when its tasks.md entry records a `Cross-Model-Waiver:` that is VALID.
-     A waiver is valid only when the SAME task also carries a human
-     `Approval: Approved` audit mark naming a second distinct human approver
-     (the human-only mark the deterministic guard already prevents an agent from
-     writing, and the same distinct-approver rule already mandated for critical
-     tasks). A `Cross-Model-Waiver:` that lacks that co-located human-approval
-     context is treated as ABSENT (fail-closed) and cross-model verification
-     remains required. An agent cannot grant itself a waiver, because it cannot
-     produce the human approval mark the waiver depends on. Guard-level
-     enforcement of the waiver token itself is out of scope here (future
-     hardening); the waiver is inert without the human approval context.
-   - **Fail-closed stop.** If such a task has neither a completed cross-model
-     run in this invocation nor a valid waiver, STOP the ship flow before the
-     quality gate and print a diagnostic naming the task:
-     `[sdd-ship] Cross-model verification required for T-NNN (Risk: critical or
-     Security-Sensitive: true), but it neither ran this invocation nor carries a
-     valid Cross-Model-Waiver: (a valid waiver needs a co-located human
-     Approval: Approved mark naming a second distinct approver). Run cross-model
-     verification or record a valid waiver, then re-invoke.`
-
-   Independently of the requirement above, if the `--verify` flag was passed and
-   the task has `Cross-Model: enabled` in its
-   tasks.md entry: invoke `/sdd-quality-loop:cross-model-verify specs/<feature>/tasks.md#T-NNN`
-   before the gate.
-   - If no task in the batch has `Cross-Model: enabled`, print a warning:
-     `[sdd-ship] --verify passed but no tasks have Cross-Model: enabled. Add
-     the field to task entries that require panelist verification.`
-   - On lite track, `--verify` is silently ignored with the same warning.
-2. Invoke `/sdd-quality-loop:quality-gate specs/<feature>/tasks.md#T-NNN`.
-3. **PASS (Done)**: task transitions to Done. Continue to next task.
-4. **BLOCKED (review tickets created)**: stop immediately. Print:
-   `[sdd-ship] Quality gate blocked for T-NNN. Review tickets written to
-   docs/review-tickets/. Address each ticket, then re-invoke:
-   /sdd-quality-loop:fix-by-review-ticket docs/review-tickets/RT-NNN.yml`
-   Do not proceed to other tasks while any task is Blocked.
-5. Cycle limit (disk-based — survives re-invocation across sessions): before
-   invoking quality-gate, run the deterministic cycle-limit script for this task
-   instead of counting reports by hand:
-
-   ```txt
-   plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh T-NNN <feature>
-   ```
-
-   On a Windows host without `python3`/`node`, run the PowerShell twin instead:
-
-   ```txt
-   pwsh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1 T-NNN <feature>
-   ```
-
-   The script counts THIS FEATURE's existing gate reports under
-   `reports/quality-gate/` (word-boundary match on the task id so `T-001` does
-   not match `T-0010`, AND an anchored match on this feature's own `Feature:`
-   header line, so a different feature's report sharing the same bare task id
-   is never counted; an absent directory counts zero) and prints its decision:
-   - `continue` (exit 0): fewer than three reports — proceed to invoke
-     quality-gate for T-NNN.
-   - `Escalate-Human` (non-zero exit): three or more reports and the task is
-     still not Done — stop autonomous retries and surface the remaining
-     findings for a human decision. Do not automatically invoke quality-gate
-     or fix-by-review-ticket again. If a human has explicitly authorized the
-     applicable correction and further review, follow **Resuming After A Human
-     Decision** in `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`:
-     record the authorizer, instruction source, feature/task, correction scope
-     and remaining findings, then obtain fresh independent review and all
-     required gate evidence. A general wish to finish is insufficient. Preserve
-     the limit's non-zero exit and all report history; this is a documented
-     human-authorized continuation, not a successful cycle-limit check.
-
-   Because each quality-gate run writes a durable timestamped report under
-   `reports/quality-gate/`, this limit is computed from disk and holds across
-   separate `/sdd-ship:ship` invocations and sessions (it does not reset per
-   invocation).
-
-### Lite track
-
-For each task at `Implementation Complete`:
-- **Ineligibility check (before the lite gate).** If the task's tasks.md entry
-  carries `Risk: critical` or `Security-Sensitive: true`, it is INELIGIBLE for
-  the lite track, because the lite track has no cross-model step. The lite gate
-  rejects it: STOP and print a diagnostic naming the task and directing the
-  human to the full track, e.g.
-  `[sdd-ship] T-NNN is Risk: critical or Security-Sensitive: true and is
-  ineligible for the lite track (no cross-model step). Re-run on the full track:
-  /sdd-ship:ship --full specs/<feature>/tasks.md`
-  Do not admit such a task to the lite gate.
-Invoke `/sdd-lite:lite-gate specs/<feature>/tasks.md#T-NNN`.
-- PASS: task is Done.
-- FAIL: stop, surface the report, and instruct the user to fix and re-run.
-
-## Field Definitions
-
-These optional per-task fields live in a tasks.md task entry. They are additive;
-existing consumers ignore unknown fields.
-
-- `Security-Sensitive:` — optional per-task boolean trigger. `true` marks the
-  task as requiring cross-model verification regardless of its `Risk:` tier (see
-  Step 4). The task author proposes it; the human confirms it at approval.
-  Absent or `false` means the field does not force cross-model verification (the
-  `Risk:` tier still may).
-- `Cross-Model-Waiver:` — optional per-task field recording an explicit decision
-  to skip the cross-model verification a task would otherwise require. Who may
-  set it: a human only. Its audit value is a short human-authored reason. It is
-  honored only when the SAME task also carries a human `Approval: Approved`
-  audit mark naming a second distinct human approver — the human-only approval
-  context that makes the waiver valid; without that context the waiver is
-  ignored and cross-model verification remains required (fail-closed). Because
-  an agent cannot produce the human approval mark, an agent-written waiver has
-  no effect.
-- Lite-track rule for critical/security-sensitive tasks: a task with
-  `Risk: critical` or `Security-Sensitive: true` is INELIGIBLE for the lite
-  track, because the lite track has no cross-model step. The lite gate rejects
-  such a task with a diagnostic naming the task and directing the human to the
-  full track (see Step 4, Lite track), rather than admitting it to a track that
-  would silently drop the cross-model requirement.
-
-## Step 5 — Completion Check
-
-After all targeted tasks reach Done:
-
-- If `--retro` flag was passed, or if all tasks in the feature (not just the
-  targeted subset) have reached Done for the first time in this session:
-  invoke `/sdd-quality-loop:workflow-retrospective specs/<feature>`.
-- Print a summary: number of tasks implemented, number Done, any remaining
-  non-Done tasks (with their current Status).
-
-## State Machine Summary
-
-```
-IDLE
-→ TARGET_SELECTED    (path argument or zero-arg auto-select)
-→ TRACK_DETECTED     (print [sdd-ship] Track: ... message)
-→ IMPLEMENTING       (implement-tasks for full / implement-task loop for lite)
-→ QUALITY_GATE_LOOP  (quality-gate or lite-gate per task)
-   ├── task Done → continue loop
-   ├── task Blocked → STOP (surface review tickets)
-   └── ≥3 disk gate reports for task and not Done → STOP (Escalate-Human)
-       └── explicit applicable human decision → documented scoped continuation
-→ COMPLETION_CHECK   (all targeted tasks Done?)
-   └── yes → [--retro or all-Done] RETROSPECTIVE → DONE
-```
-
-## Context Compaction
-
-Ship sessions span many tasks. All loop state is persisted on disk (tasks.md
-Status fields, `reports/quality-gate/`, review tickets), and both the Resume
-behaviour (Step 3) and the disk-based cycle limit (Step 4) are designed to
-survive re-invocation — compaction at a task boundary loses nothing.
-
-Compact (or accept auto-compaction) only at task boundaries:
-
-- after a task reaches Done (quality gate PASS)
-- after a BLOCKED stop, before starting fix-by-review-ticket
-- between Step 3 and Step 4, when all targeted tasks are at
-  Implementation Complete
-
-Do not compact while a task is In Progress or a quality-gate cycle is
-running: the implementing agent's working context (file paths, partial
-changes, verification state) is not yet reflected on disk. After compacting,
-re-invoke `/sdd-ship:ship` and rely on Resume behaviour to continue from the
-first eligible task.
-
-## Security Boundaries
-
-- **Never** invoke `sdd-sudo` or create/modify the `SDD_SUDO` file.
-- **Never** set `Approval: Approved` on any task. The approval guard will block
-  this; attempting it causes confusing error messages.
-- **Never** modify gate scripts (`scripts/*.sh`, `scripts/*.ps1`) or hook files.
-- **Never** push to remote, create pull requests, or merge branches unless the
-  user explicitly requests it in this session.
-- **Never** modify files under `plugins/sdd-quality-loop/hooks/` or
-  `plugins/sdd-quality-loop/scripts/sdd-hook-guard.*`.
-- Do not exceed the scope of the targeted tasks. Do not make changes to files
-  unrelated to the approved tasks.
+1. `run-sdd-gate.mjs` により以下を 1 回で決定論的に検証:
+   - タスク状態（`Approval: Approved` / `Implementation Complete`）
+   - **Spec Drift 検査**（`CLEAN` / `AMENDED` は通過、`UNDECLARED_DRIFT` は FAIL）
+   - 変更コードのプレースホルダー検査
+   - プロジェクトの lint / typecheck / build / test 実行（`reports/quality-gate/<feature>-<task-id>.execution.json` 出力）
+2. 独立コンテキストによる 1 パスレビュー（`AC-*` 充足確認、`AMENDED` 時の理由妥当性確認、回帰リスク確認、`Risk: high` 時のセキュリティ/移行確認）。
+3. **PASS**: `reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`tasks.md` の対象タスクを `Status: Done` へ更新。
+4. **FAIL**: 失敗理由（テスト失敗 / プレースホルダー / `UNDECLARED_DRIFT` / 独立レビュー指摘）を明示して停止し、`Status: Implementation Complete` のまま修正を促す。
 
 ## Handoff
 
-After sdd-ship completes, report:
-
-- Tasks implemented and their final status (Done / Blocked)
-- Any review tickets created (with file paths)
-- Next action for the user:
-  - If all Done: "Feature complete. Consider re-running /sdd-ship:ship --retro
-    specs/<feature>/tasks.md to capture improvements."
-  - If Blocked: "Address review tickets, apply fixes with
-    /sdd-quality-loop:fix-by-review-ticket, then re-run /sdd-ship:ship."
+完了時に以下を報告する:
+- 各タスクの最終状態（`Done` / `FAIL` / `Blocked`）
+- `Spec Drift` ステータス（`CLEAN` / `AMENDED` — `AMENDED` の場合は PR 説明文へ転記できる変更要約を添付）
+- 生成された品質レポートと実行証跡パス（`reports/quality-gate/`）
