@@ -1,34 +1,24 @@
 ---
 name: fix-by-review-ticket
-description: Apply only a human-approved repository review-ticket YAML fix, run scoped checks, and return the task to Implementation Complete for another quality gate.
+description: Apply a scoped fix for one repository review ticket under docs/review-tickets/, verify with scoped tests, and return the task to Implementation Complete for sdd-gate re-verification.
 disable-model-invocation: true
 ---
 
 # Fix By Review Ticket
 
-Use this skill for one review ticket under `docs/review-tickets/`.
+`docs/review-tickets/` 配下のレビューチケット 1 件に対して最小限の修正を適用し、`sdd-gate` の再検証へ戻す。
 
 ## Process
 
-1. Read the ticket and its referenced task, specification, code, and tests.
-2. Stop when `requires_human_decision: true`, the target is unclear, or the
-   requested change exceeds the ticket.
-3. Apply the smallest fix described by the ticket. For a non-obvious defect,
-   diagnose it systematically (reproduce → isolate → hypothesis → minimal fix
-   at the cause → verify → regression test) per
-   `plugins/sdd-quality-loop/references/debugging-recovery-policy.md`. Never
-   suppress the symptom, weaken a test, or hardcode to the fixture to pass.
-4. Add or update required tests and run scoped checks.
-5. Mark the ticket `resolved` only when the requested fix and tests succeed.
-6. Return the task to `Implementation Complete`.
-7. Run `quality-gate` again before the task can become `Done`.
+1. チケットと関連する仕様（`specs/<feature>/*.md`）・実装・テストを読む。
+2. `requires_human_decision: true`、対象不明確、またはチケット範囲を超える変更が必要な場合は停止して人間へ判断を仰ぐ。
+3. チケット記載の最小修正のみを適用する。原因が自明でない不具合は `plugins/sdd-quality-loop/references/debugging-recovery-policy.md` に従って切り分け、テストの弱体化やハードコードで回避しない。
+4. 必要なテストを追加・更新し、スコープ内のチェックを実行する。
+5. 修正とテストが通った場合のみチケットを `resolved` とし、対象タスクを `Status: Implementation Complete` に戻す。
+6. `Done` にする前に `/sdd-ship:ship` 経由で `sdd-gate` を再実行する。
 
-## Sudo Mode
+## Boundaries
 
-A valid `SDD_SUDO` flag does **not** bypass `requires_human_decision: true`.
-Those tickets need genuine human judgment, not just approval, so the step 2 stop
-still applies under sudo. Scoped deterministic checks run as normal. See
-`plugins/sdd-quality-loop/references/sudo-mode-policy.md`.
-
-Do not make unrelated improvements, silently change requirements, or perform
-breaking changes. Do not commit, push, or create a PR/MR unless explicitly requested.
+- 無関係なリファクタ、仕様本文の無断改変、破壊的変更は行わない。
+- `Approval:` や `Status: Done` は変更しない（`Done` は `sdd-gate` のみ）。
+- 明示指示がない限り commit / push / PR 作成は行わない。

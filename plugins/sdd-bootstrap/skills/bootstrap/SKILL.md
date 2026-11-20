@@ -1,39 +1,26 @@
 ---
 name: bootstrap
-description: Generate implementation-ready SDD Core specifications (requirements with ACs, design, and risk-tiered tasks) and run a single-pass pre-implementation spec check. The first of the two-command workflow — run before /sdd-ship:ship.
+description: Generate implementation-ready SDD Core specifications (requirements with ACs, design, and risk-tiered tasks) and run a risk-scaled pre-implementation spec check. First step of the two-command workflow before /sdd-ship:ship.
 disable-model-invocation: true
 ---
 
-# SDD Bootstrap (SDD Core v2)
+# SDD Bootstrap
 
-要件から実装可能な仕様・設計・タスク契約を生成する、2 コマンドワークフローの第 1 ステップ（ADR-0051）。
-従来の「重すぎる Full（3 連レビューループ・7 層ドキュメント・カナリア儀式）」と「軽すぎる Lite（事前レビューゼロ）」を **単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ統合している。
+要件から実装可能な仕様・設計・タスク契約を生成し、着工前レビューまで完了させるエントリポイント。
 
 ## Invocation
 
-Claude Code / Gemini CLI:
-
 ```txt
 /sdd-bootstrap:bootstrap <mode> <source>
+/sdd-bootstrap:bootstrap <mode> --feature <slug> [--risk low|standard|high] [--skip-check] <source>
 /sdd-bootstrap:bootstrap adopt [project-root]
 /sdd-bootstrap:bootstrap investigate <mode> <source>
-/sdd-bootstrap:bootstrap <mode> --feature <slug> [--risk low|standard|high] [--skip-check] <source>
 ```
 
-Codex CLI / Copilot CLI:
-
-```txt
-Use the bootstrap skill.
-Mode: feature | bugfix | refactor | project | adopt | investigate
-Source: <GitHub/GitLab issue URL or requirement text>
-```
-
-### Modes
-
-| Mode | 委譲先 | 説明 |
+| Mode | 委譲先 | 用途 |
 |---|---|---|
 | `feature` | `sdd-core-spec` → `spec-check` | 新機能の仕様・設計・タスク生成 |
-| `bugfix` | `sdd-core-spec` → `spec-check` | 不具合修正（原因不明・複雑な回帰は先に `/sdd-implementation:diagnose` 推奨） |
+| `bugfix` | `sdd-core-spec` → `spec-check` | 不具合修正（原因不明時は先に `/sdd-implementation:diagnose` 推奨） |
 | `refactor` | `sdd-core-spec` → `spec-check` | リファクタリング（事前に `investigate refactor` でベースライン取得推奨） |
 | `project` | `sdd-adopt` → `sdd-core-spec` → `spec-check` | 新規プロジェクト立ち上げ |
 | `adopt` | `sdd-adopt` | 既存リポジトリへの SDD 構造導入のみ |
@@ -41,52 +28,39 @@ Source: <GitHub/GitLab issue URL or requirement text>
 
 ### Flags
 
-| Flag | 効果 |
-|---|---|
-| `--feature <slug>` | 生成先 `specs/<slug>/` のスラッグを明示指定 |
-| `--risk low\|standard\|high` | タスクのリスク階層を明示指定（省略時は `sdd/guardrails.yaml` の既定値＋変更内容から自動判定） |
-| `--skip-check` | 着工前の `spec-check`（1 パス統合レビュー）をスキップ |
-| `--lite` / `--full` *(互換エイリアス)* | v2 ではトラック分岐を廃止。`--lite` は `--risk low`、`--full` は `--risk high` のヒントとして安全に解釈する（停止エラーにはしない） |
+- `--feature <slug>`: 出力先 `specs/<slug>/` を明示指定。
+- `--risk low|standard|high`: リスク階層を明示指定（省略時は `sdd/guardrails.yaml` の既定値と変更内容から判定）。
+- `--skip-check`: 着工前レビュー（`spec-check`）を省略。
+- `--lite` / `--full` *(互換エイリアス)*: それぞれ `--risk low` / `--risk high` として解釈する。
 
 ## Preconditions
 
-1. リポジトリルートに `AGENTS.md` が無い場合、`feature`/`bugfix`/`refactor`/`project` では自動的に `/sdd-bootstrap:sdd-adopt` を案内または実行して構造を整える。
-2. `sdd/guardrails.yaml`（または `sdd/guardrails.json`）が存在すれば読み込む。存在しなくてもエラーにせず既定値（`spec_guard.mode: confirm`, `review.pre_impl_check: auto`, `risk_defaults.default_tier: standard`）で続行する。
-3. **MCP Preflight（任意・助言のみ）**: `get_next_sdd_command` が利用可能なら参照してよいが、失敗しても停止せずファイルベースのルーティングを優先する。
+1. ルートに `AGENTS.md` が無い場合、`feature` / `bugfix` / `refactor` / `project` では先に `/sdd-bootstrap:sdd-adopt` を実行または案内する。
+2. `sdd/guardrails.yaml`（または `sdd/guardrails.json`）があれば読み込む。不在時は既定値（`spec_guard.mode: confirm`, `review.pre_impl_check: auto`, `risk_defaults.default_tier: standard`）を使用する。
+3. 読み取り専用 MCP `get_next_sdd_command` が使えれば参考情報として参照してよいが、ルーティング判断は常にファイル状態を正とする。
 
-## Routing & Flow（SDD Core 単一トラック）
+## Flow
 
-### `adopt` / `investigate` / オプトイン専門ルート
-- `adopt`: `/sdd-bootstrap:sdd-adopt [project-root]` へ委譲して終了。
-- `investigate`: `/sdd-bootstrap:investigate-codebase <mode> <source>` へ委譲して終了。
-- 外部一次資料調査が必要な場合は内部スキル `research-sources`、既存クラウド運用ユニットの明示操作は `sdd-azure-cloud:orchestrate` / `sdd-aws-cloud:orchestrate`、UI デザインシステム統合は `design-system/` 存在時のみ `design-sync-loop`、DDD モデルがある場合は `domain/` 存在時のみ `sdd-domain` を併用する（いずれも不在時のオーバーヘッドはゼロ）。
+- `adopt` / `investigate`: 該当スキルへ委譲して終了。
+- オプトイン専門ルート: 外部資料調査は `research-sources`、UI デザインシステムは `design-system/` 存在時のみ `design-sync-loop`、DDD モデルは `domain/` 存在時のみ `sdd-domain`、既存クラウド運用の明示指定時は `sdd-azure-cloud:orchestrate` / `sdd-aws-cloud:orchestrate` を併用する（非該当時は実行しない）。
 
-### `feature` / `bugfix` / `refactor` / `project`（標準フロー）
+`feature` / `bugfix` / `refactor` / `project` は次の 3 ステップで進める:
 
-1. **Step 1 — 仕様・設計・タスク生成（`sdd-core-spec`）**:
-   - `/sdd-bootstrap:sdd-core-spec` を実行し、`specs/<feature>/` に以下 3 ファイルを生成する:
-     - `requirements.md`（目的・`REQ-NNN`・**検証可能な `AC-NNN`**・スコープ外・未決事項・`## Spec Amendments`）
-     - `design.md`（方針・変更ファイル・IF/データ契約・影響範囲・テスト方針・`## Spec Amendments`）
-     - `tasks.md`（`Approval: Draft`, `Status: Planned`, `Risk: low|standard|high`, `Scope`, `Done When`, `Blockers`, `## Spec Amendments`）
-   - `Risk: high` のタスクを含む場合のみ、必要に応じて ADR（`docs/adr/`）や詳細な `acceptance-tests.md` を追加する。
-
-2. **Step 2 — リスク連動 1 パス統合レビュー（`spec-check`）**:
-   - `sdd/guardrails.yaml` の `review.pre_impl_check` と最高 `Risk:` 階層に従って実行:
-     - `off` または `--skip-check`、あるいは `auto` かつ全タスクが `Risk: low` → スキップして Step 3 へ。
-     - `Risk: standard` → `/sdd-review-loop:spec-check`（**`single` モード: 1 体 1 パス**）を実行。
-     - `Risk: high` → `/sdd-review-loop:spec-check`（**`dual-parallel` モード: Reviewer A [仕様・AC 網羅] ＋ Reviewer B [設計・セキュリティ・移行批判] の 2 視点並列 1 パス**）を実行し、1 枚の `reports/spec-check/<feature>.md` へ統合。
-   - `PASS` / `PASS_WITH_NOTES` → そのまま Step 3 へ進む。
-   - `NEEDS_FIX` → 指摘された Blocker と修正案を人間へ提示し、仕様を修正してから再度 `spec-check` を実行する（`attempt` / `--reset` は不要）。
-
-3. **Step 3 — 人間による承認ゲート**:
-   - 生成した仕様ファイル、各タスクの `Risk:`、未解決の `Open Questions`、`spec-check` 結果を人間へ提示する。
-   - エージェントは `Approval: Approved` を書き込まない（`sdd-soft-guard.mjs` が自己承認を抑止）。
-   - 人間が `specs/<feature>/tasks.md` の対象タスクを `Approval: Approved` に変更したら準備完了。
+1. **仕様生成（`sdd-core-spec`）**:
+   `/sdd-bootstrap:sdd-core-spec` を実行し、`specs/<feature>/{requirements,design,tasks}.md` を生成する。
+2. **着工前レビュー（`spec-check`）**:
+   `review.pre_impl_check` と最高 `Risk:` 階層に従って `/sdd-review-loop:spec-check` を実行する:
+   - `off` / `--skip-check`、または `auto` かつ全タスク `Risk: low` → スキップして Step 3 へ。
+   - `Risk: standard` → `single` モード（独立 1 体・1 パス）。
+   - `Risk: high` → `dual-parallel` モード（Reviewer A [仕様・AC] ＋ Reviewer B [設計・セキュリティ] の 2 視点並列 1 パス）。
+   - `PASS` / `PASS_WITH_NOTES` → Step 3 へ。`NEEDS_FIX` → Blocker を提示し仕様修正後に再実行。
+3. **人間承認ゲート**:
+   成果物・各タスクの `Risk:`・`spec-check` 結果・未解決 `Open Questions` を人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
 
 ## Handoff
 
-完了時に以下を簡潔に報告する:
-- 生成された仕様ファイル一覧（`specs/<feature>/{requirements,design,tasks}.md`）
-- `spec-check` 結果（実行した場合）と残る `Open Questions`
-- 人間のアクション: `specs/<feature>/tasks.md` で対象タスクを `Approval: Approved` に変更
+完了時に以下を報告する:
+- 生成ファイル一覧（`specs/<feature>/{requirements,design,tasks}.md`）
+- `spec-check` 結果（実行時）と残る `Open Questions`
+- 次の人間操作: `specs/<feature>/tasks.md` の対象タスクを `Approval: Approved` へ変更
 - 次のコマンド: `/sdd-ship:ship specs/<feature>/tasks.md`

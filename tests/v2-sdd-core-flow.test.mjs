@@ -244,6 +244,46 @@ describe('Phase 2 SDD Core skill & template contracts', () => {
     assert.doesNotMatch(specCheck, /--reset --feature/);
   });
 
+  it('all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions', () => {
+    const activePrompts = [
+      'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md',
+      'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md',
+      'plugins/sdd-bootstrap/GEMINI.md',
+      'plugins/sdd-bootstrap/commands/sdd-bootstrap/bootstrap.toml',
+      'plugins/sdd-review-loop/skills/spec-check/SKILL.md',
+      'plugins/sdd-review-loop/GEMINI.md',
+      'plugins/sdd-implementation/skills/implement-task/SKILL.md',
+      'plugins/sdd-implementation/skills/implement-tasks/SKILL.md',
+      'plugins/sdd-implementation/skills/diagnose/SKILL.md',
+      'plugins/sdd-implementation/gemini/GEMINI.md',
+      'plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md',
+      'plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md',
+      'plugins/sdd-quality-loop/gemini/GEMINI.md',
+      'plugins/sdd-ship/skills/ship/SKILL.md',
+      'plugins/sdd-ship/GEMINI.md',
+      'plugins/sdd-ship/commands/sdd-ship/ship.toml',
+    ];
+    const forbiddenRe =
+      /check-hook-activation-handshake|\.hook-canary-sentinel|ERROR_STOP|SDD_SUDO|\bsdd-lite\b|\blite-spec\b|\blite-gate\b|\bspec-review-loop\b|\bimpl-review-loop\b|\btask-review-loop\b|\bsdd-bootstrap-interviewer\b|\bquality-gate\b(?!\/)|Risk:[^\n]*critical/i;
+
+    for (const rel of activePrompts) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      const match = content.match(forbiddenRe);
+      assert.equal(match, null, `${rel} contains retired v1 term: ${match?.[0]}`);
+    }
+
+    assert.equal(
+      fs.existsSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer')),
+      false,
+      'duplicate legacy sdd-bootstrap-interviewer skill must be removed',
+    );
+    assert.equal(
+      fs.existsSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/quality-gate')),
+      false,
+      'duplicate legacy quality-gate skill must be removed',
+    );
+  });
+
   it('SDD Core templates include REQ/AC/Risk structure and Spec Amendments section', () => {
     const req = fs.readFileSync(
       path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-core-spec/templates/requirements.md'),

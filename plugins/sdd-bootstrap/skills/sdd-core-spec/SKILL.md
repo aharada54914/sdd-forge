@@ -1,53 +1,49 @@
 ---
 name: sdd-core-spec
-description: Generate concise, implementation-ready SDD Core specifications (requirements with testable ACs, design, and risk-tiered tasks) under specs/<feature>/. Invoked internally by /sdd-bootstrap:bootstrap.
+description: Generate implementation-ready SDD Core specifications (requirements with testable ACs, design, and risk-tiered tasks) under specs/<feature>/. Invoked internally by /sdd-bootstrap:bootstrap.
 disable-model-invocation: false
 user-invocable: false
 ---
 
+> **Caller**: `bootstrap` から呼び出される内部スキル。実装コードは書かない。
+
 # SDD Core Spec
 
-SDD Forge v2（ADR-0051）の標準仕様生成スキル。旧 `sdd-bootstrap-interviewer`（7層フル仕様）と旧 `lite-spec`（簡易3ファイル）を統合し、過不足のない 3 ファイル構造（必要時のみ `acceptance-tests.md` / ADR を追加）を生成する。
+要件から実装可能な 3 ファイル仕様（`requirements.md` / `design.md` / `tasks.md`）を生成する。
 
 ## Preconditions
 
-- リポジトリルートに `AGENTS.md` が存在すること（未整備時は `/sdd-bootstrap:sdd-adopt` を案内）。
+- ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:sdd-adopt` を案内して停止）。
 - `sdd/guardrails.yaml`（または `sdd/guardrails.json`）が存在すれば読み、不在時は既定値（`default_tier: standard`）を使用する。
-- カナリアハンドシェイクや `project-context.approval.json` の検証は不要。
 
 ## Process
 
-1. **要件の整理と不明点の確認**:
-   - 出典（Issue / 要件テキスト / `investigation.md` / `reports/diagnosis/*.md`）を読み、既存コードベースの関連箇所を確認する。
-   - 重要な設計判断・曖昧な要件がある場合は、推測で決めず 2〜3 案の比較表＋推奨案を示して人間に確認する（未決事項は `Open Questions` に残す）。
-   - `design-system/` や `domain/` が存在するプロジェクトでは、既存のトークン・ユビキタス言語に整合させる（不在時はオーバーヘッドゼロでスキップ）。
-   - SQL / DB スキーマ変更を含む場合は、`sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
+1. **要件整理と既存コード調査**:
+   - 出典（Issue / 要件テキスト / `investigation.md` / `reports/diagnosis/*.md`）と関連コードを確認する。
+   - 重要な設計分岐や曖昧な要件は推測せず、2〜3 案の比較表と推奨案を提示して人間へ確認する（未決事項は `Open Questions` に残す）。
+   - `design-system/`・`domain/` が存在する場合のみ既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
 
-2. **リスク階層の判定（タスク単位）**:
-   - 既定は `sdd/guardrails.yaml` の `risk_defaults.default_tier`（既定 `standard`）。
-   - 以下の目安でタスクごとの `Risk:` を設定する:
-     - `low`: 小規模バグ修正（`diagnose` 経由等）、ドキュメント、限定的なリファクタ
-     - `standard`: 通常の新機能・API/UI 追加・中規模変更
-     - `high`: `risk_defaults.high_risk_paths` に該当する変更、または認証/認可・決済・PII・DB マイグレーション・公開契約の破壊的変更
-   - `--risk low|standard|high` が明示指定された場合はそれを優先する（旧 `--lite` は `low`、旧 `--full` は `high` のヒントとして扱う）。
+2. **タスク単位のリスク判定（`Risk: low | standard | high`）**:
+   - `--risk` 指定があればそれを優先（`--lite` → `low`、`--full` → `high`）。
+   - 未指定時は `sdd/guardrails.yaml` の `risk_defaults` と変更内容から判定する:
+     - `low`: 小規模バグ修正（`diagnose` 経由等）、ドキュメント、限定リファクタ
+     - `standard` *(既定)*: 通常の新機能・API/UI 追加・中規模変更
+     - `high`: `high_risk_paths` 該当、または認証/認可・決済・PII・DB 移行・破壊的契約変更
 
-3. **SDD Core 成果物の生成（`specs/<feature>/`）**:
-   - `templates/requirements.md` に従い `specs/<feature>/requirements.md` を生成:
-     - `REQ-NNN` と、すべての要件に対応する観測・テスト可能な `AC-NNN` を必ず記載する。
-     - `## Spec Amendments` セクションを末尾に含める。
-   - `templates/design.md` に従い `specs/<feature>/design.md` を生成:
-     - 方針・変更ファイル一覧・IF/データ契約・影響範囲・テスト方針を簡潔に記載する。
-     - `Risk: high` のタスクを含む場合は、セキュリティ・移行・ロールバック観点と必要に応じた ADR (`docs/adr/`) を記載する。
-   - `templates/tasks.md` に従い `specs/<feature>/tasks.md` を生成:
-     - 各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`、`### Done When`（対応する `AC-NNN` を明記）、`### Blockers` を記載する。
-     - アプリの実装コードはまだ書かない。
+3. **3 ファイル生成（`specs/<feature>/`）**:
+   - `templates/requirements.md` → `specs/<feature>/requirements.md`:
+     全 `REQ-NNN` に観測・テスト可能な `AC-NNN` を紐付け、末尾に `## Spec Amendments` を置く。
+   - `templates/design.md` → `specs/<feature>/design.md`:
+     方針・変更ファイル・IF/データ契約・影響範囲・テスト方針・`## Spec Amendments` を記載する（`Risk: high` を含む場合はセキュリティ・移行・ロールバック方針を明記し、必要に応じ `docs/adr/` へ ADR を作成）。
+   - `templates/tasks.md` → `specs/<feature>/tasks.md`:
+     各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`、`### Done When`（対応 `AC-NNN` 参照）、`### Blockers`、末尾に `## Spec Amendments` を記載する。
 
 ## Boundaries
 
-- `Approval: Approved` は絶対に書き込まない（人間のみが承認する）。
-- `traceability.md`・`ux-spec.md`・`frontend-spec.md`・`infra-spec.md`・`security-spec.md` の強制生成は行わない（必要な場合のみ任意追加）。
-- 実装フェーズのファイル編集は行わない。
+- `Approval: Approved` は絶対に書き込まない。
+- アプリケーションの実装コードは編集しない。
+- 追加の設計文書（ADR や詳細テスト表）は `Risk: high` など必要時のみ作成する。
 
 ## Handoff
 
-生成した `specs/<feature>/{requirements,design,tasks}.md` と各タスクの `Risk:`、未解決の `Open Questions` を呼び出し元（`bootstrap`）へ返す。
+生成パス、各タスクの `Risk:`、未解決の `Open Questions` を `bootstrap` へ返す。
