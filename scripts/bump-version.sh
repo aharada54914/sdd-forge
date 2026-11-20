@@ -73,6 +73,16 @@ OLD_PLAIN_RE="${OLD//./\\.}"          # sed pattern matching the plain form
 OLD_ESCAPED_RE="${OLD//./\\\\.}"      # sed pattern matching the regex-escaped form
 NEW_ESCAPED="${NEW//./\\\\.}"         # sed replacement emitting a regex-escaped form
 
+# Portable in-place sed helper (GNU sed and BSD/macOS sed).
+sed_inplace() {
+    local expr="$1" file="$2"
+    if sed --version >/dev/null 2>&1; then
+        sed -i "$expr" "$file"
+    else
+        sed -i '' "$expr" "$file"
+    fi
+}
+
 # 1. Every plugin's host manifests (Claude, Codex, Copilot, Gemini) + both marketplaces.
 for manifest in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
@@ -82,23 +92,19 @@ for manifest in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}/.claude-plugin/marketplace.json" \
                 "${ROOT}/.agents/plugins/marketplace.json"; do
     [[ -f "$manifest" ]] || continue
-    sed -i.bak "s/\"version\": \"${OLD_PLAIN_RE}\"/\"version\": \"${NEW}\"/g" "$manifest"
-    rm -f "${manifest}.bak"
+    sed_inplace "s/\"version\": \"${OLD_PLAIN_RE}\"/\"version\": \"${NEW}\"/g" "$manifest"
 done
 
 # 2. README current-release line (first line starting with vX.Y.Z).
-sed -i.bak "s/^v${OLD_PLAIN_RE}\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
-rm -f "${ROOT}/README.md.bak"
+sed_inplace "s/^v${OLD_PLAIN_RE}\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
 
 # 3. Repository validator: escaped regex form first, then plain form.
-sed -i.bak "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
+sed_inplace "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
     "${ROOT}/tests/validate-repository.ps1"
-rm -f "${ROOT}/tests/validate-repository.ps1.bak"
 
 # 4. Release-validation test fixtures that assert the literal version.
-sed -i.bak "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
+sed_inplace "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
     "${ROOT}/tests/repository-release-validation.tests.sh"
-rm -f "${ROOT}/tests/repository-release-validation.tests.sh.bak"
 
 # 5. Verify: no stale old-version strings remain on release surfaces.
 stale=0
