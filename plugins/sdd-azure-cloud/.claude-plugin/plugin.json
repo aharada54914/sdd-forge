@@ -1,7 +1,7 @@
 {
   "name": "sdd-azure-cloud",
   "description": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "author": {
     "name": "Harada"
   },

@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.25.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.26.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI、Gemini CLI の 4 環境に対応します。
 
 外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
 [research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
@@ -124,7 +124,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 **セキュリティ境界**: 入力スキーマにコマンド・引数・パスを受け取るフィールドがなく、プローブ対象は外部入力から到達不可のコンパイル時固定リストのみです。環境変数値・ユーザー名・ホスト名は応答に含まれません。
 
-**自動登録**: installer は Cursor (`~/.cursor/mcp.json`) と VS Code（ユーザープロファイル `mcp.json`）への自動登録も行います。詳細は [USERGUIDE.md](USERGUIDE.md) を参照してください。
+**自動登録**: installer は Cursor (`~/.cursor/mcp.json`)、VS Code（ユーザープロファイル `mcp.json`）、Gemini CLI (`~/.gemini/settings.json`) への自動登録も行います。詳細は [USERGUIDE.md](USERGUIDE.md) を参照してください。
 
 #### ci-mcp
 
@@ -144,7 +144,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 ## インストール
 
-リポジトリ直下の `install.sh`（macOS / Linux）または `install.ps1`（Windows）を実行します。プラグイン本体を INSTALL_ROOT に配置し、各 CLI（Codex / Claude / Copilot）へ marketplace とプラグインを登録し、Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）と MCP サーバーを設定します。
+リポジトリ直下の `install.sh`（macOS / Linux）または `install.ps1`（Windows）を実行します。プラグイン本体を INSTALL_ROOT に配置し、各 CLI（Codex / Claude / Copilot / Gemini）へ marketplace・プラグイン・拡張機能を登録し、Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）と MCP サーバーを設定します。
 
 ```bash
 # macOS / Linux — 既定（sdd-bootstrap,sdd-ship + 依存の自動解決、MCP 3種すべて）
@@ -153,8 +153,9 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 # 手元のクローンからインストールする（ダウンロードを行わない）
 ./install.sh --source-directory .
 
-# 対象環境とプラグインを絞る
+# 対象環境とプラグインを絞る（Gemini CLI の例も含む）
 ./install.sh --target Claude --plugins sdd-bootstrap,sdd-lite
+./install.sh --target Gemini --plugins sdd-bootstrap,sdd-ship,sdd-domain
 
 # MCP サーバーを入れない / 一部だけ入れる
 ./install.sh --skip-mcp
@@ -166,6 +167,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 ./install.ps1
 ./install.ps1 -SourceDirectory .
 ./install.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-lite
+./install.ps1 -Target Gemini -Plugins sdd-bootstrap,sdd-ship,sdd-domain
 ./install.ps1 -SkipMcp
 ```
 
@@ -188,7 +190,7 @@ git config core.longpaths true
 | `--repository <owner/repo>` | 取得元リポジトリ。既定は `aharada54914/sdd-forge` |
 | `--ref <ref>` | 取得する ref。既定は `main` |
 | `--install-root <path>` | インストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
-| `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 登録をスキップしファイル配置のみ |
+| `--target All\|Codex\|Claude\|Copilot\|Gemini\|FilesOnly` | 対象環境。既定は `All`。`Gemini` は各選択プラグインの Gemini 拡張リンクと `~/.gemini/settings.json` への MCP 登録を実施。`FilesOnly` は CLI 登録をスキップしファイル配置のみ |
 | `--plugins <comma>` | 対象プラグイン。既定は **`sdd-bootstrap,sdd-ship`**（全プラグインではありません） |
 | `--skip-plugin-install` | CLI へのプラグイン登録をスキップ |
 | `--skip-agent-install` | Codex エージェント TOML のコピーをスキップ |
@@ -228,11 +230,13 @@ git config core.longpaths true
 
 インストール成功だけでは、実際のホストでフックが動いた証明にはなりません。bootstrap の[有効化確認](plugins/sdd-bootstrap/skills/bootstrap/SKILL.md#track-selection)で、そのセッション自身のツール呼び出しと毎回新しいチャレンジを使って `HOOK_ACTIVE` を確認します。それ以外の結果は `CAPABILITY_RUNTIME_UNAVAILABLE` として作業を停止し、Node・PATH・ホスト設定を復旧してから確認し直してください。Node の削除・更新や実行環境の変更後も再確認が必要です。起動エラーや単なるコマンド失敗を、フックが操作を拒否した証拠として扱わないでください。
 
-**その他の前提**: リモートからのインストールには GitHub CLI で認証済みのセッション（`gh auth login`）が必要です。`--source-directory` を使う場合は不要です。環境変数 `SDD_CODEX_HOME` / `SDD_CURSOR_DIR` / `SDD_VSCODE_USER_DIR` で、それぞれ `~/.codex` / `~/.cursor` / VS Code ユーザープロファイルの位置を上書きできます。
+**Gemini CLI の安全フックと拡張機能**: 全 9 プラグインに Gemini 拡張マニフェスト（`gemini-extension.json`・`GEMINI.md`・カスタム TOML コマンド）を同梱しています。`sdd-quality-loop` は `plugins/sdd-quality-loop/gemini/hooks/hooks.json` により `BeforeTool` フックで `sdd-hook-guard.py --emit gemini` を実行し、`write_file` / `replace` / `run_shell_command` に対する自己承認・保護ファイル改ざん・`SDD_SUDO` / `AGENT_STOP` 違反をフェイルクローズで拒否します。bootstrap / ship 開始時は `check-hook-activation-handshake --verify-response --runtime gemini-cli`（`sdd-gemini-host-denial/v1` または `--emit gemini` 決定オブジェクト）で `HOOK_ACTIVE` を確認してください。
+
+**その他の前提**: リモートからのインストールには GitHub CLI で認証済みのセッション（`gh auth login`）が必要です。`--source-directory` を使う場合は不要です。環境変数 `SDD_CODEX_HOME` / `SDD_CURSOR_DIR` / `SDD_GEMINI_DIR` / `SDD_VSCODE_USER_DIR` で、それぞれ `~/.codex` / `~/.cursor` / `~/.gemini` / VS Code ユーザープロファイルの位置を上書きできます。
 
 ## アンインストール
 
-`install.sh` / `install.ps1` が登録した内容を取り消します。各 CLI（Codex / Claude / Copilot）からプラグインと marketplace を解除し、インストール済みファイル（既定では `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`）と Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）を削除します。
+`install.sh` / `install.ps1` が登録した内容を取り消します。各 CLI（Codex / Claude / Copilot / Gemini）からプラグイン・拡張機能・marketplace と MCP 登録を解除し、インストール済みファイル（既定では `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`）と Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）を削除します。
 
 ```bash
 # macOS / Linux — 全環境からアンインストール（既定で全プラグイン対象）
@@ -258,7 +262,7 @@ git config core.longpaths true
 |---|---|
 | `--install-root <path>` | 削除対象のインストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
 | `--marketplace-name <name>` | 登録済み marketplace 名。既定は `sdd-plugins` |
-| `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
+| `--target All\|Codex\|Claude\|Copilot\|Gemini\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
 | `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud` から小文字で選択。既定はこの 9 件すべて |
 | `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
 | `--skip-plugin-uninstall` | CLI からのプラグイン／marketplace 登録解除をスキップ |
@@ -284,14 +288,14 @@ git config core.longpaths true
 - **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
 - **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・概念モデル・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、v2 モデルでは feature の Concept Test で提案と人間判断を記録してから、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。インストーラで `--plugins sdd-domain`（PowerShell: `-Plugins sdd-domain`）を明示指定すると導入できます。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
 - **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
-- **統一デザインシステム統合**: UI アプリでは `ds_profile: custom` を選ぶと、プロジェクト直下の `design-system/`（W3C DTCG 準拠 design-tokens.json・design-system.md・ui-patterns.md）を契約として生成・強制します。仕様段階は `design-sync-loop`（ui-ux-pro-max シード生成 / Figma DTCG 取込 / claude.ai/design 確認ループ）、実装段階は `visual-verify-loop`（Claude Preview / wpf-visual-verify による視覚検証）、品質検証は `check-design-system`（warn 開始の決定論ゲート）の3層で支えます。a11y 基準は WCAG 2.2 AA。非 UI プロジェクトへのオーバーヘッドはゼロです。
+- **統一デザインシステム統合**: UI アプリでは `ds_profile: custom` を選ぶと、プロジェクト直下の `design-system/`（W3C DTCG 準拠 design-tokens.json・design-system.md・ui-patterns.md）を契約として生成・強制します。仕様段階は `design-sync-loop`（ui-ux-pro-max シード生成 / Figma DTCG 取込 / 外部デザイン往復の `resolve-design-sync.py` + `validate-design-sync-receipt.py` 契約検証。代替 provider を用いる場合は adapter・機能差分を明示し `claude_design_connected: true` を偽装しない）、実装段階は `visual-verify-loop`（Claude Preview / wpf-visual-verify による視覚検証）、品質検証は `check-design-system`（warn 開始の決定論ゲート）の3層で支えます。a11y 基準は WCAG 2.2 AA。非 UI プロジェクトへのオーバーヘッドはゼロです。
 - **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
 - **独立した批判レビュー**: 実装者とは別の `sdd-evaluator` エージェント (またはセッション) が新しい視点で検証します。
 - **sudoモード**: 有効な署名付きトークンにより、*承認待ち*（タスク承認・`accepted` 差分・定型サインオフ）を期限付きで自動通過。判断フォーク・critical 二者承認・AGENT_STOP・決定論的ゲートは維持する。現行ホストのチャット／slash 自動発行は未対応で、agent は明示呼出後もトークンを操作できない。人間による手順と対応範囲は [`/sdd-sudo` スキル](plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md) を参照。
 - **リスク適応ゲート**: タスクごとに `Risk:` 階層 (`low / medium / high / critical`) を設定し、階層に比例した決定論的ゲートセットを強制します。新ゲート `check-risk`（階層と `Risk Rationale` を検証）・`check-traceability`（REQ→AC→TEST→証跡チェーンを検証）を追加。`check-contract` は階層最小セットの superset 強制（Pass 4）と TDD Red→Green 証跡（Pass 5）を実施。高/critical はプロベナンス付き evidence bundle を必須とし、critical は HMAC-SHA256 署名 + クリーンツリー強制。非コード (`stack: shell/docs/spec`) リポジトリでは compile 系チェックを理由付きで waive 可能。正準対応表: [`risk-gate-matrix.md`](plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
-- **3環境に対応**: Claude Code、Codex CLI、Copilot CLI の環境でスキル・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
+- **4環境に対応**: Claude Code、Codex CLI、Copilot CLI、Gemini CLI の 4 環境でスキル・拡張機能・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
 - **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズの診断手順を実行し、軽量トラックの開始手順も兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。
 
 ## ドキュメントマップ
@@ -351,6 +355,9 @@ Sitesでは独立したcollectorと私有ストレージを使い、Artifactsで
 接続機能がない場合は未接続と表示し、他方のサービスへ自動転送しません。
 
 5秒周期で取得し、正本の正常確認から60秒を超えると警告します。
+複数リポジトリ／worktree の同時収集には `publish-dashboard.py` / `dashboard-runtime.py` の `--sources-config` を利用できます（副収集元は ID 名前空間付きで非破壊統合）。
+認証失効時は `publisherState: "credentials-required"` へ遷移し、`dashboard-runtime.py authorize`（またはローカル `POST /authorize`）でインメモリ資格情報を再投入できます。
+`guaranteeScope` に示すとおり子プロセス再起動（`childRestartSupported: true`）は現ワークスペース内で対応しますが、ワークスペース停止後の無人再開および無人でのネイティブ資格情報更新は保証外です。
 collectorが停止してもSiteは残りますが、データは更新されません。
 `Release:` をタスク本文に明記した場合にリリース所属を表示します。
 未指定なら「リリース未定義」とし、Doneをリリース済みとは扱いません。

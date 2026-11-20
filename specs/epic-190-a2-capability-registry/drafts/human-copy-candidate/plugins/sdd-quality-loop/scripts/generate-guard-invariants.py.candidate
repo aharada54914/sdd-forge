@@ -251,6 +251,9 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-implementation/scripts/model-policy.py",
     "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
     "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+    "plugins/sdd-quality-loop/gemini/gemini-extension.json",
+    "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
+    "plugins/sdd-bootstrap/scripts/validate-design-sync-receipt.py",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

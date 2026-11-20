@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "sdd-hook-guard",
+            "type": "command",
+            "command": "python3 \"${extensionPath}/../scripts/sdd-hook-guard.py\" --emit gemini",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}

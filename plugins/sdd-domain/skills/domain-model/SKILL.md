@@ -65,7 +65,7 @@ This router allocates no investigator itself. In reverse mode relay this boundar
 
 ## Invocation
 
-Claude Code:
+Claude Code / Gemini CLI (via linked `sdd-domain` extension):
 
 ```txt
 /sdd-domain:domain-model

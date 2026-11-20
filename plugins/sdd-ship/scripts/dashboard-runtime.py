@@ -44,7 +44,7 @@ def save(path, value):
     tmp.replace(path)
 
 
-def connect(directory, stop=False, publication=None):
+def connect(directory, stop=False, publication=None, route_override=None):
     path = directory / "runtime.json"
     if not path.exists() or path.is_symlink():
         return None
@@ -59,7 +59,7 @@ def connect(directory, stop=False, publication=None):
         or not isinstance(token, str)
     ):
         return None
-    route = "/publisher" if publication else "/stop" if stop else "/status"
+    route = route_override or ("/publisher" if publication else "/stop" if stop else "/status")
     req = urllib.request.Request(
         "http://127.0.0.1:" + str(port) + route,
         method="POST" if stop or publication else "GET",
@@ -108,9 +108,21 @@ def run(args, directory):
         "restarts": 0,
         "state": "starting",
         "version": fingerprint(args),
+        "guaranteeScope": {
+            "scope": "current-workspace-lifetime-only",
+            "childRestartSupported": True,
+            "workspaceShutdownAutoResume": False,
+            "unattendedCredentialRenewal": False,
+        },
     }
     publication = [None]
-    state.update(publisherState="unconfigured", publisherPid=None, publisherRestarts=0)
+    state.update(
+        publisherState="unconfigured",
+        publisherPid=None,
+        publisherRestarts=0,
+        publisherLastError=None,
+        sourcesConfig=getattr(args, "sources_config", None),
+    )
 
     class Handler(http.server.BaseHTTPRequestHandler):
         def log_message(self, *_):
@@ -130,10 +142,11 @@ def run(args, directory):
                 ("GET", "/status"),
                 ("POST", "/stop"),
                 ("POST", "/publisher"),
+                ("POST", "/authorize"),
             ]:
                 self.send_error(404)
                 return
-            if self.path == "/publisher":
+            if self.path in ("/publisher", "/authorize"):
                 try:
                     length = int(self.headers.get("Content-Length", "0"))
                     if not 0 < length <= 32768:
@@ -145,6 +158,9 @@ def run(args, directory):
                     return
                 publication[0] = config
                 state["publisherState"] = "starting"
+                state["publisherLastError"] = None
+                if config.get("sourcesConfig") is not None:
+                    state["sourcesConfig"] = config["sourcesConfig"]
             body = json.dumps(state).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -290,26 +306,45 @@ def publish_loop(args, publication, state, stop):
         if config is None:
             continue
         process = None
+        last_cycle_state = [None]
         try:
+            cmd = [
+                sys.executable,
+                str(Path(__file__).with_name("publish-dashboard.py")),
+                "--entry",
+                args.entry,
+                "--root",
+                args.root,
+                "--url",
+                config["url"],
+                "--quiet",
+            ]
+            sources_config = config.get("sourcesConfig") or getattr(args, "sources_config", None)
+            if sources_config:
+                cmd.extend(["--sources-config", str(sources_config)])
             process = subprocess.Popen(
-                [
-                    sys.executable,
-                    str(Path(__file__).with_name("publish-dashboard.py")),
-                    "--entry",
-                    args.entry,
-                    "--root",
-                    args.root,
-                    "--url",
-                    config["url"],
-                    "--quiet",
-                ],
+                cmd,
                 stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
             )
             process.stdin.write((json.dumps(config["credentials"]) + "\n").encode())
             process.stdin.close()
-            state.update(publisherPid=process.pid, publisherState="running")
+
+            def _drain_publisher_events(proc, holder):
+                for raw_line in iter(proc.stdout.readline, b""):
+                    try:
+                        event = json.loads(raw_line.decode("utf-8", "replace"))
+                        if isinstance(event, dict) and event.get("event") == "publisher-cycle":
+                            holder[0] = event.get("state")
+                    except ValueError:
+                        pass
+
+            reader = threading.Thread(
+                target=_drain_publisher_events, args=(process, last_cycle_state), daemon=True
+            )
+            reader.start()
+            state.update(publisherPid=process.pid, publisherState="running", publisherLastError=None)
             while (
                 not stop.wait(0.5)
                 and publication[0] is config
@@ -317,9 +352,15 @@ def publish_loop(args, publication, state, stop):
             ):
                 pass
             if process.poll() is not None and publication[0] is config:
+                reader.join(timeout=1)
                 if process.returncode == 78:
                     publication[0] = None
-                    state["publisherState"] = "configuration-required"
+                    if last_cycle_state[0] == "auth-failed":
+                        state["publisherState"] = "credentials-required"
+                        state["publisherLastError"] = "auth-failed"
+                    else:
+                        state["publisherState"] = "configuration-required"
+                        state["publisherLastError"] = last_cycle_state[0] or "data-rejected"
                 else:
                     state["publisherRestarts"] += 1
                     state["publisherState"] = "restarting"
@@ -334,6 +375,11 @@ def publish_loop(args, publication, state, stop):
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait()
+            if process and process.stdout:
+                try:
+                    process.stdout.close()
+                except OSError:
+                    pass
             state["publisherPid"] = None
         if publication[0] is config:
             stop.wait(min(30, 2 ** min(state["publisherRestarts"], 5)))
@@ -350,11 +396,16 @@ def fingerprint(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["start", "run", "status", "stop", "publish"]
+        "command", choices=["start", "run", "status", "stop", "publish", "authorize"]
     )
     parser.add_argument("--root", required=True)
     parser.add_argument(
-        "--url", help="Existing private Site HTTPS origin; publish command only"
+        "--url", help="Existing private Site HTTPS origin; publish/authorize commands only"
+    )
+    parser.add_argument(
+        "--sources-config",
+        default=None,
+        help="Optional JSON config listing primary and secondary roots for multi-source publishing",
     )
     parser.add_argument(
         "--entry",
@@ -365,6 +416,8 @@ def main():
     args = parser.parse_args()
     args.root = str(Path(args.root).resolve())
     args.entry = str(Path(args.entry).resolve())
+    if args.sources_config is not None:
+        args.sources_config = str(Path(args.sources_config).resolve())
     if args.command in ("start", "run") and (
         not Path(args.entry).is_file() or not Path(args.root).is_dir()
     ):
@@ -372,7 +425,7 @@ def main():
     directory = state_directory(args.root)
     if args.command == "run":
         return run(args, directory)
-    if args.command == "publish":
+    if args.command in ("publish", "authorize"):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -381,8 +434,14 @@ def main():
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         config = {"url": args.url, "credentials": module.credentials_from_stdin()}
+        if args.sources_config:
+            config["sourcesConfig"] = args.sources_config
         validate_publication(config)
-        current = connect(directory, publication=config)
+        current = connect(
+            directory,
+            publication=config,
+            route_override="/authorize" if args.command == "authorize" else "/publisher",
+        )
     else:
         current = connect(directory, args.command == "stop")
     if (
@@ -407,16 +466,19 @@ def main():
                 | subprocess.CREATE_NEW_PROCESS_GROUP
             }
         )
+        run_cmd = [
+            sys.executable,
+            str(Path(__file__).resolve()),
+            "run",
+            "--root",
+            args.root,
+            "--entry",
+            args.entry,
+        ]
+        if args.sources_config:
+            run_cmd.extend(["--sources-config", args.sources_config])
         subprocess.Popen(
-            [
-                sys.executable,
-                str(Path(__file__).resolve()),
-                "run",
-                "--root",
-                args.root,
-                "--entry",
-                args.entry,
-            ],
+            run_cmd,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

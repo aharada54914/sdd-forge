@@ -91,11 +91,18 @@ Claude Code:
 /sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
-Codex:
+Codex / Gemini CLI:
 
 ```txt
 Use the ship skill for specs/<feature>/tasks.md
 Use the ship skill (no argument — context-aware selection)
+```
+
+Gemini CLI (via linked `sdd-ship` extension command):
+
+```txt
+/sdd-ship:ship specs/<feature>/tasks.md
+/sdd-ship:ship --lite specs/<feature>/tasks.md
 ```
 
 ### Flags
@@ -185,7 +192,7 @@ before trusting any Project Context content:
    records the raw result verbatim. The tool never performs the probe write
    itself.
 3. `check-hook-activation-handshake --verify-response --nonce <nonce>
-   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli|gemini-cli>`.
 4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome stops
    **Capability Mode only**, and which projects that stops is decided by the
    gate table below, not by this step alone: stop with

@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.26.0 (2026-11-21)
+
+### Added
+
+- **Gemini CLI フルサポート（全 9 プラグイン＋安全フック＋MCP 自動登録）**:
+  - 全 9 プラグインに Gemini 拡張パッケージ（`gemini-extension.json`、`GEMINI.md`、カスタム TOML スラッシュコマンド）を整備。
+  - `sdd-quality-loop/gemini/hooks/hooks.json` で `BeforeTool` フックを定義し、`sdd-hook-guard.{py,js,ps1,sh}` の全 4 実装に `--emit gemini` / `-Emit gemini` と Gemini ツール名（`write_file` / `replace` / `run_shell_command`）の保護を追加。
+  - `check-hook-activation-handshake.py` に `--runtime gemini-cli` と `sdd-gemini-host-denial/v1` の決定論検証を追加し、`bootstrap` / `ship` / `domain-model` の入口スキルを Gemini CLI へ対応。
+  - `install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` の `--target Gemini`（および `All`）で選択プラグインの拡張リンク／解除と `~/.gemini/settings.json`（`SDD_GEMINI_DIR` 上書き対応）への `mcpServers` 自動登録／解除を追加。
+  - `scripts/bump-version.sh` と `tests/validate-repository.ps1` が全 9 プラグインの Gemini 拡張マニフェストと `BeforeTool` フック定義を同期・検証するよう拡張。
+  - Gemini 環境の全ループ動作検証スイート `tests/gemini-environment-loops.tests.py` を追加し、`tests/guard-parity.tests.sh` と `tests/check-hook-activation-handshake.tests.{sh,ps1}` に Gemini 検証ケースを追加。
+- **複数収集元 Sites ダッシュボード収集と資格情報再投入境界（#728 / #762）**:
+  - `publish-dashboard.py` に `--sources-config`・`MultiSourceCollector`・`merge_source_snapshots()` を追加し、4 ソース並列検証を含む複数ルート収集を副ソース ID 名前空間付きで非破壊統合。
+  - `dashboard-runtime.py` に `guaranteeScope`（`childRestartSupported: true`、`workspaceShutdownAutoResume: false`、`unattendedCredentialRenewal: false`）、`publisherLastError`、`authorize` サブコマンド／`POST /authorize`、および認証失効時の `publisherState: "credentials-required"` 識別を追加。
+- **外部デザイン往復の provider アダプター契約と receipt 検証（#729）**:
+  - `resolve-design-sync.py` に任意の `provider` / `provider_capabilities` を後方互換で追加し、代替 provider 採用時に `claude_design_connected: true` を決して報告しない出力契約と `capability_gaps` を追加。
+  - `plugins/sdd-bootstrap/scripts/validate-design-sync-receipt.py`（`design-sync-receipt/v1`）を追加し、保護ゲートファイルとして `guard-invariants.json` に登録。
+
+### Fixed
+
+- `plugins/sdd-implementation/gemini/gemini-extension.json` の旧バージョン残留（`1.23.1`）を解消し、全プラグインの Gemini 拡張バージョンを一括同期。
+- `tests/session-models.tests.py` の macOS `/private/var` パス解決不一致を修正し、`install.sh --target Gemini` の複数拡張リンクに合わせてテストを更新。
+
+### Verification limits
+
+- **#728 / #762（ChatGPT Sites 自動実行環境）**: リポジトリ内の複数収集元統合・`credentials-required` 遷移・インメモリ `authorize` 再投入・子プロセス再起動契約は単体・統合テストで検証済み。ChatGPT Sites の自動実行 API には現ワークスペースの添付・引継ぎ経路がないため、ワークスペース停止後の無人再開および無人ネイティブ資格情報更新は引き続き外部プラットフォーム制約により未保証（`guaranteeScope.workspaceShutdownAutoResume: false` / `unattendedCredentialRenewal: false`）。
+- **#729（Claude Design MCP 往復）**: `resolve-design-sync.py` と `validate-design-sync-receipt.py` による往復契約・代替 provider 差分強制は検証済み。Anthropic 公式 Claude Design MCP（`https://api.anthropic.com/v1/design/mcp`）は上流 OAuth 認証および hCaptcha により非対話接続がブロックされているため、実 Claude Design 往復の live 証明は未取得のまま（代替 provider やローカル検証を Claude Design 成功とは扱わない）。
+- **Gemini CLI 実バイナリ実行**: 本検証ホストには `gemini` CLI バイナリが未導入のため、Gemini 拡張マニフェスト・`BeforeTool` フック・4 実装パリティ・`--runtime gemini-cli` ハンドシェイク・`--target Gemini` 導入／解除・`bootstrap` / `ship` / `ddd` / `model-selection` 各ループの実行検証は実スクリプトおよびフィクスチャによるローカル実行で行っている。
+
 ## v1.25.0 (2026-11-16)
 
 ### Added

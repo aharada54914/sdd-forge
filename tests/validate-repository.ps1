@@ -5,15 +5,15 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
 $expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "model-selection", "sql-develop", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "status", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.25.0"
-    "sdd-implementation" = "1.25.0"
-    "sdd-quality-loop"   = "1.25.0"
-    "sdd-lite"           = "1.25.0"
-    "sdd-review-loop"    = "1.25.0"
-    "sdd-ship"           = "1.25.0"
-    "sdd-domain"         = "1.25.0"
-    "sdd-azure-cloud"    = "1.25.0"
-    "sdd-aws-cloud"      = "1.25.0"
+    "sdd-bootstrap"      = "1.26.0"
+    "sdd-implementation" = "1.26.0"
+    "sdd-quality-loop"   = "1.26.0"
+    "sdd-lite"           = "1.26.0"
+    "sdd-review-loop"    = "1.26.0"
+    "sdd-ship"           = "1.26.0"
+    "sdd-domain"         = "1.26.0"
+    "sdd-azure-cloud"    = "1.26.0"
+    "sdd-aws-cloud"      = "1.26.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -31,14 +31,14 @@ $readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md"
 $readmeCurrentRelease = $readmeLines |
     Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
     Select-Object -First 1
-if ($null -ceq $readmeCurrentRelease -or $readmeCurrentRelease -cnotmatch "^v1\.25\.0(?:\s|$)") {
-    throw "README.md current release must be v1.25.0."
+if ($null -ceq $readmeCurrentRelease -or $readmeCurrentRelease -cnotmatch "^v1\.26\.0(?:\s|$)") {
+    throw "README.md current release must be v1.26.0."
 }
 
 $changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
-$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.25\.0(?:\s|$)")
+$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.26\.0(?:\s|$)")
 if ($currentReleaseHeadings.Count -cne 1) {
-    throw "CHANGELOG.md must contain exactly one v1.25.0 release heading."
+    throw "CHANGELOG.md must contain exactly one v1.26.0 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"
@@ -55,11 +55,18 @@ foreach ($name in $expectedPlugins) {
     $codexManifest = Read-JsonFile "plugins/$name/.codex-plugin/plugin.json"
     $claudeManifest = Read-JsonFile "plugins/$name/.claude-plugin/plugin.json"
     $copilotManifest = Read-JsonFile "plugins/$name/.plugin/plugin.json"
-    if ($codexManifest.name -cne $name -or $claudeManifest.name -cne $name -or $copilotManifest.name -cne $name) {
+    $geminiManifestPath = if ($name -cin @("sdd-implementation", "sdd-quality-loop")) {
+        "plugins/$name/gemini/gemini-extension.json"
+    } else {
+        "plugins/$name/gemini-extension.json"
+    }
+    $geminiManifest = Read-JsonFile $geminiManifestPath
+    $expectedGeminiName = if ($name -ceq "sdd-implementation") { "sdd-forge-model-selection" } else { $name }
+    if ($codexManifest.name -cne $name -or $claudeManifest.name -cne $name -or $copilotManifest.name -cne $name -or $geminiManifest.name -cne $expectedGeminiName) {
         throw "Plugin directory and manifest names differ for $name."
     }
     $expectedVersion = $expectedVersions[$name]
-    if ($codexManifest.version -cne $expectedVersion -or $claudeManifest.version -cne $expectedVersion -or $copilotManifest.version -cne $expectedVersion) {
+    if ($codexManifest.version -cne $expectedVersion -or $claudeManifest.version -cne $expectedVersion -or $copilotManifest.version -cne $expectedVersion -or $geminiManifest.version -cne $expectedVersion) {
         throw "Plugin version differs from $expectedVersion for $name."
     }
 }
@@ -626,6 +633,16 @@ $approvalGuardMatchers = $claudeHooks.hooks.PreToolUse | Select-Object -ExpandPr
 $hasApplyPatchClaude = $approvalGuardMatchers | Where-Object { $_ -match "apply_patch" }
 if (-not $hasApplyPatchClaude) {
     throw "claude-hooks.json does not have any PreToolUse matcher containing 'apply_patch'."
+}
+
+# Gemini quality-loop hooks must define BeforeTool with --emit gemini.
+$geminiQualityHooks = Read-JsonFile "plugins/sdd-quality-loop/gemini/hooks/hooks.json"
+if (-not $geminiQualityHooks.hooks.BeforeTool) {
+    throw "plugins/sdd-quality-loop/gemini/hooks/hooks.json does not define BeforeTool hooks."
+}
+$geminiQualityEntries = $geminiQualityHooks.hooks.BeforeTool | ForEach-Object { $_.hooks } | Where-Object { $_ }
+if (-not ($geminiQualityEntries | Where-Object { $_.command -match "sdd-hook-guard\.py" -and $_.command -match "--emit gemini" })) {
+    throw "plugins/sdd-quality-loop/gemini/hooks/hooks.json must invoke sdd-hook-guard.py --emit gemini."
 }
 
 # The verification contract template must stay Default-FAIL.

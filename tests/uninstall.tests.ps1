@@ -117,7 +117,9 @@ function Invoke-UninstallScenario {
     New-InstalledLayout -InstallRoot $installRoot -CodexHome $codexHome
     if ($RestrictPath) { $env:PATH = Get-RestrictedPath -FakeBin $fakeBin }
     else { $env:PATH = "$fakeBin$([System.IO.Path]::PathSeparator)$originalPath" }
+    $originalGeminiDir = $env:SDD_GEMINI_DIR
     $env:SDD_CODEX_HOME = $codexHome
+    $env:SDD_GEMINI_DIR = Join-Path $testRoot "gemini-not-installed"
 
     $failed = $false
     try {
@@ -135,6 +137,8 @@ function Invoke-UninstallScenario {
         $env:PATH = $originalPath
         if ($null -eq $originalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue }
         else { $env:SDD_CODEX_HOME = $originalCodexHome }
+        if ($null -eq $originalGeminiDir) { Remove-Item Env:SDD_GEMINI_DIR -ErrorAction SilentlyContinue }
+        else { $env:SDD_GEMINI_DIR = $originalGeminiDir }
     }
 
     $log = if (Test-Path $commandLog) { Get-Content -Raw $commandLog } else { "" }

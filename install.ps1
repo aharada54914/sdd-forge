@@ -231,14 +231,29 @@ function Update-ClaudePlugins {
 
 function Install-GeminiExtension {
     param([string]$MarketplaceRoot)
-    if ($SkipPluginInstall -or $Plugins -cnotcontains "sdd-implementation") { return }
+    if ($SkipPluginInstall) { return }
     if (-not (Get-Command gemini -ErrorAction SilentlyContinue)) {
         if ($Target -eq "Gemini") { throw 'Gemini CLI was not found in PATH.' }
-        Write-Warning 'Gemini CLI was not found. Model selection extension registration was skipped.'
+        Write-Warning 'Gemini CLI was not found. Gemini extension registration was skipped.'
         return
     }
-    Invoke-IdempotentPluginCommand -Label 'the Gemini model selection extension' -Command 'gemini' -Arguments @(
-        'extensions', 'link', (Join-Path $MarketplaceRoot 'plugins/sdd-implementation/gemini'))
+    foreach ($plugin in $Plugins) {
+        if ($plugin -ceq "sdd-implementation") {
+            $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-implementation/gemini'
+            $label = 'the Gemini model selection extension'
+        }
+        elseif ($plugin -ceq "sdd-quality-loop") {
+            $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-quality-loop/gemini'
+            $label = "Gemini extension '$plugin'"
+        }
+        else {
+            $extDir = Join-Path $MarketplaceRoot "plugins/$plugin"
+            $label = "Gemini extension '$plugin'"
+        }
+        if (-not (Test-Path -LiteralPath (Join-Path $extDir 'gemini-extension.json') -PathType Leaf)) { continue }
+        Invoke-IdempotentPluginCommand -Label $label -Command 'gemini' -Arguments @(
+            'extensions', 'link', $extDir)
+    }
 }
 
 function Install-CodexPlugins {
@@ -632,6 +647,17 @@ function Register-VSCodeMcp {
     Update-McpJson -ClientLabel "VS Code" -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers" -EntryKind "vscode" -InstallRootPath $InstallRootPath
 }
 
+function Register-GeminiMcp {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    $geminiDir = if ($env:SDD_GEMINI_DIR) { $env:SDD_GEMINI_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini" }
+    if (-not (Test-Path -LiteralPath $geminiDir)) {
+        Write-Warning "$geminiDir was not found. Gemini CLI MCP registration was skipped (Gemini CLI does not appear to be configured; the installer does not create the directory)."
+        return
+    }
+    Update-McpJson -ClientLabel "Gemini CLI" -ConfigFile (Join-Path $geminiDir "settings.json") -TopKey "mcpServers" -EntryKind "gemini" -InstallRootPath $InstallRootPath
+}
+
 $script:McpNodeOk = $false
 
 function Install-McpServersIfSelected {
@@ -665,6 +691,9 @@ function Register-McpServers {
     # both All and Copilot.
     if ($Target -in @("All", "Copilot")) {
         Register-VSCodeMcp -InstallRootPath $InstallRootPath
+    }
+    if ($Target -in @("All", "Gemini")) {
+        Register-GeminiMcp -InstallRootPath $InstallRootPath
     }
 }
 
@@ -749,6 +778,13 @@ function Get-RequiredPaths {
         "plugins/sdd-implementation/hooks/claude-hooks.json",
         "plugins/sdd-implementation/hooks/codex-hooks.json",
         "plugins/sdd-implementation/gemini/hooks/hooks.json",
+        "plugins/sdd-quality-loop/gemini/gemini-extension.json",
+        "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
+        "plugins/sdd-bootstrap/gemini-extension.json",
+        "plugins/sdd-ship/gemini-extension.json",
+        "plugins/sdd-domain/gemini-extension.json",
+        "plugins/sdd-lite/gemini-extension.json",
+        "plugins/sdd-review-loop/gemini-extension.json",
         "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",

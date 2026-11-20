@@ -241,6 +241,57 @@ Assert-Eq $r.ExitCode 60 'TEST-027 codex-cli: a missing recorded-result file -> 
 $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', 'wrong-nonce', '--recorded-result', 'cx-deny.json', '--runtime', 'codex-cli')
 Assert-Eq $r.ExitCode 62 'TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED'
 
+# --- gemini-cli ------------------------------------------------------------
+
+$NonceGm = '0123456789abcdef0123456789abcdef'
+
+$gmDeny = Join-Path $T027 'gm-deny.json'
+Set-Content -LiteralPath $gmDeny -NoNewline -Encoding utf8 -Value "{`"nonce`": `"$NonceGm`", `"executed`": false, `"decision`": `"deny`"}"
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $NonceGm, '--recorded-result', 'gm-deny.json', '--runtime', 'gemini-cli')
+Assert-Eq $r.ExitCode 0 'TEST-027 gemini-cli: a genuine --emit gemini deny JSON + matching nonce -> exit 0'
+$j = Get-OutJson $r
+Assert-Eq $j.status 'HOOK_ACTIVE' 'TEST-027 gemini-cli: HOOK_ACTIVE reported'
+
+$gmWrite = Join-Path $T027 'gm-write.json'
+Set-Content -LiteralPath $gmWrite -NoNewline -Encoding utf8 -Value "{`"nonce`": `"$NonceGm`", `"executed`": true}"
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $NonceGm, '--recorded-result', 'gm-write.json', '--runtime', 'gemini-cli')
+Assert-Eq $r.ExitCode 63 'TEST-027 gemini-cli: the write actually executing -> exit 63/WRITE_EXECUTED'
+
+$gmAllow = Join-Path $T027 'gm-allow.json'
+Set-Content -LiteralPath $gmAllow -NoNewline -Encoding utf8 -Value "{`"nonce`": `"$NonceGm`", `"executed`": false, `"decision`": `"allow`"}"
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $NonceGm, '--recorded-result', 'gm-allow.json', '--runtime', 'gemini-cli')
+Assert-Eq $r.ExitCode 64 'TEST-027 gemini-cli: decision allow -> exit 64/UNRECOGNIZED_RESULT'
+
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $NonceGm, '--recorded-result', 'missing.json', '--runtime', 'gemini-cli')
+Assert-Eq $r.ExitCode 60 'TEST-027 gemini-cli: missing recorded-result -> exit 60/NO_RECORDED_RESULT'
+
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', 'wrong-nonce', '--recorded-result', 'gm-deny.json', '--runtime', 'gemini-cli')
+Assert-Eq $r.ExitCode 62 'TEST-027 gemini-cli: mismatched nonce -> exit 62/STALE_CHALLENGE_REJECTED'
+
+$gmReason = "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。`n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo."
+$gmHostDoc = @{
+  schema = 'sdd-gemini-host-denial/v1'
+  runtime = 'gemini-cli'
+  nonce = $NonceGm
+  executed = $false
+  raw_request = @{
+    tool_name = 'write_file'
+    tool_input = @{
+      file_path = 'sdd/.hook-canary-sentinel'
+      content = "sdd-hook-challenge:$NonceGm"
+    }
+  }
+  raw_result = @{
+    decision = 'deny'
+    reason = $gmReason
+  }
+}
+Set-Content -LiteralPath (Join-Path $T027 'gm-host-denial.json') -NoNewline -Encoding utf8 -Value ($gmHostDoc | ConvertTo-Json -Depth 6 -Compress)
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $NonceGm, '--recorded-result', 'gm-host-denial.json', '--runtime', 'gemini-cli')
+Assert-Eq $r.ExitCode 0 'TEST-027 gemini-cli: sdd-gemini-host-denial/v1 exact operation-bound denial -> exit 0'
+$j = Get-OutJson $r
+Assert-Eq $j.status 'HOOK_ACTIVE' 'TEST-027 gemini-cli: sdd-gemini-host-denial/v1 HOOK_ACTIVE'
+
 # --- runtime-independent evidence malformation (shared code path) --------
 
 $badJson = Join-Path $T027 'bad-json.json'
@@ -271,7 +322,7 @@ $r = Invoke-Hh -WorkDir $Shape -ArgList @('--emit-challenge')
 $j = Get-OutJson $r
 Assert-Eq $j.schema 'sdd-hook-challenge/v1' "TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes"
 Assert-Eq $j.canary_target 'sdd/.hook-canary-sentinel' "TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers"
-foreach ($rt in @('claude-code', 'codex-cli', 'copilot-cli')) {
+foreach ($rt in @('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli')) {
   $hasProp = [bool]($j.tool_call_template.PSObject.Properties.Name -contains $rt)
   Assert-Eq $hasProp $true "TEST-027 challenge shape: tool_call_template includes a '$rt' entry"
 }

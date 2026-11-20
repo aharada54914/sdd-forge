@@ -12,11 +12,15 @@ for arg in "$@"; do
   case "$arg" in --emit=*) emit="${arg#--emit=}" ;; esac
   prev="$arg"
 done
-[ "$emit" = "copilot" ] || emit="exit"
+[ "$emit" = "copilot" ] || [ "$emit" = "gemini" ] || emit="exit"
 
 deny_unavailable() {
   if [ "$emit" = "copilot" ]; then
     printf '%s' '{"permissionDecision":"deny","permissionDecisionReason":"sdd-hook-guard: generated invariants unavailable; guard denied."}'
+    exit 0
+  fi
+  if [ "$emit" = "gemini" ]; then
+    printf '%s' '{"decision":"deny","reason":"sdd-hook-guard: generated invariants unavailable; guard denied."}'
     exit 0
   fi
   echo 'sdd-hook-guard: generated invariants unavailable; guard denied.' >&2
@@ -40,8 +44,8 @@ fi
 
 for ps in pwsh powershell.exe powershell; do
   if command -v "$ps" >/dev/null 2>&1; then
-    if [ "$emit" = "copilot" ]; then
-      printf '%s' "$payload" | "$ps" -NoProfile -ExecutionPolicy Bypass -File "$dir/sdd-hook-guard.ps1" -Emit copilot
+    if [ "$emit" = "copilot" ] || [ "$emit" = "gemini" ]; then
+      printf '%s' "$payload" | "$ps" -NoProfile -ExecutionPolicy Bypass -File "$dir/sdd-hook-guard.ps1" -Emit "$emit"
     else
       printf '%s' "$payload" | "$ps" -NoProfile -ExecutionPolicy Bypass -File "$dir/sdd-hook-guard.ps1" -Emit exit
     fi

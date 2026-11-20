@@ -1,0 +1,6 @@
+{
+  "name": "sdd-lite",
+  "version": "1.26.0",
+  "description": "Lightweight SDD specification and gate skills with deterministic risk-upgrade protection for Gemini CLI.",
+  "contextFileName": "GEMINI.md"
+}

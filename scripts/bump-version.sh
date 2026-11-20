@@ -73,25 +73,37 @@ OLD_PLAIN_RE="${OLD//./\\.}"          # sed pattern matching the plain form
 OLD_ESCAPED_RE="${OLD//./\\\\.}"      # sed pattern matching the regex-escaped form
 NEW_ESCAPED="${NEW//./\\\\.}"         # sed replacement emitting a regex-escaped form
 
-# 1. Every plugin's three host manifests + both marketplaces.
+# Portable in-place sed helper (GNU sed and BSD/macOS sed).
+sed_inplace() {
+    local expr="$1" file="$2"
+    if sed --version >/dev/null 2>&1; then
+        sed -i "$expr" "$file"
+    else
+        sed -i '' "$expr" "$file"
+    fi
+}
+
+# 1. Every plugin's host manifests (Claude, Codex, Copilot, Gemini) + both marketplaces.
 for manifest in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.plugin/plugin.json \
+                "${ROOT}"/plugins/*/gemini-extension.json \
+                "${ROOT}"/plugins/*/gemini/gemini-extension.json \
                 "${ROOT}/.claude-plugin/marketplace.json" \
                 "${ROOT}/.agents/plugins/marketplace.json"; do
     [[ -f "$manifest" ]] || continue
-    sed -i "s/\"version\": \"${OLD_PLAIN_RE}\"/\"version\": \"${NEW}\"/g" "$manifest"
+    sed_inplace "s/\"version\": \"${OLD_PLAIN_RE}\"/\"version\": \"${NEW}\"/g" "$manifest"
 done
 
 # 2. README current-release line (first line starting with vX.Y.Z).
-sed -i "s/^v${OLD_PLAIN_RE}\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
+sed_inplace "s/^v${OLD_PLAIN_RE}\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
 
 # 3. Repository validator: escaped regex form first, then plain form.
-sed -i "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
+sed_inplace "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
     "${ROOT}/tests/validate-repository.ps1"
 
 # 4. Release-validation test fixtures that assert the literal version.
-sed -i "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
+sed_inplace "s/${OLD_ESCAPED_RE}/${NEW_ESCAPED}/g; s/${OLD_PLAIN_RE}/${NEW}/g" \
     "${ROOT}/tests/repository-release-validation.tests.sh"
 
 # 5. Verify: no stale old-version strings remain on release surfaces.
@@ -99,6 +111,8 @@ stale=0
 for f in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
          "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
          "${ROOT}"/plugins/*/.plugin/plugin.json \
+         "${ROOT}"/plugins/*/gemini-extension.json \
+         "${ROOT}"/plugins/*/gemini/gemini-extension.json \
          "${ROOT}/.claude-plugin/marketplace.json" \
          "${ROOT}/.agents/plugins/marketplace.json" \
          "${ROOT}/README.md" \

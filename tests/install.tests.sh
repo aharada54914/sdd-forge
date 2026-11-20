@@ -172,6 +172,7 @@ echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/tests/index.test.ts"
 # them to these defaults afterwards.
 GLOBAL_IDE_ROOT="$(mktemp -d)"
 export SDD_CURSOR_DIR="${GLOBAL_IDE_ROOT}/cursor-not-installed"
+export SDD_GEMINI_DIR="${GLOBAL_IDE_ROOT}/gemini-not-installed"
 export SDD_VSCODE_USER_DIR="${GLOBAL_IDE_ROOT}/vscode-not-installed"
 
 trap 'rm -rf "$SOURCE_FIXTURE_ROOT" "$GLOBAL_IDE_ROOT"' EXIT

@@ -1,0 +1,8 @@
+description = "Inspect SDD project progress with the read-only six-view status dashboard."
+prompt = """
+Read and execute the skill instructions at `skills/status/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+
+Status surfaces are strictly read-only and never approve tasks or advance workflow gates.
+"""

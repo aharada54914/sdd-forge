@@ -1,0 +1,6 @@
+{
+  "name": "sdd-quality-loop",
+  "version": "1.26.0",
+  "description": "Independent quality verification gate, fail-closed BeforeTool safety hooks, review tickets, and cross-model verification for Gemini CLI.",
+  "contextFileName": "GEMINI.md"
+}

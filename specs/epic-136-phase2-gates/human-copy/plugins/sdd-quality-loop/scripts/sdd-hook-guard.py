@@ -74,8 +74,8 @@ DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]
 SUDO_EPOCH_RE = re.compile(r"(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
 SUDO_ISSUED_RE = re.compile(r"(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)")
 
-TARGETED_COMMAND_TOOLS = {"apply_patch", "bash", "shell", "exec_command", "exec"}
-TARGETED_FILE_TOOLS = {"edit", "write", "multiedit"}
+TARGETED_COMMAND_TOOLS = {"apply_patch", "bash", "shell", "exec_command", "exec", "run_shell_command"}
+TARGETED_FILE_TOOLS = {"edit", "write", "multiedit", "write_file", "replace"}
 
 SDD_SUDO_NAME = "SDD_SUDO"
 APPROVAL_MSG = (
@@ -308,6 +308,12 @@ def emit(decision, reason, mode):
         out = {"permissionDecision": decision}
         if decision == "deny" and reason:
             out["permissionDecisionReason"] = reason
+        sys.stdout.buffer.write(json.dumps(out, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
+        sys.exit(0)
+    if mode == "gemini":
+        out = {"decision": decision}
+        if decision == "deny" and reason:
+            out["reason"] = reason
         sys.stdout.buffer.write(json.dumps(out, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
         sys.exit(0)
     # exit mode
@@ -554,7 +560,7 @@ def approval_increases(payload):
         return _patch_increases(tool_input.get("command") or "")
 
     # --- Codex Bash/shell: approval writes still denied ---
-    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+    if tool_name in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
@@ -643,7 +649,7 @@ def _write_content_increases(file_path, new_content):
 
 
 def _shell_is_evidence_write(tool_name, command, directories):
-    if tool_name.lower() not in ("bash", "shell", "exec_command", "exec") or not isinstance(command, str):
+    if tool_name.lower() not in ("bash", "shell", "exec_command", "exec", "run_shell_command") or not isinstance(command, str):
         return False
     try:
         root = directories[-1] if directories else os.getcwd()
@@ -707,7 +713,7 @@ def domain_model_approval_increases(payload):
     if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
         return _domain_model_patch_increases(tool_input.get("command") or "")
 
-    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+    if tool_name in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
@@ -777,7 +783,7 @@ def wfi_approval_increases(payload):
     if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
         return _wfi_patch_increases(tool_input.get("command") or "")
 
-    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+    if tool_name in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
@@ -864,7 +870,7 @@ def second_approval_increases(payload):
     if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
         return _second_approval_patch_increases(tool_input.get("command") or "")
 
-    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+    if tool_name in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
@@ -2132,7 +2138,7 @@ def payload_is_malformed(payload):
 
 
 def parse_args(argv):
-    """Parse --emit <mode> from argv; return 'exit' or 'copilot' (default 'exit')."""
+    """Parse --emit <mode> from argv; return 'exit', 'copilot', or 'gemini' (default 'exit')."""
     mode = "exit"
     i = 0
     while i < len(argv):
@@ -2144,7 +2150,7 @@ def parse_args(argv):
             i += 1
         else:
             i += 1
-    return mode if mode in ("exit", "copilot") else "exit"
+    return mode if mode in ("exit", "copilot", "gemini") else "exit"
 
 
 def main():
@@ -2275,12 +2281,12 @@ def main():
             return
 
         # Reject unknown argv before the legacy write scanners can miss glob-added options.
-        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
+        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec", "run_shell_command")
                 and _shell_has_globbed_reader_options(tool_input.get("command"), tool_name.lower() == "bash")):
             emit("deny", "SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).", mode)
             return
         # Read-only shell inspection cannot change protected files or grant approvals.
-        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
+        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec", "run_shell_command")
                 and _shell_is_read_only(tool_input.get("command"), tool_name.lower() == "bash")):
             emit("allow", None, mode)
             return
@@ -2290,13 +2296,13 @@ def main():
         file_path = (tool_input.get("file_path") or "").lower()
 
         # File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
-        if tool_name_lower in ("edit", "write", "multiedit"):
+        if tool_name_lower in ("edit", "write", "multiedit", "write_file", "replace"):
             if _target_path_is_sdd_sudo(file_path):
                 emit("deny", SDD_SUDO_WRITE_MSG, mode)
                 return
 
         # Shell commands targeting SDD_SUDO.
-        if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
+        if tool_name_lower in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
             tool_input.get("command"), str
         ):
             if _shell_targets_sdd_sudo(tool_input["command"]):
@@ -2313,12 +2319,12 @@ def main():
                     return
 
         # Check 2a-R10: Enforcement-chain file protection (never bypassed by sudo).
-        if tool_name_lower in ("edit", "write", "multiedit"):
+        if tool_name_lower in ("edit", "write", "multiedit", "write_file", "replace"):
             if _is_protected_gate_file(tool_input.get("file_path") or ""):
                 emit("deny", _GATE_PROTECT_MSG, mode)
                 return
 
-        if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
+        if tool_name_lower in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
             tool_input.get("command"), str
         ):
             if _shell_targets_protected_gate_file(tool_input["command"], directories, tool_name.lower() == "bash"):
@@ -2372,7 +2378,7 @@ def main():
         if agent_role_invalid(payload):
             emit("deny", AGENT_ROLE_MSG, mode)
         # Bash/shell tools.
-        if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+        if tool_name in ("bash", "shell", "exec_command", "exec", "run_shell_command") and isinstance(
             tool_input.get("command"), str
         ):
             if _shell_writes_agent_role(tool_input["command"]):

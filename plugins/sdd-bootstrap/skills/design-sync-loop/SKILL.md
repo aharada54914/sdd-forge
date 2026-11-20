@@ -406,6 +406,14 @@ A fresh informed answer adds `response: grant` and the actual `party`, or
 Consume the `design-sync-decision/v1` result exactly: `skip` returns to the
 caller without integration, `manual` uses the local fallback, `prompt` performs
 step 4 and resolves again, and `proceed` continues the existing loop.
+`resolve-design-sync.py` also accepts optional `provider` (default
+`claude-design`) and `provider_capabilities` (`pull_tokens`, `push_mockup`,
+`provider_review`), returning `provider`, `claude_design_connected`,
+`round_trip_mode`, and `capability_gaps`. An alternative provider never sets
+`claude_design_connected: true` and must record its capability differences.
+Validate completed round-trip UI improvement receipts with
+`scripts/validate-design-sync-receipt.py` (`design-sync-receipt/v1`); manual,
+skip, or unavailable-provider outcomes never count as design integration success.
 In particular, proceed does not authorize an upload: step 5's fresh scan and
 all existing egress restrictions still apply. Copy any returned `audit` into
 the existing Design-Source fields, with the actual ISO-8601 time, subject and

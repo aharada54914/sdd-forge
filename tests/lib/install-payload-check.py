@@ -179,6 +179,7 @@ def scenario_env(tmp):
     env = {k: v for k, v in os.environ.items() if k not in SCRUBBED_ENV}
     env.update(HOME=str(home), XDG_DATA_HOME=str(tmp / "xdg-data"), SDD_CODEX_HOME=str(home / ".codex"),
                SDD_CURSOR_DIR=str(home / "cursor-not-installed"),
+               SDD_GEMINI_DIR=str(home / "gemini-not-installed"),
                SDD_VSCODE_USER_DIR=str(home / "vscode-not-installed"), SDD_INSTALL_LOCK_TIMEOUT="60",
                PYTHONDONTWRITEBYTECODE="1", GIT_TERMINAL_PROMPT="0")
     return env

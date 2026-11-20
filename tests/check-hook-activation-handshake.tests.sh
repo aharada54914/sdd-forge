@@ -257,6 +257,80 @@ assert_exit "$rc" 60 "TEST-027 codex-cli: a missing recorded-result file -> exit
 rc=$?
 assert_exit "$rc" 62 "TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED"
 
+# --- gemini-cli ----------------------------------------------------------
+
+NONCE_GM=0123456789abcdef0123456789abcdef
+
+cat > "$T027/gm-deny.json" <<EOF
+{"nonce": "$NONCE_GM", "executed": false, "decision": "deny"}
+EOF
+(cd "$T027" && run_hh --verify-response --nonce "$NONCE_GM" --recorded-result gm-deny.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 0 "TEST-027 gemini-cli: a genuine --emit gemini deny JSON + matching nonce -> exit 0"
+assert_json_field "$WORK/out" "d['status']" "HOOK_ACTIVE" "TEST-027 gemini-cli: HOOK_ACTIVE reported"
+
+cat > "$T027/gm-write.json" <<EOF
+{"nonce": "$NONCE_GM", "executed": true}
+EOF
+(cd "$T027" && run_hh --verify-response --nonce "$NONCE_GM" --recorded-result gm-write.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 63 "TEST-027 gemini-cli: the write actually executing -> exit 63/WRITE_EXECUTED"
+
+cat > "$T027/gm-allow.json" <<EOF
+{"nonce": "$NONCE_GM", "executed": false, "decision": "allow"}
+EOF
+(cd "$T027" && run_hh --verify-response --nonce "$NONCE_GM" --recorded-result gm-allow.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 64 "TEST-027 gemini-cli: decision allow -> exit 64/UNRECOGNIZED_RESULT"
+
+(cd "$T027" && run_hh --verify-response --nonce "$NONCE_GM" --recorded-result missing.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 60 "TEST-027 gemini-cli: missing recorded-result -> exit 60/NO_RECORDED_RESULT"
+
+(cd "$T027" && run_hh --verify-response --nonce "wrong-nonce" --recorded-result gm-deny.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 62 "TEST-027 gemini-cli: mismatched nonce -> exit 62/STALE_CHALLENGE_REJECTED"
+
+"$PY" - "$T027/gm-host-denial.json" "$NONCE_GM" <<'PY'
+import json, sys
+nonce = sys.argv[2]
+reason = (
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
+    "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. "
+    "These are part of the enforcement chain and cannot be bypassed by sudo."
+)
+doc = {
+    "schema": "sdd-gemini-host-denial/v1",
+    "runtime": "gemini-cli",
+    "nonce": nonce,
+    "executed": False,
+    "raw_request": {
+        "tool_name": "write_file",
+        "tool_input": {
+            "file_path": "sdd/.hook-canary-sentinel",
+            "content": "sdd-hook-challenge:" + nonce,
+        },
+    },
+    "raw_result": {"decision": "deny", "reason": reason},
+}
+with open(sys.argv[1], "w", encoding="utf-8") as fh:
+    json.dump(doc, fh)
+PY
+(cd "$T027" && run_hh --verify-response --nonce "$NONCE_GM" --recorded-result gm-host-denial.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 0 "TEST-027 gemini-cli: sdd-gemini-host-denial/v1 exact operation-bound denial -> exit 0"
+assert_json_field "$WORK/out" "d['status']" "HOOK_ACTIVE" "TEST-027 gemini-cli: sdd-gemini-host-denial/v1 HOOK_ACTIVE"
+
+"$PY" - "$T027/gm-host-denial.json" "$T027/gm-host-bad.json" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1], encoding="utf-8"))
+doc["raw_request"]["tool_input"]["file_path"] = "sdd/other.txt"
+json.dump(doc, open(sys.argv[2], "w", encoding="utf-8"))
+PY
+(cd "$T027" && run_hh --verify-response --nonce "$NONCE_GM" --recorded-result gm-host-bad.json --runtime gemini-cli)
+rc=$?
+assert_exit "$rc" 64 "TEST-027 gemini-cli: sdd-gemini-host-denial/v1 wrong canary target -> exit 64/UNRECOGNIZED_RESULT"
+
 # --- runtime-independent evidence malformation (shared code path) --------
 
 printf '{not valid json' > "$T027/bad-json.json"
@@ -287,7 +361,7 @@ assert_json_field "$WORK/out" "d['schema']" "sdd-hook-challenge/v1" \
   "TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes"
 assert_json_field "$WORK/out" "d['canary_target']" "sdd/.hook-canary-sentinel" \
   "TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers"
-for rt in claude-code codex-cli copilot-cli; do
+for rt in claude-code codex-cli copilot-cli gemini-cli; do
   assert_json_field "$WORK/out" "'$rt' in d['tool_call_template']" "True" \
     "TEST-027 challenge shape: tool_call_template includes a '$rt' entry"
 done

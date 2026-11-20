@@ -340,7 +340,15 @@ MODEL_PROTECTIONS = (
     QUALITY_SCRIPTS + 'run-panelist-gpt.ps1',
     QUALITY_SCRIPTS + 'run-panelist-gemini.ps1',
 )
-REVIEWED_PROTECTIONS = ENTRYPOINTS + ADDITIONAL_PROTECTIONS + CLOUD_PROTECTIONS + MODEL_PROTECTIONS
+GEMINI_AND_DESIGN_PROTECTIONS = (
+    'plugins/sdd-quality-loop/gemini/gemini-extension.json',
+    'plugins/sdd-quality-loop/gemini/hooks/hooks.json',
+    'plugins/sdd-bootstrap/scripts/validate-design-sync-receipt.py',
+)
+REVIEWED_PROTECTIONS = (
+    ENTRYPOINTS + ADDITIONAL_PROTECTIONS + CLOUD_PROTECTIONS
+    + MODEL_PROTECTIONS + GEMINI_AND_DESIGN_PROTECTIONS
+)
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',

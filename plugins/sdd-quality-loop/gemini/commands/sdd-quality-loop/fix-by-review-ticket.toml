@@ -1,0 +1,8 @@
+description = "Apply an approved SDD review ticket and prepare for quality-gate re-verification."
+prompt = """
+Read and execute the skill instructions at `../skills/fix-by-review-ticket/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+
+Follow every precondition, approval check, scope boundary, and verification step in that SKILL.md without skipping deterministic checks.
+"""

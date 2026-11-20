@@ -1,0 +1,8 @@
+description = "Implement approved SDD tasks through deterministic quality verification to Done."
+prompt = """
+Read and execute the skill instructions at `skills/ship/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+
+On Gemini CLI, execute the hook-activation handshake with `--runtime gemini-cli` using the `write_file` canary template, never implement Draft tasks, and only transition tasks to Done through quality-gate (or lite-gate on an eligible lite track).
+"""
