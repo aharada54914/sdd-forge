@@ -466,8 +466,18 @@ class GeminiInstaller(unittest.TestCase):
             result = subprocess.run(args, capture_output=True, text=True, env=env, timeout=90)
             self.assertEqual(result.returncode, 0, result.stdout[-2000:] + result.stderr[-2000:])
             calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+            resolved_installed = installed.resolve()
+            normalized_calls = [
+                [arg if idx != 2 else str(Path(arg).resolve()) for idx, arg in enumerate(c)]
+                if len(c) == 3 and c[:2] == ['extensions', 'link'] else c
+                for c in calls
+            ]
             if plugins == 'sdd-bootstrap':
-                self.assertEqual(calls, [['extensions', 'link', str(installed / 'plugins/sdd-implementation/gemini')]])
+                self.assertEqual(normalized_calls, [
+                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-bootstrap')],
+                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],
+                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-implementation/gemini')],
+                ])
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/session-models.py').is_file())
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/model-discovery.py').is_file())
                 plugin = installed / 'plugins/sdd-implementation'
@@ -488,7 +498,9 @@ class GeminiInstaller(unittest.TestCase):
                 calls = [json.loads(line) for line in log.read_text().splitlines()]
                 self.assertEqual(calls[-1], ['extensions', 'uninstall', 'sdd-forge-model-selection'])
             else:
-                self.assertEqual(calls, [])
+                self.assertEqual(normalized_calls, [
+                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],
+                ])
 
     def test_bash_bootstrap_installs_picker_and_unregisters_gemini(self):
         self.run_install('bash')

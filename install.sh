@@ -49,6 +49,7 @@ Usage: install.sh [options]
 Environment:
   SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
   SDD_CURSOR_DIR        Override the ~/.cursor directory used for Cursor MCP registration
+  SDD_GEMINI_DIR        Override the ~/.gemini directory used for Gemini CLI MCP registration
   SDD_VSCODE_USER_DIR   Override the VS Code user-profile directory used for MCP registration
 
   Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
@@ -225,18 +226,35 @@ target_requires() {
 install_gemini_extension() {
     local marketplace_root="$1"
     [[ $SKIP_PLUGIN_INSTALL -eq 0 ]] || return 0
-    [[ ",$PLUGINS," == *,sdd-implementation,* ]] || return 0
     if ! command -v gemini >/dev/null 2>&1; then
         if target_requires Gemini; then
             echo "Error: Gemini CLI was not found in PATH." >&2
             return 1
         fi
-        echo "Warning: Gemini CLI was not found. Model selection extension registration was skipped." >&2
+        echo "Warning: Gemini CLI was not found. Gemini extension registration was skipped." >&2
         return 0
     fi
-    # Linking the installed local directory preserves sibling scripts and skills.
-    run_idempotent_plugin_command "the Gemini model selection extension" \
-        gemini extensions link "$marketplace_root/plugins/sdd-implementation/gemini" || return 1
+    local p ext_dir label
+    for p in "${PLUGIN_LIST[@]}"; do
+        case "$p" in
+            sdd-implementation)
+                ext_dir="$marketplace_root/plugins/sdd-implementation/gemini"
+                label="the Gemini model selection extension"
+                ;;
+            sdd-quality-loop)
+                ext_dir="$marketplace_root/plugins/sdd-quality-loop/gemini"
+                label="Gemini extension '${p}'"
+                ;;
+            *)
+                ext_dir="$marketplace_root/plugins/${p}"
+                label="Gemini extension '${p}'"
+                ;;
+        esac
+        [[ -f "${ext_dir}/gemini-extension.json" ]] || continue
+        # Linking the installed local directory preserves sibling scripts and skills.
+        run_idempotent_plugin_command "$label" \
+            gemini extensions link "$ext_dir" || return 1
+    done
 }
 
 install_codex_plugins() {
@@ -723,6 +741,20 @@ register_vscode_mcp() {
     upsert_mcp_json "VS Code" "${vscode_user_dir}/mcp.json" "servers" "vscode" "$install_root_path"
 }
 
+register_gemini_mcp() {
+    # Idempotently upserts mcpServers.<name> into ~/.gemini/settings.json for
+    # each selected MCP. An absent ~/.gemini directory means Gemini CLI is not
+    # configured: skip with a notice and never create the directory. Override
+    # via SDD_GEMINI_DIR (for testing).
+    local install_root_path="$1"
+    local gemini_dir="${SDD_GEMINI_DIR:-$HOME/.gemini}"
+    if [[ ! -d "$gemini_dir" ]]; then
+        echo "Warning: ${gemini_dir} was not found. Gemini CLI MCP registration was skipped (Gemini CLI does not appear to be configured; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "Gemini CLI" "${gemini_dir}/settings.json" "mcpServers" "gemini" "$install_root_path"
+}
+
 MCP_NODE_OK=0
 
 place_mcp_servers_if_selected() {
@@ -761,6 +793,9 @@ install_mcp_servers() {
     # both All and Copilot.
     if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
         register_vscode_mcp "$install_root_path" || return 1
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
+        register_gemini_mcp "$install_root_path" || return 1
     fi
 }
 
@@ -995,6 +1030,13 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/hooks/claude-hooks.json"
     "plugins/sdd-implementation/hooks/codex-hooks.json"
     "plugins/sdd-implementation/gemini/hooks/hooks.json"
+    "plugins/sdd-quality-loop/gemini/gemini-extension.json"
+    "plugins/sdd-quality-loop/gemini/hooks/hooks.json"
+    "plugins/sdd-bootstrap/gemini-extension.json"
+    "plugins/sdd-ship/gemini-extension.json"
+    "plugins/sdd-domain/gemini-extension.json"
+    "plugins/sdd-lite/gemini-extension.json"
+    "plugins/sdd-review-loop/gemini-extension.json"
     "plugins/sdd-implementation/scripts/model-policy.py"
     "plugins/sdd-implementation/scripts/select-agent-model.sh"
     "plugins/sdd-implementation/scripts/select-agent-model.ps1"

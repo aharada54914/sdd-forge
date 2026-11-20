@@ -1,0 +1,6 @@
+description = "Develop and verify SQL/database changes using isolated DB validation and SDD contracts."
+prompt = """
+Read and execute the skill instructions at `../skills/sql-develop/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+"""

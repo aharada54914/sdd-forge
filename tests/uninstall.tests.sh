@@ -77,11 +77,13 @@ run_full_uninstall_scenario() {
     command_log="${test_root}/commands.log"
     local original_path="$PATH"
     local _orig_codex_home="${SDD_CODEX_HOME:-}"
+    local _orig_gemini_dir="${SDD_GEMINI_DIR:-}"
 
     make_fake_commands "$fake_bin" "$command_log"
     seed_installed_layout "$install_root" "$codex_home"
     export PATH="${fake_bin}:${original_path}"
     export SDD_CODEX_HOME="$codex_home"
+    export SDD_GEMINI_DIR="${test_root}/gemini-not-installed"
 
     local extra_args=()
     [[ "$keep_files" -eq 1 ]] && extra_args+=(--keep-files)
@@ -93,6 +95,7 @@ run_full_uninstall_scenario() {
 
     export PATH="$original_path"
     if [[ -z "$_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_orig_codex_home"; fi
+    if [[ -z "$_orig_gemini_dir" ]]; then unset SDD_GEMINI_DIR; else export SDD_GEMINI_DIR="$_orig_gemini_dir"; fi
 
     local all_ok=1
     [[ $failed -ne 0 ]] && { fail "full uninstall: uninstaller exited non-zero"; all_ok=0; }

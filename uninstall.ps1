@@ -289,6 +289,17 @@ function Unregister-VSCodeMcp {
     Remove-McpJsonKeys -ClientLabel "VS Code" -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers"
 }
 
+function Unregister-GeminiMcp {
+    if ($SkipMcpUninstall) { return }
+    $geminiDir = if ($env:SDD_GEMINI_DIR) { $env:SDD_GEMINI_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini" }
+    if (-not (Test-Path -LiteralPath $geminiDir)) {
+        Write-Warning "$geminiDir was not found. Gemini CLI MCP unregistration was skipped (Gemini CLI does not appear to be configured)."
+        return
+    }
+    if (-not (Test-McpJsonNodeAvailable)) { return }
+    Remove-McpJsonKeys -ClientLabel "Gemini CLI" -ConfigFile (Join-Path $geminiDir "settings.json") -TopKey "mcpServers"
+}
+
 # ---------------------------------------------------------------------------
 # Resolve install root and safety checks (mirror install.ps1)
 # ---------------------------------------------------------------------------
@@ -325,9 +336,14 @@ if ($Target -in @("All", "Claude")) {
 if ($Target -in @("All", "Copilot")) {
     Uninstall-CopilotPlugin
 }
-if ($Target -in @("All", "Gemini") -and -not $SkipPluginUninstall -and
-    $Plugins -ccontains 'sdd-implementation' -and (Get-Command gemini -ErrorAction SilentlyContinue)) {
-    Invoke-BestEffortPluginCommand 'gemini' @('extensions', 'uninstall', 'sdd-forge-model-selection')
+if ($Target -in @("All", "Gemini")) {
+    if (-not $SkipPluginUninstall -and (Get-Command gemini -ErrorAction SilentlyContinue)) {
+        foreach ($plugin in $Plugins) {
+            $extName = if ($plugin -ceq 'sdd-implementation') { 'sdd-forge-model-selection' } else { $plugin }
+            Invoke-BestEffortPluginCommand 'gemini' @('extensions', 'uninstall', $extName)
+        }
+    }
+    Unregister-GeminiMcp
 }
 # IDE-client MCP unregistration mirrors install.ps1's registration scoping:
 # Cursor has no dedicated -Target value, so it participates in All only; VS Code

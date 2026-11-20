@@ -100,7 +100,7 @@ $MalformedMsg = Expand-Unicode 'SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30d5\
 $ApprovalFailClosedMsg = Expand-Unicode 'SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u627f\u8a8d\u30ac\u30fc\u30c9\u304c\u30d5\u30a7\u30a4\u30eb\u30af\u30ed\u30fc\u30ba\u3057\u307e\u3057\u305f\u3002\u000a[EN] SDD deterministic gate: approval guard failed closed.'
 $AgentRoleFailClosedMsg = Expand-Unicode 'SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u30ed\u30fc\u30eb\u30ac\u30fc\u30c9\u304c\u30d5\u30a7\u30a4\u30eb\u30af\u30ed\u30fc\u30ba\u3057\u307e\u3057\u305f\u3002\u000a[EN] SDD deterministic gate: agent-role guard failed closed.'
 
-if ($Emit -ne "copilot") { $Emit = "exit" }
+if ($Emit -ne "copilot" -and $Emit -ne "gemini") { $Emit = "exit" }
 
 # --- R-10: Enforcement-chain file protection tables (parity with .py/.js) ---
 # Files whose write denial is NOT bypassable by sudo. Matched case-insensitively
@@ -432,8 +432,8 @@ function Test-PayloadMalformed {
     if ($Payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$Payload.tool_name).ToLower() }
     $toolInput = $Payload.tool_input
     if ($null -eq $toolInput) { return $true }
-    $targetedCommandTools = @("apply_patch", "bash", "shell", "exec_command", "exec")
-    $targetedFileTools = @("edit", "write", "multiedit")
+    $targetedCommandTools = @("apply_patch", "bash", "shell", "exec_command", "exec", "run_shell_command")
+    $targetedFileTools = @("edit", "write", "multiedit", "write_file", "replace")
     if ($targetedCommandTools -contains $toolName) {
         if (-not $toolInput.PSObject.Properties["command"] -or -not ($toolInput.command -is [string]) -or [string]::IsNullOrWhiteSpace([string]$toolInput.command)) { return $true }
     }
@@ -457,6 +457,15 @@ function Emit-Decision {
             $obj = [ordered]@{ permissionDecision = $Decision; permissionDecisionReason = $Reason }
         } else {
             $obj = [ordered]@{ permissionDecision = $Decision }
+        }
+        [Console]::Out.Write(($obj | ConvertTo-Json -Compress))
+        exit 0
+    }
+    if ($Emit -eq "gemini") {
+        if ($Decision -eq "deny" -and $Reason) {
+            $obj = [ordered]@{ decision = $Decision; reason = $Reason }
+        } else {
+            $obj = [ordered]@{ decision = $Decision }
         }
         [Console]::Out.Write(($obj | ConvertTo-Json -Compress))
         exit 0
@@ -830,7 +839,7 @@ function Tokenize-ShellCommand {
 
 function Test-EvidenceWrite {
     param([string]$ToolName, [string]$Command, $Directories)
-    if (@('bash','shell','exec_command','exec') -notcontains $ToolName) { return $false }
+    if (@('bash','shell','exec_command','exec','run_shell_command') -notcontains $ToolName) { return $false }
     $process = $null
     try {
         $root = (Get-Location).ProviderPath
@@ -1704,7 +1713,7 @@ function Test-ImplReviewStatusPassedIncreases {
         }
         return $false
     }
-    if (-not (@("edit", "write", "multiedit") -contains $toolName)) { return $false }
+    if (-not (@("edit", "write", "multiedit", "write_file", "replace") -contains $toolName)) { return $false }
     if (-not (Test-DesignMd $filePath)) { return $false }
 
     $newContent = ""
@@ -1805,7 +1814,7 @@ function Test-DomainModelApprovalIncreases {
     }
 
     # Codex Bash/shell: conservative heuristic.
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         if ($command.ToLower().Contains("domain/context-map.md") -and [regex]::IsMatch($command, "Domain-Model-Status:\s*Approved")) {
             return $true
         }
@@ -1878,7 +1887,7 @@ function Test-WfiApprovalIncreases {
         return Test-WfiPatchIncreases $command
     }
 
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         if ($command.ToLower().Contains("workflow-improvements/") -and [regex]::IsMatch($command, "Status:\s*Approved")) {
             # WFI-022: a single simple command that starts with a read-only
             # verb and carries no write verb or redirect token cannot grant an
@@ -1973,7 +1982,7 @@ function Test-SecondApprovalIncreases {
         return Test-SecondApprovalPatchIncreases $command
     }
 
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         if ($command.ToLower().Contains("tasks.md") -and [regex]::IsMatch($command, "Second Approval:\s*Approved")) {
             return $true
         }
@@ -2183,7 +2192,7 @@ function Test-ApprovalIncreases {
     }
 
     # Codex Bash/shell: conservative heuristic.
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         # Case-insensitive tasks.md check (intentional: matches JS/py behavior).
         # Use Get-Count (which subtracts Second Approval matches) rather than a
         # raw regex match, so a command that only writes "Second Approval:
@@ -2368,22 +2377,22 @@ try {
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
     # Reject unknown argv before legacy write scanners can miss glob-added options.
-    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command ($toolName -eq 'bash'))) {
+    if (@('bash', 'shell', 'exec_command', 'exec', 'run_shell_command') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command ($toolName -eq 'bash'))) {
         Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).'
     }
     # Read-only inspection cannot change protected files or grant approvals.
-    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command ($toolName -eq 'bash'))) {
+    if (@('bash', 'shell', 'exec_command', 'exec', 'run_shell_command') -contains $toolName -and (Test-ShellReadOnly $command ($toolName -eq 'bash'))) {
         Emit-Decision 'allow' $null
     }
 
     # Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
     # File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
-    if (@("edit", "write", "multiedit") -contains $toolName) {
+    if (@("edit", "write", "multiedit", "write_file", "replace") -contains $toolName) {
         if (Test-TargetPathIsSddSudo $filePath) { Emit-Decision "deny" $SddSudoWriteMsg }
     }
 
     # Shell commands targeting SDD_SUDO.
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         if (Test-ShellTargetsSddSudo $command) { Emit-Decision "deny" $SddSudoWriteMsg }
     }
 
@@ -2398,11 +2407,11 @@ try {
     }
 
     # Check 2a-R10: Enforcement-chain file protection (never bypassed by sudo).
-    if (@("edit", "write", "multiedit") -contains $toolName) {
+    if (@("edit", "write", "multiedit", "write_file", "replace") -contains $toolName) {
         if (Test-IsProtectedGateFile $filePath) { Emit-Decision "deny" $GateProtectMsg }
     }
 
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         if (Test-ShellTargetsProtectedGateFile $command $executionDirectories ($toolName -eq 'bash')) { Emit-Decision "deny" $GateProtectMsg }
     }
 
@@ -2452,7 +2461,7 @@ try {
     # Bash/shell tools.
     $command = $null
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
-    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+    if (@("bash", "shell", "exec_command", "exec", "run_shell_command") -contains $toolName -and $command) {
         if (Test-ShellWritesInvalidAgentRole $command) { Emit-Decision "deny" $AgentRoleMsg }
     }
 } catch {

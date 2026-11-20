@@ -139,6 +139,76 @@ class PolicyTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(result.stdout, "")
 
+    def test_alternative_provider_never_reports_claude_design_connected(self):
+        alt = self.resolve(request(
+            operation="pull",
+            provider="pencil-mcp",
+            provider_capabilities={"pull_tokens": True, "push_mockup": True, "provider_review": False},
+        ))
+        self.assertEqual(alt["action"], "proceed")
+        self.assertEqual(alt["provider"], "pencil-mcp")
+        self.assertFalse(alt["claude_design_connected"])
+        self.assertEqual(alt["round_trip_mode"], "alternative-adapter")
+        self.assertEqual(alt["capability_gaps"], ["provider_review"])
+
+        native = self.resolve(request(operation="pull", provider="claude-design"))
+        self.assertTrue(native["claude_design_connected"])
+        self.assertEqual(native["round_trip_mode"], "native-sync")
+        self.assertEqual(native["capability_gaps"], [])
+
+        unavailable = self.resolve(request(operation="pull", provider="claude-design", provider_available=False))
+        self.assertFalse(unavailable["claude_design_connected"])
+        self.assertEqual(unavailable["round_trip_mode"], "manual")
+
+    def test_design_sync_receipt_validator_enforces_provider_and_sqlite_gates(self):
+        import tempfile
+        validator = ROOT / "plugins/sdd-bootstrap/scripts/validate-design-sync-receipt.py"
+        valid_alt = {
+            "schema": "design-sync-receipt/v1",
+            "feature": "task-board",
+            "track": "full+sqlite",
+            "provider": "pencil-mcp",
+            "provider_available": True,
+            "claude_design_connected": False,
+            "round_trip_mode": "alternative-adapter",
+            "capability_gaps": ["claude-design-native-review"],
+            "project_id": "board.pen",
+            "design_version": "v2",
+            "tokens_pull_receipt": "specs/task-board/mockups/tokens.json",
+            "mockup_review_receipt": "specs/task-board/mockups/review.json",
+            "req_ac_mappings": ["REQ-001/AC-001"],
+            "ui_diff_ref": "git:abc1234",
+            "before_screenshot": "specs/task-board/mockups/before.png",
+            "after_screenshot": "specs/task-board/mockups/after.png",
+            "egress_scan": "clean",
+            "ui_tests_passed": True,
+            "sqlite_restart_persistence_passed": True,
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "receipt.json"
+            path.write_text(json.dumps(valid_alt), encoding="utf-8")
+            ok = subprocess.run([sys.executable, "-B", str(validator), str(path)], capture_output=True, text=True)
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+            self.assertFalse(json.loads(ok.stdout)["claude_design_connected"])
+
+            # Alternative provider claiming Claude Design success must fail.
+            spoofed = dict(valid_alt, claude_design_connected=True)
+            path.write_text(json.dumps(spoofed), encoding="utf-8")
+            bad_spoof = subprocess.run([sys.executable, "-B", str(validator), str(path)], capture_output=True, text=True)
+            self.assertEqual(bad_spoof.returncode, 1)
+
+            # Manual/skip/unavailable must fail.
+            manual = dict(valid_alt, round_trip_mode="manual", provider_available=False)
+            path.write_text(json.dumps(manual), encoding="utf-8")
+            bad_manual = subprocess.run([sys.executable, "-B", str(validator), str(path)], capture_output=True, text=True)
+            self.assertEqual(bad_manual.returncode, 1)
+
+            # full+sqlite without restart persistence pass must fail.
+            no_sqlite = dict(valid_alt, sqlite_restart_persistence_passed=False)
+            path.write_text(json.dumps(no_sqlite), encoding="utf-8")
+            bad_sqlite = subprocess.run([sys.executable, "-B", str(validator), str(path)], capture_output=True, text=True)
+            self.assertEqual(bad_sqlite.returncode, 1)
+
     def test_full_lite_and_provider_skill_wire_the_shipped_helper(self):
         for relative in ("plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
                          "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",

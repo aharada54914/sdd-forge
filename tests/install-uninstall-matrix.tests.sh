@@ -105,6 +105,7 @@ cell() {
     export SDD_CODEX_HOME="$codex_home"
     export SDD_VSCODE_USER_DIR="$vscode_dir"
     export SDD_CURSOR_DIR="$cursor_dir"
+    export SDD_GEMINI_DIR="${root}/gemini-not-installed"
     export CI_MCP_GITHUB_TOKEN="${CI_MCP_GITHUB_TOKEN:-fixture-readonly-token}"
 
     local install1 install2 install1_manifest install2_manifest drift_json residuals

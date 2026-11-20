@@ -1104,6 +1104,82 @@ parity_check "wfi061 tee exact target (deny)" 2 \
 parity_check "wfi061 file tool exact target (deny)" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"/tmp/SDD_SUDO\",\"content\":\"x\"}}"
 
+# ---------------------------------------------------------------------------
+# Gemini CLI BeforeTool tools & --emit gemini parity across all 4 twins
+# ---------------------------------------------------------------------------
+gemini_emit_check() {
+    local scenario="$1" expected_decision="$2" payload="$3"
+    local py_out js_out sh_out ps_out py_rc=0 js_rc=0 sh_rc=0 ps_rc=0
+    py_out="$(printf '%s' "$payload" | CLAUDE_PROJECT_DIR="$WORK" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit gemini 2>/dev/null)" || py_rc=$?
+    js_out="$(printf '%s' "$payload" | CLAUDE_PROJECT_DIR="$WORK" node "${SCRIPTS_DIR}/sdd-hook-guard.js" --emit gemini 2>/dev/null)" || js_rc=$?
+    sh_out="$(printf '%s' "$payload" | CLAUDE_PROJECT_DIR="$WORK" sh "${SCRIPTS_DIR}/sdd-hook-guard.sh" --emit gemini 2>/dev/null)" || sh_rc=$?
+    if [ "$py_rc" = 0 ] && [ "$js_rc" = 0 ] && [ "$sh_rc" = 0 ]; then
+        if python3 - "$expected_decision" "$py_out" "$js_out" "$sh_out" <<'PY'
+import json, sys
+exp = sys.argv[1]
+for raw in sys.argv[2:]:
+    obj = json.loads(raw)
+    if obj.get("decision") != exp:
+        raise SystemExit(1)
+    if exp == "deny" and not isinstance(obj.get("reason"), str):
+        raise SystemExit(1)
+PY
+        then
+            ok "gemini --emit gemini [$scenario]: py/js/sh all decision=$expected_decision (exit 0)"
+        else
+            fail "gemini --emit gemini [$scenario]: decision mismatch (py=$py_out js=$js_out sh=$sh_out, expected $expected_decision)"
+        fi
+    else
+        fail "gemini --emit gemini [$scenario]: non-zero exit (py=$py_rc js=$js_rc sh=$sh_rc)"
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+        ps_out="$(printf '%s' "$payload" | CLAUDE_PROJECT_DIR="$WORK" pwsh -NoProfile -File "${SCRIPTS_DIR}/sdd-hook-guard.ps1" -Emit gemini 2>/dev/null)" || ps_rc=$?
+        if [ "$ps_rc" = 0 ] && python3 - "$expected_decision" "$ps_out" <<'PY'
+import json, sys
+obj = json.loads(sys.argv[2])
+if obj.get("decision") != sys.argv[1]:
+    raise SystemExit(1)
+if sys.argv[1] == "deny" and not isinstance(obj.get("reason"), str):
+    raise SystemExit(1)
+PY
+        then
+            ok "gemini PowerShell -Emit gemini [$scenario]: decision=$expected_decision (exit 0)"
+        else
+            fail "gemini PowerShell -Emit gemini [$scenario]: rc=$ps_rc out=$ps_out (expected $expected_decision)"
+        fi
+    fi
+}
+
+parity_check "gemini write_file tasks.md self-approval (deny)" 2 \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"specs/demo/tasks.md\",\"content\":\"Approval: Approved\"}}"
+parity_check "gemini replace tasks.md self-approval (deny)" 2 \
+    "{\"tool_name\":\"replace\",\"tool_input\":{\"file_path\":\"specs/demo/tasks.md\",\"new_string\":\"Approval: Approved\"}}"
+parity_check "gemini write_file domain-model self-approval (deny)" 2 \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"sdd/domain/context-map.md\",\"content\":\"Domain-Model-Status: Approved\"}}"
+parity_check "gemini write_file hook canary sentinel (deny)" 2 \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"sdd/.hook-canary-sentinel\",\"content\":\"sdd-hook-challenge:0123456789abcdef0123456789abcdef\"}}"
+parity_check "gemini write_file protected gemini hooks.json (deny)" 2 \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"plugins/sdd-quality-loop/gemini/hooks/hooks.json\",\"content\":\"{}\"}}"
+parity_check "gemini write_file protected design-sync validator (deny)" 2 \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"plugins/sdd-bootstrap/scripts/validate-design-sync-receipt.py\",\"content\":\"pass\"}}"
+parity_check "gemini run_shell_command SDD_SUDO redirect (deny)" 2 \
+    "{\"tool_name\":\"run_shell_command\",\"tool_input\":{\"command\":\"printf x > /tmp/SDD_SUDO\"}}"
+parity_check "gemini run_shell_command protected gemini hooks.json redirect (deny)" 2 \
+    "{\"tool_name\":\"run_shell_command\",\"tool_input\":{\"command\":\"printf '{}' > plugins/sdd-quality-loop/gemini/hooks/hooks.json\"}}"
+parity_check "gemini write_file benign app source (allow)" 0 \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"src/app.py\",\"content\":\"print('ok')\"}}"
+parity_check "gemini run_shell_command benign cat hooks.json (allow)" 0 \
+    "{\"tool_name\":\"run_shell_command\",\"tool_input\":{\"command\":\"cat plugins/sdd-quality-loop/gemini/hooks/hooks.json\"}}"
+
+gemini_emit_check "canary sentinel deny" "deny" \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"sdd/.hook-canary-sentinel\",\"content\":\"sdd-hook-challenge:0123456789abcdef0123456789abcdef\"}}"
+gemini_emit_check "tasks self-approval deny" "deny" \
+    "{\"tool_name\":\"replace\",\"tool_input\":{\"file_path\":\"specs/demo/tasks.md\",\"new_string\":\"Approval: Approved\"}}"
+gemini_emit_check "run_shell_command SDD_SUDO deny" "deny" \
+    "{\"tool_name\":\"run_shell_command\",\"tool_input\":{\"command\":\"rm /tmp/SDD_SUDO\"}}"
+gemini_emit_check "benign write_file allow" "allow" \
+    "{\"tool_name\":\"write_file\",\"tool_input\":{\"file_path\":\"src/app.py\",\"content\":\"print('ok')\"}}"
+
 # Shared reader grammar uses the actual Python/Node guard entrypoints.
 python3 "$REPO_ROOT/tests/guard-readonly-inputs.tests.py" --runtime python --runtime node
 

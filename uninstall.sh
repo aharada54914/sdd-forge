@@ -48,6 +48,7 @@ Usage: uninstall.sh [options]
 Environment:
   SDD_CODEX_HOME      Override ~/.codex location for agent TOML files and config.toml
   SDD_CURSOR_DIR      Override the ~/.cursor directory used for Cursor MCP unregistration
+  SDD_GEMINI_DIR      Override the ~/.gemini directory used for Gemini CLI MCP unregistration
   SDD_VSCODE_USER_DIR Override the VS Code user-profile directory used for MCP unregistration
   Unregistration is best-effort: a plugin or marketplace that is already absent
   is treated as success so the uninstaller is idempotent. The marketplace is only
@@ -414,6 +415,20 @@ unregister_vscode_mcp() {
     remove_mcp_json_keys "VS Code" "${vscode_user_dir}/mcp.json" "servers"
 }
 
+unregister_gemini_mcp() {
+    # Removes only mcpServers.<name> from ~/.gemini/settings.json for each
+    # selected MCP. An absent ~/.gemini directory skips with a notice. Override
+    # via SDD_GEMINI_DIR.
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    local gemini_dir="${SDD_GEMINI_DIR:-$HOME/.gemini}"
+    if [[ ! -d "$gemini_dir" ]]; then
+        echo "Warning: ${gemini_dir} was not found. Gemini CLI MCP unregistration was skipped (Gemini CLI does not appear to be configured)." >&2
+        return 0
+    fi
+    mcp_json_node_available || return 0
+    remove_mcp_json_keys "Gemini CLI" "${gemini_dir}/settings.json" "mcpServers"
+}
+
 remove_mcp_payload() {
     # Removes the placed MCP directories under INSTALL_ROOT/mcp/<name>/.
     # Best-effort: absence is success (idempotent, mirrors --keep-files logic
@@ -497,9 +512,16 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     uninstall_copilot_plugins || exit 1
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
-    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]] && [[ ",$PLUGINS," == *,sdd-implementation,* ]] && command -v gemini >/dev/null 2>&1; then
-        try_plugin_command gemini extensions uninstall sdd-forge-model-selection
+    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]] && command -v gemini >/dev/null 2>&1; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            if [[ "$p" == "sdd-implementation" ]]; then
+                try_plugin_command gemini extensions uninstall sdd-forge-model-selection
+            else
+                try_plugin_command gemini extensions uninstall "$p"
+            fi
+        done
     fi
+    unregister_gemini_mcp
 fi
 # IDE-client MCP unregistration mirrors install.sh's registration scoping:
 # Cursor has no dedicated --target value, so it participates in All only; VS

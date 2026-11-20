@@ -228,6 +228,7 @@ Set-Content -Path (Join-Path $ciMcpSourceDir "tests/index.test.ts") -Value "nois
 $global:SddInstallerIdeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-ide-" + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $global:SddInstallerIdeRoot -Force | Out-Null
 $env:SDD_CURSOR_DIR = Join-Path $global:SddInstallerIdeRoot "cursor-not-installed"
+$env:SDD_GEMINI_DIR = Join-Path $global:SddInstallerIdeRoot "gemini-not-installed"
 $env:SDD_VSCODE_USER_DIR = Join-Path $global:SddInstallerIdeRoot "vscode-not-installed"
 
 function New-FakeCommands {

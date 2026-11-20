@@ -186,6 +186,58 @@ class PublisherTests(unittest.TestCase):
             )
         )
 
+    def test_multi_source_snapshot_merge_namespaces_secondary_roots_and_preserves_primary(self):
+        t = p.now()
+        entries = [
+            {
+                "name": "main",
+                "primary": True,
+                "snapshot": {
+                    "schema": "sdd-dashboard/v1",
+                    "lastSuccessAt": t,
+                    "changedAt": t,
+                    "error": None,
+                    "data": {
+                        "project": "sdd-forge",
+                        "features": [{"id": "core", "phase": "done", "nextCommand": "", "warnings": []}],
+                        "tasks": [{"key": "core/T-001", "id": "T-001", "feature": "core", "title": "Main", "body": "", "status": "Done", "approval": "Approved", "risk": "low", "release": None, "source": "specs/core/tasks.md", "failures": []}],
+                    },
+                },
+            },
+            {
+                "name": "lite",
+                "primary": False,
+                "snapshot": {
+                    "schema": "sdd-dashboard/v1",
+                    "lastSuccessAt": t,
+                    "changedAt": t,
+                    "error": None,
+                    "data": {
+                        "project": "lite-verify",
+                        "features": [{"id": "demo", "phase": "ship", "nextCommand": "", "warnings": []}],
+                        "tasks": [{"key": "demo/T-001", "id": "T-001", "feature": "demo", "title": "Lite", "body": "", "status": "In Progress", "approval": "Approved", "risk": "low", "release": None, "source": "specs/demo/tasks.md", "failures": []}],
+                    },
+                },
+            },
+            {
+                "name": "sqlite",
+                "primary": False,
+                "snapshot": {
+                    "schema": "sdd-dashboard/v1",
+                    "lastSuccessAt": None,
+                    "changedAt": None,
+                    "error": "parse-failed",
+                    "data": None,
+                },
+            },
+        ]
+        merged = p.merge_source_snapshots(entries)
+        self.assertEqual(merged["schema"], "sdd-dashboard/v1")
+        self.assertEqual([f["id"] for f in merged["data"]["features"]], ["core", "lite/demo"])
+        self.assertEqual([task["key"] for task in merged["data"]["tasks"]], ["core/T-001", "lite/demo/T-001"])
+        self.assertEqual(len(merged["revision"]), 64)
+        self.assertIn("sqlite: parse-failed", merged["error"])
+
 
 if __name__ == "__main__":
     unittest.main()

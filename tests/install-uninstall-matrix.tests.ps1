@@ -81,6 +81,7 @@ function Invoke-Cell([string]$CellTarget) {
         $env:SDD_CODEX_HOME = $codexHome
         $env:SDD_VSCODE_USER_DIR = $vscodeDir
         $env:SDD_CURSOR_DIR = $cursorDir
+        $env:SDD_GEMINI_DIR = Join-Path $root "gemini-not-installed"
         $env:CI_MCP_GITHUB_TOKEN = if ($env:CI_MCP_GITHUB_TOKEN) { $env:CI_MCP_GITHUB_TOKEN } else { "fixture-readonly-token" }
 
         & $installer -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target $CellTarget -Plugins @("sdd-bootstrap", "sdd-ship")

@@ -1,0 +1,6 @@
+description = "Orchestrate governed AWS CDK / CloudFormation route, plan, validate, and verification workflows."
+prompt = """
+Read and execute the skill instructions at `skills/orchestrate/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+"""

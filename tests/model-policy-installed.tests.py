@@ -707,6 +707,13 @@ SESSION_RUNTIME = [
     'plugins/sdd-implementation/hooks/claude-hooks.json',
     'plugins/sdd-implementation/hooks/codex-hooks.json',
     'plugins/sdd-implementation/gemini/hooks/hooks.json',
+    'plugins/sdd-quality-loop/gemini/gemini-extension.json',
+    'plugins/sdd-quality-loop/gemini/hooks/hooks.json',
+    'plugins/sdd-bootstrap/gemini-extension.json',
+    'plugins/sdd-ship/gemini-extension.json',
+    'plugins/sdd-domain/gemini-extension.json',
+    'plugins/sdd-lite/gemini-extension.json',
+    'plugins/sdd-review-loop/gemini-extension.json',
 ]
 MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS, *SESSION_RUNTIME])
 # Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
@@ -772,6 +779,7 @@ class InstalledEntryTests(LaunchFixture):
                                 XDG_DATA_HOME=str(self.home / '.local/share'),
                                 XDG_CACHE_HOME=str(self.base / 'runtime-cache'),
                                 SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
+                                SDD_GEMINI_DIR=str(self.base / 'gemini-absent'),
                                 SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
                                 GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
 
@@ -2836,6 +2844,7 @@ class InstalledNativeEntryTests(LaunchFixture):
                                 XDG_DATA_HOME=str(self.home / '.local/share'),
                                 XDG_CACHE_HOME=str(self.base / 'runtime-cache'),
                                 SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
+                                SDD_GEMINI_DIR=str(self.base / 'gemini-absent'),
                                 SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
                                 GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
         self.probes = 0
@@ -3264,6 +3273,7 @@ class InstalledPanelistCallerTests(unittest.TestCase):
         f.poison = f.base / 'caller-source-fallback'
         f.environment.update(HOME=str(f.home), SDD_CODEX_HOME=str(f.home / '.codex'),
                              SDD_CURSOR_DIR=str(f.base / 'cursor-absent'),
+                             SDD_GEMINI_DIR=str(f.base / 'gemini-absent'),
                              SDD_VSCODE_USER_DIR=str(f.base / 'vscode-absent'), SDD_TEST_PWSH=str(PWSH),
                              GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
         package = f.base / 'caller-package'
@@ -3904,6 +3914,7 @@ class InstalledSpecCallerTests(unittest.TestCase):
         f.environment.update(HOME=str(f.home), XDG_CONFIG_HOME=str(f.home / '.config'),
                              XDG_DATA_HOME=str(f.home / '.local/share'), XDG_CACHE_HOME=str(f.home / '.cache'),
                              SDD_CODEX_HOME=str(f.home / '.codex'), SDD_CURSOR_DIR=str(f.base / 'cursor-absent'),
+                             SDD_GEMINI_DIR=str(f.base / 'gemini-absent'),
                              SDD_VSCODE_USER_DIR=str(f.base / 'vscode-absent'), GIT_CONFIG_NOSYSTEM='1',
                              GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0',
                              RECORDING_CLAUDE_AUDIT=str(f.audit))

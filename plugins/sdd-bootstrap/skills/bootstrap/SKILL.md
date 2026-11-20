@@ -91,12 +91,19 @@ Claude Code:
 /sdd-bootstrap:bootstrap <mode> --reset --feature <slug>
 ```
 
-Codex:
+Codex / Gemini CLI:
 
 ```txt
 Use the bootstrap skill.
 Mode: project | feature | bugfix | refactor | adopt | investigate
 Source: <GitHub/GitLab issue URL or requirement text>
+```
+
+Gemini CLI (via linked `sdd-bootstrap` extension command):
+
+```txt
+/sdd-bootstrap:bootstrap <mode> <source>
+/sdd-bootstrap:bootstrap <mode> --lite <source>
 ```
 
 ### Modes
@@ -276,7 +283,7 @@ first:
    using the per-runtime template the challenge carries, and record the raw
    result verbatim.
 3. `check-hook-activation-handshake --verify-response --nonce <nonce>
-   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli|gemini-cli>`.
 4. `HOOK_ACTIVE` — continue to track selection. Any other outcome — stop with
    `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy behaviour
    silently.

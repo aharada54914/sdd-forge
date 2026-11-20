@@ -66,12 +66,13 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 - Codex を使う場合、`~/.codex/config.toml` にマーカー区切りブロック（`# >>> sdd-forge-mcp ... >>>` 〜 `# <<< sdd-forge-mcp <<<`）を追記（`config.toml` が存在しない場合は新規作成せず警告のみでスキップ）
 - Cursor を使う場合、`~/.cursor/mcp.json` の `mcpServers` キーに自動登録
 - VS Code を使う場合、ユーザープロファイルの `mcp.json` の `servers` キーに自動登録
+- Gemini CLI を使う場合、`~/.gemini/settings.json` の `mcpServers` キーに自動登録（`SDD_GEMINI_DIR` で上書き可）
 
 導入オプション
 
 | オプション | 効果 |
 |---|---|
-| （既定） | MCP サーバーを配置し、`--target` に応じて Claude / Codex / Cursor / VS Code に登録 |
+| （既定） | MCP サーバーを配置し、`--target` に応じて Claude / Codex / Cursor / VS Code / Gemini に登録 |
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
 | `--mcp sdd-forge-mcp,local-env-mcp,ci-mcp` | 配置・登録する MCP を明示的に選択（有効値: `sdd-forge-mcp`, `local-env-mcp`, `ci-mcp`。省略時は 3 件すべて） |
 
@@ -216,7 +217,7 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 
 **ロールバック手順**
 
-1. `./uninstall.sh --mcp sdd-forge-mcp,local-env-mcp,ci-mcp`（または `--skip-mcp-uninstall` を付けずに通常のフル uninstall。`--mcp` 省略時は 3 件すべてが対象）を実行すると、Claude / Codex / Cursor / VS Code への登録解除と配置済みファイルの削除が行われます
+1. `./uninstall.sh --mcp sdd-forge-mcp,local-env-mcp,ci-mcp`（または `--skip-mcp-uninstall` を付けずに通常のフル uninstall。`--mcp` 省略時は 3 件すべてが対象）を実行すると、Claude / Codex / Cursor / VS Code / Gemini への登録解除と配置済みファイルの削除が行われます
    - 登録解除時は、installer が管理するエントリ（`sdd-forge-mcp`・`local-env-mcp`・`ci-mcp`）のみを削除し、他のユーザー定義エントリは無傷です
 2. リポジトリ側で MCP サーバー自体の変更を戻したい場合は、該当コミットを revert してください（`dist/` も同一コミットに含まれるため、revert だけで成果物も戻ります）
 3. 次回 install 時に `--skip-mcp` を付けることで、MCP サーバーなしでの再導入も可能です

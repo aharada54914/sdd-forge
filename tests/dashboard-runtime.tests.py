@@ -190,6 +190,56 @@ class RuntimeTests(unittest.TestCase):
                 thread.join(10)
                 runtime.__file__ = original
 
+    def test_auth_failure_enters_credentials_required_and_recovers_on_reauthorize(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            script = base / "publish-dashboard.py"
+            script.write_text(
+                'import sys,json,time\n'
+                'c=json.loads(sys.stdin.readline())\n'
+                'if c["publisherToken"]=="expired":\n'
+                '    print(json.dumps({"event":"publisher-cycle","state":"auth-failed"}), flush=True)\n'
+                '    sys.exit(78)\n'
+                'print(json.dumps({"event":"publisher-cycle","state":"running"}), flush=True)\n'
+                'time.sleep(60)\n'
+            )
+            original = runtime.__file__
+            runtime.__file__ = str(base / "dashboard-runtime.py")
+            stop = threading.Event()
+            publication = [{
+                "url": "https://example.test",
+                "credentials": {"serviceToken": "svc-1", "publisherToken": "expired"},
+            }]
+            state = {"publisherRestarts": 0, "publisherLastError": None}
+            thread = threading.Thread(
+                target=runtime.publish_loop,
+                args=(types.SimpleNamespace(root=tmp, entry="fixture", sources_config=None), publication, state, stop),
+            )
+            thread.start()
+
+            def until(fn):
+                deadline = time.monotonic() + 15
+                while time.monotonic() < deadline:
+                    if fn():
+                        return
+                    time.sleep(0.1)
+                self.fail("credentials-required condition timed out")
+
+            try:
+                until(lambda: state.get("publisherState") == "credentials-required")
+                self.assertIsNone(publication[0])
+                self.assertEqual(state.get("publisherLastError"), "auth-failed")
+                publication[0] = {
+                    "url": "https://example.test",
+                    "credentials": {"serviceToken": "svc-2", "publisherToken": "fresh"},
+                }
+                until(lambda: state.get("publisherState") == "running" and state.get("publisherPid"))
+                self.assertIsNone(state.get("publisherLastError"))
+            finally:
+                stop.set()
+                thread.join(10)
+                runtime.__file__ = original
+
     def test_private_state_required(self):
         with tempfile.TemporaryDirectory() as tmp:
             old = os.environ.get("XDG_STATE_HOME")

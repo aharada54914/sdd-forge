@@ -1,0 +1,6 @@
+{
+  "name": "sdd-review-loop",
+  "version": "1.26.0",
+  "description": "Independent blind dual-reviewer loops (spec-review-loop, impl-review-loop, task-review-loop) for Gemini CLI.",
+  "contextFileName": "GEMINI.md"
+}

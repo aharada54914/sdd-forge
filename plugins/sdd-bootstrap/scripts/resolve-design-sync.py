@@ -17,6 +17,17 @@ def validate(request):
             raise ValueError(f"{key} must be a nonempty string")
     if request.get("ds_profile") not in ("custom", "none"):
         raise ValueError("ds_profile must be custom or none")
+    if "provider" in request and (
+        not isinstance(request["provider"], str) or not request["provider"].strip()
+    ):
+        raise ValueError("provider must be a nonempty string")
+    if "provider_capabilities" in request:
+        caps = request["provider_capabilities"]
+        if not isinstance(caps, dict):
+            raise ValueError("provider_capabilities must be an object")
+        for cap_key in ("pull_tokens", "push_mockup", "provider_review"):
+            if cap_key in caps and type(caps[cap_key]) is not bool:
+                raise ValueError(f"provider_capabilities.{cap_key} must be boolean")
     if request.get("setting") is not None and not isinstance(request["setting"], str):
         raise ValueError("setting must be a string or null")
     if request.get("response") not in (None, "grant", "decline"):
@@ -46,9 +57,42 @@ def resolve(request):
         setting = "per-feature"
     scope = {key: request[key] for key in ("feature", "session", "destination")}
 
+    provider = request.get("provider", "claude-design")
+    caps = request.get("provider_capabilities") or {}
+    is_claude_design = provider == "claude-design"
+    default_cap = is_claude_design
+    normalized_caps = {
+        "pull_tokens": caps.get("pull_tokens", default_cap),
+        "push_mockup": caps.get("push_mockup", default_cap),
+        "provider_review": caps.get("provider_review", default_cap),
+    }
+    capability_gaps = [k for k, v in normalized_caps.items() if not v]
+
     def decision(action, reason, audit=None):
-        return {"schema": "design-sync-decision/v1", "action": action,
-                "reason": reason, "setting": setting, "audit": audit}
+        claude_connected = (
+            is_claude_design
+            and action == "proceed"
+            and bool(request["provider_available"])
+        )
+        if action == "skip":
+            round_trip_mode = "skip"
+        elif action == "manual":
+            round_trip_mode = "manual"
+        elif is_claude_design:
+            round_trip_mode = "native-sync" if not capability_gaps else "partial-native"
+        else:
+            round_trip_mode = "alternative-adapter"
+        return {
+            "schema": "design-sync-decision/v1",
+            "action": action,
+            "reason": reason,
+            "setting": setting,
+            "audit": audit,
+            "provider": provider,
+            "claude_design_connected": claude_connected,
+            "round_trip_mode": round_trip_mode,
+            "capability_gaps": capability_gaps,
+        }
 
     def audit(value, party=None):
         if party is None:

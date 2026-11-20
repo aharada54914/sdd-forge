@@ -1,0 +1,8 @@
+description = "Run structured 5-phase SDD bug diagnosis (reproduce, instrument, root cause, minimal fix) before implementation."
+prompt = """
+Read and execute the skill instructions at `../skills/diagnose/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+
+Honor the 5-attempt HITL loop cap and never self-approve tasks.
+"""

@@ -176,6 +176,7 @@ CLEANUP_RESULT_SCHEMA = "sdd-hook-cleanup-result/v1"
 HOST_DENIAL_SCHEMA = "sdd-codex-host-denial/v1"
 COPILOT_HOST_DENIAL_SCHEMA = "sdd-copilot-host-denial/v1"
 CLAUDE_HOST_DENIAL_SCHEMA = "sdd-claude-host-denial/v1"
+GEMINI_HOST_DENIAL_SCHEMA = "sdd-gemini-host-denial/v1"
 HOST_DENIAL_PREFIX = (
     "Command blocked by PreToolUse hook: "
     "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
@@ -190,7 +191,7 @@ HOST_DENIAL_PREFIX = (
 # `sdd/...` convention (these tools are invoked from the project root).
 CANARY_TARGET = "sdd/.hook-canary-sentinel"
 
-RUNTIMES = ("claude-code", "codex-cli", "copilot-cli")
+RUNTIMES = ("claude-code", "codex-cli", "copilot-cli", "gemini-cli")
 
 def _codex_canary_patch(nonce):
     return (
@@ -237,6 +238,10 @@ def build_challenge():
         "tool_name": "create",
         "tool_input": {"path": CANARY_TARGET, "file_text": "sdd-hook-challenge:" + nonce},
     }
+    templates["gemini-cli"] = {
+        "tool_name": "write_file",
+        "tool_input": {"file_path": CANARY_TARGET, "content": "sdd-hook-challenge:" + nonce},
+    }
     return {
         "schema": CHALLENGE_SCHEMA,
         "nonce": nonce,
@@ -254,6 +259,9 @@ def build_challenge():
         }, "copilot-cli": {
             "schema": COPILOT_HOST_DENIAL_SCHEMA, "runtime": "copilot-cli",
             "nonce": nonce, "executed": False, "raw_events": [],
+        }, "gemini-cli": {
+            "schema": GEMINI_HOST_DENIAL_SCHEMA, "runtime": "gemini-cli",
+            "nonce": nonce, "executed": False, "raw_request": None, "raw_result": None,
         }},
         "capture_instructions": {"claude-code": (
             "Replace raw_request and raw_result with the verbatim native tool_use and matching tool_result "
@@ -275,6 +283,11 @@ def build_challenge():
             "tool.execution_start and matching tool.execution_complete objects from that one native dispatch. "
             "Preserve the actual model fields; Auto evidence does not establish a fixed-model run. "
             "An empty pair, unavailable tool, malformed-payload denial, or model prose is not activation evidence."
+        ), "gemini-cli": (
+            "Attempt the write_file call against sdd/.hook-canary-sentinel with content sdd-hook-challenge:<nonce>. "
+            "Replace raw_request with the verbatim tool_name/tool_input object and raw_result with the verbatim "
+            "BeforeTool hook decision object ({decision: 'deny', reason: ...}). Keep executed:false only when the "
+            "file was not written. A malformed-payload refusal, allow decision, or model prose is not activation evidence."
         )},
     }
 
@@ -558,10 +571,56 @@ def _verify_copilot_host_denial(obj, expected_nonce, runtime):
     return start["model"]
 
 
+def _verify_gemini_cli(obj):
+    if _check_executed_field(obj):
+        raise HookHandshakeError(
+            "WRITE_EXECUTED",
+            "recorded evidence shows the canary write EXECUTED "
+            "(executed: true) -- no denial was observed",
+        )
+    decision = obj.get("decision")
+    if decision != "deny":
+        raise HookHandshakeError(
+            "UNRECOGNIZED_RESULT",
+            "gemini-cli evidence does not carry the guard's documented "
+            "--emit gemini deny signature ({'decision': 'deny', ...}); "
+            f"got decision={decision!r}",
+        )
+
+
+def _verify_gemini_host_denial(obj, expected_nonce, runtime):
+    """Bind Gemini CLI's BeforeTool denial to the exact nonce-bound write_file canary."""
+    def require(condition, message):
+        if not condition:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", message)
+
+    require(set(obj) == {"schema", "runtime", "nonce", "executed", "raw_request", "raw_result"}
+            and runtime == obj.get("runtime") == "gemini-cli", "invalid Gemini host-denial envelope")
+    require(isinstance(expected_nonce, str) and re.fullmatch(r"[0-9a-f]{32}", expected_nonce) is not None,
+            "Gemini host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    request, result = obj["raw_request"], obj["raw_result"]
+    require(isinstance(request, dict) and set(request) == {"tool_name", "tool_input"}
+            and request["tool_name"] == "write_file", "invalid native Gemini write_file request")
+    arguments = request["tool_input"]
+    require(isinstance(arguments, dict) and set(arguments) == {"file_path", "content"}
+            and arguments["file_path"] in (CANARY_TARGET, os.path.abspath(CANARY_TARGET))
+            and arguments["content"] == "sdd-hook-challenge:" + expected_nonce,
+            "native write_file is not the exact nonce-bound canary creation")
+    guard_reason = HOST_DENIAL_PREFIX[len("Command blocked by PreToolUse hook: "):-len(". Command: ")]
+    require(isinstance(result, dict) and result.get("decision") == "deny"
+            and set(result) <= {"decision", "reason", "systemMessage"}
+            and result.get("reason") == guard_reason,
+            "native Gemini BeforeTool result is not the canonical protected-canary hook denial")
+
+
 RUNTIME_VERIFIERS = {
     "claude-code": _verify_claude_code,
     "codex-cli": _verify_codex_cli,
     "copilot-cli": _verify_copilot_cli,
+    "gemini-cli": _verify_gemini_cli,
 }
 
 
@@ -574,6 +633,8 @@ def run_verify_response(nonce, recorded_result_path, runtime):
             return _verify_claude_host_denial(obj, nonce, runtime)
         if obj["schema"] == COPILOT_HOST_DENIAL_SCHEMA:
             return _verify_copilot_host_denial(obj, nonce, runtime)
+        if obj["schema"] == GEMINI_HOST_DENIAL_SCHEMA:
+            return _verify_gemini_host_denial(obj, nonce, runtime)
         if obj["schema"] != HOST_DENIAL_SCHEMA:
             raise HookHandshakeError("UNRECOGNIZED_RESULT", "unknown recorded-result schema")
         _verify_codex_host_denial(obj, nonce, runtime)
