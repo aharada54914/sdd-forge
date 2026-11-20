@@ -67,36 +67,40 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(owners, /\/contracts\/guardrails\.schema\.json/);
   });
 
-  it('install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts', () => {
-    const installRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-v2-install-'));
-    const res = spawnSync(
-      'bash',
-      [
-        path.join(REPO_ROOT, 'install.sh'),
-        '--source-directory',
-        REPO_ROOT,
-        '--install-root',
-        installRoot,
-        '--target',
-        'FilesOnly',
-        '--skip-mcp',
-        '--skip-agent-install',
-      ],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
-    );
-    assert.equal(res.status, 0, `install.sh failed:\nSTDOUT:\n${res.stdout}\nSTDERR:\n${res.stderr}`);
-    assert.equal(
-      fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs')),
-      true,
-    );
-    assert.equal(
-      fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs')),
-      true,
-    );
-    assert.equal(
-      fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')),
-      true,
-    );
-    assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
-  });
+  it(
+    'install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts',
+    { skip: process.platform === 'win32' },
+    () => {
+      const installRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-v2-install-'));
+      const res = spawnSync(
+        'bash',
+        [
+          path.join(REPO_ROOT, 'install.sh'),
+          '--source-directory',
+          REPO_ROOT,
+          '--install-root',
+          installRoot,
+          '--target',
+          'FilesOnly',
+          '--skip-mcp',
+          '--skip-agent-install',
+        ],
+        { cwd: REPO_ROOT, encoding: 'utf8' },
+      );
+      assert.equal(res.status, 0, `install.sh failed:\nSTDOUT:\n${res.stdout}\nSTDERR:\n${res.stderr}`);
+      assert.equal(
+        fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs')),
+        true,
+      );
+      assert.equal(
+        fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs')),
+        true,
+      );
+      assert.equal(
+        fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')),
+        true,
+      );
+      assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
+    },
+  );
 });
