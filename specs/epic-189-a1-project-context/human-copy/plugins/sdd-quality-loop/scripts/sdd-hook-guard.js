@@ -129,8 +129,8 @@ const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
 const SUDO_ISSUED_RE = /(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)/;
-const TARGETED_COMMAND_TOOLS = new Set(['apply_patch', 'bash', 'shell', 'exec_command', 'exec']);
-const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit']);
+const TARGETED_COMMAND_TOOLS = new Set(['apply_patch', 'bash', 'shell', 'exec_command', 'exec', 'run_shell_command']);
+const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit', 'write_file', 'replace']);
 
 const SDD_SUDO_NAME = 'SDD_SUDO';
 
@@ -1027,6 +1027,14 @@ function emitDecision(decision, reason, mode) {
     process.stdout.write(JSON.stringify(out));
     process.exit(0);
   }
+  if (mode === 'gemini') {
+    const out = { decision };
+    if (decision === 'deny' && reason) {
+      out.reason = reason;
+    }
+    process.stdout.write(JSON.stringify(out));
+    process.exit(0);
+  }
   // exit mode
   if (decision === 'deny') {
     if (reason) {
@@ -1271,7 +1279,7 @@ function sudoActive() {
 }
 
 function shellIsEvidenceWrite(toolName, command, directories) {
-  if (!['bash', 'shell', 'exec_command', 'exec'].includes(toolName.toLowerCase()) || typeof command !== 'string') return false;
+  if (!['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName.toLowerCase()) || typeof command !== 'string') return false;
   try {
     const result = require('child_process').spawnSync('python3', ['-I', '-B', path.join(__dirname, 'classify-evidence-write.py')], {
       input: JSON.stringify({command, root: directories.length ? directories[directories.length - 1] : process.cwd()}),
@@ -1608,7 +1616,7 @@ function approvalIncreases(payload) {
   }
 
   // --- Codex Bash/shell: conservative heuristic ---
-  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+  if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof command === 'string') {
     // Use countApprovals (which uses String.prototype.match, always searching from 0)
     // rather than APPROVAL_RE.test() to avoid leaving lastIndex in a non-zero state
     // on a true return (APPROVAL_RE is a global regex).
@@ -1654,7 +1662,7 @@ function wfiApprovalIncreases(payload) {
     return wfiPatchIncreases(command || '');
   }
 
-  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+  if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof command === 'string') {
     if (command.toLowerCase().includes('workflow-improvements/') && WFI_APPROVAL_CMD_RE.test(command)) {
       // WFI-022: a single simple command that starts with a read-only verb
       // and carries no write verb or redirect token cannot grant an
@@ -1746,7 +1754,7 @@ function domainModelApprovalIncreases(payload) {
     return domainModelPatchIncreases(command || '');
   }
 
-  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+  if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof command === 'string') {
     if (command.toLowerCase().includes('domain/context-map.md') && domainModelCount(command) > 0) {
       return true;
     }
@@ -1818,7 +1826,7 @@ function secondApprovalIncreases(payload) {
     return secondApprovalPatchIncreases(command || '');
   }
 
-  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+  if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof command === 'string') {
     if (command.toLowerCase().includes('tasks.md') && command.match(SECOND_APPROVAL_RE)) {
       return true;
     }
@@ -2029,7 +2037,7 @@ function parseArgs(argv) {
       mode = argv[i].slice('--emit='.length);
     }
   }
-  return (mode === 'exit' || mode === 'copilot') ? mode : 'exit';
+  return (mode === 'exit' || mode === 'copilot' || mode === 'gemini') ? mode : 'exit';
 }
 
 function readStdin() {
@@ -2180,19 +2188,19 @@ async function main() {
     const toolInput = payload.tool_input || {};
     const filePath = (toolInput.file_path || '').toLowerCase();
     // Reject unknown argv before legacy write scanners can miss glob-added options.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command, toolName === 'bash')) {
+    if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command, toolName === 'bash')) {
       emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing, unsafe loop binding, or glob-expanded reader options; use ordinary lower-case loop variables, explicit arguments, and an option terminator (--).', mode);
       return;
     }
     // Read-only inspection cannot change protected files or grant approvals.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command, toolName === 'bash')) {
+    if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && shellIsReadOnly(toolInput.command, toolName === 'bash')) {
       emitDecision('allow', null, mode);
       return;
     }
 
 
     // File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
-    if (['edit', 'write', 'multiedit'].includes(toolName)) {
+    if (['edit', 'write', 'multiedit', 'write_file', 'replace'].includes(toolName)) {
       if (targetPathIsSddSudo(filePath)) {
         emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
         return;
@@ -2200,7 +2208,7 @@ async function main() {
     }
 
     // Shell commands targeting SDD_SUDO.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
+    if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof toolInput.command === 'string') {
       if (shellTargetsSddSudo(toolInput.command)) {
         emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
         return;
@@ -2221,14 +2229,14 @@ async function main() {
     }
 
     // Check 2a-R10: Enforcement-chain file protection (never bypassed by sudo).
-    if (['edit', 'write', 'multiedit'].includes(toolName)) {
+    if (['edit', 'write', 'multiedit', 'write_file', 'replace'].includes(toolName)) {
       if (isProtectedGateFile(toolInput.file_path || '')) {
         emitDecision('deny', GATE_PROTECT_MSG, mode);
         return;
       }
     }
 
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
+    if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof toolInput.command === 'string') {
       if (shellTargetsProtectedGateFile(toolInput.command, directories, toolName === 'bash')) {
         emitDecision('deny', GATE_PROTECT_MSG, mode);
         return;
@@ -2300,7 +2308,7 @@ async function main() {
       emitDecision('deny', AGENT_ROLE_MSG, mode);
     }
     // Bash/shell tools.
-    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
+    if (['bash', 'shell', 'exec_command', 'exec', 'run_shell_command'].includes(toolName) && typeof toolInput.command === 'string') {
       if (shellWritesInvalidAgentRole(toolInput.command)) {
         emitDecision('deny', AGENT_ROLE_MSG, mode);
       }
