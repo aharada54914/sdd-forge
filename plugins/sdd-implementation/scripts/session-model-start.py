@@ -40,7 +40,9 @@ def main():
         event = json.loads(raw or b'{}')
         text = context(args.host, event)
         if text:
-            print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': text}}, ensure_ascii=False))
+            payload = json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': text}}, ensure_ascii=False)
+            sys.stdout.buffer.write((payload + '\n').encode('utf-8'))
+            sys.stdout.buffer.flush()
     except (ValueError, UnicodeError):
         # Optional UX hook cannot break existing CLI startup. Entry skills provide the fallback.
         pass
