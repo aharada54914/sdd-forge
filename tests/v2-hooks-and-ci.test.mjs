@@ -104,6 +104,14 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs')),
         true,
       );
+      assert.equal(
+        fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs')),
+        true,
+      );
+      assert.equal(
+        fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs')),
+        true,
+      );
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
     },
   );

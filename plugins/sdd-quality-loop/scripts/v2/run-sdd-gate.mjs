@@ -6,24 +6,53 @@
  * Runs in one invocation:
  *   1. Task precondition check (Approval: Approved, Status: Implementation Complete|Done)
  *   2. Spec Drift check (checkSpecDrift — catches silent goalpost moving)
- *   3. Placeholder scan on changed code files
- *   4. Project verification commands (--cmd "label=command")
+ *   3. Placeholder scan on changed code files (tracked + untracked)
+ *   4. Non-functional static sensors (SQL destructive DDL / unguarded UPDATE/DELETE,
+ *      Cloud wildcard IAM / open admin ports, hardcoded secrets)
+ *   5. Risk: high Provisional OQ-NNN fail-closed check
+ *   6. Project verification commands (--cmd "label=command")
+ *   7. Non-fatal telemetry logging to .sdd/factory-metrics.jsonl
  *
  * Usage:
  *   node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>]
- *                         [--cmd "test=node --test"] [--changed-files "a.js,b.js"]
- *                         [--baseline <path>] [--output <json-path>] [--skip-drift]
+ *                         [--cmd "label=command"] [--changed-files "a.js,b.js"]
+ *                         [--baseline <path>] [--output <json-path>]
+ *                         [--skip-drift] [--skip-sensors]
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { checkSpecDrift } from './check-spec-drift.mjs';
-import { findProjectRoot, normalizeNewlines, toPosixPath } from './guardrails-lib.mjs';
+import {
+  assertValidFeatureName,
+  findProjectRoot,
+  normalizeNewlines,
+  normalizeRelPath,
+  splitSpecAmendments,
+} from './guardrails-lib.mjs';
+import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
 
 const PLACEHOLDER_RE =
   /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
 const MAX_OUTPUT_CHARS = 8192;
+
+const SECRET_SENSOR_RULES = [
+  { id: 'SECRET_AWS_KEY', re: /\bAKIA[0-9A-Z]{16}\b/, msg: 'Hardcoded AWS Access Key ID detected' },
+  { id: 'SECRET_PRIVATE_KEY', re: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/, msg: 'Private key material detected' },
+  { id: 'SECRET_AZURE_KEY', re: /AccountKey=[A-Za-z0-9+/=]{20,}/, msg: 'Hardcoded Azure Storage AccountKey detected' },
+];
+
+const SQL_DESTRUCTIVE_RE = /\b(?:DROP\s+(?:TABLE|DATABASE|SCHEMA|COLUMN)|TRUNCATE\s+(?:TABLE\s+)?[A-Za-z0-9_."`[\]]+)\b/i;
+
+const CLOUD_WILDCARD_IAM_RE =
+  /(?:["']?Action["']?|actions|dataActions)\s*[:=]\s*(?:['"]\*['"]|\[[^\]]*['"]\*['"][^\]]*\]|\r?\n[ \t]*-[ \t]*['"]?\*['"]?(?:[ \t]*$|\r?\n))/m;
+
+const PUBLIC_CIDR_RE =
+  /(?:0\.0\.0\.0\/0|::\/0|Peer\.anyIpv[46]\(\)|sourceAddressPrefix\s*[:=]\s*['"]\*['"])/i;
+
+const ADMIN_PORT_RE =
+  /(?:(?:from_?port|to_?port|port|Port\.tcp|destinationPortRange|destinationPortRanges|portRange)\s*[:=(]\s*['"\[]?(?:22|3389)\b|\b(?:ssh|rdp|port)\b[^0-9\n]{0,12}(?:22|3389)\b)/i;
 
 function truncateTail(text) {
   const s = String(text || '');
@@ -32,22 +61,23 @@ function truncateTail(text) {
 }
 
 export function parseTaskBlock(tasksContent, taskId) {
-  const normalized = normalizeNewlines(tasksContent);
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
+  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
   const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:\\b|\\s|$).*$`, 'm');
-  const match = headerRe.exec(normalized);
+  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:\\b|\\s|$).*$`, 'im');
+  const match = headerRe.exec(body);
   if (!match) return null;
 
-  const rest = normalized.slice(match.index + match[0].length);
-  const nextTask = /^##[ \t]+T-\S+/m.exec(rest);
-  const block = nextTask ? rest.slice(0, nextTask.index) : rest;
+  const rest = body.slice(match.index + match[0].length);
+  const nextH2 = /^##[ \t]+\S/m.exec(rest);
+  const block = nextH2 ? rest.slice(0, nextH2.index) : rest;
 
   const approvalMatch = block.match(/^[ \t]*Approval:[ \t]*(.+)$/m);
   const statusMatch = block.match(/^[ \t]*Status:[ \t]*(.+)$/m);
   const riskMatch = block.match(/^[ \t]*Risk:[ \t]*(.+)$/m);
 
   return {
-    taskId,
+    taskId: taskId.toUpperCase(),
     approval: approvalMatch ? approvalMatch[1].trim() : null,
     status: statusMatch ? statusMatch[1].trim() : null,
     risk: riskMatch ? riskMatch[1].trim().toLowerCase() : 'standard',
@@ -56,25 +86,32 @@ export function parseTaskBlock(tasksContent, taskId) {
 
 function discoverChangedFiles(projectRoot, explicitFiles) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
-    return explicitFiles.map((f) => toPosixPath(f.trim())).filter(Boolean);
+    return [...new Set(explicitFiles.map((f) => normalizeRelPath(f)).filter(Boolean))];
   }
-  try {
-    const out = execFileSync('git', ['diff', '--name-only', 'HEAD'], {
-      cwd: projectRoot,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    return out
-      .split('\n')
-      .map((l) => toPosixPath(l.trim()))
-      .filter(Boolean);
-  } catch {
-    return [];
+  const files = new Set();
+  for (const args of [
+    ['diff', '--name-only', 'HEAD'],
+    ['ls-files', '--others', '--exclude-standard'],
+  ]) {
+    try {
+      const out = execFileSync('git', args, {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      for (const line of out.split('\n')) {
+        const rel = normalizeRelPath(line);
+        if (rel) files.add(rel);
+      }
+    } catch {
+      // ignore if not a git repo or HEAD unborn
+    }
   }
+  return [...files];
 }
 
 function isPlaceholderScanTarget(relPath) {
-  const p = toPosixPath(relPath).toLowerCase();
+  const p = normalizeRelPath(relPath).toLowerCase();
   if (p.startsWith('specs/') || p.startsWith('docs/') || p.startsWith('reports/') || p.startsWith('tests/')) {
     return false;
   }
@@ -102,6 +139,301 @@ function scanPlaceholders(projectRoot, changedFiles) {
     scannedFiles: changedFiles.filter(isPlaceholderScanTarget),
     findings,
   };
+}
+
+/**
+ * Strip SQL comments (-- and /* ... *\/) while preserving newlines for exact line numbers
+ * and recording which lines carry an explicit `sdd-allow-destructive` comment marker.
+ */
+function preprocessSql(raw) {
+  const text = normalizeNewlines(raw);
+  const allowLines = new Set();
+  let cleaned = '';
+  let line = 1;
+  let i = 0;
+  let inSingle = false;
+
+  while (i < text.length) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (inSingle) {
+      cleaned += ch === '\n' ? '\n' : ' ';
+      if (ch === '\n') line += 1;
+      if (ch === "'" && next === "'") {
+        cleaned += ' ';
+        i += 2;
+        continue;
+      }
+      if (ch === "'") inSingle = false;
+      i += 1;
+      continue;
+    }
+
+    if (ch === "'") {
+      inSingle = true;
+      cleaned += "'";
+      i += 1;
+      continue;
+    }
+
+    if (ch === '-' && next === '-') {
+      const start = i;
+      while (i < text.length && text[i] !== '\n') i += 1;
+      const comment = text.slice(start, i);
+      if (/sdd-allow-destructive/i.test(comment)) allowLines.add(line);
+      continue;
+    }
+
+    if (ch === '/' && next === '*') {
+      const startLine = line;
+      const start = i;
+      i += 2;
+      while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) {
+        if (text[i] === '\n') {
+          cleaned += '\n';
+          line += 1;
+        }
+        i += 1;
+      }
+      if (i < text.length) i += 2;
+      const comment = text.slice(start, i);
+      if (/sdd-allow-destructive/i.test(comment)) {
+        for (let ln = startLine; ln <= line; ln += 1) allowLines.add(ln);
+      }
+      cleaned += ' ';
+      continue;
+    }
+
+    if (ch === '\n') line += 1;
+    cleaned += ch;
+    i += 1;
+  }
+
+  return { cleaned, allowLines };
+}
+
+function scanSqlStatements(rel, raw, findings) {
+  const { cleaned, allowLines } = preprocessSql(raw);
+  const statements = [];
+  let startIdx = 0;
+  let currentLine = 1;
+  let stmtStartLine = 1;
+
+  for (let i = 0; i <= cleaned.length; i += 1) {
+    const ch = cleaned[i];
+    if (i === cleaned.length || ch === ';') {
+      const chunk = cleaned.slice(startIdx, i);
+      const leadingNewlines = (chunk.match(/^\s*/)[0].match(/\n/g) || []).length;
+      const trimmed = chunk.trim();
+      if (trimmed) {
+        statements.push({ text: trimmed, line: stmtStartLine + leadingNewlines });
+      }
+      startIdx = i + 1;
+      stmtStartLine = currentLine;
+    } else if (ch === '\n') {
+      currentLine += 1;
+    }
+  }
+
+  for (const stmt of statements) {
+    if (SQL_DESTRUCTIVE_RE.test(stmt.text)) {
+      const allowedHere = allowLines.has(stmt.line) || allowLines.has(stmt.line - 1);
+      if (!allowedHere) {
+        findings.push({
+          rule: 'SQL_DESTRUCTIVE_DDL',
+          domain: 'SQL',
+          file: rel,
+          line: stmt.line,
+          message: 'Destructive SQL DDL detected without per-statement marker (-- sdd-allow-destructive on same or preceding line)',
+        });
+      }
+    }
+    if (/^(?:DELETE\s+FROM\s+\S+|UPDATE\s+\S+[\s\S]*?\bSET\b)/i.test(stmt.text) && !/\bWHERE\b/i.test(stmt.text)) {
+      findings.push({
+        rule: 'SQL_UNGUARDED_DELETE_OR_UPDATE',
+        domain: 'SQL',
+        file: rel,
+        line: stmt.line,
+        message: 'DELETE/UPDATE statement without WHERE clause detected',
+      });
+    }
+  }
+}
+
+function stripIacComments(raw) {
+  const text = normalizeNewlines(raw);
+  let out = '';
+  let i = 0;
+  let inSingle = false;
+  let inDouble = false;
+
+  while (i < text.length) {
+    const ch = text[i];
+    const next = text[i + 1];
+    if (inSingle) {
+      out += ch;
+      if (ch === '\\' && next) {
+        out += next;
+        i += 2;
+        continue;
+      }
+      if (ch === "'") inSingle = false;
+      i += 1;
+      continue;
+    }
+    if (inDouble) {
+      out += ch;
+      if (ch === '\\' && next) {
+        out += next;
+        i += 2;
+        continue;
+      }
+      if (ch === '"') inDouble = false;
+      i += 1;
+      continue;
+    }
+    if (ch === "'") {
+      inSingle = true;
+      out += ch;
+      i += 1;
+      continue;
+    }
+    if (ch === '"') {
+      inDouble = true;
+      out += ch;
+      i += 1;
+      continue;
+    }
+    if (ch === '/' && next === '*') {
+      i += 2;
+      while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) {
+        if (text[i] === '\n') out += '\n';
+        i += 1;
+      }
+      if (i < text.length) i += 2;
+      continue;
+    }
+    if ((ch === '/' && next === '/') || ch === '#') {
+      while (i < text.length && text[i] !== '\n') i += 1;
+      continue;
+    }
+    out += ch;
+    i += 1;
+  }
+  return out;
+}
+
+function scanCloudIac(rel, raw, findings) {
+  const stripped = stripIacComments(raw);
+  const lines = stripped.split('\n');
+
+  // 1. Multiline wildcard IAM detection
+  const iamMatch = CLOUD_WILDCARD_IAM_RE.exec(stripped);
+  if (iamMatch) {
+    const lineNum = stripped.slice(0, iamMatch.index).split('\n').length;
+    findings.push({
+      rule: 'CLOUD_WILDCARD_IAM',
+      domain: 'Cloud',
+      file: rel,
+      line: lineNum,
+      message: 'Overly permissive wildcard IAM action (*) detected',
+    });
+  }
+
+  // 2. Multiline block/window open admin port (22 / 3389) detection (excluding egress blocks)
+  const reportedLines = new Set();
+  for (let i = 0; i < lines.length; i += 1) {
+    if (!PUBLIC_CIDR_RE.test(lines[i])) continue;
+    const winStart = Math.max(0, i - 8);
+    const winEnd = Math.min(lines.length, i + 9);
+    const windowText = lines.slice(winStart, winEnd).join('\n');
+    if (/\begress\b/i.test(windowText) && !/\bingress\b/i.test(windowText)) continue;
+    if (ADMIN_PORT_RE.test(windowText)) {
+      const lineNum = i + 1;
+      if (!reportedLines.has(lineNum)) {
+        reportedLines.add(lineNum);
+        findings.push({
+          rule: 'CLOUD_OPEN_ADMIN_PORT',
+          domain: 'Cloud',
+          file: rel,
+          line: lineNum,
+          message: 'Public exposure (0.0.0.0/0, ::/0, or *) on admin port (22/3389) detected',
+        });
+      }
+    }
+  }
+}
+
+function scanNonFunctionalSensors(projectRoot, changedFiles) {
+  const findings = [];
+  for (const rel of changedFiles) {
+    const lower = normalizeRelPath(rel).toLowerCase();
+    if (lower.startsWith('tests/') || lower.startsWith('specs/') || lower.startsWith('docs/') || lower.startsWith('reports/')) {
+      continue;
+    }
+    const abs = path.join(projectRoot, rel);
+    if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) continue;
+    const raw = normalizeNewlines(fs.readFileSync(abs, 'utf8'));
+    const lines = raw.split('\n');
+
+    for (let i = 0; i < lines.length; i += 1) {
+      for (const rule of SECRET_SENSOR_RULES) {
+        if (rule.re.test(lines[i])) {
+          findings.push({ rule: rule.id, domain: 'Security', file: rel, line: i + 1, message: rule.msg });
+        }
+      }
+    }
+
+    if (lower.endsWith('.sql')) {
+      scanSqlStatements(rel, raw, findings);
+    }
+
+    const isIac =
+      lower.endsWith('.bicep') ||
+      lower.endsWith('.tf') ||
+      ((lower.includes('infra/') || lower.includes('iac/') || lower.includes('cdk/') || lower.includes('cloudformation')) &&
+        /\.(?:ts|js|py|ya?ml|json)$/.test(lower));
+    if (isIac) {
+      scanCloudIac(rel, raw, findings);
+    }
+  }
+  return {
+    passed: findings.length === 0,
+    findings,
+  };
+}
+
+function checkOpenQuestionsGate(projectRoot, feature, taskState) {
+  const featureDir = path.join(projectRoot, 'specs', feature);
+  const reqPath = path.join(featureDir, 'requirements.md');
+  const designPath = path.join(featureDir, 'design.md');
+  const allOqs = mergeOpenQuestions(
+    fs.existsSync(reqPath) ? parseOpenQuestions(fs.readFileSync(reqPath, 'utf8')) : [],
+    fs.existsSync(designPath) ? parseOpenQuestions(fs.readFileSync(designPath, 'utf8')) : [],
+  );
+  const targetTask = taskState.taskId.toUpperCase();
+  const provisional = allOqs.filter((q) => {
+    if (q.confirmed) return false;
+    return q.impactedTasks.length === 0 || q.impactedTasks.includes(targetTask);
+  });
+  const blocking = taskState.risk === 'high' && provisional.length > 0;
+  return {
+    passed: !blocking,
+    blocking,
+    provisionalCount: provisional.length,
+    provisionalIds: provisional.map((q) => q.id),
+  };
+}
+
+function appendFactoryMetric(projectRoot, record) {
+  try {
+    const dir = path.join(projectRoot, '.sdd');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(path.join(dir, 'factory-metrics.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
+  } catch {
+    // Non-fatal telemetry logging
+  }
 }
 
 function runVerificationCommands(projectRoot, commands) {
@@ -138,12 +470,11 @@ export function runSddGate({
   changedFiles = null,
   baselinePath = null,
   skipDrift = false,
+  skipSensors = false,
   outputPath = null,
 }) {
-  if (!feature || /[\\/]/.test(feature) || feature === '.' || feature === '..') {
-    throw new Error(`Invalid feature name: ${feature}`);
-  }
-  if (!taskId || !/^T-[A-Za-z0-9._-]+$/.test(taskId)) {
+  assertValidFeatureName(feature);
+  if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
     throw new Error(`Invalid task ID: ${taskId}`);
   }
 
@@ -194,31 +525,58 @@ export function runSddGate({
 
   const resolvedChanged = discoverChangedFiles(root, changedFiles);
   const placeholders = scanPlaceholders(root, resolvedChanged);
+  const nonFunctionalSensors = skipSensors
+    ? { skipped: true, passed: true, findings: [] }
+    : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
+  const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
   const commandResults = runVerificationCommands(root, commands);
   const allCommandsPassed = commandResults.every((r) => r.passed);
 
   const verdict =
-    taskPrecondition.passed && specDrift.passed && placeholders.passed && allCommandsPassed ? 'PASS' : 'FAIL';
+    taskPrecondition.passed &&
+    specDrift.passed &&
+    placeholders.passed &&
+    nonFunctionalSensors.passed &&
+    openQuestions.passed &&
+    allCommandsPassed
+      ? 'PASS'
+      : 'FAIL';
 
   const result = {
     schema: 'sdd-gate-execution/v1',
     feature,
-    taskId,
+    taskId: taskState.taskId,
     executedAt: new Date().toISOString(),
     verdict,
     checks: {
       taskPrecondition,
       specDrift,
       placeholders,
+      nonFunctionalSensors,
+      openQuestions,
       commands: commandResults,
     },
   };
 
   const resolvedOutput = outputPath
     ? path.resolve(outputPath)
-    : path.join(root, 'reports', 'quality-gate', `${feature}-${taskId}.execution.json`);
+    : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
   fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
   fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+
+  appendFactoryMetric(root, {
+    timestamp: result.executedAt,
+    feature,
+    taskId: taskState.taskId,
+    risk: taskState.risk,
+    verdict,
+    specDriftStatus: specDrift.status,
+    driftSkipped: Boolean(skipDrift),
+    sensorsSkipped: Boolean(skipSensors),
+    provisionalOqCount: openQuestions.provisionalCount,
+    sensorFindingCount: nonFunctionalSensors.findings.length,
+    commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
+  });
 
   return { result, outputPath: resolvedOutput };
 }
@@ -233,6 +591,7 @@ function parseArgs(argv) {
     baselinePath: null,
     outputPath: null,
     skipDrift: false,
+    skipSensors: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -258,6 +617,8 @@ function parseArgs(argv) {
       }
     } else if (arg === '--skip-drift') {
       opts.skipDrift = true;
+    } else if (arg === '--skip-sensors') {
+      opts.skipSensors = true;
     }
   }
   return opts;
@@ -267,7 +628,7 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
-      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--output <path>]\n',
+      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--output <path>] [--skip-drift] [--skip-sensors]\n',
     );
     process.exit(2);
   }
@@ -280,6 +641,7 @@ function main() {
       changedFiles: opts.changedFiles,
       baselinePath: opts.baselinePath,
       skipDrift: opts.skipDrift,
+      skipSensors: opts.skipSensors,
       outputPath: opts.outputPath,
     });
     process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);

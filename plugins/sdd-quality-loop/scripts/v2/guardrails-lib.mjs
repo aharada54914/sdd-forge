@@ -39,7 +39,7 @@ const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approv
 const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 const IDENTIFIER_LINE_RE =
-  /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
+  /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
 const PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none|n\/a|\(none\)|（なし）|なし|（初期版のため変更なし）|\(initial\s+version[^)]*\))$/i;
 
 export function normalizeNewlines(text) {
@@ -52,6 +52,22 @@ export function sha256Text(text) {
 
 export function toPosixPath(filePath) {
   return String(filePath || '').replace(/\\/g, '/');
+}
+
+export function normalizeRelPath(filePath) {
+  return toPosixPath(filePath).trim().replace(/^\.\//, '').replace(/\/+$/, '');
+}
+
+export function assertValidFeatureName(feature) {
+  if (
+    typeof feature !== 'string' ||
+    !feature ||
+    /[\\/\0]/.test(feature) ||
+    feature === '.' ||
+    feature === '..'
+  ) {
+    throw new Error(`Invalid feature name: ${feature}`);
+  }
 }
 
 export function safeRealpath(targetPath) {

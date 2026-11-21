@@ -494,6 +494,33 @@ function checkDriftEvents(root, findings) {
   );
 }
 
+function checkKnowledgeIndexes(root, findings) {
+  const MAX_INDEX_CHARS = 3000;
+  const knowledgeRoot = path.join(root, 'sdd', 'knowledge');
+  const indexFiles = walkFiles(knowledgeRoot, (_full, name) => name.toUpperCase() === 'INDEX.MD');
+  for (const abs of indexFiles) {
+    let raw;
+    try {
+      if (!fs.statSync(abs).isFile()) continue;
+      raw = fs.readFileSync(abs, 'utf8');
+    } catch {
+      continue;
+    }
+    const len = normalizeNewlines(raw).length;
+    if (len > MAX_INDEX_CHARS) {
+      const rel = toPosixPath(path.relative(root, abs));
+      addFinding(
+        findings,
+        'WARN',
+        'knowledge',
+        `ナレッジ索引が ${len} 文字あり目安上限（${MAX_INDEX_CHARS} 文字）を超過しています（コンテキスト圧迫リスク）`,
+        rel,
+        '詳細は個別ファイルへ分割し、INDEX は 3,000 字以内のリンク集に保ってください',
+      );
+    }
+  }
+}
+
 export function runDoctor(options = {}) {
   const root = safeRealpath(options.root || findProjectRoot());
   const staleDays = Number.isFinite(options.staleDays) ? options.staleDays : 14;
@@ -506,6 +533,7 @@ export function runDoctor(options = {}) {
   checkSkills(root, findings);
   checkEncodingAndControlChars(root, findings);
   checkSpecsAndTasks(root, staleDays, findings);
+  checkKnowledgeIndexes(root, findings);
   checkDriftEvents(root, findings);
 
   const summary = {

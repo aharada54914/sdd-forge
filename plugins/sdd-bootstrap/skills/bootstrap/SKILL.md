@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 ```txt
 /sdd-bootstrap:bootstrap <mode> <source>
-/sdd-bootstrap:bootstrap <mode> --feature <slug> [--risk low|standard|high] [--skip-check] <source>
+/sdd-bootstrap:bootstrap <mode> --feature <slug> [--risk low|standard|high] [--proto|--harden] [--skip-check] <source>
 /sdd-bootstrap:bootstrap adopt [project-root]
 /sdd-bootstrap:bootstrap investigate <mode> <source>
 ```
@@ -30,6 +30,8 @@ disable-model-invocation: true
 
 - `--feature <slug>`: 出力先 `specs/<slug>/` を明示指定。
 - `--risk low|standard|high`: リスク階層を明示指定（省略時は `sdd/guardrails.yaml` の既定値と変更内容から判定）。
+- `--proto`: 試作探索モード（`Risk: low` 相当・`OQ-NNN` 仮決定での高速試作を許容し、実物確認後に `--harden` へ進む）。
+- `--harden`: 本番品質昇格モード（既存仕様の確定判断を引き継ぎ、非機能・SQL 移行・Cloud 監視観点を `design.md` へ追記して `Risk: standard|high` で再構成）。
 - `--skip-check`: 着工前レビュー（`spec-check`）を省略。
 - `--lite` / `--full` *(互換エイリアス)*: それぞれ `--risk low` / `--risk high` として解釈する。
 
@@ -54,8 +56,8 @@ disable-model-invocation: true
    - `Risk: standard` → `single` モード（独立 1 体・1 パス）。
    - `Risk: high` → `dual-parallel` モード（Reviewer A [仕様・AC] ＋ Reviewer B [設計・セキュリティ] の 2 視点並列 1 パス）。
    - `PASS` / `PASS_WITH_NOTES` → Step 3 へ。`NEEDS_FIX` → Blocker を提示し仕様修正後に再実行。
-3. **人間承認ゲート**:
-   成果物・各タスクの `Risk:`・`spec-check` 結果・未解決 `Open Questions` を人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
+3. **人間承認ゲート（Decision View 提示）**:
+   `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs` で REQ↔AC↔Task の抜け漏れを確認し、`<installed-root>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs` で **Decision View（全体像＋`OQ-NNN` 事実/理由/人の問い＋採らなかった設計）** を生成して人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
 
 ## Handoff
 
