@@ -1,0 +1,8 @@
+description = "Generate implementation-ready SDD Core specifications and Draft task contracts from requirements."
+prompt = """
+Read and execute the skill instructions at `../skills/bootstrap/SKILL.md` (relative to this Gemini extension root).
+
+Arguments: {{args}}
+
+Follow the SDD Core flow (`sdd-core-spec` -> risk-scaled `spec-check`), never edit implementation code here, and leave all tasks as `Approval: Draft` for human approval.
+"""

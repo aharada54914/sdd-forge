@@ -137,7 +137,7 @@ jobs:
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
       - name: Run SDD Forge v2 deterministic release suites
         shell: bash
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
       - name: Run sdd-doctor health check and POSIX installer checks
         shell: bash
         run: |
@@ -167,6 +167,7 @@ jobs:
           for (const entry of fs.readdirSync('plugins', { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;
             const candidates = [
+              path.join('plugins', entry.name, '.antigravity-plugin/plugin.json'),
               path.join('plugins', entry.name, '.claude-plugin/plugin.json'),
               path.join('plugins', entry.name, '.codex-plugin/plugin.json'),
               path.join('plugins', entry.name, '.plugin/plugin.json'),
@@ -207,10 +208,10 @@ jobs:
           ref: ${{ needs.ci-green.outputs.sha }}
           persist-credentials: false
 
-      - name: Set up Node.js 26
+      - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "26.13.0"
+          node-version: "20"
 
       - name: Build reproducible source tarball
         run: |

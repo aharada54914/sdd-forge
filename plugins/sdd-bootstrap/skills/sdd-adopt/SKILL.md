@@ -45,7 +45,9 @@ this file from its entry command:
    directory so it is tracked by Git.
    - Required: `reports/implementation/`, `reports/quality-gate/`,
      `docs/adr/`, `docs/review-tickets/`
-   - Advisory (confirm with user): `contracts/schemas/`, `docs/architecture/`
+   - Advisory (confirm with user): `contracts/schemas/`, `docs/architecture/`,
+     and the 2-layer knowledge base via `node <installed-root>/plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs init --root <project-root>`
+     (`sdd/knowledge/{INDEX.md,specs/,rules/,review-perspectives.yaml}`, never overwriting existing files).
 
 3. Create `AGENTS.md` when absent. Populate it from this skill's bundled
    `templates/AGENTS.template.md`, substituting facts read from the repository

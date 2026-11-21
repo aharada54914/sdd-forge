@@ -1,4 +1,6 @@
 ---
+trigger: model_decision
+description: SDD specification ID prefixes and API contract conventions under specs/.
 paths:
   - "docs/specs/**"
   - "specs/**"

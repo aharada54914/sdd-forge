@@ -305,7 +305,7 @@ try:
     if effort_policy not in ("welded", "matrix"):
         print("MODEL_SELECTION_ERROR: invalid effort policy", file=sys.stderr)
         sys.exit(1)
-    if host not in (("claude-code", "codex-cli", "copilot-cli", "gemini-cli") if policy_mode else ("claude-code", "codex-cli")):
+    if host not in (("claude-code", "codex-cli", "copilot-cli", "antigravity-cli", "gemini-cli") if policy_mode else ("claude-code", "codex-cli")):
         print("MODEL_SELECTION_ERROR: invalid host", file=sys.stderr)
         sys.exit(1)
     if requested_effort and requested_effort not in EFFORT_VALUES:

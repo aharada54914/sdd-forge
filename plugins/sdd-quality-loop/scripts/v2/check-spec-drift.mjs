@@ -12,126 +12,44 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
-  canonicalSpecContractText,
-  extractAmendmentEntries,
-  extractSpecIdentifiers,
-  findProjectRoot,
+  createFsReadonlyIo,
   loadGuardrailsConfig,
-  matchProtectedSpecPath,
-  sha256Text,
+  resolveExplicitOrAutoRoot,
+  toPosixPath,
 } from './guardrails-lib.mjs';
+import { checkSpecDriftCore } from './v2-readonly-core.mjs';
 
 export function checkSpecDrift({ feature, projectRoot, baselinePath }) {
-  if (!feature || /[\\/]/.test(feature) || feature === '.' || feature === '..') {
-    throw new Error(`Invalid feature name: ${feature}`);
-  }
-  const root = findProjectRoot(projectRoot);
-  const resolvedBaselinePath = baselinePath
-    ? path.resolve(baselinePath)
-    : path.join(root, 'specs', feature, '.spec-baseline.json');
-
-  if (!fs.existsSync(resolvedBaselinePath)) {
-    throw new Error(`Baseline file not found: ${resolvedBaselinePath}`);
-  }
-
-  const baseline = JSON.parse(fs.readFileSync(resolvedBaselinePath, 'utf8'));
+  const root = resolveExplicitOrAutoRoot(projectRoot);
+  const baseIo = createFsReadonlyIo(root);
   const config = loadGuardrailsConfig(root);
-  const featureDir = path.join(root, 'specs', feature);
 
-  const changedFiles = [];
-  const deletedFiles = [];
-  const addedFiles = [];
-  const removedIdentifiers = [];
-  const modifiedIdentifiers = [];
-  const addedIdentifiers = [];
-  const allCurrentAmendments = [];
-
-  // 1. Inspect every baseline-tracked file (per-file comparison prevents cross-file ID clobbering)
-  for (const [relPath, baseInfo] of Object.entries(baseline.files || {})) {
-    const absPath = path.join(root, relPath);
-    const baseIds = baseInfo.identifiers || {};
-    if (!fs.existsSync(absPath)) {
-      deletedFiles.push(relPath);
-      for (const [id, info] of Object.entries(baseIds)) {
-        removedIdentifiers.push({ id, file: relPath, before: info.line });
-      }
-      continue;
-    }
-    const rawText = fs.readFileSync(absPath, 'utf8');
-    const contractHash = sha256Text(canonicalSpecContractText(rawText, baseInfo.fileName));
-    if (contractHash !== baseInfo.contractSha256) {
-      changedFiles.push(relPath);
-    }
-
-    const curIds = extractSpecIdentifiers(rawText);
-    for (const [id, baseIdInfo] of Object.entries(baseIds)) {
-      const cur = curIds[id];
-      if (!cur) {
-        removedIdentifiers.push({ id, file: relPath, before: baseIdInfo.line });
-      } else if (cur.hash !== baseIdInfo.hash) {
-        modifiedIdentifiers.push({ id, file: relPath, before: baseIdInfo.line, after: cur.line });
-      }
-    }
-    for (const [id, cur] of Object.entries(curIds)) {
-      if (!baseIds[id]) {
-        addedIdentifiers.push({ id, file: relPath, after: cur.line });
-      }
-    }
-
-    const amendments = extractAmendmentEntries(rawText);
-    for (const entry of amendments) {
-      allCurrentAmendments.push({ file: relPath, text: entry });
+  let io = baseIo;
+  let baselineRelPath = null;
+  if (baselinePath) {
+    const resolvedBaselineAbs = path.resolve(baselinePath);
+    const rel = path.relative(root, resolvedBaselineAbs);
+    if (!rel.startsWith('..') && !path.isAbsolute(rel)) {
+      baselineRelPath = toPosixPath(rel);
+    } else {
+      // Explicit external CLI --baseline path: wrap readText for that single file only.
+      const sentinel = `specs/${feature}/.spec-baseline.json`;
+      baselineRelPath = sentinel;
+      io = {
+        ...baseIo,
+        readText(relPath) {
+          if (relPath === sentinel) {
+            return fs.existsSync(resolvedBaselineAbs)
+              ? fs.readFileSync(resolvedBaselineAbs, 'utf8')
+              : null;
+          }
+          return baseIo.readText(relPath);
+        },
+      };
     }
   }
 
-  // 2. Detect newly added protected spec files after baseline capture
-  if (fs.existsSync(featureDir)) {
-    for (const entry of fs.readdirSync(featureDir, { withFileTypes: true })) {
-      if (!entry.isFile() || entry.name.startsWith('.')) continue;
-      const fullPath = path.join(featureDir, entry.name);
-      const matched = matchProtectedSpecPath(fullPath, root, config, root);
-      if (!matched || baseline.files[matched.relPath]) continue;
-      addedFiles.push(matched.relPath);
-      const rawText = fs.readFileSync(fullPath, 'utf8');
-      for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
-        addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
-      }
-      for (const item of extractAmendmentEntries(rawText)) {
-        allCurrentAmendments.push({ file: matched.relPath, text: item });
-      }
-    }
-  }
-
-  const hasDrift =
-    changedFiles.length > 0 ||
-    deletedFiles.length > 0 ||
-    addedFiles.length > 0 ||
-    removedIdentifiers.length > 0 ||
-    modifiedIdentifiers.length > 0;
-
-  const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
-  const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
-
-  let status = 'CLEAN';
-  if (hasDrift) {
-    status = hasNewDeclaredAmendment ? 'AMENDED' : 'UNDECLARED_DRIFT';
-  }
-
-  return {
-    schema: 'sdd-spec-drift/v1',
-    feature,
-    status,
-    baselineRecordedAt: baseline.recordedAt || null,
-    baselineGitHead: baseline.gitHead || null,
-    changedFiles,
-    deletedFiles,
-    addedFiles,
-    removedIdentifiers,
-    modifiedIdentifiers,
-    addedIdentifiers,
-    amendments: allCurrentAmendments,
-    baselineAmendmentCount,
-  };
+  return checkSpecDriftCore(io, { feature, baselineRelPath, config });
 }
 
 export function formatDriftMarkdown(report) {

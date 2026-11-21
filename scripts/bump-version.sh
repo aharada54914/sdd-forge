@@ -42,7 +42,7 @@ fi
 
 # Validate v2 test suite and doctor before mutating any release surface.
 gate_log="$(mktemp)"
-if ! (cd "${ROOT}" && node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs && node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info) >"${gate_log}" 2>&1; then
+if ! (cd "${ROOT}" && node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs && node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info) >"${gate_log}" 2>&1; then
     echo "Error: v2 pre-release checks failed; no release surface was modified." >&2
     cat "${gate_log}" >&2
     rm -f "${gate_log}"
@@ -62,8 +62,9 @@ sed_inplace() {
     fi
 }
 
-# 1. Every plugin's host manifests (Claude, Codex, Copilot, Gemini) + both marketplaces.
-for manifest in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
+# 1. Every plugin's host manifests (Antigravity, Claude, Codex, Copilot, Gemini) + both marketplaces.
+for manifest in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
+                "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.plugin/plugin.json \
                 "${ROOT}"/plugins/*/gemini-extension.json \
@@ -79,7 +80,8 @@ sed_inplace "s/^v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\([^0-9]\)/v${NEW}\1/" "${
 
 # 3. Verify: no stale old-version strings remain on release surfaces.
 stale=0
-for f in "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
+for f in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
+         "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
          "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
          "${ROOT}"/plugins/*/.plugin/plugin.json \
          "${ROOT}"/plugins/*/gemini-extension.json \

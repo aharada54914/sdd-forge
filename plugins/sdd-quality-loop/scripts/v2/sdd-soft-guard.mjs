@@ -36,17 +36,32 @@ import {
   toPosixPath,
 } from './guardrails-lib.mjs';
 
-const FILE_TOOLS = new Set(['edit', 'write', 'multiedit', 'write_file', 'replace', 'create']);
+const FILE_TOOLS = new Set([
+  'edit',
+  'write',
+  'multiedit',
+  'write_file',
+  'edit_file',
+  'replace',
+  'replace_file_content',
+  'multi_replace_file_content',
+  'create',
+]);
 const PASS_THROUGH_TOOLS = new Set([
   'bash',
   'shell',
   'exec_command',
   'exec',
   'run_shell_command',
+  'run_command',
   'read',
+  'read_file',
   'view',
+  'view_file',
   'glob',
   'grep',
+  'grep_search',
+  'find_by_name',
   'task',
 ]);
 
@@ -114,6 +129,55 @@ function hasDocumentedSpecAmendment(oldContent, newContent, projectRoot, feature
 function normalizePayload(rawPayload, emitMode) {
   if (!rawPayload || typeof rawPayload !== 'object' || Array.isArray(rawPayload)) {
     return null;
+  }
+
+  // Native Antigravity camelCase protojson PreToolUse envelope (`{ toolCall: { name, args }, cwd, workspacePaths }`)
+  if (rawPayload.toolCall && typeof rawPayload.toolCall === 'object') {
+    const tc = rawPayload.toolCall;
+    const toolName = String(tc.name || '').toLowerCase();
+    const args = tc.args && typeof tc.args === 'object' ? tc.args : {};
+    const cwd =
+      typeof rawPayload.cwd === 'string'
+        ? rawPayload.cwd
+        : Array.isArray(rawPayload.workspacePaths) && typeof rawPayload.workspacePaths[0] === 'string'
+          ? rawPayload.workspacePaths[0]
+          : undefined;
+
+    if (toolName === 'write_file') {
+      const filePath = args.Path || args.path || args.file_path || '';
+      const content = typeof args.Content === 'string' ? args.Content : typeof args.content === 'string' ? args.content : '';
+      const append = Boolean(args.Append || args.append);
+      return {
+        tool_name: 'write_file',
+        tool_input: append
+          ? { file_path: filePath, old_string: '', new_string: content }
+          : { file_path: filePath, content },
+        cwd,
+      };
+    }
+    if (toolName === 'edit_file' || toolName === 'replace_file_content') {
+      const filePath = args.Path || args.TargetFile || args.path || args.file_path || '';
+      const oldStr = args.Target ?? args.TargetContent ?? args.old_string ?? '';
+      const newStr = args.Replacement ?? args.ReplacementContent ?? args.new_string ?? '';
+      return {
+        tool_name: toolName,
+        tool_input: { file_path: filePath, old_string: oldStr, new_string: newStr },
+        cwd,
+      };
+    }
+    if (toolName === 'multi_replace_file_content' && Array.isArray(args.ReplacementChunks)) {
+      const filePath = args.TargetFile || args.Path || args.path || '';
+      const edits = args.ReplacementChunks.map((c) => ({
+        old_string: c?.TargetContent ?? '',
+        new_string: c?.ReplacementContent ?? '',
+      }));
+      return {
+        tool_name: 'multiedit',
+        tool_input: { file_path: filePath, edits },
+        cwd,
+      };
+    }
+    return { tool_name: toolName, tool_input: args, cwd };
   }
 
   // Native Copilot camelCase envelope
@@ -262,13 +326,13 @@ function applyPatchSectionToContent(oldContent, section) {
 
 function resolveEffectiveProjectRoot(filePath, fallbackRoot) {
   const startDir = path.dirname(path.resolve(filePath));
-  const nearestGit = findGitRoot(startDir);
-  if (nearestGit) return safeRealpath(nearestGit);
   let current = startDir;
   for (let i = 0; i < 25; i += 1) {
+    // Prefer nearest sdd/guardrails.* or .git at the same or inner directory (M-7: nested non-git SDD subprojects).
     if (
       fs.existsSync(path.join(current, 'sdd', 'guardrails.yaml')) ||
-      fs.existsSync(path.join(current, 'sdd', 'guardrails.json'))
+      fs.existsSync(path.join(current, 'sdd', 'guardrails.json')) ||
+      fs.existsSync(path.join(current, '.git'))
     ) {
       return safeRealpath(current);
     }
@@ -383,7 +447,11 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
 export function evaluateHookPayload(rawPayload, options = {}) {
   const emitMode = options.emitMode || 'exit';
   const env = options.env || process.env;
-  const cwd = options.cwd || rawPayload?.cwd || rawPayload?.tool_input?.cwd || process.cwd();
+  const workspaceCwd =
+    Array.isArray(rawPayload?.workspacePaths) && typeof rawPayload.workspacePaths[0] === 'string'
+      ? rawPayload.workspacePaths[0]
+      : undefined;
+  const cwd = options.cwd || rawPayload?.cwd || workspaceCwd || rawPayload?.tool_input?.cwd || process.cwd();
   const projectRoot = options.projectRoot || findProjectRoot(cwd);
 
   // Check 1: Kill switch (AGENT_STOP) — always fail-closed before payload parsing.
@@ -486,7 +554,7 @@ function parseArgs(argv) {
     }
   }
   return {
-    emit: emit === 'copilot' || emit === 'gemini' ? emit : 'exit',
+    emit: emit === 'copilot' || emit === 'gemini' || emit === 'antigravity' ? emit : 'exit',
     projectRoot,
   };
 }
@@ -500,7 +568,7 @@ function emitDecision(result, emitMode) {
     process.stdout.write(JSON.stringify(out));
     process.exit(0);
   }
-  if (emitMode === 'gemini') {
+  if (emitMode === 'gemini' || emitMode === 'antigravity') {
     const out = { decision: result.decision };
     if (result.decision === 'deny' && result.reason) {
       out.reason = result.reason;

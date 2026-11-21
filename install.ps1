@@ -3,7 +3,7 @@ param(
     [string]$Repository = "aharada54914/sdd-forge",
     [string]$Ref = "main",
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
-    [ValidateSet("All", "Codex", "Claude", "Copilot", "Gemini", "FilesOnly")]
+    [ValidateSet("All", "Codex", "Claude", "Copilot", "Antigravity", "Gemini", "FilesOnly")]
     [string]$Target = "All",
     [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
@@ -21,8 +21,12 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-# ADR-0052: MCP servers are opt-in by default for local CLI plugins.
-# Enable when -WithMcp or explicit -Mcp is passed (unless -SkipMcp is set).
+# ADR-0052: MCP client registration is opt-in by default for local CLI plugins.
+# Reject conflicting -SkipMcp with -WithMcp or explicit -Mcp (parity with install.sh).
+$script:SkipMcpExplicit = $PSBoundParameters.ContainsKey('SkipMcp') -and [bool]$SkipMcp
+if ($script:SkipMcpExplicit -and ($WithMcp -or $PSBoundParameters.ContainsKey('Mcp'))) {
+    throw "-SkipMcp cannot be combined with -WithMcp or -Mcp."
+}
 if (-not $SkipMcp -and -not $WithMcp -and -not $PSBoundParameters.ContainsKey('Mcp')) {
     $SkipMcp = [System.Management.Automation.SwitchParameter]::Present
 }
@@ -238,12 +242,30 @@ function Update-ClaudePlugins {
     }
 }
 
+function Install-AntigravityPlugins {
+    param([string]$MarketplaceRoot)
+    if ($SkipPluginInstall) { return }
+    if (-not (Get-Command agy -ErrorAction SilentlyContinue)) {
+        if ($Target -eq "Antigravity") { throw 'Antigravity CLI (agy) was not found in PATH.' }
+        Write-Warning 'Antigravity CLI (agy) was not found. Antigravity plugin registration was skipped.'
+        return
+    }
+    foreach ($plugin in $Plugins) {
+        $pluginDir = Join-Path $MarketplaceRoot "plugins/$plugin"
+        if (-not (Test-Path -LiteralPath (Join-Path $pluginDir '.antigravity-plugin/plugin.json') -PathType Leaf)) { continue }
+        Invoke-IdempotentPluginCommand -Label "Antigravity plugin '$plugin'" -Command 'agy' -Arguments @(
+            'plugin', 'install', $pluginDir)
+    }
+}
+
 function Install-GeminiExtension {
     param([string]$MarketplaceRoot)
     if ($SkipPluginInstall) { return }
     if (-not (Get-Command gemini -ErrorAction SilentlyContinue)) {
-        if ($Target -eq "Gemini") { throw 'Gemini CLI was not found in PATH.' }
-        Write-Warning 'Gemini CLI was not found. Gemini extension registration was skipped.'
+        if ($Target -eq "Gemini") { throw 'Gemini CLI was not found in PATH. (Note: for Google Antigravity CLI, use -Target Antigravity.)' }
+        if (-not (Get-Command agy -ErrorAction SilentlyContinue)) {
+            Write-Warning 'Gemini CLI was not found. Legacy Gemini extension registration was skipped.'
+        }
         return
     }
     foreach ($plugin in $Plugins) {
@@ -542,7 +564,7 @@ function Update-McpJson {
     # preserving all other entries and unknown top-level keys. The output is
     # stable 2-space JSON, so re-running produces a byte-identical file. To
     # guarantee byte-parity with install.sh, the JSON handling is done by the
-    # SAME Node one-liner install.sh uses (Node >= 26.13.0 is guaranteed here by the
+    # SAME Node one-liner install.sh uses (Node >= 20.0.0 is guaranteed here by the
     # MCP gate / McpNodeOk). Fail-safes (security-spec B3): a present-but-invalid
     # JSON file is never overwritten (error notice, installer continues with
     # other clients).
@@ -649,6 +671,22 @@ function Register-VSCodeMcp {
     Update-McpJson -ClientLabel "VS Code" -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers" -EntryKind "vscode" -InstallRootPath $InstallRootPath
 }
 
+function Register-AntigravityMcp {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    $agyConfigDir = if ($env:SDD_ANTIGRAVITY_CONFIG_DIR) {
+        $env:SDD_ANTIGRAVITY_CONFIG_DIR
+    }
+    else {
+        Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini") "config"
+    }
+    if (-not (Test-Path -LiteralPath $agyConfigDir)) {
+        Write-Warning "$agyConfigDir was not found. Antigravity CLI MCP registration was skipped (the installer does not create the directory)."
+        return
+    }
+    Update-McpJson -ClientLabel "Antigravity CLI" -ConfigFile (Join-Path $agyConfigDir "mcp_config.json") -TopKey "mcpServers" -EntryKind "antigravity" -InstallRootPath $InstallRootPath
+}
+
 function Register-GeminiMcp {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
@@ -660,6 +698,29 @@ function Register-GeminiMcp {
     Update-McpJson -ClientLabel "Gemini CLI" -ConfigFile (Join-Path $geminiDir "settings.json") -TopKey "mcpServers" -EntryKind "gemini" -InstallRootPath $InstallRootPath
 }
 
+function Install-SingleMcpPayload {
+    param(
+        [Parameter(Mandatory)][string]$SourceRootPath,
+        [Parameter(Mandatory)][string]$InstallRootPath,
+        [Parameter(Mandatory)][string]$Name
+    )
+    $srcMcp = Join-Path $SourceRootPath "mcp"
+    $srcDir = Join-Path $srcMcp $Name
+    $srcDist = Join-Path $srcDir "dist"
+    $srcIndex = Join-Path $srcDist "index.js"
+    $srcPkg = Join-Path $srcDir "package.json"
+    if (-not (Test-Path -LiteralPath $srcIndex -PathType Leaf) -or -not (Test-Path -LiteralPath $srcPkg -PathType Leaf) -or
+        -not (Test-PlainItem $srcMcp) -or -not (Test-PlainItem $srcDir) -or -not (Test-PlainItem $srcDist) -or
+        -not (Test-PlainItem $srcIndex) -or -not (Test-PlainItem $srcPkg)) {
+        return
+    }
+    $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $Name
+    $destDist = Join-Path $destDir "dist"
+    New-Item -ItemType Directory -Path $destDist -Force | Out-Null
+    Copy-Item -LiteralPath $srcIndex -Destination (Join-Path $destDist "index.js") -Force
+    Copy-Item -LiteralPath $srcPkg -Destination (Join-Path $destDir "package.json") -Force
+}
+
 $script:McpNodeOk = $false
 
 function Install-McpServersIfSelected {
@@ -669,10 +730,20 @@ function Install-McpServersIfSelected {
     )
 
     $script:McpNodeOk = $false
-    if ($SkipMcp -or $Mcp.Count -eq 0) { return }
-    if (-not (Test-NodeVersionOk)) { return }
+    # Always place sdd-forge-mcp/dist/index.js so /sdd-ship:status CLI runtime works on default installs (C-4).
+    if ($SkipMcp -or $Mcp.Count -eq 0) {
+        Install-SingleMcpPayload -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath -Name "sdd-forge-mcp"
+        return
+    }
+    if (-not (Test-NodeVersionOk)) {
+        Install-SingleMcpPayload -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath -Name "sdd-forge-mcp"
+        return
+    }
     $script:McpNodeOk = $true
     Install-McpServerPayloads -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath
+    if ($Mcp -notcontains "sdd-forge-mcp") {
+        Install-SingleMcpPayload -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath -Name "sdd-forge-mcp"
+    }
 }
 
 function Register-McpServers {
@@ -693,6 +764,9 @@ function Register-McpServers {
     # both All and Copilot.
     if ($Target -in @("All", "Copilot")) {
         Register-VSCodeMcp -InstallRootPath $InstallRootPath
+    }
+    if ($Target -in @("All", "Antigravity")) {
+        Register-AntigravityMcp -InstallRootPath $InstallRootPath
     }
     if ($Target -in @("All", "Gemini")) {
         Register-GeminiMcp -InstallRootPath $InstallRootPath
@@ -782,11 +856,16 @@ function Get-RequiredPaths {
         "plugins/sdd-quality-loop/gemini/gemini-extension.json",
         "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
         "plugins/sdd-bootstrap/gemini/gemini-extension.json",
+        "plugins/sdd-implementation/hooks.json",
+        "plugins/sdd-quality-loop/hooks.json",
+        "plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml",
         "plugins/sdd-bootstrap/gemini-extension.json",
         "plugins/sdd-ship/gemini-extension.json",
         "plugins/sdd-domain/gemini-extension.json",
         "plugins/sdd-review-loop/gemini/gemini-extension.json",
         "plugins/sdd-review-loop/gemini-extension.json",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
         "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
         "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
         "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
@@ -795,6 +874,9 @@ function Get-RequiredPaths {
         "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
         "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
         "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
         "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",
@@ -836,6 +918,7 @@ function Get-RequiredPaths {
         # Existing selector/launch runtime closure; keep in sync with install.sh.
     )
     foreach ($plugin in $allPluginNames) {
+        $paths += "plugins/$plugin/.antigravity-plugin/plugin.json"
         $paths += "plugins/$plugin/.codex-plugin/plugin.json"
         $paths += "plugins/$plugin/.claude-plugin/plugin.json"
         $paths += "plugins/$plugin/.plugin/plugin.json"
@@ -938,6 +1021,14 @@ function Write-InstallSummary {
 
     Write-Host ""
     Write-Host "SDD plugins installed at: $ResolvedInstallRoot"
+    if ($SkipMcp) {
+        if ($script:SkipMcpExplicit) {
+            Write-Host "MCP client registration was skipped because -SkipMcp was set. Pass -WithMcp to register sdd-forge-mcp v2."
+        }
+        else {
+            Write-Host "MCP client registration was skipped by default (ADR-0052: zero token tax for local CLI plugins). Pass -WithMcp to register sdd-forge-mcp v2."
+        }
+    }
     # ci-mcp needs a read-only GitHub token at runtime. The installer never
     # stores a token value (REQ-010, security-spec B3); it only names the
     # environment variables the user must set for their MCP client (AC-017).
@@ -1286,6 +1377,9 @@ try {
     }
     if ($Target -in @("All", "Copilot")) {
         Install-CopilotPlugins $resolvedInstallRoot
+    }
+    if ($Target -in @("All", "Antigravity")) {
+        Install-AntigravityPlugins $resolvedInstallRoot
     }
     if ($Target -in @("All", "Gemini")) {
         Install-GeminiExtension $resolvedInstallRoot

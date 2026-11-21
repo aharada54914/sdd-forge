@@ -1,6 +1,6 @@
 # ADR-0052: MCP 3 サーバー構成の再評価と v2 最適 MCP アーキテクチャ
 
-- **Status**: Accepted & Implemented (v2.1 MCP Consolidation)
+- **Status**: Accepted & Implemented (**v2.1.0** MCP Consolidation & Antigravity CLI Support)
 - **Date**: 2026-11-22
 - **Related**: [ADR-0051](0051-lightweight-guardrails-and-sdd-core.md), Issue #798, [docs/architecture/mcp-v2-spec.md](../architecture/mcp-v2-spec.md), [contracts/sdd-mcp.v2.schema.json](../../contracts/sdd-mcp.v2.schema.json)
 
@@ -47,12 +47,12 @@ MCP は **「クライアントがローカルシェルやリポジトリ直接�
 
 ## Decision（最適 MCP アーキテクチャ決定）
 
-1. **ローカル CLI プラグインの既定導入では MCP をオプトイン化（既定 OFF）する**
+1. **ローカル CLI プラグインの既定導入では MCP クライアント登録をオプトイン化（既定 OFF）する**
    - ローカル CLI ワークフロー（`/sdd-bootstrap:bootstrap`, `/sdd-ship:ship`, `sdd-gate`）は、ゼロ依存 Node ESM の `plugins/sdd-quality-loop/scripts/v2/*.mjs` を **唯一の正準インターフェース（SSOT）** とする。
-   - 外部クライアント（Claude Desktop / ChatGPT / IDE ビューア / 読み取り専用監査）向けに MCP が必要な利用者のみ、`./install.sh --with-mcp` で明示導入する設計へ移行する（v2.0.x 期間中は後方互換のため `--skip-mcp` を維持し、v2.1 で既定オプトインへ切替）。
+   - `/sdd-ship:status` のローカル HTML/ダッシュボード CLI 実行および既存 v2.0.0 からのアップグレード互換性を保つため、`INSTALL_ROOT/mcp/sdd-forge-mcp/dist/index.js` 自体は配置しつつ、各ホスト設定（Claude / Codex / Cursor / VS Code / Antigravity `agy` / Gemini）への MCP サーバー登録は `./install.sh --with-mcp` 明示指定時のみ行う（既定導入時は 0 トークン税・常駐プロセス 0 本。未選択の `local-env-mcp`/`ci-mcp` 旧登録はアップグレード時に自動整理）。
 
-2. **3 サーバー構成を「単一サーバー（`sdd-forge-mcp` v2）＋ 2 サーバー整理」へ集約する**
-   - **`local-env-mcp` → 廃止（Deprecated → Remove in v2.1）**:
+2. **3 サーバー構成を「単一サーバー（`sdd-forge-mcp` v2）＋ 2 サーバー整理」へ集約する（v2.1.0 で適用）**
+   - **`local-env-mcp` → 非推奨（Deprecated in v2.1.0 → Remove in v2.2.0）**:
      ツール 3 種（`get_os_info` / `get_toolchain_versions` / `list_available_clis`）はローカル環境では完全冗長。必要な環境診断は `sdd-doctor.mjs` に統合する。
    - **`ci-mcp` → ローカル既定導入から除外（External/Sandboxed Opt-in のみ）**:
      ローカル開発環境では認証済み `gh` CLI を直接使う方が設定不要で信頼性が高い。シェルや `gh` を持たない隔離エージェント向けにのみ `--mcp ci-mcp` オプトインとして残置（または別リポジトリへ切り出し）。
@@ -60,11 +60,11 @@ MCP は **「クライアントがローカルシェルやリポジトリ直接�
      詳細は [docs/architecture/mcp-v2-spec.md](../architecture/mcp-v2-spec.md) および [contracts/sdd-mcp.v2.schema.json](../../contracts/sdd-mcp.v2.schema.json) に規定する。
      - **4 ツール**:
        1. `sdd_project_overview` — 全 Active Features の進捗・リスク・次アクション・`sdd-doctor` 健全性を 1 往復で返す。
-       2. `sdd_feature_state` — 指定 feature の REQ↔AC↔Task トレーサビリティ、Spec Drift (`CLEAN`/`AMENDED`/`UNDECLARED_DRIFT`)、Decision View（`OQ-NNN` / Alternatives Rejected）、最新ゲート状態を一括返却。
-       3. `sdd_gate_audit` — 指定 feature / task の決定論証跡（`.execution.json`）と独立レビュー（`.md`）の整合性検証（v2 準拠）。
-       4. `sdd_dashboard_snapshot` — 既存ダッシュボードビューア向け読み取り専用スナップショット。
-     - **Single Source of Truth 原則**: `sdd-forge-mcp` v2 はパーサを再実装せず、`plugins/sdd-quality-loop/scripts/v2/{guardrails-lib,check-spec-drift,check-traceability,render-decision-view,sdd-doctor}.mjs` を直接 import してラップする薄い読み取り専用アダプタとする。
-     - **全ツールに MCP Tool Annotations を必須化**: `annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true }` を全ツールへ付与し、Codex 等での読み取り自動許可と互換性を確保する。
+       2. `sdd_feature_state` — 指定 feature の REQ↔AC↔Task トレーサビリティ、Spec Drift (`CLEAN`/`AMENDED`/`UNDECLARED_DRIFT`/`UNBASELINED`/`BASELINE_ERROR`)、Decision View（`OQ-NNN` / Alternatives Rejected / 観点採否表）、最新ゲート状態を一括返却。
+       3. `sdd_gate_audit` — 指定 feature / task の決定論証跡（`.execution.json`）と独立レビュー（`.md`）、Spec Drift、および `Risk: high` 未確定 `OQ-NNN` の fail-closed 整合性検証（v2 準拠）。
+       4. `sdd_dashboard_snapshot` — 既存ダッシュボードビューア向け読み取り専用スナップショット（統一 `Result<T>` エンベロープ返却）。
+     - **Single Source of Truth & Pure Read-Only 原則**: `sdd-forge-mcp` v2 はパーサを再実装せず、書込 API・`process.env`・`node:fs` を一切持たない純粋コア `plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs` に `path-guard.ts` 経由の `createGuardedIo(root)` を注入する（`dist/index.js` に書込 API を含めないことを静的テスト＋CI で強制）。
+     - **全ツールに MCP Tool Annotations と厳格スキーマを必須化**: `annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true }` および `additionalProperties: false` を全ツールへ適用。
      - **コンテキスト消費目標**: 23 ツール (~3,304 tokens) → **4 ツール (~600 tokens, -82%)**、ローカル CLI 既定オプトイン時は **0 tokens**。
 
 3. **v2.0.x での即時是正（#798 適用済み）**

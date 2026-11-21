@@ -1,0 +1,11 @@
+{
+  "sdd-session-models": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 ./scripts/session-model-start.py --host antigravity-cli",
+        "timeout": 10
+      }
+    ]
+  }
+}

@@ -1,4 +1,6 @@
 ---
+trigger: model_decision
+description: Review ticket YAML schema and sdd-gate transition conventions under docs/review-tickets/ and reports/.
 paths:
   - "docs/review-tickets/**"
   - "docs/specs/**/verification/**"
@@ -16,5 +18,5 @@ Required fields: `ticket_id`, `status` (open/resolved/rejected), `type`,
 `auto_fix_allowed`, `requires_human_decision`, `review_cycles`.
 
 `fix-by-review-ticket` may fix only the requested scope. A resolved ticket
-returns its task to `Implementation Complete`; only a subsequent `quality-gate`
+returns its task to `Implementation Complete`; only a subsequent `sdd-gate`
 may set the task to `Done`.

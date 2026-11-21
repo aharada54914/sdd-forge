@@ -18,7 +18,7 @@ user-invocable: false
 
 ## Task Selection
 
-各パスの開始時に `tasks.md` を読み、実行可能集合を抽出する:
+各パスの開始時に `tasks.md` と `check-traceability.mjs --feature <feature> --plan-batches` の結果（依存順 Wave と Scope 衝突検知）を読み、実行可能集合を抽出する（`task-lock.mjs acquire` で feature ロックを確保し二重起動を防止する）:
 
 1. **対象条件**: `Approval: Approved` かつ `Status: Planned` または `In Progress`。
 2. **依存解決**: `### Blockers` に `T-\d+` 参照がある場合、参照先タスクがすべて `Implementation Complete` または `Done` になるまで除外する（`None` または空なら依存なし）。

@@ -14,10 +14,12 @@ PLUGINS="sdd-bootstrap,sdd-ship"
 SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
-# ADR-0052: MCP servers are opt-in by default for local CLI plugins (0 token tax).
+# ADR-0052: MCP client registration is opt-in by default for local CLI plugins (0 token tax).
 # Pass --with-mcp (defaults to single sdd-forge-mcp v2) or --mcp <list> to enable.
 SKIP_MCP=1
-MCP_EXPLICIT=0
+SKIP_MCP_EXPLICIT=0
+WITH_MCP_EXPLICIT=0
+MCP_LIST_EXPLICIT=0
 MCP_LIST="sdd-forge-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
@@ -32,29 +34,30 @@ VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # Argument parsing
 # ---------------------------------------------------------------------------
 usage() {
-    cat >&2 <<EOF
+    cat >&2 <<'EOF'
 Usage: install.sh [options]
 
   --repository <owner/repo>      Default: aharada54914/sdd-forge
   --ref <ref>                    Default: main
-  --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
-  --target All|Codex|Claude|Copilot|Gemini|FilesOnly
+  --install-root <path>          Default: ${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins
+  --target All|Codex|Claude|Copilot|Antigravity|Gemini|FilesOnly
                                  Default: All
   --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: sdd-bootstrap,sdd-ship
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
-  --with-mcp                     Opt in to placing and registering MCP server(s) (default: sdd-forge-mcp v2)
-  --skip-mcp                     Explicitly skip placing and registering all MCP servers (default behavior per ADR-0052)
+  --with-mcp                     Opt in to registering MCP server(s) (default: sdd-forge-mcp v2)
+  --skip-mcp                     Explicitly skip registering all MCP servers (default behavior per ADR-0052)
   --mcp <comma-separated>        Opt in with specific MCP server(s) from: sdd-forge-mcp,local-env-mcp,ci-mcp
                                  Default when --with-mcp is set: sdd-forge-mcp (local-env-mcp is deprecated)
 
 Environment:
-  SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
-  SDD_CURSOR_DIR        Override the ~/.cursor directory used for Cursor MCP registration
-  SDD_GEMINI_DIR        Override the ~/.gemini directory used for Gemini CLI MCP registration
-  SDD_VSCODE_USER_DIR   Override the VS Code user-profile directory used for MCP registration
+  SDD_CODEX_HOME              Override ~/.codex destination for agent TOML files and config.toml
+  SDD_CURSOR_DIR              Override the ~/.cursor directory used for Cursor MCP registration
+  SDD_ANTIGRAVITY_CONFIG_DIR  Override the ~/.gemini/config directory used for Antigravity CLI MCP registration
+  SDD_GEMINI_DIR              Override the ~/.gemini directory used for legacy Gemini CLI MCP registration
+  SDD_VSCODE_USER_DIR         Override the VS Code user-profile directory used for MCP registration
 
   Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
 EOF
@@ -71,17 +74,22 @@ while [[ $# -gt 0 ]]; do
         --skip-plugin-install) SKIP_PLUGIN_INSTALL=1; shift ;;
         --skip-agent-install)  SKIP_AGENT_INSTALL=1; shift ;;
         --source-directory) [[ $# -gt 1 ]] || usage; SOURCE_DIRECTORY="$2"; shift 2 ;;
-        --with-mcp)         SKIP_MCP=0; shift ;;
-        --skip-mcp)         SKIP_MCP=1; MCP_EXPLICIT=0; shift ;;
-        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; MCP_EXPLICIT=1; SKIP_MCP=0; shift 2 ;;
+        --with-mcp)         WITH_MCP_EXPLICIT=1; SKIP_MCP=0; [[ $MCP_LIST_EXPLICIT -eq 0 ]] && MCP_LIST="sdd-forge-mcp"; shift ;;
+        --skip-mcp)         SKIP_MCP_EXPLICIT=1; SKIP_MCP=1; shift ;;
+        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; MCP_LIST_EXPLICIT=1; SKIP_MCP=0; shift 2 ;;
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
 
+if [[ $SKIP_MCP_EXPLICIT -eq 1 && ( $WITH_MCP_EXPLICIT -eq 1 || $MCP_LIST_EXPLICIT -eq 1 ) ]]; then
+    echo "Error: --skip-mcp cannot be combined with --with-mcp or --mcp." >&2
+    exit 1
+fi
+
 # Validate --target
 case "$TARGET" in
-    All|Codex|Claude|Copilot|Gemini|FilesOnly) ;;
-    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, Gemini, or FilesOnly)" >&2; usage ;;
+    All|Codex|Claude|Copilot|Antigravity|Gemini|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, Antigravity, Gemini, or FilesOnly)" >&2; usage ;;
 esac
 
 # Validate --plugins
@@ -230,15 +238,37 @@ target_requires() {
     [[ "$TARGET" == "$1" ]]
 }
 
+install_antigravity_plugins() {
+    local marketplace_root="$1"
+    [[ $SKIP_PLUGIN_INSTALL -eq 0 ]] || return 0
+    if ! command -v agy >/dev/null 2>&1; then
+        if target_requires Antigravity; then
+            echo "Error: Antigravity CLI (agy) was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Antigravity CLI (agy) was not found. Antigravity plugin registration was skipped." >&2
+        return 0
+    fi
+    local p plugin_dir
+    for p in "${PLUGIN_LIST[@]}"; do
+        plugin_dir="$marketplace_root/plugins/${p}"
+        [[ -f "${plugin_dir}/.antigravity-plugin/plugin.json" ]] || continue
+        run_idempotent_plugin_command "Antigravity plugin '${p}'" \
+            agy plugin install "$plugin_dir" || return 1
+    done
+}
+
 install_gemini_extension() {
     local marketplace_root="$1"
     [[ $SKIP_PLUGIN_INSTALL -eq 0 ]] || return 0
     if ! command -v gemini >/dev/null 2>&1; then
         if target_requires Gemini; then
-            echo "Error: Gemini CLI was not found in PATH." >&2
+            echo "Error: Gemini CLI was not found in PATH. (Note: for Google Antigravity CLI, use --target Antigravity.)" >&2
             return 1
         fi
-        echo "Warning: Gemini CLI was not found. Gemini extension registration was skipped." >&2
+        if ! command -v agy >/dev/null 2>&1; then
+            echo "Warning: Gemini CLI was not found. Legacy Gemini extension registration was skipped." >&2
+        fi
         return 0
     fi
     local p ext_dir label
@@ -654,7 +684,7 @@ upsert_mcp_json() {
     # output is stable 2-space JSON, so re-running produces a byte-identical
     # file. Fail-safes (security-spec B3): a present-but-invalid JSON file is
     # never overwritten (error notice, installer continues with other
-    # clients). Node >= 26.13.0 is guaranteed here by the MCP gate (MCP_NODE_OK).
+    # clients). Node >= 20.0.0 is guaranteed here by the MCP gate (MCP_NODE_OK).
     local client_label="$1"
     local config_file="$2"
     local top_key="$3"
@@ -744,6 +774,18 @@ register_vscode_mcp() {
     upsert_mcp_json "VS Code" "${vscode_user_dir}/mcp.json" "servers" "vscode" "$install_root_path"
 }
 
+register_antigravity_mcp() {
+    # Idempotently upserts mcpServers.<name> into ~/.gemini/config/mcp_config.json
+    # for Antigravity CLI (`agy`). Skips cleanly if the directory does not exist.
+    local install_root_path="$1"
+    local agy_config_dir="${SDD_ANTIGRAVITY_CONFIG_DIR:-$HOME/.gemini/config}"
+    if [[ ! -d "$agy_config_dir" ]]; then
+        echo "Warning: ${agy_config_dir} was not found. Antigravity CLI MCP registration was skipped (the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "Antigravity CLI" "${agy_config_dir}/mcp_config.json" "mcpServers" "antigravity" "$install_root_path"
+}
+
 register_gemini_mcp() {
     # Idempotently upserts mcpServers.<name> into ~/.gemini/settings.json for
     # each selected MCP. An absent ~/.gemini directory means Gemini CLI is not
@@ -758,27 +800,121 @@ register_gemini_mcp() {
     upsert_mcp_json "Gemini CLI" "${gemini_dir}/settings.json" "mcpServers" "gemini" "$install_root_path"
 }
 
+place_single_mcp_payload() {
+    local source_root="$1"
+    local install_root_path="$2"
+    local name="$3"
+    local src_mcp="${source_root}/mcp"
+    local src_dir="${src_mcp}/${name}"
+    local src_dist="${src_dir}/dist"
+    local src_index="${src_dist}/index.js"
+    local src_pkg="${src_dir}/package.json"
+    if [[ ! -f "$src_index" || ! -f "$src_pkg" ]] ||
+       [[ -L "$src_mcp" || -L "$src_dir" || -L "$src_dist" || -L "$src_index" || -L "$src_pkg" ]]; then
+        return 0
+    fi
+    local dest_dir="${install_root_path}/mcp/${name}"
+    mkdir -p "${dest_dir}/dist"
+    cp "$src_index" "${dest_dir}/dist/index.js"
+    cp "$src_pkg" "${dest_dir}/package.json"
+}
+
+prune_unselected_mcp_json() {
+    # Removes stale managed MCP entries (e.g. retired local-env-mcp or unselected ci-mcp)
+    # whose entrypoints live under INSTALL_ROOT so upgrades never leave MODULE_NOT_FOUND
+    # errors in existing host configs (ADR-0052 C-4).
+    local config_file="$1"
+    local top_key="$2"
+    local install_root_path="$3"
+    shift 3
+    [[ -f "$config_file" ]] || return 0
+    [[ $# -gt 0 ]] || return 0
+    command -v node >/dev/null 2>&1 || return 0
+    node -e '
+const fs = require("fs");
+const [file, topKey, installRoot, ...dropNames] = process.argv.slice(1);
+let text;
+try { text = fs.readFileSync(file, "utf8"); } catch { process.exit(0); }
+let root;
+try { root = JSON.parse(text); } catch { process.exit(0); }
+if (!root || typeof root !== "object" || Array.isArray(root)) process.exit(0);
+const section = root[topKey];
+if (!section || typeof section !== "object" || Array.isArray(section)) process.exit(0);
+const normRoot = installRoot.replace(/\\/g, "/").replace(/\/+$/, "") + "/mcp/";
+let changed = false;
+for (const name of dropNames) {
+  const entry = section[name];
+  if (!entry || typeof entry !== "object") continue;
+  const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
+  if (args.some((a) => a.replace(/\\/g, "/").startsWith(normRoot))) {
+    delete section[name];
+    changed = true;
+  }
+}
+if (!changed) process.exit(0);
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge-prune.tmp";
+fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
+try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
+' "$config_file" "$top_key" "$install_root_path" "$@" 2>/dev/null || true
+}
+
+prune_stale_managed_mcps() {
+    local install_root_path="$1"
+    local drop_names=()
+    local candidate
+    for candidate in local-env-mcp ci-mcp; do
+        if [[ $SKIP_MCP -eq 1 ]] || ! mcp_selected "$candidate"; then
+            drop_names+=("$candidate")
+        fi
+    done
+    [[ ${#drop_names[@]} -eq 0 ]] && return 0
+    local cursor_dir="${SDD_CURSOR_DIR:-$HOME/.cursor}"
+    local gemini_dir="${SDD_GEMINI_DIR:-$HOME/.gemini}"
+    local agy_config_dir="${SDD_ANTIGRAVITY_CONFIG_DIR:-$HOME/.gemini/config}"
+    local vscode_user_dir=""
+    if [[ -n "${SDD_VSCODE_USER_DIR:-}" ]]; then
+        vscode_user_dir="$SDD_VSCODE_USER_DIR"
+    else
+        case "$(uname -s)" in
+            Darwin) vscode_user_dir="$HOME/Library/Application Support/Code/User" ;;
+            *)      vscode_user_dir="$HOME/.config/Code/User" ;;
+        esac
+    fi
+    [[ "$TARGET" == "All" ]] && prune_unselected_mcp_json "${cursor_dir}/mcp.json" "mcpServers" "$install_root_path" "${drop_names[@]}"
+    [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]] && prune_unselected_mcp_json "${vscode_user_dir}/mcp.json" "servers" "$install_root_path" "${drop_names[@]}"
+    [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]] && prune_unselected_mcp_json "${gemini_dir}/settings.json" "mcpServers" "$install_root_path" "${drop_names[@]}"
+    [[ "$TARGET" == "All" || "$TARGET" == "Antigravity" ]] && prune_unselected_mcp_json "${agy_config_dir}/mcp_config.json" "mcpServers" "$install_root_path" "${drop_names[@]}"
+    return 0
+}
+
 MCP_NODE_OK=0
 
 place_mcp_servers_if_selected() {
-    # Placement (like plugin files) happens regardless of --target; only
-    # registration is target-scoped. Sets MCP_NODE_OK for callers to check
-    # before attempting registration.
+    # Always place `sdd-forge-mcp/dist/index.js` so `/sdd-ship:status` CLI runtime
+    # works on default installs and upgrading users never hit MODULE_NOT_FOUND (C-4).
+    # Only register MCP servers into host clients when --with-mcp / --mcp is set.
     local source_root="$1"
     local install_root_path="$2"
     MCP_NODE_OK=0
     if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 ]]; then
+        place_single_mcp_payload "$source_root" "$install_root_path" "sdd-forge-mcp"
         return 0
     fi
     if ! node_version_ok; then
+        place_single_mcp_payload "$source_root" "$install_root_path" "sdd-forge-mcp"
         return 0
     fi
     MCP_NODE_OK=1
     place_mcp_servers "$source_root" "$install_root_path"
+    if ! mcp_selected "sdd-forge-mcp"; then
+        place_single_mcp_payload "$source_root" "$install_root_path" "sdd-forge-mcp"
+    fi
 }
 
 install_mcp_servers() {
     local install_root_path="$1"
+    prune_stale_managed_mcps "$install_root_path"
     if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 || $MCP_NODE_OK -ne 1 ]]; then
         return 0
     fi
@@ -796,6 +932,9 @@ install_mcp_servers() {
     # both All and Copilot.
     if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
         register_vscode_mcp "$install_root_path" || return 1
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Antigravity" ]]; then
+        register_antigravity_mcp "$install_root_path" || return 1
     fi
     if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
         register_gemini_mcp "$install_root_path" || return 1
@@ -1031,15 +1170,20 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/gemini/gemini-extension.json"
     "plugins/sdd-implementation/hooks/claude-hooks.json"
     "plugins/sdd-implementation/hooks/codex-hooks.json"
+    "plugins/sdd-implementation/hooks.json"
     "plugins/sdd-implementation/gemini/hooks/hooks.json"
+    "plugins/sdd-quality-loop/hooks.json"
     "plugins/sdd-quality-loop/gemini/gemini-extension.json"
     "plugins/sdd-quality-loop/gemini/hooks/hooks.json"
     "plugins/sdd-bootstrap/gemini/gemini-extension.json"
+    "plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml"
     "plugins/sdd-bootstrap/gemini-extension.json"
     "plugins/sdd-ship/gemini-extension.json"
     "plugins/sdd-domain/gemini-extension.json"
     "plugins/sdd-review-loop/gemini/gemini-extension.json"
     "plugins/sdd-review-loop/gemini-extension.json"
+    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs"
     "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs"
     "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs"
     "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs"
@@ -1048,6 +1192,9 @@ REQUIRED_PATHS=(
     "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
     "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs"
     "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs"
     "plugins/sdd-implementation/scripts/model-policy.py"
     "plugins/sdd-implementation/scripts/select-agent-model.sh"
     "plugins/sdd-implementation/scripts/select-agent-model.ps1"
@@ -1082,18 +1229,24 @@ REQUIRED_PATHS=(
     "install-payload.txt"
     ".agents/plugins/marketplace.json"
     ".claude-plugin/marketplace.json"
+    "plugins/sdd-bootstrap/.antigravity-plugin/plugin.json"
     "plugins/sdd-bootstrap/.codex-plugin/plugin.json"
     "plugins/sdd-bootstrap/.plugin/plugin.json"
+    "plugins/sdd-ship/.antigravity-plugin/plugin.json"
     "plugins/sdd-ship/.claude-plugin/plugin.json"
     "plugins/sdd-ship/.codex-plugin/plugin.json"
     "plugins/sdd-ship/.plugin/plugin.json"
+    "plugins/sdd-implementation/.antigravity-plugin/plugin.json"
     "plugins/sdd-implementation/.codex-plugin/plugin.json"
     "plugins/sdd-implementation/.plugin/plugin.json"
+    "plugins/sdd-quality-loop/.antigravity-plugin/plugin.json"
     "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
     "plugins/sdd-quality-loop/.plugin/plugin.json"
+    "plugins/sdd-review-loop/.antigravity-plugin/plugin.json"
     "plugins/sdd-review-loop/.claude-plugin/plugin.json"
     "plugins/sdd-review-loop/.codex-plugin/plugin.json"
     "plugins/sdd-review-loop/.plugin/plugin.json"
+    "plugins/sdd-domain/.antigravity-plugin/plugin.json"
     "plugins/sdd-domain/.claude-plugin/plugin.json"
     "plugins/sdd-domain/.codex-plugin/plugin.json"
     "plugins/sdd-domain/.plugin/plugin.json"
@@ -1106,7 +1259,7 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/.claude-plugin/plugin.json"
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
 )
-CLOUD_ENTRY_FILES=(.claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
+CLOUD_ENTRY_FILES=(.antigravity-plugin/plugin.json .claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
 # Source precheck covers explicit selections; retained entries are checked in staging.
 for plugin in "${PLUGIN_LIST[@]}"; do
     case "$plugin" in
@@ -1443,6 +1596,9 @@ fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     install_copilot_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Antigravity" ]]; then
+    install_antigravity_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
+fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
     install_gemini_extension "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
@@ -1457,7 +1613,11 @@ if [[ "$TARGET" == "FilesOnly" ]]; then
     echo "Plugin registration was skipped because --target=FilesOnly."
 fi
 if [[ $SKIP_MCP -eq 1 ]]; then
-    echo "MCP servers were skipped by default (ADR-0052: zero token tax for local CLI plugins). Pass --with-mcp to install sdd-forge-mcp v2."
+    if [[ $SKIP_MCP_EXPLICIT -eq 1 ]]; then
+        echo "MCP client registration was skipped because --skip-mcp was set. Pass --with-mcp to register sdd-forge-mcp v2."
+    else
+        echo "MCP client registration was skipped by default (ADR-0052: zero token tax for local CLI plugins). Pass --with-mcp to register sdd-forge-mcp v2."
+    fi
 fi
 # ci-mcp needs a read-only GitHub token at runtime. The installer never
 # stores a token value (REQ-010, security-spec B3); it only names the

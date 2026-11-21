@@ -31,8 +31,11 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs" --root "<repo-root>" --json
    ```
    `NG` / `WARN` / `INFO` の件数と項目をそのまま記録する。
-2. **ガードレールイベント（`.sdd/drift-events.jsonl`）**:
-   `deny` / `confirm` / `warn` の種別・対象パス・頻出理由を集計する。
+2. **工場計測と原因工程遡及（`factory-metrics.mjs` & `.sdd/drift-events.jsonl`）**:
+   ```bash
+   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" --root "<repo-root>" --format markdown
+   ```
+   `.sdd/factory-metrics.jsonl` と `.sdd/drift-events.jsonl` から、ゲート合格率・実行時間・人の介在回数・**誤りの原因工程（`requirements` / `design` / `code` / `test` / `harness`）**を集計する。
 3. **品質ゲート実行証跡（`reports/quality-gate/`）**:
    `<feature>-<T-NNN>.execution.json` および `<feature>-<T-NNN>.md` から、FAIL/再実行回数・`UNDECLARED_DRIFT` 発生有無・プレースホルダー検知数を集計する。
 4. **レビュー・チケット・診断履歴**:
@@ -84,7 +87,8 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 
 ## Step 4: 反映（人間承認後のみ）
 
-- 提案（`docs/workflow-improvements/WFI-NNN.md`、または `AGENTS.md` / `sdd/knowledge/` / `sdd/rejected-decisions.md` への追記）は **人間の承認後** のみ適用する。
+- 提案（`docs/workflow-improvements/WFI-NNN.md`、または `AGENTS.md` / `sdd/knowledge/` / `sdd/knowledge/review-perspectives.yaml` / `sdd/rejected-decisions.md` への追記）は **人間の承認後** のみ適用する。
+- 人間レビューで発見された再発観点は `sdd/knowledge/review-perspectives.yaml` へ追加提案し、次回以降 AI・機械検証が先回りして検出できる範囲を広げる。
 - 新規の `WFI-NNN.md`（`Status: Draft`）を起票した場合、人間レビュー前に 2 サイクル品質監査を通すときは `wfi-audit-cycle` スキルを呼び出せる。
 - 適用対象はプロジェクト側ファイル（`AGENTS.md`, `sdd/`, `specs/` テンプレート, テスト）に限定し、インストール済みプラグイン本体（`plugins/`）は直接書き換えない。
 - 適用コミットには `WFI-NNN` を明記し、`git revert` で確実に戻せる状態を保つ。

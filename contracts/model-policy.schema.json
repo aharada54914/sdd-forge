@@ -519,6 +519,9 @@
               },
               "gemini-cli": {
                 "$ref": "#/$defs/identifier"
+              },
+              "antigravity-cli": {
+                "$ref": "#/$defs/identifier"
               }
             }
           },

@@ -26,9 +26,9 @@ import { pathToFileURL } from 'node:url';
 import { checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
-  findProjectRoot,
   normalizeNewlines,
   normalizeRelPath,
+  resolveExplicitOrAutoRoot,
   splitSpecAmendments,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
@@ -258,6 +258,16 @@ function scanSqlStatements(rel, raw, findings) {
         message: 'DELETE/UPDATE statement without WHERE clause detected',
       });
     }
+    if (/\bSELECT\s+\*\s+FROM\b/i.test(stmt.text)) {
+      findings.push({
+        rule: 'SQL_SELECT_STAR',
+        severity: 'advisory',
+        domain: 'SQL',
+        file: rel,
+        line: stmt.line,
+        message: 'SELECT * detected; prefer explicit column lists for query stability and performance',
+      });
+    }
   }
 }
 
@@ -398,9 +408,12 @@ function scanNonFunctionalSensors(projectRoot, changedFiles) {
       scanCloudIac(rel, raw, findings);
     }
   }
+  const blockingFindings = findings.filter((f) => f.severity !== 'advisory');
+  const advisoryFindings = findings.filter((f) => f.severity === 'advisory');
   return {
-    passed: findings.length === 0,
-    findings,
+    passed: blockingFindings.length === 0,
+    findings: blockingFindings,
+    advisoryFindings,
   };
 }
 
@@ -472,13 +485,14 @@ export function runSddGate({
   skipDrift = false,
   skipSensors = false,
   outputPath = null,
+  rootCausePhase = null,
 }) {
   assertValidFeatureName(feature);
   if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
     throw new Error(`Invalid task ID: ${taskId}`);
   }
 
-  const root = findProjectRoot(projectRoot);
+  const root = resolveExplicitOrAutoRoot(projectRoot);
   const tasksPath = path.join(root, 'specs', feature, 'tasks.md');
   if (!fs.existsSync(tasksPath)) {
     throw new Error(`Tasks file not found: specs/${feature}/tasks.md`);
@@ -575,6 +589,8 @@ export function runSddGate({
     sensorsSkipped: Boolean(skipSensors),
     provisionalOqCount: openQuestions.provisionalCount,
     sensorFindingCount: nonFunctionalSensors.findings.length,
+    advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
+    ...(rootCausePhase ? { rootCausePhase } : {}),
     commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
   });
 
@@ -592,6 +608,7 @@ function parseArgs(argv) {
     outputPath: null,
     skipDrift: false,
     skipSensors: false,
+    rootCausePhase: null,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -605,6 +622,8 @@ function parseArgs(argv) {
       opts.baselinePath = argv[++i];
     } else if (arg === '--output' && argv[i + 1]) {
       opts.outputPath = argv[++i];
+    } else if (arg === '--root-cause' && argv[i + 1]) {
+      opts.rootCausePhase = argv[++i];
     } else if (arg === '--changed-files' && argv[i + 1]) {
       opts.changedFiles = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
     } else if (arg === '--cmd' && argv[i + 1]) {
@@ -643,6 +662,7 @@ function main() {
       skipDrift: opts.skipDrift,
       skipSensors: opts.skipSensors,
       outputPath: opts.outputPath,
+      rootCausePhase: opts.rootCausePhase,
     });
     process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);
     process.exit(result.verdict === 'PASS' ? 0 : 1);

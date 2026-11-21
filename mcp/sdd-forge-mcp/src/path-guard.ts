@@ -35,24 +35,33 @@ import type { SddRoot } from "./root.js";
 const ALLOWLISTED_DIRECTORIES = [
   "specs",
   "reports",
+  "sdd/knowledge",
   "docs/review-tickets",
   "docs/workflow-improvements",
 ] as const;
 
 /** Explicit project metadata files; no other root files are readable. */
-const ALLOWLISTED_FILES = ["AGENTS.md", "dashboard-labels.json"] as const;
+const ALLOWLISTED_FILES = [
+  "AGENTS.md",
+  "dashboard-labels.json",
+  "sdd/guardrails.yaml",
+  "sdd/guardrails.json",
+  ".sdd/drift-events.jsonl",
+  ".sdd/factory-metrics.jsonl",
+] as const;
 
 /**
  * Base names that are always denied, regardless of which allowlisted
- * directory they are reached through. Kept as a flag-file name constant
- * assembled at runtime so no single source line spells out the sensitive
- * literal in a way that could be mistaken for a shell invocation elsewhere
- * in tooling; the value itself is unambiguous at runtime.
+ * directory they are reached through. Blocks SDD_SUDO, `.env`, and `.env.*`.
  */
 const DENYLISTED_BASENAMES = new Set<string>([
   ["SDD", "SUDO"].join("_"),
   ".env",
 ]);
+
+function isDenylistedBasename(component: string): boolean {
+  return DENYLISTED_BASENAMES.has(component) || /^\.env(?:\..+)?$/i.test(component);
+}
 
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MiB
 
@@ -119,7 +128,7 @@ function isAllowlisted(root: SddRoot, resolvedPath: string): boolean {
 function hasDenylistedComponent(root: SddRoot, candidatePath: string): boolean {
   return relative(root.path, candidatePath)
     .split(sep)
-    .some((component) => DENYLISTED_BASENAMES.has(component));
+    .some((component) => isDenylistedBasename(component));
 }
 
 /** Resolves the evidence key once for callers that validate many paths. */
@@ -486,4 +495,104 @@ function resolveGuardedDirectory(
 export function hasProjectContext(root: SddRoot): boolean {
   try { lstatSync(join(root.path, "sdd/project-context.yaml")); return true; }
   catch (error) { return !(error instanceof Error && "code" in error && error.code === "ENOENT"); }
+}
+
+/** Direct-entry descriptor returned by `listGuardedDirectEntries`. */
+export interface GuardedDirEntry {
+  name: string;
+  isFile: boolean;
+  isDirectory: boolean;
+}
+
+/**
+ * Lists direct children of an allowlisted directory after enforcing realpath
+ * containment, allowlist, and denylist checks on both the directory and every entry.
+ */
+export function listGuardedDirectEntries(root: SddRoot, relDir: string): GuardedDirEntry[] {
+  const guardResult = resolveGuardedDirectory(root, relDir);
+  if (!guardResult.ok) return [];
+
+  const realEvidenceKeyPath = resolvedEvidenceKeyPath();
+  let names: string[];
+  try {
+    names = readdirSync(guardResult.data.resolvedPath);
+  } catch {
+    return [];
+  }
+
+  const out: GuardedDirEntry[] = [];
+  for (const name of names) {
+    const absEntry = join(guardResult.data.resolvedPath, name);
+    let realEntry: string;
+    let stats: ReturnType<typeof statSync>;
+    try {
+      realEntry = realpathSync(absEntry);
+      stats = statSync(realEntry);
+    } catch {
+      continue;
+    }
+    if (!isAllowlisted(root, realEntry)) continue;
+    if (isDenylisted(root, absEntry, realEntry, realEvidenceKeyPath)) continue;
+    out.push({
+      name,
+      isFile: stats.isFile(),
+      isDirectory: stats.isDirectory(),
+    });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Returns mtimeMs for an allowlisted regular file, or null if inaccessible/denied. */
+export function guardedStatMtimeMs(root: SddRoot, relPath: string): number | null {
+  const guardResult = resolveGuarded(root, relPath);
+  if (!guardResult.ok) return null;
+  try {
+    const st = statSync(guardResult.data.resolvedPath);
+    return Number.isFinite(st.mtimeMs) ? st.mtimeMs : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Checks whether an allowlisted relative path resolves to an existing directory. */
+export function guardedDirExists(root: SddRoot, relDir: string): boolean {
+  return resolveGuardedDirectory(root, relDir).ok;
+}
+
+/**
+ * Creates a `path-guard`-enforced read-only IO facade for `v2-readonly-core.mjs`.
+ * Every file read, stat, and directory listing is strictly bounded to `root`,
+ * allowlist, denylist (`.env*`, `SDD_SUDO`, signing key), symlink realpath, and 2 MiB cap.
+ */
+export function createGuardedIo(root: SddRoot): {
+  exists(relPath: string): boolean;
+  readText(relPath: string): string | null;
+  listDir(relDir: string): GuardedDirEntry[];
+  statMtimeMs(relPath: string): number | null;
+} {
+  return {
+    exists(relPath: string): boolean {
+      if (relPath === "AGENT_STOP") {
+        // Presence-only check for kill-switch; never reads contents.
+        try {
+          lstatSync(join(root.path, "AGENT_STOP"));
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      return guardedExists(root, relPath);
+    },
+    readText(relPath: string): string | null {
+      const res = guardedRead(root, relPath);
+      return res.ok ? res.data.contents : null;
+    },
+    listDir(relDir: string): GuardedDirEntry[] {
+      if (!relDir) return [];
+      return listGuardedDirectEntries(root, relDir);
+    },
+    statMtimeMs(relPath: string): number | null {
+      return guardedStatMtimeMs(root, relPath);
+    },
+  };
 }

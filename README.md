@@ -1,6 +1,6 @@
 # SDD Forge
 
-v2.0.0 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Gemini CLI の 4 環境に対応します。
+v2.0.0 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
 
 ## クイックスタート（2 コマンド）
 
@@ -61,8 +61,8 @@ flowchart TD
 # 非シェルクライアント（Desktop / Web / 監査ビューア）向けに単一 sdd-forge-mcp v2 も導入する場合
 ./install.sh --source-directory . --with-mcp
 
-# 対象環境を指定（All | Codex | Claude | Copilot | Gemini | FilesOnly）
-./install.sh --source-directory . --target Claude
+# 対象環境を指定（All | Codex | Claude | Copilot | Antigravity | Gemini | FilesOnly）
+./install.sh --source-directory . --target Antigravity
 ```
 
 ```powershell

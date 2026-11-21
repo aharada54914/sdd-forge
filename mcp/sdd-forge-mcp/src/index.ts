@@ -2,7 +2,7 @@
  * sdd-forge-mcp entrypoint.
  *
  * Resolves the project root once (CLI `--root` > `SDD_FORGE_ROOT` > cwd),
- * builds the MCP server with all 8 core tools registered (T-004), and
+ * builds the MCP v2 server with 4 read-only tools and 2 resources (ADR-0052), and
  * connects it over stdio. Diagnostics (root resolution outcome, fatal
  * startup errors) are always written to stderr — stdout is reserved
  * exclusively for the MCP JSON-RPC stdio transport.

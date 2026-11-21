@@ -100,7 +100,8 @@
       "effort_control": {
         "claude-code": "none",
         "codex-cli": "none",
-        "gemini-cli": "none"
+        "gemini-cli": "none",
+        "antigravity-cli": "none"
       }
     },
     {

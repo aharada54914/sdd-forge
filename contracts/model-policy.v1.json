@@ -294,7 +294,9 @@
       "lifecycle": "current",
       "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
       "source_date": "2026-11-21T00:00:00Z",
-      "successor_of": ["anthropic/opus"],
+      "successor_of": [
+        "anthropic/opus"
+      ],
       "hosts": {
         "claude-code": "claude-opus-5-5"
       },
@@ -305,7 +307,9 @@
       "lifecycle": "current",
       "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
       "source_date": "2026-11-21T00:00:00Z",
-      "successor_of": ["anthropic/sonnet"],
+      "successor_of": [
+        "anthropic/sonnet"
+      ],
       "hosts": {
         "claude-code": "claude-sonnet-5-5"
       },
@@ -329,7 +333,8 @@
       "source_date": "2026-11-21T00:00:00Z",
       "successor_of": [],
       "hosts": {
-        "gemini-cli": "gemini-4-neon"
+        "gemini-cli": "gemini-4-neon",
+        "antigravity-cli": "gemini-4-neon"
       },
       "adoption": []
     }

@@ -28,7 +28,7 @@ from types import MappingProxyType
 
 OBSERVATION_SCHEMA = 'model-observation/v1'
 ERROR_SCHEMA = 'model-policy-error/v1'
-HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli')
+HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'antigravity-cli', 'gemini-cli')
 EFFORTS = ('minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra')
 SOURCES = ('live-discovery', 'verified-configuration', 'unsupported')
 STATUSES = ('complete', 'incomplete', 'unavailable')
@@ -1888,7 +1888,7 @@ def _parse_discover(argv):
     if set(options) != set(DISCOVER_OPTIONS):
         raise _invalid('discover requires --host, --scope-id and --output exactly once.')
     if not _member(options['--host'], HOSTS):
-        raise _invalid('--host must be one of claude-code, codex-cli, copilot-cli, gemini-cli.')
+        raise _invalid('--host must be one of claude-code, codex-cli, copilot-cli, antigravity-cli, gemini-cli.')
     if not ID_RE.fullmatch(options['--scope-id']):
         raise _invalid('--scope-id must be a short nonsecret identifier.')
     return options['--host'], options['--scope-id'], _output_path(options['--output'])

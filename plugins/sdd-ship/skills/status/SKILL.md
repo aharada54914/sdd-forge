@@ -151,8 +151,8 @@ one private Artifact, reusing its returned URL on updates.
 The generated page's explicit adapter contract is
 `window.sddDashboardRead: () => Promise<Snapshot>`. Before publishing, bind this
 function using that host's real, declared read-only connector calls to the
-`get_dashboard_snapshot` tool. The callback must return the structured snapshot
-(or parse the MCP text envelope) and propagate errors. This is an SDD-owned
+`sdd_dashboard_snapshot` tool. The callback must unwrap the `Result<T>`
+envelope (`data.snapshot`) and propagate errors. This is an SDD-owned
 adapter contract, not a claim that Claude exposes a function with this name.
 Do not invoke an LLM to reconstruct state on each refresh.
 

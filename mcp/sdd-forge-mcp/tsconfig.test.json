@@ -11,8 +11,15 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "dist-test",
-    "rootDir": ".",
+    "rootDir": "../..",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "tests/**/*.ts", "scripts/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "tests/**/*.ts",
+    "scripts/**/*.ts",
+    "../../plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+    "../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs"
+  ]
 }

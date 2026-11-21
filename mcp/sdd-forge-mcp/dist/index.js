@@ -3228,8 +3228,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path7) {
-      let input = path7;
+    function removeDotSegments(path3) {
+      let input = path3;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -3481,8 +3481,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path7, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path7 && path7 !== "/" ? path7 : void 0;
+        const [path3, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path3 && path3 !== "/" ? path3 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -6875,12 +6875,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f;
     };
-    function addFormats(ajv, list, fs7, exportName) {
+    function addFormats(ajv, list, fs, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f of list)
-        ajv.addFormat(f, fs7[f]);
+        ajv.addFormat(f, fs[f]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -7657,10 +7657,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema2) {
   return mergeDefs(schema2._zod.def);
 }
-function getElementAtPath(obj, path7) {
-  if (!path7)
+function getElementAtPath(obj, path3) {
+  if (!path3)
     return obj;
-  return path7.reduce((acc, key) => acc?.[key], obj);
+  return path3.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -8069,11 +8069,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path7, issues) {
+function prefixIssues(path3, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path7);
+    iss.path.unshift(path3);
     return iss;
   });
 }
@@ -8220,16 +8220,16 @@ function flattenError(error51, mapper = (issue2) => issue2.message) {
 }
 function formatError(error51, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error52, path7 = []) => {
+  const processError = (error52, path3 = []) => {
     for (const issue2 of error52.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path7, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path3, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
       } else {
-        const fullpath = [...path7, ...issue2.path];
+        const fullpath = [...path3, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -8256,17 +8256,17 @@ function formatError(error51, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error51, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error52, path7 = []) => {
+  const processError = (error52, path3 = []) => {
     var _a3, _b;
     for (const issue2 of error52.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path7, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path3, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
       } else {
-        const fullpath = [...path7, ...issue2.path];
+        const fullpath = [...path3, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -8298,8 +8298,8 @@ function treeifyError(error51, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path7 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path7) {
+  const path3 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path3) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -20991,13 +20991,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path7 = ref.slice(1).split("/").filter(Boolean);
-  if (path7.length === 0) {
+  const path3 = ref.slice(1).split("/").filter(Boolean);
+  if (path3.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path7[0] === defsKey) {
-    const key = path7[1];
+  if (path3[0] === defsKey) {
+    const key = path3[1];
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -23441,8 +23441,8 @@ function getErrorMap2() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path7, errorMaps, issueData } = params;
-  const fullPath = [...path7, ...issueData.path || []];
+  const { data, path: path3, errorMaps, issueData } = params;
+  const fullPath = [...path3, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -23557,11 +23557,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path7, key) {
+  constructor(parent, value, path3, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path7;
+    this._path = path3;
     this._key = key;
   }
   get path() {
@@ -28386,13 +28386,13 @@ var zodToJsonSchema = (schema2, options) => {
     }, true) ?? parseAnyDef(refs)
   }), {}) : void 0;
   const name = typeof options === "string" ? options : options?.nameStrategy === "title" ? void 0 : options?.name;
-  const main3 = parseDef(schema2._def, name === void 0 ? refs : {
+  const main2 = parseDef(schema2._def, name === void 0 ? refs : {
     ...refs,
     currentPath: [...refs.basePath, refs.definitionPath, name]
   }, false) ?? parseAnyDef(refs);
   const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
   if (title !== void 0) {
-    main3.title = title;
+    main2.title = title;
   }
   if (refs.flags.hasReferencedOpenAiAnyType) {
     if (!definitions) {
@@ -28413,9 +28413,9 @@ var zodToJsonSchema = (schema2, options) => {
     }
   }
   const combined = name === void 0 ? definitions ? {
-    ...main3,
+    ...main2,
     [refs.definitionPath]: definitions
-  } : main3 : {
+  } : main2 : {
     $ref: [
       ...refs.$refStrategy === "relative" ? [] : refs.basePath,
       refs.definitionPath,
@@ -28423,7 +28423,7 @@ var zodToJsonSchema = (schema2, options) => {
     ].join("/"),
     [refs.definitionPath]: {
       ...definitions,
-      [name]: main3
+      [name]: main2
     }
   };
   if (refs.target === "jsonSchema7") {
@@ -31273,14 +31273,25 @@ function err(code, message, details) {
 var ALLOWLISTED_DIRECTORIES = [
   "specs",
   "reports",
+  "sdd/knowledge",
   "docs/review-tickets",
   "docs/workflow-improvements"
 ];
-var ALLOWLISTED_FILES = ["AGENTS.md", "dashboard-labels.json"];
+var ALLOWLISTED_FILES = [
+  "AGENTS.md",
+  "dashboard-labels.json",
+  "sdd/guardrails.yaml",
+  "sdd/guardrails.json",
+  ".sdd/drift-events.jsonl",
+  ".sdd/factory-metrics.jsonl"
+];
 var DENYLISTED_BASENAMES = /* @__PURE__ */ new Set([
   ["SDD", "SUDO"].join("_"),
   ".env"
 ]);
+function isDenylistedBasename(component) {
+  return DENYLISTED_BASENAMES.has(component) || /^\.env(?:\..+)?$/i.test(component);
+}
 var MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
 function evidenceKeyPath() {
   return resolve2(homedir(), ".sdd", "evidence-key");
@@ -31327,7 +31338,7 @@ function isAllowlisted(root, resolvedPath) {
   return false;
 }
 function hasDenylistedComponent(root, candidatePath) {
-  return relative(root.path, candidatePath).split(sep).some((component) => DENYLISTED_BASENAMES.has(component));
+  return relative(root.path, candidatePath).split(sep).some((component) => isDenylistedBasename(component));
 }
 function resolvedEvidenceKeyPath() {
   try {
@@ -31543,6 +31554,76 @@ function hasProjectContext(root) {
     return !(error51 instanceof Error && "code" in error51 && error51.code === "ENOENT");
   }
 }
+function listGuardedDirectEntries(root, relDir) {
+  const guardResult = resolveGuardedDirectory(root, relDir);
+  if (!guardResult.ok) return [];
+  const realEvidenceKeyPath = resolvedEvidenceKeyPath();
+  let names;
+  try {
+    names = readdirSync(guardResult.data.resolvedPath);
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const name of names) {
+    const absEntry = join(guardResult.data.resolvedPath, name);
+    let realEntry;
+    let stats;
+    try {
+      realEntry = realpathSync2(absEntry);
+      stats = statSync2(realEntry);
+    } catch {
+      continue;
+    }
+    if (!isAllowlisted(root, realEntry)) continue;
+    if (isDenylisted(root, absEntry, realEntry, realEvidenceKeyPath)) continue;
+    out.push({
+      name,
+      isFile: stats.isFile(),
+      isDirectory: stats.isDirectory()
+    });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+function guardedStatMtimeMs(root, relPath) {
+  const guardResult = resolveGuarded(root, relPath);
+  if (!guardResult.ok) return null;
+  try {
+    const st = statSync2(guardResult.data.resolvedPath);
+    return Number.isFinite(st.mtimeMs) ? st.mtimeMs : null;
+  } catch {
+    return null;
+  }
+}
+function guardedDirExists(root, relDir) {
+  return resolveGuardedDirectory(root, relDir).ok;
+}
+function createGuardedIo(root) {
+  return {
+    exists(relPath) {
+      if (relPath === "AGENT_STOP") {
+        try {
+          lstatSync(join(root.path, "AGENT_STOP"));
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      return guardedExists(root, relPath);
+    },
+    readText(relPath) {
+      const res = guardedRead(root, relPath);
+      return res.ok ? res.data.contents : null;
+    },
+    listDir(relDir) {
+      if (!relDir) return [];
+      return listGuardedDirectEntries(root, relDir);
+    },
+    statMtimeMs(relPath) {
+      return guardedStatMtimeMs(root, relPath);
+    }
+  };
+}
 
 // src/parsers/report-lookup.ts
 function escapeRegExp(value) {
@@ -31600,9 +31681,9 @@ function createReportLookup() {
     if (snapshot === void 0) {
       const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
       const readable = [];
-      for (const path7 of files) {
-        const read = guardedRead(root, path7);
-        if (read.ok) readable.push({ path: path7, contents: read.data.contents });
+      for (const path3 of files) {
+        const read = guardedRead(root, path3);
+        if (read.ok) readable.push({ path: path3, contents: read.data.contents });
       }
       snapshot = { files: readable, errors };
       directories.set(relDir, snapshot);
@@ -34818,20 +34899,20 @@ function normalizeRelPath(raw) {
   if (typeof raw !== "string") {
     return void 0;
   }
-  let path7 = raw.trim().replace(/\\/g, "/");
-  if (path7.length === 0) {
+  let path3 = raw.trim().replace(/\\/g, "/");
+  if (path3.length === 0) {
     return void 0;
   }
-  if (path7.startsWith("/") || /^[A-Za-z]:/.test(path7)) {
+  if (path3.startsWith("/") || /^[A-Za-z]:/.test(path3)) {
     return void 0;
   }
-  if (/(^|\/)\.\.(\/|$)/.test(path7)) {
+  if (/(^|\/)\.\.(\/|$)/.test(path3)) {
     return void 0;
   }
-  while (path7.startsWith("./")) {
-    path7 = path7.slice(2);
+  while (path3.startsWith("./")) {
+    path3 = path3.slice(2);
   }
-  return path7.length > 0 ? path7 : void 0;
+  return path3.length > 0 ? path3 : void 0;
 }
 function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   const failures = [];
@@ -35791,18 +35872,11 @@ var DashboardReader = class {
   }
 };
 
-// src/tools/v2.ts
-import fs6 from "node:fs";
-import path6 from "node:path";
-
-// ../../plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
-import fs2 from "node:fs";
+// ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
 import path2 from "node:path";
-import { pathToFileURL } from "node:url";
 
-// ../../plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs
+// ../../plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
 import crypto from "node:crypto";
-import fs from "node:fs";
 import path from "node:path";
 var DEFAULT_CONFIG = Object.freeze({
   schema: "sdd-guardrails/v1",
@@ -35811,7 +35885,6 @@ var DEFAULT_CONFIG = Object.freeze({
     protected_globs: [
       "specs/*/requirements.md",
       "specs/*/design.md",
-      "specs/*/acceptance-tests.md",
       "specs/*/tasks.md"
     ],
     allow_amendment_section: true
@@ -35823,6 +35896,9 @@ var DEFAULT_CONFIG = Object.freeze({
   risk_defaults: {
     default_tier: "standard",
     high_risk_paths: ["**/auth/**", "**/billing/**", "**/migrations/**"]
+  },
+  limits: {
+    max_auto_fix_rounds: 2
   }
 });
 var VALID_MODES = /* @__PURE__ */ new Set(["warn", "confirm", "strict"]);
@@ -35846,38 +35922,25 @@ function toPosixPath(filePath) {
 function normalizeRelPath2(filePath) {
   return toPosixPath(filePath).trim().replace(/^\.\//, "").replace(/\/+$/, "");
 }
+function sanitizeRelPath(relPath) {
+  if (typeof relPath !== "string" || relPath.length === 0 || relPath.includes("\0")) {
+    return null;
+  }
+  if (relPath.includes("\\") || path.isAbsolute(relPath) || relPath.startsWith("/")) {
+    return null;
+  }
+  const normalized = relPath.replace(/^\.\//, "").replace(/\/+$/, "");
+  if (!normalized) return null;
+  const segments = normalized.split("/");
+  if (segments.some((s) => s === "" || s === "." || s === "..")) {
+    return null;
+  }
+  return normalized;
+}
 function assertValidFeatureName(feature) {
   if (typeof feature !== "string" || !feature || /[\\/\0]/.test(feature) || feature === "." || feature === "..") {
     throw new Error(`Invalid feature name: ${feature}`);
   }
-}
-function safeRealpath(targetPath) {
-  try {
-    return fs.realpathSync(targetPath);
-  } catch {
-    return path.resolve(targetPath);
-  }
-}
-function findGitRoot(startDir) {
-  let current = path.resolve(startDir || process.cwd());
-  for (let i = 0; i < 25; i += 1) {
-    if (fs.existsSync(path.join(current, ".git"))) {
-      return current;
-    }
-    const parent = path.dirname(current);
-    if (parent === current) break;
-    current = parent;
-  }
-  return null;
-}
-function findProjectRoot(startDir) {
-  const envRoot = process.env.CLAUDE_PROJECT_DIR || process.env.SDD_PROJECT_ROOT;
-  if (envRoot && fs.existsSync(envRoot)) {
-    return safeRealpath(envRoot);
-  }
-  const gitRoot = findGitRoot(startDir || process.cwd());
-  if (gitRoot) return safeRealpath(gitRoot);
-  return safeRealpath(startDir || process.cwd());
 }
 function stripYamlComment(line) {
   let inSingle = false;
@@ -35956,26 +36019,12 @@ function parseSimpleYaml(text) {
   }
   return root;
 }
-function loadGuardrailsConfig(projectRoot) {
-  const root = safeRealpath(projectRoot || findProjectRoot());
-  const jsonPath = path.join(root, "sdd", "guardrails.json");
-  const yamlPath = path.join(root, "sdd", "guardrails.yaml");
-  let parsed = null;
-  let sourcePath = null;
-  try {
-    if (fs.existsSync(jsonPath)) {
-      parsed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
-      sourcePath = jsonPath;
-    } else if (fs.existsSync(yamlPath)) {
-      parsed = parseSimpleYaml(fs.readFileSync(yamlPath, "utf8"));
-      sourcePath = yamlPath;
-    }
-  } catch {
-    parsed = null;
-  }
+function normalizeGuardrailsConfig(parsed, sourcePath = null) {
   const sg = parsed && typeof parsed.spec_guard === "object" && parsed.spec_guard ? parsed.spec_guard : {};
   const rv = parsed && typeof parsed.review === "object" && parsed.review ? parsed.review : {};
   const rd = parsed && typeof parsed.risk_defaults === "object" && parsed.risk_defaults ? parsed.risk_defaults : {};
+  const lm = parsed && typeof parsed.limits === "object" && parsed.limits ? parsed.limits : {};
+  const maxAutoFix = typeof lm.max_auto_fix_rounds === "number" && Number.isInteger(lm.max_auto_fix_rounds) && lm.max_auto_fix_rounds >= 0 && lm.max_auto_fix_rounds <= 10 ? lm.max_auto_fix_rounds : DEFAULT_CONFIG.limits.max_auto_fix_rounds;
   return {
     schema: "sdd-guardrails/v1",
     sourcePath,
@@ -35991,6 +36040,9 @@ function loadGuardrailsConfig(projectRoot) {
     risk_defaults: {
       default_tier: VALID_RISK_TIERS.has(rd.default_tier) ? rd.default_tier : DEFAULT_CONFIG.risk_defaults.default_tier,
       high_risk_paths: Array.isArray(rd.high_risk_paths) && rd.high_risk_paths.length > 0 ? rd.high_risk_paths.map((p) => String(p)) : [...DEFAULT_CONFIG.risk_defaults.high_risk_paths]
+    },
+    limits: {
+      max_auto_fix_rounds: maxAutoFix
     }
   };
 }
@@ -36022,27 +36074,8 @@ function globToRegExp(glob) {
   out += "$";
   return new RegExp(out, "i");
 }
-function toProjectRelativePath(filePath, projectRoot, cwd) {
-  if (!filePath) return null;
-  const root = safeRealpath(projectRoot);
-  const abs = path.isAbsolute(filePath) ? filePath : path.resolve(cwd || root, filePath);
-  let resolvedAbs = abs;
-  if (fs.existsSync(abs)) {
-    resolvedAbs = safeRealpath(abs);
-  } else {
-    const parent = path.dirname(abs);
-    if (fs.existsSync(parent)) {
-      resolvedAbs = path.join(safeRealpath(parent), path.basename(abs));
-    }
-  }
-  const rel = path.relative(root, resolvedAbs);
-  if (rel.startsWith("..") || path.isAbsolute(rel)) {
-    return null;
-  }
-  return toPosixPath(rel);
-}
-function matchProtectedSpecPath(filePath, projectRoot, config2, cwd) {
-  const rel = toProjectRelativePath(filePath, projectRoot, cwd);
+function matchProtectedSpecRelPath(relPath, config2) {
+  const rel = sanitizeRelPath(relPath);
   if (!rel) return null;
   const globs = config2 && config2.spec_guard && config2.spec_guard.protected_globs || DEFAULT_CONFIG.spec_guard.protected_globs;
   const matched = globs.some((pattern) => globToRegExp(pattern).test(rel));
@@ -36136,228 +36169,98 @@ ${afterAmendments}` : beforeAmendments;
   return map3;
 }
 
-// ../../plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
-function checkSpecDrift({ feature, projectRoot, baselinePath }) {
-  if (!feature || /[\\/]/.test(feature) || feature === "." || feature === "..") {
-    throw new Error(`Invalid feature name: ${feature}`);
-  }
-  const root = findProjectRoot(projectRoot);
-  const resolvedBaselinePath = baselinePath ? path2.resolve(baselinePath) : path2.join(root, "specs", feature, ".spec-baseline.json");
-  if (!fs2.existsSync(resolvedBaselinePath)) {
-    throw new Error(`Baseline file not found: ${resolvedBaselinePath}`);
-  }
-  const baseline = JSON.parse(fs2.readFileSync(resolvedBaselinePath, "utf8"));
-  const config2 = loadGuardrailsConfig(root);
-  const featureDir = path2.join(root, "specs", feature);
-  const changedFiles = [];
-  const deletedFiles = [];
-  const addedFiles = [];
-  const removedIdentifiers = [];
-  const modifiedIdentifiers = [];
-  const addedIdentifiers = [];
-  const allCurrentAmendments = [];
-  for (const [relPath, baseInfo] of Object.entries(baseline.files || {})) {
-    const absPath = path2.join(root, relPath);
-    const baseIds = baseInfo.identifiers || {};
-    if (!fs2.existsSync(absPath)) {
-      deletedFiles.push(relPath);
-      for (const [id, info] of Object.entries(baseIds)) {
-        removedIdentifiers.push({ id, file: relPath, before: info.line });
-      }
-      continue;
-    }
-    const rawText = fs2.readFileSync(absPath, "utf8");
-    const contractHash = sha256Text(canonicalSpecContractText(rawText, baseInfo.fileName));
-    if (contractHash !== baseInfo.contractSha256) {
-      changedFiles.push(relPath);
-    }
-    const curIds = extractSpecIdentifiers(rawText);
-    for (const [id, baseIdInfo] of Object.entries(baseIds)) {
-      const cur = curIds[id];
-      if (!cur) {
-        removedIdentifiers.push({ id, file: relPath, before: baseIdInfo.line });
-      } else if (cur.hash !== baseIdInfo.hash) {
-        modifiedIdentifiers.push({ id, file: relPath, before: baseIdInfo.line, after: cur.line });
-      }
-    }
-    for (const [id, cur] of Object.entries(curIds)) {
-      if (!baseIds[id]) {
-        addedIdentifiers.push({ id, file: relPath, after: cur.line });
-      }
-    }
-    const amendments = extractAmendmentEntries(rawText);
-    for (const entry of amendments) {
-      allCurrentAmendments.push({ file: relPath, text: entry });
-    }
-  }
-  if (fs2.existsSync(featureDir)) {
-    for (const entry of fs2.readdirSync(featureDir, { withFileTypes: true })) {
-      if (!entry.isFile() || entry.name.startsWith(".")) continue;
-      const fullPath = path2.join(featureDir, entry.name);
-      const matched = matchProtectedSpecPath(fullPath, root, config2, root);
-      if (!matched || baseline.files[matched.relPath]) continue;
-      addedFiles.push(matched.relPath);
-      const rawText = fs2.readFileSync(fullPath, "utf8");
-      for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
-        addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
-      }
-      for (const item of extractAmendmentEntries(rawText)) {
-        allCurrentAmendments.push({ file: matched.relPath, text: item });
-      }
-    }
-  }
-  const hasDrift = changedFiles.length > 0 || deletedFiles.length > 0 || addedFiles.length > 0 || removedIdentifiers.length > 0 || modifiedIdentifiers.length > 0;
-  const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
-  const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
-  let status = "CLEAN";
-  if (hasDrift) {
-    status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
-  }
-  return {
-    schema: "sdd-spec-drift/v1",
-    feature,
-    status,
-    baselineRecordedAt: baseline.recordedAt || null,
-    baselineGitHead: baseline.gitHead || null,
-    changedFiles,
-    deletedFiles,
-    addedFiles,
-    removedIdentifiers,
-    modifiedIdentifiers,
-    addedIdentifiers,
-    amendments: allCurrentAmendments,
-    baselineAmendmentCount
-  };
-}
-function formatDriftMarkdown(report) {
-  const badge = report.status === "CLEAN" ? "\u2705 CLEAN" : report.status === "AMENDED" ? "\u{1F4DD} AMENDED (Reviewable)" : "\u26A0\uFE0F UNDECLARED_DRIFT";
-  const lines = [
-    `## Spec Drift Check: \`${report.feature}\` \u2014 ${badge}`,
-    "",
-    `- **Status**: \`${report.status}\``,
-    `- **Baseline**: ${report.baselineRecordedAt || "unknown"} (HEAD: \`${report.baselineGitHead || "n/a"}\`)`
-  ];
-  if (report.status === "CLEAN") {
-    lines.push("- \u627F\u8A8D\u6E08\u307F\u4ED5\u69D8\u30D5\u30A1\u30A4\u30EB\u306B\u5B9F\u8CEA\u7684\u306A\u5909\u66F4\u306F\u3042\u308A\u307E\u305B\u3093\uFF08`tasks.md` \u306E `Status:` \u66F4\u65B0\u306E\u307F\u8A31\u5BB9\uFF09\u3002");
-    return `${lines.join("\n")}
-`;
-  }
-  if (report.changedFiles.length > 0) {
-    lines.push(`- **Changed files**: ${report.changedFiles.map((f) => `\`${f}\``).join(", ")}`);
-  }
-  if (report.deletedFiles.length > 0) {
-    lines.push(`- **Deleted files**: ${report.deletedFiles.map((f) => `\`${f}\``).join(", ")}`);
-  }
-  if (report.addedFiles.length > 0) {
-    lines.push(`- **Added files**: ${report.addedFiles.map((f) => `\`${f}\``).join(", ")}`);
-  }
-  if (report.removedIdentifiers.length > 0) {
-    lines.push("", "### Removed REQ / AC Identifiers");
-    for (const item of report.removedIdentifiers) {
-      lines.push(`- **${item.id}** (\`${item.file}\`): ~~${item.before}~~`);
-    }
-  }
-  if (report.modifiedIdentifiers.length > 0) {
-    lines.push("", "### Modified REQ / AC Identifiers");
-    for (const item of report.modifiedIdentifiers) {
-      lines.push(`- **${item.id}** (\`${item.file}\`)`);
-      lines.push(`  - Before: ${item.before}`);
-      lines.push(`  - After: ${item.after}`);
-    }
-  }
-  if (report.addedIdentifiers.length > 0) {
-    lines.push("", "### Added REQ / AC Identifiers");
-    for (const item of report.addedIdentifiers) {
-      lines.push(`- **${item.id}** (\`${item.file}\`): ${item.after}`);
-    }
-  }
-  if (report.amendments.length > 0) {
-    lines.push("", "### Declared Spec Amendments");
-    for (const a of report.amendments) {
-      lines.push(`- (\`${a.file}\`) ${a.text}`);
-    }
-  } else if (report.status === "UNDECLARED_DRIFT") {
-    lines.push(
-      "",
-      "> **Action Required**: \u4ED5\u69D8\u5909\u66F4\u306E\u7406\u7531\u304C `## Spec Amendments` \u306B\u8A18\u9332\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002\u610F\u56F3\u3057\u306A\u3044\u6539\u5909\u306A\u3089\u5143\u306B\u623B\u3057\u3001\u610F\u56F3\u7684\u306A\u4ED5\u69D8\u5909\u66F4\u3067\u3042\u308C\u3070\u30E6\u30FC\u30B6\u30FC\u5408\u610F\u306E\u3046\u3048 `## Spec Amendments` \u306B\u7406\u7531\u3092\u8FFD\u8A18\u3057\u3066\u304F\u3060\u3055\u3044\u3002"
-    );
-  }
-  return `${lines.join("\n")}
-`;
-}
-function parseArgs2(argv) {
-  const opts = {
-    feature: null,
-    root: null,
-    baseline: null,
-    format: "json",
-    failOnUndeclared: false
-  };
-  for (let i = 0; i < argv.length; i += 1) {
-    if (argv[i] === "--feature" && argv[i + 1]) {
-      opts.feature = argv[i + 1];
-      i += 1;
-    } else if (argv[i] === "--root" && argv[i + 1]) {
-      opts.root = argv[i + 1];
-      i += 1;
-    } else if (argv[i] === "--baseline" && argv[i + 1]) {
-      opts.baseline = argv[i + 1];
-      i += 1;
-    } else if (argv[i] === "--format" && argv[i + 1]) {
-      opts.format = argv[i + 1];
-      i += 1;
-    } else if (argv[i] === "--fail-on-undeclared") {
-      opts.failOnUndeclared = true;
-    }
-  }
-  return opts;
-}
-function main() {
-  const opts = parseArgs2(process.argv.slice(2));
-  if (!opts.feature) {
-    process.stderr.write(
-      "Usage: node check-spec-drift.mjs --feature <feature> [--root <dir>] [--baseline <path>] [--format json|markdown] [--fail-on-undeclared]\n"
-    );
-    process.exit(2);
-  }
-  try {
-    const report = checkSpecDrift({
-      feature: opts.feature,
-      projectRoot: opts.root || process.cwd(),
-      baselinePath: opts.baseline
-    });
-    if (opts.format === "markdown") {
-      process.stdout.write(formatDriftMarkdown(report));
-    } else {
-      process.stdout.write(`${JSON.stringify(report, null, 2)}
-`);
-    }
-    if (opts.failOnUndeclared && report.status === "UNDECLARED_DRIFT") {
-      process.exit(1);
-    }
-    process.exit(0);
-  } catch (err2) {
-    process.stderr.write(`check-spec-drift error: ${err2.message}
-`);
-    process.exit(2);
-  }
-}
-if (process.argv[1] && path2.basename(process.argv[1]) === "check-spec-drift.mjs" && import.meta.url === pathToFileURL(path2.resolve(process.argv[1])).href) {
-  main();
-}
-
-// ../../plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs
-import fs4 from "node:fs";
-import path4 from "node:path";
-import { pathToFileURL as pathToFileURL3 } from "node:url";
-
-// ../../plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs
-import fs3 from "node:fs";
-import path3 from "node:path";
-import { pathToFileURL as pathToFileURL2 } from "node:url";
+// ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
 var CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
 var PLACEHOLDER_CELL_RE = /^<[^<>]+>$/;
 var SEPARATOR_CELL_RE = /^:?-+:?$/;
+var MAX_SKILL_DESCRIPTION_CHARS = 1024;
+var CONTROL_CHAR_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F]/;
+var NON_ASCII_RE = /[^\x00-\x7F]/;
+var IGNORED_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", "build", ".next", "__pycache__", ".venv"]);
+var NON_CHECKS = Object.freeze([
+  "\u4ED5\u69D8\u30FB\u8A2D\u8A08\u30FB\u30C9\u30E1\u30A4\u30F3\u30E2\u30C7\u30EB\u306E\u610F\u5473\u7684\u59A5\u5F53\u6027\u3084\u6587\u66F8\u9593\u306E\u5185\u5BB9\u77DB\u76FE",
+  "\u30C6\u30B9\u30C8\u30B1\u30FC\u30B9\u306E\u7DB2\u7F85\u6027\u30FB\u30D7\u30ED\u30C0\u30AF\u30B7\u30E7\u30F3\u30B3\u30FC\u30C9\u306E\u8AD6\u7406\u30D0\u30B0\u3084\u6027\u80FD",
+  "\u30AF\u30E9\u30A6\u30C9\u74B0\u5883\uFF08AWS/Azure\uFF09\u3084\u672C\u756A\u30C7\u30FC\u30BF\u30D9\u30FC\u30B9\u306E\u5B9F\u72B6\u614B\u30FB\u8A8D\u8A3C\u6709\u52B9\u6027",
+  "\u5916\u90E8\u30DB\u30B9\u30C8 CLI\uFF08Claude Code / Codex / Copilot / Antigravity / Gemini\uFF09\u5185\u90E8\u306E\u975E\u516C\u958B\u6319\u52D5"
+]);
+var COMMON_REVIEW_PERSPECTIVES = Object.freeze([
+  {
+    id: "C01",
+    area: "\u8A2D\u8A08\u65B9\u91DD",
+    perspective: "\u65B9\u91DD\u6574\u5408\u3068\u975E\u81EA\u660E\u5224\u65AD\u306E\u6839\u62E0",
+    humanQuestion: "\u8981\u4EF6\u306E\u5927\u67A0\u306B\u6CBF\u3063\u3066\u304A\u308A\u3001\u975E\u81EA\u660E\u306A\u8A2D\u8A08\u5224\u65AD\uFF08\u63A1\u3089\u306A\u304B\u3063\u305F\u6848\u3092\u542B\u3080\uFF09\u306B\u7D0D\u5F97\u611F\u304C\u3042\u308B\u304B\uFF1F",
+    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
+  },
+  {
+    id: "C02",
+    area: "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB",
+    perspective: "\u7C92\u5EA6\u30FB\u96C6\u7D04\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6",
+    humanQuestion: "\u30C7\u30FC\u30BF\u69CB\u9020\u306E\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u3092\u5B88\u308B\u5834\u6240\u304C\u30C9\u30E1\u30A4\u30F3\u306E\u8CAC\u52D9\u3068\u5408\u3063\u3066\u3044\u308B\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  },
+  {
+    id: "C03",
+    area: "API I/F",
+    perspective: "CRUD \u5916\u306E\u5951\u7D04\u30FB\u30A8\u30E9\u30FC\u5FDC\u7B54\u30FB\u8A8D\u53EF",
+    humanQuestion: "\u5916\u90E8\u5951\u7D04\uFF08\u7834\u58CA\u7684\u5909\u66F4\u30FB\u30A8\u30E9\u30FC\u30B3\u30FC\u30C9\u30FB\u8A8D\u53EF\u6761\u4EF6\uFF09\u304C\u547C\u3073\u51FA\u3057\u5143\u3068\u77DB\u76FE\u3057\u306A\u3044\u304B\uFF1F",
+    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
+  },
+  {
+    id: "C04",
+    area: "\u72B6\u614B\u9077\u79FB",
+    perspective: "\u7570\u5E38\u30EB\u30FC\u30C8\u30FB\u7AF6\u5408\u30FB\u9806\u5E8F\u6027",
+    humanQuestion: "\u7570\u5E38\u7CFB\u30FB\u4E26\u5217\u5B9F\u884C\u30FB\u518D\u5B9F\u884C\u6642\u306E\u72B6\u614B\u9077\u79FB\u306B\u7834\u7DBB\u3084\u30C7\u30C3\u30C9\u30ED\u30C3\u30AF\u304C\u306A\u3044\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  },
+  {
+    id: "C05",
+    area: "\u30B7\u30B9\u30C6\u30E0\u9593\u9023\u643A",
+    perspective: "\u5916\u90E8\u9023\u643A\u30B7\u30FC\u30B1\u30F3\u30B9\u30FB\u4E0D\u53EF\u9006\u64CD\u4F5C\u70B9",
+    humanQuestion: "\u9001\u4FE1\u30FB\u78BA\u5B9A\u30FB\u8AB2\u91D1\u30FB\u5916\u90E8\u66F8\u8FBC\u306A\u3069\u623B\u305B\u306A\u3044\u5883\u754C\u306E\u30ED\u30FC\u30EB\u30D0\u30C3\u30AF\uFF0F\u51AA\u7B49\u6027\u304C\u62C5\u4FDD\u3055\u308C\u3066\u3044\u308B\u304B\uFF1F",
+    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
+  },
+  {
+    id: "C06",
+    area: "\u696D\u52D9\u30EB\u30FC\u30EB",
+    perspective: "\u30C9\u30E1\u30A4\u30F3\u4E0D\u5909\u6761\u4EF6\u30FB\u5883\u754C\u5024\uFF08\u30BC\u30ED/\u4E0A\u9650/\u7AEF\u6570\uFF09",
+    humanQuestion: "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u6CD5\u4EE4\u30FB\u5883\u754C\u5024\u30FB\u904E\u53BB\u5B9F\u7E3E\u306E\u6271\u3044\u304C\u4E8B\u696D\u610F\u56F3\u3068\u4E00\u81F4\u3057\u3066\u3044\u308B\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  },
+  {
+    id: "C07",
+    area: "\u8981\u6C42\u3068\u306E\u5BFE\u5FDC",
+    perspective: "REQ\u2194AC\u2194Task \u6574\u5408\u3068\u5148\u56DE\u308A\u8A2D\u8A08\u306E\u6291\u6B62",
+    humanQuestion: "\u5168 REQ/AC \u304C\u6F0F\u308C\u306A\u304F\u30BF\u30B9\u30AF\u3078\u843D\u3061\u3001\u8981\u4EF6\u5916\u306E\u904E\u5270\u8A2D\u8A08\u304C\u6DF7\u5165\u3057\u3066\u3044\u306A\u3044\u304B\uFF1F",
+    defaultDisposition: "\u6A5F\u68B0\u691C\u8A3C"
+  },
+  {
+    id: "C08",
+    area: "\u975E\u6A5F\u80FD\u9762",
+    perspective: "\u6A29\u9650\u30FB\u6027\u80FD\u30FB\u76E3\u67FB\u30FB\u5207\u623B\u3057",
+    humanQuestion: "\u8A8D\u8A3C/\u8A8D\u53EF\u30FB\u79D8\u5BC6\u60C5\u5831\u30FB\u6027\u80FD\u52A3\u5316\u30FB\u969C\u5BB3\u6642\u306E\u5207\u623B\u3057\u624B\u9806\u304C\u904B\u7528\u8981\u4EF6\u3092\u6E80\u305F\u3059\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  }
+]);
+function loadGuardrailsConfigFromIo(io) {
+  let parsed = null;
+  let sourcePath = null;
+  try {
+    const jsonRaw = io.readText("sdd/guardrails.json");
+    if (jsonRaw !== null) {
+      parsed = JSON.parse(jsonRaw);
+      sourcePath = "sdd/guardrails.json";
+    } else {
+      const yamlRaw = io.readText("sdd/guardrails.yaml");
+      if (yamlRaw !== null) {
+        parsed = parseSimpleYaml(yamlRaw);
+        sourcePath = "sdd/guardrails.yaml";
+      }
+    }
+  } catch {
+    parsed = null;
+  }
+  return normalizeGuardrailsConfig(parsed, sourcePath);
+}
 function stripFencedCodeBlocks(text) {
   const lines = normalizeNewlines(text || "").split("\n");
   const out = [];
@@ -36416,13 +36319,42 @@ function isOpenQuestionConfirmed(status) {
   const clean = unwrapMarkdownInline(status);
   return CONFIRMED_STATUS_RE.test(clean);
 }
-function parseOpenQuestions(markdownText) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(markdownText || "");
-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}
-
-${afterAmendments}` : beforeAmendments);
+function parseOpenQuestions(markdownText, sourceFile = null) {
+  const normalized = normalizeNewlines(markdownText || "");
+  const lines = normalized.split("\n");
   const items = [];
-  for (const line of body.split("\n")) {
+  let inFence = false;
+  let fenceChar = "";
+  let inAmendments = false;
+  let amendmentLevel = 0;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const fenceMatch = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      if (!inFence) {
+        inFence = true;
+        fenceChar = fenceMatch[1][0];
+      } else if (fenceMatch[1][0] === fenceChar) {
+        inFence = false;
+        fenceChar = "";
+      }
+      continue;
+    }
+    if (inFence) continue;
+    const amendMatch = line.match(/^(#{2,3})[ \t]+Spec Amendments[ \t]*$/i);
+    if (amendMatch) {
+      inAmendments = true;
+      amendmentLevel = amendMatch[1].length;
+      continue;
+    }
+    if (inAmendments) {
+      const nextHeading = line.match(/^(#{1,3})[ \t]+\S/);
+      if (nextHeading && nextHeading[1].length <= amendmentLevel) {
+        inAmendments = false;
+      } else {
+        continue;
+      }
+    }
     const cells = splitMarkdownTableRow(line);
     if (!cells || cells.length < 6) continue;
     const rawId = unwrapMarkdownInline(cells[0]);
@@ -36432,6 +36364,7 @@ ${afterAmendments}` : beforeAmendments);
     const rawImpacted = cells[6] || "";
     const impactedMatches = rawImpacted.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
     const impactedTasks = [...new Set(impactedMatches.map((t) => t.toUpperCase()))];
+    const lineNumber = i + 1;
     items.push({
       id: rawId.toUpperCase(),
       category: unwrapMarkdownInline(cells[1]) || "\u4E8B\u696D\u5224\u65AD",
@@ -36440,7 +36373,10 @@ ${afterAmendments}` : beforeAmendments);
       question: cells[4] || "",
       status,
       confirmed: isOpenQuestionConfirmed(status),
-      impactedTasks
+      impactedTasks,
+      sourceFile,
+      sourceLine: lineNumber,
+      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
     });
   }
   return items;
@@ -36466,27 +36402,48 @@ function mergeOpenQuestions(...lists) {
   }
   return [...byId.values()];
 }
-function parseAlternativesRejected(designText) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(designText || "");
-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}
-
-${afterAmendments}` : beforeAmendments);
-  const headingMatch = /^##[ \t]+.*(?:採らなかった設計|Alternatives Rejected).*$/im.exec(body);
-  if (!headingMatch) return [];
-  const rest = body.slice(headingMatch.index + headingMatch[0].length);
-  const nextHeading = /^##[ \t]+\S/m.exec(rest);
-  const section = nextHeading ? rest.slice(0, nextHeading.index) : rest;
+function parseAlternativesRejected(designText, sourceFile = null) {
+  const normalized = normalizeNewlines(designText || "");
+  const lines = normalized.split("\n");
   const items = [];
-  for (const line of section.split("\n")) {
+  let inFence = false;
+  let fenceChar = "";
+  let inSection = false;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const fenceMatch = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      if (!inFence) {
+        inFence = true;
+        fenceChar = fenceMatch[1][0];
+      } else if (fenceMatch[1][0] === fenceChar) {
+        inFence = false;
+        fenceChar = "";
+      }
+      continue;
+    }
+    if (inFence) continue;
+    if (/^##[ \t]+.*(?:採らなかった設計|Alternatives Rejected).*$/i.test(line)) {
+      inSection = true;
+      continue;
+    }
+    if (inSection && /^##[ \t]+\S/.test(line)) {
+      break;
+    }
+    if (!inSection) continue;
     const cells = splitMarkdownTableRow(line);
     if (!cells || cells.length < 3) continue;
     const first = unwrapMarkdownInline(cells[0]);
     if (/^(?:候補案|Option|Alternative)$/i.test(first) || SEPARATOR_CELL_RE.test(first)) continue;
     if (PLACEHOLDER_CELL_RE.test(first) || /^（?該当なし）?$/.test(first)) continue;
+    const lineNumber = i + 1;
     items.push({
       option: cells[0],
       reason: cells[1],
-      revisitWhen: cells[2]
+      revisitWhen: cells[2],
+      sourceFile,
+      sourceLine: lineNumber,
+      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
     });
   }
   return items;
@@ -36499,6 +36456,33 @@ function extractTaskBlockers(taskBlock) {
   const section = nextSub ? rest.slice(0, nextSub.index) : rest;
   const ids = section.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
   return [...new Set(ids.map((id) => id.toUpperCase()))];
+}
+function extractScopePaths(taskBlock) {
+  const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
+  if (!scopeMatch) return [];
+  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const paths = [];
+  for (const line of section.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("-")) continue;
+    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => normalizeRelPath2(m[1])).filter(Boolean);
+    if (backtickMatches.length > 0) {
+      paths.push(...backtickMatches);
+    } else {
+      const bare = normalizeRelPath2(trimmed.replace(/^-\s*/, ""));
+      if (bare && !/^<[^<>]+>$/.test(bare)) paths.push(bare);
+    }
+  }
+  return [...new Set(paths)];
+}
+function normalizeRiskTier(raw, fallback = "standard") {
+  const value = String(raw || "").trim().toLowerCase();
+  if (value === "high" || value === "critical") return "high";
+  if (value === "standard" || value === "medium") return "standard";
+  if (value === "low") return "low";
+  return fallback;
 }
 function parseTasksSummary(tasksText) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || "");
@@ -36518,7 +36502,7 @@ ${afterAmendments}` : beforeAmendments);
     const block = body.slice(start, end);
     const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || "Draft";
     const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || "Planned";
-    const risk = ((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1]?.trim() || "standard").toLowerCase();
+    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], "standard");
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
     const taskId = taskMatch[1].toUpperCase();
     const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
@@ -36568,295 +36552,6 @@ function detectDomains(combinedText) {
   }
   return [...domains];
 }
-function buildDecisionViewData({ feature, projectRoot }) {
-  assertValidFeatureName(feature);
-  const root = findProjectRoot(projectRoot);
-  const featureDir = path3.join(root, "specs", feature);
-  if (!fs3.existsSync(featureDir)) {
-    throw new Error(`Feature directory not found: specs/${feature}`);
-  }
-  const reqPath = path3.join(featureDir, "requirements.md");
-  const designPath = path3.join(featureDir, "design.md");
-  const tasksPath = path3.join(featureDir, "tasks.md");
-  const reqText = fs3.existsSync(reqPath) ? fs3.readFileSync(reqPath, "utf8") : "";
-  const designText = fs3.existsSync(designPath) ? fs3.readFileSync(designPath, "utf8") : "";
-  const tasksText = fs3.existsSync(tasksPath) ? fs3.readFileSync(tasksPath, "utf8") : "";
-  const openQuestions = mergeOpenQuestions(parseOpenQuestions(reqText), parseOpenQuestions(designText));
-  const alternativesRejected = parseAlternativesRejected(designText);
-  const tasks = parseTasksSummary(tasksText);
-  const identifiers = extractSpecIdentifiers(reqText);
-  const reqIds = Object.keys(identifiers).filter((id) => id.startsWith("REQ-"));
-  const acIds = Object.keys(identifiers).filter((id) => id.startsWith("AC-"));
-  const domains = detectDomains(`${reqText}
-${designText}
-${tasksText}`);
-  const specCheckPath = path3.join(root, "reports", "spec-check", `${feature}.md`);
-  let specCheckVerdict = "Not Run";
-  if (fs3.existsSync(specCheckPath)) {
-    const sc = fs3.readFileSync(specCheckPath, "utf8");
-    specCheckVerdict = (sc.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || "Recorded";
-  }
-  const gateDir = path3.join(root, "reports", "quality-gate");
-  const gateResults = [];
-  if (fs3.existsSync(gateDir)) {
-    for (const file2 of fs3.readdirSync(gateDir).sort()) {
-      if (!file2.startsWith(`${feature}-`) || !file2.endsWith(".execution.json")) continue;
-      try {
-        const parsed = JSON.parse(fs3.readFileSync(path3.join(gateDir, file2), "utf8"));
-        if (parsed.feature !== feature) continue;
-        gateResults.push({
-          taskId: parsed.taskId,
-          verdict: parsed.verdict,
-          specDrift: parsed.checks?.specDrift?.status || "UNKNOWN",
-          sensorsPassed: parsed.checks?.nonFunctionalSensors?.passed ?? true
-        });
-      } catch {
-      }
-    }
-  }
-  const highestRisk = tasks.some((t) => t.risk === "high") ? "high" : tasks.some((t) => t.risk === "standard") ? "standard" : "low";
-  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
-  return {
-    schema: "sdd-decision-view/v1",
-    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    feature,
-    domains,
-    highestRisk,
-    specCheckVerdict,
-    counts: {
-      requirements: reqIds.length,
-      acceptanceCriteria: acIds.length,
-      tasksTotal: tasks.length,
-      tasksApproved: tasks.filter((t) => /^Approved\b/i.test(t.approval)).length,
-      tasksDone: tasks.filter((t) => t.status === "Done").length,
-      openQuestionsTotal: openQuestions.length,
-      openQuestionsProvisional: provisionalCount,
-      alternativesRejected: alternativesRejected.length
-    },
-    tasks: tasks.map(({ block, ...rest }) => rest),
-    openQuestions,
-    alternativesRejected,
-    gateResults,
-    sourcePaths: {
-      requirements: toPosixPath(path3.relative(root, reqPath)),
-      design: toPosixPath(path3.relative(root, designPath)),
-      tasks: toPosixPath(path3.relative(root, tasksPath))
-    }
-  };
-}
-function escapeMdCell(text) {
-  return String(text || "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
-}
-function renderDecisionViewMarkdown(data) {
-  const lines = [];
-  lines.push(`# Decision View: ${data.feature}`);
-  lines.push("");
-  lines.push("> \u5168\u6587\u3092\u8AAD\u307F\u89E3\u304F\u4EE3\u308F\u308A\u306B\u3001**\u4EBA\u304C\u5224\u65AD\u3059\u3079\u304D\u8981\u70B9\uFF08\u4E8B\u5B9F\u30FB\u7406\u7531\u30FB\u554F\u3044\uFF09** \u3068 **\u6A5F\u68B0\u691C\u8A3C\u6E08\u307F\u306E\u9818\u57DF** \u3092\u5206\u96E2\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u30D3\u30E5\u30FC\u3067\u3059\u3002");
-  lines.push("");
-  lines.push("## 1. \u5168\u4F53\u50CF\uFF08Overview\uFF09");
-  lines.push("");
-  lines.push("| \u9805\u76EE | \u5024 |");
-  lines.push("|---|---|");
-  lines.push(`| Feature | \`${escapeMdCell(data.feature)}\` |`);
-  lines.push(`| \u5BFE\u8C61\u9818\u57DF (Domains) | ${escapeMdCell(data.domains.join(" / "))} |`);
-  lines.push(`| \u6700\u9AD8\u30EA\u30B9\u30AF\u968E\u5C64 | \`${escapeMdCell(data.highestRisk)}\` |`);
-  lines.push(`| \u8981\u4EF6 / \u53D7\u5165\u6761\u4EF6 | REQ: ${data.counts.requirements} \u4EF6 / AC: ${data.counts.acceptanceCriteria} \u4EF6 |`);
-  lines.push(`| \u30BF\u30B9\u30AF\u9032\u6357 | \u5408\u8A08 ${data.counts.tasksTotal}\uFF08Approved: ${data.counts.tasksApproved}, Done: ${data.counts.tasksDone}\uFF09 |`);
-  lines.push(`| \u7740\u5DE5\u524D spec-check | \`${escapeMdCell(data.specCheckVerdict)}\` |`);
-  lines.push(`| \u672A\u78BA\u5B9A\u4E8B\u9805 (Provisional OQ) | **${data.counts.openQuestionsProvisional} \u4EF6** / \u5168 ${data.counts.openQuestionsTotal} \u4EF6 |`);
-  lines.push("");
-  lines.push("## 2. \u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044\uFF08Open Questions / AI \u4EEE\u6C7A\u5B9A\uFF09");
-  lines.push("");
-  if (data.openQuestions.length === 0) {
-    lines.push("- \u672A\u78BA\u5B9A\u306E\u4EEE\u6C7A\u5B9A\uFF08`OQ-NNN`\uFF09\u306F\u3042\u308A\u307E\u305B\u3093\u3002");
-  } else {
-    for (const q of data.openQuestions) {
-      const badge = q.confirmed ? "\u2705 Confirmed" : `\u{1F7E0} ${q.status}\uFF08\u8981\u5224\u65AD\uFF09`;
-      const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(", ") : "\u5168\u4F53";
-      lines.push(`### ${q.id} [${q.category}] \u2014 ${badge}\uFF08\u5F71\u97FF: ${impacted}\uFF09`);
-      lines.push(`- **\u8A2D\u8A08\u3057\u305F\u4E8B\u5B9F\uFF08\u4EEE\u6C7A\u5B9A\uFF09**: ${q.fact}`);
-      lines.push(`- **\u306A\u305C\u305D\u3046\u3057\u305F\u304B**: ${q.reason}`);
-      lines.push(`- **\u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044**: ${q.question}`);
-      lines.push("");
-    }
-  }
-  lines.push("");
-  lines.push("## 3. \u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\uFF08Alternatives Rejected\uFF09");
-  lines.push("");
-  if (data.alternativesRejected.length === 0) {
-    lines.push("- \u8A18\u8F09\u306A\u3057\uFF08\u6A19\u6E96\u69CB\u6210\u307E\u305F\u306F\u5358\u4E00\u6848\uFF09\u3002");
-  } else {
-    lines.push("| \u5019\u88DC\u6848 | \u4E0D\u63A1\u7528\u7406\u7531 | \u518D\u691C\u8A0E\u6761\u4EF6 |");
-    lines.push("|---|---|---|");
-    for (const alt of data.alternativesRejected) {
-      lines.push(`| ${escapeMdCell(alt.option)} | ${escapeMdCell(alt.reason)} | ${escapeMdCell(alt.revisitWhen)} |`);
-    }
-  }
-  lines.push("");
-  lines.push("## 4. \u6A5F\u68B0\u78BA\u8A8D\u6E08\u307F vs \u4EBA\u9593\u78BA\u8A8D\u306E\u5206\u62C5");
-  lines.push("");
-  lines.push("| \u89B3\u70B9 | \u62C5\u5F53 | \u72B6\u614B\u30FB\u7406\u7531 |");
-  lines.push("|---|---|---|");
-  lines.push(`| REQ \u2194 AC \u2194 \u30BF\u30B9\u30AF\u5951\u7D04\u6574\u5408\u30FBSpec Drift | \u6A5F\u68B0\u691C\u8A3C | \`spec-check: ${escapeMdCell(data.specCheckVerdict)}\` / \`check-spec-drift.mjs\` \u3067\u81EA\u52D5\u7167\u5408\uFF08\u4EBA\u306F\u9038\u8131\u6642\u306E\u307F\u78BA\u8A8D\uFF09 |`);
-  lines.push("| \u6A19\u6E96 CRUD\u30FB\u65E2\u5B58\u898F\u7D04\u6E96\u62E0\u30FB\u30D7\u30EC\u30FC\u30B9\u30DB\u30EB\u30C0\u30FC\u30FB\u79D8\u5BC6\u60C5\u5831 | \u6A5F\u68B0\u691C\u8A3C | `run-sdd-gate.mjs` \u6C7A\u5B9A\u8AD6\u30BB\u30F3\u30B5\u30FC\u3067\u81EA\u52D5\u691C\u67FB |");
-  if (data.domains.includes("SQL")) {
-    lines.push("| SQL \u7834\u58CA\u7684 DDL\u30FB\u6A29\u9650/RLS\u30FB\u9694\u96E2 DB \u691C\u8A3C | \u6A5F\u68B0\uFF0B\u6700\u91CD\u8981 | `sql-develop` \u5951\u7D04\u304A\u3088\u3073 `run-sdd-gate.mjs` SQL \u30BB\u30F3\u30B5\u30FC\u3067\u4FDD\u8B77 |");
-  }
-  if (data.domains.includes("AWS") || data.domains.includes("Azure")) {
-    lines.push("| \u30AF\u30E9\u30A6\u30C9 IaC \u7834\u58CA\u5909\u66F4\u30FBIAM \u6700\u5C0F\u6A29\u9650\u30FB\u5B9F\u74B0\u5883\u89B3\u6E2C | \u6A5F\u68B0\uFF0B\u6700\u91CD\u8981 | `sdd-{aws,azure}-cloud` \u7D71\u5236\u5883\u754C\u30FBCI OIDC \u627F\u8A8D\u3067\u4FDD\u8B77 |");
-  }
-  lines.push(`| \u4E8B\u696D\u5224\u65AD\u30FB\u5229\u7528\u8005\u6319\u52D5\u30FB\u4ED6\u30C1\u30FC\u30E0\u5951\u7D04\u30FB\u4E0D\u53EF\u9006\u30EA\u30B9\u30AF | **\u4EBA\u9593\u78BA\u8A8D** | \u4E0A\u8A18 \`OQ-NNN\`\uFF08\u672A\u78BA\u5B9A ${data.counts.openQuestionsProvisional} \u4EF6\uFF09\u306E\u5224\u65AD\u306B\u96C6\u4E2D |`);
-  lines.push("");
-  if (data.gateResults.length > 0) {
-    lines.push("## 5. sdd-gate \u5B9F\u884C\u72B6\u6CC1");
-    lines.push("");
-    lines.push("| Task | Verdict | Spec Drift | Sensors |");
-    lines.push("|---|---|---|---|");
-    for (const g of data.gateResults) {
-      lines.push(`| ${escapeMdCell(g.taskId)} | ${escapeMdCell(g.verdict)} | ${escapeMdCell(g.specDrift)} | ${g.sensorsPassed ? "PASS" : "FAIL"} |`);
-    }
-    lines.push("");
-  }
-  return `${lines.join("\n")}
-`;
-}
-function escapeHtml(text) {
-  return String(text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-function renderDecisionViewHtml(data) {
-  const oqCards = data.openQuestions.length === 0 ? '<p class="muted">\u672A\u78BA\u5B9A\u306E\u4EEE\u6C7A\u5B9A\uFF08OQ-NNN\uFF09\u306F\u3042\u308A\u307E\u305B\u3093\u3002</p>' : data.openQuestions.map((q) => {
-    const isProv = !q.confirmed;
-    const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(", ") : "\u5168\u4F53";
-    return `<section class="card ${isProv ? "prov" : "conf"}">
-  <div class="card-head">
-    <span class="badge">${escapeHtml(q.id)}</span>
-    <span class="badge cat">${escapeHtml(q.category)}</span>
-    <span class="badge ${isProv ? "warn" : "ok"}">${escapeHtml(q.status)}</span>
-    <span class="badge">\u5F71\u97FF: ${escapeHtml(impacted)}</span>
-  </div>
-  <div class="cols">
-    <div><h4>\u8A2D\u8A08\u3057\u305F\u4E8B\u5B9F</h4><p>${escapeHtml(q.fact)}</p></div>
-    <div><h4>\u306A\u305C\u305D\u3046\u3057\u305F\u304B</h4><p>${escapeHtml(q.reason)}</p></div>
-    <div class="ask"><h4>\u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044</h4><p>${escapeHtml(q.question)}</p></div>
-  </div>
-</section>`;
-  }).join("\n");
-  const altRows = data.alternativesRejected.length === 0 ? '<tr><td colspan="3" class="muted">\u8A18\u8F09\u306A\u3057</td></tr>' : data.alternativesRejected.map(
-    (a) => `<tr><td>${escapeHtml(a.option)}</td><td>${escapeHtml(a.reason)}</td><td>${escapeHtml(a.revisitWhen)}</td></tr>`
-  ).join("\n");
-  const gateSection = data.gateResults.length === 0 ? "" : `<h2>sdd-gate \u5B9F\u884C\u72B6\u6CC1</h2>
-  <table><thead><tr><th>Task</th><th>Verdict</th><th>Spec Drift</th><th>Sensors</th></tr></thead><tbody>${data.gateResults.map(
-    (g) => `<tr><td>${escapeHtml(g.taskId)}</td><td>${escapeHtml(g.verdict)}</td><td>${escapeHtml(g.specDrift)}</td><td>${g.sensorsPassed ? "PASS" : "FAIL"}</td></tr>`
-  ).join("\n")}</tbody></table>`;
-  return `<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Decision View: ${escapeHtml(data.feature)}</title>
-<style>
-  body { font-family: system-ui, -apple-system, sans-serif; max-width: 1020px; margin: 24px auto; padding: 0 16px; color: #1e293b; background: #f8fafc; }
-  h1 { color: #1d4ed8; margin-bottom: 4px; }
-  .meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 24px; }
-  .pill { background: #e0e7ff; color: #1e3a8a; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
-  .card { background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
-  .card.prov { border-left: 5px solid #ea580c; }
-  .card.conf { border-left: 5px solid #16a34a; }
-  .card-head { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-  .badge { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #e2e8f0; }
-  .badge.cat { background: #dbeafe; color: #1d4ed8; }
-  .badge.warn { background: #ffedd5; color: #9a3412; }
-  .badge.ok { background: #dcfce7; color: #166534; }
-  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-  .cols h4 { margin: 0 0 4px; font-size: 13px; color: #475569; }
-  .cols p { margin: 0; font-size: 14px; line-height: 1.5; }
-  .ask { background: #fff7ed; padding: 10px; border-radius: 8px; border: 1px solid #fed7aa; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
-  th, td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; font-size: 14px; }
-  th { background: #f1f5f9; }
-  .muted { color: #64748b; }
-</style>
-</head>
-<body>
-  <h1>Decision View: ${escapeHtml(data.feature)}</h1>
-  <p class="muted">\u751F\u6210\u6642\u523B: ${escapeHtml(data.generatedAt)} \u2014 \u6A5F\u68B0\u78BA\u8A8D\u6E08\u307F\u9805\u76EE\u3092\u6298\u308A\u305F\u305F\u307F\u3001\u4EBA\u9593\u304C\u5224\u65AD\u3059\u3079\u304D\u554F\u3044\u306B\u7D5E\u3063\u305F\u30D3\u30E5\u30FC</p>
-  <div class="meta">
-    <span class="pill">Domains: ${escapeHtml(data.domains.join(" / "))}</span>
-    <span class="pill">Highest Risk: ${escapeHtml(data.highestRisk)}</span>
-    <span class="pill">spec-check: ${escapeHtml(data.specCheckVerdict)}</span>
-    <span class="pill">REQ: ${data.counts.requirements} / AC: ${data.counts.acceptanceCriteria}</span>
-    <span class="pill">Tasks: ${data.counts.tasksDone}/${data.counts.tasksTotal} Done</span>
-    <span class="pill">Provisional OQ: ${data.counts.openQuestionsProvisional}</span>
-  </div>
-  <h2>\u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044\uFF08Open Questions\uFF09</h2>
-  ${oqCards}
-  <h2>\u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\uFF08Alternatives Rejected\uFF09</h2>
-  <table><thead><tr><th>\u5019\u88DC\u6848</th><th>\u4E0D\u63A1\u7528\u7406\u7531</th><th>\u518D\u691C\u8A0E\u6761\u4EF6</th></tr></thead><tbody>${altRows}</tbody></table>
-  ${gateSection}
-</body>
-</html>
-`;
-}
-function parseArgs3(argv) {
-  const opts = { feature: null, root: null, format: "markdown", output: null };
-  for (let i = 0; i < argv.length; i += 1) {
-    const a = argv[i];
-    if (a === "--feature" && argv[i + 1]) opts.feature = argv[++i];
-    else if (a === "--root" && argv[i + 1]) opts.root = argv[++i];
-    else if (a === "--format" && argv[i + 1]) opts.format = argv[++i];
-    else if (a === "--output" && argv[i + 1]) opts.output = argv[++i];
-  }
-  return opts;
-}
-var isMain = process.argv[1] && path3.basename(process.argv[1]) === "render-decision-view.mjs" && pathToFileURL2(path3.resolve(process.argv[1])).href === import.meta.url;
-if (isMain) {
-  const opts = parseArgs3(process.argv.slice(2));
-  if (!opts.feature || opts.format !== "markdown" && opts.format !== "html") {
-    process.stderr.write(
-      "Usage: node render-decision-view.mjs --feature <feature> [--root <dir>] [--format markdown|html] [--output <path>]\n"
-    );
-    process.exit(2);
-  }
-  try {
-    const data = buildDecisionViewData({ feature: opts.feature, projectRoot: opts.root || process.cwd() });
-    const content = opts.format === "html" ? renderDecisionViewHtml(data) : renderDecisionViewMarkdown(data);
-    if (opts.output) {
-      const outPath = path3.resolve(opts.output);
-      fs3.mkdirSync(path3.dirname(outPath), { recursive: true });
-      fs3.writeFileSync(outPath, content, "utf8");
-      process.stdout.write(`Wrote ${opts.format} decision view to ${outPath}
-`);
-    } else {
-      process.stdout.write(content);
-    }
-  } catch (err2) {
-    process.stderr.write(`render-decision-view error: ${err2.message}
-`);
-    process.exit(2);
-  }
-}
-
-// ../../plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs
-function extractScopePaths(taskBlock) {
-  const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
-  if (!scopeMatch) return [];
-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
-  const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
-  const paths = [];
-  for (const line of section.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith("-")) continue;
-    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => normalizeRelPath2(m[1])).filter(Boolean);
-    if (backtickMatches.length > 0) {
-      paths.push(...backtickMatches);
-    } else {
-      const bare = normalizeRelPath2(trimmed.replace(/^-\s*/, ""));
-      if (bare && !/^<[^<>]+>$/.test(bare)) paths.push(bare);
-    }
-  }
-  return [...new Set(paths)];
-}
 function scopeMatchesFile(scopeEntry, changedFile) {
   const sp = normalizeRelPath2(scopeEntry);
   const cf = normalizeRelPath2(changedFile);
@@ -36866,17 +36561,186 @@ function scopeMatchesFile(scopeEntry, changedFile) {
   }
   return cf === sp || cf.startsWith(`${sp}/`);
 }
-function analyzeTraceability({ feature, projectRoot, changedIds = [], changedFiles = [] }) {
+function scopeEntriesOverlap(a, b) {
+  const na = normalizeRelPath2(a);
+  const nb = normalizeRelPath2(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  if (!/[*?]/.test(na) && !/[*?]/.test(nb)) {
+    return na.startsWith(`${nb}/`) || nb.startsWith(`${na}/`);
+  }
+  return scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na);
+}
+function isTestPath(relPath) {
+  const lower = normalizeRelPath2(relPath).toLowerCase();
+  return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
+}
+function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: config2 = null }) {
   assertValidFeatureName(feature);
-  const root = findProjectRoot(projectRoot);
-  const featureDir = path4.join(root, "specs", feature);
-  const reqPath = path4.join(featureDir, "requirements.md");
-  const tasksPath = path4.join(featureDir, "tasks.md");
-  if (!fs4.existsSync(reqPath) || !fs4.existsSync(tasksPath)) {
+  const resolvedBaselineRel = sanitizeRelPath(baselineRelPath || `specs/${feature}/.spec-baseline.json`);
+  if (!resolvedBaselineRel) {
+    throw new Error("Invalid baseline path.");
+  }
+  const rawBaseline = io.readText(resolvedBaselineRel);
+  if (rawBaseline === null) {
+    throw new Error(`Baseline file not found: ${resolvedBaselineRel}`);
+  }
+  const baseline = JSON.parse(rawBaseline);
+  if (!baseline || typeof baseline !== "object" || Array.isArray(baseline)) {
+    throw new Error(`Invalid baseline JSON structure in ${resolvedBaselineRel}`);
+  }
+  const effectiveConfig = config2 || loadGuardrailsConfigFromIo(io);
+  const featureDirRel = `specs/${feature}`;
+  const changedFiles = [];
+  const deletedFiles = [];
+  const addedFiles = [];
+  const removedIdentifiers = [];
+  const modifiedIdentifiers = [];
+  const addedIdentifiers = [];
+  const allCurrentAmendments = [];
+  for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
+    const safeRel = sanitizeRelPath(rawRelPath);
+    if (!safeRel || !safeRel.startsWith(`specs/${feature}/`)) {
+      throw new Error(`Unsafe baseline file entry outside specs/${feature}/: ${rawRelPath}`);
+    }
+    const baseIds = (baseInfo && typeof baseInfo === "object" ? baseInfo.identifiers : null) || {};
+    const rawText = io.readText(safeRel);
+    if (rawText === null) {
+      deletedFiles.push(safeRel);
+      for (const [id, info] of Object.entries(baseIds)) {
+        removedIdentifiers.push({ id, file: safeRel, before: info?.line || "" });
+      }
+      continue;
+    }
+    const fileName = baseInfo && baseInfo.fileName || path2.posix.basename(safeRel);
+    const contractHash = sha256Text(canonicalSpecContractText(rawText, fileName));
+    if (contractHash !== baseInfo?.contractSha256) {
+      changedFiles.push(safeRel);
+    }
+    const curIds = extractSpecIdentifiers(rawText);
+    for (const [id, baseIdInfo] of Object.entries(baseIds)) {
+      const cur = curIds[id];
+      if (!cur) {
+        removedIdentifiers.push({ id, file: safeRel, before: baseIdInfo?.line || "" });
+      } else if (cur.hash !== baseIdInfo?.hash) {
+        modifiedIdentifiers.push({ id, file: safeRel, before: baseIdInfo?.line || "", after: cur.line });
+      }
+    }
+    for (const [id, cur] of Object.entries(curIds)) {
+      if (!baseIds[id]) {
+        addedIdentifiers.push({ id, file: safeRel, after: cur.line });
+      }
+    }
+    for (const entry of extractAmendmentEntries(rawText)) {
+      allCurrentAmendments.push({ file: safeRel, text: entry });
+    }
+  }
+  for (const entry of io.listDir(featureDirRel)) {
+    if (!entry.isFile || entry.name.startsWith(".")) continue;
+    const relFile = `${featureDirRel}/${entry.name}`;
+    const matched = matchProtectedSpecRelPath(relFile, effectiveConfig);
+    if (!matched || baseline.files && baseline.files[matched.relPath]) continue;
+    const rawText = io.readText(matched.relPath);
+    if (rawText === null) continue;
+    addedFiles.push(matched.relPath);
+    for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
+      addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
+    }
+    for (const item of extractAmendmentEntries(rawText)) {
+      allCurrentAmendments.push({ file: matched.relPath, text: item });
+    }
+  }
+  const hasDrift = changedFiles.length > 0 || deletedFiles.length > 0 || addedFiles.length > 0 || removedIdentifiers.length > 0 || modifiedIdentifiers.length > 0;
+  const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
+  const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
+  let status = "CLEAN";
+  if (hasDrift) {
+    status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
+  }
+  return {
+    schema: "sdd-spec-drift/v1",
+    feature,
+    status,
+    baselineRecordedAt: baseline.recordedAt || null,
+    baselineGitHead: baseline.gitHead || null,
+    changedFiles,
+    deletedFiles,
+    addedFiles,
+    removedIdentifiers,
+    modifiedIdentifiers,
+    addedIdentifiers,
+    amendments: allCurrentAmendments,
+    baselineAmendmentCount
+  };
+}
+function computeExecutionPlan(tasks) {
+  const byId = new Map(tasks.map((t) => [t.id, t]));
+  const remaining = new Set(tasks.map((t) => t.id));
+  const completed = /* @__PURE__ */ new Set();
+  const batches = [];
+  const scopeConflicts = [];
+  for (let i = 0; i < tasks.length; i += 1) {
+    for (let j = i + 1; j < tasks.length; j += 1) {
+      const a = tasks[i];
+      const b = tasks[j];
+      const aBlocksB = b.blockers.includes(a.id);
+      const bBlocksA = a.blockers.includes(b.id);
+      if (aBlocksB || bBlocksA) continue;
+      const overlaps = [];
+      for (const sa of a.scopePaths || []) {
+        for (const sb of b.scopePaths || []) {
+          if (scopeEntriesOverlap(sa, sb)) {
+            overlaps.push(`${sa} <-> ${sb}`);
+          }
+        }
+      }
+      if (overlaps.length > 0) {
+        scopeConflicts.push({ tasks: [a.id, b.id], overlaps: [...new Set(overlaps)] });
+      }
+    }
+  }
+  let guard = 0;
+  while (remaining.size > 0 && guard < tasks.length + 2) {
+    guard += 1;
+    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
+    if (ready.length === 0) {
+      break;
+    }
+    const wave = [];
+    const waveScopes = [];
+    for (const candidate of ready) {
+      const candScopes = candidate.scopePaths || [];
+      const conflicts = waveScopes.some(
+        (existing) => candScopes.some((cs) => scopeEntriesOverlap(existing, cs))
+      );
+      if (!conflicts) {
+        wave.push(candidate.id);
+        waveScopes.push(...candScopes);
+      }
+    }
+    if (wave.length === 0) {
+      wave.push(ready[0].id);
+    }
+    batches.push(wave);
+    for (const id of wave) {
+      remaining.delete(id);
+      completed.add(id);
+    }
+  }
+  const cyclicTasks = [...remaining];
+  return { batches, scopeConflicts, cyclicTasks };
+}
+function analyzeTraceabilityCore(io, { feature, changedIds = [], changedFiles = [], checkCodeAndTests = true }) {
+  assertValidFeatureName(feature);
+  const reqRel = `specs/${feature}/requirements.md`;
+  const tasksRel = `specs/${feature}/tasks.md`;
+  const reqRaw = io.readText(reqRel);
+  const tasksRaw = io.readText(tasksRel);
+  if (reqRaw === null || tasksRaw === null) {
     throw new Error(`Missing requirements.md or tasks.md under specs/${feature}`);
   }
-  const reqText = normalizeNewlines(fs4.readFileSync(reqPath, "utf8"));
-  const tasksText = normalizeNewlines(fs4.readFileSync(tasksPath, "utf8"));
+  const reqText = normalizeNewlines(reqRaw);
+  const tasksText = normalizeNewlines(tasksRaw);
   const idMap = extractSpecIdentifiers(reqText);
   const reqIds = Object.keys(idMap).filter((id) => id.startsWith("REQ-")).sort();
   const acIds = Object.keys(idMap).filter((id) => id.startsWith("AC-")).sort();
@@ -36915,6 +36779,25 @@ ${t.block}`);
         brokenAcRefs.push({ task: t.id, missingAc: ac });
       }
     }
+    const codePaths = [];
+    const testPaths = [];
+    const missingScopePaths = [];
+    if (checkCodeAndTests) {
+      for (const sp of scopePaths) {
+        if (/[*?]/.test(sp)) {
+          if (isTestPath(sp)) testPaths.push(sp);
+          else codePaths.push(sp);
+          continue;
+        }
+        const safe = sanitizeRelPath(sp);
+        const exists = safe ? io.exists(safe) : false;
+        if (isTestPath(sp)) testPaths.push(sp);
+        else codePaths.push(sp);
+        if (!exists && (t.status === "Implementation Complete" || t.status === "Done")) {
+          missingScopePaths.push(sp);
+        }
+      }
+    }
     return {
       id: t.id,
       title: t.title,
@@ -36924,7 +36807,10 @@ ${t.block}`);
       acRefs: t.acRefs,
       blockers: t.blockers,
       scopePaths,
-      domains
+      domains,
+      codePaths,
+      testPaths,
+      missingScopePaths
     };
   });
   const orphanReqs = reqIds.filter((r) => reqToAcs[r].length === 0);
@@ -36971,6 +36857,20 @@ ${t.block}`);
   const taskOrder = tasks.map((t) => t.id);
   const impactedTasks = taskOrder.filter((id) => impactedSet.has(id));
   const reusableTasks = taskOrder.filter((id) => !impactedSet.has(id));
+  const executionPlan = computeExecutionPlan(tasks);
+  const acCodeTestCoverage = acIds.map((ac) => {
+    const linked = tasks.filter((t) => t.acRefs.includes(ac));
+    const code = [...new Set(linked.flatMap((t) => t.codePaths))];
+    const tests = [...new Set(linked.flatMap((t) => t.testPaths))];
+    return {
+      ac,
+      tasks: linked.map((t) => t.id),
+      hasCodeScope: code.length > 0,
+      hasTestScope: tests.length > 0,
+      codePaths: code,
+      testPaths: tests
+    };
+  });
   const complete = reqIds.length > 0 && acIds.length > 0 && orphanReqs.length === 0 && unassignedAcs.length === 0 && unlinkedAcs.length === 0 && brokenReqRefs.length === 0 && brokenAcRefs.length === 0;
   return {
     schema: "sdd-traceability/v1",
@@ -36993,131 +36893,343 @@ ${t.block}`);
       transitiveImpactedTasks: taskOrder.filter((id) => transitiveImpacted.has(id)),
       impactedTasks,
       reusableTasks
+    },
+    executionPlan,
+    acCodeTestCoverage
+  };
+}
+function loadProductReviewPerspectives(io) {
+  const jsonRaw = io.readText("sdd/knowledge/review-perspectives.json");
+  if (jsonRaw !== null) {
+    try {
+      const parsed = JSON.parse(jsonRaw);
+      if (Array.isArray(parsed?.perspectives)) {
+        return parsed.perspectives.filter((p) => p && typeof p.id === "string" && typeof p.perspective === "string").map((p) => ({
+          id: String(p.id),
+          area: String(p.area || "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709"),
+          perspective: String(p.perspective),
+          humanQuestion: String(p.humanQuestion || p.question || ""),
+          defaultDisposition: String(p.disposition || p.defaultDisposition || "\u63A1\u7528"),
+          reason: typeof p.reason === "string" ? p.reason : "",
+          domains: Array.isArray(p.domains) ? p.domains.map(String) : []
+        }));
+      }
+    } catch {
+    }
+  }
+  const yamlRaw = io.readText("sdd/knowledge/review-perspectives.yaml");
+  if (yamlRaw !== null) {
+    const lines = normalizeNewlines(yamlRaw).split("\n");
+    const items = [];
+    let current = null;
+    for (const rawLine of lines) {
+      const line = rawLine.replace(/\s+#.*$/, "");
+      if (!line.trim() || line.trim().startsWith("#")) continue;
+      const itemStart = line.match(/^[ \t]*-[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
+      if (itemStart) {
+        if (current && current.id && current.perspective) items.push(current);
+        current = {
+          id: "",
+          area: "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709",
+          perspective: "",
+          humanQuestion: "",
+          defaultDisposition: "\u63A1\u7528",
+          reason: "",
+          domains: []
+        };
+        const k = itemStart[1];
+        const v = itemStart[2].trim().replace(/^["']|["']$/g, "");
+        current[k === "question" ? "humanQuestion" : k === "disposition" ? "defaultDisposition" : k] = v;
+        continue;
+      }
+      const propMatch = line.match(/^[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
+      if (propMatch && current) {
+        const k = propMatch[1];
+        const v = propMatch[2].trim().replace(/^["']|["']$/g, "");
+        if (k === "domains") {
+          current.domains = v.replace(/^\[|\]$/g, "").split(",").map((s) => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+        } else {
+          current[k === "question" ? "humanQuestion" : k === "disposition" ? "defaultDisposition" : k] = v;
+        }
+      }
+    }
+    if (current && current.id && current.perspective) items.push(current);
+    return items;
+  }
+  return [];
+}
+function buildReviewPerspectiveMatrix({
+  domains,
+  highestRisk,
+  specCheckVerdict,
+  openQuestions,
+  alternativesRejected,
+  productPerspectives = []
+}) {
+  const hasSql = domains.includes("SQL");
+  const hasCloud = domains.includes("AWS") || domains.includes("Azure") || domains.includes("Cloud");
+  const hasDdd = domains.includes("DDD");
+  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
+  const matrix = COMMON_REVIEW_PERSPECTIVES.map((p) => {
+    let disposition = p.defaultDisposition;
+    let reason = "";
+    if (p.id === "C01") {
+      disposition = alternativesRejected.length > 0 ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = alternativesRejected.length > 0 ? `\u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\u304C ${alternativesRejected.length} \u4EF6\u8A18\u9332\u3055\u308C\u3066\u304A\u308A\u5224\u65AD\u6839\u62E0\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u6A19\u6E96\u69CB\u6210\u3002spec-check \u3067\u65E2\u5B58\u8A2D\u8A08\u3068\u306E\u6574\u5408\u3092\u78BA\u8A8D\u6E08\u307F\u3002";
+    } else if (p.id === "C02") {
+      disposition = hasSql || hasDdd || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = hasSql || hasDdd ? `${domains.join("/")} \u9818\u57DF\u3092\u542B\u307F\u30C7\u30FC\u30BF\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u306E\u5F71\u97FF\u304C\u5927\u304D\u3044\u3002` : "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB\u5909\u66F4\u306E\u5F71\u97FF\u304C\u9650\u5B9A\u7684\u3002";
+    } else if (p.id === "C03") {
+      disposition = highestRisk === "high" ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = highestRisk === "high" ? "Risk: high \u306E\u305F\u3081\u7834\u58CA\u7684\u5951\u7D04\u5909\u66F4\u30FB\u8A8D\u53EF\u6761\u4EF6\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002" : "\u65E2\u5B58\u30EB\u30FC\u30EB\u901A\u308A\u306E\u30A4\u30F3\u30BF\u30FC\u30D5\u30A7\u30FC\u30B9\u8A2D\u8A08\u3002";
+    } else if (p.id === "C04") {
+      disposition = highestRisk === "high" ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = highestRisk === "high" ? "\u7570\u5E38\u30EB\u30FC\u30C8\u30FB\u4E26\u5217\u7AF6\u5408\u306E\u59A5\u5F53\u6027\u78BA\u8A8D\u3092\u63A8\u5968\u3002" : "\u72B6\u614B\u9077\u79FB\u304C\u5358\u7D14\u3067\u5358\u4F53\u30C6\u30B9\u30C8\u3067\u691C\u8A3C\u53EF\u80FD\u3002";
+    } else if (p.id === "C05") {
+      disposition = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u6700\u91CD\u8981" : "\u4F4E\u512A\u5148";
+      reason = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u30AF\u30E9\u30A6\u30C9\u5916\u90E8\u9023\u643A\u307E\u305F\u306F\u4ED6\u30C1\u30FC\u30E0\u5951\u7D04\u306E\u672A\u78BA\u5B9A\u8AD6\u70B9\u3092\u542B\u3080\u3002" : "\u5358\u4E00\u30B5\u30FC\u30D3\u30B9\u5185\u3067\u5B8C\u7D50\u3057\u4E0D\u53EF\u9006\u306A\u5916\u90E8\u9023\u643A\u306A\u3057\u3002";
+    } else if (p.id === "C06") {
+      disposition = provisionalCount > 0 ? "\u6700\u91CD\u8981" : "\u63A1\u7528";
+      reason = provisionalCount > 0 ? `\u672A\u78BA\u5B9A\u4E8B\u9805\uFF08OQ-NNN\uFF09\u304C ${provisionalCount} \u4EF6\u3042\u308A\u3001\u4E8B\u696D\u5224\u65AD\u30FB\u696D\u52D9\u4F8B\u5916\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u5883\u754C\u5024\u306F AC \u3068\u30C6\u30B9\u30C8\u65B9\u91DD\u306B\u843D\u3068\u3057\u8FBC\u307F\u6E08\u307F\u3002";
+    } else if (p.id === "C07") {
+      disposition = "\u6A5F\u68B0\u691C\u8A3C";
+      reason = `check-traceability.mjs / check-spec-drift.mjs / spec-check (${specCheckVerdict}) \u3067\u81EA\u52D5\u7167\u5408\u6E08\u307F\u3002\u4EBA\u306F\u9038\u8131\u6642\u306E\u307F\u78BA\u8A8D\u3002`;
+    } else if (p.id === "C08") {
+      disposition = hasSql || hasCloud || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u6A5F\u68B0\u691C\u8A3C";
+      reason = hasSql || hasCloud || highestRisk === "high" ? "SQL/Cloud/\u9AD8\u30EA\u30B9\u30AF\u9818\u57DF\u3092\u542B\u3080\u305F\u3081\u3001\u6A5F\u68B0\u30BB\u30F3\u30B5\u30FC\uFF0B\u4EBA\u9593\u306E\u5207\u623B\u3057\u78BA\u8A8D\u3092\u4F75\u7528\u3002" : "run-sdd-gate.mjs \u306E\u6C7A\u5B9A\u8AD6\u30BB\u30F3\u30B5\u30FC\uFF08Secret/Placeholder/lint/test\uFF09\u3067\u81EA\u52D5\u691C\u8A3C\u3002";
+    }
+    return {
+      id: p.id,
+      area: p.area,
+      perspective: p.perspective,
+      humanQuestion: p.humanQuestion,
+      disposition,
+      reason,
+      source: "common"
+    };
+  });
+  for (const pp of productPerspectives) {
+    const domainMatch = !pp.domains || pp.domains.length === 0 || pp.domains.some((d) => domains.includes(d));
+    matrix.push({
+      id: pp.id,
+      area: pp.area || "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709",
+      perspective: pp.perspective,
+      humanQuestion: pp.humanQuestion,
+      disposition: domainMatch ? pp.defaultDisposition || "\u63A1\u7528" : "\u4F4E\u512A\u5148",
+      reason: pp.reason || (domainMatch ? "sdd/knowledge/review-perspectives \u306B\u767B\u9332\u3055\u308C\u305F\u30D7\u30ED\u30C0\u30AF\u30C8\u56FA\u6709\u89B3\u70B9\u3002" : `\u5BFE\u8C61\u9818\u57DF\uFF08${pp.domains.join("/")}\uFF09\u5916\u306E\u305F\u3081\u4ECA\u56DE\u306F\u4F4E\u512A\u5148\u3002`),
+      source: "product"
+    });
+  }
+  return matrix;
+}
+function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
+  assertValidFeatureName(feature);
+  const featureDirRel = `specs/${feature}`;
+  const reqRel = `${featureDirRel}/requirements.md`;
+  const designRel = `${featureDirRel}/design.md`;
+  const tasksRel = `${featureDirRel}/tasks.md`;
+  const reqRaw = io.readText(reqRel);
+  const designRaw = io.readText(designRel);
+  const tasksRaw = io.readText(tasksRel);
+  const dirEntries = io.listDir(featureDirRel);
+  if (reqRaw === null && designRaw === null && tasksRaw === null && dirEntries.length === 0) {
+    throw new Error(`Feature directory not found: specs/${feature}`);
+  }
+  const reqText = reqRaw || "";
+  const designText = designRaw || "";
+  const tasksText = tasksRaw || "";
+  const openQuestions = mergeOpenQuestions(
+    parseOpenQuestions(reqText, reqRel),
+    parseOpenQuestions(designText, designRel)
+  );
+  const alternativesRejected = parseAlternativesRejected(designText, designRel);
+  const tasks = parseTasksSummary(tasksText);
+  const identifiers = extractSpecIdentifiers(reqText);
+  const reqIds = Object.keys(identifiers).filter((id) => id.startsWith("REQ-"));
+  const acIds = Object.keys(identifiers).filter((id) => id.startsWith("AC-"));
+  const domains = detectDomains(`${reqText}
+${designText}
+${tasksText}`);
+  const specCheckRel = `reports/spec-check/${feature}.md`;
+  let specCheckVerdict = "Not Run";
+  const specCheckRaw = io.readText(specCheckRel);
+  if (specCheckRaw !== null) {
+    specCheckVerdict = (specCheckRaw.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || "Recorded";
+  }
+  const gateResults = [];
+  for (const entry of io.listDir("reports/quality-gate")) {
+    if (!entry.isFile || !entry.name.startsWith(`${feature}-`) || !entry.name.endsWith(".execution.json")) {
+      continue;
+    }
+    const raw = io.readText(`reports/quality-gate/${entry.name}`);
+    if (raw === null) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.feature !== feature) continue;
+      gateResults.push({
+        taskId: parsed.taskId,
+        verdict: parsed.verdict,
+        specDrift: parsed.checks?.specDrift?.status || "UNKNOWN",
+        sensorsPassed: parsed.checks?.nonFunctionalSensors?.passed ?? true
+      });
+    } catch {
+    }
+  }
+  gateResults.sort((a, b) => String(a.taskId).localeCompare(String(b.taskId)));
+  const effectiveConfig = config2 || loadGuardrailsConfigFromIo(io);
+  const defaultRisk = effectiveConfig?.risk_defaults?.default_tier || "standard";
+  const highestRisk = tasks.length === 0 ? defaultRisk : tasks.some((t) => t.risk === "high") ? "high" : tasks.some((t) => t.risk === "standard") ? "standard" : "low";
+  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
+  const productPerspectives = loadProductReviewPerspectives(io);
+  const reviewPerspectives = buildReviewPerspectiveMatrix({
+    domains,
+    highestRisk,
+    specCheckVerdict,
+    openQuestions,
+    alternativesRejected,
+    productPerspectives
+  });
+  let traceabilityLinks = [];
+  if (reqRaw !== null && tasksRaw !== null) {
+    try {
+      const trace = analyzeTraceabilityCore(io, { feature, checkCodeAndTests: false });
+      traceabilityLinks = trace.acceptanceCriteria.map((ac) => ({
+        ac: ac.id,
+        reqs: ac.reqs,
+        tasks: ac.tasks
+      }));
+    } catch {
+      traceabilityLinks = [];
+    }
+  }
+  return {
+    schema: "sdd-decision-view/v1",
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    feature,
+    domains,
+    highestRisk,
+    specCheckVerdict,
+    counts: {
+      requirements: reqIds.length,
+      acceptanceCriteria: acIds.length,
+      tasksTotal: tasks.length,
+      tasksApproved: tasks.filter((t) => /^Approved\b/i.test(t.approval)).length,
+      tasksDone: tasks.filter((t) => t.status === "Done").length,
+      openQuestionsTotal: openQuestions.length,
+      openQuestionsProvisional: provisionalCount,
+      alternativesRejected: alternativesRejected.length
+    },
+    tasks: tasks.map(({ block, ...rest }) => rest),
+    openQuestions,
+    alternativesRejected,
+    reviewPerspectives,
+    traceabilityLinks,
+    gateResults,
+    sourcePaths: {
+      requirements: reqRel,
+      design: designRel,
+      tasks: tasksRel
     }
   };
 }
-function escapeMdCell2(text) {
+function escapeMdCell(text) {
   return String(text || "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 }
-function formatTraceabilityMarkdown(report) {
+function renderDecisionViewMarkdown(data) {
   const lines = [];
-  lines.push(`# Traceability Matrix: ${report.feature}`);
+  lines.push(`# Decision View: ${data.feature}`);
   lines.push("");
-  lines.push(`- **Status**: ${report.complete ? "\u2705 COMPLETE" : "\u274C GAPS_FOUND"}`);
-  if (report.gaps.orphanReqs.length > 0) {
-    lines.push(`- **Orphan REQs (no AC)**: ${report.gaps.orphanReqs.join(", ")}`);
+  lines.push("> \u5168\u6587\u3092\u8AAD\u307F\u89E3\u304F\u4EE3\u308F\u308A\u306B\u3001**\u4EBA\u304C\u5224\u65AD\u3059\u3079\u304D\u8981\u70B9\uFF08\u4E8B\u5B9F\u30FB\u7406\u7531\u30FB\u554F\u3044\uFF09** \u3068 **\u6A5F\u68B0\u691C\u8A3C\u6E08\u307F\u306E\u9818\u57DF** \u3092\u5206\u96E2\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u30D3\u30E5\u30FC\u3067\u3059\u3002");
+  lines.push("");
+  lines.push("## 1. \u5168\u4F53\u50CF\uFF08Overview\uFF09");
+  lines.push("");
+  lines.push("| \u9805\u76EE | \u5024 |");
+  lines.push("|---|---|");
+  lines.push(`| Feature | \`${escapeMdCell(data.feature)}\` |`);
+  lines.push(`| \u5BFE\u8C61\u9818\u57DF (Domains) | ${escapeMdCell(data.domains.join(" / "))} |`);
+  lines.push(`| \u6700\u9AD8\u30EA\u30B9\u30AF\u968E\u5C64 | \`${escapeMdCell(data.highestRisk)}\` |`);
+  lines.push(`| \u8981\u4EF6 / \u53D7\u5165\u6761\u4EF6 | REQ: ${data.counts.requirements} \u4EF6 / AC: ${data.counts.acceptanceCriteria} \u4EF6 |`);
+  lines.push(`| \u30BF\u30B9\u30AF\u9032\u6357 | \u5408\u8A08 ${data.counts.tasksTotal}\uFF08Approved: ${data.counts.tasksApproved}, Done: ${data.counts.tasksDone}\uFF09 |`);
+  lines.push(`| \u7740\u5DE5\u524D spec-check | \`${escapeMdCell(data.specCheckVerdict)}\` |`);
+  lines.push(`| \u672A\u78BA\u5B9A\u4E8B\u9805 (Provisional OQ) | **${data.counts.openQuestionsProvisional} \u4EF6** / \u5168 ${data.counts.openQuestionsTotal} \u4EF6 |`);
+  lines.push(`| \u5143\u306E\u4ED5\u69D8 (SSoT) | \`${escapeMdCell(data.sourcePaths?.requirements || "")}\` / \`${escapeMdCell(data.sourcePaths?.design || "")}\` / \`${escapeMdCell(data.sourcePaths?.tasks || "")}\` |`);
+  lines.push("");
+  if (Array.isArray(data.traceabilityLinks) && data.traceabilityLinks.length > 0) {
+    lines.push("### \u8981\u4EF6 \u21D4 AC \u21D4 \u30BF\u30B9\u30AF\u306E\u3064\u306A\u304C\u308A\uFF08ID \u30C8\u30EC\u30FC\u30B9\uFF09");
+    lines.push("");
+    lines.push("| AC | REQ | Tasks |");
+    lines.push("|---|---|---|");
+    for (const link of data.traceabilityLinks) {
+      lines.push(
+        `| ${escapeMdCell(link.ac)} | ${escapeMdCell(link.reqs.join(", ") || "\u2014")} | ${escapeMdCell(link.tasks.join(", ") || "\u26A0\uFE0F UNASSIGNED")} |`
+      );
+    }
+    lines.push("");
   }
-  if (report.gaps.unassignedAcs.length > 0) {
-    lines.push(`- **Unassigned ACs (no Task)**: ${report.gaps.unassignedAcs.join(", ")}`);
-  }
-  if (report.gaps.unlinkedAcs.length > 0) {
-    lines.push(`- **Unlinked ACs (no REQ)**: ${report.gaps.unlinkedAcs.join(", ")}`);
-  }
-  if (report.gaps.brokenReqRefs.length > 0) {
-    lines.push(`- **Broken REQ Refs**: ${report.gaps.brokenReqRefs.map((r) => `${r.ac}->${r.missingReq}`).join(", ")}`);
-  }
-  if (report.gaps.brokenAcRefs.length > 0) {
-    lines.push(`- **Broken AC Refs**: ${report.gaps.brokenAcRefs.map((r) => `${r.task}->${r.missingAc}`).join(", ")}`);
+  lines.push("## 2. \u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044\uFF08Open Questions / AI \u4EEE\u6C7A\u5B9A\uFF09");
+  lines.push("");
+  if (data.openQuestions.length === 0) {
+    lines.push("- \u672A\u78BA\u5B9A\u306E\u4EEE\u6C7A\u5B9A\uFF08`OQ-NNN`\uFF09\u306F\u3042\u308A\u307E\u305B\u3093\u3002");
+  } else {
+    for (const q of data.openQuestions) {
+      const badge = q.confirmed ? "\u2705 Confirmed" : `\u{1F7E0} ${q.status}\uFF08\u8981\u5224\u65AD\uFF09`;
+      const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(", ") : "\u5168\u4F53";
+      const ref = q.sourceRef ? ` / \u51FA\u5178: \`${q.sourceRef}\`` : "";
+      lines.push(`### ${q.id} [${q.category}] \u2014 ${badge}\uFF08\u5F71\u97FF: ${impacted}${ref}\uFF09`);
+      lines.push(`- **\u8A2D\u8A08\u3057\u305F\u4E8B\u5B9F\uFF08\u4EEE\u6C7A\u5B9A\uFF09**: ${q.fact}`);
+      lines.push(`- **\u306A\u305C\u305D\u3046\u3057\u305F\u304B**: ${q.reason}`);
+      lines.push(`- **\u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044**: ${q.question}`);
+      lines.push("");
+    }
   }
   lines.push("");
-  lines.push("| AC | REQ | Tasks |");
-  lines.push("|---|---|---|");
-  for (const ac of report.acceptanceCriteria) {
-    lines.push(`| ${escapeMdCell2(ac.id)} | ${escapeMdCell2(ac.reqs.join(", ") || "\u2014")} | ${escapeMdCell2(ac.tasks.join(", ") || "\u26A0\uFE0F UNASSIGNED")} |`);
+  lines.push("## 3. \u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\uFF08Alternatives Rejected\uFF09");
+  lines.push("");
+  if (data.alternativesRejected.length === 0) {
+    lines.push("- \u8A18\u8F09\u306A\u3057\uFF08\u6A19\u6E96\u69CB\u6210\u307E\u305F\u306F\u5358\u4E00\u6848\uFF09\u3002");
+  } else {
+    lines.push("| \u5019\u88DC\u6848 | \u4E0D\u63A1\u7528\u7406\u7531 | \u518D\u691C\u8A0E\u6761\u4EF6 | \u5143\u306E\u7B87\u6240 |");
+    lines.push("|---|---|---|---|");
+    for (const alt of data.alternativesRejected) {
+      lines.push(
+        `| ${escapeMdCell(alt.option)} | ${escapeMdCell(alt.reason)} | ${escapeMdCell(alt.revisitWhen)} | ${escapeMdCell(alt.sourceRef || "\u2014")} |`
+      );
+    }
   }
   lines.push("");
-  lines.push("| Task | Risk | Domains | Blockers | Scope |");
+  lines.push("## 4. \u30EC\u30D3\u30E5\u30FC\u89B3\u70B9\u3068\u4ECA\u56DE\u306E\u63A1\u5426\u30FB\u7406\u7531\uFF08\u5171\u901A 8 \u89B3\u70B9 \xD7 \u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709\u89B3\u70B9\uFF09");
+  lines.push("");
+  lines.push("| ID | \u9818\u57DF | \u30EC\u30D3\u30E5\u30FC\u89B3\u70B9 | \u4ECA\u56DE | \u4ECA\u56DE\u306E\u7406\u7531 |");
   lines.push("|---|---|---|---|---|");
-  for (const t of report.tasks) {
+  for (const p of data.reviewPerspectives || []) {
     lines.push(
-      `| ${escapeMdCell2(t.id)} | ${escapeMdCell2(t.risk)} | ${escapeMdCell2(t.domains.join(", "))} | ${escapeMdCell2(t.blockers.join(", ") || "None")} | ${escapeMdCell2(t.scopePaths.join(", ") || "\u2014")} |`
+      `| ${escapeMdCell(p.id)} | ${escapeMdCell(p.area)} | ${escapeMdCell(p.perspective)} | **${escapeMdCell(p.disposition)}** | ${escapeMdCell(p.reason)} |`
     );
   }
-  if (report.impact.changedIds.length > 0 || report.impact.changedFiles.length > 0) {
+  lines.push("");
+  if (data.gateResults.length > 0) {
+    lines.push("## 5. sdd-gate \u5B9F\u884C\u72B6\u6CC1");
     lines.push("");
-    lines.push("## Incremental Follow-up Impact");
-    lines.push(`- **Impacted Tasks (re-run)**: ${report.impact.impactedTasks.join(", ") || "None"}`);
-    if (report.impact.transitiveImpactedTasks.length > 0) {
-      lines.push(`  - Direct: ${report.impact.directImpactedTasks.join(", ") || "None"} | Transitive (via Blockers): ${report.impact.transitiveImpactedTasks.join(", ")}`);
+    lines.push("| Task | Verdict | Spec Drift | Sensors |");
+    lines.push("|---|---|---|---|");
+    for (const g of data.gateResults) {
+      lines.push(`| ${escapeMdCell(g.taskId)} | ${escapeMdCell(g.verdict)} | ${escapeMdCell(g.specDrift)} | ${g.sensorsPassed ? "PASS" : "FAIL"} |`);
     }
-    lines.push(`- **Reusable Tasks (skip)**: ${report.impact.reusableTasks.join(", ") || "None"}`);
+    lines.push("");
   }
   return `${lines.join("\n")}
 `;
 }
-function parseArgs4(argv) {
-  const opts = { feature: null, root: null, changedIds: [], changedFiles: [], format: "json", strict: false };
-  for (let i = 0; i < argv.length; i += 1) {
-    const a = argv[i];
-    if (a === "--feature" && argv[i + 1]) opts.feature = argv[++i];
-    else if (a === "--root" && argv[i + 1]) opts.root = argv[++i];
-    else if (a === "--changed-ids" && argv[i + 1]) opts.changedIds.push(...argv[++i].split(",").filter(Boolean));
-    else if (a === "--changed-files" && argv[i + 1]) opts.changedFiles.push(...argv[++i].split(",").filter(Boolean));
-    else if (a === "--format" && argv[i + 1]) opts.format = argv[++i];
-    else if (a === "--strict") opts.strict = true;
-  }
-  return opts;
-}
-var isMain2 = process.argv[1] && path4.basename(process.argv[1]) === "check-traceability.mjs" && pathToFileURL3(path4.resolve(process.argv[1])).href === import.meta.url;
-if (isMain2) {
-  const opts = parseArgs4(process.argv.slice(2));
-  if (!opts.feature || opts.format !== "json" && opts.format !== "markdown") {
-    process.stderr.write(
-      "Usage: node check-traceability.mjs --feature <feature> [--root <dir>] [--changed-ids REQ-001] [--changed-files path] [--format json|markdown] [--strict]\n"
-    );
-    process.exit(2);
-  }
-  try {
-    const report = analyzeTraceability({
-      feature: opts.feature,
-      projectRoot: opts.root || process.cwd(),
-      changedIds: opts.changedIds,
-      changedFiles: opts.changedFiles
-    });
-    process.stdout.write(
-      opts.format === "markdown" ? formatTraceabilityMarkdown(report) : `${JSON.stringify(report, null, 2)}
-`
-    );
-    process.exit(opts.strict && !report.complete ? 1 : 0);
-  } catch (err2) {
-    process.stderr.write(`check-traceability error: ${err2.message}
-`);
-    process.exit(2);
-  }
-}
-
-// ../../plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs
-import fs5 from "node:fs";
-import path5 from "node:path";
-import { pathToFileURL as pathToFileURL4 } from "node:url";
-var NON_CHECKS = Object.freeze([
-  "\u4ED5\u69D8\u30FB\u8A2D\u8A08\u30FB\u30C9\u30E1\u30A4\u30F3\u30E2\u30C7\u30EB\u306E\u610F\u5473\u7684\u59A5\u5F53\u6027\u3084\u6587\u66F8\u9593\u306E\u5185\u5BB9\u77DB\u76FE",
-  "\u30C6\u30B9\u30C8\u30B1\u30FC\u30B9\u306E\u7DB2\u7F85\u6027\u30FB\u30D7\u30ED\u30C0\u30AF\u30B7\u30E7\u30F3\u30B3\u30FC\u30C9\u306E\u8AD6\u7406\u30D0\u30B0\u3084\u6027\u80FD",
-  "\u30AF\u30E9\u30A6\u30C9\u74B0\u5883\uFF08AWS/Azure\uFF09\u3084\u672C\u756A\u30C7\u30FC\u30BF\u30D9\u30FC\u30B9\u306E\u5B9F\u72B6\u614B\u30FB\u8A8D\u8A3C\u6709\u52B9\u6027",
-  "\u5916\u90E8\u30DB\u30B9\u30C8 CLI\uFF08Claude Code / Codex / Copilot / Gemini\uFF09\u5185\u90E8\u306E\u975E\u516C\u958B\u6319\u52D5"
-]);
-var MAX_SKILL_DESCRIPTION_CHARS = 1024;
-var VALID_MODES2 = /* @__PURE__ */ new Set(["warn", "confirm", "strict"]);
-var VALID_PRE_IMPL2 = /* @__PURE__ */ new Set(["auto", "always", "off"]);
-var VALID_RISK_TIERS2 = /* @__PURE__ */ new Set(["low", "standard", "high"]);
-var CONTROL_CHAR_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F]/;
-var NON_ASCII_RE = /[^\x00-\x7F]/;
-var IGNORED_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", "build", ".next", "__pycache__", ".venv"]);
-function walkFiles(dir, predicate, out = []) {
-  if (!fs5.existsSync(dir)) return out;
-  let entries;
-  try {
-    entries = fs5.readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return out;
-  }
+function walkIoFiles(io, relDir, predicate, out = [], depth = 0) {
+  if (depth > 12) return out;
+  const entries = io.listDir(relDir);
   for (const entry of entries) {
     if (IGNORED_DIRS.has(entry.name)) continue;
-    const full = path5.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      walkFiles(full, predicate, out);
-    } else if (entry.isFile() && predicate(full, entry.name)) {
-      out.push(full);
+    const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
+    if (entry.isDirectory) {
+      walkIoFiles(io, childRel, predicate, out, depth + 1);
+    } else if (entry.isFile && predicate(childRel, entry.name)) {
+      out.push(childRel);
     }
   }
   return out;
@@ -37159,22 +37271,25 @@ function addFinding(findings, severity, category, message, relPath, action) {
     action
   });
 }
-function checkRuntime(findings) {
-  const major = Number(process.versions.node.split(".")[0]);
+function runDoctorCore(io, {
+  staleDays = 14,
+  nodeVersion = process.versions.node,
+  rootLabel = null,
+  scanExtendedRepo = true
+} = {}) {
+  const findings = [];
+  const major = Number(String(nodeVersion || "").split(".")[0]);
   if (Number.isNaN(major) || major < 20) {
     addFinding(
       findings,
       "NG",
       "runtime",
-      `Node.js ${process.versions.node} \u306F v2 \u63A8\u5968\u8981\u4EF6\uFF08>= 20 LTS\uFF09\u672A\u6E80\u3067\u3059`,
+      `Node.js ${nodeVersion} \u306F v2 \u63A8\u5968\u8981\u4EF6\uFF08>= 20 LTS\uFF09\u672A\u6E80\u3067\u3059`,
       null,
       "Node.js 20 LTS \u4EE5\u4E0A\u3078\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3057\u3066\u304F\u3060\u3055\u3044"
     );
   }
-}
-function checkKillSwitch(root, findings) {
-  const stopPath = path5.join(root, "AGENT_STOP");
-  if (fs5.existsSync(stopPath)) {
+  if (io.exists("AGENT_STOP")) {
     addFinding(
       findings,
       "WARN",
@@ -37184,53 +37299,49 @@ function checkKillSwitch(root, findings) {
       "\u4F5C\u696D\u3092\u518D\u958B\u3059\u308B\u5834\u5408\u306F\u5B89\u5168\u3092\u78BA\u8A8D\u3057\u305F\u3046\u3048\u3067 AGENT_STOP \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044"
     );
   }
-}
-function checkConfig(root, findings) {
-  const jsonPath = path5.join(root, "sdd", "guardrails.json");
-  const yamlPath = path5.join(root, "sdd", "guardrails.yaml");
+  const jsonRaw = io.readText("sdd/guardrails.json");
+  const yamlRaw = jsonRaw === null ? io.readText("sdd/guardrails.yaml") : null;
   let parsed = null;
-  let rel = null;
-  if (fs5.existsSync(jsonPath)) {
-    rel = "sdd/guardrails.json";
+  let configRel = null;
+  if (jsonRaw !== null) {
+    configRel = "sdd/guardrails.json";
     try {
-      parsed = JSON.parse(fs5.readFileSync(jsonPath, "utf8"));
+      parsed = JSON.parse(jsonRaw);
     } catch (err2) {
       addFinding(
         findings,
         "NG",
         "config",
-        `JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2.message}`,
-        rel,
+        `JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
+        configRel,
         "sdd/guardrails.json \u306E\u69CB\u6587\u3092 contracts/guardrails.schema.json \u306B\u6CBF\u3063\u3066\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044"
       );
-      return;
     }
-  } else if (fs5.existsSync(yamlPath)) {
-    rel = "sdd/guardrails.yaml";
+  } else if (yamlRaw !== null) {
+    configRel = "sdd/guardrails.yaml";
     try {
-      const raw = fs5.readFileSync(yamlPath, "utf8");
-      parsed = parseSimpleYaml(raw);
+      parsed = parseSimpleYaml(yamlRaw);
       if (!parsed || Object.keys(parsed).length === 0) {
         addFinding(
           findings,
           "NG",
           "config",
           "sdd/guardrails.yaml \u304C\u7A7A\u307E\u305F\u306F\u89E3\u6790\u4E0D\u80FD\u3067\u3059",
-          rel,
+          configRel,
           "sdd/guardrails.example.yaml \u3092\u53C2\u8003\u306B\u6709\u52B9\u306A\u8A2D\u5B9A\u3092\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
         );
-        return;
+        parsed = null;
       }
     } catch (err2) {
       addFinding(
         findings,
         "NG",
         "config",
-        `YAML \u8AAD\u8FBC\u30A8\u30E9\u30FC: ${err2.message}`,
-        rel,
+        `YAML \u8AAD\u8FBC\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
+        configRel,
         "sdd/guardrails.yaml \u306E\u6587\u5B57\u30B3\u30FC\u30C9\u3068\u69CB\u6587\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
       );
-      return;
+      parsed = null;
     }
   } else {
     addFinding(
@@ -37241,166 +37352,129 @@ function checkConfig(root, findings) {
       "sdd/guardrails.yaml",
       "\u5FC5\u8981\u306B\u5FDC\u3058\u3066 sdd/guardrails.example.yaml \u3092\u30B3\u30D4\u30FC\u3057\u3066\u8ABF\u6574\u3057\u3066\u304F\u3060\u3055\u3044"
     );
-    return;
   }
-  if (parsed.schema && parsed.schema !== "sdd-guardrails/v1") {
-    addFinding(
-      findings,
-      "NG",
-      "config",
-      `\u672A\u5BFE\u5FDC\u306E schema \u5024: ${parsed.schema}`,
-      rel,
-      'schema \u3092 "sdd-guardrails/v1" \u306B\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044'
-    );
-  }
-  const mode = parsed?.spec_guard?.mode;
-  if (mode !== void 0 && !VALID_MODES2.has(mode)) {
-    addFinding(
-      findings,
-      "NG",
-      "config",
-      `\u4E0D\u6B63\u306A spec_guard.mode: ${mode}`,
-      rel,
-      "warn | confirm | strict \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  const preImpl = parsed?.review?.pre_impl_check;
-  if (preImpl !== void 0 && !VALID_PRE_IMPL2.has(preImpl)) {
-    addFinding(
-      findings,
-      "NG",
-      "config",
-      `\u4E0D\u6B63\u306A review.pre_impl_check: ${preImpl}`,
-      rel,
-      "auto | always | off \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  const tier = parsed?.risk_defaults?.default_tier;
-  if (tier !== void 0 && !VALID_RISK_TIERS2.has(tier)) {
-    addFinding(
-      findings,
-      "NG",
-      "config",
-      `\u4E0D\u6B63\u306A risk_defaults.default_tier: ${tier}`,
-      rel,
-      "low | standard | high \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-}
-function checkHooks(root, findings) {
-  const candidates = [
-    "plugins/sdd-quality-loop/hooks/claude-hooks.json",
-    "plugins/sdd-quality-loop/hooks/hooks.json",
-    "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
-    "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
-    ".claude/settings.json",
-    ".codex/hooks.json",
-    ".gemini/settings.json"
-  ];
-  const ghHooksDir = path5.join(root, ".github", "hooks");
-  if (fs5.existsSync(ghHooksDir)) {
-    for (const file2 of walkFiles(ghHooksDir, (_full, name) => name.endsWith(".json"))) {
-      candidates.push(toPosixPath(path5.relative(root, file2)));
+  if (parsed && configRel) {
+    if (parsed.schema && parsed.schema !== "sdd-guardrails/v1") {
+      addFinding(findings, "NG", "config", `\u672A\u5BFE\u5FDC\u306E schema \u5024: ${parsed.schema}`, configRel, 'schema \u3092 "sdd-guardrails/v1" \u306B\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044');
+    }
+    const mode = parsed?.spec_guard?.mode;
+    if (mode !== void 0 && !VALID_MODES.has(mode)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A spec_guard.mode: ${mode}`, configRel, "warn | confirm | strict \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+    const preImpl = parsed?.review?.pre_impl_check;
+    if (preImpl !== void 0 && !VALID_PRE_IMPL.has(preImpl)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A review.pre_impl_check: ${preImpl}`, configRel, "auto | always | off \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+    const tier = parsed?.risk_defaults?.default_tier;
+    if (tier !== void 0 && !VALID_RISK_TIERS.has(tier)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A risk_defaults.default_tier: ${tier}`, configRel, "low | standard | high \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+    const maxRounds = parsed?.limits?.max_auto_fix_rounds;
+    if (maxRounds !== void 0 && (!Number.isInteger(maxRounds) || maxRounds < 0 || maxRounds > 10)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A limits.max_auto_fix_rounds: ${maxRounds}`, configRel, "0\u301C10 \u306E\u6574\u6570\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
     }
   }
-  let checkedCount = 0;
-  for (const rel of candidates) {
-    const abs = path5.join(root, rel);
-    if (!fs5.existsSync(abs)) continue;
-    checkedCount += 1;
-    let raw;
-    try {
-      raw = fs5.readFileSync(abs, "utf8");
-      JSON.parse(raw);
-    } catch (err2) {
+  if (scanExtendedRepo) {
+    const hookCandidates = [
+      "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+      "plugins/sdd-quality-loop/hooks/hooks.json",
+      "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+      "plugins/sdd-quality-loop/hooks.json",
+      "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
+      "plugins/sdd-implementation/hooks.json",
+      ".claude/settings.json",
+      ".codex/hooks.json",
+      ".gemini/settings.json",
+      ".agents/hooks.json",
+      ...walkIoFiles(io, ".github/hooks", (_rel, name) => name.endsWith(".json"))
+    ];
+    let checkedHooks = 0;
+    for (const rel of hookCandidates) {
+      const raw = io.readText(rel);
+      if (raw === null) continue;
+      checkedHooks += 1;
+      try {
+        JSON.parse(raw);
+      } catch (err2) {
+        addFinding(
+          findings,
+          "NG",
+          "hooks",
+          `\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306E JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
+          rel,
+          "JSON \u69CB\u6587\u3092\u4FEE\u6B63\u3057\u3001\u30DB\u30B9\u30C8\u306E\u30D5\u30C3\u30AF\u8AAD\u8FBC\u304C\u30B5\u30A4\u30EC\u30F3\u30C8\u5931\u6557\u3057\u306A\u3044\u72B6\u614B\u306B\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+        continue;
+      }
+      if (/sdd-hook-guard/i.test(raw)) {
+        addFinding(
+          findings,
+          "WARN",
+          "hooks",
+          "\u5EC3\u6B62\u6E08\u307F\u306E v1 \u30CF\u30FC\u30C9\u30ED\u30C3\u30AF\uFF08sdd-hook-guard\uFF09\u53C2\u7167\u304C\u6B8B\u5B58\u3057\u3066\u3044\u307E\u3059",
+          rel,
+          "install.sh / install.ps1 \u3092\u518D\u5B9F\u884C\u3057\u3066 v2/sdd-soft-guard.mjs \u3078\u5207\u308A\u66FF\u3048\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
+    }
+    if (io.listDir("plugins/sdd-quality-loop").length > 0 && !io.exists("plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs")) {
       addFinding(
         findings,
         "NG",
         "hooks",
-        `\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306E JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2.message}`,
-        rel,
-        "JSON \u69CB\u6587\u3092\u4FEE\u6B63\u3057\u3001\u30DB\u30B9\u30C8\u306E\u30D5\u30C3\u30AF\u8AAD\u8FBC\u304C\u30B5\u30A4\u30EC\u30F3\u30C8\u5931\u6557\u3057\u306A\u3044\u72B6\u614B\u306B\u3057\u3066\u304F\u3060\u3055\u3044"
+        "v2 \u30BD\u30D5\u30C8\u30AC\u30FC\u30C9\u672C\u4F53\uFF08sdd-soft-guard.mjs\uFF09\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+        "sdd-forge \u3092\u518D\u30A4\u30F3\u30B9\u30C8\u30FC\u30EB\u3057\u3066\u304F\u3060\u3055\u3044"
       );
-      continue;
     }
-    if (/sdd-hook-guard/i.test(raw)) {
+    if (checkedHooks === 0) {
       addFinding(
         findings,
-        "WARN",
+        "INFO",
         "hooks",
-        "\u5EC3\u6B62\u6E08\u307F\u306E v1 \u30CF\u30FC\u30C9\u30ED\u30C3\u30AF\uFF08sdd-hook-guard\uFF09\u53C2\u7167\u304C\u6B8B\u5B58\u3057\u3066\u3044\u307E\u3059",
-        rel,
-        "install.sh / install.ps1 \u3092\u518D\u5B9F\u884C\u3057\u3066 v2/sdd-soft-guard.mjs \u3078\u5207\u308A\u66FF\u3048\u3066\u304F\u3060\u3055\u3044"
+        "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u914D\u4E0B\u306B\u30ED\u30FC\u30AB\u30EB\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306F\u691C\u51FA\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F\uFF08\u30E6\u30FC\u30B6\u30FC\u30DB\u30FC\u30E0\u5074\u8A2D\u5B9A\u3092\u5229\u7528\u4E2D\u306E\u53EF\u80FD\u6027\uFF09",
+        null,
+        "\u30D5\u30C3\u30AF\u52D5\u4F5C\u3092\u78BA\u8A8D\u3059\u308B\u5834\u5408\u306F\u30DB\u30B9\u30C8\u8A2D\u5B9A\uFF08~/.claude / ~/.codex / ~/.gemini/config \u7B49\uFF09\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
       );
     }
-  }
-  const pluginGuard = path5.join(root, "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs");
-  if (fs5.existsSync(path5.join(root, "plugins/sdd-quality-loop")) && !fs5.existsSync(pluginGuard)) {
-    addFinding(
-      findings,
-      "NG",
-      "hooks",
-      "v2 \u30BD\u30D5\u30C8\u30AC\u30FC\u30C9\u672C\u4F53\uFF08sdd-soft-guard.mjs\uFF09\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093",
-      "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
-      "sdd-forge \u3092\u518D\u30A4\u30F3\u30B9\u30C8\u30FC\u30EB\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  if (checkedCount === 0) {
-    addFinding(
-      findings,
-      "INFO",
-      "hooks",
-      "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u914D\u4E0B\u306B\u30ED\u30FC\u30AB\u30EB\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306F\u691C\u51FA\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F\uFF08\u30E6\u30FC\u30B6\u30FC\u30DB\u30FC\u30E0\u5074\u8A2D\u5B9A\u3092\u5229\u7528\u4E2D\u306E\u53EF\u80FD\u6027\uFF09",
-      null,
-      "\u30D5\u30C3\u30AF\u52D5\u4F5C\u3092\u78BA\u8A8D\u3059\u308B\u5834\u5408\u306F\u30DB\u30B9\u30C8\u8A2D\u5B9A\uFF08~/.claude / ~/.codex / ~/.gemini \u7B49\uFF09\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-}
-function checkSkills(root, findings) {
-  const skillRoots = [path5.join(root, "plugins"), path5.join(root, "sdd", "skills")];
-  const skillFiles = [];
-  for (const dir of skillRoots) {
-    walkFiles(dir, (full, name) => {
-      if (name !== "SKILL.md") return false;
-      const posix = toPosixPath(path5.relative(root, full));
-      return !posix.includes("/human-copy") && !posix.includes("/references/");
-    }, skillFiles);
-  }
-  for (const abs of skillFiles) {
-    const rel = toPosixPath(path5.relative(root, abs));
-    const content = fs5.readFileSync(abs, "utf8");
-    const fm = parseFrontmatter(content);
-    if (!fm || !fm.name || !fm.description) {
-      addFinding(
-        findings,
-        "NG",
-        "skills",
-        "SKILL.md \u306E YAML \u30D5\u30ED\u30F3\u30C8\u30DE\u30BF\u30FC\uFF08name / description\uFF09\u304C\u6B20\u843D\u307E\u305F\u306F\u4E0D\u6B63\u3067\u3059",
-        rel,
-        "\u5148\u982D\u306B --- \u3067\u56F2\u3093\u3060 name \u3068 description \u3092\u8A18\u8F09\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
-      continue;
-    }
-    if (fm.description.length > MAX_SKILL_DESCRIPTION_CHARS) {
-      addFinding(
-        findings,
-        "NG",
-        "skills",
-        `description \u304C ${fm.description.length} \u6587\u5B57\u3042\u308A\u4E0A\u9650\uFF08${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\uFF09\u3092\u8D85\u904E\uFF08\u30DB\u30B9\u30C8\u5074\u3067\u8B66\u544A\u306A\u304F\u7121\u8996\u3055\u308C\u308B\u6050\u308C\uFF09`,
-        rel,
-        `description \u3092 ${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\u4EE5\u5185\u3078\u8981\u7D04\u3057\u3066\u304F\u3060\u3055\u3044`
-      );
+    const skillFiles = [
+      ...walkIoFiles(io, "plugins", (rel, name) => name === "SKILL.md" && !rel.includes("/human-copy") && !rel.includes("/references/")),
+      ...walkIoFiles(io, "sdd/skills", (rel, name) => name === "SKILL.md" && !rel.includes("/human-copy") && !rel.includes("/references/"))
+    ];
+    for (const rel of skillFiles) {
+      const content = io.readText(rel);
+      if (content === null) continue;
+      const fm = parseFrontmatter(content);
+      if (!fm || !fm.name || !fm.description) {
+        addFinding(
+          findings,
+          "NG",
+          "skills",
+          "SKILL.md \u306E YAML \u30D5\u30ED\u30F3\u30C8\u30DE\u30BF\u30FC\uFF08name / description\uFF09\u304C\u6B20\u843D\u307E\u305F\u306F\u4E0D\u6B63\u3067\u3059",
+          rel,
+          "\u5148\u982D\u306B --- \u3067\u56F2\u3093\u3060 name \u3068 description \u3092\u8A18\u8F09\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+        continue;
+      }
+      if (fm.description.length > MAX_SKILL_DESCRIPTION_CHARS) {
+        addFinding(
+          findings,
+          "NG",
+          "skills",
+          `description \u304C ${fm.description.length} \u6587\u5B57\u3042\u308A\u4E0A\u9650\uFF08${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\uFF09\u3092\u8D85\u904E\uFF08\u30DB\u30B9\u30C8\u5074\u3067\u8B66\u544A\u306A\u304F\u7121\u8996\u3055\u308C\u308B\u6050\u308C\uFF09`,
+          rel,
+          `description \u3092 ${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\u4EE5\u5185\u3078\u8981\u7D04\u3057\u3066\u304F\u3060\u3055\u3044`
+        );
+      }
     }
   }
-}
-function checkEncodingAndControlChars(root, findings) {
   const textTargets = [
-    ...walkFiles(path5.join(root, "specs"), (_full, name) => /\.(md|json|ya?ml)$/i.test(name)),
-    ...walkFiles(path5.join(root, "sdd"), (_full, name) => /\.(md|json|ya?ml)$/i.test(name))
+    ...walkIoFiles(io, "specs", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name)),
+    ...scanExtendedRepo ? walkIoFiles(io, "sdd", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name)) : walkIoFiles(io, "sdd/knowledge", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name))
   ];
-  for (const abs of textTargets) {
-    const rel = toPosixPath(path5.relative(root, abs));
-    const raw = fs5.readFileSync(abs, "utf8");
+  for (const rel of textTargets) {
+    const raw = io.readText(rel);
+    if (raw === null) continue;
     const match = CONTROL_CHAR_RE.exec(raw);
     if (match) {
       const codeHex = `0x${match[0].charCodeAt(0).toString(16).padStart(2, "0")}`;
@@ -37414,48 +37488,39 @@ function checkEncodingAndControlChars(root, findings) {
       );
     }
   }
-  const psTargets = [
-    ...walkFiles(path5.join(root, "sdd"), (_full, name) => name.endsWith(".ps1")),
-    ...walkFiles(path5.join(root, "scripts"), (_full, name) => name.endsWith(".ps1"))
-  ];
-  for (const abs of psTargets) {
-    const rel = toPosixPath(path5.relative(root, abs));
-    const buf = fs5.readFileSync(abs);
-    const hasBom = buf.length >= 3 && buf[0] === 239 && buf[1] === 187 && buf[2] === 191;
-    if (!hasBom && NON_ASCII_RE.test(buf.toString("utf8"))) {
-      addFinding(
-        findings,
-        "WARN",
-        "encoding",
-        "\u975E ASCII \u6587\u5B57\u3092\u542B\u3080 PowerShell \u30B9\u30AF\u30EA\u30D7\u30C8\u306B UTF-8 BOM \u304C\u3042\u308A\u307E\u305B\u3093\uFF08Windows PS 5.1 \u6587\u5B57\u5316\u3051\u30EA\u30B9\u30AF\uFF09",
-        rel,
-        "UTF-8 BOM \u4ED8\u304D\u3067\u4FDD\u5B58\u3059\u308B\u304B ASCII \u306E\u307F\u3067\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
+  if (scanExtendedRepo && typeof io.readBytes === "function") {
+    const psTargets = [
+      ...walkIoFiles(io, "sdd", (_rel, name) => name.endsWith(".ps1")),
+      ...walkIoFiles(io, "scripts", (_rel, name) => name.endsWith(".ps1"))
+    ];
+    for (const rel of psTargets) {
+      const buf = io.readBytes(rel);
+      if (!buf) continue;
+      const hasBom = buf.length >= 3 && buf[0] === 239 && buf[1] === 187 && buf[2] === 191;
+      const decoded = Buffer.from(buf).toString("utf8");
+      if (!hasBom && NON_ASCII_RE.test(decoded)) {
+        addFinding(
+          findings,
+          "WARN",
+          "encoding",
+          "\u975E ASCII \u6587\u5B57\u3092\u542B\u3080 PowerShell \u30B9\u30AF\u30EA\u30D7\u30C8\u306B UTF-8 BOM \u304C\u3042\u308A\u307E\u305B\u3093\uFF08Windows PS 5.1 \u6587\u5B57\u5316\u3051\u30EA\u30B9\u30AF\uFF09",
+          rel,
+          "UTF-8 BOM \u4ED8\u304D\u3067\u4FDD\u5B58\u3059\u308B\u304B ASCII \u306E\u307F\u3067\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
     }
-  }
-}
-function checkSpecsAndTasks(root, staleDays, findings) {
-  const specsDir = path5.join(root, "specs");
-  if (!fs5.existsSync(specsDir)) return;
-  let entries;
-  try {
-    entries = fs5.readdirSync(specsDir, { withFileTypes: true });
-  } catch {
-    return;
   }
   const nowMs = Date.now();
   const staleMs = staleDays * 24 * 60 * 60 * 1e3;
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const featureDir = path5.join(specsDir, entry.name);
-    const tasksPath = path5.join(featureDir, "tasks.md");
-    if (!fs5.existsSync(tasksPath)) continue;
-    const relTasks = toPosixPath(path5.relative(root, tasksPath));
-    const content = fs5.readFileSync(tasksPath, "utf8");
+  for (const entry of io.listDir("specs")) {
+    if (!entry.isDirectory) continue;
+    const relTasks = `specs/${entry.name}/tasks.md`;
+    const content = io.readText(relTasks);
+    if (content === null) continue;
     const approvedCount = countPrimaryApprovals(content);
     const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
-    const baselinePath = path5.join(featureDir, ".spec-baseline.json");
-    if (approvedCount > 0 && hasActiveTask && !fs5.existsSync(baselinePath)) {
+    const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
+    if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
       addFinding(
         findings,
         "WARN",
@@ -37466,9 +37531,9 @@ function checkSpecsAndTasks(root, staleDays, findings) {
       );
     }
     if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
-      const stat = fs5.statSync(tasksPath);
-      const ageDays = Math.floor((nowMs - stat.mtimeMs) / (24 * 60 * 60 * 1e3));
-      if (nowMs - stat.mtimeMs > staleMs) {
+      const mtimeMs = io.statMtimeMs(relTasks);
+      if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
+        const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1e3));
         addFinding(
           findings,
           "WARN",
@@ -37480,63 +37545,13 @@ function checkSpecsAndTasks(root, staleDays, findings) {
       }
     }
   }
-}
-function checkDriftEvents(root, findings) {
-  const logPath = path5.join(root, ".sdd", "drift-events.jsonl");
-  if (!fs5.existsSync(logPath)) return;
-  const lines = normalizeNewlines(fs5.readFileSync(logPath, "utf8")).split("\n").filter((l) => l.trim().length > 0);
-  if (lines.length === 0) return;
-  let denyCount = 0;
-  let warnCount = 0;
-  let parseErrors = 0;
-  for (const line of lines) {
-    try {
-      const ev = JSON.parse(line);
-      const action = typeof ev.action === "string" ? ev.action : "";
-      const decision = typeof ev.decision === "string" ? ev.decision : "";
-      if (action === "strict_deny" || action === "confirm_soft_deny" || decision === "deny") {
-        denyCount += 1;
-      } else if (action === "warn_allow" || action === "confirm_amended_allow" || action === "allow_override" || decision === "warn" || decision === "confirm") {
-        warnCount += 1;
-      }
-    } catch {
-      parseErrors += 1;
-    }
-  }
-  if (parseErrors > 0) {
-    addFinding(
-      findings,
-      "WARN",
-      "events",
-      `.sdd/drift-events.jsonl \u306B\u7834\u640D\u884C\u304C ${parseErrors} \u4EF6\u3042\u308A\u307E\u3059`,
-      ".sdd/drift-events.jsonl",
-      "\u7834\u640D\u884C\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  addFinding(
-    findings,
-    "INFO",
-    "events",
-    `\u30AC\u30FC\u30C9\u30A4\u30D9\u30F3\u30C8\u7D2F\u8A08 ${lines.length} \u4EF6\uFF08deny=${denyCount}, warn/confirm=${warnCount}\uFF09`,
-    ".sdd/drift-events.jsonl",
-    "workflow-retrospective \u5B9F\u884C\u6642\u306E\u4E8B\u5B9F\u30D9\u30FC\u30B9\u96C6\u8A08\u306B\u5229\u7528\u3067\u304D\u307E\u3059"
-  );
-}
-function checkKnowledgeIndexes(root, findings) {
   const MAX_INDEX_CHARS = 3e3;
-  const knowledgeRoot = path5.join(root, "sdd", "knowledge");
-  const indexFiles = walkFiles(knowledgeRoot, (_full, name) => name.toUpperCase() === "INDEX.MD");
-  for (const abs of indexFiles) {
-    let raw;
-    try {
-      if (!fs5.statSync(abs).isFile()) continue;
-      raw = fs5.readFileSync(abs, "utf8");
-    } catch {
-      continue;
-    }
+  const indexFiles = walkIoFiles(io, "sdd/knowledge", (_rel, name) => name.toUpperCase() === "INDEX.MD");
+  for (const rel of indexFiles) {
+    const raw = io.readText(rel);
+    if (raw === null) continue;
     const len = normalizeNewlines(raw).length;
     if (len > MAX_INDEX_CHARS) {
-      const rel = toPosixPath(path5.relative(root, abs));
       addFinding(
         findings,
         "WARN",
@@ -37547,119 +37562,121 @@ function checkKnowledgeIndexes(root, findings) {
       );
     }
   }
-}
-function runDoctor(options = {}) {
-  const root = safeRealpath(options.root || findProjectRoot());
-  const staleDays = Number.isFinite(options.staleDays) ? options.staleDays : 14;
-  const findings = [];
-  checkRuntime(findings);
-  checkKillSwitch(root, findings);
-  checkConfig(root, findings);
-  checkHooks(root, findings);
-  checkSkills(root, findings);
-  checkEncodingAndControlChars(root, findings);
-  checkSpecsAndTasks(root, staleDays, findings);
-  checkKnowledgeIndexes(root, findings);
-  checkDriftEvents(root, findings);
+  const driftRaw = io.readText(".sdd/drift-events.jsonl");
+  if (driftRaw !== null) {
+    const lines = normalizeNewlines(driftRaw).split("\n").filter((l) => l.trim().length > 0);
+    if (lines.length > 0) {
+      let denyCount = 0;
+      let warnCount = 0;
+      let parseErrors = 0;
+      for (const line of lines) {
+        try {
+          const ev = JSON.parse(line);
+          const action = typeof ev.action === "string" ? ev.action : "";
+          const decision = typeof ev.decision === "string" ? ev.decision : "";
+          if (action === "strict_deny" || action === "confirm_soft_deny" || decision === "deny") {
+            denyCount += 1;
+          } else if (action === "warn_allow" || action === "confirm_amended_allow" || action === "allow_override" || decision === "warn" || decision === "confirm") {
+            warnCount += 1;
+          }
+        } catch {
+          parseErrors += 1;
+        }
+      }
+      if (parseErrors > 0) {
+        addFinding(
+          findings,
+          "WARN",
+          "events",
+          `.sdd/drift-events.jsonl \u306B\u7834\u640D\u884C\u304C ${parseErrors} \u4EF6\u3042\u308A\u307E\u3059`,
+          ".sdd/drift-events.jsonl",
+          "\u7834\u640D\u884C\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
+      addFinding(
+        findings,
+        "INFO",
+        "events",
+        `\u30AC\u30FC\u30C9\u30A4\u30D9\u30F3\u30C8\u7D2F\u8A08 ${lines.length} \u4EF6\uFF08deny=${denyCount}, warn/confirm=${warnCount}\uFF09`,
+        ".sdd/drift-events.jsonl",
+        "workflow-retrospective \u5B9F\u884C\u6642\u306E\u4E8B\u5B9F\u30D9\u30FC\u30B9\u96C6\u8A08\u306B\u5229\u7528\u3067\u304D\u307E\u3059"
+      );
+    }
+  }
   const summary = {
     ng: findings.filter((f) => f.severity === "NG").length,
     warn: findings.filter((f) => f.severity === "WARN").length,
     info: findings.filter((f) => f.severity === "INFO").length
   };
-  return {
+  const result = {
     schema: "sdd-doctor/v1",
     checked_at: (/* @__PURE__ */ new Date()).toISOString(),
-    root,
     status: summary.ng > 0 ? "NG" : summary.warn > 0 ? "WARN" : "CLEAN",
     summary,
     non_checks: [...NON_CHECKS],
     findings
   };
-}
-function formatDoctorText(report, { quietInfo = false } = {}) {
-  const lines = [];
-  lines.push(
-    `sdd-doctor (${report.checked_at}) \u2014 ${report.status} (NG: ${report.summary.ng} / WARN: ${report.summary.warn} / INFO: ${report.summary.info})`
-  );
-  lines.push("Boundary: CLEAN \u306F\u4EE5\u4E0B\u306E\u691C\u67FB\u5883\u754C\u5185\u3067\u7570\u5E38\u306A\u3057\u3092\u610F\u5473\u3057\u3001\u305D\u308C\u4EE5\u4E0A\u3092\u4FDD\u8A3C\u3057\u307E\u305B\u3093\u3002");
-  lines.push("Non-checks\uFF08\u691C\u67FB\u3057\u306A\u3044\u3082\u306E\uFF09:");
-  for (const item of report.non_checks) {
-    lines.push(`  - ${item}`);
+  if (rootLabel !== null) {
+    result.root = rootLabel;
   }
-  lines.push("");
-  const visible = quietInfo ? report.findings.filter((f) => f.severity !== "INFO") : report.findings;
-  if (visible.length === 0) {
-    lines.push("No findings inside the checked boundary.");
-  } else {
-    for (const f of visible) {
-      const loc = f.path ? ` (${f.path})` : "";
-      lines.push(`${f.severity.padEnd(4)} [${f.category}] ${f.message}${loc}`);
-      lines.push(`     -> ${f.action}`);
-    }
-  }
-  return `${lines.join("\n")}
-`;
-}
-function parseCliArgs(argv) {
-  const opts = { root: null, staleDays: 14, json: false, quietInfo: false };
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === "--root") opts.root = argv[++i];
-    else if (arg === "--stale-days") opts.staleDays = Number(argv[++i]);
-    else if (arg === "--json") opts.json = true;
-    else if (arg === "--quiet-info") opts.quietInfo = true;
-  }
-  return opts;
-}
-var isMain3 = process.argv[1] && path5.basename(process.argv[1]) === "sdd-doctor.mjs" && pathToFileURL4(path5.resolve(process.argv[1])).href === import.meta.url;
-if (isMain3) {
-  const opts = parseCliArgs(process.argv.slice(2));
-  const report = runDoctor(opts);
-  if (opts.json) {
-    process.stdout.write(`${JSON.stringify(report, null, 2)}
-`);
-  } else {
-    process.stdout.write(formatDoctorText(report, { quietInfo: opts.quietInfo }));
-  }
-  process.exit(report.summary.ng > 0 ? 1 : 0);
+  return result;
 }
 
 // src/tools/v2.ts
 var FEATURE_RE = /^[A-Za-z0-9._-]+$/;
-var TASK_ID_RE = /^T-[0-9]+$/;
+var TASK_ID_RE = /^T-[A-Za-z0-9._-]+$/;
 function toRiskTier(value) {
-  return value === "high" || value === "standard" || value === "low" ? value : "standard";
+  if (value === "high" || value === "critical") return "high";
+  if (value === "low") return "low";
+  return "standard";
 }
 function toDriftStatus(value) {
-  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT") {
+  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT" || value === "BASELINE_ERROR") {
     return value;
   }
   return "UNBASELINED";
 }
+function toExecutionDriftStatus(value) {
+  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT" || value === "UNBASELINED" || value === "SKIPPED" || value === "BASELINE_ERROR") {
+    return value;
+  }
+  return void 0;
+}
 function toDoctorStatus(value) {
   return value === "NG" || value === "WARN" ? value : "CLEAN";
 }
+function sanitizeErrorMessage(root, error51) {
+  const raw = error51 instanceof Error ? error51.message : String(error51);
+  return raw.split(root.path).join("<root>").slice(0, 400);
+}
 function validateFeatureName(feature) {
   if (typeof feature !== "string" || !FEATURE_RE.test(feature) || feature === "." || feature === "..") {
-    return err("invalid-input", "Feature must match ^[A-Za-z0-9._-]+$ without path separators.");
+    return err("invalid-input", "Feature must match ^[A-Za-z0-9._-]+$ without path separators or dot segments.");
   }
   return ok(feature);
 }
 function validateTaskId(taskId) {
   if (typeof taskId !== "string" || !TASK_ID_RE.test(taskId)) {
-    return err("invalid-input", "taskId must match ^T-[0-9]+$.");
+    return err("invalid-input", "taskId must match ^T-[A-Za-z0-9._-]+$.");
   }
   return ok(taskId);
 }
 function isApprovedValue(approval) {
   return /^Approved(?:\s+\([^)]+\))?$/i.test(approval.trim());
 }
-function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs) {
+function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus) {
   if (!hasSpecs || tasks.length === 0) {
     return {
       phase: "bootstrap",
       command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
       rationale: `specs/${feature} is missing core SDD specification files or tasks.`
+    };
+  }
+  if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {
+    return {
+      phase: "blocked",
+      command: `human: resolve ${driftStatus} in specs/${feature}`,
+      rationale: `specs/${feature} has ${driftStatus}; revert undeclared edits, record a rationale under '## Spec Amendments', or repair .spec-baseline.json.`
     };
   }
   const blocked = tasks.filter((t) => t.status === "Blocked");
@@ -37699,11 +37716,19 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpe
       rationale: `Approved task(s) are Implementation Complete and awaiting sdd-gate verification.`
     };
   }
-  if (approved.every((t) => t.status === "Done")) {
+  if (approved.length === tasks.length && approved.every((t) => t.status === "Done")) {
     return {
       phase: "done",
       command: "feature complete",
-      rationale: `All Approved tasks in specs/${feature}/tasks.md have reached Done.`
+      rationale: `All tasks in specs/${feature}/tasks.md are Approved and Done.`
+    };
+  }
+  if (approved.length < tasks.length && approved.every((t) => t.status === "Done")) {
+    const unapprovedIds = tasks.filter((t) => !isApprovedValue(t.approval)).map((t) => t.id);
+    return {
+      phase: "approval-gate",
+      command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
+      rationale: `Remaining task(s) ${unapprovedIds.join(", ")} are still unapproved.`
     };
   }
   return {
@@ -37718,53 +37743,69 @@ function readDriftSummary(root, feature) {
     return { status: "UNBASELINED", changedFiles: [], amendmentCount: 0 };
   }
   try {
-    const report = checkSpecDrift({ feature, projectRoot: root.path, baselinePath: void 0 });
+    const io = createGuardedIo(root);
+    const report = checkSpecDriftCore(io, { feature });
     return {
       status: toDriftStatus(report.status),
       changedFiles: report.changedFiles,
       amendmentCount: report.amendments.length
     };
   } catch {
-    return { status: "UNBASELINED", changedFiles: [], amendmentCount: 0 };
+    return { status: "BASELINE_ERROR", changedFiles: [], amendmentCount: 0 };
   }
 }
 function discoverActiveFeatures(root) {
+  const seen = /* @__PURE__ */ new Set();
+  const addIfValid = (name) => {
+    if (!validateFeatureName(name).ok) return;
+    if (!guardedDirExists(root, `specs/${name}`)) return;
+    seen.add(name);
+  };
   const fromAgents = parseActiveSpecDirectories(root);
   if (fromAgents.ok && fromAgents.data.length > 0) {
-    return fromAgents.data.map((entry) => entry.feature).filter((name) => FEATURE_RE.test(name) && fs6.existsSync(path6.join(root.path, "specs", name)));
+    for (const entry of fromAgents.data) {
+      addIfValid(entry.feature);
+    }
+    return [...seen];
   }
-  const specsDir = path6.join(root.path, "specs");
-  if (!fs6.existsSync(specsDir)) return [];
-  return fs6.readdirSync(specsDir, { withFileTypes: true }).filter((entry) => entry.isDirectory() && FEATURE_RE.test(entry.name)).map((entry) => entry.name).sort();
+  for (const entry of listGuardedDirectEntries(root, "specs")) {
+    if (entry.isDirectory) {
+      addIfValid(entry.name);
+    }
+  }
+  return [...seen].sort();
 }
 function countDriftEvents(root) {
-  const eventsPath = path6.join(root.path, ".sdd", "drift-events.jsonl");
-  if (!fs6.existsSync(eventsPath)) return 0;
-  try {
-    const raw = fs6.readFileSync(eventsPath, "utf8");
-    return raw.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0).length;
-  } catch {
-    return 0;
-  }
+  const read = guardedRead(root, ".sdd/drift-events.jsonl");
+  if (!read.ok) return 0;
+  return read.data.contents.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0).length;
 }
 function parseReviewReportVerdict(contents) {
-  if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
-    return "PASS";
+  const lines = contents.replace(/\r\n/g, "\n").split("\n");
+  let sawPass = false;
+  let sawFail = false;
+  const lineRe = /^[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?(PASS|FAIL)(?:\*\*)?\b/i;
+  for (const line of lines) {
+    const m = lineRe.exec(line);
+    if (!m) continue;
+    const verdict = m[1]?.toUpperCase();
+    if (verdict === "FAIL") sawFail = true;
+    else if (verdict === "PASS") sawPass = true;
   }
-  if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*FAIL\b/.test(contents)) {
-    return "FAIL";
-  }
+  if (sawFail) return "FAIL";
+  if (sawPass) return "PASS";
   return "UNKNOWN";
 }
 function sddProjectOverview(root, options = {}) {
   if (!isSddRoot(root)) {
     return err("not-sdd-root", "Resolved root does not contain AGENTS.md or specs/.");
   }
+  const io = createGuardedIo(root);
   const features = discoverActiveFeatures(root);
   const activeFeatures = [];
   for (const feature of features) {
     try {
-      const dv = buildDecisionViewData({ feature, projectRoot: root.path });
+      const dv = buildDecisionViewDataCore(io, { feature });
       const drift = readDriftSummary(root, feature);
       const hasSpecs = guardedExists(root, `specs/${feature}/requirements.md`) && guardedExists(root, `specs/${feature}/tasks.md`);
       const tasks = dv.tasks;
@@ -37781,7 +37822,14 @@ function sddProjectOverview(root, options = {}) {
           blocked: tasks.filter((t) => t.status === "Blocked").length
         },
         driftStatus: drift.status,
-        nextAction: computeNextAction(feature, tasks, dv.specCheckVerdict, highestRisk, hasSpecs)
+        nextAction: computeNextAction(
+          feature,
+          tasks,
+          dv.specCheckVerdict,
+          highestRisk,
+          hasSpecs,
+          drift.status
+        )
       });
     } catch {
     }
@@ -37791,7 +37839,11 @@ function sddProjectOverview(root, options = {}) {
     activeFeatures
   };
   if (options.includeDoctor !== false) {
-    const doc = runDoctor({ root: root.path });
+    const doc = runDoctorCore(io, {
+      nodeVersion: process.versions.node,
+      rootLabel: null,
+      scanExtendedRepo: false
+    });
     data.doctor = {
       status: toDoctorStatus(doc.status),
       ngCount: doc.summary.ng,
@@ -37808,38 +37860,49 @@ function sddFeatureState(root, rawFeature, options = {}) {
   const checked = validateFeatureName(rawFeature);
   if (!checked.ok) return checked;
   const feature = checked.data;
-  const featureDir = path6.join(root.path, "specs", feature);
-  if (!fs6.existsSync(featureDir)) {
+  if (!guardedDirExists(root, `specs/${feature}`)) {
     return err("not-found", `Feature directory specs/${feature} does not exist.`);
   }
   try {
-    const dv = buildDecisionViewData({ feature, projectRoot: root.path });
-    const trace = analyzeTraceability({ feature, projectRoot: root.path });
-    const drift = readDriftSummary(root, feature);
+    const io = createGuardedIo(root);
     const files = {
       requirements: guardedExists(root, `specs/${feature}/requirements.md`),
       design: guardedExists(root, `specs/${feature}/design.md`),
       tasks: guardedExists(root, `specs/${feature}/tasks.md`),
       baseline: guardedExists(root, `specs/${feature}/.spec-baseline.json`)
     };
-    const gapCount = trace.gaps.orphanReqs.length + trace.gaps.unassignedAcs.length + trace.gaps.unlinkedAcs.length + trace.gaps.brokenReqRefs.length + trace.gaps.brokenAcRefs.length;
-    const provisionalIds = dv.openQuestions.filter((q) => !q.confirmed).map((q) => q.id);
+    const dv = buildDecisionViewDataCore(io, { feature });
+    const drift = readDriftSummary(root, feature);
+    let traceability = {
+      complete: false,
+      requirementCount: dv.counts.requirements,
+      acCount: dv.counts.acceptanceCriteria,
+      taskCount: dv.counts.tasksTotal,
+      gapCount: 0
+    };
+    if (files.requirements && files.tasks) {
+      const trace = analyzeTraceabilityCore(io, { feature, checkCodeAndTests: false });
+      const gapCount = trace.gaps.orphanReqs.length + trace.gaps.unassignedAcs.length + trace.gaps.unlinkedAcs.length + trace.gaps.brokenReqRefs.length + trace.gaps.brokenAcRefs.length;
+      traceability = {
+        complete: trace.complete,
+        requirementCount: trace.requirements.length,
+        acCount: trace.acceptanceCriteria.length,
+        taskCount: trace.tasks.length,
+        gapCount
+      };
+    }
+    const oqs = dv.openQuestions;
+    const provisionalIds = oqs.filter((q) => !q.confirmed).map((q) => q.id);
     const highestRisk = toRiskTier(dv.highestRisk);
     const data = {
       kind: "feature-state",
       feature,
       highestRisk,
       files,
-      traceability: {
-        complete: trace.complete,
-        requirementCount: trace.requirements.length,
-        acCount: trace.acceptanceCriteria.length,
-        taskCount: trace.tasks.length,
-        gapCount
-      },
+      traceability,
       drift,
       openQuestions: {
-        total: dv.openQuestions.length,
+        total: oqs.length,
         provisionalCount: provisionalIds.length,
         provisionalIds
       },
@@ -37848,7 +37911,8 @@ function sddFeatureState(root, rawFeature, options = {}) {
         dv.tasks,
         dv.specCheckVerdict,
         highestRisk,
-        files.requirements && files.tasks
+        files.requirements && files.tasks,
+        drift.status
       )
     };
     if (options.includeDecisionViewMarkdown) {
@@ -37856,8 +37920,7 @@ function sddFeatureState(root, rawFeature, options = {}) {
     }
     return ok(data);
   } catch (error51) {
-    const message = error51 instanceof Error ? error51.message : String(error51);
-    return err("cannot-parse", `Failed to inspect feature '${feature}': ${message}`);
+    return err("cannot-parse", `Failed to inspect feature '${feature}': ${sanitizeErrorMessage(root, error51)}`);
   }
 }
 function sddGateAudit(root, rawFeature, rawTaskId) {
@@ -37871,19 +37934,21 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
   if (rawTaskId !== void 0) {
     const checkedTask = validateTaskId(rawTaskId);
     if (!checkedTask.ok) return checkedTask;
-    filterTaskId = checkedTask.data;
+    filterTaskId = checkedTask.data.toUpperCase();
   }
-  const featureDir = path6.join(root.path, "specs", feature);
-  if (!fs6.existsSync(featureDir)) {
+  if (!guardedDirExists(root, `specs/${feature}`)) {
     return err("not-found", `Feature directory specs/${feature} does not exist.`);
   }
   try {
-    const dv = buildDecisionViewData({ feature, projectRoot: root.path });
+    const io = createGuardedIo(root);
+    const dv = buildDecisionViewDataCore(io, { feature });
     const drift = readDriftSummary(root, feature);
-    const selectedTasks = filterTaskId ? dv.tasks.filter((t) => t.id === filterTaskId) : dv.tasks;
+    const allTasks = dv.tasks;
+    const selectedTasks = filterTaskId ? allTasks.filter((t) => t.id.toUpperCase() === filterTaskId) : allTasks;
     if (filterTaskId && selectedTasks.length === 0) {
       return err("not-found", `Task '${filterTaskId}' not found in specs/${feature}/tasks.md.`);
     }
+    const allOqs = dv.openQuestions;
     const tasks = selectedTasks.map((task) => {
       const execRel = `reports/quality-gate/${feature}-${task.id}.execution.json`;
       const mdRel = `reports/quality-gate/${feature}-${task.id}.md`;
@@ -37894,15 +37959,26 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
         executionArtifact.path = execRel;
         try {
           const parsed = JSON.parse(execRead.data.contents);
-          if (parsed.schema === "sdd-gate-execution/v1") {
+          const matchesIdentity = parsed.schema === "sdd-gate-execution/v1" && parsed.feature === feature && typeof parsed.taskId === "string" && parsed.taskId.toUpperCase() === task.id.toUpperCase();
+          if (matchesIdentity) {
             if (parsed.verdict === "PASS" || parsed.verdict === "FAIL") {
               executionArtifact.verdict = parsed.verdict;
             }
+            if (typeof parsed.executedAt === "string") {
+              executionArtifact.executedAt = parsed.executedAt;
+            }
             const checks = parsed.checks;
             const sd = checks?.specDrift;
-            if (sd?.status === "CLEAN" || sd?.status === "AMENDED" || sd?.status === "UNDECLARED_DRIFT") {
-              executionArtifact.specDriftStatus = sd.status;
+            const sdStatus = toExecutionDriftStatus(sd?.status);
+            if (sdStatus) {
+              executionArtifact.specDriftStatus = sdStatus;
             }
+            if (Array.isArray(checks?.commands)) {
+              const failed = checks.commands.filter((c) => Boolean(c) && typeof c === "object" && c.passed === false).map((c) => String(c.label || c.command || "command"));
+              executionArtifact.failedCommands = failed;
+            }
+          } else {
+            executionArtifact.verdict = "FAIL";
           }
         } catch {
           executionArtifact.verdict = "FAIL";
@@ -37915,10 +37991,16 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
         reviewReport.path = mdRel;
         reviewReport.verdict = parseReviewReportVerdict(mdRead.data.contents);
       }
-      const readyForDone = isApprovedValue(task.approval) && executionArtifact.verdict === "PASS" && reviewReport.verdict === "PASS" && drift.status !== "UNDECLARED_DRIFT";
+      const riskTier = toRiskTier(task.risk);
+      const blockingProvisionalOqs = riskTier === "high" ? allOqs.filter(
+        (q) => !q.confirmed && (q.impactedTasks.length === 0 || q.impactedTasks.includes(task.id.toUpperCase()))
+      ) : [];
+      const validStatus = task.status === "Implementation Complete" || task.status === "Done";
+      const validDrift = drift.status === "CLEAN" || drift.status === "AMENDED";
+      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && reviewReport.verdict === "PASS" && validDrift && blockingProvisionalOqs.length === 0;
       return {
         taskId: task.id,
-        risk: toRiskTier(task.risk),
+        risk: riskTier,
         approval: task.approval,
         status: task.status,
         executionArtifact,
@@ -37932,8 +38014,10 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
       tasks
     });
   } catch (error51) {
-    const message = error51 instanceof Error ? error51.message : String(error51);
-    return err("cannot-parse", `Failed to audit quality gate for '${feature}': ${message}`);
+    return err(
+      "cannot-parse",
+      `Failed to audit quality gate for '${feature}': ${sanitizeErrorMessage(root, error51)}`
+    );
   }
 }
 
@@ -37975,8 +38059,8 @@ function registerResources(server, root) {
 }
 
 // src/server.ts
-var FEATURE_ARG = external_exports.string().describe("Feature slug under specs/ (e.g. 'rate-limiter').");
-var TASK_ID_ARG = external_exports.string().describe("Optional task ID in tasks.md (e.g. 'T-001').");
+var FEATURE_ARG = external_exports.string().regex(/^[A-Za-z0-9._-]+$/, "Feature must match ^[A-Za-z0-9._-]+$.").refine((v) => v !== "." && v !== "..", "Feature must not be '.' or '..'.").describe("Feature slug under specs/ (e.g. 'rate-limiter').");
+var TASK_ID_ARG = external_exports.string().regex(/^T-[A-Za-z0-9._-]+$/, "taskId must match ^T-[A-Za-z0-9._-]+$.").describe("Optional task ID in tasks.md (e.g. 'T-001').");
 var READ_ONLY_ANNOTATIONS = {
   readOnlyHint: true,
   destructiveHint: false,
@@ -37990,16 +38074,16 @@ function toCallToolResult(result) {
 function buildServer(root) {
   const server = new McpServer({
     name: "sdd-forge-mcp",
-    version: "2.0.0"
+    version: "2.1.0"
   });
   server.registerTool(
     "sdd_project_overview",
     {
       title: "SDD project overview",
       description: "Returns all active SDD Core v2 features with risk tier, task counts, Spec Drift status, next action, and optional sdd-doctor health summary in one read-only call.",
-      inputSchema: {
-        includeDoctor: external_exports.boolean().optional().describe("Include compact sdd-doctor summary (default true).")
-      },
+      inputSchema: external_exports.strictObject({
+        includeDoctor: external_exports.boolean().default(true).optional().describe("Include compact sdd-doctor summary (default true).")
+      }),
       annotations: READ_ONLY_ANNOTATIONS
     },
     ({ includeDoctor }) => toCallToolResult(sddProjectOverview(root, { includeDoctor }))
@@ -38009,10 +38093,10 @@ function buildServer(root) {
     {
       title: "SDD feature state",
       description: "Returns complete SDD Core v2 state for one feature: REQ/AC/Task traceability, Spec Drift status, Open Questions, next action, and optional Decision View markdown.",
-      inputSchema: {
+      inputSchema: external_exports.strictObject({
         feature: FEATURE_ARG,
-        includeDecisionViewMarkdown: external_exports.boolean().optional().describe("Include rendered Decision View markdown (default false).")
-      },
+        includeDecisionViewMarkdown: external_exports.boolean().default(false).optional().describe("Include rendered Decision View markdown (default false).")
+      }),
       annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, includeDecisionViewMarkdown }) => toCallToolResult(sddFeatureState(root, feature, { includeDecisionViewMarkdown }))
@@ -38021,11 +38105,11 @@ function buildServer(root) {
     "sdd_gate_audit",
     {
       title: "SDD gate audit",
-      description: "Audits v2 sdd-gate readiness for a feature (or single task): checks deterministic .execution.json, independent G1-G5 report VERDICT, and Spec Drift.",
-      inputSchema: {
+      description: "Audits v2 sdd-gate readiness for a feature (or single task): checks deterministic .execution.json, independent G1-G5 report VERDICT, Spec Drift, and Risk: high Open Questions.",
+      inputSchema: external_exports.strictObject({
         feature: FEATURE_ARG,
         taskId: TASK_ID_ARG.optional()
-      },
+      }),
       annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, taskId }) => toCallToolResult(sddGateAudit(root, feature, taskId))
@@ -38036,9 +38120,15 @@ function buildServer(root) {
     {
       title: "SDD dashboard snapshot",
       description: "Read-only dashboard snapshot with source freshness and last-good failure state for hosted/local status views.",
+      inputSchema: external_exports.strictObject({}),
       annotations: READ_ONLY_ANNOTATIONS
     },
-    () => ({ content: [{ type: "text", text: JSON.stringify(dashboard.sample()) }] })
+    () => toCallToolResult(
+      ok({
+        kind: "dashboard-snapshot",
+        snapshot: dashboard.sample()
+      })
+    )
   );
   registerResources(server, root);
   return server;
@@ -38757,7 +38847,7 @@ async function startStatusView(root, dashboard = false) {
 }
 
 // src/index.ts
-async function main2() {
+async function main() {
   let root;
   try {
     root = resolveRoot();
@@ -38809,7 +38899,7 @@ async function main2() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
-main2().catch((error51) => {
+main().catch((error51) => {
   const message = error51 instanceof Error ? error51.message : String(error51);
   process.stderr.write(`${JSON.stringify({ ok: false, error: { code: "cannot-determine", message } })}
 `);

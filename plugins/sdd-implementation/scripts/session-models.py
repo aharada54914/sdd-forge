@@ -16,7 +16,12 @@ import re
 import sys
 import tempfile
 
-HOSTS = {'claude-code': 'claude', 'codex-cli': 'codex', 'gemini-cli': 'gemini'}
+HOSTS = {
+    'claude-code': 'claude',
+    'codex-cli': 'codex',
+    'antigravity-cli': 'agy',
+    'gemini-cli': 'gemini',
+}
 ROLES = ('implementer', 'investigator', 'spec-reviewer-a', 'spec-reviewer-b',
          'evaluator', 'domain-reviewer-a', 'domain-reviewer-b', 'workflow-auditor-a',
          'workflow-auditor-b', 'diagnosis', 'self-improvement')

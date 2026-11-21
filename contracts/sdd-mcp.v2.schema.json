@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/aharada54914/sdd-forge/contracts/sdd-mcp.v2.schema.json",
   "title": "SDD Forge MCP v2 Tool Contracts",
-  "description": "Single-server, 4-tool read-only MCP contract backed directly by SDD Forge v2 ESM modules (ADR-0052).",
+  "description": "Single-server, 4-tool read-only MCP contract backed directly by SDD Forge v2.1 pure read-only ESM core (ADR-0052).",
   "type": "object",
   "$defs": {
     "errorCode": {
@@ -29,10 +29,20 @@
           "additionalProperties": false,
           "properties": {
             "code": { "$ref": "#/$defs/errorCode" },
-            "message": { "type": "string", "minLength": 1 }
+            "message": { "type": "string", "minLength": 1 },
+            "details": { "type": "object" }
           }
         }
       }
+    },
+    "featureSlug": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "not": { "enum": [".", ".."] }
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^T-[A-Za-z0-9._-]+$"
     },
     "riskTier": {
       "type": "string",
@@ -40,7 +50,11 @@
     },
     "driftStatus": {
       "type": "string",
-      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED"]
+      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED", "BASELINE_ERROR"]
+    },
+    "executionDriftStatus": {
+      "type": "string",
+      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED", "SKIPPED", "BASELINE_ERROR"]
     },
     "nextAction": {
       "type": "object",
@@ -85,7 +99,7 @@
             "required": ["feature", "highestRisk", "taskCounts", "driftStatus", "nextAction"],
             "additionalProperties": false,
             "properties": {
-              "feature": { "type": "string", "minLength": 1 },
+              "feature": { "$ref": "#/$defs/featureSlug" },
               "highestRisk": { "$ref": "#/$defs/riskTier" },
               "taskCounts": {
                 "type": "object",
@@ -123,7 +137,7 @@
       "required": ["feature"],
       "additionalProperties": false,
       "properties": {
-        "feature": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+        "feature": { "$ref": "#/$defs/featureSlug" },
         "includeDecisionViewMarkdown": { "type": "boolean", "default": false }
       }
     },
@@ -133,7 +147,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": { "const": "feature-state" },
-        "feature": { "type": "string", "minLength": 1 },
+        "feature": { "$ref": "#/$defs/featureSlug" },
         "highestRisk": { "$ref": "#/$defs/riskTier" },
         "files": {
           "type": "object",
@@ -187,8 +201,8 @@
       "required": ["feature"],
       "additionalProperties": false,
       "properties": {
-        "feature": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
-        "taskId": { "type": "string", "pattern": "^T-[0-9]+$" }
+        "feature": { "$ref": "#/$defs/featureSlug" },
+        "taskId": { "$ref": "#/$defs/taskId" }
       }
     },
     "sdd_gate_audit_data": {
@@ -197,7 +211,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": { "const": "gate-audit" },
-        "feature": { "type": "string", "minLength": 1 },
+        "feature": { "$ref": "#/$defs/featureSlug" },
         "tasks": {
           "type": "array",
           "items": {
@@ -205,7 +219,7 @@
             "required": ["taskId", "risk", "approval", "status", "executionArtifact", "reviewReport", "readyForDone"],
             "additionalProperties": false,
             "properties": {
-              "taskId": { "type": "string", "pattern": "^T-[0-9]+$" },
+              "taskId": { "$ref": "#/$defs/taskId" },
               "risk": { "$ref": "#/$defs/riskTier" },
               "approval": { "type": "string" },
               "status": { "type": "string" },
@@ -217,7 +231,9 @@
                   "exists": { "type": "boolean" },
                   "path": { "type": "string" },
                   "verdict": { "type": "string", "enum": ["PASS", "FAIL"] },
-                  "specDriftStatus": { "$ref": "#/$defs/driftStatus" }
+                  "executedAt": { "type": "string" },
+                  "specDriftStatus": { "$ref": "#/$defs/executionDriftStatus" },
+                  "failedCommands": { "type": "array", "items": { "type": "string" } }
                 }
               },
               "reviewReport": {
@@ -240,6 +256,38 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {}
+    },
+    "sdd_dashboard_snapshot_data": {
+      "type": "object",
+      "required": ["kind", "snapshot"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "dashboard-snapshot" },
+        "snapshot": {
+          "type": "object",
+          "required": [
+            "schema",
+            "revision",
+            "checkedAt",
+            "changedAt",
+            "lastSuccessAt",
+            "attemptedAt",
+            "error",
+            "data"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "schema": { "const": "sdd-dashboard/v1" },
+            "revision": { "type": "string" },
+            "checkedAt": { "type": ["string", "null"] },
+            "changedAt": { "type": ["string", "null"] },
+            "lastSuccessAt": { "type": ["string", "null"] },
+            "attemptedAt": { "type": "string" },
+            "error": { "type": ["string", "null"] },
+            "data": { "type": ["object", "null"] }
+          }
+        }
+      }
     }
   }
 }

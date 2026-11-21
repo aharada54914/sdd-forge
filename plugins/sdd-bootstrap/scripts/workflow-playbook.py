@@ -8,7 +8,7 @@ import sys
 
 ROUTES = {
     "investigate": ("investigate-codebase", "read-only", "investigation"),
-    "bugfix": ("sdd-bootstrap-interviewer", "specification", "bugfix"),
+    "bugfix": ("sdd-core-spec", "specification", "bugfix"),
     "performance": ("investigate-codebase", "read-only", "performance"),
     "prototype": ("investigate-codebase", "isolated-prototype", "prototype"),
     "handoff": ("investigate-codebase", "read-only", "handoff"),
