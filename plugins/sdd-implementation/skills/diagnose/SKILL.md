@@ -1,188 +1,49 @@
 ---
 name: diagnose
-description: Execution discipline for hard bugs, regressions, flaky tests, and performance issues. Build a tight red feedback loop first, then reproduce/minimize, rank falsifiable hypotheses, instrument one variable at a time, and fix behind a regression test. Use before spec-ing a bugfix, or when the user says something is broken/throwing/failing/flaky/slow. Supplies the evidence that task-reviewer-b's BUGFIX-DIAGNOSTIC-PATH check requires.
+description: Structured 5-phase bug diagnosis discipline (red feedback loop, minimize, falsifiable hypotheses, single-variable instrumentation, regression test). Run before /sdd-bootstrap:bootstrap bugfix for hard bugs, regressions, flaky tests, or performance issues.
 disable-model-invocation: true
-model: sonnet
 ---
 
 # Diagnose
 
-A discipline for hard bugs. Its output — a tight reproduction command, a
-minimized case, a root cause, and a regression test — is exactly the evidence
-`task-reviewer-b`'s `BUGFIX-DIAGNOSTIC-PATH` check verifies. Run `diagnose`
-**before** writing the bugfix spec, so the spec and tasks are driven by a
-confirmed root cause instead of a guess.
+再現困難なバグ・回帰・フレーキーテスト・性能退行に対する 5 フェーズの診断規律。推測で修正に入らず、確認済みの根本原因と回帰テストを揃えてから `bootstrap bugfix` へ渡す。
 
-> **Adapted from** the field-tested `diagnosing-bugs` discipline. The rule is
-> the same: **no red-capable loop, no hypothesis.**
-
-## Managed allocation boundary
-
-Affected policy roles: `diagnosis`.
-
-Apply this boundary only when the caller explicitly selects managed routing
-with a policy request or model controls, or this allocation continues that
-managed workflow. With no managed input, retain the legacy invocation and model
-hints below. Once managed is selected, do not switch that workflow to legacy
-because selection, validation or launch fails. No new environment toggle is
-required, and this boundary does not grant delegation or execution permission.
-
-For a managed allocation, apply in the allocating parent before an unbound
-forked Skill/Agent, native role, or fresh context receives work, and before any
-identity reservation. This
-boundary takes precedence over later native/default launch guidance for these
-roles. It does not add an availability or authority gate.
-
-Keep an already admitted managed entry with its validated selection/controls and
-matching role, host, run/session and workload. Keep a concretely known matching
-batch startup and fixed generated Codex configuration under their original
-contracts. An already bound worker continues its original procedure: do not
-select again, allocate again, or run this refusal inside that same worker.
-A bound parent does not bind a new child, role or session: each new allocation
-needs its own admitted selection/carrier binding or takes the refusal below.
-
-When this operation has no admitted binding of the selected model and effort to
-its actual native carrier, substitute the next affected policy role and actual
-host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
-
-```bash
-python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
-  --role "<policy-role>" --host "<host>"
-```
-
-Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
-before work or reservation. Do not fall through to an old model hint, alias,
-unbound native default or another parent session; do not count allocation alone
-as selection proof. This refusal does not assert host incapability and never
-authorizes same-session reload. Original host-incapable-only implementation
-fallback evidence and all review isolation requirements remain unchanged.
-
-Apply to the parent diagnosis dispatch, not a diagnosis worker already entered through the bound Claude entry. That worker executes all five phases with its existing ordinary tools and permissions.
-
+> **鉄則**: **赤になる再現ループを作る前に仮説を立てない。**
 
 ## Invocation
-
-Claude Code:
 
 ```txt
 /sdd-implementation:diagnose <issue URL | symptom + reproduction steps>
 ```
 
-Codex:
-
-```txt
-Use the diagnose skill. Symptom: <...>
-```
-
-## Managed Claude diagnosis dispatch
-
-Use this route only when managed routing was explicitly selected. Without
-managed inputs, retain the legacy procedure; never use it after a managed failure.
-
-The `model: sonnet` frontmatter is the legacy Skill entry's default. For managed
-routing, the allocating parent calls `claude-entry` directly before invoking the
-diagnose Skill. The entry passes this complete skill as workload text to the
-fresh child; its validated native model and effort flags control that child.
-The child does not invoke Skill again or reload the legacy model hint.
-
-Before starting any reproduction, investigation or diagnostic phase, prepare the scoped policy
-request/registry with the existing verified configuration observation unchanged.
-Write the user's symptom, issue/source and reproduction instructions to
-`<prompt-file>` beneath `<repository-root>` and compute its raw SHA-256 as
-`<prompt-sha256>`. Use a fresh canonical UUID, new output directory and explicit
-installed Claude executable. The following entry selects and validates the
-diagnosis role before one fresh workload.
-
-```bash
-cd "<repository-root>" || exit 1
-python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
-  --request "<policy-request>" --registry "<registry>" \
-  --role diagnosis --host claude-code --run-id "<run-id>" \
-  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
-  --require-actual-id false --executable "<claude-executable>" \
-  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
-```
-
-The fresh child receives this complete skill and its original supporting
-policy/templates. If already running as the fresh diagnosis context supplied by
-that entry, skip this outer dispatcher and execute the complete procedure below.
-It uses ordinary native tools/settings and permissions; permission failure is a
-stop, never permission to enable bypass or autoapproval. Do not invoke Skill or
-Agent again, allocate a second diagnostic context, or execute the HITL template
-automatically. The child may create the failing reproduction harness, temporary
-probes and diagnostic report allowed below; actual product repair still belongs
-to approved implement-task. On completion return its result to the caller and
-stop the parent dispatcher; do not repeat the diagnostic phases in the parent.
-On typed failure stop without retrying an unmanaged path. Codex and other hosts
-retain their legacy procedure when managed inputs are absent. For a managed
-allocation they need their own admitted binding or the refusal above; this Claude
-path establishes no native work proof for those hosts.
-
 ## Preconditions
 
-- Read `AGENTS.md`; if the repo has `CONTEXT.md` or ADRs for the affected
-  modules, read them to build a mental model before touching code.
-- `diagnose` is read-mostly: it may add a **failing test / harness** and
-  **tagged temporary probes**, but the actual fix lands through
-  `implement-task` after a spec + human approval.
+- `AGENTS.md` および影響モジュールの既存設計・テストを確認する。
+- `diagnose` では失敗する再現テスト／一時プローブの作成までにとどめ、本番コードの修正適用は承認後の `implement-task` で行う。
 
-## The five phases
+## The Five Phases
 
-Skip a phase only with an explicit, written justification.
+各フェーズは正当な理由がない限り順番に実行する:
 
-1. **Build a feedback loop (this is the skill).** Construct one command that goes
-   **red on _this_ bug**. See `references/diagnosis-loop-policy.md` for the ten
-   ways to build one (failing test → curl → CLI+fixture → headless browser →
-   trace replay → throwaway harness → property/fuzz → bisection → differential →
-   HITL). **Completion criterion:** you can paste one command you have already
-   run whose output is red, and it is red-capable (asserts the user's exact
-   symptom), deterministic, fast (seconds), and agent-runnable. **If you catch
-   yourself theorizing before this command exists, stop.**
-2. **Reproduce + minimize.** Run the loop red; confirm it is the user's symptom
-   (not a nearby one). Shrink to the smallest case that still goes red — every
-   remaining element must be load-bearing. This becomes the regression test.
-3. **Hypothesize (3–5, ranked, falsifiable).** Each in the form
-   `If X is the cause, then changing Y makes it disappear / Z makes it worse.`
-   Show the ranked list to the human before testing (cheap re-rank); proceed on
-   your ranking if they are AFK.
-4. **Instrument (one variable at a time).** Debugger/REPL > targeted logs at
-   hypothesis boundaries > never "log everything and grep". Tag every temporary
-   log with a unique prefix (e.g. `[DEBUG-a4f2]`) so cleanup is one grep. For
-   performance, measure (baseline → bisect), do not log.
-5. **Fix + regression test (test before fix).** Write the regression test at a
-   **correct seam** first, watch it fail, then fix. **If no correct seam exists,
-   that itself is the finding** — the architecture cannot lock the bug down;
-   record it and recommend an architecture task. Remove all `[DEBUG-*]` probes.
+1. **再現ループ構築（最重要）**: このバグで確実に**赤（失敗）になる単一コマンド**を作る（失敗テスト / curl / CLI+フィクスチャ / ヘッドレスブラウザ / bisect 等。詳細は `references/diagnosis-loop-policy.md`）。高速・決定論的・エージェント再実行可能であること。
+2. **再現確認と最小化**: 再現出力が報告された症状そのものであることを確認し、依然として赤になる最小ケースへ削ぎ落とす（これが回帰テストの原型になる）。
+3. **仮説立案（3〜5 件・反証可能・優先順位付き）**: `X が原因なら、Y を変えると消え / Z で悪化する` の形式で並べる。
+4. **1 変数ずつ計測・切り分け**: 仮説境界に絞ったデバッガ／プローブで 1 変数ずつ検証する。一時ログには `[DEBUG-<tag>]` の一意接頭辞を付け、後で一括削除できるようにする（性能問題はログではなく実測・bisect を使う）。
+5. **回帰テスト設計と後片付け**: 正しい境界（seam）に回帰テストを書き、赤になることを確認する（適切な seam が無ければ設計課題として記録）。`[DEBUG-*]` プローブはすべて除去する。同種の不具合が過去にも再発している場合（2 回以上）は、個別修正に加えて共通規約・自動検査（lint / `sdd-doctor` 等）への昇格案を診断レポートへ併記する。
 
 ## Output
 
-Write `reports/diagnosis/<id>.md` from
-`plugins/sdd-implementation/templates/diagnosis-report.template.md`, capturing:
-the one reproduction command + its red output, the minimized case, the ranked
-hypotheses and which survived, the root cause, and the regression test. This
-report is the input to the bugfix spec and the evidence the
-`BUGFIX-DIAGNOSTIC-PATH` check reads.
+`templates/diagnosis-report.template.md` を使い `reports/diagnosis/<id>.md` を作成する（再現コマンド・赤出力・最小ケース・仮説検証結果・根本原因・回帰テスト）。
 
-## Handoff — the lightweight bugfix track
+## Handoff
 
-Most bugfixes should **not** run the full three-review-loop flow. After
-`diagnose`:
-
-1. Default to the **lite track**: `/sdd-lite:lite-spec` (requirements/design/
-   tasks driven by the diagnosis) → single human approval → `implement-task` →
-   `lite-gate`. The diagnosis report and regression test satisfy
-   `BUGFIX-DIAGNOSTIC-PATH`.
-2. **Escalate to full track** only when the fix touches a `Risk: high/critical`
-   surface (auth, payment, PII, migration, public API). Additive graduation:
-   add `Risk:` + evidence bundle per `risk-gate-matrix.md`.
+診断レポートを元に `/sdd-bootstrap:bootstrap bugfix` へ引き継ぐ:
+- **通常の不具合修正**: `/sdd-bootstrap:bootstrap bugfix --risk low reports/diagnosis/<id>.md` → 人間承認 → `/sdd-ship:ship`（`spec-check` 自動スキップで迅速に完了）。
+- **重要領域（認証/認可・決済・PII・DB 移行・公開契約）に触れる修正**: `--risk high` を指定し、`spec-check` の 2 視点並列レビューと高リスク検証を通す。
 
 ## Boundaries
 
-- Do not land the fix here; `diagnose` produces evidence, `implement-task`
-  applies the change under approval.
-- Do not set `Approval` or `Done`; do not self-approve (hook guard enforces).
-- Do not leave `[DEBUG-*]` probes or throwaway harnesses in committed code
-  (keep the regression test, delete the scaffolding).
-- If you genuinely cannot build a loop, stop and say so: list what you tried and
-  ask the human for environment access, a captured artifact, or permission to
-  add temporary instrumentation. Do not hypothesize without a loop.
+- 本スキル内で本番修正を確定させない（修正適用は人間承認後の `implement-task`）。
+- `Approval:` / `Status: Done` を変更しない。
+- `[DEBUG-*]` プローブや使い捨てハーネスをコミット対象に残さない。
+- 再現ループをどうしても構築できない場合は推測で進まず、試したことと不足している環境・権限・ログを人間へ報告して停止する。

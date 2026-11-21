@@ -1,8 +1,8 @@
-description = "Generate implementation-ready SDD specifications and Draft task contracts from requirements."
+description = "Generate implementation-ready SDD Core specifications and Draft task contracts from requirements."
 prompt = """
 Read and execute the skill instructions at `skills/bootstrap/SKILL.md` (relative to this Gemini extension root).
 
 Arguments: {{args}}
 
-On Gemini CLI, execute the hook-activation handshake with `--runtime gemini-cli` using the `write_file` canary template before track selection, honor all review loops (spec-review-loop, impl-review-loop, task-review-loop), and leave all tasks as `Approval: Draft` for human approval.
+Follow the SDD Core flow (`sdd-core-spec` -> risk-scaled `spec-check`), never edit implementation code here, and leave all tasks as `Approval: Draft` for human approval.
 """

@@ -275,4 +275,4 @@ After an `update` run, report:
   skill relies on that guard existing but does not implement it.
 - `domain-sync` and downstream bootstrap injection (T-007): this skill's
   responsibility ends at producing and maintaining `domain/`; consumption by
-  `sdd-bootstrap-interviewer` is a separate skill's concern.
+  `sdd-core-spec` is a separate skill's concern.

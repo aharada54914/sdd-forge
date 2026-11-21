@@ -1,372 +1,42 @@
 ---
 name: implement-tasks
-description: Batch-implement all approved tasks in dependency order, then auto-transition to quality-gate when every task reaches Implementation Complete. Use after sdd-bootstrap-interviewer and before quality-gate.
+description: Batch-implement all approved tasks in dependency order (parallelizing disjoint tasks where supported) and return control to ship once tasks reach Implementation Complete.
 disable-model-invocation: false
 user-invocable: false
 ---
 
-> **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.
-> Results are returned to the caller; no downstream skill is auto-invoked.
+> **Caller**: `ship` から呼び出される内部スキル。各タスクを `Implementation Complete` まで進め、`sdd-gate` 自体は自動起動せず `ship` へ制御を返す。
 
 # Implement Tasks (Batch)
 
-Implement all approved tasks for a feature in dependency order.
-After every approved task reaches `Implementation Complete`, automatically
-invoke `quality-gate` for the feature.
-
-## Managed allocation boundary
-
-Affected policy roles: `implementer`.
-
-Apply this boundary only when the caller explicitly selects managed routing
-with a policy request or model controls, or this allocation continues that
-managed workflow. With no managed input, retain the legacy invocation and model
-hints below. Once managed is selected, do not switch that workflow to legacy
-because selection, validation or launch fails. No new environment toggle is
-required, and this boundary does not grant delegation or execution permission.
-
-For a managed allocation, apply in the allocating parent before an unbound
-forked Skill/Agent, native role, or fresh context receives work, and before any
-identity reservation. This
-boundary takes precedence over later native/default launch guidance for these
-roles. It does not add an availability or authority gate.
-
-Keep an already admitted managed entry with its validated selection/controls and
-matching role, host, run/session and workload. Keep a concretely known matching
-batch startup and fixed generated Codex configuration under their original
-contracts. An already bound worker continues its original procedure: do not
-select again, allocate again, or run this refusal inside that same worker.
-A bound parent does not bind a new child, role or session: each new allocation
-needs its own admitted selection/carrier binding or takes the refusal below.
-
-When this operation has no admitted binding of the selected model and effort to
-its actual native carrier, substitute the next affected policy role and actual
-host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
-
-```bash
-python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
-  --role "<policy-role>" --host "<host>"
-```
-
-Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
-before work or reservation. Do not fall through to an old model hint, alias,
-unbound native default or another parent session; do not count allocation alone
-as selection proof. This refusal does not assert host incapability and never
-authorizes same-session reload. Original host-incapable-only implementation
-fallback evidence and all review isolation requirements remain unchanged.
-
-Keep the concretely known matching startup definition route below and every original batch manifest/snapshot/identity/output admission, cap, barrier and fail-fast rule. This boundary cannot turn a capable host into an incapable one or change the exact incapable-host-only same-session reload exception.
-
-
-## Invocation
-
-Claude Code — internal skill, not directly invocable. Reached by following
-this file from its entry command:
-
-```
-/sdd-ship:ship
-```
-
-Codex:
-
-```txt
-Use the implement-tasks skill for specs/<feature>/tasks.md
-```
+承認済みタスク群を `### Blockers` の依存順に処理し、独立したタスクを効率よく完了させるバッチオーケストレータ。
 
 ## Preconditions
 
-Before reading any specification, verify that `AGENTS.md` exists at the
-repository root and that `scripts/check-sdd-structure.sh` (or `.ps1`) reports
-no `missing:` items. If either check fails, stop immediately and direct the
-user to run `/sdd-bootstrap:sdd-adopt`. Do not improvise project rules or
-infer missing structure from context.
+- ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:sdd-adopt` を案内して停止）。
+- `specs/<feature>/tasks.md` に `Approval: Approved` かつ `Status: Planned` / `In Progress` のタスクが 1 件以上存在すること。
 
-## Required Reading
+## Task Selection
 
-Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance
-tests, traceability, relevant ADRs and contracts,
-`references/implementation-policy.md`, and
-`references/agent-delegation-policy.md`.
+各パスの開始時に `tasks.md` を読み、実行可能集合を抽出する:
 
-### Sudo Mode
+1. **対象条件**: `Approval: Approved` かつ `Status: Planned` または `In Progress`。
+2. **依存解決**: `### Blockers` に `T-\d+` 参照がある場合、参照先タスクがすべて `Implementation Complete` または `Done` になるまで除外する（`None` または空なら依存なし）。
+3. **独立集合（並列実行可能）**: 依存のない対象タスクのうち、`### Scope` の変更ファイルが互いに重複しない最大集合を選ぶ（同一ファイルに触れるタスクは記載順で先頭のみ採用し、残りは次パスへ回す）。
+4. 実行可能なタスクが 0 件になったらループを終了し、残タスクの状態（未承認 / 依存待ち / Blocked / 全完了）をまとめて `ship` へ返す。
 
-If a valid `SDD_SUDO` flag file exists at the project root (see
-`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), the per-task
-approval checkpoint auto-passes. Record
-`Approval: Approved (sudo <ISO8601 UTC>)` in tasks.md for each auto-passed
-task.
+## Execution Loop
 
-Sudo does **not** bypass Block-and-Stop decisions: requirement, architecture,
-authentication, authorization, breaking-API, or security decisions still
-require a human. Set the task to `Blocked` and defer to the human even under
-sudo.
-
-## Task Selection Algorithm
-
-Execute this algorithm before each implementation pass:
-
-1. Read `tasks.md` and collect all tasks.
-2. **Eligible set**: tasks where both of these hold:
-   - `Approval: Approved`
-   - `Status: Planned` or `Status: In Progress`
-   A task previously blocked with `terminal-tier-recurrence` is not eligible
-   until `check-terminal-tier-resume.sh` or `.ps1` validates a persisted
-   `terminal-tier-resume/v1` evidence file. Missing or forged diagnosis,
-   contract-revision, or human-reapproval evidence keeps it Blocked.
-3. **Dependency filter**: for each eligible task, parse its `### Blockers`
-   section.
-   - Scan for task-ID references matching the pattern `T-\d+`.
-   - For each referenced task ID, check its `Status` in `tasks.md`.
-   - If the referenced task's `Status` is **not** `Implementation Complete`
-     or `Done`, remove the current task from the eligible set for this pass.
-   - A task with `### Blockers\nNone` or a blank `### Blockers` section has
-     no dependencies and remains eligible once approved.
-4. **Independent set (parallel-eligible).** From the eligible set, take the
-   largest subset whose tasks each have a `### Blockers` section of `None` (or
-   empty) **and** whose `Scope` file lists are mutually disjoint — no two
-   selected tasks name the same implementation file. Use the same overlap test
-   as `SCOPE-DISJOINT` in
-   `plugins/sdd-review-loop/agents/task-reviewer-b.md`: tasks that would modify
-   the same file for the same purpose must not share a set. Order the set by
-   appearance in `tasks.md`; if Scope overlap forces a choice, keep the earliest
-   task and defer the overlapping one to a later pass (sequential fallback).
-5. If no eligible task exists, report which tasks remain and why
-   (unapproved / dependency-blocked / all done), then stop and go to
-   **Completion Check**.
-
-## Implementation Loop
-
-### Managed Claude batch model routing
-
-Use this route only when managed routing was explicitly selected. Without
-managed inputs, retain the legacy procedure; never use it after a managed failure.
-
-For a managed Claude batch, keep the original task selection, risk check,
-manifest/snapshot preparation, host-capability decision and complete persisted
-manifest-set validation below. Before Agent dispatch, prepare each selected
-implementer's native definition through the installed entry. This is configuration
-preparation and launches no task. Its selection/controls/validation retain the
-original T-007 validation; its stdout is one native `--agents` definition object.
-
-```bash
-python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py claude-batch-definition \
-  --request "<policy-request>" --registry "<registry>" --role implementer --host claude-code \
-  --run-id "<run-id>" --session-id "<session-id>" --attempt "<attempt>" \
-  --output-dir "<output-dir>" --require-actual-id false
-```
-
-Bind each generated definition to that exact validated selection. Use a native
-parent only when its actual startup loaded the identical definitions; retain the
-pinned startup bytes as configuration evidence. A successful call to a custom
-name, or writing an agent file after startup, does not prove the loaded model and
-effort. Unknown or stale startup configuration must take this executable branch
-and stop the batch before any implementation:
-
-```bash
-python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry --role implementer --host claude-code
-```
-
-This is a typed unsupported routing result. It does not assert that the host
-cannot create implementation subagents, and cannot authorize same-session reload.
-Schema, selection, model, configuration and native allocation failures also stop;
-they never authorize that fallback. A known matching startup remains eligible for
-the original fresh-Agent path, subject to every original handoff admission below.
-Do not inspect an unknown parent's argv, credentials, profiles or session stores.
-If an owned fresh CLI parent is used to load these definitions, it runs this same
-orchestrator with ordinary settings, hooks, tools and permissions preserved; no
-single-task `claude-entry` worker replaces batch children.
-
-For each task admitted by the original manifest/snapshot checks, make the original
-native Agent call with its generated name and file-backed input only:
-
-```json
-{"subagent_type":"<managed-definition-name>","prompt":"Manifest: <validated-manifest-path>; immutable snapshot: <validated-snapshot-root>; writable outputs: <declared-output-roots>. Follow the original one-task worker procedure; return file-backed artifacts only."}
-```
-
-The exact full native model and effort live in the startup definition. Omit
-per-call `model` and `effort`; their alias/default interpretation cannot replace
-that selection. Do not infer backend identity from successful allocation. Preserve
-the existing manifest `session_id` and `agent_instance_id` admission, whose grammar
-is nonempty identifiers rather than UUID-only. Neither a tool-use ID nor a returned
-Agent ID automatically proves both fields; if the original pre-work identity and
-output-root admission cannot be established, stop before work as already required.
-
-Keep the up-to-4 concurrent Claude cap, earliest-four then deferred remainder,
-complete persisted manifest set across passes, immutable snapshot per child,
-non-reuse across all tasks, parent-only shared status/report acceptance,
-barrier and Blocked fail-fast rules below unchanged. Generated definitions and
-call-shape fixtures prove configuration, not actual model/effort or full native
-batch execution. Native batch acceptance remains unproven until those original
-admission requirements and the actual batch behavior are demonstrated.
-
-
-
-`implement-tasks` is an orchestrator. It selects work, creates and validates
-the file-backed handoff, launches the implementation context, and consumes the
-persisted result. It does not implement a selected task in the batch
-orchestrator's accumulated conversation.
-
-Before the first launch, detect whether the host can create implementation
-subagents and persist one capability decision for the complete batch. Every
-manifest in the batch MUST use the mode selected by that decision; mixed
-`fresh-agent` and `same-session-file-reload` batches are invalid. A capable
-host MUST use the fresh-agent path. The fallback path is permitted only when
-the host explicitly reports that implementation subagents are unavailable
-with reason `host-does-not-support-implementation-subagents`.
-
-**Parallel dispatch of the independent set.** Launch every task in the current
-independent set (Task Selection step 4) concurrently — their `Scope` file lists
-are disjoint, so the fresh-agent handoffs never write the same file. Concurrency
-caps: **Claude Code — up to 4 fresh agents per pass**, dispatched in a single
-assistant message; **Codex — up to (CPU count − 2)**, each launched as a parallel
-process and joined with `wait`. If the set exceeds the cap, take the earliest N
-and defer the rest. A set of size 1, or any Scope-overlapping remainder, runs
-sequentially.
-
-**The orchestrator is the only writer of shared state.** Launched agents return
-only their file-backed artifacts (manifest, snapshot outputs, implementation
-report); they never mutate `tasks.md` or another task's
-`reports/implementation/` entry. The orchestrator serializes every `tasks.md`
-status transition and report acceptance after a worker returns, so concurrent
-tasks cannot interleave shared writes. **Fail fast:** the moment any task in the
-set returns `Blocked`, stop dispatching further passes and follow **Block And
-Stop** for the batch (in-flight siblings may finish, but no new pass starts).
-
-For each task in the set (run these concurrently across the set):
-
-1. Inspect `git status` and `git diff`. Preserve unrelated existing changes.
-   If they conflict with the task scope, set the task to `Blocked` and stop.
-2. Use the checked-in routing, risk, snapshot, and manifest scripts to select
-   the model, allocate a new task/run identity, build a hash-bound task input
-   manifest, publish the immutable snapshot, and validate it with
-   `plugins/sdd-implementation/scripts/prepare-task-snapshot.sh` or `.ps1`
-   and `validate-task-input-manifest.sh` or `.ps1`. Keep every manifest in the
-   persisted batch manifest set and run the validator's batch mode over the
-   complete set before launch. For fallback batches, pass the persisted
-   evidence root to `--evidence-root` or `-EvidenceRoot`; the validator rereads
-   the evidence file from disk and binds it to the complete manifest set.
-   Deterministic parsing, validation, hashing, identity checks, and state
-   transitions are performed by checked-in scripts rather than by model
-   judgment.
-3. On a subagent-capable host, launch exactly one fresh implementation agent
-   for the selected T-NNN. Give it only the validated immutable snapshot,
-   manifest, and declared writable output roots. Do not pass chat history,
-   conversation summaries, or the orchestrator's working context. Never reuse
-   a run, session, or `agent_instance_id` from any earlier batch task, whether
-   adjacent or nonadjacent, and never assign the launched agent another task.
-4. On a host that explicitly cannot create implementation subagents, use
-   `same-session-file-reload` only after all of the following hold:
-   - Persist the manifest, immutable snapshot, implementation report location,
-     explicit host-capability fallback reason, unique task ID, and unique run
-     ID.
-   - Record the reused physical session and agent IDs. Reuse of a task or run
-     ID is forbidden.
-   - Save the closed JSON evidence artifact at
-     `handoffs/reload-evidence.txt`. It MUST use schema
-     `implementation-host-capability/v1`, record
-     `implementation_subagents_available: false`, the exact incapable-host
-     reason, reused physical session/agent IDs, and the complete batch's
-     task/run pairs.
-   - Include that evidence path and lowercase SHA-256 in every manifest's
-     `allowed_inputs`, set the same SHA-256 as
-     `handoff_reload_evidence_hash`, then use the checked-in validator to
-     reread and rehash the artifact and revalidate the manifest and snapshot
-     from disk before implementation. Fabricated hashes, missing files,
-     altered evidence content, or evidence task/run pairs that differ from the
-     complete batch fail closed.
-   - Record the fallback reason, reused physical IDs, unique run ID, evidence
-     path/hash, and reload validation result in the implementation report.
-   Chat history or compaction summaries alone are forbidden handoff input and
-   cannot satisfy any reload step.
-   - **On resuming an interrupted task (WFI-044).** A provider quota limit,
-     rate limit, or any other interruption ends the implementing agent's turn,
-     so the agent that recorded `Isolation Mode: fresh-agent` is no longer the
-     one that knows what happened. Whenever you resume a task from a handoff
-     file after such an interruption, update that task's implementation report
-     isolation fields — mode, fallback reason, and reload evidence hash — to
-     the values that are now true, BEFORE continuing implementation. Leaving a
-     stale `fresh-agent` declaration over an interrupted-and-resumed run is the
-     RT-20260821-016 defect; `validate-implementation-report` now rejects that
-     contradiction, and the fix is always to make the declaration truthful,
-     never to remove the narrative that revealed it.
-5. The persisted manifest and immutable snapshot are the only task handoff in
-   either host path. If launch identity, snapshot validation, saved reload
-   evidence, or output-root enforcement cannot be established, fail closed
-   before implementation.
-6. Reviewer and evaluator fallback is forbidden. This implementation-only
-   fallback does not relax their distinct fresh, read-only, file-backed
-   context requirements.
-7. Set the selected task to `In Progress`.
-8. In the launched fresh agent, or the proven same-session file-reload
-   fallback, implement only the task's `Scope` and `Done When`, following
-   `references/implementation-policy.md` in full.
-9. Add or update the task-required tests. When `Required Workflow: tdd`
-   (`high`/`critical` risk), follow Red→Green: write the failing test first
-   and save its output, then implement until it passes and save the passing
-   output.
-10. Run related existing regression tests.
-11. Perform a scoped self-review against the approved specification.
-12. Delegate large-scope surveys following
-   `references/agent-delegation-policy.md`. Record delegation conclusions in
-   the Working Notes section of the implementation report immediately.
-13. Persist `reports/implementation/<feature>/<task-id>.md` from the bundled template,
-    validate that all produced files are inside `allowed_outputs`, and return
-    only those file-backed artifacts to the batch orchestrator.
-14. Set the task to `Implementation Complete` only when implementation,
-   required tests, related regression tests, and the report are all complete.
-After the whole independent set finishes (barrier — the orchestrator waits for
-every launched task to return `Implementation Complete` or `Blocked` before
-touching shared state again):
-
-15. Re-evaluate the eligible set (Task Selection steps 1–4) — completed tasks may
-    unblock previously dependency-blocked tasks, forming the next independent set.
-16. If a new eligible set exists, loop back to the start of the Implementation
-    Loop and dispatch it. Otherwise proceed to **Completion Check**.
-
-## Block And Stop
-
-Set the current task to `Blocked`, record the blocker, and stop the entire
-batch when:
-
-- Requirements or design are ambiguous.
-- Requirement, architecture, authentication, authorization, breaking-API, or
-  security decisions are required.
-- Unrelated changes conflict with the task.
-- Required tests cannot be run.
-- The requested work exceeds the approved scope.
-
-Return specification gaps to `sdd-bootstrap-interviewer`. Do not resolve them
-by guessing. On resumption, re-invoke this skill — it re-evaluates eligibility
-and picks up from the first incomplete eligible task automatically.
-
-## Completion Check and Auto Quality-Gate Transition
-
-After each task reaches `Implementation Complete`, evaluate:
-
-**All-done condition**: every task in `tasks.md` with `Approval: Approved`
-has `Status: Implementation Complete` or `Status: Done`.
-
-### If the all-done condition IS met
-
-1. Report to the user: list all tasks now at `Implementation Complete`.
-2. **Automatically start `quality-gate`** for the feature, processing tasks
-   in `tasks.md` order, beginning with the first `Implementation Complete`
-   task. Follow the `quality-gate` skill (in `plugins/sdd-quality-loop`)
-   in full for each task.
-
-### If the all-done condition is NOT met
-
-Report which approved tasks remain and their current blocking reason
-(dependency-blocked, still `Blocked`, or pending approval), then stop.
-Do not start quality-gate until the all-done condition is satisfied.
+1. 独立集合が 1 件、またはサブエージェント未対応環境では、`implement-task` の手順で順次実行する。
+2. 独立集合が 2 件以上かつサブエージェント対応環境では、各タスクに新鮮なワーカーを割り当てて並列実行する（上限: Claude Code 最大 4 並列、他環境はホスト上限内）。
+3. **共有状態の書き込み責務**: `specs/<feature>/tasks.md` の `Status:` 更新はオーケストレータが一元管理し、並列ワーカー間で同時書き込みを起こさない。
+4. **報告直前の実在確認（空報告防止）**: 各ワーカーは完了報告直前に変更ファイルの実在とテスト実実行結果を確認する。オーケストレータも受領時に `git status` / 変更ファイル実在を確認してから `Status: Implementation Complete` へ更新する。
+5. **Fail-fast**: いずれかのタスクが `Blocked` を返したら、新しいパスの起動を停止し、ブロッカー内容を `ship` へ報告する。
+6. 全ワーカーの完了を待ったあと、再度 Task Selection を評価し、依存が解けた次パスがあれば続行する。
 
 ## Boundaries
 
-- Do not start quality-gate mid-batch for individual tasks; only start it
-  when **all** approved tasks are `Implementation Complete`.
-- Do not set any task to `Done`; only `quality-gate` may do that.
-- Do not commit, push, or create a PR/MR unless explicitly requested.
-- Do not start a task whose `Approval` is not `Approved`.
-- Do not run the full repository quality gate unless required by a task.
-- Do not perform independent critical review or Playwright visual verification
-  during the implementation loop (those happen in quality-gate).
+- `Approval: Approved` は絶対に書き込まない（人間のみ）。
+- `Status: Done` への遷移および `sdd-gate` の起動は行わない（呼び出し元 `ship` の責務）。
+- 承認済み仕様本文を無断で書き換えない（仕様変更が必要なら `Blocked` にして人間へ確認する）。
+- 明示指示がない限り commit / push / PR 作成は行わない。

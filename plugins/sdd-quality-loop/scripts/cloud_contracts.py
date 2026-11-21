@@ -14,7 +14,8 @@ fail closed. Callers own root permissions, exclusive directory ownership and clo
 admission. Do not treat integrity success as approval or log untrusted payloads.
 """
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
+import errno
 import hashlib
 import json
 import os
@@ -86,7 +87,7 @@ def _boolean(value):
 def _utc(value):
     _match(value, r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z')
     try:
-        return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+        return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
     except ValueError:
         raise ContractError('INVALID_UTC') from None
 
@@ -380,11 +381,26 @@ def _parent(root, relative):
     _require(os.path.isabs(root) and all(p not in ('.', '..') for p in root.split('/')), 'UNSAFE_ROOT')
     fd = None
     try:
-        fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
-        for part in [p for p in root.split('/') if p] + relative.split('/')[:-1]:
-            next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
-            os.close(fd)
-            fd = next_fd
+        rel_parents = relative.split('/')[:-1]
+        try:
+            fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
+            for part in [p for p in root.split('/') if p] + rel_parents:
+                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                os.close(fd)
+                fd = next_fd
+        except OSError as exc:
+            if fd is not None:
+                os.close(fd)
+                fd = None
+            # In macOS Seatbelt / container sandboxes, traversing '/' or '/private' can raise EPERM/EACCES
+            # even when the target parent directory itself is accessible. Fall back to opening the parent
+            # directly only after proving no symlink component exists anywhere along its physical path.
+            if exc.errno not in (errno.EPERM, errno.EACCES):
+                raise
+            target_parent = os.path.join(root, *rel_parents) if rel_parents else root
+            if os.path.realpath(target_parent) != target_parent:
+                raise
+            fd = os.open(target_parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         yield fd, relative.split('/')[-1]
     except OSError:
         raise ContractError('UNSAFE_OR_UNAVAILABLE_FILE') from None

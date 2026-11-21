@@ -7,6 +7,8 @@ disable-model-invocation: false
 
 # Create a project skill
 
+> **スキル化前の優先判定（規約・知見優先）**: 新しいスキルを増やす前に、① 機械検査（テスト・`sdd-doctor.mjs`）② 規約・判断基準・失敗履歴（`AGENTS.md` / `sdd/knowledge/`）で防げないか確認すること。スキル化は「同一の実行手順が **3 回以上** 反復し、規約やテストだけでは再現できない場合」に限定する。不要と判断した場合はスキルを作らず終了し、見送り理由を `sdd/rejected-decisions.md` に残す。
+
 Use on an explicit request to preserve a project procedure. The profile is
 `verification`, `diagnosis`, `migration`, or `maintenance`; all profiles share the
 manifest and execution observation contract. Reuse an existing skill before

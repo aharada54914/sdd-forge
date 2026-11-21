@@ -1,5 +1,5 @@
 {
-  "description": "Codex CLI enforcement config for the SDD quality loop. Current Codex CLI uses the 'hooks' feature control; verify activation with a native canary. 'command' is the POSIX invocation; 'command_windows' is the Codex Windows override. Claude Code uses hooks/claude-hooks.json (referenced via .claude-plugin/plugin.json) which uses exec-form Node.js hooks instead. GitHub Copilot CLI uses hooks/copilot-hooks.json.",
+  "description": "SDD Forge v2 Lightweight Soft Guardrails for Codex CLI (ADR-0051). Single cross-platform Node.js ESM soft guard across POSIX and Windows.",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,18 +7,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/kill-switch.sh\"",
-            "command_windows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}\\scripts\\kill-switch.ps1\""
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/sdd-hook-guard.sh\" --emit exit",
-            "command_windows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}\\scripts\\sdd-hook-guard.ps1\" -Emit exit"
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs\" --emit exit",
+            "command_windows": "node \"${CLAUDE_PLUGIN_ROOT}\\scripts\\v2\\sdd-soft-guard.mjs\" --emit exit"
           }
         ]
       }

@@ -1,8 +1,8 @@
-description = "Implement approved SDD tasks through deterministic quality verification to Done."
+description = "Implement approved SDD Core tasks under lightweight soft guardrails and verify through sdd-gate to Done."
 prompt = """
 Read and execute the skill instructions at `skills/ship/SKILL.md` (relative to this Gemini extension root).
 
 Arguments: {{args}}
 
-On Gemini CLI, execute the hook-activation handshake with `--runtime gemini-cli` using the `write_file` canary template, never implement Draft tasks, and only transition tasks to Done through quality-gate (or lite-gate on an eligible lite track).
+Record the spec baseline with `record-spec-baseline.mjs` if missing, never implement Draft tasks, and only transition tasks to Done through `sdd-gate`.
 """

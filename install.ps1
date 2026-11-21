@@ -1,11 +1,11 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$Repository = "aharada54914/sdd-forge",
     [string]$Ref = "main",
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "Gemini", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
@@ -38,8 +38,7 @@ while ($dependenciesChanged) {
             "sdd-azure-cloud" { @("sdd-quality-loop"); break }
             "sdd-aws-cloud" { @("sdd-quality-loop"); break }
             "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
-            "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
-            "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
+            "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop"); break }
             default { @() }
         }
         foreach ($dependency in $dependencies) {
@@ -384,23 +383,8 @@ function Test-ClaudeHookRuntime {
     if ($Target -notin @('All', 'Claude') -or $SkipPluginInstall -or
         'sdd-quality-loop' -notin $Plugins -or -not $script:ResolvedClaudeCommand) { return }
 
-    $claudeMatch = [regex]::Match($script:ClaudeVersionOutput, '^([0-9]+\.[0-9]+\.[0-9]+)(?:\s|$)')
-    $claudeVersion = $null
-    if (-not $claudeMatch.Success -or
-        -not [version]::TryParse($claudeMatch.Groups[1].Value, [ref]$claudeVersion) -or
-        $claudeVersion -lt [version]'2.1.295') {
-        throw 'Claude Code >= 2.1.295 is required for fail-closed quality-loop hooks. Installation was not changed.'
-    }
-    $node = Get-Command node -CommandType Application, ExternalScript -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $node) {
-        throw 'Claude quality-loop hooks require Node.js >= 26.13.0 on PATH, even with -SkipMcp. Install Node.js and restart the host before retrying. Installation was not changed.'
-    }
-    $output = Invoke-VersionPreflight -Command $node.Source -Label 'Node.js for Claude quality-loop hooks'
-    $nodeVersion = $null
-    if ($output -notmatch '^v?([0-9]+\.[0-9]+\.[0-9]+)$' -or
-        -not [version]::TryParse($Matches[1], [ref]$nodeVersion) -or
-        $nodeVersion -lt [version]'26.13.0') {
-        throw "Claude quality-loop hooks require working Node.js >= 26.13.0 (found '$output'), even with -SkipMcp. Installation was not changed."
+    if (-not (Test-NodeVersionOk)) {
+        Write-Warning 'Node.js >= 20.0.0 is recommended on PATH for v2 soft guardrail hooks (sdd-soft-guard.mjs).'
     }
 }
 
@@ -429,8 +413,8 @@ function Test-NodeVersionOk {
         return $false
     }
     $parsedVersion = [version]::new($major, $minor, $patch)
-    if ($parsedVersion -lt [version]"26.13.0") {
-        Write-Warning "Node.js >= 26.13.0 is required for MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
+    if ($parsedVersion -lt [version]"20.0.0") {
+        Write-Warning "Node.js >= 20.0.0 is required for v2 guardrails and MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
         return $false
     }
     return $true
@@ -765,7 +749,7 @@ function Expand-DownloadedZipArchive {
 $cloudEntryFiles = @(".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
 
 function Get-RequiredPaths {
-    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
+    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-ship", "sdd-domain")
     $paths = @(
         # Managed prepare/launch runtime closure read by the installed entry and helper.
         "plugins/sdd-implementation/scripts/managed-model-entry.py",
@@ -783,8 +767,13 @@ function Get-RequiredPaths {
         "plugins/sdd-bootstrap/gemini-extension.json",
         "plugins/sdd-ship/gemini-extension.json",
         "plugins/sdd-domain/gemini-extension.json",
-        "plugins/sdd-lite/gemini-extension.json",
         "plugins/sdd-review-loop/gemini-extension.json",
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
         "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",

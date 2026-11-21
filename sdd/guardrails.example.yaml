@@ -1,0 +1,23 @@
+# SDD Forge v2 Lightweight Guardrails configuration
+# Copy to sdd/guardrails.yaml to customize project guardrails.
+schema: sdd-guardrails/v1
+
+spec_guard:
+  mode: confirm # warn | confirm | strict
+  protected_globs:
+    - specs/*/requirements.md
+    - specs/*/design.md
+    - specs/*/acceptance-tests.md
+    - specs/*/tasks.md
+  allow_amendment_section: true
+
+review:
+  pre_impl_check: auto # auto (skip on Risk: low) | always | off
+  independent_gate: true
+
+risk_defaults:
+  default_tier: standard # low | standard | high
+  high_risk_paths:
+    - "**/auth/**"
+    - "**/billing/**"
+    - "**/migrations/**"

@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "{{schema_id}}",
-  "title": "{{schema_title}}",
-  "type": "object",
-  "properties": {},
-  "required": []
-}

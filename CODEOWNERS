@@ -1,36 +1,20 @@
-# CODEOWNERS for sdd-forge
+# CODEOWNERS for sdd-forge (v2 Lightweight Guardrails — Layer 3 Boundary)
 #
-# This config is live. @aharada54914 is the repository owner
-# (github.com/aharada54914/sdd-forge), not a placeholder — the four rules below
-# are in effect today and require that owner's approval to merge changes under
-# the paths they name.
-#
-# Coverage — exactly four paths are owned:
-#   /plugins/sdd-quality-loop/scripts/     gate scripts and guards
-#   /plugins/sdd-quality-loop/references/  gate reference data
-#   /.github/                              CI/CD and governance
-#   /specs/                                specification and risk policy
-#
-# There is NO `*` catch-all rule. Every path outside those four is unowned, so
-# changes to it need no CODEOWNERS approval. Adding a catch-all would change
-# approval requirements repository-wide; treat it as a deliberate policy
-# decision, not a cleanup.
-#
-# Known coverage gaps, noted for future consideration (NOT currently owned —
-# listing them here does not grant ownership):
-#   /plugins/sdd-quality-loop/hooks/  /contracts/  /mcp/  /install.sh
-#   /install.ps1  /tests/validate-repository.ps1  /plugins/sdd-review-loop/agents/
-#
-# Optional future change: the individual handle could be swapped for a team slug
-# (e.g., @sdd-forge/maintainers) to spread review load. This is not a
-# prerequisite for anything below — the current handle works as written.
+# In SDD Forge v2 (ADR-0051), local hooks stay lightweight and non-intrusive
+# ("Local Soft"), while Git/PR/CODEOWNERS/CI serve as the firm governance
+# boundary ("Boundary Firm").
 
-# Security-critical: quality-loop gate scripts and guards
+# Guardrails hooks, scripts, and schemas
+/plugins/sdd-quality-loop/hooks/           @aharada54914
+/plugins/sdd-quality-loop/gemini/hooks/    @aharada54914
 /plugins/sdd-quality-loop/scripts/         @aharada54914
 /plugins/sdd-quality-loop/references/      @aharada54914
+/contracts/guardrails.schema.json          @aharada54914
+/sdd/guardrails.yaml                       @aharada54914
 
 # CI/CD and governance
-/.github/                                   @aharada54914
+/.github/                                  @aharada54914
 
-# Specification and risk policy
-/specs/                                     @aharada54914
+# Approved specifications and ADRs
+/specs/                                    @aharada54914
+/docs/adr/                                 @aharada54914

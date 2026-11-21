@@ -10,6 +10,16 @@ Use when the user requests a status board or dashboard, including during bootstr
 or ship. The initiating parent owns presentation; do not delegate host selection,
 creation, publication, credentials or the active presentation identity to workers.
 
+## Harness health check (sdd-doctor)
+
+When diagnosing silent hook loss, broken guardrails config, oversized skill descriptions (>1,024 chars), control-character corruption, or unbaselined approved specs, run the read-only diagnostic CLI before changing settings:
+
+```sh
+node <installed-root>/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root <project>
+```
+
+`sdd-doctor.mjs` never modifies files and explicitly lists its **Non-checks** boundary so `CLEAN` is never mistaken for semantic correctness.
+
 ## Specification decisions
 
 Use the existing presentation's **仕様の相談** view for important specification

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/guardrails.schema.json",
+  "title": "SDD Forge Lightweight Guardrails Configuration (sdd-guardrails/v1)",
+  "type": "object",
+  "required": ["schema"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "sdd-guardrails/v1"
+    },
+    "spec_guard": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["warn", "confirm", "strict"],
+          "default": "confirm",
+          "description": "How sdd-soft-guard responds to edits of approved specification body content."
+        },
+        "protected_globs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": [
+            "specs/*/requirements.md",
+            "specs/*/design.md",
+            "specs/*/acceptance-tests.md",
+            "specs/*/tasks.md"
+          ]
+        },
+        "allow_amendment_section": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow agents to append amendment notes under the Spec Amendments heading without triggering soft-stop."
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pre_impl_check": {
+          "type": "string",
+          "enum": ["auto", "always", "off"],
+          "default": "auto",
+          "description": "Controls single-pass spec-check before implementation (auto skips Risk: low)."
+        },
+        "independent_gate": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "risk_defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_tier": {
+          "type": "string",
+          "enum": ["low", "standard", "high"],
+          "default": "standard"
+        },
+        "high_risk_paths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": [
+            "**/auth/**",
+            "**/billing/**",
+            "**/migrations/**"
+          ]
+        }
+      }
+    }
+  }
+}

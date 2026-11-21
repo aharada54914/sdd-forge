@@ -165,7 +165,7 @@ writes its artifact before the next stage starts").
 
 Checkpointing is **create-only** for a `new` run, matching this repository's
 existing layer-generation convention
-(`sdd-bootstrap-interviewer`'s "Layer generation is create-only: MUST NOT
+(`sdd-core-spec`'s "Layer generation is create-only: MUST NOT
 overwrite an existing layer file"): if a stage's canonical path already
 exists on disk when that stage would normally be written, do not overwrite
 it — this is what makes a `new` run resumable (see below) and what makes

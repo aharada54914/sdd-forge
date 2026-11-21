@@ -1,226 +1,51 @@
 ---
 name: implement-task
-description: Restore the current SDD task state and implement exactly one approved task. Use after sdd-bootstrap-interviewer and before quality-gate.
+description: Restore SDD task state and implement one approved task within its Scope and Done When, then hand off at Implementation Complete for sdd-gate.
 disable-model-invocation: false
 user-invocable: false
 ---
 
-> **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.
-> Results are returned to the caller; no downstream skill is auto-invoked.
+> **Caller**: `ship`（または `implement-tasks`）から呼び出される内部スキル。下流スキルを自動起動せず、`Implementation Complete`（または `Blocked`）で制御を返す。
 
 # Implement Task
 
-Implement one approved task and prepare it for independent quality review.
-
-## Managed allocation boundary
-
-Affected policy roles: `implementer`, `investigator`.
-
-Apply this boundary only when the caller explicitly selects managed routing
-with a policy request or model controls, or this allocation continues that
-managed workflow. With no managed input, retain the legacy invocation and model
-hints below. Once managed is selected, do not switch that workflow to legacy
-because selection, validation or launch fails. No new environment toggle is
-required, and this boundary does not grant delegation or execution permission.
-
-For a managed allocation, apply in the allocating parent before an unbound
-forked Skill/Agent, native role, or fresh context receives work, and before any
-identity reservation. This
-boundary takes precedence over later native/default launch guidance for these
-roles. It does not add an availability or authority gate.
-
-Keep an already admitted managed entry with its validated selection/controls and
-matching role, host, run/session and workload. Keep a concretely known matching
-batch startup and fixed generated Codex configuration under their original
-contracts. An already bound worker continues its original procedure: do not
-select again, allocate again, or run this refusal inside that same worker.
-A bound parent does not bind a new child, role or session: each new allocation
-needs its own admitted selection/carrier binding or takes the refusal below.
-
-When this operation has no admitted binding of the selected model and effort to
-its actual native carrier, substitute the next affected policy role and actual
-host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
-
-```bash
-python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
-  --role "<policy-role>" --host "<host>"
-```
-
-Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
-before work or reservation. Do not fall through to an old model hint, alias,
-unbound native default or another parent session; do not count allocation alone
-as selection proof. This refusal does not assert host incapability and never
-authorizes same-session reload. Original host-incapable-only implementation
-fallback evidence and all review isolation requirements remain unchanged.
-
-Use implementer when a parent starts this task context; use investigator only for a new secondary investigation unit from agent-delegation-policy.md. An already bound implementation worker continues implementation without another selection. The reference file cannot authorize an unbound Codex/Copilot/native helper.
-
-
-## Invocation
-
-Codex:
-
-```txt
-Use the implement-task skill for specs/<feature>/tasks.md#T-001
-```
-
-Claude Code — internal skill, not directly invocable. Reached by following
-this file from its entry command:
-
-```
-/sdd-ship:ship
-```
+承認済みタスク 1 件を仕様通りに実装・テストし、`sdd-gate` による独立検証へ渡す。
 
 ## Preconditions
 
-Before reading any specification, verify that `AGENTS.md` exists at the
-repository root and that `scripts/check-sdd-structure.sh` (or `.ps1`) reports
-no `missing:` items. If either check fails, stop immediately and direct the user
-to run `/sdd-bootstrap:sdd-adopt`. Do not improvise project rules or infer
-missing structure from context.
+1. ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:sdd-adopt` を案内して停止）。
+2. 対象タスクが `Approval: Approved` であること（`Draft` タスクは着手禁止）。
 
 ## Required Reading
 
-Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tests,
-traceability, relevant ADRs and contracts, `references/implementation-policy.md`,
-`references/implementation-craft-policy.md`, and
-`references/agent-delegation-policy.md`. For UI tasks in a project that
-carries a `design-system/` directory, also read
-`design-system/design-system.md` and `design-system/ui-patterns.md`; for
-other tasks do not load them.
+- `AGENTS.md`、`specs/<feature>/{requirements,design,tasks}.md`
+- 存在する場合: `specs/<feature>/codemap.md`（探索前に読む）、`references/implementation-policy.md`、`references/implementation-craft-policy.md`
+- UI タスクかつ `design-system/` 存在時: `design-system/design-system.md`、`design-system/ui-patterns.md`
+- SQL / DB スキーマ変更時: `../sql-develop/references/sql-development-policy.md`（隔離 DB 検証まで。本番・共有 DB へは接続しない）
 
-If `specs/<feature>/codemap.md` exists, read it before any repository
-exploration and limit fresh searches to areas it does not cover.
+## Process
 
-## SQL開発の参照
-
-要求・設計・承認済みタスクがSQL、DBスキーマ、migration、ORMのDB変更を含む場合は、
-[SQL共通手順](../sql-develop/references/sql-development-policy.md)の「承認済み実装と隔離」と該当engineの参照を読む。
-公開 `sql-develop` を再起動せず、このスキルの承認・トラック・状態・実行証跡の規則を維持する。
-SQL契約の不足や、承認範囲外のDB変更が見つかった場合は、必要な仕様確認へ戻す。
-SQLを扱わない案件はこの追加手順を適用しない。SQL対象なのに参照資料が未導入の場合は、
-`sdd-implementation` の導入を案内し、SQL検証を省略して完了扱いにしない。
-初版で実行できるのは合成データの隔離DB検証まで。共有・本番DBへは接続しない。
-
-### Sudo Mode
-
-If a valid `SDD_SUDO` flag file exists at the project root (see
-`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), the routine task
-**approval** checkpoint auto-passes. Record
-`Approval: Approved (sudo <ISO8601 UTC>)` in tasks.md and continue.
-
-Sudo does **not** bypass the Block-and-Stop decisions below: requirement,
-architecture, authentication, authorization, breaking-API, or security
-decisions still require a human. Set the task to `Blocked` and defer to the
-human even under sudo. All deterministic gates apply; every check runs as normal.
-
-## State Restoration
-
-1. Inspect `tasks.md` and select the named task, an `In Progress` task, or the first
-   task with `Approval: Approved` and `Status: Planned`.
-2. Inspect `git status` and `git diff`.
-3. Preserve unrelated existing changes. If they conflict with the task scope, set
-   the task to `Blocked` and stop.
-4. Do not start a task whose approval is not `Approved`.
-
-## Delegation And Context
-
-Delegate large-scope surveys (impact analysis, pattern discovery, test
-enumeration) following `references/agent-delegation-policy.md`. Keep one
-session per task. When crossing a session boundary, write current state to the
-Session Handoff section of the implementation report before stopping; on
-resume, re-read `tasks.md` and the report before taking any action.
-
-## Implementation Process
-
-1. Set the selected task to `In Progress`.
-2. Implement only its `Scope` and `Done When`, building in thin vertical slices
-   and verifying each slice (implement → run task-required tests → confirm
-   behavior) before starting the next, per `references/implementation-craft-policy.md`.
-3. Add or update the task-required tests. When the task's `Required Workflow`
-   is `tdd` (high/critical risk), follow Red→Green: write the failing test
-   first and save its failing output (e.g. under
-   `specs/<feature>/verification/`), then implement until it passes and save
-   the passing output. quality-gate's risk-aware `check-contract` requires
-   non-empty `red_evidence` and `green_evidence` for every test-type check, so
-   capture both as you go rather than reconstructing them later.
-   If the approved task requires a failing-test commit before implementation,
-   also capture read-only Git evidence in the task's scratch area: the actual
-   RED commit and scoped tree/blob contents, its ancestry to the reviewed
-   revision (including command exit codes), and the test revision/working-tree
-   state used for each recorded run. Preserve actual command output alongside
-   the RED/GREEN logs so an isolated evaluator can inspect it without Git access.
-   Declare each produced evidence file with its exact SHA-256 in the report's
-   Outputs table and include it in the evaluator's fixed inputs. A commit ID or
-   a prose chronology alone is not the underlying evidence. Existing code from
-   other tasks may already be in the RED tree; assess the current task's scoped
-   change, not an empty-repository assumption. This adds no commit authority:
-   follow the host's authorization policy, and report missing historical proof
-   honestly rather than manufacturing commits or backdating test evidence.
-4. Run related existing regression tests.
-5. Perform a scoped self-review against the approved specification and the
-   applicable language/boundary rules selected by `implementation-policy.md`.
-6. When the task qualifies as a UI task (the feature has
-   `specs/<feature>/ux-spec.md` or `specs/<feature>/mockups/`, and the task
-   scope includes UI-layer files), run the `visual-verify-loop` skill. It is
-   advisory and non-blocking: record its screenshots and findings in the
-   implementation report's Visual Evidence section; when it is skipped,
-   record the skip reason instead.
-7. Create `reports/implementation/<feature>/<task-id>.md` from the bundled template.
-8. Set the task to `Implementation Complete` only when implementation, required
-   tests, related regression tests, and the report are complete.
+1. **状態復元**: `tasks.md` で対象タスク（`Approval: Approved` かつ `Planned` / `In Progress`）と `git status` / `git diff` を確認する。無関係な既存変更は保持し、スコープと競合するなら `Blocked` にして停止する。
+2. **着工**: 対象タスクを `Status: In Progress` に更新する。
+3. **薄い縦切り実装**: `### Scope` と `### Done When` の範囲のみを実装し、スライスごとにテストを実行して挙動を確認する。
+4. **テスト整備**:
+   - 対応する `AC-NNN` を検証する単体・結合テストと関連回帰テストを実行する。
+   - `Risk: high` のタスクでは TDD（先に失敗するテストを書いて赤を確認 → 実装して緑を確認）を基本とし、テスト出力を実装レポートへ記録する。
+5. **UI 視覚確認（該当時のみ）**: UI レイヤー変更かつ `design-system/` またはモックアップがある場合は `visual-verify-loop`（助言的・非ブロッキング）を実行し、結果をレポートへ残す。
+6. **スコープ内自己点検**: 変更差分にプレースホルダー（`TODO` / `FIXME`）やスコープ外変更が混入していないか確認する。
+7. **実装レポート作成**: `templates/implementation-report.template.md` を使い `reports/implementation/<feature>/<task-id>.md` を作成する。
+8. **完了ハンドオフ**: 実装・テスト・レポートがすべて揃ったら `Status: Implementation Complete` に更新して呼び出し元へ返す。
 
 ## Block And Stop
 
-Set the task to `Blocked`, record the blocker, and stop when:
-
-- requirements or design are ambiguous
-- requirement, architecture, authentication, authorization, or breaking API
-  decisions are required
-- unrelated changes conflict with the task
-- required tests cannot be run
-- the requested work exceeds the approved scope
-
-Return specification gaps to `sdd-bootstrap-interviewer`. Do not resolve them by
-guessing. When a failure is in-scope but non-obvious, diagnose it
-systematically with
-`plugins/sdd-quality-loop/references/debugging-recovery-policy.md` before
-deciding whether to continue or set the task `Blocked`.
-
-## Common Rationalizations
-
-Counter these excuses; each one is how a task quietly ships incomplete work.
-
-- "Tests can come after I finish" — required tests are part of the task; write
-  them with the slice, and Red→Green first for high/critical risk.
-- "While I'm here I'll also fix/refactor X" — out-of-scope work belongs in a new
-  task or a review ticket, not this change.
-- "It's basically done, I'll set it to Done" — only `quality-gate` (or
-  `lite-gate`) sets `Done`; stop at `Implementation Complete`.
-- "I'll just approve this task to unblock myself" — approval is human-only and
-  hook-guarded; never self-approve.
-- "The spec is unclear but I can guess the intent" — stop and set `Blocked`;
-  return the gap to `sdd-bootstrap-interviewer`.
-
-## Red Flags
-
-- A large amount of code written before any test runs.
-- Edits to files outside the task's `Scope`.
-- An unrelated refactor mixed into the task's diff.
-- A test made to pass by hardcoding data shaped like the fixture.
-- Setting `Done`, or adding `Approval: Approved`, from inside the session.
+以下のいずれかに該当する場合は推測で進めず、`Status: Blocked` と `### Blockers` を記録して停止する:
+- 要件・設計が曖昧、または業務・認証/認可・破壊的 API 判断が必要
+- 実装中に承認済み仕様の変更が必要と判明（無断で仕様本文を書き換えず、ユーザーと合意して `## Spec Amendments` に理由を追記してから進める）
+- 必須テストを実行できない、または無関係な変更と競合する
 
 ## Boundaries
 
-- Do not run the full repository quality gate unless it is required by the task.
-- Do not perform independent critical review; visual checks are limited to the
-  advisory `visual-verify-loop` step of the Implementation Process.
-- Do not set a task to `Done`; only `quality-gate` may do that.
-- Do not commit, push, or create a PR/MR unless explicitly requested.
-- Write intermediate artifacts only under this task's own scratch root, never
-  into a directory shared with another task or another role. Backups of a file
-  under review, per-task append scripts and raw tool output left in a shared
-  parent become reachable by the agent that later grades this work, through a
-  channel no manifest describes and no hash check sees (WFI-034). The
-  evaluator's isolation is only as good as what the implementation side leaves
-  lying around.
+- `Approval: Approved` は絶対に書き込まない（人間のみ）。
+- `Status: Done` は絶対に書き込まない（`sdd-gate` のみ）。
+- 承認済み仕様本文をテスト通過のために無断で緩和・削除しない。
+- 明示指示がない限り commit / push / PR 作成は行わない。

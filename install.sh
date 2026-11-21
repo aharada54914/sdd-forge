@@ -17,7 +17,7 @@ SOURCE_DIRECTORY=""
 SKIP_MCP=0
 MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
 
-VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # The ~/.codex/config.toml block for each selected MCP is delimited by a
 # per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
@@ -37,7 +37,7 @@ Usage: install.sh [options]
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|Gemini|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: sdd-bootstrap,sdd-ship
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
@@ -130,8 +130,7 @@ while [[ $dependencies_changed -eq 1 ]]; do
             sdd-bootstrap) dependencies=(sdd-review-loop sdd-implementation) ;;
             sdd-azure-cloud|sdd-aws-cloud) dependencies=(sdd-quality-loop) ;;
             sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
-            sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
-            sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
+            sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop) ;;
         esac
         if [[ ${#dependencies[@]} -gt 0 ]]; then
             for dep in "${dependencies[@]}"; do
@@ -501,32 +500,19 @@ preflight_claude_hook_runtime() {
     [[ "$SKIP_PLUGIN_INSTALL" -eq 0 ]] || return 0
     case ",$PLUGINS," in *,sdd-quality-loop,*) ;; *) return 0 ;; esac
     command -v claude >/dev/null 2>&1 || return 0
-    local version major minor patch
-    version="$(read_command_version claude)" || version=""
-    if [[ ! "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)([[:space:]]|$) ]] ||
-       (( ${#BASH_REMATCH[1]} > 9 || ${#BASH_REMATCH[2]} > 9 || ${#BASH_REMATCH[3]} > 9 )); then
-        echo "Error: Could not verify Claude Code >= 2.1.295, required for fail-closed quality-loop hooks. Installation was not changed." >&2
-        return 1
-    fi
-    major=$((10#${BASH_REMATCH[1]})); minor=$((10#${BASH_REMATCH[2]})); patch=$((10#${BASH_REMATCH[3]}))
-    if (( major < 2 || (major == 2 && minor < 1) || (major == 2 && minor == 1 && patch < 295) )); then
-        echo "Error: Claude Code >= 2.1.295 is required for fail-closed quality-loop hooks (found $version). Installation was not changed." >&2
-        return 1
-    fi
     if ! node_version_ok >/dev/null 2>&1; then
-        echo "Error: Claude quality-loop hooks require working Node.js >= 26.13.0 on PATH, even with --skip-mcp. Install Node.js and restart the host before retrying. Installation was not changed." >&2
-        return 1
+        echo "Warning: Node.js >= 20.0.0 is recommended on PATH for v2 soft guardrail hooks (sdd-soft-guard.mjs)." >&2
     fi
 }
 
 node_version_ok() {
-    # Returns 0 if `node` is on PATH and its version is >= 26.13.0.
+    # Returns 0 if `node` is on PATH and its version is >= 20.0.0 (LTS).
     if ! command -v node >/dev/null 2>&1; then
         echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     local version major minor patch
-    local minimum_major=26 minimum_minor=13 minimum_patch=0
+    local minimum_major=20 minimum_minor=0 minimum_patch=0
     version="$(read_command_version node)" || version=""
     # Stable Node releases report vNN.N.N. Fail closed on any other shape.
     if [[ ! "$version" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
@@ -544,7 +530,7 @@ node_version_ok() {
     if (( major < minimum_major ||
           (major == minimum_major && minor < minimum_minor) ||
           (major == minimum_major && minor == minimum_minor && patch < minimum_patch) )); then
-        echo "Warning: Node.js >= 26.13.0 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+        echo "Warning: Node.js >= 20.0.0 is required for v2 guardrails and MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     return 0
@@ -1035,8 +1021,13 @@ REQUIRED_PATHS=(
     "plugins/sdd-bootstrap/gemini-extension.json"
     "plugins/sdd-ship/gemini-extension.json"
     "plugins/sdd-domain/gemini-extension.json"
-    "plugins/sdd-lite/gemini-extension.json"
     "plugins/sdd-review-loop/gemini-extension.json"
+    "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
     "plugins/sdd-implementation/scripts/model-policy.py"
     "plugins/sdd-implementation/scripts/select-agent-model.sh"
     "plugins/sdd-implementation/scripts/select-agent-model.ps1"
@@ -1080,8 +1071,6 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/.plugin/plugin.json"
     "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
     "plugins/sdd-quality-loop/.plugin/plugin.json"
-    "plugins/sdd-lite/.codex-plugin/plugin.json"
-    "plugins/sdd-lite/.plugin/plugin.json"
     "plugins/sdd-review-loop/.claude-plugin/plugin.json"
     "plugins/sdd-review-loop/.codex-plugin/plugin.json"
     "plugins/sdd-review-loop/.plugin/plugin.json"
@@ -1096,7 +1085,6 @@ REQUIRED_PATHS=(
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json"
     "plugins/sdd-implementation/.claude-plugin/plugin.json"
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
-    "plugins/sdd-lite/.claude-plugin/plugin.json"
 )
 CLOUD_ENTRY_FILES=(.claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
 # Source precheck covers explicit selections; retained entries are checked in staging.

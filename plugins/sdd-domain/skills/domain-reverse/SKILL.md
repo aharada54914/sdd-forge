@@ -65,7 +65,7 @@ Invoked internally by `/sdd-domain:domain-model reverse <target>`. Not a
 user-facing command.
 
 Claude Code (skill-to-skill call, matching the pattern
-`sdd-bootstrap-interviewer` uses to invoke `investigate-codebase`):
+`sdd-core-spec` uses to invoke `investigate-codebase`):
 
 ```txt
 /sdd-bootstrap:investigate-codebase feature <target>
