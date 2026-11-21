@@ -253,8 +253,15 @@ function Install-AntigravityPlugins {
     foreach ($plugin in $Plugins) {
         $pluginDir = Join-Path $MarketplaceRoot "plugins/$plugin"
         if (-not (Test-Path -LiteralPath (Join-Path $pluginDir '.antigravity-plugin/plugin.json') -PathType Leaf)) { continue }
-        Invoke-IdempotentPluginCommand -Label "Antigravity plugin '$plugin'" -Command 'agy' -Arguments @(
-            'plugin', 'install', $pluginDir)
+        $res = Invoke-CapturedCommand -Command 'agy' -Arguments @('plugin', 'install', $pluginDir)
+        if ($res.ExitCode -ne 0 -and $res.Output -imatch 'already\s+(exists|installed|registered|added|linked)') {
+            # Refresh cached Antigravity plugin files on upgrade (NEW-L1).
+            try { & agy plugin uninstall $plugin 2>$null | Out-Null } catch { }
+            $res = Invoke-CapturedCommand -Command 'agy' -Arguments @('plugin', 'install', $pluginDir)
+        }
+        if ($res.ExitCode -ne 0) {
+            throw "'agy plugin install $pluginDir' failed with exit code $($res.ExitCode)."
+        }
     }
 }
 
@@ -606,7 +613,7 @@ for (let i = 0; i + 1 < pairs.length; i += 2) {
     : { command: "node", args: [pairs[i + 1]] };
 }
 const out = JSON.stringify(root, null, 2) + "\n";
-const tmp = file + ".sdd-forge.tmp";
+const tmp = file + ".sdd-forge." + process.pid + "." + Math.random().toString(16).slice(2) + ".tmp";
 fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
 try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 '@
@@ -746,9 +753,142 @@ function Install-McpServersIfSelected {
     }
 }
 
+function Remove-UnselectedMcpJson {
+    param(
+        [Parameter(Mandatory)][string]$ConfigFile,
+        [Parameter(Mandatory)][string]$TopKey,
+        [Parameter(Mandatory)][string]$InstallRootPath,
+        [Parameter(Mandatory)][string[]]$DropNames
+    )
+    if (-not (Test-Path -LiteralPath $ConfigFile -PathType Leaf)) { return }
+    if ($DropNames.Count -eq 0) { return }
+    if (-not (Get-Command "node" -ErrorAction SilentlyContinue)) { return }
+    $nodeScript = @'
+const fs = require("fs");
+const [file, topKey, installRoot, ...dropNames] = process.argv.slice(1);
+let text;
+try { text = fs.readFileSync(file, "utf8"); } catch { process.exit(0); }
+let root;
+try { root = JSON.parse(text); } catch { process.exit(0); }
+if (!root || typeof root !== "object" || Array.isArray(root)) process.exit(0);
+const section = root[topKey];
+if (!section || typeof section !== "object" || Array.isArray(section)) process.exit(0);
+const normPath = (p) => String(p).replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+const roots = new Set([normPath(installRoot)]);
+try { roots.add(normPath(fs.realpathSync(installRoot))); } catch {}
+for (const r of [...roots]) {
+  if (r.startsWith("/private/")) roots.add(r.slice("/private".length));
+}
+let changed = false;
+for (const name of dropNames) {
+  const entry = section[name];
+  if (!entry || typeof entry !== "object") continue;
+  const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
+  const matches = args.some((a) => {
+    const na = normPath(a);
+    return [...roots].some((r) => na.startsWith(r + "/mcp/"));
+  });
+  if (matches) {
+    delete section[name];
+    changed = true;
+  }
+}
+if (!changed) process.exit(0);
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge-prune." + process.pid + "." + Math.random().toString(16).slice(2) + ".tmp";
+fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
+try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
+'@
+    try { & node -e $nodeScript $ConfigFile $TopKey $InstallRootPath @($DropNames) 2>$null | Out-Null } catch { }
+}
+
+function Remove-UnselectedCodexMcp {
+    param([Parameter(Mandatory)][string[]]$DropNames)
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $configToml = Join-Path $codexHome "config.toml"
+    if (-not (Test-Path -LiteralPath $configToml -PathType Leaf)) { return }
+    foreach ($name in $DropNames) {
+        $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
+        $markerEnd = "# <<< $name <<<"
+        $existingLines = @(Get-Content -LiteralPath $configToml)
+        if ($existingLines -notcontains $markerBegin) { continue }
+        $filtered = [System.Collections.Generic.List[string]]::new()
+        $skip = $false
+        $valid = $true
+        foreach ($line in $existingLines) {
+            if ($line -eq $markerBegin) {
+                if ($skip) { $valid = $false; break }
+                $skip = $true; continue
+            }
+            if ($line -eq $markerEnd) {
+                if (-not $skip) { $valid = $false; break }
+                $skip = $false; continue
+            }
+            if (-not $skip) { $filtered.Add($line) }
+        }
+        if ($valid -and -not $skip) {
+            Set-Content -LiteralPath $configToml -Value $filtered
+        }
+    }
+}
+
+function Remove-UnselectedClaudeMcp {
+    param(
+        [Parameter(Mandatory)][string]$InstallRootPath,
+        [Parameter(Mandatory)][string[]]$DropNames
+    )
+    if (-not $script:ResolvedClaudeCommand) { return }
+    $normRoot = ($InstallRootPath -replace '\\', '/').TrimEnd('/')
+    foreach ($name in $DropNames) {
+        try {
+            $info = (& $script:ResolvedClaudeCommand mcp get $name 2>$null | Out-String)
+            $normInfo = $info -replace '\\', '/'
+            if ($normInfo -and $normInfo.IndexOf("$normRoot/mcp/$name", [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                & $script:ResolvedClaudeCommand mcp remove $name --scope user 2>$null | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    & $script:ResolvedClaudeCommand mcp remove $name 2>$null | Out-Null
+                }
+            }
+        } catch { }
+    }
+}
+
+function Invoke-PruneStaleManagedMcps {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+    $dropNames = [System.Collections.Generic.List[string]]::new()
+    foreach ($candidate in @("local-env-mcp", "ci-mcp")) {
+        if ($SkipMcp -or ($Mcp -notcontains $candidate)) {
+            $dropNames.Add($candidate)
+        }
+    }
+    if ($dropNames.Count -eq 0) { return }
+    $dropArray = $dropNames.ToArray()
+    $cursorDir = if ($env:SDD_CURSOR_DIR) { $env:SDD_CURSOR_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cursor" }
+    $geminiDir = if ($env:SDD_GEMINI_DIR) { $env:SDD_GEMINI_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini" }
+    $agyConfigDir = if ($env:SDD_ANTIGRAVITY_CONFIG_DIR) { $env:SDD_ANTIGRAVITY_CONFIG_DIR } else { Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini") "config" }
+    $onWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or ((Get-Variable -Name IsWindows -ErrorAction SilentlyContinue) -and $IsWindows)
+    $onMac = (Get-Variable -Name IsMacOS -ErrorAction SilentlyContinue) -and $IsMacOS
+    if ($env:SDD_VSCODE_USER_DIR) {
+        $vscodeUserDir = $env:SDD_VSCODE_USER_DIR
+    } elseif ($onWindows) {
+        $vscodeUserDir = Join-Path (Join-Path $env:APPDATA "Code") "User"
+    } elseif ($onMac) {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) "Library/Application Support/Code/User"
+    } else {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".config/Code/User"
+    }
+    if ($Target -in @("All", "Claude")) { Remove-UnselectedClaudeMcp -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Codex")) { Remove-UnselectedCodexMcp -DropNames $dropArray }
+    if ($Target -eq "All") { Remove-UnselectedMcpJson -ConfigFile (Join-Path $cursorDir "mcp.json") -TopKey "mcpServers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Copilot")) { Remove-UnselectedMcpJson -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Gemini")) { Remove-UnselectedMcpJson -ConfigFile (Join-Path $geminiDir "settings.json") -TopKey "mcpServers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Antigravity")) { Remove-UnselectedMcpJson -ConfigFile (Join-Path $agyConfigDir "mcp_config.json") -TopKey "mcpServers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+}
+
 function Register-McpServers {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
+    Invoke-PruneStaleManagedMcps -InstallRootPath $InstallRootPath
     if ($SkipMcp -or $Mcp.Count -eq 0 -or -not $script:McpNodeOk) { return }
     if ($Target -in @("All", "Claude")) {
         Register-ClaudeMcp -InstallRootPath $InstallRootPath

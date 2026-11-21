@@ -75,7 +75,9 @@ jobs:
             dist-test/mcp/sdd-forge-mcp/tests/path-security/*.test.js \
             dist-test/mcp/sdd-forge-mcp/tests/readonly/*.test.js \
             dist-test/mcp/sdd-forge-mcp/tests/error-paths/*.test.js \
-            dist-test/mcp/sdd-forge-mcp/tests/no-secrets/*.test.js
+            dist-test/mcp/sdd-forge-mcp/tests/no-secrets/*.test.js \
+            dist-test/mcp/sdd-forge-mcp/tests/root-immutable/*.test.js \
+            dist-test/mcp/sdd-forge-mcp/tests/dashboard.test.js
 
   mcp-tests:
     name: mcp-tests (${{ matrix.mcp }})

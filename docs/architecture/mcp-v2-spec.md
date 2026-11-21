@@ -39,7 +39,7 @@ flowchart LR
 
 All tools MUST:
 - Declare MCP annotations: `{ "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true }`.
-- Enforce strict input validation (`additionalProperties: false`) and never accept a `root` or arbitrary filesystem path argument (repository root is frozen once at server startup via `--root` > `SDD_FORGE_ROOT` > `cwd`, ignoring `CLAUDE_PROJECT_DIR`/`SDD_PROJECT_ROOT`).
+- Enforce strict input validation (`additionalProperties: false`) and never accept a `root` or arbitrary filesystem path argument (repository root is frozen once at server startup via `--root` > `SDD_FORGE_ROOT` > `cwd`, ignoring `CLAUDE_PROJECT_DIR`/`SDD_PROJECT_ROOT`). Note: protocol-level Zod input-schema rejections (e.g., invalid `feature` regex such as `../etc`, or unknown keys) are rejected by the MCP SDK before tool execution and return `isError: true` with `MCP error -32602` text, whereas application-level errors inside tool handlers return the JSON `Result<T>` envelope `{ ok: false, error: { code, message, details? } }`.
 - Return a uniform `Result<T>` envelope (`{ ok: true, data }` or `{ ok: false, error: { code, message, details? } }`) conforming to `contracts/sdd-mcp.v2.schema.json`.
 - Route every filesystem read/stat/list through `path-guard.ts`:
   - **Allowlist**: `AGENTS.md`, `dashboard-labels.json`, `sdd/guardrails.{yaml,json}`, `.sdd/drift-events.jsonl`, `.sdd/factory-metrics.jsonl`, and directories `specs/`, `reports/`, `sdd/knowledge/`, `docs/review-tickets/`, `docs/workflow-improvements/`.

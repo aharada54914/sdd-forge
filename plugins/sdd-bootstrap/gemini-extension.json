@@ -1,6 +1,6 @@
 {
   "name": "sdd-bootstrap",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "SDD specification bootstrap, codebase investigation, design-sync loop, research sources, and adopt workflows for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }

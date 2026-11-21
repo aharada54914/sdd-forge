@@ -326,6 +326,24 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(failVerdict.data.tasks[0].reviewReport.verdict, 'FAIL');
     assert.equal(failVerdict.data.tasks[0].readyForDone, false);
 
+    // NEW-M3a: Existing empty specs/<feature>/ directory must return ok: true, phase: 'bootstrap'
+    fs.mkdirSync(path.join(repoC, 'specs', 'empty-draft'), { recursive: true });
+    // NEW-M3b: Fenced code block containing VERDICT: FAIL must not trigger false-negative FAIL
+    fs.writeFileSync(
+      path.join(repoC, 'reports', 'quality-gate', 'verdict-test-T-001.md'),
+      '# Report\n```markdown\nVERDICT: FAIL\n```\n\n- **VERDICT**: **PASS**\n',
+      'utf8',
+    );
+    const m3Res = callMcp(repoC, [
+      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'empty-draft' } } },
+      { method: 'tools/call', params: { name: 'sdd_gate_audit', arguments: { feature: 'verdict-test', taskId: 'T-001' } } },
+    ]);
+    const emptyDraft = JSON.parse(m3Res[1].result.content[0].text);
+    assert.equal(emptyDraft.ok, true, 'Empty existing feature dir must not return cannot-parse');
+    assert.equal(emptyDraft.data.nextAction.phase, 'bootstrap');
+    const fencedPass = JSON.parse(m3Res[2].result.content[0].text);
+    assert.equal(fencedPass.data.tasks[0].reviewReport.verdict, 'PASS', 'Fenced code block VERDICT: FAIL must be ignored');
+
     // M-2: One Done task + one Draft task must NOT report phase === 'done'
     const tasksPath = path.join(repoC, 'specs', 'verdict-test', 'tasks.md');
     fs.writeFileSync(

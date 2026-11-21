@@ -31611,6 +31611,10 @@ function createGuardedIo(root) {
       }
       return guardedExists(root, relPath);
     },
+    existsDir(relDir) {
+      if (!relDir) return true;
+      return guardedDirExists(root, relDir);
+    },
     readText(relPath) {
       const res = guardedRead(root, relPath);
       return res.ok ? res.data.contents : null;
@@ -36561,15 +36565,36 @@ function scopeMatchesFile(scopeEntry, changedFile) {
   }
   return cf === sp || cf.startsWith(`${sp}/`);
 }
+function globStaticDir(glob) {
+  const parts = glob.split("/");
+  const staticParts = [];
+  for (const part of parts) {
+    if (/[*?]/.test(part)) break;
+    staticParts.push(part);
+  }
+  return staticParts.join("/");
+}
 function scopeEntriesOverlap(a, b) {
   const na = normalizeRelPath2(a);
   const nb = normalizeRelPath2(b);
   if (!na || !nb) return false;
   if (na === nb) return true;
-  if (!/[*?]/.test(na) && !/[*?]/.test(nb)) {
+  const aWild = /[*?]/.test(na);
+  const bWild = /[*?]/.test(nb);
+  if (!aWild && !bWild) {
     return na.startsWith(`${nb}/`) || nb.startsWith(`${na}/`);
   }
-  return scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na);
+  if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
+    return true;
+  }
+  if (aWild && bWild) {
+    const dirA = globStaticDir(na);
+    const dirB = globStaticDir(nb);
+    if (dirA === dirB) return true;
+    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
+    if (!dirA && na.includes("**") || !dirB && nb.includes("**")) return true;
+  }
+  return false;
 }
 function isTestPath(relPath) {
   const lower = normalizeRelPath2(relPath).toLowerCase();
@@ -36679,12 +36704,31 @@ function computeExecutionPlan(tasks) {
   const completed = /* @__PURE__ */ new Set();
   const batches = [];
   const scopeConflicts = [];
+  const ancestorsOf = /* @__PURE__ */ new Map();
+  function getAncestors(taskId) {
+    if (ancestorsOf.has(taskId)) return ancestorsOf.get(taskId);
+    const visited = /* @__PURE__ */ new Set();
+    const stack = [...byId.get(taskId)?.blockers || []];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (!cur || visited.has(cur) || cur === taskId) continue;
+      visited.add(cur);
+      const node = byId.get(cur);
+      if (node) {
+        for (const dep of node.blockers || []) {
+          if (!visited.has(dep)) stack.push(dep);
+        }
+      }
+    }
+    ancestorsOf.set(taskId, visited);
+    return visited;
+  }
   for (let i = 0; i < tasks.length; i += 1) {
     for (let j = i + 1; j < tasks.length; j += 1) {
       const a = tasks[i];
       const b = tasks[j];
-      const aBlocksB = b.blockers.includes(a.id);
-      const bBlocksA = a.blockers.includes(b.id);
+      const aBlocksB = getAncestors(b.id).has(a.id);
+      const bBlocksA = getAncestors(a.id).has(b.id);
       if (aBlocksB || bBlocksA) continue;
       const overlaps = [];
       for (const sa of a.scopePaths || []) {
@@ -36923,8 +36967,8 @@ function loadProductReviewPerspectives(io) {
     const items = [];
     let current = null;
     for (const rawLine of lines) {
-      const line = rawLine.replace(/\s+#.*$/, "");
-      if (!line.trim() || line.trim().startsWith("#")) continue;
+      const line = stripYamlComment(rawLine);
+      if (!line.trim()) continue;
       const itemStart = line.match(/^[ \t]*-[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
       if (itemStart) {
         if (current && current.id && current.perspective) items.push(current);
@@ -37032,7 +37076,8 @@ function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
   const designRaw = io.readText(designRel);
   const tasksRaw = io.readText(tasksRel);
   const dirEntries = io.listDir(featureDirRel);
-  if (reqRaw === null && designRaw === null && tasksRaw === null && dirEntries.length === 0) {
+  const featureDirExists = typeof io.existsDir === "function" ? io.existsDir(featureDirRel) : dirEntries.length > 0;
+  if (reqRaw === null && designRaw === null && tasksRaw === null && !featureDirExists) {
     throw new Error(`Feature directory not found: specs/${feature}`);
   }
   const reqText = reqRaw || "";
@@ -37220,14 +37265,19 @@ function renderDecisionViewMarkdown(data) {
   return `${lines.join("\n")}
 `;
 }
-function walkIoFiles(io, relDir, predicate, out = [], depth = 0) {
-  if (depth > 12) return out;
+function walkIoFiles(io, relDir, predicate, out = [], depth = 0, state = { count: 0, maxEntries: 5e3 }) {
+  if (depth > 12 || state.count >= state.maxEntries) return out;
   const entries = io.listDir(relDir);
   for (const entry of entries) {
+    if (state.count >= state.maxEntries) break;
     if (IGNORED_DIRS.has(entry.name)) continue;
+    state.count += 1;
     const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
     if (entry.isDirectory) {
-      walkIoFiles(io, childRel, predicate, out, depth + 1);
+      const segments = childRel.split("/");
+      const repeated = segments.filter((s) => s === entry.name).length;
+      if (repeated > 2) continue;
+      walkIoFiles(io, childRel, predicate, out, depth + 1, state);
     } else if (entry.isFile && predicate(childRel, entry.name)) {
       out.push(childRel);
     }
@@ -37784,8 +37834,21 @@ function parseReviewReportVerdict(contents) {
   const lines = contents.replace(/\r\n/g, "\n").split("\n");
   let sawPass = false;
   let sawFail = false;
+  let activeFence = null;
   const lineRe = /^[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?(PASS|FAIL)(?:\*\*)?\b/i;
   for (const line of lines) {
+    const trimmed = line.trimStart();
+    if (activeFence !== null) {
+      if (trimmed.startsWith(activeFence)) {
+        activeFence = null;
+      }
+      continue;
+    }
+    const fenceMatch = /^(`{3,}|~{3,})/.exec(trimmed);
+    if (fenceMatch) {
+      activeFence = fenceMatch[1] ?? "```";
+      continue;
+    }
     const m = lineRe.exec(line);
     if (!m) continue;
     const verdict = m[1]?.toUpperCase();

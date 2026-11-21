@@ -364,10 +364,23 @@ export function parseReviewReportVerdict(contents: string): "PASS" | "FAIL" | "U
   const lines = contents.replace(/\r\n/g, "\n").split("\n");
   let sawPass = false;
   let sawFail = false;
+  let activeFence: string | null = null;
   const lineRe =
     /^[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?(PASS|FAIL)(?:\*\*)?\b/i;
 
   for (const line of lines) {
+    const trimmed = line.trimStart();
+    if (activeFence !== null) {
+      if (trimmed.startsWith(activeFence)) {
+        activeFence = null;
+      }
+      continue;
+    }
+    const fenceMatch = /^(`{3,}|~{3,})/.exec(trimmed);
+    if (fenceMatch) {
+      activeFence = fenceMatch[1] ?? "```";
+      continue;
+    }
     const m = lineRe.exec(line);
     if (!m) continue;
     const verdict = m[1]?.toUpperCase();

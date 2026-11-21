@@ -1,5 +1,41 @@
 # Changelog
 
+## v2.1.0 (2026-11-22)
+
+### Added
+
+- **MCP v2 統合 & 純粋読み取り SSOT 境界（[ADR-0052](docs/adr/0052-mcp-architecture-and-v2-consolidation.md) / [`docs/architecture/mcp-v2-spec.md`](docs/architecture/mcp-v2-spec.md)）**:
+  - `sdd-forge-mcp` を v1 の 19 ツール構成から **4 つの粗粒度・読み取り専用ツール**（`sdd_project_overview` / `sdd_feature_state` / `sdd_gate_audit` / `sdd_dashboard_snapshot`）＋ 2 リソース（`sdd://overview`, `sdd://feature/{feature}`）へ統合し、スキーマトークン消費を約 82% 削減。
+  - すべての読み取り・解析ロジックを純粋読み取り専用エンジン `v2-pure-lib.mjs` / `v2-readonly-core.mjs`（`node:fs` / `process.env` / 書き込み API ゼロ）へ集約し、MCP 側は `path-guard.ts` 経由の `createGuardedIo(root)`（allowlist / `.env*` denylist / シンボリックリンク封じ込め / 2 MiB 上限）を通して参照。`dist/index.js` のゼロ書き込み API・freshness を CI（`sdd-forge-mcp-v2` ジョブ）で自動検証。
+  - ローカル CLI エージェント向けには MCP クライアント登録を **オプトイン（`--with-mcp` / `-WithMcp`）** へ変更し、デフォルト時の常駐トークン負荷を 0 化。`/sdd-ship:status` 用に `mcp/sdd-forge-mcp/dist/index.js` の配置は維持しつつ、アップグレード時に不要になった `local-env-mcp` / `ci-mcp` のマネージド登録を Claude Code / Codex / Cursor / VS Code / Antigravity / Gemini から自動剪定。
+  - `local-env-mcp` を非推奨化（v2.2.0 で削除予定）、`ci-mcp` を明示オプトイン（`--mcp ci-mcp`）へ移行。
+- **Google Antigravity CLI（`agy`）フルネイティブ対応**:
+  - 全 8 プラグインへ `.antigravity-plugin/plugin.json` を追加し、`agents/*.md` の `tools` 配列化・`rules/*.md` の `trigger: model_decision` 整備により全 8 プラグインが `agy plugin validate` / `claude plugin validate` の両方を PASS。
+  - Antigravity ネイティブフック `plugins/sdd-quality-loop/hooks.json`（`PreToolUse` matcher `*` → `sdd-soft-guard.mjs --emit antigravity`、グローバル置換 `edit_file` および `StartLine`/`EndLine` 行範囲置換を厳密検証）と `plugins/sdd-implementation/hooks.json`（`SessionStart` → `session-model-start.py --host antigravity-cli`、`injectSteps` / 抑止時 `{}` 出力）を実装。
+  - `model-discovery.py` に有界読み取りの `antigravity-cli`（`agy models`）アダプター、`select-agent-model.{sh,ps1}`・全 9 モデル契約 JSON に `antigravity-cli` を追加。
+  - `install.{sh,ps1}` / `uninstall.{sh,ps1}` に `--target Antigravity` / `-Target Antigravity` と `~/.gemini/config/mcp_config.json`（`SDD_ANTIGRAVITY_CONFIG_DIR`）対応を追加。
+- **Software Factory 実践ギャップ F-1〜F-8 実装**:
+  - **F-1（レビュー観点採否表）**: 共通 8 観点（`C01`–`C08`）＋任意のプロダクト固有観点（`sdd/knowledge/review-perspectives.{yaml,json}`）を Markdown / HTML の Decision View へ自動統合。
+  - **F-2（並列実行制御ハーネス）**: 原子的ロック `task-lock.mjs`（`.sdd/locks/*.lock`、原子的 rename-then-verify による `--break-stale` 再取得、`--owner` 必須の fail-closed 解放）と `check-traceability.mjs --plan-batches`（推移的ブロッカー・グロブ衝突対応の並列ウェーブ計画）。
+  - **F-3（SSoT はソース原則 & 厳密出典リンク）**: Decision View に `specs/<feature>/<file>:Lxx` 出典リンクと `REQ↔AC↔Task` トレーサビリティ表を追加し、`design.md` にコード事実の二重管理禁止原則を明文化。
+  - **F-4（メトリクス集計 & 手戻り原因帰属）**: `factory-metrics.mjs`（`.sdd/factory-metrics.jsonl` / `.sdd/drift-events.jsonl` 集計・`record-attribution --root-cause`）と `run-sdd-gate.mjs --root-cause` を追加。
+  - **F-5（Code/Test スコープ網羅 & 自己修復上限）**: `check-traceability.mjs` にコード/テスト両方カバレッジ診断、`run-sdd-gate.mjs` に非ブロック `SQL_SELECT_STAR` アドバイザリ、`guardrails.yaml` に `limits.max_auto_fix_rounds`（既定 2）を追加。
+  - **F-6（2 層ナレッジ還流 `sync-knowledge.mjs`）**: `init`（`sdd/knowledge/` 骨格生成）と `extract --write`（確定 OQ / Alternatives Rejected / Spec Amendments 抽出、手動ノート保護＋`INDEX.md` 自動索引更新）。
+  - **F-7（Proto→Harden & Scrap & Build 判断基準）**: `sdd-core-spec` / `ship` スキルに具体的昇格・破棄基準を明文化。
+  - **F-8（非対話・自律ファクトリ運用ガイド）**: [`docs/non-interactive-factory.md`](docs/non-interactive-factory.md) を追加し、`claude -p` / `codex exec` / `agy -p` での無人 Issue 駆動実行パターンを整備。
+
+### Fixed
+
+- **実機シェイクダウン不具合一括修正（Closes #795, Closes #796, Closes #797, Closes #798）**:
+  - **#795**: `install.{sh,ps1}` の Gemini 拡張リンクに `--consent` を付与し非対話ハングを解消、`plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml` を補完。
+  - **#796**: `sdd-soft-guard.mjs` の親ディレクトリからの実行時にターゲット側プロジェクトルート（`sdd/guardrails.*` / `.git`）の `AGENT_STOP` と承認状態を優先解決。
+  - **#797**: `sdd-quality-loop/hooks/hooks.json` の Windows コマンドで `CODEX_PLUGIN_ROOT || CLAUDE_PLUGIN_ROOT` フォールバックを追加。
+  - **#798**: `model-discovery.py` の `claude-code` アダプターが `displayName` 未設定モデルで空文字フォールバックしないよう修正。
+- **独立監査（Gemini 4 Neon XHigh）指摘の全修正**:
+  - `record-spec-baseline.mjs` の `CLAUDE_PROJECT_DIR` クロスリポ誤書き込み防止（`resolveExplicitOrAutoRoot` 統一）。
+  - `sdd_gate_audit` のフェンスコードブロック内 `VERDICT: FAIL` 誤検知解消、空 `specs/<feature>/` ディレクトリでの `sdd_feature_state` 正常処理、`walkIoFiles` シンボリックリンク循環保護、YAML 引用符内 `#` コメント誤除去の修正。
+  - `scripts/bump-version.sh` と `.github/workflows/release.yml` のバージョン整合検証を `mcp/sdd-forge-mcp/{package.json,src/server.ts,dist/index.js}` まで拡張。
+
 ## v2.0.0 (2026-11-21)
 
 ### Breaking Changes

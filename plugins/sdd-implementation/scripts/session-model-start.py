@@ -56,19 +56,23 @@ def main():
         required=True,
     )
     args = parser.parse_args()
+    emitted = False
     try:
         raw = sys.stdin.buffer.read(65537)
-        if len(raw) > 65536:
-            return 0
-        event = json.loads(raw or b'{}')
-        text = context(args.host, event)
-        if text:
-            payload = json.dumps(format_output(args.host, text), ensure_ascii=False)
-            sys.stdout.buffer.write((payload + '\n').encode('utf-8'))
-            sys.stdout.buffer.flush()
+        if len(raw) <= 65536:
+            event = json.loads(raw or b'{}')
+            text = context(args.host, event)
+            if text:
+                payload = json.dumps(format_output(args.host, text), ensure_ascii=False)
+                sys.stdout.buffer.write((payload + '\n').encode('utf-8'))
+                sys.stdout.buffer.flush()
+                emitted = True
     except (ValueError, UnicodeError):
         # Optional UX hook cannot break existing CLI startup.
         pass
+    if not emitted and args.host == 'antigravity-cli':
+        sys.stdout.buffer.write(b'{}\n')
+        sys.stdout.buffer.flush()
     return 0
 
 

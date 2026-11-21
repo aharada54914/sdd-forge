@@ -136,6 +136,15 @@ export function createFsReadonlyIo(projectRoot) {
       const real = resolveSafe(relPath);
       return real !== null;
     },
+    existsDir(relPath) {
+      const real = resolveSafe(relPath);
+      if (!real) return false;
+      try {
+        return fs.statSync(real).isDirectory();
+      } catch {
+        return false;
+      }
+    },
     readText(relPath) {
       const real = resolveSafe(relPath);
       if (!real) return null;

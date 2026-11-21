@@ -23,6 +23,7 @@ import {
   sanitizeRelPath,
   sha256Text,
   splitSpecAmendments,
+  stripYamlComment,
   VALID_MODES,
   VALID_PRE_IMPL,
   VALID_RISK_TIERS,
@@ -471,15 +472,37 @@ export function scopeMatchesFile(scopeEntry, changedFile) {
   return cf === sp || cf.startsWith(`${sp}/`);
 }
 
+function globStaticDir(glob) {
+  const parts = glob.split('/');
+  const staticParts = [];
+  for (const part of parts) {
+    if (/[*?]/.test(part)) break;
+    staticParts.push(part);
+  }
+  return staticParts.join('/');
+}
+
 function scopeEntriesOverlap(a, b) {
   const na = normalizeRelPath(a);
   const nb = normalizeRelPath(b);
   if (!na || !nb) return false;
   if (na === nb) return true;
-  if (!/[*?]/.test(na) && !/[*?]/.test(nb)) {
+  const aWild = /[*?]/.test(na);
+  const bWild = /[*?]/.test(nb);
+  if (!aWild && !bWild) {
     return na.startsWith(`${nb}/`) || nb.startsWith(`${na}/`);
   }
-  return scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na);
+  if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
+    return true;
+  }
+  if (aWild && bWild) {
+    const dirA = globStaticDir(na);
+    const dirB = globStaticDir(nb);
+    if (dirA === dirB) return true;
+    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
+    if ((!dirA && na.includes('**')) || (!dirB && nb.includes('**'))) return true;
+  }
+  return false;
 }
 
 function isTestPath(relPath) {
@@ -622,12 +645,34 @@ export function computeExecutionPlan(tasks) {
   const batches = [];
   const scopeConflicts = [];
 
+  // Compute transitive blocker sets so transitively serialized chains (T-001 -> T-002 -> T-003)
+  // are not flagged as parallel scope conflicts (NEW-M3).
+  const ancestorsOf = new Map();
+  function getAncestors(taskId) {
+    if (ancestorsOf.has(taskId)) return ancestorsOf.get(taskId);
+    const visited = new Set();
+    const stack = [...(byId.get(taskId)?.blockers || [])];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (!cur || visited.has(cur) || cur === taskId) continue;
+      visited.add(cur);
+      const node = byId.get(cur);
+      if (node) {
+        for (const dep of node.blockers || []) {
+          if (!visited.has(dep)) stack.push(dep);
+        }
+      }
+    }
+    ancestorsOf.set(taskId, visited);
+    return visited;
+  }
+
   for (let i = 0; i < tasks.length; i += 1) {
     for (let j = i + 1; j < tasks.length; j += 1) {
       const a = tasks[i];
       const b = tasks[j];
-      const aBlocksB = b.blockers.includes(a.id);
-      const bBlocksA = a.blockers.includes(b.id);
+      const aBlocksB = getAncestors(b.id).has(a.id);
+      const bBlocksA = getAncestors(a.id).has(b.id);
       if (aBlocksB || bBlocksA) continue;
       const overlaps = [];
       for (const sa of a.scopePaths || []) {
@@ -913,8 +958,8 @@ export function loadProductReviewPerspectives(io) {
     const items = [];
     let current = null;
     for (const rawLine of lines) {
-      const line = rawLine.replace(/\s+#.*$/, '');
-      if (!line.trim() || line.trim().startsWith('#')) continue;
+      const line = stripYamlComment(rawLine);
+      if (!line.trim()) continue;
       const itemStart = line.match(/^[ \t]*-[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
       if (itemStart) {
         if (current && current.id && current.perspective) items.push(current);
@@ -1065,7 +1110,9 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
   const tasksRaw = io.readText(tasksRel);
 
   const dirEntries = io.listDir(featureDirRel);
-  if (reqRaw === null && designRaw === null && tasksRaw === null && dirEntries.length === 0) {
+  const featureDirExists =
+    typeof io.existsDir === 'function' ? io.existsDir(featureDirRel) : dirEntries.length > 0;
+  if (reqRaw === null && designRaw === null && tasksRaw === null && !featureDirExists) {
     throw new Error(`Feature directory not found: specs/${feature}`);
   }
 
@@ -1418,14 +1465,20 @@ export function renderDecisionViewHtml(data) {
 `;
 }
 
-function walkIoFiles(io, relDir, predicate, out = [], depth = 0) {
-  if (depth > 12) return out;
+function walkIoFiles(io, relDir, predicate, out = [], depth = 0, state = { count: 0, maxEntries: 5000 }) {
+  if (depth > 12 || state.count >= state.maxEntries) return out;
   const entries = io.listDir(relDir);
   for (const entry of entries) {
+    if (state.count >= state.maxEntries) break;
     if (IGNORED_DIRS.has(entry.name)) continue;
+    state.count += 1;
     const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
     if (entry.isDirectory) {
-      walkIoFiles(io, childRel, predicate, out, depth + 1);
+      // Guard against simple in-tree symlink directory cycles (e.g. a/b/a/b)
+      const segments = childRel.split('/');
+      const repeated = segments.filter((s) => s === entry.name).length;
+      if (repeated > 2) continue;
+      walkIoFiles(io, childRel, predicate, out, depth + 1, state);
     } else if (entry.isFile && predicate(childRel, entry.name)) {
       out.push(childRel);
     }

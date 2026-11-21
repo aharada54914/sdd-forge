@@ -116,12 +116,41 @@ export function acquireLock({
       const existing = readLockRecord(lockPath);
       const { stale, reason } = evaluateStale(existing);
       if (stale && breakStale && attempt === 0) {
+        const claimPath = `${lockPath}.reclaim.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
         try {
-          fs.unlinkSync(lockPath);
-          continue;
+          fs.renameSync(lockPath, claimPath);
         } catch {
-          // Another process may have replaced it; fall through to fail-closed.
+          // Another process already reclaimed or replaced the lock; fail closed.
+          continue;
         }
+        const claimed = readLockRecord(claimPath);
+        const claimedEval = evaluateStale(claimed);
+        if (claimedEval.stale) {
+          try {
+            fs.unlinkSync(claimPath);
+          } catch {
+            // ignore cleanup error
+          }
+          continue;
+        }
+        // A fresh active lock replaced the stale one just before our rename — restore it.
+        try {
+          fs.renameSync(claimPath, lockPath);
+        } catch {
+          try {
+            fs.unlinkSync(claimPath);
+          } catch {
+            // ignore
+          }
+        }
+        return {
+          acquired: false,
+          lockPath,
+          stale: false,
+          staleReason: 'active',
+          existing: claimed,
+          message: `Active lock held by ${claimed?.owner || 'unknown'} until ${claimed?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
+        };
       }
       return {
         acquired: false,
@@ -146,13 +175,15 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner 
     return { released: true, existed: false, lockPath };
   }
   const existing = readLockRecord(lockPath);
-  if (!force && owner && existing?.owner && existing.owner !== owner) {
+  if (!force && existing?.owner && (!owner || existing.owner !== owner)) {
     return {
       released: false,
       existed: true,
       lockPath,
       existing,
-      message: `Lock is owned by '${existing.owner}', not '${owner}'. Pass --force to override.`,
+      message: owner
+        ? `Lock is owned by '${existing.owner}', not '${owner}'. Pass --force to override.`
+        : `Lock is owned by '${existing.owner}'. Pass matching --owner or --force to release.`,
     };
   }
   fs.unlinkSync(lockPath);

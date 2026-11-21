@@ -188,6 +188,12 @@ jobs:
               }
             }
           }
+          const mcpPkg = JSON.parse(fs.readFileSync('mcp/sdd-forge-mcp/package.json', 'utf8'));
+          assert.equal(mcpPkg.version, expected, `mcp/sdd-forge-mcp/package.json version mismatch: ${mcpPkg.version} != ${expected}`);
+          const mcpServerSrc = fs.readFileSync('mcp/sdd-forge-mcp/src/server.ts', 'utf8');
+          assert.match(mcpServerSrc, new RegExp(`version:\\s*"${expected.replace(/\./g, '\\.')}"`), `mcp/sdd-forge-mcp/src/server.ts must declare version ${expected}`);
+          const mcpBundle = fs.readFileSync('mcp/sdd-forge-mcp/dist/index.js', 'utf8');
+          assert.match(mcpBundle, new RegExp(`version:\\s*"${expected.replace(/\./g, '\\.')}"`), `mcp/sdd-forge-mcp/dist/index.js must be rebuilt for version ${expected}`);
           console.log(`Release version consistency verified for ${tag}.`);
           EOF
 

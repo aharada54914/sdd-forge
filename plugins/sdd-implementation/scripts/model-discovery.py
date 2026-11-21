@@ -232,29 +232,48 @@ def codex(executable, project):
 
 def antigravity(executable, project):
     source = 'agy models'
-    proc = subprocess.run(
+    proc = subprocess.Popen(
         [executable, 'models'],
         cwd=project,
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
-        timeout=TIMEOUT,
         env=dict(os.environ, SDD_SESSION_NONINTERACTIVE='1', NO_COLOR='1', TERM='dumb'),
     )
-    if proc.returncode != 0 or len(proc.stdout) > MAX_BYTES:
+    try:
+        assert proc.stdout is not None
+        out = proc.stdout.read(MAX_BYTES + 1)
+        proc.wait(timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+        raise DiscoveryError('cli-timeout')
+    finally:
+        if proc.stdout is not None:
+            proc.stdout.close()
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
+    if proc.returncode != 0 or len(out) > MAX_BYTES:
         raise DiscoveryError('cli-request-failed')
-    raw = proc.stdout.decode('utf-8', errors='replace')
+    raw = out.decode('utf-8', errors='replace')
     cleaned = ANSI_RE.sub('', raw)
     rows = []
     seen = set()
+    header_tokens = {'model', 'models', 'id', 'name', 'available', 'error', 'warning', 'usage', 'status'}
     for chunk in re.split(r'[\r\n]+', cleaned):
         line = chunk.strip()
-        if not line or 'Fetching available models' in line or line.startswith(('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')):
+        if (not line or 'Fetching available models' in line
+                or line.startswith(('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏', '-', '='))):
             continue
         m = re.match(r'^([A-Za-z0-9][A-Za-z0-9._:/\[\]-]{0,127})(?:\s{2,}(.+))?$', line)
         if not m:
             continue
         model_id = m.group(1)
+        if model_id.endswith(':') or model_id.lower() in header_tokens:
+            continue
+        if not re.search(r'[-./0-9]', model_id):
+            continue
         display = (m.group(2) or model_id).strip()
         if model_id in seen:
             continue

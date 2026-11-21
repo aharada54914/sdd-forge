@@ -6,6 +6,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -115,7 +117,17 @@ test("falls back to cwd when neither --root nor SDD_FORGE_ROOT is set", () => {
 });
 
  test("stdio entry rejects unknown options without protocol stdout", () => {
-  const entry = fileURLToPath(new URL("../../../dist/index.js", import.meta.url));
+  let dir = dirname(fileURLToPath(import.meta.url));
+  let entry = "";
+  for (let i = 0; i < 8; i += 1) {
+    const candidate = join(dir, "dist", "index.js");
+    if (existsSync(candidate)) {
+      entry = candidate;
+      break;
+    }
+    dir = dirname(dir);
+  }
+  assert.ok(entry, "Could not locate mcp/sdd-forge-mcp/dist/index.js");
   const result = spawnSync(process.execPath, [entry, "--unknown"], { encoding: "utf8", timeout: 5000 });
   assert.equal(result.status, 1);
   assert.equal(result.stdout, "");

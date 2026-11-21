@@ -143,14 +143,45 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
     }
   }
 
-  const markdown = `${lines.join('\n')}\n`;
+  const autoStart = '<!-- sdd-forge:knowledge-auto-start -->';
+  const autoEnd = '<!-- sdd-forge:knowledge-auto-end -->';
+  const markdown = `${autoStart}\n${lines.join('\n')}\n${autoEnd}\n`;
   let writtenPath = null;
+  let indexUpdated = false;
   if (write) {
     const outRel = `sdd/knowledge/specs/${feature}.md`;
     const outAbs = path.join(root, ...outRel.split('/'));
     fs.mkdirSync(path.dirname(outAbs), { recursive: true });
-    fs.writeFileSync(outAbs, markdown, 'utf8');
+    if (fs.existsSync(outAbs)) {
+      const existing = fs.readFileSync(outAbs, 'utf8');
+      const startIdx = existing.indexOf(autoStart);
+      const endIdx = existing.indexOf(autoEnd);
+      if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+        const merged = `${existing.slice(0, startIdx)}${markdown.trimEnd()}${existing.slice(endIdx + autoEnd.length)}`;
+        fs.writeFileSync(outAbs, merged.endsWith('\n') ? merged : `${merged}\n`, 'utf8');
+      } else {
+        const preserved = `## Manual Notes (preserved)\n\n${existing.trimEnd()}\n\n${markdown}`;
+        fs.writeFileSync(outAbs, preserved, 'utf8');
+      }
+    } else {
+      fs.writeFileSync(outAbs, markdown, 'utf8');
+    }
     writtenPath = outRel;
+
+    const indexAbs = path.join(root, 'sdd', 'knowledge', 'INDEX.md');
+    if (fs.existsSync(indexAbs)) {
+      const linkEntry = `- [specs/${feature}.md](specs/${feature}.md) — ${feature}（自動抽出ナレッジ）`;
+      const idxContent = fs.readFileSync(indexAbs, 'utf8');
+      if (!idxContent.includes(`specs/${feature}.md`)) {
+        const candidate = idxContent.includes('## ルール（Rules')
+          ? idxContent.replace('## ルール（Rules', `${linkEntry}\n\n## ルール（Rules`)
+          : `${idxContent.trimEnd()}\n${linkEntry}\n`;
+        if (candidate.length <= 3000) {
+          fs.writeFileSync(indexAbs, candidate, 'utf8');
+          indexUpdated = true;
+        }
+      }
+    }
   }
 
   return {
@@ -159,6 +190,7 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
     alternativesRejectedCount: dv.alternativesRejected.length,
     amendmentCount: amendments.length,
     writtenPath,
+    indexUpdated,
     markdown,
   };
 }

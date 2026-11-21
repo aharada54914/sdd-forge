@@ -95,7 +95,7 @@ export function assertValidFeatureName(feature) {
   }
 }
 
-function stripYamlComment(line) {
+export function stripYamlComment(line) {
   let inSingle = false;
   let inDouble = false;
   for (let i = 0; i < line.length; i += 1) {

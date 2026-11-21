@@ -249,12 +249,25 @@ install_antigravity_plugins() {
         echo "Warning: Antigravity CLI (agy) was not found. Antigravity plugin registration was skipped." >&2
         return 0
     fi
-    local p plugin_dir
+    local p plugin_dir agy_out agy_rc
     for p in "${PLUGIN_LIST[@]}"; do
         plugin_dir="$marketplace_root/plugins/${p}"
         [[ -f "${plugin_dir}/.antigravity-plugin/plugin.json" ]] || continue
-        run_idempotent_plugin_command "Antigravity plugin '${p}'" \
-            agy plugin install "$plugin_dir" || return 1
+        agy_out="$(mktemp)"
+        agy_rc=0
+        agy plugin install "$plugin_dir" >"$agy_out" 2>&1 || agy_rc=$?
+        if [[ $agy_rc -ne 0 ]] && grep -Eqi 'already[[:space:]]+(exists|installed|registered|added|linked)' "$agy_out"; then
+            # Refresh cached Antigravity plugin files on upgrade (NEW-L1).
+            agy plugin uninstall "$p" >/dev/null 2>&1 || true
+            agy_rc=0
+            agy plugin install "$plugin_dir" >"$agy_out" 2>&1 || agy_rc=$?
+        fi
+        cat "$agy_out"
+        rm -f "$agy_out"
+        if [[ $agy_rc -ne 0 ]]; then
+            echo "Error: 'agy plugin install ${plugin_dir}' failed with exit code ${agy_rc}." >&2
+            return 1
+        fi
     done
 }
 
@@ -720,7 +733,7 @@ for (let i = 0; i + 1 < pairs.length; i += 2) {
     : { command: "node", args: [pairs[i + 1]] };
 }
 const out = JSON.stringify(root, null, 2) + "\n";
-const tmp = file + ".sdd-forge.tmp";
+const tmp = file + ".sdd-forge." + process.pid + "." + Math.random().toString(16).slice(2) + ".tmp";
 fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
 try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 ' "$config_file" "$top_key" "$entry_kind" "${pairs[@]}" || rc=$?
@@ -840,23 +853,72 @@ try { root = JSON.parse(text); } catch { process.exit(0); }
 if (!root || typeof root !== "object" || Array.isArray(root)) process.exit(0);
 const section = root[topKey];
 if (!section || typeof section !== "object" || Array.isArray(section)) process.exit(0);
-const normRoot = installRoot.replace(/\\/g, "/").replace(/\/+$/, "") + "/mcp/";
+const normPath = (p) => String(p).replace(/\\/g, "/").replace(/\/+$/, "");
+const roots = new Set([normPath(installRoot)]);
+try { roots.add(normPath(fs.realpathSync(installRoot))); } catch {}
+for (const r of [...roots]) {
+  if (r.startsWith("/private/")) roots.add(r.slice("/private".length));
+}
 let changed = false;
 for (const name of dropNames) {
   const entry = section[name];
   if (!entry || typeof entry !== "object") continue;
   const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
-  if (args.some((a) => a.replace(/\\/g, "/").startsWith(normRoot))) {
+  const matches = args.some((a) => {
+    const na = normPath(a);
+    return [...roots].some((r) => na.startsWith(r + "/mcp/"));
+  });
+  if (matches) {
     delete section[name];
     changed = true;
   }
 }
 if (!changed) process.exit(0);
 const out = JSON.stringify(root, null, 2) + "\n";
-const tmp = file + ".sdd-forge-prune.tmp";
+const tmp = file + ".sdd-forge-prune." + process.pid + "." + Math.random().toString(16).slice(2) + ".tmp";
 fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
 try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 ' "$config_file" "$top_key" "$install_root_path" "$@" 2>/dev/null || true
+}
+
+prune_unselected_codex_mcp() {
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local config_toml="${codex_home}/config.toml"
+    [[ -f "$config_toml" ]] || return 0
+    local name tmp_config marker_begin marker_end
+    for name in "$@"; do
+        marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
+        marker_end="# <<< ${name} <<<"
+        grep -Fq "$marker_begin" "$config_toml" 2>/dev/null || continue
+        tmp_config="$(mktemp)"
+        if awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { if (skip) { invalid = 1; exit 1 }; skip = 1; next }
+            $0 == end { if (!skip) { invalid = 1; exit 1 }; skip = 0; next }
+            skip { next }
+            { print }
+            END { if (skip || invalid) exit 1 }
+        ' "$config_toml" > "$tmp_config"; then
+            mv "$tmp_config" "$config_toml"
+        else
+            rm -f "$tmp_config"
+        fi
+    done
+    return 0
+}
+
+prune_unselected_claude_mcp() {
+    local install_root_path="$1"
+    shift
+    command -v claude >/dev/null 2>&1 || return 0
+    local name info norm_root
+    norm_root="${install_root_path%/}"
+    for name in "$@"; do
+        info="$(claude mcp get "$name" 2>/dev/null || true)"
+        if [[ -n "$info" ]] && printf '%s' "$info" | grep -Fq "${norm_root}/mcp/${name}"; then
+            claude mcp remove "$name" --scope user >/dev/null 2>&1 || claude mcp remove "$name" >/dev/null 2>&1 || true
+        fi
+    done
+    return 0
 }
 
 prune_stale_managed_mcps() {
@@ -881,6 +943,8 @@ prune_stale_managed_mcps() {
             *)      vscode_user_dir="$HOME/.config/Code/User" ;;
         esac
     fi
+    [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]] && prune_unselected_claude_mcp "$install_root_path" "${drop_names[@]}"
+    [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]] && prune_unselected_codex_mcp "${drop_names[@]}"
     [[ "$TARGET" == "All" ]] && prune_unselected_mcp_json "${cursor_dir}/mcp.json" "mcpServers" "$install_root_path" "${drop_names[@]}"
     [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]] && prune_unselected_mcp_json "${vscode_user_dir}/mcp.json" "servers" "$install_root_path" "${drop_names[@]}"
     [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]] && prune_unselected_mcp_json "${gemini_dir}/settings.json" "mcpServers" "$install_root_path" "${drop_names[@]}"

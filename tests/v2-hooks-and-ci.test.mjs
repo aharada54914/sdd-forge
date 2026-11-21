@@ -155,6 +155,7 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     for (const entry of fs.readdirSync(path.join(REPO_ROOT, 'plugins'), { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
       for (const suffix of [
+        '.antigravity-plugin/plugin.json',
         '.claude-plugin/plugin.json',
         '.codex-plugin/plugin.json',
         '.plugin/plugin.json',
@@ -167,6 +168,11 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         assert.equal(manifest.version, expected, `${entry.name}/${suffix} version mismatch`);
       }
     }
+
+    const mcpPkg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'mcp/sdd-forge-mcp/package.json'), 'utf8'));
+    assert.equal(mcpPkg.version, expected, 'mcp/sdd-forge-mcp/package.json version mismatch');
+    const mcpServerSrc = fs.readFileSync(path.join(REPO_ROOT, 'mcp/sdd-forge-mcp/src/server.ts'), 'utf8');
+    assert.match(mcpServerSrc, new RegExp(`version:\\s*"${expected.replace(/\./g, '\\.')}"`), 'mcp/sdd-forge-mcp/src/server.ts version mismatch');
 
     for (const rel of ['.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json']) {
       const market = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8'));

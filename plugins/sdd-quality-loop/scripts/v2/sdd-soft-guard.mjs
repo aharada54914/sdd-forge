@@ -159,9 +159,19 @@ function normalizePayload(rawPayload, emitMode) {
       const filePath = args.Path || args.TargetFile || args.path || args.file_path || '';
       const oldStr = args.Target ?? args.TargetContent ?? args.old_string ?? '';
       const newStr = args.Replacement ?? args.ReplacementContent ?? args.new_string ?? '';
+      const replaceAll = toolName === 'edit_file' || Boolean(args.AllowMultiple || args.replace_all);
+      const startLine = Number.isInteger(args.StartLine) ? args.StartLine : null;
+      const endLine = Number.isInteger(args.EndLine) ? args.EndLine : null;
       return {
         tool_name: toolName,
-        tool_input: { file_path: filePath, old_string: oldStr, new_string: newStr },
+        tool_input: {
+          file_path: filePath,
+          old_string: oldStr,
+          new_string: newStr,
+          replace_all: replaceAll,
+          start_line: startLine,
+          end_line: endLine,
+        },
         cwd,
       };
     }
@@ -170,6 +180,9 @@ function normalizePayload(rawPayload, emitMode) {
       const edits = args.ReplacementChunks.map((c) => ({
         old_string: c?.TargetContent ?? '',
         new_string: c?.ReplacementContent ?? '',
+        replace_all: Boolean(c?.AllowMultiple || c?.replace_all),
+        start_line: Number.isInteger(c?.StartLine) ? c.StartLine : null,
+        end_line: Number.isInteger(c?.EndLine) ? c.EndLine : null,
       }));
       return {
         tool_name: 'multiedit',
@@ -225,37 +238,60 @@ function resolveFilePath(rawPath, projectRoot, cwd) {
   return path.isAbsolute(rawPath) ? rawPath : path.resolve(cwd || projectRoot, rawPath);
 }
 
+function applyScopedStringReplace(current, oldStr, newStr, options = {}) {
+  const replaceAll = Boolean(options.replaceAll);
+  const startLine = Number.isInteger(options.startLine) && options.startLine >= 1 ? options.startLine : null;
+  const endLine = Number.isInteger(options.endLine) && options.endLine >= 1 ? options.endLine : null;
+
+  if (!oldStr) {
+    return `${current}${newStr}`;
+  }
+
+  if (startLine !== null || endLine !== null) {
+    const lines = current.split('\n');
+    const fromIdx = Math.max(0, (startLine ?? 1) - 1);
+    const toIdx = Math.min(lines.length, endLine ?? lines.length);
+    if (fromIdx >= toIdx) return null;
+    const slice = lines.slice(fromIdx, toIdx).join('\n');
+    if (!slice.includes(oldStr)) return null;
+    const replacedSlice = replaceAll ? slice.replaceAll(oldStr, newStr) : slice.replace(oldStr, newStr);
+    const before = lines.slice(0, fromIdx);
+    const after = lines.slice(toIdx);
+    return [...before, replacedSlice, ...after].join('\n');
+  }
+
+  if (!current.includes(oldStr)) return null;
+  return replaceAll ? current.replaceAll(oldStr, newStr) : current.replace(oldStr, newStr);
+}
+
 function computeEditedContent(oldContent, toolInput) {
   if (typeof toolInput.content === 'string') {
     return toolInput.content;
   }
   if (Array.isArray(toolInput.edits)) {
     let current = normalizeNewlines(oldContent);
-    let appliedAll = true;
     for (const edit of toolInput.edits) {
       const oldStr = normalizeNewlines(edit?.old_string ?? '');
       const newStr = normalizeNewlines(edit?.new_string ?? '');
-      if (oldStr && current.includes(oldStr)) {
-        current = current.replace(oldStr, newStr);
-      } else if (!oldStr) {
-        current = `${current}${newStr}`;
-      } else {
-        appliedAll = false;
-      }
+      const next = applyScopedStringReplace(current, oldStr, newStr, {
+        replaceAll: Boolean(edit?.replace_all || toolInput.replace_all),
+        startLine: edit?.start_line,
+        endLine: edit?.end_line,
+      });
+      if (next === null) return null;
+      current = next;
     }
-    return appliedAll ? current : null;
+    return current;
   }
   if (typeof toolInput.new_string === 'string') {
     const oldStr = normalizeNewlines(toolInput.old_string ?? '');
     const newStr = normalizeNewlines(toolInput.new_string);
     const current = normalizeNewlines(oldContent);
-    if (oldStr && current.includes(oldStr)) {
-      return current.replace(oldStr, newStr);
-    }
-    if (!oldStr) {
-      return `${current}${newStr}`;
-    }
-    return null;
+    return applyScopedStringReplace(current, oldStr, newStr, {
+      replaceAll: Boolean(toolInput.replace_all),
+      startLine: toolInput.start_line,
+      endLine: toolInput.end_line,
+    });
   }
   return null;
 }
@@ -572,6 +608,11 @@ function emitDecision(result, emitMode) {
     const out = { decision: result.decision };
     if (result.decision === 'deny' && result.reason) {
       out.reason = result.reason;
+    } else if (result.decision === 'allow' && result.warning) {
+      if (emitMode === 'antigravity') {
+        out.reason = result.warning;
+      }
+      process.stderr.write(`${result.warning}\n`);
     }
     process.stdout.write(JSON.stringify(out));
     process.exit(0);

@@ -62,7 +62,7 @@ sed_inplace() {
     fi
 }
 
-# 1. Every plugin's host manifests (Antigravity, Claude, Codex, Copilot, Gemini) + both marketplaces.
+# 1. Every plugin's host manifests (Antigravity, Claude, Codex, Copilot, Gemini) + both marketplaces + sdd-forge-mcp.
 for manifest in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
                 "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
@@ -70,10 +70,19 @@ for manifest in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
                 "${ROOT}"/plugins/*/gemini-extension.json \
                 "${ROOT}"/plugins/*/gemini/gemini-extension.json \
                 "${ROOT}/.claude-plugin/marketplace.json" \
-                "${ROOT}/.agents/plugins/marketplace.json"; do
+                "${ROOT}/.agents/plugins/marketplace.json" \
+                "${ROOT}/mcp/sdd-forge-mcp/package.json"; do
     [[ -f "$manifest" ]] || continue
     sed_inplace "s/\"version\": \"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\"/\"version\": \"${NEW}\"/g" "$manifest"
 done
+
+if [[ -f "${ROOT}/mcp/sdd-forge-mcp/src/server.ts" ]]; then
+    sed_inplace "s/version: \"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\"/version: \"${NEW}\"/" "${ROOT}/mcp/sdd-forge-mcp/src/server.ts"
+fi
+
+if [[ -d "${ROOT}/mcp/sdd-forge-mcp/node_modules" ]]; then
+    (cd "${ROOT}/mcp/sdd-forge-mcp" && npm run build >/dev/null)
+fi
 
 # 2. README current-release line (first line starting with vX.Y.Z).
 sed_inplace "s/^v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
@@ -88,6 +97,8 @@ for f in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
          "${ROOT}"/plugins/*/gemini/gemini-extension.json \
          "${ROOT}/.claude-plugin/marketplace.json" \
          "${ROOT}/.agents/plugins/marketplace.json" \
+         "${ROOT}/mcp/sdd-forge-mcp/package.json" \
+         "${ROOT}/mcp/sdd-forge-mcp/src/server.ts" \
          "${ROOT}/README.md"; do
     [[ -f "$f" ]] || continue
     if grep -q "${OLD_PLAIN_RE}" "$f" 2>/dev/null; then

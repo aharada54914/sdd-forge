@@ -566,6 +566,7 @@ export function guardedDirExists(root: SddRoot, relDir: string): boolean {
  */
 export function createGuardedIo(root: SddRoot): {
   exists(relPath: string): boolean;
+  existsDir(relDir: string): boolean;
   readText(relPath: string): string | null;
   listDir(relDir: string): GuardedDirEntry[];
   statMtimeMs(relPath: string): number | null;
@@ -582,6 +583,10 @@ export function createGuardedIo(root: SddRoot): {
         }
       }
       return guardedExists(root, relPath);
+    },
+    existsDir(relDir: string): boolean {
+      if (!relDir) return true;
+      return guardedDirExists(root, relDir);
     },
     readText(relPath: string): string | null {
       const res = guardedRead(root, relPath);

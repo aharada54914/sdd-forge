@@ -37,6 +37,7 @@ describe('Antigravity CLI (agy) native support & Software Factory v2.1 (F-1..F-8
     }
 
     const qHooks = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks.json'), 'utf8'));
+    assert.equal(qHooks['sdd-soft-guard']?.PreToolUse?.[0]?.matcher, '*', 'Antigravity PreToolUse must use wildcard matcher so AGENT_STOP blocks run_command (NEW-H1)');
     assert.ok(qHooks['sdd-soft-guard']?.PreToolUse?.[0]?.hooks?.[0]?.command.includes('--emit antigravity'));
     const iHooks = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-implementation/hooks.json'), 'utf8'));
     assert.ok(iHooks['sdd-session-models']?.SessionStart?.[0]?.command.includes('--host antigravity-cli'));
@@ -433,4 +434,184 @@ print('OK')
       assert.ok(cfgAfterUninst.mcpServers['user-custom']);
     },
   );
+
+  it('NEW-H1/H2/H3/H5/M1/M3/L3: XHigh re-audit regression suite (global edit_file, line-scoped replace, baseline root isolation, task-lock owner/reclaim, empty SessionStart, transitive blockers, knowledge preservation)', () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-xhigh-reg-'));
+    const otherRepo = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-xhigh-other-'));
+    fs.mkdirSync(path.join(repo, 'specs', 'f1'), { recursive: true });
+    fs.mkdirSync(path.join(otherRepo, 'specs', 'f1'), { recursive: true });
+    fs.writeFileSync(
+      path.join(repo, 'specs', 'f1', 'tasks.md'),
+      [
+        '# Tasks: f1',
+        '## T-001 Base',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/a.mjs`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-002 Middle',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/b.mjs`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-001',
+        '',
+        '## T-003 Leaf',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/a.mjs`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-002',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+    const reqPath = path.join(repo, 'specs', 'f1', 'requirements.md');
+    fs.writeFileSync(
+      reqPath,
+      [
+        '# Requirements: f1',
+        '## Spec Amendments',
+        '- 2026-11-22: note token-abc',
+        '## Functional Requirements',
+        '- REQ-001: preserve token-abc',
+        '- AC-001: keep token-abc',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    // NEW-H3: record-spec-baseline.mjs ignores CLAUDE_PROJECT_DIR when --root is passed
+    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'f1', '--root', repo], {
+      encoding: 'utf8',
+      env: { ...process.env, CLAUDE_PROJECT_DIR: otherRepo },
+    });
+    assert.equal(fs.existsSync(path.join(repo, 'specs', 'f1', '.spec-baseline.json')), true);
+    assert.equal(fs.existsSync(path.join(otherRepo, 'specs', 'f1', '.spec-baseline.json')), false);
+
+    // NEW-H2a: Antigravity edit_file replaces ALL occurrences -> must DENY when token appears in both Amendments and protected body
+    const editAllRes = spawnSync(process.execPath, [SOFT_GUARD, '--emit', 'antigravity'], {
+      cwd: repo,
+      encoding: 'utf8',
+      input: JSON.stringify({
+        workspacePaths: [repo],
+        toolCall: {
+          name: 'edit_file',
+          args: { Path: reqPath, Target: 'token-abc', Replacement: 'token-evil' },
+        },
+      }),
+    });
+    assert.equal(JSON.parse(editAllRes.stdout).decision, 'deny', 'edit_file global replace must not bypass spec guard');
+
+    // NEW-H2b: replace_file_content with StartLine/EndLine targeting body line 5 must DENY even though token-abc appears earlier in Amendments
+    const lineScopedRes = spawnSync(process.execPath, [SOFT_GUARD, '--emit', 'antigravity'], {
+      cwd: repo,
+      encoding: 'utf8',
+      input: JSON.stringify({
+        workspacePaths: [repo],
+        toolCall: {
+          name: 'replace_file_content',
+          args: { TargetFile: reqPath, TargetContent: 'token-abc', ReplacementContent: 'token-evil', StartLine: 5, EndLine: 6 },
+        },
+      }),
+    });
+    assert.equal(JSON.parse(lineScopedRes.stdout).decision, 'deny', 'line-scoped replace_file_content targeting protected body must deny');
+
+    // NEW-H1: AGENT_STOP blocks Antigravity run_command
+    fs.writeFileSync(path.join(repo, 'AGENT_STOP'), 'stop\n', 'utf8');
+    const stopRes = spawnSync(process.execPath, [SOFT_GUARD, '--emit', 'antigravity'], {
+      cwd: repo,
+      encoding: 'utf8',
+      input: JSON.stringify({
+        workspacePaths: [repo],
+        toolCall: { name: 'run_command', args: { CommandLine: 'rm -rf specs' } },
+      }),
+    });
+    assert.equal(JSON.parse(stopRes.stdout).decision, 'deny');
+    fs.unlinkSync(path.join(repo, 'AGENT_STOP'));
+
+    // NEW-H5: task-lock release fails closed when --owner is omitted on an owned lock, and --break-stale atomically reclaims expired lock
+    assert.equal(
+      spawnSync(process.execPath, [TASK_LOCK, 'acquire', '--feature', 'f1', '--root', repo, '--owner', 'worker-1'], {
+        encoding: 'utf8',
+      }).status,
+      0,
+    );
+    const unauthorizedRel = spawnSync(process.execPath, [TASK_LOCK, 'release', '--feature', 'f1', '--root', repo], {
+      encoding: 'utf8',
+    });
+    assert.equal(unauthorizedRel.status, 1, 'release without --owner must fail closed on owned lock');
+    assert.equal(
+      spawnSync(process.execPath, [TASK_LOCK, 'release', '--feature', 'f1', '--root', repo, '--owner', 'worker-1'], {
+        encoding: 'utf8',
+      }).status,
+      0,
+    );
+    // Write expired stale lock and reclaim via --break-stale
+    fs.mkdirSync(path.join(repo, '.sdd', 'locks'), { recursive: true });
+    fs.writeFileSync(
+      path.join(repo, '.sdd', 'locks', 'f1.lock'),
+      JSON.stringify({
+        schema: 'sdd-task-lock/v1',
+        feature: 'f1',
+        owner: 'dead-worker',
+        pid: 99999999,
+        hostname: os.hostname(),
+        acquiredAt: '2020-01-01T00:00:00Z',
+        expiresAt: '2020-01-01T00:01:00Z',
+      }),
+      'utf8',
+    );
+    const reclaim = spawnSync(
+      process.execPath,
+      [TASK_LOCK, 'acquire', '--feature', 'f1', '--root', repo, '--owner', 'worker-2', '--break-stale'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(reclaim.status, 0, reclaim.stdout + reclaim.stderr);
+
+    // NEW-M1: session-model-start.py emits {}\n on Antigravity suppression
+    const py = process.platform === 'win32' ? 'python' : 'python3';
+    const suppressed = spawnSync(py, [SESSION_START, '--host', 'antigravity-cli'], {
+      cwd: repo,
+      encoding: 'utf8',
+      input: JSON.stringify({ source: 'resume' }),
+    });
+    assert.equal(suppressed.status, 0);
+    assert.equal(suppressed.stdout.trim(), '{}');
+
+    // NEW-M3: Transitive blocker chain (T-001 -> T-002 -> T-003) does NOT report false-positive scopeConflict between T-001 and T-003
+    const plan = JSON.parse(
+      execFileSync(process.execPath, [TRACEABILITY, '--feature', 'f1', '--root', repo, '--plan-batches'], {
+        encoding: 'utf8',
+      }),
+    );
+    assert.equal(plan.executionPlan.scopeConflicts.length, 0, 'Transitively serialized tasks must not report scopeConflicts');
+
+    // NEW-L3: sync-knowledge.mjs --write preserves manual notes and updates sdd/knowledge/INDEX.md
+    execFileSync(process.execPath, [SYNC_KNOWLEDGE, 'init', '--root', repo], { encoding: 'utf8' });
+    const specKnowPath = path.join(repo, 'sdd', 'knowledge', 'specs', 'f1.md');
+    fs.writeFileSync(specKnowPath, 'Team manual note: keep me safe.\n', 'utf8');
+    execFileSync(process.execPath, [SYNC_KNOWLEDGE, 'extract', '--feature', 'f1', '--root', repo, '--write'], {
+      encoding: 'utf8',
+    });
+    const mergedKnow = fs.readFileSync(specKnowPath, 'utf8');
+    assert.match(mergedKnow, /Team manual note: keep me safe\./);
+    assert.match(mergedKnow, /sdd-forge:knowledge-auto-start/);
+    const idxMd = fs.readFileSync(path.join(repo, 'sdd', 'knowledge', 'INDEX.md'), 'utf8');
+    assert.match(idxMd, /specs\/f1\.md/);
+  });
 });
