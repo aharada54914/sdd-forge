@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 ```txt
 /sdd-bootstrap:bootstrap <mode> <source>
-/sdd-bootstrap:bootstrap <mode> --feature <slug> [--risk low|standard|high] [--skip-check] <source>
+/sdd-bootstrap:bootstrap <mode> --feature <slug> [--risk low|standard|high] [--proto|--harden] [--skip-check] <source>
 /sdd-bootstrap:bootstrap adopt [project-root]
 /sdd-bootstrap:bootstrap investigate <mode> <source>
 ```
@@ -57,7 +57,7 @@ disable-model-invocation: true
    - `Risk: high` → `dual-parallel` モード（Reviewer A [仕様・AC] ＋ Reviewer B [設計・セキュリティ] の 2 視点並列 1 パス）。
    - `PASS` / `PASS_WITH_NOTES` → Step 3 へ。`NEEDS_FIX` → Blocker を提示し仕様修正後に再実行。
 3. **人間承認ゲート（Decision View 提示）**:
-   `check-traceability.mjs` で REQ↔AC↔Task の抜け漏れを確認し、`render-decision-view.mjs` で **Decision View（全体像＋`OQ-NNN` 事実/理由/人の問い＋採らなかった設計）** を生成して人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
+   `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs` で REQ↔AC↔Task の抜け漏れを確認し、`<installed-root>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs` で **Decision View（全体像＋`OQ-NNN` 事実/理由/人の問い＋採らなかった設計）** を生成して人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
 
 ## Handoff
 

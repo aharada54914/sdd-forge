@@ -54,6 +54,22 @@ export function toPosixPath(filePath) {
   return String(filePath || '').replace(/\\/g, '/');
 }
 
+export function normalizeRelPath(filePath) {
+  return toPosixPath(filePath).trim().replace(/^\.\//, '').replace(/\/+$/, '');
+}
+
+export function assertValidFeatureName(feature) {
+  if (
+    typeof feature !== 'string' ||
+    !feature ||
+    /[\\/\0]/.test(feature) ||
+    feature === '.' ||
+    feature === '..'
+  ) {
+    throw new Error(`Invalid feature name: ${feature}`);
+  }
+}
+
 export function safeRealpath(targetPath) {
   try {
     return fs.realpathSync(targetPath);

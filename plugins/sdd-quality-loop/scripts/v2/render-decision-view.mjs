@@ -18,62 +18,154 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
+  assertValidFeatureName,
   extractSpecIdentifiers,
   findProjectRoot,
   normalizeNewlines,
+  splitSpecAmendments,
   toPosixPath,
 } from './guardrails-lib.mjs';
 
-export function parseOpenQuestions(markdownText) {
-  const normalized = normalizeNewlines(markdownText || '');
-  const items = [];
-  const lines = normalized.split('\n');
+const CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
+const PLACEHOLDER_CELL_RE = /^<[^<>]+>$/;
+const SEPARATOR_CELL_RE = /^:?-+:?$/;
+
+export function stripFencedCodeBlocks(text) {
+  const lines = normalizeNewlines(text || '').split('\n');
+  const out = [];
+  let inFence = false;
+  let fenceChar = '';
   for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith('|')) continue;
-    const cells = trimmed
-      .slice(1, trimmed.endsWith('|') ? -1 : undefined)
-      .split('|')
-      .map((c) => c.trim());
-    if (cells.length < 6) continue;
-    if (!/^OQ-\d+$/i.test(cells[0])) continue;
-    // Skip placeholder template rows
-    if (/^<.*>$/.test(cells[2])) continue;
+    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (m) {
+      if (!inFence) {
+        inFence = true;
+        fenceChar = m[1][0];
+      } else if (m[1][0] === fenceChar) {
+        inFence = false;
+        fenceChar = '';
+      }
+      continue;
+    }
+    if (!inFence) out.push(line);
+  }
+  return out.join('\n');
+}
+
+export function splitMarkdownTableRow(line) {
+  let trimmed = String(line || '').trim();
+  if (!trimmed.startsWith('|')) return null;
+  if (trimmed.startsWith('|')) trimmed = trimmed.slice(1);
+  if (trimmed.endsWith('|') && !trimmed.endsWith('\\|')) trimmed = trimmed.slice(0, -1);
+
+  const cells = [];
+  let current = '';
+  let inBacktick = false;
+  for (let i = 0; i < trimmed.length; i += 1) {
+    const ch = trimmed[i];
+    if (ch === '\\' && trimmed[i + 1] === '|' && !inBacktick) {
+      current += '|';
+      i += 1;
+      continue;
+    }
+    if (ch === '`') {
+      inBacktick = !inBacktick;
+      current += ch;
+      continue;
+    }
+    if (ch === '|' && !inBacktick) {
+      cells.push(current.trim());
+      current = '';
+      continue;
+    }
+    current += ch;
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
+function unwrapMarkdownInline(text) {
+  return String(text || '')
+    .trim()
+    .replace(/^[`*_]+|[`*_]+$/g, '')
+    .trim();
+}
+
+export function isOpenQuestionConfirmed(status) {
+  const clean = unwrapMarkdownInline(status);
+  return CONFIRMED_STATUS_RE.test(clean);
+}
+
+export function parseOpenQuestions(markdownText) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(markdownText || '');
+  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
+  const items = [];
+
+  for (const line of body.split('\n')) {
+    const cells = splitMarkdownTableRow(line);
+    if (!cells || cells.length < 6) continue;
+    const rawId = unwrapMarkdownInline(cells[0]);
+    if (!/^OQ-\d+$/i.test(rawId)) continue;
+    if (PLACEHOLDER_CELL_RE.test(cells[2])) continue;
+
+    const status = unwrapMarkdownInline(cells[5]) || 'Provisional';
+    const rawImpacted = cells[6] || '';
+    const impactedMatches = rawImpacted.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
+    const impactedTasks = [...new Set(impactedMatches.map((t) => t.toUpperCase()))];
+
     items.push({
-      id: cells[0].toUpperCase(),
-      category: cells[1] || '事業判断',
+      id: rawId.toUpperCase(),
+      category: unwrapMarkdownInline(cells[1]) || '事業判断',
       fact: cells[2] || '',
       reason: cells[3] || '',
       question: cells[4] || '',
-      status: cells[5] || 'Provisional',
-      impactedTasks: (cells[6] || '')
-        .split(/[,\s]+/)
-        .map((t) => t.trim())
-        .filter((t) => /^T-\d+/i.test(t)),
+      status,
+      confirmed: isOpenQuestionConfirmed(status),
+      impactedTasks,
     });
   }
   return items;
 }
 
+export function mergeOpenQuestions(...lists) {
+  const byId = new Map();
+  for (const list of lists) {
+    for (const q of list || []) {
+      const existing = byId.get(q.id);
+      if (!existing) {
+        byId.set(q.id, { ...q, impactedTasks: [...q.impactedTasks] });
+      } else {
+        // Fail-closed: if either occurrence is still unresolved, keep unresolved.
+        const confirmed = existing.confirmed && q.confirmed;
+        const impactedTasks = [...new Set([...existing.impactedTasks, ...q.impactedTasks])];
+        byId.set(q.id, {
+          ...existing,
+          status: confirmed ? existing.status : (existing.confirmed ? q.status : existing.status),
+          confirmed,
+          impactedTasks,
+        });
+      }
+    }
+  }
+  return [...byId.values()];
+}
+
 export function parseAlternativesRejected(designText) {
-  const normalized = normalizeNewlines(designText || '');
-  const headingMatch = /^##[ \t]+.*(?:採らなかった設計|Alternatives Rejected).*$/im.exec(normalized);
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(designText || '');
+  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
+  const headingMatch = /^##[ \t]+.*(?:採らなかった設計|Alternatives Rejected).*$/im.exec(body);
   if (!headingMatch) return [];
-  const rest = normalized.slice(headingMatch.index + headingMatch[0].length);
+  const rest = body.slice(headingMatch.index + headingMatch[0].length);
   const nextHeading = /^##[ \t]+\S/m.exec(rest);
   const section = nextHeading ? rest.slice(0, nextHeading.index) : rest;
 
   const items = [];
   for (const line of section.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith('|')) continue;
-    const cells = trimmed
-      .slice(1, trimmed.endsWith('|') ? -1 : undefined)
-      .split('|')
-      .map((c) => c.trim());
-    if (cells.length < 3) continue;
-    if (/^(?:候補案|Option|Alternative|-+)$/i.test(cells[0]) || /^-+$/.test(cells[0])) continue;
-    if (/^<.*>$/.test(cells[0]) || /^（?該当なし）?$/.test(cells[0])) continue;
+    const cells = splitMarkdownTableRow(line);
+    if (!cells || cells.length < 3) continue;
+    const first = unwrapMarkdownInline(cells[0]);
+    if (/^(?:候補案|Option|Alternative)$/i.test(first) || SEPARATOR_CELL_RE.test(first)) continue;
+    if (PLACEHOLDER_CELL_RE.test(first) || /^（?該当なし）?$/.test(first)) continue;
     items.push({
       option: cells[0],
       reason: cells[1],
@@ -83,27 +175,48 @@ export function parseAlternativesRejected(designText) {
   return items;
 }
 
+function extractTaskBlockers(taskBlock) {
+  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
+  if (!blockersMatch) return [];
+  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const ids = section.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
+  return [...new Set(ids.map((id) => id.toUpperCase()))];
+}
+
 export function parseTasksSummary(tasksText) {
-  const normalized = normalizeNewlines(tasksText || '');
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || '');
+  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
   const tasks = [];
-  const headerRe = /^##[ \t]+(T-[A-Za-z0-9._-]+)[ \t]*(.*)$/gm;
-  const matches = [...normalized.matchAll(headerRe)];
-  for (let i = 0; i < matches.length; i += 1) {
-    const m = matches[i];
-    const start = m.index + m[0].length;
-    const end = i + 1 < matches.length ? matches[i + 1].index : normalized.length;
-    const block = normalized.slice(start, end);
+  const h2Re = /^##[ \t]+(.+)$/gm;
+  const headings = [...body.matchAll(h2Re)];
+
+  for (let i = 0; i < headings.length; i += 1) {
+    const h = headings[i];
+    const titleLine = h[1].trim();
+    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
+    if (!taskMatch) continue;
+
+    const start = h.index + h[0].length;
+    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
+    const block = body.slice(start, end);
+
     const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Draft';
     const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Planned';
     const risk = ((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1]?.trim() || 'standard').toLowerCase();
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+    const taskId = taskMatch[1].toUpperCase();
+    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+
     tasks.push({
-      id: m[1],
-      title: m[2].trim(),
+      id: taskId,
+      title: (taskMatch[2] || '').trim(),
       approval,
       status,
       risk,
       acRefs,
+      blockers,
       block,
     });
   }
@@ -113,23 +226,51 @@ export function parseTasksSummary(tasksText) {
 export function detectDomains(combinedText) {
   const text = String(combinedText || '');
   const domains = new Set();
-  if (/\b(?:PostgreSQL|MySQL|SQL Server|Azure SQL|Flyway|DACPAC|\.sqlproj|\.sql\b|migration|DDL|RLS)\b/i.test(text)) {
+
+  if (
+    /(?:\.sqlproj\b|\.sql\b|\b(?:PostgreSQL|MySQL|SQL Server|Azure SQL|Flyway|DACPAC|DDL|RLS)\b|\bdb\/migrations?\b|\bschema\s+migration\b)/i.test(
+      text,
+    )
+  ) {
     domains.add('SQL');
   }
-  if (/\b(?:AWS|CDK|CloudFormation|sdd-aws-cloud|CloudWatch|IAM)\b/i.test(text)) {
+  if (
+    /(?:\b(?:AWS|CDK|CloudFormation|sdd-aws-cloud|CloudWatch|Lambda|DynamoDB|RDS|Aurora)\b|\bS3\s+bucket\b|\bAWS\s+IAM\b|\binfra\/aws\b)/i.test(
+      text,
+    )
+  ) {
     domains.add('AWS');
   }
-  if (/\b(?:Azure|Bicep|ARM|sdd-azure-cloud|Azure Monitor)\b/i.test(text)) {
+  if (
+    /(?:\b(?:Azure|Bicep|sdd-azure-cloud|Azure Monitor|AKS|App Service|Key Vault)\b|\bARM\s+template\b|\binfra\/azure\b)/i.test(
+      text,
+    )
+  ) {
     domains.add('Azure');
   }
-  if (/\b(?:domain\/|Bounded-Context|domain-contract\.json|Aggregate|sdd-domain)\b/i.test(text)) {
+  if (/(?:\bTerraform\b|\.tf\b)/i.test(text) && !domains.has('AWS') && !domains.has('Azure')) {
+    domains.add('Cloud');
+  }
+  if (
+    /(?:(?:^|[\s`'"(])domain\/|\b(?:Bounded-Context|domain-contract\.json|sdd-domain|Aggregate\s+Root)\b|集約(?:の|を|境界))/i.test(
+      text,
+    )
+  ) {
     domains.add('DDD');
   }
-  domains.add('Software');
+  if (
+    domains.size === 0 ||
+    /(?:\b(?:src\/|app\/|lib\/|api\/|components\/|UI|API|CLI|SDK|Node\.js|TypeScript|JavaScript|Python|Go|Rust|Java|React|Next\.js)\b|アプリ|フロントエンド|バックエンド)/i.test(
+      text,
+    )
+  ) {
+    domains.add('Software');
+  }
   return [...domains];
 }
 
 export function buildDecisionViewData({ feature, projectRoot }) {
+  assertValidFeatureName(feature);
   const root = findProjectRoot(projectRoot);
   const featureDir = path.join(root, 'specs', feature);
   if (!fs.existsSync(featureDir)) {
@@ -144,7 +285,7 @@ export function buildDecisionViewData({ feature, projectRoot }) {
   const designText = fs.existsSync(designPath) ? fs.readFileSync(designPath, 'utf8') : '';
   const tasksText = fs.existsSync(tasksPath) ? fs.readFileSync(tasksPath, 'utf8') : '';
 
-  const openQuestions = [...parseOpenQuestions(reqText), ...parseOpenQuestions(designText)];
+  const openQuestions = mergeOpenQuestions(parseOpenQuestions(reqText), parseOpenQuestions(designText));
   const alternativesRejected = parseAlternativesRejected(designText);
   const tasks = parseTasksSummary(tasksText);
   const identifiers = extractSpecIdentifiers(reqText);
@@ -163,10 +304,11 @@ export function buildDecisionViewData({ feature, projectRoot }) {
   const gateDir = path.join(root, 'reports', 'quality-gate');
   const gateResults = [];
   if (fs.existsSync(gateDir)) {
-    for (const file of fs.readdirSync(gateDir)) {
+    for (const file of fs.readdirSync(gateDir).sort()) {
       if (!file.startsWith(`${feature}-`) || !file.endsWith('.execution.json')) continue;
       try {
         const parsed = JSON.parse(fs.readFileSync(path.join(gateDir, file), 'utf8'));
+        if (parsed.feature !== feature) continue;
         gateResults.push({
           taskId: parsed.taskId,
           verdict: parsed.verdict,
@@ -185,7 +327,7 @@ export function buildDecisionViewData({ feature, projectRoot }) {
       ? 'standard'
       : 'low';
 
-  const provisionalCount = openQuestions.filter((q) => /^Provisional$/i.test(q.status)).length;
+  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
 
   return {
     schema: 'sdd-decision-view/v1',
@@ -216,6 +358,10 @@ export function buildDecisionViewData({ feature, projectRoot }) {
   };
 }
 
+function escapeMdCell(text) {
+  return String(text || '').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+}
+
 export function renderDecisionViewMarkdown(data) {
   const lines = [];
   lines.push(`# Decision View: ${data.feature}`);
@@ -226,12 +372,12 @@ export function renderDecisionViewMarkdown(data) {
   lines.push('');
   lines.push('| 項目 | 値 |');
   lines.push('|---|---|');
-  lines.push(`| Feature | \`${data.feature}\` |`);
-  lines.push(`| 対象領域 (Domains) | ${data.domains.join(' / ')} |`);
-  lines.push(`| 最高リスク階層 | \`${data.highestRisk}\` |`);
+  lines.push(`| Feature | \`${escapeMdCell(data.feature)}\` |`);
+  lines.push(`| 対象領域 (Domains) | ${escapeMdCell(data.domains.join(' / '))} |`);
+  lines.push(`| 最高リスク階層 | \`${escapeMdCell(data.highestRisk)}\` |`);
   lines.push(`| 要件 / 受入条件 | REQ: ${data.counts.requirements} 件 / AC: ${data.counts.acceptanceCriteria} 件 |`);
   lines.push(`| タスク進捗 | 合計 ${data.counts.tasksTotal}（Approved: ${data.counts.tasksApproved}, Done: ${data.counts.tasksDone}） |`);
-  lines.push(`| 着工前 spec-check | \`${data.specCheckVerdict}\` |`);
+  lines.push(`| 着工前 spec-check | \`${escapeMdCell(data.specCheckVerdict)}\` |`);
   lines.push(`| 未確定事項 (Provisional OQ) | **${data.counts.openQuestionsProvisional} 件** / 全 ${data.counts.openQuestionsTotal} 件 |`);
   lines.push('');
 
@@ -241,7 +387,7 @@ export function renderDecisionViewMarkdown(data) {
     lines.push('- 未確定の仮決定（`OQ-NNN`）はありません。');
   } else {
     for (const q of data.openQuestions) {
-      const badge = /^Provisional$/i.test(q.status) ? '🟠 Provisional（要判断）' : '✅ Confirmed';
+      const badge = q.confirmed ? '✅ Confirmed' : `🟠 ${q.status}（要判断）`;
       const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(', ') : '全体';
       lines.push(`### ${q.id} [${q.category}] — ${badge}（影響: ${impacted}）`);
       lines.push(`- **設計した事実（仮決定）**: ${q.fact}`);
@@ -260,7 +406,7 @@ export function renderDecisionViewMarkdown(data) {
     lines.push('| 候補案 | 不採用理由 | 再検討条件 |');
     lines.push('|---|---|---|');
     for (const alt of data.alternativesRejected) {
-      lines.push(`| ${alt.option} | ${alt.reason} | ${alt.revisitWhen} |`);
+      lines.push(`| ${escapeMdCell(alt.option)} | ${escapeMdCell(alt.reason)} | ${escapeMdCell(alt.revisitWhen)} |`);
     }
   }
   lines.push('');
@@ -269,7 +415,7 @@ export function renderDecisionViewMarkdown(data) {
   lines.push('');
   lines.push('| 観点 | 担当 | 状態・理由 |');
   lines.push('|---|---|---|');
-  lines.push(`| REQ ↔ AC ↔ タスク契約整合・Spec Drift | 機械検証 | \`spec-check: ${data.specCheckVerdict}\` / \`check-spec-drift.mjs\` で自動照合（人は逸脱時のみ確認） |`);
+  lines.push(`| REQ ↔ AC ↔ タスク契約整合・Spec Drift | 機械検証 | \`spec-check: ${escapeMdCell(data.specCheckVerdict)}\` / \`check-spec-drift.mjs\` で自動照合（人は逸脱時のみ確認） |`);
   lines.push('| 標準 CRUD・既存規約準拠・プレースホルダー・秘密情報 | 機械検証 | `run-sdd-gate.mjs` 決定論センサーで自動検査 |');
   if (data.domains.includes('SQL')) {
     lines.push('| SQL 破壊的 DDL・権限/RLS・隔離 DB 検証 | 機械＋最重要 | `sql-develop` 契約および `run-sdd-gate.mjs` SQL センサーで保護 |');
@@ -286,7 +432,7 @@ export function renderDecisionViewMarkdown(data) {
     lines.push('| Task | Verdict | Spec Drift | Sensors |');
     lines.push('|---|---|---|---|');
     for (const g of data.gateResults) {
-      lines.push(`| ${g.taskId} | ${g.verdict} | ${g.specDrift} | ${g.sensorsPassed ? 'PASS' : 'FAIL'} |`);
+      lines.push(`| ${escapeMdCell(g.taskId)} | ${escapeMdCell(g.verdict)} | ${escapeMdCell(g.specDrift)} | ${g.sensorsPassed ? 'PASS' : 'FAIL'} |`);
     }
     lines.push('');
   }
@@ -299,7 +445,8 @@ function escapeHtml(text) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 export function renderDecisionViewHtml(data) {
@@ -307,12 +454,14 @@ export function renderDecisionViewHtml(data) {
     ? '<p class="muted">未確定の仮決定（OQ-NNN）はありません。</p>'
     : data.openQuestions
         .map((q) => {
-          const isProv = /^Provisional$/i.test(q.status);
+          const isProv = !q.confirmed;
+          const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(', ') : '全体';
           return `<section class="card ${isProv ? 'prov' : 'conf'}">
   <div class="card-head">
     <span class="badge">${escapeHtml(q.id)}</span>
     <span class="badge cat">${escapeHtml(q.category)}</span>
     <span class="badge ${isProv ? 'warn' : 'ok'}">${escapeHtml(q.status)}</span>
+    <span class="badge">影響: ${escapeHtml(impacted)}</span>
   </div>
   <div class="cols">
     <div><h4>設計した事実</h4><p>${escapeHtml(q.fact)}</p></div>
@@ -332,6 +481,16 @@ export function renderDecisionViewHtml(data) {
         )
         .join('\n');
 
+  const gateSection = data.gateResults.length === 0
+    ? ''
+    : `<h2>sdd-gate 実行状況</h2>
+  <table><thead><tr><th>Task</th><th>Verdict</th><th>Spec Drift</th><th>Sensors</th></tr></thead><tbody>${data.gateResults
+    .map(
+      (g) =>
+        `<tr><td>${escapeHtml(g.taskId)}</td><td>${escapeHtml(g.verdict)}</td><td>${escapeHtml(g.specDrift)}</td><td>${g.sensorsPassed ? 'PASS' : 'FAIL'}</td></tr>`,
+    )
+    .join('\n')}</tbody></table>`;
+
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -346,7 +505,7 @@ export function renderDecisionViewHtml(data) {
   .card { background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
   .card.prov { border-left: 5px solid #ea580c; }
   .card.conf { border-left: 5px solid #16a34a; }
-  .card-head { display: flex; gap: 8px; margin-bottom: 10px; }
+  .card-head { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
   .badge { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #e2e8f0; }
   .badge.cat { background: #dbeafe; color: #1d4ed8; }
   .badge.warn { background: #ffedd5; color: #9a3412; }
@@ -355,7 +514,7 @@ export function renderDecisionViewHtml(data) {
   .cols h4 { margin: 0 0 4px; font-size: 13px; color: #475569; }
   .cols p { margin: 0; font-size: 14px; line-height: 1.5; }
   .ask { background: #fff7ed; padding: 10px; border-radius: 8px; border: 1px solid #fed7aa; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
   th, td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; font-size: 14px; }
   th { background: #f1f5f9; }
   .muted { color: #64748b; }
@@ -367,6 +526,7 @@ export function renderDecisionViewHtml(data) {
   <div class="meta">
     <span class="pill">Domains: ${escapeHtml(data.domains.join(' / '))}</span>
     <span class="pill">Highest Risk: ${escapeHtml(data.highestRisk)}</span>
+    <span class="pill">spec-check: ${escapeHtml(data.specCheckVerdict)}</span>
     <span class="pill">REQ: ${data.counts.requirements} / AC: ${data.counts.acceptanceCriteria}</span>
     <span class="pill">Tasks: ${data.counts.tasksDone}/${data.counts.tasksTotal} Done</span>
     <span class="pill">Provisional OQ: ${data.counts.openQuestionsProvisional}</span>
@@ -375,6 +535,7 @@ export function renderDecisionViewHtml(data) {
   ${oqCards}
   <h2>採らなかった設計（Alternatives Rejected）</h2>
   <table><thead><tr><th>候補案</th><th>不採用理由</th><th>再検討条件</th></tr></thead><tbody>${altRows}</tbody></table>
+  ${gateSection}
 </body>
 </html>
 `;
@@ -395,16 +556,25 @@ function parseArgs(argv) {
 const isMain = process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
-  if (!opts.feature) {
-    process.stderr.write('Usage: node render-decision-view.mjs --feature <feature> [--root <dir>] [--format markdown|html] [--output <path>]\n');
+  if (!opts.feature || (opts.format !== 'markdown' && opts.format !== 'html')) {
+    process.stderr.write(
+      'Usage: node render-decision-view.mjs --feature <feature> [--root <dir>] [--format markdown|html] [--output <path>]\n',
+    );
     process.exit(2);
   }
-  const data = buildDecisionViewData({ feature: opts.feature, projectRoot: opts.root || process.cwd() });
-  const content = opts.format === 'html' ? renderDecisionViewHtml(data) : renderDecisionViewMarkdown(data);
-  if (opts.output) {
-    const outPath = path.resolve(opts.output);
-    fs.mkdirSync(path.dirname(outPath), { recursive: true });
-    fs.writeFileSync(outPath, content, 'utf8');
+  try {
+    const data = buildDecisionViewData({ feature: opts.feature, projectRoot: opts.root || process.cwd() });
+    const content = opts.format === 'html' ? renderDecisionViewHtml(data) : renderDecisionViewMarkdown(data);
+    if (opts.output) {
+      const outPath = path.resolve(opts.output);
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, content, 'utf8');
+      process.stdout.write(`Wrote ${opts.format} decision view to ${outPath}\n`);
+    } else {
+      process.stdout.write(content);
+    }
+  } catch (err) {
+    process.stderr.write(`render-decision-view error: ${err.message}\n`);
+    process.exit(2);
   }
-  process.stdout.write(content);
 }

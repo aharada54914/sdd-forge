@@ -16,6 +16,8 @@
 - **Execution Evidence**: `reports/quality-gate/<feature>-<T-NNN>.execution.json`
 - **Spec Drift**: CLEAN | AMENDED | UNDECLARED_DRIFT
 - **Placeholder Scan**: PASS | FAIL
+- **Non-Functional Sensors (SQL / Cloud / Secrets)**: PASS | FAIL | SKIPPED
+- **Open Questions Gate (`Risk: high`)**: PASS | BLOCKED (Provisional OQ)
 - **Project Commands**: <コマンドごとの PASS / FAIL 要約>
 
 ## Acceptance Criteria Verification

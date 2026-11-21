@@ -24,7 +24,7 @@ user-invocable: false
    - `domain/` がプロジェクトルートに存在する場合のみ、`concept-test` および `domain-sync` で承認済みコンテキスト・用語を同期する（`domain/` 不在時は `domain-sync skipped: no domain/ directory` としてオーバーヘッドゼロでスキップ）。`design-system/` が存在する場合も既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
 
 2. **タスク単位のリスク判定（`Risk: low | standard | high`）**:
-   - `--risk` 指定があればそれを優先（`--lite` → `low`、`--full` → `high`）。
+   - `--risk` 指定があればそれを優先（`--lite` / `--proto` → `low`、`--full` / `--harden` → `high` または既存確定仕様を引き継いだ `standard|high`）。
    - 未指定時は `sdd/guardrails.yaml` の `risk_defaults` と変更内容から判定する:
      - `low`: 小規模バグ修正（`diagnose` 経由等）、ドキュメント、限定リファクタ
      - `standard` *(既定)*: 通常の新機能・API/UI 追加・中規模変更

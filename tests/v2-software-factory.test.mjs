@@ -1,13 +1,21 @@
 import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, it } from 'node:test';
+import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { analyzeTraceability, formatTraceabilityMarkdown } from '../plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs';
+import {
+  analyzeTraceability,
+  formatTraceabilityMarkdown,
+  scopeMatchesFile,
+} from '../plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs';
 import { writeSpecBaseline } from '../plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs';
 import {
   buildDecisionViewData,
+  detectDomains,
+  parseAlternativesRejected,
+  parseOpenQuestions,
   renderDecisionViewHtml,
   renderDecisionViewMarkdown,
 } from '../plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs';
@@ -16,9 +24,26 @@ import { runDoctor } from '../plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
+const TRACE_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs');
+const VIEW_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs');
+const GATE_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs');
+
+const tempDirs = [];
+
+function trackTempDir(prefix) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  tempDirs.push(dir);
+  return dir;
+}
+
+after(() => {
+  for (const dir of tempDirs) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 function createMultiDomainFixture() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-factory-test-'));
+  const dir = trackTempDir('sdd-factory-test-');
   fs.mkdirSync(path.join(dir, 'specs', 'billing-sync'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'db', 'migrations'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'infra', 'aws'), { recursive: true });
@@ -58,7 +83,7 @@ Software API + PostgreSQL Flyway + AWS CDK の 3 領域を独立タスクで構�
 
 ## 採らなかった設計（Alternatives Rejected）
 | 候補案 | 不採用理由 | 再検討条件 |
-|---|---|---|
+| :--- | :---: | ---: |
 | 単一トランザクションで即 DROP COLUMN | 旧アプリ稼働中にエラーが発生するため | メンテ停止が許容される場合 |
 
 ## Spec Amendments
@@ -91,7 +116,7 @@ Status: Implementation Complete
 Risk: high
 
 ### Scope
-- \`db/migrations/V002__add_amount_cents.sql\`
+- \`db/migrations/V*.sql\`
 
 ### Done When
 - AC-002 の隔離 PostgreSQL 検証が通過すること
@@ -114,7 +139,7 @@ Risk: high
 - T-001
 
 ## Spec Amendments
-- （初期版のため変更なし）
+- 2026-11-21: AC-999 や PostgreSQL のメモは最終タスク T-003 に漏れてはならない
 `,
     'utf8',
   );
@@ -128,7 +153,7 @@ Risk: high
 }
 
 describe('Software Factory v2.x (SQL + AWS + Azure + Software SDLC)', () => {
-  it('Phase A-1: sql-develop skill and policy align cleanly with SDD Core v2 (zero retired v1 terms)', () => {
+  it('Phase A-1: sql-develop skill, policy, and contract template align cleanly with SDD Core v2', () => {
     const skill = fs.readFileSync(
       path.join(REPO_ROOT, 'plugins/sdd-implementation/skills/sql-develop/SKILL.md'),
       'utf8',
@@ -137,39 +162,100 @@ describe('Software Factory v2.x (SQL + AWS + Azure + Software SDLC)', () => {
       path.join(REPO_ROOT, 'plugins/sdd-implementation/skills/sql-develop/references/sql-development-policy.md'),
       'utf8',
     );
+    const contractTpl = fs.readFileSync(
+      path.join(REPO_ROOT, 'plugins/sdd-implementation/skills/sql-develop/templates/sql-development-contract.md'),
+      'utf8',
+    );
     assert.match(skill, /Risk: low \| standard \| high/);
     assert.match(skill, /OQ-NNN/);
     assert.doesNotMatch(skill, /lite-spec|interviewer|handshake|--lite/);
     assert.match(policy, /run-sdd-gate\.mjs/);
     assert.doesNotMatch(policy, /lite-gate|quality-gate|evidence-bundle/);
+    assert.match(contractTpl, /影響とリスク階層/);
+    assert.doesNotMatch(contractTpl, /Lite候補|Fullの理由/);
   });
 
-  it('Phase A-2 & A-3: render-decision-view.mjs generates 4-domain Fact/Reason/Question views (Markdown & HTML)', () => {
+  it('Phase A-2 & A-3: render-decision-view.mjs skips GFM aligned separators, isolates feature gates, and escapes HTML/MD', () => {
     const dir = createMultiDomainFixture();
-    const data = buildDecisionViewData({ feature: 'billing-sync', projectRoot: dir });
+    // Create a gate report for another feature sharing prefix "billing" vs "billing-sync"
+    fs.mkdirSync(path.join(dir, 'specs', 'billing'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'specs', 'billing', 'requirements.md'), '# Billing\n', 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'billing', 'tasks.md'), '# Tasks\n', 'utf8');
+    fs.mkdirSync(path.join(dir, 'reports', 'quality-gate'), { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, 'reports', 'quality-gate', 'billing-sync-T-001.execution.json'),
+      JSON.stringify({ feature: 'billing-sync', taskId: 'T-001', verdict: 'PASS', checks: {} }),
+      'utf8',
+    );
 
+    const siblingData = buildDecisionViewData({ feature: 'billing', projectRoot: dir });
+    assert.equal(siblingData.gateResults.length, 0, 'prefix collision must not pull billing-sync gate into billing');
+
+    const data = buildDecisionViewData({ feature: 'billing-sync', projectRoot: dir });
     assert.deepEqual(new Set(data.domains), new Set(['Software', 'SQL', 'AWS']));
     assert.equal(data.highestRisk, 'high');
     assert.equal(data.counts.openQuestionsProvisional, 1);
+    // GFM separator row `| :--- | :---: | ---: |` must NOT be parsed as an alternative
     assert.equal(data.counts.alternativesRejected, 1);
+    assert.equal(data.alternativesRejected[0].option, '単一トランザクションで即 DROP COLUMN');
+
+    // Domain detection must not false-positive on AWS Graviton ARM or React migration
+    assert.deepEqual(detectDomains('Deploy Node.js API on AWS Graviton ARM Lambda'), ['AWS', 'Software']);
+    assert.deepEqual(detectDomains('React migration for UI components'), ['Software']);
+    assert.ok(detectDomains('Edit `domain/` context map').includes('DDD'));
 
     const md = renderDecisionViewMarkdown(data);
     assert.match(md, /OQ-001 \[不可逆リスク\]/);
     assert.match(md, /設計した事実（仮決定）/);
-    assert.match(md, /なぜそうしたか/);
     assert.match(md, /人が判断する問い/);
-    assert.match(md, /単一トランザクションで即 DROP COLUMN/);
 
     const html = renderDecisionViewHtml(data);
     assert.match(html, /<!doctype html>/i);
-    assert.match(html, /OQ-001/);
-    assert.match(html, /人が判断する問い/);
+    assert.match(html, /spec-check:/);
+    assert.match(html, /sdd-gate 実行状況/);
+
+    // Path traversal must fail with exit code 2 on CLI
+    const badRes = spawnSync(process.execPath, [VIEW_CLI, '--feature', '../evil', '--root', dir], { encoding: 'utf8' });
+    assert.equal(badRes.status, 2);
   });
 
-  it('Phase A-3: run-sdd-gate.mjs blocks Risk: high tasks when Provisional OQ-NNN remains, and passes once Confirmed', () => {
-    const dir = createMultiDomainFixture();
+  it('Phase A-3 (fail-closed OQ): handles escaped pipes, bold/backtick IDs, JP commas, and non-Confirmed statuses', () => {
+    const oqs = parseOpenQuestions(`
+## Open Questions
+| ID | 分類 | 設計した事実・AI 仮決定 | なぜそうしたか | 人が判断する問い | 状態 | 影響タスク |
+|---|---|---|---|---|---|---|
+| **OQ-001** | 不可逆リスク | A \\| B (<old> -> <new>) | 理由 | 問い1 | \`Provisional\` | T-001、\`t-002\` |
+| \`OQ-002\` | 事業判断 | 仮決定2 | 理由2 | 問い2 | 未確定 | T-SQL-01/T-003 |
+| OQ-003 | 事業判断 | 確定済み | 理由3 | 問い3 | Confirmed | T-002 |
+\`\`\`markdown
+| OQ-999 | 事業判断 | コード例は無視 | 理由 | 問い | Provisional | T-002 |
+\`\`\`
+`);
+    assert.equal(oqs.length, 3);
+    assert.equal(oqs[0].id, 'OQ-001');
+    assert.equal(oqs[0].fact, 'A | B (<old> -> <new>)');
+    assert.equal(oqs[0].confirmed, false);
+    assert.deepEqual(oqs[0].impactedTasks, ['T-001', 'T-002']);
 
-    // T-002 is Risk: high and OQ-001 is Provisional -> MUST FAIL
+    assert.equal(oqs[1].id, 'OQ-002');
+    assert.equal(oqs[1].confirmed, false);
+    assert.deepEqual(oqs[1].impactedTasks, ['T-SQL-01', 'T-003']);
+
+    assert.equal(oqs[2].confirmed, true);
+
+    // End-to-end Risk: high gate blocks on non-canonical unresolved status + JP comma, passes once Confirmed
+    const dir = createMultiDomainFixture();
+    const reqPath = path.join(dir, 'specs', 'billing-sync', 'requirements.md');
+    fs.writeFileSync(
+      reqPath,
+      fs
+        .readFileSync(reqPath, 'utf8')
+        .replace('| OQ-001 | 不可逆リスク | 旧列 legacy_total は別タスクまで保持する | expand-contract で無停止切替するため | 旧列の削除時期を次スプリント以降にしてよいか？ | Provisional | T-002 |',
+          '| **OQ-001** | 不可逆リスク | A \\| B | expand-contract | 許容するか？ | 未確定 | T-001、`t-002` |')
+        .replace('- （初期版のため変更なし）', '- 2026-11-21: OQ 書式テスト'),
+      'utf8',
+    );
+
     const blocked = runSddGate({
       feature: 'billing-sync',
       taskId: 'T-002',
@@ -181,30 +267,12 @@ describe('Software Factory v2.x (SQL + AWS + Azure + Software SDLC)', () => {
     assert.equal(blocked.result.checks.openQuestions.passed, false);
     assert.deepEqual(blocked.result.checks.openQuestions.provisionalIds, ['OQ-001']);
 
-    // T-001 is Risk: standard (not impacted by OQ-001) -> PASSES and records factory-metrics.jsonl
-    const standardPass = runSddGate({
-      feature: 'billing-sync',
-      taskId: 'T-001',
-      projectRoot: dir,
-      changedFiles: ['src/billing.js'],
-      commands: [{ label: 'ok', command: 'node -e "process.exit(0)"' }],
-    });
-    assert.equal(standardPass.result.verdict, 'PASS');
-    const metricsPath = path.join(dir, '.sdd', 'factory-metrics.jsonl');
-    assert.equal(fs.existsSync(metricsPath), true);
-    const lines = fs.readFileSync(metricsPath, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-    assert.equal(lines.length, 2);
-    assert.equal(lines[1].taskId, 'T-001');
-    assert.equal(lines[1].verdict, 'PASS');
-
-    // Confirm OQ-001 in requirements.md (+ Spec Amendment) -> T-002 PASSES
-    const reqPath = path.join(dir, 'specs', 'billing-sync', 'requirements.md');
-    const updatedReq = fs
-      .readFileSync(reqPath, 'utf8')
-      .replace('| Provisional | T-002 |', '| Confirmed | T-002 |')
-      .replace('- （初期版のため変更なし）', '- 2026-11-21: 人間が OQ-001 を Confirmed に確定');
-    fs.writeFileSync(reqPath, updatedReq, 'utf8');
-
+    // Confirm OQ-001 -> T-002 PASSES and records telemetry including skip flags
+    fs.writeFileSync(
+      reqPath,
+      fs.readFileSync(reqPath, 'utf8').replace('| 未確定 |', '| Confirmed |'),
+      'utf8',
+    );
     const passed = runSddGate({
       feature: 'billing-sync',
       taskId: 'T-002',
@@ -213,64 +281,174 @@ describe('Software Factory v2.x (SQL + AWS + Azure + Software SDLC)', () => {
       commands: [{ label: 'ok', command: 'node -e "process.exit(0)"' }],
     });
     assert.equal(passed.result.verdict, 'PASS');
-    assert.equal(passed.result.checks.openQuestions.passed, true);
+    const metrics = fs
+      .readFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l));
+    assert.equal(metrics.at(-1).sensorsSkipped, false);
+    assert.equal(metrics.at(-1).driftSkipped, false);
   });
 
-  it('Phase B-1: check-traceability.mjs verifies REQ->AC->Task completeness and computes minimal follow-up impact', () => {
+  it('Phase B-1: check-traceability.mjs propagates transitive Blockers, ignores Spec Amendments, and matches Scopes accurately', () => {
     const dir = createMultiDomainFixture();
-    const report = analyzeTraceability({
+
+    // Spec Amendments note mentioning AC-999 & PostgreSQL must NOT leak into T-003!
+    const baseReport = analyzeTraceability({ feature: 'billing-sync', projectRoot: dir, changedIds: ['REQ-001'] });
+    assert.equal(baseReport.complete, true);
+    assert.deepEqual(baseReport.gaps.brokenAcRefs, []);
+    const t3 = baseReport.tasks.find((t) => t.id === 'T-003');
+    assert.equal(t3.acRefs.includes('AC-999'), false);
+    assert.equal(t3.domains.includes('SQL'), false);
+
+    // Transitive Blockers propagation: REQ-001 -> T-001 (direct) -> T-003 (transitive via Blockers: T-001)!
+    assert.deepEqual(baseReport.impact.directImpactedTasks, ['T-001']);
+    assert.deepEqual(baseReport.impact.transitiveImpactedTasks, ['T-003']);
+    assert.deepEqual(baseReport.impact.impactedTasks, ['T-001', 'T-003']);
+    assert.deepEqual(baseReport.impact.reusableTasks, ['T-002']);
+
+    // Scope glob & boundary accuracy (no substring false positives!)
+    assert.equal(scopeMatchesFile('db/migrations/V*.sql', './db/migrations/V002__add_amount_cents.sql'), true);
+    assert.equal(scopeMatchesFile('src/bill/*', 'src/billing-v2/other.ts'), false);
+    assert.equal(scopeMatchesFile('src/billing.js', 'src/billing.jsx'), false);
+    assert.equal(scopeMatchesFile('src/index.ts', 'index.ts'), false);
+
+    const fileImpact = analyzeTraceability({
       feature: 'billing-sync',
       projectRoot: dir,
-      changedIds: ['REQ-002'],
+      changedFiles: ['./db/migrations/V002__add_amount_cents.sql'],
     });
-    assert.equal(report.complete, true);
-    assert.deepEqual(report.gaps.orphanReqs, []);
-    assert.deepEqual(report.gaps.unassignedAcs, []);
-    // Only T-002 (SQL) is impacted by REQ-002; T-001 (Software) and T-003 (AWS) are reusable!
-    assert.deepEqual(report.impact.impactedTasks, ['T-002']);
-    assert.deepEqual(report.impact.reusableTasks, ['T-001', 'T-003']);
+    assert.deepEqual(fileImpact.impact.impactedTasks, ['T-002']);
+    assert.deepEqual(fileImpact.impact.reusableTasks, ['T-001', 'T-003']);
 
-    const md = formatTraceabilityMarkdown(report);
-    assert.match(md, /COMPLETE/);
-    assert.match(md, /Impacted Tasks \(re-run\)\*\*: T-002/);
-    assert.match(md, /Reusable Tasks \(skip\)\*\*: T-001, T-003/);
+    const md = formatTraceabilityMarkdown(baseReport);
+    assert.match(md, /Impacted Tasks \(re-run\)\*\*: T-001, T-003/);
+    assert.match(md, /Transitive \(via Blockers\): T-003/);
+
+    // CLI exit code 2 on missing feature (distinct from --strict exit 1)
+    const errRes = spawnSync(process.execPath, [TRACE_CLI, '--feature', 'no-such-feature', '--root', dir], {
+      encoding: 'utf8',
+    });
+    assert.equal(errRes.status, 2);
   });
 
-  it('Phase B-2: run-sdd-gate.mjs non-functional static sensors catch destructive SQL, wildcard IAM, and hardcoded secrets', () => {
+  it('Phase B-2: SQL & Cloud IaC sensors catch multiline/untracked real-world issues without comment false positives', () => {
     const dir = createMultiDomainFixture();
+    // Initialize git repo so we also verify discoverChangedFiles picks up NEW UNTRACKED files!
+    execFileSync('git', ['init', '-q'], { cwd: dir });
+    execFileSync('git', ['config', 'user.email', 'test@example.invalid'], { cwd: dir });
+    execFileSync('git', ['config', 'user.name', 'Test'], { cwd: dir });
+    execFileSync('git', ['add', '.'], { cwd: dir });
+    execFileSync('git', ['commit', '-qm', 'initial'], { cwd: dir });
 
-    // Inject destructive SQL, wildcard IAM, and hardcoded AWS key
-    fs.writeFileSync(path.join(dir, 'db', 'migrations', 'V002__add_amount_cents.sql'), 'DROP TABLE invoices;\nDELETE FROM audit_log;\n', 'utf8');
-    fs.writeFileSync(path.join(dir, 'infra', 'aws', 'billing-alarm.ts'), 'export const policy = { "Action": "*", cidr: "0.0.0.0/0 port 22" };\n', 'utf8');
-    fs.writeFileSync(path.join(dir, 'src', 'billing.js'), 'export const key = "AKIAIOSFODNN7EXAMPLE";\n', 'utf8');
-
-    const res = runSddGate({
+    // 1. Safe SQL with cautionary comment + per-statement allow marker + benign egress comment -> PASS!
+    fs.writeFileSync(
+      path.join(dir, 'db', 'migrations', 'V003__safe.sql'),
+      `-- Do not DROP TABLE users without review
+-- sdd-allow-destructive
+DROP TABLE temp_staging;
+UPDATE invoices
+SET status = 'paid'
+WHERE id = 42;
+`,
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(dir, 'infra', 'aws', 'safe.tf'),
+      `egress {
+  from_port   = 443
+  to_port     = 443
+  cidr_blocks = ["0.0.0.0/0"] # ticket #2022
+}
+`,
+      'utf8',
+    );
+    const safeRes = runSddGate({
       feature: 'billing-sync',
       taskId: 'T-001',
       projectRoot: dir,
-      changedFiles: [
-        'db/migrations/V002__add_amount_cents.sql',
-        'infra/aws/billing-alarm.ts',
-        'src/billing.js',
-      ],
       commands: [{ label: 'ok', command: 'node -e "process.exit(0)"' }],
     });
-    assert.equal(res.result.verdict, 'FAIL');
-    assert.equal(res.result.checks.nonFunctionalSensors.passed, false);
-    const rules = new Set(res.result.checks.nonFunctionalSensors.findings.map((f) => f.rule));
-    assert.ok(rules.has('SQL_DESTRUCTIVE_DDL'));
-    assert.ok(rules.has('SQL_UNGUARDED_DELETE_OR_UPDATE'));
-    assert.ok(rules.has('CLOUD_WILDCARD_IAM'));
-    assert.ok(rules.has('CLOUD_OPEN_ADMIN_PORT'));
-    assert.ok(rules.has('SECRET_AWS_KEY'));
+    assert.equal(safeRes.result.verdict, 'PASS', JSON.stringify(safeRes.result.checks.nonFunctionalSensors, null, 2));
+
+    // 2. New UNTRACKED files with multiline SQL bypass, second unapproved DROP, multiline Terraform ingress/IAM, and leaked AWS key -> FAIL!
+    fs.writeFileSync(
+      path.join(dir, 'db', 'migrations', 'V004__bad.sql'),
+      `-- sdd-allow-destructive
+DROP TABLE temp_ok;
+DROP DATABASE production_db;
+TRUNCATE audit_log;
+UPDATE invoices
+SET status = 'void';
+`,
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(dir, 'infra', 'aws', 'bad.tf'),
+      `resource "aws_security_group" "ssh" {
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_iam_policy" "wide" {
+  actions = ["s3:GetObject", "*"]
+}
+`,
+      'utf8',
+    );
+    fs.writeFileSync(path.join(dir, 'src', 'leaked.js'), 'export const k = "AKIAIOSFODNN7EXAMPLE";\n', 'utf8');
+
+    // Note: NO explicit changedFiles passed — must discover new untracked files automatically!
+    const badRes = runSddGate({
+      feature: 'billing-sync',
+      taskId: 'T-001',
+      projectRoot: dir,
+      commands: [{ label: 'ok', command: 'node -e "process.exit(0)"' }],
+    });
+    assert.equal(badRes.result.verdict, 'FAIL');
+    const findings = badRes.result.checks.nonFunctionalSensors.findings;
+    const rules = new Set(findings.map((f) => f.rule));
+    assert.ok(rules.has('SQL_DESTRUCTIVE_DDL'), 'second unapproved DROP DATABASE & TRUNCATE must be caught');
+    assert.ok(rules.has('SQL_UNGUARDED_DELETE_OR_UPDATE'), 'multiline UPDATE without WHERE must be caught');
+    assert.ok(rules.has('CLOUD_OPEN_ADMIN_PORT'), 'multiline Terraform port 22 ingress must be caught');
+    assert.ok(rules.has('CLOUD_WILDCARD_IAM'), 'Terraform actions = [...] wildcard must be caught');
+    assert.ok(rules.has('SECRET_AWS_KEY'), 'untracked leaked.js AWS key must be caught');
+
+    // Verify --skip-sensors CLI flag works cleanly and logs sensorsSkipped: true
+    const skipCli = spawnSync(
+      process.execPath,
+      [GATE_CLI, '--feature', 'billing-sync', '--task', 'T-001', '--root', dir, '--skip-sensors', '--cmd', 'ok=node -e "process.exit(0)"'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(skipCli.status, 0, skipCli.stderr);
   });
 
-  it('Phase C: sdd-doctor.mjs warns when 2-layer knowledge INDEX exceeds 3,000 characters', () => {
+  it('Phase C: sdd-doctor.mjs walks nested sdd/knowledge/**/INDEX.md with CRLF-normalized 3,000-char limit', () => {
     const dir = createMultiDomainFixture();
-    fs.mkdirSync(path.join(dir, 'sdd', 'knowledge', 'common'), { recursive: true });
-    fs.writeFileSync(path.join(dir, 'sdd', 'knowledge', 'common', 'INDEX.md'), `# Index\n${'x'.repeat(3100)}\n`, 'utf8');
+    fs.mkdirSync(path.join(dir, 'sdd', 'knowledge', 'sql'), { recursive: true });
+    // Exactly 2,995 LF chars with CRLF line endings -> must NOT falsely warn on Windows!
+    const nearLimit = `${'a'.repeat(50)}\r\n`.repeat(58);
+    fs.writeFileSync(path.join(dir, 'sdd', 'knowledge', 'sql', 'INDEX.md'), nearLimit, 'utf8');
+    let report = runDoctor({ root: dir });
+    assert.equal(report.findings.some((f) => f.category === 'knowledge'), false);
 
-    const report = runDoctor({ root: dir });
-    assert.ok(report.findings.some((f) => f.severity === 'WARN' && f.category === 'knowledge' && /3000/.test(f.message)));
+    // Over 3,000 normalized chars in nested domain folder -> MUST WARN!
+    fs.writeFileSync(path.join(dir, 'sdd', 'knowledge', 'sql', 'INDEX.md'), `# SQL Index\n${'x'.repeat(3050)}\n`, 'utf8');
+    report = runDoctor({ root: dir });
+    assert.ok(report.findings.some((f) => f.severity === 'WARN' && f.category === 'knowledge' && /sdd\/knowledge\/sql\/INDEX\.md/.test(f.path)));
+  });
+
+  it('parseAlternativesRejected skips aligned separators and handles escaped pipes', () => {
+    const alts = parseAlternativesRejected(`
+## 採らなかった設計（Alternatives Rejected）
+| 候補案 | 不採用理由 | 再検討条件 |
+| :--- | :---: | ---: |
+| 案 A \\| B | コスト高 | 予算増 |
+| <placeholder> | ignored | ignored |
+`);
+    assert.equal(alts.length, 1);
+    assert.equal(alts[0].option, '案 A | B');
   });
 });

@@ -46,13 +46,13 @@ node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.
 - 単一タスク（`#T-NNN` 指定）→ `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN`
 - 複数タスク → `/sdd-implementation:implement-tasks specs/<feature>/tasks.md`（`### Blockers` の依存順・独立タスク並列で実行）
 - 中断後の再実行時は `Implementation Complete` / `Done` 済みタスクをスキップして再開する。
-- 仕様変更（`AMENDED`）によるフォローアップ時は `check-traceability.mjs --changed-ids <REQ/AC>` で影響タスクのみを抽出し、未影響の完了タスクを再利用する。
+- 仕様変更（`AMENDED`）によるフォローアップ時は `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs --feature <feature> --changed-ids <REQ/AC>` で影響タスク（`### Blockers` の推移的依存を含む）のみを抽出し、未影響の完了タスクを再利用する。
 - 実装中に仕様変更が必要になった場合は本文を無断修正せず、ユーザーと合意のうえ `## Spec Amendments` に理由を追記してから反映する。
 
 ### Step 4 — 品質ゲート（`sdd-gate`）
 対象タスクが `Status: Implementation Complete` に到達したら、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）:
 - `PASS`: `reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`Status: Done` へ遷移。
-- `FAIL`: 失敗理由（テスト失敗 / プレースホルダー / `UNDECLARED_DRIFT` / 独立レビュー指摘）を報告して停止（`Status` は `Implementation Complete` のまま保持）。
+- `FAIL`: 失敗理由（テスト失敗 / プレースホルダー / 非機能センサー違反 / 未確定 `OQ-NNN` / `UNDECLARED_DRIFT` / 独立レビュー指摘）を報告して停止（`Status` は `Implementation Complete` のまま保持）。
 
 ## Handoff
 

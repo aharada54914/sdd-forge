@@ -496,16 +496,19 @@ function checkDriftEvents(root, findings) {
 
 function checkKnowledgeIndexes(root, findings) {
   const MAX_INDEX_CHARS = 3000;
-  const candidates = [
-    'sdd/knowledge/INDEX.md',
-    'sdd/knowledge/common/INDEX.md',
-    'sdd/knowledge/product/INDEX.md',
-  ];
-  for (const rel of candidates) {
-    const abs = path.join(root, rel);
-    if (!fs.existsSync(abs)) continue;
-    const len = fs.readFileSync(abs, 'utf8').length;
+  const knowledgeRoot = path.join(root, 'sdd', 'knowledge');
+  const indexFiles = walkFiles(knowledgeRoot, (_full, name) => name.toUpperCase() === 'INDEX.MD');
+  for (const abs of indexFiles) {
+    let raw;
+    try {
+      if (!fs.statSync(abs).isFile()) continue;
+      raw = fs.readFileSync(abs, 'utf8');
+    } catch {
+      continue;
+    }
+    const len = normalizeNewlines(raw).length;
     if (len > MAX_INDEX_CHARS) {
+      const rel = toPosixPath(path.relative(root, abs));
       addFinding(
         findings,
         'WARN',
