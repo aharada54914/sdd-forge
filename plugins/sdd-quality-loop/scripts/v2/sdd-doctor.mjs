@@ -494,6 +494,30 @@ function checkDriftEvents(root, findings) {
   );
 }
 
+function checkKnowledgeIndexes(root, findings) {
+  const MAX_INDEX_CHARS = 3000;
+  const candidates = [
+    'sdd/knowledge/INDEX.md',
+    'sdd/knowledge/common/INDEX.md',
+    'sdd/knowledge/product/INDEX.md',
+  ];
+  for (const rel of candidates) {
+    const abs = path.join(root, rel);
+    if (!fs.existsSync(abs)) continue;
+    const len = fs.readFileSync(abs, 'utf8').length;
+    if (len > MAX_INDEX_CHARS) {
+      addFinding(
+        findings,
+        'WARN',
+        'knowledge',
+        `ナレッジ索引が ${len} 文字あり目安上限（${MAX_INDEX_CHARS} 文字）を超過しています（コンテキスト圧迫リスク）`,
+        rel,
+        '詳細は個別ファイルへ分割し、INDEX は 3,000 字以内のリンク集に保ってください',
+      );
+    }
+  }
+}
+
 export function runDoctor(options = {}) {
   const root = safeRealpath(options.root || findProjectRoot());
   const staleDays = Number.isFinite(options.staleDays) ? options.staleDays : 14;
@@ -506,6 +530,7 @@ export function runDoctor(options = {}) {
   checkSkills(root, findings);
   checkEncodingAndControlChars(root, findings);
   checkSpecsAndTasks(root, staleDays, findings);
+  checkKnowledgeIndexes(root, findings);
   checkDriftEvents(root, findings);
 
   const summary = {
