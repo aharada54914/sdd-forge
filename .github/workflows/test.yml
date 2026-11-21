@@ -35,7 +35,7 @@ jobs:
           node-version: "20"
 
       - name: Run v2 Lightweight Guardrails & SDD Core tests
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs
 
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'
@@ -78,10 +78,36 @@ jobs:
           npx tsc --noEmit
           npm test
 
+  cloud-and-ddd:
+    name: cloud-and-ddd (ubuntu-latest / JST)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TZ: Asia/Tokyo
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Cloud Orchestration test suites (non-UTC timezone)
+        run: |
+          python3 tests/cloud-orchestration-contracts.tests.py
+          python3 tests/cloud-orchestration-routing.tests.py
+          python3 tests/cloud-orchestration-execution.tests.py
+          python3 tests/cloud-orchestration-verification.tests.py
+
+      - name: Run DDD Concept-Test suite
+        run: python3 tests/concept-test.tests.py
+
   required-checks:
     name: required-checks
     runs-on: ubuntu-latest
-    needs: [v2-guardrails, mcp-tests]
+    needs: [v2-guardrails, mcp-tests, cloud-and-ddd]
     timeout-minutes: 5
     steps:
       - name: Confirm all v2 required checks passed

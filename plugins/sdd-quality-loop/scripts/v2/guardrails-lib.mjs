@@ -35,6 +35,7 @@ const VALID_RISK_TIERS = new Set(['low', 'standard', 'high']);
 
 const APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
 const SECOND_APPROVAL_RE = /(?:^|\n)[ \t]*Second Approval:[ \t]*Approved\b/g;
+const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approved\b/g;
 const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 const IDENTIFIER_LINE_RE =
@@ -303,6 +304,11 @@ export function countPrimaryApprovals(text) {
   const primary = (normalized.match(APPROVAL_LINE_RE) || []).length;
   const second = (normalized.match(SECOND_APPROVAL_RE) || []).length;
   return Math.max(0, primary - second);
+}
+
+export function countDomainModelApprovals(text) {
+  if (!text) return 0;
+  return (normalizeNewlines(text).match(DOMAIN_MODEL_APPROVAL_RE) || []).length;
 }
 
 export function isFeatureApproved(projectRoot, feature) {

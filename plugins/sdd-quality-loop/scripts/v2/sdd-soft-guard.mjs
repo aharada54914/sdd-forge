@@ -22,6 +22,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
   appendDriftEvent,
+  countDomainModelApprovals,
   countPrimaryApprovals,
   findProjectRoot,
   isFeatureApproved,
@@ -53,6 +54,10 @@ const KILL_MSG =
 const APPROVAL_MSG =
   "SDD ソフトガード: エージェントは tasks.md の 'Approval: Approved' を増やせません。承認は人間が直接行ってください。\n" +
   "[EN] SDD soft guard: agents cannot add 'Approval: Approved' in tasks.md. Only a human may approve tasks.";
+
+const DOMAIN_APPROVAL_MSG =
+  "SDD ソフトガード: エージェントは domain/context-map.md の 'Domain-Model-Status: Approved' を増やせません。ドメインモデルの承認は人間が直接行ってください。\n" +
+  "[EN] SDD soft guard: agents cannot add 'Domain-Model-Status: Approved' in domain/context-map.md. Only a human may approve the domain model.";
 
 function buildSpecGuardMessage(mode, relPath, feature) {
   if (mode === 'strict') {
@@ -228,6 +233,7 @@ function applyPatchSectionToContent(oldContent, section) {
 function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldSnippet, fallbackNewSnippet, projectRoot, config, cwd, env }) {
   const normalizedTarget = toPosixPath(filePath);
   const isTasksMd = normalizedTarget.toLowerCase().endsWith('tasks.md');
+  const isDomainContextMap = normalizedTarget.toLowerCase().endsWith('domain/context-map.md');
 
   // Check 2: Approval guard (never allow net increase of Approval: Approved in tasks.md)
   if (isTasksMd) {
@@ -235,6 +241,17 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
     const afterCount = newContent !== null ? countPrimaryApprovals(newContent) : countPrimaryApprovals(fallbackNewSnippet);
     if (afterCount > beforeCount) {
       return { decision: 'deny', reason: APPROVAL_MSG, warning: null };
+    }
+  }
+
+  // Check 2b: DDD domain-model approval guard (human-only Domain-Model-Status: Approved)
+  if (isDomainContextMap) {
+    const beforeCount =
+      newContent !== null ? countDomainModelApprovals(oldContent) : countDomainModelApprovals(fallbackOldSnippet);
+    const afterCount =
+      newContent !== null ? countDomainModelApprovals(newContent) : countDomainModelApprovals(fallbackNewSnippet);
+    if (afterCount > beforeCount) {
+      return { decision: 'deny', reason: DOMAIN_APPROVAL_MSG, warning: null };
     }
   }
 

@@ -21,7 +21,7 @@ user-invocable: false
 1. **要件整理と既存コード調査**:
    - 出典（Issue / 要件テキスト / `investigation.md` / `reports/diagnosis/*.md`）と関連コードを確認する。
    - 重要な設計分岐や曖昧な要件は推測せず、2〜3 案の比較表と推奨案を提示して人間へ確認する（未決事項は `Open Questions` に残す）。
-   - `design-system/`・`domain/` が存在する場合のみ既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
+   - `domain/` がプロジェクトルートに存在する場合のみ、`concept-test` および `domain-sync` で承認済みコンテキスト・用語を同期する（`domain/` 不在時は `domain-sync skipped: no domain/ directory` としてオーバーヘッドゼロでスキップ）。`design-system/` が存在する場合も既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
 
 2. **タスク単位のリスク判定（`Risk: low | standard | high`）**:
    - `--risk` 指定があればそれを優先（`--lite` → `low`、`--full` → `high`）。

@@ -336,4 +336,32 @@ describe('sdd-soft-guard.mjs (v2 Lightweight Guardrails)', () => {
     assert.equal(res.status, 2);
     assert.match(res.stderr, /confirm/);
   });
+
+  it('Issue #785: denies agent self-approval of Domain-Model-Status: Approved in domain/context-map.md', () => {
+    const repo = createTempRepo({ approved: false });
+    fs.mkdirSync(path.join(repo, 'domain'), { recursive: true });
+    const cmPath = path.join(repo, 'domain', 'context-map.md');
+    fs.writeFileSync(cmPath, '# Context Map\n\nDomain-Model-Status: Pending\n', 'utf8');
+
+    const denyApprove = runGuard(repo, {
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: cmPath,
+        old_string: 'Domain-Model-Status: Pending',
+        new_string: 'Domain-Model-Status: Approved',
+      },
+    });
+    assert.equal(denyApprove.status, 2);
+    assert.match(denyApprove.stderr, /Domain-Model-Status: Approved/);
+
+    const allowReviewed = runGuard(repo, {
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: cmPath,
+        old_string: 'Domain-Model-Status: Pending',
+        new_string: 'Domain-Model-Status: Reviewed',
+      },
+    });
+    assert.equal(allowReviewed.status, 0);
+  });
 });

@@ -3648,8 +3648,9 @@ class ProfileSavedConsumers(unittest.TestCase):
             mutated = dict(profile, required_check_ids=[c for c in profile["required_check_ids"] if c != cid])
             with self.subTest(check=cid), self.assertRaisesRegex(ValueError, "PROFILE_CHECK_SET_MISMATCH"):
                 v.protected_selection(mutated, dict(backup_required=True))
-        guard = json.loads((SHARED.parent / "references/guard-invariants.json").read_bytes())
-        self.assertIn(registry.relative_to(ROOT).as_posix(), guard["protected_gate_suffixes"])
+        codeowners = (ROOT / "CODEOWNERS").read_text(encoding="utf-8")
+        self.assertIn("/plugins/sdd-quality-loop/references/", codeowners)
+        self.assertTrue(registry.relative_to(ROOT).as_posix().startswith("plugins/sdd-quality-loop/references/"))
         for name in ("selected-verification-plan.schema.json", "selected-verification-plan-v2.schema.json", "verification-contract-v3.schema.json", "cloud-verification-registry.schema.json", "capability-registry.schema.json", "capability-registry.json"):
             self.assertEqual((ROOT / "contracts" / name).read_bytes(), (SHARED.parent / "contracts" / name).read_bytes())
 
