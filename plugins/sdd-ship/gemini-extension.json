@@ -1,6 +1,6 @@
 {
   "name": "sdd-ship",
-  "version": "1.26.0",
+  "version": "2.0.0",
   "description": "Implement approved SDD tasks through deterministic quality gates to Done and inspect read-only status dashboards in Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }

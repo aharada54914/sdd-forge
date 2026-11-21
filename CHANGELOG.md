@@ -1,5 +1,37 @@
 # Changelog
 
+## v2.0.0 (2026-11-21)
+
+### Breaking Changes
+
+- **SDD Full / SDD Lite の 2 トラック制を廃止し、単一トラック `SDD Core` へ統合（[ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md)）**:
+  - 廃止プラグイン・スキル: `sdd-lite` プラグイン、3 連レビューループ（`spec-review-loop` / `impl-review-loop` / `task-review-loop`）、`sdd-sudo`、`cross-model-verify`。
+  - 廃止ガード機構: 4 言語ハードロックフック（`sdd-hook-guard.{py,js,ps1,sh}`）、224 ファイルロック（`guard-invariants.json`）、カナリアハンドシェイク（`check-hook-activation-handshake`）、外部署名鍵（`~/.sdd/sudo-key`, `~/.sdd/evidence-key`）、ADR-0023 `ERROR_STOP` 契約。
+  - 設定移行: 従来の `project-context.yaml` + `spec_profile: full|lite` に代わり、`sdd/guardrails.yaml`（[`contracts/guardrails.schema.json`](contracts/guardrails.schema.json) / [`sdd/guardrails.example.yaml`](sdd/guardrails.example.yaml)）を使用します（不在時は安全な既定値 `mode: confirm` で動作）。
+  - 前提ランタイムを **Node.js >= 20 LTS** に統一（v1 系の `Node >= 26.13.0` / `Claude >= 2.1.295` 強制ゲートを撤廃）。
+
+### Added
+
+- **3 層軽量ガードレール（Lightweight Guardrails — "Local Soft, Boundary Firm"）**:
+  - **Layer 1（`plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs`）**: 依存ゼロ Node.js ESM 単一実装で 4 ホスト（Claude Code / Codex CLI / Copilot CLI / Gemini CLI）に対応。`AGENT_STOP` 緊急停止、`tasks.md` の `Approval: Approved` 自己追加抑止、`domain/context-map.md` の `Domain-Model-Status: Approved` 自己承認抑止、承認済み仕様本文の編集検知（`warn | confirm | strict`、既定 `confirm`）を担当。`Bash` / `shell` / `run_shell_command` / 読み取り系ツールは一切ブロックしません。
+  - **Layer 2（`record-spec-baseline.mjs` / `check-spec-drift.mjs` / `run-sdd-gate.mjs`）**: 外部鍵不要の SHA-256 仕様ベースライン（`specs/<feature>/.spec-baseline.json`）と `REQ-*` / `AC-*` 構造ドリフト検知（`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT`）および統合完了ゲート `sdd-gate`。
+  - **Layer 3（`.github/workflows/sdd-guardrails.yml` + `CODEOWNERS`）**: PR 境界での自動テスト・Spec Drift 検証と仕様／ガード変更への人間レビュー強制。
+- **単一トラック `SDD Core`（リスクレベル `low` / `standard` / `high` による伸縮）**:
+  - 3 ファイル中核仕様テンプレート（`requirements.md`・`design.md`（`Alternatives Rejected` テーブル付き）・`tasks.md`）。
+  - リスク連動の着工前 1 パスチェック `spec-check`（`low`: 自動スキップ、`standard`: 1 体統合チェック、`high`: 仕様/AC＋設計/セキュリティ 2 視点並列 1 パス）。
+- **読み取り専用診断 CLI `sdd-doctor.mjs` & Non-checks 境界（#784）**:
+  - ランタイム・`AGENT_STOP`・`guardrails.yaml`・フック JSON・スキル description 1,024 文字上限・制御文字破損・PS5.1 BOM・未ベースライン承認仕様・ネストされた `sdd/knowledge/**/INDEX.md`（3,000 文字上限）を診断し、明示的な `Non-checks` 境界を表示。
+  - ルール／ナレッジ優先レトロスペクティブ（`workflow-retrospective`）と `sdd/rejected-decisions.md` 追跡。
+- **Software Factory コア（Software / SQL / AWS / Azure SDLC 横断、#792）**:
+  - 構造化 `OQ-NNN`（4 分類＋`Provisional` / `Confirmed`、`Risk: high` での未確定 OQ fail-closed ブロック）と `render-decision-view.mjs`（Markdown / HTML の Fact・Reason・Question ビュー生成）。
+  - `check-traceability.mjs` による `REQ -> AC -> Task` 追跡・推移的 `Blockers` 影響分析・`--changed-ids` / `--changed-files` 差分影響解析。
+  - `run-sdd-gate.mjs` への非機能静的センサー統合（SQL 破壊的 DDL・WHERE なし UPDATE/DELETE、Cloud IAM ワイルドカード・`0.0.0.0/0` 管理ポート開放、ハードコードシークレット）および `.sdd/factory-metrics.jsonl` テレメトリ。
+
+### Fixed
+
+- **Windows コンソールでの `SessionStart` UTF-8 出力修正（#789）**: `plugins/sdd-implementation/scripts/session-model-start.py` が Windows の非 UTF-8 標準出力（`cp1252` 等）で日本語ガイダンス出力時に `UnicodeEncodeError` を起こし無出力になる不具合を `sys.stdout.buffer` 直接 UTF-8 出力へ修正（`PYTHONIOENCODING=ascii` での 3-AI 回帰テスト追加）。
+- **Cloud / DDD / CI 整合性改善（#784, #789, #792）**: 非 UTC タイムゾーン（JST）での Cloud メトリクスクエリ不変性修正、全 8 プラグイン・両 `marketplace.json`・`release.yml`・`bump-version.sh` の `v2.0.0` 統一。
+
 ## v1.26.0 (2026-11-21)
 
 ### Added

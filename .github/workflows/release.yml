@@ -127,23 +127,68 @@ jobs:
           ref: ${{ needs.ci-green.outputs.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Set up Node.js 26
+      - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "26.13.0"
+          node-version: "20"
       - name: Verify loop checkout
         env:
           RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
-      - name: Validate release source
+      - name: Run SDD Forge v2 deterministic release suites
         shell: bash
-        run: bash ./tests/validate-repository.sh
-      - name: Test loop consistency suite
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs
+      - name: Run sdd-doctor health check and POSIX installer checks
         shell: bash
-        run: bash ./tests/loop-consistency.tests.sh
-      - name: Test loop inventory suite
+        run: |
+          node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info
+          bash scripts/check-sdd-structure.sh
+          bash -n install.sh && bash -n uninstall.sh
+      - name: Verify release tag matches all plugin manifests and CHANGELOG
         shell: bash
-        run: bash ./tests/loop-inventory.tests.sh
+        env:
+          RELEASE_TAG: ${{ needs.ci-green.outputs.tag }}
+        run: |
+          node - <<'EOF'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const tag = process.env.RELEASE_TAG || '';
+          assert.match(tag, /^v[0-9]+\.[0-9]+\.[0-9]+$/, `Invalid release tag: ${tag}`);
+          const expected = tag.slice(1);
+
+          const readme = fs.readFileSync('README.md', 'utf8');
+          assert.match(readme, new RegExp(`^v${expected.replace(/\./g, '\\.')}[^0-9]`, 'm'), `README.md must declare v${expected}`);
+
+          const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+          assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'), `CHANGELOG.md must contain ## v${expected}`);
+
+          for (const entry of fs.readdirSync('plugins', { withFileTypes: true })) {
+            if (!entry.isDirectory()) continue;
+            const candidates = [
+              path.join('plugins', entry.name, '.claude-plugin/plugin.json'),
+              path.join('plugins', entry.name, '.codex-plugin/plugin.json'),
+              path.join('plugins', entry.name, '.plugin/plugin.json'),
+              path.join('plugins', entry.name, 'gemini-extension.json'),
+              path.join('plugins', entry.name, 'gemini/gemini-extension.json'),
+            ];
+            for (const rel of candidates) {
+              if (!fs.existsSync(rel)) continue;
+              const data = JSON.parse(fs.readFileSync(rel, 'utf8'));
+              assert.equal(data.version, expected, `${rel} version mismatch: ${data.version} != ${expected}`);
+            }
+          }
+          for (const rel of ['.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json']) {
+            const data = JSON.parse(fs.readFileSync(rel, 'utf8'));
+            for (const plugin of data.plugins || []) {
+              if (plugin.version !== undefined) {
+                assert.equal(plugin.version, expected, `${rel} (${plugin.name}) version mismatch: ${plugin.version} != ${expected}`);
+              }
+            }
+          }
+          console.log(`Release version consistency verified for ${tag}.`);
+          EOF
 
   release:
     needs: [ci-green, loop-gate]

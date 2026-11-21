@@ -138,4 +138,43 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
       }
     }
   });
+
+  it('all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version', () => {
+    const shipManifest = JSON.parse(
+      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/.claude-plugin/plugin.json'), 'utf8'),
+    );
+    const expected = shipManifest.version;
+    assert.match(expected, /^[0-9]+\.[0-9]+\.[0-9]+$/);
+
+    const readme = fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8');
+    assert.match(readme, new RegExp(`^v${expected.replace(/\./g, '\\.')}[^0-9]`, 'm'));
+
+    const changelog = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
+    assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'));
+
+    for (const entry of fs.readdirSync(path.join(REPO_ROOT, 'plugins'), { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      for (const suffix of [
+        '.claude-plugin/plugin.json',
+        '.codex-plugin/plugin.json',
+        '.plugin/plugin.json',
+        'gemini-extension.json',
+        'gemini/gemini-extension.json',
+      ]) {
+        const filePath = path.join(REPO_ROOT, 'plugins', entry.name, suffix);
+        if (!fs.existsSync(filePath)) continue;
+        const manifest = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        assert.equal(manifest.version, expected, `${entry.name}/${suffix} version mismatch`);
+      }
+    }
+
+    for (const rel of ['.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json']) {
+      const market = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8'));
+      for (const plugin of market.plugins || []) {
+        if (plugin.version !== undefined) {
+          assert.equal(plugin.version, expected, `${rel} (${plugin.name}) version mismatch`);
+        }
+      }
+    }
+  });
 });
