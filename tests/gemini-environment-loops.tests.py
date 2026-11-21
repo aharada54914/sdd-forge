@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
-"""End-to-end verification for Gemini CLI environment across SDD Forge loops.
+"""Cross-platform end-to-end verification for Gemini CLI & 3-AI cross-operation.
 
-Verifies without fabricating live Gemini CLI binary inference:
+Runs natively on Windows, Linux, and macOS without fabricating live LLM inference:
 - Extension manifests (gemini-extension.json), GEMINI.md, TOML slash commands,
   and BeforeTool hooks/hooks.json for all 9 plugins.
 - install.sh / install.ps1 and uninstall.sh / uninstall.ps1 with --target Gemini
-  including extension linking/unlinking and ~/.gemini/settings.json MCP upsert/remove.
-- model-selection loop on host gemini-cli (session-model-start).
-- bootstrap loop on Gemini (hook activation handshake via real sdd-hook-guard.py
-  --emit gemini, check-sdd-structure.sh, design-sync policy + receipt validator).
-- ship loop on Gemini (BeforeTool blocking self-approval/SDD_SUDO/AGENT_STOP/
-  protected files, plus check-placeholders and check-quality-gate-cycle-limit).
-- ddd (sdd-domain) loop on Gemini (BeforeTool blocking Domain-Model-Status: Approved,
-  validate-domain-contract.sh).
+  (using native .cmd shims on Windows and POSIX sh shims on Linux/macOS)
+  including extension linking/unlinking and SDD_GEMINI_DIR/settings.json MCP upsert/remove.
+- model-selection loop on host gemini-cli and 3-AI hosts (claude-code / codex-cli / gemini-cli).
+- bootstrap / ship / ddd loops on Gemini across Python, Node, and PowerShell guards
+  including Windows backslash paths and native check-hook-activation-handshake.
+- Full 3-AI cross-operation handoff (Claude Code <-> Codex CLI <-> Gemini CLI)
+  enforcing identical safety boundaries on one shared repository workspace.
 """
 
 import json
@@ -28,6 +27,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+IS_WINDOWS = os.name == "nt"
 PLUGINS = [
     "sdd-bootstrap",
     "sdd-ship",
@@ -64,6 +64,8 @@ def _run(cmd, *, cwd=ROOT, env=None, input_text=None):
         env=merged_env,
         input=input_text,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
         check=False,
     )
@@ -105,6 +107,7 @@ def _build_source_fixture(dst: Path) -> None:
     }
     for args in (
         ["git", "init", "-q"],
+        ["git", "config", "core.longpaths", "true"],
         ["git", "config", "gc.auto", "0"],
         ["git", "config", "gc.autoDetach", "false"],
         ["git", "config", "maintenance.auto", "false"],
@@ -123,6 +126,10 @@ def _build_source_fixture(dst: Path) -> None:
         res = _run(args, cwd=dst, env=git_env)
         if res.returncode != 0:
             raise RuntimeError(f"{args} failed: {res.stderr}")
+
+
+def _norm_slash(text: str) -> str:
+    return text.replace("\\", "/")
 
 
 class GeminiPackagingTests(unittest.TestCase):
@@ -179,31 +186,57 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
         cls._tmp_source.cleanup()
 
     def _make_fake_gemini_bin(self, bin_dir: Path, log_path: Path) -> None:
-        gemini = bin_dir / "gemini"
-        gemini.write_text(
-            "#!/bin/sh\n"
-            f'printf "%s\\n" "$*" >> "{log_path}"\n'
-            "exit 0\n",
-            encoding="utf-8",
-        )
-        gemini.chmod(gemini.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        if IS_WINDOWS:
+            gemini = bin_dir / "gemini.cmd"
+            gemini.write_text(
+                "@echo off\r\n"
+                f'echo %*>>"{log_path}"\r\n'
+                "exit /b 0\r\n",
+                encoding="ascii",
+            )
+        else:
+            gemini = bin_dir / "gemini"
+            gemini.write_text(
+                "#!/bin/sh\n"
+                f'printf "%s\\n" "$*" >> "{log_path}"\n'
+                "exit 0\n",
+                encoding="utf-8",
+            )
+            gemini.chmod(gemini.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
     def _make_fake_node_bin(self, bin_dir: Path, version: str = "v26.13.0") -> None:
         real_node = shutil.which("node")
         if not real_node:
             self.skipTest("node not available")
-        node = bin_dir / "node"
-        node.write_text(
-            "#!/bin/sh\n"
-            'if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--version" ]; then\n'
-            f'  printf "%s\\n" "{version}"\n'
-            "  exit 0\n"
-            "fi\n"
-            f'exec "{real_node}" "$@"\n',
-            encoding="utf-8",
-        )
-        node.chmod(node.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        if IS_WINDOWS:
+            node = bin_dir / "node.cmd"
+            node.write_text(
+                "@echo off\r\n"
+                'if "%~1"=="-v" (\r\n'
+                f"  echo {version}\r\n"
+                "  exit /b 0\r\n"
+                ")\r\n"
+                'if "%~1"=="--version" (\r\n'
+                f"  echo {version}\r\n"
+                "  exit /b 0\r\n"
+                ")\r\n"
+                f'"{real_node}" %*\r\n',
+                encoding="ascii",
+            )
+        else:
+            node = bin_dir / "node"
+            node.write_text(
+                "#!/bin/sh\n"
+                'if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--version" ]; then\n'
+                f'  printf "%s\\n" "{version}"\n'
+                "  exit 0\n"
+                "fi\n"
+                f'exec "{real_node}" "$@"\n',
+                encoding="utf-8",
+            )
+            node.chmod(node.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
+    @unittest.skipIf(IS_WINDOWS, "install.sh targets POSIX shells; Windows is verified via install.ps1")
     def test_bash_install_and_uninstall_target_gemini_with_mcp_settings(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -225,7 +258,7 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
             home_dir.mkdir()
 
             env = {
-                "PATH": f"{bin_dir}:{os.environ.get('PATH', '')}",
+                "PATH": f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}",
                 "SDD_GEMINI_DIR": str(gemini_dir),
                 "SDD_CODEX_HOME": str(home_dir / ".codex"),
                 "SDD_CURSOR_DIR": str(home_dir / ".cursor-absent"),
@@ -337,12 +370,15 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
             gemini_dir = root / "gemini-home"
             gemini_dir.mkdir()
             settings_path = gemini_dir / "settings.json"
-            settings_path.write_text(json.dumps({"theme": "Light"}), encoding="utf-8")
+            settings_path.write_text(
+                json.dumps({"theme": "Light", "mcpServers": {"user-custom": {"command": "echo"}}}),
+                encoding="utf-8",
+            )
             home_dir = root / "home"
             home_dir.mkdir()
 
             env = {
-                "PATH": f"{bin_dir}:{os.environ.get('PATH', '')}",
+                "PATH": f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}",
                 "SDD_GEMINI_DIR": str(gemini_dir),
                 "SDD_CODEX_HOME": str(home_dir / ".codex"),
                 "SDD_CURSOR_DIR": str(home_dir / ".cursor-absent"),
@@ -356,13 +392,14 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
             )
             res = _run([pwsh, "-NoProfile", "-Command", install_cmd], env=env)
             self.assertEqual(res.returncode, 0, res.stdout + "\n" + res.stderr)
-            calls = gemini_log.read_text(encoding="utf-8").splitlines()
+            calls = [_norm_slash(line) for line in gemini_log.read_text(encoding="utf-8").splitlines()]
             self.assertTrue(any("sdd-bootstrap" in line for line in calls), calls)
             self.assertTrue(any("sdd-quality-loop/gemini" in line for line in calls), calls)
             self.assertTrue(any("sdd-implementation/gemini" in line for line in calls), calls)
 
             settings = json.loads(settings_path.read_text(encoding="utf-8"))
             self.assertEqual(settings.get("theme"), "Light")
+            self.assertIn("user-custom", settings.get("mcpServers", {}))
             for managed in MANAGED_MCPS:
                 self.assertIn(managed, settings.get("mcpServers", {}))
 
@@ -374,6 +411,7 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
             self.assertEqual(un.returncode, 0, un.stdout + "\n" + un.stderr)
             after_settings = json.loads(settings_path.read_text(encoding="utf-8"))
             self.assertEqual(after_settings.get("theme"), "Light")
+            self.assertIn("user-custom", after_settings.get("mcpServers", {}))
             for managed in MANAGED_MCPS:
                 self.assertNotIn(managed, after_settings.get("mcpServers", {}))
 
@@ -436,8 +474,81 @@ class GeminiLoopBehaviorTests(unittest.TestCase):
             self.assertEqual(verdict["status"], "HOOK_ACTIVE")
             self.assertFalse((work / "sdd" / ".hook-canary-sentinel").exists())
 
+    def test_native_powershell_guard_and_handshake_with_windows_paths(self):
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("pwsh not available")
+        guard_ps1 = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.ps1"
+        guard_py = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
+        guard_js = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.js"
+        handshake_ps1 = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "check-hook-activation-handshake.ps1"
+        node = shutil.which("node")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            (work / "sdd").mkdir()
+
+            # Real PowerShell handshake challenge -> PowerShell guard -> PowerShell verify
+            emit = _run([pwsh, "-NoProfile", "-File", str(handshake_ps1), "--emit-challenge"], cwd=work)
+            self.assertEqual(emit.returncode, 0, emit.stdout + "\n" + emit.stderr)
+            challenge = json.loads(emit.stdout)
+            nonce = challenge["nonce"]
+            gemini_req = challenge["tool_call_template"]["gemini-cli"]
+
+            ps_guard = _run(
+                [pwsh, "-NoProfile", "-File", str(guard_ps1), "-Emit", "gemini"],
+                cwd=work,
+                env={"CLAUDE_PROJECT_DIR": str(work)},
+                input_text=json.dumps(gemini_req),
+            )
+            self.assertEqual(ps_guard.returncode, 0, ps_guard.stdout + "\n" + ps_guard.stderr)
+            ps_decision = json.loads(ps_guard.stdout)
+            self.assertEqual(ps_decision.get("decision"), "deny")
+
+            ev_path = work / "ps-gemini-denial.json"
+            ev_path.write_text(
+                json.dumps({"nonce": nonce, "executed": False, "decision": ps_decision["decision"]}),
+                encoding="utf-8",
+            )
+            verify = _run(
+                [
+                    pwsh,
+                    "-NoProfile",
+                    "-File",
+                    str(handshake_ps1),
+                    "--verify-response",
+                    "--nonce",
+                    nonce,
+                    "--recorded-result",
+                    str(ev_path),
+                    "--runtime",
+                    "gemini-cli",
+                ],
+                cwd=work,
+            )
+            self.assertEqual(verify.returncode, 0, verify.stdout + "\n" + verify.stderr)
+            self.assertEqual(json.loads(verify.stdout)["status"], "HOOK_ACTIVE")
+
+            # Verify Windows backslash paths are denied identically across ps1, py, and js
+            win_payloads = [
+                {"tool_name": "write_file", "tool_input": {"file_path": r"specs\demo\tasks.md", "content": "Approval: Approved"}},
+                {"tool_name": "replace", "tool_input": {"file_path": r"sdd\domain\context-map.md", "new_string": "Domain-Model-Status: Approved"}},
+                {"tool_name": "write_file", "tool_input": {"file_path": r"plugins\sdd-quality-loop\gemini\hooks\hooks.json", "content": "{}"}},
+            ]
+            for payload in win_payloads:
+                raw = json.dumps(payload)
+                r_ps = _run([pwsh, "-NoProfile", "-File", str(guard_ps1), "-Emit", "gemini"], cwd=work, env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=raw)
+                r_py = _run([sys.executable, str(guard_py), "--emit", "gemini"], cwd=work, env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=raw)
+                self.assertEqual(r_ps.returncode, 0, r_ps.stderr)
+                self.assertEqual(r_py.returncode, 0, r_py.stderr)
+                self.assertEqual(json.loads(r_ps.stdout)["decision"], "deny", payload)
+                self.assertEqual(json.loads(r_py.stdout)["decision"], "deny", payload)
+                if node:
+                    r_js = _run([node, str(guard_js), "--emit", "gemini"], cwd=work, env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=raw)
+                    self.assertEqual(r_js.returncode, 0, r_js.stderr)
+                    self.assertEqual(json.loads(r_js.stdout)["decision"], "deny", payload)
+
     def test_bootstrap_structure_and_design_sync_scripts(self):
-        check_struct = ROOT / "plugins" / "sdd-bootstrap" / "scripts" / "check-sdd-structure.sh"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             (work / "AGENTS.md").write_text("# Agents\n", encoding="utf-8")
@@ -449,13 +560,19 @@ class GeminiLoopBehaviorTests(unittest.TestCase):
                 "docs/review-tickets",
             ):
                 (work / rel_dir).mkdir(parents=True, exist_ok=True)
-            res = _run(["bash", str(check_struct)], cwd=work)
+            if IS_WINDOWS:
+                pwsh = shutil.which("pwsh")
+                if not pwsh:
+                    self.skipTest("pwsh not available")
+                check_struct = ROOT / "plugins" / "sdd-bootstrap" / "scripts" / "check-sdd-structure.ps1"
+                res = _run([pwsh, "-NoProfile", "-File", str(check_struct)], cwd=work)
+            else:
+                check_struct = ROOT / "plugins" / "sdd-bootstrap" / "scripts" / "check-sdd-structure.sh"
+                res = _run(["bash", str(check_struct)], cwd=work)
             self.assertEqual(res.returncode, 0, res.stdout + "\n" + res.stderr)
 
     def test_ship_loop_guard_and_gate_scripts(self):
         guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
-        check_placeholders = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "check-placeholders.sh"
-        check_cycle = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "check-quality-gate-cycle-limit.sh"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             (work / "specs" / "demo").mkdir(parents=True)
@@ -489,18 +606,33 @@ class GeminiLoopBehaviorTests(unittest.TestCase):
             self.assertEqual(json.loads(stopped.stdout)["decision"], "deny")
             (work / "AGENT_STOP").unlink()
 
-            # Placeholders check passes on clean fixture
-            ph = _run(["bash", str(check_placeholders), str(work / "specs" / "demo")], cwd=work)
-            self.assertEqual(ph.returncode, 0, ph.stdout + "\n" + ph.stderr)
-
-            # Cycle limit check passes on clean reports dir
             (work / "reports" / "quality-gate" / "demo").mkdir(parents=True)
-            cl = _run(["bash", str(check_cycle), "T-001", "demo"], cwd=work)
+            if IS_WINDOWS:
+                pwsh = shutil.which("pwsh")
+                if not pwsh:
+                    self.skipTest("pwsh not available")
+                ph = _run(
+                    [pwsh, "-NoProfile", "-File", str(ROOT / "plugins/sdd-quality-loop/scripts/check-placeholders.ps1"), str(work / "specs" / "demo")],
+                    cwd=work,
+                )
+                cl = _run(
+                    [pwsh, "-NoProfile", "-File", str(ROOT / "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"), "T-001", "demo"],
+                    cwd=work,
+                )
+            else:
+                ph = _run(
+                    ["bash", str(ROOT / "plugins/sdd-quality-loop/scripts/check-placeholders.sh"), str(work / "specs" / "demo")],
+                    cwd=work,
+                )
+                cl = _run(
+                    ["bash", str(ROOT / "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh"), "T-001", "demo"],
+                    cwd=work,
+                )
+            self.assertEqual(ph.returncode, 0, ph.stdout + "\n" + ph.stderr)
             self.assertEqual(cl.returncode, 0, cl.stdout + "\n" + cl.stderr)
 
     def test_ddd_domain_loop_guard_and_contract_validator(self):
         guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
-        validate_domain = ROOT / "plugins" / "sdd-domain" / "scripts" / "validate-domain-contract.sh"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             res = _run(
@@ -520,8 +652,14 @@ class GeminiLoopBehaviorTests(unittest.TestCase):
             self.assertEqual(res.returncode, 0)
             self.assertEqual(json.loads(res.stdout)["decision"], "deny")
 
-            # Missing domain files fails closed on validate-domain-contract.sh
-            bad = _run(["bash", str(validate_domain)], cwd=work)
+            # Missing domain files fails closed on validate-domain-contract
+            if IS_WINDOWS:
+                pwsh = shutil.which("pwsh")
+                if not pwsh:
+                    self.skipTest("pwsh not available")
+                bad = _run([pwsh, "-NoProfile", "-File", str(ROOT / "plugins/sdd-domain/scripts/validate-domain-contract.ps1")], cwd=work)
+            else:
+                bad = _run(["bash", str(ROOT / "plugins/sdd-domain/scripts/validate-domain-contract.sh")], cwd=work)
             self.assertNotEqual(bad.returncode, 0)
 
     def test_model_selection_loop_for_gemini_cli(self):
@@ -638,6 +776,57 @@ class CrossAiOperationTests(unittest.TestCase):
                 )
                 self.assertEqual(ver.returncode, 0, f"{rt}: {ver.stdout} {ver.stderr}")
                 self.assertEqual(json.loads(ver.stdout)["status"], "HOOK_ACTIVE")
+
+    def test_three_ai_workspace_handoff_bootstrap_to_ship_gates(self):
+        """Simulate cross-AI handoff: Claude/Gemini/Codex sharing one SDD workspace."""
+        guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            spec_dir = work / "specs" / "cross-ai-demo"
+            spec_dir.mkdir(parents=True)
+            (work / "AGENTS.md").write_text("# Agents\n", encoding="utf-8")
+            (spec_dir / "requirements.md").write_text("# Requirements\nReal requirement.\n", encoding="utf-8")
+            tasks_md = spec_dir / "tasks.md"
+            tasks_md.write_text(
+                "# Tasks\n\n## T-001 Cross-AI Handoff\nApproval: Draft\nStatus: Planned\nRisk: low\n",
+                encoding="utf-8",
+            )
+            # None of the 3 AIs may self-approve tasks.md before human approval
+            for mode, tool_payload in (
+                ("exit", {"tool_name": "Edit", "tool_input": {"file_path": "specs/cross-ai-demo/tasks.md", "new_string": "Approval: Approved"}}),
+                ("exit", {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Update File: specs/cross-ai-demo/tasks.md\n+Approval: Approved\n*** End Patch"}}),
+                ("gemini", {"tool_name": "replace", "tool_input": {"file_path": "specs/cross-ai-demo/tasks.md", "new_string": "Approval: Approved"}}),
+            ):
+                res = _run(
+                    [sys.executable, str(guard), "--emit", mode],
+                    cwd=work,
+                    env={"CLAUDE_PROJECT_DIR": str(work)},
+                    input_text=json.dumps(tool_payload),
+                )
+                if mode == "exit":
+                    self.assertEqual(res.returncode, 2)
+                else:
+                    self.assertEqual(json.loads(res.stdout)["decision"], "deny")
+
+            # Human approves tasks.md -> deterministic task-state gate accepts Approved + Planned
+            tasks_md.write_text(
+                "# Tasks\n\n## T-001 Cross-AI Handoff\nApproval: Approved\nStatus: Planned\nRisk: low\n",
+                encoding="utf-8",
+            )
+            if IS_WINDOWS:
+                pwsh = shutil.which("pwsh")
+                if not pwsh:
+                    self.skipTest("pwsh not available")
+                ts = _run(
+                    [pwsh, "-NoProfile", "-File", str(ROOT / "plugins/sdd-quality-loop/scripts/check-task-state.ps1"), str(tasks_md)],
+                    cwd=work,
+                )
+            else:
+                ts = _run(
+                    ["bash", str(ROOT / "plugins/sdd-quality-loop/scripts/check-task-state.sh"), str(tasks_md)],
+                    cwd=work,
+                )
+            self.assertEqual(ts.returncode, 0, ts.stdout + "\n" + ts.stderr)
 
 
 if __name__ == "__main__":

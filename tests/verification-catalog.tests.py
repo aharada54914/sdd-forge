@@ -286,6 +286,31 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(set(result.stdout.splitlines()), set(catalog['profiles']['ci-posix-fallback']))
 
+    def test_parallel_jobs_preserves_deterministic_receipt_order_and_failure(self):
+        (self.root / self.paths[0]).write_text('import sys; print("fail-a"); sys.exit(3)\n')
+        (self.root / self.paths[1]).write_text('print("pass-b")\n')
+        loaded = self.load()
+        receipt, code = V.execute(
+            loaded,
+            self.paths,
+            self.root,
+            'test',
+            jobs=2,
+            weights={self.paths[1]: 100, self.paths[0]: 1},
+        )
+        self.assertEqual(code, 1)
+        self.assertEqual([r['suite'] for r in receipt['results']], self.paths)
+        self.assertEqual([r['status'] for r in receipt['results']], ['failed', 'passed'])
+        self.assertEqual([r['exit_code'] for r in receipt['results']], [3, 0])
+
+        bad = subprocess.run(
+            [sys.executable, str(ROOT / 'tests/verification.py'), '--suite',
+             'tests/verification-impact.tests.py', '--run', '--jobs', '0'],
+            text=True,
+            capture_output=True,
+        )
+        self.assertEqual(bad.returncode, 2)
+
 
 if __name__ == '__main__':
     unittest.main()

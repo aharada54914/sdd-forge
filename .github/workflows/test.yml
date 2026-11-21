@@ -199,6 +199,8 @@ jobs:
           printf 'SDD_TEST_SHARED_STORE_PARENT=%s\n' "$fixture_parent" >> "$GITHUB_ENV"
       - name: Test shared review launch and conditional input contracts
         shell: bash
+        env:
+          SDD_VERIFICATION_JOBS: "4"
         run: |
           python3 tests/verification.py --profile ci-shared-python --run --receipt "$RUNNER_TEMP/verification-shared-python.json"
       - name: Remove private research-store fixture parent
@@ -381,6 +383,11 @@ jobs:
         shell: pwsh
         run: python -B tests/domain-review-finalize.tests.py
 
+      - name: "[deterministic] Test Gemini CLI & 3-AI cross-operation on native platforms"
+        if: needs.ci-plan.outputs.run_test == 'true'
+        shell: pwsh
+        run: python -B tests/gemini-environment-loops.tests.py
+
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
@@ -441,9 +448,12 @@ jobs:
 
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
-      # log already captures their output.
+      # log already captures their output. PowerShell twins that already run
+      # natively on both Ubuntu Linux (pwsh) and Windows (test-windows-heavy)
+      # are scoped off Intel macOS to avoid triple-running slow pwsh work while
+      # preserving full Bash 3.2 macOS coverage and all required receipts.
       - name: "[deterministic] Validate workflow state (PowerShell)"
-        if: needs.ci-plan.outputs.run_test == 'true'
+        if: runner.os != 'macOS' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
 
@@ -468,7 +478,7 @@ jobs:
         run: ./tests/repository-release-validation.tests.sh
 
       - name: "[deterministic] Test deterministic gate scripts"
-        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        if: runner.os == 'Linux' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
@@ -494,12 +504,12 @@ jobs:
           python tests/verification.py --profile ci-portable-prechecks --run --receipt "${{ runner.temp }}/verification-restored-1.json"
 
       - name: "[deterministic] Test task prior-pass receipt (pwsh)"
-        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        if: runner.os == 'Linux' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/task-prior-pass-receipt.tests.ps1
 
       - name: "[deterministic] Test cross-model gate (pwsh)"
-        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        if: runner.os == 'Linux' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
 
@@ -514,7 +524,7 @@ jobs:
         run: bash ./tests/phase2-guard-invariants.tests.sh
 
       - name: "[deterministic] Test hook guards"
-        if: runner.os != 'Windows' && needs.ci-plan.outputs.run_test == 'true'
+        if: runner.os == 'Linux' && needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
@@ -930,7 +940,7 @@ jobs:
         run: bash ./tests/bump-version-gate.tests.sh
 
       - name: Test bump-version.sh loop-gate prerequisite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/bump-version-gate.tests.ps1
 
@@ -941,7 +951,7 @@ jobs:
         run: bash ./tests/release-loop-gate.tests.sh
 
       - name: Test release.yml required loop-gate job (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
 
@@ -953,7 +963,7 @@ jobs:
         run: bash ./tests/model-freshness-check.tests.sh
 
       - name: Test model-freshness-check suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/model-freshness-check.tests.ps1
 
@@ -965,12 +975,12 @@ jobs:
         run: bash ./tests/project-context-schema.tests.sh
 
       - name: Test project-context-schema suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
 
       - name: Test A9 unpublished candidate and Pack (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/a9-dogfood.tests.ps1
 
@@ -982,7 +992,7 @@ jobs:
         run: bash ./tests/approver-registry-schema.tests.sh
 
       - name: Test approver-registry-schema suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/approver-registry-schema.tests.ps1
 
@@ -1001,7 +1011,7 @@ jobs:
         run: bash ./tests/canonicalize-sdd-yaml.tests.sh
 
       - name: Test canonicalize-sdd-yaml suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/canonicalize-sdd-yaml.tests.ps1
 
@@ -1013,7 +1023,7 @@ jobs:
         run: bash ./tests/generate-approval-sidecar.tests.sh
 
       - name: Test generate-approval-sidecar suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/generate-approval-sidecar.tests.ps1
 
@@ -1025,7 +1035,7 @@ jobs:
         run: bash ./tests/detect-policy-weakening.tests.sh
 
       - name: Test detect-policy-weakening suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/detect-policy-weakening.tests.ps1
 
@@ -1037,7 +1047,7 @@ jobs:
         run: bash ./tests/validate-approval-sidecar.tests.sh
 
       - name: Test validate-approval-sidecar suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
@@ -1046,7 +1056,7 @@ jobs:
         shell: bash
         run: bash ./tests/apply-human-copy.tests.sh
       - name: Test apply-human-copy publisher (PowerShell)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/apply-human-copy.tests.ps1
 
@@ -1058,7 +1068,7 @@ jobs:
         run: bash ./tests/check-hook-activation-handshake.tests.sh
 
       - name: Test hook-activation handshake suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/check-hook-activation-handshake.tests.ps1
 
@@ -1070,7 +1080,7 @@ jobs:
         run: bash ./tests/guard-invariants-epic-a1.tests.sh
 
       - name: Test epic-a1 guard-invariants registration (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/guard-invariants-epic-a1.tests.ps1
 
@@ -1097,7 +1107,7 @@ jobs:
         run: bash ./tests/hook-guard-epic-a1-boundary.tests.sh
 
       - name: Test hook-guard epic-a1 write-boundary matrix (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
 
@@ -1113,7 +1123,7 @@ jobs:
         run: bash ./tests/plugin-contracts-track-selection.tests.sh
 
       - name: Test plugin-contracts track-selection contract (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/plugin-contracts-track-selection.tests.ps1
 
@@ -1131,7 +1141,7 @@ jobs:
         run: bash ./tests/ship-track-selection-migration.tests.sh
 
       - name: Test ship track-selection migration (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/ship-track-selection-migration.tests.ps1
 
@@ -1150,7 +1160,7 @@ jobs:
         run: bash ./tests/capability-registry-schema.tests.sh
 
       - name: Test capability-registry-schema suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/capability-registry-schema.tests.ps1
 
@@ -1162,7 +1172,7 @@ jobs:
         run: bash ./tests/evaluate-predicate.tests.sh
 
       - name: Test evaluate-predicate suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/evaluate-predicate.tests.ps1
 
@@ -1174,7 +1184,7 @@ jobs:
         run: bash ./tests/registry-discovery.tests.sh
 
       - name: Test registry-discovery suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/registry-discovery.tests.ps1
 
@@ -1186,7 +1196,7 @@ jobs:
         run: bash ./tests/validate-capability-registry.tests.sh
 
       - name: Test validate-capability-registry suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/validate-capability-registry.tests.ps1
 
@@ -1198,7 +1208,7 @@ jobs:
         run: bash ./tests/generate-registry-digest.tests.sh
 
       - name: Test generate-registry-digest suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/generate-registry-digest.tests.ps1
 
@@ -1210,7 +1220,7 @@ jobs:
         run: bash ./tests/generate-gate-capabilities.tests.sh
 
       - name: Test generate-gate-capabilities suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/generate-gate-capabilities.tests.ps1
 
@@ -1227,7 +1237,7 @@ jobs:
         run: bash ./tests/capability-registry-parity.tests.sh
 
       - name: Test capability-registry-parity suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/capability-registry-parity.tests.ps1
 
@@ -1248,7 +1258,7 @@ jobs:
         run: bash ./tests/component-path-resolver.tests.sh
 
       - name: Test component-path-resolver suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/component-path-resolver.tests.ps1
 
@@ -1260,7 +1270,7 @@ jobs:
         run: bash ./tests/component-path-diff-basis.tests.sh
 
       - name: Test component-path-diff-basis suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/component-path-diff-basis.tests.ps1
 
@@ -1272,7 +1282,7 @@ jobs:
         run: bash ./tests/ownership-digest.tests.sh
 
       - name: Test ownership-digest suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/ownership-digest.tests.ps1
 
@@ -1284,7 +1294,7 @@ jobs:
         run: bash ./tests/check-component-coverage.tests.sh
 
       - name: Test check-component-coverage suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/check-component-coverage.tests.ps1
 
@@ -1296,7 +1306,7 @@ jobs:
         run: bash ./tests/component-path-ownership-parity.tests.sh
 
       - name: Test component-path-ownership parity suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/component-path-ownership-parity.tests.ps1
 
@@ -1318,7 +1328,7 @@ jobs:
         run: bash ./tests/human-copy-runner-contract.tests.sh
 
       - name: Test human-copy-runner-contract suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/human-copy-runner-contract.tests.ps1
 
@@ -1330,7 +1340,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-byte-identical.tests.sh
 
       - name: Test check-risk-upgrade-byte-identical suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/check-risk-upgrade-byte-identical.tests.ps1
 
@@ -1342,7 +1352,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-capability-merge.tests.sh
 
       - name: Test check-risk-upgrade-capability-merge suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/check-risk-upgrade-capability-merge.tests.ps1
 
@@ -1354,7 +1364,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-fragment-fail-closed.tests.sh
 
       - name: Test check-risk-upgrade-fragment-fail-closed suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
 
@@ -1366,7 +1376,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
 
       - name: Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
 
@@ -1378,7 +1388,7 @@ jobs:
         run: bash ./tests/lite-spec-capability-block.tests.sh
 
       - name: Test lite-spec-capability-block suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/lite-spec-capability-block.tests.ps1
 
@@ -1390,7 +1400,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-consumption.tests.sh
 
       - name: Test lite-gate-summary-consumption suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/lite-gate-summary-consumption.tests.ps1
 
@@ -1402,7 +1412,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-absent.tests.sh
 
       - name: Test lite-gate-summary-absent suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent.tests.ps1
 
@@ -1414,7 +1424,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-invalid.tests.sh
 
       - name: Test lite-gate-summary-invalid suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/lite-gate-summary-invalid.tests.ps1
 
@@ -1426,7 +1436,7 @@ jobs:
         run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
 
       - name: Test lite-gate-full-upgrade-backstop suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
 
@@ -1438,7 +1448,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
 
       - name: Test lite-gate-summary-absent-active-enforcement suite (pwsh)
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
     needs: [ci-plan]
