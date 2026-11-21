@@ -104,10 +104,6 @@ function Get-DefaultTargets {
         [pscustomobject]@{ Role = 'sdd-investigator'; Kind = 'codex'; Path = '.codex/agents/sdd-investigator.toml'; Protected = $false }
         [pscustomobject]@{ Role = 'spec-reviewer'; Kind = 'claude'; Path = 'plugins/sdd-review-loop/agents/spec-reviewer-a.md'; Protected = $false }
         [pscustomobject]@{ Role = 'spec-reviewer'; Kind = 'claude'; Path = 'plugins/sdd-review-loop/agents/spec-reviewer-b.md'; Protected = $false }
-        [pscustomobject]@{ Role = 'impl-reviewer'; Kind = 'claude'; Path = 'plugins/sdd-review-loop/agents/impl-reviewer-a.md'; Protected = $true }
-        [pscustomobject]@{ Role = 'impl-reviewer'; Kind = 'claude'; Path = 'plugins/sdd-review-loop/agents/impl-reviewer-b.md'; Protected = $true }
-        [pscustomobject]@{ Role = 'task-reviewer'; Kind = 'claude'; Path = 'plugins/sdd-review-loop/agents/task-reviewer-a.md'; Protected = $true }
-        [pscustomobject]@{ Role = 'task-reviewer'; Kind = 'claude'; Path = 'plugins/sdd-review-loop/agents/task-reviewer-b.md'; Protected = $true }
     )
 }
 

@@ -75,110 +75,53 @@ function setupSingleFeatureRoot(
   return tempRoot;
 }
 
-test("phase1-not-started: requirements.md does not exist", () => {
+test("bootstrap-not-started: requirements.md does not exist", () => {
   const tempRoot = setupSingleFeatureRoot("feat-p1", {});
   try {
     const result = getNextSddCommand(tempRoot.root, "feat-p1");
-    const data = assertOkPhase(result, "phase1-not-started");
+    const data = assertOkPhase(result, "bootstrap-not-started");
     assert.match(data.nextCommand, /^\/sdd-bootstrap:bootstrap feature feat-p1$/);
   } finally {
     tempRoot.cleanup();
   }
 });
 
-test("spec-review: requirements.md exists but Spec-Review-Status is not Passed", () => {
-  const tempRoot = setupSingleFeatureRoot("feat-spec-review", {
-    requirements: requirementsMd("Findings Open"),
-  });
-  try {
-    const result = getNextSddCommand(tempRoot.root, "feat-spec-review");
-    const data = assertOkPhase(result, "spec-review");
-    assert.match(data.nextCommand, /^\/sdd-review-loop:spec-review-loop --feature feat-spec-review$/);
-  } finally {
-    tempRoot.cleanup();
-  }
-});
-
-test("spec-review: requirements.md has no Spec-Review-Status header at all", () => {
-  const tempRoot = setupSingleFeatureRoot("feat-spec-review-missing-header", {
+test("design-missing: requirements.md exists without design.md routes to bootstrap", () => {
+  const tempRoot = setupSingleFeatureRoot("feat-design-missing", {
     requirements: requirementsMd(undefined),
   });
   try {
-    const result = getNextSddCommand(tempRoot.root, "feat-spec-review-missing-header");
-    assertOkPhase(result, "spec-review");
-  } finally {
-    tempRoot.cleanup();
-  }
-});
-
-test("impl-review: design.md exists but Impl-Review-Status is not Passed", () => {
-  const tempRoot = setupSingleFeatureRoot("feat-impl-review", {
-    requirements: requirementsMd("Passed"),
-    design: designMd("Findings Open"),
-  });
-  try {
-    const result = getNextSddCommand(tempRoot.root, "feat-impl-review");
-    const data = assertOkPhase(result, "impl-review");
-    assert.match(data.nextCommand, /^\/sdd-review-loop:impl-review-loop --feature feat-impl-review$/);
-  } finally {
-    tempRoot.cleanup();
-  }
-});
-
-test("cannot-determine: Spec-Review-Status Passed but design.md missing", () => {
-  const tempRoot = setupSingleFeatureRoot("feat-design-missing", {
-    requirements: requirementsMd("Passed"),
-  });
-  try {
     const result = getNextSddCommand(tempRoot.root, "feat-design-missing");
-    assert.equal(result.ok, false);
-    if (result.ok) {
-      throw new Error("unreachable");
-    }
-    assert.equal(result.error.code, "cannot-determine");
+    const data = assertOkPhase(result, "design-missing");
+    assert.match(data.nextCommand, /^\/sdd-bootstrap:bootstrap feature feat-design-missing$/);
   } finally {
     tempRoot.cleanup();
   }
 });
 
-test("phase2-not-started: design.md Passed but tasks.md does not exist", () => {
+test("tasks-missing: requirements.md and design.md exist without tasks.md routes to bootstrap", () => {
   const tempRoot = setupSingleFeatureRoot("feat-p2", {
-    requirements: requirementsMd("Passed"),
-    design: designMd("Passed"),
+    requirements: requirementsMd(undefined),
+    design: designMd(undefined),
   });
   try {
     const result = getNextSddCommand(tempRoot.root, "feat-p2");
-    const data = assertOkPhase(result, "phase2-not-started");
-    assert.match(data.nextCommand, /^\/sdd-bootstrap:bootstrap feature$/);
+    const data = assertOkPhase(result, "tasks-missing");
+    assert.match(data.nextCommand, /^\/sdd-bootstrap:bootstrap feature feat-p2$/);
   } finally {
     tempRoot.cleanup();
   }
 });
 
-test("task-review: tasks.md exists but Task-Review-Status is not Passed", () => {
-  const tempRoot = setupSingleFeatureRoot("feat-task-review", {
-    requirements: requirementsMd("Passed"),
-    design: designMd("Passed"),
-    tasks: tasksMd("Findings Open", [{ id: "T-001", approved: false, status: "Planned" }]),
-  });
-  try {
-    const result = getNextSddCommand(tempRoot.root, "feat-task-review");
-    const data = assertOkPhase(result, "task-review");
-    assert.match(data.nextCommand, /^\/sdd-review-loop:task-review-loop --feature feat-task-review$/);
-  } finally {
-    tempRoot.cleanup();
-  }
-});
-
-test("approval-gate: Task-Review-Status Passed but every task is Draft", () => {
+test("approval-gate: all 3 v2 spec files exist (no legacy review headers) and every task is Draft", () => {
   const tasks: TaskFixture[] = [
     { id: "T-001", approved: false, status: "Planned" },
     { id: "T-002", approved: false, status: "Planned" },
   ];
   const tempRoot = setupSingleFeatureRoot("feat-approval-gate", {
-    requirements: requirementsMd("Passed"),
-    design: designMd("Passed"),
-    tasks: tasksMd("Passed", tasks),
+    requirements: requirementsMd(undefined),
+    design: designMd(undefined),
+    tasks: tasksMd(undefined, tasks),
   });
   try {
     const result = getNextSddCommand(tempRoot.root, "feat-approval-gate");
@@ -223,7 +166,7 @@ test("implementation: an Approved task is In Progress", () => {
   }
 });
 
-test("quality-gate: every Approved task is Implementation Complete", () => {
+test("sdd-gate: every Approved task is Implementation Complete", () => {
   const tasks: TaskFixture[] = [
     { id: "T-001", approved: true, status: "Implementation Complete" },
     { id: "T-002", approved: false, status: "Planned" },
@@ -243,14 +186,14 @@ test("quality-gate: every Approved task is Implementation Complete", () => {
     );
 
     const result = getNextSddCommand(tempRoot.root, "feat-quality-gate");
-    const data = assertOkPhase(result, "quality-gate");
-    assert.match(data.nextCommand, /^\/sdd-quality-loop:quality-gate specs\/feat-quality-gate\/tasks\.md$/);
+    const data = assertOkPhase(result, "sdd-gate");
+    assert.match(data.nextCommand, /^\/sdd-ship:ship specs\/feat-quality-gate\/tasks\.md$/);
   } finally {
     tempRoot.cleanup();
   }
 });
 
-test("quality-gate: mixed Done and Implementation Complete tasks target the first Implementation Complete task in document order", () => {
+test("sdd-gate: mixed Done and Implementation Complete tasks target the first Implementation Complete task in document order", () => {
   const tasks: TaskFixture[] = [
     { id: "T-001", approved: true, status: "Done" },
     { id: "T-002", approved: true, status: "Implementation Complete" },
@@ -293,8 +236,8 @@ test("quality-gate: mixed Done and Implementation Complete tasks target the firs
     );
 
     const result = getNextSddCommand(tempRoot.root, "feat-quality-gate-mixed");
-    const data = assertOkPhase(result, "quality-gate");
-    assert.match(data.nextCommand, /^\/sdd-quality-loop:quality-gate specs\/feat-quality-gate-mixed\/tasks\.md#T-002$/);
+    const data = assertOkPhase(result, "sdd-gate");
+    assert.match(data.nextCommand, /^\/sdd-ship:ship specs\/feat-quality-gate-mixed\/tasks\.md#T-002$/);
   } finally {
     tempRoot.cleanup();
   }
@@ -490,7 +433,7 @@ test("real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-can
   // synthetic fixtures above.
   const knownPhases = [
     "implementation",
-    "quality-gate",
+    "sdd-gate",
     "done",
     "blocked",
     "approval-gate",

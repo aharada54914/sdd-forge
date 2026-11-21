@@ -65,13 +65,14 @@ UNAVAILABLE_TITLE="Model freshness check: source fetch unavailable ${UNAVAILABLE
 # checklist text (docs/contributor/workflow-detail.md), so a human reading
 # either surface sees the same list (Global Constraints: "T-003 is blocked
 # on T-001 ... so the two surfaces cite ONE canonical source list").
-CANONICAL_SOURCE_LIST='参照する正典ソース: Anthropic 公式 docs（models overview）/ Anthropic blog、OpenAI developers docs（Codex）/ OpenAI blog、各 CLI（Claude Code / Codex CLI / Copilot CLI）のリリースノート'
+CANONICAL_SOURCE_LIST='参照する正典ソース: Anthropic 公式 docs（models overview）/ Anthropic blog、OpenAI developers docs（Codex）/ OpenAI blog、Google Gemini API docs（models）、各 CLI（Claude Code / Codex CLI / Gemini CLI / Copilot CLI）のリリースノート'
 
 # Real vendor source URLs (env-overridable; never read when a fixture
 # injection point is set -- see fetch_source_or_unavailable). Recorded in
 # the implementation report (design.md External Integrations).
 ANTHROPIC_SOURCE_URL="${ANTHROPIC_SOURCE_URL:-https://docs.anthropic.com/en/docs/about-claude/models}"
 OPENAI_SOURCE_URL="${OPENAI_SOURCE_URL:-https://platform.openai.com/docs/models}"
+GOOGLE_SOURCE_URL="${GOOGLE_SOURCE_URL:-https://ai.google.dev/gemini-api/docs/models}"
 
 REGISTRY_FILE="${MODEL_FRESHNESS_REGISTRY_PATH:-${ROOT}/contracts/agent-model-capabilities.v2.json}"
 POLICY_FILE="${MODEL_FRESHNESS_POLICY_PATH:-${ROOT}/contracts/model-policy.v1.json}"
@@ -93,6 +94,7 @@ fetch_source_or_unavailable() {
   case "$vendor" in
     anthropic) fixture_path="${ANTHROPIC_FIXTURE_SOURCE:-}" ;;
     openai)    fixture_path="${OPENAI_FIXTURE_SOURCE:-}" ;;
+    google)    fixture_path="${GOOGLE_FIXTURE_SOURCE:-}" ;;
   esac
 
   if [ -n "$fixture_path" ]; then
@@ -115,20 +117,24 @@ fetch_source_or_unavailable() {
 # Only explicit table rows prove a deprecation candidate; absence proves nothing.
 # Source dates are publication metadata, never the time this job fetched a page.
 compute_divergence() {
-  local anthropic_text="$1" openai_text="$2" registry_file="$3"
-  printf '%s\0%s' "$anthropic_text" "$openai_text" | python3 -c '
+  local anthropic_text="$1" openai_text="$2" registry_file="$3" google_text="${4:-}"
+  printf '%s\0%s\0%s' "$anthropic_text" "$openai_text" "$google_text" | python3 -c '
 import datetime
 from html.parser import HTMLParser
 import json
 import re
 import sys
 
-TOKEN = re.compile(r"(?:claude-|gpt-|o[0-9])[A-Za-z0-9.-]*")
+TOKEN = re.compile(r"(?:claude-|gpt-|gemini-|o[0-9])[A-Za-z0-9.-]*")
+CODENAME_TOKEN = re.compile(r"(?:claude-[a-z][a-z0-9.-]*|gemini-[0-9a-z][a-z0-9.-]*|gpt-[0-9][a-z0-9.-]*)")
 SOURCES = {"anthropic": "https://docs.anthropic.com/en/docs/about-claude/models",
-           "openai": "https://platform.openai.com/docs/models"}
+           "openai": "https://platform.openai.com/docs/models",
+           "google": "https://ai.google.dev/gemini-api/docs/models"}
 
 def model_token(value):
-    return isinstance(value, str) and TOKEN.fullmatch(value) and re.search(r"[0-9]", value)
+    if not isinstance(value, str) or not TOKEN.fullmatch(value):
+        return False
+    return bool(re.search(r"[0-9]", value) or value in ("claude-fable", "claude-opus", "claude-sonnet", "claude-haiku"))
 
 def valid_date(value):
     if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}(?:T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)?", value):
@@ -168,7 +174,12 @@ try:
         if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9./-]*", name):
             raise ValueError("invalid model ID")
         known.add(token)
-        vendor = "anthropic" if name.startswith("anthropic/") or token.startswith("claude-") else "openai"
+        if name.startswith("anthropic/") or token.startswith("claude-"):
+            vendor = "anthropic"
+        elif name.startswith("google/") or token.startswith("gemini-"):
+            vendor = "google"
+        else:
+            vendor = "openai"
         lifecycle = item.get("lifecycle")
         if lifecycle not in ("current", "candidate", "historical", "retired"):
             raise ValueError("invalid lifecycle")
@@ -192,7 +203,7 @@ for vendor, text in zip(SOURCES, texts):
         match = re.fullmatch(r"\s*\|\s*([^|]+?)\s*\|\s*(deprecated|retired)\s*\|\s*([^|]*?)\s*\|\s*", line)
         if match and model_token(match[1]):
             token = match[1]
-            expected = "anthropic" if token.startswith("claude-") else "openai"
+            expected = "anthropic" if token.startswith("claude-") else ("google" if token.startswith("gemini-") else "openai")
             if vendor == expected:
                 date = valid_date(match[3])
                 previous = deprecations.get(token, date)
@@ -291,7 +302,7 @@ build_divergence_body() {
 # main -- see module header for the branch summary.
 # ---------------------------------------------------------------------------
 main() {
-  local anthropic_text openai_text divergence
+  local anthropic_text openai_text google_text divergence
 
   if ! anthropic_text="$(fetch_source_or_unavailable anthropic "$ANTHROPIC_SOURCE_URL")"; then
     file_or_dedupe_issue --unavailable anthropic
@@ -303,7 +314,15 @@ main() {
     exit 0
   fi
 
-  divergence="$(compute_divergence "$anthropic_text" "$openai_text" "$REGISTRY_FILE")"
+  google_text=""
+  if [ -n "${GOOGLE_FIXTURE_SOURCE:-}" ] || [ -z "${ANTHROPIC_FIXTURE_SOURCE:-}" ]; then
+    if ! google_text="$(fetch_source_or_unavailable google "$GOOGLE_SOURCE_URL")"; then
+      file_or_dedupe_issue --unavailable google
+      exit 0
+    fi
+  fi
+
+  divergence="$(compute_divergence "$anthropic_text" "$openai_text" "$REGISTRY_FILE" "$google_text")"
   if [ -z "$divergence" ]; then
     exit 0
   fi

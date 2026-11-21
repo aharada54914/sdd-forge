@@ -1,6 +1,6 @@
 {
   "name": "sdd-review-loop",
-  "description": "[internal] Run independent implementation and task decomposition review loops for sdd-bootstrap.",
+  "description": "[internal] Run risk-scaled single-pass pre-implementation specification review (spec-check) for sdd-bootstrap.",
   "version": "2.0.0",
   "author": {
     "name": "Harada"

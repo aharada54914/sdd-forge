@@ -1,80 +1,37 @@
 ---
 name: visual-verify-loop
-description: Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP for web, wpf-visual-verify for WPF desktop), compares the rendered UI against approved mockups, ux-spec states, and — when the project carries one — the design-system contract (tokens and ui-patterns), iterates fixes up to five times, and saves final screenshots as evidence under reports/visual-evidence/. Non-blocking; verdicts stay with quality-gate and human review.
+description: Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP / Playwright for web, wpf-visual-verify for WPF desktop), compares rendered UI against design.md states, approved mockups, and design-system/ tokens/patterns, iterates fixes up to five times, and saves screenshots under reports/visual-evidence/. Non-blocking; verdicts stay with sdd-gate and human review.
 disable-model-invocation: false
 user-invocable: false
 ---
 
+> **Caller**: `implement-task` から UI タスクの実装後に呼び出される助言的・非ブロッキング内部スキル。
+
 # Visual Verify Loop
 
-Implementation-phase visual verification for UI tasks. Invoked by
-`implement-task` after the scoped self-review and before the implementation
-report is written. Advisory only: it accelerates design-conformance
-iteration and records evidence; it never decides task completion.
+UI タスクの実装結果を実画面で目視検証し、スクリーンショット証跡を `reports/visual-evidence/<task-id>/` へ残す。合否判定は後段の `sdd-gate` と人間レビューに委ねる。
 
 ## Trigger Condition
 
-Run only when both hold; otherwise record the skip reason in the
-implementation report and return:
-
-- the task's feature has `specs/<feature>/ux-spec.md` or
-  `specs/<feature>/mockups/`, and
-- the task's scope includes UI-layer files (views, components, styles, or
-  templates).
+以下の両方を満たす場合のみ実行する（非該当時は実装レポートへスキップ理由を記録して戻る）:
+- プロジェクトに `design-system/` または `specs/<feature>/mockups/` が存在する
+- タスクの `### Scope` に UI レイヤーファイル（画面・コンポーネント・スタイル・テンプレート）が含まれる
 
 ## App-Type Detection
 
-- **Web**: a dev server can be started (`.claude/launch.json`, or a dev
-  script in `package.json`) — prefer the Claude Preview MCP tools
-  (`preview_start`, `preview_screenshot`, `preview_snapshot`,
-  `preview_inspect`, `preview_resize`). If unavailable, use an available
-  browser automation tool or the project's installed Playwright with a real
-  browser. Start the project's documented local server, wait for readiness,
-  and capture the same screenshots, accessibility/DOM state, computed styles,
-  and desktop/mobile viewport evidence. Record the actual tool and browser;
-  never label Playwright evidence as Claude Preview evidence. Stop servers
-  started by this verification when finished. Do not install an unapproved
-  remote service or replace runtime checks with static HTML inspection.
-- **WPF desktop**: a WPF project is present — use the `wpf-visual-verify`
-  skill (off-screen RenderTargetBitmap rendering to PNG).
-- **Neither, or the tools are unavailable in this environment**: record
-  `visual verification unavailable — skipped: <reason>` in the
-  implementation report and return.
+- **Web**: 開発サーバーを起動可能な場合、Claude Preview MCP（`preview_start`, `preview_screenshot`, `preview_snapshot`, `preview_inspect`, `preview_resize`）を優先。利用不可時は Playwright 等の実ブラウザツールで同等のスクリーンショット・アクセシビリティスナップショット・計算済みスタイル・desktop/mobile ビューポートを取得し、使用ツール名を正確に記録する（起動したサーバーは終了時に停止）。
+- **WPF Desktop**: `wpf-visual-verify` スキルでオフスクリーン PNG レンダリングを使用。
+- **ツール利用不可**: 実装レポートに `visual verification unavailable — skipped: <reason>` を記録して戻る（ブロッカーにしない）。
 
-## Loop (max 5 iterations)
+## Loop（最大 5 回）
 
-1. Build and launch (or re-render) the affected view.
-2. Capture a screenshot. For web, also capture an accessibility snapshot
-   and inspect computed styles for the properties under review (colors,
-   fonts, spacing) instead of judging them from pixels.
-3. Compare against the approved mockups in `specs/<feature>/mockups/`, the
-   states defined in the feature's layer specs (default, empty, loading,
-   error; responsive breakpoints), and — when the project carries a
-   `design-system/` contract — token conformance against
-   `design-system/design-tokens.json` (no raw style values in the rendered
-   output's sources) and the conventions in `design-system/ui-patterns.md`
-   (actions, dialogs, icons, flow, states).
-4. If a mismatch is within the task's approved scope, fix the code and
-   repeat. If it is out of scope, record it as a finding and continue.
-5. Stop when the rendered UI matches, or after 5 iterations.
-
-## Evidence
-
-- Save the final screenshots to `reports/visual-evidence/<task-id>/`
-  (one file per view and state, e.g. `login-default.png`).
-- Add a `Visual Evidence` section to `reports/implementation/<feature>/<task-id>.md`
-  listing each screenshot, the mockup or spec state it was compared
-  against, and any remaining mismatches as findings.
+1. 対象ビューをビルド・起動（または再描画）する。
+2. スクリーンショットおよび（Web では）アクセシビリティスナップショット・主要計算スタイル（色・フォント・余白）を取得する。
+3. `specs/<feature>/design.md`・`specs/<feature>/mockups/`（存在時）・`design-system/{design-tokens.json,ui-patterns.md}`（存在時）と照合する（default / empty / loading / error 状態およびブレークポイント）。
+4. タスク承認スコープ内の不一致のみ修正して再確認する（スコープ外は修正せず finding として記録）。
+5. 一致または 5 回到達で終了し、最終スクリーンショットを `reports/visual-evidence/<task-id>/` に保存して実装レポートの `Visual Evidence` セクションへ追記する。
 
 ## Boundaries
 
-- Non-blocking: findings never change the task state; PASS/NEEDS_WORK
-  remains the job of quality-gate and human review.
-- No pixel-diff regression tooling; comparison is model-inspected and
-  recorded as findings.
-- Never modify files outside the task's approved scope to chase a visual
-  match; record the mismatch as a finding instead.
-- A preview-server or build failure is recorded and skipped, never fixed by
-  expanding scope and never a blocker.
-- Design-system conformance findings here are advisory; the deterministic
-  `check-design-system` gate (sdd-quality-loop) owns warn/error enforcement.
+- 非ブロッキング: タスク状態（`Status:` / `Approval:`）は変更しない。合否判定は `sdd-gate` の責務。
+- 視覚一致のために承認スコープ外のファイルを変更しない。

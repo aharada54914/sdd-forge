@@ -9,12 +9,12 @@
   "interface": {
     "displayName": "SDD Ship",
     "shortDescription": "Implement and verify approved SDD tasks",
-    "longDescription": "Orchestrate approved tasks through implement-tasks → quality-gate (or lite-gate) → workflow-retrospective. Auto-detects lite vs full track from AGENTS.md. Supports zero-argument context-aware invocation. The second of the two-command SDD workflow — use after sdd-bootstrap.",
+    "longDescription": "Orchestrate approved tasks through spec baseline → implement-tasks → sdd-gate → optional workflow-retrospective. Adapts checks to per-task Risk tiers (low/standard/high) and supports zero-argument context-aware invocation. The second of the two-command SDD workflow — use after sdd-bootstrap.",
     "developerName": "Harada",
     "category": "Developer Tools",
     "capabilities": [
       "Batch implementation of approved tasks in dependency order",
-      "Automatic lite/full track detection from AGENTS.md spec_profile",
+      "Risk-tiered SDD Core execution (low/standard/high) with lightweight soft guardrails",
       "Quality gate orchestration per task",
       "Workflow retrospective on feature completion",
       "Zero-argument context-aware feature selection"

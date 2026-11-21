@@ -1,6 +1,6 @@
 {
   "name": "sdd-review-loop",
   "version": "2.0.0",
-  "description": "Independent blind dual-reviewer loops (spec-review-loop, impl-review-loop, task-review-loop) for Gemini CLI.",
+  "description": "Risk-scaled single-pass pre-implementation specification review (spec-check) with strict P1-P6 perspective parity for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }

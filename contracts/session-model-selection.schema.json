@@ -48,6 +48,18 @@
         }
       }
     },
+    "inherit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inherit"
+      ],
+      "properties": {
+        "inherit": {
+          "const": true
+        }
+      }
+    },
     "roleChoice": {
       "oneOf": [
         {
@@ -55,6 +67,9 @@
         },
         {
           "$ref": "#/$defs/disabled"
+        },
+        {
+          "$ref": "#/$defs/inherit"
         }
       ]
     },
@@ -118,18 +133,6 @@
             "spec-reviewer-b": {
               "$ref": "#/$defs/roleChoice"
             },
-            "impl-reviewer-a": {
-              "$ref": "#/$defs/roleChoice"
-            },
-            "impl-reviewer-b": {
-              "$ref": "#/$defs/roleChoice"
-            },
-            "task-reviewer-a": {
-              "$ref": "#/$defs/roleChoice"
-            },
-            "task-reviewer-b": {
-              "$ref": "#/$defs/roleChoice"
-            },
             "evaluator": {
               "$ref": "#/$defs/roleChoice"
             },
@@ -149,12 +152,6 @@
               "$ref": "#/$defs/roleChoice"
             },
             "self-improvement": {
-              "$ref": "#/$defs/roleChoice"
-            },
-            "panelist-gpt": {
-              "$ref": "#/$defs/roleChoice"
-            },
-            "panelist-gemini": {
               "$ref": "#/$defs/roleChoice"
             }
           }
@@ -414,19 +411,13 @@
             "investigator",
             "spec-reviewer-a",
             "spec-reviewer-b",
-            "impl-reviewer-a",
-            "impl-reviewer-b",
-            "task-reviewer-a",
-            "task-reviewer-b",
             "evaluator",
             "domain-reviewer-a",
             "domain-reviewer-b",
             "workflow-auditor-a",
             "workflow-auditor-b",
             "diagnosis",
-            "self-improvement",
-            "panelist-gpt",
-            "panelist-gemini"
+            "self-improvement"
           ],
           "properties": {
             "implementer": {
@@ -439,18 +430,6 @@
               "$ref": "#/$defs/pendingRoleChoice"
             },
             "spec-reviewer-b": {
-              "$ref": "#/$defs/pendingRoleChoice"
-            },
-            "impl-reviewer-a": {
-              "$ref": "#/$defs/pendingRoleChoice"
-            },
-            "impl-reviewer-b": {
-              "$ref": "#/$defs/pendingRoleChoice"
-            },
-            "task-reviewer-a": {
-              "$ref": "#/$defs/pendingRoleChoice"
-            },
-            "task-reviewer-b": {
               "$ref": "#/$defs/pendingRoleChoice"
             },
             "evaluator": {
@@ -472,12 +451,6 @@
               "$ref": "#/$defs/pendingRoleChoice"
             },
             "self-improvement": {
-              "$ref": "#/$defs/pendingRoleChoice"
-            },
-            "panelist-gpt": {
-              "$ref": "#/$defs/pendingRoleChoice"
-            },
-            "panelist-gemini": {
               "$ref": "#/$defs/pendingRoleChoice"
             }
           }

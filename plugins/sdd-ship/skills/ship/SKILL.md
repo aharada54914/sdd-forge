@@ -26,7 +26,7 @@ disable-model-invocation: true
 
 1. ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:bootstrap adopt` を案内して停止）。
 2. 読み取り専用 MCP `get_next_sdd_command` が使えれば参考参照してよいが、対象選定はファイル状態を正とする。
-3. ダッシュボード表示が要求された場合は `/sdd-ship:status`（読み取り専用）を併用できる。
+3. 進捗ダッシュボード表示が必要な場合は、ユーザーへ公開コマンド `/sdd-ship:status`（読み取り専用）の実行を案内する。
 
 ## Flow
 
@@ -53,6 +53,9 @@ node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.
 対象タスクが `Status: Implementation Complete` に到達したら、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）:
 - `PASS`: `reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`Status: Done` へ遷移。
 - `FAIL`: 失敗理由（テスト失敗 / プレースホルダー / 非機能センサー違反 / 未確定 `OQ-NNN` / `UNDECLARED_DRIFT` / 独立レビュー指摘）を報告して停止（`Status` は `Implementation Complete` のまま保持）。
+
+### Step 5 — 回顧（`--retro` 指定時のみ）
+全対象タスクが `Status: Done` に到達し、`--retro` が指定されている場合は `workflow-retrospective` スキルを呼び出し、事実ログ（`sdd-doctor.mjs`, `.sdd/drift-events.jsonl`, `reports/quality-gate/`）から改善候補を抽出してレポートを出力する。
 
 ## Handoff
 

@@ -29,12 +29,78 @@
       "name": "anthropic/opus",
       "canonical_tier": "strong",
       "supported_efforts": [
-        "high"
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
       ],
       "default_effort": "high",
       "effort_control": {
         "claude-code": "frontmatter",
         "codex-cli": "none"
+      }
+    },
+    {
+      "name": "anthropic/opus-5-5",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "frontmatter",
+        "codex-cli": "none"
+      }
+    },
+    {
+      "name": "anthropic/sonnet-5-5",
+      "canonical_tier": "standard",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "frontmatter",
+        "codex-cli": "none"
+      }
+    },
+    {
+      "name": "anthropic/fable",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "frontmatter",
+        "codex-cli": "none"
+      }
+    },
+    {
+      "name": "google/gemini-4-neon",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "none",
+        "gemini-cli": "none"
       }
     },
     {

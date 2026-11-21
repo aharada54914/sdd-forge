@@ -288,6 +288,50 @@
           "sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32"
         }
       ]
+    },
+    {
+      "id": "anthropic/opus-5-5",
+      "lifecycle": "current",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-11-21T00:00:00Z",
+      "successor_of": ["anthropic/opus"],
+      "hosts": {
+        "claude-code": "claude-opus-5-5"
+      },
+      "adoption": []
+    },
+    {
+      "id": "anthropic/sonnet-5-5",
+      "lifecycle": "current",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-11-21T00:00:00Z",
+      "successor_of": ["anthropic/sonnet"],
+      "hosts": {
+        "claude-code": "claude-sonnet-5-5"
+      },
+      "adoption": []
+    },
+    {
+      "id": "anthropic/fable",
+      "lifecycle": "current",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-11-21T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "claude-code": "claude-fable"
+      },
+      "adoption": []
+    },
+    {
+      "id": "google/gemini-4-neon",
+      "lifecycle": "current",
+      "source_url": "https://ai.google.dev/gemini-api/docs/models",
+      "source_date": "2026-11-21T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "gemini-cli": "gemini-4-neon"
+      },
+      "adoption": []
     }
   ]
 }

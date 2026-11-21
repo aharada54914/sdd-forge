@@ -81,9 +81,9 @@ HELPER_TIMEOUT_SECONDS = 60
 CLI_TIMEOUT_SECONDS = 30
 MAX_TOOL_BYTES = 512 * 1024 * 1024  # streamed and hashed in small chunks, never loaded whole
 CLI_FLAGS = ('--model', '--effort', '--agents', '--agent')
-EFFORTS = ('low', 'medium', 'high', 'xhigh')
-# Identical to T-007's native identifier grammar; these characters need no TOML escaping.
-NATIVE_RE = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}')
+EFFORTS = ('minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra')
+# Identical to discovery native identifier grammar (includes [1m] context tags).
+NATIVE_RE = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/\[\]-]{0,127}')
 REASON_RE = re.compile(r'[a-z]+(?:-[a-z]+)*')
 _COMPONENT = r'[^/\\:\x00-\x1f\x7f]{0,254}[^/\\:\x00-\x1f\x7f. ]'
 MANIFEST_LINE_RE = re.compile(r'([0-9a-f]{64})  (' + _COMPONENT + '(?:/' + _COMPONENT + ')*)')
@@ -104,18 +104,12 @@ TARGETS = {
     'plugins/sdd-domain/agents/domain-reviewer-b.md': ('domain-reviewer-b', CLAUDE),
     'plugins/sdd-quality-loop/agents/wfi-auditor-a.md': ('workflow-auditor-a', CLAUDE),
     'plugins/sdd-quality-loop/agents/wfi-auditor-b.md': ('workflow-auditor-b', CLAUDE),
-    'plugins/sdd-review-loop/agents/impl-reviewer-a.md': ('impl-reviewer-a', CLAUDE),
-    'plugins/sdd-review-loop/agents/impl-reviewer-b.md': ('impl-reviewer-b', CLAUDE),
-    'plugins/sdd-review-loop/agents/task-reviewer-a.md': ('task-reviewer-a', CLAUDE),
-    'plugins/sdd-review-loop/agents/task-reviewer-b.md': ('task-reviewer-b', CLAUDE),
     '.codex/agents/sdd-evaluator.toml': ('evaluator', CODEX),
     '.codex/agents/sdd-investigator.toml': ('investigator', CODEX),
     'plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md': ('evaluator', COPILOT),
     'plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md': ('investigator', COPILOT),
 }
-# Never written: proposals are staged beneath CURRENT for a human copy.
-PROTECTED = frozenset('plugins/sdd-review-loop/agents/' + name + '.md'
-                      for name in ('impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b'))
+PROTECTED = frozenset()
 
 
 class Rejected(Exception):

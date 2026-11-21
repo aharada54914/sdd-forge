@@ -1,4 +1,4 @@
-description = "Inspect SDD project progress with the read-only six-view status dashboard."
+description = "Inspect SDD project progress with the read-only seven-view status dashboard."
 prompt = """
 Read and execute the skill instructions at `skills/status/SKILL.md` (relative to this Gemini extension root).
 

@@ -171,9 +171,17 @@ def claude(executable, project):
         auth = 'oauth'
     else:
         raise DiscoveryError('authentication-unavailable')
-    rows = [model_row('claude-code', m['value'], m.get('supportedEffortLevels', [])
-                      if m.get('supportsEffort') is True else [], source, m.get('displayName'))
-            for m in result['models']]
+    rows = [
+        model_row(
+            'claude-code',
+            m['value'],
+            m.get('supportedEffortLevels', []) if m.get('supportsEffort') is not False else [],
+            source,
+            m.get('displayName'),
+            m.get('defaultEffort') if m.get('supportsEffort') is not False else None,
+        )
+        for m in result['models']
+    ]
     return rows, auth
 
 
@@ -216,9 +224,15 @@ def gemini(executable, project):
         # The CLI resolves its existing selected auth type, OAuth session or API-key environment.
         # Do not call authenticate or fall back to an API endpoint on an auth error.
         result = client.request(2, 'session/new', {'cwd': str(Path(project).resolve()), 'mcpServers': []})
-    # ACP ModelInfo exposes no per-model effort carrier. Permission modes are NOT thinking levels.
-    rows = [model_row('gemini-cli', m['modelId'], [], source, m.get('name'))
-            for m in result['models']['availableModels']]
+    # Read per-model efforts if exposed by newer Gemini ACP versions; otherwise empty (CLI default).
+    rows = []
+    for m in result['models']['availableModels']:
+        raw_efforts = m.get('supportedEffortLevels') or m.get('supportedReasoningEfforts') or []
+        efforts = [e['reasoningEffort'] if isinstance(e, dict) and 'reasoningEffort' in e else e for e in raw_efforts]
+        default_effort = m.get('defaultEffort') or m.get('defaultReasoningEffort')
+        if default_effort not in efforts:
+            default_effort = None
+        rows.append(model_row('gemini-cli', m['modelId'], efforts, source, m.get('name'), default_effort))
     return rows, 'cli-managed'
 
 
@@ -243,7 +257,7 @@ def discover(project=None):
             catalog['models'].extend(rows)
             provider.update(status='listed', auth_mode=auth,
                             reason='既存CLIの認証経路から取得。掲載は推論成功の保証ではありません。')
-            if host == 'gemini-cli':
+            if host == 'gemini-cli' and not any(r['efforts'] for r in rows):
                 provider['reason'] += 'この取得経路はモデル別の推論強度を公開していません。CLI既定のみ選択できます。'
         except DiscoveryError as error:
             provider['reason'] = '一覧取得に失敗しました（' + str(error) + '）。CLIの認証・対応版を確認して更新してください。'

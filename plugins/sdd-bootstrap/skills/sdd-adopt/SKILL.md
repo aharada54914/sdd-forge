@@ -47,14 +47,13 @@ this file from its entry command:
      `docs/adr/`, `docs/review-tickets/`
    - Advisory (confirm with user): `contracts/schemas/`, `docs/architecture/`
 
-3. Create `AGENTS.md` when absent. Populate it from the
-   `sdd-bootstrap-interviewer` skill's bundled `templates/AGENTS.template.md`,
-   substituting facts read from the repository (README, build files, test
-   layout). Record every unknown product decision as an Open Question; never
-   invent answers.
+3. Create `AGENTS.md` when absent. Populate it from this skill's bundled
+   `templates/AGENTS.template.md`, substituting facts read from the repository
+   (README, build files, test layout). Record every unknown product decision as
+   an Open Question; never invent answers.
 
-4. Create `CLAUDE.md` from the bundled `templates/CLAUDE.template.md` when
-   absent.
+4. Create `CLAUDE.md` from this skill's bundled `templates/CLAUDE.template.md`
+   when absent.
 
 5. Use the `host:` output from `check-sdd-structure` to select templates.
    - GitHub → create GitHub Actions workflow (`ci-github.template.yml` →
@@ -81,8 +80,7 @@ this file from its entry command:
 
 ## Boundaries
 
-- Do not generate feature specifications; that is `sdd-bootstrap-interviewer`'s
-  job.
+- Do not generate feature specifications; that is `sdd-core-spec`'s job (via `/sdd-bootstrap:bootstrap`).
 - Do not modify application source code or tests.
 - Do not commit, push, or create a PR/MR unless explicitly requested.
 
@@ -95,5 +93,4 @@ Report:
 - Host detected and templates applied.
 - Conflicts (existing files that were not overwritten).
 - Open Questions recorded in `AGENTS.md`.
-- Next step: run `sdd-bootstrap-interviewer` in `feature` (or other) mode to
-  generate specifications.
+- Next step: run `/sdd-bootstrap:bootstrap feature <source>` (or `bugfix` / `refactor`) to generate SDD Core specifications.

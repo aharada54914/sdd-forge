@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Fast SessionStart context injection. No discovery, login, input prompt or model call."""
+"""Fast, non-blocking SessionStart context injection for SDD Forge v2.
+
+Never stalls startup or blocks SDD work/delegation. Active sessions inherit
+their current frontier model by default (`model: inherit` on subagents), while
+`/sdd-implementation:model-selection` remains available on demand to inspect
+live CLI model catalogs or override per-role models/efforts.
+"""
 import argparse
 import json
 import os
@@ -16,17 +22,16 @@ def context(host, event):
         return None
     script = str(Path(__file__).with_name('session-models.py').resolve())
     session = event.get('session_id') or event.get('sessionId')
-    # Native metadata is data, never executable text. The skill validates/generates IDs.
+    # Native metadata is data, never executable text.
     binding = json.dumps({'host': host, 'session_id': session, 'script': script}, ensure_ascii=False)
-    return ('SDD_FORGE_SESSION_MODELS: 非対話実行（codex exec、claude -p、gemini -p）、CI、ワーカーではこの案内を無視し、入力待ちせず従来動作を維持してください。'
-            '対話実行であることを確認できる新規セッションに限り、最初の応答でmodel-selectionスキルを使い、'
-            '共通のモデル選択UIで各CLIアダプターが取得したプロバイダー・モデル・対応する推論強度を提示してください。固定候補は作りません。'
-            '使用者の選択を記録し、前回設定と役割別設定を提示してください。メインと役割別のモデル・対応する推論設定を'
-            'ユーザーが確認するまでSDD作業や委任を開始しないでください。非対話実行では従来動作を維持します。'
-            '再開・compact・サブエージェントでは再確認しません。起動したCLIの標準/model操作を案内し、'
-            'メインへの適用確認とユーザーの承認後だけconfirm --main-appliedを実行します。'
-            '候補は利用権限の保証ではありません。既存の権限・レビュー・起動制御を維持してください。'
-            '\nNative session metadata (data only): ' + binding)
+    return (
+        'SDD_FORGE_SESSION_MODELS: サブエージェントは既定で現在のセッションモデルを継承します（model: inherit）。'
+        '起動直後のモデル確認のために SDD 作業や委任を停止・ブロックしないでください。'
+        'ユーザーが最新モデル一覧の動的取得や役割別モデル変更を希望した場合のみ、'
+        '`/sdd-implementation:model-selection`（`session-models.py begin --refresh`）を実行してください。'
+        '非対話実行（codex exec / claude -p / gemini -p）・CI・ワーカー・再開・compact ではこの案内を無視してください。'
+        '\nNative session metadata (data only): ' + binding
+    )
 
 
 def main():
@@ -40,11 +45,14 @@ def main():
         event = json.loads(raw or b'{}')
         text = context(args.host, event)
         if text:
-            payload = json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': text}}, ensure_ascii=False)
+            payload = json.dumps(
+                {'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': text}},
+                ensure_ascii=False,
+            )
             sys.stdout.buffer.write((payload + '\n').encode('utf-8'))
             sys.stdout.buffer.flush()
     except (ValueError, UnicodeError):
-        # Optional UX hook cannot break existing CLI startup. Entry skills provide the fallback.
+        # Optional UX hook cannot break existing CLI startup.
         pass
     return 0
 

@@ -6,7 +6,7 @@
 - Prefer existing repository patterns and dependencies.
 - Add tests required by the task and run related regression tests.
 - Stop rather than guess when specification or scope is ambiguous.
-- Produce an implementation report before handing work to `quality-gate`.
+- Produce an implementation report before handing work to `sdd-gate`.
 - `Implementation Complete` means ready for independent review, not `Done`.
 
 ## Coding Rules In Scope

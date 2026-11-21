@@ -1,7 +1,7 @@
 {
   "name": "sdd-domain",
   "version": "2.0.0",
-  "description": "Domain-Driven Design upstream lane producing a human-approved domain model (domain story, event storming, ubiquitous language, context map, aggregates, message flow, C4 container) ahead of sdd-forge Phase 1.",
+  "description": "Domain-Driven Design upstream lane producing a human-approved v2 domain model (domain story, event storming, concept model, ubiquitous language, context map, aggregates, message flow) ahead of sdd-bootstrap.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"
@@ -14,7 +14,7 @@
     "category": "Developer Tools",
     "capabilities": [
       "Seven-stage domain modeling interview",
-      "Independent domain review and cross-model verification",
+      "Independent 2-perspective domain review (strategic + tactical)",
       "Human-approved domain contract",
       "Downstream conformance sync for bootstrap specs"
     ],

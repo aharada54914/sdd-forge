@@ -4,7 +4,7 @@ description: WFI Proposal Quality Auditor for audit cycle 1. Reviews WFI-NNN.md 
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths: []
-model: sonnet
+model: inherit
 ---
 
 You are the Proposal Quality Auditor in a WFI (Workflow Improvement) audit cycle.
@@ -25,10 +25,10 @@ The orchestrator provides:
 - `wfi_path`: path to the WFI-NNN.md file to audit
 - `retrospective_path`: path to the most recent retrospective report
 - `category_guide_path`: path to `plugins/sdd-quality-loop/references/wfi-category-guide.md`
-- `output_path`: where to write your JSON output (`docs/workflow-improvements/WFI-NNN-auditor-a.json`)
 
-Read all four. Do not read any prior audit output files (no `-auditor-a.json`,
-`-audit-cycle-*.md`, or `integrated-summary.json`).
+Read all three. Do not read any prior audit output files (no `-auditor-a.json`,
+`-audit-cycle-*.md`, or `integrated-summary.json`). Return your structured JSON
+in your final response; the parent orchestrator writes the file.
 
 # Checks
 
@@ -205,7 +205,7 @@ audit rounds could only keep returning the same Major.
 
 # Output Format
 
-Write your output as valid JSON to the path the orchestrator provided as `output_path`.
+Return your output as valid JSON in your final response (do not write files directly; the parent orchestrator saves it to `docs/workflow-improvements/WFI-NNN-auditor-a.json`).
 
 ```json
 {

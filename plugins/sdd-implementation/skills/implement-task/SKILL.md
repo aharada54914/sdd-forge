@@ -33,7 +33,7 @@ user-invocable: false
    - `Risk: high` のタスクでは TDD（先に失敗するテストを書いて赤を確認 → 実装して緑を確認）を基本とし、テスト出力を実装レポートへ記録する。
 5. **UI 視覚確認（該当時のみ）**: UI レイヤー変更かつ `design-system/` またはモックアップがある場合は `visual-verify-loop`（助言的・非ブロッキング）を実行し、結果をレポートへ残す。
 6. **スコープ内自己点検**: 変更差分にプレースホルダー（`TODO` / `FIXME`）やスコープ外変更が混入していないか確認する。
-7. **実装レポート作成**: `templates/implementation-report.template.md` を使い `reports/implementation/<feature>/<task-id>.md` を作成する。
+7. **実装レポート作成**: `../../templates/implementation-report.template.md` を使い `reports/implementation/<feature>/<task-id>.md` を作成する。
 8. **完了ハンドオフ**: 実装・テスト・レポートがすべて揃ったら `Status: Implementation Complete` に更新して呼び出し元へ返す。
 
 ## Block And Stop

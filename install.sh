@@ -1010,7 +1010,6 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/scripts/session-models.py"
     "plugins/sdd-implementation/scripts/model-discovery.py"
     "plugins/sdd-implementation/scripts/session-model-start.py"
-    "plugins/sdd-implementation/scripts/session-panelist.py"
     "plugins/sdd-implementation/skills/model-selection/SKILL.md"
     "plugins/sdd-implementation/gemini/gemini-extension.json"
     "plugins/sdd-implementation/hooks/claude-hooks.json"

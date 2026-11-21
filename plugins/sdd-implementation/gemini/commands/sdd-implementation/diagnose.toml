@@ -1,8 +1,8 @@
-description = "Run structured 5-phase SDD bug diagnosis (reproduce, instrument, root cause, minimal fix) before implementation."
+description = "Run structured 5-phase SDD bug diagnosis (reproduce, minimize, hypotheses, instrument, regression test) before /sdd-bootstrap:bootstrap bugfix."
 prompt = """
 Read and execute the skill instructions at `../skills/diagnose/SKILL.md` (relative to this Gemini extension root).
 
 Arguments: {{args}}
 
-Honor the 5-attempt HITL loop cap and never self-approve tasks.
+Build a deterministic red reproduction loop before hypothesizing, stop at root cause plus a failing regression test (do not apply production fixes inside diagnose), and never modify Approval: or Status: Done.
 """

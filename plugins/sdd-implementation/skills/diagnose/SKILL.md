@@ -33,7 +33,7 @@ disable-model-invocation: true
 
 ## Output
 
-`templates/diagnosis-report.template.md` を使い `reports/diagnosis/<id>.md` を作成する（再現コマンド・赤出力・最小ケース・仮説検証結果・根本原因・回帰テスト）。
+`../../templates/diagnosis-report.template.md` を使い `reports/diagnosis/<id>.md` を作成する（再現コマンド・赤出力・最小ケース・仮説検証結果・根本原因・回帰テスト）。
 
 ## Handoff
 

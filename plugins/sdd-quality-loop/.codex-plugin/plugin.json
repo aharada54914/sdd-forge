@@ -20,6 +20,6 @@
       "Differential baseline verification",
       "Workflow retrospective and self-improvement"
     ],
-    "defaultPrompt": "Use the quality-gate skill for an Implementation Complete task."
+    "defaultPrompt": "Use the sdd-gate skill for an Implementation Complete task."
   }
 }

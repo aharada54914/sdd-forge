@@ -9,14 +9,14 @@
   "interface": {
     "displayName": "SDD Implementation",
     "shortDescription": "Implement approved specification tasks",
-    "longDescription": "Restores task state, implements approved tasks one at a time or in batch (dependency-aware), runs scoped tests, auto-transitions to quality-gate on batch completion, and produces implementation handoff reports.",
+    "longDescription": "Restores task state, implements approved tasks one at a time or in batch (dependency-aware), runs scoped tests, and hands off Implementation Complete tasks to ship for sdd-gate verification.",
     "developerName": "Harada",
     "category": "Developer Tools",
     "capabilities": [
       "Approved task implementation (single: implement-task)",
       "Batch task implementation in dependency order (implement-tasks)",
       "Task state restoration and dependency-aware scheduling",
-      "Auto quality-gate transition when all tasks reach Implementation Complete",
+      "Clean Implementation Complete handoff to sdd-gate via ship",
       "Implementation handoff reporting",
       "Context-safe delegation to helper agents"
     ],

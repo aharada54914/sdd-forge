@@ -1,4 +1,4 @@
-description = "Apply an approved SDD review ticket and prepare for quality-gate re-verification."
+description = "Apply an approved SDD review ticket and prepare for sdd-gate re-verification."
 prompt = """
 Read and execute the skill instructions at `../skills/fix-by-review-ticket/SKILL.md` (relative to this Gemini extension root).
 
