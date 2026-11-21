@@ -4,29 +4,27 @@
 呼び出し元の権限・状態遷移を増やさず、公開 `sql-develop` 入口は再起動しない。
 SQLを含まない案件へ適用を広げない。
 
-## 役割とトラック
+## 役割とリスク階層（SDD Core v2）
 
 | 呼び出し元 | SQLで追加する仕事 | 進めてはいけないこと |
 |---|---|---|
-| 入力整理／仕様化 | SQL開発契約、受入条件、既存owner・アプリとの依存を明確にする | DB接続、SQL実装、承認欄の変更 |
+| 入力整理／仕様化 (`sdd-core-spec`) | SQL開発契約、受入条件（`AC-*`）、未確定事項（`OQ-*`）、既存owner・アプリとの依存を明確にする | DB接続、SQL実装、承認欄の変更 |
 | 承認済み `implement-task` | 同じ契約に基づきSQL・アプリ・試験を実装し、隔離DBで検証する | 共有／本番DBへの接続、未承認の変更、Done判定 |
-| `lite-gate`／`quality-gate` | 独立したコンテキストで要求と実行結果・副作用を確認する | 自己申告や未実施試験だけを根拠にPASSにする |
+| `sdd-gate` (`run-sdd-gate.mjs`) | 決定論センサー（破壊的DDL・WHERE欠落検知）＋独立レビューで要求と実行結果・副作用を確認する | 自己申告や未実施試験だけを根拠にPASSにする |
 
-Lite候補は、再作成できる隔離DB、合成データ、共有利用者なし、限定された変更が
-すべて確認できる場合だけ。本番を対象にする設計・移行、共有DB、PII、権限／RLS、
-テナント分離、破壊的移行、大規模backfillはFullへ渡す。engine、版、対象環境、
-管理主体、データ分類、影響が不明なら先に情報を確認し、実装・接続を止める。
+- **`Risk: low`**: 再作成できる隔離DB、合成データ、共有利用者なし、限定された変更がすべて確認できる場合のみ。
+- **`Risk: standard`**: 通常の後方互換スキーマ追加・クエリ改修。
+- **`Risk: high`**: 本番を対象にする設計・移行、共有DB、PII、権限／RLS、テナント分離、破壊的移行、大規模backfill（`spec-check` 2視点並列レビュー＋未確定 `OQ-NNN` ゼロ必須）。
 
-既存ContextのFull指定と既存risk checkerの昇格を維持する。
-`high_risk_migration` 等の既存語彙はSQLの完全な自動分類器ではない。
+engine、版、対象環境、管理主体、データ分類、影響が不明なら先に情報を確認し、実装・接続を止める。
 SQLキーワードや「low risk」という自己申告だけで許可を出さない。
 この手順はSQLファイアウォールではなく、実行権限の強制にはDB権限・ネットワーク隔離が必要。
 
 ## 仕様化
 
-[SQL開発契約](../templates/sql-development-contract.md)を既存 `design.md` に組み込み、
-必要な期待結果を `requirements.md` と各タスクのDone Whenへ反映する。
-既存Full成果物が必要なら、その形式も維持する。新しい承認ファイルやSQL専用状態は作らない。
+[SQL開発契約](../templates/sql-development-contract.md)を `specs/<feature>/design.md` に組み込み、
+必要な期待結果を `requirements.md`（`AC-NNN` / `OQ-NNN`）と各タスクの `### Done When` へ反映する。
+新しい承認ファイルやSQL専用状態は作らない。
 
 - 実エンジン、正確な版、compatibility／collation／SQL mode、対象製品を確認する。
   Azure SQL DatabaseとManaged Instance、RDSとAuroraなどを同じ検証済み環境とは扱わない。
@@ -95,9 +93,9 @@ SQLの実行結果を別のPASSフラグへ手で複製しない。
 `EXPLAIN ANALYZE`や副作用のある関数を使うSELECTは実行を伴うため、隔離DBに限定する。
 性能が受入対象でなければ理由を記録し、計測したとは書かない。
 
-既存の実装報告・品質レポートに、共通実行器の `execution.json`、対象revision・dirty状態、
+既存の実装報告・品質レポートに、`run-sdd-gate.mjs` の `execution.json`、対象revision・dirty状態、
 実測したDB／tool版、fixtureの識別、commandと終了状態、期待値、観測した副作用、未実施項目を残す。
-SQL用の署名evidence-bundleをLiteへ追加しない。生の接続文字列・秘密・実データを保存せず、
+生の接続文字列・秘密・実データを保存せず、
 query planやエラーログ内のliteral・パラメーターも公開前に点検する。
 独立レビュー担当は報告の自己申告だけでなく、受入条件と実行結果を照合する。
 必須試験が未実施・失敗・BlockedならPASS／Doneにしない。
