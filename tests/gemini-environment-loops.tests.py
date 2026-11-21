@@ -208,33 +208,28 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
         real_node = shutil.which("node")
         if not real_node:
             self.skipTest("node not available")
+        # If the host already has Node >= 26.13.0, use it directly without a shim:
+        # Windows .cmd batch wrappers truncate multi-line `node -e` scripts passed via %*.
+        probe = _run([real_node, "--version"])
+        if probe.returncode == 0:
+            raw = probe.stdout.strip().lstrip("v")
+            parts = raw.split(".")
+            if len(parts) >= 3 and all(p.isdigit() for p in parts[:3]):
+                if tuple(int(p) for p in parts[:3]) >= (26, 13, 0):
+                    return
         if IS_WINDOWS:
-            node = bin_dir / "node.cmd"
-            node.write_text(
-                "@echo off\r\n"
-                'if "%~1"=="-v" (\r\n'
-                f"  echo {version}\r\n"
-                "  exit /b 0\r\n"
-                ")\r\n"
-                'if "%~1"=="--version" (\r\n'
-                f"  echo {version}\r\n"
-                "  exit /b 0\r\n"
-                ")\r\n"
-                f'"{real_node}" %*\r\n',
-                encoding="ascii",
-            )
-        else:
-            node = bin_dir / "node"
-            node.write_text(
-                "#!/bin/sh\n"
-                'if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--version" ]; then\n'
-                f'  printf "%s\\n" "{version}"\n'
-                "  exit 0\n"
-                "fi\n"
-                f'exec "{real_node}" "$@"\n',
-                encoding="utf-8",
-            )
-            node.chmod(node.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            self.skipTest(f"Windows requires real Node >= 26.13.0 (found {probe.stdout.strip()})")
+        node = bin_dir / "node"
+        node.write_text(
+            "#!/bin/sh\n"
+            'if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--version" ]; then\n'
+            f'  printf "%s\\n" "{version}"\n'
+            "  exit 0\n"
+            "fi\n"
+            f'exec "{real_node}" "$@"\n',
+            encoding="utf-8",
+        )
+        node.chmod(node.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
     @unittest.skipIf(IS_WINDOWS, "install.sh targets POSIX shells; Windows is verified via install.ps1")
     def test_bash_install_and_uninstall_target_gemini_with_mcp_settings(self):
@@ -700,9 +695,11 @@ class CrossAiOperationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             for host in ("claude-code", "codex-cli", "gemini-cli"):
+                # Force ASCII stdio encoding to prove UTF-8 stdout survives Windows cp1252 consoles
                 res = _run(
                     [sys.executable, str(start_script), "--host", host],
                     cwd=work,
+                    env={"PYTHONIOENCODING": "ascii"},
                     input_text=json.dumps({"source": "startup", "session_id": f"sess-{host}"}),
                 )
                 self.assertEqual(res.returncode, 0, f"{host}: {res.stderr}")

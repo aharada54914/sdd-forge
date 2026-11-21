@@ -453,7 +453,7 @@ jobs:
       # are scoped off Intel macOS to avoid triple-running slow pwsh work while
       # preserving full Bash 3.2 macOS coverage and all required receipts.
       - name: "[deterministic] Validate workflow state (PowerShell)"
-        if: runner.os != 'macOS' && needs.ci-plan.outputs.run_test == 'true'
+        if: needs.ci-plan.outputs.run_test == 'true'
         shell: pwsh
         run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
 
