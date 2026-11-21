@@ -34,7 +34,7 @@ user-invocable: false
    - `templates/requirements.md` → `specs/<feature>/requirements.md`:
      全 `REQ-NNN` に観測・テスト可能な `AC-NNN` を紐付け、末尾に `## Spec Amendments` を置く。
    - `templates/design.md` → `specs/<feature>/design.md`:
-     方針・変更ファイル・IF/データ契約・影響範囲・テスト方針・`## Spec Amendments` を記載する（`Risk: high` を含む場合はセキュリティ・移行・ロールバック方針を明記し、必要に応じ `docs/adr/` へ ADR を作成）。
+     方針・変更ファイル・IF/データ契約・**採らなかった設計（Alternatives Rejected）**・影響範囲・テスト方針・`## Spec Amendments` を記載する（`Risk: high` を含む場合はセキュリティ・移行・ロールバック方針を明記し、必要に応じ `docs/adr/` へ ADR を作成）。
    - `templates/tasks.md` → `specs/<feature>/tasks.md`:
      各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`、`### Done When`（対応 `AC-NNN` 参照）、`### Blockers`、末尾に `## Spec Amendments` を記載する。
 

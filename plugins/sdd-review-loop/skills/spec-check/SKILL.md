@@ -43,6 +43,7 @@ user-invocable: false
 統合ルール:
 - Reviewer A / B のいずれかに 1 件でも Blocker があれば総合判定は `NEEDS_FIX`。
 - 重複指摘は統合し、見解が割れた論点は `Open Decisions for Human` に並記して人間判断へ委ねる。
+- **報告直前の実在確認**: 統合レポート（`reports/spec-check/<feature>.md`）の書き込み後、親はファイルの実在と非空を直接確認してから `bootstrap` へ完了を返す。
 
 ## Verdict & Output
 

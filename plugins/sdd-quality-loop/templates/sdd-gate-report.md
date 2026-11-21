@@ -7,6 +7,10 @@
 
 > 初期値は FAIL。決定論チェック・Spec Drift 検査・独立レビューのすべてを確認してから判定を更新する。
 
+## Non-checks（検査しないもの）
+
+> `VERDICT: PASS` は本レポートに記載された決定論コマンド・Spec Drift・独立レビュー境界内での合格を意味し、本番環境の実稼働状態・未定義の要件妥当性・外部サービスの挙動までは保証しない。
+
 ## Deterministic Checks
 
 - **Execution Evidence**: `reports/quality-gate/<feature>-<T-NNN>.execution.json`

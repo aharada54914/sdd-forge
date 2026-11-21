@@ -100,7 +100,34 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')),
         true,
       );
+      assert.equal(
+        fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs')),
+        true,
+      );
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
     },
   );
+
+  it('v1.26.1 (#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts', () => {
+    const py = process.platform === 'win32' ? 'python' : 'python3';
+    const script = path.join(REPO_ROOT, 'plugins/sdd-implementation/scripts/session-model-start.py');
+    const tmpProject = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-session-utf8-'));
+    fs.mkdirSync(path.join(tmpProject, 'specs', 'demo'), { recursive: true });
+    fs.writeFileSync(path.join(tmpProject, 'specs', 'demo', 'tasks.md'), '# Tasks\n', 'utf8');
+
+    for (const host of ['claude-code', 'codex-cli', 'gemini-cli']) {
+      const res = spawnSync(py, [script, '--host', host], {
+        cwd: tmpProject,
+        input: JSON.stringify({ cwd: tmpProject }),
+        env: { ...process.env, PYTHONIOENCODING: 'ascii' },
+      });
+      assert.equal(res.status, 0, `${host} failed: ${res.stderr?.toString('utf8')}`);
+      const outText = res.stdout.toString('utf8').trim();
+      if (outText.length > 0) {
+        const parsed = JSON.parse(outText);
+        assert.equal(parsed.hookSpecificOutput.hookEventName, 'SessionStart');
+        assert.ok(typeof parsed.hookSpecificOutput.additionalContext === 'string' && parsed.hookSpecificOutput.additionalContext.length > 0);
+      }
+    }
+  });
 });

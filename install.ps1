@@ -773,6 +773,7 @@ function Get-RequiredPaths {
         "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
         "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
         "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
         "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",

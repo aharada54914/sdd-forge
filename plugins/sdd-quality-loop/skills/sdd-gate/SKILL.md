@@ -42,7 +42,7 @@ user-invocable: false
    - `design-system/` / `domain/` 存在時は既存規約からの明らかな逸脱がないか確認する。
 
 3. **品質レポート出力（`reports/quality-gate/<feature>-<task-id>.md`）**:
-   `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、全決定論チェック PASS かつ未解決 Blocking Issues がゼロのときのみ `VERDICT: PASS` とする。
+   `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、全決定論チェック PASS かつ未解決 Blocking Issues がゼロのときのみ `VERDICT: PASS` とする。テンプレート冒頭の **Non-checks（検査しないもの）** を残し、未検証領域がある場合は明記する。
 
 4. **Done 遷移**:
    `VERDICT: PASS` のときのみ `specs/<feature>/tasks.md` の対象タスクを `Status: Done` に更新する（`FAIL` 時は `Implementation Complete` のまま差し戻す）。
