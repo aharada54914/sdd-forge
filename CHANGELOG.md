@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.26.1 (2026-11-21)
+
+### Fixed
+
+- **Windows コンソール環境での `SessionStart` モデル選択ガイダンス UTF-8 出力修正（#789）**:
+  - `plugins/sdd-implementation/scripts/session-model-start.py` が Windows の非 UTF-8 標準出力（`cp1252` 等）で日本語ガイダンス出力時に `UnicodeEncodeError` を起こし、例外ハンドラに吸収されて無出力になる不具合を修正（`sys.stdout.buffer` へ直接 UTF-8 バイト列を出力するよう変更）。
+  - `tests/gemini-environment-loops.tests.py` に `PYTHONIOENCODING=ascii` での 3-AI（`claude-code` / `codex-cli` / `gemini-cli`）`SessionStart` 回帰テストを追加。
+
+### Changed
+
+- **CI 高速化および Gemini CLI / 3-AI クロス運用 / Windows 実機検証の強化（#789）**:
+  - `tests/verification.py` に `--jobs` / `SDD_VERIFICATION_JOBS` 並列実行を追加し、`posix-regression` の `ci-shared-python` を 4 並列化（決定的な `verification-receipt/v1` 順序を維持）。
+  - `ubuntu-latest` と `windows-latest` で既に実行されている重複 PowerShell ツインを `macos-26-intel` から除外し、`version-gates (macos-26-intel)`・`test (macos-latest)`・`posix-regression` の実行時間を大幅に短縮。
+  - `tests/gemini-environment-loops.tests.py` を Windows / Linux / macOS ネイティブ対応に拡張し、必須チェック `test` ジョブへ昇格（Windows での `install.ps1 -Target Gemini`・`uninstall.ps1 -Target Gemini`・バックスラッシュパスガードパリティ・3-AI 同一ワークスペース引き継ぎを毎 PR 検証）。
+
 ## v1.26.0 (2026-11-21)
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "sdd-azure-cloud",
-  "version": "1.26.0",
+  "version": "1.26.1",
   "description": "Governed Azure Bicep cloud orchestration workflows for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }
