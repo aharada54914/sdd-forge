@@ -68,13 +68,14 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 - VS Code を使う場合、ユーザープロファイルの `mcp.json` の `servers` キーに自動登録
 - Gemini CLI を使う場合、`~/.gemini/settings.json` の `mcpServers` キーに自動登録（`SDD_GEMINI_DIR` で上書き可）
 
-導入オプション
+導入オプション（ADR-0052 により既定はローカル CLI 向けオプトイン＝未登録、0 トークン税）
 
 | オプション | 効果 |
 |---|---|
-| （既定） | MCP サーバーを配置し、`--target` に応じて Claude / Codex / Cursor / VS Code / Gemini に登録 |
-| `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
-| `--mcp sdd-forge-mcp,local-env-mcp,ci-mcp` | 配置・登録する MCP を明示的に選択（有効値: `sdd-forge-mcp`, `local-env-mcp`, `ci-mcp`。省略時は 3 件すべて） |
+| （既定） | ローカル CLI プラグインのみ導入（MCP は配置・登録しない。`plugins/sdd-quality-loop/scripts/v2/*.mjs` を直接使用） |
+| `--with-mcp` | 単一の `sdd-forge-mcp` v2（4 ツール + 2 リソース、`scripts/v2/*.mjs` SSOT）を配置し、`--target` に応じて登録 |
+| `--skip-mcp` | すべての MCP サーバーの配置・登録を明示スキップ（既定挙動の後方互換エイリアス） |
+| `--mcp sdd-forge-mcp,ci-mcp` | 配置・登録する MCP を明示指定してオプトイン（`local-env-mcp` は ADR-0052 により非推奨） |
 
 **Node.js 要件**: Node >= 20 LTS が MCP を起動する環境の PATH 上に必要です。MCP だけの要件としては、Node が使えなければ配置・登録を警告付きでスキップします。フックのホスト要件と導入後の有効化確認は [README のインストール案内](README.md#インストール)を参照してください。
 

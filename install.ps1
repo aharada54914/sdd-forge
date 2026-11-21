@@ -12,13 +12,23 @@ param(
     [switch]$RequireClaude,
     [string]$ClaudeCommand,
     [string]$SourceDirectory,
+    [switch]$WithMcp,
     [switch]$SkipMcp,
     [ValidateSet("sdd-forge-mcp", "local-env-mcp", "ci-mcp")]
-    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+    [string[]]$Mcp = @("sdd-forge-mcp")
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+
+# ADR-0052: MCP servers are opt-in by default for local CLI plugins.
+# Enable when -WithMcp or explicit -Mcp is passed (unless -SkipMcp is set).
+if (-not $SkipMcp -and -not $WithMcp -and -not $PSBoundParameters.ContainsKey('Mcp')) {
+    $SkipMcp = [System.Management.Automation.SwitchParameter]::Present
+}
+if (-not $SkipMcp -and ($Mcp -contains 'local-env-mcp')) {
+    Write-Warning "'local-env-mcp' is deprecated under ADR-0052 (superseded by sdd-doctor.mjs and native CLI checks) and will be removed in a future release."
+}
 
 # Windows' native tar cannot represent all Git UTF-8/PAX names in its locale.
 # Keep POSIX tar so Unix executable modes retain their existing semantics.

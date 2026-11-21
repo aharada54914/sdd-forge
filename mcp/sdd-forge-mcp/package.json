@@ -1,11 +1,11 @@
 {
   "name": "sdd-forge-mcp",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Read-only MCP server exposing SDD workflow state (sdd-forge).",
+  "description": "Read-only SDD Forge MCP v2 server (4 coarse-grained tools backed by v2 ESM engine, ADR-0052).",
   "engines": {
-    "node": ">=26.13.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",

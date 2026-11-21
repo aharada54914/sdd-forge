@@ -1,6 +1,6 @@
 # ADR-0052: MCP 3 サーバー構成の再評価と v2 最適 MCP アーキテクチャ
 
-- **Status**: Proposed (v2.1 Target Architecture; immediate v2 compatibility fixes shipped in #798)
+- **Status**: Accepted & Implemented (v2.1 MCP Consolidation)
 - **Date**: 2026-11-22
 - **Related**: [ADR-0051](0051-lightweight-guardrails-and-sdd-core.md), Issue #798, [docs/architecture/mcp-v2-spec.md](../architecture/mcp-v2-spec.md), [contracts/sdd-mcp.v2.schema.json](../../contracts/sdd-mcp.v2.schema.json)
 

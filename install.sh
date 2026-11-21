@@ -14,8 +14,11 @@ PLUGINS="sdd-bootstrap,sdd-ship"
 SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
-SKIP_MCP=0
-MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
+# ADR-0052: MCP servers are opt-in by default for local CLI plugins (0 token tax).
+# Pass --with-mcp (defaults to single sdd-forge-mcp v2) or --mcp <list> to enable.
+SKIP_MCP=1
+MCP_EXPLICIT=0
+MCP_LIST="sdd-forge-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
@@ -42,9 +45,10 @@ Usage: install.sh [options]
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
-  --skip-mcp                     Skip placing and registering all MCP servers
-  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp,ci-mcp
-                                 Default: sdd-forge-mcp,local-env-mcp,ci-mcp
+  --with-mcp                     Opt in to placing and registering MCP server(s) (default: sdd-forge-mcp v2)
+  --skip-mcp                     Explicitly skip placing and registering all MCP servers (default behavior per ADR-0052)
+  --mcp <comma-separated>        Opt in with specific MCP server(s) from: sdd-forge-mcp,local-env-mcp,ci-mcp
+                                 Default when --with-mcp is set: sdd-forge-mcp (local-env-mcp is deprecated)
 
 Environment:
   SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
@@ -67,8 +71,9 @@ while [[ $# -gt 0 ]]; do
         --skip-plugin-install) SKIP_PLUGIN_INSTALL=1; shift ;;
         --skip-agent-install)  SKIP_AGENT_INSTALL=1; shift ;;
         --source-directory) [[ $# -gt 1 ]] || usage; SOURCE_DIRECTORY="$2"; shift 2 ;;
-        --skip-mcp)         SKIP_MCP=1; shift ;;
-        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; shift 2 ;;
+        --with-mcp)         SKIP_MCP=0; shift ;;
+        --skip-mcp)         SKIP_MCP=1; MCP_EXPLICIT=0; shift ;;
+        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; MCP_EXPLICIT=1; SKIP_MCP=0; shift 2 ;;
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
@@ -114,6 +119,9 @@ if [[ $SKIP_MCP -eq 0 ]]; then
         if [[ $valid -eq 0 ]]; then
             echo "Invalid MCP name: $m (must be one of: $VALID_MCPS)" >&2
             exit 1
+        fi
+        if [[ "$m" == "local-env-mcp" ]]; then
+            echo "Warning: 'local-env-mcp' is deprecated under ADR-0052 (superseded by sdd-doctor.mjs and native CLI checks) and will be removed in a future release." >&2
         fi
     done
 fi
@@ -1447,6 +1455,9 @@ echo ""
 echo "SDD plugins installed at: ${RESOLVED_INSTALL_ROOT}"
 if [[ "$TARGET" == "FilesOnly" ]]; then
     echo "Plugin registration was skipped because --target=FilesOnly."
+fi
+if [[ $SKIP_MCP -eq 1 ]]; then
+    echo "MCP servers were skipped by default (ADR-0052: zero token tax for local CLI plugins). Pass --with-mcp to install sdd-forge-mcp v2."
 fi
 # ci-mcp needs a read-only GitHub token at runtime. The installer never
 # stores a token value (REQ-010, security-spec B3); it only names the

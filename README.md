@@ -55,8 +55,11 @@ flowchart TD
 前提ランタイムは **Node.js >= 20 LTS** のみです（v1 系の過剰な `Node >= 26.13.0` / `Claude >= 2.1.295` 強制停止と 4 言語パリティ要件は撤廃しました）。
 
 ```bash
-# macOS / Linux — 既定（sdd-bootstrap, sdd-ship + 依存自動解決 + 読み取り専用 MCP 3 種）
+# macOS / Linux — 既定（sdd-bootstrap, sdd-ship + 依存自動解決。ローカル CLI 向けのため MCP は既定オプトイン）
 ./install.sh --source-directory .
+
+# 非シェルクライアント（Desktop / Web / 監査ビューア）向けに単一 sdd-forge-mcp v2 も導入する場合
+./install.sh --source-directory . --with-mcp
 
 # 対象環境を指定（All | Codex | Claude | Copilot | Gemini | FilesOnly）
 ./install.sh --source-directory . --target Claude
@@ -65,13 +68,15 @@ flowchart TD
 ```powershell
 # Windows
 ./install.ps1 -SourceDirectory .
+# MCP v2 も導入する場合
+./install.ps1 -SourceDirectory . -WithMcp
 ```
 
 ### プラグイン構成
 
 - コア（既定導入）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-review-loop`
 - オプトイン専門レーン（明示指定・不在時オーバーヘッドゼロ）: `sdd-domain`（DDD） / `sdd-azure-cloud` / `sdd-aws-cloud`
-- 読み取り専用 MCP サーバー（助言層）: `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`
+- 読み取り専用 MCP サーバー（オプトイン `--with-mcp`、ADR-0052）: `sdd-forge-mcp` v2（単一サーバー・4 ツール、`scripts/v2/*.mjs` 直結 SSOT）。外部隔離 CI 用に `--mcp sdd-forge-mcp,ci-mcp` も指定可（`local-env-mcp` は非推奨）
 
 ### アンインストール
 

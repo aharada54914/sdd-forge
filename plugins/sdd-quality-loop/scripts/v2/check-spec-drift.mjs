@@ -258,6 +258,10 @@ function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (
+  process.argv[1] &&
+  path.basename(process.argv[1]) === 'check-spec-drift.mjs' &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+) {
   main();
 }
