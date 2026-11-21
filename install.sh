@@ -236,6 +236,14 @@ install_gemini_extension() {
     local p ext_dir label
     for p in "${PLUGIN_LIST[@]}"; do
         case "$p" in
+            sdd-bootstrap)
+                ext_dir="$marketplace_root/plugins/sdd-bootstrap/gemini"
+                label="Gemini extension '${p}'"
+                ;;
+            sdd-review-loop)
+                ext_dir="$marketplace_root/plugins/sdd-review-loop/gemini"
+                label="Gemini extension '${p}'"
+                ;;
             sdd-implementation)
                 ext_dir="$marketplace_root/plugins/sdd-implementation/gemini"
                 label="the Gemini model selection extension"
@@ -251,8 +259,9 @@ install_gemini_extension() {
         esac
         [[ -f "${ext_dir}/gemini-extension.json" ]] || continue
         # Linking the installed local directory preserves sibling scripts and skills.
+        # Pass --consent so non-interactive installs do not hang on Gemini CLI's confirmation prompt (#795).
         run_idempotent_plugin_command "$label" \
-            gemini extensions link "$ext_dir" || return 1
+            gemini extensions link --consent "$ext_dir" || return 1
     done
 }
 

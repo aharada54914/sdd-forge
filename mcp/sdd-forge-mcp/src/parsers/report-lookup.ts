@@ -96,15 +96,38 @@ export function hasAnyFileMentioning(root: SddRoot, relDir: string, taskId: stri
   return anyFileContaining(root, relDir, taskId).length > 0;
 }
 
+function isQualityGatePassContent(relFilePath: string, contents: string): boolean {
+  if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
+    return true;
+  }
+  if (relFilePath.endsWith(".execution.json")) {
+    try {
+      const parsed: unknown = JSON.parse(contents);
+      if (
+        parsed !== null &&
+        typeof parsed === "object" &&
+        !Array.isArray(parsed) &&
+        (parsed as Record<string, unknown>).schema === "sdd-gate-execution/v1" &&
+        (parsed as Record<string, unknown>).verdict === "PASS"
+      ) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
 /**
  * True if, among every quality-gate report mentioning `taskId`, at least one
- * contains `VERDICT: PASS`. See this module's doc comment for why this
- * checks all matches instead of only the one `head -1` would select.
+ * contains `VERDICT: PASS` (Markdown report) or a passing SDD Forge v2
+ * `sdd-gate-execution/v1` execution artifact.
  */
 export function hasQualityGateVerdictPass(root: SddRoot, relDir: string, taskId: string): boolean {
   return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
     const read = guardedRead(root, relFilePath);
-    return read.ok && /VERDICT: PASS/.test(read.data.contents);
+    return read.ok && isQualityGatePassContent(relFilePath, read.data.contents);
   });
 }
 
@@ -159,6 +182,6 @@ export function createReportLookup(): ReportLookup {
     anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map(file => file.path),
     hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
     hasQualityGateVerdictPass: (root, relDir, taskId) =>
-      matching(root, relDir, taskId).some(file => /VERDICT: PASS/.test(file.contents)),
+      matching(root, relDir, taskId).some(file => isQualityGatePassContent(file.path, file.contents)),
   };
 }

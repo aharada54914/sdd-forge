@@ -237,7 +237,15 @@ function Install-GeminiExtension {
         return
     }
     foreach ($plugin in $Plugins) {
-        if ($plugin -ceq "sdd-implementation") {
+        if ($plugin -ceq "sdd-bootstrap") {
+            $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-bootstrap/gemini'
+            $label = "Gemini extension '$plugin'"
+        }
+        elseif ($plugin -ceq "sdd-review-loop") {
+            $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-review-loop/gemini'
+            $label = "Gemini extension '$plugin'"
+        }
+        elseif ($plugin -ceq "sdd-implementation") {
             $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-implementation/gemini'
             $label = 'the Gemini model selection extension'
         }
@@ -251,7 +259,7 @@ function Install-GeminiExtension {
         }
         if (-not (Test-Path -LiteralPath (Join-Path $extDir 'gemini-extension.json') -PathType Leaf)) { continue }
         Invoke-IdempotentPluginCommand -Label $label -Command 'gemini' -Arguments @(
-            'extensions', 'link', $extDir)
+            'extensions', 'link', '--consent', $extDir)
     }
 }
 

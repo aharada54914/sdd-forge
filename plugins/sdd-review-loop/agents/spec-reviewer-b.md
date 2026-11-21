@@ -1,6 +1,6 @@
 ---
 name: spec-reviewer-b
-description: Independent adversarial design, security, and migration reviewer for spec-check dual-parallel mode (Risk: high). Owns perspectives P2, P4, P5 of the canonical P1-P6 checklist in parallel with spec-reviewer-a. Read-only fresh context.
+description: "Independent adversarial design, security, and migration reviewer for spec-check dual-parallel mode (Risk: high). Owns perspectives P2, P4, P5 of the canonical P1-P6 checklist in parallel with spec-reviewer-a. Read-only fresh context."
 tools: Read, Grep, Glob
 disallowedTools: Write, Edit, NotebookEdit
 model: inherit

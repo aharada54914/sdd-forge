@@ -55,6 +55,12 @@ function toCallToolResult<T>(result: Result<T>): { content: Array<{ type: "text"
   };
 }
 
+const READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+} as const;
+
 /** Builds the MCP server and registers every core tool against a fixed, already-resolved root. */
 export function buildServer(root: SddRoot): McpServer {
   const server = new McpServer({
@@ -70,6 +76,7 @@ export function buildServer(root: SddRoot): McpServer {
         "Lists every feature under AGENTS.md's Active Spec Directories, each " +
         "flagged with whether its tasks.md has an Approved task that is " +
         "Planned or In Progress.",
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     () => toCallToolResult(listActiveSpecs(root)),
   );
@@ -82,6 +89,7 @@ export function buildServer(root: SddRoot): McpServer {
         "Reports which Phase 1/2 artifacts exist under specs/<feature>/ and the " +
         "review-status header of requirements.md/design.md/tasks.md.",
       inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature }) => toCallToolResult(getSpecStatus(root, feature)),
   );
@@ -94,6 +102,7 @@ export function buildServer(root: SddRoot): McpServer {
         "Parses specs/<feature>/tasks.md's state machine, shell-equivalent to " +
         "check-task-state.sh (pass/fail verdict and per-task failures).",
       inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature }) => toCallToolResult(getTaskState(root, feature)),
   );
@@ -104,6 +113,7 @@ export function buildServer(root: SddRoot): McpServer {
       title: "List approved tasks",
       description: "Lists every task in specs/<feature>/tasks.md with an Approved-shaped Approval.",
       inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature }) => toCallToolResult(listApprovedTasks(root, feature)),
   );
@@ -114,6 +124,7 @@ export function buildServer(root: SddRoot): McpServer {
       title: "List blocked tasks",
       description: "Lists every task in specs/<feature>/tasks.md whose Status is Blocked.",
       inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature }) => toCallToolResult(listBlockedTasks(root, feature)),
   );
@@ -123,6 +134,7 @@ export function buildServer(root: SddRoot): McpServer {
     {
       title: "List review tickets",
       description: "Lists every parsed docs/review-tickets/RT-*.yml review ticket.",
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     () => toCallToolResult(listReviewTicketsTool(root)),
   );
@@ -134,6 +146,7 @@ export function buildServer(root: SddRoot): McpServer {
       description:
         "Lists every reports/quality-gate/*.md report that has a VERDICT line, " +
         "with its finding counts.",
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     () => toCallToolResult(getQualityGateSummary(root)),
   );
@@ -147,6 +160,7 @@ export function buildServer(root: SddRoot): McpServer {
         "feature argument, auto-selects the single active feature the same way " +
         "sdd-ship:run does) by walking AGENTS.md's Required Workflow gates.",
       inputSchema: { feature: FEATURE_ARG.optional() },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature }) => toCallToolResult(getNextSddCommand(root, feature)),
   );
@@ -160,6 +174,7 @@ export function buildServer(root: SddRoot): McpServer {
         "as-is (including its signature field); never verifies the signature " +
         "or reads any signing key.",
       inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature, taskId }) => toCallToolResult(evidenceGetBundle(root, feature, taskId)),
   );
@@ -173,6 +188,7 @@ export function buildServer(root: SddRoot): McpServer {
         "it is a safe repo-relative path within the path-guard allowlist and " +
         "whether it currently exists.",
       inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature, taskId }) => toCallToolResult(evidenceValidatePaths(root, feature, taskId)),
   );
@@ -187,6 +203,7 @@ export function buildServer(root: SddRoot): McpServer {
         "vs. missing for a task, shell-equivalent to check-task-state.sh's " +
         "Done evidence checks.",
       inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature, taskId }) => toCallToolResult(evidenceFindMissing(root, feature, taskId)),
   );
@@ -199,6 +216,7 @@ export function buildServer(root: SddRoot): McpServer {
         "Reads <taskId>.contract.json and summarizes each check's " +
         "required/passes/waiverReason/requirementIds fields.",
       inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature, taskId }) => toCallToolResult(evidenceSummarizeContractChecks(root, feature, taskId)),
   );
@@ -212,6 +230,7 @@ export function buildServer(root: SddRoot): McpServer {
         "tables against tasks.md's task ids, and each task's verification " +
         "contract requirementIds against traceability.md's declared REQ-IDs.",
       inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature }) => toCallToolResult(evidenceCompareToTraceability(root, feature)),
   );
@@ -228,6 +247,7 @@ export function buildServer(root: SddRoot): McpServer {
         "signing key, never verifies a signature (echoed with verified:false), " +
         "and never spawns git — HEAD/ancestor checks are host-deferred.",
       inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     ({ feature, taskId }) => toCallToolResult(evidenceDeepVerify(root, feature, taskId)),
   );

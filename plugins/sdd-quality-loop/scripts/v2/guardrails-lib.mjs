@@ -40,7 +40,7 @@ const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 const IDENTIFIER_LINE_RE =
   /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
-const PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none|n\/a|\(none\)|（なし）|なし|（初期版のため変更なし）|\(initial\s+version[^)]*\))$/i;
+const PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none(?:\s+yet)?\.?|n\/a|\(none\)|no\s+changes?(?:\s+yet)?\.?|（なし）|なし|（初期版のため変更なし）|初期版[。．.・\s]*変更なし[。．.]?|初期版（変更なし）|\(initial\s+version[^)]*\))$/i;
 
 export function normalizeNewlines(text) {
   return typeof text === 'string' ? text.replace(/\r\n/g, '\n').replace(/\r/g, '\n') : '';

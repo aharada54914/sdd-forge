@@ -46,7 +46,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `local-env-mcp` | 3種 | [`contracts/local-env-mcp-tools.v1.schema.json`](contracts/local-env-mcp-tools.v1.schema.json) |
 | `ci-mcp` | 5種 | [`contracts/ci-mcp-tools.v1.schema.json`](contracts/ci-mcp-tools.v1.schema.json) |
 
-いずれのサーバーも **Node.js >= 26.13.0**（`package.json` の `engines.node`）を必要とします。
+いずれのサーバーも **Node.js >= 20 LTS** で動作します（v2.0.0 で v1 系の `Node >= 26.13.0` 強制要件を撤廃しました）。
 
 ### sdd-forge-mcp
 
@@ -76,7 +76,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
 | `--mcp sdd-forge-mcp,local-env-mcp,ci-mcp` | 配置・登録する MCP を明示的に選択（有効値: `sdd-forge-mcp`, `local-env-mcp`, `ci-mcp`。省略時は 3 件すべて） |
 
-**Node.js 要件**: Node >= 26.13.0 が MCP を起動する環境の PATH 上に必要です。MCP だけの要件としては、Node が使えなければ配置・登録を警告付きでスキップします。ただし Claude 用の `sdd-quality-loop` 安全フックも登録する場合、Node は必須です。インストーラは配置の変更前に Node を確認し、利用できなければ終了します。フックのホスト要件と導入後の有効化確認は [README のインストール案内](README.md#インストール)を参照してください。
+**Node.js 要件**: Node >= 20 LTS が MCP を起動する環境の PATH 上に必要です。MCP だけの要件としては、Node が使えなければ配置・登録を警告付きでスキップします。フックのホスト要件と導入後の有効化確認は [README のインストール案内](README.md#インストール)を参照してください。
 
 #### 対象リポジトリの指定
 

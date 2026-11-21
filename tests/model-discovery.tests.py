@@ -144,6 +144,52 @@ print(json.dumps({'id':request['id'],'result':{'tool_denied':reply['error']['cod
                             client.receive()
                     self.assertIsNotNone(client.process.poll())
 
+    def test_claude_v21330_subscription_account_shape_without_token_source(self):
+        # Issue #796: Claude Code v2.1.330+ returns subscriptionType + apiProvider='firstParty'
+        # without legacy tokenSource/apiKeySource fields.
+        fake_resp = {
+            'type': 'control_response',
+            'response': {
+                'request_id': 'discovery',
+                'subtype': 'success',
+                'response': {
+                    'account': {
+                        'email': 'user@example.invalid',
+                        'organization': 'org',
+                        'subscriptionType': 'max',
+                        'apiProvider': 'firstParty',
+                    },
+                    'models': [
+                        {
+                            'value': 'opus',
+                            'displayName': 'Opus 5.5',
+                            'supportedEffortLevels': ['low', 'medium', 'high', 'xhigh', 'max'],
+                            'defaultEffort': None,
+                        }
+                    ],
+                },
+            },
+        }
+
+        class FakeClient:
+            def __init__(self, *_):
+                self._sent = []
+            def __enter__(self):
+                return self
+            def __exit__(self, *_):
+                return False
+            def send(self, val):
+                self._sent.append(val)
+            def receive(self):
+                return fake_resp
+
+        with patch.object(d, 'NativeClient', FakeClient):
+            rows, auth = d.claude('/usr/bin/claude', '/tmp')
+        self.assertEqual(auth, 'subscription')
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['model'], 'opus')
+        self.assertEqual(rows[0]['display_name'], 'Opus 5.5')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -364,4 +364,50 @@ describe('sdd-soft-guard.mjs (v2 Lightweight Guardrails)', () => {
     });
     assert.equal(allowReviewed.status, 0);
   });
+
+  it('Issue #797: blocks approved spec edits inside a child Git repo even when invoked from a parent workspace cwd', () => {
+    const parentWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-parent-ws-'));
+    const childRepo = path.join(parentWorkspace, 'child-repo');
+    fs.mkdirSync(path.join(childRepo, '.git'), { recursive: true });
+    fs.mkdirSync(path.join(childRepo, 'sdd'), { recursive: true });
+    fs.mkdirSync(path.join(childRepo, 'specs', 'demo-feature'), { recursive: true });
+    fs.writeFileSync(path.join(childRepo, 'sdd', 'guardrails.yaml'), 'spec_guard:\n  mode: confirm\n', 'utf8');
+    fs.writeFileSync(
+      path.join(childRepo, 'specs', 'demo-feature', 'requirements.md'),
+      '# Requirements: demo-feature\n\n- REQ-001: Auth works.\n- AC-001: Returns 200.\n\n## Spec Amendments\n\n- 初期版。変更なし。\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(childRepo, 'specs', 'demo-feature', 'tasks.md'),
+      '# Tasks\n\n## T-001 Task\nApproval: Approved\nStatus: Planned\nRisk: standard\n',
+      'utf8',
+    );
+
+    // Invoke guard with --root set to the parent workspace (simulating Claude launched from $HOME editing a child repo)
+    const denyRes = runGuard(parentWorkspace, {
+      cwd: parentWorkspace,
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: path.join(childRepo, 'specs', 'demo-feature', 'requirements.md'),
+        old_string: 'Returns 200.',
+        new_string: 'Returns 204.',
+      },
+    });
+    assert.equal(denyRes.status, 2, `Expected confirm deny from parent cwd, got status=${denyRes.status} stderr=${denyRes.stderr}`);
+    assert.match(denyRes.stderr, /confirm/);
+
+    // Also verify AGENT_STOP inside childRepo blocks edits even when launched from parentWorkspace
+    fs.writeFileSync(path.join(childRepo, 'AGENT_STOP'), 'paused\n', 'utf8');
+    const killRes = runGuard(parentWorkspace, {
+      cwd: parentWorkspace,
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: path.join(childRepo, 'src', 'index.mjs'),
+        old_string: '',
+        new_string: 'console.log(1);',
+      },
+    });
+    assert.equal(killRes.status, 2);
+    assert.match(killRes.stderr, /AGENT_STOP/);
+  });
 });

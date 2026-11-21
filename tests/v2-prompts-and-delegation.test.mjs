@@ -341,4 +341,40 @@ print('OK')
       }
     },
   );
+
+  it('Issues #795-#798: Gemini installer --consent, quoted reviewer frontmatter, separated Gemini manifests, and ADR-0052 MCP v2 schema', () => {
+    // #795: install.sh and install.ps1 pass --consent to gemini extensions link and point bootstrap/review-loop to gemini/ subdirs
+    const installSh = fs.readFileSync(path.join(REPO_ROOT, 'install.sh'), 'utf8');
+    const installPs1 = fs.readFileSync(path.join(REPO_ROOT, 'install.ps1'), 'utf8');
+    assert.match(installSh, /gemini extensions link --consent "\$ext_dir"/);
+    assert.match(installPs1, /'extensions',\s*'link',\s*'--consent',\s*\$extDir/);
+    assert.match(installSh, /plugins\/sdd-bootstrap\/gemini/);
+    assert.match(installSh, /plugins\/sdd-review-loop\/gemini/);
+
+    for (const rel of [
+      'plugins/sdd-bootstrap/gemini/gemini-extension.json',
+      'plugins/sdd-bootstrap/gemini/GEMINI.md',
+      'plugins/sdd-review-loop/gemini/gemini-extension.json',
+      'plugins/sdd-review-loop/gemini/GEMINI.md',
+    ]) {
+      assert.ok(fs.existsSync(path.join(REPO_ROOT, rel)), `Missing Gemini extension artifact: ${rel}`);
+    }
+
+    // #795: spec-reviewer-{a,b}.md quote description containing 'Risk:' colons for strict YAML parsers
+    for (const agentFile of [
+      'plugins/sdd-review-loop/agents/spec-reviewer-a.md',
+      'plugins/sdd-review-loop/agents/spec-reviewer-b.md',
+    ]) {
+      const text = fs.readFileSync(path.join(REPO_ROOT, agentFile), 'utf8');
+      assert.match(text, /^description:\s*"[^"\n]+Risk:\s*(?:standard|high)[^"\n]*"$/m, `${agentFile} description must be YAML-quoted`);
+    }
+
+    // #798: ADR-0052, MCP v2 spec, and JSON schema contract exist and parse cleanly
+    assert.ok(fs.existsSync(path.join(REPO_ROOT, 'docs/adr/0052-mcp-architecture-and-v2-consolidation.md')));
+    assert.ok(fs.existsSync(path.join(REPO_ROOT, 'docs/architecture/mcp-v2-spec.md')));
+    const schema = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'contracts/sdd-mcp.v2.schema.json'), 'utf8'));
+    for (const def of ['sdd_project_overview_data', 'sdd_feature_state_data', 'sdd_gate_audit_data', 'toolAnnotations']) {
+      assert.ok(schema.$defs?.[def], `Missing $defs.${def} in contracts/sdd-mcp.v2.schema.json`);
+    }
+  });
 });

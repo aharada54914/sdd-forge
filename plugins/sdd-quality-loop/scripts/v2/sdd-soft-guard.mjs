@@ -25,12 +25,14 @@ import {
   countDomainModelApprovals,
   countPrimaryApprovals,
   extractAmendmentEntries,
+  findGitRoot,
   findProjectRoot,
   isFeatureApproved,
   isSafeSpecEditOnly,
   loadGuardrailsConfig,
   matchProtectedSpecPath,
   normalizeNewlines,
+  safeRealpath,
   toPosixPath,
 } from './guardrails-lib.mjs';
 
@@ -258,7 +260,34 @@ function applyPatchSectionToContent(oldContent, section) {
   return result;
 }
 
+function resolveEffectiveProjectRoot(filePath, fallbackRoot) {
+  const startDir = path.dirname(path.resolve(filePath));
+  const nearestGit = findGitRoot(startDir);
+  if (nearestGit) return safeRealpath(nearestGit);
+  let current = startDir;
+  for (let i = 0; i < 25; i += 1) {
+    if (
+      fs.existsSync(path.join(current, 'sdd', 'guardrails.yaml')) ||
+      fs.existsSync(path.join(current, 'sdd', 'guardrails.json'))
+    ) {
+      return safeRealpath(current);
+    }
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return fallbackRoot;
+}
+
 function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldSnippet, fallbackNewSnippet, projectRoot, config, cwd, env }) {
+  const effectiveRoot = resolveEffectiveProjectRoot(filePath, projectRoot);
+  const effectiveConfig = effectiveRoot === projectRoot ? config : loadGuardrailsConfig(effectiveRoot);
+
+  // Check 1b: Kill switch in the target file's own repository root (when invoked from a parent workspace cwd)
+  if (effectiveRoot !== projectRoot && fs.existsSync(path.join(effectiveRoot, 'AGENT_STOP'))) {
+    return { decision: 'deny', reason: KILL_MSG, warning: null };
+  }
+
   const normalizedTarget = toPosixPath(filePath);
   const isTasksMd = normalizedTarget.toLowerCase().endsWith('tasks.md');
   const isDomainContextMap = normalizedTarget.toLowerCase().endsWith('domain/context-map.md');
@@ -284,12 +313,12 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
   }
 
   // Check 3: Soft spec guard on approved features
-  const specMatch = matchProtectedSpecPath(filePath, projectRoot, config, cwd);
-  if (!specMatch || !specMatch.feature || !isFeatureApproved(projectRoot, specMatch.feature)) {
+  const specMatch = matchProtectedSpecPath(filePath, effectiveRoot, effectiveConfig, cwd);
+  if (!specMatch || !specMatch.feature || !isFeatureApproved(effectiveRoot, specMatch.feature)) {
     return { decision: 'allow', reason: null, warning: null };
   }
 
-  const allowAmendments = config.spec_guard.allow_amendment_section;
+  const allowAmendments = effectiveConfig.spec_guard.allow_amendment_section;
   const safeEdit =
     newContent !== null
       ? isSafeSpecEditOnly(oldContent, newContent, specMatch.fileName, allowAmendments)
@@ -299,11 +328,11 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
     return { decision: 'allow', reason: null, warning: null };
   }
 
-  const mode = config.spec_guard.mode;
+  const mode = effectiveConfig.spec_guard.mode;
   const explicitOverride = env.SDD_ALLOW_SPEC_EDIT === '1' || env.SDD_ALLOW_SPEC_EDIT === 'true';
 
   if (explicitOverride) {
-    appendDriftEvent(projectRoot, {
+    appendDriftEvent(effectiveRoot, {
       action: 'allow_override',
       mode,
       feature: specMatch.feature,
@@ -314,7 +343,7 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
 
   if (mode === 'warn') {
     const warning = buildSpecWarnMessage(specMatch.relPath, specMatch.feature);
-    appendDriftEvent(projectRoot, {
+    appendDriftEvent(effectiveRoot, {
       action: 'warn_allow',
       mode,
       feature: specMatch.feature,
@@ -326,10 +355,10 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
   if (
     mode === 'confirm' &&
     allowAmendments &&
-    hasDocumentedSpecAmendment(oldContent, newContent, projectRoot, specMatch.feature, specMatch.relPath)
+    hasDocumentedSpecAmendment(oldContent, newContent, effectiveRoot, specMatch.feature, specMatch.relPath)
   ) {
     const warning = buildSpecAmendedConfirmMessage(specMatch.relPath, specMatch.feature);
-    appendDriftEvent(projectRoot, {
+    appendDriftEvent(effectiveRoot, {
       action: 'confirm_amended_allow',
       mode,
       feature: specMatch.feature,
@@ -338,7 +367,7 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
     return { decision: 'allow', reason: null, warning };
   }
 
-  appendDriftEvent(projectRoot, {
+  appendDriftEvent(effectiveRoot, {
     action: mode === 'strict' ? 'strict_deny' : 'confirm_soft_deny',
     mode,
     feature: specMatch.feature,

@@ -34891,10 +34891,26 @@ function anyFileContaining(root, relDir, pattern) {
 function hasAnyFileMentioning(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).length > 0;
 }
+function isQualityGatePassContent(relFilePath, contents) {
+  if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
+    return true;
+  }
+  if (relFilePath.endsWith(".execution.json")) {
+    try {
+      const parsed = JSON.parse(contents);
+      if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed) && parsed.schema === "sdd-gate-execution/v1" && parsed.verdict === "PASS") {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
 function hasQualityGateVerdictPass(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
     const read = guardedRead(root, relFilePath);
-    return read.ok && /VERDICT: PASS/.test(read.data.contents);
+    return read.ok && isQualityGatePassContent(relFilePath, read.data.contents);
   });
 }
 function createReportLookup() {
@@ -34929,7 +34945,7 @@ function createReportLookup() {
     }),
     anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map((file2) => file2.path),
     hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
-    hasQualityGateVerdictPass: (root, relDir, taskId) => matching(root, relDir, taskId).some((file2) => /VERDICT: PASS/.test(file2.contents))
+    hasQualityGateVerdictPass: (root, relDir, taskId) => matching(root, relDir, taskId).some((file2) => isQualityGatePassContent(file2.path, file2.contents))
   };
 }
 
@@ -35283,55 +35299,58 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   }
 }
 function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail, reportLookup) {
+  const isV2CoreFeature = guardedExists(root, `${tasksDir}/.spec-baseline.json`);
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
-  if (!guardedExists(root, bundleRelPath)) {
-    fail(
-      "done-evidence-missing",
-      `${taskId} is Done but verification/${taskId}.evidence.json does not exist in ${tasksDir}`
-    );
-  } else {
-    const bundleFailures = verifyEvidenceBundle(root, bundleRelPath, taskId);
-    if (bundleFailures.length > 0) {
-      fail("done-evidence-invalid", `${taskId} evidence bundle failed validation: ${bundleRelPath}`);
-    }
-  }
-  if (!guardedExists(root, contractRelPath)) {
-    fail(
-      "done-contract-missing",
-      `${taskId} is Done but verification/${taskId}.contract.json does not exist in ${tasksDir}`
-    );
-  } else if (!guardedExistsNonEmpty(root, contractRelPath)) {
-    fail(
-      "done-contract-empty",
-      `${taskId} is Done but verification/${taskId}.contract.json is empty in ${tasksDir}`
-    );
-  } else {
-    const contractRead = guardedRead(root, contractRelPath);
-    let contractTaskIdMatches = false;
-    let contractRisk = "";
-    if (contractRead.ok) {
-      try {
-        const parsed = JSON.parse(contractRead.data.contents);
-        if (isJsonObject(parsed)) {
-          contractTaskIdMatches = parsed.task_id === taskId;
-          contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
-        }
-      } catch {
-        contractTaskIdMatches = false;
+  if (!isV2CoreFeature) {
+    if (!guardedExists(root, bundleRelPath)) {
+      fail(
+        "done-evidence-missing",
+        `${taskId} is Done but verification/${taskId}.evidence.json does not exist in ${tasksDir}`
+      );
+    } else {
+      const bundleFailures = verifyEvidenceBundle(root, bundleRelPath, taskId);
+      if (bundleFailures.length > 0) {
+        fail("done-evidence-invalid", `${taskId} evidence bundle failed validation: ${bundleRelPath}`);
       }
     }
-    if (!contractTaskIdMatches) {
+    if (!guardedExists(root, contractRelPath)) {
       fail(
-        "done-contract-task-id-mismatch",
-        `${taskId} is Done but verification/${taskId}.contract.json has mismatched task_id`
+        "done-contract-missing",
+        `${taskId} is Done but verification/${taskId}.contract.json does not exist in ${tasksDir}`
       );
-    }
-    if (contractTaskIdMatches && contractRisk !== "" && taskRisk !== "" && contractRisk !== taskRisk) {
+    } else if (!guardedExistsNonEmpty(root, contractRelPath)) {
       fail(
-        "contract-risk-mismatch",
-        `${taskId} contract risk '${contractRisk}' does not match tasks.md risk '${taskRisk}'`
+        "done-contract-empty",
+        `${taskId} is Done but verification/${taskId}.contract.json is empty in ${tasksDir}`
       );
+    } else {
+      const contractRead = guardedRead(root, contractRelPath);
+      let contractTaskIdMatches = false;
+      let contractRisk = "";
+      if (contractRead.ok) {
+        try {
+          const parsed = JSON.parse(contractRead.data.contents);
+          if (isJsonObject(parsed)) {
+            contractTaskIdMatches = parsed.task_id === taskId;
+            contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
+          }
+        } catch {
+          contractTaskIdMatches = false;
+        }
+      }
+      if (!contractTaskIdMatches) {
+        fail(
+          "done-contract-task-id-mismatch",
+          `${taskId} is Done but verification/${taskId}.contract.json has mismatched task_id`
+        );
+      }
+      if (contractTaskIdMatches && contractRisk !== "" && taskRisk !== "" && contractRisk !== taskRisk) {
+        fail(
+          "contract-risk-mismatch",
+          `${taskId} contract risk '${contractRisk}' does not match tasks.md risk '${taskRisk}'`
+        );
+      }
     }
   }
   const qgMatches = (reportLookup?.anyFileContaining ?? anyFileContaining)(root, reportsDir, taskId);
@@ -36851,6 +36870,11 @@ function toCallToolResult(result) {
     content: [{ type: "text", text: JSON.stringify(result) }]
   };
 }
+var READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true
+};
 function buildServer(root) {
   const server = new McpServer({
     name: "sdd-forge-mcp",
@@ -36860,7 +36884,8 @@ function buildServer(root) {
     "list_active_specs",
     {
       title: "List active spec directories",
-      description: "Lists every feature under AGENTS.md's Active Spec Directories, each flagged with whether its tasks.md has an Approved task that is Planned or In Progress."
+      description: "Lists every feature under AGENTS.md's Active Spec Directories, each flagged with whether its tasks.md has an Approved task that is Planned or In Progress.",
+      annotations: READ_ONLY_ANNOTATIONS
     },
     () => toCallToolResult(listActiveSpecs(root))
   );
@@ -36869,7 +36894,8 @@ function buildServer(root) {
     {
       title: "Get spec status",
       description: "Reports which Phase 1/2 artifacts exist under specs/<feature>/ and the review-status header of requirements.md/design.md/tasks.md.",
-      inputSchema: { feature: FEATURE_ARG }
+      inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature }) => toCallToolResult(getSpecStatus(root, feature))
   );
@@ -36878,7 +36904,8 @@ function buildServer(root) {
     {
       title: "Get task state",
       description: "Parses specs/<feature>/tasks.md's state machine, shell-equivalent to check-task-state.sh (pass/fail verdict and per-task failures).",
-      inputSchema: { feature: FEATURE_ARG }
+      inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature }) => toCallToolResult(getTaskState(root, feature))
   );
@@ -36887,7 +36914,8 @@ function buildServer(root) {
     {
       title: "List approved tasks",
       description: "Lists every task in specs/<feature>/tasks.md with an Approved-shaped Approval.",
-      inputSchema: { feature: FEATURE_ARG }
+      inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature }) => toCallToolResult(listApprovedTasks(root, feature))
   );
@@ -36896,7 +36924,8 @@ function buildServer(root) {
     {
       title: "List blocked tasks",
       description: "Lists every task in specs/<feature>/tasks.md whose Status is Blocked.",
-      inputSchema: { feature: FEATURE_ARG }
+      inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature }) => toCallToolResult(listBlockedTasks(root, feature))
   );
@@ -36904,7 +36933,8 @@ function buildServer(root) {
     "list_review_tickets",
     {
       title: "List review tickets",
-      description: "Lists every parsed docs/review-tickets/RT-*.yml review ticket."
+      description: "Lists every parsed docs/review-tickets/RT-*.yml review ticket.",
+      annotations: READ_ONLY_ANNOTATIONS
     },
     () => toCallToolResult(listReviewTicketsTool(root))
   );
@@ -36912,7 +36942,8 @@ function buildServer(root) {
     "get_quality_gate_summary",
     {
       title: "Get quality gate summary",
-      description: "Lists every reports/quality-gate/*.md report that has a VERDICT line, with its finding counts."
+      description: "Lists every reports/quality-gate/*.md report that has a VERDICT line, with its finding counts.",
+      annotations: READ_ONLY_ANNOTATIONS
     },
     () => toCallToolResult(getQualityGateSummary(root))
   );
@@ -36921,7 +36952,8 @@ function buildServer(root) {
     {
       title: "Get next SDD command",
       description: "Determines the next SDD workflow command for a feature (or, with no feature argument, auto-selects the single active feature the same way sdd-ship:run does) by walking AGENTS.md's Required Workflow gates.",
-      inputSchema: { feature: FEATURE_ARG.optional() }
+      inputSchema: { feature: FEATURE_ARG.optional() },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature }) => toCallToolResult(getNextSddCommand2(root, feature))
   );
@@ -36930,7 +36962,8 @@ function buildServer(root) {
     {
       title: "Get evidence bundle",
       description: "Reads and echoes specs/<feature>/verification/<taskId>.evidence.json as-is (including its signature field); never verifies the signature or reads any signing key.",
-      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG }
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, taskId }) => toCallToolResult(evidenceGetBundle(root, feature, taskId))
   );
@@ -36939,7 +36972,8 @@ function buildServer(root) {
     {
       title: "Validate evidence artifact paths",
       description: "For every artifact path in <taskId>.evidence.json, reports whether it is a safe repo-relative path within the path-guard allowlist and whether it currently exists.",
-      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG }
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, taskId }) => toCallToolResult(evidenceValidatePaths(root, feature, taskId))
   );
@@ -36948,7 +36982,8 @@ function buildServer(root) {
     {
       title: "Find missing Done-transition evidence",
       description: "Reports which Done-transition requirements (evidence bundle, verification contract, a passing quality-gate report) are present vs. missing for a task, shell-equivalent to check-task-state.sh's Done evidence checks.",
-      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG }
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, taskId }) => toCallToolResult(evidenceFindMissing(root, feature, taskId))
   );
@@ -36957,7 +36992,8 @@ function buildServer(root) {
     {
       title: "Summarize verification contract checks",
       description: "Reads <taskId>.contract.json and summarizes each check's required/passes/waiverReason/requirementIds fields.",
-      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG }
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, taskId }) => toCallToolResult(evidenceSummarizeContractChecks(root, feature, taskId))
   );
@@ -36966,7 +37002,8 @@ function buildServer(root) {
     {
       title: "Compare verification artifacts to traceability",
       description: "Cross-checks traceability.md's REQ -> Task and AC -> TEST -> Task tables against tasks.md's task ids, and each task's verification contract requirementIds against traceability.md's declared REQ-IDs.",
-      inputSchema: { feature: FEATURE_ARG }
+      inputSchema: { feature: FEATURE_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature }) => toCallToolResult(evidenceCompareToTraceability(root, feature))
   );
@@ -36975,7 +37012,8 @@ function buildServer(root) {
     {
       title: "Deep-verify an evidence bundle",
       description: "Reads <taskId>.evidence.json and recomputes every artifact's sha256 from disk, the canonical artifacts digest, spec_revision, git_commit shape, and contract/report cross-bindings, reducing them to a deterministic pass/fail verdict with a failures list. Never reads a signing key, never verifies a signature (echoed with verified:false), and never spawns git \u2014 HEAD/ancestor checks are host-deferred.",
-      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG }
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+      annotations: READ_ONLY_ANNOTATIONS
     },
     ({ feature, taskId }) => toCallToolResult(evidenceDeepVerify(root, feature, taskId))
   );

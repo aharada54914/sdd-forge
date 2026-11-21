@@ -169,6 +169,10 @@ def claude(executable, project):
         auth = 'api-key'
     elif account.get('tokenSource') not in (None, '', 'none'):
         auth = 'oauth'
+    elif account.get('subscriptionType') not in (None, '', 'none'):
+        auth = 'subscription'
+    elif provider == 'firstParty' and any(account.get(k) not in (None, '', 'none') for k in ('email', 'organization')):
+        auth = 'oauth'
     else:
         raise DiscoveryError('authentication-unavailable')
     rows = [

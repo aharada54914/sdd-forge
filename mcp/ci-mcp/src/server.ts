@@ -42,6 +42,12 @@ function toCallToolResult<T>(result: Result<T>): { content: Array<{ type: "text"
   };
 }
 
+const READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+} as const;
+
 /** Builds the ci-mcp MCP server and registers the read-only Actions tools implemented so far. */
 export function buildServer(): McpServer {
   const server = new McpServer({
@@ -58,6 +64,7 @@ export function buildServer(): McpServer {
         "filtered by branch/status/event and capped at perPage results. " +
         "Read-only: issues a single GET against the GitHub Actions REST API.",
       inputSchema: LIST_WORKFLOW_RUNS_INPUT_SHAPE,
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async (args) => toCallToolResult(await listWorkflowRuns(args)),
   );
@@ -72,6 +79,7 @@ export function buildServer(): McpServer {
         "issues a single GET against the GitHub Actions REST API. A " +
         "non-existent run id returns a not-found error envelope.",
       inputSchema: GET_WORKFLOW_RUN_INPUT_SHAPE,
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async (args) => toCallToolResult(await getWorkflowRun(args)),
   );
@@ -86,6 +94,7 @@ export function buildServer(): McpServer {
         "failed step (null if none failed). Read-only: issues a single GET " +
         "against the GitHub Actions REST API.",
       inputSchema: LIST_RUN_JOBS_INPUT_SHAPE,
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async (args) => toCallToolResult(await listRunJobs(args)),
   );
@@ -101,6 +110,7 @@ export function buildServer(): McpServer {
         "error. Read-only: issues a single GET against the GitHub Actions " +
         "REST API.",
       inputSchema: LIST_RUN_ARTIFACTS_INPUT_SHAPE,
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async (args) => toCallToolResult(await listRunArtifacts(args)),
   );
@@ -117,6 +127,7 @@ export function buildServer(): McpServer {
         "of truncation. Read-only: issues a single GET against the GitHub " +
         "Actions REST API.",
       inputSchema: GET_JOB_LOG_INPUT_SHAPE,
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async (args) => toCallToolResult(await getJobLog(args)),
   );
