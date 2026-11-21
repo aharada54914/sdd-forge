@@ -122,8 +122,9 @@ describe('Antigravity CLI (agy) native support & Software Factory v2.1 (F-1..F-8
   });
 
   it('session-model-start.py --host antigravity-cli emits Antigravity injectSteps and model-discovery.py parses agy models', () => {
+    const py = process.platform === 'win32' ? 'python' : 'python3';
     const startRes = spawnSync(
-      'python3',
+      py,
       [SESSION_START, '--host', 'antigravity-cli'],
       {
         input: JSON.stringify({ conversationId: 'conv-123', source: 'startup' }),
@@ -138,12 +139,13 @@ describe('Antigravity CLI (agy) native support & Software Factory v2.1 (F-1..F-8
 
     // Verify model-discovery.py antigravity parser & M-7 claude firstParty/non-string type checks
     const pyCheck = spawnSync(
-      'python3',
+      py,
       [
         '-c',
         `
-import importlib.util, os, stat, tempfile
+import importlib.util, io, os, stat, tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('md', ${JSON.stringify(
           path.join(REPO_ROOT, 'plugins/sdd-implementation/scripts/model-discovery.py'),
@@ -158,11 +160,27 @@ assert md._nonempty_str(0) is False
 assert md._nonempty_str('') is False
 assert md._nonempty_str('none') is False
 
+sample_out = '\\r\\u280b Fetching available models...\\ngemini-4-neon-xhigh              Gemini 4 Neon (XHigh)\\nclaude-opus-5-5-high            Claude Opus 5.5 (High)\\n'
 with tempfile.TemporaryDirectory() as td:
-    fake_agy = Path(td) / 'agy'
-    fake_agy.write_text('#!/bin/sh\\nprintf "\\\\r⠋ Fetching available models...\\\\ngemini-4-neon-xhigh              Gemini 4 Neon (XHigh)\\\\nclaude-opus-5-5-high            Claude Opus 5.5 (High)\\\\n"\\n')
-    fake_agy.chmod(0o755)
-    rows, auth = md.antigravity(str(fake_agy), td)
+    if os.name == 'nt':
+        class FakeProc:
+            def __init__(self, *a, **kw):
+                self.pid = 1
+                self.stdout = io.BytesIO(sample_out.encode('utf-8'))
+                self.returncode = 0
+            def wait(self, timeout=None):
+                return 0
+            def poll(self):
+                return 0
+            def kill(self):
+                pass
+        with patch.object(md.subprocess, 'Popen', FakeProc):
+            rows, auth = md.antigravity('agy', td)
+    else:
+        fake_agy = Path(td) / 'agy'
+        fake_agy.write_text('#!/bin/sh\\nprintf "%b" ' + repr(sample_out) + '\\n', encoding='utf-8')
+        fake_agy.chmod(0o755)
+        rows, auth = md.antigravity(str(fake_agy), td)
     assert auth == 'cli-managed'
     assert [r['model'] for r in rows] == ['gemini-4-neon-xhigh', 'claude-opus-5-5-high']
     assert rows[0]['host'] == 'antigravity-cli'
