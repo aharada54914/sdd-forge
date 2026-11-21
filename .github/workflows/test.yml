@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   v2-guardrails:
-    name: v2-guardrails (${{ matrix.os }})
+    name: test (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
