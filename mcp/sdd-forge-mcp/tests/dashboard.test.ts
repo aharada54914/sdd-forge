@@ -118,6 +118,7 @@ test('SDD Core dashboard routes preserve evidence validation across refreshes', 
   try {
     writeFile(f.dir, 'AGENTS.md', '# Project\n## Active Spec Directories\n- `specs/demo/`\n');
     writeFile(f.dir, 'specs/demo/design.md', '# Design\n');
+    writeFile(f.dir, 'specs/demo/.spec-baseline.json', '{"schema":"sdd-spec-baseline/v1","feature":"demo","files":{}}\n');
     const reader = new DashboardReader(f.root);
     const planned = reader.sample();
     assert.equal(planned.error, null);

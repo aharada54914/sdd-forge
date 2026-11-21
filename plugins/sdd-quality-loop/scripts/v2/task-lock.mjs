@@ -133,15 +133,16 @@ export function acquireLock({
           }
           continue;
         }
-        // A fresh active lock replaced the stale one just before our rename — restore it.
+        // A fresh active lock replaced the stale one just before our rename — restore without clobbering a 3rd racer.
         try {
-          fs.renameSync(claimPath, lockPath);
+          fs.linkSync(claimPath, lockPath);
         } catch {
-          try {
-            fs.unlinkSync(claimPath);
-          } catch {
-            // ignore
-          }
+          // Another racer already acquired lockPath; do not overwrite it.
+        }
+        try {
+          fs.unlinkSync(claimPath);
+        } catch {
+          // ignore
         }
         return {
           acquired: false,

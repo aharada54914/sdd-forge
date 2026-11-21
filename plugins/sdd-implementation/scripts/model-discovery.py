@@ -7,6 +7,7 @@ from pathlib import Path
 import queue
 import re
 import shutil
+import signal
 import subprocess
 import threading
 import time
@@ -230,6 +231,19 @@ def codex(executable, project):
         raise DiscoveryError('incomplete-pagination')
 
 
+def _kill_process_tree(proc):
+    if os.name != 'nt':
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+            return
+        except OSError:
+            pass
+    try:
+        proc.kill()
+    except OSError:
+        pass
+
+
 def antigravity(executable, project):
     source = 'agy models'
     proc = subprocess.Popen(
@@ -238,23 +252,54 @@ def antigravity(executable, project):
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
+        start_new_session=(os.name != 'nt'),
         env=dict(os.environ, SDD_SESSION_NONINTERACTIVE='1', NO_COLOR='1', TERM='dumb'),
     )
+    chunks = []
+    read_error = []
+
+    def _reader():
+        try:
+            assert proc.stdout is not None
+            chunks.append(proc.stdout.read(MAX_BYTES + 1))
+        except Exception as exc:  # pragma: no cover
+            read_error.append(exc)
+
+    reader = threading.Thread(target=_reader, daemon=True)
+    reader.start()
     try:
-        assert proc.stdout is not None
-        out = proc.stdout.read(MAX_BYTES + 1)
-        proc.wait(timeout=TIMEOUT)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.wait()
-        raise DiscoveryError('cli-timeout')
+        reader.join(timeout=TIMEOUT)
+        if reader.is_alive():
+            _kill_process_tree(proc)
+            proc.wait(timeout=2)
+            reader.join(timeout=1)
+            raise DiscoveryError('cli-timeout')
+        if read_error:
+            raise DiscoveryError('cli-request-failed')
+        out = chunks[0] if chunks else b''
+        if len(out) > MAX_BYTES:
+            _kill_process_tree(proc)
+            proc.wait(timeout=2)
+            raise DiscoveryError('cli-request-failed')
+        try:
+            proc.wait(timeout=TIMEOUT)
+        except subprocess.TimeoutExpired:
+            _kill_process_tree(proc)
+            proc.wait(timeout=2)
+            raise DiscoveryError('cli-timeout')
     finally:
-        if proc.stdout is not None:
-            proc.stdout.close()
         if proc.poll() is None:
-            proc.kill()
-            proc.wait()
-    if proc.returncode != 0 or len(out) > MAX_BYTES:
+            _kill_process_tree(proc)
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                pass
+        if proc.stdout is not None and not reader.is_alive():
+            try:
+                proc.stdout.close()
+            except OSError:
+                pass
+    if proc.returncode != 0:
         raise DiscoveryError('cli-request-failed')
     raw = out.decode('utf-8', errors='replace')
     cleaned = ANSI_RE.sub('', raw)
