@@ -86,6 +86,11 @@
     "tests/workflow-state-parity.tests.sh": {"weight_seconds": 5, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 3.79}, {"run_id": 39083426002, "shard": 1, "seconds": 4.048}]},
     "tests/workflow-state-registry-parity.tests.sh": {"weight_seconds": 7, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 6.668}, {"run_id": 39083426002, "shard": 3, "seconds": 6.57}]},
     "tests/workflow-state-registry.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 0.696}, {"run_id": 39083426002, "shard": 2, "seconds": 0.682}]},
-    "tests/workflow-state.tests.sh": {"weight_seconds": 175, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 157.561}, {"run_id": 39083426002, "shard": 0, "seconds": 174.77}]}
+    "tests/workflow-state.tests.sh": {"weight_seconds": 175, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 157.561}, {"run_id": 39083426002, "shard": 0, "seconds": 174.77}]},
+    "tests/model-policy-installed.tests.py": {"weight_seconds": 1232, "samples": [{"run_id": 44832117075, "job": "complete POSIX regression inventory", "seconds": 1232}]},
+    "tests/model-policy-launch.tests.py": {"weight_seconds": 367, "samples": [{"run_id": 44832117075, "job": "complete POSIX regression inventory", "seconds": 367}]},
+    "tests/workflow-conditional-inputs.tests.py": {"weight_seconds": 236, "samples": [{"run_id": 44832117075, "job": "complete POSIX regression inventory", "seconds": 236}]},
+    "tests/supplemental-delivery-declaration.tests.py": {"weight_seconds": 137, "samples": [{"run_id": 44832117075, "job": "complete POSIX regression inventory", "seconds": 137}]},
+    "tests/concept-review-continuity.tests.py": {"weight_seconds": 133, "samples": [{"run_id": 44832117075, "job": "complete POSIX regression inventory", "seconds": 133}]}
   }
 }

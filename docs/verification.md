@@ -31,6 +31,12 @@ Timing estimates affect placement only: stale estimates can make a run slower,
 but cannot remove a test. The independent Windows compatibility, gate, and A9
 lanes remain dependencies of `required-checks`.
 
+### CI efficiency and cross-platform AI coverage
+
+- **Parallel Python profile execution**: `tests/verification.py` supports `--jobs <N>` (and `SDD_VERIFICATION_JOBS`), scheduling suites longest-first using measured weights while emitting deterministic `selected`-order `verification-receipt/v1` receipts. `posix-regression` sets `SDD_VERIFICATION_JOBS=4` on its 4-core `ubuntu-latest` runner to overlap `tests/model-policy-installed.tests.py` with the remaining `ci-shared-python` suites without omitting any test.
+- **Deduplicated Intel macOS PowerShell twins**: PowerShell suites that already run natively on both `ubuntu-latest` (POSIX `pwsh`) and `windows-latest` (`test-windows-heavy` / `version-gates-windows-*`) are scoped to `runner.os == 'Linux'` inside `version-gates` and `test` (retaining `ci-portable-prechecks` receipts, `validate-repository.ps1`, and every Bash 3.2 `.sh` suite on `macos-26-intel`).
+- **Required Gemini CLI, 3-AI cross-operation, and Windows native check**: `tests/gemini-environment-loops.tests.py` runs in the branch-protected `test` job across `windows-latest`, `ubuntu-latest`, and `macos-latest`, exercising real Gemini extension installation/uninstallation (`.cmd` shims on Windows), `BeforeTool` guard parity across `.py`/`.js`/`.ps1` (including Windows backslash paths), `--runtime gemini-cli` handshake, and 3-AI cross-operation (`claude-code` / `codex-cli` / `gemini-cli`).
+
 ### Native macOS runner
 
 Required macOS jobs use GitHub's standard `macos-26-intel` runner. This keeps

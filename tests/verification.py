@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Plan and execute registered suites without interpreting workflow source text."""
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import importlib.util
 import json
@@ -12,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -140,35 +142,97 @@ def repository_state(root):
             not status.stdout if status.returncode == 0 else None)
 
 
-def execute(catalog, selected, root, profile=None, powershell=None, measurement=None):
+def _run_one_suite(catalog, name, root, profile, powershell, capture=False):
+    row = catalog['_suites'][name]
+    result = {'suite': name, 'source_sha256': hashlib.sha256((root / name).read_bytes()).hexdigest()}
+    command = runtime_command(row['runtime'], powershell, row.get('host_args'))
+    missing = command is None or any(runtime_command(r, powershell) is None for r in row.get('requires', []))
+    start = time.monotonic()
+    output = ''
+    if missing:
+        optional = profile in row.get('optional_in', [])
+        result.update(status='skipped' if optional else 'failed', exit_code=None, reason='missing-runtime')
+    else:
+        try:
+            if capture:
+                completed = subprocess.run(
+                    command + [name] + row.get('args', []),
+                    cwd=root,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    errors='replace',
+                    check=False,
+                )
+                output = completed.stdout or ''
+            else:
+                completed = subprocess.run(command + [name] + row.get('args', []), cwd=root, check=False)
+            result.update(status='passed' if completed.returncode == 0 else 'failed', exit_code=completed.returncode)
+        except OSError:
+            result.update(status='failed', exit_code=None, reason='process-start-failed')
+    result['seconds'] = round(time.monotonic() - start, 6)
+    return result, output
+
+
+def execute(catalog, selected, root, profile=None, powershell=None, measurement=None, jobs=1, weights=None):
+    if jobs < 1:
+        raise ValueError('jobs must be positive')
     revision, clean_before = repository_state(root)
     receipt = {'schema': 'verification-receipt/v1', 'profile': profile,
                'revision': revision, 'clean_before': clean_before, 'reusable': False,
                'catalog_sha256': catalog['_sha256'], 'selected': selected, 'results': []}
     failed = False
-    for name in selected:
-        row = catalog['_suites'][name]
-        result = {'suite': name, 'source_sha256': hashlib.sha256((root / name).read_bytes()).hexdigest()}
-        command = runtime_command(row['runtime'], powershell, row.get('host_args'))
-        missing = command is None or any(runtime_command(r, powershell) is None for r in row.get('requires', []))
-        start = time.monotonic()
-        print('==> ' + name, flush=True)
-        if missing:
-            optional = profile in row.get('optional_in', [])
-            result.update(status='skipped' if optional else 'failed', exit_code=None, reason='missing-runtime')
-        else:
-            span = measurement.start('command', 'suite:' + name, [root / name]) if measurement else None
-            try:
-                completed = subprocess.run(command + [name] + row.get('args', []), cwd=root, check=False)
-                result.update(status='passed' if completed.returncode == 0 else 'failed', exit_code=completed.returncode)
-            except OSError:
-                result.update(status='failed', exit_code=None, reason='process-start-failed')
-            if measurement:
-                measurement.finish(span, 'success' if result['status'] == 'passed' else 'failure', result['exit_code'])
-        result['seconds'] = round(time.monotonic() - start, 6)
-        receipt['results'].append(result)
-        failed |= result['status'] == 'failed'
-        print(result['status'].upper() + ': ' + name, flush=True)
+    if jobs == 1 or len(selected) <= 1 or measurement is not None:
+        for name in selected:
+            row = catalog['_suites'][name]
+            result = {'suite': name, 'source_sha256': hashlib.sha256((root / name).read_bytes()).hexdigest()}
+            command = runtime_command(row['runtime'], powershell, row.get('host_args'))
+            missing = command is None or any(runtime_command(r, powershell) is None for r in row.get('requires', []))
+            start = time.monotonic()
+            print('==> ' + name, flush=True)
+            if missing:
+                optional = profile in row.get('optional_in', [])
+                result.update(status='skipped' if optional else 'failed', exit_code=None, reason='missing-runtime')
+            else:
+                span = measurement.start('command', 'suite:' + name, [root / name]) if measurement else None
+                try:
+                    completed = subprocess.run(command + [name] + row.get('args', []), cwd=root, check=False)
+                    result.update(status='passed' if completed.returncode == 0 else 'failed', exit_code=completed.returncode)
+                except OSError:
+                    result.update(status='failed', exit_code=None, reason='process-start-failed')
+                if measurement:
+                    measurement.finish(span, 'success' if result['status'] == 'passed' else 'failure', result['exit_code'])
+            result['seconds'] = round(time.monotonic() - start, 6)
+            receipt['results'].append(result)
+            failed |= result['status'] == 'failed'
+            print(result['status'].upper() + ': ' + name, flush=True)
+    else:
+        weight_map = weights or {}
+        # Longest-first scheduling minimizes tail latency on multi-core runners.
+        order = sorted(selected, key=lambda p: (-weight_map.get(p, 1), p))
+        results_by_name = {}
+        print_lock = threading.Lock()
+        with ThreadPoolExecutor(max_workers=min(jobs, len(order))) as pool:
+            futures = {
+                pool.submit(_run_one_suite, catalog, name, root, profile, powershell, True): name
+                for name in order
+            }
+            for fut in as_completed(futures):
+                name = futures[fut]
+                result, output = fut.result()
+                results_by_name[name] = result
+                with print_lock:
+                    print('==> ' + name, flush=True)
+                    if output:
+                        sys.stdout.write(output)
+                        if not output.endswith('\n'):
+                            sys.stdout.write('\n')
+                    print(result['status'].upper() + ': ' + name, flush=True)
+        # Preserve deterministic selected order in the verification receipt.
+        for name in selected:
+            res = results_by_name[name]
+            receipt['results'].append(res)
+            failed |= res['status'] == 'failed'
     receipt['revision_after'], receipt['clean_after'] = repository_state(root)
     return receipt, int(failed)
 
@@ -256,6 +320,7 @@ def main():
     parser.add_argument('--timings', type=Path, default=ROOT / 'tests/verification-timings.json')
     parser.add_argument('--shard-index', type=int, default=0)
     parser.add_argument('--shard-count', type=int, default=1)
+    parser.add_argument('--jobs', type=int, default=None)
     parser.add_argument('--receipt', type=Path)
     parser.add_argument('--powershell')
     parser.add_argument('--checklist', type=Path, default=ROOT / 'docs/workflow-improvements/retention-checklist.md')
@@ -312,7 +377,15 @@ def main():
                                               head=head, dirty=None if clean is None else not clean, target_count=len(selected))
             except module.MeasurementError as exc:
                 raise ValueError('invalid measurement configuration') from exc
-        receipt, code = execute(catalog, selected, ROOT, args.profile, args.powershell, measurement)
+        jobs = args.jobs
+        if jobs is None:
+            raw_jobs = os.environ.get('SDD_VERIFICATION_JOBS', '1').strip()
+            if not re.fullmatch(r'[1-9][0-9]*', raw_jobs):
+                raise ValueError('invalid SDD_VERIFICATION_JOBS')
+            jobs = int(raw_jobs)
+        if jobs < 1:
+            raise ValueError('invalid jobs count')
+        receipt, code = execute(catalog, selected, ROOT, args.profile, args.powershell, measurement, jobs=jobs, weights=weights)
         if retention is not None:
             receipt['retention'] = retention_result(retention, receipt['results'])
             receipt['retention']['checklist_sha256'] = hashlib.sha256(checklist_bytes).hexdigest()
