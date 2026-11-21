@@ -1,6 +1,6 @@
 ---
 name: sdd-gate
-description: Independent quality gate for SDD Core. Runs run-sdd-gate.mjs (project checks, placeholder scan, and Spec Drift detection), verifies ACs in an independent 1-pass review, writes the gate report, and transitions passed tasks to Done.
+description: Independent quality gate for SDD Core with strict perspective parity (G1-G5). Runs run-sdd-gate.mjs (project checks, placeholder scan, SQL/Cloud/Secret sensors, Spec Drift), verifies all 5 canonical perspectives (1 evaluator on low/standard, 2 parallel evaluators on high), writes the gate report, and transitions passed tasks to Done.
 disable-model-invocation: false
 user-invocable: false
 ---
@@ -10,6 +10,7 @@ user-invocable: false
 # SDD Gate
 
 `Status: Implementation Complete` のタスクを機械検証＋独立レビューで検証し、`Done` 可否を判定する。
+**設計原則（Perspective Parity）**: 独立レビューで点検する 5 観点（**G1〜G5**）は `Risk: low / standard / high` のすべてで同一とし、対象外の面は `N/A（理由）` を明記する。`Risk: high` では独立 2 視点並列（`sdd-evaluator` A + B）＋ TDD Red→Green 証跡必須＋未確定 `OQ-NNN` 機械ブロックへスケールする。
 
 ## Preconditions
 
@@ -35,15 +36,21 @@ user-invocable: false
 
    - 非ゼロ終了時は失敗内容（`UNDECLARED_DRIFT` なら仕様を戻すか合意済み理由を `## Spec Amendments` へ追記）を添えて差し戻す。
 
-2. **独立レビュー（1 パス）**:
-   `git diff`、`requirements.md`（対象 `AC-*`）、`design.md`、`execution.json` を突き合わせる:
-   - `### Done When` と各 `AC-NNN` がどの実測・テストで証明されたか確認する。
-   - `AMENDED` の場合、`## Spec Amendments` の理由と差分が妥当であり要件を不当に骨抜きにしていないか確認する。
-   - 関連機能の回帰範囲を確認する（`Risk: high` 時はセキュリティ・エラー処理・TDD Red→Green 証跡・ロールバック影響も点検）。
-   - `design-system/` / `domain/` 存在時は既存規約からの明らかな逸脱がないか確認する。
+2. **独立レビュー（統一 5 観点 G1〜G5・1 パス）**:
+   `git diff`、`specs/<feature>/{requirements,design,tasks}.md`、`reports/implementation/<feature>/<task-id>.md`、`execution.json` を突き合わせる:
+
+   | ID | 観点 | 検査基準（全リスク階層共通） | `low` / `standard`（1 体） | `high`（2 体並列） |
+   |---|---|---|---|---|
+   | **G1** | **AC / Done When 実証 & 偽装完了検知** | 全対象 `AC-NNN` / `### Done When` が実コマンド・実テストで証明され、ハードコード・スキップ・空実装がないか（`Risk: high` は TDD Red→Green 証跡も確認） | Evaluator | Evaluator A |
+   | **G2** | **Spec Amendment & スコープ整合** | `AMENDED` 時に `## Spec Amendments` の理由と差分が妥当で要件を骨抜きにしていないか、スコープ外変更がないか | Evaluator | Evaluator A |
+   | **G3** | **回帰・異常系・エラー処理** | 既存機能（`baseline-behavior.md` 含む）の回帰範囲、異常系・境界条件・例外握りつぶしがないか | Evaluator | Evaluator B |
+   | **G4** | **セキュリティ・非機能・移行/ロールバック** | 認証/認可・入力検証・秘密情報・SQL/Cloud 安全性・ロールバック影響に欠陥がないか（無関係時は `N/A（理由）`） | Evaluator | Evaluator B |
+   | **G5** | **ドメイン / デザイン規約整合** | `domain/`（用語・概念境界）および `design-system/` 存在時に規約からの逸脱がないか（不在時は `N/A`） | Evaluator | Evaluator A |
+
+   > 並列未対応ホストで `Risk: high` の場合は、Evaluator A と Evaluator B を別コンテキストで順次 1 回ずつ実行し、第 2 視点を省略しない。
 
 3. **品質レポート出力（`reports/quality-gate/<feature>-<task-id>.md`）**:
-   `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、全決定論チェック PASS かつ未解決 Blocking Issues がゼロのときのみ `VERDICT: PASS` とする。テンプレート冒頭の **Non-checks（検査しないもの）** を残し、未検証領域がある場合は明記する。
+   `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、G1〜G5 すべての判定（または明示 `N/A` 理由）とテンプレート冒頭の **Non-checks（検査しないもの）** を記録する。全決定論チェック PASS かつ未解決 Blocking Issues（Critical / Major）がゼロのときのみ `VERDICT: PASS` とする。
 
 4. **Done 遷移**:
    `VERDICT: PASS` のときのみ `specs/<feature>/tasks.md` の対象タスクを `Status: Done` に更新する（`FAIL` 時は `Implementation Complete` のまま差し戻す）。
@@ -55,4 +62,4 @@ user-invocable: false
 
 ## Handoff
 
-`VERDICT`、Spec Drift ステータス（`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT`）、AC 検証サマリ、および `Status: Done` 遷移結果（または差し戻し理由）を `ship` へ返す。
+`VERDICT`、Spec Drift ステータス（`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT`）、G1〜G5 検証サマリ、および `Status: Done` 遷移結果（または差し戻し理由）を `ship` へ返す。

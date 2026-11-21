@@ -35,7 +35,7 @@ jobs:
           node-version: "20"
 
       - name: Run v2 Lightweight Guardrails & SDD Core tests
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs
 
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'

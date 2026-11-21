@@ -24,6 +24,7 @@ import {
   appendDriftEvent,
   countDomainModelApprovals,
   countPrimaryApprovals,
+  extractAmendmentEntries,
   findProjectRoot,
   isFeatureApproved,
   isSafeSpecEditOnly,
@@ -70,8 +71,8 @@ function buildSpecGuardMessage(mode, relPath, feature) {
     `SDD ソフトガード (confirm): 承認済み仕様 '${relPath}' (feature: ${feature}) の本文変更を検知しました。\n` +
     `意図しない仕様改変（ゴールポスト移動）を防ぐため一時停止しています。次のいずれかを選んでください:\n` +
     `  1. 仕様を変える必要がない場合: 仕様は変更せず実装・テスト側を修正する\n` +
-    `  2. 仕様変更が必要な場合: ユーザーと合意のうえ '${relPath}' の '## Spec Amendments' に理由を追記し、承認を得てから SDD_ALLOW_SPEC_EDIT=1 で編集する\n` +
-    `[EN] SDD soft guard (confirm): detected body edit to approved spec '${relPath}'. Confirm intent with the user, record the rationale under '## Spec Amendments', and re-run with SDD_ALLOW_SPEC_EDIT=1 if intentional.`
+    `  2. 仕様変更が必要な場合: ユーザーと合意のうえ '${relPath}' の '## Spec Amendments' に理由を追記してから反映する（または SDD_ALLOW_SPEC_EDIT=1 で明示許可）\n` +
+    `[EN] SDD soft guard (confirm): detected body edit to approved spec '${relPath}'. Confirm intent with the user, record the rationale under '## Spec Amendments' before or alongside the edit (or set SDD_ALLOW_SPEC_EDIT=1).`
   );
 }
 
@@ -79,6 +80,33 @@ function buildSpecWarnMessage(relPath, feature) {
   return (
     `[SDD warn] 承認済み仕様 '${relPath}' (feature: ${feature}) が編集されました。後段の check-spec-drift が差分を検証します（意図的な変更なら '## Spec Amendments' に理由を記録してください）。`
   );
+}
+
+function buildSpecAmendedConfirmMessage(relPath, feature) {
+  return (
+    `[SDD confirm/amended] 承認済み仕様 '${relPath}' (feature: ${feature}) の変更に '## Spec Amendments' 記録を確認したため通過しました。後段の sdd-gate で改訂理由と差分を独立検証します。`
+  );
+}
+
+function hasDocumentedSpecAmendment(oldContent, newContent, projectRoot, feature, relPath) {
+  if (typeof newContent !== 'string') return false;
+  const newEntries = extractAmendmentEntries(newContent);
+  if (newEntries.length === 0) return false;
+  const oldEntries = extractAmendmentEntries(oldContent || '');
+  // Case 1: New non-placeholder amendment entry added in this same edit.
+  if (newEntries.length > oldEntries.length) return true;
+  // Case 2: Amendment entry was appended beforehand since baseline (or before baseline existed).
+  const baselinePath = path.join(projectRoot, 'specs', feature, '.spec-baseline.json');
+  if (fs.existsSync(baselinePath)) {
+    try {
+      const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+      const fileBaselineCount = baseline?.files?.[relPath]?.amendmentCount ?? 0;
+      return newEntries.length > fileBaselineCount;
+    } catch {
+      return false;
+    }
+  }
+  return newEntries.length > 0;
 }
 
 function normalizePayload(rawPayload, emitMode) {
@@ -288,6 +316,21 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
     const warning = buildSpecWarnMessage(specMatch.relPath, specMatch.feature);
     appendDriftEvent(projectRoot, {
       action: 'warn_allow',
+      mode,
+      feature: specMatch.feature,
+      file: specMatch.relPath,
+    });
+    return { decision: 'allow', reason: null, warning };
+  }
+
+  if (
+    mode === 'confirm' &&
+    allowAmendments &&
+    hasDocumentedSpecAmendment(oldContent, newContent, projectRoot, specMatch.feature, specMatch.relPath)
+  ) {
+    const warning = buildSpecAmendedConfirmMessage(specMatch.relPath, specMatch.feature);
+    appendDriftEvent(projectRoot, {
+      action: 'confirm_amended_allow',
       mode,
       feature: specMatch.feature,
       file: specMatch.relPath,

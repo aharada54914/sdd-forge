@@ -29,7 +29,7 @@ from types import MappingProxyType
 OBSERVATION_SCHEMA = 'model-observation/v1'
 ERROR_SCHEMA = 'model-policy-error/v1'
 HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli')
-EFFORTS = ('low', 'medium', 'high', 'xhigh')
+EFFORTS = ('minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra')
 SOURCES = ('live-discovery', 'verified-configuration', 'unsupported')
 STATUSES = ('complete', 'incomplete', 'unavailable')
 SCOPE_KINDS = ('account', 'client')
@@ -43,7 +43,7 @@ OBSERVATION_FIELDS = frozenset(('schema', 'host', 'cli_version', 'scope_id', 'sc
 MODEL_FIELDS = frozenset(('native_id', 'efforts', 'available'))
 ERROR_FIELDS = frozenset(('schema', 'reason', 'message'))
 MAX_TEXT = 512
-ID_RE = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}')
+ID_RE = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/\[\]-]{0,127}')
 VERSION_RE = re.compile(r'[!-~](?:[ -~]{0,126}[!-~])?')
 UTC_RE = re.compile(r'([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(?:\.([0-9]+))?Z')
 SHA_RE = re.compile(r'[0-9a-f]{64}')
@@ -416,7 +416,7 @@ def _account_context(result):
         if not isinstance(kind, str) or kind not in ACCOUNT_REQUIRED or not _schema_object(account, ACCOUNT_REQUIRED[kind]):
             raise _TransportFailure()
         if kind == 'chatgpt' and ('email' not in account or not isinstance(account['email'], (str, type(None)))
-                                  or not _member(account['planType'], PLAN_TYPES)):
+                                  or not isinstance(account['planType'], str) or not account['planType'].strip()):
             raise _TransportFailure()
     if routing is not None and (not _schema_object(routing, ROUTING_REQUIRED)
                                 or not _member(routing['accountRoutingOverride'], ROUTING_OVERRIDES)):
@@ -761,7 +761,7 @@ def validate_selection_record(record, *, require_bound=False):
     if type(require_bound) is not bool:
         raise _invalid('require_bound must be boolean.')
     if (record['schema'] != SELECTION_SCHEMA or not _id(record['role'])
-            or not _member(record['risk'], ('low', 'medium', 'high', 'critical'))
+            or not _member(record['risk'], ('low', 'standard', 'medium', 'high', 'critical'))
             or not _member(record['host'], HOSTS) or not _id(record['scope_id'])
             or not isinstance(record['cli_version'], str) or not VERSION_RE.fullmatch(record['cli_version'])
             or not _text(record['reason'])):
@@ -1102,7 +1102,7 @@ def _money(value, *, estimate=False):
 def _validate_policy_request(request):
     _config_fields(request, POLICY_REQUEST_FIELDS, ('estimates',))
     if (request['schema'] != 'model-policy-request/v1' or not _member(request['role'], POLICY_ROLES)
-            or not _member(request['risk'], ('low', 'medium', 'high', 'critical'))
+            or not _member(request['risk'], ('low', 'standard', 'medium', 'high', 'critical'))
             or not _member(request['host'], HOSTS)):
         raise _config('Policy request schema, role, risk or host is unsupported.')
     _config_fields(request['cli'], ('model_id', 'policy'))
@@ -1175,7 +1175,7 @@ def _policy_registry(path):
         if key == 'escalation_bump':
             if type(value) is not bool:
                 raise _config('Escalation bump must be boolean.')
-        elif key not in ('low', 'medium', 'high', 'critical') or not _member(value, EFFORTS):
+        elif key not in ('low', 'standard', 'medium', 'high', 'critical') or not _member(value, EFFORTS):
             raise _config('Registry risk effort matrix contains unsupported values.')
     return registry, models
 

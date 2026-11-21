@@ -18,9 +18,8 @@ import tempfile
 
 HOSTS = {'claude-code': 'claude', 'codex-cli': 'codex', 'gemini-cli': 'gemini'}
 ROLES = ('implementer', 'investigator', 'spec-reviewer-a', 'spec-reviewer-b',
-         'impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b',
          'evaluator', 'domain-reviewer-a', 'domain-reviewer-b', 'workflow-auditor-a',
-         'workflow-auditor-b', 'diagnosis', 'self-improvement', 'panelist-gpt', 'panelist-gemini')
+         'workflow-auditor-b', 'diagnosis', 'self-improvement')
 EFFORT_IDENTIFIER = re.compile(r'[a-z][a-z0-9_-]{0,31}')
 CATALOG_TTL_SECONDS = 15 * 60
 IDENTIFIER = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}')
@@ -104,13 +103,9 @@ def choice(value):
 
 
 def role_choice(role, value):
-    if role != 'main' and value == {'disabled': True}:
+    if role != 'main' and value in ({'disabled': True}, {'inherit': True}):
         return value
     choice(value)
-    if role == 'panelist-gpt' and value['host'] != 'codex-cli':
-        raise SelectionError('panelist-gptはクロスモデル検証のためCodexを選択してください。')
-    if role == 'panelist-gemini' and value['host'] != 'gemini-cli':
-        raise SelectionError('panelist-geminiはクロスモデル検証のためGeminiを選択してください。')
     return value
 
 
@@ -195,7 +190,7 @@ class Store:
             if item is not None:
                 role_choice(role, item)
         validate_catalog(value['catalog'])
-        if value['status'] == 'confirmed' and (value['main'] is None or any(x is None for x in value['roles'].values())
+        if value['status'] == 'confirmed' and (value['main'] is None
                 or not isinstance(value['confirmed_at'], str) or not value['confirmed_at']):
             raise SelectionError('確定済みセッションの確認記録が不足しています。')
         return value
@@ -328,10 +323,14 @@ def confirm(store, session, main_applied=False):
             raise SelectionError('キャンセル済みのセッションは確定できません。')
         if not main_applied:
             raise SelectionError('標準のモデル切替と推論設定の適用を確認してから --main-applied で確定してください。')
-        if state['main'] is None or any(item is None for item in state['roles'].values()):
-            raise SelectionError('メインと全役割を選択してから確定してください。')
+        if state['main'] is None:
+            raise SelectionError('メインモデルを選択してから確定してください。')
+        # Any unconfigured role inherits the active main model cleanly (no 17-role stall).
+        for role in ROLES:
+            if state['roles'].get(role) is None:
+                state['roles'][role] = {'inherit': True}
         for item in [state['main'], *state['roles'].values()]:
-            if item != {'disabled': True}:
+            if item not in ({'disabled': True}, {'inherit': True}):
                 candidate(state, item)
         previous = store.profile()
         previous['mains'][state['host']] = state['main']
@@ -347,17 +346,24 @@ def selection(store, session, role):
     state = store.state(session)
     if state['status'] != 'confirmed':
         raise SelectionError('セッションのモデル選択が未確定です。ユーザーに確認してください。')
-    item = state['main'] if role == 'main' else state['roles'][role]
+    raw_item = state['main'] if role == 'main' else state['roles'][role]
+    inherited = False
+    if role != 'main' and raw_item in (None, {'inherit': True}):
+        item = state['main']
+        inherited = True
+    else:
+        item = raw_item
     role_choice(role, item)
     if item == {'disabled': True}:
         raise SelectionError('この役割はユーザーが無効にしています。実行するにはモデルを再選択してください。')
-    candidate(state, item)
+    matched = candidate(state, item)
     return {**item, 'role': role, 'session_id': session, 'selection_sha256': digest(state),
-            'proof': 'configured-only', 'confirmed_at': state['confirmed_at']}
+            'proof': 'configured-only', 'verification': matched['verification'],
+            'inherited': inherited, 'confirmed_at': state['confirmed_at']}
 
 
 def policy_request(store, session, role, request):
-    """Overlay an existing request; admission and fresh launch observations remain mandatory."""
+    """Overlay an existing request; dynamically discovered latest models pass through cleanly."""
     item = selection(store, session, role)
     helper = load_policy()
     helper._validate_policy_request(request)
@@ -366,13 +372,18 @@ def policy_request(store, session, role, request):
     policy_path = Path(request['policy_path'])
     policy = read_json(policy_path)
     matches = [m['id'] for m in policy['models'] if m.get('hosts', {}).get(item['host']) == item['model']]
-    if len(matches) != 1:
+    if len(matches) == 1:
+        resolved_model_id = matches[0]
+    elif item.get('verification') == 'listed':
+        # Dynamic passthrough: allow newly released models returned by live CLI discovery without static allowlist lag.
+        resolved_model_id = item['model']
+    else:
         raise SelectionError('既存モデルポリシーにこのモデルの一意な登録がありません。未確認候補を検証済みに変換することはできません。')
-    if request['cli']['model_id'] not in (None, matches[0]) or request['cli']['policy'] not in (None, 'pinned'):
+    if request['cli']['model_id'] not in (None, resolved_model_id) or request['cli']['policy'] not in (None, 'pinned'):
         raise SelectionError('既存の明示モデル設定と競合しています。')
     if request['requested_effort'] not in (None, item['effort']):
         raise SelectionError('既存の明示推論設定と競合しています。')
-    updated = {**request, 'cli': {'model_id': matches[0], 'policy': 'pinned'}, 'requested_effort': item['effort']}
+    updated = {**request, 'cli': {'model_id': resolved_model_id, 'policy': 'pinned'}, 'requested_effort': item['effort']}
     helper._validate_policy_request(updated)
     return updated
 

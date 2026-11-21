@@ -62,14 +62,13 @@ _check_required "reports/quality-gate"    d
 _check_required "docs/adr"               d
 _check_required "docs/review-tickets"    d
 
-# --- selected full-profile feature ---
+# --- selected SDD Core v2 feature ---
 if [ "$feature_selected" -eq 1 ]; then
   if [ -L "$root/specs" ] || [ -L "$root/specs/$feature" ]; then
     echo "invalid feature: $feature" >&2
     exit 1
   fi
-  for name in requirements.md design.md ux-spec.md frontend-spec.md \
-    infra-spec.md security-spec.md acceptance-tests.md tasks.md traceability.md; do
+  for name in requirements.md design.md tasks.md; do
     if [ -L "$root/specs/$feature/$name" ]; then
       echo "invalid feature: $feature" >&2
       exit 1

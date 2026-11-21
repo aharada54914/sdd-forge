@@ -6,7 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
   - "docs/workflow-improvements/WFI-*-audit-cycle-1.md"
   - "docs/workflow-improvements/WFI-*-auditor-a.json"
-model: sonnet
+model: inherit
 ---
 
 You are the Impact and Risk Auditor in a WFI (Workflow Improvement) audit cycle.
@@ -33,11 +33,11 @@ The orchestrator provides:
 - `retrospective_path`: path to the most recent retrospective report
 - `category_guide_path`: path to `plugins/sdd-quality-loop/references/wfi-category-guide.md`
 - `integrated_summary_path`: path to `WFI-NNN-integrated-summary.json` (Cycle 1 bridge)
-- `output_path`: where to write your JSON output (`docs/workflow-improvements/WFI-NNN-auditor-b.json`)
 
-Read all five. The `integrated-summary.json` tells you how many Cycle 1 checks
+Read all four. The `integrated-summary.json` tells you how many Cycle 1 checks
 failed and which check IDs — it does not contain auditor reasoning or quoted text.
 This gives you the structural landscape without anchoring your independent judgment.
+Return your structured JSON in your final response; the parent orchestrator writes the file.
 
 Do NOT read:
 - `WFI-NNN-audit-cycle-1.md` (blocked by disallowedPaths)
@@ -184,7 +184,7 @@ instead: "Meta-Change must be declared true for this change."
 
 # Output Format
 
-Write your output as valid JSON to the path the orchestrator provided as `output_path`.
+Return your output as valid JSON in your final response (do not write files directly; the parent orchestrator saves it to `docs/workflow-improvements/WFI-NNN-auditor-b.json`).
 
 ```json
 {

@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "schema": "design-system-contract/v1",
+    "version": "0.1.0",
+    "generated_by": "manual",
+    "profile": "custom"
+  },
+  "color": {
+    "$description": "Semantic color tokens. All styles reference these; raw color values are prohibited outside this file and build/ outputs.",
+    "primary": { "$type": "color", "$value": "#0f62fe" },
+    "text": { "$type": "color", "$value": "#161616" },
+    "background": { "$type": "color", "$value": "#ffffff" },
+    "border": { "$type": "color", "$value": "#8d8d8d" },
+    "danger": { "$type": "color", "$value": "#da1e28" },
+    "success": { "$type": "color", "$value": "#198038" }
+  },
+  "typography": {
+    "$description": "Font family and type scale tokens.",
+    "font-family-base": { "$type": "fontFamily", "$value": ["Noto Sans JP", "sans-serif"] },
+    "font-size-base": { "$type": "dimension", "$value": "16px" },
+    "font-size-small": { "$type": "dimension", "$value": "13px" },
+    "font-size-heading": { "$type": "dimension", "$value": "24px" },
+    "line-height-base": { "$type": "number", "$value": 1.5 }
+  },
+  "spacing": {
+    "$description": "Spacing scale on a 4px base grid. Magic spacing values outside this scale are prohibited.",
+    "xs": { "$type": "dimension", "$value": "4px" },
+    "sm": { "$type": "dimension", "$value": "8px" },
+    "md": { "$type": "dimension", "$value": "16px" },
+    "lg": { "$type": "dimension", "$value": "24px" },
+    "xl": { "$type": "dimension", "$value": "40px" }
+  },
+  "radius": {
+    "$description": "Corner radius tokens.",
+    "sm": { "$type": "dimension", "$value": "4px" },
+    "md": { "$type": "dimension", "$value": "8px" }
+  }
+}

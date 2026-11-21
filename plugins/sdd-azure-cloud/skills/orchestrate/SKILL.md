@@ -89,7 +89,7 @@ prompt prose. Unknown flags/operations are errors, not permission to improvise.
 
 Before governed work require owner-supplied scope/allowlists, federation,
 exclusive-writer policy, approved images, health/backup configuration, budget,
-evidence residency/retention and (AWS) pre-existing CDK bootstrap. Missing
+evidence residency/retention and (Azure) pre-existing subscription/Resource Group/Bicep prerequisites. Missing
 prerequisites mean BLOCKED. Development/task approval is not cloud approval.
 
 ## Report and recovery

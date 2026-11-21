@@ -1,8 +1,8 @@
-description = "Run the SDD DDD upstream domain modeling workflow (new, update, or reverse)."
+description = "Run the SDD DDD upstream domain modeling workflow (new, update, reverse, or review)."
 prompt = """
 Read and execute the skill instructions at `skills/domain-model/SKILL.md` (relative to this Gemini extension root).
 
 Arguments: {{args}}
 
-Follow the seven-stage domain modeling workflow, validate `domain/domain-contract.json` with `scripts/validate-domain-contract.sh` (or `.ps1`), and never set `Domain-Model-Status: Approved` on behalf of the human.
+Follow the seven-stage domain modeling workflow (or `review` mode via `domain-review-loop`), validate `domain/domain-contract.json` with `scripts/validate-domain-contract.sh` (or `.ps1`), and never set `Domain-Model-Status: Approved` on behalf of the human.
 """

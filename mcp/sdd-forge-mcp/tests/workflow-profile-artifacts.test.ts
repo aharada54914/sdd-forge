@@ -31,9 +31,9 @@ test("legacy Lite Done requires real reports but no Full contract/review headers
  } finally {f.cleanup();}
 });
 
-test("Lite implementation and quality routes use Lite commands; missing implementation fails", () => {
+test("v2 implementation and sdd-gate routes use /sdd-ship:ship; missing implementation fails", () => {
  const f=liteFixture();try {
-  for(const [status,command] of [["Planned","/sdd-ship:ship --lite"],["Implementation Complete","/sdd-lite:lite-gate"]]) {
+  for(const [status,command] of [["Planned","/sdd-ship:ship"],["Implementation Complete","/sdd-ship:ship"]]) {
    writeFile(f.dir,"specs/example/tasks.md",`## T-001 Example\nApproval: Approved\nStatus: ${status}\n`);
    const next=getNextSddCommand(f.root,"example");assert.ok(next.ok);assert.ok(next.data.nextCommand.startsWith(command!));
   }

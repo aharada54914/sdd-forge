@@ -82,10 +82,6 @@ DEFAULT_TARGETS = [
     {"role": "sdd-investigator", "kind": "codex", "path": ".codex/agents/sdd-investigator.toml", "protected": False},
     {"role": "spec-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md", "protected": False},
     {"role": "spec-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md", "protected": False},
-    {"role": "impl-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md", "protected": True},
-    {"role": "impl-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md", "protected": True},
-    {"role": "task-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md", "protected": True},
-    {"role": "task-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md", "protected": True},
 ]
 
 MODEL_LINE_RE = re.compile(r'^model:\s*(\S+)\s*$')

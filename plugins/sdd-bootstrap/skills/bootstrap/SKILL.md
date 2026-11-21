@@ -44,7 +44,7 @@ disable-model-invocation: true
 ## Flow
 
 - `adopt` / `investigate`: 該当スキルへ委譲して終了。
-- オプトイン専門ルート: 外部資料調査は `research-sources`、UI デザインシステムは `design-system/` 存在時のみ `design-sync-loop`、DDD モデルは `domain/` 存在時のみ `sdd-domain`、既存クラウド運用の明示指定時は `sdd-azure-cloud:orchestrate` / `sdd-aws-cloud:orchestrate` を併用する（非該当時は実行しない）。
+- オプトイン専門ルート: 外部資料調査は `research-sources`、UI デザインシステムは `design-system/` 存在時のみ `design-sync-loop` を委譲する。DDD モデル構築（`/sdd-domain:domain-model`）および既存クラウド運用（`/sdd-azure-cloud:orchestrate` / `/sdd-aws-cloud:orchestrate`）は公開コマンド（`disable-model-invocation: true`）のため自動委譲せず、該当する場合のみユーザーへ実行を案内する。
 
 `feature` / `bugfix` / `refactor` / `project` は次の 3 ステップで進める:
 

@@ -1,7 +1,7 @@
 ---
 name: maintain-project-skill
 description: Revalidate a project skill against changed source and real execution, preserving user extensions and product expectations.
-user-invocable: false
+user-invocable: true
 disable-model-invocation: false
 ---
 

@@ -21,7 +21,6 @@ import type { ReportLookup } from './parsers/report-lookup.js';
 import { workflowProfile } from "./profile.js";
 import { err, ok, type Result } from "./envelope.js";
 import { parseActiveSpecDirectories } from "./parsers/agents-md.js";
-import { extractHeaderValue } from "./parsers/spec-header.js";
 import { parseTaskState } from "./parsers/tasks.js";
 import type { TaskEntry } from "./parsers/task-types.js";
 import { guardedRead } from "./path-guard.js";
@@ -99,18 +98,16 @@ function phaseFromTasks(
   const firstImplComplete = implComplete[0];
   if (firstImplComplete !== undefined) {
     const targetCommand = approved.every((task) => task.status === "Implementation Complete")
-      ? `/sdd-quality-loop:quality-gate specs/${feature}/tasks.md`
-      : `/sdd-quality-loop:quality-gate specs/${feature}/tasks.md#${firstImplComplete.id}`;
+      ? `/sdd-ship:ship specs/${feature}/tasks.md`
+      : `/sdd-ship:ship specs/${feature}/tasks.md#${firstImplComplete.id}`;
     return {
       kind: "next-command",
       feature,
-      phase: "quality-gate",
+      phase: "sdd-gate",
       nextCommand: targetCommand,
       rationale: approved.every((task) => task.status === "Implementation Complete")
-        ? `Every Approved task in specs/${feature}/tasks.md is Implementation Complete ` +
-          "(AGENTS.md Required Workflow step 7)."
-        : `Approved task ${firstImplComplete.id} in specs/${feature}/tasks.md is Implementation Complete ` +
-          "(AGENTS.md Required Workflow step 7).",
+        ? `Every Approved task in specs/${feature}/tasks.md is Implementation Complete; run /sdd-ship:ship to execute sdd-gate and transition passed tasks to Done.`
+        : `Approved task ${firstImplComplete.id} in specs/${feature}/tasks.md is Implementation Complete; run /sdd-ship:ship to execute sdd-gate and transition passed tasks to Done.`,
     };
   }
 
@@ -142,36 +139,18 @@ function phaseFromTasks(
 function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportLookup): Result<NextCommandData> {
   const profile = workflowProfile(root);
   if (!profile.ok) return profile;
-  const lite = profile.data === "lite";
   const requirementsPath = `specs/${feature}/requirements.md`;
   const requirementsResult = guardedRead(root, requirementsPath);
   if (!requirementsResult.ok) {
-    // A denied/invalid/too-large path is a distinct failure from "the
-    // artifact legitimately does not exist yet" (`not-found`) — never guess
-    // phase1-not-started for a path the guard refused to even evaluate.
     if (requirementsResult.error.code !== "not-found") {
       return requirementsResult;
     }
     return ok({
       kind: "next-command",
       feature,
-      phase: "phase1-not-started",
-      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${requirementsPath} does not exist yet; Phase 1 (requirements, design, ` +
-        "acceptance tests) has not been started (AGENTS.md Required Workflow step 1).",
-    });
-  }
-
-  const specReviewStatus = extractHeaderValue(requirementsResult.data.contents, "Spec-Review-Status");
-  if (!lite && specReviewStatus !== "Passed") {
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "spec-review",
-      nextCommand: `/sdd-review-loop:spec-review-loop --feature ${feature}`,
-      rationale: `${requirementsPath}'s Spec-Review-Status is ` +
-        `${specReviewStatus === undefined ? "missing" : `"${specReviewStatus}"`}, not Passed ` +
-        "(AGENTS.md Required Workflow step 2).",
+      phase: "bootstrap-not-started",
+      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      rationale: `${requirementsPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate SDD Core specifications (requirements, design, tasks) and run spec-check.`,
     });
   }
 
@@ -181,24 +160,12 @@ function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportL
     if (designResult.error.code !== "not-found") {
       return designResult;
     }
-    return err(
-      "cannot-determine",
-      `${requirementsPath} has Spec-Review-Status: Passed but ${designPath} does not exist ` +
-        "or cannot be read; this combination is not a recognized workflow state.",
-      { file: designPath, rule: "design-missing-after-spec-review-passed" },
-    );
-  }
-
-  const implReviewStatus = extractHeaderValue(designResult.data.contents, "Impl-Review-Status");
-  if (!lite && implReviewStatus !== "Passed") {
     return ok({
       kind: "next-command",
       feature,
-      phase: "impl-review",
-      nextCommand: `/sdd-review-loop:impl-review-loop --feature ${feature}`,
-      rationale: `${designPath}'s Impl-Review-Status is ` +
-        `${implReviewStatus === undefined ? "missing" : `"${implReviewStatus}"`}, not Passed ` +
-        "(AGENTS.md Required Workflow step 3).",
+      phase: "design-missing",
+      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      rationale: `${designPath} does not exist yet; run /sdd-bootstrap:bootstrap to complete the SDD Core specification package.`,
     });
   }
 
@@ -211,23 +178,9 @@ function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportL
     return ok({
       kind: "next-command",
       feature,
-      phase: "phase2-not-started",
-      nextCommand: lite ? `/sdd-lite:lite-spec ${feature}` : "/sdd-bootstrap:bootstrap feature",
-      rationale: `${tasksPath} does not exist yet; Phase 2 (Draft tasks) has not been started ` +
-        "(AGENTS.md Required Workflow step 4).",
-    });
-  }
-
-  const taskReviewStatus = extractHeaderValue(tasksReadResult.data.contents, "Task-Review-Status");
-  if (!lite && taskReviewStatus !== "Passed") {
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "task-review",
-      nextCommand: `/sdd-review-loop:task-review-loop --feature ${feature}`,
-      rationale: `${tasksPath}'s Task-Review-Status is ` +
-        `${taskReviewStatus === undefined ? "missing" : `"${taskReviewStatus}"`}, not Passed ` +
-        "(AGENTS.md Required Workflow step 4).",
+      phase: "tasks-missing",
+      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      rationale: `${tasksPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate tasks.md and run spec-check.`,
     });
   }
 
@@ -246,8 +199,6 @@ function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportL
   }
 
   const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
-  if (lite && phase.phase === "implementation") phase.nextCommand = `/sdd-ship:ship --lite specs/${feature}/tasks.md`;
-  if (lite && phase.phase === "quality-gate") phase.nextCommand = phase.nextCommand.replace("/sdd-quality-loop:quality-gate", "/sdd-lite:lite-gate");
   return ok(phase);
 }
 

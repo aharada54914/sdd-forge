@@ -467,8 +467,19 @@ function checkDriftEvents(root, findings) {
   for (const line of lines) {
     try {
       const ev = JSON.parse(line);
-      if (ev.decision === 'deny') denyCount += 1;
-      else if (ev.decision === 'warn' || ev.decision === 'confirm') warnCount += 1;
+      const action = typeof ev.action === 'string' ? ev.action : '';
+      const decision = typeof ev.decision === 'string' ? ev.decision : '';
+      if (action === 'strict_deny' || action === 'confirm_soft_deny' || decision === 'deny') {
+        denyCount += 1;
+      } else if (
+        action === 'warn_allow' ||
+        action === 'confirm_amended_allow' ||
+        action === 'allow_override' ||
+        decision === 'warn' ||
+        decision === 'confirm'
+      ) {
+        warnCount += 1;
+      }
     } catch {
       parseErrors += 1;
     }

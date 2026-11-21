@@ -1,7 +1,7 @@
 ---
 name: create-project-skill
 description: Create a repository-specific verification, diagnosis, migration or maintenance procedure from real source and observed user paths.
-user-invocable: false
+user-invocable: true
 disable-model-invocation: false
 ---
 
@@ -81,7 +81,7 @@ retain the same runtime/entry requirements.
 
 Task-mode execution uses an already admitted task-input manifest and declared
 output roots via `--task-input-manifest`; the passive validator does not establish
-that admission. The existing Full/Lite owners still consume and judge evidence.
+that admission. `sdd-gate` and human reviewers still consume and judge evidence.
 The local runner uses a dedicated Linux child-subreaper supervisor to reap owned
 descendants, including detached children. macOS and Windows execution return
 not-run until their process-tree ownership backends are verified. Task mode

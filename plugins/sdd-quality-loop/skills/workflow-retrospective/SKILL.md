@@ -85,6 +85,7 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 ## Step 4: 反映（人間承認後のみ）
 
 - 提案（`docs/workflow-improvements/WFI-NNN.md`、または `AGENTS.md` / `sdd/knowledge/` / `sdd/rejected-decisions.md` への追記）は **人間の承認後** のみ適用する。
+- 新規の `WFI-NNN.md`（`Status: Draft`）を起票した場合、人間レビュー前に 2 サイクル品質監査を通すときは `wfi-audit-cycle` スキルを呼び出せる。
 - 適用対象はプロジェクト側ファイル（`AGENTS.md`, `sdd/`, `specs/` テンプレート, テスト）に限定し、インストール済みプラグイン本体（`plugins/`）は直接書き換えない。
 - 適用コミットには `WFI-NNN` を明記し、`git revert` で確実に戻せる状態を保つ。
 
