@@ -18,6 +18,7 @@ import type { ReportLookup } from './parsers/report-lookup.js';
  * assuming a phase.
  */
 
+import { conceptAdvice } from "./concept-proposal-advice.js";
 import { beforeTaskApproval } from "./pre-approval-review.js";
 import { workflowProfile } from "./profile.js";
 import { err, ok, type Result } from "./envelope.js";
@@ -137,51 +138,29 @@ function phaseFromTasks(
 function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportLookup): Result<NextCommandData> {
   const profile = workflowProfile(root);
   if (!profile.ok) return profile;
-  const requirementsPath = `specs/${feature}/requirements.md`;
-  const requirementsResult = guardedRead(root, requirementsPath);
-  if (!requirementsResult.ok) {
-    if (requirementsResult.error.code !== "not-found") {
-      return requirementsResult;
-    }
+  const toCommand = (action: { phase: string; command: string; rationale: string }): Result<NextCommandData> =>
+    ok({ kind: "next-command", feature, phase: action.phase, nextCommand: action.command, rationale: action.rationale });
+  const specsDir = `specs/${feature}`;
+  const coreFiles = [
+    ["requirements", "bootstrap-not-started", "generate SDD Core specifications (requirements, design, tasks) and run spec-check"],
+    ["design", "design-missing", "complete the SDD Core specification package"],
+    ["tasks", "tasks-missing", "generate tasks.md and run spec-check"],
+  ] as const;
+  for (const [name, phase, instruction] of coreFiles) {
+    const path = `${specsDir}/${name}.md`;
+    const file = guardedRead(root, path);
+    if (file.ok) continue;
+    if (file.error.code !== "not-found") return file;
+    const proposal = conceptAdvice(root, feature, [], true);
+    if (proposal) return toCommand(proposal);
     return ok({
-      kind: "next-command",
-      feature,
-      phase: "bootstrap-not-started",
+      kind: "next-command", feature, phase,
       nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${requirementsPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate SDD Core specifications (requirements, design, tasks) and run spec-check.`,
+      rationale: `${path} does not exist yet; run /sdd-bootstrap:bootstrap to ${instruction}.`,
     });
   }
 
-  const designPath = `specs/${feature}/design.md`;
-  const designResult = guardedRead(root, designPath);
-  if (!designResult.ok) {
-    if (designResult.error.code !== "not-found") {
-      return designResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "design-missing",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${designPath} does not exist yet; run /sdd-bootstrap:bootstrap to complete the SDD Core specification package.`,
-    });
-  }
-
-  const tasksPath = `specs/${feature}/tasks.md`;
-  const tasksReadResult = guardedRead(root, tasksPath);
-  if (!tasksReadResult.ok) {
-    if (tasksReadResult.error.code !== "not-found") {
-      return tasksReadResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "tasks-missing",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${tasksPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate tasks.md and run spec-check.`,
-    });
-  }
-
+  const tasksPath = `${specsDir}/tasks.md`;
   const taskStateResult = parseTaskState(root, feature, tasksPath, undefined, undefined, reports);
   if (!taskStateResult.ok) {
     return taskStateResult;
@@ -196,7 +175,10 @@ function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportL
     );
   }
 
-  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  const tasks = taskStateResult.data.tasks;
+  const phase = phaseFromTasks(feature, tasks);
+  const concept = conceptAdvice(root, feature, tasks, false);
+  if (concept) return toCommand(concept);
   if (phase.phase === "approval-gate") {
     const review = beforeTaskApproval(root, feature, taskStateResult.data.tasks.every((task) => task.risk === "low"));
     if (review) return ok({ kind: "next-command", feature, phase: review.phase, nextCommand: review.command, rationale: review.rationale });

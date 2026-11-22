@@ -251,3 +251,37 @@ test('a late feature refresh cannot overwrite the newest selection', async () =>
     fixture.cleanup();
   }
 });
+
+test('local status page explains the recorded Concept Test stop and refreshes after revalidation', async () => {
+  const fixture = makeTempSddRoot('status-concept-stop');
+  const { dir } = fixture;
+  writeFile(dir, 'AGENTS.md', '# AGENTS\n\n## Active Spec Directories\n- `specs/example/`\n');
+  for (const name of ['requirements', 'design']) writeFile(dir, `specs/example/${name}.md`, '# Spec\n');
+  writeFile(dir, 'specs/example/tasks.md', '# Tasks\n\n## T-001\nApproval: Approved\nStatus: Implementation Complete\nRisk: low\n');
+  writeFile(dir, 'reports/implementation/example/T-001.md', '# Implementation report\nTask ID: T-001\n');
+  const path = 'reports/quality-gate/example-T-001.execution.json';
+  function record(status: string, error?: string) {
+    const passed = status === 'CONTINUE';
+    writeFile(dir, path, JSON.stringify({
+      schema: 'sdd-gate-execution/v1', feature: 'example', taskId: 'T-001', verdict: passed ? 'PASS' : 'FAIL',
+      checks: { conceptTest: { passed, status, error } },
+    }));
+  }
+  record('BLOCK', 'validate-concept-test: VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE: private-host-path');
+  const { server, url } = await startStatusView(fixture.root);
+  try {
+    const view = await mountStatusPage(url);
+    assertDisplayedPhase(view, 'blocked', 'ブロッカーを確認してください', /検証器と依存ファイル/, `human: inspect checks.conceptTest.error in ${path}`);
+    assert.doesNotMatch(view.element('reason').textContent, /private-host-path|--confirm/);
+    record('BLOCK', 'concept-test: BLOCK: run --confirm in a separate human-operated terminal');
+    await view.refresh();
+    assert.match(view.element('reason').textContent, /本人.*--confirm/);
+    record('CONTINUE');
+    await view.refresh();
+    assert.equal(view.element('headline').textContent, '品質ゲートが必要です');
+    assert.doesNotMatch(view.element('reason').textContent, /--confirm/);
+  } finally {
+    await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+    fixture.cleanup();
+  }
+});

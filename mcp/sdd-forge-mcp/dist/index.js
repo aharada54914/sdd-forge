@@ -37412,7 +37412,7 @@ function createReportLookup() {
 }
 
 // src/dashboard/snapshot.ts
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 import { basename } from "node:path";
 
 // src/parsers/agents-md.ts
@@ -39165,6 +39165,206 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
     tasks,
     failures
   });
+}
+
+// src/concept-proposal-advice.ts
+import { createHash as createHash2 } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
+
+// src/concept-gate-advice.ts
+function parseTaskExecution(contents, feature, taskId) {
+  const report = JSON.parse(contents);
+  if (isJsonObject(report) && report.schema === "sdd-gate-execution/v1" && report.feature === feature && typeof report.taskId === "string" && report.taskId.toUpperCase() === taskId.toUpperCase()) {
+    return report;
+  }
+  return void 0;
+}
+function conceptStopAction(feature, status, source, diagnostic) {
+  const observation = `${source} \u306E Concept Test \u306E\u8A18\u9332\u306F ${status} \u3067\u3059\u3002`;
+  if (status === "DEFER") return {
+    phase: "blocked",
+    command: `human: run the installed validate-concept-test.sh --root . --feature ${feature} --require-v2`,
+    rationale: `${observation} \u307E\u305A\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\uFF08PowerShell \u306F .ps1\uFF09\u3067\u73FE\u5728\u306E\u5165\u529B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u73FE\u5728\u3082 DEFER \u3067\u30E2\u30C7\u30EB\u304C\u672A\u66F4\u65B0\u306A\u3089 /sdd-domain:domain-model update \u3092\u5B9F\u884C\u3057\u3001\u30EC\u30D3\u30E5\u30FC\u30FB\u672C\u4EBA\u306E\u627F\u8A8D\u30FB\u5951\u7D04\u306E\u767A\u884C\u3092\u7D4C\u3066\u63D0\u6848\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u66F4\u65B0\u6E08\u307F\u306A\u3089\u767A\u884C\u6E08\u307F\u306E\u5951\u7D04\u304B\u3089\u63D0\u6848\u3092\u4F5C\u308A\u76F4\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+  };
+  if (status === "REJECT") return {
+    phase: "blocked",
+    command: `human: stop work on the rejected proposal for ${feature}`,
+    rationale: `${observation} \u8A18\u9332\u304C\u6307\u3059\u63D0\u6848\u306F\u5374\u4E0B\u3055\u308C\u307E\u3057\u305F\u3002\u305D\u306E\u63D0\u6848\u3067\u306E\u4F5C\u696D\u3092\u505C\u6B62\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+  };
+  let recovery = "checks.conceptTest.error \u306E\u8A3A\u65AD\u306B\u6CBF\u3063\u3066\u3001\u691C\u8A3C\u5668\u306E\u914D\u7F6E\u30FB\u5165\u529B\u30FB\u63D0\u6848\u30FB\u5224\u65AD\u8A18\u9332\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
+  if (diagnostic === "concept-test: BLOCK: run --confirm in a separate human-operated terminal") {
+    recovery = "\u3053\u306E\u5B9F\u884C\u6642\u70B9\u3067\u4EBA\u306E\u5224\u65AD\u304C\u5FC5\u8981\u3067\u3057\u305F\u3002\u5BFE\u8C61\u3068\u63D0\u6848\u3092\u78BA\u8A8D\u3057\u3001\u672C\u4EBA\u304C\u7AEF\u672B\u3067\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\u306B --confirm \u3092\u6307\u5B9A\u3057\u3066\u5224\u65AD\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
+  } else if (diagnostic?.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE")) {
+    recovery = "\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\u3068\u4F9D\u5B58\u30D5\u30A1\u30A4\u30EB\u304C\u5229\u7528\u53EF\u80FD\u304B\u78BA\u8A8D\u3057\u3001\u540C\u3058\u7248\u306E\u5B9F\u884C\u74B0\u5883\u3092\u5FA9\u65E7\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
+  } else if (diagnostic === "concept-test: BLOCK: domain model must be approved" || diagnostic === "concept-test: BLOCK: approved context map must be pinned") {
+    recovery = "\u30E2\u30C7\u30EB\u306E\u30EC\u30D3\u30E5\u30FC\u3001\u672C\u4EBA\u306E\u627F\u8A8D\u3001\u5BFE\u5FDC\u3059\u308B\u5951\u7D04\u306E\u767A\u884C\u3092\u78BA\u8A8D\u3057\u3001\u305D\u306E\u7248\u3067\u63D0\u6848\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
+  }
+  return {
+    phase: "blocked",
+    command: `human: inspect checks.conceptTest.error in ${source}`,
+    rationale: `${observation} ${recovery} \u5BFE\u8C61\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u914D\u5E03\u7248\u306E validate-concept-test.sh\uFF08PowerShell \u306F .ps1\uFF09\u3092 --root . --feature ${feature} --require-v2 \u3067\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u3092\u78BA\u8A8D\u5F8C\u306B\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+  };
+}
+function recordedConceptStop(root, feature, tasks) {
+  for (const task of tasks) {
+    if (task.status !== "Implementation Complete" && task.status !== "Blocked") continue;
+    if (!/^T-[A-Za-z0-9._-]+$/.test(task.id)) continue;
+    const path3 = `reports/quality-gate/${feature}-${task.id}.execution.json`;
+    const read = guardedRead(root, path3);
+    if (!read.ok) continue;
+    let report;
+    try {
+      report = parseTaskExecution(read.data.contents, feature, task.id);
+    } catch {
+      continue;
+    }
+    if (report?.verdict !== "FAIL") continue;
+    const check2 = isJsonObject(report.checks) ? report.checks.conceptTest : void 0;
+    if (!isJsonObject(check2) || check2.passed !== false) continue;
+    if (check2.status === "BLOCK" || check2.status === "DEFER" || check2.status === "REJECT") {
+      const action = conceptStopAction(feature, check2.status, path3, typeof check2.error === "string" ? check2.error.trim() : void 0);
+      if (check2.status !== "BLOCK") {
+        action.rationale += " \u3053\u306E\u5B9F\u884C\u5F8C\u306B\u63D0\u6848\u3084\u5224\u65AD\u3092\u66F4\u65B0\u6E08\u307F\u306E\u5834\u5408\u306F\u3001\u5BFE\u8C61\u306E Concept Test \u3092\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u3092\u78BA\u8A8D\u5F8C\u306B\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
+      }
+      return {
+        status: check2.status,
+        path: path3,
+        action,
+        missingDecision: check2.error === "concept-test: BLOCK: run --confirm in a separate human-operated terminal"
+      };
+    }
+  }
+}
+
+// src/concept-proposal-advice.ts
+function readObject(text) {
+  try {
+    const value = JSON.parse(text);
+    return isJsonObject(value) ? value : void 0;
+  } catch {
+    return void 0;
+  }
+}
+function markdownObject(text) {
+  const blocks = [...text.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
+  const body = blocks[0]?.[1];
+  return blocks.length === 1 && body !== void 0 ? readObject(body) : void 0;
+}
+function blocked(command, rationale) {
+  return { action: { phase: "blocked", command, rationale } };
+}
+function conceptProposalAdvice(root, feature, inBootstrap, stopped) {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(feature)) return void 0;
+  const prefix = `specs/${feature}/concept-test`;
+  const jsonPath = `${prefix}.json`;
+  const mdPath = `${prefix}.md`;
+  const decisionPath = `${prefix}.decision.json`;
+  const seedPath = `${prefix}-seed.md`;
+  const resume = `human: resume the original /sdd-bootstrap:bootstrap conversation for ${feature}`;
+  const validate2 = `validate-concept-test.sh --root . --feature ${feature} --require-v2`;
+  const inspect = (source, reason) => blocked(
+    `human: run the installed ${validate2}`,
+    `${reason} \u5BFE\u8C61\u306F ${source} \u3067\u3059\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\uFF08PowerShell \u306F .ps1\uFF09\u3092\u5B9F\u884C\u3057\u3001\u8A3A\u65AD\u306B\u6CBF\u3063\u3066\u63D0\u6848\u3068\u8A3C\u8DE1\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+  );
+  function continuation() {
+    if (stopped) {
+      if (stopped.status === "BLOCK" && !stopped.missingDecision) return void 0;
+      return blocked(
+        `human: run the installed ${validate2}`,
+        `${stopped.path} \u306E\u524D\u56DE\u5224\u5B9A\u306F ${stopped.status} \u3067\u3059\u3002\u73FE\u5728\u306E\u63D0\u6848\u30FB\u5224\u65AD\u3092\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\uFF08PowerShell \u306F .ps1\uFF09\u3067\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u306A\u3089\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+      );
+    }
+    if (!inBootstrap) return void 0;
+    return {
+      action: {
+        phase: "bootstrap",
+        command: resume,
+        rationale: `\u914D\u5E03\u7248\u306E ${validate2}\uFF08PowerShell \u306F .ps1\uFF09\u3067 CONTINUE \u3092\u78BA\u8A8D\u3057\u305F\u3089\u3001${feature} \u306E\u5143\u306Ebootstrap\u5BFE\u8A71\u3092\u518D\u958B\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u8D77\u52D5\u3057\u76F4\u3059\u5834\u5408\u306F\u5143\u306E\u30E2\u30FC\u30C9\u30FB\u5165\u529B\u5143\u30FB\u5BFE\u8C61feature\u3092\u6307\u5B9A\u3057\u3001${seedPath} \u306E\u8981\u4EF6\u539F\u6587\u3092\u5F15\u304D\u7D99\u3044\u3067\u304F\u3060\u3055\u3044\u3002`
+      }
+    };
+  }
+  const json2 = guardedRead(root, jsonPath);
+  const markdown = guardedRead(root, mdPath);
+  const receipt = guardedRead(root, decisionPath);
+  const noDecision = !receipt.ok && receipt.error.details?.rule === "exists";
+  if (!json2.ok) {
+    if (json2.error.details?.rule !== "exists" || !noDecision) {
+      return inspect(jsonPath, "\u63D0\u6848\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
+    }
+    if (markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return void 0;
+    if (markdown.ok || markdown.error.details?.rule !== "exists") {
+      return inspect(jsonPath, "Markdown\u306B\u5BFE\u5FDC\u3059\u308B\u63D0\u6848\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
+    }
+    if (inBootstrap && resolveGuarded(root, seedPath).ok) {
+      return blocked(
+        resume,
+        `${seedPath} \u306B\u5143\u306E\u8981\u4EF6\u304C\u3042\u308A\u3001Concept Test\u306E\u63D0\u6848\u306F\u307E\u3060\u3042\u308A\u307E\u305B\u3093\u3002\u5143\u306E\u5BFE\u8A71\u3067\u672A\u56DE\u7B54\u306E\u554F\u3044\u3092\u78BA\u8A8D\u3057\u3001\u8981\u4EF6\u539F\u6587\u3092\u4FDD\u3063\u3066\u65E2\u5B58\u6982\u5FF5\u3068\u306E\u533A\u5225\u3092\u56DE\u7B54\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u8D77\u52D5\u3057\u76F4\u3059\u5834\u5408\u306F\u5143\u306E\u30E2\u30FC\u30C9\u30FB\u5165\u529B\u5143\u30FB\u5BFE\u8C61feature\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+      );
+    }
+    return void 0;
+  }
+  const proposal = readObject(json2.data.contents);
+  if (proposal?.schema === "concept-test/v1" && noDecision) {
+    if (markdown.ok ? markdownObject(markdown.data.contents)?.schema === "concept-test/v1" : markdown.error.details?.rule === "exists") {
+      return void 0;
+    }
+    return inspect(mdPath, "\u65E7\u63D0\u6848\u306EJSON\u3068Markdown\u306E\u5F62\u5F0F\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
+  }
+  if (proposal?.schema !== "concept-test/v2" || proposal.feature !== feature) {
+    return inspect(jsonPath, "\u63D0\u6848\u306E\u5F62\u5F0F\u30FB\u5BFE\u8C61\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002");
+  }
+  if (!markdown.ok) return inspect(mdPath, "\u63D0\u6848\u306EMarkdown\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
+  if (!isDeepStrictEqual(markdownObject(markdown.data.contents), proposal)) {
+    return inspect(mdPath, "Markdown\u306B\u8A18\u8F09\u3055\u308C\u305F\u63D0\u6848\u3068JSON\u30D5\u30A1\u30A4\u30EB\u306E\u5185\u5BB9\u304C\u4E00\u81F4\u3057\u307E\u305B\u3093\u3002");
+  }
+  const legacy = resolveGuarded(root, `${prefix}.approval.json`);
+  if (legacy.ok || legacy.error.details?.rule !== "exists") {
+    return inspect(jsonPath, "v2\u63D0\u6848\u3068\u65E7\u7F72\u540D\u8A18\u9332\u306E\u7D44\u307F\u5408\u308F\u305B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
+  }
+  switch (proposal.proposal) {
+    case "FITS_EXISTING_CONCEPTS":
+      return noDecision ? continuation() : inspect(decisionPath, "FITS\u63D0\u6848\u3068\u5224\u65AD\u8A18\u9332\u306E\u7D44\u307F\u5408\u308F\u305B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
+    case "NEW_CONCEPT_CANDIDATE":
+    case "RESPONSIBILITY_CONFLICT":
+    case "REQUIRES_HUMAN_DECISION":
+      break;
+    default:
+      return inspect(jsonPath, "\u63D0\u6848\u306E\u5206\u985E\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002");
+  }
+  if (noDecision) {
+    return blocked(
+      `human: run the installed validate-concept-test.sh --root . --feature ${feature} --confirm`,
+      `${jsonPath} \u306FNon-FITS\u63D0\u6848\u3067\u3001${decisionPath} \u306F\u307E\u3060\u3042\u308A\u307E\u305B\u3093\u3002\u672C\u4EBA\u304C\u5225\u7AEF\u672B\u3067\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\uFF08PowerShell \u306F .ps1\uFF09\u3092\u5B9F\u884C\u3057\u3001\u63D0\u793A\u3055\u308C\u305F\u5BFE\u8C61\u30FB\u6839\u62E0\u30FB\u533A\u5225\u3092\u78BA\u8A8D\u3057\u3066\u5224\u65AD\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u691C\u8A3C\u5668\u304C\u63D0\u6848\u306E\u4E0D\u5099\u3092\u5831\u544A\u3057\u305F\u5834\u5408\u306F\u5148\u306B\u4FEE\u5FA9\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+    );
+  }
+  if (!receipt.ok) return inspect(decisionPath, "\u5224\u65AD\u8A18\u9332\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
+  const decision = readObject(receipt.data.contents);
+  if (decision?.schema !== "concept-test-decision/v1" || decision.feature !== feature) {
+    return inspect(decisionPath, "\u5224\u65AD\u8A18\u9332\u306E\u5F62\u5F0F\u30FB\u5BFE\u8C61\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002");
+  }
+  if (decision.proposal_json_sha256 !== createHash2("sha256").update(json2.data.contents).digest("hex") || decision.proposal_md_sha256 !== createHash2("sha256").update(markdown.data.contents).digest("hex")) {
+    return inspect(decisionPath, "\u8A18\u9332\u3055\u308C\u305FSHA-256\u304C\u73FE\u5728\u306E\u63D0\u6848\u3068\u4E00\u81F4\u3057\u307E\u305B\u3093\u3002\u66F4\u65B0\u3057\u305F\u63D0\u6848\u3092\u78BA\u8A8D\u3057\u3001\u5FC5\u8981\u306B\u5FDC\u3058\u3066\u672C\u4EBA\u304C\u5225\u7AEF\u672B\u3067 --confirm \u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
+  }
+  switch (decision.decision) {
+    case "defer-to-domain-update":
+      return { action: conceptStopAction(feature, "DEFER", decisionPath), decision: "DEFER" };
+    case "rejected":
+      return { action: conceptStopAction(feature, "REJECT", decisionPath), decision: "REJECT" };
+    case "proceed":
+      return continuation();
+    default:
+      return inspect(decisionPath, "\u8A18\u9332\u3055\u308C\u305F\u5224\u65AD\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002");
+  }
+}
+function conceptAdvice(root, feature, tasks, inBootstrap) {
+  if (!inBootstrap && tasks.every((task) => task.status === "Done")) return;
+  const stop = recordedConceptStop(root, feature, tasks);
+  const proposal = conceptProposalAdvice(root, feature, inBootstrap, stop);
+  if (proposal?.decision && stop) {
+    return { ...proposal.action, rationale: `${proposal.action.rationale} \u524D\u56DE\u306E\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08${stop.path}\uFF09\u306E\u5224\u5B9A\u306F ${stop.status} \u3067\u3059\u3002\u73FE\u5728\u306E\u5165\u529B\u306B\u5BFE\u3059\u308B\u691C\u8A3C\u7D50\u679C\u3068\u5408\u308F\u305B\u3066\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002` };
+  }
+  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision)) return proposal.action;
+  return stop?.action;
 }
 
 // ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
@@ -41105,9 +41305,9 @@ function approvedTasks(tasks) {
   return tasks.filter((task) => isApprovedShape2(task.approval));
 }
 function phaseFromTasks(feature, tasks) {
-  const blocked = tasks.filter((task) => task.status === "Blocked");
-  if (blocked.length > 0) {
-    const ids = blocked.map((task) => task.id).join(", ");
+  const blocked2 = tasks.filter((task) => task.status === "Blocked");
+  if (blocked2.length > 0) {
+    const ids = blocked2.map((task) => task.id).join(", ");
     return {
       kind: "next-command",
       feature,
@@ -41167,48 +41367,29 @@ function phaseFromTasks(feature, tasks) {
 function nextCommandForFeature(root, feature, reports) {
   const profile = workflowProfile(root);
   if (!profile.ok) return profile;
-  const requirementsPath = `specs/${feature}/requirements.md`;
-  const requirementsResult = guardedRead(root, requirementsPath);
-  if (!requirementsResult.ok) {
-    if (requirementsResult.error.code !== "not-found") {
-      return requirementsResult;
-    }
+  const toCommand = (action) => ok({ kind: "next-command", feature, phase: action.phase, nextCommand: action.command, rationale: action.rationale });
+  const specsDir = `specs/${feature}`;
+  const coreFiles = [
+    ["requirements", "bootstrap-not-started", "generate SDD Core specifications (requirements, design, tasks) and run spec-check"],
+    ["design", "design-missing", "complete the SDD Core specification package"],
+    ["tasks", "tasks-missing", "generate tasks.md and run spec-check"]
+  ];
+  for (const [name, phase2, instruction] of coreFiles) {
+    const path3 = `${specsDir}/${name}.md`;
+    const file2 = guardedRead(root, path3);
+    if (file2.ok) continue;
+    if (file2.error.code !== "not-found") return file2;
+    const proposal = conceptAdvice(root, feature, [], true);
+    if (proposal) return toCommand(proposal);
     return ok({
       kind: "next-command",
       feature,
-      phase: "bootstrap-not-started",
+      phase: phase2,
       nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${requirementsPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate SDD Core specifications (requirements, design, tasks) and run spec-check.`
+      rationale: `${path3} does not exist yet; run /sdd-bootstrap:bootstrap to ${instruction}.`
     });
   }
-  const designPath = `specs/${feature}/design.md`;
-  const designResult = guardedRead(root, designPath);
-  if (!designResult.ok) {
-    if (designResult.error.code !== "not-found") {
-      return designResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "design-missing",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${designPath} does not exist yet; run /sdd-bootstrap:bootstrap to complete the SDD Core specification package.`
-    });
-  }
-  const tasksPath = `specs/${feature}/tasks.md`;
-  const tasksReadResult = guardedRead(root, tasksPath);
-  if (!tasksReadResult.ok) {
-    if (tasksReadResult.error.code !== "not-found") {
-      return tasksReadResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "tasks-missing",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${tasksPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate tasks.md and run spec-check.`
-    });
-  }
+  const tasksPath = `${specsDir}/tasks.md`;
   const taskStateResult = parseTaskState(root, feature, tasksPath, void 0, void 0, reports);
   if (!taskStateResult.ok) {
     return taskStateResult;
@@ -41220,7 +41401,10 @@ function nextCommandForFeature(root, feature, reports) {
       { file: tasksPath, rule: "task-state-verdict-fail" }
     );
   }
-  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  const tasks = taskStateResult.data.tasks;
+  const phase = phaseFromTasks(feature, tasks);
+  const concept = conceptAdvice(root, feature, tasks, false);
+  if (concept) return toCommand(concept);
   if (phase.phase === "approval-gate") {
     const review = beforeTaskApproval(root, feature, taskStateResult.data.tasks.every((task) => task.risk === "low"));
     if (review) return ok({ kind: "next-command", feature, phase: review.phase, nextCommand: review.command, rationale: review.rationale });
@@ -41361,7 +41545,7 @@ function getNextSddCommand2(root, feature, reports) {
 }
 
 // src/dashboard/decision-reader.ts
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 
 // src/dashboard/decisions.js
 function validDecisions(rows) {
@@ -41393,7 +41577,7 @@ function readDecisions(root, feature) {
   let stale = false;
   for (const decision of decisions) for (const basis of decision.basis) {
     const input2 = guardedRead(root, `specs/${feature}/${basis.path}`);
-    if (!input2.ok || createHash2("sha256").update(input2.data.contents).digest("hex") !== basis.sha256) stale = true;
+    if (!input2.ok || createHash3("sha256").update(input2.data.contents).digest("hex") !== basis.sha256) stale = true;
   }
   return { feature, source, stale, decisions };
 }
@@ -41434,7 +41618,7 @@ function readData(root) {
   if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
   const data = { project: basename(root.path), features: [], tasks: [] };
   const reports = createReportLookup();
-  const hash2 = createHash3("sha256").update(JSON.stringify(specs.data));
+  const hash2 = createHash4("sha256").update(JSON.stringify(specs.data));
   for (const { feature } of specs.data) {
     const decisions = readDecisions(root, feature);
     if (decisions) (data.decisionSets ??= []).push(decisions);
@@ -41445,7 +41629,7 @@ function readData(root) {
     const warnings = [];
     if (!spec.ok) warnings.push("\u4ED5\u69D8\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093: " + spec.error.code);
     if (!next.ok) warnings.push("\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: " + next.error.code);
-    else if (next.data.phase === "spec-check") warnings.push(next.data.rationale);
+    else if (next.data.phase === "spec-check" || next.data.phase === "blocked" || next.data.phase === "bootstrap") warnings.push(next.data.rationale);
     data.features.push({ id: feature, ...Object.hasOwn(labels, feature) ? { displayName: labels[feature] } : {}, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
     hash2.update(JSON.stringify(spec));
     if (!file2.ok) {
@@ -41579,7 +41763,9 @@ function computeNextAction(root, feature, tasks, highestRisk, files, driftStatus
     command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
     rationale: `specs/${feature} is missing core SDD specification files or tasks.`
   };
-  if (!files.requirements || !files.tasks || tasks.length === 0) return bootstrap;
+  if (!files.requirements || !files.tasks || tasks.length === 0) {
+    return conceptAdvice(root, feature, tasks, true) ?? bootstrap;
+  }
   if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {
     return {
       phase: "blocked",
@@ -41587,12 +41773,14 @@ function computeNextAction(root, feature, tasks, highestRisk, files, driftStatus
       rationale: `specs/${feature} has ${driftStatus}; revert undeclared edits, record a rationale under '## Spec Amendments', or repair .spec-baseline.json.`
     };
   }
-  const blocked = tasks.filter((t) => t.status === "Blocked");
-  if (blocked.length > 0) {
+  const concept = conceptAdvice(root, feature, tasks, !files.design);
+  if (concept) return concept;
+  const blocked2 = tasks.filter((t) => t.status === "Blocked");
+  if (blocked2.length > 0) {
     return {
       phase: "blocked",
       command: "human: resolve blockers",
-      rationale: `Task(s) ${blocked.map((t) => t.id).join(", ")} are Blocked in specs/${feature}/tasks.md.`
+      rationale: `Task(s) ${blocked2.map((t) => t.id).join(", ")} are Blocked in specs/${feature}/tasks.md.`
     };
   }
   if (!files.design) return bootstrap;
@@ -41872,9 +42060,8 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
         executionArtifact.exists = true;
         executionArtifact.path = execRel;
         try {
-          const parsed = JSON.parse(execRead.data.contents);
-          const matchesIdentity = parsed.schema === "sdd-gate-execution/v1" && parsed.feature === feature && typeof parsed.taskId === "string" && parsed.taskId.toUpperCase() === task.id.toUpperCase();
-          if (matchesIdentity) {
+          const parsed = parseTaskExecution(execRead.data.contents, feature, task.id);
+          if (parsed) {
             if (parsed.verdict === "PASS" || parsed.verdict === "FAIL") {
               executionArtifact.verdict = parsed.verdict;
             }
@@ -42019,7 +42206,7 @@ function buildServer(root) {
     "sdd_gate_audit",
     {
       title: "SDD gate audit",
-      description: "Audits v2 sdd-gate readiness for a feature (or single task): checks deterministic .execution.json, independent G1-G5 report VERDICT, Spec Drift, and Risk: high Open Questions.",
+      description: "Audits v2 sdd-gate readiness for a feature (or single task): checks deterministic .execution.json, independent G1-G5 report VERDICT, Spec Drift, and Risk: high Open Questions. For the next operation after a Concept Test stop, read sdd_feature_state.nextAction for the same feature.",
       inputSchema: external_exports.strictObject({
         feature: FEATURE_ARG,
         taskId: TASK_ID_ARG.optional()
@@ -42125,7 +42312,7 @@ function observationView(stored, now = Date.now()) {
 import { randomBytes, timingSafeEqual } from "node:crypto";
 
 // ui/dashboard-page.ts
-import { createHash as createHash4 } from "node:crypto";
+import { createHash as createHash5 } from "node:crypto";
 function dashboardPage(mode = "http") {
   const page = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDD Forge \u2014 \u958B\u767A\u72B6\u6CC1</title><style>
 :root{font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#172b4d;background:#fff;--line:#767676;--blue:#0031d8;--muted:#505f79;--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--radius-control:8px;--radius-panel:12px;--success:#216e4e;--warning:#705400;--error:#ae2a19}
@@ -42665,7 +42852,7 @@ setInterval(refresh, 5e3);
 render();
 refresh();
 </script></body></html>`;
-  return page.replace("__SDD_PAGE_VERSION__", createHash4("sha256").update(page).digest("hex").slice(0, 12));
+  return page.replace("__SDD_PAGE_VERSION__", createHash5("sha256").update(page).digest("hex").slice(0, 12));
 }
 
 // src/status-view.ts
@@ -42674,6 +42861,7 @@ var PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta nam
 </style></head><body><header><div><strong>sdd-forge</strong> <span class="muted">\u30FB\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></div></header><main><h1>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730</h1><p>\u3069\u3053\u307E\u3067\u9032\u3093\u3060\u304B\u3001\u6B21\u306B\u4F55\u3092\u3059\u308C\u3070\u3088\u3044\u304B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002</p><p class="muted">\u73FE\u5728\u306E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u304B\u3089\u53D6\u5F97\u3057\u307E\u3059\u3002\u66F4\u65B0\u30DC\u30BF\u30F3\u3067\u518D\u53D6\u5F97\u3067\u304D\u307E\u3059\u3002</p><label for="feature">\u78BA\u8A8D\u3059\u308B\u6A5F\u80FD</label><select id="feature" disabled><option>\u8AAD\u307F\u8FBC\u307F\u4E2D</option></select><p><button id="refresh" type="button">\u72B6\u614B\u3092\u66F4\u65B0</button></p><p id="error" role="alert"></p><section id="result" hidden><h2 id="headline"></h2><p id="reason"></p><div class="next"><strong>\u6B21\u306B\u3059\u308B\u3053\u3068</strong><p id="next"></p><p><code id="command"></code></p><button id="copy" type="button">\u30B3\u30DE\u30F3\u30C9\u3092\u30B3\u30D4\u30FC</button><p id="copy-result" role="status"></p><p class="muted">\u30B3\u30DE\u30F3\u30C9\u306F\u3053\u306E\u753B\u9762\u304B\u3089\u5B9F\u884C\u3055\u308C\u307E\u305B\u3093\u3002</p></div></section><section id="progress" hidden><h2>\u5DE5\u7A0B\u3054\u3068\u306E\u72B6\u614B</h2><p class="muted">\u72B6\u614B\u672A\u78BA\u8A8D\u306F\u3001\u53D6\u5F97\u30C7\u30FC\u30BF\u3060\u3051\u3067\u306F\u5B9F\u65BD\u72B6\u6CC1\u304C\u5206\u304B\u3089\u306A\u3044\u3053\u3068\u3092\u793A\u3057\u307E\u3059\u3002\u632F\u308A\u8FD4\u308A\u306F\u6761\u4EF6\u306B\u5FDC\u3058\u3066\u5B9F\u65BD\u3057\u307E\u3059\u3002</p><ul id="steps"></ul><details><summary>\u5224\u65AD\u306E\u6839\u62E0\u3092\u898B\u308B</summary><pre id="raw"></pre></details></section><p class="muted">\u8868\u793A\u306F\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3067\u3059\u3002\u30BF\u30B9\u30AF\u3084\u627F\u8A8D\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002</p></main><script>
 const $=id=>document.getElementById(id);let requestId=0;const api=(path)=>fetch(path,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async r=>{if(!r.ok)throw Error('\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F');return r.json()});
 const phaseText={
+  'bootstrap': ['\u4ED5\u69D8\u306E\u4F5C\u6210\u3092\u518D\u958B\u3067\u304D\u307E\u3059','\u5143\u306E\u8981\u4EF6\u3068\u5BFE\u8A71\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'],
   'bootstrap-not-started': ['\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
   'design-missing': ['\u8A2D\u8A08\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u306F\u3042\u308A\u307E\u3059\u304C\u3001\u8A2D\u8A08\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
   'tasks-missing': ['\u30BF\u30B9\u30AF\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u3068\u8A2D\u8A08\u306E\u30D5\u30A1\u30A4\u30EB\u306F\u3042\u308A\u307E\u3059\u304C\u3001\u5B9F\u88C5\u30BF\u30B9\u30AF\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
@@ -42691,7 +42879,7 @@ const phaseText={
   'blocked': ['\u30D6\u30ED\u30C3\u30AB\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','\u30D6\u30ED\u30C3\u30AF\u3055\u308C\u305F\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'],
 };
 function row(name,value){const li=document.createElement('li');for(const text of [name,value]){const span=document.createElement('span');span.textContent=text;li.append(span)}$('steps').append(li)}
-async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';const [headline,reason]=Object.hasOwn(phaseText,p)?phaseText[p]:['\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'];$('headline').textContent=headline;$('reason').textContent=p==='spec-check'&&n.ok?n.data.rationale:reason;$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='sdd-gate'||p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
+async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';const [headline,reason]=Object.hasOwn(phaseText,p)?phaseText[p]:['\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'];$('headline').textContent=headline;$('reason').textContent=n.ok&&(p==='spec-check'||p==='blocked'||p==='bootstrap')?n.data.rationale:reason;$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='sdd-gate'||p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
 async function start(){const id=++requestId;try{const r=await api('api/features');if(id!==requestId)return;if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='\u8868\u793A\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u305B\u3093\u3002'}catch(e){if(id!==requestId)return;$('error').textContent='\u6A5F\u80FD\u4E00\u89A7\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002\u958B\u767A\u74B0\u5883\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u304F\u3060\u3055\u3044\u3002'}catch{$('copy-result').textContent='\u81EA\u52D5\u30B3\u30D4\u30FC\u3067\u304D\u307E\u305B\u3093\u3002\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}};start();</script></body></html>`;
 async function startStatusView(root, dashboard = false) {
   const token = randomBytes(32).toString("hex");

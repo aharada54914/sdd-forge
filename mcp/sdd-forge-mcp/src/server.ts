@@ -92,7 +92,7 @@ export function buildServer(root: SddRoot): McpServer {
     {
       title: "SDD gate audit",
       description:
-        "Audits v2 sdd-gate readiness for a feature (or single task): checks deterministic .execution.json, independent G1-G5 report VERDICT, Spec Drift, and Risk: high Open Questions.",
+        "Audits v2 sdd-gate readiness for a feature (or single task): checks deterministic .execution.json, independent G1-G5 report VERDICT, Spec Drift, and Risk: high Open Questions. For the next operation after a Concept Test stop, read sdd_feature_state.nextAction for the same feature.",
       inputSchema: z.strictObject({
         feature: FEATURE_ARG,
         taskId: TASK_ID_ARG.optional(),

@@ -13,6 +13,8 @@
  *     unresolved `Risk: high` provisional Open Questions.
  */
 
+import { parseTaskExecution } from "../concept-gate-advice.js";
+import { conceptAdvice } from "../concept-proposal-advice.js";
 import { err, ok, type Result } from "../envelope.js";
 import { beforeTaskApproval } from "../pre-approval-review.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
@@ -230,7 +232,9 @@ function computeNextAction(
     command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
     rationale: `specs/${feature} is missing core SDD specification files or tasks.`,
   };
-  if (!files.requirements || !files.tasks || tasks.length === 0) return bootstrap;
+  if (!files.requirements || !files.tasks || tasks.length === 0) {
+    return conceptAdvice(root, feature, tasks, true) ?? bootstrap;
+  }
   if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {
     return {
       phase: "blocked",
@@ -238,6 +242,8 @@ function computeNextAction(
       rationale: `specs/${feature} has ${driftStatus}; revert undeclared edits, record a rationale under '## Spec Amendments', or repair .spec-baseline.json.`,
     };
   }
+  const concept = conceptAdvice(root, feature, tasks, !files.design);
+  if (concept) return concept;
   const blocked = tasks.filter((t) => t.status === "Blocked");
   if (blocked.length > 0) {
     return {
@@ -588,14 +594,8 @@ export function sddGateAudit(
         executionArtifact.exists = true;
         executionArtifact.path = execRel;
         try {
-          const parsed = JSON.parse(execRead.data.contents) as Record<string, unknown>;
-          const matchesIdentity =
-            parsed.schema === "sdd-gate-execution/v1" &&
-            parsed.feature === feature &&
-            typeof parsed.taskId === "string" &&
-            parsed.taskId.toUpperCase() === task.id.toUpperCase();
-
-          if (matchesIdentity) {
+          const parsed = parseTaskExecution(execRead.data.contents, feature, task.id);
+          if (parsed) {
             if (parsed.verdict === "PASS" || parsed.verdict === "FAIL") {
               executionArtifact.verdict = parsed.verdict;
             }
