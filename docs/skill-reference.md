@@ -850,32 +850,27 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 
 ### sdd-bootstrap
 
-| テンプレートパス | 生成物説明 |
-|---|---|
-| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md` | INV-xxx 所見付き調査レポート |
-| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md` | BL-xxx 項目付き baseline 記録 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/AGENTS.template.md` | プロジェクト agent・role 定義 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/CLAUDE.template.md` | Claude インタラクションガイドライン |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md` | 機能要件書 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md` | アーキテクチャ・設計決定 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md` | 受け入れ基準・テスト |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md` | タスク分割 (T-xxx) |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md` | トレーサビリティ行列 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json` | `design-system/` トークン契約の雛形（W3C DTCG、meta エンベロープは `contracts/design-system.contract.v1.schema.json` で検証） |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md` | UI 規約の雛形（3層構造: トークン / Do・Don't / レビューチェックリスト、WCAG 2.2 AA） |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md` | 言語非依存の普遍的 UX 規約（アクション / ダイアログ / アイコン / フロー / 状態 / 認知負荷 の6カテゴリ、既定値込み） |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/adr.template.md` | Architecture Decision Record |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md` | AI 特化タスク template |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md` | C4 Context diagram |
-| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/c4-container.template.md` | C4 Container diagram |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-component.template.md` | C4 Component diagram |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/openapi.template.yaml` | OpenAPI 仕様 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/json-schema.template.json` | JSON Schema 定義 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml` | GitHub Actions CI workflow |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml` | GitLab CI pipeline |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/pull-request.template.md` | GitHub PR template |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/merge-request.template.md` | GitLab MR template |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/gitlab-issue.template.md` | GitLab Issue template |
+新しく作る機能仕様は `requirements.md`、`design.md`、`tasks.md` の3ファイルで、受け入れ基準は `requirements.md` に書きます。旧版で作成した独立の `acceptance-tests.md` や `traceability.md` は、当時の仕様・レビュー履歴を確認する資料です。旧手順で管理中の案件では、その案件の承認済み契約に従って参照します。
+
+| 同梱テンプレートのパス | 用途 | 使用する条件 |
+|---|---|---|
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/requirements.md` | 要件と受け入れ基準 | 機能仕様を作成するとき |
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/design.md` | 設計方針、代替案、テスト方針 | 機能仕様を作成するとき |
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/tasks.md` | リスク、対象ファイル、完了条件を持つタスク | 機能仕様を作成するとき |
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/c4-container.template.md` | コンテナ構成と論理ドメインの対応図 | 設計で構成図が必要なとき |
+| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md` | 根拠付きの調査所見（`INV-NNN`） | コードベース調査を行うとき |
+| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md` | 調査で把握したコード構成 | コードベース調査を行うとき |
+| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md` | 維持すべき既存の挙動（`BL-NNN`） | `bugfix` または `refactor` の調査時 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/AGENTS.template.md` | リポジトリの運用ルール | SDD導入時に `AGENTS.md` が未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/CLAUDE.template.md` | Claude向けのプロジェクト指示 | SDD導入時に `CLAUDE.md` が未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/ci-github.template.yml` | GitHub ActionsのCI | 導入先がGitHubで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/pull-request.template.md` | GitHubのプルリクエスト | 導入先がGitHubで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/ci-gitlab.template.yml` | GitLab CI | 導入先がGitLabで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/gitlab-issue.template.md` | GitLabのIssue | 導入先がGitLabで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/merge-request.template.md` | GitLabのマージリクエスト | 導入先がGitLabで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json` | 色、タイポグラフィ、余白のトークン | UI規約が未整備でテンプレートから作成するとき |
+| `plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md` | トークンを使うUI規約 | UI規約が未整備でデザイン同期を行うとき |
+| `plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md` | 操作、状態、フィードバックの規約 | UI規約が未整備でデザイン同期を行うとき |
 
 ### sdd-implementation
 
