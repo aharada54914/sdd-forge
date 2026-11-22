@@ -1,7 +1,7 @@
 /**
- * AC-011 (runtime part): calling all 8 core tools against a synthetic
- * fixture repository must not change any file under that repository — same
- * file list, same per-file sha256 content hash, before and after the calls.
+ * AC-011 (runtime part): calling all 4 v2 MCP tools against a synthetic
+ * fixture repository must succeed (`!isError && parsed.ok === true`) and
+ * leave every file under that repository byte-for-byte unchanged.
  */
 
 import { test } from "node:test";
@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { makeCoreToolsFixture } from "../core-tools/test-helpers.js";
+import { makeCoreToolsFixture, parseEnvelope } from "../core-tools/test-helpers.js";
 
 function sha256(contents: Buffer): string {
   return createHash("sha256").update(contents).digest("hex");
@@ -34,27 +34,32 @@ function snapshot(dir: string): Array<{ relPath: string; hash: string }> {
   return results;
 }
 
-test("all 8 core tools leave the fixture repository byte-for-byte unchanged", async () => {
-  const fixture = await makeCoreToolsFixture("readonly-core-tools-snapshot");
+test("all 4 v2 MCP tools succeed and leave the fixture repository byte-for-byte unchanged", async () => {
+  const fixture = await makeCoreToolsFixture("readonly-v2-tools-snapshot");
   try {
     const before = snapshot(fixture.tempRoot.dir);
 
-    await fixture.client.callTool({ name: "list_active_specs", arguments: {} });
-    await fixture.client.callTool({ name: "get_spec_status", arguments: { feature: "feature-a" } });
-    await fixture.client.callTool({ name: "get_task_state", arguments: { feature: "feature-a" } });
-    await fixture.client.callTool({ name: "list_approved_tasks", arguments: { feature: "feature-a" } });
-    await fixture.client.callTool({ name: "list_blocked_tasks", arguments: { feature: "feature-a" } });
-    await fixture.client.callTool({ name: "list_review_tickets", arguments: {} });
-    await fixture.client.callTool({ name: "get_quality_gate_summary", arguments: {} });
-    await fixture.client.callTool({ name: "get_next_sdd_command", arguments: { feature: "feature-a" } });
+    const calls: Array<{ name: string; arguments: Record<string, unknown> }> = [
+      { name: "sdd_project_overview", arguments: { includeDoctor: true } },
+      { name: "sdd_feature_state", arguments: { feature: "feature-a", includeDecisionViewMarkdown: true } },
+      { name: "sdd_gate_audit", arguments: { feature: "feature-a" } },
+      { name: "sdd_dashboard_snapshot", arguments: {} },
+    ];
+
+    for (const call of calls) {
+      const res = await fixture.client.callTool(call);
+      assert.equal(Boolean(res.isError), false, `${call.name} unexpectedly returned isError=true`);
+      const env = parseEnvelope(res) as { ok?: boolean };
+      assert.equal(env.ok, true, `${call.name} expected ok=true envelope, got ${JSON.stringify(env)}`);
+    }
 
     const after = snapshot(fixture.tempRoot.dir);
     assert.deepEqual(
       after.map((f) => f.relPath),
       before.map((f) => f.relPath),
-      "file list changed after calling core tools",
+      "file list changed after calling v2 tools",
     );
-    assert.deepEqual(after, before, "file contents changed after calling core tools");
+    assert.deepEqual(after, before, "file contents changed after calling v2 tools");
   } finally {
     await fixture.cleanup();
   }

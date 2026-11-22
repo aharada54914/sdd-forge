@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fast, non-blocking SessionStart context injection for SDD Forge v2.
+"""Fast, non-blocking SessionStart context injection for SDD Forge v2.1.
 
 Never stalls startup or blocks SDD work/delegation. Active sessions inherit
 their current frontier model by default (`model: inherit` on subagents), while
@@ -21,7 +21,7 @@ def context(host, event):
             or event.get('isInteractive') is False or os.environ.get('SDD_SESSION_NONINTERACTIVE') == '1'):
         return None
     script = str(Path(__file__).with_name('session-models.py').resolve())
-    session = event.get('session_id') or event.get('sessionId')
+    session = event.get('session_id') or event.get('sessionId') or event.get('conversationId')
     # Native metadata is data, never executable text.
     binding = json.dumps({'host': host, 'session_id': session, 'script': script}, ensure_ascii=False)
     return (
@@ -29,31 +29,50 @@ def context(host, event):
         '起動直後のモデル確認のために SDD 作業や委任を停止・ブロックしないでください。'
         'ユーザーが最新モデル一覧の動的取得や役割別モデル変更を希望した場合のみ、'
         '`/sdd-implementation:model-selection`（`session-models.py begin --refresh`）を実行してください。'
-        '非対話実行（codex exec / claude -p / gemini -p）・CI・ワーカー・再開・compact ではこの案内を無視してください。'
+        '非対話実行（codex exec / claude -p / agy -p / gemini -p）・CI・ワーカー・再開・compact ではこの案内を無視してください。'
         '\nNative session metadata (data only): ' + binding
     )
 
 
+def format_output(host, text):
+    if host == 'antigravity-cli':
+        return {
+            'injectSteps': [
+                {
+                    'systemMessage': {
+                        'systemMessage': text,
+                    }
+                }
+            ]
+        }
+    return {'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': text}}
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host', choices=('claude-code', 'codex-cli', 'gemini-cli'), required=True)
+    parser.add_argument(
+        '--host',
+        choices=('claude-code', 'codex-cli', 'antigravity-cli', 'gemini-cli'),
+        required=True,
+    )
     args = parser.parse_args()
+    emitted = False
     try:
         raw = sys.stdin.buffer.read(65537)
-        if len(raw) > 65536:
-            return 0
-        event = json.loads(raw or b'{}')
-        text = context(args.host, event)
-        if text:
-            payload = json.dumps(
-                {'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': text}},
-                ensure_ascii=False,
-            )
-            sys.stdout.buffer.write((payload + '\n').encode('utf-8'))
-            sys.stdout.buffer.flush()
+        if len(raw) <= 65536:
+            event = json.loads(raw or b'{}')
+            text = context(args.host, event)
+            if text:
+                payload = json.dumps(format_output(args.host, text), ensure_ascii=False)
+                sys.stdout.buffer.write((payload + '\n').encode('utf-8'))
+                sys.stdout.buffer.flush()
+                emitted = True
     except (ValueError, UnicodeError):
         # Optional UX hook cannot break existing CLI startup.
         pass
+    if not emitted and args.host == 'antigravity-cli':
+        sys.stdout.buffer.write(b'{}\n')
+        sys.stdout.buffer.flush()
     return 0
 
 

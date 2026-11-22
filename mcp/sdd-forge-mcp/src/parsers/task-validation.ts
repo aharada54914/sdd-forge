@@ -133,57 +133,64 @@ function validateDoneEvidence(
   fail: (rule: string, message: string) => void,
   reportLookup?: ReportLookup,
 ): void {
+  const isV2CoreFeature = guardedExists(root, `${tasksDir}/.spec-baseline.json`);
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
 
-  if (!guardedExists(root, bundleRelPath)) {
-    fail(
-      "done-evidence-missing",
-      `${taskId} is Done but verification/${taskId}.evidence.json does not exist in ${tasksDir}`,
-    );
-  } else {
-    const bundleFailures = verifyEvidenceBundle(root, bundleRelPath, taskId);
-    if (bundleFailures.length > 0) {
-      fail("done-evidence-invalid", `${taskId} evidence bundle failed validation: ${bundleRelPath}`);
-    }
-  }
-
-  if (!guardedExists(root, contractRelPath)) {
-    fail(
-      "done-contract-missing",
-      `${taskId} is Done but verification/${taskId}.contract.json does not exist in ${tasksDir}`,
-    );
-  } else if (!guardedExistsNonEmpty(root, contractRelPath)) {
-    fail(
-      "done-contract-empty",
-      `${taskId} is Done but verification/${taskId}.contract.json is empty in ${tasksDir}`,
-    );
-  } else {
-    const contractRead = guardedRead(root, contractRelPath);
-    let contractTaskIdMatches = false;
-    let contractRisk = "";
-    if (contractRead.ok) {
-      try {
-        const parsed: unknown = JSON.parse(contractRead.data.contents);
-        if (isJsonObject(parsed)) {
-          contractTaskIdMatches = parsed.task_id === taskId;
-          contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
-        }
-      } catch {
-        contractTaskIdMatches = false;
+  // SDD Core v2 (ADR-0051) replaces v1 signed evidence bundles/contracts with
+  // `.spec-baseline.json` + deterministic `run-sdd-gate.mjs` execution artifacts
+  // and independent G1-G5 quality-gate reports. Only enforce legacy v1 evidence
+  // artifacts on non-v2 features (#798).
+  if (!isV2CoreFeature) {
+    if (!guardedExists(root, bundleRelPath)) {
+      fail(
+        "done-evidence-missing",
+        `${taskId} is Done but verification/${taskId}.evidence.json does not exist in ${tasksDir}`,
+      );
+    } else {
+      const bundleFailures = verifyEvidenceBundle(root, bundleRelPath, taskId);
+      if (bundleFailures.length > 0) {
+        fail("done-evidence-invalid", `${taskId} evidence bundle failed validation: ${bundleRelPath}`);
       }
     }
-    if (!contractTaskIdMatches) {
+
+    if (!guardedExists(root, contractRelPath)) {
       fail(
-        "done-contract-task-id-mismatch",
-        `${taskId} is Done but verification/${taskId}.contract.json has mismatched task_id`,
+        "done-contract-missing",
+        `${taskId} is Done but verification/${taskId}.contract.json does not exist in ${tasksDir}`,
       );
-    }
-    if (contractTaskIdMatches && contractRisk !== "" && taskRisk !== "" && contractRisk !== taskRisk) {
+    } else if (!guardedExistsNonEmpty(root, contractRelPath)) {
       fail(
-        "contract-risk-mismatch",
-        `${taskId} contract risk '${contractRisk}' does not match tasks.md risk '${taskRisk}'`,
+        "done-contract-empty",
+        `${taskId} is Done but verification/${taskId}.contract.json is empty in ${tasksDir}`,
       );
+    } else {
+      const contractRead = guardedRead(root, contractRelPath);
+      let contractTaskIdMatches = false;
+      let contractRisk = "";
+      if (contractRead.ok) {
+        try {
+          const parsed: unknown = JSON.parse(contractRead.data.contents);
+          if (isJsonObject(parsed)) {
+            contractTaskIdMatches = parsed.task_id === taskId;
+            contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
+          }
+        } catch {
+          contractTaskIdMatches = false;
+        }
+      }
+      if (!contractTaskIdMatches) {
+        fail(
+          "done-contract-task-id-mismatch",
+          `${taskId} is Done but verification/${taskId}.contract.json has mismatched task_id`,
+        );
+      }
+      if (contractTaskIdMatches && contractRisk !== "" && taskRisk !== "" && contractRisk !== taskRisk) {
+        fail(
+          "contract-risk-mismatch",
+          `${taskId} contract risk '${contractRisk}' does not match tasks.md risk '${taskRisk}'`,
+        );
+      }
     }
   }
 

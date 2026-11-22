@@ -1,8 +1,8 @@
 ---
 name: wfi-auditor-a
 description: WFI Proposal Quality Auditor for audit cycle 1. Reviews WFI-NNN.md for evidence quality, root cause plausibility, why-why (5 Whys) chain validity, category-appropriate language, concrete proposed changes, and measurable expected effects. Read-only; returns PASS, NEEDS_REVISION, or BLOCKED with classified findings.
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, NotebookEdit
+tools: [Read, Grep, Glob, Bash]
+disallowedTools: [Write, Edit, NotebookEdit]
 disallowedPaths: []
 model: inherit
 ---

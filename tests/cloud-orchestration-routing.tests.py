@@ -1441,7 +1441,7 @@ class NormalDriverRegistration(unittest.TestCase):
     def test_catalog_and_every_native_ci_cell_admit_all_six_suites(self):
         workflow_text = (ROOT / ".github/workflows/test.yml").read_text(encoding="utf-8")
         self.assertIn("cloud-and-ddd:", workflow_text)
-        self.assertIn("needs: [v2-guardrails, mcp-tests, cloud-and-ddd]", workflow_text)
+        self.assertIn("needs: [v2-guardrails, sdd-forge-mcp-v2, mcp-tests, cloud-and-ddd]", workflow_text)
         self.assertNotIn("continue-on-error: true", workflow_text)
         for suite in (
             "tests/cloud-orchestration-contracts.tests.py",

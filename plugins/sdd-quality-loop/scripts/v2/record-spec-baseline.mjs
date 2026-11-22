@@ -14,9 +14,9 @@ import {
   canonicalSpecContractText,
   extractAmendmentEntries,
   extractSpecIdentifiers,
-  findProjectRoot,
   loadGuardrailsConfig,
   matchProtectedSpecPath,
+  resolveExplicitOrAutoRoot,
   sha256Text,
 } from './guardrails-lib.mjs';
 
@@ -36,7 +36,7 @@ export function buildSpecBaseline({ feature, projectRoot }) {
   if (!feature || /[\\/]/.test(feature) || feature === '.' || feature === '..') {
     throw new Error(`Invalid feature name: ${feature}`);
   }
-  const root = findProjectRoot(projectRoot);
+  const root = resolveExplicitOrAutoRoot(projectRoot);
   const featureDir = path.join(root, 'specs', feature);
   if (!fs.existsSync(featureDir) || !fs.statSync(featureDir).isDirectory()) {
     throw new Error(`Feature directory not found: specs/${feature}`);
@@ -92,7 +92,7 @@ export function buildSpecBaseline({ feature, projectRoot }) {
 }
 
 export function writeSpecBaseline({ feature, projectRoot, outputPath }) {
-  const root = findProjectRoot(projectRoot);
+  const root = resolveExplicitOrAutoRoot(projectRoot);
   const baseline = buildSpecBaseline({ feature, projectRoot: root });
   const target = outputPath
     ? path.resolve(outputPath)
@@ -127,7 +127,7 @@ function main() {
   try {
     const { baseline, outputPath } = writeSpecBaseline({
       feature: opts.feature,
-      projectRoot: opts.root || process.cwd(),
+      projectRoot: opts.root,
       outputPath: opts.output,
     });
     process.stdout.write(

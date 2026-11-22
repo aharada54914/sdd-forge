@@ -34,7 +34,7 @@ Usage: uninstall.sh [options]
 
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --marketplace-name <name>      Registered marketplace name. Default: sdd-plugins
-  --target All|Codex|Claude|Copilot|Gemini|FilesOnly
+  --target All|Codex|Claude|Copilot|Antigravity|Gemini|FilesOnly
                                  Default: All
   --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud
                                  Default: all plugins
@@ -46,10 +46,11 @@ Usage: uninstall.sh [options]
   --skip-mcp-uninstall           Skip removing MCP payloads/registrations
 
 Environment:
-  SDD_CODEX_HOME      Override ~/.codex location for agent TOML files and config.toml
-  SDD_CURSOR_DIR      Override the ~/.cursor directory used for Cursor MCP unregistration
-  SDD_GEMINI_DIR      Override the ~/.gemini directory used for Gemini CLI MCP unregistration
-  SDD_VSCODE_USER_DIR Override the VS Code user-profile directory used for MCP unregistration
+  SDD_CODEX_HOME             Override ~/.codex location for agent TOML files and config.toml
+  SDD_CURSOR_DIR             Override the ~/.cursor directory used for Cursor MCP unregistration
+  SDD_ANTIGRAVITY_CONFIG_DIR Override the ~/.gemini/config directory used for Antigravity CLI MCP unregistration
+  SDD_GEMINI_DIR             Override the ~/.gemini directory used for legacy Gemini CLI MCP unregistration
+  SDD_VSCODE_USER_DIR        Override the VS Code user-profile directory used for MCP unregistration
   Unregistration is best-effort: a plugin or marketplace that is already absent
   is treated as success so the uninstaller is idempotent. The marketplace is only
   removed during a full uninstall (every plugin selected) because removing it
@@ -83,8 +84,8 @@ fi
 
 # Validate --target
 case "$TARGET" in
-    All|Codex|Claude|Copilot|Gemini|FilesOnly) ;;
-    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, Gemini, or FilesOnly)" >&2; usage ;;
+    All|Codex|Claude|Copilot|Antigravity|Gemini|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, Antigravity, Gemini, or FilesOnly)" >&2; usage ;;
 esac
 
 # Validate --plugins
@@ -415,6 +416,16 @@ unregister_vscode_mcp() {
     remove_mcp_json_keys "VS Code" "${vscode_user_dir}/mcp.json" "servers"
 }
 
+unregister_antigravity_mcp() {
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    local agy_config_dir="${SDD_ANTIGRAVITY_CONFIG_DIR:-$HOME/.gemini/config}"
+    if [[ ! -d "$agy_config_dir" ]]; then
+        return 0
+    fi
+    mcp_json_node_available || return 0
+    remove_mcp_json_keys "Antigravity CLI" "${agy_config_dir}/mcp_config.json" "mcpServers"
+}
+
 unregister_gemini_mcp() {
     # Removes only mcpServers.<name> from ~/.gemini/settings.json for each
     # selected MCP. An absent ~/.gemini directory skips with a notice. Override
@@ -510,6 +521,14 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     uninstall_copilot_plugins || exit 1
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Antigravity" ]]; then
+    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]] && command -v agy >/dev/null 2>&1; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            try_plugin_command agy plugin uninstall "$p"
+        done
+    fi
+    unregister_antigravity_mcp
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
     if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]] && command -v gemini >/dev/null 2>&1; then

@@ -113,20 +113,22 @@ test('display metadata cannot alias a denied root secret', () => {
   } finally {f.cleanup();}
 });
 
-test('Lite dashboard routes preserve evidence validation across refreshes', () => {
+test('SDD Core dashboard routes preserve evidence validation across refreshes', () => {
   const f = fixture();
   try {
-    writeFile(f.dir, 'AGENTS.md', '# Project\n## Project Settings\nspec_profile: lite\n## Active Spec Directories\n- `specs/demo/`\n');
+    writeFile(f.dir, 'AGENTS.md', '# Project\n## Active Spec Directories\n- `specs/demo/`\n');
     writeFile(f.dir, 'specs/demo/design.md', '# Design\n');
+    writeFile(f.dir, 'specs/demo/.spec-baseline.json', '{"schema":"sdd-spec-baseline/v1","feature":"demo","files":{}}\n');
     const reader = new DashboardReader(f.root);
     const planned = reader.sample();
     assert.equal(planned.error, null);
-    assert.equal(planned.data?.features[0]?.nextCommand, '/sdd-ship:ship --lite specs/demo/tasks.md');
+    assert.equal(planned.data?.features[0]?.nextCommand, '/sdd-ship:ship specs/demo/tasks.md');
     writeFile(f.dir, 'reports/implementation/T-001.md', 'Task ID: T-001\n');
     writeFile(f.dir, 'specs/demo/tasks.md', tasks('First', 'Implementation Complete'));
     const implemented = reader.sample();
     assert.equal(implemented.error, null);
-    assert.ok(implemented.data?.features[0]?.nextCommand.startsWith('/sdd-lite:lite-gate'));
+    assert.equal(implemented.data?.features[0]?.phase, 'sdd-gate');
+    assert.equal(implemented.data?.features[0]?.nextCommand, '/sdd-ship:ship specs/demo/tasks.md');
     writeFile(f.dir, 'reports/quality-gate/T-001.md', 'Task ID: T-001\nVERDICT: PASS\n');
     writeFile(f.dir, 'specs/demo/tasks.md', tasks('First', 'Done'));
     const done = reader.sample();

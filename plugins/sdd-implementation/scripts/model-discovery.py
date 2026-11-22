@@ -7,11 +7,18 @@ from pathlib import Path
 import queue
 import re
 import shutil
+import signal
 import subprocess
 import threading
 import time
 
-HOSTS = {'claude-code': 'claude', 'codex-cli': 'codex', 'gemini-cli': 'gemini'}
+HOSTS = {
+    'claude-code': 'claude',
+    'codex-cli': 'codex',
+    'antigravity-cli': 'agy',
+    'gemini-cli': 'gemini',
+}
+ANSI_RE = re.compile(r'\x1b\[[0-9;?]*[ -/]*[@-~]')
 MODEL_ID = re.compile(r'[A-Za-z0-9][A-Za-z0-9._:/\[\]-]{0,127}')
 EFFORT_ID = re.compile(r'[a-z][a-z0-9_-]{0,31}')
 MAX_BYTES = 2 * 1024 * 1024
@@ -143,6 +150,10 @@ def model_row(host, model, efforts, source, display_name=None, default_effort=No
             'default_effort': default_effort, 'source': source, 'verification': 'listed', 'selectable': True}
 
 
+def _nonempty_str(value):
+    return isinstance(value, str) and value not in ('', 'none')
+
+
 def claude(executable, project):
     source = 'claude control initialize.models'
     argv = [executable, '-p', '--input-format', 'stream-json', '--output-format', 'stream-json',
@@ -165,9 +176,13 @@ def claude(executable, project):
     provider = account.get('apiProvider')
     if provider in ('bedrock', 'vertex', 'foundry', 'anthropicAws', 'anthropicGoogleCloud', 'mantle', 'gateway'):
         auth = 'external'
-    elif account.get('apiKeySource') not in (None, '', 'none'):
+    elif _nonempty_str(account.get('apiKeySource')):
         auth = 'api-key'
-    elif account.get('tokenSource') not in (None, '', 'none'):
+    elif _nonempty_str(account.get('tokenSource')):
+        auth = 'oauth'
+    elif _nonempty_str(account.get('subscriptionType')):
+        auth = 'subscription'
+    elif provider == 'firstParty' and any(_nonempty_str(account.get(k)) for k in ('email', 'organization')):
         auth = 'oauth'
     else:
         raise DiscoveryError('authentication-unavailable')
@@ -216,6 +231,104 @@ def codex(executable, project):
         raise DiscoveryError('incomplete-pagination')
 
 
+def _kill_process_tree(proc):
+    if os.name != 'nt':
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+            return
+        except OSError:
+            pass
+    try:
+        proc.kill()
+    except OSError:
+        pass
+
+
+def antigravity(executable, project):
+    source = 'agy models'
+    proc = subprocess.Popen(
+        [executable, 'models'],
+        cwd=project,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        start_new_session=(os.name != 'nt'),
+        env=dict(os.environ, SDD_SESSION_NONINTERACTIVE='1', NO_COLOR='1', TERM='dumb'),
+    )
+    chunks = []
+    read_error = []
+
+    def _reader():
+        try:
+            assert proc.stdout is not None
+            chunks.append(proc.stdout.read(MAX_BYTES + 1))
+        except Exception as exc:  # pragma: no cover
+            read_error.append(exc)
+
+    reader = threading.Thread(target=_reader, daemon=True)
+    reader.start()
+    try:
+        reader.join(timeout=TIMEOUT)
+        if reader.is_alive():
+            _kill_process_tree(proc)
+            proc.wait(timeout=2)
+            reader.join(timeout=1)
+            raise DiscoveryError('cli-timeout')
+        if read_error:
+            raise DiscoveryError('cli-request-failed')
+        out = chunks[0] if chunks else b''
+        if len(out) > MAX_BYTES:
+            _kill_process_tree(proc)
+            proc.wait(timeout=2)
+            raise DiscoveryError('cli-request-failed')
+        try:
+            proc.wait(timeout=TIMEOUT)
+        except subprocess.TimeoutExpired:
+            _kill_process_tree(proc)
+            proc.wait(timeout=2)
+            raise DiscoveryError('cli-timeout')
+    finally:
+        if proc.poll() is None:
+            _kill_process_tree(proc)
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                pass
+        if proc.stdout is not None and not reader.is_alive():
+            try:
+                proc.stdout.close()
+            except OSError:
+                pass
+    if proc.returncode != 0:
+        raise DiscoveryError('cli-request-failed')
+    raw = out.decode('utf-8', errors='replace')
+    cleaned = ANSI_RE.sub('', raw)
+    rows = []
+    seen = set()
+    header_tokens = {'model', 'models', 'id', 'name', 'available', 'error', 'warning', 'usage', 'status'}
+    for chunk in re.split(r'[\r\n]+', cleaned):
+        line = chunk.strip()
+        if (not line or 'Fetching available models' in line
+                or line.startswith(('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏', '-', '='))):
+            continue
+        m = re.match(r'^([A-Za-z0-9][A-Za-z0-9._:/\[\]-]{0,127})(?:\s{2,}(.+))?$', line)
+        if not m:
+            continue
+        model_id = m.group(1)
+        if model_id.endswith(':') or model_id.lower() in header_tokens:
+            continue
+        if not re.search(r'[-./0-9]', model_id):
+            continue
+        display = (m.group(2) or model_id).strip()
+        if model_id in seen:
+            continue
+        seen.add(model_id)
+        rows.append(model_row('antigravity-cli', model_id, [], source, display, None))
+    if not rows:
+        raise DiscoveryError('empty-or-duplicate-model-list')
+    return rows, 'cli-managed'
+
+
 def gemini(executable, project):
     source = 'gemini ACP session/new.models.availableModels'
     with NativeClient([executable, '--acp'], project) as client:
@@ -236,7 +349,12 @@ def gemini(executable, project):
     return rows, 'cli-managed'
 
 
-ADAPTERS = {'claude-code': claude, 'codex-cli': codex, 'gemini-cli': gemini}
+ADAPTERS = {
+    'claude-code': claude,
+    'codex-cli': codex,
+    'antigravity-cli': antigravity,
+    'gemini-cli': gemini,
+}
 
 
 def discover(project=None):

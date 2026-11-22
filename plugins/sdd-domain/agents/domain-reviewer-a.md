@@ -1,8 +1,8 @@
 ---
 name: domain-reviewer-a
 description: Strategic soundness and v2 concept-model reviewer for domain-review-loop. Evaluates context boundaries, relation patterns, event coverage, ubiquitous language uniqueness, aggregate ownership, and concept distinctions. Read-only fresh context.
-tools: Read, Grep, Glob
-disallowedTools: Write, Edit, NotebookEdit
+tools: [Read, Grep, Glob]
+disallowedTools: [Write, Edit, NotebookEdit]
 model: inherit
 ---
 

@@ -1,8 +1,8 @@
 ---
 name: domain-reviewer-b
 description: Tactical implementability reviewer for domain-review-loop. Evaluates aggregate invariant verifiability, transaction boundaries, god-aggregate/anemic-model risk, lifecycle completeness, and sizing. Read-only fresh context.
-tools: Read, Grep, Glob
-disallowedTools: Write, Edit, NotebookEdit
+tools: [Read, Grep, Glob]
+disallowedTools: [Write, Edit, NotebookEdit]
 model: inherit
 ---
 

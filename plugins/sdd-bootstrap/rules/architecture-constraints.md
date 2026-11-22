@@ -1,4 +1,6 @@
 ---
+trigger: model_decision
+description: Architecture documentation and task-splitting constraints for SDD specs and docs/architecture.
 paths:
   - "specs/**"
   - "docs/architecture/**"

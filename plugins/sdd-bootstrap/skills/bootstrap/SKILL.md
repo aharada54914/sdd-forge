@@ -39,7 +39,8 @@ disable-model-invocation: true
 
 1. ルートに `AGENTS.md` が無い場合、`feature` / `bugfix` / `refactor` / `project` では先に `/sdd-bootstrap:sdd-adopt` を実行または案内する。
 2. `sdd/guardrails.yaml`（または `sdd/guardrails.json`）があれば読み込む。不在時は既定値（`spec_guard.mode: confirm`, `review.pre_impl_check: auto`, `risk_defaults.default_tier: standard`）を使用する。
-3. 読み取り専用 MCP `get_next_sdd_command` が使えれば参考情報として参照してよいが、ルーティング判断は常にファイル状態を正とする。
+3. オプトイン MCP（`sdd_project_overview` / `sdd_feature_state`）が有効な場合は参考情報として参照してよいが、ルーティング判断は常にファイル状態を正とする。
+4. `<source>` に GitHub Issue URL が渡された場合は `gh issue view`（利用可能時）で要件本文を取得してよい。
 
 ## Flow
 
@@ -57,7 +58,7 @@ disable-model-invocation: true
    - `Risk: high` → `dual-parallel` モード（Reviewer A [仕様・AC] ＋ Reviewer B [設計・セキュリティ] の 2 視点並列 1 パス）。
    - `PASS` / `PASS_WITH_NOTES` → Step 3 へ。`NEEDS_FIX` → Blocker を提示し仕様修正後に再実行。
 3. **人間承認ゲート（Decision View 提示）**:
-   `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs` で REQ↔AC↔Task の抜け漏れを確認し、`<installed-root>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs` で **Decision View（全体像＋`OQ-NNN` 事実/理由/人の問い＋採らなかった設計）** を生成して人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
+   `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs --plan-batches` で REQ↔AC↔Task・Code/Test・並列 Scope 衝突を確認し、`<installed-root>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs` で **Decision View（全体像＋元ファイル行番号付き `OQ-NNN` 事実/理由/人の問い＋採らなかった設計＋共通8観点×プロダクト観点の採否表）** を生成して人間へ提示して停止する。`Approval: Approved` は絶対に書き込まない。
 
 ## Handoff
 

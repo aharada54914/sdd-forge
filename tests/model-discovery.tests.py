@@ -2,6 +2,7 @@
 """Native discovery contracts, credential boundaries and bounded transport."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -143,6 +144,75 @@ print(json.dumps({'id':request['id'],'result':{'tool_denied':reply['error']['cod
                         with d.NativeClient([sys.executable, '-c', program], cwd) as client:
                             client.receive()
                     self.assertIsNotNone(client.process.poll())
+
+    def test_claude_v21330_subscription_account_shape_without_token_source(self):
+        # Issue #796: Claude Code v2.1.330+ returns subscriptionType + apiProvider='firstParty'
+        # without legacy tokenSource/apiKeySource fields.
+        fake_resp = {
+            'type': 'control_response',
+            'response': {
+                'request_id': 'discovery',
+                'subtype': 'success',
+                'response': {
+                    'account': {
+                        'email': 'user@example.invalid',
+                        'organization': 'org',
+                        'subscriptionType': 'max',
+                        'apiProvider': 'firstParty',
+                    },
+                    'models': [
+                        {
+                            'value': 'opus',
+                            'displayName': 'Opus 5.5',
+                            'supportedEffortLevels': ['low', 'medium', 'high', 'xhigh', 'max'],
+                            'defaultEffort': None,
+                        }
+                    ],
+                },
+            },
+        }
+
+        class FakeClient:
+            def __init__(self, *_):
+                self._sent = []
+            def __enter__(self):
+                return self
+            def __exit__(self, *_):
+                return False
+            def send(self, val):
+                self._sent.append(val)
+            def receive(self):
+                return fake_resp
+
+        with patch.object(d, 'NativeClient', FakeClient):
+            rows, auth = d.claude('/usr/bin/claude', '/tmp')
+        self.assertEqual(auth, 'subscription')
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['model'], 'opus')
+        self.assertEqual(rows[0]['display_name'], 'Opus 5.5')
+
+    def test_antigravity_timeout_and_oversize_fail_fast(self):
+        if os.name == 'nt':
+            self.skipTest('POSIX shell stub')
+        with tempfile.TemporaryDirectory() as td:
+            slow_stub = Path(td) / 'agy-slow'
+            slow_stub.write_text('#!/bin/sh\nsleep 10\n', encoding='utf-8')
+            slow_stub.chmod(0o755)
+            with patch.object(d, 'TIMEOUT', 0.3):
+                with self.assertRaises(d.DiscoveryError) as ctx:
+                    d.antigravity(str(slow_stub), td)
+                self.assertEqual(str(ctx.exception), 'cli-timeout')
+
+            big_stub = Path(td) / 'agy-big'
+            big_stub.write_text(
+                '#!/bin/sh\npython3 -c "import sys; sys.stdout.write(\'a\' * 100000); sys.stdout.flush()"\n',
+                encoding='utf-8',
+            )
+            big_stub.chmod(0o755)
+            with patch.object(d, 'MAX_BYTES', 1024), patch.object(d, 'TIMEOUT', 2):
+                with self.assertRaises(d.DiscoveryError) as ctx:
+                    d.antigravity(str(big_stub), td)
+                self.assertEqual(str(ctx.exception), 'cli-request-failed')
 
 
 if __name__ == '__main__':

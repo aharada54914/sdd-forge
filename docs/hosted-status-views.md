@@ -24,7 +24,7 @@ All commands use the installed `mcp/sdd-forge-mcp/dist/index.js` and `--root`.
 | `--dashboard-stream` | JSON lines sampled independently every five seconds |
 | `--status-ui` | Existing compact manual-refresh view, unchanged |
 
-The read-only MCP tool `get_dashboard_snapshot` returns the usual `{ok,data}`
+The read-only MCP tool `sdd_dashboard_snapshot` returns the usual `{ok,data}`
 envelope, with `data.kind = "dashboard-snapshot"` and `data.snapshot` conforming to
 `contracts/sdd-dashboard.v1.schema.json`. Parse failures are represented inside
 the snapshot so a caller can retain last-good data and its original freshness.
@@ -64,7 +64,7 @@ The collector refuses redirects rather than forwarding credentials elsewhere.
 
 The page expects the SDD-owned callback `window.sddDashboardRead()`, which returns
 one snapshot. The parent binds it to the actual, declared native connector API
-and unwraps `get_dashboard_snapshot`'s `data.snapshot`. The name is not an
+and unwraps `sdd_dashboard_snapshot`'s `data.snapshot`. The name is not an
 Anthropic API. The page enforces a 15-second timeout and validates results before
 replacing the prior data. Missing connector, denied permission and invalid data
 stay visible as failures. Credentials are never embedded in HTML.
@@ -305,7 +305,7 @@ full/lite/domain の重要な仕様判断では、問題、案ごとの画面構
 画面内では案・別案・保留を仮選択し、生成された回答文を会話に送ります。
 ブラウザー操作だけで仕様・承認・タスク状態が書き換わることはありません。
 
-データは既存 `get_dashboard_snapshot` / CLI stream の optional
+データは既存 `sdd_dashboard_snapshot` / CLI stream の optional
 `data.decisionSets` に含まれ、SitesとArtifactsで同じ画面を使います。
 生成元は `specs/<feature>/decisions.json`（`sdd-decisions/v1`）。
 正本は既存のMarkdown仕様です。関連仕様のSHA-256が一致しなければ古い図表として

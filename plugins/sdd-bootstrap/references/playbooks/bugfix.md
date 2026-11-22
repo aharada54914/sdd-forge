@@ -1,6 +1,6 @@
 # Bug fix
 
-Delegate to `sdd-bootstrap-interviewer` in existing `bugfix` mode. Capture observed
+Delegate to `sdd-core-spec` in `bugfix` mode. Capture observed
 and expected behavior, a minimal reproduction, affected callers and regression
 acceptance before proposing a change. The playbook does not select Full/Lite,
 approve a task, or start implementation. Retain the normal track decision and

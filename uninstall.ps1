@@ -1,8 +1,8 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [string]$MarketplaceName = "sdd-plugins",
-    [ValidateSet("All", "Codex", "Claude", "Copilot", "Gemini", "FilesOnly")]
+    [ValidateSet("All", "Codex", "Claude", "Copilot", "Antigravity", "Gemini", "FilesOnly")]
     [string]$Target = "All",
     [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud"),
@@ -335,6 +335,24 @@ if ($Target -in @("All", "Claude")) {
 }
 if ($Target -in @("All", "Copilot")) {
     Uninstall-CopilotPlugin
+}
+if ($Target -in @("All", "Antigravity")) {
+    if (-not $SkipPluginUninstall -and (Get-Command "agy" -ErrorAction SilentlyContinue)) {
+        foreach ($p in $Plugins) {
+            Invoke-BestEffortPluginCommand "agy" @("plugin", "uninstall", $p)
+        }
+    }
+    if (-not $SkipMcpUninstall) {
+        $agyConfigDir = if ($env:SDD_ANTIGRAVITY_CONFIG_DIR) {
+            $env:SDD_ANTIGRAVITY_CONFIG_DIR
+        }
+        else {
+            Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini") "config"
+        }
+        if ((Test-Path -LiteralPath $agyConfigDir) -and (Test-McpJsonNodeAvailable)) {
+            Remove-McpJsonKeys -ClientLabel "Antigravity CLI" -ConfigFile (Join-Path $agyConfigDir "mcp_config.json") -TopKey "mcpServers"
+        }
+    }
 }
 if ($Target -in @("All", "Gemini")) {
     if (-not $SkipPluginUninstall -and (Get-Command gemini -ErrorAction SilentlyContinue)) {

@@ -1,0 +1,16 @@
+{
+  "sdd-soft-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./scripts/v2/sdd-soft-guard.mjs --emit antigravity",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -25,26 +25,43 @@ import {
   countDomainModelApprovals,
   countPrimaryApprovals,
   extractAmendmentEntries,
+  findGitRoot,
   findProjectRoot,
   isFeatureApproved,
   isSafeSpecEditOnly,
   loadGuardrailsConfig,
   matchProtectedSpecPath,
   normalizeNewlines,
+  safeRealpath,
   toPosixPath,
 } from './guardrails-lib.mjs';
 
-const FILE_TOOLS = new Set(['edit', 'write', 'multiedit', 'write_file', 'replace', 'create']);
+const FILE_TOOLS = new Set([
+  'edit',
+  'write',
+  'multiedit',
+  'write_file',
+  'edit_file',
+  'replace',
+  'replace_file_content',
+  'multi_replace_file_content',
+  'create',
+]);
 const PASS_THROUGH_TOOLS = new Set([
   'bash',
   'shell',
   'exec_command',
   'exec',
   'run_shell_command',
+  'run_command',
   'read',
+  'read_file',
   'view',
+  'view_file',
   'glob',
   'grep',
+  'grep_search',
+  'find_by_name',
   'task',
 ]);
 
@@ -114,6 +131,68 @@ function normalizePayload(rawPayload, emitMode) {
     return null;
   }
 
+  // Native Antigravity camelCase protojson PreToolUse envelope (`{ toolCall: { name, args }, cwd, workspacePaths }`)
+  if (rawPayload.toolCall && typeof rawPayload.toolCall === 'object') {
+    const tc = rawPayload.toolCall;
+    const toolName = String(tc.name || '').toLowerCase();
+    const args = tc.args && typeof tc.args === 'object' ? tc.args : {};
+    const cwd =
+      typeof rawPayload.cwd === 'string'
+        ? rawPayload.cwd
+        : Array.isArray(rawPayload.workspacePaths) && typeof rawPayload.workspacePaths[0] === 'string'
+          ? rawPayload.workspacePaths[0]
+          : undefined;
+
+    if (toolName === 'write_file') {
+      const filePath = args.Path || args.path || args.file_path || '';
+      const content = typeof args.Content === 'string' ? args.Content : typeof args.content === 'string' ? args.content : '';
+      const append = Boolean(args.Append || args.append);
+      return {
+        tool_name: 'write_file',
+        tool_input: append
+          ? { file_path: filePath, old_string: '', new_string: content }
+          : { file_path: filePath, content },
+        cwd,
+      };
+    }
+    if (toolName === 'edit_file' || toolName === 'replace_file_content') {
+      const filePath = args.Path || args.TargetFile || args.path || args.file_path || '';
+      const oldStr = args.Target ?? args.TargetContent ?? args.old_string ?? '';
+      const newStr = args.Replacement ?? args.ReplacementContent ?? args.new_string ?? '';
+      const replaceAll = toolName === 'edit_file' || Boolean(args.AllowMultiple || args.replace_all);
+      const startLine = Number.isInteger(args.StartLine) ? args.StartLine : null;
+      const endLine = Number.isInteger(args.EndLine) ? args.EndLine : null;
+      return {
+        tool_name: toolName,
+        tool_input: {
+          file_path: filePath,
+          old_string: oldStr,
+          new_string: newStr,
+          replace_all: replaceAll,
+          start_line: startLine,
+          end_line: endLine,
+        },
+        cwd,
+      };
+    }
+    if (toolName === 'multi_replace_file_content' && Array.isArray(args.ReplacementChunks)) {
+      const filePath = args.TargetFile || args.Path || args.path || '';
+      const edits = args.ReplacementChunks.map((c) => ({
+        old_string: c?.TargetContent ?? '',
+        new_string: c?.ReplacementContent ?? '',
+        replace_all: Boolean(c?.AllowMultiple || c?.replace_all),
+        start_line: Number.isInteger(c?.StartLine) ? c.StartLine : null,
+        end_line: Number.isInteger(c?.EndLine) ? c.EndLine : null,
+      }));
+      return {
+        tool_name: 'multiedit',
+        tool_input: { file_path: filePath, edits },
+        cwd,
+      };
+    }
+    return { tool_name: toolName, tool_input: args, cwd };
+  }
+
   // Native Copilot camelCase envelope
   if (emitMode === 'copilot' && ('toolName' in rawPayload || 'toolArgs' in rawPayload)) {
     const toolName = String(rawPayload.toolName || '').toLowerCase();
@@ -159,37 +238,60 @@ function resolveFilePath(rawPath, projectRoot, cwd) {
   return path.isAbsolute(rawPath) ? rawPath : path.resolve(cwd || projectRoot, rawPath);
 }
 
+function applyScopedStringReplace(current, oldStr, newStr, options = {}) {
+  const replaceAll = Boolean(options.replaceAll);
+  const startLine = Number.isInteger(options.startLine) && options.startLine >= 1 ? options.startLine : null;
+  const endLine = Number.isInteger(options.endLine) && options.endLine >= 1 ? options.endLine : null;
+
+  if (!oldStr) {
+    return `${current}${newStr}`;
+  }
+
+  if (startLine !== null || endLine !== null) {
+    const lines = current.split('\n');
+    const fromIdx = Math.max(0, (startLine ?? 1) - 1);
+    const toIdx = Math.min(lines.length, endLine ?? lines.length);
+    if (fromIdx >= toIdx) return null;
+    const slice = lines.slice(fromIdx, toIdx).join('\n');
+    if (!slice.includes(oldStr)) return null;
+    const replacedSlice = replaceAll ? slice.replaceAll(oldStr, newStr) : slice.replace(oldStr, newStr);
+    const before = lines.slice(0, fromIdx);
+    const after = lines.slice(toIdx);
+    return [...before, replacedSlice, ...after].join('\n');
+  }
+
+  if (!current.includes(oldStr)) return null;
+  return replaceAll ? current.replaceAll(oldStr, newStr) : current.replace(oldStr, newStr);
+}
+
 function computeEditedContent(oldContent, toolInput) {
   if (typeof toolInput.content === 'string') {
     return toolInput.content;
   }
   if (Array.isArray(toolInput.edits)) {
     let current = normalizeNewlines(oldContent);
-    let appliedAll = true;
     for (const edit of toolInput.edits) {
       const oldStr = normalizeNewlines(edit?.old_string ?? '');
       const newStr = normalizeNewlines(edit?.new_string ?? '');
-      if (oldStr && current.includes(oldStr)) {
-        current = current.replace(oldStr, newStr);
-      } else if (!oldStr) {
-        current = `${current}${newStr}`;
-      } else {
-        appliedAll = false;
-      }
+      const next = applyScopedStringReplace(current, oldStr, newStr, {
+        replaceAll: Boolean(edit?.replace_all || toolInput.replace_all),
+        startLine: edit?.start_line,
+        endLine: edit?.end_line,
+      });
+      if (next === null) return null;
+      current = next;
     }
-    return appliedAll ? current : null;
+    return current;
   }
   if (typeof toolInput.new_string === 'string') {
     const oldStr = normalizeNewlines(toolInput.old_string ?? '');
     const newStr = normalizeNewlines(toolInput.new_string);
     const current = normalizeNewlines(oldContent);
-    if (oldStr && current.includes(oldStr)) {
-      return current.replace(oldStr, newStr);
-    }
-    if (!oldStr) {
-      return `${current}${newStr}`;
-    }
-    return null;
+    return applyScopedStringReplace(current, oldStr, newStr, {
+      replaceAll: Boolean(toolInput.replace_all),
+      startLine: toolInput.start_line,
+      endLine: toolInput.end_line,
+    });
   }
   return null;
 }
@@ -258,7 +360,34 @@ function applyPatchSectionToContent(oldContent, section) {
   return result;
 }
 
+function resolveEffectiveProjectRoot(filePath, fallbackRoot) {
+  const startDir = path.dirname(path.resolve(filePath));
+  let current = startDir;
+  for (let i = 0; i < 25; i += 1) {
+    // Prefer nearest sdd/guardrails.* or .git at the same or inner directory (M-7: nested non-git SDD subprojects).
+    if (
+      fs.existsSync(path.join(current, 'sdd', 'guardrails.yaml')) ||
+      fs.existsSync(path.join(current, 'sdd', 'guardrails.json')) ||
+      fs.existsSync(path.join(current, '.git'))
+    ) {
+      return safeRealpath(current);
+    }
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return fallbackRoot;
+}
+
 function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldSnippet, fallbackNewSnippet, projectRoot, config, cwd, env }) {
+  const effectiveRoot = resolveEffectiveProjectRoot(filePath, projectRoot);
+  const effectiveConfig = effectiveRoot === projectRoot ? config : loadGuardrailsConfig(effectiveRoot);
+
+  // Check 1b: Kill switch in the target file's own repository root (when invoked from a parent workspace cwd)
+  if (effectiveRoot !== projectRoot && fs.existsSync(path.join(effectiveRoot, 'AGENT_STOP'))) {
+    return { decision: 'deny', reason: KILL_MSG, warning: null };
+  }
+
   const normalizedTarget = toPosixPath(filePath);
   const isTasksMd = normalizedTarget.toLowerCase().endsWith('tasks.md');
   const isDomainContextMap = normalizedTarget.toLowerCase().endsWith('domain/context-map.md');
@@ -284,12 +413,12 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
   }
 
   // Check 3: Soft spec guard on approved features
-  const specMatch = matchProtectedSpecPath(filePath, projectRoot, config, cwd);
-  if (!specMatch || !specMatch.feature || !isFeatureApproved(projectRoot, specMatch.feature)) {
+  const specMatch = matchProtectedSpecPath(filePath, effectiveRoot, effectiveConfig, cwd);
+  if (!specMatch || !specMatch.feature || !isFeatureApproved(effectiveRoot, specMatch.feature)) {
     return { decision: 'allow', reason: null, warning: null };
   }
 
-  const allowAmendments = config.spec_guard.allow_amendment_section;
+  const allowAmendments = effectiveConfig.spec_guard.allow_amendment_section;
   const safeEdit =
     newContent !== null
       ? isSafeSpecEditOnly(oldContent, newContent, specMatch.fileName, allowAmendments)
@@ -299,11 +428,11 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
     return { decision: 'allow', reason: null, warning: null };
   }
 
-  const mode = config.spec_guard.mode;
+  const mode = effectiveConfig.spec_guard.mode;
   const explicitOverride = env.SDD_ALLOW_SPEC_EDIT === '1' || env.SDD_ALLOW_SPEC_EDIT === 'true';
 
   if (explicitOverride) {
-    appendDriftEvent(projectRoot, {
+    appendDriftEvent(effectiveRoot, {
       action: 'allow_override',
       mode,
       feature: specMatch.feature,
@@ -314,7 +443,7 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
 
   if (mode === 'warn') {
     const warning = buildSpecWarnMessage(specMatch.relPath, specMatch.feature);
-    appendDriftEvent(projectRoot, {
+    appendDriftEvent(effectiveRoot, {
       action: 'warn_allow',
       mode,
       feature: specMatch.feature,
@@ -326,10 +455,10 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
   if (
     mode === 'confirm' &&
     allowAmendments &&
-    hasDocumentedSpecAmendment(oldContent, newContent, projectRoot, specMatch.feature, specMatch.relPath)
+    hasDocumentedSpecAmendment(oldContent, newContent, effectiveRoot, specMatch.feature, specMatch.relPath)
   ) {
     const warning = buildSpecAmendedConfirmMessage(specMatch.relPath, specMatch.feature);
-    appendDriftEvent(projectRoot, {
+    appendDriftEvent(effectiveRoot, {
       action: 'confirm_amended_allow',
       mode,
       feature: specMatch.feature,
@@ -338,7 +467,7 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
     return { decision: 'allow', reason: null, warning };
   }
 
-  appendDriftEvent(projectRoot, {
+  appendDriftEvent(effectiveRoot, {
     action: mode === 'strict' ? 'strict_deny' : 'confirm_soft_deny',
     mode,
     feature: specMatch.feature,
@@ -354,7 +483,11 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
 export function evaluateHookPayload(rawPayload, options = {}) {
   const emitMode = options.emitMode || 'exit';
   const env = options.env || process.env;
-  const cwd = options.cwd || rawPayload?.cwd || rawPayload?.tool_input?.cwd || process.cwd();
+  const workspaceCwd =
+    Array.isArray(rawPayload?.workspacePaths) && typeof rawPayload.workspacePaths[0] === 'string'
+      ? rawPayload.workspacePaths[0]
+      : undefined;
+  const cwd = options.cwd || rawPayload?.cwd || workspaceCwd || rawPayload?.tool_input?.cwd || process.cwd();
   const projectRoot = options.projectRoot || findProjectRoot(cwd);
 
   // Check 1: Kill switch (AGENT_STOP) — always fail-closed before payload parsing.
@@ -457,7 +590,7 @@ function parseArgs(argv) {
     }
   }
   return {
-    emit: emit === 'copilot' || emit === 'gemini' ? emit : 'exit',
+    emit: emit === 'copilot' || emit === 'gemini' || emit === 'antigravity' ? emit : 'exit',
     projectRoot,
   };
 }
@@ -471,10 +604,15 @@ function emitDecision(result, emitMode) {
     process.stdout.write(JSON.stringify(out));
     process.exit(0);
   }
-  if (emitMode === 'gemini') {
+  if (emitMode === 'gemini' || emitMode === 'antigravity') {
     const out = { decision: result.decision };
     if (result.decision === 'deny' && result.reason) {
       out.reason = result.reason;
+    } else if (result.decision === 'allow' && result.warning) {
+      if (emitMode === 'antigravity') {
+        out.reason = result.warning;
+      }
+      process.stderr.write(`${result.warning}\n`);
     }
     process.stdout.write(JSON.stringify(out));
     process.exit(0);

@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "sdd-bootstrap",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-bootstrap"
@@ -19,7 +19,7 @@
     },
     {
       "name": "sdd-ship",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-ship"
@@ -32,7 +32,7 @@
     },
     {
       "name": "sdd-implementation",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-implementation"
@@ -45,7 +45,7 @@
     },
     {
       "name": "sdd-quality-loop",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-quality-loop"
@@ -58,7 +58,7 @@
     },
     {
       "name": "sdd-review-loop",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-review-loop"
@@ -71,7 +71,7 @@
     },
     {
       "name": "sdd-domain",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-domain"
@@ -84,7 +84,7 @@
     },
     {
       "name": "sdd-azure-cloud",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-azure-cloud"
@@ -97,7 +97,7 @@
     },
     {
       "name": "sdd-aws-cloud",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": {
         "source": "local",
         "path": "./plugins/sdd-aws-cloud"

@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$PolicyInput = '',
   [switch]$PolicyEngineOnly,
   [string]$Risk = '',
@@ -170,7 +170,7 @@ if ($policyMode) {
   if ($EffortPolicy -notin @('welded', 'matrix')) { throw 'MODEL_SELECTION_ERROR: invalid effort policy' }
 
   if ($Risk -notin @('low','medium','high','critical') -or
-      $HostName -notin @('claude-code','codex-cli') -or
+      $HostName -notin @('claude-code','codex-cli','antigravity-cli','copilot-cli','gemini-cli') -or
       $RequestedEffort -notin @('','low','medium','high','xhigh')) {
     throw 'MODEL_SELECTION_ERROR: invalid risk, host or effort'
   }
@@ -423,7 +423,7 @@ if ($CandidatesFile -or $policyMode) {
         if ($defaultEffort -cnotin @($supported)) { throw 'default-effort' }
         $control = $model.effort_control
         if ($control -isnot [System.Management.Automation.PSCustomObject]) { throw 'effort-control' }
-        foreach ($hostKey in @('claude-code','codex-cli')) {
+        foreach ($hostKey in @('claude-code','codex-cli','antigravity-cli','copilot-cli','gemini-cli')) {
           if ((Test-HasProperty $control $hostKey) -and
               ($control.$hostKey -isnot [string] -or $control.$hostKey -cnotin @('flag','frontmatter','none'))) {
             throw 'effort-control-value'

@@ -7,8 +7,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs\" --emit exit",
-            "command_windows": "node \"${CLAUDE_PLUGIN_ROOT}\\scripts\\v2\\sdd-soft-guard.mjs\" --emit exit"
+            "command": "node \"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/v2/sdd-soft-guard.mjs\" --emit exit",
+            "command_windows": "node -e \"const p=require('path'),cp=require('child_process');const r=process.env.CODEX_PLUGIN_ROOT||process.env.CLAUDE_PLUGIN_ROOT||'';const res=cp.spawnSync(process.execPath,[p.join(r,'scripts','v2','sdd-soft-guard.mjs'),'--emit','exit'],{stdio:'inherit'});process.exit(res.status??1);\""
           }
         ]
       }

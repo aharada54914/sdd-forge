@@ -3,7 +3,7 @@ param(
     [string]$Repository = "aharada54914/sdd-forge",
     [string]$Ref = "main",
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
-    [ValidateSet("All", "Codex", "Claude", "Copilot", "Gemini", "FilesOnly")]
+    [ValidateSet("All", "Codex", "Claude", "Copilot", "Antigravity", "Gemini", "FilesOnly")]
     [string]$Target = "All",
     [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
@@ -12,13 +12,27 @@ param(
     [switch]$RequireClaude,
     [string]$ClaudeCommand,
     [string]$SourceDirectory,
+    [switch]$WithMcp,
     [switch]$SkipMcp,
     [ValidateSet("sdd-forge-mcp", "local-env-mcp", "ci-mcp")]
-    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+    [string[]]$Mcp = @("sdd-forge-mcp")
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+
+# ADR-0052: MCP client registration is opt-in by default for local CLI plugins.
+# Reject conflicting -SkipMcp with -WithMcp or explicit -Mcp (parity with install.sh).
+$script:SkipMcpExplicit = $PSBoundParameters.ContainsKey('SkipMcp') -and [bool]$SkipMcp
+if ($script:SkipMcpExplicit -and ($WithMcp -or $PSBoundParameters.ContainsKey('Mcp'))) {
+    throw "-SkipMcp cannot be combined with -WithMcp or -Mcp."
+}
+if (-not $SkipMcp -and -not $WithMcp -and -not $PSBoundParameters.ContainsKey('Mcp')) {
+    $SkipMcp = [System.Management.Automation.SwitchParameter]::Present
+}
+if (-not $SkipMcp -and ($Mcp -contains 'local-env-mcp')) {
+    Write-Warning "'local-env-mcp' is deprecated under ADR-0052 (superseded by sdd-doctor.mjs and native CLI checks) and will be removed in a future release."
+}
 
 # Windows' native tar cannot represent all Git UTF-8/PAX names in its locale.
 # Keep POSIX tar so Unix executable modes retain their existing semantics.
@@ -228,16 +242,49 @@ function Update-ClaudePlugins {
     }
 }
 
+function Install-AntigravityPlugins {
+    param([string]$MarketplaceRoot)
+    if ($SkipPluginInstall) { return }
+    if (-not (Get-Command agy -ErrorAction SilentlyContinue)) {
+        if ($Target -eq "Antigravity") { throw 'Antigravity CLI (agy) was not found in PATH.' }
+        Write-Warning 'Antigravity CLI (agy) was not found. Antigravity plugin registration was skipped.'
+        return
+    }
+    foreach ($plugin in $Plugins) {
+        $pluginDir = Join-Path $MarketplaceRoot "plugins/$plugin"
+        if (-not (Test-Path -LiteralPath (Join-Path $pluginDir '.antigravity-plugin/plugin.json') -PathType Leaf)) { continue }
+        $res = Invoke-CapturedCommand -Command 'agy' -Arguments @('plugin', 'install', $pluginDir)
+        if ($res.ExitCode -ne 0 -and $res.Output -imatch 'already\s+(exists|installed|registered|added|linked)') {
+            # Refresh cached Antigravity plugin files on upgrade (NEW-L1).
+            try { & agy plugin uninstall $plugin 2>$null | Out-Null } catch { }
+            $res = Invoke-CapturedCommand -Command 'agy' -Arguments @('plugin', 'install', $pluginDir)
+        }
+        if ($res.ExitCode -ne 0) {
+            throw "'agy plugin install $pluginDir' failed with exit code $($res.ExitCode)."
+        }
+    }
+}
+
 function Install-GeminiExtension {
     param([string]$MarketplaceRoot)
     if ($SkipPluginInstall) { return }
     if (-not (Get-Command gemini -ErrorAction SilentlyContinue)) {
-        if ($Target -eq "Gemini") { throw 'Gemini CLI was not found in PATH.' }
-        Write-Warning 'Gemini CLI was not found. Gemini extension registration was skipped.'
+        if ($Target -eq "Gemini") { throw 'Gemini CLI was not found in PATH. (Note: for Google Antigravity CLI, use -Target Antigravity.)' }
+        if (-not (Get-Command agy -ErrorAction SilentlyContinue)) {
+            Write-Warning 'Gemini CLI was not found. Legacy Gemini extension registration was skipped.'
+        }
         return
     }
     foreach ($plugin in $Plugins) {
-        if ($plugin -ceq "sdd-implementation") {
+        if ($plugin -ceq "sdd-bootstrap") {
+            $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-bootstrap/gemini'
+            $label = "Gemini extension '$plugin'"
+        }
+        elseif ($plugin -ceq "sdd-review-loop") {
+            $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-review-loop/gemini'
+            $label = "Gemini extension '$plugin'"
+        }
+        elseif ($plugin -ceq "sdd-implementation") {
             $extDir = Join-Path $MarketplaceRoot 'plugins/sdd-implementation/gemini'
             $label = 'the Gemini model selection extension'
         }
@@ -251,7 +298,7 @@ function Install-GeminiExtension {
         }
         if (-not (Test-Path -LiteralPath (Join-Path $extDir 'gemini-extension.json') -PathType Leaf)) { continue }
         Invoke-IdempotentPluginCommand -Label $label -Command 'gemini' -Arguments @(
-            'extensions', 'link', $extDir)
+            'extensions', 'link', '--consent', $extDir)
     }
 }
 
@@ -524,7 +571,7 @@ function Update-McpJson {
     # preserving all other entries and unknown top-level keys. The output is
     # stable 2-space JSON, so re-running produces a byte-identical file. To
     # guarantee byte-parity with install.sh, the JSON handling is done by the
-    # SAME Node one-liner install.sh uses (Node >= 26.13.0 is guaranteed here by the
+    # SAME Node one-liner install.sh uses (Node >= 20.0.0 is guaranteed here by the
     # MCP gate / McpNodeOk). Fail-safes (security-spec B3): a present-but-invalid
     # JSON file is never overwritten (error notice, installer continues with
     # other clients).
@@ -566,7 +613,7 @@ for (let i = 0; i + 1 < pairs.length; i += 2) {
     : { command: "node", args: [pairs[i + 1]] };
 }
 const out = JSON.stringify(root, null, 2) + "\n";
-const tmp = file + ".sdd-forge.tmp";
+const tmp = file + ".sdd-forge." + process.pid + "." + Math.random().toString(16).slice(2) + ".tmp";
 fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
 try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 '@
@@ -631,6 +678,22 @@ function Register-VSCodeMcp {
     Update-McpJson -ClientLabel "VS Code" -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers" -EntryKind "vscode" -InstallRootPath $InstallRootPath
 }
 
+function Register-AntigravityMcp {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    $agyConfigDir = if ($env:SDD_ANTIGRAVITY_CONFIG_DIR) {
+        $env:SDD_ANTIGRAVITY_CONFIG_DIR
+    }
+    else {
+        Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini") "config"
+    }
+    if (-not (Test-Path -LiteralPath $agyConfigDir)) {
+        Write-Warning "$agyConfigDir was not found. Antigravity CLI MCP registration was skipped (the installer does not create the directory)."
+        return
+    }
+    Update-McpJson -ClientLabel "Antigravity CLI" -ConfigFile (Join-Path $agyConfigDir "mcp_config.json") -TopKey "mcpServers" -EntryKind "antigravity" -InstallRootPath $InstallRootPath
+}
+
 function Register-GeminiMcp {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
@@ -642,6 +705,29 @@ function Register-GeminiMcp {
     Update-McpJson -ClientLabel "Gemini CLI" -ConfigFile (Join-Path $geminiDir "settings.json") -TopKey "mcpServers" -EntryKind "gemini" -InstallRootPath $InstallRootPath
 }
 
+function Install-SingleMcpPayload {
+    param(
+        [Parameter(Mandatory)][string]$SourceRootPath,
+        [Parameter(Mandatory)][string]$InstallRootPath,
+        [Parameter(Mandatory)][string]$Name
+    )
+    $srcMcp = Join-Path $SourceRootPath "mcp"
+    $srcDir = Join-Path $srcMcp $Name
+    $srcDist = Join-Path $srcDir "dist"
+    $srcIndex = Join-Path $srcDist "index.js"
+    $srcPkg = Join-Path $srcDir "package.json"
+    if (-not (Test-Path -LiteralPath $srcIndex -PathType Leaf) -or -not (Test-Path -LiteralPath $srcPkg -PathType Leaf) -or
+        -not (Test-PlainItem $srcMcp) -or -not (Test-PlainItem $srcDir) -or -not (Test-PlainItem $srcDist) -or
+        -not (Test-PlainItem $srcIndex) -or -not (Test-PlainItem $srcPkg)) {
+        return
+    }
+    $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $Name
+    $destDist = Join-Path $destDir "dist"
+    New-Item -ItemType Directory -Path $destDist -Force | Out-Null
+    Copy-Item -LiteralPath $srcIndex -Destination (Join-Path $destDist "index.js") -Force
+    Copy-Item -LiteralPath $srcPkg -Destination (Join-Path $destDir "package.json") -Force
+}
+
 $script:McpNodeOk = $false
 
 function Install-McpServersIfSelected {
@@ -651,15 +737,158 @@ function Install-McpServersIfSelected {
     )
 
     $script:McpNodeOk = $false
-    if ($SkipMcp -or $Mcp.Count -eq 0) { return }
-    if (-not (Test-NodeVersionOk)) { return }
+    # Always place sdd-forge-mcp/dist/index.js so /sdd-ship:status CLI runtime works on default installs (C-4).
+    if ($SkipMcp -or $Mcp.Count -eq 0) {
+        Install-SingleMcpPayload -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath -Name "sdd-forge-mcp"
+        return
+    }
+    if (-not (Test-NodeVersionOk)) {
+        Install-SingleMcpPayload -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath -Name "sdd-forge-mcp"
+        return
+    }
     $script:McpNodeOk = $true
     Install-McpServerPayloads -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath
+    if ($Mcp -notcontains "sdd-forge-mcp") {
+        Install-SingleMcpPayload -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath -Name "sdd-forge-mcp"
+    }
+}
+
+function Remove-UnselectedMcpJson {
+    param(
+        [Parameter(Mandatory)][string]$ConfigFile,
+        [Parameter(Mandatory)][string]$TopKey,
+        [Parameter(Mandatory)][string]$InstallRootPath,
+        [Parameter(Mandatory)][string[]]$DropNames
+    )
+    if (-not (Test-Path -LiteralPath $ConfigFile -PathType Leaf)) { return }
+    if ($DropNames.Count -eq 0) { return }
+    if (-not (Get-Command "node" -ErrorAction SilentlyContinue)) { return }
+    $nodeScript = @'
+const fs = require("fs");
+const [file, topKey, installRoot, ...dropNames] = process.argv.slice(1);
+let text;
+try { text = fs.readFileSync(file, "utf8"); } catch { process.exit(0); }
+let root;
+try { root = JSON.parse(text); } catch { process.exit(0); }
+if (!root || typeof root !== "object" || Array.isArray(root)) process.exit(0);
+const section = root[topKey];
+if (!section || typeof section !== "object" || Array.isArray(section)) process.exit(0);
+const normPath = (p) => String(p).replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+const roots = new Set([normPath(installRoot)]);
+try { roots.add(normPath(fs.realpathSync(installRoot))); } catch {}
+for (const r of [...roots]) {
+  if (r.startsWith("/private/")) roots.add(r.slice("/private".length));
+}
+let changed = false;
+for (const name of dropNames) {
+  const entry = section[name];
+  if (!entry || typeof entry !== "object") continue;
+  const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
+  const matches = args.some((a) => {
+    const na = normPath(a);
+    return [...roots].some((r) => na.startsWith(r + "/mcp/"));
+  });
+  if (matches) {
+    delete section[name];
+    changed = true;
+  }
+}
+if (!changed) process.exit(0);
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge-prune." + process.pid + "." + Math.random().toString(16).slice(2) + ".tmp";
+fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
+try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
+'@
+    try { & node -e $nodeScript $ConfigFile $TopKey $InstallRootPath @($DropNames) 2>$null | Out-Null } catch { }
+}
+
+function Remove-UnselectedCodexMcp {
+    param([Parameter(Mandatory)][string[]]$DropNames)
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $configToml = Join-Path $codexHome "config.toml"
+    if (-not (Test-Path -LiteralPath $configToml -PathType Leaf)) { return }
+    foreach ($name in $DropNames) {
+        $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
+        $markerEnd = "# <<< $name <<<"
+        $existingLines = @(Get-Content -LiteralPath $configToml)
+        if ($existingLines -notcontains $markerBegin) { continue }
+        $filtered = [System.Collections.Generic.List[string]]::new()
+        $skip = $false
+        $valid = $true
+        foreach ($line in $existingLines) {
+            if ($line -eq $markerBegin) {
+                if ($skip) { $valid = $false; break }
+                $skip = $true; continue
+            }
+            if ($line -eq $markerEnd) {
+                if (-not $skip) { $valid = $false; break }
+                $skip = $false; continue
+            }
+            if (-not $skip) { $filtered.Add($line) }
+        }
+        if ($valid -and -not $skip) {
+            Set-Content -LiteralPath $configToml -Value $filtered
+        }
+    }
+}
+
+function Remove-UnselectedClaudeMcp {
+    param(
+        [Parameter(Mandatory)][string]$InstallRootPath,
+        [Parameter(Mandatory)][string[]]$DropNames
+    )
+    if (-not $script:ResolvedClaudeCommand) { return }
+    $normRoot = ($InstallRootPath -replace '\\', '/').TrimEnd('/')
+    foreach ($name in $DropNames) {
+        try {
+            $info = (& $script:ResolvedClaudeCommand mcp get $name 2>$null | Out-String)
+            $normInfo = $info -replace '\\', '/'
+            if ($normInfo -and $normInfo.IndexOf("$normRoot/mcp/$name", [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                & $script:ResolvedClaudeCommand mcp remove $name --scope user 2>$null | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    & $script:ResolvedClaudeCommand mcp remove $name 2>$null | Out-Null
+                }
+            }
+        } catch { }
+    }
+}
+
+function Invoke-PruneStaleManagedMcps {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+    $dropNames = [System.Collections.Generic.List[string]]::new()
+    foreach ($candidate in @("local-env-mcp", "ci-mcp")) {
+        if ($SkipMcp -or ($Mcp -notcontains $candidate)) {
+            $dropNames.Add($candidate)
+        }
+    }
+    if ($dropNames.Count -eq 0) { return }
+    $dropArray = $dropNames.ToArray()
+    $cursorDir = if ($env:SDD_CURSOR_DIR) { $env:SDD_CURSOR_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cursor" }
+    $geminiDir = if ($env:SDD_GEMINI_DIR) { $env:SDD_GEMINI_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini" }
+    $agyConfigDir = if ($env:SDD_ANTIGRAVITY_CONFIG_DIR) { $env:SDD_ANTIGRAVITY_CONFIG_DIR } else { Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".gemini") "config" }
+    $onWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or ((Get-Variable -Name IsWindows -ErrorAction SilentlyContinue) -and $IsWindows)
+    $onMac = (Get-Variable -Name IsMacOS -ErrorAction SilentlyContinue) -and $IsMacOS
+    if ($env:SDD_VSCODE_USER_DIR) {
+        $vscodeUserDir = $env:SDD_VSCODE_USER_DIR
+    } elseif ($onWindows) {
+        $vscodeUserDir = Join-Path (Join-Path $env:APPDATA "Code") "User"
+    } elseif ($onMac) {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) "Library/Application Support/Code/User"
+    } else {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".config/Code/User"
+    }
+    if ($Target -in @("All", "Claude")) { Remove-UnselectedClaudeMcp -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Codex")) { Remove-UnselectedCodexMcp -DropNames $dropArray }
+    if ($Target -eq "All") { Remove-UnselectedMcpJson -ConfigFile (Join-Path $cursorDir "mcp.json") -TopKey "mcpServers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Copilot")) { Remove-UnselectedMcpJson -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Gemini")) { Remove-UnselectedMcpJson -ConfigFile (Join-Path $geminiDir "settings.json") -TopKey "mcpServers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
+    if ($Target -in @("All", "Antigravity")) { Remove-UnselectedMcpJson -ConfigFile (Join-Path $agyConfigDir "mcp_config.json") -TopKey "mcpServers" -InstallRootPath $InstallRootPath -DropNames $dropArray }
 }
 
 function Register-McpServers {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
+    Invoke-PruneStaleManagedMcps -InstallRootPath $InstallRootPath
     if ($SkipMcp -or $Mcp.Count -eq 0 -or -not $script:McpNodeOk) { return }
     if ($Target -in @("All", "Claude")) {
         Register-ClaudeMcp -InstallRootPath $InstallRootPath
@@ -675,6 +904,9 @@ function Register-McpServers {
     # both All and Copilot.
     if ($Target -in @("All", "Copilot")) {
         Register-VSCodeMcp -InstallRootPath $InstallRootPath
+    }
+    if ($Target -in @("All", "Antigravity")) {
+        Register-AntigravityMcp -InstallRootPath $InstallRootPath
     }
     if ($Target -in @("All", "Gemini")) {
         Register-GeminiMcp -InstallRootPath $InstallRootPath
@@ -763,10 +995,17 @@ function Get-RequiredPaths {
         "plugins/sdd-implementation/gemini/hooks/hooks.json",
         "plugins/sdd-quality-loop/gemini/gemini-extension.json",
         "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
+        "plugins/sdd-bootstrap/gemini/gemini-extension.json",
+        "plugins/sdd-implementation/hooks.json",
+        "plugins/sdd-quality-loop/hooks.json",
+        "plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml",
         "plugins/sdd-bootstrap/gemini-extension.json",
         "plugins/sdd-ship/gemini-extension.json",
         "plugins/sdd-domain/gemini-extension.json",
+        "plugins/sdd-review-loop/gemini/gemini-extension.json",
         "plugins/sdd-review-loop/gemini-extension.json",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
         "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
         "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
         "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
@@ -775,6 +1014,9 @@ function Get-RequiredPaths {
         "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
         "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
         "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
         "plugins/sdd-implementation/scripts/model-policy.py",
         "plugins/sdd-implementation/scripts/select-agent-model.sh",
         "plugins/sdd-implementation/scripts/select-agent-model.ps1",
@@ -816,6 +1058,7 @@ function Get-RequiredPaths {
         # Existing selector/launch runtime closure; keep in sync with install.sh.
     )
     foreach ($plugin in $allPluginNames) {
+        $paths += "plugins/$plugin/.antigravity-plugin/plugin.json"
         $paths += "plugins/$plugin/.codex-plugin/plugin.json"
         $paths += "plugins/$plugin/.claude-plugin/plugin.json"
         $paths += "plugins/$plugin/.plugin/plugin.json"
@@ -918,6 +1161,14 @@ function Write-InstallSummary {
 
     Write-Host ""
     Write-Host "SDD plugins installed at: $ResolvedInstallRoot"
+    if ($SkipMcp) {
+        if ($script:SkipMcpExplicit) {
+            Write-Host "MCP client registration was skipped because -SkipMcp was set. Pass -WithMcp to register sdd-forge-mcp v2."
+        }
+        else {
+            Write-Host "MCP client registration was skipped by default (ADR-0052: zero token tax for local CLI plugins). Pass -WithMcp to register sdd-forge-mcp v2."
+        }
+    }
     # ci-mcp needs a read-only GitHub token at runtime. The installer never
     # stores a token value (REQ-010, security-spec B3); it only names the
     # environment variables the user must set for their MCP client (AC-017).
@@ -1266,6 +1517,9 @@ try {
     }
     if ($Target -in @("All", "Copilot")) {
         Install-CopilotPlugins $resolvedInstallRoot
+    }
+    if ($Target -in @("All", "Antigravity")) {
+        Install-AntigravityPlugins $resolvedInstallRoot
     }
     if ($Target -in @("All", "Gemini")) {
         Install-GeminiExtension $resolvedInstallRoot

@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/sdd-mcp.v2.schema.json",
+  "title": "SDD Forge MCP v2 Tool Contracts",
+  "description": "Single-server, 4-tool read-only MCP contract backed directly by SDD Forge v2.1 pure read-only ESM core (ADR-0052).",
+  "type": "object",
+  "$defs": {
+    "errorCode": {
+      "type": "string",
+      "enum": [
+        "invalid-input",
+        "not-found",
+        "path-denied",
+        "not-sdd-root",
+        "too-large",
+        "cannot-parse",
+        "cannot-determine"
+      ]
+    },
+    "errorEnvelope": {
+      "type": "object",
+      "required": ["ok", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "ok": { "const": false },
+        "error": {
+          "type": "object",
+          "required": ["code", "message"],
+          "additionalProperties": false,
+          "properties": {
+            "code": { "$ref": "#/$defs/errorCode" },
+            "message": { "type": "string", "minLength": 1 },
+            "details": { "type": "object" }
+          }
+        }
+      }
+    },
+    "featureSlug": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "not": { "enum": [".", ".."] }
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^T-[A-Za-z0-9._-]+$"
+    },
+    "riskTier": {
+      "type": "string",
+      "enum": ["low", "standard", "high"]
+    },
+    "driftStatus": {
+      "type": "string",
+      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED", "BASELINE_ERROR"]
+    },
+    "executionDriftStatus": {
+      "type": "string",
+      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED", "SKIPPED", "BASELINE_ERROR"]
+    },
+    "nextAction": {
+      "type": "object",
+      "required": ["phase", "command", "rationale"],
+      "additionalProperties": false,
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": ["bootstrap", "spec-check", "approval-gate", "implementation", "sdd-gate", "blocked", "done"]
+        },
+        "command": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    },
+    "toolAnnotations": {
+      "type": "object",
+      "required": ["readOnlyHint", "destructiveHint", "idempotentHint"],
+      "additionalProperties": false,
+      "properties": {
+        "readOnlyHint": { "const": true },
+        "destructiveHint": { "const": false },
+        "idempotentHint": { "const": true }
+      }
+    },
+    "sdd_project_overview_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "includeDoctor": { "type": "boolean", "default": true }
+      }
+    },
+    "sdd_project_overview_data": {
+      "type": "object",
+      "required": ["kind", "activeFeatures"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "project-overview" },
+        "activeFeatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["feature", "highestRisk", "taskCounts", "driftStatus", "nextAction"],
+            "additionalProperties": false,
+            "properties": {
+              "feature": { "$ref": "#/$defs/featureSlug" },
+              "highestRisk": { "$ref": "#/$defs/riskTier" },
+              "taskCounts": {
+                "type": "object",
+                "required": ["total", "approved", "inProgress", "implComplete", "done", "blocked"],
+                "additionalProperties": false,
+                "properties": {
+                  "total": { "type": "integer", "minimum": 0 },
+                  "approved": { "type": "integer", "minimum": 0 },
+                  "inProgress": { "type": "integer", "minimum": 0 },
+                  "implComplete": { "type": "integer", "minimum": 0 },
+                  "done": { "type": "integer", "minimum": 0 },
+                  "blocked": { "type": "integer", "minimum": 0 }
+                }
+              },
+              "driftStatus": { "$ref": "#/$defs/driftStatus" },
+              "nextAction": { "$ref": "#/$defs/nextAction" }
+            }
+          }
+        },
+        "doctor": {
+          "type": "object",
+          "required": ["status", "ngCount", "warnCount", "driftEventCount"],
+          "additionalProperties": false,
+          "properties": {
+            "status": { "type": "string", "enum": ["CLEAN", "WARN", "NG"] },
+            "ngCount": { "type": "integer", "minimum": 0 },
+            "warnCount": { "type": "integer", "minimum": 0 },
+            "driftEventCount": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "sdd_feature_state_input": {
+      "type": "object",
+      "required": ["feature"],
+      "additionalProperties": false,
+      "properties": {
+        "feature": { "$ref": "#/$defs/featureSlug" },
+        "includeDecisionViewMarkdown": { "type": "boolean", "default": false }
+      }
+    },
+    "sdd_feature_state_data": {
+      "type": "object",
+      "required": ["kind", "feature", "highestRisk", "files", "traceability", "drift", "openQuestions", "nextAction"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "feature-state" },
+        "feature": { "$ref": "#/$defs/featureSlug" },
+        "highestRisk": { "$ref": "#/$defs/riskTier" },
+        "files": {
+          "type": "object",
+          "required": ["requirements", "design", "tasks", "baseline"],
+          "additionalProperties": false,
+          "properties": {
+            "requirements": { "type": "boolean" },
+            "design": { "type": "boolean" },
+            "tasks": { "type": "boolean" },
+            "baseline": { "type": "boolean" }
+          }
+        },
+        "traceability": {
+          "type": "object",
+          "required": ["complete", "requirementCount", "acCount", "taskCount", "gapCount"],
+          "additionalProperties": false,
+          "properties": {
+            "complete": { "type": "boolean" },
+            "requirementCount": { "type": "integer", "minimum": 0 },
+            "acCount": { "type": "integer", "minimum": 0 },
+            "taskCount": { "type": "integer", "minimum": 0 },
+            "gapCount": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "drift": {
+          "type": "object",
+          "required": ["status", "changedFiles", "amendmentCount"],
+          "additionalProperties": false,
+          "properties": {
+            "status": { "$ref": "#/$defs/driftStatus" },
+            "changedFiles": { "type": "array", "items": { "type": "string" } },
+            "amendmentCount": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "openQuestions": {
+          "type": "object",
+          "required": ["total", "provisionalCount", "provisionalIds"],
+          "additionalProperties": false,
+          "properties": {
+            "total": { "type": "integer", "minimum": 0 },
+            "provisionalCount": { "type": "integer", "minimum": 0 },
+            "provisionalIds": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "nextAction": { "$ref": "#/$defs/nextAction" },
+        "decisionViewMarkdown": { "type": "string" }
+      }
+    },
+    "sdd_gate_audit_input": {
+      "type": "object",
+      "required": ["feature"],
+      "additionalProperties": false,
+      "properties": {
+        "feature": { "$ref": "#/$defs/featureSlug" },
+        "taskId": { "$ref": "#/$defs/taskId" }
+      }
+    },
+    "sdd_gate_audit_data": {
+      "type": "object",
+      "required": ["kind", "feature", "tasks"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "gate-audit" },
+        "feature": { "$ref": "#/$defs/featureSlug" },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["taskId", "risk", "approval", "status", "executionArtifact", "reviewReport", "readyForDone"],
+            "additionalProperties": false,
+            "properties": {
+              "taskId": { "$ref": "#/$defs/taskId" },
+              "risk": { "$ref": "#/$defs/riskTier" },
+              "approval": { "type": "string" },
+              "status": { "type": "string" },
+              "executionArtifact": {
+                "type": "object",
+                "required": ["exists"],
+                "additionalProperties": false,
+                "properties": {
+                  "exists": { "type": "boolean" },
+                  "path": { "type": "string" },
+                  "verdict": { "type": "string", "enum": ["PASS", "FAIL"] },
+                  "executedAt": { "type": "string" },
+                  "specDriftStatus": { "$ref": "#/$defs/executionDriftStatus" },
+                  "failedCommands": { "type": "array", "items": { "type": "string" } }
+                }
+              },
+              "reviewReport": {
+                "type": "object",
+                "required": ["exists"],
+                "additionalProperties": false,
+                "properties": {
+                  "exists": { "type": "boolean" },
+                  "path": { "type": "string" },
+                  "verdict": { "type": "string", "enum": ["PASS", "FAIL", "UNKNOWN"] }
+                }
+              },
+              "readyForDone": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "sdd_dashboard_snapshot_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "sdd_dashboard_snapshot_data": {
+      "type": "object",
+      "required": ["kind", "snapshot"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "dashboard-snapshot" },
+        "snapshot": {
+          "type": "object",
+          "required": [
+            "schema",
+            "revision",
+            "checkedAt",
+            "changedAt",
+            "lastSuccessAt",
+            "attemptedAt",
+            "error",
+            "data"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "schema": { "const": "sdd-dashboard/v1" },
+            "revision": { "type": "string" },
+            "checkedAt": { "type": ["string", "null"] },
+            "changedAt": { "type": ["string", "null"] },
+            "lastSuccessAt": { "type": ["string", "null"] },
+            "attemptedAt": { "type": "string" },
+            "error": { "type": ["string", "null"] },
+            "data": { "type": ["object", "null"] }
+          }
+        }
+      }
+    }
+  }
+}

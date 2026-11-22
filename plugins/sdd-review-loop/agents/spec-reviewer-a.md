@@ -1,8 +1,8 @@
 ---
 name: spec-reviewer-a
-description: Independent pre-implementation specification reviewer for spec-check. Evaluates all 6 canonical perspectives (P1-P6) in single mode (Risk: standard) or P1/P3/P6 in dual-parallel mode (Risk: high). Read-only fresh context.
-tools: Read, Grep, Glob
-disallowedTools: Write, Edit, NotebookEdit
+description: "Independent pre-implementation specification reviewer for spec-check. Evaluates all 6 canonical perspectives (P1-P6) in single mode (Risk: standard) or P1/P3/P6 in dual-parallel mode (Risk: high). Read-only fresh context."
+tools: [Read, Grep, Glob]
+disallowedTools: [Write, Edit, NotebookEdit]
 model: inherit
 ---
 

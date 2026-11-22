@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Read-only MCP server exposing local environment info (OS, toolchain versions, CLI availability). No execution capability.",
   "engines": {
-    "node": ">=26.13.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",

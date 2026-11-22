@@ -38,6 +38,12 @@ function toCallToolResult<T>(result: Result<T>): { content: Array<{ type: "text"
   };
 }
 
+const READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+} as const;
+
 /** Builds the MCP server and registers the 3 read-only environment tools. */
 export function buildServer(options: ToolProbeOptions = {}): McpServer {
   const probeOptions = { ...options, probe: options.probe ?? createProbeEngine().probe };
@@ -54,6 +60,7 @@ export function buildServer(options: ToolProbeOptions = {}): McpServer {
         "Reports platform, arch, OS type/release, logical CPU count, total " +
         "memory, and the Node runtime version from os/process APIs. Never " +
         "returns hostname, username, home directory, or environment values.",
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     () => toCallToolResult(getOsInfo()),
   );
@@ -68,6 +75,7 @@ export function buildServer(options: ToolProbeOptions = {}): McpServer {
         "available CLI. Missing CLIs are reported available:false; the whole " +
         "response stays ok:true. Accepts no command, argument, or path input.",
       inputSchema: TOOLCHAIN_TOOL_INPUT_SHAPE,
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async ({ names }) => toCallToolResult(await getToolchainVersions({ names }, probeOptions)),
   );
@@ -79,6 +87,7 @@ export function buildServer(options: ToolProbeOptions = {}): McpServer {
       description:
         "Reports availability (present/absent) for each CLI in the fixed " +
         "14-CLI allowlist, without version strings. Takes no input.",
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async () => toCallToolResult(await listAvailableClis(probeOptions)),
   );

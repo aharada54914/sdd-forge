@@ -28,6 +28,7 @@
         "claude-code",
         "codex-cli",
         "copilot-cli",
+        "antigravity-cli",
         "gemini-cli"
       ]
     },

@@ -32,7 +32,9 @@ function findPackageRoot(startDir: string): string {
 }
 
 const THIS_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const SRC_DIR = join(findPackageRoot(THIS_FILE_DIR), "src");
+const PACKAGE_ROOT = findPackageRoot(THIS_FILE_DIR);
+const SRC_DIR = join(PACKAGE_ROOT, "src");
+const DIST_BUNDLE = join(PACKAGE_ROOT, "dist", "index.js");
 
 /**
  * fs write / mutate API names that must never appear in src/. Read-only APIs
@@ -124,6 +126,15 @@ test("src/ contains no filesystem write API references", () => {
   }
 
   assert.deepEqual(violations, [], `write API usage found in src/:\n${violations.join("\n")}`);
+});
+
+test("dist/index.js bundle contains no filesystem write API references (H-4)", () => {
+  assert.ok(existsSync(DIST_BUNDLE), `expected dist bundle at ${DIST_BUNDLE}`);
+  const bundle = readFileSync(DIST_BUNDLE, "utf-8");
+  const writeCallPattern =
+    /\b(?:writeFileSync|writeFile|appendFileSync|appendFile|mkdirSync|rmSync|rmdirSync|unlinkSync|renameSync|chmodSync|chownSync|truncateSync|symlinkSync|copyFileSync|createWriteStream)\b/;
+  const match = writeCallPattern.exec(bundle);
+  assert.equal(match, null, `write API found in bundled dist/index.js: ${match?.[0] ?? ""}`);
 });
 
 test("src/ contains no TODO/FIXME/stub/placeholder markers", () => {

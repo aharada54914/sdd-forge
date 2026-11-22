@@ -1,8 +1,8 @@
 ---
 name: sdd-evaluator
 description: Independent skeptical evaluator for SDD Core sdd-gate. Verifies one Implementation Complete task against specs, git diff, and execution.json across canonical perspectives G1-G5 in a fresh read-only context.
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, NotebookEdit
+tools: [Read, Grep, Glob, Bash]
+disallowedTools: [Write, Edit, NotebookEdit]
 model: inherit
 ---
 

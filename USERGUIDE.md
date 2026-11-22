@@ -42,91 +42,66 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 
 | サーバー | ツール数 | 契約の正準ソース |
 |---|---|---|
-| `sdd-forge-mcp` | 14種（core 8 + evidence 6）、resources 5種 | [`contracts/sdd-forge-mcp-tools.v1.schema.json`](contracts/sdd-forge-mcp-tools.v1.schema.json) |
-| `local-env-mcp` | 3種 | [`contracts/local-env-mcp-tools.v1.schema.json`](contracts/local-env-mcp-tools.v1.schema.json) |
-| `ci-mcp` | 5種 | [`contracts/ci-mcp-tools.v1.schema.json`](contracts/ci-mcp-tools.v1.schema.json) |
+| `sdd-forge-mcp` | 4種（v2 SSOT 読み取り専用）、resources 2種（`--with-mcp` オプトイン） | [`contracts/sdd-mcp.v2.schema.json`](contracts/sdd-mcp.v2.schema.json) |
+| `local-env-mcp` | 3種（**v2.1.0 非推奨 / v2.2.0 廃止予定**） | [`contracts/local-env-mcp-tools.v1.schema.json`](contracts/local-env-mcp-tools.v1.schema.json) |
+| `ci-mcp` | 5種（隔離環境向け `--mcp ci-mcp` オプトイン専用） | [`contracts/ci-mcp-tools.v1.schema.json`](contracts/ci-mcp-tools.v1.schema.json) |
 
-いずれのサーバーも **Node.js >= 26.13.0**（`package.json` の `engines.node`）を必要とします。
+いずれのサーバーも **Node.js >= 20 LTS** で動作します（v2.0.0 以降、`Node >= 26.13.0` 要件は撤廃済みです）。
 
 ### sdd-forge-mcp
 
 #### 概要
 
-`sdd-forge-mcp` は、対象リポジトリの SDD 状態（spec / タスク / レビューチケット / 品質ゲート結果 / evidence）を構造化データとして読み取るための **read-only** MCP サーバーです。書き込み API は一切持たず、stdio 経由で MCP クライアント（Claude Code / Codex）から子プロセスとして起動されます。
+`sdd-forge-mcp` v2 は、対象リポジトリの SDD Core 状態（Active Features / トレーサビリティ / Spec Drift / Decision View / 品質ゲート整合性 / ダッシュボードスナップショット）を構造化データとして読み取る **read-only** MCP サーバーです。純粋読み取り専用コア（`plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs`）と `path-guard.ts` を直接接続する Single Source of Truth 構成であり、書き込み API は `dist/index.js` 含め一切保持しません。
 
 #### 導入・除外・選択導入
 
-`install.sh` / `install.ps1` は既定で以下を行います。
-
-- `INSTALL_ROOT/mcp/sdd-forge-mcp/`（`dist/index.js` + `package.json`）へ配置
-- Claude Code へユーザースコープで登録
-  ```bash
-  claude mcp add sdd-forge-mcp --scope user -- node <INSTALL_ROOT>/mcp/sdd-forge-mcp/dist/index.js
-  ```
-- Codex を使う場合、`~/.codex/config.toml` にマーカー区切りブロック（`# >>> sdd-forge-mcp ... >>>` 〜 `# <<< sdd-forge-mcp <<<`）を追記（`config.toml` が存在しない場合は新規作成せず警告のみでスキップ）
-- Cursor を使う場合、`~/.cursor/mcp.json` の `mcpServers` キーに自動登録
-- VS Code を使う場合、ユーザープロファイルの `mcp.json` の `servers` キーに自動登録
-- Gemini CLI を使う場合、`~/.gemini/settings.json` の `mcpServers` キーに自動登録（`SDD_GEMINI_DIR` で上書き可）
-
-導入オプション
+ADR-0052 に基づき、ローカル CLI プラグイン導入時は **既定で MCP クライアント登録を行いません（0 トークン税・常駐プロセス 0 本）**。ただし `/sdd-ship:status` のローカル CLI 実行に必要な `INSTALL_ROOT/mcp/sdd-forge-mcp/dist/index.js` のみ配置されます。
 
 | オプション | 効果 |
 |---|---|
-| （既定） | MCP サーバーを配置し、`--target` に応じて Claude / Codex / Cursor / VS Code / Gemini に登録 |
-| `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
-| `--mcp sdd-forge-mcp,local-env-mcp,ci-mcp` | 配置・登録する MCP を明示的に選択（有効値: `sdd-forge-mcp`, `local-env-mcp`, `ci-mcp`。省略時は 3 件すべて） |
+| （既定） | ローカル CLI プラグインのみ導入・登録（MCP クライアント未登録。`plugins/sdd-quality-loop/scripts/v2/*.mjs` を直接使用） |
+| `--with-mcp` | 単一の `sdd-forge-mcp` v2（4 ツール + 2 リソース）を `--target` に応じて登録（Claude / Codex / Cursor / VS Code / Antigravity `agy` / Gemini） |
+| `--skip-mcp` | すべての MCP クライアント登録を明示スキップ（`--with-mcp` / `--mcp` との併用不可） |
+| `--mcp sdd-forge-mcp,ci-mcp` | 登録する MCP を明示指定してオプトイン（`local-env-mcp` は ADR-0052 により非推奨警告を表示） |
 
-**Node.js 要件**: Node >= 26.13.0 が MCP を起動する環境の PATH 上に必要です。MCP だけの要件としては、Node が使えなければ配置・登録を警告付きでスキップします。ただし Claude 用の `sdd-quality-loop` 安全フックも登録する場合、Node は必須です。インストーラは配置の変更前に Node を確認し、利用できなければ終了します。フックのホスト要件と導入後の有効化確認は [README のインストール案内](README.md#インストール)を参照してください。
+`--with-mcp` 指定時の登録先：
+- **Claude Code**: `claude mcp add sdd-forge-mcp --scope user -- node <INSTALL_ROOT>/mcp/sdd-forge-mcp/dist/index.js`
+- **Codex CLI**: `~/.codex/config.toml`（マーカー区切りブロック追記）
+- **Antigravity CLI (`agy`)**: `~/.gemini/config/mcp_config.json` の `mcpServers`（`SDD_ANTIGRAVITY_CONFIG_DIR` で上書き可）
+- **Cursor**: `~/.cursor/mcp.json` の `mcpServers`
+- **VS Code**: ユーザープロファイルの `mcp.json` の `servers`
+- **旧 Gemini CLI**: `~/.gemini/settings.json` の `mcpServers`（`SDD_GEMINI_DIR` で上書き可）
+
+**Node.js 要件**: Node >= 20 LTS が必要です。フックのホスト要件と導入後の有効化確認は [README のインストール案内](README.md#インストール)を参照してください。
 
 #### 対象リポジトリの指定
 
-MCP サーバーがどのリポジトリを SDD ルートとして扱うかは、以下の優先順位で決まります。
+MCP サーバーがどのリポジトリを SDD ルートとして扱うかは、以下の優先順位で起動時に一度だけ固定されます（`CLAUDE_PROJECT_DIR` / `SDD_PROJECT_ROOT` には上書きされません）：
 
 1. 起動引数 `--root <path>`
 2. 環境変数 `SDD_FORGE_ROOT`
-3. プロセスの `cwd`（既定。Claude/Codex への登録エントリは引数なしで cwd 解決に任せる）
+3. プロセスの `cwd`
 
-リポジトリ外から呼び出す場合のみ、利用者が `--root` または `SDD_FORGE_ROOT` を設定してください。
-
-#### tools（14種）
-
-**core（8種）**
+#### tools（4種・すべて `readOnlyHint: true`）
 
 | tool | 用途 |
 |---|---|
-| `list_active_specs` | AGENTS.md の Active Spec Directories 配下の feature を一覧し、Approved かつ Planned/In Progress のタスクを持つかを付記 |
-| `get_spec_status` | `specs/<feature>/` の Phase 1/2 成果物の有無と各ファイルのレビューステータスヘッダーを報告 |
-| `get_task_state` | `specs/<feature>/tasks.md` の状態機械を解析（check-task-state.sh 相当の pass/fail 判定と失敗タスク一覧） |
-| `list_approved_tasks` | `tasks.md` 内の Approved 形状の Approval を持つタスクを一覧 |
-| `list_blocked_tasks` | `tasks.md` 内の Status が Blocked のタスクを一覧 |
-| `list_review_tickets` | `docs/review-tickets/RT-*.yml` を解析して一覧 |
-| `get_quality_gate_summary` | `reports/quality-gate/*.md` のうち VERDICT 行を持つレポートを件数付きで一覧 |
-| `get_next_sdd_command` | AGENTS.md の Required Workflow ゲートをたどり、feature（省略時は sdd-ship:run と同様に自動選択）の次の SDD コマンドを判定 |
+| `sdd_project_overview` | 全 Active Features のリスク・タスク集計・Spec Drift・次アクション・`sdd-doctor` 健全性を 1 往復で返却 |
+| `sdd_feature_state` | 指定 feature の REQ↔AC↔Task トレーサビリティ、Spec Drift、Open Questions (`OQ-NNN`)、次アクション、および任意 Decision View（観点採否表・元箇所行番号付き）を一括返却 |
+| `sdd_gate_audit` | 指定 feature / task の決定論 `.execution.json`、独立 G1–G5 レポート `VERDICT`、Spec Drift、`Risk: high` 未確定 `OQ-NNN` を fail-closed 検証 |
+| `sdd_dashboard_snapshot` | ホスト／ローカルダッシュボード向け読み取り専用スナップショット（統一 `Result<T>` エンベロープ） |
 
-**evidence（6種）**
-
-| tool | 用途 |
-|---|---|
-| `evidence_get_bundle` | `specs/<feature>/verification/<taskId>.evidence.json` をそのまま読み取り（署名フィールドも含め検証はしない） |
-| `evidence_validate_paths` | evidence bundle 内の各アーティファクトパスが path-guard の allowlist 内にあるか・実在するかを報告 |
-| `evidence_find_missing` | Done 遷移に必要な要件（evidence bundle・verification contract・PASS の品質ゲートレポート）の有無を報告（check-task-state.sh の Done evidence チェック相当）。`reports/quality-gate` のディレクトリ走査自体が失敗した場合は `missing` ではなく第3の配列 `undeterminable` に振り分ける（`present`/`missing`/`undeterminable` の3配列が `required` を過不足なく分割する）。なお `get_task_state` は意図的に変更しておらず、走査失敗のタスクを引き続き `done-quality-gate-report-missing` として報告する |
-| `evidence_summarize_contract_checks` | `<taskId>.contract.json` の各チェックの required/passes/waiverReason/requirementIds を要約 |
-| `evidence_compare_to_traceability` | `traceability.md` の REQ→Task・AC→TEST→Task 表と `tasks.md` のタスクID、各タスクの verification contract の requirementIds と traceability.md の宣言 REQ-ID を突き合わせ。contract が読めずクロスチェックを試行できなかったタスクは `unreadableContracts`（`{ taskId, reason }`、`reason` は `parseVerificationContract` の失敗メッセージそのまま）に列挙する（`Done` に限定せず全タスクが対象。`matches`/`mismatches` の計数意味は不変） |
-| `evidence_deep_verify` | evidence bundle を再検証：各成果物の sha256 をディスク上から再計算して記録値と突合、正準 artifacts ダイジェスト・spec_revision・git_commit 40-hex 形状・contract/report クロスバインドの不変条件を検証し、決定論的な pass/fail verdict と failures リストを返す。署名鍵は読まず、署名検証も行わない（verified:false、host 責務）、git 祖先検証も行わない（host-deferred）。この host 委譲の2件は、入れ子の `invariants.gitCommit`/`signature` に加えてトップレベルの `hostRequiredChecks`（`git-commit-ancestry` と `signature-verification` の常に2件、`verified:false` 固定、`note` は既存の計算済み文字列をそのまま再利用）にも掲出される。`hostRequiredChecks` は助言的メタデータであり `verdict` にも `failures` にも一切影響しない。 |
-
-#### resources（5種）
+#### resources（2種）
 
 | URI | 対応する tool |
 |---|---|
-| `sdd://active-specs` | `list_active_specs` と同一データ |
-| `sdd://spec/{feature}` | `get_spec_status` と同一データ |
-| `sdd://tasks/{feature}` | `get_task_state` と同一データ |
-| `sdd://review-tickets` | `list_review_tickets` と同一データ |
-| `sdd://quality-reports` | `get_quality_gate_summary` と同一データ |
+| `sdd://overview` | `sdd_project_overview({ includeDoctor: true })` |
+| `sdd://feature/{feature}` | `sdd_feature_state({ feature, includeDecisionViewMarkdown: true })` |
 
 #### セキュリティ特性
 
-読み取り可能な範囲は allowlist（`specs/`、`reports/`、`docs/review-tickets/`、`docs/workflow-improvements/` の各ディレクトリ配下、および単一ファイル `AGENTS.md`）に限定され、denylist（sudo フラグファイル、evidence 署名鍵、`.env`）は allowlist 配下の symlink 経由であっても常に拒否されます。ファイルサイズ上限は 2 MiB で、これを超えるファイルは読み取り不可（`too-large`）です。書き込み系 API は一切実装されていません（`tasks.md` の承認状態変更やファイル作成はできません）。
+読み取り可能な範囲は `path-guard.ts` の allowlist（`specs/`、`reports/`、`sdd/knowledge/`、`docs/review-tickets/`、`docs/workflow-improvements/`、`AGENTS.md`、`dashboard-labels.json`、`sdd/guardrails.{yaml,json}`、`.sdd/drift-events.jsonl`、`.sdd/factory-metrics.jsonl`）に厳格限定され、denylist（`SDD_SUDO`、evidence 署名鍵、`.env` / `.env.*`）は allowlist 配下の symlink 経由であっても常に拒否されます。ファイルサイズ上限は 2 MiB（`too-large`）で、書き込み系 API は `dist/index.js` を含め一切含まれません。
 
 #### トラブルシュート
 
@@ -330,7 +305,7 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 
 - クライアント設定ディレクトリが存在しない場合（クライアント未導入）: そのクライアントのみ登録をスキップし、他のクライアントの登録は継続します
 - 設定ファイルが壊れた JSON の場合: 上書きしない（データ破壊を防止）。エラー通知を表示し、該当クライアントの登録のみ中断します
-- Node.js が使えない、または 26.13.0 未満の場合: MCP のみなら配置・登録を警告付きでスキップします。Claude 用の安全フックも登録する場合は必須要件として、配置の変更前にインストールを停止します。導入後に Node や PATH が変わった場合も、実際のクライアント環境を復旧してから起動を確認してください
+- Node.js が使えない、または 20.0.0 LTS 未満の場合: MCP 登録を警告付きでスキップします。導入後に Node や PATH が変わった場合も、実際のクライアント環境を復旧してから起動を確認してください
 
 **ロールバック手順**
 
@@ -382,14 +357,10 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 メインには起動したCLIのモデルを選び、標準の `/model` 等で変更を適用して確認してください。
 サブエージェントは別会社のモデルも選べますが、各役割に対応する安全な起動経路が必要です。
 
-Gemini CLI用のモデル選択extensionは、インストーラーの `--target Gemini`
-（PowerShellは `-Target Gemini`）または `All` で登録します。
-`sdd-implementation` が選択されている必要があります（既定のshipから自動で含まれます）。
-これはモデル選択のextensionで、SDDの全機能をGeminiへ移植するものではありません。
-各CLI側で必要なフックの有効化・信頼を確認してください。インストールだけで稼働証明とはしません。
+Antigravity CLI（`agy`）では、インストーラーの `--target Antigravity`（PowerShell は `-Target Antigravity`）または `All` でネイティブプラグイン（`.antigravity-plugin/plugin.json`＋ルート `hooks.json`）として登録され、`agy models` から最新モデル一覧を動的取得できます。旧 Gemini CLI 用の拡張機能は `--target Gemini` で後方互換維持しています。
 
 - 共通の選択UIは各CLIの既存認証を使い、ClaudeのSDK制御プロトコル、CodexのApp Server
-  `model/list`、Geminiの認証後のACPセッションからモデル一覧を取得します。
+  `model/list`、Antigravity CLIの `agy models`、旧Gemini CLIの認証後ACPセッションからモデル一覧を取得します。
   固定のモデル名や環境変数の値で候補を補わず、取得できない場合は理由と更新操作を表示します。
 - 一覧の `listed` はCLIから取得した候補、`unverified` は使用者が追加した未確認候補です。
   いずれも推論成功を保証しません。APIキー・OAuth・ChatGPTの認証経路と課金枠を混同せず、
@@ -413,9 +384,9 @@ Gitには保存しません。メインはCLI別、役割別設定はそのプ�
 引数のパスはプロジェクトをcwdとして指定します。
 
 ```text
-python3 <scripts>/session-models.py begin --host codex-cli --session <session-id>
-python3 <scripts>/session-models.py set --session <session-id> --role main --host codex-cli --model <model-id> --effort high
-python3 <scripts>/session-models.py disable --session <session-id> --role panelist-gemini
+python3 <scripts>/session-models.py begin --host antigravity-cli --session <session-id>
+python3 <scripts>/session-models.py set --session <session-id> --role evaluator --host antigravity-cli --model gemini-4-neon-xhigh
+python3 <scripts>/session-models.py disable --session <session-id> --role workflow-auditor-b
 python3 <scripts>/session-models.py status --session <session-id>
 python3 <scripts>/session-models.py confirm --session <session-id> --main-applied
 ```

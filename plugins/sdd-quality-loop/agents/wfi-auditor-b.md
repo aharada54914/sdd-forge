@@ -1,8 +1,8 @@
 ---
 name: wfi-auditor-b
 description: WFI Impact and Risk Auditor for audit cycle 2. Reviews the revised WFI-NNN.md for verification plan quality, change scope proportionality, unintended consequences, implementation feasibility, and language compliance (second pass). Read-only; returns PASS, NEEDS_REVISION, or BLOCKED with classified findings.
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, NotebookEdit
+tools: [Read, Grep, Glob, Bash]
+disallowedTools: [Write, Edit, NotebookEdit]
 disallowedPaths:
   - "docs/workflow-improvements/WFI-*-audit-cycle-1.md"
   - "docs/workflow-improvements/WFI-*-auditor-a.json"

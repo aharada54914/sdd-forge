@@ -2,73 +2,62 @@
 /**
  * Shared library for SDD Forge v2 Lightweight Guardrails.
  * Zero external dependencies — Node.js >= 20 LTS built-in modules only.
+ *
+ * Pure string/regex/YAML/hash helpers live in `./v2-pure-lib.mjs` so that
+ * read-only consumers (including `sdd-forge-mcp`) never pull in filesystem
+ * write APIs or `process.env` root escalation.
  */
-import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+  DEFAULT_CONFIG,
+  VALID_MODES,
+  VALID_PRE_IMPL,
+  VALID_RISK_TIERS,
+  assertValidFeatureName,
+  canonicalSpecContractText,
+  countDomainModelApprovals,
+  countPrimaryApprovals,
+  extractAmendmentEntries,
+  extractSpecIdentifiers,
+  globToRegExp,
+  isSafeSpecEditOnly,
+  matchProtectedSpecRelPath,
+  normalizeGuardrailsConfig,
+  normalizeNewlines,
+  normalizeRelPath,
+  parseSimpleYaml,
+  sanitizeRelPath,
+  sha256Text,
+  splitSpecAmendments,
+  toPosixPath,
+} from './v2-pure-lib.mjs';
 
-export const DEFAULT_CONFIG = Object.freeze({
-  schema: 'sdd-guardrails/v1',
-  spec_guard: {
-    mode: 'confirm',
-    protected_globs: [
-      'specs/*/requirements.md',
-      'specs/*/design.md',
-      'specs/*/acceptance-tests.md',
-      'specs/*/tasks.md',
-    ],
-    allow_amendment_section: true,
-  },
-  review: {
-    pre_impl_check: 'auto',
-    independent_gate: true,
-  },
-  risk_defaults: {
-    default_tier: 'standard',
-    high_risk_paths: ['**/auth/**', '**/billing/**', '**/migrations/**'],
-  },
-});
+export {
+  DEFAULT_CONFIG,
+  VALID_MODES,
+  VALID_PRE_IMPL,
+  VALID_RISK_TIERS,
+  assertValidFeatureName,
+  canonicalSpecContractText,
+  countDomainModelApprovals,
+  countPrimaryApprovals,
+  extractAmendmentEntries,
+  extractSpecIdentifiers,
+  globToRegExp,
+  isSafeSpecEditOnly,
+  matchProtectedSpecRelPath,
+  normalizeGuardrailsConfig,
+  normalizeNewlines,
+  normalizeRelPath,
+  parseSimpleYaml,
+  sanitizeRelPath,
+  sha256Text,
+  splitSpecAmendments,
+  toPosixPath,
+};
 
-const VALID_MODES = new Set(['warn', 'confirm', 'strict']);
-const VALID_PRE_IMPL = new Set(['auto', 'always', 'off']);
-const VALID_RISK_TIERS = new Set(['low', 'standard', 'high']);
-
-const APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
-const SECOND_APPROVAL_RE = /(?:^|\n)[ \t]*Second Approval:[ \t]*Approved\b/g;
-const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approved\b/g;
-const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
-const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
-const IDENTIFIER_LINE_RE =
-  /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
-const PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none|n\/a|\(none\)|（なし）|なし|（初期版のため変更なし）|\(initial\s+version[^)]*\))$/i;
-
-export function normalizeNewlines(text) {
-  return typeof text === 'string' ? text.replace(/\r\n/g, '\n').replace(/\r/g, '\n') : '';
-}
-
-export function sha256Text(text) {
-  return crypto.createHash('sha256').update(normalizeNewlines(text), 'utf8').digest('hex');
-}
-
-export function toPosixPath(filePath) {
-  return String(filePath || '').replace(/\\/g, '/');
-}
-
-export function normalizeRelPath(filePath) {
-  return toPosixPath(filePath).trim().replace(/^\.\//, '').replace(/\/+$/, '');
-}
-
-export function assertValidFeatureName(feature) {
-  if (
-    typeof feature !== 'string' ||
-    !feature ||
-    /[\\/\0]/.test(feature) ||
-    feature === '.' ||
-    feature === '..'
-  ) {
-    throw new Error(`Invalid feature name: ${feature}`);
-  }
-}
+const MAX_READ_BYTES = 8 * 1024 * 1024;
 
 export function safeRealpath(targetPath) {
   try {
@@ -101,96 +90,131 @@ export function findProjectRoot(startDir) {
   return safeRealpath(startDir || process.cwd());
 }
 
-function stripYamlComment(line) {
-  let inSingle = false;
-  let inDouble = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
-    if (ch === "'" && !inDouble) {
-      inSingle = !inSingle;
-    } else if (ch === '"' && !inSingle && line[i - 1] !== '\\') {
-      inDouble = !inDouble;
-    } else if (ch === '#' && !inSingle && !inDouble) {
-      if (i === 0 || /\s/.test(line[i - 1])) {
-        return line.slice(0, i);
-      }
-    }
+/**
+ * Resolves project root for CLI scripts:
+ * - If an explicit `projectRoot` is provided, honors it strictly (never overridden by
+ *   `CLAUDE_PROJECT_DIR` or parent `.git` walk) so cross-repo invocations are deterministic.
+ * - Otherwise falls back to `findProjectRoot(process.cwd())`.
+ */
+export function resolveExplicitOrAutoRoot(projectRoot) {
+  if (projectRoot) {
+    return safeRealpath(projectRoot);
   }
-  return line;
+  return findProjectRoot(process.cwd());
 }
 
-function parseYamlScalar(raw) {
-  const trimmed = raw.trim();
-  if (trimmed === 'true') return true;
-  if (trimmed === 'false') return false;
-  if (trimmed === 'null' || trimmed === '~') return null;
-  if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) return Number(trimmed);
-  if (
-    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-    (trimmed.startsWith("'") && trimmed.endsWith("'"))
-  ) {
-    return trimmed.slice(1, -1);
-  }
-  return trimmed;
+function isWithinRoot(rootReal, targetReal) {
+  const rel = path.relative(rootReal, targetReal);
+  return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
 }
 
 /**
- * Minimal deterministic parser for 2-level YAML config files (maps, scalars, string lists).
+ * Creates a strictly root-contained read-only IO facade for local v2 CLI scripts.
+ * Rejects path traversal and symlinks escaping `projectRoot`.
  */
-export function parseSimpleYaml(text) {
-  const root = {};
-  const lines = normalizeNewlines(text).split('\n');
-  let currentSection = null;
-  let currentListKey = null;
+export function createFsReadonlyIo(projectRoot) {
+  const rootReal = safeRealpath(projectRoot);
 
-  for (const rawLine of lines) {
-    const cleaned = stripYamlComment(rawLine).replace(/\s+$/, '');
-    if (!cleaned.trim()) continue;
-
-    const indent = cleaned.length - cleaned.trimStart().length;
-    const content = cleaned.trim();
-
-    if (indent === 0) {
-      currentListKey = null;
-      const idx = content.indexOf(':');
-      if (idx === -1) continue;
-      const key = content.slice(0, idx).trim();
-      const rest = content.slice(idx + 1).trim();
-      if (rest === '') {
-        root[key] = {};
-        currentSection = key;
-      } else {
-        root[key] = parseYamlScalar(rest);
-        currentSection = null;
-      }
-      continue;
+  function resolveSafe(relPath) {
+    const safeRel = sanitizeRelPath(relPath);
+    if (!safeRel) return null;
+    const abs = path.join(rootReal, ...safeRel.split('/'));
+    let real;
+    try {
+      real = fs.realpathSync(abs);
+    } catch {
+      return null;
     }
-
-    if (content.startsWith('- ')) {
-      const value = parseYamlScalar(content.slice(2));
-      if (currentSection && currentListKey) {
-        if (!Array.isArray(root[currentSection][currentListKey])) {
-          root[currentSection][currentListKey] = [];
-        }
-        root[currentSection][currentListKey].push(value);
-      }
-      continue;
+    if (!isWithinRoot(rootReal, real)) {
+      return null;
     }
-
-    const idx = content.indexOf(':');
-    if (idx === -1 || !currentSection) continue;
-    const key = content.slice(0, idx).trim();
-    const rest = content.slice(idx + 1).trim();
-    if (rest === '') {
-      root[currentSection][key] = [];
-      currentListKey = key;
-    } else {
-      root[currentSection][key] = parseYamlScalar(rest);
-      currentListKey = null;
-    }
+    return real;
   }
 
-  return root;
+  return {
+    exists(relPath) {
+      const real = resolveSafe(relPath);
+      return real !== null;
+    },
+    existsDir(relPath) {
+      const real = resolveSafe(relPath);
+      if (!real) return false;
+      try {
+        return fs.statSync(real).isDirectory();
+      } catch {
+        return false;
+      }
+    },
+    readText(relPath) {
+      const real = resolveSafe(relPath);
+      if (!real) return null;
+      try {
+        const stat = fs.statSync(real);
+        if (!stat.isFile() || stat.size > MAX_READ_BYTES) return null;
+        return fs.readFileSync(real, 'utf8');
+      } catch {
+        return null;
+      }
+    },
+    readBytes(relPath) {
+      const real = resolveSafe(relPath);
+      if (!real) return null;
+      try {
+        const stat = fs.statSync(real);
+        if (!stat.isFile() || stat.size > MAX_READ_BYTES) return null;
+        return fs.readFileSync(real);
+      } catch {
+        return null;
+      }
+    },
+    listDir(relDir) {
+      let realDir;
+      if (!relDir) {
+        realDir = rootReal;
+      } else {
+        realDir = resolveSafe(relDir);
+      }
+      if (!realDir) return [];
+      try {
+        const entries = fs.readdirSync(realDir, { withFileTypes: true });
+        const out = [];
+        for (const entry of entries) {
+          const childAbs = path.join(realDir, entry.name);
+          let childReal;
+          try {
+            childReal = fs.realpathSync(childAbs);
+          } catch {
+            continue;
+          }
+          if (!isWithinRoot(rootReal, childReal)) continue;
+          let st;
+          try {
+            st = fs.statSync(childReal);
+          } catch {
+            continue;
+          }
+          out.push({
+            name: entry.name,
+            isFile: st.isFile(),
+            isDirectory: st.isDirectory(),
+          });
+        }
+        return out.sort((a, b) => a.name.localeCompare(b.name));
+      } catch {
+        return [];
+      }
+    },
+    statMtimeMs(relPath) {
+      const real = resolveSafe(relPath);
+      if (!real) return null;
+      try {
+        const st = fs.statSync(real);
+        return Number.isFinite(st.mtimeMs) ? st.mtimeMs : null;
+      } catch {
+        return null;
+      }
+    },
+  };
 }
 
 export function loadGuardrailsConfig(projectRoot) {
@@ -212,66 +236,7 @@ export function loadGuardrailsConfig(projectRoot) {
     parsed = null;
   }
 
-  const sg = parsed && typeof parsed.spec_guard === 'object' && parsed.spec_guard ? parsed.spec_guard : {};
-  const rv = parsed && typeof parsed.review === 'object' && parsed.review ? parsed.review : {};
-  const rd = parsed && typeof parsed.risk_defaults === 'object' && parsed.risk_defaults ? parsed.risk_defaults : {};
-
-  return {
-    schema: 'sdd-guardrails/v1',
-    sourcePath,
-    spec_guard: {
-      mode: VALID_MODES.has(sg.mode) ? sg.mode : DEFAULT_CONFIG.spec_guard.mode,
-      protected_globs:
-        Array.isArray(sg.protected_globs) && sg.protected_globs.length > 0
-          ? sg.protected_globs.map((g) => String(g))
-          : [...DEFAULT_CONFIG.spec_guard.protected_globs],
-      allow_amendment_section:
-        typeof sg.allow_amendment_section === 'boolean'
-          ? sg.allow_amendment_section
-          : DEFAULT_CONFIG.spec_guard.allow_amendment_section,
-    },
-    review: {
-      pre_impl_check: VALID_PRE_IMPL.has(rv.pre_impl_check) ? rv.pre_impl_check : DEFAULT_CONFIG.review.pre_impl_check,
-      independent_gate:
-        typeof rv.independent_gate === 'boolean' ? rv.independent_gate : DEFAULT_CONFIG.review.independent_gate,
-    },
-    risk_defaults: {
-      default_tier: VALID_RISK_TIERS.has(rd.default_tier) ? rd.default_tier : DEFAULT_CONFIG.risk_defaults.default_tier,
-      high_risk_paths:
-        Array.isArray(rd.high_risk_paths) && rd.high_risk_paths.length > 0
-          ? rd.high_risk_paths.map((p) => String(p))
-          : [...DEFAULT_CONFIG.risk_defaults.high_risk_paths],
-    },
-  };
-}
-
-export function globToRegExp(glob) {
-  const posix = toPosixPath(glob).replace(/^\.\//, '');
-  let out = '^';
-  for (let i = 0; i < posix.length; i += 1) {
-    const ch = posix[i];
-    if (ch === '*') {
-      if (posix[i + 1] === '*') {
-        if (posix[i + 2] === '/') {
-          out += '(?:.*/)?';
-          i += 2;
-        } else {
-          out += '.*';
-          i += 1;
-        }
-      } else {
-        out += '[^/]*';
-      }
-    } else if (ch === '?') {
-      out += '[^/]';
-    } else if (/[.+^${}()|[\]\\]/.test(ch)) {
-      out += `\\${ch}`;
-    } else {
-      out += ch;
-    }
-  }
-  out += '$';
-  return new RegExp(out, 'i');
+  return normalizeGuardrailsConfig(parsed, sourcePath);
 }
 
 export function toProjectRelativePath(filePath, projectRoot, cwd) {
@@ -301,30 +266,7 @@ export function toProjectRelativePath(filePath, projectRoot, cwd) {
 export function matchProtectedSpecPath(filePath, projectRoot, config, cwd) {
   const rel = toProjectRelativePath(filePath, projectRoot, cwd);
   if (!rel) return null;
-
-  const globs = (config && config.spec_guard && config.spec_guard.protected_globs) || DEFAULT_CONFIG.spec_guard.protected_globs;
-  const matched = globs.some((pattern) => globToRegExp(pattern).test(rel));
-  if (!matched) return null;
-
-  const featureMatch = rel.match(/^specs\/([^/]+)\/(.+)$/i);
-  return {
-    relPath: rel,
-    feature: featureMatch ? featureMatch[1] : null,
-    fileName: path.posix.basename(rel).toLowerCase(),
-  };
-}
-
-export function countPrimaryApprovals(text) {
-  if (!text) return 0;
-  const normalized = normalizeNewlines(text);
-  const primary = (normalized.match(APPROVAL_LINE_RE) || []).length;
-  const second = (normalized.match(SECOND_APPROVAL_RE) || []).length;
-  return Math.max(0, primary - second);
-}
-
-export function countDomainModelApprovals(text) {
-  if (!text) return 0;
-  return (normalizeNewlines(text).match(DOMAIN_MODEL_APPROVAL_RE) || []).length;
+  return matchProtectedSpecRelPath(rel, config);
 }
 
 export function isFeatureApproved(projectRoot, feature) {
@@ -344,106 +286,6 @@ export function isFeatureApproved(projectRoot, feature) {
     }
   }
   return false;
-}
-
-/**
- * Split a Markdown document into { beforeAmendments, amendmentsBody, afterAmendments, hasHeading }.
- */
-export function splitSpecAmendments(text) {
-  const normalized = normalizeNewlines(text);
-  const match = AMENDMENT_HEADING_RE.exec(normalized);
-  if (!match) {
-    return {
-      beforeAmendments: normalized,
-      amendmentsBody: '',
-      afterAmendments: '',
-      hasHeading: false,
-    };
-  }
-
-  const headingLevel = match[1].length;
-  const headingStart = match.index;
-  const afterHeadingStart = headingStart + match[0].length;
-  const rest = normalized.slice(afterHeadingStart);
-
-  const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, 'm');
-  const nextMatch = nextHeadingRe.exec(rest);
-
-  if (!nextMatch) {
-    return {
-      beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
-      amendmentsBody: rest.trim(),
-      afterAmendments: '',
-      hasHeading: true,
-    };
-  }
-
-  return {
-    beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
-    amendmentsBody: rest.slice(0, nextMatch.index).trim(),
-    afterAmendments: rest.slice(nextMatch.index).trimStart(),
-    hasHeading: true,
-  };
-}
-
-export function extractAmendmentEntries(text) {
-  const { hasHeading, amendmentsBody } = splitSpecAmendments(text);
-  if (!hasHeading || !amendmentsBody) return [];
-
-  const entries = [];
-  for (const line of amendmentsBody.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    if (PLACEHOLDER_AMENDMENT_RE.test(trimmed)) continue;
-    entries.push(trimmed);
-  }
-  return entries;
-}
-
-/**
- * Produce the canonical contract text used to detect substantive spec mutations.
- * - Always removes the Spec Amendments section so recording an amendment never counts as body drift.
- * - For tasks.md, also strips Status: lines so normal task lifecycle updates remain CLEAN.
- */
-export function canonicalSpecContractText(text, fileName) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
-  let combined = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
-  if (String(fileName || '').toLowerCase() === 'tasks.md') {
-    combined = combined.replace(STATUS_LINE_RE, 'Status: <NORMALIZED>');
-  }
-  return combined.trim();
-}
-
-export function isSafeSpecEditOnly(oldContent, newContent, fileName, allowAmendmentSection = true) {
-  const lower = String(fileName || '').toLowerCase();
-  if (allowAmendmentSection) {
-    return canonicalSpecContractText(oldContent, lower) === canonicalSpecContractText(newContent, lower);
-  }
-  if (lower === 'tasks.md') {
-    const oldNorm = normalizeNewlines(oldContent).replace(STATUS_LINE_RE, 'Status: <NORMALIZED>').trim();
-    const newNorm = normalizeNewlines(newContent).replace(STATUS_LINE_RE, 'Status: <NORMALIZED>').trim();
-    return oldNorm === newNorm;
-  }
-  return normalizeNewlines(oldContent).trim() === normalizeNewlines(newContent).trim();
-}
-
-export function extractSpecIdentifiers(text) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
-  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
-  const map = {};
-  IDENTIFIER_LINE_RE.lastIndex = 0;
-  let m;
-  while ((m = IDENTIFIER_LINE_RE.exec(body)) !== null) {
-    const id = m[1].toUpperCase();
-    const normalizedLine = m[0].trim().replace(/\s+/g, ' ');
-    if (!(id in map)) {
-      map[id] = {
-        line: normalizedLine,
-        hash: sha256Text(normalizedLine),
-      };
-    }
-  }
-  return map;
 }
 
 export function appendDriftEvent(projectRoot, event) {
