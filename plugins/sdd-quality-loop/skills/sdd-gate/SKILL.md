@@ -24,7 +24,7 @@ user-invocable: false
    プロジェクトの lint / typecheck / build / test コマンドを渡し、単一コマンドで以下を実行・記録する:
    - タスク前提確認（`Approval: Approved`, `Status: Implementation Complete`）
    - 対象 feature に `concept-test/v2` の提案・人手判断記録がある場合、同梱の読取専用 `validate-concept-test --require-v2` で現在の入力と判断を照合する。結果は `checks.conceptTest` に保存し、`DEFER`、`REJECT`、`BLOCK` では指定コマンドの実行前に停止する。変更ファイルの絞り込み、drift・sensor の省略はこの判定に影響しない。
-   - 対象の判定には現在のファイルと、取得可能な Git インデックス・手元の HEAD から到達可能な履歴を使う。履歴に明示的な v2 提案や専用の判断記録が残っていれば、削除や v1 への差し戻しも照合する。旧版の説明文だけが履歴にある場合は従来のゲートを使う。Git CLI がない場合は `history: GIT_UNAVAILABLE` を記録し、現行ファイルを基準に判定する。未追跡の全記録を削除した場合や、利用できる履歴に該当版がない場合、以前の利用を復元できない。
+   - 対象プロジェクト・featureの現在の作業木とGitインデックスで適用を判定する。祖先にだけある草稿や判断は適用根拠に含めない。現在のv2提案、判断記録、不完全な証拠は配布validatorで照合する。Git CLIが使えず作業木にも対象証拠がなければ `history: GIT_UNAVAILABLE` を記録する。Gitが起動してもインデックスの読取りに失敗した場合は停止する。
    - `concept-test.decision.json` は人が対話確認で作成する。ソフトガードは対応ホストのファイル編集とパッチからの作成・変更・削除・移動を拒否する。端末操作はフックの検査対象外で、記録だけから操作者の本人性は判定できない。
    - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` は自動 FAIL）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。

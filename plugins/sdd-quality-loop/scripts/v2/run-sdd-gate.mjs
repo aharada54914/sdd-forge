@@ -509,8 +509,7 @@ function needsConceptCheck(root, feature) {
         || conceptRecordSchema(fs.readFileSync(file, 'utf8'), rel) !== 'concept-test/v1')) return true;
   }
 
-  // A tracked receipt or proposal still applies after deletion or restoration
-  // of an old version. Scope the lookup to this feature in this checkout.
+  // The index can still contain current evidence missing from the working tree.
   let repo = root;
   while (!fs.existsSync(path.join(repo, '.git'))) {
     const parent = path.dirname(repo);
@@ -524,10 +523,6 @@ function needsConceptCheck(root, feature) {
   const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
     encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
   });
-  const blobs = new Map();
-  const remember = (filename, ...oids) => {
-    for (const oid of oids) if (!/^0+$/.test(oid)) blobs.set(oid + path.extname(filename), { filename, oid });
-  };
   let index;
   try {
     index = git('ls-files', '--stage', '-z', '--', ...paths);
@@ -538,35 +533,10 @@ function needsConceptCheck(root, feature) {
   }
   for (const entry of index.split('\0').filter(Boolean)) {
     const [meta, filename] = entry.split('\t');
-    if (filename.endsWith('/concept-test.decision.json')) return true;
-    remember(filename, meta.split(' ')[1]);
-  }
-  const indexedBlobs = new Set(blobs.keys());
-  let history = '';
-  try {
-    history = git('log', '--raw', '--format=', '--full-history', '-m', '--no-renames',
-      '--no-abbrev', '-z', 'HEAD', '--', ...paths);
-  } catch (err) {
-    // In a new repository there is a valid index but HEAD has no commit.
-    // Other history errors block the gate, including missing objects.
-    if (err.status !== 128) throw err;
-    const branch = git('symbolic-ref', '--quiet', 'HEAD').trim();
-    try { git('show-ref', '--verify', '--quiet', branch); }
-    catch (refError) { if (refError.status === 1) history = null; else throw refError; }
-    if (history !== null) throw err;
-  }
-  const changes = (history || '').split('\0');
-  for (let i = 0; i + 1 < changes.length; i += 2) {
-    const filename = changes[i + 1];
-    if (filename.endsWith('/concept-test.decision.json')) return true;
-    const [, , before, after] = changes[i].trim().split(' ');
-    remember(filename, before, after);
-  }
-  for (const [key, { filename, oid }] of blobs) {
-    const schema = conceptRecordSchema(git('cat-file', 'blob', oid), filename);
-    // Ambiguous current/indexed evidence needs validation. A historical
-    // narrative draft alone does not establish that this feature adopted v2.
-    if (schema === 'concept-test/v2' || (schema === null && indexedBlobs.has(key))) return true;
+    if (filename === receipt) return true;
+    const [mode, oid] = meta.split(' ');
+    if (mode !== '100644' && mode !== '100755') return true;
+    if (conceptRecordSchema(git('cat-file', 'blob', oid), filename) !== 'concept-test/v1') return true;
   }
   return false;
 }

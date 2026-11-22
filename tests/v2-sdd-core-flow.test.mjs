@@ -481,55 +481,63 @@ describe('human concept-test decisions at the public gate', () => {
     expectBlock();
   });
 
-  it('reads the right paths for a nested project and detects a committed receipt deletion', (t) => {
+  it('scopes index evidence to the nested project with the same feature name', (t) => {
     const { repo, git, run } = setup(t);
     git('init', '-q');
     const nested = path.join(repo, 'application');
     fs.mkdirSync(nested);
-    for (const name of ['specs', 'src']) fs.renameSync(path.join(repo, name), path.join(nested, name));
+    for (const name of ['specs', 'src']) fs.cpSync(path.join(repo, name), path.join(nested, name), { recursive: true });
     const receipt = path.join(nested, 'specs/payments/concept-test.decision.json');
     fs.writeFileSync(receipt, '{}');
     git('add', 'application');
-    git('commit', '-qm', 'record receipt');
     fs.unlinkSync(receipt);
-    git('commit', '-qam', 'remove receipt');
-    const report = run(nested);
-    assert.equal(report.checks.conceptTest.status, 'BLOCK');
-    assert.equal(report.verdict, 'FAIL');
-    assert.deepEqual(report.checks.commands, []);
+    const parent = run();
+    assert.equal(parent.checks.conceptTest.status, 'NOT_APPLICABLE');
+    assert.equal(parent.checks.commands.length, 1);
+    const child = run(nested);
+    assert.equal(child.checks.conceptTest.status, 'BLOCK');
+    assert.deepEqual(child.checks.commands, []);
   });
 
-  it('checks the available history of shallow clones and preserves its explicit boundary', (t) => {
+  it('uses current proposal and decision inputs equally in full and shallow clones', (t) => {
     const { repo, feature, git, run } = setup(t);
     git('init', '-q');
-    const file = path.join(feature, 'concept-test.json');
-    fs.writeFileSync(file, JSON.stringify({ schema: 'concept-test/v2' }));
+    const proposal = path.join(feature, 'concept-test.json');
+    const receipt = path.join(feature, 'concept-test.decision.json');
+    fs.writeFileSync(proposal, JSON.stringify({ schema: 'concept-test/v2' }));
     git('add', 'specs', 'src');
-    git('commit', '-qm', 'new proposal');
-    fs.unlinkSync(file);
-    git('commit', '-qam', 'remove proposal');
-    git('commit', '--allow-empty', '-qm', 'later work');
-    const copies = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-shallow-gate-'));
+    git('commit', '-qm', 'proposal draft');
+    fs.unlinkSync(proposal);
+    fs.writeFileSync(receipt, '{}');
+    git('add', 'specs');
+    git('commit', '-qm', 'receipt draft');
+    fs.unlinkSync(receipt);
+    git('commit', '-qam', 'current inputs');
+    const copies = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-clone-gate-'));
     t.after(() => fs.rmSync(copies, { recursive: true, force: true }));
-    for (const [depth, expected] of [[1, 'NOT_APPLICABLE'], [3, 'BLOCK']]) {
-      const checkout = path.join(copies, 'depth-' + depth);
-      git('clone', '-q', '--depth', String(depth), pathToFileURL(repo).href, checkout);
+    for (const [name, options] of [['full', []], ['shallow', ['--depth', '1']]]) {
+      const checkout = path.join(copies, name);
+      git('clone', '-q', ...options, pathToFileURL(repo).href, checkout);
       const report = run(checkout);
-      assert.equal(report.checks.conceptTest.status, expected);
-      assert.equal(report.verdict, depth === 1 ? 'PASS' : 'FAIL');
-      assert.equal(report.checks.commands.length, depth === 1 ? 1 : 0);
+      assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE', name);
+      assert.equal(report.verdict, 'PASS');
+      assert.equal(report.checks.commands.length, 1);
+      assert.equal(fs.readFileSync(path.join(checkout, 'ran'), 'utf8'), 'yes');
     }
   });
 
-  it('detects previously committed v2 even after a committed downgrade to v1', (t) => {
-    const { feature, git, expectBlock } = setup(t);
+  it('distinguishes unstaged proposal loss from a staged change of inputs', (t) => {
+    const { feature, git, run, expectBlock } = setup(t);
     git('init', '-q');
     const file = path.join(feature, 'concept-test.json');
     fs.writeFileSync(file, JSON.stringify({ schema: 'concept-test/v2' }));
     git('add', 'specs');
-    git('commit', '-qm', 'new proposal');
-    fs.writeFileSync(file, JSON.stringify({ schema: 'concept-test/v1' }));
-    git('commit', '-qam', 'restore old format');
+    git('commit', '-qm', 'proposal draft');
+    fs.unlinkSync(file);
     expectBlock();
+    git('add', '-u');
+    const report = run();
+    assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE');
+    assert.equal(report.checks.commands.length, 1);
   });
 });
