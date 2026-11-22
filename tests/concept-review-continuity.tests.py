@@ -342,15 +342,19 @@ class LateStageAdmission(unittest.TestCase):
 
 
 class DomainInputManifest(unittest.TestCase):
-    def test_documented_domain_inputs_form_a_reservable_unique_manifest(self):
+    def test_legacy_domain_precheck_inputs_form_a_reservable_unique_manifest(self):
+        canonical = ['domain/domain-story.md', 'domain/event-storming.md', 'domain/concept-model.md',
+                     'domain/ubiquitous-language.md', 'domain/context-map.md', 'domain/aggregates/Order.md',
+                     'domain/message-flow.md']
         author = (ROOT / 'plugins/sdd-domain/skills/domain-interviewer/SKILL.md').read_text()
-        canonical = re.findall(r'^\| [1-7] \|.*?`(domain/[^`]+)`', author, re.M)
-        self.assertEqual(len(canonical), 7)
-        skill = (ROOT / 'plugins/sdd-domain/skills/domain-review-loop/SKILL.md').read_text()
-        step = skill.split('1. Build a stage `domain`', 1)[1].split('\n2.', 1)[0]
-        additional = re.findall(r'`((?:domain|plugins)/[^`]+\.(?:md|json))`', step)
+        documented = re.findall(r'`(domain/[^`]+\.md)`', author)
+        outputs = {re.sub(r'/<[^>/]+>\.md$', '/Order.md', path) for path in documented}
+        self.assertTrue(set(canonical) <= outputs, set(canonical) - outputs)
+        # The v1 precheck still consumes these inputs; the public v2 review writes latest.md.
+        calibration = 'plugins/sdd-domain/references/domain-review-calibration.md'
+        additional = ['domain/domain-contract.json', calibration]
         precheck = 'reports/domain-review/attempt-1/round-1/precheck-result.json'
-        paths = [p.replace('<name>', 'Order') for p in canonical] + additional + [precheck]
+        paths = canonical + additional + [precheck]
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             for name in paths:
@@ -358,6 +362,9 @@ class DomainInputManifest(unittest.TestCase):
                     continue
                 target = root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
+                if name == calibration:
+                    shutil.copyfile(ROOT / calibration, target)
+                    continue
                 target.write_text('Domain-Model-Status: Pending\n' if name == 'domain/context-map.md'
                                   else '{}\n' if name.endswith('.json') else '# Domain fixture\n')
             script = root / 'plugins/sdd-domain/scripts/domain-review-precheck.sh'
@@ -372,12 +379,12 @@ class DomainInputManifest(unittest.TestCase):
                                                        sessionId='fixture-host-session', context=dict(cwd=str(root))))))
             with mock.patch.dict(os.environ, COPILOT_HOME=str(root / 'native')):
                 initial_document = concept.identity.initialize(root, events)
-            documented = re.search(r'`((?:bash )?plugins/sdd-domain/scripts/domain-review-precheck.sh) <attempt> <round>`', skill)
-            self.assertIsNotNone(documented)
-            command = documented.group(1).split()
-            command[-1] = str(script)
-            checked = subprocess.run(command + ['1', '1'], capture_output=True, text=True)
+            checked = subprocess.run(['bash', str(script), '1', '1'], capture_output=True, text=True)
             self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+            report = json.loads((root / precheck).read_bytes())
+            self.assertEqual((report['schema'], report['stage'], report['domain_model_status_field']),
+                             ('domain-review-precheck/v1', 'domain', 'Pending'))
+            self.assertEqual(report['calibration_sha256'], hashlib.sha256((root / calibration).read_bytes()).hexdigest())
             entries = [dict(path=p, sha256=hashlib.sha256((root / p).read_bytes()).hexdigest()) for p in paths]
             ledger = root / 'reports/review-context/identity-ledger.json'
             initial = initial_document['records'][0]
@@ -389,9 +396,9 @@ class DomainInputManifest(unittest.TestCase):
                               identity_ledger_sha256=hashlib.sha256(before).hexdigest(),
                               previous_record_sha256=initial['record_sha256'], allowed_input_manifest=entries)
             manifest = root / 'invocation.json'
-            manifest.write_text(json.dumps(invocation))
             for runtime in ('bash', 'pwsh'):
                 with self.subTest(runtime=runtime):
+                    manifest.write_text(json.dumps(invocation))
                     ledger.write_bytes(before)
                     validator = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
                     command = (['bash', str(validator) + '.sh', str(manifest), str(root), '--reserve']
@@ -401,6 +408,16 @@ class DomainInputManifest(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertIn('REVIEW_CONTEXT_OK', result.stdout)
                     self.assertEqual(len(json.loads(ledger.read_bytes())['records']), 2)
+                    ledger.write_bytes(before)
+                    changed = dict(invocation, allowed_input_manifest=[
+                        dict(entry, sha256='0' * 64) if entry['path'] == calibration else entry
+                        for entry in entries])
+                    manifest.write_text(json.dumps(changed))
+                    rejected = subprocess.run(command, capture_output=True, text=True)
+                    self.assertNotEqual(rejected.returncode, 0)
+                    self.assertIn('hash mismatch', (rejected.stderr + rejected.stdout).lower())
+                    self.assertIn(calibration, rejected.stderr + rejected.stdout)
+                    self.assertEqual(ledger.read_bytes(), before)
             self.assertEqual(len(paths), len(set(paths)))
 
 

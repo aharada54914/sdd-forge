@@ -29,6 +29,7 @@ from typing import Any
 import shutil
 import subprocess
 import sys
+import tempfile
 import tomllib
 from typing import TYPE_CHECKING
 import unittest
@@ -6776,256 +6777,178 @@ class InstalledDomainCallerTests(unittest.TestCase):
 
 
 
-# Actual installed protected review callers; only the external native CLI is a recording fixture.
-PROTECTED_CALLER_RUNTIME: tuple[str, ...] = ('contracts/agent-model-capabilities.v2.json', 'contracts/approval-sidecar.schema.json', 'contracts/approver-registry.schema.json', 'contracts/concept-test-decision.v1.schema.json', 'contracts/concept-test.v1.schema.json', 'contracts/concept-test.v2.schema.json', 'contracts/domain-contract.v1.schema.json', 'contracts/domain-contract.v2.schema.json', 'contracts/model-launch-controls.schema.json', 'contracts/model-policy.v1.json', 'contracts/workflow-state-registry.schema.json', 'plugins/sdd-domain/scripts/validate-concept-test.py', 'plugins/sdd-domain/scripts/validate-domain-contract.ps1', 'plugins/sdd-domain/scripts/validate-domain-contract.sh', 'plugins/sdd-implementation/scripts/model-policy.py', 'plugins/sdd-implementation/scripts/select-agent-model.ps1', 'plugins/sdd-implementation/scripts/select-agent-model.sh', 'plugins/sdd-quality-loop/references/risk-classification-policy.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py', 'plugins/sdd-quality-loop/scripts/check-risk.sh', 'plugins/sdd-quality-loop/scripts/check-workflow-state.sh', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py',
-    'plugins/sdd-quality-loop/scripts/sdd_schema.py',
-    'plugins/sdd-quality-loop/scripts/_schema_vendor/__init__.py',
-    'plugins/sdd-quality-loop/scripts/_schema_vendor/draft-07.json',
-    'plugins/sdd-quality-loop/scripts/_schema_vendor/fastjsonschema.whl',
- 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh', 'plugins/sdd-review-loop/references/review-context-boundary.md', 'plugins/sdd-review-loop/references/reviewer-calibration.md', 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py', 'plugins/sdd-review-loop/scripts/fixed-review-state.py', 'plugins/sdd-review-loop/scripts/impl-review-precheck.sh', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh', 'plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh', 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/task-review-precheck.sh', 'plugins/sdd-review-loop/scripts/validate-layer-traceability.py', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md')
-PROTECTED_CALLER_RUNTIME += tuple('plugins/sdd-review-loop/agents/' + role + '.md' for role in
-                                  ('impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b'))
-PROTECTED_RECORDER = 'tests/fixtures/model-policy-installed/recording-protected.py'
-PROTECTED_SEED = 'tests/fixtures/model-policy-installed/protected-review-data.py'
-PROTECTED_CALLER_SKILLS = {
-    'impl': ('plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', '## Local Claude CLI non-TTY route (opt-in)'),
-    'task': ('plugins/sdd-review-loop/skills/task-review-loop/SKILL.md', '## Claude non-TTY shared launch'),
-}
-
-
-def protected_test_module(path, name):
-    spec = importlib.util.spec_from_file_location(name, path)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
 class InstalledProtectedCallerTests(unittest.TestCase):
-    _spec: Any = InstalledSpecCallerTests
-    _domain: Any = InstalledDomainCallerTests
-    execute = _spec.execute
-    chain = _spec.chain
-    native_calls = _spec.native_calls
-    assert_managed = _spec.assert_managed
-    assert_run_record = _spec.assert_run_record
-    pin = _domain.pin
-    generated_guard = _domain.generated_guard
-    hook = _domain.hook
-    assert_guard = _domain.assert_guard
+    """The two retired public launchers survive only as review-history contracts (ADR-0051)."""
 
-    def fixture(self, shell):
-        f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
-        self.addCleanup(lambda: self.assertTrue(getattr(f, 'doCleanups')(), 'protected caller cleanup failed'))
-        shim = f.base / 'shims/claude'
-        shutil.copyfile(ROOT / PROTECTED_RECORDER, shim)
-        shim.chmod(0o755)
-        registry = project / 'specs/workflow-state-registry.json'
-        self.assertFalse(registry.exists(), 'Project state must not be distributed by the installer')
-        self.assertNotIn('specs/workflow-state-registry.json', runtime)
-        # Seed project-owned state after snapshotting the installed runtime.
-        document = json.loads((ROOT / 'specs/workflow-state-registry.json').read_bytes())
-        document['entries'] = []  # This new fixture project has no repository feature directories.
-        registry.parent.mkdir(parents=True, exist_ok=True)
-        registry.write_text(json.dumps(document) + '\n')
-        loader_name = 'protected_seed_' + uuid.uuid4().hex
-        seed = protected_test_module(ROOT / PROTECTED_SEED, loader_name)
-        self.addCleanup(sys.modules.pop, loader_name, None)
-        return f, project, runtime, seed
-
-    def fence(self, project, stage):
-        relative, heading = PROTECTED_CALLER_SKILLS[stage]
-        source = (project / relative).read_text()
-        self.assertEqual(source.count(heading), 1)
-        section = source.split(heading, 1)[1].split('\n## ', 1)[0]
-        candidates = [body for language, body in re.findall(r'```([^\s`]*)[^\n]*\n(.*?)\n```', section, re.S)
-                      if language.lower() in ('text', 'sh', 'bash') and 'launch-impl-review.py' in body]
-        legacy = [body for body in candidates if '--model-controls' not in body]
-        self.assertEqual(len(legacy), 1)
-        self.assertNotIn('managed-model-entry.py', legacy[0])
-        candidates = [body for body in candidates if '--model-controls' in body]
-        self.assertEqual(len(candidates), 1)
-        self.assertIn('managed-model-entry.py prepare', candidates[0])
-        return candidates[0]
-
-    def case(self, state, stage, label, *, letter='a', shared=None, mutation=None, request_role=None):
-        f, project, runtime, seed = state
-        role = stage + '-reviewer-' + letter
-        session = str(uuid.uuid4())
-        feature = shared['feature'] if shared else 'protected-' + stage + '-' + uuid.uuid4().hex[:10]
-        request, observation = 'request-' + label + '.json', 'observation-' + label + '.json'
-        f.request = f.fresh_request(request_role or role)
-        f.request['observation_path'] = observation
-        f.observation = f.fresh_observation()
-        f.save()
-        shutil.copyfile(f.root / 'observation.json', f.root / observation)
-        closure = sorted(f.closure())
-        oracle = InstalledEntryTests.oracle_selection(f)
-        for name in sorted({'registry.json', *closure}):
-            target = project / name
-            if target.exists():
-                self.assertEqual(target.read_bytes(), (f.root / name).read_bytes(), 'Shared policy closure drift')
+    @classmethod
+    def setUpClass(cls):
+        tmp = tempfile.TemporaryDirectory(prefix='installed-review-history-')
+        cls.addClassCleanup(tmp.cleanup)
+        cls.base = Path(tmp.name).resolve()
+        cls.packages = {}
+        for shell in SHELLS:
+            package, home = cls.base / shell, cls.base / (shell + '-home')
+            home.mkdir()
+            env = dict(os.environ, HOME=str(home), USERPROFILE=str(home),
+                       XDG_CONFIG_HOME=str(home / 'config'), XDG_DATA_HOME=str(home / 'data'))
+            if shell == 'bash':
+                command = ['bash', str(ROOT / 'install.sh'), '--source-directory', str(ROOT),
+                           '--install-root', str(package), '--target', 'FilesOnly', '--skip-mcp']
             else:
-                shutil.copyfile(f.root / name, target)
-        shutil.copyfile(f.root / 'request.json', project / request)
-        round_rel = f'reports/{stage}-review/{feature}/attempt-1/round-1'
-        if shared is None:
-            seed.seed(project, feature, stage)
-            initialized = self.execute(f, ['bash', str(project / f'plugins/sdd-review-loop/scripts/{stage}-review-precheck.sh'),
-                                           feature, '1', '1'], cwd=project)
-            self.assertEqual((initialized.returncode, initialized.stderr), (0, ''), initialized.stdout[-1000:])
-        round_dir = project / round_rel
-        precheck = json.loads((round_dir / 'precheck-result.json').read_bytes())
-        name = 'protected_launcher_' + uuid.uuid4().hex
-        compiler = protected_test_module(project / 'plugins/sdd-review-loop/scripts/launch-impl-review.py', name)
-        self.addCleanup(sys.modules.pop, name, None)
-        ledger = project / SPEC_LEDGER
-        records = self.chain(ledger)
-        data: dict[str, Any] = {
-            'schema': 'review-context-invocation/v2', 'input_mode': 'file-manifest', 'fallback_mode': 'none',
-            'read_only': True, 'stage': stage, 'role': role, 'feature': feature, 'run_id': session,
-            'host_session_id': session, 'sequence': len(records) + 1, 'identity_ledger_path': SPEC_LEDGER,
-            'identity_ledger_sha256': launch.sha_file(ledger), 'previous_record_sha256': records[-1]['record_sha256']}
-        conditional = protected_test_module(project / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', name + '_conditional')
-        self.addCleanup(sys.modules.pop, name + '_conditional', None)
-        data['allowed_input_manifest'] = conditional.resolve(project, feature, stage)['inputs']
-        paths = sorted(compiler.required_input_paths(project, data, project / round_rel / 'precheck-result.json', 1, 1))
-        entries = [{'path': path, 'sha256': (precheck['tasks_sha256'] if stage == 'task' and
-                    path == f'specs/{feature}/tasks.md' and precheck.get('tasks_sha256_form') == 'normalized'
-                    else launch.sha_file(project / path))} for path in paths]
-        data['allowed_input_manifest'] = entries
-        invocation = round_dir / ('reviewer-' + letter + '-invocation.json')
-        invocation.write_text(json.dumps(data, indent=2) + '\n')
-        output_rel = 'runs/' + role + '-' + session
-        replacements = {'<absolute-repository-root>': str(project), '<absolute-invocation-path>': str(invocation),
-                        '<absolute-round-directory>': str(round_dir), '<UUID>': session, '<role>': role,
-                        '<policy-request>': request, '<registry>': 'registry.json', '<run-id>': session,
-                        '<session-id>': session, '<attempt>': '1', '<output-dir>': output_rel}
-        text = self.fence(project, stage)
-        for old, new in replacements.items():
-            text = text.replace(old, new)
-        self.assertNotRegex(text, r'<[A-Za-z][^>\n]*>', 'Unsubstituted maintained fence placeholder')
-        if mutation == 'remove-forwarding':
-            text, count = QUALITY_FORWARDING.subn('', text)
-            self.assertEqual(count, 2, 'Remove the two forwarding flags only')
-        elif mutation == 'raw-control-drift':
-            lines = text.splitlines(True)
-            index = next(i for i, line in enumerate(lines) if 'launch-impl-review.py' in line)
-            lines.insert(index, 'printf "\\n" >> ' + shlex.quote(output_rel + '/controls.json') + ' &&\n')
-            text = ''.join(lines)
+                command = [PWSH or 'pwsh', '-NoProfile', '-File', str(ROOT / 'install.ps1'),
+                           '-SourceDirectory', str(ROOT), '-InstallRoot', str(package),
+                           '-Target', 'FilesOnly', '-SkipMcp']
+            result = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, text=True, timeout=240)
+            if result.returncode:
+                raise RuntimeError(f'{shell} FilesOnly install failed: {result.stdout}{result.stderr}')
+            cls.packages[shell] = package
+
+    def run_cli(self, command, project):
+        return subprocess.run(command, cwd=project, capture_output=True, text=True, timeout=120,
+                              env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
+
+    def fixture(self, shell, stage):
+        package = self.packages[shell]
+        tmp = tempfile.TemporaryDirectory(dir=self.base, prefix=stage + '-consumer-')
+        self.addCleanup(tmp.cleanup)
+        project = Path(tmp.name)
+        review = package / 'plugins/sdd-review-loop'
+        self.assertFalse((review / 'skills' / (stage + '-review-loop')).exists())
+        self.assertFalse((review / 'agents' / (stage + '-reviewer-a.md')).exists())
+        skill = (review / 'skills/spec-check/SKILL.md').read_text()
+        for role in ('spec-reviewer-a', 'spec-reviewer-b'):
+            self.assertIn(role, skill)
+            self.assertTrue((review / 'agents' / (role + '.md')).is_file())
+        registry = project / 'specs/workflow-state-registry.json'
+        self.assertFalse((package / registry.relative_to(project)).exists())
+        registry.parent.mkdir()
+        schema = json.loads((package / 'contracts/workflow-state-registry.schema.json').read_bytes())
+        registry.write_text(json.dumps({'schema_version': 1, 'entries': [], 'migration_baseline_commit':
+                                        schema['properties']['migration_baseline_commit']['const']}))
+        # Reference bytes for the fixture's *previous* review come from the installed package.
+        for name in ('spec-review-calibration.md', 'reviewer-calibration.md'):
+            local = project / 'plugins/sdd-review-loop/references' / name
+            local.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(review / 'references' / name, local)
+        seed = launch.load_module(ROOT / 'tests/fixtures/model-policy-installed/protected-review-data.py', 'seed')
+        seed.seed(project, 'demo', stage)
+        precheck = review / 'scripts' / (stage + '-review-precheck')
+        if shell == 'bash':
+            cmd = ['bash', str(precheck) + '.sh', 'demo', '1', '1', '--repository-root', str(project)]
         else:
-            self.assertIsNone(mutation)
-        script = f.base / (label + '.sh')
-        script.write_text(text + '\n')
-        before, audit = ledger.read_bytes(), f.audit.read_bytes()
-        registry_before = (project / 'specs/workflow-state-registry.json').read_bytes()
-        round_before = tree(round_dir)
-        result = self.execute(f, ['bash', str(script)], cwd=project, timeout=900)
-        self.assertFalse(f.poison.exists())
-        after = runtime_tree(project)
-        self.assertEqual({path: after.get(path) for path in runtime}, runtime,
-                         'Caller changed installed runtime')
-        self.assertEqual((project / 'specs/workflow-state-registry.json').read_bytes(), registry_before,
-                         'Launch changed the seeded project registry')
-        self.assertFalse([path for path in after if path.startswith(('plugins/', 'contracts/')) and path not in runtime],
-                         'Caller added files to the installed runtime')
-        return {'session': session, 'feature': feature, 'role': role, 'stage': stage, 'entries': entries, 'paths': paths,
-                'invocation': invocation, 'output_rel': output_rel, 'launch': round_dir / ('launch-' + session),
-                'result': result, 'records': records, 'ledger': before, 'audit': audit, 'request': request,
-                'closure': closure, 'oracle': oracle, 'round_rel': round_rel, 'precheck': precheck,
-                'round_before': round_before}
+            cmd = [PWSH or 'pwsh', '-NoProfile', '-File', str(precheck) + '.ps1', '-Feature', 'demo',
+                   '-Attempt', '1', '-Round', '1', '-RepositoryRoot', str(project)]
+        generated = self.run_cli(cmd, project)
+        self.assertEqual(generated.returncode, 0, generated.stdout + generated.stderr)
+        ledger = project / SPEC_LEDGER
+        ledger.parent.mkdir(parents=True)
+        first = dict(sequence=1, stage='spec', role='spec-reviewer-a', run_id='fixture-prior',
+                     host_session_id='fixture-session', previous_record_sha256='',
+                     record_sha256=sha_text('1|spec|spec-reviewer-a|fixture-prior|fixture-session|'))
+        ledger.write_text(json.dumps({'schema': 'review-identity-ledger/v1', 'records': [first]}))
+        return project
 
-    def assert_blocked(self, f, project, case):
-        self.assertFalse(case['launch'].exists(), 'Blocked caller created launch output')
-        self.assertEqual(tree(case['launch'].parent), case['round_before'],
-                         'Blocked caller changed round data or wrote preflight/allocation evidence')
-        self.assertEqual((project / SPEC_LEDGER).read_bytes(), case['ledger'], 'Blocked caller changed ledger')
-        self.assertEqual(self.native_calls(f, case), [], 'Blocked caller reached native CLI')
-        transcripts = f.home / '.claude/projects'
-        self.assertFalse(transcripts.is_dir() and list(transcripts.rglob(case['session'] + '.jsonl')))
+    @staticmethod
+    def write_summary(path):
+        path.write_text(json.dumps({'schema': 'integrated-summary/v1', 'round': 1, 'attempt': 1,
+                                    'reviewer_a_check_ids': ['fixture-check'], 'reviewer_a_fail_count': 0,
+                                    'reviewer_a_pass_count': 1, 'reviewer_a_skip_count': 0,
+                                    'generated_at': '2026-10-20T00:00:00Z'}))
 
-    def delivered(self, state, case, *, managed=True):
-        f, project, _, _ = state
-        result = case['result']
-        self.assertEqual(result.returncode, 0, result.stderr[-1800:])
-        receipt = (case['launch'] / 'receipt.txt').read_text()
-        self.assertRegex(receipt, r'^REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* ')
-        self.assertEqual({(case['launch'] / name).read_text() for name in
-                          ('preview.txt', 'preview-after.txt', 'reserved.txt', 'receipt.txt')}, {receipt})
-        delivery = json.loads((case['launch'] / 'delivery.json').read_bytes())
-        self.assertEqual((delivery['status'], delivery['session_id']), ('DELIVERY_OK', case['session']))
-        for file, field in (('prompt.txt', 'prompt_sha256'), ('wrapper.json', 'wrapper_sha256'),
-                            (case['session'] + '.jsonl', 'transcript_sha256')):
-            self.assertEqual(launch.sha_file(case['launch'] / file), delivery[field])
-        calls = self.native_calls(f, case)
-        self.assertEqual([call['mode'] for call in calls], SPEC_NATIVE_MODES)
-        self.assertEqual(self.chain(project / SPEC_LEDGER)[:-1], case['records'])
-        record = self.chain(project / SPEC_LEDGER)[-1]
-        self.assertEqual((record['stage'], record['role'], record['run_id']),
-                         (case['stage'], case['role'], case['session']))
-        wrapper = json.loads((case['launch'] / 'wrapper.json').read_bytes())
-        output = wrapper['structured_output']
-        self.assertEqual(json.loads(wrapper['result']), output)
-        expected = {'impl-reviewer-a': 11, 'impl-reviewer-b': 11, 'task-reviewer-a': 14, 'task-reviewer-b': 9}
-        self.assertEqual(len(output['checks']), expected[case['role']])
-        self.assertTrue(all('FIXTURE ONLY' in row['finding'] for row in output['checks']))
-        if managed:
-            self.assert_managed(f, project, case, calls)
-            self.assert_run_record(f, project, case)
-        return output, calls
+    def invocation(self, shell, stage, project, letter):
+        ledger = project / SPEC_LEDGER
+        records = InstalledSpecCallerTests.chain(self, ledger)
+        role = stage + '-reviewer-' + letter
+        run = 'fixture-' + role
+        data = dict(schema='review-context-invocation/v2', input_mode='file-manifest', fallback_mode='none',
+                    read_only=True, feature='demo', stage=stage, role=role, run_id=run,
+                    host_session_id=run + '-session', sequence=len(records) + 1,
+                    identity_ledger_path=SPEC_LEDGER, identity_ledger_sha256=launch.sha_file(ledger),
+                    previous_record_sha256=records[-1]['record_sha256'], allowed_input_manifest=[])
+        round_dir = project / 'reports' / (stage + '-review') / 'demo/attempt-1/round-1'
+        precheck = round_dir / 'precheck-result.json'
+        launcher = launch.load_module(self.packages[shell] / 'plugins/sdd-review-loop/scripts/launch-impl-review.py',
+                                      'installed_review')
+        paths = launcher.required_input_paths(project, data, precheck, 1, 1)
+        report = json.loads(precheck.read_bytes())
+        for name in sorted(paths):
+            digest = (report['tasks_sha256'] if name == 'specs/demo/tasks.md' and
+                      report.get('tasks_sha256_form') == 'normalized' else launch.sha_file(project / name))
+            data['allowed_input_manifest'].append(dict(path=name, sha256=digest))
+        return data
 
-    def test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval(self):
+    def validate(self, shell, project, data, reserve=False):
+        manifest = project / 'invocation.json'
+        manifest.write_text(json.dumps(data))
+        validator = self.packages[shell] / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
+        if shell == 'bash':
+            command = ['bash', str(validator) + '.sh', str(manifest), str(project)]
+            extra = '--reserve'
+        else:
+            command = [PWSH or 'pwsh', '-NoProfile', '-File', str(validator) + '.ps1',
+                       '-Manifest', str(manifest), '-RepositoryRoot', str(project)]
+            extra = '-Reserve'
+        return self.run_cli(command + ([extra] if reserve else []), project)
+
+    def test_installed_impl_task_history_preserves_independence_and_approval(self):
         for shell in SHELLS:
             for stage in ('impl', 'task'):
                 with self.subTest(shell=shell, stage=stage):
-                    state = self.fixture(shell)
-                    f, project, _, _ = state
-                    a = self.case(state, stage, stage + '-a')
-                    output, _ = self.delivered(state, a)
-                    round_dir = a['launch'].parent
-                    (round_dir / 'reviewer-a.json').write_text(json.dumps(output) + '\n')
-                    summary = {'schema': 'integrated-summary/v1', 'round': 1, 'attempt': 1,
-                               'reviewer_a_check_ids': [row['id'] for row in output['checks']],
-                               'reviewer_a_fail_count': 0, 'reviewer_a_pass_count': len(output['checks']),
-                               'reviewer_a_skip_count': 0, 'generated_at': '2026-10-20T00:00:00Z'}
-                    (round_dir / 'integrated-summary.json').write_text(json.dumps(summary) + '\n')
-                    a_pin = self.pin(project, a)
-                    b = self.case(state, stage, stage + '-b', letter='b', shared=a)
-                    self.delivered(state, b)
-                    self.assertNotEqual(a['session'], b['session'])
-                    self.assertEqual(self.pin(project, a), a_pin)
-                    self.assert_run_record(f, project, a)
-                    guard, policy = self.generated_guard(project, b)
-                    self.assertNotIn(str(round_dir / 'reviewer-a.json'), policy['read_paths'])
-                    self.assert_guard({'f': f, 'project': project}, b, guard, 'Read', {'file_path': str(round_dir / 'reviewer-a.json')}, False, 'raw A')
-                    self.assert_guard({'f': f, 'project': project}, b, guard, 'Read', {'file_path': str(round_dir / 'integrated-summary.json')}, True, 'summary')
-                    current = project / 'specs' / a['feature'] / ('design.md' if stage == 'impl' else 'tasks.md')
-                    self.assertIn(('Impl' if stage == 'impl' else 'Task') + '-Review-Status: Pending', current.read_text())
-                    if stage == 'task':
-                        self.assertNotIn('Approval: Approved', current.read_text())
+                    project = self.fixture(shell, stage)
+                    ledger = project / SPEC_LEDGER
+                    spec = project / 'specs/demo'
+                    before = {p: p.read_bytes() for p in spec.iterdir() if p.is_file()}
+                    summary = project / 'reports' / (stage + '-review') / 'demo/attempt-1/round-1/integrated-summary.json'
+                    for letter in ('a', 'b'):
+                        if letter == 'b':
+                            self.write_summary(summary)
+                        invocation = self.invocation(shell, stage, project, letter)
+                        paths = {entry['path'] for entry in invocation['allowed_input_manifest']}
+                        self.assertEqual(summary.relative_to(project).as_posix() in paths, letter == 'b')
+                        self.assertFalse(any(p.endswith('reviewer-a.json') for p in paths))
+                        reserved = self.validate(shell, project, invocation, reserve=True)
+                        self.assertEqual(reserved.returncode, 0, reserved.stdout + reserved.stderr)
+                        self.assertIn('REVIEW_CONTEXT_OK', reserved.stdout)
+                        after = ledger.read_bytes()
+                        saved = self.validate(shell, project, invocation)
+                        self.assertEqual(saved.returncode, 0, saved.stdout + saved.stderr)
+                        record = json.loads(after)['records'][-1]
+                        receipt = (f"REVIEW_CONTEXT_OK {record['record_sha256']} sequence={record['sequence']} "
+                                   f"previous_record_sha256={invocation['previous_record_sha256']} ")
+                        self.assertEqual(reserved.stdout.strip(), receipt +
+                                         f"pre_append_tip_sequence={record['sequence'] - 1} identity_unique=yes")
+                        self.assertEqual(saved.stdout.strip(), receipt + 'pre_append_tip_sequence=- identity_unique=yes')
+                        self.assertEqual(ledger.read_bytes(), after)
+                    records = InstalledSpecCallerTests.chain(self, ledger)
+                    self.assertEqual([r['role'] for r in records[1:]], [stage + '-reviewer-a', stage + '-reviewer-b'])
+                    self.assertNotEqual(records[1]['host_session_id'], records[2]['host_session_id'])
+                    self.assertEqual({p: p.read_bytes() for p in spec.iterdir() if p.is_file()}, before)
 
-    def test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding(self):
+    def test_installed_history_rejects_wrong_role_input_drift_and_raw_peer_output(self):
         for stage in ('impl', 'task'):
             with self.subTest(stage=stage):
-                state = self.fixture('bash')
-                f, project, _, _ = state
-                positive = self.case(state, stage, stage + '-positive')
-                self.delivered(state, positive)
-                wrong = self.case(state, stage, stage + '-wrong-role', request_role='spec-reviewer-a')
-                self.assertEqual(wrong['result'].returncode, 2)
-                self.assertEqual(json.loads(wrong['result'].stderr)['reason'], 'scope-mismatch')
-                self.assert_blocked(f, project, wrong)
-                drift = self.case(state, stage, stage + '-drift', mutation='raw-control-drift')
-                self.assertEqual(drift['result'].returncode, 1)
-                self.assertIn('input-invalid', drift['result'].stderr)
-                self.assert_blocked(f, project, drift)
-                legacy = self.case(state, stage, stage + '-legacy', mutation='remove-forwarding')
-                _, calls = self.delivered(state, legacy, managed=False)
-                self.assertFalse((legacy['launch'] / 'model-launch.json').exists())
-                self.assertEqual((calls[-1]['model'], calls[-1]['effort']), ('sonnet', None))
-                with self.assertRaises(AssertionError):
-                    self.assert_managed(f, project, legacy, calls)
+                shell = 'bash'
+                project = self.fixture(shell, stage)
+                ledger = project / SPEC_LEDGER
+                pinned = ledger.read_bytes()
+                invocation = self.invocation(shell, stage, project, 'a')
+                raw = project / 'reports' / (stage + '-review') / 'demo/attempt-1/round-1/reviewer-a.json'
+                raw.write_text(json.dumps({'fixture': 'reviewer A private output'}))
+                wrong_role = dict(invocation, role='spec-reviewer-a')
+                wrong_hash = copy.deepcopy(invocation)
+                next(e for e in wrong_hash['allowed_input_manifest']
+                     if e['path'] == 'specs/demo/design.md')['sha256'] = '0' * 64
+                self.write_summary(raw.with_name('integrated-summary.json'))
+                peer = self.invocation(shell, stage, project, 'b')
+                peer['allowed_input_manifest'].append(dict(path=raw.relative_to(project).as_posix(),
+                                                            sha256=launch.sha_file(raw)))
+                for changed, reason in [(wrong_role, 'stage and role'), (wrong_hash, 'hash mismatch'),
+                                        (peer, 'forbidden raw reviewer report')]:
+                    with self.subTest(reason=reason):
+                        rejected = self.validate(shell, project, changed, reserve=True)
+                        self.assertNotEqual(rejected.returncode, 0)
+                        self.assertIn(reason, rejected.stdout + rejected.stderr)
+                        self.assertEqual(ledger.read_bytes(), pinned)
 
 
 class InstalledSelfImprovementTests(unittest.TestCase):
