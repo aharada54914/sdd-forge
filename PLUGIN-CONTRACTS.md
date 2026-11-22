@@ -383,9 +383,13 @@ checks. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
   been recorded in quality-gate reports.
 - In projects with no domain model or Concept Test, the optional domain
   workflow skips with one recorded reason, preserving its existing outputs
-  (AC-010). If a feature has a v2 Concept Test in its working tree, Git index,
-  or locally available history at HEAD, its quality gate requires valid
-  current evidence. Removing the domain directory then blocks the gate.
+  (AC-010). The quality gate checks the current project's working tree and
+  Git index for the feature's v2 Concept Test proposal or decision record.
+  An incomplete proposal also triggers validation. When v2 validation is
+  required, a proposal missing from the working tree or a missing domain
+  directory blocks the gate. A v2 proposal that remains in the index still
+  counts. If commit history is the feature's only evidence requiring v2
+  validation, the check is `NOT_APPLICABLE` in both full and shallow clones.
 - Cross-plugin file ownership: sdd-domain never reads another plugin's
   files by relative filesystem path at runtime. Its seven stage templates
   are local to domain-interviewer. C4 architecture diagrams use bootstrap
