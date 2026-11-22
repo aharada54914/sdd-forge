@@ -271,8 +271,22 @@ test('local status page explains the recorded Concept Test stop and refreshes af
   const { server, url } = await startStatusView(fixture.root);
   try {
     const view = await mountStatusPage(url);
-    assertDisplayedPhase(view, 'blocked', 'ブロッカーを確認してください', /検証器と依存ファイル/, `human: inspect checks.conceptTest.error in ${path}`);
+    assertDisplayedPhase(view, 'blocked', 'ブロッカーを確認してください', /検証器と依存ファイル/, 'human: restore the installed Concept Test runtime for example');
     assert.doesNotMatch(view.element('reason').textContent, /private-host-path|--confirm/);
+    for (const error of [
+      'sh: /private-host-path/sdd-domain/scripts/validate-concept-test.sh: No such file or directory',
+      'sh: 0: cannot open /private-host-path/sdd-domain/scripts/validate-concept-test.sh: No such file',
+      "The argument 'C:\\private-host-path\\scripts\\validate-concept-test.ps1' is not recognized as the name of a script file.",
+    ]) {
+      record('BLOCK', error);
+      await view.refresh();
+      assert.match(view.element('command').textContent, /restore the installed Concept Test runtime/);
+      assert.match(view.element('reason').textContent, /配布.*復旧/);
+      assert.doesNotMatch(view.element('reason').textContent, /private-host-path|--confirm/);
+    }
+    record('BLOCK', 'sh: /private-host-path/specs/example/concept-test.md: No such file or directory');
+    await view.refresh();
+    assert.doesNotMatch(view.element('command').textContent, /restore the installed Concept Test runtime/);
     record('BLOCK', 'concept-test: BLOCK: run --confirm in a separate human-operated terminal');
     await view.refresh();
     assert.match(view.element('reason').textContent, /本人.*--confirm/);

@@ -30,11 +30,20 @@ export function conceptStopAction(feature: string, status: Stop, source: string,
     rationale: `${observation} 記録が指す提案は却下されました。その提案での作業を停止してください。`,
   };
 
+  // A missing packaged script is reported by the shell before the validator can emit its own diagnostic.
+  const missingShellScript = /^(?:\/bin\/)?sh: (?:\d+: cannot open )?[^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
+  const missingPowerShellScript = /^The argument ['"][^\r\n]*[\\/]validate-concept-test\.ps1['"] is not recognized as the name of a script file\./m;
+  if (diagnostic && (diagnostic.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE") ||
+      missingShellScript.test(diagnostic) || missingPowerShellScript.test(diagnostic))) {
+    return {
+      phase: "blocked", command: `human: restore the installed Concept Test runtime for ${feature}`,
+      rationale: `${observation} 配布された検証器と依存ファイルの配置を確認し、動作する配布版を復旧してください。現在の版別パッケージで復旧できなければ、${source} の診断を添えて配布元に報告し、作業は停止したままにしてください。復旧後に validate-concept-test.sh（PowerShell は .ps1）を --root . --feature ${feature} --require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行してください。`,
+    };
+  }
+
   let recovery = "checks.conceptTest.error の診断に沿って、検証器の配置・入力・提案・判断記録を確認してください。";
   if (diagnostic === "concept-test: BLOCK: run --confirm in a separate human-operated terminal") {
     recovery = "この実行時点で人の判断が必要でした。対象と提案を確認し、本人が端末で配布版の検証器に --confirm を指定して判断してください。";
-  } else if (diagnostic?.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE")) {
-    recovery = "配布版の検証器と依存ファイルが利用可能か確認し、同じ版の実行環境を復旧してください。";
   } else if (diagnostic === "concept-test: BLOCK: domain model must be approved" ||
              diagnostic === "concept-test: BLOCK: approved context map must be pinned") {
     recovery = "モデルのレビュー、本人の承認、対応する契約の発行を確認し、その版で提案を更新してください。";

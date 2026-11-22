@@ -39191,11 +39191,18 @@ function conceptStopAction(feature, status, source, diagnostic) {
     command: `human: stop work on the rejected proposal for ${feature}`,
     rationale: `${observation} \u8A18\u9332\u304C\u6307\u3059\u63D0\u6848\u306F\u5374\u4E0B\u3055\u308C\u307E\u3057\u305F\u3002\u305D\u306E\u63D0\u6848\u3067\u306E\u4F5C\u696D\u3092\u505C\u6B62\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
   };
+  const missingShellScript = /^(?:\/bin\/)?sh: (?:\d+: cannot open )?[^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
+  const missingPowerShellScript = /^The argument ['"][^\r\n]*[\\/]validate-concept-test\.ps1['"] is not recognized as the name of a script file\./m;
+  if (diagnostic && (diagnostic.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE") || missingShellScript.test(diagnostic) || missingPowerShellScript.test(diagnostic))) {
+    return {
+      phase: "blocked",
+      command: `human: restore the installed Concept Test runtime for ${feature}`,
+      rationale: `${observation} \u914D\u5E03\u3055\u308C\u305F\u691C\u8A3C\u5668\u3068\u4F9D\u5B58\u30D5\u30A1\u30A4\u30EB\u306E\u914D\u7F6E\u3092\u78BA\u8A8D\u3057\u3001\u52D5\u4F5C\u3059\u308B\u914D\u5E03\u7248\u3092\u5FA9\u65E7\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u73FE\u5728\u306E\u7248\u5225\u30D1\u30C3\u30B1\u30FC\u30B8\u3067\u5FA9\u65E7\u3067\u304D\u306A\u3051\u308C\u3070\u3001${source} \u306E\u8A3A\u65AD\u3092\u6DFB\u3048\u3066\u914D\u5E03\u5143\u306B\u5831\u544A\u3057\u3001\u4F5C\u696D\u306F\u505C\u6B62\u3057\u305F\u307E\u307E\u306B\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5FA9\u65E7\u5F8C\u306B validate-concept-test.sh\uFF08PowerShell \u306F .ps1\uFF09\u3092 --root . --feature ${feature} --require-v2 \u3067\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u3092\u78BA\u8A8D\u5F8C\u306B\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+    };
+  }
   let recovery = "checks.conceptTest.error \u306E\u8A3A\u65AD\u306B\u6CBF\u3063\u3066\u3001\u691C\u8A3C\u5668\u306E\u914D\u7F6E\u30FB\u5165\u529B\u30FB\u63D0\u6848\u30FB\u5224\u65AD\u8A18\u9332\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
   if (diagnostic === "concept-test: BLOCK: run --confirm in a separate human-operated terminal") {
     recovery = "\u3053\u306E\u5B9F\u884C\u6642\u70B9\u3067\u4EBA\u306E\u5224\u65AD\u304C\u5FC5\u8981\u3067\u3057\u305F\u3002\u5BFE\u8C61\u3068\u63D0\u6848\u3092\u78BA\u8A8D\u3057\u3001\u672C\u4EBA\u304C\u7AEF\u672B\u3067\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\u306B --confirm \u3092\u6307\u5B9A\u3057\u3066\u5224\u65AD\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
-  } else if (diagnostic?.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE")) {
-    recovery = "\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\u3068\u4F9D\u5B58\u30D5\u30A1\u30A4\u30EB\u304C\u5229\u7528\u53EF\u80FD\u304B\u78BA\u8A8D\u3057\u3001\u540C\u3058\u7248\u306E\u5B9F\u884C\u74B0\u5883\u3092\u5FA9\u65E7\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
   } else if (diagnostic === "concept-test: BLOCK: domain model must be approved" || diagnostic === "concept-test: BLOCK: approved context map must be pinned") {
     recovery = "\u30E2\u30C7\u30EB\u306E\u30EC\u30D3\u30E5\u30FC\u3001\u672C\u4EBA\u306E\u627F\u8A8D\u3001\u5BFE\u5FDC\u3059\u308B\u5951\u7D04\u306E\u767A\u884C\u3092\u78BA\u8A8D\u3057\u3001\u305D\u306E\u7248\u3067\u63D0\u6848\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
   }
