@@ -50,8 +50,16 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    - `docs/review-tickets/`（種別・重大度・解決状況）
    - `reports/diagnosis/*.md`（繰り返し発生する不具合カテゴリ）
    - 過去の `reports/retrospective/*.md`・`docs/workflow-improvements/WFI-*.md`・`sdd/rejected-decisions.md`
-5. **ドメイン適合ドリフト（`domain/` が存在する場合のみ）**:
-   `reports/quality-gate/` に記録済みの `check-domain-conformance` 指摘から用語逸脱・境界違反件数を集計する（`domain/` 不在時はセクションごと省略）。
+5. **ドメイン適合ドリフト**：`domain/` がない場合はレポートの該当節を省略する。ある場合は対象機能・期間の保存済みレポートだけを読む。検査の再実行やドメインモデルからの推定は行わない。
+   - 現行の `reports/quality-gate/<feature>-<T-NNN>.md` は対象タスクごとに1回読む。旧レポートは機能が一致し、タスク識別行（`Task ID:` または旧 `Task:`）と空でない `Run ID:` が各1行のものを使う。同じタスク・実行の複製はリポジトリ相対パスの辞書順で先頭の1件を採る。識別が曖昧なレポートは除外する。
+   - `check-domain-conformance WARN` と `check-domain-conformance FAILED` の所見行を次の表で分類する。入力エラーなど、どちらにも該当しない行は集計から外す。
+
+   | 指標 | 1件と数える所見 |
+   |---|---|
+   | Term-Deviation Count | `unrecognized term '...'`、`aggregate reference '...' not found in domain-contract.json aggregates`、`aggregate reference '...' has no domain/aggregates/....md card` |
+   | Boundary-Violation Count | `Bounded-Context '...' not found in domain-contract.json`、`Bounded-Context lists two contexts (...) with no declared relation in context map` |
+
+   `check-domain-conformance passed.` は0件と数える。検査結果が欠けていれば `Data Completeness` に記し、対象全件で結果がなければ件数は `N/A` とする。合計を同じ機能・集計範囲の前回値と比べ、比較できないときは傾向を `N/A` とする。
 
 ## Step 2: 既存改善（Applied WFI）の効果検証
 
@@ -63,6 +71,8 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 ## Step 3: 改善候補の抽出とレポート出力
 
 出力先: `reports/retrospective/<YYYYMMDD-HHMMSS>.md`
+
+`domain/` がある場合は、下記の挿入位置に[レポートテンプレート](../../templates/retrospective-report.template.md#domain-drift-metrics)の3行を Step 1 の計測値で埋める。
 
 ```markdown
 # Retrospective Report: <feature>
@@ -78,6 +88,8 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 | sdd-gate Runs (PASS / FAIL) | <pass> / <fail> |
 | Guard Events (deny / confirm / warn) | <d> / <c> / <w> |
 | Review Tickets (critical / major / minor) | <c> / <m> / <min> |
+
+<!-- domain/ がある場合にテンプレートの Domain Drift Metrics 節を挿入 -->
 
 ## Recurring Friction Patterns (2+ occurrences)
 - 該当なし（今回改善候補なし）

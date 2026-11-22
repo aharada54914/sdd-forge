@@ -1,4 +1,4 @@
-#
+﻿#
 # T-009 workflow-retrospective domain-drift metrics -- test-after Pester test
 #
 # Required Workflow for T-009 is "test-after" (Risk: low). Like T-007's
@@ -21,8 +21,7 @@
 #      blocks -- proving nonzero term-deviation and boundary-violation
 #      counts are produced, per T-009's Done-When criterion.
 #
-# ASCII-only: no non-ASCII literal characters appear anywhere in this file
-# (BOM-less .ps1 is read as ANSI on this Windows environment).
+# UTF-8 BOM keeps the Japanese skill excerpts readable on Windows PowerShell.
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -99,14 +98,15 @@ Describe "workflow-retrospective SKILL.md documents domain-drift metric aggregat
     }
 
     It "documents the domain-drift metrics subsection gated on domain/ existing" {
-        $script:skillText | Should Match "Domain-drift metrics"
-        $script:skillText | Should Match ([regex]::Escape("project carries a") + "\s*``domain/``\s*" + [regex]::Escape("directory"))
+        $script:skillText | Should Match 'ドメイン適合ドリフト.+`domain/`'
+        $script:skillText | Should Match '対象機能・期間の保存済みレポートだけを読む'
     }
 
     It "documents sourcing only from already-recorded check-domain-conformance findings (no new evidence-collection path)" {
         $script:skillText | Should Match ([regex]::Escape("check-domain-conformance"))
-        $script:skillText | Should Match "Do not re-run"
-        $script:skillText | Should Match "not a new evidence-collection path"
+        $script:skillText | Should Match '検査の再実行やドメインモデルからの推定は行わない'
+        $script:skillText | Should Match ([regex]::Escape('check-domain-conformance WARN'))
+        $script:skillText | Should Match ([regex]::Escape('check-domain-conformance FAILED'))
     }
 
     It "documents Term-Deviation Count and Boundary-Violation Count as named metrics" {
@@ -117,30 +117,36 @@ Describe "workflow-retrospective SKILL.md documents domain-drift metric aggregat
     It "documents the exact classification rule matching check-domain-conformance's real finding messages" {
         $script:skillText | Should Match "unrecognized term"
         $script:skillText | Should Match ([regex]::Escape("aggregate reference '...' not found in domain-contract.json"))
+        $script:skillText | Should Match ([regex]::Escape("has no domain/aggregates/"))
         $script:skillText | Should Match ([regex]::Escape("Bounded-Context '...' not"))
         $script:skillText | Should Match "no declared relation in context map"
     }
 
     It "documents omitting the section entirely when domain/ is absent (does not emit a zero-filled table)" {
-        $script:skillText | Should Match "skip this subsection entirely"
-        $script:skillText | Should Match "do not emit a zero-filled table"
+        $script:skillText | Should Match ([regex]::Escape('`domain/` がない場合はレポートの該当節を省略'))
+        $script:skillText | Should Match ([regex]::Escape('対象全件で結果がなければ件数は `N/A`'))
     }
 
-    It "does not disturb the existing Deterministic artifact rules section (still present, still numbered 1-5)" {
-        $script:skillText | Should Match ([regex]::Escape("1. **Implementation attempts.**"))
-        $script:skillText | Should Match ([regex]::Escape("5. **Invalid or ambiguous evidence.**"))
+    It "selects the current gate report and requires a unique task and run for archived records" {
+        $gateSkill = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md')
+        $reportPath = 'reports/quality-gate/orders-T-001.md'
+        $gateSkill.Replace('<feature>', 'orders').Replace('<task-id>', 'T-001') | Should Match ([regex]::Escape($reportPath))
+        $script:skillText.Replace('<feature>', 'orders').Replace('<T-NNN>', 'T-001') | Should Match ([regex]::Escape($reportPath))
+        $script:skillText | Should Match 'タスク識別行.+Task ID:.+Task:.+Run ID:.+各1行'
+        $script:skillText | Should Match '同じタスク・実行の複製.+辞書順で先頭の1件'
     }
 
-    It "the domain-drift subsection is placed after dataset quality indicators and before the review-gate metric derivation" {
-        $datasetQualityIndex = $script:skillText.IndexOf("Also derive dataset quality indicators")
-        $domainDriftIndex = $script:skillText.IndexOf("Domain-drift metrics")
-        $reviewGateIndex = $script:skillText.IndexOf("For spec-review, task-review, and impl-review metrics")
-
-        $datasetQualityIndex | Should Not Be -1
-        $domainDriftIndex | Should Not Be -1
-        $reviewGateIndex | Should Not Be -1
-        ($domainDriftIndex -gt $datasetQualityIndex) | Should Be $true
-        ($domainDriftIndex -lt $reviewGateIndex) | Should Be $true
+    It "places optional domain counts between the v2 summary and recurring friction and resolves the deployed template" {
+        $summary = $script:skillText.IndexOf("## Deterministic Summary")
+        $domain = $script:skillText.IndexOf("Domain Drift Metrics", $summary)
+        $friction = $script:skillText.IndexOf("## Recurring Friction Patterns", $summary)
+        $summary | Should Not Be -1
+        ($domain -gt $summary) | Should Be $true
+        ($friction -gt $domain) | Should Be $true
+        $link = [regex]::Match($script:skillText, '\]\(([^)]+)#domain-drift-metrics\)')
+        $link.Success | Should Be $true
+        $target = Join-Path (Split-Path -Parent $skillPath) $link.Groups[1].Value
+        (Get-Content -Raw -Encoding UTF8 -LiteralPath $target) | Should Match '(?m)^## Domain Drift Metrics\r?$'
     }
 }
 
@@ -213,6 +219,7 @@ Describe "Worked fixture: nonzero term-deviation and boundary-violation counts a
 # Quality Gate -- T-101
 
 Task ID: T-101
+Run ID: widget-catalog-run-101
 Feature: widget-catalog
 Risk: medium
 Required Workflow: acceptance-first
@@ -242,6 +249,7 @@ T-101 passes with two recorded domain-conformance warnings for later drift track
 # Quality Gate -- T-102
 
 Task ID: T-102
+Run ID: widget-catalog-run-102
 Feature: widget-catalog
 Risk: low
 Required Workflow: test-after
@@ -270,6 +278,7 @@ T-102 passes with two recorded domain-conformance warnings.
 # Quality Gate -- T-103
 
 Task ID: T-103
+Run ID: widget-catalog-run-103
 Feature: widget-catalog
 Risk: medium
 Required Workflow: acceptance-first
@@ -298,6 +307,7 @@ T-103 is Blocked pending a declared context-map relation.
 # Quality Gate -- T-104
 
 Task ID: T-104
+Run ID: widget-catalog-run-104
 Feature: widget-catalog
 Risk: low
 Required Workflow: test-after
@@ -323,6 +333,7 @@ T-104 passes cleanly with no domain-conformance findings.
 # Quality Gate -- T-105
 
 Task ID: T-105
+Run ID: widget-catalog-run-105
 Feature: widget-catalog
 Risk: low
 Required Workflow: test-after
