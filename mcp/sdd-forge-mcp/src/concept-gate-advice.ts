@@ -31,7 +31,7 @@ export function conceptStopAction(feature: string, status: Stop, source: string,
   };
 
   // A missing packaged script is reported by the shell before the validator can emit its own diagnostic.
-  const missingShellScript = /^(?:\/bin\/)?sh: (?:\d+: cannot open )?[^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
+  const missingShellScript = /^(?:\/bin\/)?sh: [^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
   const missingPowerShellScript = /^The argument ['"][^\r\n]*[\\/]validate-concept-test\.ps1['"] is not recognized as the name of a script file\./m;
   if (diagnostic && (diagnostic.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE") ||
       missingShellScript.test(diagnostic) || missingPowerShellScript.test(diagnostic))) {

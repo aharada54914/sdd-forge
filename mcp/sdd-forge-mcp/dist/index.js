@@ -39191,7 +39191,7 @@ function conceptStopAction(feature, status, source, diagnostic) {
     command: `human: stop work on the rejected proposal for ${feature}`,
     rationale: `${observation} \u8A18\u9332\u304C\u6307\u3059\u63D0\u6848\u306F\u5374\u4E0B\u3055\u308C\u307E\u3057\u305F\u3002\u305D\u306E\u63D0\u6848\u3067\u306E\u4F5C\u696D\u3092\u505C\u6B62\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
   };
-  const missingShellScript = /^(?:\/bin\/)?sh: (?:\d+: cannot open )?[^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
+  const missingShellScript = /^(?:\/bin\/)?sh: [^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
   const missingPowerShellScript = /^The argument ['"][^\r\n]*[\\/]validate-concept-test\.ps1['"] is not recognized as the name of a script file\./m;
   if (diagnostic && (diagnostic.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE") || missingShellScript.test(diagnostic) || missingPowerShellScript.test(diagnostic))) {
     return {
