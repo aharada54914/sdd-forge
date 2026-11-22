@@ -154,6 +154,36 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(passJson.checks.specDrift.status, 'AMENDED');
   });
 
+  it('scans the gate source itself and reports only actual unfinished work', t => {
+    const repo = setupCoreRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const file = path.relative(REPO_ROOT, GATE_SCRIPT).split(path.sep).join('/');
+    const copy = path.join(repo, file);
+    fs.mkdirSync(path.dirname(copy), { recursive: true });
+    const original = fs.readFileSync(GATE_SCRIPT, 'utf8');
+    fs.writeFileSync(copy, original);
+    const baseline = spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo]);
+    assert.equal(baseline.status, 0, baseline.stderr.toString());
+    const args = [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', file];
+    const scan = () => spawnSync(process.execPath, args, { encoding: 'utf8' });
+    const clean = scan();
+    assert.equal(clean.status, 0, clean.stdout + clean.stderr);
+    assert.deepEqual(JSON.parse(clean.stdout).checks.placeholders, {
+      passed: true, scannedFiles: [file], findings: [],
+    });
+
+    const [todo, fixme, tbd] = ['todo', 'fixme', 'tbd'].map(word => word.toUpperCase());
+    const defects = [todo, fixme, tbd, 'Not' + 'ImplementedError',
+      'throw new Error(' + "'Not implemented')", 'unimplemented!' + '()'];
+    const benign = ['todo', 'prefix' + todo, fixme + '_suffix', 'tbd!', 'NotimplementedError'];
+    const firstLine = original.split('\n').length + 1;
+    fs.appendFileSync(copy, '\n' + [...defects, ...benign].map(text => '// ' + text).join('\n') + '\n');
+    const dirty = scan();
+    assert.equal(dirty.status, 1, dirty.stdout + dirty.stderr);
+    assert.deepEqual(JSON.parse(dirty.stdout).checks.placeholders.findings,
+      defects.map((text, i) => ({ file, line: firstLine + i, text: '// ' + text })));
+  });
+
   it('fails gate when changed production code contains placeholders or a verification command fails', () => {
     const repo = setupCoreRepo();
     assert.equal(

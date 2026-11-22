@@ -34,8 +34,9 @@ import {
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
 
+// The detector is itself scanned. Keep the expression distinct from the text it matches.
 const PLACEHOLDER_RE =
-  /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
+  /\bTODO\b|\bFIXME\b|\bTBD\b|NotImplemented(?:Error)|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
 const MAX_OUTPUT_CHARS = 8192;
 
 const SECRET_SENSOR_RULES = [
