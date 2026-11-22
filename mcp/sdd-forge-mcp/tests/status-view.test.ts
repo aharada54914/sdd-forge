@@ -6,6 +6,8 @@ import { runInNewContext } from 'node:vm';
 import type { Result } from '../src/envelope.js';
 import type { NextCommandData } from '../src/next-command.js';
 import { startStatusView } from '../src/status-view.js';
+import { sddFeatureState, sddProjectOverview } from '../src/tools/v2.js';
+import { DashboardReader } from '../src/dashboard/snapshot.js';
 import { makeTempSddRoot, writeFile } from './test-helpers.js';
 
 interface TestNode {
@@ -83,7 +85,7 @@ test('local status view exposes fresh guarded state and rejects untrusted reques
     assertDisplayedPhase(view, 'tasks-missing', 'タスクの準備が必要です', /実装タスク/, bootstrap);
     writeFile(fixture.dir, 'specs/example/tasks.md', '# Tasks\n\n## T-001\nApproval: Draft\nStatus: Planned\nRisk: low\n');
     await view.refresh();
-    assertDisplayedPhase(view, 'approval-gate', 'タスクの承認待ちです', /承認済み/, 'human: approve tasks in tasks.md');
+    assertDisplayedPhase(view, 'approval-gate', 'タスクの承認待ちです', /まだ承認/, 'human: approve tasks in tasks.md');
     assert.equal((await fetch(new URL('api/status?feature=..%2Fsecret',url))).status,400);
     assert.equal((await fetch(new URL('/wrong/api/features',url))).status,404);
     assert.equal((await fetch(url,{headers:{Origin:'https://attacker.example'}})).status,403);
@@ -91,6 +93,88 @@ test('local status view exposes fresh guarded state and rejects untrusted reques
     assert.equal(hostileHost,403);
     assert.equal((await fetch(url,{method:'POST'})).status,403);
   } finally { await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));fixture.cleanup(); }
+});
+
+test('pre-approval guidance follows the feature’s recorded review and skip policy on every status surface', async () => {
+  const fixture = makeTempSddRoot('status-review');
+  const id = 'example';
+  writeFile(fixture.dir, 'AGENTS.md', '# AGENTS\n\n## Active Spec Directories\n\n- `specs/example/`\n');
+  for (const name of ['requirements', 'design']) writeFile(fixture.dir, `specs/${id}/${name}.md`, '# Specification\n');
+  const task = (risk: string, approval = 'Draft') => writeFile(fixture.dir, `specs/${id}/tasks.md`,
+    `# Tasks\n\n## T-001\nApproval: ${approval}\nStatus: Planned\nRisk: ${risk}\n`);
+  const policy = (mode: string) => writeFile(fixture.dir, 'sdd/guardrails.yaml', `review:\n  pre_impl_check: ${mode}\n`);
+  const report = (verdictLine: string) => writeFile(fixture.dir, `reports/spec-check/${id}.md`,
+    `# Spec Check Report: ${id}\n\n${verdictLine}\n\n## Blockers (Must Fix Before Approval)\n`);
+  task('low');
+  const { server, url } = await startStatusView(fixture.root);
+  try {
+    const view = await mountStatusPage(url);
+    const reader = new DashboardReader(fixture.root);
+    async function check(phase: string, reason?: RegExp) {
+      await view.refresh();
+      const compact = view.next();
+      const overview = sddProjectOverview(fixture.root);
+      const feature = sddFeatureState(fixture.root, id);
+      const dashboard = reader.sample().data?.features[0];
+      assert.ok(compact.ok && overview.ok && feature.ok && dashboard);
+      const actions = [feature.data.nextAction, overview.data.activeFeatures[0]?.nextAction];
+      for (const action of actions) {
+        assert.equal(action?.phase, phase);
+        if (reason) assert.match(action!.rationale, reason);
+      }
+      assert.equal(dashboard.phase, phase);
+      assert.equal(compact.data.phase, phase);
+      if (reason) {
+        assert.match(compact.data.rationale, reason);
+        assert.match(view.element('reason').textContent, reason);
+        assert.match(dashboard.warnings.join(' '), reason);
+      }
+      if (phase === 'spec-check') {
+        assert.equal(view.element('headline').textContent, '着工前の仕様確認が必要です');
+        for (const cmd of [dashboard.nextCommand, compact.data.nextCommand, ...actions.map(a => a!.command)]) {
+          assert.doesNotMatch(cmd, /approve tasks|set Approval/);
+        }
+      }
+    }
+    writeFile(fixture.dir, 'reports/spec-check/other.md', '- **Verdict**: NEEDS_FIX\n');
+    await check('approval-gate'); // low/auto
+    policy('always');
+    await check('spec-check', /--skip-check/);
+    task('high');
+    policy('off');
+    await check('approval-gate');
+    policy('auto');
+    await check('spec-check', /--skip-check/);
+    task('standard');
+    for (const verdict of ['PASS', 'PASS_WITH_NOTES']) {
+      report(`- **Verdict**: ${verdict}`);
+      await check('approval-gate');
+    }
+    report('- **Verdict**: NEEDS_FIX');
+    for (const risk of ['low', 'standard', 'high']) {
+      task(risk);
+      await check('spec-check', /NEEDS_FIX/);
+    }
+    policy('off');
+    await check('spec-check', /NEEDS_FIX/);
+    task('low', 'Approved');
+    await check('implementation'); // a historical result never rewinds approved work
+    task('low');
+    for (const incomplete of [
+      '作成中。',
+      '```markdown\n- **Verdict**: PASS\n```',
+      '## Notes\n- **Verdict**: PASS',
+      '- **Verdict**: PASS\n- **Verdict**: NEEDS_FIX',
+    ]) {
+      report(incomplete);
+      await check('spec-check', /判定.*確認/);
+    }
+    report('- **Verdict**: PASS\r\n');
+    await check('approval-gate');
+  } finally {
+    await new Promise<void>((resolve, reject) => server.close(e => e ? reject(e) : resolve()));
+    fixture.cleanup();
+  }
 });
 
 test('indeterminate status keeps known review progress and recovers to the quality gate when the report appears', async () => {

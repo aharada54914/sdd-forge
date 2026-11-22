@@ -18,6 +18,7 @@ import type { ReportLookup } from './parsers/report-lookup.js';
  * assuming a phase.
  */
 
+import { beforeTaskApproval } from "./pre-approval-review.js";
 import { workflowProfile } from "./profile.js";
 import { err, ok, type Result } from "./envelope.js";
 import { parseActiveSpecDirectories } from "./parsers/agents-md.js";
@@ -49,10 +50,8 @@ function approvedTasks(tasks: readonly TaskEntry[]): TaskEntry[] {
 
 /**
  * Determines the next-command phase for a single feature whose tasks.md has
- * already been parsed into a `pass`/`fail` verdict with entries. Assumes
- * requirements.md/design.md/tasks.md review-status gates have already passed
- * (the caller checks those first) — this function only walks the task state
- * machine itself (Required Workflow steps 5-8).
+ * already been parsed into a `pass`/`fail` verdict with entries. The caller
+ * considers the feature’s pre-implementation review before recommending approval.
  */
 function phaseFromTasks(
   feature: string,
@@ -72,14 +71,13 @@ function phaseFromTasks(
   }
 
   const approved = approvedTasks(tasks);
-  if (approved.length === 0) {
+  if (approved.length < tasks.length && approved.every((task) => task.status === "Done")) {
     return {
       kind: "next-command",
       feature,
       phase: "approval-gate",
       nextCommand: "human: approve tasks in tasks.md",
-      rationale: `specs/${feature}/tasks.md has no Approved-shaped task; a human must set ` +
-        "Approval: Approved on the tasks to be implemented next (AGENTS.md Required Workflow step 5).",
+      rationale: `Remaining tasks in specs/${feature}/tasks.md need human approval before implementation.`,
     };
   }
 
@@ -199,6 +197,10 @@ function nextCommandForFeature(root: SddRoot, feature: string, reports?: ReportL
   }
 
   const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  if (phase.phase === "approval-gate") {
+    const review = beforeTaskApproval(root, feature, taskStateResult.data.tasks.every((task) => task.risk === "low"));
+    if (review) return ok({ kind: "next-command", feature, phase: review.phase, nextCommand: review.command, rationale: review.rationale });
+  }
   return ok(phase);
 }
 

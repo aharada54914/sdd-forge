@@ -75,6 +75,7 @@ function readData(root: SddRoot): { data: DashboardData; digest: string } {
     const warnings: string[] = [];
     if (!spec.ok) warnings.push('仕様の状態を確認できません: ' + spec.error.code);
     if (!next.ok) warnings.push('次の工程を判断できません: ' + next.error.code);
+    else if (next.data.phase === 'spec-check') warnings.push(next.data.rationale);
     data.features.push({ id: feature, ...(Object.hasOwn(labels,feature) ? {displayName:labels[feature]!} : {}), phase: next.ok ? next.data.phase : 'unknown', nextCommand: next.ok ? next.data.nextCommand : '', warnings });
     hash.update(JSON.stringify(spec));
     if (!file.ok) {

@@ -39167,438 +39167,6 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
   });
 }
 
-// src/next-command.ts
-function isApprovedShape2(approval) {
-  return approval === "Approved" || approval.startsWith("Approved (");
-}
-function isActiveStatus(status) {
-  return status === "Planned" || status === "In Progress";
-}
-function approvedTasks(tasks) {
-  return tasks.filter((task) => isApprovedShape2(task.approval));
-}
-function phaseFromTasks(feature, tasks) {
-  const blocked = tasks.filter((task) => task.status === "Blocked");
-  if (blocked.length > 0) {
-    const ids = blocked.map((task) => task.id).join(", ");
-    return {
-      kind: "next-command",
-      feature,
-      phase: "blocked",
-      nextCommand: "human: resolve blockers",
-      rationale: `Task(s) ${ids} in specs/${feature}/tasks.md are Blocked; review their ### Blockers entries and resolve them before further automated progress.`
-    };
-  }
-  const approved = approvedTasks(tasks);
-  if (approved.length === 0) {
-    return {
-      kind: "next-command",
-      feature,
-      phase: "approval-gate",
-      nextCommand: "human: approve tasks in tasks.md",
-      rationale: `specs/${feature}/tasks.md has no Approved-shaped task; a human must set Approval: Approved on the tasks to be implemented next (AGENTS.md Required Workflow step 5).`
-    };
-  }
-  if (approved.some((task) => isActiveStatus(task.status))) {
-    return {
-      kind: "next-command",
-      feature,
-      phase: "implementation",
-      nextCommand: `/sdd-ship:ship specs/${feature}/tasks.md`,
-      rationale: `specs/${feature}/tasks.md has an Approved task that is Planned or In Progress (AGENTS.md Required Workflow step 6).`
-    };
-  }
-  const implComplete = approved.filter((task) => task.status === "Implementation Complete");
-  const firstImplComplete = implComplete[0];
-  if (firstImplComplete !== void 0) {
-    const targetCommand = approved.every((task) => task.status === "Implementation Complete") ? `/sdd-ship:ship specs/${feature}/tasks.md` : `/sdd-ship:ship specs/${feature}/tasks.md#${firstImplComplete.id}`;
-    return {
-      kind: "next-command",
-      feature,
-      phase: "sdd-gate",
-      nextCommand: targetCommand,
-      rationale: approved.every((task) => task.status === "Implementation Complete") ? `Every Approved task in specs/${feature}/tasks.md is Implementation Complete; run /sdd-ship:ship to execute sdd-gate and transition passed tasks to Done.` : `Approved task ${firstImplComplete.id} in specs/${feature}/tasks.md is Implementation Complete; run /sdd-ship:ship to execute sdd-gate and transition passed tasks to Done.`
-    };
-  }
-  if (approved.every((task) => task.status === "Done")) {
-    return {
-      kind: "next-command",
-      feature,
-      phase: "done",
-      nextCommand: "feature complete",
-      rationale: `Every Approved task in specs/${feature}/tasks.md has reached Done.`
-    };
-  }
-  return {
-    kind: "next-command",
-    feature,
-    phase: "cannot-determine",
-    nextCommand: "cannot-determine",
-    rationale: `specs/${feature}/tasks.md's Approved tasks are in an unrecognized mixture of statuses that does not map to a single next command.`
-  };
-}
-function nextCommandForFeature(root, feature, reports) {
-  const profile = workflowProfile(root);
-  if (!profile.ok) return profile;
-  const requirementsPath = `specs/${feature}/requirements.md`;
-  const requirementsResult = guardedRead(root, requirementsPath);
-  if (!requirementsResult.ok) {
-    if (requirementsResult.error.code !== "not-found") {
-      return requirementsResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "bootstrap-not-started",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${requirementsPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate SDD Core specifications (requirements, design, tasks) and run spec-check.`
-    });
-  }
-  const designPath = `specs/${feature}/design.md`;
-  const designResult = guardedRead(root, designPath);
-  if (!designResult.ok) {
-    if (designResult.error.code !== "not-found") {
-      return designResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "design-missing",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${designPath} does not exist yet; run /sdd-bootstrap:bootstrap to complete the SDD Core specification package.`
-    });
-  }
-  const tasksPath = `specs/${feature}/tasks.md`;
-  const tasksReadResult = guardedRead(root, tasksPath);
-  if (!tasksReadResult.ok) {
-    if (tasksReadResult.error.code !== "not-found") {
-      return tasksReadResult;
-    }
-    return ok({
-      kind: "next-command",
-      feature,
-      phase: "tasks-missing",
-      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
-      rationale: `${tasksPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate tasks.md and run spec-check.`
-    });
-  }
-  const taskStateResult = parseTaskState(root, feature, tasksPath, void 0, void 0, reports);
-  if (!taskStateResult.ok) {
-    return taskStateResult;
-  }
-  if (taskStateResult.data.verdict === "fail") {
-    return err(
-      "cannot-determine",
-      `${tasksPath} failed its state-machine validation (${taskStateResult.data.failures.map((failure2) => failure2.message).join("; ")}); the next command cannot be determined until this is fixed.`,
-      { file: tasksPath, rule: "task-state-verdict-fail" }
-    );
-  }
-  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
-  return ok(phase);
-}
-function autoSelectFeature(root) {
-  const specsResult = parseActiveSpecDirectories(root);
-  if (!specsResult.ok) {
-    return specsResult;
-  }
-  const candidates = [];
-  for (const spec of specsResult.data) {
-    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`);
-    if (!taskStateResult.ok) {
-      continue;
-    }
-    const hasActiveApproved = approvedTasks(taskStateResult.data.tasks).some(
-      (task) => isActiveStatus(task.status)
-    );
-    if (hasActiveApproved) {
-      candidates.push(spec.feature);
-    }
-  }
-  if (candidates.length === 0) {
-    return err(
-      "cannot-determine",
-      "No feature in AGENTS.md's Active Spec Directories has an Approved task that is Planned or In Progress; run /sdd-bootstrap:bootstrap first, or pass a feature name.",
-      { rule: "auto-select-none-active" }
-    );
-  }
-  if (candidates.length > 1) {
-    return err(
-      "cannot-determine",
-      `Multiple features have an Approved task that is Planned or In Progress: ${candidates.join(", ")}. Pass a feature name to disambiguate.`,
-      { rule: "auto-select-multiple-active", candidates }
-    );
-  }
-  const selected = candidates[0];
-  if (selected === void 0) {
-    return err("cannot-determine", "Auto-selection produced no candidate feature.", {
-      rule: "auto-select-multiple-active"
-    });
-  }
-  return ok(selected);
-}
-function getNextSddCommand(root, feature, reports) {
-  if (feature !== void 0) {
-    return nextCommandForFeature(root, feature, reports);
-  }
-  const selected = autoSelectFeature(root);
-  if (!selected.ok) {
-    return selected;
-  }
-  return nextCommandForFeature(root, selected.data, reports);
-}
-
-// src/tools/core.ts
-var FEATURE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
-function validateFeature(feature) {
-  if (!FEATURE_PATTERN.test(feature)) {
-    return err("invalid-input", `Invalid feature name: ${feature}`, {
-      rule: "feature-shape"
-    });
-  }
-  return ok(feature);
-}
-function hasApprovedPlannedOrInProgress(tasks) {
-  return tasks.some(
-    (task) => (task.status === "Planned" || task.status === "In Progress") && (task.approval === "Approved" || task.approval.startsWith("Approved ("))
-  );
-}
-function listActiveSpecs(root) {
-  const specsResult = parseActiveSpecDirectories(root);
-  if (!specsResult.ok) {
-    return specsResult;
-  }
-  const reportLookup = createReportLookup();
-  const specs = specsResult.data.map((spec) => {
-    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`, void 0, void 0, reportLookup);
-    const flag = taskStateResult.ok ? hasApprovedPlannedOrInProgress(taskStateResult.data.tasks) : false;
-    return {
-      feature: spec.feature,
-      path: spec.path,
-      hasApprovedPlannedOrInProgress: flag
-    };
-  });
-  return ok({ kind: "active-specs", specs });
-}
-var SPEC_ARTIFACTS = [
-  { name: "requirements", file: "requirements.md", reviewStatusKey: "Spec-Review-Status" },
-  { name: "acceptance-tests", file: "acceptance-tests.md" },
-  { name: "design", file: "design.md", reviewStatusKey: "Impl-Review-Status" },
-  { name: "tasks", file: "tasks.md", reviewStatusKey: "Task-Review-Status" },
-  { name: "traceability", file: "traceability.md" },
-  { name: "ux-spec", file: "ux-spec.md" },
-  { name: "frontend-spec", file: "frontend-spec.md" },
-  { name: "infra-spec", file: "infra-spec.md" },
-  { name: "security-spec", file: "security-spec.md" }
-];
-function getSpecStatus(root, feature) {
-  const featureResult = validateFeature(feature);
-  if (!featureResult.ok) {
-    return featureResult;
-  }
-  const artifacts = SPEC_ARTIFACTS.map(({ name, file: file2, reviewStatusKey }) => {
-    const relPath = `specs/${feature}/${file2}`;
-    const readResult = guardedRead(root, relPath);
-    if (!readResult.ok) {
-      return { name, exists: false };
-    }
-    const artifact = { name, exists: true };
-    if (reviewStatusKey !== void 0) {
-      const reviewStatus = extractHeaderValue(readResult.data.contents, reviewStatusKey);
-      if (reviewStatus !== void 0) {
-        artifact.reviewStatus = reviewStatus;
-      }
-    }
-    return artifact;
-  });
-  return ok({ kind: "spec-status", feature, artifacts });
-}
-function getTaskState(root, feature, reports) {
-  const featureResult = validateFeature(feature);
-  if (!featureResult.ok) {
-    return featureResult;
-  }
-  return parseTaskState(root, feature, `specs/${feature}/tasks.md`, void 0, void 0, reports);
-}
-function getNextSddCommand2(root, feature, reports) {
-  if (feature !== void 0) {
-    const featureResult = validateFeature(feature);
-    if (!featureResult.ok) {
-      return featureResult;
-    }
-  }
-  return getNextSddCommand(root, feature, reports);
-}
-
-// src/dashboard/decision-reader.ts
-import { createHash as createHash2 } from "node:crypto";
-
-// src/dashboard/decisions.js
-function validDecisions(rows) {
-  const text = (v) => typeof v === "string" && v.trim().length > 0 && v.length <= 2e3;
-  const keys = (v, names) => v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === names.length && Object.keys(v).every((k) => names.includes(k));
-  const id = (v) => typeof v === "string" && /^[A-Z][A-Z0-9-]{0,39}$/.test(v);
-  const unique = (values) => new Set(values).size === values.length;
-  return Array.isArray(rows) && rows.length <= 100 && rows.every(
-    (d) => keys(d, ["id", "title", "problem", "status", "basis", "options", "recommended", "reason", "selected", "resolution"]) && id(d.id) && text(d.title) && text(d.problem) && ["pending", "decided", "deferred"].includes(d.status) && Array.isArray(d.basis) && d.basis.length > 0 && d.basis.length <= 10 && d.basis.every((b) => keys(b, ["path", "sha256"]) && typeof b.path === "string" && /^(requirements|design|ux-spec|frontend-spec|infra-spec|security-spec)\.md$/.test(b.path) && typeof b.sha256 === "string" && /^[a-f0-9]{64}$/.test(b.sha256)) && unique(d.basis.map((b) => b.path)) && Array.isArray(d.options) && d.options.length >= 2 && d.options.length <= 3 && d.options.every((o) => keys(o, ["id", "title", "benefit", "drawback", "impact", "diagram"]) && id(o.id) && text(o.title) && text(o.benefit) && text(o.drawback) && text(o.impact) && keys(o.diagram, ["kind", "steps"]) && ["flow", "screen", "states"].includes(o.diagram.kind) && Array.isArray(o.diagram.steps) && o.diagram.steps.length > 0 && o.diagram.steps.length <= 8 && o.diagram.steps.every(text)) && unique(d.options.map((o) => o.id)) && d.options.some((o) => o.id === d.recommended) && text(d.reason) && (d.selected === null || d.options.some((o) => o.id === d.selected)) && (d.status === "decided" ? d.selected !== null && text(d.resolution) : d.selected === null && d.resolution === null)
-  ) && unique(rows.map((d) => d.id));
-}
-
-// src/dashboard/decision-reader.ts
-function readDecisions(root, feature) {
-  const source = `specs/${feature}/decisions.json`;
-  const file2 = guardedRead(root, source);
-  if (!file2.ok) {
-    if (file2.error.code === "not-found") return;
-    throw new Error(`${source}: ${file2.error.code}`);
-  }
-  let value;
-  try {
-    value = JSON.parse(file2.data.contents);
-  } catch {
-    throw new Error(`${source}: \u4ED5\u69D8\u76F8\u8AC7\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
-  }
-  if (!value || Object.keys(value).length !== 2 || value.schema !== "sdd-decisions/v1" || !validDecisions(value.decisions)) throw new Error(`${source}: \u4ED5\u69D8\u76F8\u8AC7\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059`);
-  const decisions = value.decisions;
-  let stale = false;
-  for (const decision of decisions) for (const basis of decision.basis) {
-    const input2 = guardedRead(root, `specs/${feature}/${basis.path}`);
-    if (!input2.ok || createHash2("sha256").update(input2.data.contents).digest("hex") !== basis.sha256) stale = true;
-  }
-  return { feature, source, stale, decisions };
-}
-
-// src/dashboard/snapshot.ts
-var SCHEMA = "sdd-dashboard/v1";
-function selectPresentation(parentService) {
-  if (parentService === "chatgpt") return "sites";
-  if (parentService === "claude") return "artifacts";
-  throw new Error("\u89AA\u30B5\u30FC\u30D3\u30B9\u3092 chatgpt \u307E\u305F\u306F claude \u3068\u3057\u3066\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5B50\u306E\u30E2\u30C7\u30EB\u304B\u3089\u306F\u9078\u629E\u3057\u307E\u305B\u3093\u3002");
-}
-var TASK_HEADER_FIELD = /^[A-Z][A-Za-z0-9-]*(?: [A-Z][A-Za-z0-9-]*)*:(?:[ \t]|$)/;
-var CANONICAL_STANDARD_RISK = /^Risk:[ \t]+standard[ \t]*$/;
-function readCanonicalStandardRisk(body) {
-  let canonicalRiskLine;
-  for (const rawLine of body.split("\n")) {
-    const line = rawLine.endsWith("\r") ? rawLine.slice(0, -1) : rawLine;
-    if (/^[ \t]*$/.test(line)) continue;
-    if (!TASK_HEADER_FIELD.test(line)) break;
-    if (line.startsWith("Risk:")) canonicalRiskLine = line;
-  }
-  return canonicalRiskLine !== void 0 && CANONICAL_STANDARD_RISK.test(canonicalRiskLine) ? "standard" : null;
-}
-function readData(root) {
-  const labelsFile = guardedRead(root, "dashboard-labels.json");
-  let labels = {};
-  if (labelsFile.ok) {
-    const value = JSON.parse(labelsFile.data.contents);
-    if (!value || typeof value !== "object") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
-    const config2 = value;
-    if (config2.schema !== "sdd-dashboard-labels/v1" || !config2.features || typeof config2.features !== "object" || Array.isArray(config2.features) || Object.keys(value).some((k) => !["schema", "features"].includes(k))) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
-    for (const [key, label] of Object.entries(config2.features)) {
-      if (!/^[a-z0-9][a-z0-9-]*$/.test(key) || typeof label !== "string" || !label.trim() || label.length > 200) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5024\u304C\u4E0D\u6B63\u3067\u3059");
-    }
-    labels = config2.features;
-  } else if (labelsFile.error.code !== "not-found") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u3092\u8AAD\u3081\u307E\u305B\u3093: " + labelsFile.error.code);
-  const specs = parseActiveSpecDirectories(root);
-  if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
-  const data = { project: basename(root.path), features: [], tasks: [] };
-  const reports = createReportLookup();
-  const hash2 = createHash3("sha256").update(JSON.stringify(specs.data));
-  for (const { feature } of specs.data) {
-    const decisions = readDecisions(root, feature);
-    if (decisions) (data.decisionSets ??= []).push(decisions);
-    const source = `specs/${feature}/tasks.md`;
-    const file2 = guardedRead(root, source);
-    const spec = getSpecStatus(root, feature);
-    const next = getNextSddCommand2(root, feature, reports);
-    const warnings = [];
-    if (!spec.ok) warnings.push("\u4ED5\u69D8\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093: " + spec.error.code);
-    if (!next.ok) warnings.push("\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: " + next.error.code);
-    data.features.push({ id: feature, ...Object.hasOwn(labels, feature) ? { displayName: labels[feature] } : {}, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
-    hash2.update(JSON.stringify(spec));
-    if (!file2.ok) {
-      if (file2.error.code !== "not-found") throw new Error(`${source}: ${file2.error.code}`);
-      warnings.push("\u30BF\u30B9\u30AF\u672A\u4F5C\u6210");
-      hash2.update(source + ":missing");
-      continue;
-    }
-    hash2.update(source).update(file2.data.contents);
-    const state = getTaskState(root, feature, reports);
-    if (!state.ok) throw new Error(`${source}: ${state.error.code}`);
-    const sections = [...file2.data.contents.matchAll(/^##\s+(T-\d+)\b([^\n]*)\n([\s\S]*?)(?=^##\s+T-\d+\b|(?![\s\S]))/gm)];
-    if (!sections.length || !state.data.tasks.length) throw new Error(`${source}: \u30BF\u30B9\u30AF\u5F62\u5F0F\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
-    for (const task of state.data.tasks) {
-      const section = sections.find((s) => s[1] === task.id);
-      if (!section) throw new Error(`${source}: \u30BF\u30B9\u30AF\u672C\u6587\u304C\u4E0D\u6574\u5408\u3067\u3059`);
-      const body = section[3] ?? "";
-      const release = body.match(/^Release:[ \t]*(\S[^\r\n]*)\r?$/m)?.[1]?.trim() || null;
-      data.tasks.push({
-        key: `${feature}/${task.id}`,
-        feature,
-        id: task.id,
-        title: (section[2] ?? "").replace(/^\s*[:—-]\s*/, "").trim() || task.id,
-        body,
-        source,
-        status: task.status,
-        approval: task.approval,
-        risk: task.risk ?? readCanonicalStandardRisk(body) ?? "unknown",
-        release,
-        failures: state.data.failures.filter((f) => !f.taskId || f.taskId === task.id).map((f) => f.message)
-      });
-    }
-  }
-  hash2.update(JSON.stringify(data));
-  return { data, digest: hash2.digest("hex") };
-}
-var DashboardReader = class {
-  constructor(root, read = readData) {
-    this.root = root;
-    this.read = read;
-  }
-  root;
-  read;
-  previous;
-  sample(now = /* @__PURE__ */ new Date()) {
-    const attemptedAt = now.toISOString();
-    try {
-      let before = this.read(this.root);
-      let stable;
-      for (let retry = 0; retry < 2; retry++) {
-        const after = this.read(this.root);
-        if (before.digest === after.digest) {
-          stable = after;
-          break;
-        }
-        before = after;
-      }
-      if (!stable) throw new Error("\u66F4\u65B0\u9014\u4E2D\u306E\u305F\u3081\u6574\u5408\u6027\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093");
-      this.previous = {
-        schema: SCHEMA,
-        revision: stable.digest,
-        checkedAt: attemptedAt,
-        changedAt: this.previous?.revision === stable.digest ? this.previous.changedAt : attemptedAt,
-        lastSuccessAt: attemptedAt,
-        attemptedAt,
-        error: null,
-        data: stable.data
-      };
-    } catch (error62) {
-      this.previous = {
-        schema: SCHEMA,
-        revision: "",
-        checkedAt: null,
-        changedAt: null,
-        lastSuccessAt: null,
-        data: null,
-        ...this.previous,
-        attemptedAt,
-        error: error62 instanceof Error ? error62.message : "\u53D6\u5F97\u306B\u5931\u6557\u3057\u307E\u3057\u305F"
-      };
-    }
-    return this.previous;
-  }
-};
-
 // ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
 import path2 from "node:path";
 
@@ -41478,6 +41046,477 @@ function runDoctorCore(io, {
   return result;
 }
 
+// src/pre-approval-review.ts
+function beforeTaskApproval(root, feature, allLowRisk) {
+  const path3 = `reports/spec-check/${feature}.md`;
+  const report = guardedRead(root, path3);
+  const rerun = `/sdd-bootstrap:bootstrap feature --feature ${feature}`;
+  if (!report.ok && report.error.code === "not-found") {
+    const mode = loadGuardrailsConfigFromIo(createGuardedIo(root)).review.pre_impl_check;
+    if (mode === "off" || mode === "auto" && allLowRisk) return;
+    return {
+      phase: "spec-check",
+      command: rerun,
+      rationale: `${path3} \u306B\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u306E\u8A18\u9332\u304C\u3042\u308A\u307E\u305B\u3093\u3002\u4ECA\u56DE --skip-check \u3092\u660E\u793A\u3057\u305F\u5834\u5408\u306F\u4EBA\u9593\u306E\u627F\u8A8D\u3078\u9032\u307F\u3001\u305D\u308C\u4EE5\u5916\u306F\u30EC\u30D3\u30E5\u30FC\u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+    };
+  }
+  if (report.ok) {
+    const header = stripFencedCodeBlocks(report.data.contents).split(/^##[ \t]/m, 1)[0] ?? "";
+    const fields = [...header.matchAll(/^[ \t]*(?:-[ \t]+)?\*\*Verdict\*\*:[ \t]*([^\r\n]*)$/gm)];
+    const verdict = fields.length === 1 ? fields[0]?.[1]?.trim() : void 0;
+    if (verdict === "PASS" || verdict === "PASS_WITH_NOTES") return;
+    if (verdict === "NEEDS_FIX") {
+      return {
+        phase: "spec-check",
+        command: rerun,
+        rationale: `${path3} \u306E\u5224\u5B9A\u306F NEEDS_FIX \u3067\u3059\u3002Blockers \u306B\u8A18\u8F09\u3055\u308C\u305F\u6307\u6458\u306B\u6CBF\u3063\u3066\u4ED5\u69D8\u3092\u4FEE\u6B63\u3057\u3001\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+      };
+    }
+  }
+  return {
+    phase: "spec-check",
+    command: `human: check ${path3}`,
+    rationale: `${path3} \u306E\u5224\u5B9A\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u306E\u8A18\u9332\u3068\u7D50\u679C\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+  };
+}
+
+// src/next-command.ts
+function isApprovedShape2(approval) {
+  return approval === "Approved" || approval.startsWith("Approved (");
+}
+function isActiveStatus(status) {
+  return status === "Planned" || status === "In Progress";
+}
+function approvedTasks(tasks) {
+  return tasks.filter((task) => isApprovedShape2(task.approval));
+}
+function phaseFromTasks(feature, tasks) {
+  const blocked = tasks.filter((task) => task.status === "Blocked");
+  if (blocked.length > 0) {
+    const ids = blocked.map((task) => task.id).join(", ");
+    return {
+      kind: "next-command",
+      feature,
+      phase: "blocked",
+      nextCommand: "human: resolve blockers",
+      rationale: `Task(s) ${ids} in specs/${feature}/tasks.md are Blocked; review their ### Blockers entries and resolve them before further automated progress.`
+    };
+  }
+  const approved = approvedTasks(tasks);
+  if (approved.length < tasks.length && approved.every((task) => task.status === "Done")) {
+    return {
+      kind: "next-command",
+      feature,
+      phase: "approval-gate",
+      nextCommand: "human: approve tasks in tasks.md",
+      rationale: `Remaining tasks in specs/${feature}/tasks.md need human approval before implementation.`
+    };
+  }
+  if (approved.some((task) => isActiveStatus(task.status))) {
+    return {
+      kind: "next-command",
+      feature,
+      phase: "implementation",
+      nextCommand: `/sdd-ship:ship specs/${feature}/tasks.md`,
+      rationale: `specs/${feature}/tasks.md has an Approved task that is Planned or In Progress (AGENTS.md Required Workflow step 6).`
+    };
+  }
+  const implComplete = approved.filter((task) => task.status === "Implementation Complete");
+  const firstImplComplete = implComplete[0];
+  if (firstImplComplete !== void 0) {
+    const targetCommand = approved.every((task) => task.status === "Implementation Complete") ? `/sdd-ship:ship specs/${feature}/tasks.md` : `/sdd-ship:ship specs/${feature}/tasks.md#${firstImplComplete.id}`;
+    return {
+      kind: "next-command",
+      feature,
+      phase: "sdd-gate",
+      nextCommand: targetCommand,
+      rationale: approved.every((task) => task.status === "Implementation Complete") ? `Every Approved task in specs/${feature}/tasks.md is Implementation Complete; run /sdd-ship:ship to execute sdd-gate and transition passed tasks to Done.` : `Approved task ${firstImplComplete.id} in specs/${feature}/tasks.md is Implementation Complete; run /sdd-ship:ship to execute sdd-gate and transition passed tasks to Done.`
+    };
+  }
+  if (approved.every((task) => task.status === "Done")) {
+    return {
+      kind: "next-command",
+      feature,
+      phase: "done",
+      nextCommand: "feature complete",
+      rationale: `Every Approved task in specs/${feature}/tasks.md has reached Done.`
+    };
+  }
+  return {
+    kind: "next-command",
+    feature,
+    phase: "cannot-determine",
+    nextCommand: "cannot-determine",
+    rationale: `specs/${feature}/tasks.md's Approved tasks are in an unrecognized mixture of statuses that does not map to a single next command.`
+  };
+}
+function nextCommandForFeature(root, feature, reports) {
+  const profile = workflowProfile(root);
+  if (!profile.ok) return profile;
+  const requirementsPath = `specs/${feature}/requirements.md`;
+  const requirementsResult = guardedRead(root, requirementsPath);
+  if (!requirementsResult.ok) {
+    if (requirementsResult.error.code !== "not-found") {
+      return requirementsResult;
+    }
+    return ok({
+      kind: "next-command",
+      feature,
+      phase: "bootstrap-not-started",
+      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      rationale: `${requirementsPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate SDD Core specifications (requirements, design, tasks) and run spec-check.`
+    });
+  }
+  const designPath = `specs/${feature}/design.md`;
+  const designResult = guardedRead(root, designPath);
+  if (!designResult.ok) {
+    if (designResult.error.code !== "not-found") {
+      return designResult;
+    }
+    return ok({
+      kind: "next-command",
+      feature,
+      phase: "design-missing",
+      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      rationale: `${designPath} does not exist yet; run /sdd-bootstrap:bootstrap to complete the SDD Core specification package.`
+    });
+  }
+  const tasksPath = `specs/${feature}/tasks.md`;
+  const tasksReadResult = guardedRead(root, tasksPath);
+  if (!tasksReadResult.ok) {
+    if (tasksReadResult.error.code !== "not-found") {
+      return tasksReadResult;
+    }
+    return ok({
+      kind: "next-command",
+      feature,
+      phase: "tasks-missing",
+      nextCommand: `/sdd-bootstrap:bootstrap feature ${feature}`,
+      rationale: `${tasksPath} does not exist yet; run /sdd-bootstrap:bootstrap to generate tasks.md and run spec-check.`
+    });
+  }
+  const taskStateResult = parseTaskState(root, feature, tasksPath, void 0, void 0, reports);
+  if (!taskStateResult.ok) {
+    return taskStateResult;
+  }
+  if (taskStateResult.data.verdict === "fail") {
+    return err(
+      "cannot-determine",
+      `${tasksPath} failed its state-machine validation (${taskStateResult.data.failures.map((failure2) => failure2.message).join("; ")}); the next command cannot be determined until this is fixed.`,
+      { file: tasksPath, rule: "task-state-verdict-fail" }
+    );
+  }
+  const phase = phaseFromTasks(feature, taskStateResult.data.tasks);
+  if (phase.phase === "approval-gate") {
+    const review = beforeTaskApproval(root, feature, taskStateResult.data.tasks.every((task) => task.risk === "low"));
+    if (review) return ok({ kind: "next-command", feature, phase: review.phase, nextCommand: review.command, rationale: review.rationale });
+  }
+  return ok(phase);
+}
+function autoSelectFeature(root) {
+  const specsResult = parseActiveSpecDirectories(root);
+  if (!specsResult.ok) {
+    return specsResult;
+  }
+  const candidates = [];
+  for (const spec of specsResult.data) {
+    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`);
+    if (!taskStateResult.ok) {
+      continue;
+    }
+    const hasActiveApproved = approvedTasks(taskStateResult.data.tasks).some(
+      (task) => isActiveStatus(task.status)
+    );
+    if (hasActiveApproved) {
+      candidates.push(spec.feature);
+    }
+  }
+  if (candidates.length === 0) {
+    return err(
+      "cannot-determine",
+      "No feature in AGENTS.md's Active Spec Directories has an Approved task that is Planned or In Progress; run /sdd-bootstrap:bootstrap first, or pass a feature name.",
+      { rule: "auto-select-none-active" }
+    );
+  }
+  if (candidates.length > 1) {
+    return err(
+      "cannot-determine",
+      `Multiple features have an Approved task that is Planned or In Progress: ${candidates.join(", ")}. Pass a feature name to disambiguate.`,
+      { rule: "auto-select-multiple-active", candidates }
+    );
+  }
+  const selected = candidates[0];
+  if (selected === void 0) {
+    return err("cannot-determine", "Auto-selection produced no candidate feature.", {
+      rule: "auto-select-multiple-active"
+    });
+  }
+  return ok(selected);
+}
+function getNextSddCommand(root, feature, reports) {
+  if (feature !== void 0) {
+    return nextCommandForFeature(root, feature, reports);
+  }
+  const selected = autoSelectFeature(root);
+  if (!selected.ok) {
+    return selected;
+  }
+  return nextCommandForFeature(root, selected.data, reports);
+}
+
+// src/tools/core.ts
+var FEATURE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+function validateFeature(feature) {
+  if (!FEATURE_PATTERN.test(feature)) {
+    return err("invalid-input", `Invalid feature name: ${feature}`, {
+      rule: "feature-shape"
+    });
+  }
+  return ok(feature);
+}
+function hasApprovedPlannedOrInProgress(tasks) {
+  return tasks.some(
+    (task) => (task.status === "Planned" || task.status === "In Progress") && (task.approval === "Approved" || task.approval.startsWith("Approved ("))
+  );
+}
+function listActiveSpecs(root) {
+  const specsResult = parseActiveSpecDirectories(root);
+  if (!specsResult.ok) {
+    return specsResult;
+  }
+  const reportLookup = createReportLookup();
+  const specs = specsResult.data.map((spec) => {
+    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`, void 0, void 0, reportLookup);
+    const flag = taskStateResult.ok ? hasApprovedPlannedOrInProgress(taskStateResult.data.tasks) : false;
+    return {
+      feature: spec.feature,
+      path: spec.path,
+      hasApprovedPlannedOrInProgress: flag
+    };
+  });
+  return ok({ kind: "active-specs", specs });
+}
+var SPEC_ARTIFACTS = [
+  { name: "requirements", file: "requirements.md", reviewStatusKey: "Spec-Review-Status" },
+  { name: "acceptance-tests", file: "acceptance-tests.md" },
+  { name: "design", file: "design.md", reviewStatusKey: "Impl-Review-Status" },
+  { name: "tasks", file: "tasks.md", reviewStatusKey: "Task-Review-Status" },
+  { name: "traceability", file: "traceability.md" },
+  { name: "ux-spec", file: "ux-spec.md" },
+  { name: "frontend-spec", file: "frontend-spec.md" },
+  { name: "infra-spec", file: "infra-spec.md" },
+  { name: "security-spec", file: "security-spec.md" }
+];
+function getSpecStatus(root, feature) {
+  const featureResult = validateFeature(feature);
+  if (!featureResult.ok) {
+    return featureResult;
+  }
+  const artifacts = SPEC_ARTIFACTS.map(({ name, file: file2, reviewStatusKey }) => {
+    const relPath = `specs/${feature}/${file2}`;
+    const readResult = guardedRead(root, relPath);
+    if (!readResult.ok) {
+      return { name, exists: false };
+    }
+    const artifact = { name, exists: true };
+    if (reviewStatusKey !== void 0) {
+      const reviewStatus = extractHeaderValue(readResult.data.contents, reviewStatusKey);
+      if (reviewStatus !== void 0) {
+        artifact.reviewStatus = reviewStatus;
+      }
+    }
+    return artifact;
+  });
+  return ok({ kind: "spec-status", feature, artifacts });
+}
+function getTaskState(root, feature, reports) {
+  const featureResult = validateFeature(feature);
+  if (!featureResult.ok) {
+    return featureResult;
+  }
+  return parseTaskState(root, feature, `specs/${feature}/tasks.md`, void 0, void 0, reports);
+}
+function getNextSddCommand2(root, feature, reports) {
+  if (feature !== void 0) {
+    const featureResult = validateFeature(feature);
+    if (!featureResult.ok) {
+      return featureResult;
+    }
+  }
+  return getNextSddCommand(root, feature, reports);
+}
+
+// src/dashboard/decision-reader.ts
+import { createHash as createHash2 } from "node:crypto";
+
+// src/dashboard/decisions.js
+function validDecisions(rows) {
+  const text = (v) => typeof v === "string" && v.trim().length > 0 && v.length <= 2e3;
+  const keys = (v, names) => v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === names.length && Object.keys(v).every((k) => names.includes(k));
+  const id = (v) => typeof v === "string" && /^[A-Z][A-Z0-9-]{0,39}$/.test(v);
+  const unique = (values) => new Set(values).size === values.length;
+  return Array.isArray(rows) && rows.length <= 100 && rows.every(
+    (d) => keys(d, ["id", "title", "problem", "status", "basis", "options", "recommended", "reason", "selected", "resolution"]) && id(d.id) && text(d.title) && text(d.problem) && ["pending", "decided", "deferred"].includes(d.status) && Array.isArray(d.basis) && d.basis.length > 0 && d.basis.length <= 10 && d.basis.every((b) => keys(b, ["path", "sha256"]) && typeof b.path === "string" && /^(requirements|design|ux-spec|frontend-spec|infra-spec|security-spec)\.md$/.test(b.path) && typeof b.sha256 === "string" && /^[a-f0-9]{64}$/.test(b.sha256)) && unique(d.basis.map((b) => b.path)) && Array.isArray(d.options) && d.options.length >= 2 && d.options.length <= 3 && d.options.every((o) => keys(o, ["id", "title", "benefit", "drawback", "impact", "diagram"]) && id(o.id) && text(o.title) && text(o.benefit) && text(o.drawback) && text(o.impact) && keys(o.diagram, ["kind", "steps"]) && ["flow", "screen", "states"].includes(o.diagram.kind) && Array.isArray(o.diagram.steps) && o.diagram.steps.length > 0 && o.diagram.steps.length <= 8 && o.diagram.steps.every(text)) && unique(d.options.map((o) => o.id)) && d.options.some((o) => o.id === d.recommended) && text(d.reason) && (d.selected === null || d.options.some((o) => o.id === d.selected)) && (d.status === "decided" ? d.selected !== null && text(d.resolution) : d.selected === null && d.resolution === null)
+  ) && unique(rows.map((d) => d.id));
+}
+
+// src/dashboard/decision-reader.ts
+function readDecisions(root, feature) {
+  const source = `specs/${feature}/decisions.json`;
+  const file2 = guardedRead(root, source);
+  if (!file2.ok) {
+    if (file2.error.code === "not-found") return;
+    throw new Error(`${source}: ${file2.error.code}`);
+  }
+  let value;
+  try {
+    value = JSON.parse(file2.data.contents);
+  } catch {
+    throw new Error(`${source}: \u4ED5\u69D8\u76F8\u8AC7\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
+  }
+  if (!value || Object.keys(value).length !== 2 || value.schema !== "sdd-decisions/v1" || !validDecisions(value.decisions)) throw new Error(`${source}: \u4ED5\u69D8\u76F8\u8AC7\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059`);
+  const decisions = value.decisions;
+  let stale = false;
+  for (const decision of decisions) for (const basis of decision.basis) {
+    const input2 = guardedRead(root, `specs/${feature}/${basis.path}`);
+    if (!input2.ok || createHash2("sha256").update(input2.data.contents).digest("hex") !== basis.sha256) stale = true;
+  }
+  return { feature, source, stale, decisions };
+}
+
+// src/dashboard/snapshot.ts
+var SCHEMA = "sdd-dashboard/v1";
+function selectPresentation(parentService) {
+  if (parentService === "chatgpt") return "sites";
+  if (parentService === "claude") return "artifacts";
+  throw new Error("\u89AA\u30B5\u30FC\u30D3\u30B9\u3092 chatgpt \u307E\u305F\u306F claude \u3068\u3057\u3066\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5B50\u306E\u30E2\u30C7\u30EB\u304B\u3089\u306F\u9078\u629E\u3057\u307E\u305B\u3093\u3002");
+}
+var TASK_HEADER_FIELD = /^[A-Z][A-Za-z0-9-]*(?: [A-Z][A-Za-z0-9-]*)*:(?:[ \t]|$)/;
+var CANONICAL_STANDARD_RISK = /^Risk:[ \t]+standard[ \t]*$/;
+function readCanonicalStandardRisk(body) {
+  let canonicalRiskLine;
+  for (const rawLine of body.split("\n")) {
+    const line = rawLine.endsWith("\r") ? rawLine.slice(0, -1) : rawLine;
+    if (/^[ \t]*$/.test(line)) continue;
+    if (!TASK_HEADER_FIELD.test(line)) break;
+    if (line.startsWith("Risk:")) canonicalRiskLine = line;
+  }
+  return canonicalRiskLine !== void 0 && CANONICAL_STANDARD_RISK.test(canonicalRiskLine) ? "standard" : null;
+}
+function readData(root) {
+  const labelsFile = guardedRead(root, "dashboard-labels.json");
+  let labels = {};
+  if (labelsFile.ok) {
+    const value = JSON.parse(labelsFile.data.contents);
+    if (!value || typeof value !== "object") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    const config2 = value;
+    if (config2.schema !== "sdd-dashboard-labels/v1" || !config2.features || typeof config2.features !== "object" || Array.isArray(config2.features) || Object.keys(value).some((k) => !["schema", "features"].includes(k))) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5F62\u5F0F\u304C\u4E0D\u6B63\u3067\u3059");
+    for (const [key, label] of Object.entries(config2.features)) {
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(key) || typeof label !== "string" || !label.trim() || label.length > 200) throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u306E\u5024\u304C\u4E0D\u6B63\u3067\u3059");
+    }
+    labels = config2.features;
+  } else if (labelsFile.error.code !== "not-found") throw new Error("\u8868\u793A\u540D\u8A2D\u5B9A\u3092\u8AAD\u3081\u307E\u305B\u3093: " + labelsFile.error.code);
+  const specs = parseActiveSpecDirectories(root);
+  if (!specs.ok) throw new Error("\u6A5F\u80FD\u4E00\u89A7\u3092\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093: " + specs.error.code);
+  const data = { project: basename(root.path), features: [], tasks: [] };
+  const reports = createReportLookup();
+  const hash2 = createHash3("sha256").update(JSON.stringify(specs.data));
+  for (const { feature } of specs.data) {
+    const decisions = readDecisions(root, feature);
+    if (decisions) (data.decisionSets ??= []).push(decisions);
+    const source = `specs/${feature}/tasks.md`;
+    const file2 = guardedRead(root, source);
+    const spec = getSpecStatus(root, feature);
+    const next = getNextSddCommand2(root, feature, reports);
+    const warnings = [];
+    if (!spec.ok) warnings.push("\u4ED5\u69D8\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093: " + spec.error.code);
+    if (!next.ok) warnings.push("\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: " + next.error.code);
+    else if (next.data.phase === "spec-check") warnings.push(next.data.rationale);
+    data.features.push({ id: feature, ...Object.hasOwn(labels, feature) ? { displayName: labels[feature] } : {}, phase: next.ok ? next.data.phase : "unknown", nextCommand: next.ok ? next.data.nextCommand : "", warnings });
+    hash2.update(JSON.stringify(spec));
+    if (!file2.ok) {
+      if (file2.error.code !== "not-found") throw new Error(`${source}: ${file2.error.code}`);
+      warnings.push("\u30BF\u30B9\u30AF\u672A\u4F5C\u6210");
+      hash2.update(source + ":missing");
+      continue;
+    }
+    hash2.update(source).update(file2.data.contents);
+    const state = getTaskState(root, feature, reports);
+    if (!state.ok) throw new Error(`${source}: ${state.error.code}`);
+    const sections = [...file2.data.contents.matchAll(/^##\s+(T-\d+)\b([^\n]*)\n([\s\S]*?)(?=^##\s+T-\d+\b|(?![\s\S]))/gm)];
+    if (!sections.length || !state.data.tasks.length) throw new Error(`${source}: \u30BF\u30B9\u30AF\u5F62\u5F0F\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093`);
+    for (const task of state.data.tasks) {
+      const section = sections.find((s) => s[1] === task.id);
+      if (!section) throw new Error(`${source}: \u30BF\u30B9\u30AF\u672C\u6587\u304C\u4E0D\u6574\u5408\u3067\u3059`);
+      const body = section[3] ?? "";
+      const release = body.match(/^Release:[ \t]*(\S[^\r\n]*)\r?$/m)?.[1]?.trim() || null;
+      data.tasks.push({
+        key: `${feature}/${task.id}`,
+        feature,
+        id: task.id,
+        title: (section[2] ?? "").replace(/^\s*[:—-]\s*/, "").trim() || task.id,
+        body,
+        source,
+        status: task.status,
+        approval: task.approval,
+        risk: task.risk ?? readCanonicalStandardRisk(body) ?? "unknown",
+        release,
+        failures: state.data.failures.filter((f) => !f.taskId || f.taskId === task.id).map((f) => f.message)
+      });
+    }
+  }
+  hash2.update(JSON.stringify(data));
+  return { data, digest: hash2.digest("hex") };
+}
+var DashboardReader = class {
+  constructor(root, read = readData) {
+    this.root = root;
+    this.read = read;
+  }
+  root;
+  read;
+  previous;
+  sample(now = /* @__PURE__ */ new Date()) {
+    const attemptedAt = now.toISOString();
+    try {
+      let before = this.read(this.root);
+      let stable;
+      for (let retry = 0; retry < 2; retry++) {
+        const after = this.read(this.root);
+        if (before.digest === after.digest) {
+          stable = after;
+          break;
+        }
+        before = after;
+      }
+      if (!stable) throw new Error("\u66F4\u65B0\u9014\u4E2D\u306E\u305F\u3081\u6574\u5408\u6027\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093");
+      this.previous = {
+        schema: SCHEMA,
+        revision: stable.digest,
+        checkedAt: attemptedAt,
+        changedAt: this.previous?.revision === stable.digest ? this.previous.changedAt : attemptedAt,
+        lastSuccessAt: attemptedAt,
+        attemptedAt,
+        error: null,
+        data: stable.data
+      };
+    } catch (error62) {
+      this.previous = {
+        schema: SCHEMA,
+        revision: "",
+        checkedAt: null,
+        changedAt: null,
+        lastSuccessAt: null,
+        data: null,
+        ...this.previous,
+        attemptedAt,
+        error: error62 instanceof Error ? error62.message : "\u53D6\u5F97\u306B\u5931\u6557\u3057\u307E\u3057\u305F"
+      };
+    }
+    return this.previous;
+  }
+};
+
 // src/tools/v2.ts
 var FEATURE_RE = /^[A-Za-z0-9._-]+$/;
 var TASK_ID_RE = /^T-[A-Za-z0-9._-]+$/;
@@ -41520,7 +41559,7 @@ function validateTaskId(taskId) {
 function isApprovedValue(approval) {
   return /^Approved(?:\s+\([^)]+\))?$/i.test(approval.trim());
 }
-function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, files, driftStatus) {
+function computeNextAction(root, feature, tasks, highestRisk, files, driftStatus) {
   const bootstrap = {
     phase: "bootstrap",
     command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
@@ -41544,18 +41583,14 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, files,
   }
   if (!files.design) return bootstrap;
   const approved = tasks.filter((t) => isApprovedValue(t.approval));
-  if (approved.length === 0) {
-    if (highestRisk !== "low" && specCheckVerdict === "Not Run") {
-      return {
-        phase: "spec-check",
-        command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
-        rationale: `Risk: ${highestRisk} feature has no recorded spec-check report yet.`
-      };
-    }
+  const remaining = tasks.filter((t) => !isApprovedValue(t.approval));
+  if (remaining.length > 0 && approved.every((t) => t.status === "Done")) {
+    const review = beforeTaskApproval(root, feature, highestRisk === "low");
+    if (review) return review;
     return {
       phase: "approval-gate",
       command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
-      rationale: `No task in specs/${feature}/tasks.md is Approved yet.`
+      rationale: approved.length === 0 ? `No task in specs/${feature}/tasks.md is Approved yet.` : `Remaining task(s) ${remaining.map((t) => t.id).join(", ")} are still unapproved.`
     };
   }
   if (approved.some((t) => t.status === "Planned" || t.status === "In Progress")) {
@@ -41577,14 +41612,6 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, files,
       phase: "done",
       command: "feature complete",
       rationale: `All tasks in specs/${feature}/tasks.md are Approved and Done.`
-    };
-  }
-  if (approved.length < tasks.length && approved.every((t) => t.status === "Done")) {
-    const unapprovedIds = tasks.filter((t) => !isApprovedValue(t.approval)).map((t) => t.id);
-    return {
-      phase: "approval-gate",
-      command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
-      rationale: `Remaining task(s) ${unapprovedIds.join(", ")} are still unapproved.`
     };
   }
   return {
@@ -41696,9 +41723,9 @@ function sddProjectOverview(root, options = {}) {
         },
         driftStatus: drift.status,
         nextAction: computeNextAction(
+          root,
           feature,
           tasks,
-          dv.specCheckVerdict,
           highestRisk,
           files,
           drift.status
@@ -41780,9 +41807,9 @@ function sddFeatureState(root, rawFeature, options = {}) {
         provisionalIds
       },
       nextAction: computeNextAction(
+        root,
         feature,
         dv.tasks,
-        dv.specCheckVerdict,
         highestRisk,
         files,
         drift.status
@@ -42106,6 +42133,7 @@ const PHASES = {
   "impl-review": ["\u8A2D\u8A08\u30FB\u5B9F\u88C5\u65B9\u91DD\u306E\u78BA\u8A8D", "\u5B9F\u73FE\u65B9\u6CD5\u3068\u8A2D\u8A08\u306E\u59A5\u5F53\u6027\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
   "phase2-not-started": ["\u4F5C\u696D\u8A08\u753B\u306E\u4F5C\u6210\u524D", "\u4ED5\u69D8\u3092\u5B9F\u884C\u53EF\u80FD\u306A\u30BF\u30B9\u30AF\u306B\u5206\u3051\u307E\u3059"],
   "task-review": ["\u4F5C\u696D\u8A08\u753B\u306E\u78BA\u8A8D", "\u4F5C\u696D\u7BC4\u56F2\u30FB\u9806\u5E8F\u30FB\u78BA\u8A8D\u65B9\u6CD5\u3092\u78BA\u8A8D\u3057\u307E\u3059"],
+  "spec-check": ["\u7740\u5DE5\u524D\u306E\u4ED5\u69D8\u78BA\u8A8D", "\u4ED5\u69D8\u30EC\u30D3\u30E5\u30FC\u306E\u7D50\u679C\u3068\u6B21\u306E\u5BFE\u5FDC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
   "approval-gate": ["\u7BA1\u7406\u8005\u306E\u627F\u8A8D\u5F85\u3061", "\u62C5\u5F53\u8005\u304C\u5185\u5BB9\u3092\u78BA\u8A8D\u3057\u3001\u7740\u624B\u3059\u308B\u30BF\u30B9\u30AF\u3092\u627F\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"],
   "implementation": ["\u958B\u767A\u30FB\u5B9F\u88C5", "\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u3092\u9032\u3081\u307E\u3059"],
   "quality-gate": ["\u54C1\u8CEA\u30FB\u5B8C\u4E86\u6761\u4EF6\u306E\u78BA\u8A8D", "\u30C6\u30B9\u30C8\u7D50\u679C\u3068\u8A3C\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u5B8C\u4E86\u3092\u5224\u5B9A\u3057\u307E\u3059"],
@@ -42641,14 +42669,15 @@ const phaseText={
   'impl-review': ['\u8A2D\u8A08\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002'],
   'phase2-not-started': ['\u30BF\u30B9\u30AF\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u5B9F\u88C5\u30BF\u30B9\u30AF\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
   'task-review': ['\u30BF\u30B9\u30AF\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002'],
-  'approval-gate': ['\u30BF\u30B9\u30AF\u306E\u627F\u8A8D\u5F85\u3061\u3067\u3059','\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u305B\u3093\u3002'],
+  'spec-check': ['\u7740\u5DE5\u524D\u306E\u4ED5\u69D8\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059','\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u306E\u8A18\u9332\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'],
+  'approval-gate': ['\u30BF\u30B9\u30AF\u306E\u627F\u8A8D\u5F85\u3061\u3067\u3059','\u6B21\u306B\u7740\u624B\u3059\u308B\u30BF\u30B9\u30AF\u306F\u307E\u3060\u627F\u8A8D\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002'],
   'implementation': ['\u5B9F\u88C5\u3092\u9032\u3081\u3089\u308C\u307E\u3059','\u627F\u8A8D\u6E08\u307F\u306E\u4F5C\u696D\u4E2D\u307E\u305F\u306F\u4E88\u5B9A\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'],
   'quality-gate': ['\u54C1\u8CEA\u30B2\u30FC\u30C8\u304C\u5FC5\u8981\u3067\u3059','\u5B9F\u88C5\u5B8C\u4E86\u306E\u30BF\u30B9\u30AF\u306B\u54C1\u8CEA\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002'],
   'done': ['\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u3059','\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u306F\u3059\u3079\u3066Done\u3067\u3059\u3002'],
   'blocked': ['\u30D6\u30ED\u30C3\u30AB\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','\u30D6\u30ED\u30C3\u30AF\u3055\u308C\u305F\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'],
 };
 function row(name,value){const li=document.createElement('li');for(const text of [name,value]){const span=document.createElement('span');span.textContent=text;li.append(span)}$('steps').append(li)}
-async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';const [headline,reason]=Object.hasOwn(phaseText,p)?phaseText[p]:['\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'];$('headline').textContent=headline;$('reason').textContent=reason;$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='sdd-gate'||p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
+async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';const [headline,reason]=Object.hasOwn(phaseText,p)?phaseText[p]:['\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'];$('headline').textContent=headline;$('reason').textContent=p==='spec-check'&&n.ok?n.data.rationale:reason;$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='sdd-gate'||p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
 async function start(){const id=++requestId;try{const r=await api('api/features');if(id!==requestId)return;if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='\u8868\u793A\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u305B\u3093\u3002'}catch(e){if(id!==requestId)return;$('error').textContent='\u6A5F\u80FD\u4E00\u89A7\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002\u958B\u767A\u74B0\u5883\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u304F\u3060\u3055\u3044\u3002'}catch{$('copy-result').textContent='\u81EA\u52D5\u30B3\u30D4\u30FC\u3067\u304D\u307E\u305B\u3093\u3002\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}};start();</script></body></html>`;
 async function startStatusView(root, dashboard = false) {
   const token = randomBytes(32).toString("hex");

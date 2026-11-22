@@ -14,6 +14,7 @@
  */
 
 import { err, ok, type Result } from "../envelope.js";
+import { beforeTaskApproval } from "../pre-approval-review.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import {
   createGuardedIo,
@@ -217,9 +218,9 @@ function isApprovedValue(approval: string): boolean {
 }
 
 function computeNextAction(
+  root: SddRoot,
   feature: string,
   tasks: readonly V2TaskSummary[],
-  specCheckVerdict: string,
   highestRisk: RiskTier,
   files: { requirements: boolean; design: boolean; tasks: boolean },
   driftStatus: DriftStatus,
@@ -247,18 +248,16 @@ function computeNextAction(
   }
   if (!files.design) return bootstrap;
   const approved = tasks.filter((t) => isApprovedValue(t.approval));
-  if (approved.length === 0) {
-    if (highestRisk !== "low" && specCheckVerdict === "Not Run") {
-      return {
-        phase: "spec-check",
-        command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
-        rationale: `Risk: ${highestRisk} feature has no recorded spec-check report yet.`,
-      };
-    }
+  const remaining = tasks.filter((t) => !isApprovedValue(t.approval));
+  if (remaining.length > 0 && approved.every((t) => t.status === "Done")) {
+    const review = beforeTaskApproval(root, feature, highestRisk === "low");
+    if (review) return review;
     return {
       phase: "approval-gate",
       command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
-      rationale: `No task in specs/${feature}/tasks.md is Approved yet.`,
+      rationale: approved.length === 0
+        ? `No task in specs/${feature}/tasks.md is Approved yet.`
+        : `Remaining task(s) ${remaining.map((t) => t.id).join(", ")} are still unapproved.`,
     };
   }
   if (approved.some((t) => t.status === "Planned" || t.status === "In Progress")) {
@@ -281,14 +280,6 @@ function computeNextAction(
       phase: "done",
       command: "feature complete",
       rationale: `All tasks in specs/${feature}/tasks.md are Approved and Done.`,
-    };
-  }
-  if (approved.length < tasks.length && approved.every((t) => t.status === "Done")) {
-    const unapprovedIds = tasks.filter((t) => !isApprovedValue(t.approval)).map((t) => t.id);
-    return {
-      phase: "approval-gate",
-      command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
-      rationale: `Remaining task(s) ${unapprovedIds.join(", ")} are still unapproved.`,
     };
   }
   return {
@@ -427,9 +418,9 @@ export function sddProjectOverview(
         },
         driftStatus: drift.status,
         nextAction: computeNextAction(
+          root,
           feature,
           tasks,
-          dv.specCheckVerdict,
           highestRisk,
           files,
           drift.status,
@@ -530,9 +521,9 @@ export function sddFeatureState(
         provisionalIds,
       },
       nextAction: computeNextAction(
+        root,
         feature,
         dv.tasks as V2TaskSummary[],
-        dv.specCheckVerdict,
         highestRisk,
         files,
         drift.status,
