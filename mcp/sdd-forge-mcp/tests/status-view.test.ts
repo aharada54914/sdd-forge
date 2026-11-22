@@ -110,7 +110,7 @@ test('pre-approval guidance follows the feature’s recorded review and skip pol
   try {
     const view = await mountStatusPage(url);
     const reader = new DashboardReader(fixture.root);
-    async function check(phase: string, reason?: RegExp) {
+    async function check(phase: string, reason?: RegExp, expectedCommand?: string) {
       await view.refresh();
       const compact = view.next();
       const overview = sddProjectOverview(fixture.root);
@@ -133,18 +133,21 @@ test('pre-approval guidance follows the feature’s recorded review and skip pol
         assert.equal(view.element('headline').textContent, '着工前の仕様確認が必要です');
         for (const cmd of [dashboard.nextCommand, compact.data.nextCommand, ...actions.map(a => a!.command)]) {
           assert.doesNotMatch(cmd, /approve tasks|set Approval/);
+          if (expectedCommand) assert.equal(cmd, expectedCommand);
         }
       }
     }
+    const bootstrap = `/sdd-bootstrap:bootstrap <mode> --feature ${id} <source>`;
+    const human = `human: review reports/spec-check/${id}.md`;
     writeFile(fixture.dir, 'reports/spec-check/other.md', '- **Verdict**: NEEDS_FIX\n');
     await check('approval-gate'); // low/auto
     policy('always');
-    await check('spec-check', /--skip-check/);
+    await check('spec-check', /--skip-check.*<source>/, bootstrap);
     task('high');
     policy('off');
     await check('approval-gate');
     policy('auto');
-    await check('spec-check', /--skip-check/);
+    await check('spec-check', /--skip-check.*<source>/, bootstrap);
     task('standard');
     for (const verdict of ['PASS', 'PASS_WITH_NOTES']) {
       report(`- **Verdict**: ${verdict}`);
@@ -153,10 +156,17 @@ test('pre-approval guidance follows the feature’s recorded review and skip pol
     report('- **Verdict**: NEEDS_FIX');
     for (const risk of ['low', 'standard', 'high']) {
       task(risk);
-      await check('spec-check', /NEEDS_FIX/);
+      policy('off');
+      await check('spec-check', /NEEDS_FIX.*Blockers.*pre_impl_check=off.*省略.*確認/, human);
+      policy('auto');
+      if (risk === 'low') {
+        await check('spec-check', /NEEDS_FIX.*Blockers.*pre_impl_check=auto.*low.*省略.*確認/, human);
+      } else {
+        await check('spec-check', /NEEDS_FIX.*Blockers.*<mode>.*<source>.*再実行/, bootstrap);
+      }
+      policy('always');
+      await check('spec-check', /NEEDS_FIX.*Blockers.*<mode>.*<source>.*再実行/, bootstrap);
     }
-    policy('off');
-    await check('spec-check', /NEEDS_FIX/);
     task('low', 'Approved');
     await check('implementation'); // a historical result never rewinds approved work
     task('low');

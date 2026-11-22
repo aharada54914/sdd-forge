@@ -41047,17 +41047,22 @@ function runDoctorCore(io, {
 }
 
 // src/pre-approval-review.ts
+function skipReason(root, allLowRisk) {
+  const mode = loadGuardrailsConfigFromIo(createGuardedIo(root)).review.pre_impl_check;
+  if (mode === "off") return "review.pre_impl_check=off";
+  if (mode === "auto" && allLowRisk) return "review.pre_impl_check=auto \u304B\u3064\u5168\u30BF\u30B9\u30AF\u304C Risk: low";
+}
 function beforeTaskApproval(root, feature, allLowRisk) {
   const path3 = `reports/spec-check/${feature}.md`;
   const report = guardedRead(root, path3);
-  const rerun = `/sdd-bootstrap:bootstrap feature --feature ${feature}`;
+  const rerun = `/sdd-bootstrap:bootstrap <mode> --feature ${feature} <source>`;
+  const inputs = "\u30B3\u30DE\u30F3\u30C9\u306E <mode> \u306B\u5143\u306E\u30E2\u30FC\u30C9\uFF08feature\u3001bugfix\u3001refactor\u3001project\uFF09\u3001<source> \u306B\u5143\u306E\u4F9D\u983C\u6587\u307E\u305F\u306F Issue URL \u3092\u6307\u5B9A\u3057\u3066";
   if (!report.ok && report.error.code === "not-found") {
-    const mode = loadGuardrailsConfigFromIo(createGuardedIo(root)).review.pre_impl_check;
-    if (mode === "off" || mode === "auto" && allLowRisk) return;
+    if (skipReason(root, allLowRisk)) return;
     return {
       phase: "spec-check",
       command: rerun,
-      rationale: `${path3} \u306B\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u306E\u8A18\u9332\u304C\u3042\u308A\u307E\u305B\u3093\u3002\u4ECA\u56DE --skip-check \u3092\u660E\u793A\u3057\u305F\u5834\u5408\u306F\u4EBA\u9593\u306E\u627F\u8A8D\u3078\u9032\u307F\u3001\u305D\u308C\u4EE5\u5916\u306F\u30EC\u30D3\u30E5\u30FC\u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+      rationale: `${path3} \u306B\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u306E\u8A18\u9332\u304C\u3042\u308A\u307E\u305B\u3093\u3002\u4ECA\u56DE --skip-check \u3092\u660E\u793A\u3057\u305F\u5834\u5408\u306F\u4EBA\u9593\u306E\u627F\u8A8D\u3078\u9032\u3093\u3067\u304F\u3060\u3055\u3044\u3002\u305D\u308C\u4EE5\u5916\u306F ${inputs}\u30EC\u30D3\u30E5\u30FC\u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
     };
   }
   if (report.ok) {
@@ -41066,10 +41071,19 @@ function beforeTaskApproval(root, feature, allLowRisk) {
     const verdict = fields.length === 1 ? fields[0]?.[1]?.trim() : void 0;
     if (verdict === "PASS" || verdict === "PASS_WITH_NOTES") return;
     if (verdict === "NEEDS_FIX") {
+      const fix = `${path3} \u306E\u5224\u5B9A\u306F NEEDS_FIX \u3067\u3059\u3002Blockers \u306E\u6307\u6458\u306B\u6CBF\u3063\u3066\u4ED5\u69D8\u3092\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044\u3002`;
+      const skipped = skipReason(root, allLowRisk);
+      if (skipped) {
+        return {
+          phase: "spec-check",
+          command: `human: review ${path3}`,
+          rationale: `${fix} \u73FE\u5728\u306E\u8A2D\u5B9A\uFF08${skipped}\uFF09\u3067\u306F bootstrap \u304C\u30EC\u30D3\u30E5\u30FC\u3092\u7701\u7565\u3059\u308B\u305F\u3081\u3001\u4FEE\u6B63\u5F8C\u306E\u518D\u30EC\u30D3\u30E5\u30FC\u65B9\u6CD5\u3092\u62C5\u5F53\u8005\u306B\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+        };
+      }
       return {
         phase: "spec-check",
         command: rerun,
-        rationale: `${path3} \u306E\u5224\u5B9A\u306F NEEDS_FIX \u3067\u3059\u3002Blockers \u306B\u8A18\u8F09\u3055\u308C\u305F\u6307\u6458\u306B\u6CBF\u3063\u3066\u4ED5\u69D8\u3092\u4FEE\u6B63\u3057\u3001\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+        rationale: `${fix} ${inputs}\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
       };
     }
   }

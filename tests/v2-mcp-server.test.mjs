@@ -353,11 +353,17 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
       'utf8',
     );
     execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'verdict-test', '--root', repoC], { encoding: 'utf8' });
-    const nextRes = callMcp(repoC, [
-      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'verdict-test' } } },
-    ]);
-    const nextState = JSON.parse(nextRes[1].result.content[0].text);
-    assert.equal(nextState.data.nextAction.phase, 'approval-gate');
+    const nextPhase = () => {
+      const result = callMcp(repoC, [
+        { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'verdict-test' } } },
+      ]);
+      return JSON.parse(result[1].result.content[0].text).data.nextAction.phase;
+    };
+    assert.equal(nextPhase(), 'spec-check', 'The high-risk Draft requires its pre-implementation review');
+    const reviewDir = path.join(repoC, 'reports', 'spec-check');
+    fs.mkdirSync(reviewDir, { recursive: true });
+    fs.writeFileSync(path.join(reviewDir, 'verdict-test.md'), '# Spec Check Report: verdict-test\n\n- **Verdict**: PASS\n');
+    assert.equal(nextPhase(), 'approval-gate', 'The reviewed Draft still needs approval even when the other task is Done');
   });
 
   it('D5: requires design.md alongside requirements.md and tasks.md in both sdd_project_overview and sdd_feature_state before guiding to approval-gate', () => {
