@@ -107,6 +107,27 @@ class ConceptTests(unittest.TestCase):
                 source['sha256'] = hashlib.sha256((self.root / source['path']).read_bytes()).hexdigest()
             self.local_proposal('FITS_EXISTING_CONCEPTS')
 
+        def publish_after_comparison(staged):
+            # Simulate the human comparing the old release, the reviewed status
+            # and the candidate, before the shipped checker and atomic replace.
+            current = json.loads(contract_path.read_bytes())
+            candidate = contract_path.with_suffix('.candidate')
+            candidate.write_text(json.dumps(staged), encoding='utf-8')
+            for document in (current, staged):
+                try:
+                    concept.check_schema('domain-contract.v2.schema.json', document)
+                except ValueError:
+                    return False
+            major, minor, patch = current['meta']['version'].split('.')
+            expected = copy.deepcopy(current)
+            expected['meta'].update(status='Approved', version=f'{major}.{minor}.{int(patch) + 1}')
+            if staged != expected or context_path.read_text().splitlines() != ['Domain-Model-Status: Approved']:
+                return False
+            check = subprocess.run([*shell, str(candidate)], capture_output=True, text=True)
+            self.assertEqual(0, check.returncode, check.stdout + check.stderr)
+            candidate.replace(contract_path)
+            return True
+
         for revision in (1, 2):  # Initial review and the next explicit update.
             with self.subTest(revision=revision):
                 contract['meta']['status'] = 'Pending'
@@ -115,12 +136,21 @@ class ConceptTests(unittest.TestCase):
                     context_path.write_text(f'Domain-Model-Status: {status}\n')
                     propose()
                     self.gate(1)
-                candidate = contract_path.with_suffix('.candidate')
                 contract['meta'].update(status='Approved', version=f'1.0.{revision}')
-                candidate.write_text(json.dumps(contract))
-                check = subprocess.run([*shell, str(candidate)], capture_output=True, text=True)
-                self.assertEqual(0, check.returncode, check.stdout + check.stderr)
-                candidate.replace(contract_path)
+                before = contract_path.read_bytes()
+                for metadata in ({'version': f'1.0.{revision}.'}, {'version': f'1.0.{revision + 1}'},
+                                 {'version': f'2.0.{revision}'}, {'version': f'1.1.{revision}'},
+                                 {'status': 'Reviewed'}, {'status': 'ApprovedLater'}):
+                    with self.subTest(metadata=metadata):
+                        staged = copy.deepcopy(contract)
+                        staged['meta'].update(metadata)
+                        self.assertFalse(publish_after_comparison(staged))
+                        self.assertEqual(before, contract_path.read_bytes())
+                altered = copy.deepcopy(contract)
+                altered['concepts'][0]['definition'] += ' Unreviewed change.'
+                self.assertFalse(publish_after_comparison(altered))
+                self.assertEqual(before, contract_path.read_bytes())
+                self.assertTrue(publish_after_comparison(contract))
                 self.gate(1)  # The previous proposal still pins the old version.
                 propose()
                 before = contract_path.read_bytes()
@@ -129,6 +159,14 @@ class ConceptTests(unittest.TestCase):
                 context_path.write_text('Domain-Model-Status: Reviewed\n')
                 propose()
                 self.gate(1)  # An Approved JSON alone does not authorize the model.
+
+        contract['meta']['version'] += '.'
+        self.write('domain/domain-contract.json', contract)
+        before = contract_path.read_bytes()
+        contract['meta']['version'] = '1.0.3'
+        context_path.write_text('Domain-Model-Status: Approved\n')
+        self.assertFalse(publish_after_comparison(contract))
+        self.assertEqual(before, contract_path.read_bytes())
 
     def local_confirmation(self, answer):
         # Synthetic terminal input only, inside this test's temporary project.

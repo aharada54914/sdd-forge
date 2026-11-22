@@ -195,6 +195,9 @@ Describe "C4 template belongs to bootstrap architecture" {
     It "exists only in bootstrap architecture" {
         $core = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md')
         $core | Should Match 'templates/c4-container\.template\.md'
+        $guide = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repositoryRoot 'docs/skill-reference.md')
+        $guidePath = [regex]::Match($guide, '`([^`]+/c4-container\.template\.md)`').Groups[1].Value
+        (Join-Path $repositoryRoot $guidePath) | Should BeExactly $script:c4Path
         @(Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-domain') -Recurse -File -Filter 'c4-container.template.md').Count | Should Be 0
     }
 

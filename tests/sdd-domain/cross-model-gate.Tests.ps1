@@ -16,6 +16,14 @@ Describe 'domain-model review uses the two local perspectives' {
         $command | Should Match 'never set `Domain-Model-Status: Approved` on behalf of the human'
         $router | Should Match '(?m)^\| `review` \| No \| `domain-review-loop`'
         $router | Should Match 'reports/domain-review/latest\.md'
+        $reviewMode = [regex]::Match($router, '(?ms)^### `review`.*?(?=^## )').Value
+        $handoff = [regex]::Match($router, '(?ms)^## Handoff.*').Value
+        $reviewMode | Should Match 'PASS_WITH_NOTES.*Handoff'
+        $reviewMode | Should Match 'NEEDS_FIX.*再レビュー'
+        $handoff | Should Match 'domain/context-map\.md'
+        $handoff | Should Match '本人.*domain/domain-contract\.json.*検証.*発行'
+        $handoff | Should Match '発行後.*新しい入力.*Concept Test'
+        $handoff | Should Match 'domain-review-loop/SKILL\.md'
     }
 
     It 'retains the local outcome and the owner of the report and review transition' {

@@ -40,8 +40,8 @@ user-invocable: false
 初回と更新後とも、`PASS` または `PASS_WITH_NOTES` の `reports/domain-review/latest.md` と `Reviewed` の正本を人が確認する。人が承認を選んだら、レビュー時の正本と契約の内容に変更がないことを確認し、本人が次を行う。
 
 1. `domain/context-map.md` の `Domain-Model-Status: Reviewed` を `Approved` に変える。未レビューの `Pending`、`NEEDS_FIX`、またはレビュー後に本文が変わった場合は `domain-model review` へ戻る。
-2. 同じ版の `domain/domain-contract.json` を一時ファイルにコピーし、本人が `meta.status` を `Approved`、`meta.version` を次のパッチ版にする。他の内容と `meta.generated_from` の入力がレビュー済みの版に一致することを確認する。すでに同じ承認済み内容が発行済みなら再発行は不要。
-3. interviewer の「`domain-contract.json` (v2) 再生成」と同じ配布 `scripts/validate-domain-contract.sh <candidate>`（Windows は `.ps1`）で検証する。入力が同じ版のままで、終了値が 0 の場合だけ、本人が一時ファイルで契約を原子的に置換する。失敗・入力変更なら既存の契約を保持し、先に原因を解決する。
+2. 同じ版の `domain/domain-contract.json` を一時ファイルにコピーし、本人が `meta.status` を `Approved`、`meta.version` を次のパッチ版にする。置換前に v2 スキーマ（`contracts/domain-contract.v2.schema.json`）の `meta` と照合する。旧有効版のバージョンは半角数字3組の `major.minor.patch` 形式とし、その major と minor を維持し、patch の整数値に 1 を加えた文字列と候補を完全一致させる（例：`1.0.9` → `1.0.10`）。状態は正本の `Approved` と完全一致させる。旧版と候補の差分がこの2項目だけで、`meta.generated_from` の各入力もレビュー済みのままであることを確認する。すでに同じ承認済み内容が発行済みなら再発行は不要。
+3. interviewer の「`domain-contract.json` (v2) 再生成」と同じ配布 `scripts/validate-domain-contract.sh <candidate>`（Windows は `.ps1`）で検証する。この検証器は期待する版番号と承認状態の完全一致を判定しない。手順2の照合をすべて満たし、終了値が 0 で入力が同じ版のままの場合だけ、本人が一時ファイルで契約を原子的に置換する。旧版の有効性を確認できない、期待値や入力が違う、検証に失敗した場合は既存の契約を保持し、先に原因を解決する。
 4. 正本と契約の両方が `Approved` の現在の入力から Concept Test 提案を作る。発行前の提案は旧入力に結び付いている。
 
 ## Boundaries

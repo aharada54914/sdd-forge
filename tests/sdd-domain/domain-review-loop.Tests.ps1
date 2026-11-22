@@ -267,7 +267,12 @@ Describe "domain-review-loop SKILL.md contract" {
         $script:skillText | Should Match 'Domain-Model-Status: Approved` は絶対に書き込まない（人間のみ）'
         $script:skillText | Should Match 'PASS_WITH_NOTES` の `reports/domain-review/latest.md` と `Reviewed` の正本を人が確認'
         $script:skillText | Should Match '本人が `meta.status` を `Approved`、`meta.version` を次のパッチ版'
-        $script:skillText | Should Match '終了値が 0 の場合だけ、本人が一時ファイルで契約を原子的に置換'
+        $script:skillText | Should Match 'contracts/domain-contract.v2.schema.json'
+        $script:skillText | Should Match 'major と minor を維持し、patch の整数値に 1 を加えた'
+        $script:skillText | Should Match '正本の `Approved` と完全一致'
+        $script:skillText | Should Match '旧版が無効|旧版の有効性を確認できない'
+        $script:skillText | Should Match '既存の契約を保持'
+        $script:skillText | Should Match '終了値が 0.*本人が一時ファイルで契約を原子的に置換'
     }
 
     It "isolates public raw outputs and tests the actual historical summary bridge" {
