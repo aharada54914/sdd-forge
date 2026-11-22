@@ -686,11 +686,9 @@ sh plugins/sdd-quality-loop/scripts/check-traceability.sh <traceability.json> [r
 
 ### check-evidence-bundle
 
-**目的**
+v2 でタスクを完了するときは、`/sdd-ship:ship` から `/sdd-quality-loop:sdd-gate` に進みます。ゲートはプロジェクトの検査を実行し、独立レビューの判定を記録します。公開 MCP の `sdd_gate_audit` では、その実行結果とレビューレポートを個人の検証鍵なしで参照できます。
 
-`Done` 判定に使う quality report、verification contract、passing evidence の存在と SHA-256 を検証。`high`/`critical` タスクでは `risk`・`required_workflow`・`spec_revision`・`build_env`・`builder`・`review_verdict` のプロベナンスフィールドを必須検証。`critical` タスクでは HMAC-SHA256 署名も検証（鍵は `SDD_EVIDENCE_KEY` / `SDD_EVIDENCE_KEY_FILE` / `~/.sdd/evidence-key` から解決）。
-
-このコマンドは旧形式の完了証跡を読み取ります。署名方式が Sigstore の記録では、呼び出し側が別途行った署名検証の結果を参照します。公開 v2 MCP のステータス照会ではこの旧形式の署名検証を要求しません。
+過去の `Done` の証跡バンドルを再検証するときは、次のスクリプトを使います。quality report、verification contract、passing evidence の存在と SHA-256 を照合します。旧形式の `high` / `critical` では `risk`・`required_workflow`・`spec_revision`・`build_env`・`builder`・`review_verdict` も検査します。HMAC-SHA256 で署名された `critical` の記録は、`SDD_EVIDENCE_KEY`、`SDD_EVIDENCE_KEY_FILE`、`~/.sdd/evidence-key` のいずれかに設定した鍵で照合します。Sigstore の記録では、呼び出し側が行った署名検証の結果を参照します。
 
 ```bash
 sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh <path-to-evidence.json> [repo-root]

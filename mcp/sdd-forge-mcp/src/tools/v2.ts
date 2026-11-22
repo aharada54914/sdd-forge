@@ -221,16 +221,15 @@ function computeNextAction(
   tasks: readonly V2TaskSummary[],
   specCheckVerdict: string,
   highestRisk: RiskTier,
-  hasSpecs: boolean,
+  files: { requirements: boolean; design: boolean; tasks: boolean },
   driftStatus: DriftStatus,
 ): NextAction {
-  if (!hasSpecs || tasks.length === 0) {
-    return {
-      phase: "bootstrap",
-      command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
-      rationale: `specs/${feature} is missing core SDD specification files or tasks.`,
-    };
-  }
+  const bootstrap: NextAction = {
+    phase: "bootstrap",
+    command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
+    rationale: `specs/${feature} is missing core SDD specification files or tasks.`,
+  };
+  if (!files.requirements || !files.tasks || tasks.length === 0) return bootstrap;
   if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {
     return {
       phase: "blocked",
@@ -246,6 +245,7 @@ function computeNextAction(
       rationale: `Task(s) ${blocked.map((t) => t.id).join(", ")} are Blocked in specs/${feature}/tasks.md.`,
     };
   }
+  if (!files.design) return bootstrap;
   const approved = tasks.filter((t) => isApprovedValue(t.approval));
   if (approved.length === 0) {
     if (highestRisk !== "low" && specCheckVerdict === "Not Run") {
@@ -407,10 +407,11 @@ export function sddProjectOverview(
     try {
       const dv = buildDecisionViewDataCore(io, { feature });
       const drift = readDriftSummary(root, feature);
-      const hasSpecs =
-        guardedExists(root, `specs/${feature}/requirements.md`) &&
-        guardedExists(root, `specs/${feature}/design.md`) &&
-        guardedExists(root, `specs/${feature}/tasks.md`);
+      const files = {
+        requirements: guardedExists(root, `specs/${feature}/requirements.md`),
+        design: guardedExists(root, `specs/${feature}/design.md`),
+        tasks: guardedExists(root, `specs/${feature}/tasks.md`),
+      };
       const tasks = dv.tasks as V2TaskSummary[];
       const highestRisk = toRiskTier(dv.highestRisk);
       activeFeatures.push({
@@ -430,7 +431,7 @@ export function sddProjectOverview(
           tasks,
           dv.specCheckVerdict,
           highestRisk,
-          hasSpecs,
+          files,
           drift.status,
         ),
       });
@@ -533,7 +534,7 @@ export function sddFeatureState(
         dv.tasks as V2TaskSummary[],
         dv.specCheckVerdict,
         highestRisk,
-        files.requirements && files.design && files.tasks,
+        files,
         drift.status,
       ),
     };

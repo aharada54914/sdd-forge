@@ -41520,14 +41520,13 @@ function validateTaskId(taskId) {
 function isApprovedValue(approval) {
   return /^Approved(?:\s+\([^)]+\))?$/i.test(approval.trim());
 }
-function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus) {
-  if (!hasSpecs || tasks.length === 0) {
-    return {
-      phase: "bootstrap",
-      command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
-      rationale: `specs/${feature} is missing core SDD specification files or tasks.`
-    };
-  }
+function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, files, driftStatus) {
+  const bootstrap = {
+    phase: "bootstrap",
+    command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
+    rationale: `specs/${feature} is missing core SDD specification files or tasks.`
+  };
+  if (!files.requirements || !files.tasks || tasks.length === 0) return bootstrap;
   if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {
     return {
       phase: "blocked",
@@ -41543,6 +41542,7 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpe
       rationale: `Task(s) ${blocked.map((t) => t.id).join(", ")} are Blocked in specs/${feature}/tasks.md.`
     };
   }
+  if (!files.design) return bootstrap;
   const approved = tasks.filter((t) => isApprovedValue(t.approval));
   if (approved.length === 0) {
     if (highestRisk !== "low" && specCheckVerdict === "Not Run") {
@@ -41676,7 +41676,11 @@ function sddProjectOverview(root, options = {}) {
     try {
       const dv = buildDecisionViewDataCore(io, { feature });
       const drift = readDriftSummary(root, feature);
-      const hasSpecs = guardedExists(root, `specs/${feature}/requirements.md`) && guardedExists(root, `specs/${feature}/design.md`) && guardedExists(root, `specs/${feature}/tasks.md`);
+      const files = {
+        requirements: guardedExists(root, `specs/${feature}/requirements.md`),
+        design: guardedExists(root, `specs/${feature}/design.md`),
+        tasks: guardedExists(root, `specs/${feature}/tasks.md`)
+      };
       const tasks = dv.tasks;
       const highestRisk = toRiskTier(dv.highestRisk);
       activeFeatures.push({
@@ -41696,7 +41700,7 @@ function sddProjectOverview(root, options = {}) {
           tasks,
           dv.specCheckVerdict,
           highestRisk,
-          hasSpecs,
+          files,
           drift.status
         )
       });
@@ -41780,7 +41784,7 @@ function sddFeatureState(root, rawFeature, options = {}) {
         dv.tasks,
         dv.specCheckVerdict,
         highestRisk,
-        files.requirements && files.design && files.tasks,
+        files,
         drift.status
       )
     };

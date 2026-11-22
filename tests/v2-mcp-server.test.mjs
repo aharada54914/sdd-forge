@@ -439,6 +439,31 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(stateAfter.data.nextAction.phase, 'approval-gate');
   });
 
+  it('retains the blocked action when an existing design is lost or a task has a recorded blocker', (t) => {
+    const repo = createV2TestRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const dir = path.join(repo, 'specs', 'demo-api');
+    fs.unlinkSync(path.join(dir, 'design.md'));
+
+    function assertBlocked(expectedReason) {
+      const responses = callMcp(repo, [
+        { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+        { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'demo-api' } } },
+      ]);
+      const overview = JSON.parse(responses[1].result.content[0].text).data;
+      const state = JSON.parse(responses[2].result.content[0].text).data;
+      assert.equal(state.nextAction.phase, 'blocked');
+      assert.match(state.nextAction.rationale, expectedReason);
+      assert.deepEqual(overview.activeFeatures.find(f => f.feature === 'demo-api').nextAction, state.nextAction);
+    }
+
+    assertBlocked(/UNDECLARED_DRIFT/);
+    fs.unlinkSync(path.join(dir, '.spec-baseline.json'));
+    const tasks = path.join(dir, 'tasks.md');
+    fs.writeFileSync(tasks, fs.readFileSync(tasks, 'utf8').replace('Status: Implementation Complete', 'Status: Blocked'));
+    assertBlocked(/T-001/);
+  });
+
   it(
     'install.sh places dashboard CLI runtime by default without registering MCPs, rejects conflicting flags, and supports --with-mcp',
     { skip: process.platform === 'win32' },
