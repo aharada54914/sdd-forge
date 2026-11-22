@@ -40,3 +40,8 @@ user-invocable: false
 - `Domain-Model-Status: Approved` は絶対に書き込まない（人間のみ）。
 - レビュアーは `domain/` 成果物本文やステータスを書き換えない（`Reviewed` 遷移およびレポート出力は親オーケストレータの責務）。
 - 外部クロスモデル送信や権限昇格トークンによるロック解除は行わない。
+
+## Contract Boundary: Public v2 Single-Pass vs. Historical v1 Scripts
+
+- 本スキル（公開 v2 単一パス経路）は、`domain-reviewer-a` / `domain-reviewer-b` から 4 キー JSON（`schema: "domain-reviewer-{a,b}/v2"`, `role`, `verdict: "PASS" | "PASS_WITH_NOTES" | "NEEDS_FIX"`, `checks`）を並列受領し、統合レポートを `reports/domain-review/latest.md` へ出力する。
+- 同梱の旧 v1 互換スクリプト（`plugins/sdd-domain/scripts/domain-review-precheck.{sh,ps1}` および `plugins/sdd-domain/scripts/finalize-domain-review.{py,sh,ps1}`）は **本スキルの現行 v2 出力（`domain-reviewer-{a,b}/v2` JSON や `reports/domain-review/latest.md`）を受理しない**。旧 v1 経路は `reports/domain-review/attempt-<N>/round-<M>/precheck-result.json`（`domain-review-precheck/v1`）、`reports/review-context/identity-ledger.json` による順次予約と `reviewer-{a,b}-invocation.json`、8 キーの `reviewer-{a,b}.json`（`schema: "domain-reviewer-{a,b}/v1"`, `verdict: "PASS" | "NEEDS_WORK" | "BLOCKED"`）、および Reviewer A からの `--mode summary`（`integrated-summary.json`）を要求する別契約であり、v2 単一パス経路と混用しない。

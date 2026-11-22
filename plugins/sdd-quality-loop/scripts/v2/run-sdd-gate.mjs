@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Unified deterministic runner for SDD Core's sdd-gate (v2 Lightweight Guardrails).
- * Zero external dependencies — Node.js >= 20 LTS built-in modules only.
+ * Uses the packaged domain validator for features with v2 Concept Test evidence.
  *
  * Runs in one invocation:
  *   1. Task precondition check (Approval: Approved, Status: Implementation Complete|Done)
@@ -22,10 +22,11 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
+  isCliEntrypoint,
   normalizeNewlines,
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
@@ -475,6 +476,119 @@ function runVerificationCommands(projectRoot, commands) {
   return results;
 }
 
+function conceptRecordSchema(contents, filename) {
+  let raw = contents;
+  if (filename.endsWith('.md')) {
+    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
+    if (blocks.length !== 1) return null;
+    raw = blocks[0][1];
+  }
+  try {
+    const schema = JSON.parse(raw)?.schema;
+    if (schema === 'concept-test/v2') return schema;
+    if (schema !== 'concept-test/v1') return null;
+    // JSON.parse alone retains only the last duplicate schema key.
+    let schemaKeys = 0;
+    for (const match of raw.matchAll(/("(?:[^"\\]|\\.)*")\s*(:)?/g)) {
+      if (match[2] && JSON.parse(match[1]) === 'schema') schemaKeys++;
+    }
+    return schemaKeys === 1 ? schema : null;
+  } catch {
+    return null;
+  }
+}
+
+function needsConceptCheck(root, feature) {
+  const prefix = `specs/${feature}/concept-test`;
+  const receipt = prefix + '.decision.json';
+  const paths = [receipt, prefix + '.json', prefix + '.md'];
+  for (const rel of paths) {
+    const file = path.join(root, rel);
+    const stat = fs.lstatSync(file, { throwIfNoEntry: false });
+    if (stat && (rel === receipt || !stat.isFile()
+        || conceptRecordSchema(fs.readFileSync(file, 'utf8'), rel) !== 'concept-test/v1')) return true;
+  }
+
+  // A tracked receipt or proposal still applies after deletion or restoration
+  // of an old version. Scope the lookup to this feature in this checkout.
+  let repo = root;
+  while (!fs.existsSync(path.join(repo, '.git'))) {
+    const parent = path.dirname(repo);
+    if (parent === repo) return false;
+    repo = parent;
+  }
+  const marker = path.join(repo, '.git');
+  if (fs.statSync(marker).isDirectory() && !fs.existsSync(path.join(marker, 'HEAD'))
+      && fs.readdirSync(marker).length === 0) return false;
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+  const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
+    encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
+  });
+  const blobs = new Map();
+  const remember = (filename, ...oids) => {
+    for (const oid of oids) if (!/^0+$/.test(oid)) blobs.set(oid + path.extname(filename), { filename, oid });
+  };
+  let index;
+  try {
+    index = git('ls-files', '--stage', '-z', '--', ...paths);
+  } catch (err) {
+    // Git is optional for SDD Core. Live v2 evidence was checked above.
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
+  for (const entry of index.split('\0').filter(Boolean)) {
+    const [meta, filename] = entry.split('\t');
+    if (filename.endsWith('/concept-test.decision.json')) return true;
+    remember(filename, meta.split(' ')[1]);
+  }
+  const indexedBlobs = new Set(blobs.keys());
+  let history = '';
+  try {
+    history = git('log', '--raw', '--format=', '--full-history', '-m', '--no-renames',
+      '--no-abbrev', '-z', 'HEAD', '--', ...paths);
+  } catch (err) {
+    // In a new repository there is a valid index but HEAD has no commit.
+    // Other history errors block the gate, including missing objects.
+    if (err.status !== 128) throw err;
+    const branch = git('symbolic-ref', '--quiet', 'HEAD').trim();
+    try { git('show-ref', '--verify', '--quiet', branch); }
+    catch (refError) { if (refError.status === 1) history = null; else throw refError; }
+    if (history !== null) throw err;
+  }
+  const changes = (history || '').split('\0');
+  for (let i = 0; i + 1 < changes.length; i += 2) {
+    const filename = changes[i + 1];
+    if (filename.endsWith('/concept-test.decision.json')) return true;
+    const [, , before, after] = changes[i].trim().split(' ');
+    remember(filename, before, after);
+  }
+  for (const [key, { filename, oid }] of blobs) {
+    const schema = conceptRecordSchema(git('cat-file', 'blob', oid), filename);
+    // Ambiguous current/indexed evidence needs validation. A historical
+    // narrative draft alone does not establish that this feature adopted v2.
+    if (schema === 'concept-test/v2' || (schema === null && indexedBlobs.has(key))) return true;
+  }
+  return false;
+}
+
+function checkConceptTest(root, feature) {
+  try {
+    const required = needsConceptCheck(root, feature);
+    if (required === null) return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
+    if (!required) return { passed: true, status: 'NOT_APPLICABLE' };
+    const win = process.platform === 'win32';
+    const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
+    const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
+    const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
+    const status = result.stdout?.trim();
+    if (result.status === 0 && status === 'CONTINUE') return { passed: true, status };
+    if ((result.status === 2 && status === 'DEFER') || (result.status === 3 && status === 'REJECT')) return { passed: false, status };
+    return { passed: false, status: 'BLOCK', error: truncateTail(result.error?.message || result.stderr || 'Invalid concept-test result').trim() };
+  } catch (err) {
+    return { passed: false, status: 'BLOCK', error: truncateTail(err.message) };
+  }
+}
+
 export function runSddGate({
   feature,
   taskId,
@@ -543,7 +657,8 @@ export function runSddGate({
     ? { skipped: true, passed: true, findings: [] }
     : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
   const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
-  const commandResults = runVerificationCommands(root, commands);
+  const conceptTest = checkConceptTest(root, feature);
+  const commandResults = conceptTest.passed ? runVerificationCommands(root, commands) : [];
   const allCommandsPassed = commandResults.every((r) => r.passed);
 
   const verdict =
@@ -552,6 +667,7 @@ export function runSddGate({
     placeholders.passed &&
     nonFunctionalSensors.passed &&
     openQuestions.passed &&
+    conceptTest.passed &&
     allCommandsPassed
       ? 'PASS'
       : 'FAIL';
@@ -568,6 +684,7 @@ export function runSddGate({
       placeholders,
       nonFunctionalSensors,
       openQuestions,
+      conceptTest,
       commands: commandResults,
     },
   };
@@ -672,6 +789,6 @@ function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (isCliEntrypoint(import.meta.url)) {
   main();
 }

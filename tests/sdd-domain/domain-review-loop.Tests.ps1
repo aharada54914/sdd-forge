@@ -322,9 +322,17 @@ Describe "domain-reviewer-a.md contract (strategic checks)" {
         $script:reviewerAText | Should Match "domain-review-calibration\.md"
     }
 
-    It "declares the domain-reviewer-a/v1 output schema" {
-        $script:reviewerAText | Should Match '"schema": "domain-reviewer-a/v1"'
-        $script:reviewerAText | Should Match '"stage": "domain"'
+    It "declares the domain-reviewer-a/v2 output schema" {
+        $match = [regex]::Match($script:reviewerAText, '(?s)```json\r?\n(\{.*?\})\r?\n```')
+        $match.Success | Should Be $true
+        $example = $match.Groups[1].Value | ConvertFrom-Json
+        $keys = @($example.PSObject.Properties | ForEach-Object { $_.Name } | Sort-Object)
+        ($keys -join ',') | Should Be 'checks,role,schema,verdict'
+        (($keys -join ',') -ceq 'checks,role,schema,verdict') | Should Be $true
+        $example.schema | Should Be 'domain-reviewer-a/v2'
+        ($example.schema -ceq 'domain-reviewer-a/v2') | Should Be $true
+        $example.role | Should Be 'domain-reviewer-a'
+        ($example.role -ceq 'domain-reviewer-a') | Should Be $true
     }
 }
 
@@ -366,9 +374,17 @@ Describe "domain-reviewer-b.md contract (tactical checks)" {
         $script:reviewerBText | Should Match "Never read .reviewer-a\.json."
     }
 
-    It "declares the domain-reviewer-b/v1 output schema" {
-        $script:reviewerBText | Should Match '"schema": "domain-reviewer-b/v1"'
-        $script:reviewerBText | Should Match '"stage": "domain"'
+    It "declares the domain-reviewer-b/v2 output schema" {
+        $match = [regex]::Match($script:reviewerBText, '(?s)```json\r?\n(\{.*?\})\r?\n```')
+        $match.Success | Should Be $true
+        $example = $match.Groups[1].Value | ConvertFrom-Json
+        $keys = @($example.PSObject.Properties | ForEach-Object { $_.Name } | Sort-Object)
+        ($keys -join ',') | Should Be 'checks,role,schema,verdict'
+        (($keys -join ',') -ceq 'checks,role,schema,verdict') | Should Be $true
+        $example.schema | Should Be 'domain-reviewer-b/v2'
+        ($example.schema -ceq 'domain-reviewer-b/v2') | Should Be $true
+        $example.role | Should Be 'domain-reviewer-b'
+        ($example.role -ceq 'domain-reviewer-b') | Should Be $true
     }
 }
 

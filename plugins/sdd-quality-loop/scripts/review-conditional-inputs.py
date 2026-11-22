@@ -153,7 +153,9 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
             if result.returncode:
                 raise ValueError('fixed revision could not be read')
             return result.stdout
-        for entry in git('ls-tree', '-r', '-t', '-z', '--full-tree', revision).split(b'\0'):
+        # Resolve the selected project subtree. A monorepo's own domain/specs
+        # are not inputs of a nested project with the same feature name.
+        for entry in git('ls-tree', '-r', '-t', '-z', '--full-tree', revision + ':./').split(b'\0'):
             if entry:
                 metadata, name = entry.split(b'\t', 1)
                 tree[name.decode('utf-8')] = metadata.decode('ascii').split()
@@ -173,7 +175,10 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
 
     def observe(relative, optional=False):
         raw = source(relative, optional)
-        observed[relative] = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        digest = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        if relative in observed and observed[relative] != digest:
+            raise ValueError('conditional input changed during validation: ' + relative)
+        observed[relative] = digest
         return raw
 
     def admit(relative, optional=False):
@@ -200,15 +205,28 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
             if entry['path'] != 'specs/' + feature + '/requirements.md':
                 inputs.append(entry)
 
-    raw_contract = source('domain/domain-contract.json', True)
+    raw_contract = observe('domain/domain-contract.json', True)
     try:
         candidate = json.loads(raw_contract, object_pairs_hook=unique_object) if raw_contract is not None else {}
     except (ValueError, UnicodeError):
         candidate = {}
     concept_required = isinstance(candidate, dict) and candidate.get('schema') == 'domain-contract/v2'
-    if stage in ('task', 'quality'):
-        if not concept_required and source('specs/' + feature + '/concept-test.json', True) is None:
-            return {'inputs': [], 'research_inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
+    prefix = 'specs/' + feature + '/concept-test'
+    has_concept = (concept_required or source(prefix + '.json', True) is not None
+                   or source(prefix + '.decision.json', True) is not None)
+    if stage in ('task', 'quality') and not has_concept:
+        return {'inputs': [], 'research_inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
+    concept, concept_inputs = {}, []
+    if has_concept:
+        module_path = Path(__file__).resolve().parents[2] / 'sdd-domain/scripts/validate-concept-test.py'
+        spec = importlib.util.spec_from_file_location('conditional_concept', module_path)
+        if spec is None or spec.loader is None:
+            raise ValueError('Concept Test validator loader unavailable')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        concept, concept_inputs = module.evidence(root, feature, observe, allow_local=True)
+        if concept.get('decision', 'proceed') != 'proceed':
+            raise ValueError('Concept Test does not permit continuing feature work')
     if stage == 'impl':
         admit('specs/' + feature + '/investigation.md', True)
     context = admit('domain/context-map.md', True)
@@ -222,8 +240,10 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
                 raise ValueError('unsupported domain schema')
         except (ValueError, UnicodeError):
             version = None
-        valid = False
-        if version is not None:
+        # The bundled Concept Test v2 validator has already checked this exact
+        # domain contract, including its references, using its packaged schema.
+        valid = version == 'domain-contract/v2' and concept.get('schema') == 'concept-test/v2'
+        if version is not None and not valid:
             schema = json.loads(observe('contracts/' + version.replace('/', '.') + '.schema.json'))
             spec = importlib.util.spec_from_file_location('review_schema', Path(__file__).with_name('validate-facet-manifest.py'))
             if spec is None or spec.loader is None:
@@ -243,20 +263,11 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
                     if not re.fullmatch(r'domain/aggregates/[^/]+\.md', card):
                         raise ValueError('unsafe aggregate card path: ' + card)
                     admit(card)
-    concept_path = 'specs/' + feature + '/concept-test.json'
-    if concept_required or source(concept_path, True) is not None:
-        module_path = Path(__file__).resolve().parents[2] / 'sdd-domain/scripts/validate-concept-test.py'
-        spec = importlib.util.spec_from_file_location('conditional_concept', module_path)
-        if spec is None or spec.loader is None:
-            raise ValueError('Concept Test validator loader unavailable')
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        concept, concept_inputs = module.evidence(root, feature, observe)
-        if concept.get('decision', 'proceed') != 'proceed':
-            raise ValueError('Concept Test does not permit continuing feature work')
-        for entry in concept_inputs:
-            if entry['path'] not in {item['path'] for item in inputs}:
-                admit(entry['path'])
+    for entry in concept_inputs:
+        if entry['path'] not in {item['path'] for item in inputs}:
+            if observed.get(entry['path']) != entry['sha256']:
+                raise ValueError('inconsistent Concept Test observation')
+            inputs.append(entry)
     ds_status = 'not-applicable'
     ds_dir = root / 'design-system'
     ds_present = ('design-system' in tree if revision is not None else

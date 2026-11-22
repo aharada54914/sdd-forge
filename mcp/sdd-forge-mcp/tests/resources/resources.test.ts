@@ -1,144 +1,106 @@
-/**
- * AC-013: every one of the 5 `sdd://` resources, read through a real MCP
- * client/server pair (SDK InMemoryTransport), must (a) appear in
- * resources/list or resources/templates/list, (b) validate against
- * contracts/sdd-forge-mcp-tools.v1.schema.json, and (c) return a JSON body
- * that deep-equals the same-fixture tool call's envelope — resources are a
- * thin view over `tools/core.ts`, never a second implementation.
- */
-
-import { test } from "node:test";
+/** Exercise both published resources against the same v2 server as tools/call. */
+import { test, type TestContext } from "node:test";
 import assert from "node:assert/strict";
-import {
-  getEnvelopeValidator,
-  makeResourcesFixture,
-  parseEnvelope,
-  parseResourceEnvelope,
-} from "./test-helpers.js";
+import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import type { Result } from "../../src/envelope.js";
+import type { GateAuditData } from "../../src/tools/v2.js";
+import { getV2DefValidator, makeCoreToolsFixture, parseEnvelope } from "../core-tools/test-helpers.js";
+import { readResource } from "./test-helpers.js";
 
-test("resources/list + resources/templates/list together expose all 5 sdd:// resources", async () => {
-  const fixture = await makeResourcesFixture("resources-list");
-  try {
-    const { resources } = await fixture.client.listResources();
-    const { resourceTemplates } = await fixture.client.listResourceTemplates();
+async function connect(t: TestContext) {
+  const fixture = await makeCoreToolsFixture("v2-resources");
+  t.after(fixture.cleanup);
+  return fixture.client;
+}
 
-    const staticUris = resources.map((r) => r.uri).sort();
-    assert.deepEqual(staticUris, ["sdd://active-specs", "sdd://quality-reports", "sdd://review-tickets"]);
+test("resources/list and resources/templates/list advertise the two v2 JSON views", async (t) => {
+  const client = await connect(t);
+  const { resources } = await client.listResources();
+  const { resourceTemplates } = await client.listResourceTemplates();
+  assert.deepEqual(resources.map(r => [r.uri, r.mimeType]), [["sdd://overview", "application/json"]]);
+  assert.deepEqual(resourceTemplates.map(t => [t.uriTemplate, t.mimeType]), [["sdd://feature/{feature}", "application/json"]]);
+});
 
-    const templateUris = resourceTemplates.map((t) => t.uriTemplate).sort();
-    assert.deepEqual(templateUris, ["sdd://spec/{feature}", "sdd://tasks/{feature}"]);
+test("sdd://overview includes health and matches the project overview tool", async (t) => {
+  const client = await connect(t);
+  const resource = await readResource(client, "sdd://overview", "sdd_project_overview_data");
+  assert.equal(resource.ok, true);
+  assert.ok(resource.data.doctor);
+  assert.deepEqual(resource.data.activeFeatures.map(f => f.feature).sort(), ["feature-a", "feature-b"]);
+  const feature = resource.data.activeFeatures.find(f => f.feature === "feature-a");
+  assert.equal(feature?.taskCounts.total, 2);
+  const tool = await client.callTool({ name: "sdd_project_overview", arguments: { includeDoctor: true } });
+  assert.deepEqual(parseEnvelope(tool), resource);
+});
 
-    assert.equal(resources.length + resourceTemplates.length, 5);
-  } finally {
-    await fixture.cleanup();
+test("sdd://feature reads the requested feature state and its rendered Decision View", async (t) => {
+  const client = await connect(t);
+  for (const feature of ["feature-a", "feature-b"]) {
+    const resource = await readResource(client, "sdd://feature/" + feature, "sdd_feature_state_data");
+    assert.equal(resource.ok, true);
+    assert.equal(resource.data.feature, feature);
+    assert.ok(resource.data.decisionViewMarkdown?.includes("# Decision View: " + feature));
+    const tool = await client.callTool({ name: "sdd_feature_state", arguments: { feature, includeDecisionViewMarkdown: true } });
+    assert.deepEqual(parseEnvelope(tool), resource);
   }
 });
 
-test("sdd://active-specs matches list_active_specs exactly", async () => {
-  const fixture = await makeResourcesFixture("resources-active-specs");
-  try {
-    const toolResult = await fixture.client.callTool({ name: "list_active_specs", arguments: {} });
-    const toolEnvelope = parseEnvelope(toolResult);
+test("the feature tool defaults to the same state without the resource's optional markdown", async (t) => {
+  const client = await connect(t);
+  const resource = await readResource(client, "sdd://feature/feature-a", "sdd_feature_state_data");
+  assert.equal(resource.ok, true);
+  assert.equal(resource.data.files.tasks, true);
+  assert.equal(resource.data.traceability.taskCount, 2);
+  const { decisionViewMarkdown, ...state } = resource.data;
+  assert.ok(decisionViewMarkdown);
+  const tool = await client.callTool({ name: "sdd_feature_state", arguments: { feature: "feature-a" } });
+  assert.deepEqual(parseEnvelope(tool), { ok: true, data: state });
+});
 
-    const resourceResult = await fixture.client.readResource({ uri: "sdd://active-specs" });
-    const resourceEnvelope = parseResourceEnvelope(resourceResult);
+test("a valid missing feature returns the same not-found envelope through both APIs", async (t) => {
+  const client = await connect(t);
+  const feature = "missing-feature";
+  const resource = await readResource(client, "sdd://feature/" + feature, "sdd_feature_state_data");
+  assert.equal(resource.ok, false);
+  assert.equal(resource.error.code, "not-found");
+  const tool = await client.callTool({ name: "sdd_feature_state", arguments: { feature, includeDecisionViewMarkdown: true } });
+  assert.deepEqual(parseEnvelope(tool), resource);
+});
 
-    assert.ok(getEnvelopeValidator()(resourceEnvelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.deepEqual(resourceEnvelope, toolEnvelope);
-    assert.equal(resourceResult.contents[0]?.mimeType, "application/json");
-  } finally {
-    await fixture.cleanup();
+test("a feature slug containing a space reports the resource and tool input errors", async (t) => {
+  const client = await connect(t);
+  const resource = await readResource(client, "sdd://feature/feature%20two", "sdd_feature_state_data");
+  assert.equal(resource.ok, false);
+  assert.equal(resource.error.code, "invalid-input");
+  const raw = await client.callTool({ name: "sdd_feature_state", arguments: { feature: "feature two" } });
+  const tool = CallToolResultSchema.parse(raw);
+  assert.equal(tool.isError, true);
+  const [message] = tool.content;
+  assert.ok(message?.type === "text");
+  assert.match(message.text, /-32602/);
+  assert.match(message.text, /Invalid arguments for tool sdd_feature_state/);
+});
+
+test("the retired project, spec, task and ticket resource URIs have no public read handler", async (t) => {
+  const client = await connect(t);
+  for (const uri of [
+    "sdd://active-specs", "sdd://spec/feature-a", "sdd://tasks/feature-a", "sdd://review-tickets",
+  ]) {
+    await assert.rejects(client.readResource({ uri }), { message: new RegExp("Resource " + uri + " not found") });
   }
 });
 
-test("sdd://spec/{feature} matches get_spec_status exactly", async () => {
-  const fixture = await makeResourcesFixture("resources-spec-status");
-  try {
-    const toolResult = await fixture.client.callTool({
-      name: "get_spec_status",
-      arguments: { feature: "feature-a" },
-    });
-    const toolEnvelope = parseEnvelope(toolResult);
-
-    const resourceResult = await fixture.client.readResource({ uri: "sdd://spec/feature-a" });
-    const resourceEnvelope = parseResourceEnvelope(resourceResult);
-
-    assert.ok(getEnvelopeValidator()(resourceEnvelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.deepEqual(resourceEnvelope, toolEnvelope);
-  } finally {
-    await fixture.cleanup();
-  }
-});
-
-test("sdd://tasks/{feature} matches get_task_state exactly", async () => {
-  const fixture = await makeResourcesFixture("resources-task-state");
-  try {
-    const toolResult = await fixture.client.callTool({
-      name: "get_task_state",
-      arguments: { feature: "feature-a" },
-    });
-    const toolEnvelope = parseEnvelope(toolResult);
-
-    const resourceResult = await fixture.client.readResource({ uri: "sdd://tasks/feature-a" });
-    const resourceEnvelope = parseResourceEnvelope(resourceResult);
-
-    assert.ok(getEnvelopeValidator()(resourceEnvelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.deepEqual(resourceEnvelope, toolEnvelope);
-  } finally {
-    await fixture.cleanup();
-  }
-});
-
-test("sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool", async () => {
-  const fixture = await makeResourcesFixture("resources-task-state-invalid");
-  try {
-    const toolResult = await fixture.client.callTool({
-      name: "get_task_state",
-      arguments: { feature: "../escape" },
-    });
-    const toolEnvelope = parseEnvelope(toolResult) as { ok: false; error: { code: string } };
-    assert.equal(toolEnvelope.ok, false);
-    assert.equal(toolEnvelope.error.code, "invalid-input");
-
-    const resourceResult = await fixture.client.readResource({ uri: "sdd://tasks/..%2Fescape" });
-    const resourceEnvelope = parseResourceEnvelope(resourceResult) as { ok: false; error: { code: string } };
-
-    assert.ok(getEnvelopeValidator()(resourceEnvelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal(resourceEnvelope.ok, false);
-    assert.equal(resourceEnvelope.error.code, "invalid-input");
-  } finally {
-    await fixture.cleanup();
-  }
-});
-
-test("sdd://review-tickets matches list_review_tickets exactly", async () => {
-  const fixture = await makeResourcesFixture("resources-review-tickets");
-  try {
-    const toolResult = await fixture.client.callTool({ name: "list_review_tickets", arguments: {} });
-    const toolEnvelope = parseEnvelope(toolResult);
-
-    const resourceResult = await fixture.client.readResource({ uri: "sdd://review-tickets" });
-    const resourceEnvelope = parseResourceEnvelope(resourceResult);
-
-    assert.ok(getEnvelopeValidator()(resourceEnvelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.deepEqual(resourceEnvelope, toolEnvelope);
-  } finally {
-    await fixture.cleanup();
-  }
-});
-
-test("sdd://quality-reports matches get_quality_gate_summary exactly", async () => {
-  const fixture = await makeResourcesFixture("resources-quality-reports");
-  try {
-    const toolResult = await fixture.client.callTool({ name: "get_quality_gate_summary", arguments: {} });
-    const toolEnvelope = parseEnvelope(toolResult);
-
-    const resourceResult = await fixture.client.readResource({ uri: "sdd://quality-reports" });
-    const resourceEnvelope = parseResourceEnvelope(resourceResult);
-
-    assert.ok(getEnvelopeValidator()(resourceEnvelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.deepEqual(resourceEnvelope, toolEnvelope);
-  } finally {
-    await fixture.cleanup();
-  }
+test("the retired quality summary URI is absent and gate audit identifies a task's review report", async (t) => {
+  const client = await connect(t);
+  await assert.rejects(client.readResource({ uri: "sdd://quality-reports" }), /Resource sdd:\/\/quality-reports not found/);
+  const tool = await client.callTool({ name: "sdd_gate_audit", arguments: { feature: "feature-b", taskId: "T-001" } });
+  const envelope = parseEnvelope(tool) as Result<GateAuditData>;
+  assert.equal(envelope.ok, true);
+  const validate = getV2DefValidator("sdd_gate_audit_data");
+  assert.ok(validate(envelope.data), JSON.stringify(validate.errors));
+  assert.deepEqual(envelope.data.tasks.map(task => task.taskId), ["T-001"]);
+  const [task] = envelope.data.tasks;
+  assert.equal(task.reviewReport.verdict, "PASS");
+  assert.equal(task.executionArtifact.exists, false);
+  assert.equal(task.readyForDone, false);
 });

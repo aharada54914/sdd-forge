@@ -16,7 +16,7 @@
 | domain-reverse | sdd-domain | 既存コードベースに investigate-codebase を実行し、その investigation.md を候補ドメインモデル seed（候補 Bounded Context・ユビキタス言語用語・イベント/集約のヒント）へ変換。中間生成物のみで `domain/` には書き込まない | domain-model (`reverse` モード) | domain-interviewer |
 | domain-review-loop | sdd-domain | `domain/` 成果物セット（戦略/戦術）を `domain-reviewer-a/b` が独立レビューし、検証済み verdict を永続化。`Domain-Model-Status: Pending → Reviewed` に遷移できる唯一の機構（`Approved` は人間のみ）。承認後のドリフトも検出 | domain-interviewer | — (人間承認待ち) |
 | domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
-| sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
+| sdd-adopt | sdd-bootstrap | 既存プロジェクトに SDD 構造を導入する内部スキル | `/sdd-bootstrap:bootstrap adopt` | investigate-codebase, sdd-bootstrap-interviewer |
 | research-sources | sdd-bootstrap | 外部一次資料の二経路探索・原文照合・未確認事項を保持して既存レビューへ渡す内部スキル | bootstrap investigate / feature | sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
@@ -30,7 +30,7 @@
 | visual-verify-loop | sdd-implementation | UI タスク実装後の視覚検証ループ（Claude Preview / wpf-visual-verify、advisory・最大5回、証跡を `reports/visual-evidence/` に保存） | implement-task | — |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
-| fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
+| fix-by-review-ticket | sdd-quality-loop | 承認済みレビューチケットの修正を実装・テスト | `sdd-gate` の指摘 | `/sdd-ship:ship specs/<feature>/tasks.md#<task-id>` で対象タスクを再検証 |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案（friction をなぜなぜ分析で根本原因まで掘り下げて WFI を起草） | quality-gate | — |
 | sdd-sudo | sdd-quality-loop | 期限付き承認待ちの扱い・人間による発行手順（ホスト自動発行は未対応） | — | implement-task, implement-tasks, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
@@ -423,13 +423,12 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `detect-panel` | sh / ps1 | 利用可能な非 Anthropic パネリスト CLI を検出し、slug を改行区切りで列挙 |
 | `registry_discovery` | py | Registry 探索契約の共有ヘルパモジュール。パッケージ同梱コピー優先のフェイルクローズ解決順を実装 |
 
-**運用・強制系（8本）**： フック・停止・公開・記録・外部パネリスト実行を担います。
+**運用・強制系（7本）**： フック・停止・公開・記録・外部パネリスト実行を担います。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
 | `sdd-hook-guard` | sh / ps1 / py / js | 統一 PreToolUse ガードのディスパッチャ（承認ガード / WFI 承認ガード。[詳細](#hook-guard-script)） |
 | `kill-switch` | sh / ps1 / js | `AGENT_STOP` が存在する間、全ツール呼び出しを停止する PreToolUse フック |
-| `apply-human-copy` | sh / ps1 | Anchored-publisher 相当の human-copy 公開ツール。sh / ps1 が**それぞれ独立に**完全な publisher ロジックを実装（Python マスタなし） |
 | `emit-run-record` | sh / ps1 | WFI 効果測定用の run record を決定論的に発行（feature slug・トラック・モデル・effort・プラグインバージョン） |
 | `vendor-capability-registry` | sh / ps1 / py | 正準の top-level `contracts/*` から `plugins/sdd-quality-loop/contracts/*` を再取り込み（vendored copy のドリフト検査 / リリースゲート） |
 | `prepare-panelist-input` | sh / ps1 | サニタイズ済みパネリスト入力バンドルを同意ゲート付きで準備 |
@@ -691,6 +690,8 @@ sh plugins/sdd-quality-loop/scripts/check-traceability.sh <traceability.json> [r
 
 `Done` 判定に使う quality report、verification contract、passing evidence の存在と SHA-256 を検証。`high`/`critical` タスクでは `risk`・`required_workflow`・`spec_revision`・`build_env`・`builder`・`review_verdict` のプロベナンスフィールドを必須検証。`critical` タスクでは HMAC-SHA256 署名も検証（鍵は `SDD_EVIDENCE_KEY` / `SDD_EVIDENCE_KEY_FILE` / `~/.sdd/evidence-key` から解決）。
 
+このコマンドは旧形式の完了証跡を読み取ります。署名方式が Sigstore の記録では、呼び出し側が別途行った署名検証の結果を参照します。公開 v2 MCP のステータス照会ではこの旧形式の署名検証を要求しません。
+
 ```bash
 sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh <path-to-evidence.json> [repo-root]
 ```
@@ -811,29 +812,17 @@ python3 plugins/sdd-quality-loop/scripts/resolve-component-paths.py \
 
 ---
 
-### apply-human-copy
+### 新しいDDDの概念判断を確認する
 
-**目的**
+bootstrap が新しい概念や責務の衝突を報告したら、担当者が対話ターミナルで確認します。次は feature 名が `catalog-search` の場合の例です。プラグインと対象プロジェクトを別々に配置している場合は、スクリプトにインストール先のパスを、`--root` に対象プロジェクトのルートを指定します。
 
-Anchored-publisher 相当の human-copy 公開ツール。ステージングされた候補ファイル群を、パス置換攻撃に耐える形で最終位置へ原子的に公開します。
-
-**設計上の特徴**
-
-- **Python マスタを持ちません。** `.sh` と `.ps1` が**それぞれ独立に**完全な publisher ロジックを実装しており、互いにディスパッチしません（T-007 のアーキテクチャ制約）
-- POSIX には `openat()` / `renameat()` の束縛が無いため、POSIX 側では「保持したディレクトリハンドル経由で相対パスを1セグメントずつ解決する」保証を、プロセス自身の作業ディレクトリ束縛（相対名に対する `chdir(2)`）で実現しています
-- 残存する窓（各セグメントの `-L` チェックと `cd` の間、および最終再チェックと `mv` システムコールの間）は単一のシステムコールでは閉じられず、これは FFI を持たない可搬 POSIX シェルで到達できる最強の保証である旨が明記されています。詳細は `docs/adr/0025-*`
-
-**使用法**
-
-```bash
-# 公開
-sh plugins/sdd-quality-loop/scripts/apply-human-copy.sh --staging-dir <dir> --manifest <file>
-
-# 引数なし: 起動時に必須のクラッシュリカバリ走査だけを実行して終了
-sh plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+```sh
+sh plugins/sdd-domain/scripts/validate-concept-test.sh --root . --feature catalog-search --confirm
 ```
 
-`--staging-dir` / `--manifest` を与えない起動は、トランザクショナルバンドル契約が定める**起動時必須のクラッシュリカバリ走査のみ**を行います。
+PowerShell では `plugins/sdd-domain/scripts/validate-concept-test.ps1` に同じ引数を渡します。表示された提案と根拠を確認して、進行・ドメインモデル更新まで保留・却下のいずれかを選びます。新形式では個人の署名鍵や承認者の事前登録は不要です。
+
+判断は対象の feature と提案の内容に結び付けて保存されます。内容を変更した場合は、新しい内容を確認してください。自動検証は `--confirm` を省いて実行します。過去の `concept-test/v1` で記録した署名付き判断を調べるときは、当時の承認者登録と署名検証手順を使います。
 
 ---
 

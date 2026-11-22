@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "pretest": "tsc -p tsconfig.test.json",
     "test": "node scripts/run-tests.mjs",
-    "golden:record": "tsc -p tsconfig.test.json && node dist-test/scripts/record-golden-fixtures.js"
+    "golden:record": "tsc -p tsconfig.test.json && node dist-test/mcp/sdd-forge-mcp/scripts/record-golden-fixtures.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

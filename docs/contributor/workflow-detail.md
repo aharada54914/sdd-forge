@@ -77,6 +77,10 @@ flowchart LR
 
 ### 4.3 品質ゲートで指摘が出た (差し戻しループ)
 
+現行版では、`/sdd-quality-loop:fix-by-review-ticket` で修正とテストを終えたら、チケットの feature と task ID を指定して `/sdd-ship:ship specs/<feature>/tasks.md#<task-id>` を実行し、`sdd-gate` の再検証を受けます。
+
+以下は v1 の `quality-gate` を使っていたときの図と手順です。
+
 **状況**: `Implementation Complete` タスクに `quality-gate` を実行。Critical/Major 指摘が出た。
 
 **何が起きるか**

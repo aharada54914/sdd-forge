@@ -51,7 +51,7 @@
    ```bash
    sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh specs/<feature>/verification/<task-id>.evidence.json
    ```
-5. テスト結果ログを確認し、未対応のテストがあれば `fix-by-review-ticket` で修正してから再度 `quality-gate` を実行
+5. テスト結果ログを確認し、承認済みチケットの修正に `/sdd-quality-loop:fix-by-review-ticket` を使います。修正とテストが通ったら、チケットの feature と task ID を指定して `/sdd-ship:ship specs/<feature>/tasks.md#<task-id>` を実行し、`sdd-gate` の再検証を受けます。
 
 ### リスク適応ゲート (check-risk / check-traceability / check-contract 階層) が失敗する
 
@@ -96,12 +96,9 @@
 - SDD 必須構造が整備されていない
 
 **対応：**
-1. `sdd-adopt` スキルを実行します。
-   ```txt
-   Use the sdd-adopt skill.
-   ```
+1. 対象リポジトリのルートで公開コマンド `/sdd-bootstrap:bootstrap adopt` を実行します。
 2. `sdd-adopt` がリポジトリ構造を整備し、`AGENTS.md` などの必須ファイル・ディレクトリを作成します
-3. その後、`implement-task` / `quality-gate` を再度実行してください
+3. 必須構造が整ったら、最初に使った公開コマンドを再実行します。
 
 ### ADR が `specs/<feature>/adr/` にある
 
@@ -111,7 +108,7 @@
 - v0.6.0 より前のバージョンで作成された ADR がまだ旧配置にある
 
 **対応：**
-1. `sdd-adopt` を実行すると、`specs/<feature>/adr/` 内の ADR を自動で `docs/adr/NNNN-<slug>.md` に移行します
+1. 対象リポジトリで `/sdd-bootstrap:bootstrap adopt` を実行すると、`specs/<feature>/adr/` 内の ADR を自動で `docs/adr/NNNN-<slug>.md` に移行します
 2. ADR の正規配置は `docs/adr/` です
 
 ### Claude Code に `/sdd-bootstrap:bootstrap` などのコマンドが表示されない

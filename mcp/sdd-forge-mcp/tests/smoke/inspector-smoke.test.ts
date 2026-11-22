@@ -21,6 +21,13 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  CallToolResultSchema, ListResourcesResultSchema, ListResourceTemplatesResultSchema, ListToolsResultSchema,
+} from "@modelcontextprotocol/sdk/types.js";
+import type { Result } from "../../src/envelope.js";
+import type { ProjectOverviewData } from "../../src/tools/v2.js";
+import { getV2DefValidator, parseEnvelope } from "../core-tools/test-helpers.js";
+
 const THIS_FILE_DIR = dirname(fileURLToPath(import.meta.url));
 
 /** Walks upward from this compiled test file to find the sdd-forge-mcp package root (identified by package.json). */
@@ -146,82 +153,43 @@ function runInspector(extraArgs: readonly string[]): InspectorInvocation {
   return { stdout: result.stdout, status: result.status };
 }
 
-test("inspector CLI: tools/list reports all 8 core tools + 6 evidence tools", () => {
+test("inspector CLI: tools/list reports the four public v2 tools", () => {
   const { stdout } = runInspector(["--method", "tools/list"]);
-  const parsed = JSON.parse(stdout) as { tools: Array<{ name: string }> };
-  const names = parsed.tools.map((t) => t.name).sort();
-  assert.deepEqual(names, [
-    "evidence_compare_to_traceability",
-    "evidence_deep_verify",
-    "evidence_find_missing",
-    "evidence_get_bundle",
-    "evidence_summarize_contract_checks",
-    "evidence_validate_paths",
-    "get_dashboard_snapshot",
-    "get_next_sdd_command",
-    "get_quality_gate_summary",
-    "get_spec_status",
-    "get_task_state",
-    "list_active_specs",
-    "list_approved_tasks",
-    "list_blocked_tasks",
-    "list_review_tickets",
+  const { tools } = ListToolsResultSchema.parse(JSON.parse(stdout));
+  assert.deepEqual(tools.map(t => t.name).sort(), [
+    "sdd_dashboard_snapshot", "sdd_feature_state", "sdd_gate_audit", "sdd_project_overview",
   ]);
 });
 
-// AC-016 (REQ-001, REQ-013): `evidence_deep_verify` is registered in
-// server.ts (T-004) after the other 5 evidence tools (`evidence_get_bundle`,
-// `evidence_validate_paths`, `evidence_find_missing`,
-// `evidence_summarize_contract_checks`, `evidence_compare_to_traceability`),
-// so it is the *6th* evidence tool in registration order. This is checked
-// against `tools/list`'s response order directly (not the alphabetically
-// `.sort()`-ed list used above, which would put `evidence_deep_verify` 2nd)
-// to faithfully assert the design.md wording ("evidence 6 番目").
-test("inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order)", () => {
+test("inspector CLI: each public tool declares read-only behavior and a strict input schema", () => {
   const { stdout } = runInspector(["--method", "tools/list"]);
-  const parsed = JSON.parse(stdout) as { tools: Array<{ name: string }> };
-  const evidenceToolNames = parsed.tools.map((t) => t.name).filter((name) => name.startsWith("evidence_"));
-  assert.deepEqual(evidenceToolNames, [
-    "evidence_get_bundle",
-    "evidence_validate_paths",
-    "evidence_find_missing",
-    "evidence_summarize_contract_checks",
-    "evidence_compare_to_traceability",
-    "evidence_deep_verify",
-  ]);
-  assert.equal(evidenceToolNames.length, 6);
-  assert.equal(evidenceToolNames[5], "evidence_deep_verify");
+  const { tools } = ListToolsResultSchema.parse(JSON.parse(stdout));
+  assert.equal(tools.length, 4);
+  const validate = getV2DefValidator("toolAnnotations");
+  for (const tool of tools) {
+    assert.ok(validate(tool.annotations), tool.name + ": " + JSON.stringify(validate.errors));
+    assert.equal(tool.inputSchema.additionalProperties, false, tool.name);
+  }
 });
 
-test("inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources", () => {
-  const { stdout: resourcesStdout } = runInspector(["--method", "resources/list"]);
-  const resources = JSON.parse(resourcesStdout) as { resources: Array<{ uri: string }> };
-  assert.deepEqual(
-    resources.resources.map((r) => r.uri).sort(),
-    ["sdd://active-specs", "sdd://quality-reports", "sdd://review-tickets"],
-  );
-
-  const { stdout: templatesStdout } = runInspector(["--method", "resources/templates/list"]);
-  const templates = JSON.parse(templatesStdout) as { resourceTemplates: Array<{ uriTemplate: string }> };
-  assert.deepEqual(
-    templates.resourceTemplates.map((t) => t.uriTemplate).sort(),
-    ["sdd://spec/{feature}", "sdd://tasks/{feature}"],
-  );
-
-  assert.equal(resources.resources.length + templates.resourceTemplates.length, 5);
+test("inspector CLI: the server lists the overview and feature resource template", () => {
+  const resources = runInspector(["--method", "resources/list"]);
+  const templates = runInspector(["--method", "resources/templates/list"]);
+  const listed = ListResourcesResultSchema.parse(JSON.parse(resources.stdout));
+  const templated = ListResourceTemplatesResultSchema.parse(JSON.parse(templates.stdout));
+  assert.deepEqual(listed.resources.map(r => r.uri), ["sdd://overview"]);
+  assert.deepEqual(templated.resourceTemplates.map(t => t.uriTemplate), ["sdd://feature/{feature}"]);
 });
 
-test("inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo", () => {
-  const { stdout } = runInspector(["--method", "tools/call", "--tool-name", "list_active_specs"]);
-  const parsed = JSON.parse(stdout) as { content: Array<{ type: string; text: string }> };
-  const firstBlock = parsed.content[0];
-  assert.ok(firstBlock !== undefined && firstBlock.type === "text");
-  const envelope = JSON.parse(firstBlock.text) as {
-    ok: boolean;
-    data?: { kind: string; specs: Array<{ feature: string }> };
-  };
+test("inspector CLI: sdd_project_overview returns schema-valid active features for the real repo", () => {
+  const { stdout } = runInspector(["--method", "tools/call", "--tool-name", "sdd_project_overview"]);
+  const result = CallToolResultSchema.parse(JSON.parse(stdout));
+  assert.notEqual(result.isError, true);
+  const envelope = parseEnvelope(result) as Result<ProjectOverviewData>;
   assert.equal(envelope.ok, true);
-  assert.equal(envelope.data?.kind, "active-specs");
-  const features = envelope.data?.specs.map((s) => s.feature) ?? [];
-  assert.ok(features.includes("sdd-forge-mcp"));
+  const validate = getV2DefValidator("sdd_project_overview_data");
+  assert.ok(validate(envelope.data), JSON.stringify(validate.errors));
+  assert.equal(envelope.data.kind, "project-overview");
+  assert.ok(envelope.data.doctor);
+  assert.ok(envelope.data.activeFeatures.some(f => f.feature === "sdd-forge-mcp"));
 });

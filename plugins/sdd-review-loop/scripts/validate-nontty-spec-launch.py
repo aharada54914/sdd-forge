@@ -1240,6 +1240,13 @@ def fixed_input_binding(root, data, record_path=None, snapshot_path=None):
     require(bool(record_path) == bool(snapshot_path), 'fixed input record and snapshot must be paired')
     if record_path is None:
         return None
+    # The v1 inventory names repository-relative paths and carries no project prefix.
+    environment = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+    location = subprocess.run(['git', '--no-replace-objects', '-C', str(root), 'rev-parse', '--show-prefix'],
+                              capture_output=True, env=environment, timeout=30)
+    require(location.returncode == 0, 'cannot determine Git root for fixed review inventory')
+    require(location.stdout.splitlines() == [b''], 'legacy fixed review inventory requires the Git worktree root; '
+            'use live review or project-scoped conditional inputs for a nested project')
     record_path, snapshot_path = pathlib.Path(record_path), pathlib.Path(snapshot_path)
     require(record_path.is_file() and not record_path.is_symlink(), 'invalid fixed input record')
     inventory = load(record_path)

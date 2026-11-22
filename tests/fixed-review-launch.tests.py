@@ -773,6 +773,8 @@ class RuntimeFilesTests(unittest.TestCase):
                 self.assertNotIn(root / 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', files)
                 for dependency in ('contracts/domain-contract.v1.schema.json',
                                    'contracts/concept-test.v1.schema.json',
+                                   'contracts/concept-test.v2.schema.json',
+                                   'contracts/concept-test-decision.v1.schema.json',
                                    'contracts/approval-sidecar.schema.json',
                                    'contracts/approver-registry.schema.json',
                                    'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py',

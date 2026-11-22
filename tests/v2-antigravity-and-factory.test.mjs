@@ -632,4 +632,77 @@ print('OK')
     const idxMd = fs.readFileSync(path.join(repo, 'sdd', 'knowledge', 'INDEX.md'), 'utf8');
     assert.match(idxMd, /specs\/f1\.md/);
   });
+
+  it('R3: factory-metrics.mjs scopes named-feature summaries with --feature and preserves project-wide totals without it', () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-scope-'));
+    fs.mkdirSync(path.join(repo, '.sdd'), { recursive: true });
+    fs.writeFileSync(
+      path.join(repo, '.sdd', 'factory-metrics.jsonl'),
+      `${[
+        JSON.stringify({ feature: 'alpha', taskId: 'T-001', verdict: 'PASS', commandDurationMs: 100 }),
+        JSON.stringify({ feature: 'beta', taskId: 'T-001', verdict: 'FAIL', commandDurationMs: 250 }),
+        JSON.stringify({
+          kind: 'attribution',
+          feature: 'alpha',
+          taskId: 'T-001',
+          rootCausePhase: 'design',
+          humanIntervention: true,
+        }),
+        JSON.stringify({
+          kind: 'attribution',
+          feature: 'beta',
+          taskId: 'T-001',
+          rootCausePhase: 'code',
+          humanIntervention: false,
+        }),
+      ].join('\n')}\n`,
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(repo, '.sdd', 'drift-events.jsonl'),
+      `${[
+        JSON.stringify({ feature: 'alpha', action: 'confirm_soft_deny' }),
+        JSON.stringify({ feature: 'beta', action: 'warn_allow' }),
+      ].join('\n')}\n`,
+      'utf8',
+    );
+
+    const alphaJson = JSON.parse(
+      execFileSync(process.execPath, [FACTORY_METRICS, '--root', repo, '--feature', 'alpha'], { encoding: 'utf8' }),
+    );
+    assert.equal(alphaJson.feature, 'alpha');
+    assert.equal(alphaJson.gateRuns.total, 1);
+    assert.equal(alphaJson.gateRuns.pass, 1);
+    assert.equal(alphaJson.gateRuns.fail, 0);
+    assert.equal(alphaJson.driftEvents.total, 1);
+    assert.equal(alphaJson.driftEvents.deny, 1);
+    assert.equal(alphaJson.rootCauseBreakdown.design, 1);
+    assert.equal(alphaJson.rootCauseBreakdown.code, 0);
+    assert.equal(alphaJson.humanInterventions, 2);
+
+    const alphaMd = execFileSync(
+      process.execPath,
+      [FACTORY_METRICS, '--root', repo, '--feature', 'alpha', '--format', 'markdown'],
+      { encoding: 'utf8' },
+    );
+    assert.match(alphaMd, /^# Software Factory Metrics: alpha$/m);
+
+    const allJson = JSON.parse(
+      execFileSync(process.execPath, [FACTORY_METRICS, '--root', repo], { encoding: 'utf8' }),
+    );
+    assert.equal(allJson.feature, null);
+    assert.equal(allJson.gateRuns.total, 2);
+    assert.equal(allJson.gateRuns.pass, 1);
+    assert.equal(allJson.gateRuns.fail, 1);
+    assert.equal(allJson.driftEvents.total, 2);
+    assert.equal(allJson.rootCauseBreakdown.design, 1);
+    assert.equal(allJson.rootCauseBreakdown.code, 1);
+
+    const allMd = execFileSync(
+      process.execPath,
+      [FACTORY_METRICS, '--root', repo, '--format', 'markdown'],
+      { encoding: 'utf8' },
+    );
+    assert.match(allMd, /^# Software Factory Metrics$/m);
+  });
 });

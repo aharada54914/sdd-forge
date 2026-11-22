@@ -411,3 +411,38 @@ describe('sdd-soft-guard.mjs (v2 Lightweight Guardrails)', () => {
     assert.match(killRes.stderr, /AGENT_STOP/);
   });
 });
+
+describe('human concept-test decisions', () => {
+  it('denies receipt mutations in every supported file tool family and both patch move directions', (t) => {
+    const repo = createTempRepo({ approved: false, guardMode: 'warn' });
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const receipt = 'specs/demo-feature/concept-test.decision.json';
+    const other = 'specs/demo-feature/concept-test.json';
+    const patch = (headers) => ['*** Begin Patch', ...headers, '*** End Patch'].join('\n');
+    const cases = [
+      ...['Edit', 'Write', 'MultiEdit'].map(tool_name => ['exit', { tool_name, tool_input: { file_path: receipt } }]),
+      ['gemini', { tool_name: 'replace', tool_input: { file_path: receipt } }],
+      ['gemini', { tool_name: 'write_file', tool_input: { file_path: receipt } }],
+      ['copilot', { toolName: 'create', toolArgs: JSON.stringify({ path: receipt, file_text: '{}' }) }],
+      ['antigravity', { toolCall: { name: 'write_file', args: { Path: receipt, Content: '{}' } } }],
+      ['antigravity', { toolCall: { name: 'edit_file', args: { Path: receipt } } }],
+      ['antigravity', { toolCall: { name: 'replace_file_content', args: { TargetFile: receipt } } }],
+      ['antigravity', { toolCall: { name: 'multi_replace_file_content', args: { TargetFile: receipt, ReplacementChunks: [] } } }],
+      ['exit', { tool_name: 'apply_patch', tool_input: { command: patch(['*** Add File: ' + receipt, '+{}']) } }],
+      ['exit', { tool_name: 'apply_patch', tool_input: { input: patch(['*** Delete File: ' + receipt]) } }],
+      ['exit', { tool_name: 'apply_patch', tool_input: patch(['*** Update File: ' + receipt, '*** Move to: ' + other]) }],
+      ['copilot', { toolName: 'apply_patch', toolArgs: patch(['*** Update File: ' + other, '*** Move to: ' + receipt]) }],
+      ['copilot', { toolName: 'apply_patch', toolArgs: { patch: patch(['*** Update File: ' + receipt]) } }],
+      ['copilot', { toolName: 'apply_patch', toolArgs: JSON.stringify({ input: patch(['*** Delete File: ' + receipt]) }) }],
+    ];
+    for (const [emit, payload] of cases) {
+      const res = runGuard(repo, payload, { emit, env: { SDD_ALLOW_SPEC_EDIT: '1' } });
+      if (emit === 'exit') assert.equal(res.status, 2, JSON.stringify(payload));
+      else assert.equal(JSON.parse(res.stdout).permissionDecision ?? JSON.parse(res.stdout).decision, 'deny', JSON.stringify(payload));
+      assert.match(res.stderr + res.stdout, /concept-test\.decision\.json/);
+    }
+    assert.equal(runGuard(repo, { tool_name: 'Write', tool_input: { file_path: other, content: '{}' } }).status, 0);
+    const example = 'docs/examples/' + receipt;
+    assert.equal(runGuard(repo, { tool_name: 'Write', tool_input: { file_path: example, content: '{}' } }).status, 0);
+  });
+});

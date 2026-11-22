@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Local Concept Test decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "feature",
+    "decision",
+    "proposal_json_sha256",
+    "proposal_md_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "concept-test-decision/v1"
+    },
+    "feature": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "decision": {
+      "enum": [
+        "proceed",
+        "defer-to-domain-update",
+        "rejected"
+      ]
+    },
+    "proposal_json_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "proposal_md_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

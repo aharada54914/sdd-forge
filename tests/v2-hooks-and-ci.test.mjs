@@ -113,8 +113,31 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         true,
       );
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
+      assert.equal(fs.existsSync(path.join(installRoot, 'sdd/guardrails.example.yaml')), true);
+      assert.equal(fs.existsSync(path.join(installRoot, 'docs/non-interactive-factory.md')), true);
+      assert.equal(fs.existsSync(path.join(installRoot, 'docs/sql-development.md')), true);
     },
   );
+
+  it('install-payload.txt includes README-linked guardrails example and user guides (H5)', () => {
+    const readme = fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8');
+    const entries = new Set(
+      fs
+        .readFileSync(path.join(REPO_ROOT, 'install-payload.txt'), 'utf8')
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line && !line.startsWith('#')),
+    );
+    for (const rel of [
+      'sdd/guardrails.example.yaml',
+      'docs/non-interactive-factory.md',
+      'docs/sql-development.md',
+    ]) {
+      assert.equal(fs.existsSync(path.join(REPO_ROOT, rel)), true, `Missing README-linked file: ${rel}`);
+      assert.equal(readme.includes(rel), true, `README.md expected to link ${rel}`);
+      assert.equal(entries.has(rel), true, `install-payload.txt must include ${rel}`);
+    }
+  });
 
   it('v1.26.1 (#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts', () => {
     const py = process.platform === 'win32' ? 'python' : 'python3';

@@ -39474,6 +39474,18 @@ function selectPresentation(parentService) {
   if (parentService === "claude") return "artifacts";
   throw new Error("\u89AA\u30B5\u30FC\u30D3\u30B9\u3092 chatgpt \u307E\u305F\u306F claude \u3068\u3057\u3066\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u5B50\u306E\u30E2\u30C7\u30EB\u304B\u3089\u306F\u9078\u629E\u3057\u307E\u305B\u3093\u3002");
 }
+var TASK_HEADER_FIELD = /^[A-Z][A-Za-z0-9-]*(?: [A-Z][A-Za-z0-9-]*)*:(?:[ \t]|$)/;
+var CANONICAL_STANDARD_RISK = /^Risk:[ \t]+standard[ \t]*$/;
+function readCanonicalStandardRisk(body) {
+  let canonicalRiskLine;
+  for (const rawLine of body.split("\n")) {
+    const line = rawLine.endsWith("\r") ? rawLine.slice(0, -1) : rawLine;
+    if (/^[ \t]*$/.test(line)) continue;
+    if (!TASK_HEADER_FIELD.test(line)) break;
+    if (line.startsWith("Risk:")) canonicalRiskLine = line;
+  }
+  return canonicalRiskLine !== void 0 && CANONICAL_STANDARD_RISK.test(canonicalRiskLine) ? "standard" : null;
+}
 function readData(root) {
   const labelsFile = guardedRead(root, "dashboard-labels.json");
   let labels = {};
@@ -39529,7 +39541,7 @@ function readData(root) {
         source,
         status: task.status,
         approval: task.approval,
-        risk: task.risk ?? "unknown",
+        risk: task.risk ?? readCanonicalStandardRisk(body) ?? "unknown",
         release,
         failures: state.data.failures.filter((f) => !f.taskId || f.taskId === task.id).map((f) => f.message)
       });
@@ -39809,19 +39821,22 @@ function countPrimaryApprovals(text) {
   const second = (normalized.match(SECOND_APPROVAL_RE) || []).length;
   return Math.max(0, primary - second);
 }
-function splitSpecAmendments(text) {
+function parseSpecAmendmentsSection(text) {
   const normalized = normalizeNewlines(text);
   const match = AMENDMENT_HEADING_RE.exec(normalized);
   if (!match) {
     return {
       beforeAmendments: normalized,
       amendmentsBody: "",
+      amendmentsRawBody: "",
+      amendmentsHeadingLine: null,
       afterAmendments: "",
       hasHeading: false
     };
   }
   const headingLevel = match[1].length;
   const headingStart = match.index;
+  const headingLine = normalized.slice(0, headingStart).split("\n").length;
   const afterHeadingStart = headingStart + match[0].length;
   const rest = normalized.slice(afterHeadingStart);
   const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, "m");
@@ -39830,28 +39845,52 @@ function splitSpecAmendments(text) {
     return {
       beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
       amendmentsBody: rest.trim(),
+      amendmentsRawBody: rest,
+      amendmentsHeadingLine: headingLine,
       afterAmendments: "",
       hasHeading: true
     };
   }
+  const rawBody = rest.slice(0, nextMatch.index);
   return {
     beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
-    amendmentsBody: rest.slice(0, nextMatch.index).trim(),
+    amendmentsBody: rawBody.trim(),
+    amendmentsRawBody: rawBody,
+    amendmentsHeadingLine: headingLine,
     afterAmendments: rest.slice(nextMatch.index).trimStart(),
     hasHeading: true
   };
 }
-function extractAmendmentEntries(text) {
-  const { hasHeading, amendmentsBody } = splitSpecAmendments(text);
+function splitSpecAmendments(text) {
+  const { beforeAmendments, amendmentsBody, afterAmendments, hasHeading } = parseSpecAmendmentsSection(text);
+  return {
+    beforeAmendments,
+    amendmentsBody,
+    afterAmendments,
+    hasHeading
+  };
+}
+function extractAmendmentEntriesWithLines(text, sourceFile = null) {
+  const { hasHeading, amendmentsBody, amendmentsRawBody, amendmentsHeadingLine } = parseSpecAmendmentsSection(text);
   if (!hasHeading || !amendmentsBody) return [];
   const entries = [];
-  for (const line of amendmentsBody.split("\n")) {
-    const trimmed = line.trim();
+  const rawLines = amendmentsRawBody.split("\n");
+  for (let i = 0; i < rawLines.length; i += 1) {
+    const trimmed = rawLines[i].trim();
     if (!trimmed) continue;
     if (PLACEHOLDER_AMENDMENT_RE.test(trimmed)) continue;
-    entries.push(trimmed);
+    const lineNumber = amendmentsHeadingLine + i;
+    entries.push({
+      text: trimmed,
+      sourceFile,
+      sourceLine: lineNumber,
+      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
+    });
   }
   return entries;
+}
+function extractAmendmentEntries(text) {
+  return extractAmendmentEntriesWithLines(text).map((entry) => entry.text);
 }
 function canonicalSpecContractText(text, fileName) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
@@ -40220,7 +40259,7 @@ ${afterAmendments}` : beforeAmendments);
     const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], "standard");
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
     const taskId = taskMatch[1].toUpperCase();
-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+    const blockers = extractTaskBlockers(block);
     tasks.push({
       id: taskId,
       title: (taskMatch[2] || "").trim(),
@@ -40276,20 +40315,27 @@ function scopeMatchesFile(scopeEntry, changedFile) {
   }
   return cf === sp || cf.startsWith(`${sp}/`);
 }
-function globStaticDir(glob) {
-  const parts = glob.split("/");
-  const staticParts = [];
-  for (const part of parts) {
-    if (/[*?]/.test(part)) break;
-    staticParts.push(part);
+function normalizeScopePattern(entry) {
+  let norm = normalizeRelPath2(entry);
+  while (norm.startsWith("./")) {
+    norm = norm.slice(2).replace(/\/+$/, "");
   }
-  return staticParts.join("/");
+  return norm;
+}
+function isAmbiguousScopePattern(norm) {
+  if (norm.startsWith("/") || norm.includes("//")) return true;
+  return norm.split("/").some((seg) => seg === "." || seg === "..");
+}
+function fixedLiteralSuffix(pattern) {
+  const lastMeta = Math.max(pattern.lastIndexOf("*"), pattern.lastIndexOf("?"), pattern.lastIndexOf("/"));
+  return pattern.slice(lastMeta + 1);
 }
 function scopeEntriesOverlap(a, b) {
-  const na = normalizeRelPath2(a);
-  const nb = normalizeRelPath2(b);
+  const na = normalizeScopePattern(a);
+  const nb = normalizeScopePattern(b);
   if (!na || !nb) return false;
   if (na === nb) return true;
+  if (isAmbiguousScopePattern(na) || isAmbiguousScopePattern(nb)) return true;
   const aWild = /[*?]/.test(na);
   const bWild = /[*?]/.test(nb);
   if (!aWild && !bWild) {
@@ -40298,14 +40344,35 @@ function scopeEntriesOverlap(a, b) {
   if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
     return true;
   }
-  if (aWild && bWild) {
-    const dirA = globStaticDir(na);
-    const dirB = globStaticDir(nb);
-    if (dirA === dirB) return true;
-    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
-    if (!dirA && na.includes("**") || !dirB && nb.includes("**")) return true;
+  const segsA = na.split("/");
+  const segsB = nb.split("/");
+  const aHasDouble = na.includes("**");
+  const bHasDouble = nb.includes("**");
+  if (aWild && !aHasDouble) {
+    if (bWild && !bHasDouble && segsA.length !== segsB.length) return false;
+    if (!bWild && segsA.length < segsB.length) return false;
   }
-  return false;
+  if (bWild && !bHasDouble && !aWild && segsB.length < segsA.length) {
+    return false;
+  }
+  const minLen = Math.min(segsA.length, segsB.length);
+  for (let i = 0; i < minLen; i += 1) {
+    const sa = segsA[i];
+    const sb = segsB[i];
+    if (sa.includes("**") || sb.includes("**")) break;
+    if (!/[*?]/.test(sb)) {
+      if (!globToRegExp(sa).test(sb)) return false;
+    } else if (!/[*?]/.test(sa) && !globToRegExp(sb).test(sa)) {
+      return false;
+    }
+  }
+  if (aWild && bWild) {
+    const sufA = fixedLiteralSuffix(na);
+    const sufB = fixedLiteralSuffix(nb);
+    const length = Math.min(sufA.length, sufB.length);
+    if (length && !globToRegExp(sufA.slice(-length)).test(sufB.slice(-length))) return false;
+  }
+  return true;
 }
 function isTestPath(relPath) {
   const lower = normalizeRelPath2(relPath).toLowerCase();
@@ -40457,7 +40524,7 @@ function computeExecutionPlan(tasks) {
   let guard = 0;
   while (remaining.size > 0 && guard < tasks.length + 2) {
     guard += 1;
-    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
+    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => (t.blockers || []).every((b) => completed.has(b)));
     if (ready.length === 0) {
       break;
     }
@@ -40482,7 +40549,19 @@ function computeExecutionPlan(tasks) {
       completed.add(id);
     }
   }
-  const cyclicTasks = [...remaining];
+  const canReachCycle = new Set(remaining);
+  let pruned = true;
+  while (pruned) {
+    pruned = false;
+    for (const id of canReachCycle) {
+      const blockers = byId.get(id)?.blockers || [];
+      if (!blockers.some((b) => canReachCycle.has(b))) {
+        canReachCycle.delete(id);
+        pruned = true;
+      }
+    }
+  }
+  const cyclicTasks = tasks.filter((t) => canReachCycle.has(t.id)).map((t) => t.id);
   return { batches, scopeConflicts, cyclicTasks };
 }
 function analyzeTraceabilityCore(io, { feature, changedIds = [], changedFiles = [], checkCodeAndTests = true }) {
@@ -40725,12 +40804,22 @@ function buildReviewPerspectiveMatrix({
   const hasCloud = domains.includes("AWS") || domains.includes("Azure") || domains.includes("Cloud");
   const hasDdd = domains.includes("DDD");
   const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
+  const effectiveSpecCheck = specCheckVerdict || "Not Run";
+  const specCheckConfirmed = effectiveSpecCheck === "PASS" || effectiveSpecCheck === "PASS_WITH_NOTES";
   const matrix = COMMON_REVIEW_PERSPECTIVES.map((p) => {
     let disposition = p.defaultDisposition;
     let reason = "";
     if (p.id === "C01") {
       disposition = alternativesRejected.length > 0 ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
-      reason = alternativesRejected.length > 0 ? `\u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\u304C ${alternativesRejected.length} \u4EF6\u8A18\u9332\u3055\u308C\u3066\u304A\u308A\u5224\u65AD\u6839\u62E0\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u6A19\u6E96\u69CB\u6210\u3002spec-check \u3067\u65E2\u5B58\u8A2D\u8A08\u3068\u306E\u6574\u5408\u3092\u78BA\u8A8D\u6E08\u307F\u3002";
+      if (alternativesRejected.length > 0) {
+        reason = `\u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\u304C ${alternativesRejected.length} \u4EF6\u8A18\u9332\u3055\u308C\u3066\u304A\u308A\u5224\u65AD\u6839\u62E0\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002`;
+      } else if (specCheckConfirmed) {
+        reason = `\u6A19\u6E96\u69CB\u6210\u3002spec-check (${effectiveSpecCheck}) \u306E\u5224\u5B9A\u3092\u8A18\u9332\u3002\u8A2D\u8A08\u6574\u5408\u306E\u500B\u5225\u7D50\u679C\u306F\u30EC\u30DD\u30FC\u30C8\u3092\u78BA\u8A8D\u3059\u308B\u3053\u3068\u3002`;
+      } else if (effectiveSpecCheck === "Not Run") {
+        reason = `\u6A19\u6E96\u69CB\u6210\u3002spec-check (${effectiveSpecCheck}) \u306F\u672A\u5B9F\u65BD\u3002\u65E2\u5B58\u8A2D\u8A08\u3068\u306E\u6574\u5408\u306F\u672A\u78BA\u8A8D\u3002`;
+      } else {
+        reason = `\u6A19\u6E96\u69CB\u6210\u3002spec-check (${effectiveSpecCheck}) \u306F\u672A\u901A\u904E\u306E\u305F\u3081\u3001\u65E2\u5B58\u8A2D\u8A08\u3068\u306E\u6574\u5408\u3092\u78BA\u8A8D\u3059\u308B\u3053\u3068\u3002`;
+      }
     } else if (p.id === "C02") {
       disposition = hasSql || hasDdd || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u8EFD\u304F\u78BA\u8A8D";
       reason = hasSql || hasDdd ? `${domains.join("/")} \u9818\u57DF\u3092\u542B\u307F\u30C7\u30FC\u30BF\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u306E\u5F71\u97FF\u304C\u5927\u304D\u3044\u3002` : "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB\u5909\u66F4\u306E\u5F71\u97FF\u304C\u9650\u5B9A\u7684\u3002";
@@ -40745,13 +40834,19 @@ function buildReviewPerspectiveMatrix({
       reason = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u30AF\u30E9\u30A6\u30C9\u5916\u90E8\u9023\u643A\u307E\u305F\u306F\u4ED6\u30C1\u30FC\u30E0\u5951\u7D04\u306E\u672A\u78BA\u5B9A\u8AD6\u70B9\u3092\u542B\u3080\u3002" : "\u5358\u4E00\u30B5\u30FC\u30D3\u30B9\u5185\u3067\u5B8C\u7D50\u3057\u4E0D\u53EF\u9006\u306A\u5916\u90E8\u9023\u643A\u306A\u3057\u3002";
     } else if (p.id === "C06") {
       disposition = provisionalCount > 0 ? "\u6700\u91CD\u8981" : "\u63A1\u7528";
-      reason = provisionalCount > 0 ? `\u672A\u78BA\u5B9A\u4E8B\u9805\uFF08OQ-NNN\uFF09\u304C ${provisionalCount} \u4EF6\u3042\u308A\u3001\u4E8B\u696D\u5224\u65AD\u30FB\u696D\u52D9\u4F8B\u5916\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u5883\u754C\u5024\u306F AC \u3068\u30C6\u30B9\u30C8\u65B9\u91DD\u306B\u843D\u3068\u3057\u8FBC\u307F\u6E08\u307F\u3002";
+      reason = provisionalCount > 0 ? `\u672A\u78BA\u5B9A\u4E8B\u9805\uFF08OQ-NNN\uFF09\u304C ${provisionalCount} \u4EF6\u3042\u308A\u3001\u4E8B\u696D\u5224\u65AD\u30FB\u696D\u52D9\u4F8B\u5916\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u672A\u78BA\u5B9A\u306E OQ-NNN \u306F\u306A\u3057\u3002\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u5883\u754C\u5024\u304C AC \u3068\u30C6\u30B9\u30C8\u65B9\u91DD\u306B\u53CD\u6620\u3055\u308C\u3066\u3044\u308B\u304B\u78BA\u8A8D\u3002";
     } else if (p.id === "C07") {
       disposition = "\u6A5F\u68B0\u691C\u8A3C";
-      reason = `check-traceability.mjs / check-spec-drift.mjs / spec-check (${specCheckVerdict}) \u3067\u81EA\u52D5\u7167\u5408\u6E08\u307F\u3002\u4EBA\u306F\u9038\u8131\u6642\u306E\u307F\u78BA\u8A8D\u3002`;
+      if (specCheckConfirmed) {
+        reason = `spec-check (${effectiveSpecCheck}) \u306F\u78BA\u8A8D\u6E08\u307F\u3002check-traceability.mjs / check-spec-drift.mjs \u306E\u5B9F\u884C\u7D50\u679C\u3067\u9038\u8131\u304C\u306A\u3044\u304B\u78BA\u8A8D\u3059\u308B\u3053\u3068\u3002`;
+      } else if (effectiveSpecCheck === "Not Run") {
+        reason = `spec-check (${effectiveSpecCheck}) \u306F\u672A\u5B9F\u65BD\u3002check-traceability.mjs / check-spec-drift.mjs \u306E\u5B9F\u884C\u7D50\u679C\u3068\u3042\u308F\u305B\u3066\u78BA\u8A8D\u3059\u308B\u3053\u3068\u3002`;
+      } else {
+        reason = `spec-check (${effectiveSpecCheck}) \u306F\u672A\u901A\u904E\u3002check-traceability.mjs / check-spec-drift.mjs \u306E\u5B9F\u884C\u7D50\u679C\u3068\u3042\u308F\u305B\u3066\u78BA\u8A8D\u3059\u308B\u3053\u3068\u3002`;
+      }
     } else if (p.id === "C08") {
       disposition = hasSql || hasCloud || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u6A5F\u68B0\u691C\u8A3C";
-      reason = hasSql || hasCloud || highestRisk === "high" ? "SQL/Cloud/\u9AD8\u30EA\u30B9\u30AF\u9818\u57DF\u3092\u542B\u3080\u305F\u3081\u3001\u6A5F\u68B0\u30BB\u30F3\u30B5\u30FC\uFF0B\u4EBA\u9593\u306E\u5207\u623B\u3057\u78BA\u8A8D\u3092\u4F75\u7528\u3002" : "run-sdd-gate.mjs \u306E\u6C7A\u5B9A\u8AD6\u30BB\u30F3\u30B5\u30FC\uFF08Secret/Placeholder/lint/test\uFF09\u3067\u81EA\u52D5\u691C\u8A3C\u3002";
+      reason = hasSql || hasCloud || highestRisk === "high" ? "SQL/Cloud/\u9AD8\u30EA\u30B9\u30AF\u9818\u57DF\u3092\u542B\u3080\u305F\u3081\u3001run-sdd-gate.mjs / CI \u306E\u6A5F\u68B0\u30BB\u30F3\u30B5\u30FC\u5B9F\u884C\u3068\u4EBA\u9593\u306E\u5207\u623B\u3057\u78BA\u8A8D\u3092\u4F75\u7528\u3059\u308B\u3053\u3068\u3002" : "\u5B9F\u88C5\u5F8C\u306E run-sdd-gate.mjs / CI\uFF08Secret/Placeholder/lint/test\uFF09\u306E\u6A5F\u68B0\u691C\u8A3C\u7D50\u679C\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
     }
     return {
       id: p.id,
@@ -40895,7 +40990,7 @@ function renderDecisionViewMarkdown(data) {
   const lines = [];
   lines.push(`# Decision View: ${data.feature}`);
   lines.push("");
-  lines.push("> \u5168\u6587\u3092\u8AAD\u307F\u89E3\u304F\u4EE3\u308F\u308A\u306B\u3001**\u4EBA\u304C\u5224\u65AD\u3059\u3079\u304D\u8981\u70B9\uFF08\u4E8B\u5B9F\u30FB\u7406\u7531\u30FB\u554F\u3044\uFF09** \u3068 **\u6A5F\u68B0\u691C\u8A3C\u6E08\u307F\u306E\u9818\u57DF** \u3092\u5206\u96E2\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u30D3\u30E5\u30FC\u3067\u3059\u3002");
+  lines.push("> \u5168\u6587\u3092\u8AAD\u307F\u89E3\u304F\u4EE3\u308F\u308A\u306B\u3001**\u4EBA\u304C\u5224\u65AD\u3059\u3079\u304D\u8981\u70B9\uFF08\u4E8B\u5B9F\u30FB\u7406\u7531\u30FB\u554F\u3044\uFF09** \u3068 **\u6A5F\u68B0\u691C\u8A3C\u306E\u5BFE\u8C61\u9818\u57DF\u30FB\u65E2\u77E5\u306E spec-check \u7D50\u679C** \u3092\u6574\u7406\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u30D3\u30E5\u30FC\u3067\u3059\u3002");
   lines.push("");
   lines.push("## 1. \u5168\u4F53\u50CF\uFF08Overview\uFF09");
   lines.push("");
@@ -41581,7 +41676,7 @@ function sddProjectOverview(root, options = {}) {
     try {
       const dv = buildDecisionViewDataCore(io, { feature });
       const drift = readDriftSummary(root, feature);
-      const hasSpecs = guardedExists(root, `specs/${feature}/requirements.md`) && guardedExists(root, `specs/${feature}/tasks.md`);
+      const hasSpecs = guardedExists(root, `specs/${feature}/requirements.md`) && guardedExists(root, `specs/${feature}/design.md`) && guardedExists(root, `specs/${feature}/tasks.md`);
       const tasks = dv.tasks;
       const highestRisk = toRiskTier(dv.highestRisk);
       activeFeatures.push({
@@ -41685,7 +41780,7 @@ function sddFeatureState(root, rawFeature, options = {}) {
         dv.tasks,
         dv.specCheckVerdict,
         highestRisk,
-        files.requirements && files.tasks,
+        files.requirements && files.design && files.tasks,
         drift.status
       )
     };
@@ -42532,10 +42627,24 @@ var PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta nam
 :root{font-family:system-ui,-apple-system,sans-serif;color:#172c38;background:#f3f6f8;line-height:1.75}*{box-sizing:border-box}body{margin:0}header{background:white;border-bottom:1px solid #dce4e9}header div,main{max-width:850px;margin:auto;padding:20px 24px}h1{font-size:clamp(26px,5vw,36px)}h2{font-size:22px}section{background:white;border:1px solid #dce4e9;border-radius:14px;padding:24px;margin:20px 0}select,button{font:inherit;min-height:48px;border:1px solid #8b9da9;border-radius:8px;padding:10px;background:white;color:#172c38}select{width:100%;margin-top:8px}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #1269ce;outline-offset:3px}.next{background:#eef5fc;border-radius:10px;padding:20px}.muted{color:#526675}ul{padding:0;list-style:none}li{border-bottom:1px solid #e7edf1;padding:12px 0;display:flex;justify-content:space-between;gap:12px}li span:last-child{text-align:right}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:20em;overflow:auto;background:#f3f6f8;padding:12px}summary{cursor:pointer;min-height:48px}code{overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:540px){main,header div{padding-left:20px;padding-right:20px}section{padding:20px}}
 </style></head><body><header><div><strong>sdd-forge</strong> <span class="muted">\u30FB\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></div></header><main><h1>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730</h1><p>\u3069\u3053\u307E\u3067\u9032\u3093\u3060\u304B\u3001\u6B21\u306B\u4F55\u3092\u3059\u308C\u3070\u3088\u3044\u304B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002</p><p class="muted">\u73FE\u5728\u306E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u304B\u3089\u53D6\u5F97\u3057\u307E\u3059\u3002\u66F4\u65B0\u30DC\u30BF\u30F3\u3067\u518D\u53D6\u5F97\u3067\u304D\u307E\u3059\u3002</p><label for="feature">\u78BA\u8A8D\u3059\u308B\u6A5F\u80FD</label><select id="feature" disabled><option>\u8AAD\u307F\u8FBC\u307F\u4E2D</option></select><p><button id="refresh" type="button">\u72B6\u614B\u3092\u66F4\u65B0</button></p><p id="error" role="alert"></p><section id="result" hidden><h2 id="headline"></h2><p id="reason"></p><div class="next"><strong>\u6B21\u306B\u3059\u308B\u3053\u3068</strong><p id="next"></p><p><code id="command"></code></p><button id="copy" type="button">\u30B3\u30DE\u30F3\u30C9\u3092\u30B3\u30D4\u30FC</button><p id="copy-result" role="status"></p><p class="muted">\u30B3\u30DE\u30F3\u30C9\u306F\u3053\u306E\u753B\u9762\u304B\u3089\u5B9F\u884C\u3055\u308C\u307E\u305B\u3093\u3002</p></div></section><section id="progress" hidden><h2>\u5DE5\u7A0B\u3054\u3068\u306E\u72B6\u614B</h2><p class="muted">\u72B6\u614B\u672A\u78BA\u8A8D\u306F\u3001\u53D6\u5F97\u30C7\u30FC\u30BF\u3060\u3051\u3067\u306F\u5B9F\u65BD\u72B6\u6CC1\u304C\u5206\u304B\u3089\u306A\u3044\u3053\u3068\u3092\u793A\u3057\u307E\u3059\u3002\u632F\u308A\u8FD4\u308A\u306F\u6761\u4EF6\u306B\u5FDC\u3058\u3066\u5B9F\u65BD\u3057\u307E\u3059\u3002</p><ul id="steps"></ul><details><summary>\u5224\u65AD\u306E\u6839\u62E0\u3092\u898B\u308B</summary><pre id="raw"></pre></details></section><p class="muted">\u8868\u793A\u306F\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3067\u3059\u3002\u30BF\u30B9\u30AF\u3084\u627F\u8A8D\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002</p></main><script>
 const $=id=>document.getElementById(id);let requestId=0;const api=(path)=>fetch(path,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async r=>{if(!r.ok)throw Error('\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F');return r.json()});
-const explanations={'phase1-not-started':'\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002','spec-review':'\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002','impl-review':'\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002','phase2-not-started':'\u5B9F\u88C5\u30BF\u30B9\u30AF\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002','task-review':'\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002','approval-gate':'\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u305B\u3093\u3002','implementation':'\u627F\u8A8D\u6E08\u307F\u306E\u4F5C\u696D\u4E2D\u307E\u305F\u306F\u4E88\u5B9A\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002','quality-gate':'\u5B9F\u88C5\u5B8C\u4E86\u306E\u30BF\u30B9\u30AF\u306B\u54C1\u8CEA\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002','done':'\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u306F\u3059\u3079\u3066Done\u3067\u3059\u3002','blocked':'\u30D6\u30ED\u30C3\u30AF\u3055\u308C\u305F\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'};
-const phases={'phase1-not-started':'\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','spec-review':'\u4ED5\u69D8\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','impl-review':'\u8A2D\u8A08\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','phase2-not-started':'\u30BF\u30B9\u30AF\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','task-review':'\u30BF\u30B9\u30AF\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','approval-gate':'\u30BF\u30B9\u30AF\u306E\u627F\u8A8D\u5F85\u3061\u3067\u3059','implementation':'\u5B9F\u88C5\u3092\u9032\u3081\u3089\u308C\u307E\u3059','quality-gate':'\u54C1\u8CEA\u30B2\u30FC\u30C8\u304C\u5FC5\u8981\u3067\u3059','done':'\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u3059','blocked':'\u30D6\u30ED\u30C3\u30AB\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044'};
+const phaseText={
+  'bootstrap-not-started': ['\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
+  'design-missing': ['\u8A2D\u8A08\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u306F\u3042\u308A\u307E\u3059\u304C\u3001\u8A2D\u8A08\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
+  'tasks-missing': ['\u30BF\u30B9\u30AF\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u3068\u8A2D\u8A08\u306E\u30D5\u30A1\u30A4\u30EB\u306F\u3042\u308A\u307E\u3059\u304C\u3001\u5B9F\u88C5\u30BF\u30B9\u30AF\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
+  'sdd-gate': ['\u54C1\u8CEA\u30B2\u30FC\u30C8\u304C\u5FC5\u8981\u3067\u3059','\u5B9F\u88C5\u5B8C\u4E86\u306E\u30BF\u30B9\u30AF\u306B\u54C1\u8CEA\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002'],
+  'phase1-not-started': ['\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
+  'spec-review': ['\u4ED5\u69D8\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002'],
+  'impl-review': ['\u8A2D\u8A08\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002'],
+  'phase2-not-started': ['\u30BF\u30B9\u30AF\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','\u5B9F\u88C5\u30BF\u30B9\u30AF\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002'],
+  'task-review': ['\u30BF\u30B9\u30AF\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002'],
+  'approval-gate': ['\u30BF\u30B9\u30AF\u306E\u627F\u8A8D\u5F85\u3061\u3067\u3059','\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u305B\u3093\u3002'],
+  'implementation': ['\u5B9F\u88C5\u3092\u9032\u3081\u3089\u308C\u307E\u3059','\u627F\u8A8D\u6E08\u307F\u306E\u4F5C\u696D\u4E2D\u307E\u305F\u306F\u4E88\u5B9A\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'],
+  'quality-gate': ['\u54C1\u8CEA\u30B2\u30FC\u30C8\u304C\u5FC5\u8981\u3067\u3059','\u5B9F\u88C5\u5B8C\u4E86\u306E\u30BF\u30B9\u30AF\u306B\u54C1\u8CEA\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002'],
+  'done': ['\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u3059','\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u306F\u3059\u3079\u3066Done\u3067\u3059\u3002'],
+  'blocked': ['\u30D6\u30ED\u30C3\u30AB\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','\u30D6\u30ED\u30C3\u30AF\u3055\u308C\u305F\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'],
+};
 function row(name,value){const li=document.createElement('li');for(const text of [name,value]){const span=document.createElement('span');span.textContent=text;li.append(span)}$('steps').append(li)}
-async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';$('headline').textContent=phases[p]||'\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044';$('reason').textContent=explanations[p]||'MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
+async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';const [headline,reason]=Object.hasOwn(phaseText,p)?phaseText[p]:['\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044','MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'];$('headline').textContent=headline;$('reason').textContent=reason;$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='sdd-gate'||p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
 async function start(){const id=++requestId;try{const r=await api('api/features');if(id!==requestId)return;if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='\u8868\u793A\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u305B\u3093\u3002'}catch(e){if(id!==requestId)return;$('error').textContent='\u6A5F\u80FD\u4E00\u89A7\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002\u958B\u767A\u74B0\u5883\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u304F\u3060\u3055\u3044\u3002'}catch{$('copy-result').textContent='\u81EA\u52D5\u30B3\u30D4\u30FC\u3067\u304D\u307E\u305B\u3093\u3002\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}};start();</script></body></html>`;
 async function startStatusView(root, dashboard = false) {
   const token = randomBytes(32).toString("hex");

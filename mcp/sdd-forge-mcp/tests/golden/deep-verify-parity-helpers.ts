@@ -1,96 +1,14 @@
-/**
- * Shared (non-test) helpers for the T-005 host-script parity goldens
- * (AC-012, ADR-0009). Builds a throwaway, git-backed SDD-shaped temp root
- * (reusing `makeTempSddRoot`/`writeFile` from `tests/test-helpers.ts`)
- * containing a fully self-consistent evidence bundle + verification
- * contract + quality report + artifact files, so a test can shell out to the
- * real `check-evidence-bundle.sh` against that same root and compare its
- * exit code to `evidenceDeepVerify()`'s verdict for the identical input.
- *
- * `check-evidence-bundle.sh` requires a real git repository at the given
- * root (it runs `git -C <root> cat-file -e <commit>^{commit}` and
- * `git -C <root> merge-base --is-ancestor <commit> HEAD`), so every fixture
- * directory is `git init`-ed and committed once its static files are in
- * place. This mirrors `tests/golden/shell-runner.ts`'s existing precedent of
- * being "the one place in the whole test suite allowed to" shell out to a
- * host script / git — `evidence_deep_verify` itself never spawns git or a
- * shell (ADR-0008); only this test-only helper does.
- *
- * Deliberately not named `*.test.ts` (node:test glob avoidance — see
- * `tests/tools/deep-verify-helpers.ts`'s identical convention).
- */
+/** Synthetic bundles shared by the recorded and live historical AC-012 comparisons. */
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { makeTempSddRoot, writeFile, type TempSddRoot } from "../test-helpers.js";
-
-const THIS_FILE_DIR = dirname(fileURLToPath(import.meta.url));
 
 /** SHA-256 hex of a UTF-8 string — mirrors the tool's `sha256OfContents`. */
 export function sha256Of(contents: string): string {
   return createHash("sha256").update(contents, "utf-8").digest("hex");
-}
-
-/**
- * Locates the real sdd-forge repository root by walking upward from this
- * file's compiled location until `check-evidence-bundle.sh` + `specs/` are
- * both present (same walk-upward strategy as
- * `tests/golden/shell-runner.ts#findRepoRoot`).
- */
-export function findSddForgeRepoRoot(): string {
-  let dir = THIS_FILE_DIR;
-  for (let i = 0; i < 12; i += 1) {
-    if (
-      existsSync(join(dir, "plugins", "sdd-quality-loop", "scripts", "check-evidence-bundle.sh")) &&
-      existsSync(join(dir, "specs"))
-    ) {
-      return dir;
-    }
-    const parent = dirname(dir);
-    if (parent === dir) {
-      break;
-    }
-    dir = parent;
-  }
-  throw new Error(`Could not locate sdd-forge repo root above ${THIS_FILE_DIR}`);
-}
-
-export interface ShellRunResult {
-  exitCode: number;
-  combinedOutput: string;
-}
-
-/**
- * Runs the real `check-evidence-bundle.sh` against a fixture's bundle file,
- * using the fixture directory itself as both the shell's cwd and its
- * `repo-root` argument (so relative artifact/contract/report paths resolve
- * identically to how `evidenceDeepVerify()` resolves them via path-guard).
- */
-export function runCheckEvidenceBundle(fixtureDir: string, bundleRelPath: string): ShellRunResult {
-  const scriptPath = join(
-    findSddForgeRepoRoot(),
-    "plugins",
-    "sdd-quality-loop",
-    "scripts",
-    "check-evidence-bundle.sh",
-  );
-  try {
-    const stdout = execFileSync("bash", [scriptPath, bundleRelPath, fixtureDir], {
-      cwd: fixtureDir,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    return { exitCode: 0, combinedOutput: stdout };
-  } catch (error) {
-    const execError = error as { status?: number; stdout?: string; stderr?: string };
-    return {
-      exitCode: execError.status ?? 1,
-      combinedOutput: `${execError.stdout ?? ""}${execError.stderr ?? ""}`,
-    };
-  }
 }
 
 /**
@@ -151,6 +69,8 @@ function waivedBaselineChecks(): Array<Record<string, unknown>> {
 }
 
 export interface ParityFixtureOptions {
+  /** Reuse the recorded host input when replaying without a Git checkout. */
+  fixtureCommit?: string;
   /** Bundle `risk` field. Defaults to `"low"`. */
   risk?: string;
   /**
@@ -182,11 +102,11 @@ export interface ParityFixtureFiles {
 }
 
 /**
- * Builds a git-backed temp SDD root containing a fully self-consistent
+ * Builds a temp SDD root containing a fully self-consistent
  * evidence bundle: every artifact's recorded sha256 matches its on-disk
  * contents, the quality report and contract cross-bind to the bundle,
- * `git_commit` is a real 40-hex commit inside the fixture's own throwaway
- * git repository, and `specs/<feature>/{requirements,design,
+ * `git_commit` comes from the host fixture recording or a fresh fixture
+ * commit for live historical replay, and `specs/<feature>/{requirements,design,
  * acceptance-tests}.md` exist so the recomputed `spec_revision` is
  * non-empty and (by default) matches the recorded value.
  *
@@ -249,7 +169,7 @@ export function buildParityFixtureBase(
   });
   writeFile(dir, contractRel, contractContents);
 
-  const gitCommit = commitFixture(dir);
+  const gitCommit = options.fixtureCommit ?? commitFixture(dir);
 
   const bundleRel = `specs/${feature}/verification/${taskId}.evidence.json`;
   const specRevision = options.specRevisionOverride ?? computedSpecRevision;

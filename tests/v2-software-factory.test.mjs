@@ -10,6 +10,10 @@ import {
   formatTraceabilityMarkdown,
   scopeMatchesFile,
 } from '../plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs';
+import {
+  computeExecutionPlan,
+  scopeEntriesOverlap,
+} from '../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs';
 import { writeSpecBaseline } from '../plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs';
 import {
   buildDecisionViewData,
@@ -332,6 +336,494 @@ describe('Software Factory v2.x (SQL + AWS + Azure + Software SDLC)', () => {
     assert.equal(errRes.status, 2);
   });
 
+  it('I2: scopeEntriesOverlap & --plan-batches serialize wildcard/directory & wildcard-pair overlaps (including uncreated files) while keeping disjoint top dirs parallel', () => {
+    // Test A: direct scope language overlap checks
+    // Wildcard vs directory (future files)
+    assert.equal(scopeEntriesOverlap('src/**/*.ts', 'src/sub'), true);
+    assert.equal(scopeEntriesOverlap('src/sub', 'src/**/*.ts'), true);
+    assert.equal(scopeEntriesOverlap('src/**/*.ts', 'src/sub/'), true);
+    assert.equal(scopeEntriesOverlap('src/*/foo.ts', 'src/sub'), true);
+    assert.equal(scopeEntriesOverlap('**/billing.ts', 'src/sub'), true);
+    assert.equal(scopeEntriesOverlap('src/sub/**', 'src/sub'), true);
+
+    // Wildcard pairs overlapping future files
+    assert.equal(scopeEntriesOverlap('*/foo.ts', 'src/*.ts'), true);
+    assert.equal(scopeEntriesOverlap('src/*.ts', 'src/foo*'), true);
+    assert.equal(scopeEntriesOverlap('src/**/*.ts', 'src/sub/*.ts'), true);
+    assert.equal(scopeEntriesOverlap('src/**/a/**/*.ts', 'src/**/b/**/*.ts'), true);
+
+    // Disjoint scopes must NOT be collapsed
+    assert.equal(scopeEntriesOverlap('src/**/*.ts', 'docs/sub'), false);
+    assert.equal(scopeEntriesOverlap('src/**/*.ts', 'tests/**/*.ts'), false);
+    assert.equal(scopeEntriesOverlap('src/sub', 'docs/sub'), false);
+    assert.equal(scopeEntriesOverlap('src/*.ts', 'src/sub'), false);
+    assert.equal(scopeEntriesOverlap('src/*.ts', 'src/*.js'), false);
+    assert.equal(scopeEntriesOverlap('src/**/*.ts', 'src/**/*.js'), false);
+    assert.equal(scopeEntriesOverlap('src/sub/**', 'src/other/**'), false);
+    assert.equal(scopeEntriesOverlap('src/sub', 'src/sub2'), false);
+
+    // Un-analyzable/ambiguous forms conservatively serialize
+    assert.equal(scopeEntriesOverlap('src/../lib/a.ts', 'lib/a.ts'), true);
+    assert.equal(scopeEntriesOverlap('.', 'src/a.ts'), true);
+
+    // Test B: end-to-end planner & CLI with zero candidate files created on disk
+    const dir = trackTempDir('sdd-i2-plan-');
+    fs.mkdirSync(path.join(dir, 'specs', 'scope-plan'), { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'scope-plan', 'requirements.md'),
+      '# Requirements: scope-plan\n- **REQ-001**: Parallel planner\n- **AC-001** (REQ-001): Disjoint scopes only\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'scope-plan', 'tasks.md'),
+      [
+        '# Tasks: scope-plan',
+        '',
+        '## T-001 TypeScript refactor',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/**/*.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-002 Submodule update',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/sub`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-003 Docs update',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `docs/guide`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-004 Test suite update',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `tests/**/*.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-005 Intermediate helper',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `lib/helper.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-002',
+        '',
+        '## T-006 Transitive follow-up in src/sub',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/sub`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-005',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const jsonCli = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'scope-plan', '--root', dir, '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(jsonCli.status, 0, jsonCli.stderr);
+    const report = JSON.parse(jsonCli.stdout);
+    assert.deepEqual(Object.keys(report.executionPlan).sort(), ['batches', 'cyclicTasks', 'scopeConflicts']);
+    assert.deepEqual(report.executionPlan.batches, [
+      ['T-001', 'T-003', 'T-004'],
+      ['T-002'],
+      ['T-005'],
+      ['T-006'],
+    ]);
+    assert.deepEqual(report.executionPlan.cyclicTasks, []);
+    assert.equal(
+      report.executionPlan.scopeConflicts.some(
+        (c) => c.tasks[0] === 'T-001' && c.tasks[1] === 'T-002' && c.overlaps.includes('src/**/*.ts <-> src/sub'),
+      ),
+      true,
+    );
+    assert.equal(
+      report.executionPlan.scopeConflicts.some(
+        (c) => (c.tasks[0] === 'T-002' && c.tasks[1] === 'T-006') || (c.tasks[0] === 'T-006' && c.tasks[1] === 'T-002'),
+      ),
+      false,
+      'Transitive dependency T-002 -> T-005 -> T-006 must not be counted as an extra scope conflict',
+    );
+
+    const mdCli = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'scope-plan', '--root', dir, '--format', 'markdown', '--plan-batches'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(mdCli.status, 0, mdCli.stderr);
+    assert.match(mdCli.stdout, /Scope Conflicts \(serialized automatically\)/);
+    assert.match(mdCli.stdout, /T-001 vs T-002: src\/\*\*\/\*\.ts <-> src\/sub/);
+
+    // Unicode RegExp /i equivalence regression (Greek sigma/final-sigma):
+    // scopes matching the same actual file must not be placed in the same wave,
+    // while distinct non-ASCII literal-only scopes remain disjoint.
+    assert.equal(scopeMatchesFile('src/σ/**/*.ts', 'src/ς/file.ts'), true);
+    assert.equal(scopeMatchesFile('src/ς/', 'src/ς/file.ts'), true);
+    assert.equal(scopeEntriesOverlap('src/σ/**/*.ts', 'src/ς/'), true);
+    assert.equal(scopeMatchesFile('src/**/a*Σ', 'src/sub/abς'), true);
+    assert.equal(scopeMatchesFile('src/**/?bς', 'src/sub/abς'), true);
+    assert.equal(scopeEntriesOverlap('src/**/a*Σ', 'src/**/?bς'), true);
+    assert.equal(scopeEntriesOverlap('docs/仕様.md', 'docs/設計.md'), false);
+    assert.equal(scopeEntriesOverlap('docs/設計/**/*.md', 'src/実装/**/*.ts'), false);
+    assert.equal(scopeEntriesOverlap('docs/設計/**/*.md', 'docs/仕様/**/*.md'), false);
+    assert.equal(scopeEntriesOverlap('docs/**/*設計.md', 'docs/**/*仕様.md'), false);
+
+    const unicodeDir = trackTempDir('sdd-i2-unicode-');
+    fs.mkdirSync(path.join(unicodeDir, 'specs', 'unicode-scope'), { recursive: true });
+    fs.writeFileSync(
+      path.join(unicodeDir, 'specs', 'unicode-scope', 'requirements.md'),
+      '# Requirements: unicode-scope\n- **REQ-001**: Unicode scope safety\n- **AC-001** (REQ-001): Serialize overlapping scopes\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(unicodeDir, 'specs', 'unicode-scope', 'tasks.md'),
+      [
+        '# Tasks: unicode-scope',
+        '## T-001 Sigma glob',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/σ/**/*.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-002 Final-sigma dir',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/ς/`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-003 Uppercase sigma suffix glob',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/**/a*Σ`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-004 Final-sigma suffix glob',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/**/?bς`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+    const sigmaImpact = analyzeTraceability({
+      feature: 'unicode-scope',
+      projectRoot: unicodeDir,
+      changedFiles: ['src/ς/file.ts'],
+    });
+    assert.deepEqual(sigmaImpact.impact.directImpactedTasks, ['T-001', 'T-002']);
+    assert.equal(
+      sigmaImpact.executionPlan.batches.every((w) => !(w.includes('T-001') && w.includes('T-002'))),
+      true,
+    );
+    assert.equal(
+      sigmaImpact.executionPlan.scopeConflicts.some((c) => c.tasks[0] === 'T-001' && c.tasks[1] === 'T-002'),
+      true,
+    );
+
+    const suffixImpact = analyzeTraceability({
+      feature: 'unicode-scope',
+      projectRoot: unicodeDir,
+      changedFiles: ['src/sub/abς'],
+    });
+    assert.deepEqual(suffixImpact.impact.directImpactedTasks, ['T-003', 'T-004']);
+    assert.equal(
+      suffixImpact.executionPlan.batches.every((w) => !(w.includes('T-003') && w.includes('T-004'))),
+      true,
+    );
+    assert.equal(
+      suffixImpact.executionPlan.scopeConflicts.some((c) => c.tasks[0] === 'T-003' && c.tasks[1] === 'T-004'),
+      true,
+    );
+  });
+
+  it('I3: preserves self-dependency cycles, excludes undefined blockers and downstream tasks without mislabeling as cycles, and keeps original --strict exit contract', () => {
+    // Test A: direct execution plan behavior on unknown/transitive/independent tasks
+    const directPlan = computeExecutionPlan([
+      { id: 'T-001', blockers: [], scopePaths: ['src/a.ts'] },
+      { id: 'T-002', blockers: ['T-999'], scopePaths: ['src/b.ts'] },
+      { id: 'T-003', blockers: ['T-002'], scopePaths: ['src/c.ts'] },
+      { id: 'T-004', blockers: ['T-001'], scopePaths: ['src/d.ts'] },
+      { id: 'T-005', blockers: [], scopePaths: ['src/e.ts'] },
+    ]);
+    assert.deepEqual(directPlan.batches, [['T-001', 'T-005'], ['T-004']]);
+    assert.deepEqual(directPlan.cyclicTasks, []);
+
+    const makeFeature = (slug, tasksBody) => {
+      const dir = trackTempDir(`sdd-i3-${slug}-`);
+      fs.mkdirSync(path.join(dir, 'specs', slug), { recursive: true });
+      fs.writeFileSync(
+        path.join(dir, 'specs', slug, 'requirements.md'),
+        `# Requirements: ${slug}\n- **REQ-001**: Blocker integrity\n- **AC-001** (REQ-001): Valid plan only\n`,
+        'utf8',
+      );
+      fs.writeFileSync(path.join(dir, 'specs', slug, 'tasks.md'), tasksBody, 'utf8');
+      return dir;
+    };
+
+    // Test B-1: Self-dependency -> strict exit 1, excluded from waves, reported in cyclicTasks, unrelated task runs
+    const selfDir = makeFeature(
+      'self-dep',
+      [
+        '# Tasks: self-dep',
+        '## T-001 Self blocked',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/self.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-001',
+        '',
+        '## T-002 Independent',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/indep.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+      ].join('\n'),
+    );
+    const selfJsonRes = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'self-dep', '--root', selfDir, '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(selfJsonRes.status, 1);
+    const selfReport = JSON.parse(selfJsonRes.stdout);
+    assert.equal(selfReport.complete, true);
+    assert.deepEqual(Object.keys(selfReport.executionPlan).sort(), ['batches', 'cyclicTasks', 'scopeConflicts']);
+    assert.deepEqual(selfReport.executionPlan.batches, [['T-002']]);
+    assert.deepEqual(selfReport.executionPlan.cyclicTasks, ['T-001']);
+    assert.equal(selfReport.tasks.find((t) => t.id === 'T-001').blockers.includes('T-001'), true);
+
+    const selfMdRes = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'self-dep', '--root', selfDir, '--format', 'markdown', '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(selfMdRes.status, 1);
+    assert.match(selfMdRes.stdout, /Blocker Cycle Detected\*\*: T-001/);
+    assert.doesNotMatch(selfMdRes.stdout, /Undefined Blockers/);
+
+    // Test B-2: Undefined blocker ID -> excluded from waves (with downstream tasks), NOT mislabeled as cyclic,
+    // visible in CLI diagnostics, defined chain & independent task still scheduled, original --strict exit 0 preserved
+    const unknownDir = makeFeature(
+      'unknown-dep',
+      [
+        '# Tasks: unknown-dep',
+        '## T-001 Chain root',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/a.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-002 Missing blocker',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/b.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-999',
+        '',
+        '## T-003 Blocked by T-002',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/c.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-002',
+        '',
+        '## T-004 Chain child',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/d.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-001',
+        '',
+        '## T-005 Independent',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/e.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+      ].join('\n'),
+    );
+    const unknownJsonRes = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'unknown-dep', '--root', unknownDir, '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(unknownJsonRes.status, 0);
+    const unknownReport = JSON.parse(unknownJsonRes.stdout);
+    assert.equal(unknownReport.complete, true);
+    assert.deepEqual(Object.keys(unknownReport.executionPlan).sort(), ['batches', 'cyclicTasks', 'scopeConflicts']);
+    assert.deepEqual(unknownReport.executionPlan.batches, [['T-001', 'T-005'], ['T-004']]);
+    assert.deepEqual(unknownReport.executionPlan.cyclicTasks, []);
+    assert.match(unknownJsonRes.stderr, /undefined blockers/i);
+    assert.match(unknownJsonRes.stderr, /T-002->T-999/);
+    assert.doesNotMatch(unknownJsonRes.stderr, /cycle/i);
+
+    const unknownMdRes = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'unknown-dep', '--root', unknownDir, '--format', 'markdown', '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(unknownMdRes.status, 0);
+    assert.match(unknownMdRes.stdout, /Undefined Blockers \(excluded from waves\)\*\*: T-002->T-999/);
+    assert.doesNotMatch(unknownMdRes.stdout, /Blocker Cycle Detected/);
+
+    // Test B-3: Multi-node cycle -> strict exit 1, excluded from waves, reported in cyclicTasks, chain & independent run
+    const cycleDir = makeFeature(
+      'multi-cycle',
+      [
+        '# Tasks: multi-cycle',
+        '## T-001 Cycle A',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/a.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-002',
+        '',
+        '## T-002 Cycle B',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: standard',
+        '### Scope',
+        '- `src/b.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-001',
+        '',
+        '## T-003 Independent root',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/c.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- None',
+        '',
+        '## T-004 Chain child',
+        'Approval: Approved',
+        'Status: Planned',
+        'Risk: low',
+        '### Scope',
+        '- `src/d.ts`',
+        '### Done When',
+        '- AC-001 passes',
+        '### Blockers',
+        '- T-003',
+        '',
+      ].join('\n'),
+    );
+    const cycleJsonRes = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'multi-cycle', '--root', cycleDir, '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(cycleJsonRes.status, 1);
+    const cycleReport = JSON.parse(cycleJsonRes.stdout);
+    assert.equal(cycleReport.complete, true);
+    assert.deepEqual(cycleReport.executionPlan.batches, [['T-003'], ['T-004']]);
+    assert.deepEqual(cycleReport.executionPlan.cyclicTasks, ['T-001', 'T-002']);
+
+    const cycleMdRes = spawnSync(
+      process.execPath,
+      [TRACE_CLI, '--feature', 'multi-cycle', '--root', cycleDir, '--format', 'markdown', '--plan-batches', '--strict'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(cycleMdRes.status, 1);
+    assert.match(cycleMdRes.stdout, /Blocker Cycle Detected\*\*: T-001, T-002/);
+    assert.doesNotMatch(cycleMdRes.stdout, /Undefined Blockers/);
+  });
+
   it('Phase B-2: SQL & Cloud IaC sensors catch multiline/untracked real-world issues without comment false positives', () => {
     const dir = createMultiDomainFixture();
     // Initialize git repo so we also verify discoverChangedFiles picks up NEW UNTRACKED files!
@@ -450,5 +942,75 @@ resource "aws_iam_policy" "wide" {
 `);
     assert.equal(alts.length, 1);
     assert.equal(alts[0].option, '案 A | B');
+  });
+
+  it('D6: Decision View reflects missing, NEEDS_FIX, and PASS spec-check without claiming unobserved checks ran', () => {
+    const dir = trackTempDir('sdd-decision-view-d6-');
+    fs.mkdirSync(path.join(dir, 'specs', 'truthful-api'), { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'truthful-api', 'requirements.md'),
+      '# 要件: truthful-api\n- **REQ-001**: Health endpoint returns HTTP 200.\n- **AC-001** (REQ-001): GET /health returns 200.\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'truthful-api', 'design.md'),
+      '# 設計: truthful-api\n\n## 方針\nStandard handler.\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'truthful-api', 'tasks.md'),
+      '# タスク: truthful-api\n\n## T-001 Implement health endpoint\nApproval: Draft\nStatus: Planned\nRisk: standard\n\n### Scope\n- `src/health.mjs`\n\n### Done When\n- AC-001 passes\n',
+      'utf8',
+    );
+
+    // 1. Missing reports/spec-check/truthful-api.md -> Not Run across matrix, Markdown, and HTML.
+    const missingData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(missingData.specCheckVerdict, 'Not Run');
+    assert.equal('checkStatus' in missingData, false);
+    const c01Missing = missingData.reviewPerspectives.find((p) => p.id === 'C01');
+    const c07Missing = missingData.reviewPerspectives.find((p) => p.id === 'C07');
+    const c08Missing = missingData.reviewPerspectives.find((p) => p.id === 'C08');
+    assert.match(c01Missing.reason, /spec-check \(Not Run\)/);
+    assert.doesNotMatch(c01Missing.reason, /確認済み/);
+    assert.match(c07Missing.reason, /spec-check \(Not Run\)/);
+    assert.doesNotMatch(c07Missing.reason, /確認済み|自動照合済み/);
+    assert.doesNotMatch(c08Missing.reason, /確認済み|で自動検証。/);
+    for (const view of [renderDecisionViewMarkdown(missingData), renderDecisionViewHtml(missingData)]) {
+      assert.match(view, /Not Run/);
+      assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み|確認済み/);
+    }
+
+    // 2. NEEDS_FIX report -> must not claim confirmed in any view.
+    const specCheckPath = path.join(dir, 'reports', 'spec-check', 'truthful-api.md');
+    fs.mkdirSync(path.dirname(specCheckPath), { recursive: true });
+    fs.writeFileSync(specCheckPath, '# Spec Check Report: truthful-api\n\n- **Verdict**: NEEDS_FIX\n', 'utf8');
+    const needsFixData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(needsFixData.specCheckVerdict, 'NEEDS_FIX');
+    assert.match(needsFixData.reviewPerspectives.find((p) => p.id === 'C01').reason, /spec-check \(NEEDS_FIX\)/);
+    assert.match(needsFixData.reviewPerspectives.find((p) => p.id === 'C07').reason, /spec-check \(NEEDS_FIX\)/);
+    for (const view of [renderDecisionViewMarkdown(needsFixData), renderDecisionViewHtml(needsFixData)]) {
+      assert.match(view, /NEEDS_FIX/);
+      assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み|確認済み/);
+    }
+
+    // 3. PASS report (even with P2 Design N/A) -> C01 stays neutral (never claims design confirmed), while trace/drift/gate remain non-claiming.
+    fs.writeFileSync(
+      specCheckPath,
+      '# Spec Check Report: truthful-api\n\n- **Verdict**: PASS\n\n## Perspective Coverage (P1–P6)\n- P2 (Design & Alternatives Rejected): N/A (config-only)\n',
+      'utf8',
+    );
+    const passData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(passData.specCheckVerdict, 'PASS');
+    const c01Pass = passData.reviewPerspectives.find((p) => p.id === 'C01');
+    assert.match(c01Pass.reason, /spec-check \(PASS\) の判定を記録/);
+    assert.match(c01Pass.reason, /レポートを確認/);
+    assert.doesNotMatch(c01Pass.reason, /確認済み/);
+    assert.match(passData.reviewPerspectives.find((p) => p.id === 'C07').reason, /spec-check \(PASS\) は確認済み/);
+    assert.doesNotMatch(passData.reviewPerspectives.find((p) => p.id === 'C07').reason, /自動照合済み/);
+    assert.doesNotMatch(passData.reviewPerspectives.find((p) => p.id === 'C08').reason, /確認済み|で自動検証。/);
+    for (const view of [renderDecisionViewMarkdown(passData), renderDecisionViewHtml(passData)]) {
+      assert.match(view, /spec-check \(PASS\)/);
+      assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み/);
+    }
   });
 });

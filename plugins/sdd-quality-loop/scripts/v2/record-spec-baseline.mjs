@@ -9,11 +9,11 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   canonicalSpecContractText,
   extractAmendmentEntries,
   extractSpecIdentifiers,
+  isCliEntrypoint,
   loadGuardrailsConfig,
   matchProtectedSpecPath,
   resolveExplicitOrAutoRoot,
@@ -150,6 +150,6 @@ function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (isCliEntrypoint(import.meta.url)) {
   main();
 }

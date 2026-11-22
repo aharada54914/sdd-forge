@@ -409,6 +409,7 @@ export function sddProjectOverview(
       const drift = readDriftSummary(root, feature);
       const hasSpecs =
         guardedExists(root, `specs/${feature}/requirements.md`) &&
+        guardedExists(root, `specs/${feature}/design.md`) &&
         guardedExists(root, `specs/${feature}/tasks.md`);
       const tasks = dv.tasks as V2TaskSummary[];
       const highestRisk = toRiskTier(dv.highestRisk);
@@ -532,7 +533,7 @@ export function sddFeatureState(
         dv.tasks as V2TaskSummary[],
         dv.specCheckVerdict,
         highestRisk,
-        files.requirements && files.tasks,
+        files.requirements && files.design && files.tasks,
         drift.status,
       ),
     };

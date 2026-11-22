@@ -9,6 +9,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   DEFAULT_CONFIG,
   VALID_MODES,
@@ -19,6 +20,7 @@ import {
   countDomainModelApprovals,
   countPrimaryApprovals,
   extractAmendmentEntries,
+  extractAmendmentEntriesWithLines,
   extractSpecIdentifiers,
   globToRegExp,
   isSafeSpecEditOnly,
@@ -43,6 +45,7 @@ export {
   countDomainModelApprovals,
   countPrimaryApprovals,
   extractAmendmentEntries,
+  extractAmendmentEntriesWithLines,
   extractSpecIdentifiers,
   globToRegExp,
   isSafeSpecEditOnly,
@@ -65,6 +68,12 @@ export function safeRealpath(targetPath) {
   } catch {
     return path.resolve(targetPath);
   }
+}
+
+// Node can resolve import.meta.url to the physical location while argv still
+// names a symlinked installation directory or executable.
+export function isCliEntrypoint(moduleUrl) {
+  return Boolean(process.argv[1]) && safeRealpath(fileURLToPath(moduleUrl)) === safeRealpath(process.argv[1]);
 }
 
 export function findGitRoot(startDir) {

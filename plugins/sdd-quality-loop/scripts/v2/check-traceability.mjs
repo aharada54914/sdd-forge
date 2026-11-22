@@ -12,7 +12,11 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createFsReadonlyIo, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
-import { analyzeTraceabilityCore, scopeMatchesFile } from './v2-readonly-core.mjs';
+import {
+  analyzeTraceabilityCore,
+  findMissingBlockerRefs,
+  scopeMatchesFile,
+} from './v2-readonly-core.mjs';
 
 export { scopeMatchesFile };
 
@@ -31,8 +35,16 @@ function escapeMdCell(text) {
   return String(text || '').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
 }
 
-export function formatTraceabilityMarkdown(report, { includeBatches = false } = {}) {
+function formatMissingBlockerRefs(refs) {
+  return refs.map((r) => `${r.task}->${r.missingBlocker}`).join(', ');
+}
+
+export function formatTraceabilityMarkdown(
+  report,
+  { includeBatches = false, missingBlockerRefs = null } = {},
+) {
   const lines = [];
+  const missingRefs = missingBlockerRefs ?? findMissingBlockerRefs(report.tasks || []);
   lines.push(`# Traceability Matrix: ${report.feature}`);
   lines.push('');
   lines.push(`- **Status**: ${report.complete ? '✅ COMPLETE' : '❌ GAPS_FOUND'}`);
@@ -50,6 +62,9 @@ export function formatTraceabilityMarkdown(report, { includeBatches = false } = 
   }
   if (report.gaps.brokenAcRefs.length > 0) {
     lines.push(`- **Broken AC Refs**: ${report.gaps.brokenAcRefs.map((r) => `${r.task}->${r.missingAc}`).join(', ')}`);
+  }
+  if (!includeBatches && missingRefs.length > 0) {
+    lines.push(`- **Undefined Blockers**: ${formatMissingBlockerRefs(missingRefs)}`);
   }
   lines.push('');
   lines.push('| AC | REQ | Tasks | Code / Test Scope |');
@@ -86,6 +101,9 @@ export function formatTraceabilityMarkdown(report, { includeBatches = false } = 
     }
     if (report.executionPlan.cyclicTasks.length > 0) {
       lines.push(`- **Blocker Cycle Detected**: ${report.executionPlan.cyclicTasks.join(', ')}`);
+    }
+    if (missingRefs.length > 0) {
+      lines.push(`- **Undefined Blockers (excluded from waves)**: ${formatMissingBlockerRefs(missingRefs)}`);
     }
   }
   if (report.impact.changedIds.length > 0 || report.impact.changedFiles.length > 0) {
@@ -144,11 +162,17 @@ if (isMain) {
       changedIds: opts.changedIds,
       changedFiles: opts.changedFiles,
     });
+    const missingBlockerRefs = findMissingBlockerRefs(report.tasks || []);
     process.stdout.write(
       opts.format === 'markdown'
-        ? formatTraceabilityMarkdown(report, { includeBatches: opts.planBatches })
+        ? formatTraceabilityMarkdown(report, { includeBatches: opts.planBatches, missingBlockerRefs })
         : `${JSON.stringify(report, null, 2)}\n`,
     );
+    if (missingBlockerRefs.length > 0) {
+      process.stderr.write(
+        `check-traceability: undefined blockers (excluded from waves): ${formatMissingBlockerRefs(missingBlockerRefs)}\n`,
+      );
+    }
     const hasCycle = (report.executionPlan?.cyclicTasks?.length || 0) > 0;
     process.exit(opts.strict && (!report.complete || hasCycle) ? 1 : 0);
   } catch (err) {

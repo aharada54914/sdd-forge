@@ -29,6 +29,24 @@ export function selectPresentation(parentService: string): 'sites' | 'artifacts'
   if (parentService === 'claude') return 'artifacts';
   throw new Error('親サービスを chatgpt または claude として指定してください。子のモデルからは選択しません。');
 }
+const TASK_HEADER_FIELD = /^[A-Z][A-Za-z0-9-]*(?: [A-Z][A-Za-z0-9-]*)*:(?:[ \t]|$)/;
+const CANONICAL_STANDARD_RISK = /^Risk:[ \t]+standard[ \t]*$/;
+/**
+ * Dashboard-only display helper for v2 `Risk: standard`.
+ * Scans only the task's leading metadata header (ignoring subsections, fences,
+ * prose, and trailing non-task sections) and requires exact lowercase `standard`
+ * so legacy parser/gate semantics remain unchanged.
+ */
+function readCanonicalStandardRisk(body: string): 'standard' | null {
+  let canonicalRiskLine: string | undefined;
+  for (const rawLine of body.split('\n')) {
+    const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+    if (/^[ \t]*$/.test(line)) continue;
+    if (!TASK_HEADER_FIELD.test(line)) break;
+    if (line.startsWith('Risk:')) canonicalRiskLine = line;
+  }
+  return canonicalRiskLine !== undefined && CANONICAL_STANDARD_RISK.test(canonicalRiskLine) ? 'standard' : null;
+}
 function readData(root: SddRoot): { data: DashboardData; digest: string } {
   const labelsFile = guardedRead(root, 'dashboard-labels.json');
   let labels: Record<string, string> = {};
@@ -77,7 +95,7 @@ function readData(root: SddRoot): { data: DashboardData; digest: string } {
       const release = body.match(/^Release:[ \t]*(\S[^\r\n]*)\r?$/m)?.[1]?.trim() || null;
       data.tasks.push({ key: `${feature}/${task.id}`, feature, id: task.id,
         title: (section[2] ?? '').replace(/^\s*[:—-]\s*/, '').trim() || task.id,
-        body, source, status: task.status, approval: task.approval, risk: task.risk ?? 'unknown', release,
+        body, source, status: task.status, approval: task.approval, risk: task.risk ?? readCanonicalStandardRisk(body) ?? 'unknown', release,
         failures: state.data.failures.filter(f => !f.taskId || f.taskId === task.id).map(f => f.message) });
     }
   }

@@ -185,3 +185,51 @@ test('invalid decisions retain last-good; duplicate choices, foreign paths and u
     const failed=reader.sample();assert.ok(failed.error);assert.ok(!JSON.stringify(failed).includes('PRIVATE_DECISION_SENTINEL'));
   } finally { f.cleanup(); }
 });
+
+test('dashboard renders canonical lowercase standard risk, keeps legacy/unknown tiers, and ignores non-canonical Risk lines', () => {
+  const f = fixture();
+  try {
+    const reader = new DashboardReader(f.root);
+    const cases: readonly [string, string, string][] = [
+      ['v2 standard', tasks('Std').replace('Risk: low', 'Risk: standard'), 'standard'],
+      ['fields before standard (CRLF)', '# Tasks\r\n\r\n## T-001 Meta\r\nOwner: platform\r\nRelease: v2.1\r\nApproval: Approved\r\nStatus: Planned\r\nRisk: standard  \r\n\r\n### Scope\r\n- a\r\n', 'standard'],
+      ['blank-line metadata', '# Tasks\n\n## T-001 Spaced\n\nPriority: P3\n\nApproval: Approved\n\nStatus: Planned\n\nRisk: standard\n', 'standard'],
+      ['legacy medium', tasks('Med').replace('Risk: low', 'Risk: medium'), 'medium'],
+      ['legacy critical', tasks('Crit').replace('Risk: low', 'Risk: critical'), 'critical'],
+      ['missing risk', tasks('None').replace('Risk: low\n', ''), 'unknown'],
+      ['unknown risk', tasks('Unknown').replace('Risk: low', 'Risk: urgent'), 'unknown'],
+      ['mis-cased Standard', tasks('Title').replace('Risk: low', 'Risk: Standard'), 'unknown'],
+      ['mis-cased STANDARD', tasks('Upper').replace('Risk: low', 'Risk: STANDARD'), 'unknown'],
+      ['mis-cased key', tasks('Key').replace('Risk: low', 'risk: standard'), 'unknown'],
+      ['backtick fence', tasks('Fence').replace('Risk: low\n', '').replace('Description', '```md\nRisk: standard\n```'), 'unknown'],
+      ['tilde fence', tasks('Tilde').replace('Risk: low\n', '').replace('Description', '~~~\nRisk: standard\n~~~'), 'unknown'],
+      ['embedded prose', tasks('Prose').replace('Risk: low\n', '').replace('Description', 'This task documents:\nRisk: standard'), 'unknown'],
+      ['subsection', tasks('Sub').replace('Risk: low\n', '').replace('Description', '### Done When\nRisk: standard'), 'unknown'],
+      ['spec amendments', tasks('Amend').replace('Risk: low\n', '').replace('Description', '## Spec Amendments\nRisk: standard'), 'unknown'],
+    ];
+    for (const [label, content, expected] of cases) {
+      writeFile(f.dir, 'specs/demo/tasks.md', content);
+      const snap = reader.sample();
+      assert.equal(snap.error, null, label);
+      assert.equal(snap.data?.tasks[0]?.risk, expected, label);
+    }
+
+    writeFile(f.dir, 'specs/demo/.spec-baseline.json', '{"schema":"sdd-spec-baseline/v1","feature":"demo","files":{}}\n');
+    writeFile(f.dir, 'reports/quality-gate/T-001.md', 'Task ID: T-001\nVERDICT: PASS\n');
+    writeFile(f.dir, 'specs/demo/tasks.md', tasks('CritDone', 'Done').replace('Risk: low', 'Risk: critical'));
+    const missingSecond = reader.sample();
+    assert.equal(missingSecond.data?.tasks[0]?.risk, 'critical');
+    assert.ok(missingSecond.data?.tasks[0]?.failures.some((m) => m.includes('critical Done') && m.includes('Second Approval')));
+
+    writeFile(
+      f.dir,
+      'specs/demo/tasks.md',
+      tasks('CritDone', 'Done')
+        .replace('Approval: Approved', 'Approval: Approved (alice 2026-11-22T00:00:00Z)\nSecond Approval: Approved (bob 2026-11-22T00:01:00Z)')
+        .replace('Risk: low', 'Risk: critical'),
+    );
+    const twoPerson = reader.sample();
+    assert.equal(twoPerson.data?.tasks[0]?.risk, 'critical');
+    assert.deepEqual(twoPerson.data?.tasks[0]?.failures, []);
+  } finally { f.cleanup(); }
+});

@@ -2,6 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { request } from 'node:http';
 import { connect } from 'node:net';
+import { runInNewContext } from 'node:vm';
+import type { Result } from '../src/envelope.js';
+import type { NextCommandData } from '../src/next-command.js';
 import { startStatusView } from '../src/status-view.js';
 import { makeTempSddRoot, writeFile } from './test-helpers.js';
 
@@ -22,11 +25,38 @@ function makeDocument() {
   return { element, document: { getElementById: element, createElement: () => node() } };
 }
 
+/** Mount the script from the served page and follow its real HTTP reads, including refreshes. */
+async function mountStatusPage(url: string) {
+  const html = await (await fetch(url)).text();
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(script);
+  const { element, document } = makeDocument();
+  await runInNewContext(script, {
+    document, encodeURIComponent, AbortSignal,
+    fetch: (path: string, init: RequestInit) => fetch(new URL(path, url), init),
+  });
+  const refresh = element('refresh').onclick;
+  assert.ok(refresh);
+  const next = () => (JSON.parse(element('raw').textContent) as { next: Result<NextCommandData> }).next;
+  return { element, refresh, next };
+}
+
+function assertDisplayedPhase(
+  view: Awaited<ReturnType<typeof mountStatusPage>>, phase: string, headline: string, reason: RegExp, command: string,
+) {
+  const next = view.next();
+  assert.equal(next.ok, true);
+  assert.equal(next.data.phase, phase);
+  assert.equal(view.element('headline').textContent, headline);
+  assert.match(view.element('reason').textContent, reason);
+  assert.equal(view.element('command').textContent, command);
+  assert.equal(view.element('copy').hidden, false);
+}
+
 test('local status view exposes fresh guarded state and rejects untrusted requests', async () => {
   const fixture=makeTempSddRoot('status-view');
-  writeFile(fixture.dir,'AGENTS.md','# AGENTS\n\n## Active Spec Directories\n\n- specs/example/\n');
-  writeFile(fixture.dir,'specs/example/requirements.md','# Requirements\nSpec-Review-Status: Pending\n');
-  writeFile(fixture.dir,'specs/example/design.md','# Design\nImpl-Review-Status: Pending\n');
+  writeFile(fixture.dir,'AGENTS.md','# AGENTS\n\n## Active Spec Directories\n\n- `specs/example/`\n');
+  writeFile(fixture.dir, 'specs/example/notes.md', '# Notes\n');
   const {server,url}=await startStatusView(fixture.root);
   try {
     const address=server.address();
@@ -42,12 +72,18 @@ test('local status view exposes fresh guarded state and rejects untrusted reques
     const page=await fetch(url);assert.equal(page.status,200);
     assert.match(page.headers.get('content-security-policy') ?? '',/frame-ancestors 'none'/);
     assert.match(await page.text(),/品質ゲート/);
-    const status=new URL('api/status?feature=example',url);
-    const first=await (await fetch(status)).json() as {next:{ok:boolean;data:{phase:string}}};
-    assert.equal(first.next.data.phase,'spec-review');
-    writeFile(fixture.dir,'specs/example/requirements.md','# Requirements\nSpec-Review-Status: Passed\n');
-    const updated=await (await fetch(status)).json() as {next:{data:{phase:string}}};
-    assert.notEqual(updated.next.data.phase,'spec-review');
+    const view = await mountStatusPage(url);
+    const bootstrap = '/sdd-bootstrap:bootstrap feature example';
+    assertDisplayedPhase(view, 'bootstrap-not-started', '仕様の準備が必要です', /要件ファイル/, bootstrap);
+    writeFile(fixture.dir, 'specs/example/requirements.md', '# Requirements\n');
+    await view.refresh();
+    assertDisplayedPhase(view, 'design-missing', '設計の準備が必要です', /設計ファイル/, bootstrap);
+    writeFile(fixture.dir, 'specs/example/design.md', '# Design\n');
+    await view.refresh();
+    assertDisplayedPhase(view, 'tasks-missing', 'タスクの準備が必要です', /実装タスク/, bootstrap);
+    writeFile(fixture.dir, 'specs/example/tasks.md', '# Tasks\n\n## T-001\nApproval: Draft\nStatus: Planned\nRisk: low\n');
+    await view.refresh();
+    assertDisplayedPhase(view, 'approval-gate', 'タスクの承認待ちです', /承認済み/, 'human: approve tasks in tasks.md');
     assert.equal((await fetch(new URL('api/status?feature=..%2Fsecret',url))).status,400);
     assert.equal((await fetch(new URL('/wrong/api/features',url))).status,404);
     assert.equal((await fetch(url,{headers:{Origin:'https://attacker.example'}})).status,403);
@@ -57,31 +93,42 @@ test('local status view exposes fresh guarded state and rejects untrusted reques
   } finally { await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));fixture.cleanup(); }
 });
 
-test('indeterminate next step still shows known spec status and unknown later phases', async () => {
-  const { runInNewContext } = await import('node:vm');
-  const fixture=makeTempSddRoot('status-view-indeterminate');
-  writeFile(fixture.dir,'specs/example/requirements.md','# Requirements\nSpec-Review-Status: Passed\n');
-  const view=await startStatusView(fixture.root);
+test('indeterminate status keeps known review progress and recovers to the quality gate when the report appears', async () => {
+  const fixture = makeTempSddRoot('status-view-indeterminate');
+  writeFile(fixture.dir, 'AGENTS.md', '# AGENTS\n\n## Active Spec Directories\n\n- `specs/example/`\n');
+  writeFile(fixture.dir, 'specs/example/requirements.md', '# Requirements\nSpec-Review-Status: Passed\n');
+  writeFile(fixture.dir, 'specs/example/design.md', '# Design\n');
+  writeFile(fixture.dir, 'specs/example/tasks.md', '# Tasks\n\n## T-001\nApproval: Approved\nStatus: Implementation Complete\nRisk: low\n');
+  const { server, url } = await startStatusView(fixture.root);
   try {
-    const html=await (await fetch(view.url)).text();
-    const script=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];assert.ok(script);
-    const state=await (await fetch(new URL('api/status?feature=example',view.url))).json() as {next:{ok:boolean}};
-    assert.equal(state.next.ok,false);
-    const { element, document } = makeDocument();
-    const fetchMock=async (path: string)=>({ok:true,json:async()=>path==='api/features'?{ok:true,data:{specs:[{feature:'example'}]}}:state});
-    runInNewContext(script,{document,fetch:fetchMock,encodeURIComponent,AbortSignal,navigator:{clipboard:{writeText:async()=>{}}}});
-    await new Promise(resolve=>setImmediate(resolve));
-    assert.match(element('error').textContent,/次の工程を判断できません/);
-    assert.equal(element('result').hidden,false);assert.equal(element('progress').hidden,false);
-    assert.equal(element('copy').hidden,true);assert.equal(element('command').textContent,'');
-    assert.ok(element('steps').children.some(row=>row.children.some(span=>span.textContent==='レビュー済み')));
-    assert.ok(element('steps').children.some(row=>row.children.some(span=>span.textContent==='状態未確認')));
-    for(const label of ['タスクのレビュー','タスクの承認','品質ゲート（タスクごと）']) assert.ok(element('steps').children.some(row=>row.children.some(span=>span.textContent===label)));
-  } finally { await new Promise<void>((resolve,reject)=>view.server.close(e=>e?reject(e):resolve()));fixture.cleanup(); }
+    const view = await mountStatusPage(url);
+    const next = view.next();
+    assert.equal(next.ok, false);
+    assert.equal(next.error.code, 'cannot-determine');
+    const { element } = view;
+    const rowValue = (label: string) => element('steps').children.find(row => row.children[0]?.textContent === label)?.children[1]?.textContent;
+    assert.match(element('error').textContent, /次の工程を判断できません/);
+    assert.equal(element('result').hidden, false);
+    assert.equal(element('progress').hidden, false);
+    assert.equal(element('copy').hidden, true);
+    assert.equal(element('command').textContent, '');
+    assert.equal(rowValue('要件のレビュー'), 'レビュー済み');
+    for (const label of ['タスクのレビュー', 'タスクの承認', '品質ゲート（タスクごと）']) {
+      assert.equal(rowValue(label), '状態未確認');
+    }
+
+    writeFile(fixture.dir, 'reports/implementation/example-T-001.md', '# Implementation Report\nTask ID: T-001\n');
+    await view.refresh();
+    assertDisplayedPhase(view, 'sdd-gate', '品質ゲートが必要です', /品質確認/, '/sdd-ship:ship specs/example/tasks.md');
+    assert.equal(element('error').textContent, '');
+    assert.equal(rowValue('品質ゲート（タスクごと）'), '現在の工程');
+  } finally {
+    await new Promise<void>((resolve, reject) => server.close(e => e ? reject(e) : resolve()));
+    fixture.cleanup();
+  }
 });
 
- test('a late feature refresh cannot overwrite the newest selection', async () => {
-  const { runInNewContext } = await import('node:vm');
+test('a late feature refresh cannot overwrite the newest selection', async () => {
   const fixture = makeTempSddRoot('status-view-race');
   const view = await startStatusView(fixture.root);
   try {

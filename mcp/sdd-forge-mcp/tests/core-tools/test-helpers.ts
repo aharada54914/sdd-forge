@@ -1,59 +1,57 @@
 /**
  * Shared (non-test) helpers for the T-004 core-tools suite: a synthetic SDD
- * repository fixture, an ajv v1-envelope schema validator, and an in-memory
+ * repository fixture, v1/v2 schema validators and an in-memory
  * MCP client/server pair. Deliberately not named `*.test.ts` (node:test glob
  * avoidance — see mcp/sdd-forge-mcp/.claude/agent-memory/coder
  * feedback-node-test-shared-helpers).
  */
 
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { buildServer } from "../../src/server.js";
 import type { SddRoot } from "../../src/root.js";
+import { repoPath } from "../locate-source.js";
 import { makeTempSddRoot, writeFile, type TempSddRoot } from "../test-helpers.js";
 
-const THIS_FILE_DIR = dirname(fileURLToPath(import.meta.url));
+export type SchemaValidator = ((data: unknown) => boolean) & { errors?: unknown };
 
-/** Locates contracts/sdd-forge-mcp-tools.v1.schema.json by walking upward from this file. */
-function findContractsSchemaPath(): string {
-  let dir = THIS_FILE_DIR;
-  for (let i = 0; i < 12; i += 1) {
-    const candidate = join(dir, "contracts", "sdd-forge-mcp-tools.v1.schema.json");
-    try {
-      readFileSync(candidate, "utf-8");
-      return candidate;
-    } catch {
-      // keep walking upward
-    }
-    const parent = dirname(dir);
-    if (parent === dir) {
-      break;
-    }
-    dir = parent;
-  }
-  throw new Error(`Could not locate contracts/sdd-forge-mcp-tools.v1.schema.json above ${THIS_FILE_DIR}`);
-}
-
-let cachedValidator: ((data: unknown) => boolean) & { errors?: unknown } | undefined;
+let cachedValidator: SchemaValidator | undefined;
 
 /** Compiles (once) and returns an ajv validator for the v1 tool response envelope. */
-export function getEnvelopeValidator(): ((data: unknown) => boolean) & { errors?: unknown } {
+export function getEnvelopeValidator(): SchemaValidator {
   if (cachedValidator !== undefined) {
     return cachedValidator;
   }
-  const schema = JSON.parse(readFileSync(findContractsSchemaPath(), "utf-8")) as object;
+  const schema = JSON.parse(readFileSync(repoPath("contracts", "sdd-forge-mcp-tools.v1.schema.json"), "utf-8")) as object;
   const ajv = new Ajv2020({ strict: true });
   const validate = ajv.compile(schema);
   cachedValidator = validate;
   return cachedValidator;
 }
 
-/** Parses a `CallToolResult`'s `content[0].text` as JSON (the v1 envelope). */
+let v2Contract: { ajv: Ajv2020; id: string } | undefined;
+
+/** The v2 contract defines each tool payload separately in its $defs. */
+export function getV2DefValidator(defName: string): SchemaValidator {
+  if (v2Contract === undefined) {
+    const schema = JSON.parse(readFileSync(repoPath("contracts", "sdd-mcp.v2.schema.json"), "utf-8"));
+    const ajv = new Ajv2020({ strict: true });
+    ajv.addSchema(schema);
+    v2Contract = { ajv, id: schema.$id };
+  }
+
+  const ref = `${v2Contract.id}#/$defs/${defName}`;
+  const validate = v2Contract.ajv.getSchema(ref);
+  if (!validate || "$async" in validate) {
+    throw new Error(`Expected a synchronous v2 contract definition at ${ref}`);
+  }
+  return validate;
+}
+
+/** Parses a `CallToolResult`'s `content[0].text` as a JSON response envelope. */
 export function parseEnvelope(result: unknown): unknown {
   const parsed = CallToolResultSchema.parse(result);
   const first = parsed.content[0];
@@ -189,14 +187,19 @@ function seedFixtureRepo(dir: string): void {
   );
 }
 
+export function seedCoreToolsFixture(prefix: string): TempSddRoot {
+  const tempRoot = makeTempSddRoot(prefix);
+  seedFixtureRepo(tempRoot.dir);
+  return tempRoot;
+}
+
 /**
  * Builds the synthetic fixture repo plus a connected in-memory MCP
  * client/server pair (via `InMemoryTransport.createLinkedPair()`), ready for
  * `client.callTool(...)`.
  */
 export async function makeCoreToolsFixture(prefix: string): Promise<CoreToolsFixture> {
-  const tempRoot = makeTempSddRoot(prefix);
-  seedFixtureRepo(tempRoot.dir);
+  const tempRoot = seedCoreToolsFixture(prefix);
 
   const server = buildServer(tempRoot.root);
   const client = new Client({ name: "test-client", version: "0.0.0" });

@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Synthetic regression fixtures for the packaged domain review gate, never live proof."""
+"""Historical v1 compatibility regression fixtures for domain-review-precheck and finalize-domain-review, never live proof.
+
+v1 vs. v2 boundary: this suite covers the historical v1 multi-round finalizer
+contract (`domain-review-precheck/v1`, `identity-ledger.json` reservations,
+8-key `domain-reviewer-{a,b}/v1` outputs with `PASS|NEEDS_WORK|BLOCKED`, and
+`domain-review-contract/v1`), not the current public v2 single-pass
+`domain-review-loop` (`domain-reviewer-{a,b}/v2`, `PASS|PASS_WITH_NOTES|NEEDS_FIX`,
+`reports/domain-review/latest.md`).
+"""
 import copy
 import hashlib
 import importlib.util
@@ -584,6 +592,84 @@ class DomainFinalizerTests(unittest.TestCase):
         before = path.read_bytes()
         self.assertNotEqual(f.run('verify').returncode, 0)
         self.assertEqual(path.read_bytes(), before)
+
+    def test_v2_reviewer_output_is_rejected_by_historical_v1_finalizer(self):
+        f = Fixture(self)
+        v1_doc = read(f.reviewer('a'))
+        v2_doc = {
+            'schema': 'domain-reviewer-a/v2',
+            'role': 'domain-reviewer-a',
+            'verdict': 'PASS_WITH_NOTES',
+            'checks': v1_doc['checks'],
+        }
+        save(f.reviewer('a'), v2_doc)
+        result = f.run('summary')
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('review output schema is invalid', result.stderr)
+        self.assertFalse((f.round / 'integrated-summary.json').exists())
+
+    def test_wrapper_missing_helper_preserves_legacy_token_and_adds_cause(self):
+        cases = []
+        sh_bin = shutil.which('sh')
+        if os.name != 'nt' and sh_bin:
+            cases.append(('bash', '.sh', [sh_bin], 'lib/py-dispatch.sh'))
+        pwsh = shutil.which('pwsh')
+        if pwsh:
+            cases.append(('powershell', '.ps1', [pwsh, '-NoProfile', '-File'], 'lib/py-dispatch.ps1'))
+        for runtime, suffix, runner, helper_label in cases:
+            with self.subTest(runtime=runtime):
+                with tempfile.TemporaryDirectory(prefix='domain-finalizer-missing-helper-') as td:
+                    scripts_dir = Path(td) / 'plugins/sdd-domain/scripts'
+                    scripts_dir.mkdir(parents=True)
+                    wrapper = scripts_dir / ('finalize-domain-review' + suffix)
+                    shutil.copy2(SCRIPT.with_suffix(suffix), wrapper)
+                    result = subprocess.run(runner + [str(wrapper)], cwd=td, capture_output=True, text=True, timeout=30)
+                    self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+                    self.assertEqual(result.stdout, '')
+                    lines = result.stderr.splitlines()
+                    self.assertGreaterEqual(len(lines), 2, result.stderr)
+                    self.assertEqual(
+                        lines[0],
+                        f'finalize-domain-review: GENERATE_APPROVAL_SIDECAR_RUNTIME_UNAVAILABLE: {helper_label} unavailable beside this script',
+                    )
+                    self.assertIn('operation=finalize-domain-review', lines[1])
+                    self.assertIn('cause=missing-dispatch-helper', lines[1])
+
+    def test_wrapper_missing_python_preserves_legacy_token_and_adds_cause(self):
+        cases = []
+        sh_bin = shutil.which('sh')
+        if os.name != 'nt' and sh_bin:
+            cases.append(('bash', '.sh', [sh_bin], 'py-dispatch.sh'))
+        pwsh = shutil.which('pwsh')
+        if pwsh:
+            pwsh_dir = Path(pwsh).resolve().parent
+            has_colocated_python = any((pwsh_dir / name).exists() for name in ('python3', 'python', 'python3.exe', 'python.exe'))
+            if not has_colocated_python:
+                cases.append(('powershell', '.ps1', [pwsh, '-NoProfile', '-File'], 'py-dispatch.ps1'))
+        for runtime, suffix, runner, helper_name in cases:
+            with self.subTest(runtime=runtime):
+                with tempfile.TemporaryDirectory(prefix='domain-finalizer-missing-py-') as td:
+                    scripts_dir = Path(td) / 'plugins/sdd-domain/scripts'
+                    lib_dir = Path(td) / 'plugins/sdd-quality-loop/scripts/lib'
+                    empty_bin = Path(td) / 'empty-bin'
+                    scripts_dir.mkdir(parents=True)
+                    lib_dir.mkdir(parents=True)
+                    empty_bin.mkdir(parents=True)
+                    wrapper = scripts_dir / ('finalize-domain-review' + suffix)
+                    shutil.copy2(SCRIPT.with_suffix(suffix), wrapper)
+                    shutil.copy2(ROOT / 'plugins/sdd-quality-loop/scripts/lib' / helper_name, lib_dir / helper_name)
+                    env = dict(os.environ, PATH=str(empty_bin))
+                    result = subprocess.run(runner + [str(wrapper)], cwd=td, env=env, capture_output=True, text=True, timeout=30)
+                    self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+                    self.assertEqual(result.stdout, '')
+                    lines = result.stderr.splitlines()
+                    self.assertGreaterEqual(len(lines), 2, result.stderr)
+                    self.assertEqual(
+                        lines[0],
+                        'finalize-domain-review: GENERATE_APPROVAL_SIDECAR_RUNTIME_UNAVAILABLE: no python3 or python interpreter found on PATH',
+                    )
+                    self.assertIn('operation=finalize-domain-review', lines[1])
+                    self.assertIn('cause=missing-python-runtime', lines[1])
 
 
 if __name__ == '__main__':

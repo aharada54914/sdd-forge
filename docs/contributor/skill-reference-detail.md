@@ -19,7 +19,7 @@
 **呼び出し例**
 
 ```txt
-Use the sdd-adopt skill for the current project root
+/sdd-bootstrap:bootstrap adopt
 ```
 
 **前提条件**
@@ -140,7 +140,7 @@ Source: https://github.com/example/product/issues/42
 
 **前提条件**
 
-- `feature`、`bugfix`、`refactor` モードでは、処理開始前に `scripts/check-sdd-structure.sh` (または `.ps1`) を実行し、`missing:` 項目がないことを確認。ある場合は `sdd-adopt` を実行してから続行
+- `feature`、`bugfix`、`refactor` モードでは、処理開始前に `scripts/check-sdd-structure.sh` (または `.ps1`) を実行し、`missing:` 項目がないことを確認。ある場合は `/sdd-bootstrap:bootstrap adopt` を実行してから続行
 - `refactor` モードでは `specs/<feature>/investigation.md` と `specs/<feature>/baseline-behavior.md` が必須
 
 **処理の流れ**
@@ -250,7 +250,7 @@ Use the implement-task skill for specs/reservation/tasks.md#T-001
 
 1. `AGENTS.md` がリポジトリルートに存在することを確認
 2. `scripts/check-sdd-structure.sh` (または `.ps1`) が `missing:` 項目を報告していないことを確認
-3. どちらかが失敗なら、ユーザーに `/sdd-bootstrap:sdd-adopt` の実行を指示して停止
+3. どちらかが失敗なら、ユーザーに `/sdd-bootstrap:bootstrap adopt` の実行を指示して停止
 
 **処理の流れ**
 
@@ -370,7 +370,7 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 
 **前提条件**
 
-- `AGENTS.md` がリポジトリルートに存在。なければ `/sdd-bootstrap:sdd-adopt` を指示して停止
+- `AGENTS.md` がリポジトリルートに存在。なければ `/sdd-bootstrap:bootstrap adopt` を指示して停止
 - `reports/quality-gate/` と `docs/review-tickets/` ディレクトリは処理中に必要に応じて作成可
 
 **処理の流れ**
@@ -426,12 +426,12 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 
 **目的**
 
-人間が承認した `docs/review-tickets/` の review-ticket YAML を適用します。スコープ限定の修正を実行し、タスクを `Implementation Complete` に戻して再度 `quality-gate` にかけます。
+人間が承認した `docs/review-tickets/` の review-ticket YAML を適用します。チケットの範囲で修正し、テストが通ったら対象タスクを `Implementation Complete` に戻します。`ship` 経由で `sdd-gate` の再検証を受けます。
 
 **呼び出し例**
 
 ```txt
-Use the fix-by-review-ticket skill for docs/review-tickets/RT-001.yml
+/sdd-quality-loop:fix-by-review-ticket docs/review-tickets/RT-001.yml
 ```
 
 **処理の流れ**
@@ -442,7 +442,7 @@ Use the fix-by-review-ticket skill for docs/review-tickets/RT-001.yml
 4. 必須テスト追加・更新、スコープ限定チェック実行
 5. 要求される修正とテストが成功したら `resolved` に標記
 6. タスクを `Implementation Complete` に戻す
-7. 再度 `quality-gate` を実行してからタスク `Done` 可能
+7. チケットの feature と task ID を指定し、`/sdd-ship:ship specs/<feature>/tasks.md#<task-id>` を実行する。どちらかが一意に決まらなければ停止し、人間に確認する。`Done` を判定するのは `sdd-gate`。
 
 **停止・Blocked になる条件**
 
@@ -659,7 +659,7 @@ Source: <issue URL または 要件テキスト>
 
 1. `AGENTS.md` がリポジトリルートに存在
 2. `scripts/check-sdd-structure.sh` (または `.ps1`) が `missing:` を報告しない
-3. 未整備なら `/sdd-bootstrap:sdd-adopt` を案内して停止（lite でも SDD 構造は前提）
+3. 未整備なら `/sdd-bootstrap:bootstrap adopt` を案内して停止（lite でも SDD 構造は前提）
 
 **処理の流れ**
 

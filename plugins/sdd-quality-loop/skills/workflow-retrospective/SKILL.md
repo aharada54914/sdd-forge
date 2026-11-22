@@ -32,8 +32,15 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    ```
    `NG` / `WARN` / `INFO` の件数と項目をそのまま記録する。
 2. **工場計測と原因工程遡及（`factory-metrics.mjs` & `.sdd/drift-events.jsonl`）**:
+   単一フィーチャー（`<feature>`）を対象とする回顧では `--feature "<feature>"` を明示して対象フィーチャーのみを集計する。プロジェクト横断で複数フィーチャー全体を集計する場合のみ `--feature` を省略する:
    ```bash
-   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" --root "<repo-root>" --format markdown
+   # 単一フィーチャーの回顧（既定: /sdd-ship:ship --retro specs/<feature>/tasks.md 経由）
+   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" \
+     --root "<repo-root>" --feature "<feature>" --format markdown
+
+   # プロジェクト横断の回顧（複数フィーチャー全体を集計する場合のみ）
+   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" \
+     --root "<repo-root>" --format markdown
    ```
    `.sdd/factory-metrics.jsonl` と `.sdd/drift-events.jsonl` から、ゲート合格率・実行時間・人の介在回数・**誤りの原因工程（`requirements` / `design` / `code` / `test` / `harness`）**を集計する。
 3. **品質ゲート実行証跡（`reports/quality-gate/`）**:

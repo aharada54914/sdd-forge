@@ -360,6 +360,85 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(nextState.data.nextAction.phase, 'approval-gate');
   });
 
+  it('D5: requires design.md alongside requirements.md and tasks.md in both sdd_project_overview and sdd_feature_state before guiding to approval-gate', () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-mcp-d5-'));
+    fs.mkdirSync(path.join(repo, '.git'), { recursive: true });
+    fs.mkdirSync(path.join(repo, 'specs', 'missing-design'), { recursive: true });
+    fs.writeFileSync(
+      path.join(repo, 'AGENTS.md'),
+      '# AGENTS.md\n\n## Active Spec Directories\n- `specs/missing-design/`\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(repo, 'specs', 'missing-design', 'requirements.md'),
+      '# 要件: missing-design\n\n- **REQ-001**: Return 200.\n- **AC-001** (REQ-001): GET / returns 200.\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(repo, 'specs', 'missing-design', 'tasks.md'),
+      [
+        '# タスク: missing-design',
+        '',
+        '## T-001 Implement endpoint',
+        'Approval: Draft',
+        'Status: Planned',
+        'Risk: low',
+        '',
+        '### Scope',
+        '- `src/app.mjs`',
+        '',
+        '### Done When',
+        '- AC-001 passes',
+        '',
+        '### Blockers',
+        '- None',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const beforeRes = callMcp(repo, [
+      { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'missing-design' } } },
+    ]);
+    const overviewBefore = JSON.parse(beforeRes[1].result.content[0].text);
+    const stateBefore = JSON.parse(beforeRes[2].result.content[0].text);
+
+    assert.equal(overviewBefore.ok, true);
+    assert.equal(overviewBefore.data.activeFeatures.length, 1);
+    assert.equal(overviewBefore.data.activeFeatures[0].nextAction.phase, 'bootstrap');
+    assert.equal(
+      overviewBefore.data.activeFeatures[0].nextAction.command,
+      '/sdd-bootstrap:bootstrap feature --feature missing-design',
+    );
+
+    assert.equal(stateBefore.ok, true);
+    assert.deepEqual(stateBefore.data.files, {
+      requirements: true,
+      design: false,
+      tasks: true,
+      baseline: false,
+    });
+    assert.equal(stateBefore.data.nextAction.phase, 'bootstrap');
+    assert.equal(
+      stateBefore.data.nextAction.command,
+      '/sdd-bootstrap:bootstrap feature --feature missing-design',
+    );
+
+    // Adding design.md completes the 3-file SDD Core spec set -> both paths advance to approval-gate.
+    fs.writeFileSync(path.join(repo, 'specs', 'missing-design', 'design.md'), '# 設計: missing-design\n', 'utf8');
+    const afterRes = callMcp(repo, [
+      { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'missing-design' } } },
+    ]);
+    const overviewAfter = JSON.parse(afterRes[1].result.content[0].text);
+    const stateAfter = JSON.parse(afterRes[2].result.content[0].text);
+
+    assert.equal(overviewAfter.data.activeFeatures[0].nextAction.phase, 'approval-gate');
+    assert.equal(stateAfter.data.files.design, true);
+    assert.equal(stateAfter.data.nextAction.phase, 'approval-gate');
+  });
+
   it(
     'install.sh places dashboard CLI runtime by default without registering MCPs, rejects conflicting flags, and supports --with-mcp',
     { skip: process.platform === 'win32' },

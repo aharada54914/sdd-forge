@@ -151,6 +151,83 @@ class LateStageAdmission(unittest.TestCase):
         self.addCleanup(self.fixture.doCleanups)
         self.root = self.fixture.root
 
+    def test_local_decision_admission_and_persistence(self):
+        # Installed consumer projects receive schemas from the plugin.
+        shutil.rmtree(self.root / 'contracts')
+        subprocess.run(['git', '-C', str(self.root), 'init', '-q'], check=True)
+        story = 'domain/domain-story.md'
+        self.fixture.write(story, 'A visitor finds a publication.\n')
+        contract = 'domain/domain-contract.json'
+        domain = json.loads((self.root / contract).read_bytes())
+        domain['meta']['generated_from'].append(story)
+        self.fixture.write(contract, domain)
+        self.fixture.record['inputs'].append({'path': story})
+        for item in self.fixture.record['inputs']:
+            item['sha256'] = hashlib.sha256((self.root / item['path']).read_bytes()).hexdigest()
+        self.fixture.local_proposal()
+        self.fixture.local_confirmation('proceed')
+        self.test_task_and_quality_require_every_concept_pin()
+
+    def check_fixed_with_live_changes(self, command, runtime, selected):
+        fixed = load('local_concept_snapshot', ROOT / 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py')
+        git = ['git', '-C', str(self.root)]
+        names = [entry['path'] for entry in selected]
+        subprocess.run(git + ['add', '--', *names], check=True)
+        subprocess.run(git + ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                              'commit', '--allow-empty', '-qm', 'Synthetic review inputs'], check=True)
+        commit = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+        with tempfile.TemporaryDirectory() as directory:
+            record = Path(directory) / 'fixed.json'
+            snapshot = Path(directory) / 'snapshot'
+            fixed.prepare(self.root, commit, names, snapshot, record)
+            flags = (['--fixed-input-record', str(record), '--fixed-input-snapshot', str(snapshot)] if runtime == 'bash'
+                     else ['-FixedInputRecord', str(record), '-FixedInputSnapshot', str(snapshot)])
+            proposal = self.root / 'specs/example/concept-test.json'
+            before = proposal.read_bytes()
+            try:
+                proposal.write_bytes(b'{}')
+                live = subprocess.run(command, capture_output=True, text=True, timeout=40)
+                self.assertNotEqual(live.returncode, 0, live.stdout + live.stderr)
+                selected_revision = subprocess.run(command + flags, capture_output=True, text=True, timeout=40)
+                self.assertEqual(selected_revision.returncode, 0, selected_revision.stdout + selected_revision.stderr)
+            finally:
+                proposal.write_bytes(before)
+            # Identical relative filenames and content cannot bind a repository inventory to a subproject.
+            with tempfile.TemporaryDirectory(dir=self.root) as nested_dir:
+                nested = Path(nested_dir)
+                for name in ('domain', 'specs', 'reports'):
+                    shutil.copytree(self.root / name, nested / name)
+                invocation = self.root / 'invocation.json'
+                shutil.copyfile(invocation, nested / invocation.name)
+                locations = {str(self.root): str(nested), str(invocation): str(nested / invocation.name)}
+                nested_command = [locations.get(arg, arg) for arg in command]
+                live = subprocess.run(nested_command, capture_output=True, text=True, timeout=40)
+                self.assertEqual(live.returncode, 0, live.stdout + live.stderr)
+                mismatch = subprocess.run(nested_command + flags, capture_output=True, text=True, timeout=40)
+                self.assertNotEqual(mismatch.returncode, 0, mismatch.stdout + mismatch.stderr)
+                self.assertIn('legacy fixed review inventory requires the Git worktree root',
+                              mismatch.stdout + mismatch.stderr)
+
+    def test_packet_uses_only_original_signed_contract(self):
+        factory = load('local_concept_packet_fixture', ROOT / 'tests/factory-workflow.tests.py')
+        packet = factory.fixture(self.root)
+        task_path = 'specs/example/tasks.md'
+        (self.root / task_path).write_bytes((self.root / 'specs/pilot/tasks.md').read_bytes())
+        packet.update(feature='example', approval=factory.reference(self.root, task_path), concept_test=True)
+        def validate_packet():
+            return factory.packet.validate(self.root, packet, 'example', 'T-001', 'experiment-1',
+                                           factory.packet.packet_digest(packet))
+        local = self.fixture.local_proposal()
+        self.fixture.local_confirmation('proceed')
+        with self.assertRaisesRegex(ValueError, 'unsupported Concept Test version'):
+            validate_packet()
+        local.unlink()
+        self.fixture.record.update(schema='concept-test/v1', decision='proceed')
+        self.fixture.save()
+        self.fixture.sign()
+        with mock.patch.dict(os.environ, self.fixture.env, clear=True):
+            self.assertEqual('proceed', validate_packet()['concept_decision'])
+
     def test_signed_decision_admission_and_persistence(self):
         self.fixture.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.fixture.save()
@@ -217,6 +294,8 @@ class LateStageAdmission(unittest.TestCase):
                         self.assertEqual(ledger.read_bytes(), before)
                         if omitted is None:
                             self.assertEqual(launcher.required_dependencies(self.root, invocation)['inputs'], selected)
+                            if stage == 'task' and self.fixture.record['schema'] == 'concept-test/v2':
+                                self.check_fixed_with_live_changes(command, runtime, selected)
                             if 'decision' in self.fixture.record:
                                 evidence = {p: (self.root / p).read_bytes() for p in (
                                     'specs/example/concept-test.md', 'specs/example/concept-test.json',
