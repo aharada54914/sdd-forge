@@ -93,6 +93,43 @@ class ConceptTests(unittest.TestCase):
         self.save()
         return self.feature / 'concept-test.decision.json'
 
+    def test_manual_publication_of_the_reviewed_model(self):
+        # Simulate a human's documented edits on an isolated project. The
+        # product reads both canonical files and never grants approval itself.
+        contract_path = self.root / 'domain/domain-contract.json'
+        context_path = self.root / 'domain/context-map.md'
+        contract = json.loads(contract_path.read_bytes())
+        shell = (['pwsh', '-NoProfile', '-File', str(SCRIPT.with_name('validate-domain-contract.ps1'))]
+                 if os.name == 'nt' else ['bash', str(SCRIPT.with_name('validate-domain-contract.sh'))])
+
+        def propose():
+            for source in self.record['inputs']:
+                source['sha256'] = hashlib.sha256((self.root / source['path']).read_bytes()).hexdigest()
+            self.local_proposal('FITS_EXISTING_CONCEPTS')
+
+        for revision in (1, 2):  # Initial review and the next explicit update.
+            with self.subTest(revision=revision):
+                contract['meta']['status'] = 'Pending'
+                self.write('domain/domain-contract.json', contract)
+                for status in ('Pending', 'Reviewed', 'Approved'):
+                    context_path.write_text(f'Domain-Model-Status: {status}\n')
+                    propose()
+                    self.gate(1)
+                candidate = contract_path.with_suffix('.candidate')
+                contract['meta'].update(status='Approved', version=f'1.0.{revision}')
+                candidate.write_text(json.dumps(contract))
+                check = subprocess.run([*shell, str(candidate)], capture_output=True, text=True)
+                self.assertEqual(0, check.returncode, check.stdout + check.stderr)
+                candidate.replace(contract_path)
+                self.gate(1)  # The previous proposal still pins the old version.
+                propose()
+                before = contract_path.read_bytes()
+                self.assertEqual('CONTINUE\n', self.gate().stdout)
+                self.assertEqual(before, contract_path.read_bytes())
+                context_path.write_text('Domain-Model-Status: Reviewed\n')
+                propose()
+                self.gate(1)  # An Approved JSON alone does not authorize the model.
+
     def local_confirmation(self, answer):
         # Synthetic terminal input only, inside this test's temporary project.
         output = io.StringIO()

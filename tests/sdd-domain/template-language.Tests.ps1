@@ -188,12 +188,14 @@ Describe "aggregate.template.md covers the Data Plan axes (design.md)" {
 Describe "C4 template belongs to bootstrap architecture" {
 
     BeforeAll {
-        $script:c4Path = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md"
+        $script:c4Path = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-core-spec/templates/c4-container.template.md"
         $script:c4Text = Get-Content -Raw -Encoding UTF8 -LiteralPath $script:c4Path
     }
 
     It "exists only in bootstrap architecture" {
-        $script:c4Path | Should Match ([regex]::Escape("plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md").Replace('/', '[/\\]'))
+        $core = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md')
+        $core | Should Match 'templates/c4-container\.template\.md'
+        @(Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-domain') -Recurse -File -Filter 'c4-container.template.md').Count | Should Be 0
     }
 
     It "retains the generic C4Container mermaid structure it was adapted from" {

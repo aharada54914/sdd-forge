@@ -14,7 +14,7 @@
 | **domain-model** | **sdd-domain** | **[公開] DDD 上流レーンのエントリーポイント（`/sdd-domain:domain-model`）。`new`（既定）/ `update` / `reverse` を domain-interviewer・update モードの限定再インタビュー・domain-reverse へルーティングし、`domain/` 成果物セットを sdd-bootstrap Phase 1 の手前で生成・維持する** | **—** | **domain-interviewer, domain-reverse, domain-review-loop** |
 | domain-interviewer | sdd-domain | 7段階の DDD インタビュー（Domain Story → Event Storming → Concept Model → Ubiquitous Language → Context Map → Domain Model (集約) → Domain Message Flow）を実行。各段階を次段階の開始前にディスクへチェックポイントし、段階ごとに `domain/domain-contract.json` を再生成。`domain/` 配下の唯一の書き込み者で、中断後は再開可能 | domain-model, domain-reverse (seed 経由) | domain-review-loop |
 | domain-reverse | sdd-domain | 既存コードベースに investigate-codebase を実行し、その investigation.md を候補ドメインモデル seed（候補 Bounded Context・ユビキタス言語用語・イベント/集約のヒント）へ変換。中間生成物のみで `domain/` には書き込まない | domain-model (`reverse` モード) | domain-interviewer |
-| domain-review-loop | sdd-domain | `domain/` 成果物セット（戦略/戦術）を `domain-reviewer-a/b` が独立レビューし、検証済み verdict を永続化。`Domain-Model-Status: Pending → Reviewed` に遷移できる唯一の機構（`Approved` は人間のみ）。承認後のドリフトも検出 | domain-interviewer | — (人間承認待ち) |
+| domain-review-loop | sdd-domain | v2 は契約を検証し、独立した戦略・戦術の 2 視点を `reports/domain-review/latest.md` に統合。通過時に `Reviewed` とし、人へ同じ版の承認と契約発行を依頼する | domain-model review | 人間承認後に concept-test |
 | domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトに SDD 構造を導入する内部スキル | `/sdd-bootstrap:bootstrap adopt` | investigate-codebase, sdd-bootstrap-interviewer |
 | research-sources | sdd-bootstrap | 外部一次資料の二経路探索・原文照合・未確認事項を保持して既存レビューへ渡す内部スキル | bootstrap investigate / feature | sdd-bootstrap-interviewer |
@@ -262,7 +262,7 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 a/b ペアはいずれも「互いの結果を見ない」ことを前提に設計されています。
 
 - 両者とも fresh context（実装者・生成者と履歴を共有しない）・read-only（`tools: Read, Grep, Glob` ± `Bash`、`disallowedTools: Write, Edit, NotebookEdit`）で走ります。
-- レビュアー b は `disallowedPaths` により `reports/spec-review/**/reviewer-*.json`、`reports/impl-review/**/reviewer-*.json`、`reports/task-review/**/reviewer-*.json`（domain 系はさらに `reports/domain-review/**/reviewer-*.json`）の読み取りをブロックされ、a の生の所見に到達できません。b が a から受け取るのは**件数と ID だけのサマリ**であり、所見本文・重大度・根拠は渡りません。
+- 旧レビューの b には `disallowedPaths` と件数・ID のサマリを用いる。公開 v2 のドメインレビューは、A・B に別々の読取専用コンテキストと同じ正本を渡し、互いの生出力を渡さない。並列実行できないホストでも両方を別コンテキストで実行する。
 - `wfi-auditor-b` も同様に、サイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされます。
 - パネリスト2体は互いの verdict も主評価者（`sdd-evaluator`）の verdict も見ない「BLIND」実行で、ベンダーの異なる独立 LLM として並列に走ります。
 
@@ -441,7 +441,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 |---|---|---|---|
 | `check-sdd-structure` | sdd-bootstrap | sh / ps1 | SDD ディレクトリ構造の preflight 検証（[詳細](#check-sdd-structure)） |
 | `design-sync-scan` | sdd-bootstrap | sh / ps1 | design-sync-loop のアップロード前 egress 衛生スキャン |
-| `domain-review-precheck` | sdd-domain | sh / ps1 | domain-review 遷移の決定論的前提・プロベナンスをレビュアー起動前に検証 |
+| `domain-review-precheck` | sdd-domain | sh / ps1 | v1 互換専用。同じツリーに配置された旧 round・予約・指紋を検証。現行の `domain-model review` は同梱 `validate-domain-contract` と独立した 2 視点を使う |
 | `check-terminal-tier-resume` | sdd-implementation | sh / ps1 | `terminal-tier-recurrence` で Blocked になったタスクの再開可否を、永続化された `terminal-tier-resume/v1` 証跡から判定 |
 | `prepare-task-snapshot` | sdd-implementation | sh / ps1 | タスク入力の不変スナップショットを公開（ハッシュ束縛） |
 | `select-agent-model` | sdd-implementation | sh / ps1 | `contracts/agent-model-capabilities.json` を参照し、リスク階層・失敗履歴からエージェントのモデル / effort 階層を選択 |
@@ -918,7 +918,7 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 
 ³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。CLI 1.0.98 の実セッションでは親・サブエージェントとも拒否を確認しました。バージョンや実行経路だけで稼働を推定せず、各セッションの canary が拒否されなければ Capability Mode を停止します。
 
-⁴ Copilot 用の `copilot-agents/*.agent.md` は `sdd-investigator` と `sdd-evaluator` の2体分しか存在せず、Codex 用の `.codex/agents/*.toml` は4体分（上記2体 + パネリスト2体）です。reviewer 系・domain 系・wfi-auditor 系にはどちらのツインもありません。これらの環境では、各ペアを新規コンテキストで同等の手順としてインライン実行し、`spec-review-precheck` / `impl-review-precheck` / `task-review-precheck` / `domain-review-precheck` と `validate-review-context-set` で独立性の前提を決定論的に確認してください。
+⁴ Copilot 用の `copilot-agents/*.agent.md` は `sdd-investigator` と `sdd-evaluator` の2体分、Codex 用の `.codex/agents/*.toml` は4体分（上記2体 + パネリスト2体）です。専用ツインのない公開 v2 ドメインレビューは、`domain-review-loop` の戦略・戦術を別々の読取専用コンテキストで実行してください。旧 round 形式の既存案件を扱う場合に限り、該当する `spec-review-precheck` / `impl-review-precheck` / `task-review-precheck` / `domain-review-precheck` と `validate-review-context-set` を使います。
 
 **フックは補助線 (defense in depth)。決定論的スクリプト (`check-contract` / `check-task-state`) が最終防衛線です。**
 

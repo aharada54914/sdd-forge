@@ -1,4 +1,4 @@
-#
+﻿#
 # T-002 domain-interviewer skill -- acceptance-first Pester test
 #
 # Required Workflow for T-002 is "acceptance-first" (Risk: medium), not
@@ -33,8 +33,7 @@
 #      and an unreachable seed URL each produce a plain-language error
 #      naming which seed failed, and never invent content in its place.
 #
-# ASCII-only: no non-ASCII literal characters appear anywhere in this file
-# (BOM-less .ps1 is read as ANSI on this Windows environment).
+# UTF-8 BOM preserves localized contract assertions on Windows PowerShell.
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -110,31 +109,35 @@ Describe "domain-interviewer SKILL.md contract" {
     }
 
     It "documents all seven canonical checkpoint paths from AC-002" {
-        $script:skillText | Should Match ([regex]::Escape("domain/domain-story.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/event-storming.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/concept-model.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/ubiquitous-language.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/context-map.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/aggregates/<name>.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/message-flow.md"))
+        $expected = 'domain/domain-story.md','domain/event-storming.md','domain/concept-model.md','domain/ubiquitous-language.md','domain/context-map.md','domain/aggregates/<PascalCase>.md','domain/message-flow.md'
+        $rows = [regex]::Matches($script:skillText, '(?m)^\| (\d+) \| [^|]+ \| `([^`]+)` \| `([^`]+)` \|\s*$')
+        $rows.Count | Should Be 7
+        for ($i = 0; $i -lt $rows.Count; $i++) {
+            [int]$rows[$i].Groups[1].Value | Should Be ($i + 1)
+            $rows[$i].Groups[2].Value | Should BeExactly $templateNames[$i]
+            $rows[$i].Groups[3].Value | Should BeExactly $expected[$i]
+            Test-Path -LiteralPath (Join-Path (Split-Path $skillPath) ('templates/' + $templateNames[$i])) | Should Be $true
+        }
     }
 
     It "documents the domain-contract.json regeneration step after every stage" {
         $script:skillText | Should Match ([regex]::Escape("domain/domain-contract.json"))
-        $script:skillText | Should Match "after every stage"
-        $script:skillText | Should Match ([regex]::Escape("contracts/domain-contract.v2.schema.json"))
+        $script:skillText | Should Match '各ステージ確定後.*`domain-contract/v2`.*候補'
+        $script:skillText | Should Match '投影保留.*Markdown チェックポイント'
+        $script:skillText | Should Match 'validate-domain-contract\.sh <candidate>.*exit 0.*原子的置換'
+        $script:skillText | Should Match '失敗時.*既存有効契約を維持'
     }
 
     It "documents seed intake for text, local path, issue URL, and reverse candidate seed" {
-        $script:skillText | Should Match "Free text"
-        $script:skillText | Should Match "Local Markdown path"
-        $script:skillText | Should Match "Issue URL"
-        $script:skillText | Should Match "domain-reverse candidate seed"
+        $script:skillText | Should Match '(?m)^1\. .*自由記述.*ステージ 1'
+        $script:skillText | Should Match '(?m)^2\. .*ローカル `\.md` パス.*読み取'
+        $script:skillText | Should Match '(?m)^3\. .*Issue URL.*読み取り専用'
+        $script:skillText | Should Match '(?m)^4\. .*`domain-reverse`.*Seed-Source: reverse.*INV-NNN'
     }
 
     It "documents resume-on-interruption stage detection order" {
-        $script:skillText | Should Match "Resume on Interruption"
-        $script:skillText | Should Match "resume point"
+        $script:skillText | Should Match '1→7 の順で既存ファイルを確認し、最初の欠落ステージから再開'
+        $script:skillText | Should Match '上流ステージは再質問・上書きしない'
     }
 
     It "documents create-only stage checkpointing" {
@@ -142,14 +145,14 @@ Describe "domain-interviewer SKILL.md contract" {
     }
 
     It "documents the plain-language seed-failure error contract (AC-004)" {
-        $script:skillText | Should Match "plain-language error"
-        $script:skillText | Should Match "never invent"
+        $script:skillText | Should Match '(?m)^2\. .*失敗パス名を明示して停止（捏造禁止）'
+        $script:skillText | Should Match '(?m)^3\. .*失敗 URL を明示して停止（捏造禁止）'
     }
 
     It "does not make C4 a domain checkpoint" {
         $script:skillText | Should Not Match '\| [0-9]+ \| C4 Container \|'
-        $script:skillText | Should Match "C4 architecture authoring belongs to bootstrap"
-        $script:skillText | Should Match 'absence does not block resume, update, completion or review'
+        $script:skillText | Should Match 'C4 コンテナ図はブートストラップ側責務.*作成・要求しない'
+        $script:skillText | Should Match '全 7 ステージが存在する場合は最終 v2 契約検証のみ'
     }
 }
 
@@ -626,8 +629,8 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
 
     It "SKILL.md documents the same stage-order detection algorithm this test simulates" {
         $skillText = Get-Content -Raw -Encoding UTF8 -LiteralPath $skillPath
-        $skillText | Should Match "in this\s*\r?\n?\s*exact stage order"
-        $skillText | Should Match "first stage in that order whose canonical artifact is missing"
+        $skillText | Should Match '1→7 の順で既存ファイルを確認し、最初の欠落ステージから再開'
+        $skillText | Should Match '全 7 ステージ.*`update` モード'
     }
 
     It "detects stages 1-3 as already checkpointed and resumes at stage 4 (Done-When)" {
@@ -757,7 +760,8 @@ Describe "Error-path fixtures (AC-004): unreadable local seed and unreachable se
 
     It "SKILL.md documents this exact never-invent-content error contract" {
         $skillText = Get-Content -Raw -Encoding UTF8 -LiteralPath $skillPath
-        $skillText | Should Match "never invent (content|seed content)"
-        $skillText | Should Match "plain-language error naming"
+        foreach ($inputType in '失敗パス名','失敗 URL') {
+            $skillText | Should Match ($inputType + '\s*を明示して停止（捏造禁止）')
+        }
     }
 }

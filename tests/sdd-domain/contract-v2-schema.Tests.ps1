@@ -2149,9 +2149,14 @@ Describe "domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ
     }
 
     It "the domain-sync consumer uses the v2 contract after Concept Test adoption" {
-        $sync = Get-Content -Raw -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-domain/skills/domain-sync/SKILL.md')
-        $sync | Should Match 'contracts/domain-contract\.v2\.schema\.json'
-        $sync | Should Not Match 'contracts/domain-contract\.v1\.schema\.json'
+        $sync = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-domain/skills/domain-sync/SKILL.md')
+        $sync | Should Match 'scripts/validate-domain-contract\.sh domain/domain-contract\.json.*\.ps1.*domain-contract/v2'
+        $v2 = New-StructuralFixtureFile -Override @{}
+        $v1 = New-EphemeralContractFile -Content $fixtureV1Contract
+        try {
+            (Invoke-ValidatorPs1 -ContractPath $v2).ExitCode | Should Be 0
+            Assert-FailClosed -Result (Invoke-ValidatorPs1 -ContractPath $v1) -ExpectedRuleId 'V2-WRONG-SCHEMA'
+        } finally { Remove-Item -LiteralPath $v1,$v2 -Force }
     }
 
 }
