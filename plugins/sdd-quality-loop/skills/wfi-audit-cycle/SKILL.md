@@ -35,7 +35,8 @@ user-invocable: false
    - `BLOCKED` → 収束ガード同様に停止。`NEEDS_REVISION` → 親が安全に反映できる指摘のみ適用。
 
 3. **完了遷移**:
-   - Cycle 2 完了後、`Category: plugin-improvement` でユーザー同意があれば追跡 Issue を起票し、`Audit-Status: Human-Pending` を設定して人間承認を依頼する。
+   - Cycle 2 が `PASS` したら、カテゴリに関係なく `Audit-Status: Human-Pending` を設定して人間に `Status: Approved` の判断を依頼する。
+   - 追跡 Issue の起票は上とは独立した外部操作。`Category: plugin-improvement` でユーザーが起票に同意した場合だけ行う。同意がない場合と他カテゴリでは起票しないが、人間承認待ちへの遷移は変わらない。
 
 ## Boundaries
 
