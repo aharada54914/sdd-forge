@@ -4,6 +4,17 @@
 
 ### Fixed
 
+- **リンク経由起動で CLI が無処理終了（Closes #869）**: v2 の全 CLI（ソフトガードを含む）が実パスで自分自身を判定するようにし、シンボリックリンク経由でも本処理を実行する。
+- **エージェント一覧のモデル表記（Closes #870）**: `docs/skill-reference.md` の表を配布定義（全員 `model: inherit`）と一致させ、廃止済みエージェントの行を整理。
+- **adopt の PR 雛形（Closes #866）**: `traceability.md` は存在する機能だけで確認し、Core 3 文書の整合を確認項目にした。
+- **廃止済み sudo / Lite 案内（Closes #867）**: 現行のコマンド一覧・表から除き、残る v1 の節に廃止バナーを付けた。
+- **回顧から WFI 起票（Closes #868）**: 正規テンプレートを複製し、監査が検査する欄（Category・Meta-Change・なぜなぜ・測定指標など）を引き継ぐ。決まらない値は推測せず `TBD（人間確認）`。
+- **DDD の停止条件の明記（Closes #863, Closes #864）**: 未承認モデルでは bootstrap が `concept-test` で停止すること、承認後の直接編集は状態を変えず提案を失効させることを、実装どおりに記述。
+- **無効な Blockers（Closes #817）**: 未知の依存 ID と自己依存のタスク（と下流）を並列波に入れず、`unknownBlockers` / `invalidBlockerTasks` として報告し、`--strict` で失敗。
+- **ドメインレビュー確定処理の診断名（Closes #814）**: 機械向けトークンを `FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE` に変更（旧 `GENERATE_APPROVAL_SIDECAR_RUNTIME_UNAVAILABLE` を解析していた場合は更新が必要）。
+- **理由のない仕様差分の可視化（Closes #820）**: Spec Drift 結果に、どの改定理由にも書かれていない変更 ID を `changedIdsWithoutAmendment` として出す（`AMENDED` の判定は従来どおり件数比較）。
+- **レビューチケットのフロー形式 target**: `target: {feature: x, task: T-001}` 形式のチケットも停止対象として読む。
+
 - **独立評価の判定を完了根拠に一本化（Closes #835）**: 機械ゲートの `.execution.json` の PASS だけでは Done の根拠にしない。報告の判定は「最初の、引用でない `VERDICT:` 行」で読み、`FAIL` / `NEEDS_WORK` / `BLOCKED` を不合格とする（ゲート監査と Done 判定で同じ解釈）。
 - **未解決レビューチケットでゲートを止める（Closes #823）**: 対象 feature・タスクの `open` かつ `critical` / `major` のチケットを `checks.reviewTickets.blocking` に列挙し FAIL。`resolved` / `rejected`・`minor`・他タスクのチケットは止めない。
 - **途中コミット後の再開（Closes #826）**: `run-sdd-gate.mjs --base <git-ref>` でコミット済みの変更も検査対象に戻せる（既定は従来どおり）。

@@ -12,7 +12,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | 1 | #966 | #801, #802, #851, #855, #857, #858, #859, #861, #821, #825 | merged (aafd184) |
 | 2 | #967 | #822, #828, #824, #833, #840, #843, #852, #837, #844, #838 | merged (c037db8) |
 | — | #968 | release v2.1.1 | merged (ad19ec4); tagged via publish-release.yml |
-| 3 | (pending) | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | PR open |
+| 3 | #969 | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | merged (067aaf7); also added publish-release.yml |
+| — | publish-release | v2.1.1 tag + Release | ad19ec42, release.yml signed artifacts attached |
+| 4 | (pending) | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | PR open |
 
 ## Resolved
 
@@ -46,10 +48,22 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #819 | Baseline recording is idempotent (`EXISTING`); `--rerecord` for agreed re-baselines. |
 | #841, #845, #846, #847, #849 | WFI auditors, template and audit-cycle skill share one vocabulary and carve-out. |
 
+| #869 | v2 CLIs detect their main module by real path (guardrails-lib `isMainModule`), so linked launches run. |
+| #870 | Agent table matches shipped definitions (all `inherit`); retired agents removed. |
+| #866 | Adopt PR template asks for traceability.md only where it exists. |
+| #867 | Retired sudo / Lite tooling removed from current lists; v1 sections bannered. |
+| #868 | Retrospective drafts WFIs from the canonical template with every audited field. |
+| #863, #864 | Domain docs state the concept-test gate and the real effect of editing an approved model. |
+| #817 | Unknown / self Blockers are reported and never scheduled; `--strict` fails. |
+| #814 | Finalizer diagnostic token names its own operation. |
+| #820 | Drift report lists changed IDs no amendment entry mentions. |
+
 ## Deferred (needs human decision)
 
 | Issue | Reason |
 |---|---|
+| #871–#965 (95 `[MCP試験95]` issues) | Each is marked "passed in candidate, awaiting integration": the fixes are on the owner's local `codex/mcp-ddd-next-action` (64812dc8, 369/369 MCP tests). Push that branch to integrate them together. |
+| #865 | The contributor evidence collector calls `generate-evidence-bundle.sh` / `check-evidence-bundle.sh`, retired in v2.0.0 (e2110862). Restore the v1 bundle pipeline, or retire the collector's normal-generation mode with a clear message? Product decision. |
 | #850 | Changes GitHub branch-protection / ruleset policy (owner review, required contexts); needs the repository owner's decision. |
 | #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
 
@@ -58,7 +72,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Design pending (scheduled run): #831 + #832 (stale PASS evidence after a spec change needs input digests and a re-baseline policy), #834 (2 MiB read cap reported as deletion needs an IO status channel).
 - Pre-existing, found by review: Done evidence accepts any `reports/quality-gate/*` file mentioning `T-NNN`, including another feature's report. Should be scoped by feature.
 - Release tags: the session's git proxy refuses tag pushes (HTTP 403). After a release PR merges, dispatch `publish-release.yml` (version + release merge commit), which creates the tag and Release and runs release.yml.
-- Batch-3 re-review minors (next batch): flow-style `target: {…}` tickets are skipped instead of blocking (fail-open); Scope bullets like `path(note)` / `dir/{a,b}` are labelled out of scope.
+- Batch-3 re-review minors: flow-style ticket targets fixed in batch 4. Still open: Scope bullets like `path(note)` / `dir/{a,b}` are labelled out of scope (labels only).
+- publish-release review minors: green-run count should be regex-checked; the green check should use release.yml's event filter (push / workflow_dispatch); document recovery when a run fails after the tag is created.
 
 - Method (since batch 2): pstack (`michael-denyer/pstack-claude` @66181d3c) poteto-mode Bug fix playbook; failing test committed before the fix; independent `thermo-nuclear-review` before merge for guard / gate / Done-evidence changes.
 - `docs/contributor/coding-standards/audit/*.json` still name the pre-rename `hooks/hooks.json` (historical audit records, nothing executes them).
