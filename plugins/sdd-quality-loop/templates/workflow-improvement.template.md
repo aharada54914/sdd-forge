@@ -126,7 +126,10 @@ Audit-Content-Hash: none
 | {{file_path}} | {{change_description}} |
 
 <!-- Target files must be project-side workflow files only (AGENTS.md, CLAUDE.md,    -->
-<!-- specs/ templates, task-splitting guidelines). Plugin files must not be listed.  -->
+<!-- specs/ templates, task-splitting guidelines). Plugin files are not listed,     -->
+<!-- except in the plugin's own source repository under the three-condition        -->
+<!-- carve-out in plugins/sdd-quality-loop/agents/wfi-auditor-a.md (Category:       -->
+<!-- plugin-improvement, a stated source-of-truth commit route, a GitHub-Issue).    -->
 
 ## Expected Effect
 
