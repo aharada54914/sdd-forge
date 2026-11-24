@@ -458,3 +458,30 @@ describe('#845 the plugin source-repository carve-out is one rule in both audits
     assert.doesNotMatch(doc, /`plugins\/` 内は禁止\)/);
   });
 });
+
+describe('#870 documented agent models match the distributed agent definitions', () => {
+  it('every agent table row names a shipped agent and its frontmatter model, and no shipped agent is missing', () => {
+    const doc = fs.readFileSync(path.join(REPO_ROOT, 'docs/skill-reference.md'), 'utf8');
+    const rows = [...doc.matchAll(/^\| `([\w-]+)`(?:（`[\w-]+`）)? \| (sdd-[\w-]+) \| `([\w.-]+)` \|/gm)];
+    assert.ok(rows.length > 0, 'agent table found');
+    const documented = new Set();
+    for (const [, name, plugin, model] of rows) {
+      const file = path.join(REPO_ROOT, 'plugins', plugin, 'agents', `${name}.md`);
+      assert.ok(fs.existsSync(file), `${name} is documented but plugins/${plugin}/agents/${name}.md does not exist`);
+      const declared = /^model:\s*(\S+)/m.exec(fs.readFileSync(file, 'utf8'))?.[1];
+      assert.equal(model, declared, `${name}: documented model ${model} but the definition says ${declared}`);
+      documented.add(`${plugin}/${name}`);
+    }
+    for (const plugin of fs.readdirSync(path.join(REPO_ROOT, 'plugins'))) {
+      const dir = path.join(REPO_ROOT, 'plugins', plugin, 'agents');
+      if (!fs.existsSync(dir)) continue;
+      for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md'))) {
+        const name = f.replace(/\.md$/, '');
+        assert.ok(
+          documented.has(`${plugin}/${name}`) || doc.includes(`\`${name}\``),
+          `${plugin}/agents/${f} is not documented`,
+        );
+      }
+    }
+  });
+});
