@@ -162,6 +162,21 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   ).length;
 
   const sensorFindingsTotal = gateRuns.reduce((acc, r) => acc + Number(r.sensorFindingCount || 0), 0);
+  const placeholderFindingsTotal = gateRuns.reduce((acc, r) => acc + Number(r.placeholderFindingCount || 0), 0);
+  // Attempt history per task (oldest first) survives execution.json overwrites (#838).
+  const attemptsByTask = {};
+  for (const r of [...gateRuns].sort((a, b) => String(a.timestamp || '').localeCompare(String(b.timestamp || '')))) {
+    const key = `${r.feature || '?'}/${r.taskId || '?'}`;
+    const entry = (attemptsByTask[key] ||= { attempts: 0, failures: 0, history: [] });
+    entry.attempts += 1;
+    if (r.verdict === 'FAIL') entry.failures += 1;
+    entry.history.push({
+      timestamp: r.timestamp || null,
+      verdict: r.verdict,
+      placeholderFindingCount: Number.isFinite(r.placeholderFindingCount) ? r.placeholderFindingCount : null,
+      failedCommandCount: Number.isFinite(r.failedCommandCount) ? r.failedCommandCount : null,
+    });
+  }
   // Only runs the Open Questions check itself stopped count as OQ blocks (#843).
   // Records predating `provisionalOqBlocking` derive it from the gate rule
   // (high risk with unresolved OQs) instead of "any FAIL with an OQ present".
@@ -184,8 +199,11 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
       avgDurationMs,
       p95DurationMs,
       sensorFindingsTotal,
+      placeholderFindingsTotal,
       provisionalOqBlocks,
+      retriedTasks: Object.values(attemptsByTask).filter((t) => t.attempts > 1).length,
     },
+    attemptsByTask,
     // Final independent (G1-G5) verdicts: the Done decision, unlike gateRuns.
     finalReviews: {
       total: finalVerdicts.length,
@@ -217,6 +235,8 @@ export function formatFactoryMetricsMarkdown(summary) {
     `| Final Independent Reviews (PASS / FAIL) | ${summary.finalReviews.total} (${summary.finalReviews.pass} / ${summary.finalReviews.fail}${summary.finalReviews.passRate === null ? ', n/a' : `, ${summary.finalReviews.passRate}%`}) |`,
     `| Command Duration (avg / p95) | ${summary.gateRuns.avgDurationMs} ms / ${summary.gateRuns.p95DurationMs} ms |`,
     `| Sensor Findings Total | ${summary.gateRuns.sensorFindingsTotal} |`,
+    `| Placeholder Findings Total (all attempts) | ${summary.gateRuns.placeholderFindingsTotal} |`,
+    `| Tasks Re-run After a Gate Attempt | ${summary.gateRuns.retriedTasks} |`,
     `| Provisional OQ Blocks | ${summary.gateRuns.provisionalOqBlocks} |`,
     `| Guard Events (deny / amended / warn) | ${summary.driftEvents.total} (${summary.driftEvents.deny} / ${summary.driftEvents.amendedAllow} / ${summary.driftEvents.warnAllow}) |`,
     `| Recorded Human Interventions (explicit attributions + spec-edit overrides) | ${summary.humanInterventions} |`,

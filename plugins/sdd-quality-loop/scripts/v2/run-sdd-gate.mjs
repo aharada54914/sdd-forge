@@ -621,6 +621,11 @@ export function runSddGate({
     provisionalOqCount: openQuestions.provisionalCount,
     provisionalOqBlocking: Boolean(openQuestions.blocking),
     sensorFindingCount: nonFunctionalSensors.findings.length,
+    // execution.json is overwritten per task; the per-attempt breakdown the
+    // retrospective needs is kept here (#838).
+    placeholderFindingCount: placeholders.findings.length,
+    failedCommandCount: commandResults.filter((c) => !c.passed).length,
+    commandsRun: commandResults.length,
     advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
     ...(rootCausePhase ? { rootCausePhase } : {}),
     commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),

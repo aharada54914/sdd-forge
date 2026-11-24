@@ -53,6 +53,27 @@ describe('#840/#843 factory metrics semantics', () => {
     assert.equal(summary.finalReviews.passRate, null, 'no final verdicts recorded: no rate, never the mechanical one');
   });
 
+  it('#838: per-attempt breakdown survives execution.json overwrites', async () => {
+    const { summarizeFactoryMetrics } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-attempts-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    const runs = [
+      { feature: 'f', taskId: 'T-001', timestamp: '2026-01-01T00:00:00Z', verdict: 'FAIL', placeholderFindingCount: 2, failedCommandCount: 0 },
+      { feature: 'f', taskId: 'T-001', timestamp: '2026-01-01T01:00:00Z', verdict: 'PASS', placeholderFindingCount: 0, failedCommandCount: 0 },
+      { feature: 'f', taskId: 'T-002', timestamp: '2026-01-01T02:00:00Z', verdict: 'PASS', placeholderFindingCount: 0 },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), runs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    const summary = summarizeFactoryMetrics({ projectRoot: dir });
+    assert.equal(summary.gateRuns.placeholderFindingsTotal, 2);
+    assert.equal(summary.gateRuns.retriedTasks, 1);
+    const t1 = summary.attemptsByTask['f/T-001'];
+    assert.deepEqual([t1.attempts, t1.failures], [2, 1]);
+    assert.deepEqual(t1.history.map((h) => [h.verdict, h.placeholderFindingCount]), [['FAIL', 2], ['PASS', 0]]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
   it('#844: one failed attempt is attributed once even when recorded by gate and afterwards', async () => {
     const { summarizeFactoryMetrics, recordRootCauseAttribution } = await import(
       pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
