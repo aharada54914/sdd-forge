@@ -14,7 +14,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | — | #968 | release v2.1.1 | merged (ad19ec4); tagged via publish-release.yml |
 | 3 | #969 | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | merged (067aaf7); also added publish-release.yml |
 | — | publish-release | v2.1.1 tag + Release | ad19ec42, release.yml signed artifacts attached |
-| 4 | (pending) | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | PR open |
+| 4 | #970 | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | merged (e848b32) |
+| — | #971 | release v2.1.2 | this PR; tag via publish-release.yml after merge |
 
 ## Resolved
 
@@ -77,5 +78,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 - Method (since batch 2): pstack (`michael-denyer/pstack-claude` @66181d3c) poteto-mode Bug fix playbook; failing test committed before the fix; independent `thermo-nuclear-review` before merge for guard / gate / Done-evidence changes.
 - `docs/contributor/coding-standards/audit/*.json` still name the pre-rename `hooks/hooks.json` (historical audit records, nothing executes them).
+
+- Batch-4 review minors: a hand-edited baseline without the per-file `amendmentCount` treats every amendment as new; an amendment inserted above older ones in the same file shifts which entries count as new. Ranges like `T-002..T-005` in Blockers are not expanded (prose, ignored as before).
+- Release-suite drift: `tests/bump-version-gate.tests.sh` and `tests/release-config-lock.tests.sh` fail on main too (v1-era expectations, not in CI). Retire or port them.
 
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.
