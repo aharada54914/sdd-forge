@@ -538,3 +538,99 @@ describe('#834 a spec file over the MCP read limit is unverifiable, not deleted'
     assert.equal(JSON.parse(afterDelete.result.content[0].text).data.activeFeatures[0].driftStatus, 'UNDECLARED_DRIFT');
   });
 });
+
+describe('#831/#832 gate evidence is bound to the spec inputs it verified', () => {
+  const gateAudit = (repo) => {
+    const [, res] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_gate_audit', arguments: { feature: 'demo-api' } } }]);
+    return JSON.parse(res.result.content[0].text).data.tasks;
+  };
+  const overviewAction = (repo) => {
+    const [, res] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_project_overview', arguments: {} } }]);
+    return JSON.parse(res.result.content[0].text).data.activeFeatures[0].nextAction;
+  };
+  const runGate = (repo, task) =>
+    execFileSync(process.execPath, [GATE_SCRIPT, '--feature', 'demo-api', '--task', task, '--root', repo, '--cmd', 'test=node -e "process.exit(0)"'], { encoding: 'utf8' });
+  const edit = (file, from, to) => {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.ok(text.includes(from), from);
+    fs.writeFileSync(file, text.replace(from, to), 'utf8');
+  };
+  const validateAudit = (tasks) => {
+    if (!Ajv2020) return;
+    const ajv = new Ajv2020({ strict: false });
+    ajv.addSchema(JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')), 'sdd-mcp-v2');
+    const validate = ajv.getSchema('sdd-mcp-v2#/$defs/sdd_gate_audit_data');
+    assert.equal(validate({ kind: 'gate-audit', feature: 'demo-api', tasks }), true, JSON.stringify(validate.errors));
+  };
+
+  it('a PASS recorded before an amended AC is not ready for Done until the gate runs again', () => {
+    const repo = createV2TestRepo();
+    const req = path.join(repo, 'specs', 'demo-api', 'requirements.md');
+    let [t1] = gateAudit(repo);
+    assert.equal(t1.executionArtifact.specInputsCurrent, true);
+    assert.equal(t1.readyForDone, true);
+    validateAudit([t1]);
+
+    edit(req, 'GET /health returns `{ ok: true }`.', 'GET /health returns `{ ok: true, version }`.');
+    edit(req, '- （初期版のため変更なし）', '- 2026-11-25: AC-001 adds the version field (owner agreed).');
+    [t1] = gateAudit(repo);
+    assert.equal(t1.executionArtifact.specInputsCurrent, false);
+    assert.deepEqual(t1.executionArtifact.specInputsChanged, ['AC-001']);
+    assert.equal(t1.readyForDone, false, 'the old PASS verified the old AC');
+    validateAudit([t1]);
+
+    runGate(repo, 'T-001');
+    [t1] = gateAudit(repo);
+    assert.equal(t1.executionArtifact.specInputsCurrent, true);
+    assert.equal(t1.readyForDone, true);
+  });
+
+  it('status and approval edits keep evidence current; legacy evidence counts only while drift is CLEAN', () => {
+    const repo = createV2TestRepo();
+    const tasksPath = path.join(repo, 'specs', 'demo-api', 'tasks.md');
+    edit(tasksPath, 'Status: Implementation Complete', 'Status: Done');
+    assert.equal(gateAudit(repo)[0].executionArtifact.specInputsCurrent, true);
+
+    const artifactPath = path.join(repo, 'reports', 'quality-gate', 'demo-api-T-001.execution.json');
+    const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+    delete artifact.specInputs;
+    fs.writeFileSync(artifactPath, JSON.stringify(artifact), 'utf8');
+    let [t1] = gateAudit(repo);
+    assert.equal(t1.executionArtifact.specInputsCurrent, undefined);
+    assert.equal(t1.readyForDone, true, 'legacy evidence with CLEAN drift');
+
+    const design = path.join(repo, 'specs', 'demo-api', 'design.md');
+    edit(design, '| Express |', '| Fastify |');
+    edit(design, '- （初期版のため変更なし）', '- 2026-11-25: alternatives table updated (owner agreed).');
+    [t1] = gateAudit(repo);
+    assert.equal(t1.readyForDone, false, 'legacy evidence cannot prove it saw the amended design');
+  });
+
+  it('#832 a Done task whose evidence is stale is re-verified through ship for that task; others are not', () => {
+    const repo = createV2TestRepo();
+    const req = path.join(repo, 'specs', 'demo-api', 'requirements.md');
+    const tasksPath = path.join(repo, 'specs', 'demo-api', 'tasks.md');
+    edit(req, '## Open Questions', '- **AC-002** (REQ-001): HEAD /health returns 200.\n\n## Open Questions');
+    edit(tasksPath, '## Spec Amendments',
+      '## T-002 Implement HEAD\nApproval: Approved\nStatus: Implementation Complete\nRisk: standard\n\n### Scope\n- `src/head.mjs`\n\n### Done When\n- AC-002 passes\n\n### Blockers\n- None\n\n## Spec Amendments');
+    fs.writeFileSync(path.join(repo, 'src', 'head.mjs'), 'export const head = true;\n', 'utf8');
+    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'demo-api', '--root', repo, '--rerecord'], { encoding: 'utf8' });
+    runGate(repo, 'T-001');
+    runGate(repo, 'T-002');
+    fs.writeFileSync(path.join(repo, 'reports', 'quality-gate', 'demo-api-T-002.md'), '# SDD Gate Report\n\n- **VERDICT**: PASS\n', 'utf8');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replaceAll('Status: Implementation Complete', 'Status: Done'), 'utf8');
+    assert.equal(overviewAction(repo).phase, 'done');
+
+    edit(req, 'HEAD /health returns 200.', 'HEAD /health returns 204.');
+    edit(req, '- （初期版のため変更なし）', '- 2026-11-25: AC-002 now expects 204 (owner agreed).');
+    const action = overviewAction(repo);
+    assert.equal(action.phase, 'sdd-gate');
+    assert.equal(action.command, '/sdd-ship:ship specs/demo-api/tasks.md#T-002');
+    const [t1, t2] = gateAudit(repo);
+    assert.equal(t1.executionArtifact.specInputsCurrent, true, 'T-001 does not reference AC-002');
+    assert.equal(t2.executionArtifact.specInputsCurrent, false);
+
+    runGate(repo, 'T-002');
+    assert.equal(overviewAction(repo).phase, 'done');
+  });
+});
