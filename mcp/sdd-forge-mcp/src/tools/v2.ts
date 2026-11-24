@@ -29,9 +29,11 @@ import {
   analyzeTraceabilityCore,
   buildDecisionViewDataCore,
   checkSpecDriftCore,
+  diffEvidenceInputs,
   isApprovedValue,
   renderDecisionViewMarkdown,
   runDoctorCore,
+  taskEvidenceInputs,
 } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
 
 const FEATURE_RE = /^[A-Za-z0-9._-]+$/;
@@ -185,6 +187,8 @@ export interface GateAuditTaskEntry {
     specDriftStatus?: ExecutionDriftStatus;
     failedCommands?: string[];
     coverageComplete?: boolean;
+    specInputsCurrent?: boolean;
+    specInputsChanged?: string[];
   };
   reviewReport: {
     exists: boolean;
@@ -220,6 +224,48 @@ function validateTaskId(taskId: string): Result<string> {
 }
 
 
+type GuardedIo = ReturnType<typeof createGuardedIo>;
+
+/**
+ * Spec inputs that changed since a task's gate run (#831). `undefined` when
+ * the run recorded none (before #831) or there is no matching run.
+ */
+function changedEvidenceInputs(
+  io: GuardedIo,
+  feature: string,
+  taskId: string,
+  parsed: Record<string, unknown>,
+): string[] | undefined {
+  const changed = diffEvidenceInputs(parsed.specInputs, taskEvidenceInputs(io, { feature, taskId })) as string[] | null;
+  return changed ?? undefined;
+}
+
+/**
+ * Done tasks whose gate evidence no longer matches the spec (#832): their
+ * recorded inputs changed, or (evidence from before #831, or none) the spec
+ * was amended since the baseline, which they cannot be shown to cover.
+ */
+function staleDoneTasks(io: GuardedIo, root: SddRoot, feature: string, tasks: readonly V2TaskSummary[], driftStatus: DriftStatus): string[] {
+  const stale: string[] = [];
+  for (const task of tasks) {
+    if (task.status !== "Done") continue;
+    const read = guardedRead(root, `reports/quality-gate/${feature}-${task.id}.execution.json`);
+    let changed: string[] | undefined;
+    if (read.ok) {
+      try {
+        const parsed = JSON.parse(read.data.contents) as Record<string, unknown>;
+        if (parsed.feature === feature && typeof parsed.taskId === "string" && parsed.taskId.toUpperCase() === task.id.toUpperCase()) {
+          changed = changedEvidenceInputs(io, feature, task.id, parsed);
+        }
+      } catch {
+        changed = undefined;
+      }
+    }
+    if (changed ? changed.length > 0 : driftStatus === "AMENDED") stale.push(task.id);
+  }
+  return stale;
+}
+
 function computeNextAction(
   feature: string,
   tasks: readonly V2TaskSummary[],
@@ -227,6 +273,7 @@ function computeNextAction(
   highestRisk: RiskTier,
   hasSpecs: boolean,
   driftStatus: DriftStatus,
+  staleDone: readonly string[] = [],
 ): NextAction {
   if (!hasSpecs || tasks.length === 0) {
     return {
@@ -284,6 +331,13 @@ function computeNextAction(
       phase: "sdd-gate",
       command: `/sdd-ship:ship specs/${feature}/tasks.md`,
       rationale: `Approved task(s) are Implementation Complete and awaiting sdd-gate verification.`,
+    };
+  }
+  if (staleDone.length > 0) {
+    return {
+      phase: "sdd-gate",
+      command: `/sdd-ship:ship specs/${feature}/tasks.md#${staleDone[0]}`,
+      rationale: `The spec changed after Done task(s) ${staleDone.join(", ")} passed the gate; re-run the gate for each (a failure is reported to a human, who decides whether to reopen the task).`,
     };
   }
   // Only report `done` when ALL tasks in tasks.md are Approved and Done (M-2).
@@ -404,6 +458,7 @@ export function sddProjectOverview(
           highestRisk,
           hasSpecs,
           drift.status,
+          staleDoneTasks(io, root, feature, tasks, drift.status),
         ),
       });
     } catch {
@@ -507,6 +562,7 @@ export function sddFeatureState(
         highestRisk,
         files.requirements && files.tasks,
         drift.status,
+        staleDoneTasks(io, root, feature, dv.tasks as V2TaskSummary[], drift.status),
       ),
     };
 
@@ -589,6 +645,11 @@ export function sddGateAudit(
               executionArtifact.specDriftStatus = sdStatus;
             }
             executionArtifact.coverageComplete = isExecutionCoverageComplete(parsed);
+            const changed = changedEvidenceInputs(io, feature, task.id, parsed);
+            if (changed) {
+              executionArtifact.specInputsCurrent = changed.length === 0;
+              if (changed.length > 0) executionArtifact.specInputsChanged = changed;
+            }
             if (Array.isArray(checks?.commands)) {
               const failed = checks.commands
                 .filter((c): c is Record<string, unknown> => Boolean(c) && typeof c === "object" && (c as Record<string, unknown>).passed === false)
@@ -623,6 +684,11 @@ export function sddGateAudit(
 
       const validStatus = task.status === "Implementation Complete" || task.status === "Done";
       const validDrift = drift.status === "CLEAN" || drift.status === "AMENDED";
+      // Evidence must cover the current spec: recorded inputs unchanged, or,
+      // for runs from before #831, no amendment since the baseline.
+      const evidenceCurrent =
+        executionArtifact.specInputsCurrent === true ||
+        (executionArtifact.specInputsCurrent === undefined && drift.status === "CLEAN");
 
       const readyForDone =
         isApprovedValue(task.approval) &&
@@ -631,6 +697,7 @@ export function sddGateAudit(
         executionArtifact.coverageComplete === true &&
         reviewReport.verdict === "PASS" &&
         validDrift &&
+        evidenceCurrent &&
         blockingProvisionalOqs.length === 0;
 
       return {

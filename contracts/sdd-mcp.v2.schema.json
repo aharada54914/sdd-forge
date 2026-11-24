@@ -234,7 +234,9 @@
                   "executedAt": { "type": "string" },
                   "specDriftStatus": { "$ref": "#/$defs/executionDriftStatus" },
                   "failedCommands": { "type": "array", "items": { "type": "string" } },
-                  "coverageComplete": { "type": "boolean" }
+                  "coverageComplete": { "type": "boolean" },
+                  "specInputsCurrent": { "type": "boolean" },
+                  "specInputsChanged": { "type": "array", "items": { "type": "string" } }
                 }
               },
               "reviewReport": {

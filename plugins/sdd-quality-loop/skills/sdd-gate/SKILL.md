@@ -14,7 +14,7 @@ user-invocable: false
 
 ## Preconditions
 
-- 対象タスクが `Approval: Approved` かつ `Status: Implementation Complete`。
+- 対象タスクが `Approval: Approved` かつ `Status: Implementation Complete`。仕様変更後の再検証では `Done` のタスクも対象にする（`PASS` なら証跡を更新するだけで状態は変えず、`FAIL` は人間へ報告する）。
 - 実装を担当していない独立コンテキストでレビューを実行すること（自己採点は不可）。
 - `specs/<feature>/.spec-baseline.json` が存在すること（`--skip-drift` 指定時を除く）。
 

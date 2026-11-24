@@ -628,6 +628,60 @@ function existsButUnreadable(io, relPath) {
  * `Approval:` value normalized, and each task's approval at recording time so
  * a revoked approval is still reported. Returns null for other files.
  */
+/**
+ * What a gate run for one task verified (#831): the task's own block with
+ * Status / Approval normalized, each REQ/AC line it depends on (its ACs, the
+ * REQs those ACs and the block name), and design.md without its amendment
+ * log. Changing any of them makes that evidence stale; edits to other tasks
+ * or to IDs the task does not use do not.
+ */
+export function taskEvidenceInputs(io, { feature, taskId }) {
+  assertValidFeatureName(feature);
+  const id = String(taskId || '').toUpperCase();
+  const tasksRaw = io.readText(`specs/${feature}/tasks.md`);
+  if (tasksRaw === null) return null;
+  const task = parseTasksSummary(tasksRaw).find((t) => t.id === id);
+  if (!task) return null;
+  const idLines = {};
+  for (const name of ['requirements.md', 'acceptance-tests.md']) {
+    const raw = io.readText(`specs/${feature}/${name}`);
+    if (raw === null) continue;
+    for (const [key, info] of Object.entries(extractSpecIdentifiers(raw))) {
+      if (!(key in idLines)) idLines[key] = info;
+    }
+  }
+  const wanted = new Set(task.acRefs);
+  const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+  for (const req of reqsIn(task.block)) wanted.add(req);
+  for (const ac of task.acRefs) for (const req of reqsIn(idLines[ac]?.line)) wanted.add(req);
+  const ids = {};
+  for (const key of [...wanted].sort()) ids[key] = idLines[key] ? idLines[key].hash : 'missing';
+  const designRaw = io.readText(`specs/${feature}/design.md`);
+  return {
+    schema: 'sdd-task-evidence-inputs/v1',
+    task: sha256Text(task.block.replace(/^[ \t]*(?:Status|Approval):[ \t]*.*$/gm, '<NORMALIZED>').trim()),
+    ids,
+    design: designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md')),
+  };
+}
+
+/**
+ * Which recorded evidence inputs differ from the current ones: 'task',
+ * 'design', or a REQ/AC ID. Returns null when nothing was recorded (evidence
+ * from before #831), so callers can apply their legacy rule.
+ */
+export function diffEvidenceInputs(recorded, current) {
+  if (!recorded || typeof recorded !== 'object' || !current) return null;
+  const changed = [];
+  if (recorded.task !== current.task) changed.push('task');
+  if ((recorded.design ?? null) !== current.design) changed.push('design');
+  const recordedIds = recorded.ids && typeof recorded.ids === 'object' ? recorded.ids : {};
+  for (const key of [...new Set([...Object.keys(recordedIds), ...Object.keys(current.ids)])].sort()) {
+    if (recordedIds[key] !== current.ids[key]) changed.push(key);
+  }
+  return changed;
+}
+
 export function taskApprovalBaseline(rawText, fileName) {
   if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
   const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');

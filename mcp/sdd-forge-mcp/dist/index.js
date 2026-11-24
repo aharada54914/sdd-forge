@@ -38319,6 +38319,46 @@ var APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === "function" ? io.existsButUnreadable(relPath) : io.exists(relPath);
 }
+function taskEvidenceInputs(io, { feature, taskId }) {
+  assertValidFeatureName(feature);
+  const id = String(taskId || "").toUpperCase();
+  const tasksRaw = io.readText(`specs/${feature}/tasks.md`);
+  if (tasksRaw === null) return null;
+  const task = parseTasksSummary(tasksRaw).find((t) => t.id === id);
+  if (!task) return null;
+  const idLines = {};
+  for (const name of ["requirements.md", "acceptance-tests.md"]) {
+    const raw = io.readText(`specs/${feature}/${name}`);
+    if (raw === null) continue;
+    for (const [key, info] of Object.entries(extractSpecIdentifiers(raw))) {
+      if (!(key in idLines)) idLines[key] = info;
+    }
+  }
+  const wanted = new Set(task.acRefs);
+  const reqsIn = (text) => (String(text || "").match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+  for (const req of reqsIn(task.block)) wanted.add(req);
+  for (const ac of task.acRefs) for (const req of reqsIn(idLines[ac]?.line)) wanted.add(req);
+  const ids = {};
+  for (const key of [...wanted].sort()) ids[key] = idLines[key] ? idLines[key].hash : "missing";
+  const designRaw = io.readText(`specs/${feature}/design.md`);
+  return {
+    schema: "sdd-task-evidence-inputs/v1",
+    task: sha256Text(task.block.replace(/^[ \t]*(?:Status|Approval):[ \t]*.*$/gm, "<NORMALIZED>").trim()),
+    ids,
+    design: designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"))
+  };
+}
+function diffEvidenceInputs(recorded, current) {
+  if (!recorded || typeof recorded !== "object" || !current) return null;
+  const changed = [];
+  if (recorded.task !== current.task) changed.push("task");
+  if ((recorded.design ?? null) !== current.design) changed.push("design");
+  const recordedIds = recorded.ids && typeof recorded.ids === "object" ? recorded.ids : {};
+  for (const key of [.../* @__PURE__ */ new Set([...Object.keys(recordedIds), ...Object.keys(current.ids)])].sort()) {
+    if (recordedIds[key] !== current.ids[key]) changed.push(key);
+  }
+  return changed;
+}
 function taskApprovalBaseline(rawText, fileName) {
   if (String(fileName || "").toLowerCase() !== "tasks.md") return null;
   const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, "Approval: <NORMALIZED>");
@@ -41617,7 +41657,31 @@ function validateTaskId(taskId) {
   }
   return ok(taskId);
 }
-function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus) {
+function changedEvidenceInputs(io, feature, taskId, parsed) {
+  const changed = diffEvidenceInputs(parsed.specInputs, taskEvidenceInputs(io, { feature, taskId }));
+  return changed ?? void 0;
+}
+function staleDoneTasks(io, root, feature, tasks, driftStatus) {
+  const stale = [];
+  for (const task of tasks) {
+    if (task.status !== "Done") continue;
+    const read = guardedRead(root, `reports/quality-gate/${feature}-${task.id}.execution.json`);
+    let changed;
+    if (read.ok) {
+      try {
+        const parsed = JSON.parse(read.data.contents);
+        if (parsed.feature === feature && typeof parsed.taskId === "string" && parsed.taskId.toUpperCase() === task.id.toUpperCase()) {
+          changed = changedEvidenceInputs(io, feature, task.id, parsed);
+        }
+      } catch {
+        changed = void 0;
+      }
+    }
+    if (changed ? changed.length > 0 : driftStatus === "AMENDED") stale.push(task.id);
+  }
+  return stale;
+}
+function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus, staleDone = []) {
   if (!hasSpecs || tasks.length === 0) {
     return {
       phase: "bootstrap",
@@ -41674,6 +41738,13 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpe
       phase: "sdd-gate",
       command: `/sdd-ship:ship specs/${feature}/tasks.md`,
       rationale: `Approved task(s) are Implementation Complete and awaiting sdd-gate verification.`
+    };
+  }
+  if (staleDone.length > 0) {
+    return {
+      phase: "sdd-gate",
+      command: `/sdd-ship:ship specs/${feature}/tasks.md#${staleDone[0]}`,
+      rationale: `The spec changed after Done task(s) ${staleDone.join(", ")} passed the gate; re-run the gate for each (a failure is reported to a human, who decides whether to reopen the task).`
     };
   }
   if (approved.length === tasks.length && approved.every((t) => t.status === "Done")) {
@@ -41772,7 +41843,8 @@ function sddProjectOverview(root, options = {}) {
           dv.specCheckVerdict,
           highestRisk,
           hasSpecs,
-          drift.status
+          drift.status,
+          staleDoneTasks(io, root, feature, tasks, drift.status)
         )
       });
     } catch {
@@ -41856,7 +41928,8 @@ function sddFeatureState(root, rawFeature, options = {}) {
         dv.specCheckVerdict,
         highestRisk,
         files.requirements && files.tasks,
-        drift.status
+        drift.status,
+        staleDoneTasks(io, root, feature, dv.tasks, drift.status)
       )
     };
     if (options.includeDecisionViewMarkdown) {
@@ -41918,6 +41991,11 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
               executionArtifact.specDriftStatus = sdStatus;
             }
             executionArtifact.coverageComplete = isExecutionCoverageComplete(parsed);
+            const changed = changedEvidenceInputs(io, feature, task.id, parsed);
+            if (changed) {
+              executionArtifact.specInputsCurrent = changed.length === 0;
+              if (changed.length > 0) executionArtifact.specInputsChanged = changed;
+            }
             if (Array.isArray(checks?.commands)) {
               const failed = checks.commands.filter((c) => Boolean(c) && typeof c === "object" && c.passed === false).map((c) => String(c.label || c.command || "command"));
               executionArtifact.failedCommands = failed;
@@ -41942,7 +42020,8 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
       ) : [];
       const validStatus = task.status === "Implementation Complete" || task.status === "Done";
       const validDrift = drift.status === "CLEAN" || drift.status === "AMENDED";
-      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && executionArtifact.coverageComplete === true && reviewReport.verdict === "PASS" && validDrift && blockingProvisionalOqs.length === 0;
+      const evidenceCurrent = executionArtifact.specInputsCurrent === true || executionArtifact.specInputsCurrent === void 0 && drift.status === "CLEAN";
+      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && executionArtifact.coverageComplete === true && reviewReport.verdict === "PASS" && validDrift && evidenceCurrent && blockingProvisionalOqs.length === 0;
       return {
         taskId: task.id,
         risk: riskTier,

@@ -525,3 +525,13 @@ describe('#827 re-verifying a fixed review ticket reaches the gate for exactly t
     assert.match(selection, /Implementation Complete/, 'a feature whose only open work awaits the gate is selectable');
   });
 });
+
+describe('#832 a Done task affected by a spec change has a re-verification path', () => {
+  it('ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status', () => {
+    const ship = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/skills/ship/SKILL.md'), 'utf8');
+    const gate = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md'), 'utf8');
+    assert.match(ship, /影響を受けた `Done` タスク[^\n]*sdd-gate[^\n]*再実行/);
+    assert.match(ship, /Status[^\n]*変えない|状態を変えず/);
+    assert.match(gate.split('## Process')[0], /再検証[^\n]*`Done`|`Done`[^\n]*再検証/);
+  });
+});

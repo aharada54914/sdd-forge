@@ -26,6 +26,7 @@ import path from 'node:path';
 import { checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
+  createFsReadonlyIo,
   normalizeNewlines,
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
@@ -33,7 +34,7 @@ import {
   isMainModule,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
-import { extractScopePaths, isApprovedValue, normalizeRiskTier } from './v2-readonly-core.mjs';
+import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
 
 const PLACEHOLDER_RE =
@@ -741,6 +742,9 @@ export function runSddGate({
     taskId: taskState.taskId,
     executedAt: new Date().toISOString(),
     verdict,
+    // The spec inputs this run verified; a later change to them makes the
+    // verdict stale for Done readiness (#831).
+    specInputs: taskEvidenceInputs(createFsReadonlyIo(root), { feature, taskId: taskState.taskId }),
     coverage,
     scope,
     warnings,

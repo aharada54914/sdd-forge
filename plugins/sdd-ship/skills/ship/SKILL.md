@@ -48,13 +48,13 @@ node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.
 - 単一タスク（`#T-NNN` 指定）→ `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN`
 - 複数タスク → `/sdd-implementation:implement-tasks specs/<feature>/tasks.md`（`check-traceability.mjs --plan-batches` による依存順・非重複 Scope 並列で実行）
 - 中断後の再実行時は `Implementation Complete` / `Done` 済みタスクをスキップして再開する。
-- 仕様変更（`AMENDED`）によるフォローアップ時は `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs --feature <feature> --changed-ids <REQ/AC>` で影響タスク（`### Blockers` の推移的依存を含む）のみを抽出し、未影響の完了タスクを再利用する。
+- 仕様変更（`AMENDED`）によるフォローアップ時は `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs --feature <feature> --changed-ids <REQ/AC>` で影響タスク（`### Blockers` の推移的依存を含む）のみを抽出し、未影響の完了タスクを再利用する。影響を受けた `Done` タスクは実装し直さず、Step 4 の `sdd-gate` だけを再実行して証跡を現在の仕様に合わせる（`Status` は変えない。`sdd_gate_audit` の `specInputsChanged` が変更箇所を示す）。再検証が `FAIL` なら人間へ報告し、タスクを開き直すかは人間が決める。
 - UI / フロントエンド変更を含むタスクでは、必要に応じて `visual-verify-loop` で実ブラウザ動作確認を行う。
 - **自動修正上限**: `sdd/guardrails.yaml` の `limits.max_auto_fix_rounds`（既定 2 回）を超えても収束しない論点は無理に再試行を続けず、`OQ-NNN` として整理して人間判断へエスカレーションする。
 - 実装中に仕様変更が必要になった場合は本文を無断修正せず、ユーザーと合意のうえ `## Spec Amendments` に理由を追記してから反映する（`--proto` 試作で前提不整合が判明した場合は Scrap & Build を提案）。
 
 ### Step 4 — 品質ゲート（`sdd-gate`）
-対象タスクが `Status: Implementation Complete` に到達したら、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）:
+対象タスクが `Status: Implementation Complete` に到達したら（または上記の仕様変更で再検証する `Done` タスクについて）、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）:
 - `PASS`: `reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`Status: Done` へ遷移。全タスク `Done` かつ確定 `OQ-NNN` / `Spec Amendments` / `Alternatives Rejected` がある場合は `sync-knowledge.mjs extract --feature <feature>` でナレッジ還流案を提示する。
 - `FAIL`: 失敗理由と原因工程（`requirements` / `design` / `code` / `test` / `harness`）を報告して停止（`Status` は `Implementation Complete` のまま保持）。原因工程の計測記録は子の `sdd-gate` が `--run-id` 付きで 1 回だけ行うため、ship 側では重ねて記録しない。
 
