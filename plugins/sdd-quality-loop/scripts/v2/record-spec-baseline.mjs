@@ -101,7 +101,23 @@ export function writeSpecBaseline({ feature, projectRoot, outputPath, rerecord =
     ? path.resolve(outputPath)
     : path.join(root, 'specs', feature, '.spec-baseline.json');
   if (!rerecord && fs.existsSync(target)) {
-    return { status: 'EXISTING', baseline: JSON.parse(fs.readFileSync(target, 'utf8')), outputPath: target };
+    let existing;
+    try {
+      existing = JSON.parse(fs.readFileSync(target, 'utf8'));
+    } catch (err) {
+      throw new Error(`existing baseline ${target} is not valid JSON (${err.message}); re-record it with --rerecord`);
+    }
+    if (
+      !existing ||
+      typeof existing !== 'object' ||
+      Array.isArray(existing) ||
+      existing.schema !== 'sdd-spec-baseline/v1' ||
+      !existing.files ||
+      typeof existing.files !== 'object'
+    ) {
+      throw new Error(`existing baseline ${target} is not an sdd-spec-baseline/v1 document; re-record it with --rerecord`);
+    }
+    return { status: 'EXISTING', baseline: existing, outputPath: target };
   }
   const baseline = buildSpecBaseline({ feature, projectRoot: root });
   fs.writeFileSync(target, `${JSON.stringify(baseline, null, 2)}\n`, 'utf8');

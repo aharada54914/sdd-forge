@@ -139,12 +139,18 @@ export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = nul
   return [...files];
 }
 
-/** A Scope entry is a file, a directory (`src/` or `src`) or a glob. */
+/**
+ * A Scope entry is a file, a directory (`src/` or `src`) or a glob. A plain
+ * bullet may carry prose after the path (`- src/a.js — note`), so its first
+ * whitespace-separated token is matched as well.
+ */
 function isInTaskScope(relPath, scopePaths) {
-  return scopePaths.some((entry) => {
-    const dir = entry.replace(/\/+$/, '');
-    return relPath === dir || relPath.startsWith(`${dir}/`) || globToRegExp(entry).test(relPath);
-  });
+  return scopePaths.some((raw) =>
+    [...new Set([raw, raw.split(/\s+/)[0]])].some((entry) => {
+      const dir = entry.replace(/\/+$/, '');
+      return relPath === dir || relPath.startsWith(`${dir}/`) || globToRegExp(entry).test(relPath);
+    }),
+  );
 }
 
 function isPlaceholderScanTarget(relPath) {
