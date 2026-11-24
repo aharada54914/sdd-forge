@@ -533,3 +533,71 @@ describe('#817 review: only bare Blocker IDs are declared dependencies', () => {
     assert.deepEqual(plan.cyclicTasks.sort(), ['T-004', 'T-005'], 'a cycle stays visible even when it touches an invalid task');
   });
 });
+
+describe('#816 overlapping Scopes never share a wave', () => {
+  it('same file through a symlink, prose bullets, notes and braces serialize; empty Scope runs alone; independent paths stay parallel', () => {
+    const dir = trackTempDir('sdd-trace-scope-');
+    fs.mkdirSync(path.join(dir, 'specs', 'scope'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'src', 'a.ts'), '', 'utf8');
+    fs.symlinkSync('src', path.join(dir, 'linked'), 'dir');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    fs.writeFileSync(path.join(dir, 'specs', 'scope', 'requirements.md'), '# r\n\n- **REQ-001**: x\n- **AC-001** (REQ-001): y\n', 'utf8');
+    const task = (id, scopeBody) =>
+      `## ${id} t\nApproval: Approved\nStatus: Planned\nRisk: standard\n\n### Scope\n${scopeBody}\n\n### Done When\n- AC-001\n\n### Blockers\n- None\n`;
+    const plan = (tasks) => {
+      fs.writeFileSync(path.join(dir, 'specs', 'scope', 'tasks.md'), ['# tasks', ...tasks].join('\n'), 'utf8');
+      const res = spawnSync(process.execPath, [TRACE_CLI, '--feature', 'scope', '--root', dir, '--plan-batches'], { encoding: 'utf8' });
+      assert.equal(res.status, 0, res.stderr);
+      return JSON.parse(res.stdout).executionPlan.batches;
+    };
+    const serialized = (batches) => batches.every((wave) => wave.length === 1);
+
+    assert.ok(serialized(plan([task('T-001', '- `src/a.ts`'), task('T-002', '- `linked/a.ts`')])), 'one file through a symlinked directory');
+    assert.ok(serialized(plan([task('T-001', '- `src/new.ts`'), task('T-002', '- `linked/new.ts`')])), 'a not-yet-created file under a symlinked directory');
+    assert.ok(serialized(plan([task('T-001', '- src/a.ts を更新'), task('T-002', '- `src/a.ts`')])), 'a bare bullet with prose after the path');
+    assert.ok(serialized(plan([task('T-001', '- `src/a.ts`(rename only)'), task('T-002', '- `src/a.ts`')])), 'a trailing note on the path');
+    assert.ok(serialized(plan([task('T-001', '- `src/{a,b}.ts`'), task('T-002', '- `src/b.ts`')])), 'brace alternatives');
+    assert.ok(serialized(plan([task('T-001', '- `src/a.ts`'), task('T-002', '- 未定')])), 'a Scope with no path claims nothing it can share');
+    assert.ok(serialized(plan([task('T-001', '- `src/a.ts`'), task('T-002', '')])), 'an empty Scope runs alone');
+    assert.deepEqual(plan([task('T-001', '- `src/a.ts`'), task('T-002', '- `docs/b.md`')]), [['T-001', 'T-002']], 'independent paths stay parallel');
+  });
+});
+
+describe('#815 CLI locks are held by their owner, not by the exiting CLI process', () => {
+  const TASK_LOCK_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+  const lockCli = (dir, ...args) => spawnSync(process.execPath, [TASK_LOCK_CLI, ...args, '--feature', 'f', '--root', dir], { encoding: 'utf8' });
+
+  it('ship acquires, the child re-acquires with the same owner, others are refused, and the owner releases', () => {
+    const dir = trackTempDir('sdd-lock-owner-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    assert.equal(lockCli(dir, 'acquire', '--owner', 'ship-1').status, 0);
+    const status = JSON.parse(lockCli(dir, 'status').stdout);
+    assert.equal(status.locked, true);
+    assert.equal(status.stale, false, `a held lock stays active after the CLI exits (${status.staleReason})`);
+    const child = lockCli(dir, 'acquire', '--owner', 'ship-1');
+    assert.equal(child.status, 0, child.stdout);
+    assert.equal(JSON.parse(child.stdout).reentrant, true);
+    const other = lockCli(dir, 'acquire', '--owner', 'ship-2');
+    assert.equal(other.status, 1);
+    assert.equal(JSON.parse(other.stdout).stale, false);
+    assert.equal(lockCli(dir, 'release', '--owner', 'ship-1').status, 0);
+    assert.equal(JSON.parse(lockCli(dir, 'status').stdout).locked, false);
+  });
+
+  it('an expired owner lock is stale and recoverable; a CLI acquire without --owner is refused', () => {
+    const dir = trackTempDir('sdd-lock-expiry-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    assert.equal(lockCli(dir, 'acquire', '--owner', 'ship-1', '--ttl', '1').status, 0);
+    const lockPath = path.join(dir, '.sdd', 'locks', 'f.lock');
+    const record = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    record.expiresAt = '2020-01-01T00:00:00.000Z';
+    fs.writeFileSync(lockPath, JSON.stringify(record), 'utf8');
+    assert.equal(JSON.parse(lockCli(dir, 'status').stdout).staleReason, 'ttl-expired');
+    assert.equal(lockCli(dir, 'acquire', '--owner', 'ship-2').status, 1, 'stale locks are not taken silently');
+    assert.equal(lockCli(dir, 'acquire', '--owner', 'ship-2', '--break-stale').status, 0);
+    const noOwner = spawnSync(process.execPath, [TASK_LOCK_CLI, 'acquire', '--feature', 'g', '--root', dir], { encoding: 'utf8' });
+    assert.equal(noOwner.status, 2, noOwner.stdout);
+    assert.match(noOwner.stderr, /--owner/);
+  });
+});

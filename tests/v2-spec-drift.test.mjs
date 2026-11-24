@@ -225,3 +225,54 @@ describe('#820 AMENDED names the changed IDs no amendment entry mentions', () =>
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });
+
+describe('#818 staged human approval is not spec drift', () => {
+  const addDraftTask = (repo) => {
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    const text = fs.readFileSync(tasksPath, 'utf8').replace(
+      '## Spec Amendments',
+      '## T-002 Render receipt\nApproval: Draft\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-002 passes\n\n## Spec Amendments',
+    );
+    fs.writeFileSync(tasksPath, text, 'utf8');
+    return tasksPath;
+  };
+  const edit = (file, from, to) => fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace(from, to), 'utf8');
+
+  it('approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = addDraftTask(repo);
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+
+    edit(tasksPath, 'Approval: Draft', 'Approval: Approved');
+    const approved = runCheck(repo, 'checkout', ['--fail-on-undeclared']);
+    assert.equal(approved.status, 0, approved.stdout);
+    const approvedResult = JSON.parse(approved.stdout);
+    assert.equal(approvedResult.status, 'CLEAN');
+    assert.deepEqual(approvedResult.newlyApprovedTasks, ['T-002']);
+
+    edit(tasksPath, 'Approval: Approved\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001', 'Approval: Draft\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001');
+    const revoked = JSON.parse(runCheck(repo, 'checkout').stdout);
+    assert.equal(revoked.status, 'UNDECLARED_DRIFT');
+    assert.deepEqual(revoked.revokedApprovals, ['T-001']);
+
+    edit(tasksPath, 'Approval: Draft\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001', 'Approval: Approved\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001');
+    edit(tasksPath, '- AC-002 passes', '- AC-002 passes for carts of any size');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNDECLARED_DRIFT', 'body edits stay drift');
+  });
+
+  it('a baseline recorded before this change keeps its old comparison', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = addDraftTask(repo);
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    const baselinePath = path.join(repo, 'specs', 'checkout', '.spec-baseline.json');
+    const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+    for (const info of Object.values(baseline.files)) {
+      delete info.approvalContractSha256;
+      delete info.taskApprovals;
+    }
+    fs.writeFileSync(baselinePath, JSON.stringify(baseline), 'utf8');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'CLEAN');
+    edit(tasksPath, 'Approval: Draft', 'Approval: Approved');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNDECLARED_DRIFT', 'old baselines cannot tell approval from body edits');
+  });
+});
