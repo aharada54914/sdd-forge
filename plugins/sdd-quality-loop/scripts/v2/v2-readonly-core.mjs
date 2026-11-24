@@ -15,6 +15,7 @@ import {
   extractAmendmentEntries,
   extractSpecIdentifiers,
   globToRegExp,
+  isApprovedValue,
   matchProtectedSpecRelPath,
   normalizeGuardrailsConfig,
   normalizeNewlines,
@@ -616,7 +617,7 @@ export function taskApprovalBaseline(rawText, fileName) {
   return { approvalContractSha256: sha256Text(contract), taskApprovals };
 }
 
-const isApproved = (value) => /^Approved\b/.test(String(value || ''));
+export { isApprovedValue };
 
 /**
  * Pure read-only Spec Drift check (C-1 / C-2 safe: validates every baseline.files key).
@@ -676,8 +677,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
       for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
         if (!(id in approvalView.taskApprovals)) continue; // a removed task already changes the contract hash
         const now = approvalView.taskApprovals[id];
-        if (isApproved(was) && !isApproved(now)) revokedApprovals.push(id);
-        else if (!isApproved(was) && isApproved(now)) newlyApprovedTasks.push(id);
+        if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
+        else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
       }
     } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
       changedFiles.push(safeRel);
@@ -1397,7 +1398,7 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
       requirements: reqIds.length,
       acceptanceCriteria: acIds.length,
       tasksTotal: tasks.length,
-      tasksApproved: tasks.filter((t) => /^Approved\b/i.test(t.approval)).length,
+      tasksApproved: tasks.filter((t) => isApprovedValue(t.approval)).length,
       tasksDone: tasks.filter((t) => t.status === 'Done').length,
       openQuestionsTotal: openQuestions.length,
       openQuestionsProvisional: provisionalCount,

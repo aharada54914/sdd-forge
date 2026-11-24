@@ -15,6 +15,7 @@
  * supplied by the caller (`server.ts`), never client input.
  */
 
+import { isApprovedValue } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
 import { err, ok, type Result } from "../envelope.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { listQualityReports, type QualityReportEntry } from "../parsers/quality-report.js";
@@ -68,7 +69,7 @@ function hasApprovedPlannedOrInProgress(tasks: TaskEntry[]): boolean {
   return tasks.some(
     (task) =>
       (task.status === "Planned" || task.status === "In Progress") &&
-      (task.approval === "Approved" || task.approval.startsWith("Approved (")),
+      isApprovedShape(task.approval),
   );
 }
 
@@ -179,7 +180,7 @@ export interface TaskListData {
 }
 
 function isApprovedShape(approval: string): boolean {
-  return approval === "Approved" || approval.startsWith("Approved (");
+  return isApprovedValue(approval);
 }
 
 /** `list_approved_tasks`: every task whose Approval is Approved-shaped. */

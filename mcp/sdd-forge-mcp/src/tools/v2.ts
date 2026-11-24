@@ -29,6 +29,7 @@ import {
   analyzeTraceabilityCore,
   buildDecisionViewDataCore,
   checkSpecDriftCore,
+  isApprovedValue,
   renderDecisionViewMarkdown,
   runDoctorCore,
 } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
@@ -215,9 +216,6 @@ function validateTaskId(taskId: string): Result<string> {
   return ok(taskId);
 }
 
-function isApprovedValue(approval: string): boolean {
-  return /^Approved(?:\s+\([^)]+\))?$/i.test(approval.trim());
-}
 
 function computeNextAction(
   feature: string,

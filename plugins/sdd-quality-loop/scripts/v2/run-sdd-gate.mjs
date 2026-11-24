@@ -33,7 +33,7 @@ import {
   isMainModule,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
-import { extractScopePaths, normalizeRiskTier } from './v2-readonly-core.mjs';
+import { extractScopePaths, isApprovedValue, normalizeRiskTier } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
 
 const PLACEHOLDER_RE =
@@ -635,7 +635,7 @@ export function runSddGate({
   }
 
   const taskCheckErrors = [];
-  if (!taskState.approval || !/^Approved\b/.test(taskState.approval)) {
+  if (!isApprovedValue(taskState.approval)) {
     taskCheckErrors.push(`Task ${taskId} is not Approved (found: ${taskState.approval || 'missing'})`);
   }
   if (taskState.status !== 'Implementation Complete' && taskState.status !== 'Done') {

@@ -606,3 +606,41 @@ describe('#815 CLI locks are held by their owner, not by the exiting CLI process
     assert.match(noOwner.stderr, /--owner/);
   });
 });
+
+describe('#830 one approval grammar for the gate, the decision view and MCP', () => {
+  it('Approved with an optional (note) is approved; other case and trailing words are not', async () => {
+    const { isApprovedValue } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const cases = [
+      ['Approved', true],
+      ['Approved (2026-11-01 owner)', true],
+      ['approved', false],
+      ['APPROVED', false],
+      ['Approved yes', false],
+      ['Approved-ish', false],
+      ['Draft', false],
+    ];
+    for (const [value, expected] of cases) assert.equal(isApprovedValue(value), expected, value);
+
+    const dir = createMultiDomainFixture();
+    const tasksPath = path.join(dir, 'specs', 'billing-sync', 'tasks.md');
+    const original = fs.readFileSync(tasksPath, 'utf8');
+    const head = '## T-002 PostgreSQL expand マイグレーション\nApproval: Approved';
+    assert.ok(original.includes(head));
+    const baseCount = buildDecisionViewData({ feature: 'billing-sync', projectRoot: dir }).counts.tasksApproved;
+    for (const [value, expected] of cases) {
+      fs.writeFileSync(tasksPath, original.replace(head, head.replace('Approval: Approved', `Approval: ${value}`)), 'utf8');
+      const gate = runSddGate({
+        feature: 'billing-sync',
+        taskId: 'T-002',
+        projectRoot: dir,
+        changedFiles: ['db/migrations/V002__add_amount_cents.sql'],
+        commands: [{ label: 'ok', command: 'node -e "process.exit(0)"' }],
+        skipDrift: true,
+      });
+      const approvalError = gate.result.checks.taskPrecondition.errors.some((e) => /not Approved/.test(e));
+      assert.equal(approvalError, !expected, `gate: ${value}`);
+      const count = buildDecisionViewData({ feature: 'billing-sync', projectRoot: dir }).counts.tasksApproved;
+      assert.equal(count, baseCount - (expected ? 0 : 1), `decision view: ${value}`);
+    }
+  });
+});

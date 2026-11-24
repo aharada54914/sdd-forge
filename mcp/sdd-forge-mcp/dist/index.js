@@ -37522,6 +37522,1935 @@ function parseActiveSpecDirectories(root) {
   return ok(specs);
 }
 
+// ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+import path2 from "node:path";
+
+// ../../plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
+import crypto from "node:crypto";
+import path from "node:path";
+var DEFAULT_CONFIG = Object.freeze({
+  schema: "sdd-guardrails/v1",
+  spec_guard: {
+    mode: "confirm",
+    protected_globs: [
+      "specs/*/requirements.md",
+      "specs/*/design.md",
+      "specs/*/tasks.md"
+    ],
+    allow_amendment_section: true
+  },
+  review: {
+    pre_impl_check: "auto",
+    independent_gate: true
+  },
+  risk_defaults: {
+    default_tier: "standard",
+    high_risk_paths: ["**/auth/**", "**/billing/**", "**/migrations/**"]
+  },
+  limits: {
+    max_auto_fix_rounds: 2
+  }
+});
+var VALID_MODES = /* @__PURE__ */ new Set(["warn", "confirm", "strict"]);
+var VALID_PRE_IMPL = /* @__PURE__ */ new Set(["auto", "always", "off"]);
+var VALID_RISK_TIERS = /* @__PURE__ */ new Set(["low", "standard", "high"]);
+var APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
+var STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
+var AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
+var IDENTIFIER_LINE_RE = /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
+var PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none(?:\s+yet)?\.?|n\/a|\(none\)|no\s+changes?(?:\s+yet)?\.?|（なし）|なし|（初期版のため変更なし）|初期版[。．.・\s]*変更なし[。．.]?|初期版（変更なし）|\(initial\s+version[^)]*\))$/i;
+function normalizeNewlines(text) {
+  return typeof text === "string" ? text.replace(/\r\n/g, "\n").replace(/\r/g, "\n") : "";
+}
+function sha256Text(text) {
+  return crypto.createHash("sha256").update(normalizeNewlines(text), "utf8").digest("hex");
+}
+function toPosixPath(filePath) {
+  return String(filePath || "").replace(/\\/g, "/");
+}
+function normalizeRelPath(filePath) {
+  return toPosixPath(filePath).trim().replace(/^\.\//, "").replace(/\/+$/, "");
+}
+function sanitizeRelPath(relPath) {
+  if (typeof relPath !== "string" || relPath.length === 0 || relPath.includes("\0")) {
+    return null;
+  }
+  if (relPath.includes("\\") || path.isAbsolute(relPath) || relPath.startsWith("/")) {
+    return null;
+  }
+  const normalized = relPath.replace(/^\.\//, "").replace(/\/+$/, "");
+  if (!normalized) return null;
+  const segments = normalized.split("/");
+  if (segments.some((s) => s === "" || s === "." || s === "..")) {
+    return null;
+  }
+  return normalized;
+}
+function assertValidFeatureName(feature) {
+  if (typeof feature !== "string" || !feature || /[\\/\0]/.test(feature) || feature === "." || feature === "..") {
+    throw new Error(`Invalid feature name: ${feature}`);
+  }
+}
+function stripYamlComment(line) {
+  let inSingle = false;
+  let inDouble = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (ch === "'" && !inDouble) {
+      inSingle = !inSingle;
+    } else if (ch === '"' && !inSingle && line[i - 1] !== "\\") {
+      inDouble = !inDouble;
+    } else if (ch === "#" && !inSingle && !inDouble) {
+      if (i === 0 || /\s/.test(line[i - 1])) {
+        return line.slice(0, i);
+      }
+    }
+  }
+  return line;
+}
+function parseYamlScalar(raw) {
+  const trimmed = raw.trim();
+  if (trimmed === "true") return true;
+  if (trimmed === "false") return false;
+  if (trimmed === "null" || trimmed === "~") return null;
+  if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) return Number(trimmed);
+  if (trimmed.startsWith('"') && trimmed.endsWith('"') || trimmed.startsWith("'") && trimmed.endsWith("'")) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+function parseSimpleYaml(text) {
+  const root = {};
+  const lines = normalizeNewlines(text).split("\n");
+  let currentSection = null;
+  let currentListKey = null;
+  for (const rawLine of lines) {
+    const cleaned = stripYamlComment(rawLine).replace(/\s+$/, "");
+    if (!cleaned.trim()) continue;
+    const indent = cleaned.length - cleaned.trimStart().length;
+    const content = cleaned.trim();
+    if (indent === 0) {
+      currentListKey = null;
+      const idx2 = content.indexOf(":");
+      if (idx2 === -1) continue;
+      const key2 = content.slice(0, idx2).trim();
+      const rest2 = content.slice(idx2 + 1).trim();
+      if (rest2 === "") {
+        root[key2] = {};
+        currentSection = key2;
+      } else {
+        root[key2] = parseYamlScalar(rest2);
+        currentSection = null;
+      }
+      continue;
+    }
+    if (content.startsWith("- ")) {
+      const value = parseYamlScalar(content.slice(2));
+      if (currentSection && currentListKey) {
+        if (!Array.isArray(root[currentSection][currentListKey])) {
+          root[currentSection][currentListKey] = [];
+        }
+        root[currentSection][currentListKey].push(value);
+      }
+      continue;
+    }
+    const idx = content.indexOf(":");
+    if (idx === -1 || !currentSection) continue;
+    const key = content.slice(0, idx).trim();
+    const rest = content.slice(idx + 1).trim();
+    if (rest === "") {
+      root[currentSection][key] = [];
+      currentListKey = key;
+    } else {
+      root[currentSection][key] = parseYamlScalar(rest);
+      currentListKey = null;
+    }
+  }
+  return root;
+}
+function normalizeGuardrailsConfig(parsed, sourcePath = null) {
+  const sg = parsed && typeof parsed.spec_guard === "object" && parsed.spec_guard ? parsed.spec_guard : {};
+  const rv = parsed && typeof parsed.review === "object" && parsed.review ? parsed.review : {};
+  const rd = parsed && typeof parsed.risk_defaults === "object" && parsed.risk_defaults ? parsed.risk_defaults : {};
+  const lm = parsed && typeof parsed.limits === "object" && parsed.limits ? parsed.limits : {};
+  const maxAutoFix = typeof lm.max_auto_fix_rounds === "number" && Number.isInteger(lm.max_auto_fix_rounds) && lm.max_auto_fix_rounds >= 0 && lm.max_auto_fix_rounds <= 10 ? lm.max_auto_fix_rounds : DEFAULT_CONFIG.limits.max_auto_fix_rounds;
+  return {
+    schema: "sdd-guardrails/v1",
+    sourcePath,
+    spec_guard: {
+      mode: VALID_MODES.has(sg.mode) ? sg.mode : DEFAULT_CONFIG.spec_guard.mode,
+      protected_globs: Array.isArray(sg.protected_globs) && sg.protected_globs.length > 0 ? sg.protected_globs.map((g) => String(g)) : [...DEFAULT_CONFIG.spec_guard.protected_globs],
+      allow_amendment_section: typeof sg.allow_amendment_section === "boolean" ? sg.allow_amendment_section : DEFAULT_CONFIG.spec_guard.allow_amendment_section
+    },
+    review: {
+      pre_impl_check: VALID_PRE_IMPL.has(rv.pre_impl_check) ? rv.pre_impl_check : DEFAULT_CONFIG.review.pre_impl_check,
+      independent_gate: typeof rv.independent_gate === "boolean" ? rv.independent_gate : DEFAULT_CONFIG.review.independent_gate
+    },
+    risk_defaults: {
+      default_tier: VALID_RISK_TIERS.has(rd.default_tier) ? rd.default_tier : DEFAULT_CONFIG.risk_defaults.default_tier,
+      high_risk_paths: Array.isArray(rd.high_risk_paths) && rd.high_risk_paths.length > 0 ? rd.high_risk_paths.map((p) => String(p)) : [...DEFAULT_CONFIG.risk_defaults.high_risk_paths]
+    },
+    limits: {
+      max_auto_fix_rounds: maxAutoFix
+    }
+  };
+}
+function globToRegExp(glob) {
+  const posix = toPosixPath(glob).replace(/^\.\//, "");
+  let out = "^";
+  for (let i = 0; i < posix.length; i += 1) {
+    const ch = posix[i];
+    if (ch === "*") {
+      if (posix[i + 1] === "*") {
+        if (posix[i + 2] === "/") {
+          out += "(?:.*/)?";
+          i += 2;
+        } else {
+          out += ".*";
+          i += 1;
+        }
+      } else {
+        out += "[^/]*";
+      }
+    } else if (ch === "?") {
+      out += "[^/]";
+    } else if (/[.+^${}()|[\]\\]/.test(ch)) {
+      out += `\\${ch}`;
+    } else {
+      out += ch;
+    }
+  }
+  out += "$";
+  return new RegExp(out, "i");
+}
+function matchProtectedSpecRelPath(relPath, config2) {
+  const rel = sanitizeRelPath(relPath);
+  if (!rel) return null;
+  const globs = config2 && config2.spec_guard && config2.spec_guard.protected_globs || DEFAULT_CONFIG.spec_guard.protected_globs;
+  const matched = globs.some((pattern) => globToRegExp(pattern).test(rel));
+  if (!matched) return null;
+  const featureMatch = rel.match(/^specs\/([^/]+)\/(.+)$/i);
+  return {
+    relPath: rel,
+    feature: featureMatch ? featureMatch[1] : null,
+    fileName: path.posix.basename(rel).toLowerCase()
+  };
+}
+function countPrimaryApprovals(text) {
+  if (!text) return 0;
+  return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
+}
+function splitSpecAmendments(text) {
+  const normalized = normalizeNewlines(text);
+  const match = AMENDMENT_HEADING_RE.exec(normalized);
+  if (!match) {
+    return {
+      beforeAmendments: normalized,
+      amendmentsBody: "",
+      afterAmendments: "",
+      hasHeading: false
+    };
+  }
+  const headingLevel = match[1].length;
+  const headingStart = match.index;
+  const afterHeadingStart = headingStart + match[0].length;
+  const rest = normalized.slice(afterHeadingStart);
+  const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, "m");
+  const nextMatch = nextHeadingRe.exec(rest);
+  if (!nextMatch) {
+    return {
+      beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
+      amendmentsBody: rest.trim(),
+      afterAmendments: "",
+      hasHeading: true
+    };
+  }
+  return {
+    beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
+    amendmentsBody: rest.slice(0, nextMatch.index).trim(),
+    afterAmendments: rest.slice(nextMatch.index).trimStart(),
+    hasHeading: true
+  };
+}
+function extractAmendmentEntries(text) {
+  const { hasHeading, amendmentsBody } = splitSpecAmendments(text);
+  if (!hasHeading || !amendmentsBody) return [];
+  const entries = [];
+  for (const line of amendmentsBody.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (PLACEHOLDER_AMENDMENT_RE.test(trimmed)) continue;
+    entries.push(trimmed);
+  }
+  return entries;
+}
+function isApprovedValue(value) {
+  return /^Approved(?:[ \t]*\([^()\n]*\))?$/.test(String(value ?? "").trim());
+}
+function canonicalSpecContractText(text, fileName) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
+  let combined = afterAmendments ? `${beforeAmendments}
+
+${afterAmendments}` : beforeAmendments;
+  if (String(fileName || "").toLowerCase() === "tasks.md") {
+    combined = combined.replace(STATUS_LINE_RE, "Status: <NORMALIZED>");
+  }
+  return combined.trim();
+}
+function extractSpecIdentifiers(text) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
+  const body = afterAmendments ? `${beforeAmendments}
+
+${afterAmendments}` : beforeAmendments;
+  const map2 = {};
+  IDENTIFIER_LINE_RE.lastIndex = 0;
+  let m;
+  while ((m = IDENTIFIER_LINE_RE.exec(body)) !== null) {
+    const id = m[1].toUpperCase();
+    const normalizedLine = m[0].trim().replace(/\s+/g, " ");
+    if (!(id in map2)) {
+      map2[id] = {
+        line: normalizedLine,
+        hash: sha256Text(normalizedLine)
+      };
+    }
+  }
+  return map2;
+}
+
+// ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+var CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
+var PLACEHOLDER_CELL_RE = /^<[^<>]+>$/;
+var SEPARATOR_CELL_RE = /^:?-+:?$/;
+var MAX_SKILL_DESCRIPTION_CHARS = 1024;
+var CONTROL_CHAR_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F]/;
+var NON_ASCII_RE = /[^\x00-\x7F]/;
+var IGNORED_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", "build", ".next", "__pycache__", ".venv"]);
+var NON_CHECKS = Object.freeze([
+  "\u4ED5\u69D8\u30FB\u8A2D\u8A08\u30FB\u30C9\u30E1\u30A4\u30F3\u30E2\u30C7\u30EB\u306E\u610F\u5473\u7684\u59A5\u5F53\u6027\u3084\u6587\u66F8\u9593\u306E\u5185\u5BB9\u77DB\u76FE",
+  "\u30C6\u30B9\u30C8\u30B1\u30FC\u30B9\u306E\u7DB2\u7F85\u6027\u30FB\u30D7\u30ED\u30C0\u30AF\u30B7\u30E7\u30F3\u30B3\u30FC\u30C9\u306E\u8AD6\u7406\u30D0\u30B0\u3084\u6027\u80FD",
+  "\u30AF\u30E9\u30A6\u30C9\u74B0\u5883\uFF08AWS/Azure\uFF09\u3084\u672C\u756A\u30C7\u30FC\u30BF\u30D9\u30FC\u30B9\u306E\u5B9F\u72B6\u614B\u30FB\u8A8D\u8A3C\u6709\u52B9\u6027",
+  "\u5916\u90E8\u30DB\u30B9\u30C8 CLI\uFF08Claude Code / Codex / Copilot / Antigravity / Gemini\uFF09\u5185\u90E8\u306E\u975E\u516C\u958B\u6319\u52D5"
+]);
+var COMMON_REVIEW_PERSPECTIVES = Object.freeze([
+  {
+    id: "C01",
+    area: "\u8A2D\u8A08\u65B9\u91DD",
+    perspective: "\u65B9\u91DD\u6574\u5408\u3068\u975E\u81EA\u660E\u5224\u65AD\u306E\u6839\u62E0",
+    humanQuestion: "\u8981\u4EF6\u306E\u5927\u67A0\u306B\u6CBF\u3063\u3066\u304A\u308A\u3001\u975E\u81EA\u660E\u306A\u8A2D\u8A08\u5224\u65AD\uFF08\u63A1\u3089\u306A\u304B\u3063\u305F\u6848\u3092\u542B\u3080\uFF09\u306B\u7D0D\u5F97\u611F\u304C\u3042\u308B\u304B\uFF1F",
+    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
+  },
+  {
+    id: "C02",
+    area: "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB",
+    perspective: "\u7C92\u5EA6\u30FB\u96C6\u7D04\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6",
+    humanQuestion: "\u30C7\u30FC\u30BF\u69CB\u9020\u306E\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u3092\u5B88\u308B\u5834\u6240\u304C\u30C9\u30E1\u30A4\u30F3\u306E\u8CAC\u52D9\u3068\u5408\u3063\u3066\u3044\u308B\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  },
+  {
+    id: "C03",
+    area: "API I/F",
+    perspective: "CRUD \u5916\u306E\u5951\u7D04\u30FB\u30A8\u30E9\u30FC\u5FDC\u7B54\u30FB\u8A8D\u53EF",
+    humanQuestion: "\u5916\u90E8\u5951\u7D04\uFF08\u7834\u58CA\u7684\u5909\u66F4\u30FB\u30A8\u30E9\u30FC\u30B3\u30FC\u30C9\u30FB\u8A8D\u53EF\u6761\u4EF6\uFF09\u304C\u547C\u3073\u51FA\u3057\u5143\u3068\u77DB\u76FE\u3057\u306A\u3044\u304B\uFF1F",
+    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
+  },
+  {
+    id: "C04",
+    area: "\u72B6\u614B\u9077\u79FB",
+    perspective: "\u7570\u5E38\u30EB\u30FC\u30C8\u30FB\u7AF6\u5408\u30FB\u9806\u5E8F\u6027",
+    humanQuestion: "\u7570\u5E38\u7CFB\u30FB\u4E26\u5217\u5B9F\u884C\u30FB\u518D\u5B9F\u884C\u6642\u306E\u72B6\u614B\u9077\u79FB\u306B\u7834\u7DBB\u3084\u30C7\u30C3\u30C9\u30ED\u30C3\u30AF\u304C\u306A\u3044\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  },
+  {
+    id: "C05",
+    area: "\u30B7\u30B9\u30C6\u30E0\u9593\u9023\u643A",
+    perspective: "\u5916\u90E8\u9023\u643A\u30B7\u30FC\u30B1\u30F3\u30B9\u30FB\u4E0D\u53EF\u9006\u64CD\u4F5C\u70B9",
+    humanQuestion: "\u9001\u4FE1\u30FB\u78BA\u5B9A\u30FB\u8AB2\u91D1\u30FB\u5916\u90E8\u66F8\u8FBC\u306A\u3069\u623B\u305B\u306A\u3044\u5883\u754C\u306E\u30ED\u30FC\u30EB\u30D0\u30C3\u30AF\uFF0F\u51AA\u7B49\u6027\u304C\u62C5\u4FDD\u3055\u308C\u3066\u3044\u308B\u304B\uFF1F",
+    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
+  },
+  {
+    id: "C06",
+    area: "\u696D\u52D9\u30EB\u30FC\u30EB",
+    perspective: "\u30C9\u30E1\u30A4\u30F3\u4E0D\u5909\u6761\u4EF6\u30FB\u5883\u754C\u5024\uFF08\u30BC\u30ED/\u4E0A\u9650/\u7AEF\u6570\uFF09",
+    humanQuestion: "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u6CD5\u4EE4\u30FB\u5883\u754C\u5024\u30FB\u904E\u53BB\u5B9F\u7E3E\u306E\u6271\u3044\u304C\u4E8B\u696D\u610F\u56F3\u3068\u4E00\u81F4\u3057\u3066\u3044\u308B\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  },
+  {
+    id: "C07",
+    area: "\u8981\u6C42\u3068\u306E\u5BFE\u5FDC",
+    perspective: "REQ\u2194AC\u2194Task \u6574\u5408\u3068\u5148\u56DE\u308A\u8A2D\u8A08\u306E\u6291\u6B62",
+    humanQuestion: "\u5168 REQ/AC \u304C\u6F0F\u308C\u306A\u304F\u30BF\u30B9\u30AF\u3078\u843D\u3061\u3001\u8981\u4EF6\u5916\u306E\u904E\u5270\u8A2D\u8A08\u304C\u6DF7\u5165\u3057\u3066\u3044\u306A\u3044\u304B\uFF1F",
+    defaultDisposition: "\u6A5F\u68B0\u691C\u8A3C"
+  },
+  {
+    id: "C08",
+    area: "\u975E\u6A5F\u80FD\u9762",
+    perspective: "\u6A29\u9650\u30FB\u6027\u80FD\u30FB\u76E3\u67FB\u30FB\u5207\u623B\u3057",
+    humanQuestion: "\u8A8D\u8A3C/\u8A8D\u53EF\u30FB\u79D8\u5BC6\u60C5\u5831\u30FB\u6027\u80FD\u52A3\u5316\u30FB\u969C\u5BB3\u6642\u306E\u5207\u623B\u3057\u624B\u9806\u304C\u904B\u7528\u8981\u4EF6\u3092\u6E80\u305F\u3059\u304B\uFF1F",
+    defaultDisposition: "\u63A1\u7528"
+  }
+]);
+function loadGuardrailsConfigFromIo(io) {
+  let parsed = null;
+  let sourcePath = null;
+  try {
+    const jsonRaw = io.readText("sdd/guardrails.json");
+    if (jsonRaw !== null) {
+      parsed = JSON.parse(jsonRaw);
+      sourcePath = "sdd/guardrails.json";
+    } else {
+      const yamlRaw = io.readText("sdd/guardrails.yaml");
+      if (yamlRaw !== null) {
+        parsed = parseSimpleYaml(yamlRaw);
+        sourcePath = "sdd/guardrails.yaml";
+      }
+    }
+  } catch {
+    parsed = null;
+  }
+  return normalizeGuardrailsConfig(parsed, sourcePath);
+}
+function stripFencedCodeBlocks(text) {
+  const lines = normalizeNewlines(text || "").split("\n");
+  const out = [];
+  let inFence = false;
+  let fenceChar = "";
+  for (const line of lines) {
+    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (m) {
+      if (!inFence) {
+        inFence = true;
+        fenceChar = m[1][0];
+      } else if (m[1][0] === fenceChar) {
+        inFence = false;
+        fenceChar = "";
+      }
+      continue;
+    }
+    if (!inFence) out.push(line);
+  }
+  return out.join("\n");
+}
+function splitMarkdownTableRow(line) {
+  let trimmed = String(line || "").trim();
+  if (!trimmed.startsWith("|")) return null;
+  if (trimmed.startsWith("|")) trimmed = trimmed.slice(1);
+  if (trimmed.endsWith("|") && !trimmed.endsWith("\\|")) trimmed = trimmed.slice(0, -1);
+  const cells = [];
+  let current = "";
+  let inBacktick = false;
+  for (let i = 0; i < trimmed.length; i += 1) {
+    const ch = trimmed[i];
+    if (ch === "\\" && trimmed[i + 1] === "|" && !inBacktick) {
+      current += "|";
+      i += 1;
+      continue;
+    }
+    if (ch === "`") {
+      inBacktick = !inBacktick;
+      current += ch;
+      continue;
+    }
+    if (ch === "|" && !inBacktick) {
+      cells.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+  cells.push(current.trim());
+  return cells;
+}
+function unwrapMarkdownInline(text) {
+  return String(text || "").trim().replace(/^[`*_]+|[`*_]+$/g, "").trim();
+}
+function isOpenQuestionConfirmed(status) {
+  const clean = unwrapMarkdownInline(status);
+  return CONFIRMED_STATUS_RE.test(clean);
+}
+function parseOpenQuestions(markdownText, sourceFile = null) {
+  const normalized = normalizeNewlines(markdownText || "");
+  const lines = normalized.split("\n");
+  const items = [];
+  let inFence = false;
+  let fenceChar = "";
+  let inAmendments = false;
+  let amendmentLevel = 0;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const fenceMatch = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      if (!inFence) {
+        inFence = true;
+        fenceChar = fenceMatch[1][0];
+      } else if (fenceMatch[1][0] === fenceChar) {
+        inFence = false;
+        fenceChar = "";
+      }
+      continue;
+    }
+    if (inFence) continue;
+    const amendMatch = line.match(/^(#{2,3})[ \t]+Spec Amendments[ \t]*$/i);
+    if (amendMatch) {
+      inAmendments = true;
+      amendmentLevel = amendMatch[1].length;
+      continue;
+    }
+    if (inAmendments) {
+      const nextHeading = line.match(/^(#{1,3})[ \t]+\S/);
+      if (nextHeading && nextHeading[1].length <= amendmentLevel) {
+        inAmendments = false;
+      } else {
+        continue;
+      }
+    }
+    const cells = splitMarkdownTableRow(line);
+    if (!cells || cells.length < 6) continue;
+    const rawId = unwrapMarkdownInline(cells[0]);
+    if (!/^OQ-\d+$/i.test(rawId)) continue;
+    if (PLACEHOLDER_CELL_RE.test(cells[2])) continue;
+    const status = unwrapMarkdownInline(cells[5]) || "Provisional";
+    const rawImpacted = cells[6] || "";
+    const impactedMatches = rawImpacted.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
+    const impactedTasks = [...new Set(impactedMatches.map((t) => t.toUpperCase()))];
+    const lineNumber = i + 1;
+    items.push({
+      id: rawId.toUpperCase(),
+      category: unwrapMarkdownInline(cells[1]) || "\u4E8B\u696D\u5224\u65AD",
+      fact: cells[2] || "",
+      reason: cells[3] || "",
+      question: cells[4] || "",
+      status,
+      confirmed: isOpenQuestionConfirmed(status),
+      impactedTasks,
+      sourceFile,
+      sourceLine: lineNumber,
+      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
+    });
+  }
+  return items;
+}
+function mergeOpenQuestions(...lists) {
+  const byId = /* @__PURE__ */ new Map();
+  for (const list of lists) {
+    for (const q of list || []) {
+      const existing = byId.get(q.id);
+      if (!existing) {
+        byId.set(q.id, { ...q, impactedTasks: [...q.impactedTasks] });
+      } else {
+        const confirmed = existing.confirmed && q.confirmed;
+        const impactedTasks = [.../* @__PURE__ */ new Set([...existing.impactedTasks, ...q.impactedTasks])];
+        byId.set(q.id, {
+          ...existing,
+          status: confirmed ? existing.status : existing.confirmed ? q.status : existing.status,
+          confirmed,
+          impactedTasks
+        });
+      }
+    }
+  }
+  return [...byId.values()];
+}
+function parseAlternativesRejected(designText, sourceFile = null) {
+  const normalized = normalizeNewlines(designText || "");
+  const lines = normalized.split("\n");
+  const items = [];
+  let inFence = false;
+  let fenceChar = "";
+  let inSection = false;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const fenceMatch = line.match(/^[ \t]*(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      if (!inFence) {
+        inFence = true;
+        fenceChar = fenceMatch[1][0];
+      } else if (fenceMatch[1][0] === fenceChar) {
+        inFence = false;
+        fenceChar = "";
+      }
+      continue;
+    }
+    if (inFence) continue;
+    if (/^##[ \t]+.*(?:採らなかった設計|Alternatives Rejected).*$/i.test(line)) {
+      inSection = true;
+      continue;
+    }
+    if (inSection && /^##[ \t]+\S/.test(line)) {
+      break;
+    }
+    if (!inSection) continue;
+    const cells = splitMarkdownTableRow(line);
+    if (!cells || cells.length < 3) continue;
+    const first = unwrapMarkdownInline(cells[0]);
+    if (/^(?:候補案|Option|Alternative)$/i.test(first) || SEPARATOR_CELL_RE.test(first)) continue;
+    if (PLACEHOLDER_CELL_RE.test(first) || /^（?該当なし）?$/.test(first)) continue;
+    const lineNumber = i + 1;
+    items.push({
+      option: cells[0],
+      reason: cells[1],
+      revisitWhen: cells[2],
+      sourceFile,
+      sourceLine: lineNumber,
+      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
+    });
+  }
+  return items;
+}
+function extractTaskBlockers(taskBlock) {
+  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
+  if (!blockersMatch) return [];
+  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const ids = section.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
+  return [...new Set(ids.map((id) => id.toUpperCase()))];
+}
+var BARE_BLOCKER_LINE_RE = /^T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*(?:\s*[,、]\s*T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)*$/i;
+function extractDeclaredBlockers(taskBlock) {
+  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
+  if (!blockersMatch) return [];
+  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = (nextSub ? rest.slice(0, nextSub.index) : rest).replace(/<!--[\s\S]*?-->/g, "");
+  const ids = [];
+  for (const raw of section.split("\n")) {
+    const line = raw.trim().replace(/^[-*+][ \t]+/, "").trim();
+    if (!BARE_BLOCKER_LINE_RE.test(line)) continue;
+    for (const id of line.split(/\s*[,、]\s*/)) {
+      if (/^T-(?:X+|N+)$/i.test(id)) continue;
+      ids.push(id.toUpperCase());
+    }
+  }
+  return [...new Set(ids)];
+}
+function extractScopePaths(taskBlock) {
+  const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
+  if (!scopeMatch) return [];
+  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const paths = [];
+  for (const line of section.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("-")) continue;
+    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+    const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ""));
+    for (const token of tokens) paths.push(...expandScopeToken(token));
+  }
+  return [...new Set(paths)];
+}
+var SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
+var SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~]+$/;
+function bareScopeTokens(text) {
+  const words = stripScopeNote(text).split(/\s+/).filter(Boolean).map(stripScopeNote);
+  if (words.length === 1) {
+    return SCOPE_PATH_CHARS_RE.test(words[0]) && !SCOPE_PLACEHOLDER_RE.test(words[0]) ? words : [];
+  }
+  return words.filter(
+    (w) => SCOPE_PATH_CHARS_RE.test(w) && /\.[A-Za-z0-9]+$|\/$|[*?]|\{[^{}]*,[^{}]*\}/.test(w)
+  );
+}
+function stripScopeNote(token) {
+  return String(token).replace(/\([^()]*\)|（[^（）]*）/g, " ").replace(/[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
+}
+function expandScopeToken(token) {
+  const cleaned = stripScopeNote(String(token).trim());
+  if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
+  const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
+  if (!brace) {
+    const normalized = normalizeRelPath(cleaned);
+    return normalized ? [normalized] : [];
+  }
+  const head = cleaned.slice(0, brace.index);
+  const tail = cleaned.slice(brace.index + brace[0].length);
+  return brace[1].split(",").flatMap((alt) => expandScopeToken(`${head}${alt}${tail}`));
+}
+function canonicalScopeEntry(io, entry) {
+  if (!io || typeof io.canonicalRelPath !== "function") return entry;
+  const parts = entry.split("/");
+  const firstWild = parts.findIndex((p) => /[*?]/.test(p));
+  const staticLen = firstWild === -1 ? parts.length : firstWild;
+  for (let n = staticLen; n > 0; n -= 1) {
+    const real = io.canonicalRelPath(parts.slice(0, n).join("/"));
+    if (real !== null && real !== void 0) {
+      return [real, ...parts.slice(n)].filter((p) => p !== "").join("/") || entry;
+    }
+  }
+  return entry;
+}
+function normalizeRiskTier(raw, fallback = "standard") {
+  const value = String(raw || "").trim().toLowerCase();
+  if (value === "high" || value === "critical") return "high";
+  if (value === "standard" || value === "medium") return "standard";
+  if (value === "low") return "low";
+  return fallback;
+}
+function parseTasksSummary(tasksText) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || "");
+  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}
+
+${afterAmendments}` : beforeAmendments);
+  const tasks = [];
+  const h2Re = /^##[ \t]+(.+)$/gm;
+  const headings = [...body.matchAll(h2Re)];
+  for (let i = 0; i < headings.length; i += 1) {
+    const h = headings[i];
+    const titleLine = h[1].trim();
+    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
+    if (!taskMatch) continue;
+    const start = h.index + h[0].length;
+    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
+    const block = body.slice(start, end);
+    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || "Draft";
+    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || "Planned";
+    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], "standard");
+    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+    const taskId = taskMatch[1].toUpperCase();
+    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+    const declaredBlockers = extractDeclaredBlockers(block);
+    const selfBlocked = declaredBlockers.includes(taskId);
+    tasks.push({
+      selfBlocked,
+      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
+      id: taskId,
+      title: (taskMatch[2] || "").trim(),
+      approval,
+      status,
+      risk,
+      acRefs,
+      blockers,
+      block
+    });
+  }
+  return tasks;
+}
+function detectDomains(combinedText) {
+  const text = String(combinedText || "");
+  const domains = /* @__PURE__ */ new Set();
+  if (/(?:\.sqlproj\b|\.sql\b|\b(?:PostgreSQL|MySQL|SQL Server|Azure SQL|Flyway|DACPAC|DDL|RLS)\b|\bdb\/migrations?\b|\bschema\s+migration\b)/i.test(
+    text
+  )) {
+    domains.add("SQL");
+  }
+  if (/(?:\b(?:AWS|CDK|CloudFormation|sdd-aws-cloud|CloudWatch|Lambda|DynamoDB|RDS|Aurora)\b|\bS3\s+bucket\b|\bAWS\s+IAM\b|\binfra\/aws\b)/i.test(
+    text
+  )) {
+    domains.add("AWS");
+  }
+  if (/(?:\b(?:Azure|Bicep|sdd-azure-cloud|Azure Monitor|AKS|App Service|Key Vault)\b|\bARM\s+template\b|\binfra\/azure\b)/i.test(
+    text
+  )) {
+    domains.add("Azure");
+  }
+  if (/(?:\bTerraform\b|\.tf\b)/i.test(text) && !domains.has("AWS") && !domains.has("Azure")) {
+    domains.add("Cloud");
+  }
+  if (/(?:(?:^|[\s`'"(])domain\/|\b(?:Bounded-Context|domain-contract\.json|sdd-domain|Aggregate\s+Root)\b|集約(?:の|を|境界))/i.test(
+    text
+  )) {
+    domains.add("DDD");
+  }
+  if (domains.size === 0 || /(?:\b(?:src\/|app\/|lib\/|api\/|components\/|UI|API|CLI|SDK|Node\.js|TypeScript|JavaScript|Python|Go|Rust|Java|React|Next\.js)\b|アプリ|フロントエンド|バックエンド)/i.test(
+    text
+  )) {
+    domains.add("Software");
+  }
+  return [...domains];
+}
+function scopeMatchesFile(scopeEntry, changedFile) {
+  const sp = normalizeRelPath(scopeEntry);
+  const cf = normalizeRelPath(changedFile);
+  if (!sp || !cf) return false;
+  if (/[*?]/.test(sp)) {
+    return globToRegExp(sp).test(cf);
+  }
+  return cf === sp || cf.startsWith(`${sp}/`);
+}
+function globStaticDir(glob) {
+  const parts = glob.split("/");
+  const staticParts = [];
+  for (const part of parts) {
+    if (/[*?]/.test(part)) break;
+    staticParts.push(part);
+  }
+  return staticParts.join("/");
+}
+function scopeEntriesOverlap(a, b) {
+  const na = normalizeRelPath(a);
+  const nb = normalizeRelPath(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const aWild = /[*?]/.test(na);
+  const bWild = /[*?]/.test(nb);
+  if (!aWild && !bWild) {
+    return na.startsWith(`${nb}/`) || nb.startsWith(`${na}/`);
+  }
+  if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
+    return true;
+  }
+  if (aWild && bWild) {
+    const dirA = globStaticDir(na);
+    const dirB = globStaticDir(nb);
+    if (dirA === dirB) return true;
+    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
+    if (!dirA && na.includes("**") || !dirB && nb.includes("**")) return true;
+  }
+  return false;
+}
+function isTestPath(relPath) {
+  const lower = normalizeRelPath(relPath).toLowerCase();
+  return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
+}
+var APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
+function taskApprovalBaseline(rawText, fileName) {
+  if (String(fileName || "").toLowerCase() !== "tasks.md") return null;
+  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, "Approval: <NORMALIZED>");
+  const taskApprovals = {};
+  for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
+  return { approvalContractSha256: sha256Text(contract), taskApprovals };
+}
+function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: config2 = null }) {
+  assertValidFeatureName(feature);
+  const resolvedBaselineRel = sanitizeRelPath(baselineRelPath || `specs/${feature}/.spec-baseline.json`);
+  if (!resolvedBaselineRel) {
+    throw new Error("Invalid baseline path.");
+  }
+  const rawBaseline = io.readText(resolvedBaselineRel);
+  if (rawBaseline === null) {
+    throw new Error(`Baseline file not found: ${resolvedBaselineRel}`);
+  }
+  const baseline = JSON.parse(rawBaseline);
+  if (!baseline || typeof baseline !== "object" || Array.isArray(baseline)) {
+    throw new Error(`Invalid baseline JSON structure in ${resolvedBaselineRel}`);
+  }
+  const effectiveConfig = config2 || loadGuardrailsConfigFromIo(io);
+  const featureDirRel = `specs/${feature}`;
+  const changedFiles = [];
+  const deletedFiles = [];
+  const addedFiles = [];
+  const removedIdentifiers = [];
+  const modifiedIdentifiers = [];
+  const addedIdentifiers = [];
+  const allCurrentAmendments = [];
+  const revokedApprovals = [];
+  const newlyApprovedTasks = [];
+  for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
+    const safeRel = sanitizeRelPath(rawRelPath);
+    if (!safeRel || !safeRel.startsWith(`specs/${feature}/`)) {
+      throw new Error(`Unsafe baseline file entry outside specs/${feature}/: ${rawRelPath}`);
+    }
+    const baseIds = (baseInfo && typeof baseInfo === "object" ? baseInfo.identifiers : null) || {};
+    const rawText = io.readText(safeRel);
+    if (rawText === null) {
+      deletedFiles.push(safeRel);
+      for (const [id, info] of Object.entries(baseIds)) {
+        removedIdentifiers.push({ id, file: safeRel, before: info?.line || "" });
+      }
+      continue;
+    }
+    const fileName = baseInfo && baseInfo.fileName || path2.posix.basename(safeRel);
+    const approvalView = typeof baseInfo?.approvalContractSha256 === "string" ? taskApprovalBaseline(rawText, fileName) : null;
+    if (approvalView) {
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+        changedFiles.push(safeRel);
+      }
+      for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
+        if (!(id in approvalView.taskApprovals)) continue;
+        const now = approvalView.taskApprovals[id];
+        if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
+        else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
+      }
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
+      changedFiles.push(safeRel);
+    }
+    const curIds = extractSpecIdentifiers(rawText);
+    for (const [id, baseIdInfo] of Object.entries(baseIds)) {
+      const cur = curIds[id];
+      if (!cur) {
+        removedIdentifiers.push({ id, file: safeRel, before: baseIdInfo?.line || "" });
+      } else if (cur.hash !== baseIdInfo?.hash) {
+        modifiedIdentifiers.push({ id, file: safeRel, before: baseIdInfo?.line || "", after: cur.line });
+      }
+    }
+    for (const [id, cur] of Object.entries(curIds)) {
+      if (!baseIds[id]) {
+        addedIdentifiers.push({ id, file: safeRel, after: cur.line });
+      }
+    }
+    for (const entry of extractAmendmentEntries(rawText)) {
+      allCurrentAmendments.push({ file: safeRel, text: entry });
+    }
+  }
+  for (const entry of io.listDir(featureDirRel)) {
+    if (!entry.isFile || entry.name.startsWith(".")) continue;
+    const relFile = `${featureDirRel}/${entry.name}`;
+    const matched = matchProtectedSpecRelPath(relFile, effectiveConfig);
+    if (!matched || baseline.files && baseline.files[matched.relPath]) continue;
+    const rawText = io.readText(matched.relPath);
+    if (rawText === null) continue;
+    addedFiles.push(matched.relPath);
+    for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
+      addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
+    }
+    for (const item of extractAmendmentEntries(rawText)) {
+      allCurrentAmendments.push({ file: matched.relPath, text: item });
+    }
+  }
+  const hasDrift = changedFiles.length > 0 || deletedFiles.length > 0 || addedFiles.length > 0 || removedIdentifiers.length > 0 || modifiedIdentifiers.length > 0 || revokedApprovals.length > 0;
+  const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
+  const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
+  let status = "CLEAN";
+  if (hasDrift) {
+    status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
+  }
+  const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
+  const seenPerFile = /* @__PURE__ */ new Map();
+  const newAmendments = allCurrentAmendments.filter((a) => {
+    const index = seenPerFile.get(a.file) || 0;
+    seenPerFile.set(a.file, index + 1);
+    const recorded = baseline.files && baseline.files[a.file];
+    return index >= Number(recorded && recorded.amendmentCount || 0);
+  });
+  const changedIdsWithoutAmendment = changedIds.filter((id) => {
+    const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, "\\-")}([^0-9]|$)`, "i");
+    return !newAmendments.some((a) => re.test(a.text));
+  });
+  return {
+    schema: "sdd-spec-drift/v1",
+    feature,
+    status,
+    baselineRecordedAt: baseline.recordedAt || null,
+    baselineGitHead: baseline.gitHead || null,
+    changedFiles,
+    deletedFiles,
+    addedFiles,
+    removedIdentifiers,
+    modifiedIdentifiers,
+    addedIdentifiers,
+    amendments: allCurrentAmendments,
+    baselineAmendmentCount,
+    changedIdsWithoutAmendment,
+    revokedApprovals,
+    newlyApprovedTasks
+  };
+}
+function computeExecutionPlan(tasks) {
+  const byId = new Map(tasks.map((t) => [t.id, t]));
+  const remaining = new Set(tasks.map((t) => t.id));
+  const completed = /* @__PURE__ */ new Set();
+  const batches = [];
+  const scopeConflicts = [];
+  const ancestorsOf = /* @__PURE__ */ new Map();
+  function getAncestors(taskId) {
+    if (ancestorsOf.has(taskId)) return ancestorsOf.get(taskId);
+    const visited = /* @__PURE__ */ new Set();
+    const stack = [...byId.get(taskId)?.blockers || []];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (!cur || visited.has(cur) || cur === taskId) continue;
+      visited.add(cur);
+      const node2 = byId.get(cur);
+      if (node2) {
+        for (const dep of node2.blockers || []) {
+          if (!visited.has(dep)) stack.push(dep);
+        }
+      }
+    }
+    ancestorsOf.set(taskId, visited);
+    return visited;
+  }
+  for (let i = 0; i < tasks.length; i += 1) {
+    for (let j = i + 1; j < tasks.length; j += 1) {
+      const a = tasks[i];
+      const b = tasks[j];
+      const aBlocksB = getAncestors(b.id).has(a.id);
+      const bBlocksA = getAncestors(a.id).has(b.id);
+      if (aBlocksB || bBlocksA) continue;
+      const overlaps = [];
+      for (const sa of a.planScopes || a.scopePaths || []) {
+        for (const sb of b.planScopes || b.scopePaths || []) {
+          if (scopeEntriesOverlap(sa, sb)) {
+            overlaps.push(`${sa} <-> ${sb}`);
+          }
+        }
+      }
+      if (overlaps.length > 0) {
+        scopeConflicts.push({ tasks: [a.id, b.id], overlaps: [...new Set(overlaps)] });
+      }
+    }
+  }
+  const unknownBlockers = [];
+  for (const t of tasks) {
+    for (const b of t.declaredBlockers || []) {
+      if (!byId.has(b)) unknownBlockers.push({ task: t.id, blocker: b });
+    }
+  }
+  const invalid = /* @__PURE__ */ new Set([...unknownBlockers.map((u) => u.task), ...tasks.filter((t) => t.selfBlocked).map((t) => t.id)]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const t of tasks) {
+      if (!invalid.has(t.id) && (t.blockers || []).some((b) => invalid.has(b))) {
+        invalid.add(t.id);
+        grew = true;
+      }
+    }
+  }
+  for (const id of invalid) remaining.delete(id);
+  let guard = 0;
+  while (remaining.size > 0 && guard < tasks.length + 2) {
+    guard += 1;
+    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
+    if (ready.length === 0) {
+      break;
+    }
+    const wave = [];
+    const waveScopes = [];
+    for (const candidate of ready) {
+      const candScopes = candidate.planScopes || candidate.scopePaths || [];
+      if (candScopes.length === 0) {
+        if (wave.length > 0) continue;
+        wave.push(candidate.id);
+        break;
+      }
+      const conflicts = waveScopes.some(
+        (existing) => candScopes.some((cs) => scopeEntriesOverlap(existing, cs))
+      );
+      if (!conflicts) {
+        wave.push(candidate.id);
+        waveScopes.push(...candScopes);
+      }
+    }
+    if (wave.length === 0) {
+      wave.push(ready[0].id);
+    }
+    batches.push(wave);
+    for (const id of wave) {
+      remaining.delete(id);
+      completed.add(id);
+    }
+  }
+  const onCycle = /* @__PURE__ */ new Set();
+  for (const t of tasks) {
+    const seen = /* @__PURE__ */ new Set();
+    const stack = [...(t.blockers || []).filter((b) => byId.has(b))];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (cur === t.id) {
+        onCycle.add(t.id);
+        break;
+      }
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      for (const b of byId.get(cur)?.blockers || []) if (byId.has(b)) stack.push(b);
+    }
+  }
+  const cyclicTasks = [.../* @__PURE__ */ new Set([...remaining, ...tasks.map((t) => t.id).filter((id) => onCycle.has(id))])];
+  const invalidBlockerTasks = [...new Set(tasks.filter((t) => invalid.has(t.id)).map((t) => t.id))];
+  return { batches, scopeConflicts, cyclicTasks, unknownBlockers, invalidBlockerTasks };
+}
+function analyzeTraceabilityCore(io, { feature, changedIds = [], changedFiles = [], checkCodeAndTests = true }) {
+  assertValidFeatureName(feature);
+  const reqRel = `specs/${feature}/requirements.md`;
+  const tasksRel = `specs/${feature}/tasks.md`;
+  const reqRaw = io.readText(reqRel);
+  const tasksRaw = io.readText(tasksRel);
+  if (reqRaw === null || tasksRaw === null) {
+    throw new Error(`Missing requirements.md or tasks.md under specs/${feature}`);
+  }
+  const reqText = normalizeNewlines(reqRaw);
+  const tasksText = normalizeNewlines(tasksRaw);
+  const idMap = extractSpecIdentifiers(reqText);
+  const reqIds = Object.keys(idMap).filter((id) => id.startsWith("REQ-")).sort();
+  const acIds = Object.keys(idMap).filter((id) => id.startsWith("AC-")).sort();
+  const reqSet = new Set(reqIds);
+  const acSet = new Set(acIds);
+  const acToReqs = {};
+  const reqToAcs = Object.fromEntries(reqIds.map((r) => [r, []]));
+  const unlinkedAcs = [];
+  const brokenReqRefs = [];
+  for (const ac of acIds) {
+    const line = idMap[ac]?.line || "";
+    const linkedReqs = [...new Set((line.match(/\bREQ-\d+\b/gi) || []).map((r) => r.toUpperCase()))];
+    acToReqs[ac] = linkedReqs;
+    if (linkedReqs.length === 0) {
+      unlinkedAcs.push(ac);
+    }
+    for (const r of linkedReqs) {
+      if (reqSet.has(r)) {
+        reqToAcs[r].push(ac);
+      } else {
+        brokenReqRefs.push({ ac, missingReq: r });
+      }
+    }
+  }
+  const rawTasks = parseTasksSummary(tasksText);
+  const acToTasks = Object.fromEntries(acIds.map((a) => [a, []]));
+  const brokenAcRefs = [];
+  const tasks = rawTasks.map((t) => {
+    const scopePaths = extractScopePaths(t.block);
+    const domains = detectDomains(`${t.title}
+${t.block}`);
+    for (const ac of t.acRefs) {
+      if (acSet.has(ac)) {
+        acToTasks[ac].push(t.id);
+      } else {
+        brokenAcRefs.push({ task: t.id, missingAc: ac });
+      }
+    }
+    const codePaths = [];
+    const testPaths = [];
+    const missingScopePaths = [];
+    if (checkCodeAndTests) {
+      for (const sp of scopePaths) {
+        if (/[*?]/.test(sp)) {
+          if (isTestPath(sp)) testPaths.push(sp);
+          else codePaths.push(sp);
+          continue;
+        }
+        const safe = sanitizeRelPath(sp);
+        const exists = safe ? io.exists(safe) : false;
+        if (isTestPath(sp)) testPaths.push(sp);
+        else codePaths.push(sp);
+        if (!exists && (t.status === "Implementation Complete" || t.status === "Done")) {
+          missingScopePaths.push(sp);
+        }
+      }
+    }
+    return {
+      id: t.id,
+      title: t.title,
+      risk: t.risk,
+      approval: t.approval,
+      status: t.status,
+      acRefs: t.acRefs,
+      blockers: t.blockers,
+      selfBlocked: Boolean(t.selfBlocked),
+      declaredBlockers: t.declaredBlockers || [],
+      scopePaths,
+      planScopes: [...new Set(scopePaths.map((sp) => canonicalScopeEntry(io, sp)))],
+      domains,
+      codePaths,
+      testPaths,
+      missingScopePaths
+    };
+  });
+  const orphanReqs = reqIds.filter((r) => reqToAcs[r].length === 0);
+  const unassignedAcs = acIds.filter((a) => acToTasks[a].length === 0);
+  const dependentsByBlocker = /* @__PURE__ */ new Map();
+  for (const t of tasks) {
+    for (const blocker of t.blockers) {
+      if (!dependentsByBlocker.has(blocker)) dependentsByBlocker.set(blocker, []);
+      dependentsByBlocker.get(blocker).push(t.id);
+    }
+  }
+  const normalizedChangedIds = new Set(changedIds.map((id) => String(id).trim().toUpperCase()).filter(Boolean));
+  const normalizedChangedFiles = changedFiles.map((f) => normalizeRelPath(f)).filter(Boolean);
+  for (const id of [...normalizedChangedIds]) {
+    if (id.startsWith("REQ-") && reqToAcs[id]) {
+      for (const ac of reqToAcs[id]) normalizedChangedIds.add(ac);
+    }
+  }
+  const directImpacted = /* @__PURE__ */ new Set();
+  for (const t of tasks) {
+    if (normalizedChangedIds.has(t.id)) {
+      directImpacted.add(t.id);
+    }
+    if (t.acRefs.some((ac) => normalizedChangedIds.has(ac))) {
+      directImpacted.add(t.id);
+    }
+    if (normalizedChangedFiles.length > 0 && t.scopePaths.some((sp) => normalizedChangedFiles.some((cf) => scopeMatchesFile(sp, cf)))) {
+      directImpacted.add(t.id);
+    }
+  }
+  const impactedSet = new Set(directImpacted);
+  const transitiveImpacted = /* @__PURE__ */ new Set();
+  const queue = [...directImpacted];
+  while (queue.length > 0) {
+    const current = queue.shift();
+    for (const dep of dependentsByBlocker.get(current) || []) {
+      if (!impactedSet.has(dep)) {
+        impactedSet.add(dep);
+        transitiveImpacted.add(dep);
+        queue.push(dep);
+      }
+    }
+  }
+  const taskOrder = tasks.map((t) => t.id);
+  const impactedTasks = taskOrder.filter((id) => impactedSet.has(id));
+  const reusableTasks = taskOrder.filter((id) => !impactedSet.has(id));
+  const executionPlan = computeExecutionPlan(tasks);
+  const acCodeTestCoverage = acIds.map((ac) => {
+    const linked = tasks.filter((t) => t.acRefs.includes(ac));
+    const code = [...new Set(linked.flatMap((t) => t.codePaths))];
+    const tests = [...new Set(linked.flatMap((t) => t.testPaths))];
+    return {
+      ac,
+      tasks: linked.map((t) => t.id),
+      hasCodeScope: code.length > 0,
+      hasTestScope: tests.length > 0,
+      codePaths: code,
+      testPaths: tests
+    };
+  });
+  const complete = reqIds.length > 0 && acIds.length > 0 && orphanReqs.length === 0 && unassignedAcs.length === 0 && unlinkedAcs.length === 0 && brokenReqRefs.length === 0 && brokenAcRefs.length === 0;
+  return {
+    schema: "sdd-traceability/v1",
+    feature,
+    complete,
+    requirements: reqIds.map((r) => ({ id: r, acs: reqToAcs[r] })),
+    acceptanceCriteria: acIds.map((a) => ({ id: a, reqs: acToReqs[a], tasks: acToTasks[a] })),
+    tasks,
+    gaps: {
+      orphanReqs,
+      unassignedAcs,
+      unlinkedAcs,
+      brokenReqRefs,
+      brokenAcRefs
+    },
+    impact: {
+      changedIds: [...normalizedChangedIds],
+      changedFiles: normalizedChangedFiles,
+      directImpactedTasks: taskOrder.filter((id) => directImpacted.has(id)),
+      transitiveImpactedTasks: taskOrder.filter((id) => transitiveImpacted.has(id)),
+      impactedTasks,
+      reusableTasks
+    },
+    executionPlan,
+    acCodeTestCoverage
+  };
+}
+function loadProductReviewPerspectives(io) {
+  const jsonRaw = io.readText("sdd/knowledge/review-perspectives.json");
+  if (jsonRaw !== null) {
+    try {
+      const parsed = JSON.parse(jsonRaw);
+      if (Array.isArray(parsed?.perspectives)) {
+        return parsed.perspectives.filter((p) => p && typeof p.id === "string" && typeof p.perspective === "string").map((p) => ({
+          id: String(p.id),
+          area: String(p.area || "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709"),
+          perspective: String(p.perspective),
+          humanQuestion: String(p.humanQuestion || p.question || ""),
+          defaultDisposition: String(p.disposition || p.defaultDisposition || "\u63A1\u7528"),
+          reason: typeof p.reason === "string" ? p.reason : "",
+          domains: Array.isArray(p.domains) ? p.domains.map(String) : []
+        }));
+      }
+    } catch {
+    }
+  }
+  const yamlRaw = io.readText("sdd/knowledge/review-perspectives.yaml");
+  if (yamlRaw !== null) {
+    const lines = normalizeNewlines(yamlRaw).split("\n");
+    const items = [];
+    let current = null;
+    for (const rawLine of lines) {
+      const line = stripYamlComment(rawLine);
+      if (!line.trim()) continue;
+      const itemStart = line.match(/^[ \t]*-[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
+      if (itemStart) {
+        if (current && current.id && current.perspective) items.push(current);
+        current = {
+          id: "",
+          area: "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709",
+          perspective: "",
+          humanQuestion: "",
+          defaultDisposition: "\u63A1\u7528",
+          reason: "",
+          domains: []
+        };
+        const k = itemStart[1];
+        const v = itemStart[2].trim().replace(/^["']|["']$/g, "");
+        current[k === "question" ? "humanQuestion" : k === "disposition" ? "defaultDisposition" : k] = v;
+        continue;
+      }
+      const propMatch = line.match(/^[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
+      if (propMatch && current) {
+        const k = propMatch[1];
+        const v = propMatch[2].trim().replace(/^["']|["']$/g, "");
+        if (k === "domains") {
+          current.domains = v.replace(/^\[|\]$/g, "").split(",").map((s) => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+        } else {
+          current[k === "question" ? "humanQuestion" : k === "disposition" ? "defaultDisposition" : k] = v;
+        }
+      }
+    }
+    if (current && current.id && current.perspective) items.push(current);
+    return items;
+  }
+  return [];
+}
+function buildReviewPerspectiveMatrix({
+  domains,
+  highestRisk,
+  specCheckVerdict,
+  openQuestions,
+  alternativesRejected,
+  productPerspectives = []
+}) {
+  const hasSql = domains.includes("SQL");
+  const hasCloud = domains.includes("AWS") || domains.includes("Azure") || domains.includes("Cloud");
+  const hasDdd = domains.includes("DDD");
+  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
+  const matrix = COMMON_REVIEW_PERSPECTIVES.map((p) => {
+    let disposition = p.defaultDisposition;
+    let reason = "";
+    if (p.id === "C01") {
+      disposition = alternativesRejected.length > 0 ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = alternativesRejected.length > 0 ? `\u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\u304C ${alternativesRejected.length} \u4EF6\u8A18\u9332\u3055\u308C\u3066\u304A\u308A\u5224\u65AD\u6839\u62E0\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u6A19\u6E96\u69CB\u6210\u3002spec-check \u3067\u65E2\u5B58\u8A2D\u8A08\u3068\u306E\u6574\u5408\u3092\u78BA\u8A8D\u6E08\u307F\u3002";
+    } else if (p.id === "C02") {
+      disposition = hasSql || hasDdd || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = hasSql || hasDdd ? `${domains.join("/")} \u9818\u57DF\u3092\u542B\u307F\u30C7\u30FC\u30BF\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u306E\u5F71\u97FF\u304C\u5927\u304D\u3044\u3002` : "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB\u5909\u66F4\u306E\u5F71\u97FF\u304C\u9650\u5B9A\u7684\u3002";
+    } else if (p.id === "C03") {
+      disposition = highestRisk === "high" ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = highestRisk === "high" ? "Risk: high \u306E\u305F\u3081\u7834\u58CA\u7684\u5951\u7D04\u5909\u66F4\u30FB\u8A8D\u53EF\u6761\u4EF6\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002" : "\u65E2\u5B58\u30EB\u30FC\u30EB\u901A\u308A\u306E\u30A4\u30F3\u30BF\u30FC\u30D5\u30A7\u30FC\u30B9\u8A2D\u8A08\u3002";
+    } else if (p.id === "C04") {
+      disposition = highestRisk === "high" ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
+      reason = highestRisk === "high" ? "\u7570\u5E38\u30EB\u30FC\u30C8\u30FB\u4E26\u5217\u7AF6\u5408\u306E\u59A5\u5F53\u6027\u78BA\u8A8D\u3092\u63A8\u5968\u3002" : "\u72B6\u614B\u9077\u79FB\u304C\u5358\u7D14\u3067\u5358\u4F53\u30C6\u30B9\u30C8\u3067\u691C\u8A3C\u53EF\u80FD\u3002";
+    } else if (p.id === "C05") {
+      disposition = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u6700\u91CD\u8981" : "\u4F4E\u512A\u5148";
+      reason = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u30AF\u30E9\u30A6\u30C9\u5916\u90E8\u9023\u643A\u307E\u305F\u306F\u4ED6\u30C1\u30FC\u30E0\u5951\u7D04\u306E\u672A\u78BA\u5B9A\u8AD6\u70B9\u3092\u542B\u3080\u3002" : "\u5358\u4E00\u30B5\u30FC\u30D3\u30B9\u5185\u3067\u5B8C\u7D50\u3057\u4E0D\u53EF\u9006\u306A\u5916\u90E8\u9023\u643A\u306A\u3057\u3002";
+    } else if (p.id === "C06") {
+      disposition = provisionalCount > 0 ? "\u6700\u91CD\u8981" : "\u63A1\u7528";
+      reason = provisionalCount > 0 ? `\u672A\u78BA\u5B9A\u4E8B\u9805\uFF08OQ-NNN\uFF09\u304C ${provisionalCount} \u4EF6\u3042\u308A\u3001\u4E8B\u696D\u5224\u65AD\u30FB\u696D\u52D9\u4F8B\u5916\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u5883\u754C\u5024\u306F AC \u3068\u30C6\u30B9\u30C8\u65B9\u91DD\u306B\u843D\u3068\u3057\u8FBC\u307F\u6E08\u307F\u3002";
+    } else if (p.id === "C07") {
+      disposition = "\u6A5F\u68B0\u691C\u8A3C";
+      reason = `check-traceability.mjs / check-spec-drift.mjs / spec-check (${specCheckVerdict}) \u3067\u81EA\u52D5\u7167\u5408\u6E08\u307F\u3002\u4EBA\u306F\u9038\u8131\u6642\u306E\u307F\u78BA\u8A8D\u3002`;
+    } else if (p.id === "C08") {
+      disposition = hasSql || hasCloud || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u6A5F\u68B0\u691C\u8A3C";
+      reason = hasSql || hasCloud || highestRisk === "high" ? "SQL/Cloud/\u9AD8\u30EA\u30B9\u30AF\u9818\u57DF\u3092\u542B\u3080\u305F\u3081\u3001\u6A5F\u68B0\u30BB\u30F3\u30B5\u30FC\uFF0B\u4EBA\u9593\u306E\u5207\u623B\u3057\u78BA\u8A8D\u3092\u4F75\u7528\u3002" : "run-sdd-gate.mjs \u306E\u6C7A\u5B9A\u8AD6\u30BB\u30F3\u30B5\u30FC\uFF08Secret/Placeholder/lint/test\uFF09\u3067\u81EA\u52D5\u691C\u8A3C\u3002";
+    }
+    return {
+      id: p.id,
+      area: p.area,
+      perspective: p.perspective,
+      humanQuestion: p.humanQuestion,
+      disposition,
+      reason,
+      source: "common"
+    };
+  });
+  for (const pp of productPerspectives) {
+    const domainMatch = !pp.domains || pp.domains.length === 0 || pp.domains.some((d) => domains.includes(d));
+    matrix.push({
+      id: pp.id,
+      area: pp.area || "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709",
+      perspective: pp.perspective,
+      humanQuestion: pp.humanQuestion,
+      disposition: domainMatch ? pp.defaultDisposition || "\u63A1\u7528" : "\u4F4E\u512A\u5148",
+      reason: pp.reason || (domainMatch ? "sdd/knowledge/review-perspectives \u306B\u767B\u9332\u3055\u308C\u305F\u30D7\u30ED\u30C0\u30AF\u30C8\u56FA\u6709\u89B3\u70B9\u3002" : `\u5BFE\u8C61\u9818\u57DF\uFF08${pp.domains.join("/")}\uFF09\u5916\u306E\u305F\u3081\u4ECA\u56DE\u306F\u4F4E\u512A\u5148\u3002`),
+      source: "product"
+    });
+  }
+  return matrix;
+}
+function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
+  assertValidFeatureName(feature);
+  const featureDirRel = `specs/${feature}`;
+  const reqRel = `${featureDirRel}/requirements.md`;
+  const designRel = `${featureDirRel}/design.md`;
+  const tasksRel = `${featureDirRel}/tasks.md`;
+  const reqRaw = io.readText(reqRel);
+  const designRaw = io.readText(designRel);
+  const tasksRaw = io.readText(tasksRel);
+  const dirEntries = io.listDir(featureDirRel);
+  const featureDirExists = typeof io.existsDir === "function" ? io.existsDir(featureDirRel) : dirEntries.length > 0;
+  if (reqRaw === null && designRaw === null && tasksRaw === null && !featureDirExists) {
+    throw new Error(`Feature directory not found: specs/${feature}`);
+  }
+  const reqText = reqRaw || "";
+  const designText = designRaw || "";
+  const tasksText = tasksRaw || "";
+  const openQuestions = mergeOpenQuestions(
+    parseOpenQuestions(reqText, reqRel),
+    parseOpenQuestions(designText, designRel)
+  );
+  const alternativesRejected = parseAlternativesRejected(designText, designRel);
+  const tasks = parseTasksSummary(tasksText);
+  const identifiers = extractSpecIdentifiers(reqText);
+  const reqIds = Object.keys(identifiers).filter((id) => id.startsWith("REQ-"));
+  const acIds = Object.keys(identifiers).filter((id) => id.startsWith("AC-"));
+  const domains = detectDomains(`${reqText}
+${designText}
+${tasksText}`);
+  const specCheckRel = `reports/spec-check/${feature}.md`;
+  let specCheckVerdict = "Not Run";
+  const specCheckRaw = io.readText(specCheckRel);
+  if (specCheckRaw !== null) {
+    specCheckVerdict = (specCheckRaw.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || "Recorded";
+  }
+  const gateResults = [];
+  for (const entry of io.listDir("reports/quality-gate")) {
+    if (!entry.isFile || !entry.name.startsWith(`${feature}-`) || !entry.name.endsWith(".execution.json")) {
+      continue;
+    }
+    const raw = io.readText(`reports/quality-gate/${entry.name}`);
+    if (raw === null) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.feature !== feature) continue;
+      gateResults.push({
+        taskId: parsed.taskId,
+        verdict: parsed.verdict,
+        specDrift: parsed.checks?.specDrift?.status || "UNKNOWN",
+        sensorsPassed: parsed.checks?.nonFunctionalSensors?.passed ?? true
+      });
+    } catch {
+    }
+  }
+  gateResults.sort((a, b) => String(a.taskId).localeCompare(String(b.taskId)));
+  const effectiveConfig = config2 || loadGuardrailsConfigFromIo(io);
+  const defaultRisk = effectiveConfig?.risk_defaults?.default_tier || "standard";
+  const highestRisk = tasks.length === 0 ? defaultRisk : tasks.some((t) => t.risk === "high") ? "high" : tasks.some((t) => t.risk === "standard") ? "standard" : "low";
+  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
+  const productPerspectives = loadProductReviewPerspectives(io);
+  const reviewPerspectives = buildReviewPerspectiveMatrix({
+    domains,
+    highestRisk,
+    specCheckVerdict,
+    openQuestions,
+    alternativesRejected,
+    productPerspectives
+  });
+  let traceabilityLinks = [];
+  if (reqRaw !== null && tasksRaw !== null) {
+    try {
+      const trace = analyzeTraceabilityCore(io, { feature, checkCodeAndTests: false });
+      traceabilityLinks = trace.acceptanceCriteria.map((ac) => ({
+        ac: ac.id,
+        reqs: ac.reqs,
+        tasks: ac.tasks
+      }));
+    } catch {
+      traceabilityLinks = [];
+    }
+  }
+  return {
+    schema: "sdd-decision-view/v1",
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    feature,
+    domains,
+    highestRisk,
+    specCheckVerdict,
+    counts: {
+      requirements: reqIds.length,
+      acceptanceCriteria: acIds.length,
+      tasksTotal: tasks.length,
+      tasksApproved: tasks.filter((t) => isApprovedValue(t.approval)).length,
+      tasksDone: tasks.filter((t) => t.status === "Done").length,
+      openQuestionsTotal: openQuestions.length,
+      openQuestionsProvisional: provisionalCount,
+      alternativesRejected: alternativesRejected.length
+    },
+    tasks: tasks.map(({ block, ...rest }) => rest),
+    openQuestions,
+    alternativesRejected,
+    reviewPerspectives,
+    traceabilityLinks,
+    gateResults,
+    sourcePaths: {
+      requirements: reqRel,
+      design: designRel,
+      tasks: tasksRel
+    }
+  };
+}
+function escapeMdCell(text) {
+  return String(text || "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+}
+function renderDecisionViewMarkdown(data) {
+  const lines = [];
+  lines.push(`# Decision View: ${data.feature}`);
+  lines.push("");
+  lines.push("> \u5168\u6587\u3092\u8AAD\u307F\u89E3\u304F\u4EE3\u308F\u308A\u306B\u3001**\u4EBA\u304C\u5224\u65AD\u3059\u3079\u304D\u8981\u70B9\uFF08\u4E8B\u5B9F\u30FB\u7406\u7531\u30FB\u554F\u3044\uFF09** \u3068 **\u6A5F\u68B0\u691C\u8A3C\u6E08\u307F\u306E\u9818\u57DF** \u3092\u5206\u96E2\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u30D3\u30E5\u30FC\u3067\u3059\u3002");
+  lines.push("");
+  lines.push("## 1. \u5168\u4F53\u50CF\uFF08Overview\uFF09");
+  lines.push("");
+  lines.push("| \u9805\u76EE | \u5024 |");
+  lines.push("|---|---|");
+  lines.push(`| Feature | \`${escapeMdCell(data.feature)}\` |`);
+  lines.push(`| \u5BFE\u8C61\u9818\u57DF (Domains) | ${escapeMdCell(data.domains.join(" / "))} |`);
+  lines.push(`| \u6700\u9AD8\u30EA\u30B9\u30AF\u968E\u5C64 | \`${escapeMdCell(data.highestRisk)}\` |`);
+  lines.push(`| \u8981\u4EF6 / \u53D7\u5165\u6761\u4EF6 | REQ: ${data.counts.requirements} \u4EF6 / AC: ${data.counts.acceptanceCriteria} \u4EF6 |`);
+  lines.push(`| \u30BF\u30B9\u30AF\u9032\u6357 | \u5408\u8A08 ${data.counts.tasksTotal}\uFF08Approved: ${data.counts.tasksApproved}, Done: ${data.counts.tasksDone}\uFF09 |`);
+  lines.push(`| \u7740\u5DE5\u524D spec-check | \`${escapeMdCell(data.specCheckVerdict)}\` |`);
+  lines.push(`| \u672A\u78BA\u5B9A\u4E8B\u9805 (Provisional OQ) | **${data.counts.openQuestionsProvisional} \u4EF6** / \u5168 ${data.counts.openQuestionsTotal} \u4EF6 |`);
+  lines.push(`| \u5143\u306E\u4ED5\u69D8 (SSoT) | \`${escapeMdCell(data.sourcePaths?.requirements || "")}\` / \`${escapeMdCell(data.sourcePaths?.design || "")}\` / \`${escapeMdCell(data.sourcePaths?.tasks || "")}\` |`);
+  lines.push("");
+  if (Array.isArray(data.traceabilityLinks) && data.traceabilityLinks.length > 0) {
+    lines.push("### \u8981\u4EF6 \u21D4 AC \u21D4 \u30BF\u30B9\u30AF\u306E\u3064\u306A\u304C\u308A\uFF08ID \u30C8\u30EC\u30FC\u30B9\uFF09");
+    lines.push("");
+    lines.push("| AC | REQ | Tasks |");
+    lines.push("|---|---|---|");
+    for (const link of data.traceabilityLinks) {
+      lines.push(
+        `| ${escapeMdCell(link.ac)} | ${escapeMdCell(link.reqs.join(", ") || "\u2014")} | ${escapeMdCell(link.tasks.join(", ") || "\u26A0\uFE0F UNASSIGNED")} |`
+      );
+    }
+    lines.push("");
+  }
+  lines.push("## 2. \u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044\uFF08Open Questions / AI \u4EEE\u6C7A\u5B9A\uFF09");
+  lines.push("");
+  if (data.openQuestions.length === 0) {
+    lines.push("- \u672A\u78BA\u5B9A\u306E\u4EEE\u6C7A\u5B9A\uFF08`OQ-NNN`\uFF09\u306F\u3042\u308A\u307E\u305B\u3093\u3002");
+  } else {
+    for (const q of data.openQuestions) {
+      const badge = q.confirmed ? "\u2705 Confirmed" : `\u{1F7E0} ${q.status}\uFF08\u8981\u5224\u65AD\uFF09`;
+      const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(", ") : "\u5168\u4F53";
+      const ref = q.sourceRef ? ` / \u51FA\u5178: \`${q.sourceRef}\`` : "";
+      lines.push(`### ${q.id} [${q.category}] \u2014 ${badge}\uFF08\u5F71\u97FF: ${impacted}${ref}\uFF09`);
+      lines.push(`- **\u8A2D\u8A08\u3057\u305F\u4E8B\u5B9F\uFF08\u4EEE\u6C7A\u5B9A\uFF09**: ${q.fact}`);
+      lines.push(`- **\u306A\u305C\u305D\u3046\u3057\u305F\u304B**: ${q.reason}`);
+      lines.push(`- **\u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044**: ${q.question}`);
+      lines.push("");
+    }
+  }
+  lines.push("");
+  lines.push("## 3. \u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\uFF08Alternatives Rejected\uFF09");
+  lines.push("");
+  if (data.alternativesRejected.length === 0) {
+    lines.push("- \u8A18\u8F09\u306A\u3057\uFF08\u6A19\u6E96\u69CB\u6210\u307E\u305F\u306F\u5358\u4E00\u6848\uFF09\u3002");
+  } else {
+    lines.push("| \u5019\u88DC\u6848 | \u4E0D\u63A1\u7528\u7406\u7531 | \u518D\u691C\u8A0E\u6761\u4EF6 | \u5143\u306E\u7B87\u6240 |");
+    lines.push("|---|---|---|---|");
+    for (const alt of data.alternativesRejected) {
+      lines.push(
+        `| ${escapeMdCell(alt.option)} | ${escapeMdCell(alt.reason)} | ${escapeMdCell(alt.revisitWhen)} | ${escapeMdCell(alt.sourceRef || "\u2014")} |`
+      );
+    }
+  }
+  lines.push("");
+  lines.push("## 4. \u30EC\u30D3\u30E5\u30FC\u89B3\u70B9\u3068\u4ECA\u56DE\u306E\u63A1\u5426\u30FB\u7406\u7531\uFF08\u5171\u901A 8 \u89B3\u70B9 \xD7 \u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709\u89B3\u70B9\uFF09");
+  lines.push("");
+  lines.push("| ID | \u9818\u57DF | \u30EC\u30D3\u30E5\u30FC\u89B3\u70B9 | \u4ECA\u56DE | \u4ECA\u56DE\u306E\u7406\u7531 |");
+  lines.push("|---|---|---|---|---|");
+  for (const p of data.reviewPerspectives || []) {
+    lines.push(
+      `| ${escapeMdCell(p.id)} | ${escapeMdCell(p.area)} | ${escapeMdCell(p.perspective)} | **${escapeMdCell(p.disposition)}** | ${escapeMdCell(p.reason)} |`
+    );
+  }
+  lines.push("");
+  if (data.gateResults.length > 0) {
+    lines.push("## 5. sdd-gate \u5B9F\u884C\u72B6\u6CC1");
+    lines.push("");
+    lines.push("| Task | Verdict | Spec Drift | Sensors |");
+    lines.push("|---|---|---|---|");
+    for (const g of data.gateResults) {
+      lines.push(`| ${escapeMdCell(g.taskId)} | ${escapeMdCell(g.verdict)} | ${escapeMdCell(g.specDrift)} | ${g.sensorsPassed ? "PASS" : "FAIL"} |`);
+    }
+    lines.push("");
+  }
+  return `${lines.join("\n")}
+`;
+}
+function walkIoFiles(io, relDir, predicate, out = [], depth = 0, state = { count: 0, maxEntries: 5e3 }) {
+  if (depth > 12 || state.count >= state.maxEntries) return out;
+  const entries = io.listDir(relDir);
+  for (const entry of entries) {
+    if (state.count >= state.maxEntries) break;
+    if (IGNORED_DIRS.has(entry.name)) continue;
+    state.count += 1;
+    const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
+    if (entry.isDirectory) {
+      const segments = childRel.split("/");
+      const repeated = segments.filter((s) => s === entry.name).length;
+      if (repeated > 2) continue;
+      walkIoFiles(io, childRel, predicate, out, depth + 1, state);
+    } else if (entry.isFile && predicate(childRel, entry.name)) {
+      out.push(childRel);
+    }
+  }
+  return out;
+}
+function parseFrontmatter(content) {
+  const normalized = normalizeNewlines(content);
+  if (!normalized.startsWith("---\n")) return null;
+  const endIdx = normalized.indexOf("\n---", 4);
+  if (endIdx === -1) return null;
+  const raw = normalized.slice(4, endIdx);
+  const fields = {};
+  const lines = raw.split("\n");
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const m = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (!m) continue;
+    const key = m[1];
+    let val = m[2].trim();
+    if (val === "|" || val === ">") {
+      const block = [];
+      while (i + 1 < lines.length && /^[ \t]+/.test(lines[i + 1])) {
+        i += 1;
+        block.push(lines[i].trim());
+      }
+      val = block.join(val === ">" ? " " : "\n");
+    } else if (val.startsWith('"') && val.endsWith('"') || val.startsWith("'") && val.endsWith("'")) {
+      val = val.slice(1, -1);
+    }
+    fields[key] = val;
+  }
+  return fields;
+}
+function addFinding(findings, severity, category, message, relPath, action) {
+  findings.push({
+    severity,
+    category,
+    message,
+    path: relPath || null,
+    action
+  });
+}
+function runDoctorCore(io, {
+  staleDays = 14,
+  nodeVersion = process.versions.node,
+  rootLabel = null,
+  scanExtendedRepo = true
+} = {}) {
+  const findings = [];
+  const major = Number(String(nodeVersion || "").split(".")[0]);
+  if (Number.isNaN(major) || major < 20) {
+    addFinding(
+      findings,
+      "NG",
+      "runtime",
+      `Node.js ${nodeVersion} \u306F v2 \u63A8\u5968\u8981\u4EF6\uFF08>= 20 LTS\uFF09\u672A\u6E80\u3067\u3059`,
+      null,
+      "Node.js 20 LTS \u4EE5\u4E0A\u3078\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3057\u3066\u304F\u3060\u3055\u3044"
+    );
+  }
+  if (io.exists("AGENT_STOP")) {
+    addFinding(
+      findings,
+      "WARN",
+      "kill-switch",
+      "AGENT_STOP \u304C\u5B58\u5728\u3059\u308B\u305F\u3081\u3001\u5168\u30DB\u30B9\u30C8\u306E\u30C4\u30FC\u30EB\u5B9F\u884C\u304C\u505C\u6B62\u72B6\u614B\u3067\u3059",
+      "AGENT_STOP",
+      "\u4F5C\u696D\u3092\u518D\u958B\u3059\u308B\u5834\u5408\u306F\u5B89\u5168\u3092\u78BA\u8A8D\u3057\u305F\u3046\u3048\u3067 AGENT_STOP \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044"
+    );
+  }
+  const jsonRaw = io.readText("sdd/guardrails.json");
+  const yamlRaw = jsonRaw === null ? io.readText("sdd/guardrails.yaml") : null;
+  let parsed = null;
+  let configRel = null;
+  if (jsonRaw !== null) {
+    configRel = "sdd/guardrails.json";
+    try {
+      parsed = JSON.parse(jsonRaw);
+    } catch (err2) {
+      addFinding(
+        findings,
+        "NG",
+        "config",
+        `JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
+        configRel,
+        "sdd/guardrails.json \u306E\u69CB\u6587\u3092 contracts/guardrails.schema.json \u306B\u6CBF\u3063\u3066\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044"
+      );
+    }
+  } else if (yamlRaw !== null) {
+    configRel = "sdd/guardrails.yaml";
+    try {
+      parsed = parseSimpleYaml(yamlRaw);
+      if (!parsed || Object.keys(parsed).length === 0) {
+        addFinding(
+          findings,
+          "NG",
+          "config",
+          "sdd/guardrails.yaml \u304C\u7A7A\u307E\u305F\u306F\u89E3\u6790\u4E0D\u80FD\u3067\u3059",
+          configRel,
+          "sdd/guardrails.example.yaml \u3092\u53C2\u8003\u306B\u6709\u52B9\u306A\u8A2D\u5B9A\u3092\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+        parsed = null;
+      }
+    } catch (err2) {
+      addFinding(
+        findings,
+        "NG",
+        "config",
+        `YAML \u8AAD\u8FBC\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
+        configRel,
+        "sdd/guardrails.yaml \u306E\u6587\u5B57\u30B3\u30FC\u30C9\u3068\u69CB\u6587\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
+      );
+      parsed = null;
+    }
+  } else {
+    addFinding(
+      findings,
+      "INFO",
+      "config",
+      "sdd/guardrails.yaml \u672A\u914D\u7F6E\uFF08\u65E2\u5B9A\u5024 spec_guard.mode=confirm \u3067\u52D5\u4F5C\u4E2D\uFF09",
+      "sdd/guardrails.yaml",
+      "\u5FC5\u8981\u306B\u5FDC\u3058\u3066 sdd/guardrails.example.yaml \u3092\u30B3\u30D4\u30FC\u3057\u3066\u8ABF\u6574\u3057\u3066\u304F\u3060\u3055\u3044"
+    );
+  }
+  if (parsed && configRel) {
+    if (parsed.schema && parsed.schema !== "sdd-guardrails/v1") {
+      addFinding(findings, "NG", "config", `\u672A\u5BFE\u5FDC\u306E schema \u5024: ${parsed.schema}`, configRel, 'schema \u3092 "sdd-guardrails/v1" \u306B\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044');
+    }
+    const mode = parsed?.spec_guard?.mode;
+    if (mode !== void 0 && !VALID_MODES.has(mode)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A spec_guard.mode: ${mode}`, configRel, "warn | confirm | strict \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+    const preImpl = parsed?.review?.pre_impl_check;
+    if (preImpl !== void 0 && !VALID_PRE_IMPL.has(preImpl)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A review.pre_impl_check: ${preImpl}`, configRel, "auto | always | off \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+    const tier = parsed?.risk_defaults?.default_tier;
+    if (tier !== void 0 && !VALID_RISK_TIERS.has(tier)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A risk_defaults.default_tier: ${tier}`, configRel, "low | standard | high \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+    const maxRounds = parsed?.limits?.max_auto_fix_rounds;
+    if (maxRounds !== void 0 && (!Number.isInteger(maxRounds) || maxRounds < 0 || maxRounds > 10)) {
+      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A limits.max_auto_fix_rounds: ${maxRounds}`, configRel, "0\u301C10 \u306E\u6574\u6570\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+    }
+  }
+  if (scanExtendedRepo) {
+    const hookCandidates = [
+      "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+      "plugins/sdd-quality-loop/hooks/codex-hooks.json",
+      "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+      "plugins/sdd-quality-loop/hooks.json",
+      "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
+      "plugins/sdd-implementation/hooks.json",
+      ".claude/settings.json",
+      ".codex/hooks.json",
+      ".gemini/settings.json",
+      ".agents/hooks.json",
+      ...walkIoFiles(io, ".github/hooks", (_rel, name) => name.endsWith(".json"))
+    ];
+    let checkedHooks = 0;
+    for (const rel of hookCandidates) {
+      const raw = io.readText(rel);
+      if (raw === null) continue;
+      checkedHooks += 1;
+      try {
+        JSON.parse(raw);
+      } catch (err2) {
+        addFinding(
+          findings,
+          "NG",
+          "hooks",
+          `\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306E JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
+          rel,
+          "JSON \u69CB\u6587\u3092\u4FEE\u6B63\u3057\u3001\u30DB\u30B9\u30C8\u306E\u30D5\u30C3\u30AF\u8AAD\u8FBC\u304C\u30B5\u30A4\u30EC\u30F3\u30C8\u5931\u6557\u3057\u306A\u3044\u72B6\u614B\u306B\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+        continue;
+      }
+      if (/sdd-hook-guard/i.test(raw)) {
+        addFinding(
+          findings,
+          "WARN",
+          "hooks",
+          "\u5EC3\u6B62\u6E08\u307F\u306E v1 \u30CF\u30FC\u30C9\u30ED\u30C3\u30AF\uFF08sdd-hook-guard\uFF09\u53C2\u7167\u304C\u6B8B\u5B58\u3057\u3066\u3044\u307E\u3059",
+          rel,
+          "install.sh / install.ps1 \u3092\u518D\u5B9F\u884C\u3057\u3066 v2/sdd-soft-guard.mjs \u3078\u5207\u308A\u66FF\u3048\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
+    }
+    if (io.listDir("plugins/sdd-quality-loop").length > 0 && !io.exists("plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs")) {
+      addFinding(
+        findings,
+        "NG",
+        "hooks",
+        "v2 \u30BD\u30D5\u30C8\u30AC\u30FC\u30C9\u672C\u4F53\uFF08sdd-soft-guard.mjs\uFF09\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+        "sdd-forge \u3092\u518D\u30A4\u30F3\u30B9\u30C8\u30FC\u30EB\u3057\u3066\u304F\u3060\u3055\u3044"
+      );
+    }
+    if (checkedHooks === 0) {
+      addFinding(
+        findings,
+        "INFO",
+        "hooks",
+        "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u914D\u4E0B\u306B\u30ED\u30FC\u30AB\u30EB\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306F\u691C\u51FA\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F\uFF08\u30E6\u30FC\u30B6\u30FC\u30DB\u30FC\u30E0\u5074\u8A2D\u5B9A\u3092\u5229\u7528\u4E2D\u306E\u53EF\u80FD\u6027\uFF09",
+        null,
+        "\u30D5\u30C3\u30AF\u52D5\u4F5C\u3092\u78BA\u8A8D\u3059\u308B\u5834\u5408\u306F\u30DB\u30B9\u30C8\u8A2D\u5B9A\uFF08~/.claude / ~/.codex / ~/.gemini/config \u7B49\uFF09\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
+      );
+    }
+    const skillFiles = [
+      ...walkIoFiles(io, "plugins", (rel, name) => name === "SKILL.md" && !rel.includes("/human-copy") && !rel.includes("/references/")),
+      ...walkIoFiles(io, "sdd/skills", (rel, name) => name === "SKILL.md" && !rel.includes("/human-copy") && !rel.includes("/references/"))
+    ];
+    for (const rel of skillFiles) {
+      const content = io.readText(rel);
+      if (content === null) continue;
+      const fm = parseFrontmatter(content);
+      if (!fm || !fm.name || !fm.description) {
+        addFinding(
+          findings,
+          "NG",
+          "skills",
+          "SKILL.md \u306E YAML \u30D5\u30ED\u30F3\u30C8\u30DE\u30BF\u30FC\uFF08name / description\uFF09\u304C\u6B20\u843D\u307E\u305F\u306F\u4E0D\u6B63\u3067\u3059",
+          rel,
+          "\u5148\u982D\u306B --- \u3067\u56F2\u3093\u3060 name \u3068 description \u3092\u8A18\u8F09\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+        continue;
+      }
+      if (fm.description.length > MAX_SKILL_DESCRIPTION_CHARS) {
+        addFinding(
+          findings,
+          "NG",
+          "skills",
+          `description \u304C ${fm.description.length} \u6587\u5B57\u3042\u308A\u4E0A\u9650\uFF08${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\uFF09\u3092\u8D85\u904E\uFF08\u30DB\u30B9\u30C8\u5074\u3067\u8B66\u544A\u306A\u304F\u7121\u8996\u3055\u308C\u308B\u6050\u308C\uFF09`,
+          rel,
+          `description \u3092 ${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\u4EE5\u5185\u3078\u8981\u7D04\u3057\u3066\u304F\u3060\u3055\u3044`
+        );
+      }
+    }
+  }
+  const textTargets = [
+    ...walkIoFiles(io, "specs", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name)),
+    ...scanExtendedRepo ? walkIoFiles(io, "sdd", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name)) : walkIoFiles(io, "sdd/knowledge", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name))
+  ];
+  for (const rel of textTargets) {
+    const raw = io.readText(rel);
+    if (raw === null) continue;
+    const match = CONTROL_CHAR_RE.exec(raw);
+    if (match) {
+      const codeHex = `0x${match[0].charCodeAt(0).toString(16).padStart(2, "0")}`;
+      addFinding(
+        findings,
+        "NG",
+        "encoding",
+        `\u4E0D\u6B63\u306A ASCII \u5236\u5FA1\u6587\u5B57\uFF08${codeHex}\uFF09\u304C\u6DF7\u5165\u3057\u3066\u3044\u307E\u3059\uFF08\u30B7\u30A7\u30EB\u30A8\u30B9\u30B1\u30FC\u30D7\u7834\u640D\u306E\u6050\u308C\uFF09`,
+        rel,
+        "\u8A72\u5F53\u30D5\u30A1\u30A4\u30EB\u306E\u7834\u640D\u7B87\u6240\u3092\u30D5\u30A1\u30A4\u30EB\u7DE8\u96C6\u30C4\u30FC\u30EB\u3067\u4FEE\u5FA9\u3057\u3066\u304F\u3060\u3055\u3044"
+      );
+    }
+  }
+  if (scanExtendedRepo && typeof io.readBytes === "function") {
+    const psTargets = [
+      ...walkIoFiles(io, "sdd", (_rel, name) => name.endsWith(".ps1")),
+      ...walkIoFiles(io, "scripts", (_rel, name) => name.endsWith(".ps1"))
+    ];
+    for (const rel of psTargets) {
+      const buf = io.readBytes(rel);
+      if (!buf) continue;
+      const hasBom = buf.length >= 3 && buf[0] === 239 && buf[1] === 187 && buf[2] === 191;
+      const decoded = Buffer.from(buf).toString("utf8");
+      if (!hasBom && NON_ASCII_RE.test(decoded)) {
+        addFinding(
+          findings,
+          "WARN",
+          "encoding",
+          "\u975E ASCII \u6587\u5B57\u3092\u542B\u3080 PowerShell \u30B9\u30AF\u30EA\u30D7\u30C8\u306B UTF-8 BOM \u304C\u3042\u308A\u307E\u305B\u3093\uFF08Windows PS 5.1 \u6587\u5B57\u5316\u3051\u30EA\u30B9\u30AF\uFF09",
+          rel,
+          "UTF-8 BOM \u4ED8\u304D\u3067\u4FDD\u5B58\u3059\u308B\u304B ASCII \u306E\u307F\u3067\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
+    }
+  }
+  const nowMs = Date.now();
+  const staleMs = staleDays * 24 * 60 * 60 * 1e3;
+  for (const entry of io.listDir("specs")) {
+    if (!entry.isDirectory) continue;
+    const relTasks = `specs/${entry.name}/tasks.md`;
+    const content = io.readText(relTasks);
+    if (content === null) continue;
+    const approvedCount = countPrimaryApprovals(content);
+    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
+    const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
+    if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
+      addFinding(
+        findings,
+        "WARN",
+        "specs",
+        `\u9032\u884C\u4E2D\u30FB\u672A\u5B8C\u4E86\u306E\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u304C ${approvedCount} \u4EF6\u3042\u308A\u307E\u3059\u304C .spec-baseline.json \u304C\u672A\u4F5C\u6210\u3067\u3059\uFF08Spec Drift \u691C\u77E5\u304C\u672A\u6B66\u88C5\uFF09`,
+        relTasks,
+        `record-spec-baseline.mjs --feature ${entry.name} \u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044`
+      );
+    }
+    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
+      const mtimeMs = io.statMtimeMs(relTasks);
+      if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
+        const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1e3));
+        addFinding(
+          findings,
+          "WARN",
+          "specs",
+          `Status: In Progress \u306E\u30BF\u30B9\u30AF\u304C ${ageDays} \u65E5\u4EE5\u4E0A\u672A\u66F4\u65B0\u3067\u3059\uFF08\u3057\u304D\u3044\u5024: ${staleDays} \u65E5\uFF09`,
+          relTasks,
+          "\u4F5C\u696D\u3092\u7D99\u7D9A\u3059\u308B\u304B\u3001\u5B8C\u4E86\u30FB\u4E2D\u6B62\u72B6\u614B\u3078 tasks.md \u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
+    }
+  }
+  const MAX_INDEX_CHARS = 3e3;
+  const indexFiles = walkIoFiles(io, "sdd/knowledge", (_rel, name) => name.toUpperCase() === "INDEX.MD");
+  for (const rel of indexFiles) {
+    const raw = io.readText(rel);
+    if (raw === null) continue;
+    const len = normalizeNewlines(raw).length;
+    if (len > MAX_INDEX_CHARS) {
+      addFinding(
+        findings,
+        "WARN",
+        "knowledge",
+        `\u30CA\u30EC\u30C3\u30B8\u7D22\u5F15\u304C ${len} \u6587\u5B57\u3042\u308A\u76EE\u5B89\u4E0A\u9650\uFF08${MAX_INDEX_CHARS} \u6587\u5B57\uFF09\u3092\u8D85\u904E\u3057\u3066\u3044\u307E\u3059\uFF08\u30B3\u30F3\u30C6\u30AD\u30B9\u30C8\u5727\u8FEB\u30EA\u30B9\u30AF\uFF09`,
+        rel,
+        "\u8A73\u7D30\u306F\u500B\u5225\u30D5\u30A1\u30A4\u30EB\u3078\u5206\u5272\u3057\u3001INDEX \u306F 3,000 \u5B57\u4EE5\u5185\u306E\u30EA\u30F3\u30AF\u96C6\u306B\u4FDD\u3063\u3066\u304F\u3060\u3055\u3044"
+      );
+    }
+  }
+  const driftRaw = io.readText(".sdd/drift-events.jsonl");
+  if (driftRaw !== null) {
+    const lines = normalizeNewlines(driftRaw).split("\n").filter((l) => l.trim().length > 0);
+    if (lines.length > 0) {
+      let denyCount = 0;
+      let warnCount = 0;
+      let parseErrors = 0;
+      for (const line of lines) {
+        try {
+          const ev = JSON.parse(line);
+          const action = typeof ev.action === "string" ? ev.action : "";
+          const decision = typeof ev.decision === "string" ? ev.decision : "";
+          if (action === "strict_deny" || action === "confirm_soft_deny" || decision === "deny") {
+            denyCount += 1;
+          } else if (action === "warn_allow" || action === "confirm_amended_allow" || action === "allow_override" || decision === "warn" || decision === "confirm") {
+            warnCount += 1;
+          }
+        } catch {
+          parseErrors += 1;
+        }
+      }
+      if (parseErrors > 0) {
+        addFinding(
+          findings,
+          "WARN",
+          "events",
+          `.sdd/drift-events.jsonl \u306B\u7834\u640D\u884C\u304C ${parseErrors} \u4EF6\u3042\u308A\u307E\u3059`,
+          ".sdd/drift-events.jsonl",
+          "\u7834\u640D\u884C\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
+        );
+      }
+      addFinding(
+        findings,
+        "INFO",
+        "events",
+        `\u30AC\u30FC\u30C9\u30A4\u30D9\u30F3\u30C8\u7D2F\u8A08 ${lines.length} \u4EF6\uFF08deny=${denyCount}, warn/confirm=${warnCount}\uFF09`,
+        ".sdd/drift-events.jsonl",
+        "workflow-retrospective \u5B9F\u884C\u6642\u306E\u4E8B\u5B9F\u30D9\u30FC\u30B9\u96C6\u8A08\u306B\u5229\u7528\u3067\u304D\u307E\u3059"
+      );
+    }
+  }
+  const summary = {
+    ng: findings.filter((f) => f.severity === "NG").length,
+    warn: findings.filter((f) => f.severity === "WARN").length,
+    info: findings.filter((f) => f.severity === "INFO").length
+  };
+  const result = {
+    schema: "sdd-doctor/v1",
+    checked_at: (/* @__PURE__ */ new Date()).toISOString(),
+    status: summary.ng > 0 ? "NG" : summary.warn > 0 ? "WARN" : "CLEAN",
+    summary,
+    non_checks: [...NON_CHECKS],
+    findings
+  };
+  if (rootLabel !== null) {
+    result.root = rootLabel;
+  }
+  return result;
+}
+
 // node_modules/js-yaml/dist/js-yaml.mjs
 var NOT_RESOLVED = /* @__PURE__ */ Symbol("NOT_RESOLVED");
 function defineScalarTag(tagName, options) {
@@ -38641,7 +40570,7 @@ function workflowProfile(root) {
 
 // src/parsers/evidence-bundle.ts
 var SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
-function normalizeRelPath(raw) {
+function normalizeRelPath2(raw) {
   if (typeof raw !== "string") {
     return void 0;
   }
@@ -38692,7 +40621,7 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       `bundle filename does not match task_id: ${bundleRelPath} vs ${bundleTaskId}`
     );
   }
-  const qualityRel = normalizeRelPath(bundle.quality_report);
+  const qualityRel = normalizeRelPath2(bundle.quality_report);
   if (qualityRel === void 0) {
     failures.push("quality_report is missing or invalid");
   } else if (!guardedExists(root, qualityRel)) {
@@ -38700,7 +40629,7 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   } else if (!qualityRel.endsWith(".md")) {
     failures.push(`quality_report must point to a markdown report: ${bundle.quality_report}`);
   }
-  const contractRel = normalizeRelPath(bundle.verification_contract);
+  const contractRel = normalizeRelPath2(bundle.verification_contract);
   if (contractRel === void 0) {
     failures.push("verification_contract is missing or invalid");
   } else if (!guardedExists(root, contractRel)) {
@@ -38767,7 +40696,7 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
         continue;
       }
       if (check2.passes === true) {
-        const evidenceRel = normalizeRelPath(check2.evidence);
+        const evidenceRel = normalizeRelPath2(check2.evidence);
         if (evidenceRel !== void 0) {
           requiredArtifacts.set(
             evidenceRel,
@@ -38783,7 +40712,7 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       failures.push("artifact must be an object");
       continue;
     }
-    const artifactRel = normalizeRelPath(artifact.path);
+    const artifactRel = normalizeRelPath2(artifact.path);
     const sha = jsonValueText(artifact.sha256 ?? "").trim().toLowerCase();
     if (artifactRel === void 0) {
       failures.push(`artifact path is missing or invalid: ${jsonValueText(artifact.path)}`);
@@ -38920,7 +40849,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   } else {
     approval = draft.approval;
   }
-  const isApproved2 = isApprovedShape(draft.approval);
+  const isApproved = isApprovedShape(draft.approval);
   if (profile === "lite" && (draft.risk === "high" || draft.risk === "critical")) {
     fail("lite-full-upgrade-required", `${taskId} declares ${draft.risk} risk; Full workflow validation is required`);
   }
@@ -38932,7 +40861,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   } else {
     status = STATUS_VALUES.find((value) => value === draft.status);
   }
-  if (status !== void 0 && (status === "In Progress" || status === "Implementation Complete" || status === "Done") && !isApproved2) {
+  if (status !== void 0 && (status === "In Progress" || status === "Implementation Complete" || status === "Done") && !isApproved) {
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
   if (status === "Done" && profile === "full") {
@@ -39200,7 +41129,7 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
 
 // src/next-command.ts
 function isApprovedShape2(approval) {
-  return approval === "Approved" || approval.startsWith("Approved (");
+  return isApprovedValue(approval);
 }
 function isActiveStatus(status) {
   return status === "Planned" || status === "In Progress";
@@ -39390,7 +41319,7 @@ function validateFeature(feature) {
 }
 function hasApprovedPlannedOrInProgress(tasks) {
   return tasks.some(
-    (task) => (task.status === "Planned" || task.status === "In Progress") && (task.approval === "Approved" || task.approval.startsWith("Approved ("))
+    (task) => (task.status === "Planned" || task.status === "In Progress") && isApprovedShape3(task.approval)
   );
 }
 function listActiveSpecs(root) {
@@ -39449,6 +41378,9 @@ function getTaskState(root, feature, reports) {
     return featureResult;
   }
   return parseTaskState(root, feature, `specs/${feature}/tasks.md`, void 0, void 0, reports);
+}
+function isApprovedShape3(approval) {
+  return isApprovedValue(approval);
 }
 function getNextSddCommand2(root, feature, reports) {
   if (feature !== void 0) {
@@ -39618,1933 +41550,6 @@ var DashboardReader = class {
   }
 };
 
-// ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
-import path2 from "node:path";
-
-// ../../plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
-import crypto from "node:crypto";
-import path from "node:path";
-var DEFAULT_CONFIG = Object.freeze({
-  schema: "sdd-guardrails/v1",
-  spec_guard: {
-    mode: "confirm",
-    protected_globs: [
-      "specs/*/requirements.md",
-      "specs/*/design.md",
-      "specs/*/tasks.md"
-    ],
-    allow_amendment_section: true
-  },
-  review: {
-    pre_impl_check: "auto",
-    independent_gate: true
-  },
-  risk_defaults: {
-    default_tier: "standard",
-    high_risk_paths: ["**/auth/**", "**/billing/**", "**/migrations/**"]
-  },
-  limits: {
-    max_auto_fix_rounds: 2
-  }
-});
-var VALID_MODES = /* @__PURE__ */ new Set(["warn", "confirm", "strict"]);
-var VALID_PRE_IMPL = /* @__PURE__ */ new Set(["auto", "always", "off"]);
-var VALID_RISK_TIERS = /* @__PURE__ */ new Set(["low", "standard", "high"]);
-var APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
-var STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
-var AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
-var IDENTIFIER_LINE_RE = /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
-var PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none(?:\s+yet)?\.?|n\/a|\(none\)|no\s+changes?(?:\s+yet)?\.?|（なし）|なし|（初期版のため変更なし）|初期版[。．.・\s]*変更なし[。．.]?|初期版（変更なし）|\(initial\s+version[^)]*\))$/i;
-function normalizeNewlines(text) {
-  return typeof text === "string" ? text.replace(/\r\n/g, "\n").replace(/\r/g, "\n") : "";
-}
-function sha256Text(text) {
-  return crypto.createHash("sha256").update(normalizeNewlines(text), "utf8").digest("hex");
-}
-function toPosixPath(filePath) {
-  return String(filePath || "").replace(/\\/g, "/");
-}
-function normalizeRelPath2(filePath) {
-  return toPosixPath(filePath).trim().replace(/^\.\//, "").replace(/\/+$/, "");
-}
-function sanitizeRelPath(relPath) {
-  if (typeof relPath !== "string" || relPath.length === 0 || relPath.includes("\0")) {
-    return null;
-  }
-  if (relPath.includes("\\") || path.isAbsolute(relPath) || relPath.startsWith("/")) {
-    return null;
-  }
-  const normalized = relPath.replace(/^\.\//, "").replace(/\/+$/, "");
-  if (!normalized) return null;
-  const segments = normalized.split("/");
-  if (segments.some((s) => s === "" || s === "." || s === "..")) {
-    return null;
-  }
-  return normalized;
-}
-function assertValidFeatureName(feature) {
-  if (typeof feature !== "string" || !feature || /[\\/\0]/.test(feature) || feature === "." || feature === "..") {
-    throw new Error(`Invalid feature name: ${feature}`);
-  }
-}
-function stripYamlComment(line) {
-  let inSingle = false;
-  let inDouble = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
-    if (ch === "'" && !inDouble) {
-      inSingle = !inSingle;
-    } else if (ch === '"' && !inSingle && line[i - 1] !== "\\") {
-      inDouble = !inDouble;
-    } else if (ch === "#" && !inSingle && !inDouble) {
-      if (i === 0 || /\s/.test(line[i - 1])) {
-        return line.slice(0, i);
-      }
-    }
-  }
-  return line;
-}
-function parseYamlScalar(raw) {
-  const trimmed = raw.trim();
-  if (trimmed === "true") return true;
-  if (trimmed === "false") return false;
-  if (trimmed === "null" || trimmed === "~") return null;
-  if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) return Number(trimmed);
-  if (trimmed.startsWith('"') && trimmed.endsWith('"') || trimmed.startsWith("'") && trimmed.endsWith("'")) {
-    return trimmed.slice(1, -1);
-  }
-  return trimmed;
-}
-function parseSimpleYaml(text) {
-  const root = {};
-  const lines = normalizeNewlines(text).split("\n");
-  let currentSection = null;
-  let currentListKey = null;
-  for (const rawLine of lines) {
-    const cleaned = stripYamlComment(rawLine).replace(/\s+$/, "");
-    if (!cleaned.trim()) continue;
-    const indent = cleaned.length - cleaned.trimStart().length;
-    const content = cleaned.trim();
-    if (indent === 0) {
-      currentListKey = null;
-      const idx2 = content.indexOf(":");
-      if (idx2 === -1) continue;
-      const key2 = content.slice(0, idx2).trim();
-      const rest2 = content.slice(idx2 + 1).trim();
-      if (rest2 === "") {
-        root[key2] = {};
-        currentSection = key2;
-      } else {
-        root[key2] = parseYamlScalar(rest2);
-        currentSection = null;
-      }
-      continue;
-    }
-    if (content.startsWith("- ")) {
-      const value = parseYamlScalar(content.slice(2));
-      if (currentSection && currentListKey) {
-        if (!Array.isArray(root[currentSection][currentListKey])) {
-          root[currentSection][currentListKey] = [];
-        }
-        root[currentSection][currentListKey].push(value);
-      }
-      continue;
-    }
-    const idx = content.indexOf(":");
-    if (idx === -1 || !currentSection) continue;
-    const key = content.slice(0, idx).trim();
-    const rest = content.slice(idx + 1).trim();
-    if (rest === "") {
-      root[currentSection][key] = [];
-      currentListKey = key;
-    } else {
-      root[currentSection][key] = parseYamlScalar(rest);
-      currentListKey = null;
-    }
-  }
-  return root;
-}
-function normalizeGuardrailsConfig(parsed, sourcePath = null) {
-  const sg = parsed && typeof parsed.spec_guard === "object" && parsed.spec_guard ? parsed.spec_guard : {};
-  const rv = parsed && typeof parsed.review === "object" && parsed.review ? parsed.review : {};
-  const rd = parsed && typeof parsed.risk_defaults === "object" && parsed.risk_defaults ? parsed.risk_defaults : {};
-  const lm = parsed && typeof parsed.limits === "object" && parsed.limits ? parsed.limits : {};
-  const maxAutoFix = typeof lm.max_auto_fix_rounds === "number" && Number.isInteger(lm.max_auto_fix_rounds) && lm.max_auto_fix_rounds >= 0 && lm.max_auto_fix_rounds <= 10 ? lm.max_auto_fix_rounds : DEFAULT_CONFIG.limits.max_auto_fix_rounds;
-  return {
-    schema: "sdd-guardrails/v1",
-    sourcePath,
-    spec_guard: {
-      mode: VALID_MODES.has(sg.mode) ? sg.mode : DEFAULT_CONFIG.spec_guard.mode,
-      protected_globs: Array.isArray(sg.protected_globs) && sg.protected_globs.length > 0 ? sg.protected_globs.map((g) => String(g)) : [...DEFAULT_CONFIG.spec_guard.protected_globs],
-      allow_amendment_section: typeof sg.allow_amendment_section === "boolean" ? sg.allow_amendment_section : DEFAULT_CONFIG.spec_guard.allow_amendment_section
-    },
-    review: {
-      pre_impl_check: VALID_PRE_IMPL.has(rv.pre_impl_check) ? rv.pre_impl_check : DEFAULT_CONFIG.review.pre_impl_check,
-      independent_gate: typeof rv.independent_gate === "boolean" ? rv.independent_gate : DEFAULT_CONFIG.review.independent_gate
-    },
-    risk_defaults: {
-      default_tier: VALID_RISK_TIERS.has(rd.default_tier) ? rd.default_tier : DEFAULT_CONFIG.risk_defaults.default_tier,
-      high_risk_paths: Array.isArray(rd.high_risk_paths) && rd.high_risk_paths.length > 0 ? rd.high_risk_paths.map((p) => String(p)) : [...DEFAULT_CONFIG.risk_defaults.high_risk_paths]
-    },
-    limits: {
-      max_auto_fix_rounds: maxAutoFix
-    }
-  };
-}
-function globToRegExp(glob) {
-  const posix = toPosixPath(glob).replace(/^\.\//, "");
-  let out = "^";
-  for (let i = 0; i < posix.length; i += 1) {
-    const ch = posix[i];
-    if (ch === "*") {
-      if (posix[i + 1] === "*") {
-        if (posix[i + 2] === "/") {
-          out += "(?:.*/)?";
-          i += 2;
-        } else {
-          out += ".*";
-          i += 1;
-        }
-      } else {
-        out += "[^/]*";
-      }
-    } else if (ch === "?") {
-      out += "[^/]";
-    } else if (/[.+^${}()|[\]\\]/.test(ch)) {
-      out += `\\${ch}`;
-    } else {
-      out += ch;
-    }
-  }
-  out += "$";
-  return new RegExp(out, "i");
-}
-function matchProtectedSpecRelPath(relPath, config2) {
-  const rel = sanitizeRelPath(relPath);
-  if (!rel) return null;
-  const globs = config2 && config2.spec_guard && config2.spec_guard.protected_globs || DEFAULT_CONFIG.spec_guard.protected_globs;
-  const matched = globs.some((pattern) => globToRegExp(pattern).test(rel));
-  if (!matched) return null;
-  const featureMatch = rel.match(/^specs\/([^/]+)\/(.+)$/i);
-  return {
-    relPath: rel,
-    feature: featureMatch ? featureMatch[1] : null,
-    fileName: path.posix.basename(rel).toLowerCase()
-  };
-}
-function countPrimaryApprovals(text) {
-  if (!text) return 0;
-  return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
-}
-function splitSpecAmendments(text) {
-  const normalized = normalizeNewlines(text);
-  const match = AMENDMENT_HEADING_RE.exec(normalized);
-  if (!match) {
-    return {
-      beforeAmendments: normalized,
-      amendmentsBody: "",
-      afterAmendments: "",
-      hasHeading: false
-    };
-  }
-  const headingLevel = match[1].length;
-  const headingStart = match.index;
-  const afterHeadingStart = headingStart + match[0].length;
-  const rest = normalized.slice(afterHeadingStart);
-  const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, "m");
-  const nextMatch = nextHeadingRe.exec(rest);
-  if (!nextMatch) {
-    return {
-      beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
-      amendmentsBody: rest.trim(),
-      afterAmendments: "",
-      hasHeading: true
-    };
-  }
-  return {
-    beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
-    amendmentsBody: rest.slice(0, nextMatch.index).trim(),
-    afterAmendments: rest.slice(nextMatch.index).trimStart(),
-    hasHeading: true
-  };
-}
-function extractAmendmentEntries(text) {
-  const { hasHeading, amendmentsBody } = splitSpecAmendments(text);
-  if (!hasHeading || !amendmentsBody) return [];
-  const entries = [];
-  for (const line of amendmentsBody.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    if (PLACEHOLDER_AMENDMENT_RE.test(trimmed)) continue;
-    entries.push(trimmed);
-  }
-  return entries;
-}
-function canonicalSpecContractText(text, fileName) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
-  let combined = afterAmendments ? `${beforeAmendments}
-
-${afterAmendments}` : beforeAmendments;
-  if (String(fileName || "").toLowerCase() === "tasks.md") {
-    combined = combined.replace(STATUS_LINE_RE, "Status: <NORMALIZED>");
-  }
-  return combined.trim();
-}
-function extractSpecIdentifiers(text) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
-  const body = afterAmendments ? `${beforeAmendments}
-
-${afterAmendments}` : beforeAmendments;
-  const map2 = {};
-  IDENTIFIER_LINE_RE.lastIndex = 0;
-  let m;
-  while ((m = IDENTIFIER_LINE_RE.exec(body)) !== null) {
-    const id = m[1].toUpperCase();
-    const normalizedLine = m[0].trim().replace(/\s+/g, " ");
-    if (!(id in map2)) {
-      map2[id] = {
-        line: normalizedLine,
-        hash: sha256Text(normalizedLine)
-      };
-    }
-  }
-  return map2;
-}
-
-// ../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
-var CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
-var PLACEHOLDER_CELL_RE = /^<[^<>]+>$/;
-var SEPARATOR_CELL_RE = /^:?-+:?$/;
-var MAX_SKILL_DESCRIPTION_CHARS = 1024;
-var CONTROL_CHAR_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F]/;
-var NON_ASCII_RE = /[^\x00-\x7F]/;
-var IGNORED_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "dist", "build", ".next", "__pycache__", ".venv"]);
-var NON_CHECKS = Object.freeze([
-  "\u4ED5\u69D8\u30FB\u8A2D\u8A08\u30FB\u30C9\u30E1\u30A4\u30F3\u30E2\u30C7\u30EB\u306E\u610F\u5473\u7684\u59A5\u5F53\u6027\u3084\u6587\u66F8\u9593\u306E\u5185\u5BB9\u77DB\u76FE",
-  "\u30C6\u30B9\u30C8\u30B1\u30FC\u30B9\u306E\u7DB2\u7F85\u6027\u30FB\u30D7\u30ED\u30C0\u30AF\u30B7\u30E7\u30F3\u30B3\u30FC\u30C9\u306E\u8AD6\u7406\u30D0\u30B0\u3084\u6027\u80FD",
-  "\u30AF\u30E9\u30A6\u30C9\u74B0\u5883\uFF08AWS/Azure\uFF09\u3084\u672C\u756A\u30C7\u30FC\u30BF\u30D9\u30FC\u30B9\u306E\u5B9F\u72B6\u614B\u30FB\u8A8D\u8A3C\u6709\u52B9\u6027",
-  "\u5916\u90E8\u30DB\u30B9\u30C8 CLI\uFF08Claude Code / Codex / Copilot / Antigravity / Gemini\uFF09\u5185\u90E8\u306E\u975E\u516C\u958B\u6319\u52D5"
-]);
-var COMMON_REVIEW_PERSPECTIVES = Object.freeze([
-  {
-    id: "C01",
-    area: "\u8A2D\u8A08\u65B9\u91DD",
-    perspective: "\u65B9\u91DD\u6574\u5408\u3068\u975E\u81EA\u660E\u5224\u65AD\u306E\u6839\u62E0",
-    humanQuestion: "\u8981\u4EF6\u306E\u5927\u67A0\u306B\u6CBF\u3063\u3066\u304A\u308A\u3001\u975E\u81EA\u660E\u306A\u8A2D\u8A08\u5224\u65AD\uFF08\u63A1\u3089\u306A\u304B\u3063\u305F\u6848\u3092\u542B\u3080\uFF09\u306B\u7D0D\u5F97\u611F\u304C\u3042\u308B\u304B\uFF1F",
-    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
-  },
-  {
-    id: "C02",
-    area: "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB",
-    perspective: "\u7C92\u5EA6\u30FB\u96C6\u7D04\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6",
-    humanQuestion: "\u30C7\u30FC\u30BF\u69CB\u9020\u306E\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u3092\u5B88\u308B\u5834\u6240\u304C\u30C9\u30E1\u30A4\u30F3\u306E\u8CAC\u52D9\u3068\u5408\u3063\u3066\u3044\u308B\u304B\uFF1F",
-    defaultDisposition: "\u63A1\u7528"
-  },
-  {
-    id: "C03",
-    area: "API I/F",
-    perspective: "CRUD \u5916\u306E\u5951\u7D04\u30FB\u30A8\u30E9\u30FC\u5FDC\u7B54\u30FB\u8A8D\u53EF",
-    humanQuestion: "\u5916\u90E8\u5951\u7D04\uFF08\u7834\u58CA\u7684\u5909\u66F4\u30FB\u30A8\u30E9\u30FC\u30B3\u30FC\u30C9\u30FB\u8A8D\u53EF\u6761\u4EF6\uFF09\u304C\u547C\u3073\u51FA\u3057\u5143\u3068\u77DB\u76FE\u3057\u306A\u3044\u304B\uFF1F",
-    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
-  },
-  {
-    id: "C04",
-    area: "\u72B6\u614B\u9077\u79FB",
-    perspective: "\u7570\u5E38\u30EB\u30FC\u30C8\u30FB\u7AF6\u5408\u30FB\u9806\u5E8F\u6027",
-    humanQuestion: "\u7570\u5E38\u7CFB\u30FB\u4E26\u5217\u5B9F\u884C\u30FB\u518D\u5B9F\u884C\u6642\u306E\u72B6\u614B\u9077\u79FB\u306B\u7834\u7DBB\u3084\u30C7\u30C3\u30C9\u30ED\u30C3\u30AF\u304C\u306A\u3044\u304B\uFF1F",
-    defaultDisposition: "\u63A1\u7528"
-  },
-  {
-    id: "C05",
-    area: "\u30B7\u30B9\u30C6\u30E0\u9593\u9023\u643A",
-    perspective: "\u5916\u90E8\u9023\u643A\u30B7\u30FC\u30B1\u30F3\u30B9\u30FB\u4E0D\u53EF\u9006\u64CD\u4F5C\u70B9",
-    humanQuestion: "\u9001\u4FE1\u30FB\u78BA\u5B9A\u30FB\u8AB2\u91D1\u30FB\u5916\u90E8\u66F8\u8FBC\u306A\u3069\u623B\u305B\u306A\u3044\u5883\u754C\u306E\u30ED\u30FC\u30EB\u30D0\u30C3\u30AF\uFF0F\u51AA\u7B49\u6027\u304C\u62C5\u4FDD\u3055\u308C\u3066\u3044\u308B\u304B\uFF1F",
-    defaultDisposition: "\u8EFD\u304F\u78BA\u8A8D"
-  },
-  {
-    id: "C06",
-    area: "\u696D\u52D9\u30EB\u30FC\u30EB",
-    perspective: "\u30C9\u30E1\u30A4\u30F3\u4E0D\u5909\u6761\u4EF6\u30FB\u5883\u754C\u5024\uFF08\u30BC\u30ED/\u4E0A\u9650/\u7AEF\u6570\uFF09",
-    humanQuestion: "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u6CD5\u4EE4\u30FB\u5883\u754C\u5024\u30FB\u904E\u53BB\u5B9F\u7E3E\u306E\u6271\u3044\u304C\u4E8B\u696D\u610F\u56F3\u3068\u4E00\u81F4\u3057\u3066\u3044\u308B\u304B\uFF1F",
-    defaultDisposition: "\u63A1\u7528"
-  },
-  {
-    id: "C07",
-    area: "\u8981\u6C42\u3068\u306E\u5BFE\u5FDC",
-    perspective: "REQ\u2194AC\u2194Task \u6574\u5408\u3068\u5148\u56DE\u308A\u8A2D\u8A08\u306E\u6291\u6B62",
-    humanQuestion: "\u5168 REQ/AC \u304C\u6F0F\u308C\u306A\u304F\u30BF\u30B9\u30AF\u3078\u843D\u3061\u3001\u8981\u4EF6\u5916\u306E\u904E\u5270\u8A2D\u8A08\u304C\u6DF7\u5165\u3057\u3066\u3044\u306A\u3044\u304B\uFF1F",
-    defaultDisposition: "\u6A5F\u68B0\u691C\u8A3C"
-  },
-  {
-    id: "C08",
-    area: "\u975E\u6A5F\u80FD\u9762",
-    perspective: "\u6A29\u9650\u30FB\u6027\u80FD\u30FB\u76E3\u67FB\u30FB\u5207\u623B\u3057",
-    humanQuestion: "\u8A8D\u8A3C/\u8A8D\u53EF\u30FB\u79D8\u5BC6\u60C5\u5831\u30FB\u6027\u80FD\u52A3\u5316\u30FB\u969C\u5BB3\u6642\u306E\u5207\u623B\u3057\u624B\u9806\u304C\u904B\u7528\u8981\u4EF6\u3092\u6E80\u305F\u3059\u304B\uFF1F",
-    defaultDisposition: "\u63A1\u7528"
-  }
-]);
-function loadGuardrailsConfigFromIo(io) {
-  let parsed = null;
-  let sourcePath = null;
-  try {
-    const jsonRaw = io.readText("sdd/guardrails.json");
-    if (jsonRaw !== null) {
-      parsed = JSON.parse(jsonRaw);
-      sourcePath = "sdd/guardrails.json";
-    } else {
-      const yamlRaw = io.readText("sdd/guardrails.yaml");
-      if (yamlRaw !== null) {
-        parsed = parseSimpleYaml(yamlRaw);
-        sourcePath = "sdd/guardrails.yaml";
-      }
-    }
-  } catch {
-    parsed = null;
-  }
-  return normalizeGuardrailsConfig(parsed, sourcePath);
-}
-function stripFencedCodeBlocks(text) {
-  const lines = normalizeNewlines(text || "").split("\n");
-  const out = [];
-  let inFence = false;
-  let fenceChar = "";
-  for (const line of lines) {
-    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
-    if (m) {
-      if (!inFence) {
-        inFence = true;
-        fenceChar = m[1][0];
-      } else if (m[1][0] === fenceChar) {
-        inFence = false;
-        fenceChar = "";
-      }
-      continue;
-    }
-    if (!inFence) out.push(line);
-  }
-  return out.join("\n");
-}
-function splitMarkdownTableRow(line) {
-  let trimmed = String(line || "").trim();
-  if (!trimmed.startsWith("|")) return null;
-  if (trimmed.startsWith("|")) trimmed = trimmed.slice(1);
-  if (trimmed.endsWith("|") && !trimmed.endsWith("\\|")) trimmed = trimmed.slice(0, -1);
-  const cells = [];
-  let current = "";
-  let inBacktick = false;
-  for (let i = 0; i < trimmed.length; i += 1) {
-    const ch = trimmed[i];
-    if (ch === "\\" && trimmed[i + 1] === "|" && !inBacktick) {
-      current += "|";
-      i += 1;
-      continue;
-    }
-    if (ch === "`") {
-      inBacktick = !inBacktick;
-      current += ch;
-      continue;
-    }
-    if (ch === "|" && !inBacktick) {
-      cells.push(current.trim());
-      current = "";
-      continue;
-    }
-    current += ch;
-  }
-  cells.push(current.trim());
-  return cells;
-}
-function unwrapMarkdownInline(text) {
-  return String(text || "").trim().replace(/^[`*_]+|[`*_]+$/g, "").trim();
-}
-function isOpenQuestionConfirmed(status) {
-  const clean = unwrapMarkdownInline(status);
-  return CONFIRMED_STATUS_RE.test(clean);
-}
-function parseOpenQuestions(markdownText, sourceFile = null) {
-  const normalized = normalizeNewlines(markdownText || "");
-  const lines = normalized.split("\n");
-  const items = [];
-  let inFence = false;
-  let fenceChar = "";
-  let inAmendments = false;
-  let amendmentLevel = 0;
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    const fenceMatch = line.match(/^[ \t]*(`{3,}|~{3,})/);
-    if (fenceMatch) {
-      if (!inFence) {
-        inFence = true;
-        fenceChar = fenceMatch[1][0];
-      } else if (fenceMatch[1][0] === fenceChar) {
-        inFence = false;
-        fenceChar = "";
-      }
-      continue;
-    }
-    if (inFence) continue;
-    const amendMatch = line.match(/^(#{2,3})[ \t]+Spec Amendments[ \t]*$/i);
-    if (amendMatch) {
-      inAmendments = true;
-      amendmentLevel = amendMatch[1].length;
-      continue;
-    }
-    if (inAmendments) {
-      const nextHeading = line.match(/^(#{1,3})[ \t]+\S/);
-      if (nextHeading && nextHeading[1].length <= amendmentLevel) {
-        inAmendments = false;
-      } else {
-        continue;
-      }
-    }
-    const cells = splitMarkdownTableRow(line);
-    if (!cells || cells.length < 6) continue;
-    const rawId = unwrapMarkdownInline(cells[0]);
-    if (!/^OQ-\d+$/i.test(rawId)) continue;
-    if (PLACEHOLDER_CELL_RE.test(cells[2])) continue;
-    const status = unwrapMarkdownInline(cells[5]) || "Provisional";
-    const rawImpacted = cells[6] || "";
-    const impactedMatches = rawImpacted.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
-    const impactedTasks = [...new Set(impactedMatches.map((t) => t.toUpperCase()))];
-    const lineNumber = i + 1;
-    items.push({
-      id: rawId.toUpperCase(),
-      category: unwrapMarkdownInline(cells[1]) || "\u4E8B\u696D\u5224\u65AD",
-      fact: cells[2] || "",
-      reason: cells[3] || "",
-      question: cells[4] || "",
-      status,
-      confirmed: isOpenQuestionConfirmed(status),
-      impactedTasks,
-      sourceFile,
-      sourceLine: lineNumber,
-      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
-    });
-  }
-  return items;
-}
-function mergeOpenQuestions(...lists) {
-  const byId = /* @__PURE__ */ new Map();
-  for (const list of lists) {
-    for (const q of list || []) {
-      const existing = byId.get(q.id);
-      if (!existing) {
-        byId.set(q.id, { ...q, impactedTasks: [...q.impactedTasks] });
-      } else {
-        const confirmed = existing.confirmed && q.confirmed;
-        const impactedTasks = [.../* @__PURE__ */ new Set([...existing.impactedTasks, ...q.impactedTasks])];
-        byId.set(q.id, {
-          ...existing,
-          status: confirmed ? existing.status : existing.confirmed ? q.status : existing.status,
-          confirmed,
-          impactedTasks
-        });
-      }
-    }
-  }
-  return [...byId.values()];
-}
-function parseAlternativesRejected(designText, sourceFile = null) {
-  const normalized = normalizeNewlines(designText || "");
-  const lines = normalized.split("\n");
-  const items = [];
-  let inFence = false;
-  let fenceChar = "";
-  let inSection = false;
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    const fenceMatch = line.match(/^[ \t]*(`{3,}|~{3,})/);
-    if (fenceMatch) {
-      if (!inFence) {
-        inFence = true;
-        fenceChar = fenceMatch[1][0];
-      } else if (fenceMatch[1][0] === fenceChar) {
-        inFence = false;
-        fenceChar = "";
-      }
-      continue;
-    }
-    if (inFence) continue;
-    if (/^##[ \t]+.*(?:採らなかった設計|Alternatives Rejected).*$/i.test(line)) {
-      inSection = true;
-      continue;
-    }
-    if (inSection && /^##[ \t]+\S/.test(line)) {
-      break;
-    }
-    if (!inSection) continue;
-    const cells = splitMarkdownTableRow(line);
-    if (!cells || cells.length < 3) continue;
-    const first = unwrapMarkdownInline(cells[0]);
-    if (/^(?:候補案|Option|Alternative)$/i.test(first) || SEPARATOR_CELL_RE.test(first)) continue;
-    if (PLACEHOLDER_CELL_RE.test(first) || /^（?該当なし）?$/.test(first)) continue;
-    const lineNumber = i + 1;
-    items.push({
-      option: cells[0],
-      reason: cells[1],
-      revisitWhen: cells[2],
-      sourceFile,
-      sourceLine: lineNumber,
-      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null
-    });
-  }
-  return items;
-}
-function extractTaskBlockers(taskBlock) {
-  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
-  if (!blockersMatch) return [];
-  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
-  const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
-  const ids = section.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
-  return [...new Set(ids.map((id) => id.toUpperCase()))];
-}
-var BARE_BLOCKER_LINE_RE = /^T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*(?:\s*[,、]\s*T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)*$/i;
-function extractDeclaredBlockers(taskBlock) {
-  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
-  if (!blockersMatch) return [];
-  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
-  const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = (nextSub ? rest.slice(0, nextSub.index) : rest).replace(/<!--[\s\S]*?-->/g, "");
-  const ids = [];
-  for (const raw of section.split("\n")) {
-    const line = raw.trim().replace(/^[-*+][ \t]+/, "").trim();
-    if (!BARE_BLOCKER_LINE_RE.test(line)) continue;
-    for (const id of line.split(/\s*[,、]\s*/)) {
-      if (/^T-(?:X+|N+)$/i.test(id)) continue;
-      ids.push(id.toUpperCase());
-    }
-  }
-  return [...new Set(ids)];
-}
-function extractScopePaths(taskBlock) {
-  const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
-  if (!scopeMatch) return [];
-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
-  const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
-  const paths = [];
-  for (const line of section.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith("-")) continue;
-    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
-    const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ""));
-    for (const token of tokens) paths.push(...expandScopeToken(token));
-  }
-  return [...new Set(paths)];
-}
-var SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
-var SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~]+$/;
-function bareScopeTokens(text) {
-  const words = stripScopeNote(text).split(/\s+/).filter(Boolean).map(stripScopeNote);
-  if (words.length === 1) {
-    return SCOPE_PATH_CHARS_RE.test(words[0]) && !SCOPE_PLACEHOLDER_RE.test(words[0]) ? words : [];
-  }
-  return words.filter(
-    (w) => SCOPE_PATH_CHARS_RE.test(w) && /\.[A-Za-z0-9]+$|\/$|[*?]|\{[^{}]*,[^{}]*\}/.test(w)
-  );
-}
-function stripScopeNote(token) {
-  return String(token).replace(/\([^()]*\)|（[^（）]*）/g, " ").replace(/[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
-}
-function expandScopeToken(token) {
-  const cleaned = stripScopeNote(String(token).trim());
-  if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
-  const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
-  if (!brace) {
-    const normalized = normalizeRelPath2(cleaned);
-    return normalized ? [normalized] : [];
-  }
-  const head = cleaned.slice(0, brace.index);
-  const tail = cleaned.slice(brace.index + brace[0].length);
-  return brace[1].split(",").flatMap((alt) => expandScopeToken(`${head}${alt}${tail}`));
-}
-function canonicalScopeEntry(io, entry) {
-  if (!io || typeof io.canonicalRelPath !== "function") return entry;
-  const parts = entry.split("/");
-  const firstWild = parts.findIndex((p) => /[*?]/.test(p));
-  const staticLen = firstWild === -1 ? parts.length : firstWild;
-  for (let n = staticLen; n > 0; n -= 1) {
-    const real = io.canonicalRelPath(parts.slice(0, n).join("/"));
-    if (real !== null && real !== void 0) {
-      return [real, ...parts.slice(n)].filter((p) => p !== "").join("/") || entry;
-    }
-  }
-  return entry;
-}
-function normalizeRiskTier(raw, fallback = "standard") {
-  const value = String(raw || "").trim().toLowerCase();
-  if (value === "high" || value === "critical") return "high";
-  if (value === "standard" || value === "medium") return "standard";
-  if (value === "low") return "low";
-  return fallback;
-}
-function parseTasksSummary(tasksText) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || "");
-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}
-
-${afterAmendments}` : beforeAmendments);
-  const tasks = [];
-  const h2Re = /^##[ \t]+(.+)$/gm;
-  const headings = [...body.matchAll(h2Re)];
-  for (let i = 0; i < headings.length; i += 1) {
-    const h = headings[i];
-    const titleLine = h[1].trim();
-    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
-    if (!taskMatch) continue;
-    const start = h.index + h[0].length;
-    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
-    const block = body.slice(start, end);
-    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || "Draft";
-    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || "Planned";
-    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], "standard");
-    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
-    const taskId = taskMatch[1].toUpperCase();
-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
-    const declaredBlockers = extractDeclaredBlockers(block);
-    const selfBlocked = declaredBlockers.includes(taskId);
-    tasks.push({
-      selfBlocked,
-      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
-      id: taskId,
-      title: (taskMatch[2] || "").trim(),
-      approval,
-      status,
-      risk,
-      acRefs,
-      blockers,
-      block
-    });
-  }
-  return tasks;
-}
-function detectDomains(combinedText) {
-  const text = String(combinedText || "");
-  const domains = /* @__PURE__ */ new Set();
-  if (/(?:\.sqlproj\b|\.sql\b|\b(?:PostgreSQL|MySQL|SQL Server|Azure SQL|Flyway|DACPAC|DDL|RLS)\b|\bdb\/migrations?\b|\bschema\s+migration\b)/i.test(
-    text
-  )) {
-    domains.add("SQL");
-  }
-  if (/(?:\b(?:AWS|CDK|CloudFormation|sdd-aws-cloud|CloudWatch|Lambda|DynamoDB|RDS|Aurora)\b|\bS3\s+bucket\b|\bAWS\s+IAM\b|\binfra\/aws\b)/i.test(
-    text
-  )) {
-    domains.add("AWS");
-  }
-  if (/(?:\b(?:Azure|Bicep|sdd-azure-cloud|Azure Monitor|AKS|App Service|Key Vault)\b|\bARM\s+template\b|\binfra\/azure\b)/i.test(
-    text
-  )) {
-    domains.add("Azure");
-  }
-  if (/(?:\bTerraform\b|\.tf\b)/i.test(text) && !domains.has("AWS") && !domains.has("Azure")) {
-    domains.add("Cloud");
-  }
-  if (/(?:(?:^|[\s`'"(])domain\/|\b(?:Bounded-Context|domain-contract\.json|sdd-domain|Aggregate\s+Root)\b|集約(?:の|を|境界))/i.test(
-    text
-  )) {
-    domains.add("DDD");
-  }
-  if (domains.size === 0 || /(?:\b(?:src\/|app\/|lib\/|api\/|components\/|UI|API|CLI|SDK|Node\.js|TypeScript|JavaScript|Python|Go|Rust|Java|React|Next\.js)\b|アプリ|フロントエンド|バックエンド)/i.test(
-    text
-  )) {
-    domains.add("Software");
-  }
-  return [...domains];
-}
-function scopeMatchesFile(scopeEntry, changedFile) {
-  const sp = normalizeRelPath2(scopeEntry);
-  const cf = normalizeRelPath2(changedFile);
-  if (!sp || !cf) return false;
-  if (/[*?]/.test(sp)) {
-    return globToRegExp(sp).test(cf);
-  }
-  return cf === sp || cf.startsWith(`${sp}/`);
-}
-function globStaticDir(glob) {
-  const parts = glob.split("/");
-  const staticParts = [];
-  for (const part of parts) {
-    if (/[*?]/.test(part)) break;
-    staticParts.push(part);
-  }
-  return staticParts.join("/");
-}
-function scopeEntriesOverlap(a, b) {
-  const na = normalizeRelPath2(a);
-  const nb = normalizeRelPath2(b);
-  if (!na || !nb) return false;
-  if (na === nb) return true;
-  const aWild = /[*?]/.test(na);
-  const bWild = /[*?]/.test(nb);
-  if (!aWild && !bWild) {
-    return na.startsWith(`${nb}/`) || nb.startsWith(`${na}/`);
-  }
-  if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
-    return true;
-  }
-  if (aWild && bWild) {
-    const dirA = globStaticDir(na);
-    const dirB = globStaticDir(nb);
-    if (dirA === dirB) return true;
-    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
-    if (!dirA && na.includes("**") || !dirB && nb.includes("**")) return true;
-  }
-  return false;
-}
-function isTestPath(relPath) {
-  const lower = normalizeRelPath2(relPath).toLowerCase();
-  return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
-}
-var APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
-function taskApprovalBaseline(rawText, fileName) {
-  if (String(fileName || "").toLowerCase() !== "tasks.md") return null;
-  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, "Approval: <NORMALIZED>");
-  const taskApprovals = {};
-  for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
-  return { approvalContractSha256: sha256Text(contract), taskApprovals };
-}
-var isApproved = (value) => /^Approved\b/.test(String(value || ""));
-function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: config2 = null }) {
-  assertValidFeatureName(feature);
-  const resolvedBaselineRel = sanitizeRelPath(baselineRelPath || `specs/${feature}/.spec-baseline.json`);
-  if (!resolvedBaselineRel) {
-    throw new Error("Invalid baseline path.");
-  }
-  const rawBaseline = io.readText(resolvedBaselineRel);
-  if (rawBaseline === null) {
-    throw new Error(`Baseline file not found: ${resolvedBaselineRel}`);
-  }
-  const baseline = JSON.parse(rawBaseline);
-  if (!baseline || typeof baseline !== "object" || Array.isArray(baseline)) {
-    throw new Error(`Invalid baseline JSON structure in ${resolvedBaselineRel}`);
-  }
-  const effectiveConfig = config2 || loadGuardrailsConfigFromIo(io);
-  const featureDirRel = `specs/${feature}`;
-  const changedFiles = [];
-  const deletedFiles = [];
-  const addedFiles = [];
-  const removedIdentifiers = [];
-  const modifiedIdentifiers = [];
-  const addedIdentifiers = [];
-  const allCurrentAmendments = [];
-  const revokedApprovals = [];
-  const newlyApprovedTasks = [];
-  for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
-    const safeRel = sanitizeRelPath(rawRelPath);
-    if (!safeRel || !safeRel.startsWith(`specs/${feature}/`)) {
-      throw new Error(`Unsafe baseline file entry outside specs/${feature}/: ${rawRelPath}`);
-    }
-    const baseIds = (baseInfo && typeof baseInfo === "object" ? baseInfo.identifiers : null) || {};
-    const rawText = io.readText(safeRel);
-    if (rawText === null) {
-      deletedFiles.push(safeRel);
-      for (const [id, info] of Object.entries(baseIds)) {
-        removedIdentifiers.push({ id, file: safeRel, before: info?.line || "" });
-      }
-      continue;
-    }
-    const fileName = baseInfo && baseInfo.fileName || path2.posix.basename(safeRel);
-    const approvalView = typeof baseInfo?.approvalContractSha256 === "string" ? taskApprovalBaseline(rawText, fileName) : null;
-    if (approvalView) {
-      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
-        changedFiles.push(safeRel);
-      }
-      for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
-        if (!(id in approvalView.taskApprovals)) continue;
-        const now = approvalView.taskApprovals[id];
-        if (isApproved(was) && !isApproved(now)) revokedApprovals.push(id);
-        else if (!isApproved(was) && isApproved(now)) newlyApprovedTasks.push(id);
-      }
-    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
-      changedFiles.push(safeRel);
-    }
-    const curIds = extractSpecIdentifiers(rawText);
-    for (const [id, baseIdInfo] of Object.entries(baseIds)) {
-      const cur = curIds[id];
-      if (!cur) {
-        removedIdentifiers.push({ id, file: safeRel, before: baseIdInfo?.line || "" });
-      } else if (cur.hash !== baseIdInfo?.hash) {
-        modifiedIdentifiers.push({ id, file: safeRel, before: baseIdInfo?.line || "", after: cur.line });
-      }
-    }
-    for (const [id, cur] of Object.entries(curIds)) {
-      if (!baseIds[id]) {
-        addedIdentifiers.push({ id, file: safeRel, after: cur.line });
-      }
-    }
-    for (const entry of extractAmendmentEntries(rawText)) {
-      allCurrentAmendments.push({ file: safeRel, text: entry });
-    }
-  }
-  for (const entry of io.listDir(featureDirRel)) {
-    if (!entry.isFile || entry.name.startsWith(".")) continue;
-    const relFile = `${featureDirRel}/${entry.name}`;
-    const matched = matchProtectedSpecRelPath(relFile, effectiveConfig);
-    if (!matched || baseline.files && baseline.files[matched.relPath]) continue;
-    const rawText = io.readText(matched.relPath);
-    if (rawText === null) continue;
-    addedFiles.push(matched.relPath);
-    for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
-      addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
-    }
-    for (const item of extractAmendmentEntries(rawText)) {
-      allCurrentAmendments.push({ file: matched.relPath, text: item });
-    }
-  }
-  const hasDrift = changedFiles.length > 0 || deletedFiles.length > 0 || addedFiles.length > 0 || removedIdentifiers.length > 0 || modifiedIdentifiers.length > 0 || revokedApprovals.length > 0;
-  const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
-  const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
-  let status = "CLEAN";
-  if (hasDrift) {
-    status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
-  }
-  const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
-  const seenPerFile = /* @__PURE__ */ new Map();
-  const newAmendments = allCurrentAmendments.filter((a) => {
-    const index = seenPerFile.get(a.file) || 0;
-    seenPerFile.set(a.file, index + 1);
-    const recorded = baseline.files && baseline.files[a.file];
-    return index >= Number(recorded && recorded.amendmentCount || 0);
-  });
-  const changedIdsWithoutAmendment = changedIds.filter((id) => {
-    const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, "\\-")}([^0-9]|$)`, "i");
-    return !newAmendments.some((a) => re.test(a.text));
-  });
-  return {
-    schema: "sdd-spec-drift/v1",
-    feature,
-    status,
-    baselineRecordedAt: baseline.recordedAt || null,
-    baselineGitHead: baseline.gitHead || null,
-    changedFiles,
-    deletedFiles,
-    addedFiles,
-    removedIdentifiers,
-    modifiedIdentifiers,
-    addedIdentifiers,
-    amendments: allCurrentAmendments,
-    baselineAmendmentCount,
-    changedIdsWithoutAmendment,
-    revokedApprovals,
-    newlyApprovedTasks
-  };
-}
-function computeExecutionPlan(tasks) {
-  const byId = new Map(tasks.map((t) => [t.id, t]));
-  const remaining = new Set(tasks.map((t) => t.id));
-  const completed = /* @__PURE__ */ new Set();
-  const batches = [];
-  const scopeConflicts = [];
-  const ancestorsOf = /* @__PURE__ */ new Map();
-  function getAncestors(taskId) {
-    if (ancestorsOf.has(taskId)) return ancestorsOf.get(taskId);
-    const visited = /* @__PURE__ */ new Set();
-    const stack = [...byId.get(taskId)?.blockers || []];
-    while (stack.length > 0) {
-      const cur = stack.pop();
-      if (!cur || visited.has(cur) || cur === taskId) continue;
-      visited.add(cur);
-      const node2 = byId.get(cur);
-      if (node2) {
-        for (const dep of node2.blockers || []) {
-          if (!visited.has(dep)) stack.push(dep);
-        }
-      }
-    }
-    ancestorsOf.set(taskId, visited);
-    return visited;
-  }
-  for (let i = 0; i < tasks.length; i += 1) {
-    for (let j = i + 1; j < tasks.length; j += 1) {
-      const a = tasks[i];
-      const b = tasks[j];
-      const aBlocksB = getAncestors(b.id).has(a.id);
-      const bBlocksA = getAncestors(a.id).has(b.id);
-      if (aBlocksB || bBlocksA) continue;
-      const overlaps = [];
-      for (const sa of a.planScopes || a.scopePaths || []) {
-        for (const sb of b.planScopes || b.scopePaths || []) {
-          if (scopeEntriesOverlap(sa, sb)) {
-            overlaps.push(`${sa} <-> ${sb}`);
-          }
-        }
-      }
-      if (overlaps.length > 0) {
-        scopeConflicts.push({ tasks: [a.id, b.id], overlaps: [...new Set(overlaps)] });
-      }
-    }
-  }
-  const unknownBlockers = [];
-  for (const t of tasks) {
-    for (const b of t.declaredBlockers || []) {
-      if (!byId.has(b)) unknownBlockers.push({ task: t.id, blocker: b });
-    }
-  }
-  const invalid = /* @__PURE__ */ new Set([...unknownBlockers.map((u) => u.task), ...tasks.filter((t) => t.selfBlocked).map((t) => t.id)]);
-  let grew = true;
-  while (grew) {
-    grew = false;
-    for (const t of tasks) {
-      if (!invalid.has(t.id) && (t.blockers || []).some((b) => invalid.has(b))) {
-        invalid.add(t.id);
-        grew = true;
-      }
-    }
-  }
-  for (const id of invalid) remaining.delete(id);
-  let guard = 0;
-  while (remaining.size > 0 && guard < tasks.length + 2) {
-    guard += 1;
-    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
-    if (ready.length === 0) {
-      break;
-    }
-    const wave = [];
-    const waveScopes = [];
-    for (const candidate of ready) {
-      const candScopes = candidate.planScopes || candidate.scopePaths || [];
-      if (candScopes.length === 0) {
-        if (wave.length > 0) continue;
-        wave.push(candidate.id);
-        break;
-      }
-      const conflicts = waveScopes.some(
-        (existing) => candScopes.some((cs) => scopeEntriesOverlap(existing, cs))
-      );
-      if (!conflicts) {
-        wave.push(candidate.id);
-        waveScopes.push(...candScopes);
-      }
-    }
-    if (wave.length === 0) {
-      wave.push(ready[0].id);
-    }
-    batches.push(wave);
-    for (const id of wave) {
-      remaining.delete(id);
-      completed.add(id);
-    }
-  }
-  const onCycle = /* @__PURE__ */ new Set();
-  for (const t of tasks) {
-    const seen = /* @__PURE__ */ new Set();
-    const stack = [...(t.blockers || []).filter((b) => byId.has(b))];
-    while (stack.length > 0) {
-      const cur = stack.pop();
-      if (cur === t.id) {
-        onCycle.add(t.id);
-        break;
-      }
-      if (seen.has(cur)) continue;
-      seen.add(cur);
-      for (const b of byId.get(cur)?.blockers || []) if (byId.has(b)) stack.push(b);
-    }
-  }
-  const cyclicTasks = [.../* @__PURE__ */ new Set([...remaining, ...tasks.map((t) => t.id).filter((id) => onCycle.has(id))])];
-  const invalidBlockerTasks = [...new Set(tasks.filter((t) => invalid.has(t.id)).map((t) => t.id))];
-  return { batches, scopeConflicts, cyclicTasks, unknownBlockers, invalidBlockerTasks };
-}
-function analyzeTraceabilityCore(io, { feature, changedIds = [], changedFiles = [], checkCodeAndTests = true }) {
-  assertValidFeatureName(feature);
-  const reqRel = `specs/${feature}/requirements.md`;
-  const tasksRel = `specs/${feature}/tasks.md`;
-  const reqRaw = io.readText(reqRel);
-  const tasksRaw = io.readText(tasksRel);
-  if (reqRaw === null || tasksRaw === null) {
-    throw new Error(`Missing requirements.md or tasks.md under specs/${feature}`);
-  }
-  const reqText = normalizeNewlines(reqRaw);
-  const tasksText = normalizeNewlines(tasksRaw);
-  const idMap = extractSpecIdentifiers(reqText);
-  const reqIds = Object.keys(idMap).filter((id) => id.startsWith("REQ-")).sort();
-  const acIds = Object.keys(idMap).filter((id) => id.startsWith("AC-")).sort();
-  const reqSet = new Set(reqIds);
-  const acSet = new Set(acIds);
-  const acToReqs = {};
-  const reqToAcs = Object.fromEntries(reqIds.map((r) => [r, []]));
-  const unlinkedAcs = [];
-  const brokenReqRefs = [];
-  for (const ac of acIds) {
-    const line = idMap[ac]?.line || "";
-    const linkedReqs = [...new Set((line.match(/\bREQ-\d+\b/gi) || []).map((r) => r.toUpperCase()))];
-    acToReqs[ac] = linkedReqs;
-    if (linkedReqs.length === 0) {
-      unlinkedAcs.push(ac);
-    }
-    for (const r of linkedReqs) {
-      if (reqSet.has(r)) {
-        reqToAcs[r].push(ac);
-      } else {
-        brokenReqRefs.push({ ac, missingReq: r });
-      }
-    }
-  }
-  const rawTasks = parseTasksSummary(tasksText);
-  const acToTasks = Object.fromEntries(acIds.map((a) => [a, []]));
-  const brokenAcRefs = [];
-  const tasks = rawTasks.map((t) => {
-    const scopePaths = extractScopePaths(t.block);
-    const domains = detectDomains(`${t.title}
-${t.block}`);
-    for (const ac of t.acRefs) {
-      if (acSet.has(ac)) {
-        acToTasks[ac].push(t.id);
-      } else {
-        brokenAcRefs.push({ task: t.id, missingAc: ac });
-      }
-    }
-    const codePaths = [];
-    const testPaths = [];
-    const missingScopePaths = [];
-    if (checkCodeAndTests) {
-      for (const sp of scopePaths) {
-        if (/[*?]/.test(sp)) {
-          if (isTestPath(sp)) testPaths.push(sp);
-          else codePaths.push(sp);
-          continue;
-        }
-        const safe = sanitizeRelPath(sp);
-        const exists = safe ? io.exists(safe) : false;
-        if (isTestPath(sp)) testPaths.push(sp);
-        else codePaths.push(sp);
-        if (!exists && (t.status === "Implementation Complete" || t.status === "Done")) {
-          missingScopePaths.push(sp);
-        }
-      }
-    }
-    return {
-      id: t.id,
-      title: t.title,
-      risk: t.risk,
-      approval: t.approval,
-      status: t.status,
-      acRefs: t.acRefs,
-      blockers: t.blockers,
-      selfBlocked: Boolean(t.selfBlocked),
-      declaredBlockers: t.declaredBlockers || [],
-      scopePaths,
-      planScopes: [...new Set(scopePaths.map((sp) => canonicalScopeEntry(io, sp)))],
-      domains,
-      codePaths,
-      testPaths,
-      missingScopePaths
-    };
-  });
-  const orphanReqs = reqIds.filter((r) => reqToAcs[r].length === 0);
-  const unassignedAcs = acIds.filter((a) => acToTasks[a].length === 0);
-  const dependentsByBlocker = /* @__PURE__ */ new Map();
-  for (const t of tasks) {
-    for (const blocker of t.blockers) {
-      if (!dependentsByBlocker.has(blocker)) dependentsByBlocker.set(blocker, []);
-      dependentsByBlocker.get(blocker).push(t.id);
-    }
-  }
-  const normalizedChangedIds = new Set(changedIds.map((id) => String(id).trim().toUpperCase()).filter(Boolean));
-  const normalizedChangedFiles = changedFiles.map((f) => normalizeRelPath2(f)).filter(Boolean);
-  for (const id of [...normalizedChangedIds]) {
-    if (id.startsWith("REQ-") && reqToAcs[id]) {
-      for (const ac of reqToAcs[id]) normalizedChangedIds.add(ac);
-    }
-  }
-  const directImpacted = /* @__PURE__ */ new Set();
-  for (const t of tasks) {
-    if (normalizedChangedIds.has(t.id)) {
-      directImpacted.add(t.id);
-    }
-    if (t.acRefs.some((ac) => normalizedChangedIds.has(ac))) {
-      directImpacted.add(t.id);
-    }
-    if (normalizedChangedFiles.length > 0 && t.scopePaths.some((sp) => normalizedChangedFiles.some((cf) => scopeMatchesFile(sp, cf)))) {
-      directImpacted.add(t.id);
-    }
-  }
-  const impactedSet = new Set(directImpacted);
-  const transitiveImpacted = /* @__PURE__ */ new Set();
-  const queue = [...directImpacted];
-  while (queue.length > 0) {
-    const current = queue.shift();
-    for (const dep of dependentsByBlocker.get(current) || []) {
-      if (!impactedSet.has(dep)) {
-        impactedSet.add(dep);
-        transitiveImpacted.add(dep);
-        queue.push(dep);
-      }
-    }
-  }
-  const taskOrder = tasks.map((t) => t.id);
-  const impactedTasks = taskOrder.filter((id) => impactedSet.has(id));
-  const reusableTasks = taskOrder.filter((id) => !impactedSet.has(id));
-  const executionPlan = computeExecutionPlan(tasks);
-  const acCodeTestCoverage = acIds.map((ac) => {
-    const linked = tasks.filter((t) => t.acRefs.includes(ac));
-    const code = [...new Set(linked.flatMap((t) => t.codePaths))];
-    const tests = [...new Set(linked.flatMap((t) => t.testPaths))];
-    return {
-      ac,
-      tasks: linked.map((t) => t.id),
-      hasCodeScope: code.length > 0,
-      hasTestScope: tests.length > 0,
-      codePaths: code,
-      testPaths: tests
-    };
-  });
-  const complete = reqIds.length > 0 && acIds.length > 0 && orphanReqs.length === 0 && unassignedAcs.length === 0 && unlinkedAcs.length === 0 && brokenReqRefs.length === 0 && brokenAcRefs.length === 0;
-  return {
-    schema: "sdd-traceability/v1",
-    feature,
-    complete,
-    requirements: reqIds.map((r) => ({ id: r, acs: reqToAcs[r] })),
-    acceptanceCriteria: acIds.map((a) => ({ id: a, reqs: acToReqs[a], tasks: acToTasks[a] })),
-    tasks,
-    gaps: {
-      orphanReqs,
-      unassignedAcs,
-      unlinkedAcs,
-      brokenReqRefs,
-      brokenAcRefs
-    },
-    impact: {
-      changedIds: [...normalizedChangedIds],
-      changedFiles: normalizedChangedFiles,
-      directImpactedTasks: taskOrder.filter((id) => directImpacted.has(id)),
-      transitiveImpactedTasks: taskOrder.filter((id) => transitiveImpacted.has(id)),
-      impactedTasks,
-      reusableTasks
-    },
-    executionPlan,
-    acCodeTestCoverage
-  };
-}
-function loadProductReviewPerspectives(io) {
-  const jsonRaw = io.readText("sdd/knowledge/review-perspectives.json");
-  if (jsonRaw !== null) {
-    try {
-      const parsed = JSON.parse(jsonRaw);
-      if (Array.isArray(parsed?.perspectives)) {
-        return parsed.perspectives.filter((p) => p && typeof p.id === "string" && typeof p.perspective === "string").map((p) => ({
-          id: String(p.id),
-          area: String(p.area || "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709"),
-          perspective: String(p.perspective),
-          humanQuestion: String(p.humanQuestion || p.question || ""),
-          defaultDisposition: String(p.disposition || p.defaultDisposition || "\u63A1\u7528"),
-          reason: typeof p.reason === "string" ? p.reason : "",
-          domains: Array.isArray(p.domains) ? p.domains.map(String) : []
-        }));
-      }
-    } catch {
-    }
-  }
-  const yamlRaw = io.readText("sdd/knowledge/review-perspectives.yaml");
-  if (yamlRaw !== null) {
-    const lines = normalizeNewlines(yamlRaw).split("\n");
-    const items = [];
-    let current = null;
-    for (const rawLine of lines) {
-      const line = stripYamlComment(rawLine);
-      if (!line.trim()) continue;
-      const itemStart = line.match(/^[ \t]*-[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
-      if (itemStart) {
-        if (current && current.id && current.perspective) items.push(current);
-        current = {
-          id: "",
-          area: "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709",
-          perspective: "",
-          humanQuestion: "",
-          defaultDisposition: "\u63A1\u7528",
-          reason: "",
-          domains: []
-        };
-        const k = itemStart[1];
-        const v = itemStart[2].trim().replace(/^["']|["']$/g, "");
-        current[k === "question" ? "humanQuestion" : k === "disposition" ? "defaultDisposition" : k] = v;
-        continue;
-      }
-      const propMatch = line.match(/^[ \t]+([A-Za-z0-9_]+):[ \t]*(.*)$/);
-      if (propMatch && current) {
-        const k = propMatch[1];
-        const v = propMatch[2].trim().replace(/^["']|["']$/g, "");
-        if (k === "domains") {
-          current.domains = v.replace(/^\[|\]$/g, "").split(",").map((s) => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
-        } else {
-          current[k === "question" ? "humanQuestion" : k === "disposition" ? "defaultDisposition" : k] = v;
-        }
-      }
-    }
-    if (current && current.id && current.perspective) items.push(current);
-    return items;
-  }
-  return [];
-}
-function buildReviewPerspectiveMatrix({
-  domains,
-  highestRisk,
-  specCheckVerdict,
-  openQuestions,
-  alternativesRejected,
-  productPerspectives = []
-}) {
-  const hasSql = domains.includes("SQL");
-  const hasCloud = domains.includes("AWS") || domains.includes("Azure") || domains.includes("Cloud");
-  const hasDdd = domains.includes("DDD");
-  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
-  const matrix = COMMON_REVIEW_PERSPECTIVES.map((p) => {
-    let disposition = p.defaultDisposition;
-    let reason = "";
-    if (p.id === "C01") {
-      disposition = alternativesRejected.length > 0 ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
-      reason = alternativesRejected.length > 0 ? `\u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\u304C ${alternativesRejected.length} \u4EF6\u8A18\u9332\u3055\u308C\u3066\u304A\u308A\u5224\u65AD\u6839\u62E0\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u6A19\u6E96\u69CB\u6210\u3002spec-check \u3067\u65E2\u5B58\u8A2D\u8A08\u3068\u306E\u6574\u5408\u3092\u78BA\u8A8D\u6E08\u307F\u3002";
-    } else if (p.id === "C02") {
-      disposition = hasSql || hasDdd || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u8EFD\u304F\u78BA\u8A8D";
-      reason = hasSql || hasDdd ? `${domains.join("/")} \u9818\u57DF\u3092\u542B\u307F\u30C7\u30FC\u30BF\u5883\u754C\u30FB\u4E0D\u5909\u6761\u4EF6\u306E\u5F71\u97FF\u304C\u5927\u304D\u3044\u3002` : "\u30C7\u30FC\u30BF\u30E2\u30C7\u30EB\u5909\u66F4\u306E\u5F71\u97FF\u304C\u9650\u5B9A\u7684\u3002";
-    } else if (p.id === "C03") {
-      disposition = highestRisk === "high" ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
-      reason = highestRisk === "high" ? "Risk: high \u306E\u305F\u3081\u7834\u58CA\u7684\u5951\u7D04\u5909\u66F4\u30FB\u8A8D\u53EF\u6761\u4EF6\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002" : "\u65E2\u5B58\u30EB\u30FC\u30EB\u901A\u308A\u306E\u30A4\u30F3\u30BF\u30FC\u30D5\u30A7\u30FC\u30B9\u8A2D\u8A08\u3002";
-    } else if (p.id === "C04") {
-      disposition = highestRisk === "high" ? "\u63A1\u7528" : "\u8EFD\u304F\u78BA\u8A8D";
-      reason = highestRisk === "high" ? "\u7570\u5E38\u30EB\u30FC\u30C8\u30FB\u4E26\u5217\u7AF6\u5408\u306E\u59A5\u5F53\u6027\u78BA\u8A8D\u3092\u63A8\u5968\u3002" : "\u72B6\u614B\u9077\u79FB\u304C\u5358\u7D14\u3067\u5358\u4F53\u30C6\u30B9\u30C8\u3067\u691C\u8A3C\u53EF\u80FD\u3002";
-    } else if (p.id === "C05") {
-      disposition = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u6700\u91CD\u8981" : "\u4F4E\u512A\u5148";
-      reason = hasCloud || openQuestions.some((q) => q.category.includes("\u4ED6\u30C1\u30FC\u30E0")) ? "\u30AF\u30E9\u30A6\u30C9\u5916\u90E8\u9023\u643A\u307E\u305F\u306F\u4ED6\u30C1\u30FC\u30E0\u5951\u7D04\u306E\u672A\u78BA\u5B9A\u8AD6\u70B9\u3092\u542B\u3080\u3002" : "\u5358\u4E00\u30B5\u30FC\u30D3\u30B9\u5185\u3067\u5B8C\u7D50\u3057\u4E0D\u53EF\u9006\u306A\u5916\u90E8\u9023\u643A\u306A\u3057\u3002";
-    } else if (p.id === "C06") {
-      disposition = provisionalCount > 0 ? "\u6700\u91CD\u8981" : "\u63A1\u7528";
-      reason = provisionalCount > 0 ? `\u672A\u78BA\u5B9A\u4E8B\u9805\uFF08OQ-NNN\uFF09\u304C ${provisionalCount} \u4EF6\u3042\u308A\u3001\u4E8B\u696D\u5224\u65AD\u30FB\u696D\u52D9\u4F8B\u5916\u306E\u78BA\u8A8D\u304C\u5FC5\u8981\u3002` : "\u696D\u52D9\u30EB\u30FC\u30EB\u30FB\u5883\u754C\u5024\u306F AC \u3068\u30C6\u30B9\u30C8\u65B9\u91DD\u306B\u843D\u3068\u3057\u8FBC\u307F\u6E08\u307F\u3002";
-    } else if (p.id === "C07") {
-      disposition = "\u6A5F\u68B0\u691C\u8A3C";
-      reason = `check-traceability.mjs / check-spec-drift.mjs / spec-check (${specCheckVerdict}) \u3067\u81EA\u52D5\u7167\u5408\u6E08\u307F\u3002\u4EBA\u306F\u9038\u8131\u6642\u306E\u307F\u78BA\u8A8D\u3002`;
-    } else if (p.id === "C08") {
-      disposition = hasSql || hasCloud || highestRisk === "high" ? "\u6700\u91CD\u8981" : "\u6A5F\u68B0\u691C\u8A3C";
-      reason = hasSql || hasCloud || highestRisk === "high" ? "SQL/Cloud/\u9AD8\u30EA\u30B9\u30AF\u9818\u57DF\u3092\u542B\u3080\u305F\u3081\u3001\u6A5F\u68B0\u30BB\u30F3\u30B5\u30FC\uFF0B\u4EBA\u9593\u306E\u5207\u623B\u3057\u78BA\u8A8D\u3092\u4F75\u7528\u3002" : "run-sdd-gate.mjs \u306E\u6C7A\u5B9A\u8AD6\u30BB\u30F3\u30B5\u30FC\uFF08Secret/Placeholder/lint/test\uFF09\u3067\u81EA\u52D5\u691C\u8A3C\u3002";
-    }
-    return {
-      id: p.id,
-      area: p.area,
-      perspective: p.perspective,
-      humanQuestion: p.humanQuestion,
-      disposition,
-      reason,
-      source: "common"
-    };
-  });
-  for (const pp of productPerspectives) {
-    const domainMatch = !pp.domains || pp.domains.length === 0 || pp.domains.some((d) => domains.includes(d));
-    matrix.push({
-      id: pp.id,
-      area: pp.area || "\u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709",
-      perspective: pp.perspective,
-      humanQuestion: pp.humanQuestion,
-      disposition: domainMatch ? pp.defaultDisposition || "\u63A1\u7528" : "\u4F4E\u512A\u5148",
-      reason: pp.reason || (domainMatch ? "sdd/knowledge/review-perspectives \u306B\u767B\u9332\u3055\u308C\u305F\u30D7\u30ED\u30C0\u30AF\u30C8\u56FA\u6709\u89B3\u70B9\u3002" : `\u5BFE\u8C61\u9818\u57DF\uFF08${pp.domains.join("/")}\uFF09\u5916\u306E\u305F\u3081\u4ECA\u56DE\u306F\u4F4E\u512A\u5148\u3002`),
-      source: "product"
-    });
-  }
-  return matrix;
-}
-function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
-  assertValidFeatureName(feature);
-  const featureDirRel = `specs/${feature}`;
-  const reqRel = `${featureDirRel}/requirements.md`;
-  const designRel = `${featureDirRel}/design.md`;
-  const tasksRel = `${featureDirRel}/tasks.md`;
-  const reqRaw = io.readText(reqRel);
-  const designRaw = io.readText(designRel);
-  const tasksRaw = io.readText(tasksRel);
-  const dirEntries = io.listDir(featureDirRel);
-  const featureDirExists = typeof io.existsDir === "function" ? io.existsDir(featureDirRel) : dirEntries.length > 0;
-  if (reqRaw === null && designRaw === null && tasksRaw === null && !featureDirExists) {
-    throw new Error(`Feature directory not found: specs/${feature}`);
-  }
-  const reqText = reqRaw || "";
-  const designText = designRaw || "";
-  const tasksText = tasksRaw || "";
-  const openQuestions = mergeOpenQuestions(
-    parseOpenQuestions(reqText, reqRel),
-    parseOpenQuestions(designText, designRel)
-  );
-  const alternativesRejected = parseAlternativesRejected(designText, designRel);
-  const tasks = parseTasksSummary(tasksText);
-  const identifiers = extractSpecIdentifiers(reqText);
-  const reqIds = Object.keys(identifiers).filter((id) => id.startsWith("REQ-"));
-  const acIds = Object.keys(identifiers).filter((id) => id.startsWith("AC-"));
-  const domains = detectDomains(`${reqText}
-${designText}
-${tasksText}`);
-  const specCheckRel = `reports/spec-check/${feature}.md`;
-  let specCheckVerdict = "Not Run";
-  const specCheckRaw = io.readText(specCheckRel);
-  if (specCheckRaw !== null) {
-    specCheckVerdict = (specCheckRaw.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || "Recorded";
-  }
-  const gateResults = [];
-  for (const entry of io.listDir("reports/quality-gate")) {
-    if (!entry.isFile || !entry.name.startsWith(`${feature}-`) || !entry.name.endsWith(".execution.json")) {
-      continue;
-    }
-    const raw = io.readText(`reports/quality-gate/${entry.name}`);
-    if (raw === null) continue;
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed.feature !== feature) continue;
-      gateResults.push({
-        taskId: parsed.taskId,
-        verdict: parsed.verdict,
-        specDrift: parsed.checks?.specDrift?.status || "UNKNOWN",
-        sensorsPassed: parsed.checks?.nonFunctionalSensors?.passed ?? true
-      });
-    } catch {
-    }
-  }
-  gateResults.sort((a, b) => String(a.taskId).localeCompare(String(b.taskId)));
-  const effectiveConfig = config2 || loadGuardrailsConfigFromIo(io);
-  const defaultRisk = effectiveConfig?.risk_defaults?.default_tier || "standard";
-  const highestRisk = tasks.length === 0 ? defaultRisk : tasks.some((t) => t.risk === "high") ? "high" : tasks.some((t) => t.risk === "standard") ? "standard" : "low";
-  const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
-  const productPerspectives = loadProductReviewPerspectives(io);
-  const reviewPerspectives = buildReviewPerspectiveMatrix({
-    domains,
-    highestRisk,
-    specCheckVerdict,
-    openQuestions,
-    alternativesRejected,
-    productPerspectives
-  });
-  let traceabilityLinks = [];
-  if (reqRaw !== null && tasksRaw !== null) {
-    try {
-      const trace = analyzeTraceabilityCore(io, { feature, checkCodeAndTests: false });
-      traceabilityLinks = trace.acceptanceCriteria.map((ac) => ({
-        ac: ac.id,
-        reqs: ac.reqs,
-        tasks: ac.tasks
-      }));
-    } catch {
-      traceabilityLinks = [];
-    }
-  }
-  return {
-    schema: "sdd-decision-view/v1",
-    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    feature,
-    domains,
-    highestRisk,
-    specCheckVerdict,
-    counts: {
-      requirements: reqIds.length,
-      acceptanceCriteria: acIds.length,
-      tasksTotal: tasks.length,
-      tasksApproved: tasks.filter((t) => /^Approved\b/i.test(t.approval)).length,
-      tasksDone: tasks.filter((t) => t.status === "Done").length,
-      openQuestionsTotal: openQuestions.length,
-      openQuestionsProvisional: provisionalCount,
-      alternativesRejected: alternativesRejected.length
-    },
-    tasks: tasks.map(({ block, ...rest }) => rest),
-    openQuestions,
-    alternativesRejected,
-    reviewPerspectives,
-    traceabilityLinks,
-    gateResults,
-    sourcePaths: {
-      requirements: reqRel,
-      design: designRel,
-      tasks: tasksRel
-    }
-  };
-}
-function escapeMdCell(text) {
-  return String(text || "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
-}
-function renderDecisionViewMarkdown(data) {
-  const lines = [];
-  lines.push(`# Decision View: ${data.feature}`);
-  lines.push("");
-  lines.push("> \u5168\u6587\u3092\u8AAD\u307F\u89E3\u304F\u4EE3\u308F\u308A\u306B\u3001**\u4EBA\u304C\u5224\u65AD\u3059\u3079\u304D\u8981\u70B9\uFF08\u4E8B\u5B9F\u30FB\u7406\u7531\u30FB\u554F\u3044\uFF09** \u3068 **\u6A5F\u68B0\u691C\u8A3C\u6E08\u307F\u306E\u9818\u57DF** \u3092\u5206\u96E2\u3057\u305F\u30EC\u30D3\u30E5\u30FC\u30D3\u30E5\u30FC\u3067\u3059\u3002");
-  lines.push("");
-  lines.push("## 1. \u5168\u4F53\u50CF\uFF08Overview\uFF09");
-  lines.push("");
-  lines.push("| \u9805\u76EE | \u5024 |");
-  lines.push("|---|---|");
-  lines.push(`| Feature | \`${escapeMdCell(data.feature)}\` |`);
-  lines.push(`| \u5BFE\u8C61\u9818\u57DF (Domains) | ${escapeMdCell(data.domains.join(" / "))} |`);
-  lines.push(`| \u6700\u9AD8\u30EA\u30B9\u30AF\u968E\u5C64 | \`${escapeMdCell(data.highestRisk)}\` |`);
-  lines.push(`| \u8981\u4EF6 / \u53D7\u5165\u6761\u4EF6 | REQ: ${data.counts.requirements} \u4EF6 / AC: ${data.counts.acceptanceCriteria} \u4EF6 |`);
-  lines.push(`| \u30BF\u30B9\u30AF\u9032\u6357 | \u5408\u8A08 ${data.counts.tasksTotal}\uFF08Approved: ${data.counts.tasksApproved}, Done: ${data.counts.tasksDone}\uFF09 |`);
-  lines.push(`| \u7740\u5DE5\u524D spec-check | \`${escapeMdCell(data.specCheckVerdict)}\` |`);
-  lines.push(`| \u672A\u78BA\u5B9A\u4E8B\u9805 (Provisional OQ) | **${data.counts.openQuestionsProvisional} \u4EF6** / \u5168 ${data.counts.openQuestionsTotal} \u4EF6 |`);
-  lines.push(`| \u5143\u306E\u4ED5\u69D8 (SSoT) | \`${escapeMdCell(data.sourcePaths?.requirements || "")}\` / \`${escapeMdCell(data.sourcePaths?.design || "")}\` / \`${escapeMdCell(data.sourcePaths?.tasks || "")}\` |`);
-  lines.push("");
-  if (Array.isArray(data.traceabilityLinks) && data.traceabilityLinks.length > 0) {
-    lines.push("### \u8981\u4EF6 \u21D4 AC \u21D4 \u30BF\u30B9\u30AF\u306E\u3064\u306A\u304C\u308A\uFF08ID \u30C8\u30EC\u30FC\u30B9\uFF09");
-    lines.push("");
-    lines.push("| AC | REQ | Tasks |");
-    lines.push("|---|---|---|");
-    for (const link of data.traceabilityLinks) {
-      lines.push(
-        `| ${escapeMdCell(link.ac)} | ${escapeMdCell(link.reqs.join(", ") || "\u2014")} | ${escapeMdCell(link.tasks.join(", ") || "\u26A0\uFE0F UNASSIGNED")} |`
-      );
-    }
-    lines.push("");
-  }
-  lines.push("## 2. \u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044\uFF08Open Questions / AI \u4EEE\u6C7A\u5B9A\uFF09");
-  lines.push("");
-  if (data.openQuestions.length === 0) {
-    lines.push("- \u672A\u78BA\u5B9A\u306E\u4EEE\u6C7A\u5B9A\uFF08`OQ-NNN`\uFF09\u306F\u3042\u308A\u307E\u305B\u3093\u3002");
-  } else {
-    for (const q of data.openQuestions) {
-      const badge = q.confirmed ? "\u2705 Confirmed" : `\u{1F7E0} ${q.status}\uFF08\u8981\u5224\u65AD\uFF09`;
-      const impacted = q.impactedTasks.length > 0 ? q.impactedTasks.join(", ") : "\u5168\u4F53";
-      const ref = q.sourceRef ? ` / \u51FA\u5178: \`${q.sourceRef}\`` : "";
-      lines.push(`### ${q.id} [${q.category}] \u2014 ${badge}\uFF08\u5F71\u97FF: ${impacted}${ref}\uFF09`);
-      lines.push(`- **\u8A2D\u8A08\u3057\u305F\u4E8B\u5B9F\uFF08\u4EEE\u6C7A\u5B9A\uFF09**: ${q.fact}`);
-      lines.push(`- **\u306A\u305C\u305D\u3046\u3057\u305F\u304B**: ${q.reason}`);
-      lines.push(`- **\u4EBA\u304C\u5224\u65AD\u3059\u308B\u554F\u3044**: ${q.question}`);
-      lines.push("");
-    }
-  }
-  lines.push("");
-  lines.push("## 3. \u63A1\u3089\u306A\u304B\u3063\u305F\u8A2D\u8A08\uFF08Alternatives Rejected\uFF09");
-  lines.push("");
-  if (data.alternativesRejected.length === 0) {
-    lines.push("- \u8A18\u8F09\u306A\u3057\uFF08\u6A19\u6E96\u69CB\u6210\u307E\u305F\u306F\u5358\u4E00\u6848\uFF09\u3002");
-  } else {
-    lines.push("| \u5019\u88DC\u6848 | \u4E0D\u63A1\u7528\u7406\u7531 | \u518D\u691C\u8A0E\u6761\u4EF6 | \u5143\u306E\u7B87\u6240 |");
-    lines.push("|---|---|---|---|");
-    for (const alt of data.alternativesRejected) {
-      lines.push(
-        `| ${escapeMdCell(alt.option)} | ${escapeMdCell(alt.reason)} | ${escapeMdCell(alt.revisitWhen)} | ${escapeMdCell(alt.sourceRef || "\u2014")} |`
-      );
-    }
-  }
-  lines.push("");
-  lines.push("## 4. \u30EC\u30D3\u30E5\u30FC\u89B3\u70B9\u3068\u4ECA\u56DE\u306E\u63A1\u5426\u30FB\u7406\u7531\uFF08\u5171\u901A 8 \u89B3\u70B9 \xD7 \u30D7\u30ED\u30C0\u30AF\u30C8\u7279\u6709\u89B3\u70B9\uFF09");
-  lines.push("");
-  lines.push("| ID | \u9818\u57DF | \u30EC\u30D3\u30E5\u30FC\u89B3\u70B9 | \u4ECA\u56DE | \u4ECA\u56DE\u306E\u7406\u7531 |");
-  lines.push("|---|---|---|---|---|");
-  for (const p of data.reviewPerspectives || []) {
-    lines.push(
-      `| ${escapeMdCell(p.id)} | ${escapeMdCell(p.area)} | ${escapeMdCell(p.perspective)} | **${escapeMdCell(p.disposition)}** | ${escapeMdCell(p.reason)} |`
-    );
-  }
-  lines.push("");
-  if (data.gateResults.length > 0) {
-    lines.push("## 5. sdd-gate \u5B9F\u884C\u72B6\u6CC1");
-    lines.push("");
-    lines.push("| Task | Verdict | Spec Drift | Sensors |");
-    lines.push("|---|---|---|---|");
-    for (const g of data.gateResults) {
-      lines.push(`| ${escapeMdCell(g.taskId)} | ${escapeMdCell(g.verdict)} | ${escapeMdCell(g.specDrift)} | ${g.sensorsPassed ? "PASS" : "FAIL"} |`);
-    }
-    lines.push("");
-  }
-  return `${lines.join("\n")}
-`;
-}
-function walkIoFiles(io, relDir, predicate, out = [], depth = 0, state = { count: 0, maxEntries: 5e3 }) {
-  if (depth > 12 || state.count >= state.maxEntries) return out;
-  const entries = io.listDir(relDir);
-  for (const entry of entries) {
-    if (state.count >= state.maxEntries) break;
-    if (IGNORED_DIRS.has(entry.name)) continue;
-    state.count += 1;
-    const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
-    if (entry.isDirectory) {
-      const segments = childRel.split("/");
-      const repeated = segments.filter((s) => s === entry.name).length;
-      if (repeated > 2) continue;
-      walkIoFiles(io, childRel, predicate, out, depth + 1, state);
-    } else if (entry.isFile && predicate(childRel, entry.name)) {
-      out.push(childRel);
-    }
-  }
-  return out;
-}
-function parseFrontmatter(content) {
-  const normalized = normalizeNewlines(content);
-  if (!normalized.startsWith("---\n")) return null;
-  const endIdx = normalized.indexOf("\n---", 4);
-  if (endIdx === -1) return null;
-  const raw = normalized.slice(4, endIdx);
-  const fields = {};
-  const lines = raw.split("\n");
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    const m = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (!m) continue;
-    const key = m[1];
-    let val = m[2].trim();
-    if (val === "|" || val === ">") {
-      const block = [];
-      while (i + 1 < lines.length && /^[ \t]+/.test(lines[i + 1])) {
-        i += 1;
-        block.push(lines[i].trim());
-      }
-      val = block.join(val === ">" ? " " : "\n");
-    } else if (val.startsWith('"') && val.endsWith('"') || val.startsWith("'") && val.endsWith("'")) {
-      val = val.slice(1, -1);
-    }
-    fields[key] = val;
-  }
-  return fields;
-}
-function addFinding(findings, severity, category, message, relPath, action) {
-  findings.push({
-    severity,
-    category,
-    message,
-    path: relPath || null,
-    action
-  });
-}
-function runDoctorCore(io, {
-  staleDays = 14,
-  nodeVersion = process.versions.node,
-  rootLabel = null,
-  scanExtendedRepo = true
-} = {}) {
-  const findings = [];
-  const major = Number(String(nodeVersion || "").split(".")[0]);
-  if (Number.isNaN(major) || major < 20) {
-    addFinding(
-      findings,
-      "NG",
-      "runtime",
-      `Node.js ${nodeVersion} \u306F v2 \u63A8\u5968\u8981\u4EF6\uFF08>= 20 LTS\uFF09\u672A\u6E80\u3067\u3059`,
-      null,
-      "Node.js 20 LTS \u4EE5\u4E0A\u3078\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  if (io.exists("AGENT_STOP")) {
-    addFinding(
-      findings,
-      "WARN",
-      "kill-switch",
-      "AGENT_STOP \u304C\u5B58\u5728\u3059\u308B\u305F\u3081\u3001\u5168\u30DB\u30B9\u30C8\u306E\u30C4\u30FC\u30EB\u5B9F\u884C\u304C\u505C\u6B62\u72B6\u614B\u3067\u3059",
-      "AGENT_STOP",
-      "\u4F5C\u696D\u3092\u518D\u958B\u3059\u308B\u5834\u5408\u306F\u5B89\u5168\u3092\u78BA\u8A8D\u3057\u305F\u3046\u3048\u3067 AGENT_STOP \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  const jsonRaw = io.readText("sdd/guardrails.json");
-  const yamlRaw = jsonRaw === null ? io.readText("sdd/guardrails.yaml") : null;
-  let parsed = null;
-  let configRel = null;
-  if (jsonRaw !== null) {
-    configRel = "sdd/guardrails.json";
-    try {
-      parsed = JSON.parse(jsonRaw);
-    } catch (err2) {
-      addFinding(
-        findings,
-        "NG",
-        "config",
-        `JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
-        configRel,
-        "sdd/guardrails.json \u306E\u69CB\u6587\u3092 contracts/guardrails.schema.json \u306B\u6CBF\u3063\u3066\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
-    }
-  } else if (yamlRaw !== null) {
-    configRel = "sdd/guardrails.yaml";
-    try {
-      parsed = parseSimpleYaml(yamlRaw);
-      if (!parsed || Object.keys(parsed).length === 0) {
-        addFinding(
-          findings,
-          "NG",
-          "config",
-          "sdd/guardrails.yaml \u304C\u7A7A\u307E\u305F\u306F\u89E3\u6790\u4E0D\u80FD\u3067\u3059",
-          configRel,
-          "sdd/guardrails.example.yaml \u3092\u53C2\u8003\u306B\u6709\u52B9\u306A\u8A2D\u5B9A\u3092\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
-        );
-        parsed = null;
-      }
-    } catch (err2) {
-      addFinding(
-        findings,
-        "NG",
-        "config",
-        `YAML \u8AAD\u8FBC\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
-        configRel,
-        "sdd/guardrails.yaml \u306E\u6587\u5B57\u30B3\u30FC\u30C9\u3068\u69CB\u6587\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
-      parsed = null;
-    }
-  } else {
-    addFinding(
-      findings,
-      "INFO",
-      "config",
-      "sdd/guardrails.yaml \u672A\u914D\u7F6E\uFF08\u65E2\u5B9A\u5024 spec_guard.mode=confirm \u3067\u52D5\u4F5C\u4E2D\uFF09",
-      "sdd/guardrails.yaml",
-      "\u5FC5\u8981\u306B\u5FDC\u3058\u3066 sdd/guardrails.example.yaml \u3092\u30B3\u30D4\u30FC\u3057\u3066\u8ABF\u6574\u3057\u3066\u304F\u3060\u3055\u3044"
-    );
-  }
-  if (parsed && configRel) {
-    if (parsed.schema && parsed.schema !== "sdd-guardrails/v1") {
-      addFinding(findings, "NG", "config", `\u672A\u5BFE\u5FDC\u306E schema \u5024: ${parsed.schema}`, configRel, 'schema \u3092 "sdd-guardrails/v1" \u306B\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044');
-    }
-    const mode = parsed?.spec_guard?.mode;
-    if (mode !== void 0 && !VALID_MODES.has(mode)) {
-      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A spec_guard.mode: ${mode}`, configRel, "warn | confirm | strict \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
-    }
-    const preImpl = parsed?.review?.pre_impl_check;
-    if (preImpl !== void 0 && !VALID_PRE_IMPL.has(preImpl)) {
-      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A review.pre_impl_check: ${preImpl}`, configRel, "auto | always | off \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
-    }
-    const tier = parsed?.risk_defaults?.default_tier;
-    if (tier !== void 0 && !VALID_RISK_TIERS.has(tier)) {
-      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A risk_defaults.default_tier: ${tier}`, configRel, "low | standard | high \u306E\u3044\u305A\u308C\u304B\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
-    }
-    const maxRounds = parsed?.limits?.max_auto_fix_rounds;
-    if (maxRounds !== void 0 && (!Number.isInteger(maxRounds) || maxRounds < 0 || maxRounds > 10)) {
-      addFinding(findings, "NG", "config", `\u4E0D\u6B63\u306A limits.max_auto_fix_rounds: ${maxRounds}`, configRel, "0\u301C10 \u306E\u6574\u6570\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
-    }
-  }
-  if (scanExtendedRepo) {
-    const hookCandidates = [
-      "plugins/sdd-quality-loop/hooks/claude-hooks.json",
-      "plugins/sdd-quality-loop/hooks/codex-hooks.json",
-      "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
-      "plugins/sdd-quality-loop/hooks.json",
-      "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
-      "plugins/sdd-implementation/hooks.json",
-      ".claude/settings.json",
-      ".codex/hooks.json",
-      ".gemini/settings.json",
-      ".agents/hooks.json",
-      ...walkIoFiles(io, ".github/hooks", (_rel, name) => name.endsWith(".json"))
-    ];
-    let checkedHooks = 0;
-    for (const rel of hookCandidates) {
-      const raw = io.readText(rel);
-      if (raw === null) continue;
-      checkedHooks += 1;
-      try {
-        JSON.parse(raw);
-      } catch (err2) {
-        addFinding(
-          findings,
-          "NG",
-          "hooks",
-          `\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306E JSON \u69CB\u6587\u30A8\u30E9\u30FC: ${err2 instanceof Error ? err2.message : String(err2)}`,
-          rel,
-          "JSON \u69CB\u6587\u3092\u4FEE\u6B63\u3057\u3001\u30DB\u30B9\u30C8\u306E\u30D5\u30C3\u30AF\u8AAD\u8FBC\u304C\u30B5\u30A4\u30EC\u30F3\u30C8\u5931\u6557\u3057\u306A\u3044\u72B6\u614B\u306B\u3057\u3066\u304F\u3060\u3055\u3044"
-        );
-        continue;
-      }
-      if (/sdd-hook-guard/i.test(raw)) {
-        addFinding(
-          findings,
-          "WARN",
-          "hooks",
-          "\u5EC3\u6B62\u6E08\u307F\u306E v1 \u30CF\u30FC\u30C9\u30ED\u30C3\u30AF\uFF08sdd-hook-guard\uFF09\u53C2\u7167\u304C\u6B8B\u5B58\u3057\u3066\u3044\u307E\u3059",
-          rel,
-          "install.sh / install.ps1 \u3092\u518D\u5B9F\u884C\u3057\u3066 v2/sdd-soft-guard.mjs \u3078\u5207\u308A\u66FF\u3048\u3066\u304F\u3060\u3055\u3044"
-        );
-      }
-    }
-    if (io.listDir("plugins/sdd-quality-loop").length > 0 && !io.exists("plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs")) {
-      addFinding(
-        findings,
-        "NG",
-        "hooks",
-        "v2 \u30BD\u30D5\u30C8\u30AC\u30FC\u30C9\u672C\u4F53\uFF08sdd-soft-guard.mjs\uFF09\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093",
-        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
-        "sdd-forge \u3092\u518D\u30A4\u30F3\u30B9\u30C8\u30FC\u30EB\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
-    }
-    if (checkedHooks === 0) {
-      addFinding(
-        findings,
-        "INFO",
-        "hooks",
-        "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u914D\u4E0B\u306B\u30ED\u30FC\u30AB\u30EB\u30D5\u30C3\u30AF\u8A2D\u5B9A\u306F\u691C\u51FA\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F\uFF08\u30E6\u30FC\u30B6\u30FC\u30DB\u30FC\u30E0\u5074\u8A2D\u5B9A\u3092\u5229\u7528\u4E2D\u306E\u53EF\u80FD\u6027\uFF09",
-        null,
-        "\u30D5\u30C3\u30AF\u52D5\u4F5C\u3092\u78BA\u8A8D\u3059\u308B\u5834\u5408\u306F\u30DB\u30B9\u30C8\u8A2D\u5B9A\uFF08~/.claude / ~/.codex / ~/.gemini/config \u7B49\uFF09\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
-    }
-    const skillFiles = [
-      ...walkIoFiles(io, "plugins", (rel, name) => name === "SKILL.md" && !rel.includes("/human-copy") && !rel.includes("/references/")),
-      ...walkIoFiles(io, "sdd/skills", (rel, name) => name === "SKILL.md" && !rel.includes("/human-copy") && !rel.includes("/references/"))
-    ];
-    for (const rel of skillFiles) {
-      const content = io.readText(rel);
-      if (content === null) continue;
-      const fm = parseFrontmatter(content);
-      if (!fm || !fm.name || !fm.description) {
-        addFinding(
-          findings,
-          "NG",
-          "skills",
-          "SKILL.md \u306E YAML \u30D5\u30ED\u30F3\u30C8\u30DE\u30BF\u30FC\uFF08name / description\uFF09\u304C\u6B20\u843D\u307E\u305F\u306F\u4E0D\u6B63\u3067\u3059",
-          rel,
-          "\u5148\u982D\u306B --- \u3067\u56F2\u3093\u3060 name \u3068 description \u3092\u8A18\u8F09\u3057\u3066\u304F\u3060\u3055\u3044"
-        );
-        continue;
-      }
-      if (fm.description.length > MAX_SKILL_DESCRIPTION_CHARS) {
-        addFinding(
-          findings,
-          "NG",
-          "skills",
-          `description \u304C ${fm.description.length} \u6587\u5B57\u3042\u308A\u4E0A\u9650\uFF08${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\uFF09\u3092\u8D85\u904E\uFF08\u30DB\u30B9\u30C8\u5074\u3067\u8B66\u544A\u306A\u304F\u7121\u8996\u3055\u308C\u308B\u6050\u308C\uFF09`,
-          rel,
-          `description \u3092 ${MAX_SKILL_DESCRIPTION_CHARS} \u6587\u5B57\u4EE5\u5185\u3078\u8981\u7D04\u3057\u3066\u304F\u3060\u3055\u3044`
-        );
-      }
-    }
-  }
-  const textTargets = [
-    ...walkIoFiles(io, "specs", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name)),
-    ...scanExtendedRepo ? walkIoFiles(io, "sdd", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name)) : walkIoFiles(io, "sdd/knowledge", (_rel, name) => /\.(md|json|ya?ml)$/i.test(name))
-  ];
-  for (const rel of textTargets) {
-    const raw = io.readText(rel);
-    if (raw === null) continue;
-    const match = CONTROL_CHAR_RE.exec(raw);
-    if (match) {
-      const codeHex = `0x${match[0].charCodeAt(0).toString(16).padStart(2, "0")}`;
-      addFinding(
-        findings,
-        "NG",
-        "encoding",
-        `\u4E0D\u6B63\u306A ASCII \u5236\u5FA1\u6587\u5B57\uFF08${codeHex}\uFF09\u304C\u6DF7\u5165\u3057\u3066\u3044\u307E\u3059\uFF08\u30B7\u30A7\u30EB\u30A8\u30B9\u30B1\u30FC\u30D7\u7834\u640D\u306E\u6050\u308C\uFF09`,
-        rel,
-        "\u8A72\u5F53\u30D5\u30A1\u30A4\u30EB\u306E\u7834\u640D\u7B87\u6240\u3092\u30D5\u30A1\u30A4\u30EB\u7DE8\u96C6\u30C4\u30FC\u30EB\u3067\u4FEE\u5FA9\u3057\u3066\u304F\u3060\u3055\u3044"
-      );
-    }
-  }
-  if (scanExtendedRepo && typeof io.readBytes === "function") {
-    const psTargets = [
-      ...walkIoFiles(io, "sdd", (_rel, name) => name.endsWith(".ps1")),
-      ...walkIoFiles(io, "scripts", (_rel, name) => name.endsWith(".ps1"))
-    ];
-    for (const rel of psTargets) {
-      const buf = io.readBytes(rel);
-      if (!buf) continue;
-      const hasBom = buf.length >= 3 && buf[0] === 239 && buf[1] === 187 && buf[2] === 191;
-      const decoded = Buffer.from(buf).toString("utf8");
-      if (!hasBom && NON_ASCII_RE.test(decoded)) {
-        addFinding(
-          findings,
-          "WARN",
-          "encoding",
-          "\u975E ASCII \u6587\u5B57\u3092\u542B\u3080 PowerShell \u30B9\u30AF\u30EA\u30D7\u30C8\u306B UTF-8 BOM \u304C\u3042\u308A\u307E\u305B\u3093\uFF08Windows PS 5.1 \u6587\u5B57\u5316\u3051\u30EA\u30B9\u30AF\uFF09",
-          rel,
-          "UTF-8 BOM \u4ED8\u304D\u3067\u4FDD\u5B58\u3059\u308B\u304B ASCII \u306E\u307F\u3067\u8A18\u8FF0\u3057\u3066\u304F\u3060\u3055\u3044"
-        );
-      }
-    }
-  }
-  const nowMs = Date.now();
-  const staleMs = staleDays * 24 * 60 * 60 * 1e3;
-  for (const entry of io.listDir("specs")) {
-    if (!entry.isDirectory) continue;
-    const relTasks = `specs/${entry.name}/tasks.md`;
-    const content = io.readText(relTasks);
-    if (content === null) continue;
-    const approvedCount = countPrimaryApprovals(content);
-    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
-    const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
-    if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
-      addFinding(
-        findings,
-        "WARN",
-        "specs",
-        `\u9032\u884C\u4E2D\u30FB\u672A\u5B8C\u4E86\u306E\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u304C ${approvedCount} \u4EF6\u3042\u308A\u307E\u3059\u304C .spec-baseline.json \u304C\u672A\u4F5C\u6210\u3067\u3059\uFF08Spec Drift \u691C\u77E5\u304C\u672A\u6B66\u88C5\uFF09`,
-        relTasks,
-        `record-spec-baseline.mjs --feature ${entry.name} \u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044`
-      );
-    }
-    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
-      const mtimeMs = io.statMtimeMs(relTasks);
-      if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
-        const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1e3));
-        addFinding(
-          findings,
-          "WARN",
-          "specs",
-          `Status: In Progress \u306E\u30BF\u30B9\u30AF\u304C ${ageDays} \u65E5\u4EE5\u4E0A\u672A\u66F4\u65B0\u3067\u3059\uFF08\u3057\u304D\u3044\u5024: ${staleDays} \u65E5\uFF09`,
-          relTasks,
-          "\u4F5C\u696D\u3092\u7D99\u7D9A\u3059\u308B\u304B\u3001\u5B8C\u4E86\u30FB\u4E2D\u6B62\u72B6\u614B\u3078 tasks.md \u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044"
-        );
-      }
-    }
-  }
-  const MAX_INDEX_CHARS = 3e3;
-  const indexFiles = walkIoFiles(io, "sdd/knowledge", (_rel, name) => name.toUpperCase() === "INDEX.MD");
-  for (const rel of indexFiles) {
-    const raw = io.readText(rel);
-    if (raw === null) continue;
-    const len = normalizeNewlines(raw).length;
-    if (len > MAX_INDEX_CHARS) {
-      addFinding(
-        findings,
-        "WARN",
-        "knowledge",
-        `\u30CA\u30EC\u30C3\u30B8\u7D22\u5F15\u304C ${len} \u6587\u5B57\u3042\u308A\u76EE\u5B89\u4E0A\u9650\uFF08${MAX_INDEX_CHARS} \u6587\u5B57\uFF09\u3092\u8D85\u904E\u3057\u3066\u3044\u307E\u3059\uFF08\u30B3\u30F3\u30C6\u30AD\u30B9\u30C8\u5727\u8FEB\u30EA\u30B9\u30AF\uFF09`,
-        rel,
-        "\u8A73\u7D30\u306F\u500B\u5225\u30D5\u30A1\u30A4\u30EB\u3078\u5206\u5272\u3057\u3001INDEX \u306F 3,000 \u5B57\u4EE5\u5185\u306E\u30EA\u30F3\u30AF\u96C6\u306B\u4FDD\u3063\u3066\u304F\u3060\u3055\u3044"
-      );
-    }
-  }
-  const driftRaw = io.readText(".sdd/drift-events.jsonl");
-  if (driftRaw !== null) {
-    const lines = normalizeNewlines(driftRaw).split("\n").filter((l) => l.trim().length > 0);
-    if (lines.length > 0) {
-      let denyCount = 0;
-      let warnCount = 0;
-      let parseErrors = 0;
-      for (const line of lines) {
-        try {
-          const ev = JSON.parse(line);
-          const action = typeof ev.action === "string" ? ev.action : "";
-          const decision = typeof ev.decision === "string" ? ev.decision : "";
-          if (action === "strict_deny" || action === "confirm_soft_deny" || decision === "deny") {
-            denyCount += 1;
-          } else if (action === "warn_allow" || action === "confirm_amended_allow" || action === "allow_override" || decision === "warn" || decision === "confirm") {
-            warnCount += 1;
-          }
-        } catch {
-          parseErrors += 1;
-        }
-      }
-      if (parseErrors > 0) {
-        addFinding(
-          findings,
-          "WARN",
-          "events",
-          `.sdd/drift-events.jsonl \u306B\u7834\u640D\u884C\u304C ${parseErrors} \u4EF6\u3042\u308A\u307E\u3059`,
-          ".sdd/drift-events.jsonl",
-          "\u7834\u640D\u884C\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044"
-        );
-      }
-      addFinding(
-        findings,
-        "INFO",
-        "events",
-        `\u30AC\u30FC\u30C9\u30A4\u30D9\u30F3\u30C8\u7D2F\u8A08 ${lines.length} \u4EF6\uFF08deny=${denyCount}, warn/confirm=${warnCount}\uFF09`,
-        ".sdd/drift-events.jsonl",
-        "workflow-retrospective \u5B9F\u884C\u6642\u306E\u4E8B\u5B9F\u30D9\u30FC\u30B9\u96C6\u8A08\u306B\u5229\u7528\u3067\u304D\u307E\u3059"
-      );
-    }
-  }
-  const summary = {
-    ng: findings.filter((f) => f.severity === "NG").length,
-    warn: findings.filter((f) => f.severity === "WARN").length,
-    info: findings.filter((f) => f.severity === "INFO").length
-  };
-  const result = {
-    schema: "sdd-doctor/v1",
-    checked_at: (/* @__PURE__ */ new Date()).toISOString(),
-    status: summary.ng > 0 ? "NG" : summary.warn > 0 ? "WARN" : "CLEAN",
-    summary,
-    non_checks: [...NON_CHECKS],
-    findings
-  };
-  if (rootLabel !== null) {
-    result.root = rootLabel;
-  }
-  return result;
-}
-
 // src/tools/v2.ts
 var FEATURE_RE = /^[A-Za-z0-9._-]+$/;
 var TASK_ID_RE = /^T-[A-Za-z0-9._-]+$/;
@@ -41583,9 +41588,6 @@ function validateTaskId(taskId) {
     return err("invalid-input", "taskId must match ^T-[A-Za-z0-9._-]+$.");
   }
   return ok(taskId);
-}
-function isApprovedValue(approval) {
-  return /^Approved(?:\s+\([^)]+\))?$/i.test(approval.trim());
 }
 function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus) {
   if (!hasSpecs || tasks.length === 0) {
