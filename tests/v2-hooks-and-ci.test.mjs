@@ -139,6 +139,17 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 
+  it('#861: Bash and PowerShell installers require the same Cloud entry files', () => {
+    const sh = fs.readFileSync(path.join(REPO_ROOT, 'install.sh'), 'utf8');
+    const ps = fs.readFileSync(path.join(REPO_ROOT, 'install.ps1'), 'utf8');
+    const shList = /^CLOUD_ENTRY_FILES=\(([^)]*)\)/m.exec(sh);
+    const psList = /^\$cloudEntryFiles = @\(([^)]*)\)/m.exec(ps);
+    assert.ok(shList && psList, 'both installers must declare a Cloud entry file list');
+    const norm = (raw) => raw.split(/[\s,]+/).map((x) => x.replace(/"/g, '')).filter(Boolean).sort();
+    assert.deepEqual(norm(psList[1]), norm(shList[1]));
+    assert.ok(norm(shList[1]).includes('.antigravity-plugin/plugin.json'));
+  });
+
   it('#858: every workflow and distributed CI template pins third-party actions to a commit SHA', () => {
     const files = [];
     const wfDir = path.join(REPO_ROOT, '.github/workflows');
