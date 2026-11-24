@@ -455,17 +455,45 @@ function scanNonFunctionalSensors(projectRoot, changedFiles) {
 }
 
 const BLOCKING_TICKET_SEVERITIES = new Set(['critical', 'major']);
+// review-ticket-rules.md: status is open | resolved | rejected; only open blocks.
+const NON_BLOCKING_TICKET_STATUSES = new Set(['resolved', 'rejected']);
 
-function readTicketField(text, key, indent = '') {
-  const m = new RegExp(`^${indent}${key}:[ \\t]*(.*)$`, 'm').exec(text);
-  return m ? m[1].trim().replace(/^(['"])(.*)\1$/, '$2').trim() : '';
+function ticketScalar(raw) {
+  // Drop a trailing YAML comment, then surrounding quotes.
+  const value = String(raw).replace(/\s+#.*$/, '').trim();
+  const quoted = /^(['"])(.*)\1$/.exec(value);
+  return (quoted ? quoted[2] : value).trim();
 }
 
 /**
- * Unresolved critical/major review tickets targeting exactly this feature and
- * task block the gate (#823). Tickets for other tasks or features, resolved
- * tickets and minor findings do not. Only the flat fields the ticket template
- * defines are read; a ticket without a status counts as open.
+ * Reads the flat fields the ticket template defines: top-level `ticket_id`,
+ * `status`, `severity`, and `feature` / `task` only from the lines directly
+ * under the top-level `target:` key, so text inside other blocks (e.g. a
+ * `problem: |` body) can never be mistaken for the target.
+ */
+function parseTicket(text) {
+  const fields = {};
+  const target = {};
+  let inTarget = false;
+  for (const line of text.split('\n')) {
+    const top = /^([A-Za-z_][\w-]*):(.*)$/.exec(line);
+    if (top) {
+      inTarget = top[1] === 'target';
+      if (!inTarget) fields[top[1]] = ticketScalar(top[2]);
+      continue;
+    }
+    if (!inTarget) continue;
+    const nested = /^[ \t]+([A-Za-z_][\w-]*):(.*)$/.exec(line);
+    if (nested && !(nested[1] in target)) target[nested[1]] = ticketScalar(nested[2]);
+  }
+  return { fields, target };
+}
+
+/**
+ * Open critical/major review tickets targeting exactly this feature and task
+ * block the gate (#823). Resolved or rejected tickets, minor findings and
+ * tickets for other tasks or features do not. A ticket without a status
+ * counts as open. Unreadable entries (e.g. dangling links) are skipped.
  */
 function checkReviewTickets(projectRoot, feature, taskState) {
   const dir = path.join(projectRoot, 'docs', 'review-tickets');
@@ -473,16 +501,20 @@ function checkReviewTickets(projectRoot, feature, taskState) {
   if (fs.existsSync(dir)) {
     for (const name of fs.readdirSync(dir).sort()) {
       if (!/\.ya?ml$/i.test(name)) continue;
-      const abs = path.join(dir, name);
-      if (!fs.statSync(abs).isFile()) continue;
-      const text = normalizeNewlines(fs.readFileSync(abs, 'utf8'));
-      const status = readTicketField(text, 'status').toLowerCase() || 'open';
-      const severity = readTicketField(text, 'severity').toLowerCase();
-      const targetFeature = readTicketField(text, 'feature', '[ \\t]+');
-      const targetTask = readTicketField(text, 'task', '[ \\t]+').toUpperCase();
-      if (status === 'resolved' || !BLOCKING_TICKET_SEVERITIES.has(severity)) continue;
-      if (targetFeature !== feature || targetTask !== taskState.taskId) continue;
-      blocking.push({ ticketId: readTicketField(text, 'ticket_id') || name.replace(/\.ya?ml$/i, ''), severity, status });
+      let text;
+      try {
+        const abs = path.join(dir, name);
+        if (!fs.statSync(abs).isFile()) continue;
+        text = normalizeNewlines(fs.readFileSync(abs, 'utf8')).replace(/^\uFEFF/, '');
+      } catch {
+        continue;
+      }
+      const { fields, target } = parseTicket(text);
+      const status = (fields.status || 'open').toLowerCase();
+      const severity = (fields.severity || '').toLowerCase();
+      if (NON_BLOCKING_TICKET_STATUSES.has(status) || !BLOCKING_TICKET_SEVERITIES.has(severity)) continue;
+      if (target.feature !== feature || String(target.task || '').toUpperCase() !== taskState.taskId) continue;
+      blocking.push({ ticketId: fields.ticket_id || name.replace(/\.ya?ml$/i, ''), severity, status });
     }
   }
   return { passed: blocking.length === 0, blocking };
