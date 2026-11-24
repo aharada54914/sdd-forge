@@ -394,3 +394,26 @@ describe('#841 WFI category contract is one vocabulary', () => {
     }
   });
 });
+
+describe('#846 WFI audit states are representable in the canonical template', () => {
+  it('every Audit-Status the audit cycle writes is an allowed template value, with its counters', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const template = fs.readFileSync(path.join(root, 'templates/workflow-improvement.template.md'), 'utf8');
+    const allowed = /Allowed values: (Not-Started[^\n]*?) -->/.exec(template)[1].split(' | ').map((v) => v.trim());
+    const skill = fs.readFileSync(path.join(root, 'skills/wfi-audit-cycle/SKILL.md'), 'utf8');
+    const written = [...new Set([...skill.matchAll(/Audit-Status: ([A-Za-z0-9-]+)/g)].map((m) => m[1]))];
+    assert.ok(written.includes('Human-Blocked'));
+    for (const state of written) assert.ok(allowed.includes(state), `Audit-Status ${state} is not an allowed template value`);
+    assert.match(template, /^Audit-Attempt: /m);
+    assert.match(template, /^Audit-Content-Hash: /m);
+  });
+
+  it('Needs-Followup is recorded in Result, never as a Status value', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const retro = fs.readFileSync(path.join(root, 'skills/workflow-retrospective/SKILL.md'), 'utf8');
+    const line = retro.split('\n').find((l) => l.includes('Needs-Followup'));
+    assert.ok(line);
+    assert.match(line, /## Result/);
+    assert.match(line, /Status: Applied/);
+  });
+});
