@@ -514,3 +514,14 @@ describe('Phase 2 SDD Core skill & template contracts', () => {
     assert.match(tsk, /## Spec Amendments/);
   });
 });
+
+describe('#827 re-verifying a fixed review ticket reaches the gate for exactly that task', () => {
+  it('fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete', () => {
+    const fix = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md'), 'utf8');
+    const ship = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/skills/ship/SKILL.md'), 'utf8');
+    assert.match(fix, /\/sdd-ship:ship specs\/<feature>\/tasks\.md#<task>/, 'the re-run names the ticket feature and task');
+    assert.match(fix, /target[^\n]*(?:feature|task)[^\n]*停止/, 'a ticket without feature and task stops instead of guessing');
+    const selection = ship.split('### Step 1')[1].split('### Step 2')[0];
+    assert.match(selection, /Implementation Complete/, 'a feature whose only open work awaits the gate is selectable');
+  });
+});
