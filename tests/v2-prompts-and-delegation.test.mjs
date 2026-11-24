@@ -554,9 +554,11 @@ describe('#863 the context-map template states what an edit after approval actua
     const tpl = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md'), 'utf8');
     assert.doesNotMatch(tpl, /Editing any file under `domain\/` after\s+approval resets this field/);
     assert.match(tpl, /domain-model update/);
-    assert.match(tpl, /Concept Test input changed/);
     const validator = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/validate-concept-test.py'), 'utf8');
-    assert.match(validator, /Concept Test input changed/, 'the documented stop message is the one the validator emits');
+    assert.match(validator, /concept-test: BLOCK/, 'the documented stop line is the one bootstrap prints');
+    assert.match(tpl, /concept-test: BLOCK/);
+    assert.doesNotMatch(tpl, /stops with `Concept Test input changed`/, 'that message is internal, not what bootstrap prints');
+    assert.match(tpl, /generated_from/, 'only pinned inputs invalidate a proposal');
   });
 });
 
