@@ -56,7 +56,7 @@ node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.
 ### Step 4 — 品質ゲート（`sdd-gate`）
 対象タスクが `Status: Implementation Complete` に到達したら、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）:
 - `PASS`: `reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`Status: Done` へ遷移。全タスク `Done` かつ確定 `OQ-NNN` / `Spec Amendments` / `Alternatives Rejected` がある場合は `sync-knowledge.mjs extract --feature <feature>` でナレッジ還流案を提示する。
-- `FAIL`: 失敗理由と原因工程（`requirements` / `design` / `code` / `test` / `harness`）を `factory-metrics.mjs record-attribution` へ記録し、報告して停止（`Status` は `Implementation Complete` のまま保持）。
+- `FAIL`: 失敗理由と原因工程（`requirements` / `design` / `code` / `test` / `harness`）を報告して停止（`Status` は `Implementation Complete` のまま保持）。原因工程の計測記録は子の `sdd-gate` が `--run-id` 付きで 1 回だけ行うため、ship 側では重ねて記録しない。
 
 ### Step 5 — 回顧（`--retro` 指定時のみ）
 全対象タスクが `Status: Done` に到達し、`--retro` が指定されている場合は `workflow-retrospective` スキルを呼び出し、事実ログ（`sdd-doctor.mjs`, `.sdd/drift-events.jsonl`, `reports/quality-gate/`）から改善候補を抽出してレポートを出力する。

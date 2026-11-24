@@ -13,7 +13,8 @@
  * Usage:
  *   node factory-metrics.mjs [--root <dir>] [--feature <slug>] [--format json|markdown]
  *   node factory-metrics.mjs record-attribution --feature <slug> --task <T-NNN>
- *        --root-cause requirements|design|code|test|harness [--note "..."] [--human-intervention] [--root <dir>]
+ *        --root-cause requirements|design|code|test|harness [--note "..."] [--human-intervention]
+ *        [--run-id <runId from execution.json>] [--root <dir>]
  *   node factory-metrics.mjs record-final-verdict --feature <slug> --task <T-NNN> --verdict PASS|FAIL [--root <dir>]
  *
  * `gateRuns` are mechanical run-sdd-gate executions recorded before the
@@ -53,6 +54,7 @@ export function recordRootCauseAttribution({
   note = '',
   humanIntervention = false,
   autoFixRound = null,
+  runId = null,
 }) {
   assertValidFeatureName(feature);
   if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
@@ -73,6 +75,7 @@ export function recordRootCauseAttribution({
     feature,
     taskId: taskId.toUpperCase(),
     rootCausePhase: normalizedCause,
+    ...(runId ? { runId: String(runId) } : {}),
     humanIntervention: Boolean(humanIntervention),
     ...(Number.isInteger(autoFixRound) ? { autoFixRound } : {}),
     note: String(note || '').trim(),
@@ -133,8 +136,17 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const p95DurationMs =
     durations.length > 0 ? durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.95))] : 0;
 
-  const rootCauseBreakdown = Object.fromEntries(VALID_ROOT_CAUSES.map((c) => [c, 0]));
+  // One failed attempt yields one attribution: records sharing a runId (the
+  // gate's --root-cause and a later record-attribution --run-id) collapse to
+  // the latest one (#844). Records without a runId are counted individually.
+  const attributionByRun = new Map();
+  const unkeyedAttributions = [];
   for (const r of attributions) {
+    if (typeof r.runId === 'string' && r.runId) attributionByRun.set(r.runId, r);
+    else unkeyedAttributions.push(r);
+  }
+  const rootCauseBreakdown = Object.fromEntries(VALID_ROOT_CAUSES.map((c) => [c, 0]));
+  for (const r of [...attributionByRun.values(), ...unkeyedAttributions]) {
     const phase = VALID_ROOT_CAUSES.includes(r.rootCausePhase) ? r.rootCausePhase : 'unknown';
     rootCauseBreakdown[phase] += 1;
   }
@@ -227,6 +239,7 @@ function parseArgs(argv) {
   const opts = {
     cmd: sub || 'summary',
     verdict: null,
+    runId: null,
     root: null,
     feature: null,
     taskId: null,
@@ -247,6 +260,7 @@ function parseArgs(argv) {
     else if (a === '--auto-fix-round' && argv[i + 1]) opts.autoFixRound = Number(argv[++i]);
     else if (a === '--format' && argv[i + 1]) opts.format = argv[++i];
     else if (a === '--verdict' && argv[i + 1]) opts.verdict = argv[++i];
+    else if (a === '--run-id' && argv[i + 1]) opts.runId = argv[++i];
   }
   return opts;
 }
@@ -274,6 +288,7 @@ if (isMain) {
         note: opts.note,
         humanIntervention: opts.humanIntervention,
         autoFixRound: opts.autoFixRound,
+        runId: opts.runId,
       });
       process.stdout.write(`${JSON.stringify(rec, null, 2)}\n`);
       process.exit(0);

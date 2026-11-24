@@ -20,6 +20,7 @@
  *                         [--skip-drift] [--skip-sensors]
  */
 import { execFileSync, spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -582,6 +583,9 @@ export function runSddGate({
 
   const result = {
     schema: 'sdd-gate-execution/v1',
+    // Identifies this attempt so a later record-attribution --run-id for the
+    // same failure is counted once, not twice (#844).
+    runId: crypto.randomUUID(),
     feature,
     taskId: taskState.taskId,
     executedAt: new Date().toISOString(),
@@ -605,6 +609,7 @@ export function runSddGate({
   fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
 
   appendFactoryMetric(root, {
+    runId: result.runId,
     timestamp: result.executedAt,
     feature,
     taskId: taskState.taskId,

@@ -26,7 +26,7 @@ user-invocable: false
    - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` は自動 FAIL）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。
    - `Risk: high` タスクに対する未確定 `OQ-NNN`（非 `Confirmed`）残存ブロック
-   - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を `factory-metrics.mjs record-attribution --root-cause <phase>` で記録）
+   - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を 1 試行につき 1 回だけ `factory-metrics.mjs record-attribution --root-cause <phase> --run-id <execution.json の runId>` で記録する。ゲート実行時に `--root-cause` を渡した場合は記録済みなので重ねない）
 
    ```bash
    node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs" \

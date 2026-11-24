@@ -53,6 +53,28 @@ describe('#840/#843 factory metrics semantics', () => {
     assert.equal(summary.finalReviews.passRate, null, 'no final verdicts recorded: no rate, never the mechanical one');
   });
 
+  it('#844: one failed attempt is attributed once even when recorded by gate and afterwards', async () => {
+    const { summarizeFactoryMetrics, recordRootCauseAttribution } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-attr-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    const runs = [
+      { runId: 'run-a', feature: 'f', taskId: 'T-001', verdict: 'FAIL', rootCausePhase: 'code' },
+      { runId: 'run-b', feature: 'f', taskId: 'T-001', verdict: 'FAIL' },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), runs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    // same attempt recorded again afterwards (sdd-gate + ship): counted once, latest phase wins
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-a' });
+    // a different attempt with the same cause stays a separate attribution
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-b' });
+    // legacy record without runId is still counted
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-002', rootCause: 'design' });
+    const b = summarizeFactoryMetrics({ projectRoot: dir }).rootCauseBreakdown;
+    assert.deepEqual([b.code, b.test, b.design], [0, 2, 1]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
   it('#837: final independent verdicts are summarized apart from mechanical gate PASS', async () => {
     const { summarizeFactoryMetrics, recordFinalVerdict } = await import(
       pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
