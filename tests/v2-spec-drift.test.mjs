@@ -207,6 +207,21 @@ describe('#820 AMENDED names the changed IDs no amendment entry mentions', () =>
     const later = JSON.parse(spawnSync(process.execPath, [CHECK_SCRIPT, '--feature', 'f', '--root', dir], { encoding: 'utf8' }).stdout);
     assert.equal(later.status, 'AMENDED');
     assert.deepEqual(later.changedIdsWithoutAmendment, ['AC-002']);
+
+    // Entries are counted per file: a new design.md entry must not make an old
+    // requirements.md entry look new (re-review finding).
+    const design = (amend) => `# d\n\nREQ-001 design note\n\n## Spec Amendments\n${amend}\n`;
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'requirements.md'), req('one', 'two', '- 2026-01-01: AC-001 の初期調整'), 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'design.md'), design('- 2026-01-02: 設計メモ'), 'utf8');
+    assert.equal(
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'f', '--root', dir, '--rerecord'], { encoding: 'utf8' }).status,
+      0,
+    );
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'requirements.md'), req('one changed', 'two changed', '- 2026-01-01: AC-001 の初期調整'), 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'design.md'), design('- 2026-01-02: 設計メモ\n- 2026-11-25: AC-002 の理由'), 'utf8');
+    const perFile = JSON.parse(spawnSync(process.execPath, [CHECK_SCRIPT, '--feature', 'f', '--root', dir], { encoding: 'utf8' }).stdout);
+    assert.equal(perFile.status, 'AMENDED');
+    assert.deepEqual(perFile.changedIdsWithoutAmendment, ['AC-001']);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });
