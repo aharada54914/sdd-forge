@@ -40205,12 +40205,15 @@ function extractDeclaredBlockers(taskBlock) {
   if (!blockersMatch) return [];
   const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
   const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const section = (nextSub ? rest.slice(0, nextSub.index) : rest).replace(/<!--[\s\S]*?-->/g, "");
   const ids = [];
   for (const raw of section.split("\n")) {
     const line = raw.trim().replace(/^[-*+][ \t]+/, "").trim();
     if (!BARE_BLOCKER_LINE_RE.test(line)) continue;
-    for (const id of line.split(/\s*[,、]\s*/)) ids.push(id.toUpperCase());
+    for (const id of line.split(/\s*[,、]\s*/)) {
+      if (/^T-(?:X+|N+)$/i.test(id)) continue;
+      ids.push(id.toUpperCase());
+    }
   }
   return [...new Set(ids)];
 }
@@ -40440,9 +40443,16 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
   }
   const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
+  const seenPerFile = /* @__PURE__ */ new Map();
+  const newAmendments = allCurrentAmendments.filter((a) => {
+    const index = seenPerFile.get(a.file) || 0;
+    seenPerFile.set(a.file, index + 1);
+    const recorded = baseline.files && baseline.files[a.file];
+    return index >= Number(recorded && recorded.amendmentCount || 0);
+  });
   const changedIdsWithoutAmendment = changedIds.filter((id) => {
     const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, "\\-")}([^0-9]|$)`, "i");
-    return !allCurrentAmendments.slice(baselineAmendmentCount).some((a) => re.test(a.text));
+    return !newAmendments.some((a) => re.test(a.text));
   });
   return {
     schema: "sdd-spec-drift/v1",
