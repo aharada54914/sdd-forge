@@ -3,7 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { after, describe, it } from 'node:test';
+import { after, describe, it, mock } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
   analyzeTraceability,
@@ -642,5 +642,45 @@ describe('#830 one approval grammar for the gate, the decision view and MCP', ()
       const count = buildDecisionViewData({ feature: 'billing-sync', projectRoot: dir }).counts.tasksApproved;
       assert.equal(count, baseCount - (expected ? 0 : 1), `decision view: ${value}`);
     }
+  });
+});
+
+describe('#972 review: Scope literals and lock renewal races', () => {
+  it('a backtick path keeps parentheses that belong to the path (route groups)', async () => {
+    const { extractScopePaths } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    assert.deepEqual(
+      extractScopePaths('### Scope\n- `src/app/(admin)/page.tsx`\n- `src/{a,b}.ts`\n- src/c.ts(note)\n'),
+      ['src/app/(admin)/page.tsx', 'src/a.ts', 'src/b.ts', 'src/c.ts'],
+    );
+  });
+
+  it('renewal never overwrites a lock another worker took after it was read', async () => {
+    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-race-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' }).acquired, true);
+    const lockPath = path.join(dir, '.sdd', 'locks', 'f.lock');
+    const other = { ...JSON.parse(fs.readFileSync(lockPath, 'utf8')), owner: 'B', acquiredAt: new Date().toISOString() };
+    const realRead = fs.readFileSync;
+    let swapped = false;
+    // A reads its own record; B replaces the lock right after that read.
+    const spy = mock.method(fs, 'readFileSync', function (...args) {
+      const out = realRead.apply(this, args);
+      if (!swapped && String(args[0]) === lockPath) {
+        swapped = true;
+        fs.writeFileSync(lockPath, JSON.stringify(other), 'utf8');
+      }
+      return out;
+    });
+    let renewed;
+    try {
+      renewed = acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' });
+    } finally {
+      spy.mock.restore();
+    }
+    assert.ok(swapped);
+    assert.equal(renewed.acquired, false, 'A must not believe it still holds the lock');
+    assert.equal(JSON.parse(fs.readFileSync(lockPath, 'utf8')).owner, 'B', "B's lock survives");
+    assert.deepEqual(fs.readdirSync(path.dirname(lockPath)), ['f.lock'], 'no temporary files are left behind');
   });
 });
