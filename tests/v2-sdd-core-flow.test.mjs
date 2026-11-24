@@ -108,6 +108,38 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(fs.existsSync(out.outputPath), true);
   });
 
+  it('#819: re-entering ship keeps the existing baseline; only --rerecord replaces it', () => {
+    const repo = setupCoreRepo();
+    const record = (...extra) =>
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo, ...extra], { encoding: 'utf8' });
+    const first = record();
+    assert.equal(first.status, 0, first.stderr);
+    assert.equal(JSON.parse(first.stdout).status, 'RECORDED');
+    const baselinePath = path.join(repo, 'specs', 'payments', '.spec-baseline.json');
+    const original = fs.readFileSync(baselinePath, 'utf8');
+
+    const reqPath = path.join(repo, 'specs', 'payments', 'requirements.md');
+    fs.writeFileSync(reqPath, fs.readFileSync(reqPath, 'utf8').replace('100% of captured cents', '90% of captured cents'), 'utf8');
+    const gate = () =>
+      JSON.parse(
+        spawnSync(
+          process.execPath,
+          [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', 'src/refund.js', '--cmd', 'unit=node -e "process.exit(0)"'],
+          { encoding: 'utf8' },
+        ).stdout,
+      );
+
+    const again = record();
+    assert.equal(again.status, 0, again.stderr);
+    assert.equal(JSON.parse(again.stdout).status, 'EXISTING');
+    assert.equal(fs.readFileSync(baselinePath, 'utf8'), original, 'existing baseline is untouched');
+    assert.equal(gate().checks.specDrift.status, 'UNDECLARED_DRIFT', 'undeclared drift survives a re-entry');
+
+    const forced = record('--rerecord');
+    assert.equal(JSON.parse(forced.stdout).status, 'RECORDED');
+    assert.equal(gate().checks.specDrift.status, 'CLEAN', 'an intended re-record still works');
+  });
+
   it('#829: findings outside the task Scope are labelled, and the verdict stays fail-closed', () => {
     const repo = setupCoreRepo();
     assert.equal(
