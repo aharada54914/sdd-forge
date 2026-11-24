@@ -405,6 +405,36 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(nextState.data.nextAction.phase, 'approval-gate');
   });
 
+  it('#835: a Done task with a mechanical PASS but a failing or missing independent verdict shows as failed', () => {
+    const cases = [
+      ['NEEDS_WORK', '# SDD Gate Report\n\n- **Task ID**: T-001\nVERDICT: NEEDS_WORK\n', false],
+      ['BLOCKED', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: BLOCKED\n', false],
+      ['missing', null, false],
+      ['PASS', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: PASS\n', true],
+    ];
+    for (const [label, report, expectPass] of cases) {
+      const repo = createV2TestRepo('nw-check');
+      const tasksPath = path.join(repo, 'specs', 'nw-check', 'tasks.md');
+      fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Status: Implementation Complete', 'Status: Done'), 'utf8');
+      const mdPath = path.join(repo, 'reports', 'quality-gate', 'nw-check-T-001.md');
+      if (report === null) fs.rmSync(mdPath);
+      else fs.writeFileSync(mdPath, report, 'utf8');
+      const res = callMcp(repo, [
+        { method: 'tools/call', params: { name: 'sdd_gate_audit', arguments: { feature: 'nw-check', taskId: 'T-001' } } },
+        { method: 'tools/call', params: { name: 'sdd_dashboard_snapshot', arguments: {} } },
+      ]);
+      const audit = JSON.parse(res[1].result.content[0].text);
+      assert.equal(audit.data.tasks[0].executionArtifact.verdict, 'PASS', `${label}: mechanical gate passed`);
+      assert.equal(audit.data.tasks[0].readyForDone, expectPass, `${label}: readyForDone`);
+      if (report !== null) assert.equal(audit.data.tasks[0].reviewReport.verdict, expectPass ? 'PASS' : 'FAIL', `${label}: verdict`);
+      const dash = JSON.parse(res[2].result.content[0].text);
+      const task = dash.data.snapshot.data.tasks.find((t) => t.key === 'nw-check/T-001');
+      assert.ok(task, `${label}: dashboard lists the task`);
+      const verdictFailures = task.failures.filter((f) => /quality-gate/.test(f));
+      assert.equal(verdictFailures.length === 0, expectPass, `${label}: dashboard failures ${JSON.stringify(task.failures)}`);
+    }
+  });
+
   it(
     'install.sh places dashboard CLI runtime by default without registering MCPs, rejects conflicting flags, and supports --with-mcp',
     { skip: process.platform === 'win32' },
