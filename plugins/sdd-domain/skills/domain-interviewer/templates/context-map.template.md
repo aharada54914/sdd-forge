@@ -11,10 +11,12 @@ directly). Only a human may set `Approved`; the hook guard rejects an
 agent-authored write of that value. Nothing resets this field automatically:
 `/sdd-domain:domain-model update` sets it back to `Pending` (requiring
 re-review), while a direct edit of an approved `domain/` file leaves it
-`Approved`. Either way, an existing Concept Test proposal built from the old
-inputs stops with `Concept Test input changed`, so bootstrap cannot continue
-on stale approval; regenerate the proposal (and re-review if the model
-changed) before continuing (AC-014).
+`Approved`. If the edited file is one of an existing Concept Test proposal's
+pinned inputs (the domain contract, this context map, its `generated_from`
+files or the seed), the proposal no longer matches and bootstrap stops with
+`concept-test: BLOCK`; edits to other `domain/` files do not invalidate it.
+Regenerate the proposal (and re-review if the model changed) before
+continuing (AC-014).
 
 ## Bounded Contexts
 
