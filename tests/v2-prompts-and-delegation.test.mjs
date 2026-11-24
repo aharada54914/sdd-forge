@@ -533,3 +533,18 @@ describe('#868 a retrospective drafts WFIs from the canonical template with audi
     assert.match(step3, /評価時期/);
   });
 });
+
+describe('#864 bootstrap stops on an unapproved domain model; domain-sync alone does not', () => {
+  it('sdd-core-spec states the concept-test gate and domain-sync scopes its never-block promise', () => {
+    const core = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md'), 'utf8');
+    const line = core.split('\n').find((l) => l.includes('concept-test') && l.includes('domain-sync'));
+    assert.ok(line);
+    assert.match(line, /BLOCK/);
+    assert.match(line, /Approved/);
+    assert.match(line, /concept-test[^。]*先/);
+    const sync = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/skills/domain-sync/SKILL.md'), 'utf8');
+    const caller = sync.split('\n').find((l) => l.startsWith('> **Caller**'));
+    assert.match(caller, /concept-test/);
+    assert.match(caller, /CONTINUE/);
+  });
+});
