@@ -238,35 +238,29 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 
 ---
 
-### レビュー / 監査 / パネリスト エージェント（12体）
+### レビュー / 監査 エージェント（6体）
 
-エージェント定義は `plugins/*/agents/*.md` にあり、上記2体と合わせて全 **14体** です。残る12体は以下の a/b ペア構造とパネル構造を取ります。
+エージェント定義は `plugins/*/agents/*.md` にあり、上記2体（`investigator` / `evaluator`）と合わせて全 **8体** です。全員がフロントマター `model: inherit`（起動した親セッションのモデルで動く）で、特定モデルへの固定はありません。残る6体は以下の a/b ペア構造を取ります。
 
 | エージェント名 | 所属プラグイン | モデル | 役割 | 起動元スキル |
 |---|---|---|---|---|
-| `spec-reviewer-a` | sdd-review-loop | `sonnet` | 要件・受け入れ網羅レビュー（requirements.md / acceptance-tests.md） | spec-review-loop |
-| `spec-reviewer-b` | sdd-review-loop | `sonnet` | 仕様のリスク・曖昧性レビュー（A からは件数と ID のサマリのみ受領） | spec-review-loop |
-| `impl-reviewer-a` | sdd-review-loop | `sonnet` | Structural Soundness（design.md のアーキテクチャ / データ / API 網羅、セキュリティ境界、コンポーネント完全性） | impl-review-loop |
-| `impl-reviewer-b` | sdd-review-loop | `sonnet` | Implementability and Risk（決定の正当化、Open Question の解決可能性、前提の妥当性、性能 / デプロイ / 移行 / スコープ） | impl-review-loop |
-| `task-reviewer-a` | sdd-review-loop | `sonnet` | Structural Coverage（tasks.md の構造的完全性、依存整合、AC トレーサビリティ、観測可能な done-when） | task-review-loop |
-| `task-reviewer-b` | sdd-review-loop | `sonnet` | Quality and Risk（リスク階層の妥当性、タスクサイズ、エッジケース、テスト種別整合、ロールバック計画、スコープの排他性） | task-review-loop |
-| `domain-reviewer-a` | sdd-domain | `sonnet` | 戦略的健全性（コンテキスト境界、関係パターン、イベント網羅、用語の一意性） | domain-review-loop |
-| `domain-reviewer-b` | sdd-domain | `sonnet` | 戦術的実装可能性（不変条件の検証可能性、トランザクション境界の現実性、god aggregate / anemic model リスク） | domain-review-loop |
-| `wfi-auditor-a` | sdd-quality-loop | `sonnet` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・なぜなぜ分析（5 Whys）チェーンの有効性・カテゴリ整合の言語・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
-| `wfi-auditor-b` | sdd-quality-loop | `sonnet` | WFI Impact and Risk Auditor（監査サイクル2）。検証計画の質・変更スコープの比例性・意図せぬ影響・実装可能性・言語遵守の2次確認 | wfi-audit-cycle |
-| `panelist-gpt`（`sdd-panelist-gpt`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの OpenAI/GPT ベンダースロット。サニタイズ済み入力バンドル1件から `cross-model-verdict/v1` JSON を返す | cross-model-verify |
-| `panelist-gemini`（`sdd-panelist-gemini`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの Google/Gemini ベンダースロット。同上 | cross-model-verify |
+| `spec-reviewer-a` | sdd-review-loop | `inherit` | 要件・受け入れ網羅レビュー | spec-check |
+| `spec-reviewer-b` | sdd-review-loop | `inherit` | 仕様のリスク・曖昧性レビュー（A からは件数と ID のサマリのみ受領） | spec-check |
+| `domain-reviewer-a` | sdd-domain | `inherit` | 戦略的健全性（コンテキスト境界、関係パターン、イベント網羅、用語の一意性） | domain-review-loop |
+| `domain-reviewer-b` | sdd-domain | `inherit` | 戦術的実装可能性（不変条件の検証可能性、トランザクション境界の現実性） | domain-review-loop |
+| `wfi-auditor-a` | sdd-quality-loop | `inherit` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・なぜなぜ分析・カテゴリ整合・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
+| `wfi-auditor-b` | sdd-quality-loop | `inherit` | WFI Impact and Risk Auditor（監査サイクル2）。検証計画の質・変更スコープの比例性・意図せぬ影響・実装可能性・言語遵守の2次確認 | wfi-audit-cycle |
+
+> v2.0.0 で `impl-reviewer-*` / `task-reviewer-*`（impl-review-loop / task-review-loop）は廃止され、クロスモデル検証のパネリスト（`panelist-gpt` / `panelist-gemini`）はエージェント定義として配布されていません。以前の版の表にあった `sonnet` 固定の記載は現行定義と一致しないため削除しました（#870）。
 
 **独立レビューのペア構造（ブラインドレビュー）**
 
 a/b ペアはいずれも「互いの結果を見ない」ことを前提に設計されています。
 
 - 両者とも fresh context（実装者・生成者と履歴を共有しない）・read-only（`tools: Read, Grep, Glob` ± `Bash`、`disallowedTools: Write, Edit, NotebookEdit`）で走ります。
-- レビュアー b は `disallowedPaths` により `reports/spec-review/**/reviewer-*.json`、`reports/impl-review/**/reviewer-*.json`、`reports/task-review/**/reviewer-*.json`（domain 系はさらに `reports/domain-review/**/reviewer-*.json`）の読み取りをブロックされ、a の生の所見に到達できません。b が a から受け取るのは**件数と ID だけのサマリ**であり、所見本文・重大度・根拠は渡りません。
-- `wfi-auditor-b` も同様に、サイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされます。
-- パネリスト2体は互いの verdict も主評価者（`sdd-evaluator`）の verdict も見ない「BLIND」実行で、ベンダーの異なる独立 LLM として並列に走ります。
+- `wfi-auditor-b` はサイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされ、統合サマリ（判定と件数のみ）だけを受け取ります。
 
-これにより、3つのレビューループ（spec-review-loop / impl-review-loop / task-review-loop）と domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を構造的に防いでいます。
+これにより、spec-check・domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を避けます。
 
 **Copilot / Codex でのツイン**
 
