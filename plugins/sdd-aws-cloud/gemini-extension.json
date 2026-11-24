@@ -1,6 +1,6 @@
 {
   "name": "sdd-aws-cloud",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Governed AWS CDK / CloudFormation cloud orchestration workflows for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }

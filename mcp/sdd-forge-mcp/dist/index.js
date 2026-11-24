@@ -41918,7 +41918,7 @@ function toCallToolResult(result) {
 function buildServer(root) {
   const server = new McpServer({
     name: "sdd-forge-mcp",
-    version: "2.1.1"
+    version: "2.1.2"
   });
   server.registerTool(
     "sdd_project_overview",
