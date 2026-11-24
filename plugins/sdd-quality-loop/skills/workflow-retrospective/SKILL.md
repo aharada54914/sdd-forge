@@ -77,9 +77,9 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 <!-- 該当ありの場合: パターン名・根拠（Task ID / Ticket ID / Event ログ）・発生回数・昇格先（機械検査 / 規約・知見 / スキル）を記載 -->
 
 ## Proposed Improvements (Human Approval Required)
-| ID | 昇格先 | 対象ファイル | 根拠 | 期待効果 |
-|---|---|---|---|---|
-| WFI-NNN | 機械検査 / 規約・知見 / スキル | `AGENTS.md` 等 | `T-001, T-003` | <測定可能な効果> |
+| ID | Category | 昇格先 | 対象ファイル | 根拠 | 測定指標・基準値→目標・評価時期 |
+|---|---|---|---|---|---|
+| WFI-NNN | plugin-improvement / app-dev-efficiency / human-process / measurement | 機械検査 / 規約・知見 / スキル | `AGENTS.md` 等 | `T-001, T-003` | <指標>: <基準値> → <目標>（<評価時期>） |
 
 ## Rejected / Deferred Decisions
 - 今回見送った案は `sdd/rejected-decisions.md`（日付・案・不採用理由・再検討条件）へ追記提案する。
@@ -89,7 +89,8 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 
 - 提案（`docs/workflow-improvements/WFI-NNN.md`、または `AGENTS.md` / `sdd/knowledge/` / `sdd/knowledge/review-perspectives.yaml` / `sdd/rejected-decisions.md` への追記）は **人間の承認後** のみ適用する。
 - 人間レビューで発見された再発観点は `sdd/knowledge/review-perspectives.yaml` へ追加提案し、次回以降 AI・機械検証が先回りして検出できる範囲を広げる。
-- 新規の `WFI-NNN.md`（`Status: Draft`）を起票した場合、人間レビュー前に 2 サイクル品質監査を通すときは `wfi-audit-cycle` スキルを呼び出せる。
+- 新規の `WFI-NNN.md`（`Status: Draft`）は `plugins/sdd-quality-loop/templates/workflow-improvement.template.md` を複製して起票し、監査員が検査する欄をレポートから引き継ぐ: `Category`（Step 3 の表の値）、`Mechanism`、`Meta-Change`（計測・ゲート・回顧ロジックに触れるなら `true`）、`GitHub-Issue`、`Audit-Status: Not-Started`（`Audit-Attempt: 0` / `Audit-Content-Hash: none`）、`Problem Evidence`（根拠の Task / Ticket ID・イベント）、`Why-Why Analysis`、`Root Cause Hypothesis`、`Proposed Change`、`Expected Effect`、`Verification Metric`（指標・基準値・目標・評価時期）、`Verification Plan`、`Rollback-Plan`。レポートから決まらない値は推測しない: `TBD（人間確認）` と明記し、監査前に人間へ確認を依頼する。
+- 起票した Draft を人間レビュー前に 2 サイクル品質監査へ通すときは `wfi-audit-cycle` スキルを呼び出せる。
 - 適用対象はプロジェクト側ファイル（`AGENTS.md`, `sdd/`, `specs/` テンプレート, テスト）に限定し、インストール済みプラグイン本体（`plugins/`）は直接書き換えない。
 - 適用コミットには `WFI-NNN` を明記し、`git revert` で確実に戻せる状態を保つ。
 
