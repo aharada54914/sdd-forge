@@ -35,7 +35,7 @@ disable-model-invocation: true
 - 引数なし時は `AGENTS.md` の `## Active Spec Directories`（または `specs/*/tasks.md`）から `Approval: Approved` かつ `Status: Planned` / `In Progress` のタスクを持つフィーチャーを探す（1 件一致なら自動選択、0 件または複数一致なら一覧を表示して停止）。
 
 ### Step 2 — 実行ロック取得 & 仕様ベースライン固定
-二重起動・並列書込衝突を防ぐため `task-lock.mjs` で排他ロックを取得し、実装開始前に `specs/<feature>/.spec-baseline.json` が無ければ記録する（完了または異常終了時に `task-lock.mjs release` で解放）:
+二重起動・並列書込衝突を防ぐため `task-lock.mjs` で排他ロックを取得し、実装開始前に `specs/<feature>/.spec-baseline.json` が無ければ記録する（完了または異常終了時に `task-lock.mjs release` で解放）。`record-spec-baseline.mjs` は既存のベースラインを上書きせず `status: EXISTING` を返すため、再開・再入のたびに同じコマンドを実行してよい。仕様変更に人間が合意して基準を取り直すときだけ `--rerecord` を付ける:
 
 ```bash
 node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs" \

@@ -397,7 +397,7 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
         '\n## T-002 Follow-up\nApproval: Draft\nStatus: Planned\nRisk: high\n\n### Scope\n- `src/b.mjs`\n\n### Done When\n- AC-001\n\n### Blockers\n- None\n',
       'utf8',
     );
-    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'verdict-test', '--root', repoC], { encoding: 'utf8' });
+    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'verdict-test', '--root', repoC, '--rerecord'], { encoding: 'utf8' });
     const nextRes = callMcp(repoC, [
       { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'verdict-test' } } },
     ]);

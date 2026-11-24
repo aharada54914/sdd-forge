@@ -4,7 +4,11 @@
  * into specs/<feature>/.spec-baseline.json.
  *
  * Usage:
- *   node record-spec-baseline.mjs --feature <feature> [--root <dir>] [--output <path>]
+ *   node record-spec-baseline.mjs --feature <feature> [--root <dir>] [--output <path>] [--rerecord]
+ *
+ * Idempotent: when the baseline already exists it is left untouched and the
+ * status is EXISTING, so re-entering ship never erases undeclared drift
+ * (#819). Pass --rerecord only for an agreed, deliberate re-baseline.
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -91,18 +95,21 @@ export function buildSpecBaseline({ feature, projectRoot }) {
   };
 }
 
-export function writeSpecBaseline({ feature, projectRoot, outputPath }) {
+export function writeSpecBaseline({ feature, projectRoot, outputPath, rerecord = false }) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
-  const baseline = buildSpecBaseline({ feature, projectRoot: root });
   const target = outputPath
     ? path.resolve(outputPath)
     : path.join(root, 'specs', feature, '.spec-baseline.json');
+  if (!rerecord && fs.existsSync(target)) {
+    return { status: 'EXISTING', baseline: JSON.parse(fs.readFileSync(target, 'utf8')), outputPath: target };
+  }
+  const baseline = buildSpecBaseline({ feature, projectRoot: root });
   fs.writeFileSync(target, `${JSON.stringify(baseline, null, 2)}\n`, 'utf8');
-  return { baseline, outputPath: target };
+  return { status: 'RECORDED', baseline, outputPath: target };
 }
 
 function parseArgs(argv) {
-  const opts = { feature: null, root: null, output: null };
+  const opts = { feature: null, root: null, output: null, rerecord: false };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--feature' && argv[i + 1]) {
       opts.feature = argv[i + 1];
@@ -110,6 +117,8 @@ function parseArgs(argv) {
     } else if (argv[i] === '--root' && argv[i + 1]) {
       opts.root = argv[i + 1];
       i += 1;
+    } else if (argv[i] === '--rerecord') {
+      opts.rerecord = true;
     } else if (argv[i] === '--output' && argv[i + 1]) {
       opts.output = argv[i + 1];
       i += 1;
@@ -121,23 +130,24 @@ function parseArgs(argv) {
 function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature) {
-    process.stderr.write('Usage: node record-spec-baseline.mjs --feature <feature> [--root <dir>] [--output <path>]\n');
+    process.stderr.write('Usage: node record-spec-baseline.mjs --feature <feature> [--root <dir>] [--output <path>] [--rerecord]\n');
     process.exit(2);
   }
   try {
-    const { baseline, outputPath } = writeSpecBaseline({
+    const { status, baseline, outputPath } = writeSpecBaseline({
       feature: opts.feature,
       projectRoot: opts.root,
       outputPath: opts.output,
+      rerecord: opts.rerecord,
     });
     process.stdout.write(
       JSON.stringify(
         {
-          status: 'RECORDED',
+          status,
           feature: baseline.feature,
           outputPath,
-          trackedFiles: Object.keys(baseline.files),
-          identifierCount: Object.keys(baseline.identifiers).length,
+          trackedFiles: Object.keys(baseline.files || {}),
+          identifierCount: Object.keys(baseline.identifiers || {}).length,
           gitHead: baseline.gitHead,
         },
         null,
