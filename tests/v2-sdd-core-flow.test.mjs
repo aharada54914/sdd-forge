@@ -108,6 +108,42 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(fs.existsSync(out.outputPath), true);
   });
 
+  it('#823: an unresolved critical/major review ticket for this task fails the gate; others do not', () => {
+    const repo = setupCoreRepo();
+    assert.equal(
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo], { encoding: 'utf8' }).status,
+      0,
+    );
+    const tickets = path.join(repo, 'docs', 'review-tickets');
+    fs.mkdirSync(tickets, { recursive: true });
+    const ticket = (id, status, severity, feature, task) =>
+      fs.writeFileSync(
+        path.join(tickets, `${id}.yml`),
+        `ticket_id: ${id}\nstatus: ${status}\ntype: bug\nseverity: ${severity}\ntarget:\n  feature: ${feature}\n  task: "${task}"\nsummary: s\n`,
+        'utf8',
+      );
+    ticket('RT-1', 'resolved', 'critical', 'payments', 'T-001');
+    ticket('RT-2', 'open', 'major', 'payments', 'T-002');
+    ticket('RT-3', 'open', 'critical', 'billing', 'T-001');
+    ticket('RT-4', 'open', 'minor', 'payments', 'T-001');
+    const run = () =>
+      spawnSync(
+        process.execPath,
+        [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', 'src/refund.js', '--cmd', 'unit=node -e "process.exit(0)"'],
+        { encoding: 'utf8' },
+      );
+    const clean = JSON.parse(run().stdout);
+    assert.equal(clean.verdict, 'PASS', 'resolved, other-task, other-feature and minor tickets do not block');
+    assert.deepEqual(clean.checks.reviewTickets.blocking, []);
+
+    ticket('RT-5', 'open', 'major', 'payments', 'T-001');
+    const blocked = run();
+    assert.equal(blocked.status, 1);
+    const out = JSON.parse(blocked.stdout);
+    assert.equal(out.verdict, 'FAIL');
+    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5']);
+  });
+
   it('fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared', () => {
     const repo = setupCoreRepo();
     assert.equal(
