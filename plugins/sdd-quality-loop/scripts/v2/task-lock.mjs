@@ -215,7 +215,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain = isMainModule(import.meta.url);
+const isMain = isMainModule(import.meta.url, 'task-lock.mjs');
 
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));

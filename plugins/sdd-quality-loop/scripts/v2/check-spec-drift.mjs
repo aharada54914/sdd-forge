@@ -182,6 +182,6 @@ function main() {
   }
 }
 
-if (isMainModule(import.meta.url)) {
+if (isMainModule(import.meta.url, 'check-spec-drift.mjs')) {
   main();
 }

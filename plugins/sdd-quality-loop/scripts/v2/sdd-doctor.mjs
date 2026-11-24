@@ -65,7 +65,7 @@ function parseCliArgs(argv) {
   return opts;
 }
 
-const isMain = isMainModule(import.meta.url);
+const isMain = isMainModule(import.meta.url, 'sdd-doctor.mjs');
 if (isMain) {
   const opts = parseCliArgs(process.argv.slice(2));
   const report = runDoctor(opts);

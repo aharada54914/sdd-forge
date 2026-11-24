@@ -101,13 +101,17 @@ export function findProjectRoot(startDir) {
  * True when the module at `importMetaUrl` is the script Node was asked to run.
  * Compares real paths: Node resolves the main module through symlinks, so a
  * plain argv[1] comparison silently skipped main() for any CLI (the soft guard
- * hook included) launched through a link (#869).
+ * hook included) launched through a link (#869). `scriptFileName` is the
+ * CLI's own file name.
  */
-export function isMainModule(importMetaUrl) {
+export function isMainModule(importMetaUrl, scriptFileName) {
   const entry = process.argv[1];
   if (!entry) return false;
   try {
-    return fs.realpathSync(path.resolve(entry)) === fs.realpathSync(fileURLToPath(importMetaUrl));
+    const real = fs.realpathSync(path.resolve(entry));
+    // The file-name check keeps a CLI embedded in a bundle (where the bundle
+    // is both argv[1] and import.meta.url) from running its main().
+    return path.basename(real) === scriptFileName && real === fs.realpathSync(fileURLToPath(importMetaUrl));
   } catch {
     return false;
   }

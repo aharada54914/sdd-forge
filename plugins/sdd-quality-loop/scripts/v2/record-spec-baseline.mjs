@@ -176,6 +176,6 @@ function main() {
   }
 }
 
-if (isMainModule(import.meta.url)) {
+if (isMainModule(import.meta.url, 'record-spec-baseline.mjs')) {
   main();
 }

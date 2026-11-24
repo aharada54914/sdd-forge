@@ -851,6 +851,6 @@ function main() {
   }
 }
 
-if (isMainModule(import.meta.url)) {
+if (isMainModule(import.meta.url, 'run-sdd-gate.mjs')) {
   main();
 }

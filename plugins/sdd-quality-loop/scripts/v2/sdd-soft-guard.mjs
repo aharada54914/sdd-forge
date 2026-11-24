@@ -658,6 +658,6 @@ async function main() {
   emitDecision(result, emit);
 }
 
-if (isMainModule(import.meta.url)) {
+if (isMainModule(import.meta.url, 'sdd-soft-guard.mjs')) {
   main();
 }
