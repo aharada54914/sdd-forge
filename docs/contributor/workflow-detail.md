@@ -489,7 +489,7 @@ review_cycles: <実施済みサイクル数>
    |---|---|
    | AGENTS.md | 金額計算を含む要件には「計算タイミング」の明記を必須とするガイドラインを追加 |
    ```
-   Status は `Status: <値>` 形式で記録します（許容値: `Draft | Approved | Applied | Verified | Rejected`）。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。フックガードが `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みを拒否します（sudo でも解除されません）。
+   Status は `Status: <値>` 形式で記録します（許容値: `Draft | Approved | Applied | Verified | Rejected | Regressed`）。効果検証で「改善傾向・期間内」と判定した場合は Status を `Applied` のまま `## Result` に `Needs-Followup:` 行を追記します。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。フックガードが `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みを拒否します（sudo でも解除されません）。
 
 2. **能力リフレッシュチェック**: `Mechanism: model-routing` の WFI を Draft する前に確認する
 
