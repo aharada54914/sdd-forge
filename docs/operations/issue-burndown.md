@@ -9,7 +9,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 | Batch | PR | Issues | Status |
 |---|---|---|---|
-| 1 | (pending) | #801, #802, #851, #855, #857, #858, #859, #861, #821, #825 | PR open |
+| 1 | #966 | #801, #802, #851, #855, #857, #858, #859, #861, #821, #825 | merged (aafd184) |
+| 2 | (pending) | #822, #828, #824, #833, #840, #843, #852, #837, #844, #838 | PR open |
 
 ## Resolved
 
@@ -26,6 +27,16 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #821 | Gate task heading lookup uses the exact ID. |
 | #825 | Gate records `coverage`; MCP ignores incomplete-coverage PASS artifacts for Done readiness. |
 
+| #822, #828 | Gate change discovery uses `-z`, `core.quotePath=false` and `diff --relative`. |
+| #824 | Gate normalizes `critical` to `high` via `normalizeRiskTier`. |
+| #833 | `countPrimaryApprovals` no longer subtracts `Second Approval:` lines. |
+| #837 | `record-final-verdict` + `finalReviews` separate from mechanical gate runs. |
+| #838 | Per-attempt breakdown kept in metrics (`attemptsByTask`). |
+| #840 | Guard auto-denials split from human interventions. |
+| #843 | OQ blocks counted only when the OQ check stopped the run. |
+| #844 | Attributions deduplicated by gate `runId`. |
+| #852 | Spec Drift CI reports coverage and lists unbaselined approved features. |
+
 ## Deferred (needs human decision)
 
 | Issue | Reason |
@@ -34,5 +45,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
 
 ## Follow-ups
+
+- Method (since batch 2): pstack (`michael-denyer/pstack-claude` @66181d3c) poteto-mode Bug fix playbook; failing test committed before the fix; independent `thermo-nuclear-review` before merge for guard / gate / Done-evidence changes.
+- `docs/contributor/coding-standards/audit/*.json` still name the pre-rename `hooks/hooks.json` (historical audit records, nothing executes them).
 
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.
