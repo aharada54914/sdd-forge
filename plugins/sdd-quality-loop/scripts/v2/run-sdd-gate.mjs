@@ -33,7 +33,8 @@ import {
   splitSpecAmendments,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
-import { normalizeRiskTier } from './v2-readonly-core.mjs';
+import { extractScopePaths, normalizeRiskTier } from './v2-readonly-core.mjs';
+import { globToRegExp } from './v2-pure-lib.mjs';
 
 const PLACEHOLDER_RE =
   /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
@@ -86,6 +87,7 @@ export function parseTaskBlock(tasksContent, taskId) {
     status: statusMatch ? statusMatch[1].trim() : null,
     // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
     risk: normalizeRiskTier(riskMatch ? riskMatch[1] : '', 'standard'),
+    scopePaths: extractScopePaths(block),
   };
 }
 
@@ -135,6 +137,14 @@ export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = nul
     }
   }
   return [...files];
+}
+
+/** A Scope entry is a file, a directory (`src/` or `src`) or a glob. */
+function isInTaskScope(relPath, scopePaths) {
+  return scopePaths.some((entry) => {
+    const dir = entry.replace(/\/+$/, '');
+    return relPath === dir || relPath.startsWith(`${dir}/`) || globToRegExp(entry).test(relPath);
+  });
 }
 
 function isPlaceholderScanTarget(relPath) {
@@ -606,6 +616,20 @@ export function runSddGate({
     : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
   const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
   const reviewTickets = checkReviewTickets(root, feature, taskState);
+  // Label what lies outside the task's ### Scope (#829). The verdict is not
+  // relaxed: in a shared working tree, pass the task's own files with
+  // --changed-files instead.
+  const taskScope = taskState.scopePaths;
+  const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
+  for (const finding of [...placeholders.findings, ...(nonFunctionalSensors.findings || [])]) {
+    if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
+  }
+  const scope = {
+    mode: Array.isArray(changedFiles) && changedFiles.length > 0 ? 'explicit' : baseRef ? 'base' : 'uncommitted',
+    ...(baseRef ? { baseRef } : {}),
+    taskScope,
+    outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
+  };
   const commandResults = runVerificationCommands(root, commands);
   const allCommandsPassed = commandResults.every((r) => r.passed);
 
@@ -635,6 +659,12 @@ export function runSddGate({
   }
   if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
   if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
+  if (scope.outOfScopeFiles.length > 0) {
+    warnings.push(
+      `OUT_OF_SCOPE_CHANGES: ${scope.outOfScopeFiles.length} changed file(s) outside this task's Scope were scanned; ` +
+        'in a shared working tree pass the task\'s own files with --changed-files.',
+    );
+  }
 
   const result = {
     schema: 'sdd-gate-execution/v1',
@@ -646,6 +676,7 @@ export function runSddGate({
     executedAt: new Date().toISOString(),
     verdict,
     coverage,
+    scope,
     warnings,
     checks: {
       taskPrecondition,

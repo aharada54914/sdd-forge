@@ -34,6 +34,7 @@ user-invocable: false
      --cmd "test=<test-command>"
    ```
 
+   - 並列実行で作業ツリーを共有している場合、既定の検査は他タスクの未完了の変更も拾う（検出結果は `inTaskScope: false`、`scope.outOfScopeFiles`、警告 `OUT_OF_SCOPE_CHANGES` で区別される。判定は緩めない）。他人の変更を消さずに自タスクだけ検証するには、自タスクの `### Scope` に属する変更ファイルを `--changed-files "a.js,b.js"` で明示する。
    - 検査対象の変更ファイルは既定で「HEAD に対する未コミット差分＋未追跡ファイル」。タスクの途中でコミットしてから再開した場合は、タスク開始時点のコミットを `--base <git-ref>` で渡し、コミット済みの変更も検査対象に戻す（履歴を自動では広げない）。
    - 非ゼロ終了時は失敗内容（`UNDECLARED_DRIFT` なら仕様を戻すか合意済み理由を `## Spec Amendments` へ追記）を添えて差し戻す。
 
