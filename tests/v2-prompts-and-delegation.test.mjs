@@ -428,3 +428,18 @@ describe('#849 a passed audit always reaches human approval', () => {
     assert.match(step, /追跡 Issue/);
   });
 });
+
+describe('#847 the Cycle 1 summary carries everything Cycle 2 must report', () => {
+  it('the audit cycle writes each cycle_1_summary field auditor B reads from integrated-summary.json', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const b = fs.readFileSync(path.join(root, 'agents/wfi-auditor-b.md'), 'utf8');
+    const block = /"cycle_1_summary": \{([^}]*)\}/.exec(b)[1];
+    const fields = [...block.matchAll(/"(auditor_a_[a-z_]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(fields.sort(), ['auditor_a_fail_count', 'auditor_a_pass_count', 'auditor_a_verdict']);
+    const skill = fs.readFileSync(path.join(root, 'skills/wfi-audit-cycle/SKILL.md'), 'utf8');
+    const step = skill.split('\n').find((l) => l.includes('integrated-summary.json') && l.includes('書き出す'));
+    assert.ok(step, 'Cycle 1 step writes integrated-summary.json');
+    for (const f of fields) assert.match(step, new RegExp(f), `integrated summary must include ${f}`);
+    assert.match(b, /never infer|推測しない|do not infer/i, 'B must not guess a missing verdict');
+  });
+});
