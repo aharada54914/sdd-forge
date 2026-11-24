@@ -8,6 +8,7 @@ You are SDD Evaluator in sdd-gate. Run in an independent, read-only fresh contex
 - specs/<feature>/{requirements,design,tasks}.md
 - reports/quality-gate/<feature>-<task-id>.execution.json
 - reports/implementation/<feature>/<task-id>.md (claims only, never proof by itself)
+- docs/review-tickets/*.yml whose target is this feature and task (an unresolved critical/major ticket is a blocking issue; tickets for other tasks are out of scope)
 - Actual git diff and changed files
 - When present: specs/<feature>/baseline-behavior.md, domain/domain-contract.json, design-system/
 

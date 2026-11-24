@@ -426,6 +426,40 @@ function scanNonFunctionalSensors(projectRoot, changedFiles) {
   };
 }
 
+const BLOCKING_TICKET_SEVERITIES = new Set(['critical', 'major']);
+
+function readTicketField(text, key, indent = '') {
+  const m = new RegExp(`^${indent}${key}:[ \\t]*(.*)$`, 'm').exec(text);
+  return m ? m[1].trim().replace(/^(['"])(.*)\1$/, '$2').trim() : '';
+}
+
+/**
+ * Unresolved critical/major review tickets targeting exactly this feature and
+ * task block the gate (#823). Tickets for other tasks or features, resolved
+ * tickets and minor findings do not. Only the flat fields the ticket template
+ * defines are read; a ticket without a status counts as open.
+ */
+function checkReviewTickets(projectRoot, feature, taskState) {
+  const dir = path.join(projectRoot, 'docs', 'review-tickets');
+  const blocking = [];
+  if (fs.existsSync(dir)) {
+    for (const name of fs.readdirSync(dir).sort()) {
+      if (!/\.ya?ml$/i.test(name)) continue;
+      const abs = path.join(dir, name);
+      if (!fs.statSync(abs).isFile()) continue;
+      const text = normalizeNewlines(fs.readFileSync(abs, 'utf8'));
+      const status = readTicketField(text, 'status').toLowerCase() || 'open';
+      const severity = readTicketField(text, 'severity').toLowerCase();
+      const targetFeature = readTicketField(text, 'feature', '[ \\t]+');
+      const targetTask = readTicketField(text, 'task', '[ \\t]+').toUpperCase();
+      if (status === 'resolved' || !BLOCKING_TICKET_SEVERITIES.has(severity)) continue;
+      if (targetFeature !== feature || targetTask !== taskState.taskId) continue;
+      blocking.push({ ticketId: readTicketField(text, 'ticket_id') || name.replace(/\.ya?ml$/i, ''), severity, status });
+    }
+  }
+  return { passed: blocking.length === 0, blocking };
+}
+
 function checkOpenQuestionsGate(projectRoot, feature, taskState) {
   const featureDir = path.join(projectRoot, 'specs', feature);
   const reqPath = path.join(featureDir, 'requirements.md');
@@ -552,6 +586,7 @@ export function runSddGate({
     ? { skipped: true, passed: true, findings: [] }
     : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
   const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
+  const reviewTickets = checkReviewTickets(root, feature, taskState);
   const commandResults = runVerificationCommands(root, commands);
   const allCommandsPassed = commandResults.every((r) => r.passed);
 
@@ -561,6 +596,7 @@ export function runSddGate({
     placeholders.passed &&
     nonFunctionalSensors.passed &&
     openQuestions.passed &&
+    reviewTickets.passed &&
     allCommandsPassed
       ? 'PASS'
       : 'FAIL';
@@ -598,6 +634,7 @@ export function runSddGate({
       placeholders,
       nonFunctionalSensors,
       openQuestions,
+      reviewTickets,
       commands: commandResults,
     },
   };

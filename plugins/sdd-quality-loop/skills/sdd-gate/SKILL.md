@@ -37,7 +37,7 @@ user-invocable: false
    - 非ゼロ終了時は失敗内容（`UNDECLARED_DRIFT` なら仕様を戻すか合意済み理由を `## Spec Amendments` へ追記）を添えて差し戻す。
 
 2. **独立レビュー（統一 5 観点 G1〜G5・1 パス）**:
-   `git diff`、`specs/<feature>/{requirements,design,tasks}.md`、`reports/implementation/<feature>/<task-id>.md`、`execution.json` を突き合わせる:
+   `git diff`、`specs/<feature>/{requirements,design,tasks}.md`、`reports/implementation/<feature>/<task-id>.md`、`execution.json`、対象 feature・タスクの `docs/review-tickets/*.yml` を突き合わせる（未解決の `critical` / `major` チケットは `execution.json` の `checks.reviewTickets.blocking` に列挙され、機械判定も FAIL になる）:
 
    | ID | 観点 | 検査基準（全リスク階層共通） | `low` / `standard`（1 体） | `high`（2 体並列） |
    |---|---|---|---|---|
