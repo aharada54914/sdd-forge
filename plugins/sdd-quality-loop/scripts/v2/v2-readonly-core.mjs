@@ -400,9 +400,12 @@ export function parseTasksSummary(tasksText) {
     const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], 'standard');
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
     const taskId = taskMatch[1].toUpperCase();
-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+    const declaredBlockers = extractTaskBlockers(block);
+    const blockers = declaredBlockers.filter((b) => b !== taskId);
+    const selfBlocked = declaredBlockers.includes(taskId);
 
     tasks.push({
+      selfBlocked,
       id: taskId,
       title: (taskMatch[2] || '').trim(),
       approval,
@@ -688,12 +691,34 @@ export function computeExecutionPlan(tasks) {
     }
   }
 
+  // A Blocker naming no task in this file, or the task itself, can never be
+  // satisfied: such tasks and everything downstream stay out of the waves and
+  // are reported apart from real cycles (#817).
+  const unknownBlockers = [];
+  for (const t of tasks) {
+    for (const b of t.blockers || []) {
+      if (!byId.has(b)) unknownBlockers.push({ task: t.id, blocker: b });
+    }
+  }
+  const invalid = new Set([...unknownBlockers.map((u) => u.task), ...tasks.filter((t) => t.selfBlocked).map((t) => t.id)]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const t of tasks) {
+      if (!invalid.has(t.id) && (t.blockers || []).some((b) => invalid.has(b))) {
+        invalid.add(t.id);
+        grew = true;
+      }
+    }
+  }
+  for (const id of invalid) remaining.delete(id);
+
   let guard = 0;
   while (remaining.size > 0 && guard < tasks.length + 2) {
     guard += 1;
     const ready = tasks
       .filter((t) => remaining.has(t.id))
-      .filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
+      .filter((t) => t.blockers.every((b) => completed.has(b)));
     if (ready.length === 0) {
       break;
     }
@@ -720,7 +745,8 @@ export function computeExecutionPlan(tasks) {
   }
 
   const cyclicTasks = [...remaining];
-  return { batches, scopeConflicts, cyclicTasks };
+  const invalidBlockerTasks = tasks.filter((t) => invalid.has(t.id)).map((t) => t.id);
+  return { batches, scopeConflicts, cyclicTasks, unknownBlockers, invalidBlockerTasks };
 }
 
 /**
@@ -813,6 +839,7 @@ export function analyzeTraceabilityCore(
       status: t.status,
       acRefs: t.acRefs,
       blockers: t.blockers,
+      selfBlocked: Boolean(t.selfBlocked),
       scopePaths,
       domains,
       codePaths,
