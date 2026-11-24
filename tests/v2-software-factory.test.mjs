@@ -520,13 +520,14 @@ describe('#817 review: only bare Blocker IDs are declared dependencies', () => {
         task('T-003', '- T-001\n- Covers T-002..T-005 once they land', 'src/c.js'),
         task('T-004', '- T-005', 'src/d.js'),
         task('T-005', '- T-004, T-404', 'src/e.js'),
+        task('T-006', '- None\n<!--\nT-777\n-->\n- T-XXX\n- T-NNN', 'src/f.js'),
       ].join('\n'),
       'utf8',
     );
     const res = spawnSync(process.execPath, [TRACE_CLI, '--feature', 'prose', '--root', dir, '--plan-batches'], { encoding: 'utf8' });
     assert.equal(res.status, 0, res.stderr);
     const plan = JSON.parse(res.stdout).executionPlan;
-    assert.deepEqual(plan.batches.flat().sort(), ['T-001', 'T-002', 'T-003'], 'prose mentions never block');
+    assert.deepEqual(plan.batches.flat().sort(), ['T-001', 'T-002', 'T-003', 'T-006'], 'prose, comments and placeholders never block');
     assert.deepEqual(plan.unknownBlockers, [{ task: 'T-005', blocker: 'T-404' }], 'only bare IDs are checked for existence');
     assert.deepEqual(plan.invalidBlockerTasks.sort(), ['T-004', 'T-005']);
     assert.deepEqual(plan.cyclicTasks.sort(), ['T-004', 'T-005'], 'a cycle stays visible even when it touches an invalid task');
