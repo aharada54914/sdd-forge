@@ -54,8 +54,9 @@ claude-code-action（ワークフローでSHA固定した版の action.yml）が
    詳細なプロトコルは docs/contributor/workflow-detail.md の
    「週次セルフ改善ルーチンとの境界と優先順位」を参照。
 3. **監査**: 直近差分と最近の CI 失敗を確認し、以下から重点1領域だけを深掘りする。前回の再開点が利用できれば優先し、未調査領域を問題なしと扱わない。
-   - ランタイム同等性: `plugins/sdd-quality-loop/scripts/sdd-hook-guard.{py,js,ps1}` と
-     kill-switch 系のロジックドリフト
+   - ランタイム同等性: `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs`(単一
+     Node.js ESM 実装)の `AGENT_STOP` キルスイッチ・承認自己追加抑止ロジックのドリフト
+     (v2.0.0 で旧 4 言語ハードロックフック `sdd-hook-guard.{py,js,ps1,sh}` は廃止済み)
    - ドキュメントとコードの乖離(README / docs/*.md / CHANGELOG とマニフェストのバージョン整合)
    - テストカバレッジの穴(`tests/` にあるのに CI で実行されていない等)
    - インストーラ(install.sh / install.ps1)の異常系・冪等性
@@ -64,7 +65,9 @@ claude-code-action（ワークフローでSHA固定した版の action.yml）が
    - `.github/workflows/` 自体の健全性(直近の実行結果、SHA ピンの陳腐化、
      参照しているファイル・ドキュメントの実在)
 4. **テスト実行**: Linux で実行可能なスイートを必ず回す:
-   `bash tests/guards.tests.sh`、`bash tests/install.tests.sh`、
+   `node --test tests/v2-soft-guard.test.mjs`(旧 `tests/guards.tests.sh` は
+   v2 移行で削除済み。現行ガード実装 `sdd-soft-guard.mjs` の唯一のテスト)、
+   `bash tests/install.tests.sh`、
    `python3 -m py_compile`、`node --check`、全 JSON / YAML のパース検証。
 5. **Issue 起票**: 監査結果を 1 本の Issue にまとめる(前述の `DEFAULT_WORKFLOW_TOKEN` を使い、
    `gh label create self-improvement --color 1D76DB --description "weekly automated audit" 2>/dev/null || true`

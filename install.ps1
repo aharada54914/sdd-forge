@@ -978,7 +978,7 @@ function Expand-DownloadedZipArchive {
     }
 }
 
-$cloudEntryFiles = @(".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
+$cloudEntryFiles = @(".antigravity-plugin/plugin.json", ".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
 
 function Get-RequiredPaths {
     $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-ship", "sdd-domain")

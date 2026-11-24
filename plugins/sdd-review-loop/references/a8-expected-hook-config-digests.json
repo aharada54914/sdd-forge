@@ -4,11 +4,11 @@
     "expected_sha256": "sha256:09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d"
   },
   "Codex-disabled-expected-unavailable": {
-    "config_path": "plugins/sdd-quality-loop/hooks/hooks.json",
+    "config_path": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
     "expected_sha256": "sha256:9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40"
   },
   "Codex-enabled-active": {
-    "config_path": "plugins/sdd-quality-loop/hooks/hooks.json",
+    "config_path": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
     "expected_sha256": "sha256:9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40"
   },
   "Copilot-primary-active": {

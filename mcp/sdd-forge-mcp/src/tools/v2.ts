@@ -15,6 +15,7 @@
 
 import { err, ok, type Result } from "../envelope.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
+import { isExecutionCoverageComplete } from "../parsers/report-lookup.js";
 import {
   createGuardedIo,
   guardedDirExists,
@@ -178,6 +179,7 @@ export interface GateAuditTaskEntry {
     executedAt?: string;
     specDriftStatus?: ExecutionDriftStatus;
     failedCommands?: string[];
+    coverageComplete?: boolean;
   };
   reviewReport: {
     exists: boolean;
@@ -615,6 +617,7 @@ export function sddGateAudit(
             if (sdStatus) {
               executionArtifact.specDriftStatus = sdStatus;
             }
+            executionArtifact.coverageComplete = isExecutionCoverageComplete(parsed);
             if (Array.isArray(checks?.commands)) {
               const failed = checks.commands
                 .filter((c): c is Record<string, unknown> => Boolean(c) && typeof c === "object" && (c as Record<string, unknown>).passed === false)
@@ -654,6 +657,7 @@ export function sddGateAudit(
         isApprovedValue(task.approval) &&
         validStatus &&
         executionArtifact.verdict === "PASS" &&
+        executionArtifact.coverageComplete === true &&
         reviewReport.verdict === "PASS" &&
         validDrift &&
         blockingProvisionalOqs.length === 0;

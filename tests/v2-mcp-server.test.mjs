@@ -220,6 +220,7 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(gateAudit.data.tasks[0].executionArtifact.verdict, 'PASS');
     assert.equal(typeof gateAudit.data.tasks[0].executionArtifact.executedAt, 'string');
     assert.deepEqual(gateAudit.data.tasks[0].executionArtifact.failedCommands, []);
+    assert.equal(gateAudit.data.tasks[0].executionArtifact.coverageComplete, true);
     assert.equal(gateAudit.data.tasks[0].reviewReport.verdict, 'PASS');
     assert.equal(gateAudit.data.tasks[0].readyForDone, true);
 
@@ -243,7 +244,11 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     const featureRes = JSON.parse(responses[9].result.contents[0].text);
     assert.equal(featureRes.ok, true);
 
-    // Validate all tool outputs against contracts/sdd-mcp.v2.schema.json when Ajv is installed
+    // Validate all tool outputs against contracts/sdd-mcp.v2.schema.json. CI sets
+    // SDD_REQUIRE_AJV=1 so a missing dependency fails instead of silently skipping (#857).
+    if (process.env.SDD_REQUIRE_AJV === '1') {
+      assert.ok(Ajv2020, 'SDD_REQUIRE_AJV=1 but ajv could not be resolved from mcp/sdd-forge-mcp (run npm ci there)');
+    }
     if (Ajv2020) {
       const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8'));
       const ajv = new Ajv2020({ strict: false });
@@ -260,6 +265,9 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
         assert.ok(validate, `Missing schema def ${def}`);
         assert.equal(validate(value), true, `${def} failed schema validation: ${JSON.stringify(validate.errors)}`);
       }
+      // The comparison must be able to fail: a controlled mismatch is rejected.
+      const envelope = ajv.getSchema('sdd-mcp-v2#/$defs/errorEnvelope');
+      assert.equal(envelope({ ...missing, ok: true, error: 42 }), false, 'schema check accepted a corrupted error envelope');
     }
   });
 
@@ -325,6 +333,30 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     const failVerdict = JSON.parse(failVerdictRes[1].result.content[0].text);
     assert.equal(failVerdict.data.tasks[0].reviewReport.verdict, 'FAIL');
     assert.equal(failVerdict.data.tasks[0].readyForDone, false);
+
+    // #825: a mechanical PASS that ran zero verification commands is not Done evidence,
+    // even next to a PASS review report; one real command restores readiness.
+    const repoZero = createV2TestRepo('zero-cmd');
+    const zeroGate = spawnSync(
+      process.execPath,
+      [GATE_SCRIPT, '--feature', 'zero-cmd', '--task', 'T-001', '--root', repoZero],
+      { encoding: 'utf8' },
+    );
+    assert.equal(zeroGate.status, 0, zeroGate.stderr);
+    const zeroResult = JSON.parse(zeroGate.stdout);
+    assert.equal(zeroResult.verdict, 'PASS');
+    assert.deepEqual(zeroResult.coverage, { commandsRun: 0, specDriftChecked: true, sensorsChecked: true, complete: false });
+    assert.match(zeroResult.warnings.join('\n'), /NO_VERIFICATION_COMMANDS/);
+    assert.match(zeroGate.stderr, /NO_VERIFICATION_COMMANDS/);
+    const zeroAudit = JSON.parse(
+      callMcp(repoZero, [
+        { method: 'tools/call', params: { name: 'sdd_gate_audit', arguments: { feature: 'zero-cmd', taskId: 'T-001' } } },
+      ])[1].result.content[0].text,
+    );
+    assert.equal(zeroAudit.data.tasks[0].executionArtifact.verdict, 'PASS');
+    assert.equal(zeroAudit.data.tasks[0].executionArtifact.coverageComplete, false);
+    assert.equal(zeroAudit.data.tasks[0].reviewReport.verdict, 'PASS');
+    assert.equal(zeroAudit.data.tasks[0].readyForDone, false);
 
     // NEW-M3a: Existing empty specs/<feature>/ directory must return ok: true, phase: 'bootstrap'
     fs.mkdirSync(path.join(repoC, 'specs', 'empty-draft'), { recursive: true });

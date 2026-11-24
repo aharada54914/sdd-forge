@@ -297,10 +297,10 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 | 環境 | フックファイル | 実装方式 | 注意点 |
 |---|---|---|---|
 | Claude Code | `hooks/claude-hooks.json` | Node.js で Edit/Write/MultiEdit/apply_patch 登録 | `plugin.json` の `"hooks"` が指すのはこのファイル |
-| Codex CLI | `hooks/hooks.json` + `command_windows` | shell / PowerShell。現行 CLI の制御名は `hooks` | apply_patch は `tool_input.command` で処理。稼働は実 canary で確認 |
+| Codex CLI | `hooks/codex-hooks.json` + `command_windows` | shell / PowerShell。現行 CLI の制御名は `hooks` | apply_patch は `tool_input.command` で処理。稼働は実 canary で確認 |
 | Copilot CLI | `hooks/copilot-hooks.json` | stdout で JSON `permissionDecision` 返す | 親・サブエージェントそれぞれで実 canary を確認 |
 
-**フック定義はホストごとに別ファイルです（共通の1ファイルではありません）。** `plugins/sdd-quality-loop/hooks/` には `claude-hooks.json` / `hooks.json` / `copilot-hooks.json` の3ファイルが実在し、`plugins/sdd-quality-loop/.claude-plugin/plugin.json` は `"hooks": "./hooks/claude-hooks.json"` を宣言しています。`hooks/hooks.json` は Codex 用です。
+**フック定義はホストごとに別ファイルです（共通の1ファイルではありません）。** `plugins/sdd-quality-loop/hooks/` には `claude-hooks.json` / `codex-hooks.json` / `copilot-hooks.json` の3ファイルが実在し、`plugins/sdd-quality-loop/.claude-plugin/plugin.json` は `"hooks": "./hooks/claude-hooks.json"` を宣言しています。`hooks/codex-hooks.json` は Codex 用です（Claude は既定位置 `hooks/hooks.json` を自動で読み込むため、その名前は使いません。#855）。
 
 **設計思想**
 
@@ -921,13 +921,13 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 | `sdd-evaluator` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
 | `panelist-gpt` / `panelist-gemini` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | — (ツインなし) |
 | reviewer 系 (`spec` / `impl` / `task` / `domain`) ・`wfi-auditor` エージェント (10体) | ○ (サブエージェント) | — (ツインなし⁴) | — (ツインなし⁴) |
-| フック定義 (承認ガード / AGENT_STOP) — ホストごとに別ファイル | ○ (`hooks/claude-hooks.json`) | ○² (`hooks/hooks.json`、`hooks` 有効) | ○³ (`hooks/copilot-hooks.json`、plugin `preToolUse`) |
+| フック定義 (承認ガード / AGENT_STOP) — ホストごとに別ファイル | ○ (`hooks/claude-hooks.json`) | ○² (`hooks/codex-hooks.json`、`hooks` 有効) | ○³ (`hooks/copilot-hooks.json`、plugin `preToolUse`) |
 | `disable-model-invocation` | ○ | — | ○ |
 | `context: fork` | ○ | — | — |
 
 ¹ `.codex/agents/` の TOML エージェントは Codex app / CLI のインタラクティブセッションで動作します。インストーラーはこれらを `~/.codex/agents/` へもコピーします。
 
-² Codex CLI 0.159.2 では `hooks` が制御名です。実セッションで `--enable hooks` 時の canary 拒否と `--disable hooks` 時の非発火を確認しました。削除済みの `plugin_hooks` を無効にしても、フックを無効化した証拠にはなりません。`hooks/hooks.json` の `command` / `command_windows` と、実 canary の結果を確認してください。`apply_patch` ペイロードは `sdd-hook-guard` が処理します。
+² Codex CLI 0.159.2 では `hooks` が制御名です。実セッションで `--enable hooks` 時の canary 拒否と `--disable hooks` 時の非発火を確認しました。削除済みの `plugin_hooks` を無効にしても、フックを無効化した証拠にはなりません。`hooks/codex-hooks.json` の `command` / `command_windows` と、実 canary の結果を確認してください。`apply_patch` ペイロードは `sdd-hook-guard` が処理します。
 
 ³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。CLI 1.0.98 の実セッションでは親・サブエージェントとも拒否を確認しました。バージョンや実行経路だけで稼働を推定せず、各セッションの canary が拒否されなければ Capability Mode を停止します。
 

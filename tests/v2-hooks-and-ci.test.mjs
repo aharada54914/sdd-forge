@@ -15,7 +15,7 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
       fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/claude-hooks.json'), 'utf8'),
     );
     const codex = JSON.parse(
-      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/hooks.json'), 'utf8'),
+      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/codex-hooks.json'), 'utf8'),
     );
     const copilot = JSON.parse(
       fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/copilot-hooks.json'), 'utf8'),
@@ -137,6 +137,77 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         assert.ok(typeof parsed.hookSpecificOutput.additionalContext === 'string' && parsed.hookSpecificOutput.additionalContext.length > 0);
       }
     }
+  });
+
+  it('#861: Bash and PowerShell installers require the same Cloud entry files', () => {
+    const sh = fs.readFileSync(path.join(REPO_ROOT, 'install.sh'), 'utf8');
+    const ps = fs.readFileSync(path.join(REPO_ROOT, 'install.ps1'), 'utf8');
+    const shList = /^CLOUD_ENTRY_FILES=\(([^)]*)\)/m.exec(sh);
+    const psList = /^\$cloudEntryFiles = @\(([^)]*)\)/m.exec(ps);
+    assert.ok(shList && psList, 'both installers must declare a Cloud entry file list');
+    const norm = (raw) => raw.split(/[\s,]+/).map((x) => x.replace(/"/g, '')).filter(Boolean).sort();
+    assert.deepEqual(norm(psList[1]), norm(shList[1]));
+    assert.ok(norm(shList[1]).includes('.antigravity-plugin/plugin.json'));
+  });
+
+  it('#858: every workflow and distributed CI template pins third-party actions to a commit SHA', () => {
+    const files = [];
+    const wfDir = path.join(REPO_ROOT, '.github/workflows');
+    for (const f of fs.readdirSync(wfDir)) if (/\.ya?ml$/.test(f)) files.push(path.join(wfDir, f));
+    const tplDir = path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-adopt/templates');
+    for (const f of fs.readdirSync(tplDir)) if (/\.ya?ml$/.test(f)) files.push(path.join(tplDir, f));
+    let seen = 0;
+    for (const file of files) {
+      for (const m of fs.readFileSync(file, 'utf8').matchAll(/^\s*-?\s*uses:\s*(\S+)/gm)) {
+        const ref = m[1];
+        if (ref.startsWith('./')) continue;
+        seen += 1;
+        assert.match(ref, /^[\w.-]+\/[\w./-]+@[0-9a-f]{40}$/, `${path.relative(REPO_ROOT, file)}: ${ref} is not SHA-pinned`);
+      }
+    }
+    assert.ok(seen > 0);
+  });
+
+  it('#855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file', () => {
+    const pluginsDir = path.join(REPO_ROOT, 'plugins');
+    for (const name of fs.readdirSync(pluginsDir)) {
+      const manifestPath = path.join(pluginsDir, name, '.claude-plugin', 'plugin.json');
+      if (!fs.existsSync(manifestPath)) continue;
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      if (typeof manifest.hooks !== 'string') continue;
+      const declared = path.normalize(manifest.hooks);
+      if (declared === path.normalize('./hooks/hooks.json')) continue;
+      assert.equal(
+        fs.existsSync(path.join(pluginsDir, name, 'hooks', 'hooks.json')),
+        false,
+        `${name}: Claude loads hooks/hooks.json in addition to ${manifest.hooks}, registering the guard twice`,
+      );
+    }
+    const codex = JSON.parse(
+      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/.codex-plugin/plugin.json'), 'utf8'),
+    );
+    assert.equal(codex.hooks, './hooks/codex-hooks.json');
+    assert.ok(fs.existsSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', codex.hooks)));
+  });
+
+  it('#851/#801: required-checks aggregates every dependency result and installers job runs install suites', () => {
+    const wf = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/test.yml'), 'utf8');
+    const agg = wf.slice(wf.indexOf('\n  required-checks:'));
+    assert.ok(agg.length > 1, 'required-checks job must exist');
+    const needs = /needs:\s*\[([^\]]+)\]/.exec(agg);
+    assert.ok(needs, 'required-checks must declare needs');
+    const deps = needs[1].split(',').map((x) => x.trim());
+    for (const job of ['v2-guardrails', 'sdd-forge-mcp-v2', 'mcp-tests', 'cloud-and-ddd', 'installers']) {
+      assert.ok(deps.includes(job), `required-checks must depend on ${job}`);
+      assert.match(wf, new RegExp(`\\n  ${job}:\\n`), `job ${job} must exist`);
+    }
+    // A failed dependency must not turn the aggregate into a (merge-permitting) skip.
+    assert.match(agg, /if:\s*\$\{\{\s*always\(\)\s*\}\}/);
+    assert.match(agg, /toJSON\(needs\)/);
+    assert.match(agg, /\.result != "success"/);
+    const installers = wf.slice(wf.indexOf('\n  installers:'), wf.indexOf('\n  required-checks:'));
+    assert.match(installers, /bash tests\/install\.tests\.sh/);
+    assert.match(installers, /bash tests\/uninstall\.tests\.sh/);
   });
 
   it('all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version', () => {

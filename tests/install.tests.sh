@@ -9,7 +9,7 @@ INSTALLER="${REPO_ROOT}/install.sh"
 python3 "${REPO_ROOT}/tests/lib/install-payload-check.py" --runtime bash
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 PASS=0
 FAIL=0
 
@@ -249,8 +249,8 @@ resolve_registered_plugins() {
             case "$plugin" in
                 sdd-bootstrap) dependencies=(sdd-review-loop sdd-implementation) ;;
                 sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
-                sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
-                sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
+                sdd-azure-cloud|sdd-aws-cloud) dependencies=(sdd-quality-loop) ;;
+                sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop) ;;
             esac
             # Guard the expansion: bash 3.2 treats a zero-element array as unset,
             # so "${dependencies[@]}" would raise "unbound variable" under -u
@@ -591,12 +591,12 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Scenario (b2): lite reaches bootstrap's review-loop at the fixed point
+# Scenario (b2): a cloud plugin resolves its quality-loop dependency
 # ---------------------------------------------------------------------------
-if invoke_installer_scenario plugins="sdd-lite"; then
-    ok "lite selection resolves the full dependency closure"
+if invoke_installer_scenario plugins="sdd-aws-cloud"; then
+    ok "cloud selection resolves its dependency closure"
 else
-    fail "lite selection resolves the full dependency closure"
+    fail "cloud selection resolves its dependency closure"
 fi
 
 # ---------------------------------------------------------------------------
@@ -1184,7 +1184,7 @@ rm -rf "$_d_root"
 # ---------------------------------------------------------------------------
 # Scenario (o): sdd-ship auto-expansion — selecting only sdd-ship triggers
 # auto-inclusion of its companions (sdd-bootstrap, sdd-review-loop,
-# sdd-implementation, sdd-quality-loop, sdd-lite)
+# sdd-implementation, sdd-quality-loop)
 # ---------------------------------------------------------------------------
 _o_root="$(mktemp -d)"
 _o_install="${_o_root}/installed"
@@ -1209,7 +1209,7 @@ else
 fi
 _o_ok=1
 # All companion plugins must be present in install root
-for p in sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop; do
+for p in sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-review-loop; do
     if [[ ! -f "${_o_install}/plugins/${p}/.codex-plugin/plugin.json" ]]; then
         fail "sdd-ship expansion (o): companion plugin not installed: $p"
         _o_ok=0
@@ -1271,15 +1271,14 @@ done
 [[ $_q_ok -eq 1 ]] && ok "sdd-ship required paths: all plugin files present"
 
 # ---------------------------------------------------------------------------
-# Scenario (r): sdd-review-loop has distributable manifests and both skills
+# Scenario (r): sdd-review-loop has distributable manifests and its v2 skill
 # ---------------------------------------------------------------------------
 _r_ok=1
 for path in \
     "plugins/sdd-review-loop/.claude-plugin/plugin.json" \
     "plugins/sdd-review-loop/.codex-plugin/plugin.json" \
     "plugins/sdd-review-loop/.plugin/plugin.json" \
-    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md" \
-    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"; do
+    "plugins/sdd-review-loop/skills/spec-check/SKILL.md"; do
     if [[ ! -f "${REPO_ROOT}/${path}" ]]; then
         fail "sdd-review-loop required paths (r): missing: $path"
         _r_ok=0
@@ -1334,7 +1333,7 @@ export SDD_CODEX_HOME="${_t_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
 _t_failed=0
-_t_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_t_install" --target All --skip-agent-install 2>&1)" || _t_failed=1
+_t_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_t_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _t_failed=1
 export PATH="$_t_orig_path"
 if [[ -z "$_t_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_t_orig_codex_home"; fi
 _t_ok=1
@@ -1398,7 +1397,7 @@ fi
 rm -rf "$_t_root"
 [[ $_t_ok -eq 1 ]] && ok "default install places and registers ALL THREE MCP servers, with ci-mcp token guidance"
 
-# Scenario (u): --skip-mcp skips both placement and registration.
+# Scenario (u): --skip-mcp skips opt-in placement and all registration.
 _u_root="$(mktemp -d)"
 _u_install="${_u_root}/installed"
 _u_bin="${_u_root}/bin"
@@ -1429,7 +1428,10 @@ if [[ -z "$_u_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export S
 _u_ok=1
 [[ $_u_failed -eq 0 ]] || { fail "--skip-mcp (u): installer exited non-zero"; _u_ok=0; }
 [[ -f "${_u_install}/.agents/plugins/marketplace.json" ]] || { fail "--skip-mcp (u): plugin files were rolled back"; _u_ok=0; }
-[[ ! -e "${_u_install}/mcp" ]] || { fail "--skip-mcp (u): mcp/ was placed despite --skip-mcp"; _u_ok=0; }
+# ADR-0052 / C-4: sdd-forge-mcp's runtime is always placed for /sdd-ship:status;
+# --skip-mcp skips opt-in servers and every host registration.
+[[ -f "${_u_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "--skip-mcp (u): always-placed sdd-forge-mcp runtime missing"; _u_ok=0; }
+[[ ! -e "${_u_install}/mcp/local-env-mcp" && ! -e "${_u_install}/mcp/ci-mcp" ]] || { fail "--skip-mcp (u): opt-in MCP was placed despite --skip-mcp"; _u_ok=0; }
 if [[ -f "$_u_log" ]] && grep -qF "claude mcp add" "$_u_log"; then
     fail "--skip-mcp (u): claude mcp add was invoked despite --skip-mcp"
     _u_ok=0
@@ -1441,7 +1443,7 @@ fi
 cmp -s "${_u_root}/cursor-before.json" "${_u_root}/cursor/mcp.json" || { fail "--skip-mcp (u): Cursor mcp.json was modified despite --skip-mcp"; _u_ok=0; }
 cmp -s "${_u_root}/vscode-before.json" "${_u_root}/vscode-user/mcp.json" || { fail "--skip-mcp (u): VS Code mcp.json was modified despite --skip-mcp"; _u_ok=0; }
 rm -rf "$_u_root"
-[[ $_u_ok -eq 1 ]] && ok "--skip-mcp skips both MCP placement and registration"
+[[ $_u_ok -eq 1 ]] && ok "--skip-mcp skips opt-in MCP placement and all registration"
 
 # Scenario (v): --mcp sdd-forge-mcp installs; --mcp bogus is rejected with usage.
 _v_root="$(mktemp -d)"
@@ -1478,7 +1480,7 @@ bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_vle_ins
 export PATH="$_vle_orig_path"
 [[ $_vle_failed -eq 0 ]] || { fail "--mcp local-env-mcp (v-le): installer exited non-zero"; _v_ok=0; }
 [[ -f "${_vle_install}/mcp/local-env-mcp/dist/index.js" ]] || { fail "--mcp local-env-mcp (v-le): local-env-mcp dist/index.js not placed"; _v_ok=0; }
-[[ ! -e "${_vle_install}/mcp/sdd-forge-mcp" ]] || { fail "--mcp local-env-mcp (v-le): sdd-forge-mcp was placed despite not being selected"; _v_ok=0; }
+[[ -f "${_vle_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "--mcp local-env-mcp (v-le): always-placed sdd-forge-mcp runtime missing"; _v_ok=0; }
 rm -rf "$_vle_root"
 
 # Scenario (v-ci): --mcp ci-mcp is a valid selection that places ONLY ci-mcp
@@ -1498,7 +1500,7 @@ _vci_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-roo
 export PATH="$_vci_orig_path"
 [[ $_vci_failed -eq 0 ]] || { fail "--mcp ci-mcp (v-ci): installer exited non-zero"; _v_ok=0; }
 [[ -f "${_vci_install}/mcp/ci-mcp/dist/index.js" ]] || { fail "--mcp ci-mcp (v-ci): ci-mcp dist/index.js not placed"; _v_ok=0; }
-[[ ! -e "${_vci_install}/mcp/sdd-forge-mcp" ]] || { fail "--mcp ci-mcp (v-ci): sdd-forge-mcp was placed despite not being selected"; _v_ok=0; }
+[[ -f "${_vci_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "--mcp ci-mcp (v-ci): always-placed sdd-forge-mcp runtime missing"; _v_ok=0; }
 [[ ! -e "${_vci_install}/mcp/local-env-mcp" ]] || { fail "--mcp ci-mcp (v-ci): local-env-mcp was placed despite not being selected"; _v_ok=0; }
 if ! echo "$_vci_out" | grep -qF "CI_MCP_GITHUB_TOKEN"; then
     fail "--mcp ci-mcp (v-ci): missing token env var guidance even with --target=FilesOnly"
@@ -1581,11 +1583,12 @@ NODESHIM
 chmod +x "${_w_bin}/node"
 export PATH="${_w_bin}:${_w_orig_path}"
 _w_failed=0
-_w_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w_install" --target FilesOnly 2>&1)" || _w_failed=1
+_w_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w_install" --target FilesOnly --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _w_failed=1
 export PATH="$_w_orig_path"
 _w_ok=1
 [[ $_w_failed -eq 0 ]] || { fail "old Node (w): installer exited non-zero despite MCP-only skip"; _w_ok=0; }
-[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed below Node 26.13.0"; _w_ok=0; }
+[[ ! -e "${_w_install}/mcp/local-env-mcp" && ! -e "${_w_install}/mcp/ci-mcp" ]] || { fail "old Node (w): opt-in MCP was placed below Node 20.0.0"; _w_ok=0; }
+[[ -f "${_w_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "old Node (w): always-placed sdd-forge-mcp runtime missing"; _w_ok=0; }
 for p in $ALL_PLUGINS; do
     [[ -f "${_w_install}/plugins/${p}/.codex-plugin/plugin.json" ]] || { fail "old Node (w): plugin not copied despite MCP-only skip: $p"; _w_ok=0; }
 done
@@ -1596,10 +1599,9 @@ fi
 rm -rf "$_w_root"
 [[ $_w_ok -eq 1 ]] && ok "unsupported Node warns and skips MCP only, plugin install continues"
 
-# Scenario (w1): enforce the exact supported MCP runtime floor. Node 26.12.x
-# and malformed output must fail closed, while
-# Node 26.13.0 and newer stable releases are supported; Node 22/24 are rejected.
-for _w1_case in "v22.19.0:reject" "v24.19.0:reject" "v26.12.1:reject" "v26.13.0:accept" "v26.14.0:accept" "v26.13.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
+# Scenario (w1): enforce the exact supported MCP runtime floor (Node 20.0.0 LTS,
+# install.sh node_version_ok). Older releases and malformed output fail closed.
+for _w1_case in "v18.20.4:reject" "v19.9.0:reject" "v20.0.0:accept" "v22.19.0:accept" "v26.14.0:accept" "v20.0.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
     _w1_version="${_w1_case%%:*}"
     _w1_expected="${_w1_case##*:}"
     _w1_root="$(mktemp -d)"
@@ -1619,7 +1621,7 @@ NODESHIM_BOUNDARY
     chmod +x "${_w1_bin}/node"
     export PATH="${_w1_bin}:${_w1_orig_path}"
     _w1_failed=0
-    _w1_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w1_install" --target FilesOnly 2>&1)" || _w1_failed=1
+    _w1_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w1_install" --target FilesOnly --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _w1_failed=1
     export PATH="$_w1_orig_path"
     _w1_ok=1
     [[ $_w1_failed -eq 0 ]] || { fail "Node boundary (w1): installer exited non-zero for ${_w1_version}"; _w1_ok=0; }
@@ -1628,15 +1630,15 @@ NODESHIM_BOUNDARY
             [[ -f "${_w1_install}/mcp/${_w1_mcp}/package.json" ]] || { fail "Node boundary (w1): ${_w1_version} did not install ${_w1_mcp}"; _w1_ok=0; }
         done
     else
-        [[ ! -e "${_w1_install}/mcp" ]] || { fail "Node boundary (w1): ${_w1_version} installed MCP below the supported floor"; _w1_ok=0; }
+        [[ ! -e "${_w1_install}/mcp/local-env-mcp" && ! -e "${_w1_install}/mcp/ci-mcp" ]] || { fail "Node boundary (w1): ${_w1_version} installed MCP below the supported floor"; _w1_ok=0; }
         echo "$_w1_out" | grep -qi "node" || { fail "Node boundary (w1): ${_w1_version} did not emit a Node warning"; _w1_ok=0; }
     fi
     rm -rf "$_w1_root"
     [[ $_w1_ok -eq 1 ]] && ok "Node boundary ${_w1_version} is ${_w1_expected}ed"
 done
 
-# Scenario (w2): an unsupported v18.x runtime for the DEFAULT multi-MCP
-# install. The MCP gate skips placement and registration below Node 26.13.0.
+# Scenario (w2): an unsupported v18.x runtime for an opt-in multi-MCP
+# install. The MCP gate skips placement and registration below Node 20.0.0.
 # A v18.x shim ahead of the
 # real node on PATH must cause NO placement of EITHER MCP and NO Claude/Codex
 # registration, while a warning mentioning Node is printed. --target All +
@@ -1664,7 +1666,7 @@ export PATH="${_w2_bin}:${_w2_orig_path}"
 export SDD_CODEX_HOME="${_w2_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
-# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 26.13.0.
+# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 20.0.0.
 export SDD_CURSOR_DIR="${_w2_root}/cursor"
 export SDD_VSCODE_USER_DIR="${_w2_root}/vscode-user"
 mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
@@ -1673,24 +1675,24 @@ printf '{\n  "servers": {}\n}\n' > "${_w2_root}/vscode-user/mcp.json"
 cp "${_w2_root}/cursor/mcp.json" "${_w2_root}/cursor-before.json"
 cp "${_w2_root}/vscode-user/mcp.json" "${_w2_root}/vscode-before.json"
 _w2_failed=0
-_w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install --plugins sdd-bootstrap 2>&1)" || _w2_failed=1
+_w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install --plugins sdd-bootstrap --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _w2_failed=1
 export PATH="$_w2_orig_path"
 if [[ -z "$_w2_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_w2_orig_codex_home"; fi
 if [[ -z "$_w2_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_w2_orig_cursor_dir"; fi
 if [[ -z "$_w2_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_w2_orig_vscode_dir"; fi
 _w2_ok=1
 [[ $_w2_failed -eq 0 ]] || { fail "old Node v18 (w2): installer exited non-zero despite MCP-only skip"; _w2_ok=0; }
-[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed below Node 26.13.0"; _w2_ok=0; }
+[[ ! -e "${_w2_install}/mcp/local-env-mcp" && ! -e "${_w2_install}/mcp/ci-mcp" ]] || { fail "old Node v18 (w2): opt-in MCP was placed below Node 20.0.0"; _w2_ok=0; }
 if [[ -f "$_w2_log" ]] && grep -qF "claude mcp add" "$_w2_log"; then
-    fail "old Node v18 (w2): claude mcp add was invoked below Node 26.13.0"
+    fail "old Node v18 (w2): claude mcp add was invoked below Node 20.0.0"
     _w2_ok=0
 fi
 if grep -qE "sdd-forge-mcp|local-env-mcp|ci-mcp" "${_w2_root}/codex-home/config.toml" 2>/dev/null; then
-    fail "old Node v18 (w2): Codex config.toml was modified below Node 26.13.0"
+    fail "old Node v18 (w2): Codex config.toml was modified below Node 20.0.0"
     _w2_ok=0
 fi
-cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 26.13.0"; _w2_ok=0; }
-cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 26.13.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 20.0.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 20.0.0"; _w2_ok=0; }
 if ! echo "$_w2_out" | grep -qi "node"; then
     fail "old Node v18 (w2): expected warning mentioning Node was not printed"
     _w2_ok=0
@@ -1710,7 +1712,7 @@ make_fake_commands "$_x_bin" "$_x_log"
 export PATH="${_x_bin}:${_x_orig_path}"
 export SDD_CODEX_HOME="${_x_root}/codex-home-missing"
 _x_failed=0
-_x_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_x_install" --target All --skip-agent-install 2>&1)" || _x_failed=1
+_x_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_x_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _x_failed=1
 export PATH="$_x_orig_path"
 if [[ -z "$_x_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_x_orig_codex_home"; fi
 _x_ok=1
@@ -1762,9 +1764,9 @@ cat > "${_y_root}/cursor/mcp.json" <<'CURSORSEED'
 }
 CURSORSEED
 _y_failed=0
-_y_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_y_install" --target All --skip-agent-install 2>&1)" || _y_failed=1
+_y_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_y_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _y_failed=1
 cp "${_y_root}/cursor/mcp.json" "${_y_root}/cursor-after-first.json" 2>/dev/null || true
-bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_y_install" --target All --skip-agent-install >/dev/null 2>&1 || _y_failed=1
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_y_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp >/dev/null 2>&1 || _y_failed=1
 export PATH="$_y_orig_path"
 if [[ -z "$_y_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_y_orig_codex_home"; fi
 if [[ -z "$_y_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_y_orig_cursor_dir"; fi
@@ -1827,9 +1829,9 @@ cat > "${_z_root}/vscode-user/mcp.json" <<'VSCODESEED'
 }
 VSCODESEED
 _z_failed=0
-_z_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_z_install" --target All --skip-agent-install 2>&1)" || _z_failed=1
+_z_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_z_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _z_failed=1
 cp "${_z_root}/vscode-user/mcp.json" "${_z_root}/vscode-after-first.json" 2>/dev/null || true
-bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_z_install" --target All --skip-agent-install >/dev/null 2>&1 || _z_failed=1
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_z_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp >/dev/null 2>&1 || _z_failed=1
 export PATH="$_z_orig_path"
 if [[ -z "$_z_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_z_orig_codex_home"; fi
 if [[ -z "$_z_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_z_orig_cursor_dir"; fi
@@ -1879,7 +1881,7 @@ mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
 printf '{ "mcpServers": { "broken"\n' > "${_aa_root}/cursor/mcp.json"
 cp "${_aa_root}/cursor/mcp.json" "${_aa_root}/cursor-before.json"
 _aa_failed=0
-_aa_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_aa_install" --target All --skip-agent-install 2>&1)" || _aa_failed=1
+_aa_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_aa_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _aa_failed=1
 export PATH="$_aa_orig_path"
 if [[ -z "$_aa_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_aa_orig_codex_home"; fi
 if [[ -z "$_aa_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_aa_orig_cursor_dir"; fi
@@ -1924,7 +1926,7 @@ mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
 printf 'not json at all { ]\n' > "${_ab_root}/vscode-user/mcp.json"
 cp "${_ab_root}/vscode-user/mcp.json" "${_ab_root}/vscode-before.json"
 _ab_failed=0
-_ab_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_ab_install" --target All --skip-agent-install 2>&1)" || _ab_failed=1
+_ab_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_ab_install" --target All --skip-agent-install --mcp sdd-forge-mcp,local-env-mcp,ci-mcp 2>&1)" || _ab_failed=1
 export PATH="$_ab_orig_path"
 if [[ -z "$_ab_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_ab_orig_codex_home"; fi
 if [[ -z "$_ab_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_ab_orig_cursor_dir"; fi
@@ -1989,97 +1991,23 @@ fi
 _fixture_matrix_cleanup "$_t003_absent"
 _fixture_matrix_cleanup "$_t003_present"
 
-# Claude guard prerequisites must fail before creating or replacing an install,
-# including --skip-mcp. FilesOnly keeps its separate optional MCP behavior above.
+# v2 soft guardrails: the v1 Claude hook preflight that refused to install
+# without a supported Node/Claude runtime was retired. An unusable Node now only
+# warns (the soft guard degrades open) and the install proceeds.
 _hook_root="$(mktemp -d)"
 _hook_bin="${_hook_root}/bin"
 make_fake_commands "$_hook_bin" "${_hook_root}/commands.log"
-# A bounded PATH makes the absent-Node case independent of the runner's Node.
-for _hook_tool in bash sh git dirname basename mktemp rm cat sleep date grep sed sort realpath readlink uname; do
-    _hook_path="$(command -v "$_hook_tool" || true)"
-    [[ -z "$_hook_path" ]] || ln -s "$_hook_path" "${_hook_bin}/${_hook_tool}"
-done
-# Apple git invokes xcrun; only git's child environment needs system PATH.
-rm "${_hook_bin}/git"
-printf '#!/bin/sh\nPATH="/usr/bin:/bin:$PATH" exec %s "$@"\n' "$(shell_literal "$(command -v git)")" > "${_hook_bin}/git"
-chmod +x "${_hook_bin}/git"
-_hook_real_sleep="$(command -v sleep)"
-for _hook_case in missing broken old invalid hanging claude-old valid; do
-    rm -f "${_hook_bin}/sleep"
-    ln -s "$_hook_real_sleep" "${_hook_bin}/sleep"
-    rm -f "${_hook_bin}/node"
-    _hook_node='echo v26.13.0'
-    case "$_hook_case" in
-        broken) _hook_node='exit 127' ;;
-        old) _hook_node='echo v22.18.0' ;;
-        invalid) _hook_node='echo v26.13.0-rc.1' ;;
-        hanging)
-            # Deliberately slow each poll: iteration counts cannot stand in for
-            # elapsed time on a busy/macOS runner. The probe still gets 30s.
-            rm "${_hook_bin}/sleep"
-            printf '#!/bin/sh\nif [ "$1" = 0.1 ]; then set -- 0.25; fi\nexec %s "$@"\n' "$(shell_literal "$_hook_real_sleep")" > "${_hook_bin}/sleep"
-            chmod +x "${_hook_bin}/sleep"
-            _hook_node="date +%s > $(shell_literal "${_hook_root}/probe-start"); sleep 120 & child=\$!; echo \"\$child\" > $(shell_literal "${_hook_root}/child.pid"); wait \"\$child\""
-            ;;
-    esac
-    if [[ "$_hook_case" != missing ]]; then
-        printf '#!/bin/sh\n%s\n' "$_hook_node" > "${_hook_bin}/node"
-        chmod +x "${_hook_bin}/node"
-    fi
-    _hook_claude='2.1.317'
-    [[ "$_hook_case" != claude-old ]] || _hook_claude='2.1.294'
-    [[ "$_hook_case" != valid ]] || _hook_claude='2.1.295'
-    printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "%s (Claude Code)"; fi\n' "$_hook_claude" > "${_hook_bin}/claude"
-    chmod +x "${_hook_bin}/claude"
-    _hook_install="${_hook_root}/${_hook_case}/installed"
-    mkdir -p "$_hook_install"
-    printf 'preserve me\n' > "${_hook_install}/old.marker"
-    _hook_failed=0
-    # Valid install needs the normal staging utilities as well as the shims.
-    _hook_path="$_hook_bin"
-    [[ "$_hook_case" != valid ]] || _hook_path="$_hook_bin:$PATH"
-    _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
-    if [[ "$_hook_case" == valid ]]; then
-        if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" ]]; then
-            ok "Claude hooks: supported runtime installs with --skip-mcp"
-        else
-            fail "Claude hooks: supported runtime failed: $_hook_out"
-        fi
-    elif [[ $_hook_failed -ne 0 && "$(cat "${_hook_install}/old.marker" 2>/dev/null)" == 'preserve me' && "$_hook_out" == *'Installation was not changed.'* && "$_hook_out" == *'quality-loop hooks'* ]]; then
-        ok "Claude hooks: $_hook_case runtime leaves existing install untouched"
-    else
-        fail "Claude hooks: $_hook_case did not fail before mutation: $_hook_out"
-    fi
-    if [[ "$_hook_case" == hanging ]]; then
-        # Measure the runtime probe, excluding source validation before it.
-        _hook_elapsed=$(( $(date +%s) - $(cat "${_hook_root}/probe-start") ))
-        if (( _hook_elapsed >= 25 && _hook_elapsed < 45 )); then
-            ok "Claude hooks: hanging runtime meets the preflight deadline (${_hook_elapsed}s despite slow polling)"
-        else
-            fail "Claude hooks: expected a 30s probe (25-44s tolerance), got ${_hook_elapsed}s"
-        fi
-        _hook_child="$(cat "${_hook_root}/child.pid")"
-        # A killed child can remain a zombie until the OS reaps it; it must
-        # never still execute after the preflight deadline.
-        _hook_state="$(ps -o stat= -p "$_hook_child" 2>/dev/null || true)"
-        if [[ -z "$_hook_state" || "$_hook_state" == Z* ]]; then
-            ok "Claude hooks: timeout stops the launcher and its child"
-        else
-            fail "Claude hooks: timeout left child $_hook_child running ($_hook_state)"
-            kill -KILL "$_hook_child" 2>/dev/null || true
-        fi
-    fi
-    rm -rf "$_hook_install"
-    if [[ "$_hook_case" != valid && "$_hook_case" != hanging ]]; then
-        _hook_failed=0
-        _hook_out="$(PATH="$_hook_path" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
-        if [[ $_hook_failed -ne 0 && ! -e "$_hook_install" && "$_hook_out" == *'Installation was not changed.'* ]]; then
-            ok "Claude hooks: $_hook_case runtime does not create a new install"
-        else
-            fail "Claude hooks: $_hook_case created a new install or wrong failure: $_hook_out"
-        fi
-    fi
-done
+printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "2.1.317 (Claude Code)"; fi\n' > "${_hook_bin}/claude"
+printf '#!/bin/sh\nexit 127\n' > "${_hook_bin}/node"
+chmod +x "${_hook_bin}/claude" "${_hook_bin}/node"
+_hook_install="${_hook_root}/installed"
+_hook_failed=0
+_hook_out="$(PATH="${_hook_bin}:${PATH}" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
+if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" && "$_hook_out" == *'Node.js >= 20.0.0 is recommended'* ]]; then
+    ok "Claude hooks: unusable Node warns and still installs (v2 soft guard)"
+else
+    fail "Claude hooks: unusable Node did not warn-and-install (exit=$_hook_failed): $_hook_out"
+fi
 rm -rf "$_hook_root"
 
 # ---------------------------------------------------------------------------

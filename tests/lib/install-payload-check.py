@@ -38,6 +38,7 @@ REPO = Path(__file__).resolve().parents[2]  # <repo>/tests/lib/<this file>
 TIMEOUT = 900
 MANIFEST = "install-payload.txt"
 MCP = ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]
+ALWAYS_PLACED_MCP = "sdd-forge-mcp"
 RUNTIME_DIRS = (".agents/", ".claude-plugin/", ".codex/agents/", "plugins/", "contracts/",
                 "templates/cloud/", "skills/adversarial-review/")
 EXCLUDED = frozenset([".git", "node_modules", "__pycache__", ".pytest_cache", ".mypy_cache",
@@ -191,7 +192,7 @@ def node_ok():
     except OSError:
         return False
     match = re.fullmatch(r"v?(\d+)\.(\d+)\.(\d+)", out)
-    return bool(match) and tuple(map(int, match.groups())) >= (26, 13, 0)
+    return bool(match) and tuple(map(int, match.groups())) >= (20, 0, 0)
 
 
 def symlinks_ok():
@@ -510,7 +511,11 @@ class PayloadChecks(unittest.TestCase):
         leaked = [rel for rel in LEAK_PATHS if os.path.lexists(root / rel)]
         self.assertEqual(leaked, [], "development payload leaked into the install")
         actual = installed_files(root)
-        want_mcp = {k: v for name in mcp for k, v in self.fx.mcp_expected(name).items()}
+        # ADR-0052 / C-4: the sdd-forge-mcp runtime (dist/index.js + package.json)
+        # is always placed so /sdd-ship:status works on default installs, even
+        # with --skip-mcp or below the Node gate. Only host registration is opt-in.
+        names = dict.fromkeys((ALWAYS_PLACED_MCP, *mcp))
+        want_mcp = {k: v for name in names for k, v in self.fx.mcp_expected(name).items()}
         self.assertEqual({k: v for k, v in actual.items() if k.startswith("mcp/")}, want_mcp,
                          "mcp/ must hold exactly dist/index.js and package.json of the selected servers")
         rest = {k: v for k, v in actual.items() if not k.startswith("mcp/")}
@@ -546,7 +551,7 @@ class PayloadChecks(unittest.TestCase):
         self.assert_no_residue(root)
         self.assert_entry_parses(root)
         narrow = self.root_for("one-plugin")  # --plugins selects registration, never what is copied
-        self.install_ok(narrow, source=self.fx.path, skip_mcp=True, plugins=["sdd-lite"])
+        self.install_ok(narrow, source=self.fx.path, skip_mcp=True, plugins=["sdd-ship"])
         self.assert_payload(narrow)
 
     def test_archive_source_installs_the_same_payload(self):
@@ -559,16 +564,22 @@ class PayloadChecks(unittest.TestCase):
     def test_mcp_placement_is_exactly_index_and_package(self):
         skipped = self.root_for("skip-mcp")
         self.install_ok(skipped, source=self.fx.path, skip_mcp=True)
-        self.assertFalse((skipped / "mcp").exists(), "--skip-mcp must place nothing under mcp/")
+        # --skip-mcp places only the always-present sdd-forge-mcp runtime.
+        self.assert_payload(skipped)
+        default = self.root_for("default-mcp")
+        self.install_ok(default, source=self.fx.path)
+        self.assert_payload(default)
         if not self.has_node:
             gated = self.root_for("no-node")
-            self.install_ok(gated, source=self.fx.path)
-            self.assertFalse((gated / "mcp").exists(), "the Node >= 26.13.0 gate must skip MCP placement")
-            self.skipTest("Node.js >= 26.13.0 is required to exercise MCP placement")
+            self.install_ok(gated, source=self.fx.path, mcp=["local-env-mcp"])
+            self.assertFalse((gated / "mcp/local-env-mcp").exists(),
+                             "the Node >= 20.0.0 gate must skip opt-in MCP placement")
+            self.assert_payload(gated)
+            self.skipTest("Node.js >= 20.0.0 is required to exercise opt-in MCP placement")
         for label, kwargs in self.sources():
             with self.subTest(source=label):
                 root = self.root_for(f"mcp-{label}")
-                self.install_ok(root, **kwargs)
+                self.install_ok(root, mcp=MCP, **kwargs)
                 self.assert_payload(root, mcp=MCP)
         selected = self.root_for("mcp-selected")
         self.install_ok(selected, source=self.fx.path, mcp=["local-env-mcp"])
@@ -576,7 +587,7 @@ class PayloadChecks(unittest.TestCase):
 
     def test_local_mcp_links_are_skipped_without_following_them(self):
         if not self.has_node or not self.fx.symlinks:
-            self.skipTest("Node >= 26.13.0 and local symlinks are required")
+            self.skipTest("Node >= 20.0.0 and local symlinks are required")
         for index, relative in enumerate(("mcp", "mcp/local-env-mcp", "mcp/local-env-mcp/dist",
                                            "mcp/local-env-mcp/dist/index.js", "mcp/local-env-mcp/package.json")):
             with self.subTest(link=relative):
@@ -590,7 +601,12 @@ class PayloadChecks(unittest.TestCase):
                     self.install_ok(root, source=self.fx.path, mcp=["local-env-mcp"])
                     self.assertFalse(os.path.lexists(root / "mcp/local-env-mcp"),
                                      "MCP source links must not be placed")
-                    self.assert_payload(root)
+                    if relative == "mcp":
+                        # A linked mcp/ root disqualifies every server, including
+                        # the always-placed sdd-forge-mcp runtime.
+                        self.assertFalse(os.path.lexists(root / "mcp"), "a linked mcp/ root must place nothing")
+                    else:
+                        self.assert_payload(root)
                     after = installed_files(outside) if outside.is_dir() else sha256(outside)
                     self.assertEqual(before, after, "installer changed the linked source")
                 finally:
@@ -604,7 +620,8 @@ class PayloadChecks(unittest.TestCase):
                 root = self.root_for(f"upgrade-{label}")
                 self.precreate_install(root)
                 self.install_ok(root, skip_mcp=True, **kwargs)
-                for rel in ("previous-install-marker.txt", "specs", "reports", "tests", ".github", "mcp",
+                for rel in ("previous-install-marker.txt", "specs", "reports", "tests", ".github",
+                            "mcp/sdd-forge-mcp/dist/debug.log",
                             "plugins/sdd-bootstrap/stale-only-in-old-install.txt"):
                     self.assertFalse(os.path.lexists(root / rel), f"upgrade kept formerly distributed content: {rel}")
                 self.assert_payload(root)
@@ -771,7 +788,7 @@ class PayloadChecks(unittest.TestCase):
 
     def test_core_required_files_fail_closed(self):
         paths = ["plugins/" + plugin + "/.claude-plugin/plugin.json"
-                 for plugin in ("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")]
+                 for plugin in ("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-ship")]
         paths += ["plugins/sdd-bootstrap/skills/bootstrap/SKILL.md", "plugins/sdd-ship/skills/ship/SKILL.md"]
         for index, rel in enumerate(paths):
             path = self.fx.path / rel
@@ -823,7 +840,8 @@ class PayloadChecks(unittest.TestCase):
             root = self.root_for("crlf-manifest")
             with manifest_bytes(self.fx, crlf):
                 self.install_ok(root, source=self.fx.path, skip_mcp=True)
-            self.assertEqual(installed_files(root), {**self.fx.expected, MANIFEST: hashlib.sha256(crlf).hexdigest()})
+            self.assertEqual(installed_files(root), {**self.fx.expected, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
+                                                     MANIFEST: hashlib.sha256(crlf).hexdigest()})
 
 
 def main():

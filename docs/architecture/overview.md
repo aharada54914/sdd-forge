@@ -195,7 +195,7 @@ flowchart LR
 | フィールド | `.claude-plugin` | `.codex-plugin` | `.plugin` |
 |---|---|---|---|
 | `skills` | **配列** `["./skills/"]` | **文字列** `"./skills/"` | **文字列・`./` なし** `"skills/"` |
-| `hooks` | `"./hooks/claude-hooks.json"` | `"./hooks/hooks.json"` | `"hooks/copilot-hooks.json"` |
+| `hooks` | `"./hooks/claude-hooks.json"` | `"./hooks/codex-hooks.json"` | `"hooks/copilot-hooks.json"` |
 | `agents` | （宣言なし。`agents/` を規約で探索） | （宣言なし） | `"copilot-agents/"` を明示 |
 | `interface` | なし | **あり**（`displayName` / `shortDescription` / `longDescription` / `developerName` / `category` / `capabilities` / `defaultPrompt`） | なし |
 

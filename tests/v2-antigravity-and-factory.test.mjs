@@ -47,7 +47,7 @@ describe('Antigravity CLI (agy) native support & Software Factory v2.1 (F-1..F-8
       fs.existsSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml')),
       true,
     );
-    const codexHooks = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/hooks.json'), 'utf8'));
+    const codexHooks = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/codex-hooks.json'), 'utf8'));
     assert.match(codexHooks.hooks.PreToolUse[0].hooks[0].command_windows, /CODEX_PLUGIN_ROOT/);
   });
 

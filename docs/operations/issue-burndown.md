@@ -1,0 +1,38 @@
+# Issue Burndown Log
+
+Scheduled autonomous issue resolution (every 5 hours, started 2026-11-24).
+Working branch: `claude/ecstatic-dijkstra-93sy7p`. One PR per ~10 resolved issues;
+a release roughly every 2 merged PRs. Issues needing a human decision (repository
+settings, permissions, product judgement) are listed as **Deferred** and skipped.
+
+## Batches
+
+| Batch | PR | Issues | Status |
+|---|---|---|---|
+| 1 | (pending) | #801, #802, #851, #855, #857, #858, #859, #861, #821, #825 | PR open |
+
+## Resolved
+
+| Issue | Summary of fix |
+|---|---|
+| #801 | `install.tests.sh` + shared `install-payload-check.py` realigned to the v2.1 installer contract (always-placed `sdd-forge-mcp` runtime, Node 20 floor, `sdd-lite` removal, retired Claude hook preflight); new `installers` CI job; self-improvement prompt now points at `sdd-soft-guard.mjs` / `v2-soft-guard.test.mjs`. |
+| #802 | Root cause was #801's failing mandatory verification (`guards.tests.sh` missing, `install.tests.sh` failing). |
+| #851 | `required-checks` runs with `if: always()` and fails unless every dependency succeeded. |
+| #855 | Codex hook file renamed to `hooks/codex-hooks.json` so Claude no longer auto-loads a second copy of the guard. |
+| #857 | CI installs `mcp/sdd-forge-mcp` deps and sets `SDD_REQUIRE_AJV=1`; negative envelope check added. |
+| #858 | All workflow and adopt-template actions pinned to commit SHAs; regression test. |
+| #859 | PowerShell structure check requires the same 3 Core v2 files as Bash; both twins run in CI. |
+| #861 | `install.ps1` Cloud entry list includes `.antigravity-plugin/plugin.json`; parity test. |
+| #821 | Gate task heading lookup uses the exact ID. |
+| #825 | Gate records `coverage`; MCP ignores incomplete-coverage PASS artifacts for Done readiness. |
+
+## Deferred (needs human decision)
+
+| Issue | Reason |
+|---|---|
+| #850 | Changes GitHub branch-protection / ruleset policy (owner review, required contexts); needs the repository owner's decision. |
+| #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
+
+## Follow-ups
+
+- `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.

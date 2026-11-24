@@ -50,7 +50,7 @@ user-invocable: false
    > 並列未対応ホストで `Risk: high` の場合は、Evaluator A と Evaluator B を別コンテキストで順次 1 回ずつ実行し、第 2 視点を省略しない。
 
 3. **品質レポート出力（`reports/quality-gate/<feature>-<task-id>.md`）**:
-   `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、G1〜G5 すべての判定（または明示 `N/A` 理由）とテンプレート冒頭の **Non-checks（検査しないもの）** を記録する。全決定論チェック PASS かつ未解決 Blocking Issues（Critical / Major）がゼロのときのみ `VERDICT: PASS` とする。
+   `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、G1〜G5 すべての判定（または明示 `N/A` 理由）とテンプレート冒頭の **Non-checks（検査しないもの）** を記録する。全決定論チェック PASS かつ未解決 Blocking Issues（Critical / Major）がゼロのときのみ `VERDICT: PASS` とする。`execution.json` の `coverage.complete` が `false`（`--cmd` 0 件、または `--skip-drift` / `--skip-sensors`）の機械 PASS は検証範囲が欠けているため Done の根拠にせず、不足した検証を実行してから判定する（MCP `sdd_gate_audit` も `readyForDone: false` を返す）。
 
 4. **Done 遷移**:
    `VERDICT: PASS` のときのみ `specs/<feature>/tasks.md` の対象タスクを `Status: Done` に更新する（`FAIL` 時は `Implementation Complete` のまま差し戻す）。

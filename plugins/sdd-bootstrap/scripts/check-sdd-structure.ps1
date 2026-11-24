@@ -75,7 +75,7 @@ Check-Required "reports/quality-gate"   "d"
 Check-Required "docs/adr"              "d"
 Check-Required "docs/review-tickets"   "d"
 
-# --- selected full-profile feature ---
+# --- selected SDD Core v2 feature (same 3 files as check-sdd-structure.sh, #859) ---
 if ($featureSelected) {
     $specsPathForFeature = Join-Path $Root "specs"
     $featurePath = Join-Path $specsPathForFeature $Feature
@@ -86,13 +86,7 @@ if ($featureSelected) {
     $featureFiles = @(
         "requirements.md",
         "design.md",
-        "ux-spec.md",
-        "frontend-spec.md",
-        "infra-spec.md",
-        "security-spec.md",
-        "acceptance-tests.md",
-        "tasks.md",
-        "traceability.md"
+        "tasks.md"
     )
     foreach ($name in $featureFiles) {
         if (Test-ReparsePoint (Join-Path $featurePath $name)) {

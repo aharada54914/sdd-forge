@@ -64,7 +64,9 @@ export function parseTaskBlock(tasksContent, taskId) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
   const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
   const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:\\b|\\s|$).*$`, 'im');
+  // The ID must end at whitespace or end of line, exactly like the planner and
+  // MCP (parseTasksSummary): `T-001` must never match `## T-001.1` (#821).
+  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:[ \\t].*)?$`, 'im');
   const match = headerRe.exec(body);
   if (!match) return null;
 
@@ -556,12 +558,30 @@ export function runSddGate({
       ? 'PASS'
       : 'FAIL';
 
+  // What this run actually verified (#825). A mechanical PASS with zero
+  // verification commands or skipped drift/sensor checks is not Done evidence;
+  // consumers must read `coverage.complete` before treating PASS as such.
+  const coverage = {
+    commandsRun: commandResults.length,
+    specDriftChecked: !specDrift.skipped,
+    sensorsChecked: !nonFunctionalSensors.skipped,
+  };
+  coverage.complete = coverage.commandsRun > 0 && coverage.specDriftChecked && coverage.sensorsChecked;
+  const warnings = [];
+  if (coverage.commandsRun === 0) {
+    warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
+  }
+  if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
+  if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
+
   const result = {
     schema: 'sdd-gate-execution/v1',
     feature,
     taskId: taskState.taskId,
     executedAt: new Date().toISOString(),
     verdict,
+    coverage,
+    warnings,
     checks: {
       taskPrecondition,
       specDrift,
@@ -665,6 +685,7 @@ function main() {
       rootCausePhase: opts.rootCausePhase,
     });
     process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);
+    for (const warning of result.warnings) process.stderr.write(`run-sdd-gate warning: ${warning}\n`);
     process.exit(result.verdict === 'PASS' ? 0 : 1);
   } catch (err) {
     process.stderr.write(`run-sdd-gate error: ${err.message}\n`);

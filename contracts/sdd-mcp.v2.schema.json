@@ -233,7 +233,8 @@
                   "verdict": { "type": "string", "enum": ["PASS", "FAIL"] },
                   "executedAt": { "type": "string" },
                   "specDriftStatus": { "$ref": "#/$defs/executionDriftStatus" },
-                  "failedCommands": { "type": "array", "items": { "type": "string" } }
+                  "failedCommands": { "type": "array", "items": { "type": "string" } },
+                  "coverageComplete": { "type": "boolean" }
                 }
               },
               "reviewReport": {
