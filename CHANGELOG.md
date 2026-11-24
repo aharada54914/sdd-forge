@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **インストーラ試験の v2.1 追随と CI 登録（Closes #801, Closes #802）**: `tests/install.tests.sh` と共有の `tests/lib/install-payload-check.py` を v2.1 の契約（`sdd-forge-mcp` 実行体の常時配置、Node 20 下限、`sdd-lite` 廃止、旧 Claude フック事前検査の廃止）へ合わせ、新設の `installers` ジョブ（ubuntu / macOS）で install / uninstall 試験を実行。週次セルフ改善プロンプトの参照を `sdd-soft-guard.mjs` / `v2-soft-guard.test.mjs` へ更新。
+- **required-checks の集約漏れ（Closes #851）**: 依存ジョブが失敗しても集約がスキップ（＝マージ可）にならないよう `if: always()` と全依存の結果照合を追加。
+- **Claude でのガード二重登録（Closes #855）**: `sdd-quality-loop` の Codex 用フック定義を `hooks/codex-hooks.json` へ改名し、Claude が既定位置 `hooks/hooks.json` を追加で読み込まないようにした。
+- **MCP 契約照合の CI 必須化（Closes #857）**: `v2-guardrails` ジョブで `mcp/sdd-forge-mcp` の依存を導入し、`SDD_REQUIRE_AJV=1` で Ajv 不在を失敗扱いに。制御した不整合を検出する負例も追加。
+- **Actions の SHA 固定（Closes #858）**: `test.yml` / `sdd-guardrails.yml` / adopt 配布 CI テンプレートの全 Action をコミット SHA に固定し、回帰試験を追加。
+- **構造検査の Bash / PowerShell 差（Closes #859）**: `check-sdd-structure.ps1` の機能指定時の必須ファイルを Bash と同じ Core v2 の3文書へ統一し、両試験を CI で実行。
+- **Cloud マニフェスト必須検査の PowerShell 漏れ（Closes #861）**: `install.ps1` の Cloud 必須一覧に `.antigravity-plugin/plugin.json` を追加し、両導入器の一覧一致を試験で固定。
+- **ゲートのタスク ID 前方一致（Closes #821）**: `run-sdd-gate.mjs` が `T-001` 指定で `## T-001.1` 等の状態を読む不具合を修正（計画・MCP と同じ完全一致）。
+- **コマンド 0 件の機械 PASS（Closes #825）**: `run-sdd-gate.mjs` が検証範囲 `coverage` と警告を出力し、MCP は範囲が欠けた実行記録を完了根拠に数えず `readyForDone: false` を返す。
+
 ## v2.1.0 (2026-11-22)
 
 ### Added
