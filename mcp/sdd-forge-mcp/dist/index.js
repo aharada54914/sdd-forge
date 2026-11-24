@@ -39632,7 +39632,6 @@ var VALID_MODES = /* @__PURE__ */ new Set(["warn", "confirm", "strict"]);
 var VALID_PRE_IMPL = /* @__PURE__ */ new Set(["auto", "always", "off"]);
 var VALID_RISK_TIERS = /* @__PURE__ */ new Set(["low", "standard", "high"]);
 var APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
-var SECOND_APPROVAL_RE = /(?:^|\n)[ \t]*Second Approval:[ \t]*Approved\b/g;
 var STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 var AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 var IDENTIFIER_LINE_RE = /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
@@ -39816,10 +39815,7 @@ function matchProtectedSpecRelPath(relPath, config2) {
 }
 function countPrimaryApprovals(text) {
   if (!text) return 0;
-  const normalized = normalizeNewlines(text);
-  const primary = (normalized.match(APPROVAL_LINE_RE) || []).length;
-  const second = (normalized.match(SECOND_APPROVAL_RE) || []).length;
-  return Math.max(0, primary - second);
+  return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
 }
 function splitSpecAmendments(text) {
   const normalized = normalizeNewlines(text);
