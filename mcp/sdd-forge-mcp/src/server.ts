@@ -46,7 +46,7 @@ function toCallToolResult<T>(result: Result<T>): { content: Array<{ type: "text"
 export function buildServer(root: SddRoot): McpServer {
   const server = new McpServer({
     name: "sdd-forge-mcp",
-    version: "2.1.0",
+    version: "2.1.1",
   });
 
   server.registerTool(

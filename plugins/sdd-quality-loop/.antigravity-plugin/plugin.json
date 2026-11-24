@@ -1,6 +1,6 @@
 {
   "name": "sdd-quality-loop",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Independently verify Implementation Complete tasks, run differential baseline checks, retrospect on workflow performance, and decide Done.",
   "author": {
     "name": "Harada"
