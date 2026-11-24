@@ -485,7 +485,19 @@ function parseTicket(text) {
     const top = /^([A-Za-z_][\w-]*):(.*)$/.exec(line);
     if (top) {
       inTarget = top[1] === 'target';
-      if (!inTarget) fields[top[1]] = ticketScalar(top[2]);
+      if (!inTarget) {
+        fields[top[1]] = ticketScalar(top[2]);
+      } else {
+        // Flow style on one line: target: {feature: x, task: T-001}
+        const flow = /^\s*\{(.*)\}\s*(#.*)?$/.exec(top[2]);
+        if (flow) {
+          for (const pair of flow[1].split(',')) {
+            const kv = /^\s*([A-Za-z_][\w-]*)\s*:(.*)$/.exec(pair);
+            if (kv && !(kv[1] in target)) target[kv[1]] = ticketScalar(kv[2]);
+          }
+          inTarget = false;
+        }
+      }
       continue;
     }
     if (!inTarget) continue;
