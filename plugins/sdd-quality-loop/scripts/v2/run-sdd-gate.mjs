@@ -15,7 +15,7 @@
  *
  * Usage:
  *   node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>]
- *                         [--cmd "label=command"] [--changed-files "a.js,b.js"]
+ *                         [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>]
  *                         [--baseline <path>] [--output <json-path>]
  *                         [--skip-drift] [--skip-sensors]
  */
@@ -89,9 +89,27 @@ export function parseTaskBlock(tasksContent, taskId) {
   };
 }
 
-export function discoverChangedFiles(projectRoot, explicitFiles) {
+export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = null } = {}) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
     return [...new Set(explicitFiles.map((f) => normalizeRelPath(f)).filter(Boolean))];
+  }
+  // Default: uncommitted changes against HEAD. --base <ref> widens it to every
+  // change since that commit, for a task that committed part of its work
+  // before the gate ran (#826). History is never widened implicitly.
+  let diffBase = 'HEAD';
+  if (baseRef !== null) {
+    if (!/^[A-Za-z0-9._/~^@{}][A-Za-z0-9._/~^@{}-]*$/.test(String(baseRef))) {
+      throw new Error(`Invalid --base ref: ${baseRef}`);
+    }
+    try {
+      diffBase = execFileSync('git', ['rev-parse', '--verify', '--quiet', `${baseRef}^{commit}`], {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+    } catch {
+      throw new Error(`--base ref does not name a commit: ${baseRef}`);
+    }
   }
   const files = new Set();
   // -z + core.quotePath=false: non-ASCII names arrive verbatim instead of as
@@ -99,7 +117,7 @@ export function discoverChangedFiles(projectRoot, explicitFiles) {
   // relative to projectRoot even when it is a subdirectory of the Git root,
   // and changes outside the project are excluded (#828).
   for (const args of [
-    ['-c', 'core.quotePath=false', 'diff', '--name-only', '-z', '--relative', 'HEAD'],
+    ['-c', 'core.quotePath=false', 'diff', '--name-only', '-z', '--relative', diffBase],
     ['-c', 'core.quotePath=false', 'ls-files', '-z', '--others', '--exclude-standard'],
   ]) {
     try {
@@ -524,6 +542,7 @@ export function runSddGate({
   projectRoot,
   commands = [],
   changedFiles = null,
+  baseRef = null,
   baselinePath = null,
   skipDrift = false,
   skipSensors = false,
@@ -580,7 +599,7 @@ export function runSddGate({
     }
   }
 
-  const resolvedChanged = discoverChangedFiles(root, changedFiles);
+  const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
   const placeholders = scanPlaceholders(root, resolvedChanged);
   const nonFunctionalSensors = skipSensors
     ? { skipped: true, passed: true, findings: [] }
@@ -678,6 +697,7 @@ function parseArgs(argv) {
     root: null,
     commands: [],
     changedFiles: null,
+    baseRef: null,
     baselinePath: null,
     outputPath: null,
     skipDrift: false,
@@ -700,6 +720,8 @@ function parseArgs(argv) {
       opts.rootCausePhase = argv[++i];
     } else if (arg === '--changed-files' && argv[i + 1]) {
       opts.changedFiles = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
+    } else if (arg === '--base' && argv[i + 1]) {
+      opts.baseRef = argv[++i];
     } else if (arg === '--cmd' && argv[i + 1]) {
       const raw = argv[++i];
       const eq = raw.indexOf('=');
@@ -721,7 +743,7 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
-      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--output <path>] [--skip-drift] [--skip-sensors]\n',
+      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--output <path>] [--skip-drift] [--skip-sensors]\n',
     );
     process.exit(2);
   }
@@ -732,6 +754,7 @@ function main() {
       projectRoot: opts.root || process.cwd(),
       commands: opts.commands,
       changedFiles: opts.changedFiles,
+      baseRef: opts.baseRef,
       baselinePath: opts.baselinePath,
       skipDrift: opts.skipDrift,
       skipSensors: opts.skipSensors,
