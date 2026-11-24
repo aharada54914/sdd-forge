@@ -108,6 +108,34 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(fs.existsSync(out.outputPath), true);
   });
 
+  it('#829: findings outside the task Scope are labelled, and the verdict stays fail-closed', () => {
+    const repo = setupCoreRepo();
+    assert.equal(
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo], { encoding: 'utf8' }).status,
+      0,
+    );
+    // Another task's unfinished file in the same working tree. The marker is
+    // assembled at runtime so this suite never trips the scanner it tests.
+    const marker = ['TO', 'DO'].join('');
+    fs.writeFileSync(path.join(repo, 'src', 'other.js'), `export const x = 1; // ${marker}: other task\n`, 'utf8');
+    const run = (files) =>
+      JSON.parse(
+        spawnSync(
+          process.execPath,
+          [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', files, '--cmd', 'unit=node -e "process.exit(0)"'],
+          { encoding: 'utf8' },
+        ).stdout,
+      );
+    const shared = run('src/refund.js,src/other.js');
+    assert.equal(shared.verdict, 'FAIL', 'out-of-scope findings still fail by default');
+    assert.deepEqual(shared.scope.taskScope, ['src/refund.js']);
+    assert.deepEqual(shared.scope.outOfScopeFiles, ['src/other.js']);
+    assert.deepEqual(shared.checks.placeholders.findings.map((f) => [f.file, f.inTaskScope]), [['src/other.js', false]]);
+    const own = run('src/refund.js');
+    assert.equal(own.verdict, 'PASS', 'scoping the run to the task\'s own files passes');
+    assert.deepEqual(own.scope.outOfScopeFiles, []);
+  });
+
   it('#823: an unresolved critical/major review ticket for this task fails the gate; others do not', () => {
     const repo = setupCoreRepo();
     assert.equal(
