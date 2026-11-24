@@ -135,6 +135,13 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(fs.readFileSync(baselinePath, 'utf8'), original, 'existing baseline is untouched');
     assert.equal(gate().checks.specDrift.status, 'UNDECLARED_DRIFT', 'undeclared drift survives a re-entry');
 
+    for (const broken of ['{}', 'null', '[]']) {
+      fs.writeFileSync(baselinePath, broken, 'utf8');
+      const res = record();
+      assert.equal(res.status, 1, `a ${broken} baseline is reported, not accepted as EXISTING`);
+      assert.match(res.stderr, /--rerecord/);
+    }
+
     const forced = record('--rerecord');
     assert.equal(JSON.parse(forced.stdout).status, 'RECORDED');
     assert.equal(gate().checks.specDrift.status, 'CLEAN', 'an intended re-record still works');
@@ -166,6 +173,11 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     const own = run('src/refund.js');
     assert.equal(own.verdict, 'PASS', 'scoping the run to the task\'s own files passes');
     assert.deepEqual(own.scope.outOfScopeFiles, []);
+
+    // A plain Scope bullet may carry trailing prose after the path.
+    const tasksPath = path.join(repo, 'specs', 'payments', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('- src/refund.js', '- src/refund.js — refund calculator'), 'utf8');
+    assert.deepEqual(run('src/refund.js').scope.outOfScopeFiles, []);
   });
 
   it('#823: an unresolved critical/major review ticket for this task fails the gate; others do not', () => {
