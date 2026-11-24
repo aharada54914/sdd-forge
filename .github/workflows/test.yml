@@ -34,7 +34,12 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install sdd-forge-mcp dependencies (Ajv for MCP contract checks, #857)
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Run v2 Lightweight Guardrails & SDD Core tests
+        env:
+          SDD_REQUIRE_AJV: "1"
         run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
 
       - name: Verify SDD repository structure (POSIX)

@@ -243,7 +243,11 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     const featureRes = JSON.parse(responses[9].result.contents[0].text);
     assert.equal(featureRes.ok, true);
 
-    // Validate all tool outputs against contracts/sdd-mcp.v2.schema.json when Ajv is installed
+    // Validate all tool outputs against contracts/sdd-mcp.v2.schema.json. CI sets
+    // SDD_REQUIRE_AJV=1 so a missing dependency fails instead of silently skipping (#857).
+    if (process.env.SDD_REQUIRE_AJV === '1') {
+      assert.ok(Ajv2020, 'SDD_REQUIRE_AJV=1 but ajv could not be resolved from mcp/sdd-forge-mcp (run npm ci there)');
+    }
     if (Ajv2020) {
       const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8'));
       const ajv = new Ajv2020({ strict: false });
@@ -260,6 +264,9 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
         assert.ok(validate, `Missing schema def ${def}`);
         assert.equal(validate(value), true, `${def} failed schema validation: ${JSON.stringify(validate.errors)}`);
       }
+      // The comparison must be able to fail: a controlled mismatch is rejected.
+      const envelope = ajv.getSchema('sdd-mcp-v2#/$defs/errorEnvelope');
+      assert.equal(envelope({ ...missing, ok: true, error: 42 }), false, 'schema check accepted a corrupted error envelope');
     }
   });
 
