@@ -215,6 +215,20 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 
+  it('#869 review: a CLI embedded under another file name (a bundle) never runs its main()', () => {
+    const src = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2');
+    const work = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-cli-bundle-'));
+    try {
+      for (const f of fs.readdirSync(src)) if (f.endsWith('.mjs')) fs.copyFileSync(path.join(src, f), path.join(work, f));
+      fs.renameSync(path.join(work, 'factory-metrics.mjs'), path.join(work, 'index.mjs'));
+      const res = spawnSync(process.execPath, [path.join(work, 'index.mjs'), '--root', work], { cwd: work, encoding: 'utf8' });
+      assert.equal(res.status, 0, res.stderr);
+      assert.equal(res.stdout, '', 'the embedded factory-metrics main() must not run');
+    } finally {
+      fs.rmSync(work, { recursive: true, force: true });
+    }
+  });
+
   it('no node_modules entry (directory or symlink) is ever tracked', () => {
     const tracked = spawnSync('git', ['ls-files', '-z'], { cwd: REPO_ROOT, encoding: 'utf8' });
     if (tracked.status !== 0) return; // not a git checkout (e.g. an extracted archive)
