@@ -411,6 +411,11 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
       ['BLOCKED', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: BLOCKED\n', false],
       ['missing', null, false],
       ['PASS', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: PASS\n', true],
+      // Review findings on the first #835 fix: legitimate PASS reports must stay PASS.
+      ['round history', '# Report\n\nTask ID: T-001\nVERDICT: PASS\n\n## Round 1\n> VERDICT: NEEDS_WORK\n', true],
+      ['fenced evaluator block only', '# Report\n\nTask ID: T-001\n\n```\nVERDICT: PASS\n```\n', true],
+      ['rules prose', '# Report\n\nTask ID: T-001\nVERDICT: PASS\n\n- verdict: fail if any Major remains\n', true],
+      ['first plain verdict wins', '# Report\n\nTask ID: T-001\nVERDICT: NEEDS_WORK\n\n## Earlier draft\nVERDICT: PASS\n', false],
     ];
     for (const [label, report, expectPass] of cases) {
       const repo = createV2TestRepo('nw-check');
