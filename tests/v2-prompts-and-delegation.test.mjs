@@ -378,3 +378,19 @@ print('OK')
     }
   });
 });
+
+describe('#841 WFI category contract is one vocabulary', () => {
+  it('both auditors accept exactly the four categories the template defines', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const template = fs.readFileSync(path.join(root, 'templates/workflow-improvement.template.md'), 'utf8');
+    const allowed = /Allowed values: ([a-z-]+(?: \| [a-z-]+)+)/.exec(template)[1].split(' | ').sort();
+    assert.deepEqual(allowed, ['app-dev-efficiency', 'human-process', 'measurement', 'plugin-improvement']);
+    for (const agent of ['wfi-auditor-a.md', 'wfi-auditor-b.md']) {
+      const text = fs.readFileSync(path.join(root, 'agents', agent), 'utf8');
+      const enumMatch = /"category": "([a-z|-]+)"/.exec(text);
+      assert.ok(enumMatch, `${agent} declares the category output enum`);
+      assert.deepEqual(enumMatch[1].split('|').sort(), allowed, `${agent} output enum`);
+      assert.doesNotMatch(text, /Must be\s+plugin-improvement or app-dev-efficiency/, `${agent} rejects a valid category`);
+    }
+  });
+});
