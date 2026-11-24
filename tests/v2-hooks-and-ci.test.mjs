@@ -139,6 +139,24 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 
+  it('#858: every workflow and distributed CI template pins third-party actions to a commit SHA', () => {
+    const files = [];
+    const wfDir = path.join(REPO_ROOT, '.github/workflows');
+    for (const f of fs.readdirSync(wfDir)) if (/\.ya?ml$/.test(f)) files.push(path.join(wfDir, f));
+    const tplDir = path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-adopt/templates');
+    for (const f of fs.readdirSync(tplDir)) if (/\.ya?ml$/.test(f)) files.push(path.join(tplDir, f));
+    let seen = 0;
+    for (const file of files) {
+      for (const m of fs.readFileSync(file, 'utf8').matchAll(/^\s*-?\s*uses:\s*(\S+)/gm)) {
+        const ref = m[1];
+        if (ref.startsWith('./')) continue;
+        seen += 1;
+        assert.match(ref, /^[\w.-]+\/[\w./-]+@[0-9a-f]{40}$/, `${path.relative(REPO_ROOT, file)}: ${ref} is not SHA-pinned`);
+      }
+    }
+    assert.ok(seen > 0);
+  });
+
   it('#855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file', () => {
     const pluginsDir = path.join(REPO_ROOT, 'plugins');
     for (const name of fs.readdirSync(pluginsDir)) {
