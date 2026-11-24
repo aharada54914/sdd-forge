@@ -34,8 +34,11 @@ The orchestrator provides:
 - `category_guide_path`: path to `plugins/sdd-quality-loop/references/wfi-category-guide.md`
 - `integrated_summary_path`: path to `WFI-NNN-integrated-summary.json` (Cycle 1 bridge)
 
-Read all four. The `integrated-summary.json` tells you how many Cycle 1 checks
-failed and which check IDs — it does not contain auditor reasoning or quoted text.
+Read all four. The `integrated-summary.json` gives auditor A's verdict
+(`auditor_a_verdict`), its pass and fail counts, and the failed check IDs; it does
+not contain auditor reasoning or quoted text. If any of these values is missing,
+never infer it: copy what is present, set a missing value to null, and say so in
+the matching check's finding.
 This gives you the structural landscape without anchoring your independent judgment.
 Return your structured JSON in your final response; the parent orchestrator writes the file.
 

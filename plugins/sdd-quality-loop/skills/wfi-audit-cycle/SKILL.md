@@ -26,7 +26,7 @@ user-invocable: false
    - 返却 JSON を親オーケストレータが `docs/workflow-improvements/WFI-NNN-auditor-a.json` に保存し、`WFI-NNN-audit-cycle-1.md` を出力。
    - `BLOCKED` → `Audit-Attempt` を +1、`Audit-Content-Hash` を記録、`Audit-Status: Not-Started`（3 回到達時は `Human-Blocked`）にして停止。
    - `NEEDS_REVISION` → 親が `proposed_revisions` を適用して `WFI-NNN.md` を改訂。
-   - Cycle 1 のチェック ID・件数のみ（生コメントなし）を `WFI-NNN-integrated-summary.json` へ書き出す。
+   - Cycle 1 の結果を生コメントなしで `WFI-NNN-integrated-summary.json` へ書き出す。項目は `auditor_a_verdict`（`PASS` / `NEEDS_REVISION` / `BLOCKED`）、`auditor_a_pass_count`、`auditor_a_fail_count`、FAIL したチェック ID の一覧だけとし、所見の本文や引用は入れない。
 
 2. **Cycle 2 (`wfi-auditor-b` — 影響・リスク)**:
    - `Audit-Status: Cycle-2-In-Progress` に更新。
