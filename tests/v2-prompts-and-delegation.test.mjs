@@ -580,3 +580,24 @@ describe('#814 the domain review finalizer names its own operation in diagnostic
     }
   });
 });
+
+describe('#811 the v1 domain-review precheck is optional and its placement limit is stated', () => {
+  it('no shipped skill requires it, and the reference says it only works with the project in the same tree', () => {
+    const skillsRoot = path.join(REPO_ROOT, 'plugins');
+    const offenders = [];
+    for (const plugin of fs.readdirSync(skillsRoot)) {
+      const dir = path.join(skillsRoot, plugin, 'skills');
+      if (!fs.existsSync(dir)) continue;
+      for (const skill of fs.readdirSync(dir)) {
+        const file = path.join(dir, skill, 'SKILL.md');
+        if (fs.existsSync(file) && fs.readFileSync(file, 'utf8').includes('domain-review-precheck')) offenders.push(`${plugin}/${skill}`);
+      }
+    }
+    assert.deepEqual(offenders, [], 'the public domain review must not depend on the v1 precheck');
+    const row = fs.readFileSync(path.join(REPO_ROOT, 'docs/skill-reference.md'), 'utf8')
+      .split('\n').find((l) => l.startsWith('| `domain-review-precheck`'));
+    assert.match(row, /v1/);
+    assert.match(row, /同じツリー/);
+    assert.match(row, /版別キャッシュ/);
+  });
+});
