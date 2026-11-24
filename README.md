@@ -15,7 +15,7 @@ v2.1.0 — 開発者体験（DX）・AI エージェントの自律性と仕様�
 
 > **v2.x での主な刷新（[ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) / [ADR-0052](docs/adr/0052-mcp-architecture-and-v2-consolidation.md)）**:
 > - 重厚な **SDD Full**（3 連レビューループ・7 層仕様・外部鍵署名・224 ファイル物理ロック・7,247 行の 4 言語フック・カナリア儀式・ADR-0023 `ERROR_STOP`）と、軽すぎる **SDD Lite**（事前レビューゼロ）を廃止し、**単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ統合しました。
-> - **「Local Soft, Boundary Firm」** 設計により、ローカルでは AI の自律的な探索・テスト・実装を妨げず、承認済み仕様ファイルの意図しない改変（ゴールポスト移動）だけをソフトガード＋Spec Drift 検知＋PR/CI で確実に抑止します。
+> - **「Local Soft, Boundary Firm」** 設計により、ローカルでは AI の自律的な探索・テスト・実装を妨げず、承認済み仕様ファイルの意図しない改変（ゴールポスト移動）だけをソフトガード＋Spec Drift 検知＋PR/CI で抑止します（Spec Drift の比較対象はベースライン記録済みの機能。未記録の承認済み機能は CI が警告で列挙します）。
 > - **v2.1.0**: MCP 4 ツール統合＆オプトイン登録（ADR-0052）、Google Antigravity CLI（`agy`）フルネイティブ対応、Software Factory 拡張（レビュー観点採否表・並列ロック＆ウェーブ計画・出典リンク・メトリクス帰属・2 層ナレッジ還流・非対話ファクトリ運用）を追加しました。
 
 ## 全体の流れ（SDD Core 単一トラック）
