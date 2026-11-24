@@ -161,6 +161,17 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.ok(norm(shList[1]).includes('.antigravity-plugin/plugin.json'));
   });
 
+  it('no node_modules entry (directory or symlink) is ever tracked', () => {
+    const tracked = spawnSync('git', ['ls-files', '-z'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    if (tracked.status !== 0) return; // not a git checkout (e.g. an extracted archive)
+    const offenders = tracked.stdout.split('\0').filter((p) => /(^|\/)node_modules(\/|$)/.test(p));
+    assert.deepEqual(offenders, []);
+    for (const mcp of ['sdd-forge-mcp', 'ci-mcp', 'local-env-mcp']) {
+      const ignore = fs.readFileSync(path.join(REPO_ROOT, 'mcp', mcp, '.gitignore'), 'utf8');
+      assert.match(ignore, /^node_modules$/m, `${mcp}/.gitignore must ignore a node_modules symlink too`);
+    }
+  });
+
   it('#858: every workflow and distributed CI template pins third-party actions to a commit SHA', () => {
     const files = [];
     const wfDir = path.join(REPO_ROOT, '.github/workflows');
