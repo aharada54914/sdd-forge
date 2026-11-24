@@ -161,6 +161,22 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.ok(norm(shList[1]).includes('.antigravity-plugin/plugin.json'));
   });
 
+  it('publish-release cuts a tag only by manual dispatch on main, never moving an existing tag', () => {
+    const wf = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/publish-release.yml'), 'utf8');
+    const on = wf.slice(wf.indexOf('\non:'), wf.indexOf('\npermissions:'));
+    assert.match(on, /workflow_dispatch:/);
+    assert.doesNotMatch(on, /\b(push|pull_request|pull_request_target|schedule|release):/, 'only a manual dispatch may cut a release');
+    assert.match(wf, /if: \$\{\{ github\.ref == 'refs\/heads\/main' \}\}/);
+    assert.match(wf, /\^\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\$/, 'version must be strictly X.Y.Z');
+    assert.match(wf, /merge-base --is-ancestor "\$TARGET" "\$GITHUB_SHA"/, 'the release commit must be on main');
+    assert.match(wf, /already exists; refusing to move it/);
+    assert.match(wf, /gh workflow run release\.yml/, 'release.yml still runs every release gate');
+    // Inputs reach shell only through env, never interpolated into run: scripts.
+    for (const block of wf.split(/\n\s+run: /).slice(1)) {
+      assert.doesNotMatch(block.split(/\n\s+- (?:name|uses):/)[0], /\$\{\{\s*inputs\./);
+    }
+  });
+
   it('no node_modules entry (directory or symlink) is ever tracked', () => {
     const tracked = spawnSync('git', ['ls-files', '-z'], { cwd: REPO_ROOT, encoding: 'utf8' });
     if (tracked.status !== 0) return; // not a git checkout (e.g. an extracted archive)

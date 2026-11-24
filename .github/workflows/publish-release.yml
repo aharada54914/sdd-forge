@@ -1,0 +1,108 @@
+name: Publish release (tag + GitHub Release)
+
+# Creates the vX.Y.Z tag and GitHub Release on a commit of main from a manual
+# dispatch, then starts release.yml to build, sign and attach the artifacts.
+# It exists so a release can be cut without pushing a tag from a workstation:
+# remote agent sessions can trigger a workflow but cannot push tags.
+#
+# release.yml still owns every release gate (CI green on the exact commit,
+# deterministic suites, version consistency across all manifests). A Release
+# created with GITHUB_TOKEN does not fire `release: published`, so this
+# workflow dispatches release.yml explicitly.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version already merged to main, without the v (e.g. 2.1.1)"
+        required: true
+        type: string
+      commit:
+        description: "Commit on main to release (the release PR's merge commit). Defaults to main's HEAD."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate the version at the release commit
+        id: check
+        env:
+          VERSION: ${{ inputs.version }}
+          COMMIT: ${{ inputs.commit }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version must be X.Y.Z, got: ${VERSION}" >&2
+            exit 1
+          fi
+          if [ -z "$COMMIT" ]; then COMMIT="$GITHUB_SHA"; fi
+          if [[ ! "$COMMIT" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "commit must be a hex SHA, got: ${COMMIT}" >&2
+            exit 1
+          fi
+          TARGET="$(git rev-parse --verify "${COMMIT}^{commit}")"
+          if ! git merge-base --is-ancestor "$TARGET" "$GITHUB_SHA"; then
+            echo "${TARGET} is not on main" >&2
+            exit 1
+          fi
+          git checkout -q --detach "$TARGET"
+          TAG="v${VERSION}"
+          if ! grep -Eq "^## ${TAG//./\\.} \(" CHANGELOG.md; then
+            echo "CHANGELOG.md on main has no '## ${TAG} (' heading" >&2
+            exit 1
+          fi
+          SHIPPED="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("plugins/sdd-ship/.claude-plugin/plugin.json","utf8")).version)')"
+          if [ "$SHIPPED" != "$VERSION" ]; then
+            echo "plugin manifests on main are at ${SHIPPED}, not ${VERSION}" >&2
+            exit 1
+          fi
+          if gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "tag ${TAG} already exists; refusing to move it" >&2
+            exit 1
+          fi
+          # Release notes: the CHANGELOG section for this version.
+          awk -v head="## ${TAG} (" '
+            index($0, head) == 1 { on = 1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > "${RUNNER_TEMP}/notes.md"
+          test -s "${RUNNER_TEMP}/notes.md"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "target=${TARGET}" >> "$GITHUB_OUTPUT"
+
+      - name: Create the tag and GitHub Release on the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.check.outputs.tag }}
+          TARGET: ${{ steps.check.outputs.target }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$TARGET" \
+            --title "$TAG" --notes-file "${RUNNER_TEMP}/notes.md"
+          echo "Created ${TAG} at ${TARGET}"
+
+      - name: Build, sign and attach artifacts (release.yml)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.check.outputs.tag }}
+        run: gh workflow run release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$TAG"
