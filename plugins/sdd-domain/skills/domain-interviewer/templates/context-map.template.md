@@ -12,9 +12,11 @@ agent-authored write of that value. Nothing resets this field automatically:
 `/sdd-domain:domain-model update` sets it back to `Pending` (requiring
 re-review), while a direct edit of an approved `domain/` file leaves it
 `Approved`. If the edited file is one of an existing Concept Test proposal's
-pinned inputs (the domain contract, this context map, its `generated_from`
-files or the seed), the proposal no longer matches and bootstrap stops with
-`concept-test: BLOCK`; edits to other `domain/` files do not invalidate it.
+pinned inputs (every path its `inputs` lists with a hash: the domain contract,
+this context map, the contract's `generated_from` files, the seed and any other
+listed `domain/` file), the proposal no longer matches and bootstrap stops with
+`concept-test: BLOCK`; edits to `domain/` files it does not list do not
+invalidate it.
 Regenerate the proposal (and re-review if the model changed) before
 continuing (AC-014).
 
