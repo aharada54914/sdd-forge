@@ -614,6 +614,7 @@ export function runSddGate({
     driftSkipped: Boolean(skipDrift),
     sensorsSkipped: Boolean(skipSensors),
     provisionalOqCount: openQuestions.provisionalCount,
+    provisionalOqBlocking: Boolean(openQuestions.blocking),
     sensorFindingCount: nonFunctionalSensors.findings.length,
     advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
     ...(rootCausePhase ? { rootCausePhase } : {}),

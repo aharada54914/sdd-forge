@@ -105,12 +105,26 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
     rootCauseBreakdown[phase] += 1;
   }
 
+  // Human interventions are explicit human acts: attributions flagged
+  // humanIntervention and SDD_ALLOW_SPEC_EDIT overrides. A guard deny is an
+  // automatic refusal that waits for no one, so it is counted separately (#840).
   const humanInterventions =
     metrics.filter((r) => r.humanIntervention === true).length +
-    driftEvents.filter((e) => e.action === 'confirm_soft_deny' || e.action === 'strict_deny').length;
+    driftEvents.filter((e) => e.action === 'allow_override').length;
+  const guardAutoDenials = driftEvents.filter(
+    (e) => e.action === 'confirm_soft_deny' || e.action === 'strict_deny',
+  ).length;
 
   const sensorFindingsTotal = gateRuns.reduce((acc, r) => acc + Number(r.sensorFindingCount || 0), 0);
-  const provisionalOqBlocks = gateRuns.filter((r) => r.verdict === 'FAIL' && Number(r.provisionalOqCount || 0) > 0).length;
+  // Only runs the Open Questions check itself stopped count as OQ blocks (#843).
+  // Records predating `provisionalOqBlocking` derive it from the gate rule
+  // (high risk with unresolved OQs) instead of "any FAIL with an OQ present".
+  const provisionalOqBlocks = gateRuns.filter((r) => {
+    if (r.verdict !== 'FAIL') return false;
+    if (typeof r.provisionalOqBlocking === 'boolean') return r.provisionalOqBlocking;
+    const risk = String(r.risk || '').toLowerCase();
+    return (risk === 'high' || risk === 'critical') && Number(r.provisionalOqCount || 0) > 0;
+  }).length;
 
   return {
     schema: 'sdd-factory-metrics-summary/v1',
@@ -131,8 +145,10 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
       deny: driftEvents.filter((e) => e.action === 'strict_deny' || e.action === 'confirm_soft_deny').length,
       amendedAllow: driftEvents.filter((e) => e.action === 'confirm_amended_allow').length,
       warnAllow: driftEvents.filter((e) => e.action === 'warn_allow').length,
+      override: driftEvents.filter((e) => e.action === 'allow_override').length,
     },
     humanInterventions,
+    guardAutoDenials,
     rootCauseBreakdown,
     parseErrors: metricsData.parseErrors + driftData.parseErrors,
   };
@@ -149,7 +165,8 @@ export function formatFactoryMetricsMarkdown(summary) {
     `| Sensor Findings Total | ${summary.gateRuns.sensorFindingsTotal} |`,
     `| Provisional OQ Blocks | ${summary.gateRuns.provisionalOqBlocks} |`,
     `| Guard Events (deny / amended / warn) | ${summary.driftEvents.total} (${summary.driftEvents.deny} / ${summary.driftEvents.amendedAllow} / ${summary.driftEvents.warnAllow}) |`,
-    `| Recorded Human Interventions | ${summary.humanInterventions} |`,
+    `| Recorded Human Interventions (explicit attributions + spec-edit overrides) | ${summary.humanInterventions} |`,
+    `| Guard Auto-Denials (no human involved) | ${summary.guardAutoDenials} |`,
     '',
     '## Root-Cause Phase Attribution（誤りの原因工程）',
     '',
