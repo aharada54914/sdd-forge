@@ -485,3 +485,13 @@ describe('#870 documented agent models match the distributed agent definitions',
     }
   });
 });
+
+describe('#866 adopt PR template follows the SDD Core v2 artifact set', () => {
+  it('requires the three Core files and treats traceability.md as present-only', () => {
+    const tpl = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-adopt/templates/pull-request.template.md'), 'utf8');
+    for (const f of ['requirements.md', 'design.md', 'tasks.md']) assert.match(tpl, new RegExp(f.replace('.', '\\.')));
+    for (const line of tpl.split('\n').filter((l) => l.includes('traceability.md'))) {
+      assert.match(line, /if (it )?exists|存在する場合|when present/i, `traceability.md must be conditional: ${line}`);
+    }
+  });
+});
