@@ -139,6 +139,26 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 
+  it('#851/#801: required-checks aggregates every dependency result and installers job runs install suites', () => {
+    const wf = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/test.yml'), 'utf8');
+    const agg = wf.slice(wf.indexOf('\n  required-checks:'));
+    assert.ok(agg.length > 1, 'required-checks job must exist');
+    const needs = /needs:\s*\[([^\]]+)\]/.exec(agg);
+    assert.ok(needs, 'required-checks must declare needs');
+    const deps = needs[1].split(',').map((x) => x.trim());
+    for (const job of ['v2-guardrails', 'sdd-forge-mcp-v2', 'mcp-tests', 'cloud-and-ddd', 'installers']) {
+      assert.ok(deps.includes(job), `required-checks must depend on ${job}`);
+      assert.match(wf, new RegExp(`\\n  ${job}:\\n`), `job ${job} must exist`);
+    }
+    // A failed dependency must not turn the aggregate into a (merge-permitting) skip.
+    assert.match(agg, /if:\s*\$\{\{\s*always\(\)\s*\}\}/);
+    assert.match(agg, /toJSON\(needs\)/);
+    assert.match(agg, /\.result != "success"/);
+    const installers = wf.slice(wf.indexOf('\n  installers:'), wf.indexOf('\n  required-checks:'));
+    assert.match(installers, /bash tests\/install\.tests\.sh/);
+    assert.match(installers, /bash tests\/uninstall\.tests\.sh/);
+  });
+
   it('all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version', () => {
     const shipManifest = JSON.parse(
       fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/.claude-plugin/plugin.json'), 'utf8'),

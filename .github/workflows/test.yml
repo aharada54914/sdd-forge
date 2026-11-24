@@ -139,11 +139,57 @@ jobs:
       - name: Run SQL Development Contract tests
         run: python3 tests/sql-development-contract.tests.py
 
+  installers:
+    # tests/verification-catalog.json routes install/uninstall suites to the
+    # `installers` job; without it the POSIX installer regressions went unseen.
+    name: installers (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run installer and uninstaller suites (POSIX)
+        shell: bash
+        run: |
+          git config --global user.name "CI Installer Tests"
+          git config --global user.email "ci-installer-tests@example.invalid"
+          bash tests/install.tests.sh
+          bash tests/uninstall.tests.sh
+
   required-checks:
     name: required-checks
     runs-on: ubuntu-latest
-    needs: [v2-guardrails, sdd-forge-mcp-v2, mcp-tests, cloud-and-ddd]
+    needs: [v2-guardrails, sdd-forge-mcp-v2, mcp-tests, cloud-and-ddd, installers]
+    # Run even when a dependency fails or is skipped: a skipped aggregate would
+    # otherwise never report a failing required context (#851).
+    if: ${{ always() }}
     timeout-minutes: 5
     steps:
       - name: Confirm all v2 required checks passed
-        run: echo "All SDD Forge v2 required checks passed."
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          failed="$(printf '%s' "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result != "success") | "\(.key)=\(.value.result)"')"
+          if [ -n "$failed" ]; then
+            echo "Required jobs did not succeed:" >&2
+            printf '%s\n' "$failed" >&2
+            exit 1
+          fi
+          echo "All SDD Forge v2 required checks passed."
