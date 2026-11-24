@@ -86,14 +86,18 @@ export function parseTaskBlock(tasksContent, taskId) {
   };
 }
 
-function discoverChangedFiles(projectRoot, explicitFiles) {
+export function discoverChangedFiles(projectRoot, explicitFiles) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
     return [...new Set(explicitFiles.map((f) => normalizeRelPath(f)).filter(Boolean))];
   }
   const files = new Set();
+  // -z + core.quotePath=false: non-ASCII names arrive verbatim instead of as
+  // C-quoted strings the scanner cannot open (#822). --relative: paths are
+  // relative to projectRoot even when it is a subdirectory of the Git root,
+  // and changes outside the project are excluded (#828).
   for (const args of [
-    ['diff', '--name-only', 'HEAD'],
-    ['ls-files', '--others', '--exclude-standard'],
+    ['-c', 'core.quotePath=false', 'diff', '--name-only', '-z', '--relative', 'HEAD'],
+    ['-c', 'core.quotePath=false', 'ls-files', '-z', '--others', '--exclude-standard'],
   ]) {
     try {
       const out = execFileSync('git', args, {
@@ -101,8 +105,8 @@ function discoverChangedFiles(projectRoot, explicitFiles) {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'ignore'],
       });
-      for (const line of out.split('\n')) {
-        const rel = normalizeRelPath(line);
+      for (const entry of out.split('\0')) {
+        const rel = normalizeRelPath(entry);
         if (rel) files.add(rel);
       }
     } catch {

@@ -225,6 +225,39 @@ describe('#821 gate task lookup uses the exact task ID', () => {
   });
 });
 
+describe('#822/#828 gate change discovery', () => {
+  it('lists non-ASCII names verbatim and stays relative to a nested project root', async () => {
+    const { discoverChangedFiles } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')).href
+    );
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-gate-discover-'));
+    const git = (...args) => {
+      const r = spawnSync('git', args, { cwd: repo, encoding: 'utf8' });
+      assert.equal(r.status, 0, r.stderr);
+    };
+    git('init', '-q');
+    fs.mkdirSync(path.join(repo, 'pkg', 'src'), { recursive: true });
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', 'a.js'), 'export const a = 1;\n');
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', '変更.js'), 'export const b = 1;\n');
+    fs.writeFileSync(path.join(repo, 'other.js'), 'export const o = 1;\n');
+    git('add', '-A');
+    git('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'base');
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', 'a.js'), 'export const a = 2;\n');
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', '変更.js'), 'export const b = 2;\n');
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', '新規.js'), 'export const c = 1;\n');
+    fs.writeFileSync(path.join(repo, 'other.js'), 'export const o = 2;\n');
+
+    const nested = discoverChangedFiles(path.join(repo, 'pkg')).sort();
+    assert.deepEqual(nested, ['src/a.js', 'src/変更.js', 'src/新規.js'].sort());
+    for (const rel of nested) assert.ok(fs.existsSync(path.join(repo, 'pkg', rel)), `${rel} must be openable`);
+
+    const top = discoverChangedFiles(repo).sort();
+    assert.deepEqual(top, ['other.js', 'pkg/src/a.js', 'pkg/src/変更.js', 'pkg/src/新規.js'].sort());
+    assert.deepEqual(discoverChangedFiles(repo, ['pkg/src/変更.js']), ['pkg/src/変更.js']);
+    fs.rmSync(repo, { recursive: true, force: true });
+  });
+});
+
 describe('Phase 2 SDD Core skill & template contracts', () => {
   const coreSkills = [
     'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md',
