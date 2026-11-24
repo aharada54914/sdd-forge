@@ -226,11 +226,17 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
       'ticket_id: RT-7\nstatus: open\nseverity: critical\nproblem: |\n  feature: billing\n  task: T-009\ntarget:\n  feature: payments\n  task: T-001 # main task\nsummary: s\n',
       'utf8',
     );
+    // Flow-style target mapping must block too (it used to be skipped: fail-open).
+    fs.writeFileSync(
+      path.join(tickets, 'RT-8.yml'),
+      'ticket_id: RT-8\nstatus: open\nseverity: critical\ntarget: {feature: payments, task: "T-001"}\nsummary: s\n',
+      'utf8',
+    );
     const blocked = run();
     assert.equal(blocked.status, 1);
     const out = JSON.parse(blocked.stdout);
     assert.equal(out.verdict, 'FAIL');
-    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5', 'RT-7']);
+    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5', 'RT-7', 'RT-8']);
   });
 
   it('fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared', () => {
