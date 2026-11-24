@@ -256,6 +256,25 @@ describe('Software Factory v2.x (SQL + AWS + Azure + Software SDLC)', () => {
       'utf8',
     );
 
+    // #824: legacy `Risk: critical` blocks exactly like `high`; `standard` does not.
+    const tasksPath = path.join(dir, 'specs', 'billing-sync', 'tasks.md');
+    const originalTasks = fs.readFileSync(tasksPath, 'utf8');
+    const t002Risk = '## T-002 PostgreSQL expand マイグレーション\nApproval: Approved\nStatus: Implementation Complete\nRisk: high';
+    assert.ok(originalTasks.includes(t002Risk));
+    for (const [risk, expectPassed] of [['critical', false], ['Critical', false], ['standard', true]]) {
+      fs.writeFileSync(tasksPath, originalTasks.replace(t002Risk, t002Risk.replace('Risk: high', `Risk: ${risk}`)), 'utf8');
+      const res = runSddGate({
+        feature: 'billing-sync',
+        taskId: 'T-002',
+        projectRoot: dir,
+        changedFiles: ['db/migrations/V002__add_amount_cents.sql'],
+        commands: [{ label: 'ok', command: 'node -e "process.exit(0)"' }],
+        skipDrift: true,
+      });
+      assert.equal(res.result.checks.openQuestions.passed, expectPassed, `Risk: ${risk}`);
+    }
+    fs.writeFileSync(tasksPath, originalTasks, 'utf8');
+
     const blocked = runSddGate({
       feature: 'billing-sync',
       taskId: 'T-002',

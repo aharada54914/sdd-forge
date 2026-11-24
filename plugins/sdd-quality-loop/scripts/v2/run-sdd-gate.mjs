@@ -32,6 +32,7 @@ import {
   splitSpecAmendments,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
+import { normalizeRiskTier } from './v2-readonly-core.mjs';
 
 const PLACEHOLDER_RE =
   /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
@@ -82,7 +83,8 @@ export function parseTaskBlock(tasksContent, taskId) {
     taskId: taskId.toUpperCase(),
     approval: approvalMatch ? approvalMatch[1].trim() : null,
     status: statusMatch ? statusMatch[1].trim() : null,
-    risk: riskMatch ? riskMatch[1].trim().toLowerCase() : 'standard',
+    // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
+    risk: normalizeRiskTier(riskMatch ? riskMatch[1] : '', 'standard'),
   };
 }
 
