@@ -383,17 +383,71 @@ export function extractScopePaths(taskBlock) {
   for (const line of section.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed.startsWith('-')) continue;
-    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)]
-      .map((m) => normalizeRelPath(m[1]))
-      .filter(Boolean);
-    if (backtickMatches.length > 0) {
-      paths.push(...backtickMatches);
-    } else {
-      const bare = normalizeRelPath(trimmed.replace(/^-\s*/, ''));
-      if (bare && !/^<[^<>]+>$/.test(bare)) paths.push(bare);
-    }
+    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+    const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ''));
+    for (const token of tokens) paths.push(...expandScopeToken(token));
   }
   return [...new Set(paths)];
+}
+
+const SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
+const SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~]+$/;
+
+// A bare Scope bullet names a path either as its only word, or as words that
+// look like file paths inside prose ("src/a.ts を更新", "a.ts / b.ts"): a file
+// extension, a trailing slash, a glob or a brace list. Notes in parentheses
+// are dropped. Prose with no path names nothing, so the task's Scope is
+// unknown (#816).
+function bareScopeTokens(text) {
+  const words = stripScopeNote(text).split(/\s+/).filter(Boolean).map(stripScopeNote);
+  if (words.length === 1) {
+    return SCOPE_PATH_CHARS_RE.test(words[0]) && !SCOPE_PLACEHOLDER_RE.test(words[0]) ? words : [];
+  }
+  return words.filter(
+    (w) => SCOPE_PATH_CHARS_RE.test(w) && /\.[A-Za-z0-9]+$|\/$|[*?]|\{[^{}]*,[^{}]*\}/.test(w),
+  );
+}
+
+// "src/a.ts(note)", "src/a.ts （note）", "src/a.ts:" and an unclosed note that
+// continues on the next line all name src/a.ts.
+function stripScopeNote(token) {
+  return String(token)
+    .replace(/\([^()]*\)|（[^（）]*）/g, ' ')
+    .replace(/[(（].*$/, '')
+    .trim()
+    .replace(/[:,;、。]+$/, '');
+}
+
+// One level of brace alternatives per group: "src/{a,b}.ts" -> src/a.ts, src/b.ts.
+function expandScopeToken(token) {
+  const cleaned = stripScopeNote(String(token).trim());
+  if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
+  const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
+  if (!brace) {
+    const normalized = normalizeRelPath(cleaned);
+    return normalized ? [normalized] : [];
+  }
+  const head = cleaned.slice(0, brace.index);
+  const tail = cleaned.slice(brace.index + brace[0].length);
+  return brace[1].split(',').flatMap((alt) => expandScopeToken(`${head}${alt}${tail}`));
+}
+
+// The real location of a Scope entry, so two spellings of one file (a
+// symlinked directory, ./, ..) compare equal. The deepest existing ancestor
+// is resolved, so files that do not exist yet are covered too. Without
+// io.canonicalRelPath (other hosts), the written path is used.
+function canonicalScopeEntry(io, entry) {
+  if (!io || typeof io.canonicalRelPath !== 'function') return entry;
+  const parts = entry.split('/');
+  const firstWild = parts.findIndex((p) => /[*?]/.test(p));
+  const staticLen = firstWild === -1 ? parts.length : firstWild;
+  for (let n = staticLen; n > 0; n -= 1) {
+    const real = io.canonicalRelPath(parts.slice(0, n).join('/'));
+    if (real !== null && real !== undefined) {
+      return [real, ...parts.slice(n)].filter((p) => p !== '').join('/') || entry;
+    }
+  }
+  return entry;
 }
 
 export function normalizeRiskTier(raw, fallback = 'standard') {
@@ -546,6 +600,24 @@ function isTestPath(relPath) {
   );
 }
 
+const APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
+
+/**
+ * Baseline fields that let a later human approval of another task leave
+ * tasks.md unchanged for Spec Drift (#818): a contract hash with every
+ * `Approval:` value normalized, and each task's approval at recording time so
+ * a revoked approval is still reported. Returns null for other files.
+ */
+export function taskApprovalBaseline(rawText, fileName) {
+  if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
+  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');
+  const taskApprovals = {};
+  for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
+  return { approvalContractSha256: sha256Text(contract), taskApprovals };
+}
+
+const isApproved = (value) => /^Approved\b/.test(String(value || ''));
+
 /**
  * Pure read-only Spec Drift check (C-1 / C-2 safe: validates every baseline.files key).
  */
@@ -575,6 +647,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
   const modifiedIdentifiers = [];
   const addedIdentifiers = [];
   const allCurrentAmendments = [];
+  const revokedApprovals = [];
+  const newlyApprovedTasks = [];
 
   for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
     const safeRel = sanitizeRelPath(rawRelPath);
@@ -592,8 +666,20 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     }
 
     const fileName = (baseInfo && baseInfo.fileName) || path.posix.basename(safeRel);
-    const contractHash = sha256Text(canonicalSpecContractText(rawText, fileName));
-    if (contractHash !== baseInfo?.contractSha256) {
+    // Baselines recorded before #818 carry no approval fields and keep the
+    // older comparison, where any Approval: edit changes the file.
+    const approvalView = typeof baseInfo?.approvalContractSha256 === 'string' ? taskApprovalBaseline(rawText, fileName) : null;
+    if (approvalView) {
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+        changedFiles.push(safeRel);
+      }
+      for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
+        if (!(id in approvalView.taskApprovals)) continue; // a removed task already changes the contract hash
+        const now = approvalView.taskApprovals[id];
+        if (isApproved(was) && !isApproved(now)) revokedApprovals.push(id);
+        else if (!isApproved(was) && isApproved(now)) newlyApprovedTasks.push(id);
+      }
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
       changedFiles.push(safeRel);
     }
 
@@ -638,7 +724,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     deletedFiles.length > 0 ||
     addedFiles.length > 0 ||
     removedIdentifiers.length > 0 ||
-    modifiedIdentifiers.length > 0;
+    modifiedIdentifiers.length > 0 ||
+    revokedApprovals.length > 0;
 
   const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
   const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
@@ -681,6 +768,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     amendments: allCurrentAmendments,
     baselineAmendmentCount,
     changedIdsWithoutAmendment,
+    revokedApprovals,
+    newlyApprovedTasks,
   };
 }
 
@@ -724,8 +813,8 @@ export function computeExecutionPlan(tasks) {
       const bBlocksA = getAncestors(a.id).has(b.id);
       if (aBlocksB || bBlocksA) continue;
       const overlaps = [];
-      for (const sa of a.scopePaths || []) {
-        for (const sb of b.scopePaths || []) {
+      for (const sa of a.planScopes || a.scopePaths || []) {
+        for (const sb of b.planScopes || b.scopePaths || []) {
           if (scopeEntriesOverlap(sa, sb)) {
             overlaps.push(`${sa} <-> ${sb}`);
           }
@@ -773,7 +862,13 @@ export function computeExecutionPlan(tasks) {
     const wave = [];
     const waveScopes = [];
     for (const candidate of ready) {
-      const candScopes = candidate.scopePaths || [];
+      const candScopes = candidate.planScopes || candidate.scopePaths || [];
+      // A task with no known Scope may touch anything, so it runs alone.
+      if (candScopes.length === 0) {
+        if (wave.length > 0) continue;
+        wave.push(candidate.id);
+        break;
+      }
       const conflicts = waveScopes.some((existing) =>
         candScopes.some((cs) => scopeEntriesOverlap(existing, cs)),
       );
@@ -907,6 +1002,7 @@ export function analyzeTraceabilityCore(
       selfBlocked: Boolean(t.selfBlocked),
       declaredBlockers: t.declaredBlockers || [],
       scopePaths,
+      planScopes: [...new Set(scopePaths.map((sp) => canonicalScopeEntry(io, sp)))],
       domains,
       codePaths,
       testPaths,

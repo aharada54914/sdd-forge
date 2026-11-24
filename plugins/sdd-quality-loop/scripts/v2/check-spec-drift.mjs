@@ -81,6 +81,12 @@ export function formatDriftMarkdown(report) {
         '（AMENDED は理由の件数増加だけを機械判定する。個々の差分と理由の対応は独立レビュー G2 が判断する）',
     );
   }
+  if ((report.revokedApprovals || []).length > 0) {
+    lines.push(`- **Approval revoked since the baseline**: ${report.revokedApprovals.join(', ')}`);
+  }
+  if ((report.newlyApprovedTasks || []).length > 0) {
+    lines.push(`- Newly approved since the baseline (not drift): ${report.newlyApprovedTasks.join(', ')}`);
+  }
   if (report.deletedFiles.length > 0) {
     lines.push(`- **Deleted files**: ${report.deletedFiles.map((f) => `\`${f}\``).join(', ')}`);
   }

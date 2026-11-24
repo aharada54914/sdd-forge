@@ -8,9 +8,15 @@
  * Zero external dependencies — Node.js >= 20 LTS built-in modules only.
  *
  * Usage:
- *   node task-lock.mjs acquire --feature <slug> [--task <T-NNN>] [--root <dir>] [--owner <id>] [--ttl <sec>] [--break-stale]
+ *   node task-lock.mjs acquire --feature <slug> --owner <id> [--task <T-NNN>] [--root <dir>] [--ttl <sec>] [--break-stale]
  *   node task-lock.mjs release --feature <slug> [--task <T-NNN>] [--root <dir>] [--owner <id>] [--force]
  *   node task-lock.mjs status  --feature <slug> [--task <T-NNN>] [--root <dir>]
+ *
+ * A lock with an explicit owner belongs to that owner (a ship run, a CI job)
+ * until its TTL expires: the CLI process that wrote it exits at once, so its
+ * pid says nothing about the holder (#815). The same owner may acquire again,
+ * which renews the TTL. Without an owner, the lock is tied to the calling
+ * process, which only makes sense through the in-process API.
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -95,7 +101,7 @@ export function acquireLock({
     feature,
     taskId: taskId ? taskId.toUpperCase() : null,
     owner: owner || `${os.hostname()}:${process.pid}`,
-    pid: process.pid,
+    pid: owner ? null : process.pid,
     hostname: os.hostname(),
     acquiredAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + ttl * 1000).toISOString(),
@@ -114,6 +120,9 @@ export function acquireLock({
       if (!err || err.code !== 'EEXIST') throw err;
       const existing = readLockRecord(lockPath);
       const { stale, reason } = evaluateStale(existing);
+      if (!stale && owner && existing.owner === owner) {
+        return renewLock(lockPath, existing, record);
+      }
       if (stale && breakStale && attempt === 0) {
         const claimPath = `${lockPath}.reclaim.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
         try {
@@ -165,6 +174,16 @@ export function acquireLock({
     }
   }
   return { acquired: false, lockPath, stale: false, message: 'Lock contention.' };
+}
+
+// Re-entry by the holder: keep acquiredAt, extend expiresAt. The rename is
+// atomic, and only the holder of an active lock reaches it.
+function renewLock(lockPath, existing, fresh) {
+  const renewed = { ...fresh, acquiredAt: existing.acquiredAt || fresh.acquiredAt };
+  const tmpPath = `${lockPath}.renew.${process.pid}.${Date.now()}`;
+  fs.writeFileSync(tmpPath, `${JSON.stringify(renewed, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+  fs.renameSync(tmpPath, lockPath);
+  return { acquired: true, reentrant: true, lockPath, record: renewed };
 }
 
 export function releaseLock({ feature, taskId = null, projectRoot = null, owner = null, force = false }) {
@@ -221,7 +240,14 @@ if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
   if (!['acquire', 'release', 'status'].includes(opts.cmd) || !opts.feature) {
     process.stderr.write(
-      'Usage: node task-lock.mjs <acquire|release|status> --feature <slug> [--task <T-NNN>] [--root <dir>] [--owner <id>] [--ttl <sec>] [--break-stale] [--force]\n',
+      'Usage: node task-lock.mjs <acquire|release|status> --feature <slug> [--task <T-NNN>] [--root <dir>] [--owner <id>] [--ttl <sec>] [--break-stale] [--force]\n'
+        + '       acquire requires --owner <id>.\n',
+    );
+    process.exit(2);
+  }
+  if (opts.cmd === 'acquire' && !opts.owner) {
+    process.stderr.write(
+      'task-lock: acquire needs --owner <id> (for example the ship run id). This process exits right away, so a lock tied to it would be stale at once.\n',
     );
     process.exit(2);
   }

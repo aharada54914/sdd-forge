@@ -166,6 +166,11 @@ export function createFsReadonlyIo(projectRoot) {
         return false;
       }
     },
+    canonicalRelPath(relPath) {
+      const real = resolveSafe(relPath);
+      if (!real) return null;
+      return path.relative(rootReal, real).split(path.sep).join('/');
+    },
     readText(relPath) {
       const real = resolveSafe(relPath);
       if (!real) return null;

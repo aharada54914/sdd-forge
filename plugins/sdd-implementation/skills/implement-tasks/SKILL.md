@@ -18,7 +18,9 @@ user-invocable: false
 
 ## Task Selection
 
-各パスの開始時に `tasks.md` と `check-traceability.mjs --feature <feature> --plan-batches` の結果（依存順 Wave と Scope 衝突検知）を読み、実行可能集合を抽出する（`task-lock.mjs acquire` で feature ロックを確保し二重起動を防止する）:
+Scope の読み方（`--plan-batches`）: `### Scope` の各箇条のバッククォート内のパス、またはパスだけの箇条を使う。文中のパスは拡張子・末尾 `/`・glob・`{a,b}` のどれかを持つ語だけを読み、`(注記)` は無視する。同じ実体を指す別名（シンボリックリンク経由など）は同じパスとして扱う。パスを 1 つも読めないタスクは変更範囲が不明なため、単独の Wave で実行する。
+
+各パスの開始時に `tasks.md` と `check-traceability.mjs --feature <feature> --plan-batches` の結果（依存順 Wave と Scope 衝突検知）を読み、実行可能集合を抽出する（`task-lock.mjs acquire --owner <id>` で feature ロックを確保し二重起動を防止する。`ship` から呼ばれたときは ship の所有者 ID をそのまま使い、再取得で有効期限を延長する。単独実行では自分の ID を決め、終了時に同じ ID で `release` する）:
 
 1. **対象条件**: `Approval: Approved` かつ `Status: Planned` または `In Progress`。
 2. **依存解決**: `### Blockers` に `T-\d+` 参照がある場合、参照先タスクがすべて `Implementation Complete` または `Done` になるまで除外する（`None` または空なら依存なし）。

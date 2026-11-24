@@ -38920,7 +38920,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   } else {
     approval = draft.approval;
   }
-  const isApproved = isApprovedShape(draft.approval);
+  const isApproved2 = isApprovedShape(draft.approval);
   if (profile === "lite" && (draft.risk === "high" || draft.risk === "critical")) {
     fail("lite-full-upgrade-required", `${taskId} declares ${draft.risk} risk; Full workflow validation is required`);
   }
@@ -38932,7 +38932,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
   } else {
     status = STATUS_VALUES.find((value) => value === draft.status);
   }
-  if (status !== void 0 && (status === "In Progress" || status === "Implementation Complete" || status === "Done") && !isApproved) {
+  if (status !== void 0 && (status === "In Progress" || status === "Implementation Complete" || status === "Done") && !isApproved2) {
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
   if (status === "Done" && profile === "full") {
@@ -40227,15 +40227,50 @@ function extractScopePaths(taskBlock) {
   for (const line of section.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed.startsWith("-")) continue;
-    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => normalizeRelPath2(m[1])).filter(Boolean);
-    if (backtickMatches.length > 0) {
-      paths.push(...backtickMatches);
-    } else {
-      const bare = normalizeRelPath2(trimmed.replace(/^-\s*/, ""));
-      if (bare && !/^<[^<>]+>$/.test(bare)) paths.push(bare);
-    }
+    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+    const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ""));
+    for (const token of tokens) paths.push(...expandScopeToken(token));
   }
   return [...new Set(paths)];
+}
+var SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
+var SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~]+$/;
+function bareScopeTokens(text) {
+  const words = stripScopeNote(text).split(/\s+/).filter(Boolean).map(stripScopeNote);
+  if (words.length === 1) {
+    return SCOPE_PATH_CHARS_RE.test(words[0]) && !SCOPE_PLACEHOLDER_RE.test(words[0]) ? words : [];
+  }
+  return words.filter(
+    (w) => SCOPE_PATH_CHARS_RE.test(w) && /\.[A-Za-z0-9]+$|\/$|[*?]|\{[^{}]*,[^{}]*\}/.test(w)
+  );
+}
+function stripScopeNote(token) {
+  return String(token).replace(/\([^()]*\)|（[^（）]*）/g, " ").replace(/[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
+}
+function expandScopeToken(token) {
+  const cleaned = stripScopeNote(String(token).trim());
+  if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
+  const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
+  if (!brace) {
+    const normalized = normalizeRelPath2(cleaned);
+    return normalized ? [normalized] : [];
+  }
+  const head = cleaned.slice(0, brace.index);
+  const tail = cleaned.slice(brace.index + brace[0].length);
+  return brace[1].split(",").flatMap((alt) => expandScopeToken(`${head}${alt}${tail}`));
+}
+function canonicalScopeEntry(io, entry) {
+  if (!io || typeof io.canonicalRelPath !== "function") return entry;
+  const parts = entry.split("/");
+  const firstWild = parts.findIndex((p) => /[*?]/.test(p));
+  const staticLen = firstWild === -1 ? parts.length : firstWild;
+  for (let n = staticLen; n > 0; n -= 1) {
+    const real = io.canonicalRelPath(parts.slice(0, n).join("/"));
+    if (real !== null && real !== void 0) {
+      return [real, ...parts.slice(n)].filter((p) => p !== "").join("/") || entry;
+    }
+  }
+  return entry;
 }
 function normalizeRiskTier(raw, fallback = "standard") {
   const value = String(raw || "").trim().toLowerCase();
@@ -40360,6 +40395,15 @@ function isTestPath(relPath) {
   const lower = normalizeRelPath2(relPath).toLowerCase();
   return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
 }
+var APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
+function taskApprovalBaseline(rawText, fileName) {
+  if (String(fileName || "").toLowerCase() !== "tasks.md") return null;
+  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, "Approval: <NORMALIZED>");
+  const taskApprovals = {};
+  for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
+  return { approvalContractSha256: sha256Text(contract), taskApprovals };
+}
+var isApproved = (value) => /^Approved\b/.test(String(value || ""));
 function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: config2 = null }) {
   assertValidFeatureName(feature);
   const resolvedBaselineRel = sanitizeRelPath(baselineRelPath || `specs/${feature}/.spec-baseline.json`);
@@ -40383,6 +40427,8 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
   const modifiedIdentifiers = [];
   const addedIdentifiers = [];
   const allCurrentAmendments = [];
+  const revokedApprovals = [];
+  const newlyApprovedTasks = [];
   for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
     const safeRel = sanitizeRelPath(rawRelPath);
     if (!safeRel || !safeRel.startsWith(`specs/${feature}/`)) {
@@ -40398,8 +40444,18 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
       continue;
     }
     const fileName = baseInfo && baseInfo.fileName || path2.posix.basename(safeRel);
-    const contractHash = sha256Text(canonicalSpecContractText(rawText, fileName));
-    if (contractHash !== baseInfo?.contractSha256) {
+    const approvalView = typeof baseInfo?.approvalContractSha256 === "string" ? taskApprovalBaseline(rawText, fileName) : null;
+    if (approvalView) {
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+        changedFiles.push(safeRel);
+      }
+      for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
+        if (!(id in approvalView.taskApprovals)) continue;
+        const now = approvalView.taskApprovals[id];
+        if (isApproved(was) && !isApproved(now)) revokedApprovals.push(id);
+        else if (!isApproved(was) && isApproved(now)) newlyApprovedTasks.push(id);
+      }
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
       changedFiles.push(safeRel);
     }
     const curIds = extractSpecIdentifiers(rawText);
@@ -40435,7 +40491,7 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
       allCurrentAmendments.push({ file: matched.relPath, text: item });
     }
   }
-  const hasDrift = changedFiles.length > 0 || deletedFiles.length > 0 || addedFiles.length > 0 || removedIdentifiers.length > 0 || modifiedIdentifiers.length > 0;
+  const hasDrift = changedFiles.length > 0 || deletedFiles.length > 0 || addedFiles.length > 0 || removedIdentifiers.length > 0 || modifiedIdentifiers.length > 0 || revokedApprovals.length > 0;
   const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
   const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
   let status = "CLEAN";
@@ -40468,7 +40524,9 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     addedIdentifiers,
     amendments: allCurrentAmendments,
     baselineAmendmentCount,
-    changedIdsWithoutAmendment
+    changedIdsWithoutAmendment,
+    revokedApprovals,
+    newlyApprovedTasks
   };
 }
 function computeExecutionPlan(tasks) {
@@ -40504,8 +40562,8 @@ function computeExecutionPlan(tasks) {
       const bBlocksA = getAncestors(a.id).has(b.id);
       if (aBlocksB || bBlocksA) continue;
       const overlaps = [];
-      for (const sa of a.scopePaths || []) {
-        for (const sb of b.scopePaths || []) {
+      for (const sa of a.planScopes || a.scopePaths || []) {
+        for (const sb of b.planScopes || b.scopePaths || []) {
           if (scopeEntriesOverlap(sa, sb)) {
             overlaps.push(`${sa} <-> ${sb}`);
           }
@@ -40544,7 +40602,12 @@ function computeExecutionPlan(tasks) {
     const wave = [];
     const waveScopes = [];
     for (const candidate of ready) {
-      const candScopes = candidate.scopePaths || [];
+      const candScopes = candidate.planScopes || candidate.scopePaths || [];
+      if (candScopes.length === 0) {
+        if (wave.length > 0) continue;
+        wave.push(candidate.id);
+        break;
+      }
       const conflicts = waveScopes.some(
         (existing) => candScopes.some((cs) => scopeEntriesOverlap(existing, cs))
       );
@@ -40660,6 +40723,7 @@ ${t.block}`);
       selfBlocked: Boolean(t.selfBlocked),
       declaredBlockers: t.declaredBlockers || [],
       scopePaths,
+      planScopes: [...new Set(scopePaths.map((sp) => canonicalScopeEntry(io, sp)))],
       domains,
       codePaths,
       testPaths,

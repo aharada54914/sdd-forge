@@ -556,11 +556,16 @@ describe('#816 overlapping Scopes never share a wave', () => {
     assert.ok(serialized(plan([task('T-001', '- `src/a.ts`'), task('T-002', '- `linked/a.ts`')])), 'one file through a symlinked directory');
     assert.ok(serialized(plan([task('T-001', '- `src/new.ts`'), task('T-002', '- `linked/new.ts`')])), 'a not-yet-created file under a symlinked directory');
     assert.ok(serialized(plan([task('T-001', '- src/a.ts を更新'), task('T-002', '- `src/a.ts`')])), 'a bare bullet with prose after the path');
-    assert.ok(serialized(plan([task('T-001', '- `src/a.ts`(rename only)'), task('T-002', '- `src/a.ts`')])), 'a trailing note on the path');
+    assert.ok(serialized(plan([task('T-001', '- src/a.ts(rename only)'), task('T-002', '- `src/a.ts`')])), 'a trailing note on the path');
     assert.ok(serialized(plan([task('T-001', '- `src/{a,b}.ts`'), task('T-002', '- `src/b.ts`')])), 'brace alternatives');
     assert.ok(serialized(plan([task('T-001', '- `src/a.ts`'), task('T-002', '- 未定')])), 'a Scope with no path claims nothing it can share');
     assert.ok(serialized(plan([task('T-001', '- `src/a.ts`'), task('T-002', '')])), 'an empty Scope runs alone');
     assert.deepEqual(plan([task('T-001', '- `src/a.ts`'), task('T-002', '- `docs/b.md`')]), [['T-001', 'T-002']], 'independent paths stay parallel');
+    assert.deepEqual(
+      plan([task('T-001', '- `src/a.ts`'), task('T-002', '- 未定'), task('T-003', '- `docs/b.md`')]),
+      [['T-001', 'T-003'], ['T-002']],
+      'a task without a Scope waits for its own wave without holding back the others',
+    );
   });
 });
 
