@@ -651,7 +651,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
   const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
   const changedIdsWithoutAmendment = changedIds.filter((id) => {
     const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, '\\-')}([^0-9]|$)`, 'i');
-    return !allCurrentAmendments.some((a) => re.test(a.text));
+    // Entries are append-only; only those added after the baseline explain a change.
+    return !allCurrentAmendments.slice(baselineAmendmentCount).some((a) => re.test(a.text));
   });
 
   return {

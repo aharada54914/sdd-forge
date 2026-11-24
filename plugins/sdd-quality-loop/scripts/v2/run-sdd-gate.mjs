@@ -477,26 +477,35 @@ function ticketScalar(raw) {
  * under the top-level `target:` key, so text inside other blocks (e.g. a
  * `problem: |` body) can never be mistaken for the target.
  */
+function parseFlowMapping(body, into) {
+  for (const pair of body.split(',')) {
+    const kv = /^\s*(['"]?)([A-Za-z_][\w-]*)\1\s*:(.*)$/.exec(pair);
+    if (kv && !(kv[2] in into)) into[kv[2]] = ticketScalar(kv[3]);
+  }
+}
+
 function parseTicket(text) {
   const fields = {};
   const target = {};
   let inTarget = false;
-  for (const line of text.split('\n')) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
     const top = /^([A-Za-z_][\w-]*):(.*)$/.exec(line);
     if (top) {
       inTarget = top[1] === 'target';
       if (!inTarget) {
         fields[top[1]] = ticketScalar(top[2]);
-      } else {
-        // Flow style on one line: target: {feature: x, task: T-001}
-        const flow = /^\s*\{(.*)\}\s*(#.*)?$/.exec(top[2]);
-        if (flow) {
-          for (const pair of flow[1].split(',')) {
-            const kv = /^\s*([A-Za-z_][\w-]*)\s*:(.*)$/.exec(pair);
-            if (kv && !(kv[1] in target)) target[kv[1]] = ticketScalar(kv[2]);
-          }
-          inTarget = false;
-        }
+        continue;
+      }
+      // Flow style: target: {feature: x, task: T-001}, possibly split over
+      // lines and followed by a comment (which may itself contain braces).
+      const open = top[2].indexOf('{');
+      if (open !== -1 && top[2].slice(0, open).trim() === '') {
+        let body = top[2].slice(open + 1);
+        while (!body.includes('}') && i + 1 < lines.length) body += ` ${lines[++i]}`;
+        parseFlowMapping(body.slice(0, body.indexOf('}')), target);
+        inTarget = false;
       }
       continue;
     }
