@@ -8,7 +8,7 @@ feature="${2-}"
 if [ "$#" -ge 2 ]; then
   feature_selected=1
   case "$feature" in
-    ""|-*|*[!a-z0-9-]*)
+    ""|-*|*[!abcdefghijklmnopqrstuvwxyz0123456789-]*)
       echo "invalid feature: $feature" >&2
       exit 1
       ;;
