@@ -166,6 +166,11 @@ export function createFsReadonlyIo(projectRoot) {
         return false;
       }
     },
+    // Present but over MAX_READ_BYTES (or not a regular file): readText gives
+    // null for it just as for a missing file (#834).
+    existsButUnreadable(relPath) {
+      return resolveSafe(relPath) !== null;
+    },
     canonicalRelPath(relPath) {
       const real = resolveSafe(relPath);
       if (!real) return null;

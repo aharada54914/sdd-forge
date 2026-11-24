@@ -603,6 +603,12 @@ function isTestPath(relPath) {
 
 const APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
 
+// An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
+// but unreadable"; IOs without the method fall back to exists().
+function existsButUnreadable(io, relPath) {
+  return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
+}
+
 /**
  * Baseline fields that let a later human approval of another task leave
  * tasks.md unchanged for Spec Drift (#818): a contract hash with every
@@ -650,6 +656,9 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
   const allCurrentAmendments = [];
   const revokedApprovals = [];
   const newlyApprovedTasks = [];
+  // Present but not readable through this IO (for example over the MCP 2 MiB
+  // cap): neither a deletion nor a clean read (#834).
+  const unreadableFiles = [];
 
   for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
     const safeRel = sanitizeRelPath(rawRelPath);
@@ -658,6 +667,10 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     }
     const baseIds = (baseInfo && typeof baseInfo === 'object' ? baseInfo.identifiers : null) || {};
     const rawText = io.readText(safeRel);
+    if (rawText === null && existsButUnreadable(io, safeRel)) {
+      unreadableFiles.push(safeRel);
+      continue;
+    }
     if (rawText === null) {
       deletedFiles.push(safeRel);
       for (const [id, info] of Object.entries(baseIds)) {
@@ -710,7 +723,10 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     const matched = matchProtectedSpecRelPath(relFile, effectiveConfig);
     if (!matched || (baseline.files && baseline.files[matched.relPath])) continue;
     const rawText = io.readText(matched.relPath);
-    if (rawText === null) continue;
+    if (rawText === null) {
+      unreadableFiles.push(matched.relPath);
+      continue;
+    }
     addedFiles.push(matched.relPath);
     for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
       addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
@@ -731,9 +747,14 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
   const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
   const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
 
+  // Undeclared drift seen in readable files wins; otherwise an unreadable
+  // file means nothing can be claimed (not CLEAN, not AMENDED).
   let status = 'CLEAN';
   if (hasDrift) {
     status = hasNewDeclaredAmendment ? 'AMENDED' : 'UNDECLARED_DRIFT';
+  }
+  if (unreadableFiles.length > 0 && status !== 'UNDECLARED_DRIFT') {
+    status = 'UNVERIFIABLE';
   }
 
   // AMENDED is a count comparison only. Name each changed REQ/AC ID that no
@@ -771,6 +792,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     changedIdsWithoutAmendment,
     revokedApprovals,
     newlyApprovedTasks,
+    unreadableFiles,
   };
 }
 

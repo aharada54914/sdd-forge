@@ -42,6 +42,7 @@ export type DriftStatus =
   | "CLEAN"
   | "AMENDED"
   | "UNDECLARED_DRIFT"
+  | "UNVERIFIABLE"
   | "UNBASELINED"
   | "BASELINE_ERROR";
 export type ExecutionDriftStatus = DriftStatus | "SKIPPED";
@@ -72,6 +73,7 @@ function toDriftStatus(value: string): DriftStatus {
     value === "CLEAN" ||
     value === "AMENDED" ||
     value === "UNDECLARED_DRIFT" ||
+    value === "UNVERIFIABLE" ||
     value === "BASELINE_ERROR"
   ) {
     return value;
@@ -84,6 +86,7 @@ function toExecutionDriftStatus(value: unknown): ExecutionDriftStatus | undefine
     value === "CLEAN" ||
     value === "AMENDED" ||
     value === "UNDECLARED_DRIFT" ||
+    value === "UNVERIFIABLE" ||
     value === "UNBASELINED" ||
     value === "SKIPPED" ||
     value === "BASELINE_ERROR"
@@ -230,6 +233,13 @@ function computeNextAction(
       phase: "bootstrap",
       command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
       rationale: `specs/${feature} is missing core SDD specification files or tasks.`,
+    };
+  }
+  if (driftStatus === "UNVERIFIABLE") {
+    return {
+      phase: "blocked",
+      command: `human: check specs/${feature} with check-spec-drift.mjs`,
+      rationale: `A spec file in specs/${feature} exists but is over this server's read limit, so drift was not checked (the file is not treated as deleted). Run the local check-spec-drift.mjs CLI, or split the file.`,
     };
   }
   if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {

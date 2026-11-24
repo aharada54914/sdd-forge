@@ -37327,6 +37327,12 @@ function createGuardedIo(root) {
     },
     statMtimeMs(relPath) {
       return guardedStatMtimeMs(root, relPath);
+    },
+    // The file is there but over the size cap: readText returns null for it
+    // just as for a missing file, so callers ask this to tell them apart (#834).
+    existsButUnreadable(relPath) {
+      const res = guardedRead(root, relPath);
+      return !res.ok && res.error.code === "too-large";
     }
   };
 }
@@ -38303,6 +38309,9 @@ function isTestPath(relPath) {
   return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
 }
 var APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
+function existsButUnreadable(io, relPath) {
+  return typeof io.existsButUnreadable === "function" ? io.existsButUnreadable(relPath) : io.exists(relPath);
+}
 function taskApprovalBaseline(rawText, fileName) {
   if (String(fileName || "").toLowerCase() !== "tasks.md") return null;
   const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, "Approval: <NORMALIZED>");
@@ -38335,6 +38344,7 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
   const allCurrentAmendments = [];
   const revokedApprovals = [];
   const newlyApprovedTasks = [];
+  const unreadableFiles = [];
   for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
     const safeRel = sanitizeRelPath(rawRelPath);
     if (!safeRel || !safeRel.startsWith(`specs/${feature}/`)) {
@@ -38342,6 +38352,10 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     }
     const baseIds = (baseInfo && typeof baseInfo === "object" ? baseInfo.identifiers : null) || {};
     const rawText = io.readText(safeRel);
+    if (rawText === null && existsButUnreadable(io, safeRel)) {
+      unreadableFiles.push(safeRel);
+      continue;
+    }
     if (rawText === null) {
       deletedFiles.push(safeRel);
       for (const [id, info] of Object.entries(baseIds)) {
@@ -38388,7 +38402,10 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     const matched = matchProtectedSpecRelPath(relFile, effectiveConfig);
     if (!matched || baseline.files && baseline.files[matched.relPath]) continue;
     const rawText = io.readText(matched.relPath);
-    if (rawText === null) continue;
+    if (rawText === null) {
+      unreadableFiles.push(matched.relPath);
+      continue;
+    }
     addedFiles.push(matched.relPath);
     for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
       addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
@@ -38403,6 +38420,9 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
   let status = "CLEAN";
   if (hasDrift) {
     status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
+  }
+  if (unreadableFiles.length > 0 && status !== "UNDECLARED_DRIFT") {
+    status = "UNVERIFIABLE";
   }
   const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
   const seenPerFile = /* @__PURE__ */ new Map();
@@ -38432,7 +38452,8 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     baselineAmendmentCount,
     changedIdsWithoutAmendment,
     revokedApprovals,
-    newlyApprovedTasks
+    newlyApprovedTasks,
+    unreadableFiles
   };
 }
 function computeExecutionPlan(tasks) {
@@ -41559,13 +41580,13 @@ function toRiskTier(value) {
   return "standard";
 }
 function toDriftStatus(value) {
-  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT" || value === "BASELINE_ERROR") {
+  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT" || value === "UNVERIFIABLE" || value === "BASELINE_ERROR") {
     return value;
   }
   return "UNBASELINED";
 }
 function toExecutionDriftStatus(value) {
-  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT" || value === "UNBASELINED" || value === "SKIPPED" || value === "BASELINE_ERROR") {
+  if (value === "CLEAN" || value === "AMENDED" || value === "UNDECLARED_DRIFT" || value === "UNVERIFIABLE" || value === "UNBASELINED" || value === "SKIPPED" || value === "BASELINE_ERROR") {
     return value;
   }
   return void 0;
@@ -41595,6 +41616,13 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpe
       phase: "bootstrap",
       command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
       rationale: `specs/${feature} is missing core SDD specification files or tasks.`
+    };
+  }
+  if (driftStatus === "UNVERIFIABLE") {
+    return {
+      phase: "blocked",
+      command: `human: check specs/${feature} with check-spec-drift.mjs`,
+      rationale: `A spec file in specs/${feature} exists but is over this server's read limit, so drift was not checked (the file is not treated as deleted). Run the local check-spec-drift.mjs CLI, or split the file.`
     };
   }
   if (driftStatus === "UNDECLARED_DRIFT" || driftStatus === "BASELINE_ERROR") {

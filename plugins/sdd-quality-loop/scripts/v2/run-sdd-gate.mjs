@@ -655,7 +655,7 @@ export function runSddGate({
       const report = checkSpecDrift({ feature, projectRoot: root, baselinePath });
       specDrift = {
         skipped: false,
-        passed: report.status !== 'UNDECLARED_DRIFT',
+        passed: report.status !== 'UNDECLARED_DRIFT' && report.status !== 'UNVERIFIABLE',
         ...report,
       };
     } catch (err) {

@@ -50,11 +50,11 @@
     },
     "driftStatus": {
       "type": "string",
-      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED", "BASELINE_ERROR"]
+      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNVERIFIABLE", "UNBASELINED", "BASELINE_ERROR"]
     },
     "executionDriftStatus": {
       "type": "string",
-      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNBASELINED", "SKIPPED", "BASELINE_ERROR"]
+      "enum": ["CLEAN", "AMENDED", "UNDECLARED_DRIFT", "UNVERIFIABLE", "UNBASELINED", "SKIPPED", "BASELINE_ERROR"]
     },
     "nextAction": {
       "type": "object",

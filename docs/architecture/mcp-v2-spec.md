@@ -50,7 +50,8 @@ All tools MUST:
 - **Replaces**: `list_active_specs`, `get_spec_status`, `get_quality_gate_summary`, `get_next_sdd_command` (no-arg).
 - **Input**: `{ includeDoctor?: boolean }` (default `true`, `additionalProperties: false`).
 - **Output (`kind: "project-overview"`)**:
-  - `activeFeatures`: array of `{ feature, highestRisk, taskCounts: { total, approved, inProgress, implComplete, done, blocked }, driftStatus: "CLEAN" | "AMENDED" | "UNDECLARED_DRIFT" | "UNBASELINED" | "BASELINE_ERROR", nextAction: { phase, command, rationale } }`.
+  - `activeFeatures`: array of `{ feature, highestRisk, taskCounts: { total, approved, inProgress, implComplete, done, blocked }, driftStatus: "CLEAN" | "AMENDED" | "UNDECLARED_DRIFT" | "UNVERIFIABLE" | "UNBASELINED" | "BASELINE_ERROR", nextAction: { phase, command, rationale } }`.
+    `UNVERIFIABLE`: a baselined spec file exists but is over the server's 2 MiB read limit, so drift was not checked; it is never reported as a deletion, and `nextAction` is `blocked` with the local `check-spec-drift.mjs` CLI as the next step (#834).
   - `doctor`: optional compact `sdd-doctor` summary (`status: "CLEAN" | "WARN" | "NG"`, `ngCount`, `warnCount`, `driftEventCount`).
 
 ### Tool 2: `sdd_feature_state`
