@@ -10,12 +10,12 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   createFsReadonlyIo,
   loadGuardrailsConfig,
   resolveExplicitOrAutoRoot,
   toPosixPath,
+  isMainModule,
 } from './guardrails-lib.mjs';
 import { checkSpecDriftCore } from './v2-readonly-core.mjs';
 
@@ -74,6 +74,12 @@ export function formatDriftMarkdown(report) {
 
   if (report.changedFiles.length > 0) {
     lines.push(`- **Changed files**: ${report.changedFiles.map((f) => `\`${f}\``).join(', ')}`);
+  }
+  if ((report.changedIdsWithoutAmendment || []).length > 0) {
+    lines.push(
+      `- **Changed IDs with no amendment entry mentioning them**: ${report.changedIdsWithoutAmendment.join(', ')}` +
+        '（AMENDED は理由の件数増加だけを機械判定する。個々の差分と理由の対応は独立レビュー G2 が判断する）',
+    );
   }
   if (report.deletedFiles.length > 0) {
     lines.push(`- **Deleted files**: ${report.deletedFiles.map((f) => `\`${f}\``).join(', ')}`);
@@ -176,10 +182,6 @@ function main() {
   }
 }
 
-if (
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'check-spec-drift.mjs' &&
-  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
-) {
+if (isMainModule(import.meta.url, 'check-spec-drift.mjs')) {
   main();
 }

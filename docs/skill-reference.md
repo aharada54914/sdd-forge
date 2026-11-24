@@ -32,7 +32,6 @@
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案（friction をなぜなぜ分析で根本原因まで掘り下げて WFI を起草） | quality-gate | — |
-| sdd-sudo | sdd-quality-loop | 期限付き承認待ちの扱い・人間による発行手順（ホスト自動発行は未対応） | — | implement-task, implement-tasks, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
 | wfi-audit-cycle | sdd-quality-loop | WFI-NNN.md Draft を2サイクルの独立監査（品質→影響/リスク）で審査し、合格時はカテゴリによらず Human-Pending に移行するオーケストレーター（追跡 Issue 起票は plugin-improvement かつ同意時のみ） | workflow-retrospective | — (人間承認待ち) |
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
@@ -40,7 +39,9 @@
 
 **重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 9 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間による明示依頼が起点）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
 
-ユーザーに見えるコマンドは次の9つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-implementation:sql-develop`（SQL入力整理）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
+ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-implementation:sql-develop`（SQL入力整理）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
+
+（v1.x の人間専用トグル `/sdd-quality-loop:sdd-sudo` は v2.0.0 で廃止されました。）
 
 ## 2. 各スキル詳細
 
@@ -238,35 +239,29 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 
 ---
 
-### レビュー / 監査 / パネリスト エージェント（12体）
+### レビュー / 監査 エージェント（6体）
 
-エージェント定義は `plugins/*/agents/*.md` にあり、上記2体と合わせて全 **14体** です。残る12体は以下の a/b ペア構造とパネル構造を取ります。
+エージェント定義は `plugins/*/agents/*.md` にあり、上記2体（`investigator` / `evaluator`）と合わせて全 **8体** です。全員がフロントマター `model: inherit`（起動した親セッションのモデルで動く）で、特定モデルへの固定はありません。残る6体は以下の a/b ペア構造を取ります。
 
 | エージェント名 | 所属プラグイン | モデル | 役割 | 起動元スキル |
 |---|---|---|---|---|
-| `spec-reviewer-a` | sdd-review-loop | `sonnet` | 要件・受け入れ網羅レビュー（requirements.md / acceptance-tests.md） | spec-review-loop |
-| `spec-reviewer-b` | sdd-review-loop | `sonnet` | 仕様のリスク・曖昧性レビュー（A からは件数と ID のサマリのみ受領） | spec-review-loop |
-| `impl-reviewer-a` | sdd-review-loop | `sonnet` | Structural Soundness（design.md のアーキテクチャ / データ / API 網羅、セキュリティ境界、コンポーネント完全性） | impl-review-loop |
-| `impl-reviewer-b` | sdd-review-loop | `sonnet` | Implementability and Risk（決定の正当化、Open Question の解決可能性、前提の妥当性、性能 / デプロイ / 移行 / スコープ） | impl-review-loop |
-| `task-reviewer-a` | sdd-review-loop | `sonnet` | Structural Coverage（tasks.md の構造的完全性、依存整合、AC トレーサビリティ、観測可能な done-when） | task-review-loop |
-| `task-reviewer-b` | sdd-review-loop | `sonnet` | Quality and Risk（リスク階層の妥当性、タスクサイズ、エッジケース、テスト種別整合、ロールバック計画、スコープの排他性） | task-review-loop |
-| `domain-reviewer-a` | sdd-domain | `sonnet` | 戦略的健全性（コンテキスト境界、関係パターン、イベント網羅、用語の一意性） | domain-review-loop |
-| `domain-reviewer-b` | sdd-domain | `sonnet` | 戦術的実装可能性（不変条件の検証可能性、トランザクション境界の現実性、god aggregate / anemic model リスク） | domain-review-loop |
-| `wfi-auditor-a` | sdd-quality-loop | `sonnet` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・なぜなぜ分析（5 Whys）チェーンの有効性・カテゴリ整合の言語・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
-| `wfi-auditor-b` | sdd-quality-loop | `sonnet` | WFI Impact and Risk Auditor（監査サイクル2）。検証計画の質・変更スコープの比例性・意図せぬ影響・実装可能性・言語遵守の2次確認 | wfi-audit-cycle |
-| `panelist-gpt`（`sdd-panelist-gpt`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの OpenAI/GPT ベンダースロット。サニタイズ済み入力バンドル1件から `cross-model-verdict/v1` JSON を返す | cross-model-verify |
-| `panelist-gemini`（`sdd-panelist-gemini`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの Google/Gemini ベンダースロット。同上 | cross-model-verify |
+| `spec-reviewer-a` | sdd-review-loop | `inherit` | 要件・受け入れ網羅レビュー | spec-check |
+| `spec-reviewer-b` | sdd-review-loop | `inherit` | 仕様のリスク・曖昧性レビュー（A からは件数と ID のサマリのみ受領） | spec-check |
+| `domain-reviewer-a` | sdd-domain | `inherit` | 戦略的健全性（コンテキスト境界、関係パターン、イベント網羅、用語の一意性） | domain-review-loop |
+| `domain-reviewer-b` | sdd-domain | `inherit` | 戦術的実装可能性（不変条件の検証可能性、トランザクション境界の現実性） | domain-review-loop |
+| `wfi-auditor-a` | sdd-quality-loop | `inherit` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・なぜなぜ分析・カテゴリ整合・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
+| `wfi-auditor-b` | sdd-quality-loop | `inherit` | WFI Impact and Risk Auditor（監査サイクル2）。検証計画の質・変更スコープの比例性・意図せぬ影響・実装可能性・言語遵守の2次確認 | wfi-audit-cycle |
+
+> v2.0.0 で `impl-reviewer-*` / `task-reviewer-*`（impl-review-loop / task-review-loop）は廃止され、クロスモデル検証のパネリスト（`panelist-gpt` / `panelist-gemini`）はエージェント定義として配布されていません。以前の版の表にあった `sonnet` 固定の記載は現行定義と一致しないため削除しました（#870）。
 
 **独立レビューのペア構造（ブラインドレビュー）**
 
 a/b ペアはいずれも「互いの結果を見ない」ことを前提に設計されています。
 
 - 両者とも fresh context（実装者・生成者と履歴を共有しない）・read-only（`tools: Read, Grep, Glob` ± `Bash`、`disallowedTools: Write, Edit, NotebookEdit`）で走ります。
-- レビュアー b は `disallowedPaths` により `reports/spec-review/**/reviewer-*.json`、`reports/impl-review/**/reviewer-*.json`、`reports/task-review/**/reviewer-*.json`（domain 系はさらに `reports/domain-review/**/reviewer-*.json`）の読み取りをブロックされ、a の生の所見に到達できません。b が a から受け取るのは**件数と ID だけのサマリ**であり、所見本文・重大度・根拠は渡りません。
-- `wfi-auditor-b` も同様に、サイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされます。
-- パネリスト2体は互いの verdict も主評価者（`sdd-evaluator`）の verdict も見ない「BLIND」実行で、ベンダーの異なる独立 LLM として並列に走ります。
+- `wfi-auditor-b` はサイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされ、統合サマリ（判定と件数のみ）だけを受け取ります。
 
-これにより、3つのレビューループ（spec-review-loop / impl-review-loop / task-review-loop）と domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を構造的に防いでいます。
+これにより、spec-check・domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を避けます。
 
 **Copilot / Codex でのツイン**
 
@@ -286,7 +281,7 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 `Approval: Approved` を tasks.md に書き込むエディット操作をブロック。人間のみ、エージェント外でファイルを編集して承認可。自己承認防止。
 
-ただし、有効な `SDD_SUDO` フラグファイルが存在する場合、この guard は無効化されます（sudo モード；期限切れまたはファイル不在で再度有効になります）。詳細は `/sdd-sudo` スキル と `sudo-mode-policy.md` を参照。
+v2.0.0 で `SDD_SUDO` による sudo モード（このガードの一時無効化）は廃止されました。承認は人間がエージェント外で `Approval: Approved` を書きます。
 
 **WFI 承認ガード (WFI Approval Guard)**
 
@@ -448,8 +443,6 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `select-agent-model` | sdd-implementation | sh / ps1 | `contracts/agent-model-capabilities.json` を参照し、リスク階層・失敗履歴からエージェントのモデル / effort 階層を選択 |
 | `validate-implementation-report` | sdd-implementation | sh | 実装レポートの構造検証 |
 | `validate-task-input-manifest` | sdd-implementation | sh / ps1 | タスク入力マニフェスト（単体・バッチ）の検証。バッチはマニフェスト集合全体を起動前に検証 |
-| `check-risk-upgrade` | sdd-lite | sh / ps1 | lite トラックのローカルなリスク昇格チェック（リモート読み取りは一切行わない） |
-| `check-task-state-lite` | sdd-lite | sh / ps1 | lite 用の軽量状態ゲート（[詳細](#check-task-state-lite)） |
 | `spec-review-precheck` | sdd-review-loop | sh / ps1 | 仕様レビュー遷移の前提・プロベナンス検証 |
 | `impl-review-precheck` | sdd-review-loop | sh / ps1 | 実装方針レビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
 | `task-review-precheck` | sdd-review-loop | sh / ps1 | タスクレビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
@@ -603,6 +596,8 @@ sh plugins/sdd-quality-loop/scripts/check-task-state.sh <path-to-tasks.md> [repo
 ---
 
 ### check-task-state-lite
+
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
 
 **目的**
 

@@ -235,7 +235,11 @@ Codex CLI 0.159.2 では `--enable hooks` / `--disable hooks` が実際の制御
 
 ## Sudoモード関連
 
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
+
 ### sudoが効かない
+
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
 
 **症状：** `/sdd-sudo 8h` で有効化したはずなのに、Approval ガードでブロックされ、approval gates が自動通過しない。
 

@@ -13,7 +13,7 @@ Describe the change.
 - requirements.md
 - design.md
 - tasks.md
-- traceability.md
+- traceability.md (only if it exists for this feature; SDD Core v2 does not create one)
 - ADRs
 - API / schema contracts
 
@@ -39,7 +39,8 @@ Describe the change.
 
 ## Traceability
 
-- [ ] traceability.md updated
+- [ ] Requirements, acceptance criteria and tasks in the three Core files still agree
+- [ ] traceability.md updated (only if it exists for this feature)
 
 ## Risks
 

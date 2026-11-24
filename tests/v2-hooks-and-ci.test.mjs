@@ -184,6 +184,51 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 
+  it('#869: every v2 CLI behaves the same when launched through a symlink', () => {
+    const scripts = [
+      'check-spec-drift', 'check-traceability', 'factory-metrics', 'record-spec-baseline',
+      'render-decision-view', 'run-sdd-gate', 'sdd-doctor', 'sdd-soft-guard', 'sync-knowledge', 'task-lock',
+    ];
+    const work = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-cli-link-'));
+    // The kill switch makes the soft guard deny, so a guard whose main() never
+    // ran (silent exit 0) is told apart from one that ran and allowed.
+    fs.writeFileSync(path.join(work, 'AGENT_STOP'), '', 'utf8');
+    try {
+      for (const name of scripts) {
+        const real = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2', `${name}.mjs`);
+        const link = path.join(work, `${name}.mjs`);
+        try {
+          fs.symlinkSync(real, link);
+        } catch {
+          return; // platform without symlink permission
+        }
+        const run = (entry) =>
+          spawnSync(process.execPath, [entry], { cwd: work, encoding: 'utf8', input: '{}', env: { ...process.env, CLAUDE_PROJECT_DIR: work } });
+        const direct = run(real);
+        const linked = run(link);
+        assert.ok(direct.status !== 0 || (direct.stdout + direct.stderr).length > 0, `${name}: direct run does something`);
+        assert.equal(linked.status, direct.status, `${name}: exit code via symlink`);
+        assert.equal((linked.stdout + linked.stderr).length > 0, (direct.stdout + direct.stderr).length > 0, `${name}: output via symlink`);
+      }
+    } finally {
+      fs.rmSync(work, { recursive: true, force: true });
+    }
+  });
+
+  it('#869 review: a CLI embedded under another file name (a bundle) never runs its main()', () => {
+    const src = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2');
+    const work = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-cli-bundle-'));
+    try {
+      for (const f of fs.readdirSync(src)) if (f.endsWith('.mjs')) fs.copyFileSync(path.join(src, f), path.join(work, f));
+      fs.renameSync(path.join(work, 'factory-metrics.mjs'), path.join(work, 'index.mjs'));
+      const res = spawnSync(process.execPath, [path.join(work, 'index.mjs'), '--root', work], { cwd: work, encoding: 'utf8' });
+      assert.equal(res.status, 0, res.stderr);
+      assert.equal(res.stdout, '', 'the embedded factory-metrics main() must not run');
+    } finally {
+      fs.rmSync(work, { recursive: true, force: true });
+    }
+  });
+
   it('no node_modules entry (directory or symlink) is ever tracked', () => {
     const tracked = spawnSync('git', ['ls-files', '-z'], { cwd: REPO_ROOT, encoding: 'utf8' });
     if (tracked.status !== 0) return; // not a git checkout (e.g. an extracted archive)

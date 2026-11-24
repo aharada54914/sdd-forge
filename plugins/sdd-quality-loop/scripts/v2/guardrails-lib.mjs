@@ -8,6 +8,7 @@
  * write APIs or `process.env` root escalation.
  */
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import {
   DEFAULT_CONFIG,
@@ -96,6 +97,26 @@ export function findProjectRoot(startDir) {
  *   `CLAUDE_PROJECT_DIR` or parent `.git` walk) so cross-repo invocations are deterministic.
  * - Otherwise falls back to `findProjectRoot(process.cwd())`.
  */
+/**
+ * True when the module at `importMetaUrl` is the script Node was asked to run.
+ * Compares real paths: Node resolves the main module through symlinks, so a
+ * plain argv[1] comparison silently skipped main() for any CLI (the soft guard
+ * hook included) launched through a link (#869). `scriptFileName` is the
+ * CLI's own file name.
+ */
+export function isMainModule(importMetaUrl, scriptFileName) {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    const real = fs.realpathSync(path.resolve(entry));
+    // The file-name check keeps a CLI embedded in a bundle (where the bundle
+    // is both argv[1] and import.meta.url) from running its main().
+    return path.basename(real) === scriptFileName && real === fs.realpathSync(fileURLToPath(importMetaUrl));
+  } catch {
+    return false;
+  }
+}
+
 export function resolveExplicitOrAutoRoot(projectRoot) {
   if (projectRoot) {
     return safeRealpath(projectRoot);

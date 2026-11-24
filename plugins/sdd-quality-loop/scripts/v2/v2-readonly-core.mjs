@@ -347,6 +347,32 @@ function extractTaskBlockers(taskBlock) {
   return [...new Set(ids.map((id) => id.toUpperCase()))];
 }
 
+const BARE_BLOCKER_LINE_RE = /^T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*(?:\s*[,、]\s*T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)*$/i;
+
+/**
+ * Blocker IDs the author declared as dependencies: a line (optionally a list
+ * item) holding only task IDs separated by commas. IDs inside prose, ranges
+ * (T-002..T-005), file names (T-001.md) and placeholders are mentions, not
+ * declarations, and are never checked for existence or self-reference (#817).
+ */
+function extractDeclaredBlockers(taskBlock) {
+  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
+  if (!blockersMatch) return [];
+  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = (nextSub ? rest.slice(0, nextSub.index) : rest).replace(/<!--[\s\S]*?-->/g, '');
+  const ids = [];
+  for (const raw of section.split('\n')) {
+    const line = raw.trim().replace(/^[-*+][ \t]+/, '').trim();
+    if (!BARE_BLOCKER_LINE_RE.test(line)) continue;
+    for (const id of line.split(/\s*[,、]\s*/)) {
+      if (/^T-(?:X+|N+)$/i.test(id)) continue; // template placeholder, not a task
+      ids.push(id.toUpperCase());
+    }
+  }
+  return [...new Set(ids)];
+}
+
 export function extractScopePaths(taskBlock) {
   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
   if (!scopeMatch) return [];
@@ -401,8 +427,12 @@ export function parseTasksSummary(tasksText) {
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
     const taskId = taskMatch[1].toUpperCase();
     const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+    const declaredBlockers = extractDeclaredBlockers(block);
+    const selfBlocked = declaredBlockers.includes(taskId);
 
     tasks.push({
+      selfBlocked,
+      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
       id: taskId,
       title: (taskMatch[2] || '').trim(),
       approval,
@@ -618,6 +648,24 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     status = hasNewDeclaredAmendment ? 'AMENDED' : 'UNDECLARED_DRIFT';
   }
 
+  // AMENDED is a count comparison only. Name each changed REQ/AC ID that no
+  // amendment entry mentions, so an unexplained change cannot read as approved;
+  // judging whether each reason is adequate stays with the independent G2 (#820).
+  const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
+  // Entries are append-only per file: only those beyond that file's baseline
+  // count (every entry of a file added since) explain a change.
+  const seenPerFile = new Map();
+  const newAmendments = allCurrentAmendments.filter((a) => {
+    const index = seenPerFile.get(a.file) || 0;
+    seenPerFile.set(a.file, index + 1);
+    const recorded = baseline.files && baseline.files[a.file];
+    return index >= Number((recorded && recorded.amendmentCount) || 0);
+  });
+  const changedIdsWithoutAmendment = changedIds.filter((id) => {
+    const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, '\\-')}([^0-9]|$)`, 'i');
+    return !newAmendments.some((a) => re.test(a.text));
+  });
+
   return {
     schema: 'sdd-spec-drift/v1',
     feature,
@@ -632,6 +680,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     addedIdentifiers,
     amendments: allCurrentAmendments,
     baselineAmendmentCount,
+    changedIdsWithoutAmendment,
   };
 }
 
@@ -688,6 +737,30 @@ export function computeExecutionPlan(tasks) {
     }
   }
 
+  // A Blocker naming no task in this file, or the task itself, can never be
+  // satisfied: such tasks and everything downstream stay out of the waves and
+  // are reported apart from real cycles (#817).
+  // Only bare declared IDs are checked; prose mentions keep the old meaning
+  // (a known ID is an edge, an unknown token is ignored).
+  const unknownBlockers = [];
+  for (const t of tasks) {
+    for (const b of t.declaredBlockers || []) {
+      if (!byId.has(b)) unknownBlockers.push({ task: t.id, blocker: b });
+    }
+  }
+  const invalid = new Set([...unknownBlockers.map((u) => u.task), ...tasks.filter((t) => t.selfBlocked).map((t) => t.id)]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const t of tasks) {
+      if (!invalid.has(t.id) && (t.blockers || []).some((b) => invalid.has(b))) {
+        invalid.add(t.id);
+        grew = true;
+      }
+    }
+  }
+  for (const id of invalid) remaining.delete(id);
+
   let guard = 0;
   while (remaining.size > 0 && guard < tasks.length + 2) {
     guard += 1;
@@ -719,8 +792,26 @@ export function computeExecutionPlan(tasks) {
     }
   }
 
-  const cyclicTasks = [...remaining];
-  return { batches, scopeConflicts, cyclicTasks };
+  // Tasks on a dependency cycle (over known edges), found on the whole graph
+  // so a cycle stays visible even when it also touches an invalid task.
+  const onCycle = new Set();
+  for (const t of tasks) {
+    const seen = new Set();
+    const stack = [...(t.blockers || []).filter((b) => byId.has(b))];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (cur === t.id) {
+        onCycle.add(t.id);
+        break;
+      }
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      for (const b of byId.get(cur)?.blockers || []) if (byId.has(b)) stack.push(b);
+    }
+  }
+  const cyclicTasks = [...new Set([...remaining, ...tasks.map((t) => t.id).filter((id) => onCycle.has(id))])];
+  const invalidBlockerTasks = [...new Set(tasks.filter((t) => invalid.has(t.id)).map((t) => t.id))];
+  return { batches, scopeConflicts, cyclicTasks, unknownBlockers, invalidBlockerTasks };
 }
 
 /**
@@ -813,6 +904,8 @@ export function analyzeTraceabilityCore(
       status: t.status,
       acRefs: t.acRefs,
       blockers: t.blockers,
+      selfBlocked: Boolean(t.selfBlocked),
+      declaredBlockers: t.declaredBlockers || [],
       scopePaths,
       domains,
       codePaths,

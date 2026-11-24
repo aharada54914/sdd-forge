@@ -458,3 +458,125 @@ describe('#845 the plugin source-repository carve-out is one rule in both audits
     assert.doesNotMatch(doc, /`plugins\/` 内は禁止\)/);
   });
 });
+
+describe('#870 documented agent models match the distributed agent definitions', () => {
+  it('every agent table row names a shipped agent and its frontmatter model, and no shipped agent is missing', () => {
+    const doc = fs.readFileSync(path.join(REPO_ROOT, 'docs/skill-reference.md'), 'utf8');
+    const rows = [...doc.matchAll(/^\| `([\w-]+)`(?:（`[\w-]+`）)? \| (sdd-[\w-]+) \| `([\w.-]+)` \|/gm)];
+    assert.ok(rows.length > 0, 'agent table found');
+    const documented = new Set();
+    for (const [, name, plugin, model] of rows) {
+      const file = path.join(REPO_ROOT, 'plugins', plugin, 'agents', `${name}.md`);
+      assert.ok(fs.existsSync(file), `${name} is documented but plugins/${plugin}/agents/${name}.md does not exist`);
+      const declared = /^model:\s*(\S+)/m.exec(fs.readFileSync(file, 'utf8'))?.[1];
+      assert.equal(model, declared, `${name}: documented model ${model} but the definition says ${declared}`);
+      documented.add(`${plugin}/${name}`);
+    }
+    for (const plugin of fs.readdirSync(path.join(REPO_ROOT, 'plugins'))) {
+      const dir = path.join(REPO_ROOT, 'plugins', plugin, 'agents');
+      if (!fs.existsSync(dir)) continue;
+      for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md'))) {
+        const name = f.replace(/\.md$/, '');
+        assert.ok(
+          documented.has(`${plugin}/${name}`) || doc.includes(`\`${name}\``),
+          `${plugin}/agents/${f} is not documented`,
+        );
+      }
+    }
+  });
+});
+
+describe('#866 adopt PR template follows the SDD Core v2 artifact set', () => {
+  it('requires the three Core files and treats traceability.md as present-only', () => {
+    const tpl = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-adopt/templates/pull-request.template.md'), 'utf8');
+    for (const f of ['requirements.md', 'design.md', 'tasks.md']) assert.match(tpl, new RegExp(f.replace('.', '\\.')));
+    for (const line of tpl.split('\n').filter((l) => l.includes('traceability.md'))) {
+      assert.match(line, /if (it )?exists|存在する場合|when present/i, `traceability.md must be conditional: ${line}`);
+    }
+  });
+});
+
+describe('#867 user guides never present retired sudo / Lite tooling as current', () => {
+  const BANNER = /v2\.0\.0 で廃止（v1\.x のみの参考情報）/;
+  const docs = ['docs/skill-reference.md', 'docs/troubleshooting.md', 'docs/contributor/workflow-detail.md', 'docs/contributor/skill-reference-detail.md'];
+  it('current command lists and tool tables omit them', () => {
+    const ref = fs.readFileSync(path.join(REPO_ROOT, 'docs/skill-reference.md'), 'utf8');
+    const visible = ref.split('\n').find((l) => l.startsWith('ユーザーに見えるコマンドは'));
+    assert.ok(visible);
+    assert.doesNotMatch(visible, /sdd-sudo/);
+    assert.doesNotMatch(ref, /^\| sdd-sudo \|/m);
+    assert.doesNotMatch(ref, /^\| `check-task-state-lite` \|/m);
+  });
+  it('every remaining sudo / Lite section carries the retirement banner', () => {
+    for (const rel of docs) {
+      const lines = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8').split('\n');
+      lines.forEach((line, i) => {
+        if (!/^#{2,4} /.test(line) || !/sudo|Sudo|lite-spec|lite-gate|check-task-state-lite/.test(line)) return;
+        const next = lines.slice(i + 1, i + 4).join('\n');
+        assert.match(next, BANNER, `${rel}:${i + 1} "${line}" lacks the retirement banner`);
+      });
+    }
+  });
+});
+
+describe('#868 a retrospective drafts WFIs from the canonical template with audit-required fields', () => {
+  it('Step 4 names the template and every field the auditors check, without guessing', () => {
+    const skill = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md'), 'utf8');
+    const step3 = skill.slice(skill.indexOf('## Step 3'), skill.indexOf('## Step 4'));
+    const step4 = skill.slice(skill.indexOf('## Step 4'), skill.indexOf('## Boundaries'));
+    assert.match(step4, /templates\/workflow-improvement\.template\.md/);
+    for (const field of ['Category', 'Meta-Change', 'Why-Why Analysis', 'Root Cause Hypothesis', 'Verification Metric', 'Audit-Status: Not-Started']) {
+      assert.ok(step4.includes(field), `Step 4 must carry ${field}`);
+    }
+    assert.match(step4, /推測しない|TBD（人間確認）/);
+    assert.match(step3, /Category/);
+    assert.match(step3, /評価時期/);
+  });
+});
+
+describe('#864 bootstrap stops on an unapproved domain model; domain-sync alone does not', () => {
+  it('sdd-core-spec states the concept-test gate and domain-sync scopes its never-block promise', () => {
+    const core = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md'), 'utf8');
+    const line = core.split('\n').find((l) => l.includes('concept-test') && l.includes('domain-sync'));
+    assert.ok(line);
+    assert.match(line, /BLOCK/);
+    assert.match(line, /Approved/);
+    assert.match(line, /concept-test[^。]*先/);
+    const sync = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/skills/domain-sync/SKILL.md'), 'utf8');
+    const caller = sync.split('\n').find((l) => l.startsWith('> **Caller**'));
+    assert.match(caller, /concept-test/);
+    assert.match(caller, /CONTINUE/);
+  });
+});
+
+describe('#863 the context-map template states what an edit after approval actually does', () => {
+  it('no automatic reset is promised; the update flow resets and stale proposals stop', () => {
+    const tpl = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md'), 'utf8');
+    assert.doesNotMatch(tpl, /Editing any file under `domain\/` after\s+approval resets this field/);
+    assert.match(tpl, /domain-model update/);
+    const validator = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/validate-concept-test.py'), 'utf8');
+    assert.match(validator, /concept-test: BLOCK/, 'the documented stop line is the one bootstrap prints');
+    assert.match(tpl, /concept-test: BLOCK/);
+    assert.doesNotMatch(tpl, /stops with `Concept Test input changed`/, 'that message is internal, not what bootstrap prints');
+    assert.match(tpl, /generated_from/, 'only pinned inputs invalidate a proposal');
+  });
+});
+
+describe('#814 the domain review finalizer names its own operation in diagnostics', () => {
+  it('bash (run) and PowerShell (static) report FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE', () => {
+    const dir = path.join(REPO_ROOT, 'plugins/sdd-domain/scripts');
+    const ps = fs.readFileSync(path.join(dir, 'finalize-domain-review.ps1'), 'utf8');
+    assert.doesNotMatch(ps, /GENERATE_APPROVAL_SIDECAR_RUNTIME_UNAVAILABLE/);
+    assert.match(ps, /FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE/);
+    if (process.platform === 'win32') return;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-finalize-'));
+    try {
+      fs.copyFileSync(path.join(dir, 'finalize-domain-review.sh'), path.join(tmp, 'finalize-domain-review.sh'));
+      const res = spawnSync('bash', [path.join(tmp, 'finalize-domain-review.sh'), '--help'], { encoding: 'utf8' });
+      assert.notEqual(res.status, 0);
+      assert.match(res.stderr, /finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE/);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});

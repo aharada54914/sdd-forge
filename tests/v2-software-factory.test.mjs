@@ -471,3 +471,65 @@ resource "aws_iam_policy" "wide" {
     assert.equal(alts[0].option, '案 A | B');
   });
 });
+
+describe('#817 invalid Blockers are reported and never scheduled', () => {
+  it('unknown and self dependencies are listed apart from cycles, excluded with their downstream, and fail --strict', () => {
+    const dir = trackTempDir('sdd-trace-invalid-');
+    fs.mkdirSync(path.join(dir, 'specs', 'deps'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'deps', 'requirements.md'),
+      '# r\n\n- **REQ-001**: x\n- **AC-001** (REQ-001): y\n',
+      'utf8',
+    );
+    const task = (id, blockers, scope) =>
+      `## ${id} t\nApproval: Approved\nStatus: Planned\nRisk: standard\n\n### Scope\n- \`${scope}\`\n\n### Done When\n- AC-001\n\n### Blockers\n- ${blockers}\n`;
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'deps', 'tasks.md'),
+      ['# tasks', task('T-001', 'None', 'src/a.js'), task('T-002', 'T-404', 'src/b.js'),
+        task('T-003', 'T-002', 'src/c.js'), task('T-004', 'T-004', 'src/d.js')].join('\n'),
+      'utf8',
+    );
+    const run = (...extra) =>
+      spawnSync(process.execPath, [TRACE_CLI, '--feature', 'deps', '--root', dir, '--plan-batches', ...extra], { encoding: 'utf8' });
+    const res = run();
+    assert.equal(res.status, 0, res.stderr);
+    const plan = JSON.parse(res.stdout).executionPlan;
+    assert.deepEqual(plan.batches.flat(), ['T-001'], 'only the valid task is scheduled');
+    assert.deepEqual(plan.unknownBlockers, [{ task: 'T-002', blocker: 'T-404' }]);
+    assert.deepEqual(plan.invalidBlockerTasks.sort(), ['T-002', 'T-003', 'T-004']);
+    assert.deepEqual(plan.cyclicTasks, [], 'invalid dependencies are not reported as cycles');
+    assert.equal(run('--strict').status, 1);
+  });
+});
+
+describe('#817 review: only bare Blocker IDs are declared dependencies', () => {
+  it('prose mentioning the own ID or a range does not block; cycles stay visible next to invalid tasks', () => {
+    const dir = trackTempDir('sdd-trace-prose-');
+    fs.mkdirSync(path.join(dir, 'specs', 'prose'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    fs.writeFileSync(path.join(dir, 'specs', 'prose', 'requirements.md'), '# r\n\n- **REQ-001**: x\n- **AC-001** (REQ-001): y\n', 'utf8');
+    const task = (id, blockersBody, scope) =>
+      `## ${id} t\nApproval: Approved\nStatus: Planned\nRisk: standard\n\n### Scope\n- \`${scope}\`\n\n### Done When\n- AC-001\n\n### Blockers\n\n${blockersBody}\n`;
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'prose', 'tasks.md'),
+      [
+        '# tasks',
+        task('T-001', '- None', 'src/a.js'),
+        task('T-002', 'T-001\n\n(records the T-002 -> T-001 edge; see T-001.md and the T-NNN-LIST note)', 'src/b.js'),
+        task('T-003', '- T-001\n- Covers T-002..T-005 once they land', 'src/c.js'),
+        task('T-004', '- T-005', 'src/d.js'),
+        task('T-005', '- T-004, T-404', 'src/e.js'),
+        task('T-006', '- None\n<!--\nT-777\n-->\n- T-XXX\n- T-NNN', 'src/f.js'),
+      ].join('\n'),
+      'utf8',
+    );
+    const res = spawnSync(process.execPath, [TRACE_CLI, '--feature', 'prose', '--root', dir, '--plan-batches'], { encoding: 'utf8' });
+    assert.equal(res.status, 0, res.stderr);
+    const plan = JSON.parse(res.stdout).executionPlan;
+    assert.deepEqual(plan.batches.flat().sort(), ['T-001', 'T-002', 'T-003', 'T-006'], 'prose, comments and placeholders never block');
+    assert.deepEqual(plan.unknownBlockers, [{ task: 'T-005', blocker: 'T-404' }], 'only bare IDs are checked for existence');
+    assert.deepEqual(plan.invalidBlockerTasks.sort(), ['T-004', 'T-005']);
+    assert.deepEqual(plan.cyclicTasks.sort(), ['T-004', 'T-005'], 'a cycle stays visible even when it touches an invalid task');
+  });
+});

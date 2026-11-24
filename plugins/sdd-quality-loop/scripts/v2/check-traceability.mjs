@@ -10,8 +10,7 @@
  *   2 — Usage / runtime / file error
  */
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { createFsReadonlyIo, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
+import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { analyzeTraceabilityCore, scopeMatchesFile } from './v2-readonly-core.mjs';
 
 export { scopeMatchesFile };
@@ -84,6 +83,12 @@ export function formatTraceabilityMarkdown(report, { includeBatches = false } = 
         lines.push(`  - ${c.tasks.join(' vs ')}: ${c.overlaps.join(', ')}`);
       }
     }
+    for (const u of report.executionPlan.unknownBlockers || []) {
+      lines.push(`- **Unknown Blocker**: ${u.task} depends on ${u.blocker}, which is not a task in this file`);
+    }
+    if ((report.executionPlan.invalidBlockerTasks || []).length > 0) {
+      lines.push(`- **Not Scheduled (invalid Blockers or downstream)**: ${report.executionPlan.invalidBlockerTasks.join(', ')}`);
+    }
     if (report.executionPlan.cyclicTasks.length > 0) {
       lines.push(`- **Blocker Cycle Detected**: ${report.executionPlan.cyclicTasks.join(', ')}`);
     }
@@ -125,10 +130,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'check-traceability.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url, 'check-traceability.mjs');
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || (opts.format !== 'json' && opts.format !== 'markdown')) {
@@ -150,7 +152,8 @@ if (isMain) {
         : `${JSON.stringify(report, null, 2)}\n`,
     );
     const hasCycle = (report.executionPlan?.cyclicTasks?.length || 0) > 0;
-    process.exit(opts.strict && (!report.complete || hasCycle) ? 1 : 0);
+    const hasInvalidBlockers = (report.executionPlan?.invalidBlockerTasks?.length || 0) > 0;
+    process.exit(opts.strict && (!report.complete || hasCycle || hasInvalidBlockers) ? 1 : 0);
   } catch (err) {
     process.stderr.write(`check-traceability error: ${err.message}\n`);
     process.exit(2);

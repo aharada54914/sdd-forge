@@ -44,7 +44,7 @@ user-invocable: false
    | ID | 観点 | 検査基準（全リスク階層共通） | `low` / `standard`（1 体） | `high`（2 体並列） |
    |---|---|---|---|---|
    | **G1** | **AC / Done When 実証 & 偽装完了検知** | 全対象 `AC-NNN` / `### Done When` が実コマンド・実テストで証明され、ハードコード・スキップ・空実装がないか（`Risk: high` は TDD Red→Green 証跡も確認） | Evaluator | Evaluator A |
-   | **G2** | **Spec Amendment & スコープ整合** | `AMENDED` 時に `## Spec Amendments` の理由と差分が妥当で要件を骨抜きにしていないか、スコープ外変更がないか | Evaluator | Evaluator A |
+   | **G2** | **Spec Amendment & スコープ整合** | `AMENDED` 時に `## Spec Amendments` の理由と差分が妥当で要件を骨抜きにしていないか、スコープ外変更がないか（機械判定は理由の件数増加のみ。`changedIdsWithoutAmendment` に挙がった ID は理由が書かれていない差分として個別に判断する） | Evaluator | Evaluator A |
    | **G3** | **回帰・異常系・エラー処理** | 既存機能（`baseline-behavior.md` 含む）の回帰範囲、異常系・境界条件・例外握りつぶしがないか | Evaluator | Evaluator B |
    | **G4** | **セキュリティ・非機能・移行/ロールバック** | 認証/認可・入力検証・秘密情報・SQL/Cloud 安全性・ロールバック影響に欠陥がないか（無関係時は `N/A（理由）`） | Evaluator | Evaluator B |
    | **G5** | **ドメイン / デザイン規約整合** | `domain/`（用語・概念境界）および `design-system/` 存在時に規約からの逸脱がないか（不在時は `N/A`） | Evaluator | Evaluator A |

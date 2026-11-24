@@ -15,8 +15,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { assertValidFeatureName, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
+import { assertValidFeatureName, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 
 const DEFAULT_TTL_SECONDS = 1800;
 
@@ -216,10 +215,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'task-lock.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url, 'task-lock.mjs');
 
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
