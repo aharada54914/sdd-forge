@@ -548,3 +548,14 @@ describe('#864 bootstrap stops on an unapproved domain model; domain-sync alone 
     assert.match(caller, /CONTINUE/);
   });
 });
+
+describe('#863 the context-map template states what an edit after approval actually does', () => {
+  it('no automatic reset is promised; the update flow resets and stale proposals stop', () => {
+    const tpl = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md'), 'utf8');
+    assert.doesNotMatch(tpl, /Editing any file under `domain\/` after\s+approval resets this field/);
+    assert.match(tpl, /domain-model update/);
+    assert.match(tpl, /Concept Test input changed/);
+    const validator = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/validate-concept-test.py'), 'utf8');
+    assert.match(validator, /Concept Test input changed/, 'the documented stop message is the one the validator emits');
+  });
+});
