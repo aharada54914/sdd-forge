@@ -172,3 +172,26 @@ describe('record-spec-baseline.mjs & check-spec-drift.mjs', () => {
     assert.match(mdRes.stdout, /Agreed with PO to change AC-002/);
   });
 });
+
+describe('#820 AMENDED names the changed IDs no amendment entry mentions', () => {
+  it('two changed ACs with a reason for only one stay AMENDED but list the unexplained one', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-amend-'));
+    fs.mkdirSync(path.join(dir, '.git'));
+    fs.mkdirSync(path.join(dir, 'specs', 'f'), { recursive: true });
+    const req = (a1, a2, amend) =>
+      `# r\n\n- **REQ-001**: x\n- **AC-001** (REQ-001): ${a1}\n- **AC-002** (REQ-001): ${a2}\n\n## Spec Amendments\n${amend}\n`;
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'requirements.md'), req('one', 'two', '- （初期版のため変更なし）'), 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'tasks.md'), '# t\n\n## T-001 x\nApproval: Approved\nStatus: Planned\n', 'utf8');
+    assert.equal(spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'f', '--root', dir], { encoding: 'utf8' }).status, 0);
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'f', 'requirements.md'),
+      req('one changed', 'two changed', '- 2026-11-25: AC-001 の閾値を顧客合意により変更'),
+      'utf8',
+    );
+    const res = spawnSync(process.execPath, [CHECK_SCRIPT, '--feature', 'f', '--root', dir], { encoding: 'utf8' });
+    const out = JSON.parse(res.stdout);
+    assert.equal(out.status, 'AMENDED');
+    assert.deepEqual(out.changedIdsWithoutAmendment, ['AC-002']);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});
