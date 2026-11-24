@@ -443,3 +443,18 @@ describe('#847 the Cycle 1 summary carries everything Cycle 2 must report', () =
     assert.match(b, /never infer|推測しない|do not infer/i, 'B must not guess a missing verdict');
   });
 });
+
+describe('#845 the plugin source-repository carve-out is one rule in both audits', () => {
+  it('auditor B, the template and the contributor doc all name the same three conditions', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const conditions = [/Category: plugin-improvement/, /source of truth/i, /## GitHub-Issue/];
+    const b = fs.readFileSync(path.join(root, 'agents/wfi-auditor-b.md'), 'utf8');
+    const feasibility = b.slice(b.indexOf('## FEASIBILITY-WITHOUT-PLUGINS'), b.indexOf('\n## ', b.indexOf('## FEASIBILITY-WITHOUT-PLUGINS') + 5));
+    for (const c of conditions) assert.match(feasibility, c, `auditor B FEASIBILITY-WITHOUT-PLUGINS names ${c}`);
+    const template = fs.readFileSync(path.join(root, 'templates/workflow-improvement.template.md'), 'utf8');
+    assert.doesNotMatch(template, /Plugin files must not be listed\.\s+-->/);
+    assert.match(template, /wfi-auditor-a\.md/);
+    const doc = fs.readFileSync(path.join(REPO_ROOT, 'docs/contributor/workflow-detail.md'), 'utf8');
+    assert.doesNotMatch(doc, /`plugins\/` 内は禁止\)/);
+  });
+});
