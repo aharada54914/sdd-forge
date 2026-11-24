@@ -121,7 +121,9 @@ export function acquireLock({
       const existing = readLockRecord(lockPath);
       const { stale, reason } = evaluateStale(existing);
       if (!stale && owner && existing.owner === owner) {
-        return renewLock(lockPath, existing, record);
+        const renewed = renewLock(lockPath, existing, record);
+        if (renewed) return renewed;
+        continue; // the lock vanished (released meanwhile): try to create it
       }
       if (stale && breakStale && attempt === 0) {
         const claimPath = `${lockPath}.reclaim.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
@@ -176,13 +178,62 @@ export function acquireLock({
   return { acquired: false, lockPath, stale: false, message: 'Lock contention.' };
 }
 
-// Re-entry by the holder: keep acquiredAt, extend expiresAt. The rename is
-// atomic, and only the holder of an active lock reaches it.
+// Re-entry by the holder: keep acquiredAt, extend expiresAt. The lock file is
+// first moved aside (only one process can win that rename), checked to be the
+// record that was read, and the renewed record is then linked in, which fails
+// rather than overwrite a lock another worker created meanwhile. Returns null
+// when the lock was already gone, so the caller can try to create it.
 function renewLock(lockPath, existing, fresh) {
+  const suffix = `${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
+  const claimPath = `${lockPath}.renew-claim.${suffix}`;
+  try {
+    fs.renameSync(lockPath, claimPath);
+  } catch {
+    return null;
+  }
+  const removeQuietly = (p) => {
+    try {
+      fs.unlinkSync(p);
+    } catch {
+      // already gone
+    }
+  };
+  const claimed = readLockRecord(claimPath);
+  if (JSON.stringify(claimed) !== JSON.stringify(existing)) {
+    // Someone replaced the lock after it was read: put theirs back untouched.
+    try {
+      fs.linkSync(claimPath, lockPath);
+    } catch {
+      // a third process already holds lockPath; never overwrite it
+    }
+    removeQuietly(claimPath);
+    return {
+      acquired: false,
+      lockPath,
+      stale: false,
+      existing: claimed,
+      message: `Lock changed while renewing; now held by ${claimed?.owner || 'unknown'}.`,
+    };
+  }
   const renewed = { ...fresh, acquiredAt: existing.acquiredAt || fresh.acquiredAt };
-  const tmpPath = `${lockPath}.renew.${process.pid}.${Date.now()}`;
-  fs.writeFileSync(tmpPath, `${JSON.stringify(renewed, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
-  fs.renameSync(tmpPath, lockPath);
+  const tmpPath = `${lockPath}.renew.${suffix}`;
+  fs.writeFileSync(tmpPath, `${JSON.stringify(renewed, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+  try {
+    fs.linkSync(tmpPath, lockPath);
+  } catch {
+    const current = readLockRecord(lockPath);
+    removeQuietly(tmpPath);
+    removeQuietly(claimPath);
+    return {
+      acquired: false,
+      lockPath,
+      stale: false,
+      existing: current,
+      message: `Lock was taken by ${current?.owner || 'unknown'} while renewing.`,
+    };
+  }
+  removeQuietly(tmpPath);
+  removeQuietly(claimPath);
   return { acquired: true, reentrant: true, lockPath, record: renewed };
 }
 

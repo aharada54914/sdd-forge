@@ -385,8 +385,10 @@ export function extractScopePaths(taskBlock) {
     const trimmed = line.trim();
     if (!trimmed.startsWith('-')) continue;
     const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+    // A backtick path is literal (`src/app/(admin)/page.tsx`); notes are only
+    // dropped from bare prose.
     const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ''));
-    for (const token of tokens) paths.push(...expandScopeToken(token));
+    for (const token of tokens) paths.push(...expandScopeToken(token.trim()));
   }
   return [...new Set(paths)];
 }
@@ -421,7 +423,7 @@ function stripScopeNote(token) {
 
 // One level of brace alternatives per group: "src/{a,b}.ts" -> src/a.ts, src/b.ts.
 function expandScopeToken(token) {
-  const cleaned = stripScopeNote(String(token).trim());
+  const cleaned = String(token);
   if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
   const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
   if (!brace) {

@@ -38142,7 +38142,7 @@ function extractScopePaths(taskBlock) {
     if (!trimmed.startsWith("-")) continue;
     const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
     const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ""));
-    for (const token of tokens) paths.push(...expandScopeToken(token));
+    for (const token of tokens) paths.push(...expandScopeToken(token.trim()));
   }
   return [...new Set(paths)];
 }
@@ -38161,7 +38161,7 @@ function stripScopeNote(token) {
   return String(token).replace(/\([^()]*\)|（[^（）]*）/g, " ").replace(/[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
 }
 function expandScopeToken(token) {
-  const cleaned = stripScopeNote(String(token).trim());
+  const cleaned = String(token);
   if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
   const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
   if (!brace) {
