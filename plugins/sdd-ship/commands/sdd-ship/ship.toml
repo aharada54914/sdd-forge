@@ -4,5 +4,5 @@ Read and execute the skill instructions at `skills/ship/SKILL.md` (relative to t
 
 Arguments: {{args}}
 
-Record the spec baseline with `record-spec-baseline.mjs` if missing, never implement Draft tasks, and only transition tasks to Done through `sdd-gate`.
+Record the spec baseline with `record-spec-baseline.mjs` if missing (it keeps an existing baseline and reports EXISTING; pass --rerecord only for a human-agreed re-baseline), never implement Draft tasks, and only transition tasks to Done through `sdd-gate`.
 """

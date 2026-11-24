@@ -378,3 +378,83 @@ print('OK')
     }
   });
 });
+
+describe('#841 WFI category contract is one vocabulary', () => {
+  it('both auditors accept exactly the four categories the template defines', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const template = fs.readFileSync(path.join(root, 'templates/workflow-improvement.template.md'), 'utf8');
+    const allowed = /Allowed values: ([a-z-]+(?: \| [a-z-]+)+)/.exec(template)[1].split(' | ').sort();
+    assert.deepEqual(allowed, ['app-dev-efficiency', 'human-process', 'measurement', 'plugin-improvement']);
+    for (const agent of ['wfi-auditor-a.md', 'wfi-auditor-b.md']) {
+      const text = fs.readFileSync(path.join(root, 'agents', agent), 'utf8');
+      const enumMatch = /"category": "([a-z|-]+)"/.exec(text);
+      assert.ok(enumMatch, `${agent} declares the category output enum`);
+      assert.deepEqual(enumMatch[1].split('|').sort(), allowed, `${agent} output enum`);
+      assert.doesNotMatch(text, /Must be\s+plugin-improvement or app-dev-efficiency/, `${agent} rejects a valid category`);
+    }
+  });
+});
+
+describe('#846 WFI audit states are representable in the canonical template', () => {
+  it('every Audit-Status the audit cycle writes is an allowed template value, with its counters', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const template = fs.readFileSync(path.join(root, 'templates/workflow-improvement.template.md'), 'utf8');
+    const allowed = /Allowed values: (Not-Started[^\n]*?) -->/.exec(template)[1].split(' | ').map((v) => v.trim());
+    const skill = fs.readFileSync(path.join(root, 'skills/wfi-audit-cycle/SKILL.md'), 'utf8');
+    const written = [...new Set([...skill.matchAll(/Audit-Status: ([A-Za-z0-9-]+)/g)].map((m) => m[1]))];
+    assert.ok(written.includes('Human-Blocked'));
+    for (const state of written) assert.ok(allowed.includes(state), `Audit-Status ${state} is not an allowed template value`);
+    assert.match(template, /^Audit-Attempt: /m);
+    assert.match(template, /^Audit-Content-Hash: /m);
+  });
+
+  it('Needs-Followup is recorded in Result, never as a Status value', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const retro = fs.readFileSync(path.join(root, 'skills/workflow-retrospective/SKILL.md'), 'utf8');
+    const line = retro.split('\n').find((l) => l.includes('Needs-Followup'));
+    assert.ok(line);
+    assert.match(line, /## Result/);
+    assert.match(line, /Status: Applied/);
+  });
+});
+
+describe('#849 a passed audit always reaches human approval', () => {
+  it('Human-Pending does not depend on category or on consent to file an issue', () => {
+    const skill = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md'), 'utf8');
+    const step = skill.slice(skill.indexOf('3. **完了遷移**'), skill.indexOf('## Boundaries'));
+    const pendingLine = step.split('\n').find((l) => l.includes('Human-Pending'));
+    assert.ok(pendingLine, 'completion step sets Human-Pending');
+    assert.doesNotMatch(pendingLine, /同意|plugin-improvement/, 'Human-Pending must not be conditional on consent or category');
+    assert.match(step, /追跡 Issue/);
+  });
+});
+
+describe('#847 the Cycle 1 summary carries everything Cycle 2 must report', () => {
+  it('the audit cycle writes each cycle_1_summary field auditor B reads from integrated-summary.json', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const b = fs.readFileSync(path.join(root, 'agents/wfi-auditor-b.md'), 'utf8');
+    const block = /"cycle_1_summary": \{([^}]*)\}/.exec(b)[1];
+    const fields = [...block.matchAll(/"(auditor_a_[a-z_]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(fields.sort(), ['auditor_a_fail_count', 'auditor_a_pass_count', 'auditor_a_verdict']);
+    const skill = fs.readFileSync(path.join(root, 'skills/wfi-audit-cycle/SKILL.md'), 'utf8');
+    const step = skill.split('\n').find((l) => l.includes('integrated-summary.json') && l.includes('書き出す'));
+    assert.ok(step, 'Cycle 1 step writes integrated-summary.json');
+    for (const f of fields) assert.match(step, new RegExp(f), `integrated summary must include ${f}`);
+    assert.match(b, /never infer|推測しない|do not infer/i, 'B must not guess a missing verdict');
+  });
+});
+
+describe('#845 the plugin source-repository carve-out is one rule in both audits', () => {
+  it('auditor B, the template and the contributor doc all name the same three conditions', () => {
+    const root = path.join(REPO_ROOT, 'plugins/sdd-quality-loop');
+    const conditions = [/Category: plugin-improvement/, /source of truth/i, /## GitHub-Issue/];
+    const b = fs.readFileSync(path.join(root, 'agents/wfi-auditor-b.md'), 'utf8');
+    const feasibility = b.slice(b.indexOf('## FEASIBILITY-WITHOUT-PLUGINS'), b.indexOf('\n## ', b.indexOf('## FEASIBILITY-WITHOUT-PLUGINS') + 5));
+    for (const c of conditions) assert.match(feasibility, c, `auditor B FEASIBILITY-WITHOUT-PLUGINS names ${c}`);
+    const template = fs.readFileSync(path.join(root, 'templates/workflow-improvement.template.md'), 'utf8');
+    assert.doesNotMatch(template, /Plugin files must not be listed\.\s+-->/);
+    assert.match(template, /wfi-auditor-a\.md/);
+    const doc = fs.readFileSync(path.join(REPO_ROOT, 'docs/contributor/workflow-detail.md'), 'utf8');
+    assert.doesNotMatch(doc, /`plugins\/` 内は禁止\)/);
+  });
+});

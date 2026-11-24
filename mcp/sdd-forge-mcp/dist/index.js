@@ -37331,6 +37331,37 @@ function createGuardedIo(root) {
   };
 }
 
+// src/parsers/review-verdict.ts
+var VERDICT_LINE = /^([ \t>*-]*)(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?(PASS|FAIL|NEEDS_WORK|BLOCKED)(?:\*\*)?[ \t]*$/;
+function parseReviewReportVerdict(contents) {
+  let firstPlain;
+  let firstFenced;
+  let activeFence = null;
+  for (const line of contents.replace(/\r\n/g, "\n").split("\n")) {
+    const trimmed = line.trimStart();
+    const fence = /^(`{3,}|~{3,})/.exec(trimmed);
+    if (activeFence !== null) {
+      if (trimmed.startsWith(activeFence)) {
+        activeFence = null;
+        continue;
+      }
+    } else if (fence) {
+      activeFence = fence[1] ?? "```";
+      continue;
+    }
+    const m = VERDICT_LINE.exec(line);
+    if (!m || (m[1] ?? "").includes(">")) continue;
+    if (activeFence !== null) firstFenced ??= m[2];
+    else {
+      firstPlain = m[2];
+      break;
+    }
+  }
+  const verdict = firstPlain ?? firstFenced;
+  if (verdict === void 0) return "UNKNOWN";
+  return verdict === "PASS" ? "PASS" : "FAIL";
+}
+
 // src/parsers/report-lookup.ts
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -37366,20 +37397,8 @@ function isExecutionCoverageComplete(parsed) {
   return Array.isArray(commands) && commands.length > 0 && drift?.skipped !== true && sensors?.skipped !== true;
 }
 function isQualityGatePassContent(relFilePath, contents) {
-  if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
-    return true;
-  }
-  if (relFilePath.endsWith(".execution.json")) {
-    try {
-      const parsed = JSON.parse(contents);
-      if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed) && parsed.schema === "sdd-gate-execution/v1" && parsed.verdict === "PASS" && isExecutionCoverageComplete(parsed)) {
-        return true;
-      }
-    } catch {
-      return false;
-    }
-  }
-  return false;
+  if (relFilePath.endsWith(".execution.json")) return false;
+  return parseReviewReportVerdict(contents) === "PASS";
 }
 function hasQualityGateVerdictPass(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
@@ -41548,35 +41567,6 @@ function countDriftEvents(root) {
   const read = guardedRead(root, ".sdd/drift-events.jsonl");
   if (!read.ok) return 0;
   return read.data.contents.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0).length;
-}
-function parseReviewReportVerdict(contents) {
-  const lines = contents.replace(/\r\n/g, "\n").split("\n");
-  let sawPass = false;
-  let sawFail = false;
-  let activeFence = null;
-  const lineRe = /^[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?(PASS|FAIL)(?:\*\*)?\b/i;
-  for (const line of lines) {
-    const trimmed = line.trimStart();
-    if (activeFence !== null) {
-      if (trimmed.startsWith(activeFence)) {
-        activeFence = null;
-      }
-      continue;
-    }
-    const fenceMatch = /^(`{3,}|~{3,})/.exec(trimmed);
-    if (fenceMatch) {
-      activeFence = fenceMatch[1] ?? "```";
-      continue;
-    }
-    const m = lineRe.exec(line);
-    if (!m) continue;
-    const verdict = m[1]?.toUpperCase();
-    if (verdict === "FAIL") sawFail = true;
-    else if (verdict === "PASS") sawPass = true;
-  }
-  if (sawFail) return "FAIL";
-  if (sawPass) return "PASS";
-  return "UNKNOWN";
 }
 function sddProjectOverview(root, options = {}) {
   if (!isSddRoot(root)) {

@@ -108,6 +108,131 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(fs.existsSync(out.outputPath), true);
   });
 
+  it('#819: re-entering ship keeps the existing baseline; only --rerecord replaces it', () => {
+    const repo = setupCoreRepo();
+    const record = (...extra) =>
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo, ...extra], { encoding: 'utf8' });
+    const first = record();
+    assert.equal(first.status, 0, first.stderr);
+    assert.equal(JSON.parse(first.stdout).status, 'RECORDED');
+    const baselinePath = path.join(repo, 'specs', 'payments', '.spec-baseline.json');
+    const original = fs.readFileSync(baselinePath, 'utf8');
+
+    const reqPath = path.join(repo, 'specs', 'payments', 'requirements.md');
+    fs.writeFileSync(reqPath, fs.readFileSync(reqPath, 'utf8').replace('100% of captured cents', '90% of captured cents'), 'utf8');
+    const gate = () =>
+      JSON.parse(
+        spawnSync(
+          process.execPath,
+          [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', 'src/refund.js', '--cmd', 'unit=node -e "process.exit(0)"'],
+          { encoding: 'utf8' },
+        ).stdout,
+      );
+
+    const again = record();
+    assert.equal(again.status, 0, again.stderr);
+    assert.equal(JSON.parse(again.stdout).status, 'EXISTING');
+    assert.equal(fs.readFileSync(baselinePath, 'utf8'), original, 'existing baseline is untouched');
+    assert.equal(gate().checks.specDrift.status, 'UNDECLARED_DRIFT', 'undeclared drift survives a re-entry');
+
+    for (const broken of ['{}', 'null', '[]']) {
+      fs.writeFileSync(baselinePath, broken, 'utf8');
+      const res = record();
+      assert.equal(res.status, 1, `a ${broken} baseline is reported, not accepted as EXISTING`);
+      assert.match(res.stderr, /--rerecord/);
+    }
+
+    const forced = record('--rerecord');
+    assert.equal(JSON.parse(forced.stdout).status, 'RECORDED');
+    assert.equal(gate().checks.specDrift.status, 'CLEAN', 'an intended re-record still works');
+  });
+
+  it('#829: findings outside the task Scope are labelled, and the verdict stays fail-closed', () => {
+    const repo = setupCoreRepo();
+    assert.equal(
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo], { encoding: 'utf8' }).status,
+      0,
+    );
+    // Another task's unfinished file in the same working tree. The marker is
+    // assembled at runtime so this suite never trips the scanner it tests.
+    const marker = ['TO', 'DO'].join('');
+    fs.writeFileSync(path.join(repo, 'src', 'other.js'), `export const x = 1; // ${marker}: other task\n`, 'utf8');
+    const run = (files) =>
+      JSON.parse(
+        spawnSync(
+          process.execPath,
+          [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', files, '--cmd', 'unit=node -e "process.exit(0)"'],
+          { encoding: 'utf8' },
+        ).stdout,
+      );
+    const shared = run('src/refund.js,src/other.js');
+    assert.equal(shared.verdict, 'FAIL', 'out-of-scope findings still fail by default');
+    assert.deepEqual(shared.scope.taskScope, ['src/refund.js']);
+    assert.deepEqual(shared.scope.outOfScopeFiles, ['src/other.js']);
+    assert.deepEqual(shared.checks.placeholders.findings.map((f) => [f.file, f.inTaskScope]), [['src/other.js', false]]);
+    const own = run('src/refund.js');
+    assert.equal(own.verdict, 'PASS', 'scoping the run to the task\'s own files passes');
+    assert.deepEqual(own.scope.outOfScopeFiles, []);
+
+    // A plain Scope bullet may carry trailing prose after the path.
+    const tasksPath = path.join(repo, 'specs', 'payments', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('- src/refund.js', '- src/refund.js — refund calculator'), 'utf8');
+    assert.deepEqual(run('src/refund.js').scope.outOfScopeFiles, []);
+  });
+
+  it('#823: an unresolved critical/major review ticket for this task fails the gate; others do not', () => {
+    const repo = setupCoreRepo();
+    assert.equal(
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo], { encoding: 'utf8' }).status,
+      0,
+    );
+    const tickets = path.join(repo, 'docs', 'review-tickets');
+    fs.mkdirSync(tickets, { recursive: true });
+    const ticket = (id, status, severity, feature, task) =>
+      fs.writeFileSync(
+        path.join(tickets, `${id}.yml`),
+        `ticket_id: ${id}\nstatus: ${status}\ntype: bug\nseverity: ${severity}\ntarget:\n  feature: ${feature}\n  task: "${task}"\nsummary: s\n`,
+        'utf8',
+      );
+    ticket('RT-1', 'resolved', 'critical', 'payments', 'T-001');
+    ticket('RT-2', 'open', 'major', 'payments', 'T-002');
+    ticket('RT-3', 'open', 'critical', 'billing', 'T-001');
+    ticket('RT-4', 'open', 'minor', 'payments', 'T-001');
+    const run = () =>
+      spawnSync(
+        process.execPath,
+        [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', 'src/refund.js', '--cmd', 'unit=node -e "process.exit(0)"'],
+        { encoding: 'utf8' },
+      );
+    const clean = JSON.parse(run().stdout);
+    assert.equal(clean.verdict, 'PASS', 'resolved, other-task, other-feature and minor tickets do not block');
+    assert.deepEqual(clean.checks.reviewTickets.blocking, []);
+
+    ticket('RT-6', 'rejected', 'critical', 'payments', 'T-001');
+    try {
+      fs.symlinkSync(path.join(tickets, 'missing-target.yml'), path.join(tickets, 'RT-dangling.yml'));
+    } catch {
+      // symlinks unavailable on this platform: the dangling case is skipped
+    }
+    const stillClean = run();
+    assert.equal(stillClean.status, 0, stillClean.stderr);
+    assert.deepEqual(JSON.parse(stillClean.stdout).checks.reviewTickets.blocking, [], 'rejected tickets do not block');
+
+    ticket('RT-5', 'open', 'major', 'payments', 'T-001');
+    // Targets T-001 for payments although a free-text block before `target:`
+    // holds indented feature/task lines and `task:` carries a comment.
+    fs.writeFileSync(
+      path.join(tickets, 'RT-7.yml'),
+      'ticket_id: RT-7\nstatus: open\nseverity: critical\nproblem: |\n  feature: billing\n  task: T-009\ntarget:\n  feature: payments\n  task: T-001 # main task\nsummary: s\n',
+      'utf8',
+    );
+    const blocked = run();
+    assert.equal(blocked.status, 1);
+    const out = JSON.parse(blocked.stdout);
+    assert.equal(out.verdict, 'FAIL');
+    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5', 'RT-7']);
+  });
+
   it('fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared', () => {
     const repo = setupCoreRepo();
     assert.equal(
@@ -254,6 +379,18 @@ describe('#822/#828 gate change discovery', () => {
     const top = discoverChangedFiles(repo).sort();
     assert.deepEqual(top, ['other.js', 'pkg/src/a.js', 'pkg/src/変更.js', 'pkg/src/新規.js'].sort());
     assert.deepEqual(discoverChangedFiles(repo, ['pkg/src/変更.js']), ['pkg/src/変更.js']);
+
+    // #826: after committing part of the work, the default sees only what is
+    // left uncommitted; --base <ref> brings the committed part back in scope.
+    git('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qam', 'midway');
+    const base = spawnSync('git', ['rev-parse', 'HEAD~1'], { cwd: repo, encoding: 'utf8' }).stdout.trim();
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', 'later.js'), 'export const l = 1;\n');
+    assert.deepEqual(discoverChangedFiles(path.join(repo, 'pkg')).sort(), ['src/later.js', 'src/新規.js'].sort());
+    assert.deepEqual(
+      discoverChangedFiles(path.join(repo, 'pkg'), null, { baseRef: base }).sort(),
+      ['src/a.js', 'src/later.js', 'src/変更.js', 'src/新規.js'].sort(),
+    );
+    assert.throws(() => discoverChangedFiles(repo, null, { baseRef: '--output=/tmp/x' }), /base/i);
     fs.rmSync(repo, { recursive: true, force: true });
   });
 });

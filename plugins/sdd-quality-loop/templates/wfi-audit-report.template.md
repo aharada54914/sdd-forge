@@ -17,7 +17,7 @@
 <!-- Allowed verdicts: PASS | NEEDS_REVISION | BLOCKED -->
 <!-- PASS: 0 Critical, 0 Major. WFI is ready to advance to the next cycle or Human-Pending. -->
 <!-- NEEDS_REVISION: 1+ Major findings. Orchestrator applies "Proposed Revisions" to WFI. -->
-<!-- BLOCKED: 1+ Critical findings. Orchestrator resets Audit-Status: Not-Started. -->
+<!-- BLOCKED: 1+ Critical findings. Orchestrator increments Audit-Attempt and sets Audit-Status: Not-Started, or Human-Blocked on the third BLOCKED run. -->
 
 ## Verdict: {{verdict}}
 

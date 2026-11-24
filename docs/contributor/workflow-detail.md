@@ -489,7 +489,7 @@ review_cycles: <実施済みサイクル数>
    |---|---|
    | AGENTS.md | 金額計算を含む要件には「計算タイミング」の明記を必須とするガイドラインを追加 |
    ```
-   Status は `Status: <値>` 形式で記録します（許容値: `Draft | Approved | Applied | Verified | Rejected`）。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。フックガードが `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みを拒否します（sudo でも解除されません）。
+   Status は `Status: <値>` 形式で記録します（許容値: `Draft | Approved | Applied | Verified | Rejected | Regressed`）。効果検証で「改善傾向・期間内」と判定した場合は Status を `Applied` のまま `## Result` に `Needs-Followup:` 行を追記します。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。フックガードが `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みを拒否します（sudo でも解除されません）。
 
 2. **能力リフレッシュチェック**: `Mechanism: model-routing` の WFI を Draft する前に確認する
 
@@ -548,7 +548,7 @@ sdd-forge リポジトリ自体には、WFI ループとは別に週次セルフ
 
 | ループ | 対象 | 変更してよいもの |
 |---|---|---|
-| workflow-retrospective (WFI) | SDD **プロセス**の摩擦 | プロジェクト側ワークフローファイルのみ (`AGENTS.md` / `CLAUDE.md` / `specs/` テンプレート等。`plugins/` 内は禁止) |
+| workflow-retrospective (WFI) | SDD **プロセス**の摩擦 | プロジェクト側ワークフローファイルのみ (`AGENTS.md` / `CLAUDE.md` / `specs/` テンプレート等。`plugins/` 内は原則禁止。例外はプラグイン自身のソースリポジトリで、`Category: plugin-improvement`・リポジトリが正本でコミットで届ける旨の明記・`## GitHub-Issue` の 3 条件をすべて満たす場合のみ（両監査で同じ規則）) |
 | ローカル Codex の週次セルフ改善監査 | リポジトリという**プロダクト** | 原則は調査と改善提案。既に人間承認済みの明確なタスクのみ、予算内で1件を必要なゲートに従ってローカル適用 (下記の不可侵領域を除く) |
 
 競合はこのリポジトリ自身を SDD でドッグフーディングした場合 (両ループが同じリポジトリに作用する場合) にのみ発生します。

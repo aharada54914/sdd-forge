@@ -66,11 +66,18 @@ GitHub-Issue: {{github_issue_url}}
 ## Audit-Status
 
 Audit-Status: {{audit_status}}
+Audit-Attempt: 0
+Audit-Content-Hash: none
 
-<!-- Allowed values: Not-Started | Cycle-1-In-Progress | Cycle-2-In-Progress | Human-Pending -->
+<!-- Allowed values: Not-Started | Cycle-1-In-Progress | Cycle-2-In-Progress | Human-Pending | Human-Blocked -->
 <!-- Not-Started: initial state; audit has not yet run.                            -->
 <!-- Cycle-1-In-Progress / Cycle-2-In-Progress: audit currently running.           -->
 <!-- Human-Pending: both audit cycles complete; awaiting human Status: Approved.   -->
+<!-- Human-Blocked: three BLOCKED audits; a human fixes the cause and resets       -->
+<!--   Audit-Attempt to 0 before the audit runs again.                             -->
+<!-- Audit-Attempt: number of BLOCKED audit runs so far.                           -->
+<!-- Audit-Content-Hash: SHA-256 of this file's body at the last BLOCKED run, so   -->
+<!--   an unchanged WFI is not re-audited (none before the first BLOCKED run).     -->
 <!-- Only wfi-audit-cycle may update this field.                                    -->
 <!-- Backward compatibility: WFIs without this field are treated as Not-Started.   -->
 
@@ -119,7 +126,10 @@ Audit-Status: {{audit_status}}
 | {{file_path}} | {{change_description}} |
 
 <!-- Target files must be project-side workflow files only (AGENTS.md, CLAUDE.md,    -->
-<!-- specs/ templates, task-splitting guidelines). Plugin files must not be listed.  -->
+<!-- specs/ templates, task-splitting guidelines). Plugin files are not listed,     -->
+<!-- except in the plugin's own source repository under the three-condition        -->
+<!-- carve-out in plugins/sdd-quality-loop/agents/wfi-auditor-a.md (Category:       -->
+<!-- plugin-improvement, a stated source-of-truth commit route, a GitHub-Issue).    -->
 
 ## Expected Effect
 

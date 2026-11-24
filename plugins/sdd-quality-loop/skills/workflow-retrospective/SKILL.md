@@ -50,7 +50,7 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 
 新規提案の前に、`docs/workflow-improvements/WFI-*.md` のうち `Status: Applied` のものを実測値で評価する:
 - 目標達成 → `Status: Verified`、再発条件を `docs/workflow-improvements/retention-checklist.md` に記録。
-- 改善傾向・期間内 → `Needs-Followup`。
+- 改善傾向・期間内 → `Status: Applied` のまま、WFI の `## Result` に `Needs-Followup: <評価日> <実測値> / 次回評価期限 <日付>` を追記する（`Needs-Followup` は Status 値ではない）。
 - 期限切れ未達または悪化 → `Status: Rejected` とし、`Rollback-Plan` を人間へ提示（人間承認なしにロールバック実行しない）。
 
 ## Step 3: 改善候補の抽出とレポート出力

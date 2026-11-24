@@ -146,7 +146,8 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
     else unkeyedAttributions.push(r);
   }
   const rootCauseBreakdown = Object.fromEntries(VALID_ROOT_CAUSES.map((c) => [c, 0]));
-  for (const r of [...attributionByRun.values(), ...unkeyedAttributions]) {
+  const dedupedAttributions = [...attributionByRun.values(), ...unkeyedAttributions];
+  for (const r of dedupedAttributions) {
     const phase = VALID_ROOT_CAUSES.includes(r.rootCausePhase) ? r.rootCausePhase : 'unknown';
     rootCauseBreakdown[phase] += 1;
   }
@@ -155,7 +156,7 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   // humanIntervention and SDD_ALLOW_SPEC_EDIT overrides. A guard deny is an
   // automatic refusal that waits for no one, so it is counted separately (#840).
   const humanInterventions =
-    metrics.filter((r) => r.humanIntervention === true).length +
+    dedupedAttributions.filter((r) => r.humanIntervention === true).length +
     driftEvents.filter((e) => e.action === 'allow_override').length;
   const guardAutoDenials = driftEvents.filter(
     (e) => e.action === 'confirm_soft_deny' || e.action === 'strict_deny',
@@ -178,13 +179,14 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
     });
   }
   // Only runs the Open Questions check itself stopped count as OQ blocks (#843).
-  // Records predating `provisionalOqBlocking` derive it from the gate rule
-  // (high risk with unresolved OQs) instead of "any FAIL with an OQ present".
+  // Records predating `provisionalOqBlocking` derive it from the gate rule in
+  // force when they were written: only exactly `high` blocked (legacy
+  // `critical` did not until #824, which also added the explicit field).
   const provisionalOqBlocks = gateRuns.filter((r) => {
     if (r.verdict !== 'FAIL') return false;
     if (typeof r.provisionalOqBlocking === 'boolean') return r.provisionalOqBlocking;
     const risk = String(r.risk || '').toLowerCase();
-    return (risk === 'high' || risk === 'critical') && Number(r.provisionalOqCount || 0) > 0;
+    return risk === 'high' && Number(r.provisionalOqCount || 0) > 0;
   }).length;
 
   return {

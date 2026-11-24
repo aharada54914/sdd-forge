@@ -26,7 +26,7 @@ user-invocable: false
    - 返却 JSON を親オーケストレータが `docs/workflow-improvements/WFI-NNN-auditor-a.json` に保存し、`WFI-NNN-audit-cycle-1.md` を出力。
    - `BLOCKED` → `Audit-Attempt` を +1、`Audit-Content-Hash` を記録、`Audit-Status: Not-Started`（3 回到達時は `Human-Blocked`）にして停止。
    - `NEEDS_REVISION` → 親が `proposed_revisions` を適用して `WFI-NNN.md` を改訂。
-   - Cycle 1 のチェック ID・件数のみ（生コメントなし）を `WFI-NNN-integrated-summary.json` へ書き出す。
+   - Cycle 1 の結果を生コメントなしで `WFI-NNN-integrated-summary.json` へ書き出す。項目は `auditor_a_verdict`（`PASS` / `NEEDS_REVISION` / `BLOCKED`）、`auditor_a_pass_count`、`auditor_a_fail_count`、FAIL したチェック ID の一覧だけとし、所見の本文や引用は入れない。
 
 2. **Cycle 2 (`wfi-auditor-b` — 影響・リスク)**:
    - `Audit-Status: Cycle-2-In-Progress` に更新。
@@ -35,7 +35,8 @@ user-invocable: false
    - `BLOCKED` → 収束ガード同様に停止。`NEEDS_REVISION` → 親が安全に反映できる指摘のみ適用。
 
 3. **完了遷移**:
-   - Cycle 2 完了後、`Category: plugin-improvement` でユーザー同意があれば追跡 Issue を起票し、`Audit-Status: Human-Pending` を設定して人間承認を依頼する。
+   - Cycle 2 が `PASS` したら、カテゴリに関係なく `Audit-Status: Human-Pending` を設定して人間に `Status: Approved` の判断を依頼する。
+   - 追跡 Issue の起票は上とは独立した外部操作。`Category: plugin-improvement` でユーザーが起票に同意した場合だけ行う。同意がない場合と他カテゴリでは起票しないが、人間承認待ちへの遷移は変わらない。
 
 ## Boundaries
 

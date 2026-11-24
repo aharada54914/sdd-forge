@@ -15,7 +15,7 @@
  *
  * Usage:
  *   node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>]
- *                         [--cmd "label=command"] [--changed-files "a.js,b.js"]
+ *                         [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>]
  *                         [--baseline <path>] [--output <json-path>]
  *                         [--skip-drift] [--skip-sensors]
  */
@@ -33,7 +33,8 @@ import {
   splitSpecAmendments,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
-import { normalizeRiskTier } from './v2-readonly-core.mjs';
+import { extractScopePaths, normalizeRiskTier } from './v2-readonly-core.mjs';
+import { globToRegExp } from './v2-pure-lib.mjs';
 
 const PLACEHOLDER_RE =
   /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
@@ -86,12 +87,31 @@ export function parseTaskBlock(tasksContent, taskId) {
     status: statusMatch ? statusMatch[1].trim() : null,
     // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
     risk: normalizeRiskTier(riskMatch ? riskMatch[1] : '', 'standard'),
+    scopePaths: extractScopePaths(block),
   };
 }
 
-export function discoverChangedFiles(projectRoot, explicitFiles) {
+export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = null } = {}) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
     return [...new Set(explicitFiles.map((f) => normalizeRelPath(f)).filter(Boolean))];
+  }
+  // Default: uncommitted changes against HEAD. --base <ref> widens it to every
+  // change since that commit, for a task that committed part of its work
+  // before the gate ran (#826). History is never widened implicitly.
+  let diffBase = 'HEAD';
+  if (baseRef !== null) {
+    if (!/^[A-Za-z0-9._/~^@{}][A-Za-z0-9._/~^@{}-]*$/.test(String(baseRef))) {
+      throw new Error(`Invalid --base ref: ${baseRef}`);
+    }
+    try {
+      diffBase = execFileSync('git', ['rev-parse', '--verify', '--quiet', `${baseRef}^{commit}`], {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+    } catch {
+      throw new Error(`--base ref does not name a commit: ${baseRef}`);
+    }
   }
   const files = new Set();
   // -z + core.quotePath=false: non-ASCII names arrive verbatim instead of as
@@ -99,7 +119,7 @@ export function discoverChangedFiles(projectRoot, explicitFiles) {
   // relative to projectRoot even when it is a subdirectory of the Git root,
   // and changes outside the project are excluded (#828).
   for (const args of [
-    ['-c', 'core.quotePath=false', 'diff', '--name-only', '-z', '--relative', 'HEAD'],
+    ['-c', 'core.quotePath=false', 'diff', '--name-only', '-z', '--relative', diffBase],
     ['-c', 'core.quotePath=false', 'ls-files', '-z', '--others', '--exclude-standard'],
   ]) {
     try {
@@ -117,6 +137,20 @@ export function discoverChangedFiles(projectRoot, explicitFiles) {
     }
   }
   return [...files];
+}
+
+/**
+ * A Scope entry is a file, a directory (`src/` or `src`) or a glob. A plain
+ * bullet may carry prose after the path (`- src/a.js — note`), so its first
+ * whitespace-separated token is matched as well.
+ */
+function isInTaskScope(relPath, scopePaths) {
+  return scopePaths.some((raw) =>
+    [...new Set([raw, raw.split(/\s+/)[0]])].some((entry) => {
+      const dir = entry.replace(/\/+$/, '');
+      return relPath === dir || relPath.startsWith(`${dir}/`) || globToRegExp(entry).test(relPath);
+    }),
+  );
 }
 
 function isPlaceholderScanTarget(relPath) {
@@ -426,6 +460,72 @@ function scanNonFunctionalSensors(projectRoot, changedFiles) {
   };
 }
 
+const BLOCKING_TICKET_SEVERITIES = new Set(['critical', 'major']);
+// review-ticket-rules.md: status is open | resolved | rejected; only open blocks.
+const NON_BLOCKING_TICKET_STATUSES = new Set(['resolved', 'rejected']);
+
+function ticketScalar(raw) {
+  // Drop a trailing YAML comment, then surrounding quotes.
+  const value = String(raw).replace(/\s+#.*$/, '').trim();
+  const quoted = /^(['"])(.*)\1$/.exec(value);
+  return (quoted ? quoted[2] : value).trim();
+}
+
+/**
+ * Reads the flat fields the ticket template defines: top-level `ticket_id`,
+ * `status`, `severity`, and `feature` / `task` only from the lines directly
+ * under the top-level `target:` key, so text inside other blocks (e.g. a
+ * `problem: |` body) can never be mistaken for the target.
+ */
+function parseTicket(text) {
+  const fields = {};
+  const target = {};
+  let inTarget = false;
+  for (const line of text.split('\n')) {
+    const top = /^([A-Za-z_][\w-]*):(.*)$/.exec(line);
+    if (top) {
+      inTarget = top[1] === 'target';
+      if (!inTarget) fields[top[1]] = ticketScalar(top[2]);
+      continue;
+    }
+    if (!inTarget) continue;
+    const nested = /^[ \t]+([A-Za-z_][\w-]*):(.*)$/.exec(line);
+    if (nested && !(nested[1] in target)) target[nested[1]] = ticketScalar(nested[2]);
+  }
+  return { fields, target };
+}
+
+/**
+ * Open critical/major review tickets targeting exactly this feature and task
+ * block the gate (#823). Resolved or rejected tickets, minor findings and
+ * tickets for other tasks or features do not. A ticket without a status
+ * counts as open. Unreadable entries (e.g. dangling links) are skipped.
+ */
+function checkReviewTickets(projectRoot, feature, taskState) {
+  const dir = path.join(projectRoot, 'docs', 'review-tickets');
+  const blocking = [];
+  if (fs.existsSync(dir)) {
+    for (const name of fs.readdirSync(dir).sort()) {
+      if (!/\.ya?ml$/i.test(name)) continue;
+      let text;
+      try {
+        const abs = path.join(dir, name);
+        if (!fs.statSync(abs).isFile()) continue;
+        text = normalizeNewlines(fs.readFileSync(abs, 'utf8')).replace(/^\uFEFF/, '');
+      } catch {
+        continue;
+      }
+      const { fields, target } = parseTicket(text);
+      const status = (fields.status || 'open').toLowerCase();
+      const severity = (fields.severity || '').toLowerCase();
+      if (NON_BLOCKING_TICKET_STATUSES.has(status) || !BLOCKING_TICKET_SEVERITIES.has(severity)) continue;
+      if (target.feature !== feature || String(target.task || '').toUpperCase() !== taskState.taskId) continue;
+      blocking.push({ ticketId: fields.ticket_id || name.replace(/\.ya?ml$/i, ''), severity, status });
+    }
+  }
+  return { passed: blocking.length === 0, blocking };
+}
+
 function checkOpenQuestionsGate(projectRoot, feature, taskState) {
   const featureDir = path.join(projectRoot, 'specs', feature);
   const reqPath = path.join(featureDir, 'requirements.md');
@@ -490,6 +590,7 @@ export function runSddGate({
   projectRoot,
   commands = [],
   changedFiles = null,
+  baseRef = null,
   baselinePath = null,
   skipDrift = false,
   skipSensors = false,
@@ -546,12 +647,27 @@ export function runSddGate({
     }
   }
 
-  const resolvedChanged = discoverChangedFiles(root, changedFiles);
+  const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
   const placeholders = scanPlaceholders(root, resolvedChanged);
   const nonFunctionalSensors = skipSensors
     ? { skipped: true, passed: true, findings: [] }
     : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
   const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
+  const reviewTickets = checkReviewTickets(root, feature, taskState);
+  // Label what lies outside the task's ### Scope (#829). The verdict is not
+  // relaxed: in a shared working tree, pass the task's own files with
+  // --changed-files instead.
+  const taskScope = taskState.scopePaths;
+  const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
+  for (const finding of [...placeholders.findings, ...(nonFunctionalSensors.findings || [])]) {
+    if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
+  }
+  const scope = {
+    mode: Array.isArray(changedFiles) && changedFiles.length > 0 ? 'explicit' : baseRef ? 'base' : 'uncommitted',
+    ...(baseRef ? { baseRef } : {}),
+    taskScope,
+    outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
+  };
   const commandResults = runVerificationCommands(root, commands);
   const allCommandsPassed = commandResults.every((r) => r.passed);
 
@@ -561,6 +677,7 @@ export function runSddGate({
     placeholders.passed &&
     nonFunctionalSensors.passed &&
     openQuestions.passed &&
+    reviewTickets.passed &&
     allCommandsPassed
       ? 'PASS'
       : 'FAIL';
@@ -580,6 +697,12 @@ export function runSddGate({
   }
   if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
   if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
+  if (scope.outOfScopeFiles.length > 0) {
+    warnings.push(
+      `OUT_OF_SCOPE_CHANGES: ${scope.outOfScopeFiles.length} changed file(s) outside this task's Scope were scanned; ` +
+        'in a shared working tree pass the task\'s own files with --changed-files.',
+    );
+  }
 
   const result = {
     schema: 'sdd-gate-execution/v1',
@@ -591,6 +714,7 @@ export function runSddGate({
     executedAt: new Date().toISOString(),
     verdict,
     coverage,
+    scope,
     warnings,
     checks: {
       taskPrecondition,
@@ -598,6 +722,7 @@ export function runSddGate({
       placeholders,
       nonFunctionalSensors,
       openQuestions,
+      reviewTickets,
       commands: commandResults,
     },
   };
@@ -641,6 +766,7 @@ function parseArgs(argv) {
     root: null,
     commands: [],
     changedFiles: null,
+    baseRef: null,
     baselinePath: null,
     outputPath: null,
     skipDrift: false,
@@ -663,6 +789,8 @@ function parseArgs(argv) {
       opts.rootCausePhase = argv[++i];
     } else if (arg === '--changed-files' && argv[i + 1]) {
       opts.changedFiles = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
+    } else if (arg === '--base' && argv[i + 1]) {
+      opts.baseRef = argv[++i];
     } else if (arg === '--cmd' && argv[i + 1]) {
       const raw = argv[++i];
       const eq = raw.indexOf('=');
@@ -684,7 +812,7 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
-      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--output <path>] [--skip-drift] [--skip-sensors]\n',
+      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--output <path>] [--skip-drift] [--skip-sensors]\n',
     );
     process.exit(2);
   }
@@ -695,6 +823,7 @@ function main() {
       projectRoot: opts.root || process.cwd(),
       commands: opts.commands,
       changedFiles: opts.changedFiles,
+      baseRef: opts.baseRef,
       baselinePath: opts.baselinePath,
       skipDrift: opts.skipDrift,
       skipSensors: opts.skipSensors,

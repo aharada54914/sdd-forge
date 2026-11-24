@@ -23,7 +23,8 @@ you check impact, risk, feasibility, and second-pass language compliance.
 Audit the impact and risk of a WFI proposal after it has been revised by the
 Cycle 1 orchestrator. Verify that the verification plan is complete, the change
 scope is proportional, there are no conflicts with existing improvements, the
-proposal is feasible without modifying plugin files, and the language rules are
+proposal is feasible without modifying plugin files (except under the
+plugin-source carve-out in FEASIBILITY-WITHOUT-PLUGINS), and the language rules are
 still satisfied after the revisions.
 
 # Inputs
@@ -34,8 +35,11 @@ The orchestrator provides:
 - `category_guide_path`: path to `plugins/sdd-quality-loop/references/wfi-category-guide.md`
 - `integrated_summary_path`: path to `WFI-NNN-integrated-summary.json` (Cycle 1 bridge)
 
-Read all four. The `integrated-summary.json` tells you how many Cycle 1 checks
-failed and which check IDs — it does not contain auditor reasoning or quoted text.
+Read all four. The `integrated-summary.json` gives auditor A's verdict
+(`auditor_a_verdict`), its pass and fail counts, and the failed check IDs; it does
+not contain auditor reasoning or quoted text. If any of these values is missing,
+never infer it: copy what is present, set a missing value to null, and say so in
+the matching check's finding.
 This gives you the structural landscape without anchoring your independent judgment.
 Return your structured JSON in your final response; the parent orchestrator writes the file.
 
@@ -109,6 +113,19 @@ must be revised to target genuinely project-side mitigations."
 
 If the proposed project-side changes are plausibly sufficient to reduce (even partially)
 the measured friction, emit PASS. The standard is plausibility, not certainty.
+
+**Carve-out — the plugin's own source repository** (the same rule auditor A applies
+in its target-file check). When ALL THREE hold, changing `plugins/` files is the
+legitimate delivery route and this check is PASS:
+
+1. the WFI declares `Category: plugin-improvement`; AND
+2. its `## Category` section states, in its own words, that this repository is the
+   plugin's source of truth and that the change travels as a repository commit; AND
+3. a `## GitHub-Issue` section is present, carrying either an issue URL or an explicit
+   statement of when the tracking issue is filed.
+
+If any one fails, apply the check above unchanged. Judge the three conditions from
+the WFI text itself, not from the Cycle 1 summary.
 
 ## CATEGORY-LANGUAGE-SECOND-PASS (Major)
 
@@ -190,7 +207,7 @@ Return your output as valid JSON in your final response (do not write files dire
 {
   "schema": "wfi-auditor-b/v1",
   "wfi_id": "WFI-NNN",
-  "category": "plugin-improvement|app-dev-efficiency",
+  "category": "plugin-improvement|app-dev-efficiency|human-process|measurement",
   "cycle": 2,
   "verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "cycle_1_summary": {

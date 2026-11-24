@@ -33,9 +33,11 @@ describe('#840/#843 factory metrics semantics', () => {
       { feature: 'f', taskId: 'T-001', risk: 'standard', verdict: 'FAIL', provisionalOqCount: 1, provisionalOqBlocking: false },
       // OQ check itself stopped the run
       { feature: 'f', taskId: 'T-002', risk: 'high', verdict: 'FAIL', provisionalOqCount: 1, provisionalOqBlocking: true },
-      // legacy records without provisionalOqBlocking
+      // legacy records without provisionalOqBlocking: before #824 the gate blocked
+      // only on exactly `high`, so legacy `critical` never stopped on OQs
       { feature: 'f', taskId: 'T-003', risk: 'standard', verdict: 'FAIL', provisionalOqCount: 2 },
       { feature: 'f', taskId: 'T-004', risk: 'critical', verdict: 'FAIL', provisionalOqCount: 1 },
+      { feature: 'f', taskId: 'T-005', risk: 'high', verdict: 'FAIL', provisionalOqCount: 1 },
       { kind: 'attribution', feature: 'f', taskId: 'T-002', rootCausePhase: 'requirements', humanIntervention: true },
     ];
     const drift = [
@@ -49,7 +51,7 @@ describe('#840/#843 factory metrics semantics', () => {
     assert.equal(summary.guardAutoDenials, 2);
     assert.equal(summary.humanInterventions, 2, 'one explicit attribution + one spec-edit override');
     assert.equal(summary.driftEvents.override, 1);
-    assert.equal(summary.gateRuns.provisionalOqBlocks, 2, 'T-002 (recorded) + T-004 (legacy critical)');
+    assert.equal(summary.gateRuns.provisionalOqBlocks, 2, 'T-002 (recorded) + T-005 (legacy high); legacy critical did not block');
     assert.equal(summary.finalReviews.passRate, null, 'no final verdicts recorded: no rate, never the mechanical one');
   });
 
@@ -91,8 +93,13 @@ describe('#840/#843 factory metrics semantics', () => {
     recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-b' });
     // legacy record without runId is still counted
     recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-002', rootCause: 'design' });
-    const b = summarizeFactoryMetrics({ projectRoot: dir }).rootCauseBreakdown;
+    // re-recording the same run's human correction is still one intervention
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-b', humanIntervention: true });
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-b', humanIntervention: true });
+    const summary = summarizeFactoryMetrics({ projectRoot: dir });
+    const b = summary.rootCauseBreakdown;
     assert.deepEqual([b.code, b.test, b.design], [0, 2, 1]);
+    assert.equal(summary.humanInterventions, 1);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
