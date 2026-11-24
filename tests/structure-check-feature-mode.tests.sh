@@ -23,12 +23,16 @@ make_repository() {
   : > "$repo/CLAUDE.md"
 }
 
+# SDD Core v2 requires exactly these three files per selected feature; the
+# retired layer specs below stay optional and must not be demanded (#859).
+CORE_FILES="requirements.md design.md tasks.md"
+LEGACY_FILES="ux-spec.md frontend-spec.md infra-spec.md security-spec.md acceptance-tests.md traceability.md"
+
 make_feature() {
   repo=$1
   feature=$2
   mkdir -p "$repo/specs/$feature"
-  for name in requirements.md design.md ux-spec.md frontend-spec.md \
-    infra-spec.md security-spec.md acceptance-tests.md tasks.md traceability.md; do
+  for name in $CORE_FILES $LEGACY_FILES; do
     : > "$repo/specs/$feature/$name"
   done
 }
@@ -74,13 +78,19 @@ assert_success_output "$BASELINE" "TEST-013 LITE/legacy specs are not implicitly
   sh "$PLUGIN_CHECK" "$REPO"
 
 make_feature "$REPO" "complete-feature"
-assert_success_output "$BASELINE" "TEST-012 plugin accepts complete nine-file feature" \
+assert_success_output "$BASELINE" "TEST-012 plugin accepts complete Core v2 feature" \
   sh "$PLUGIN_CHECK" "$REPO" "complete-feature"
-assert_success_output "$BASELINE" "TEST-012 root checker accepts complete nine-file feature" \
+assert_success_output "$BASELINE" "TEST-012 root checker accepts complete Core v2 feature" \
   sh "$ROOT_CHECK" "$REPO" "complete-feature"
 
-for name in requirements.md design.md ux-spec.md frontend-spec.md \
-  infra-spec.md security-spec.md acceptance-tests.md tasks.md traceability.md; do
+mkdir -p "$REPO/specs/core-only"
+for name in $CORE_FILES; do : > "$REPO/specs/core-only/$name"; done
+assert_success_output "$BASELINE" "TEST-012 plugin does not demand retired layer specs" \
+  sh "$PLUGIN_CHECK" "$REPO" "core-only"
+assert_success_output "$BASELINE" "TEST-012 root checker does not demand retired layer specs" \
+  sh "$ROOT_CHECK" "$REPO" "core-only"
+
+for name in $CORE_FILES; do
   rm "$REPO/specs/complete-feature/$name"
   expected="missing: specs/complete-feature/$name
 host: local
@@ -107,8 +117,8 @@ assert_failure_output "invalid feature: linked-feature" \
   sh "$ROOT_CHECK" "$REPO" "linked-feature"
 
 make_feature "$REPO" "linked-file"
-rm "$REPO/specs/linked-file/ux-spec.md"
-ln -s "$OUTSIDE/ux-spec.md" "$REPO/specs/linked-file/ux-spec.md"
+rm "$REPO/specs/linked-file/design.md"
+ln -s "$OUTSIDE/design.md" "$REPO/specs/linked-file/design.md"
 assert_failure_output "invalid feature: linked-file" \
   "TEST-019 plugin rejects a feature-file symlink before traversal" \
   sh "$PLUGIN_CHECK" "$REPO" "linked-file"

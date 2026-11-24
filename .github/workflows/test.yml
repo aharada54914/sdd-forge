@@ -45,7 +45,14 @@ jobs:
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'
         shell: bash
-        run: bash scripts/check-sdd-structure.sh
+        run: |
+          bash scripts/check-sdd-structure.sh
+          bash tests/structure-check-feature-mode.tests.sh
+
+      - name: Verify structure checker parity (PowerShell, #859)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/structure-check-feature-mode.tests.ps1
 
       - name: Verify install.sh syntax (POSIX)
         if: runner.os != 'Windows'

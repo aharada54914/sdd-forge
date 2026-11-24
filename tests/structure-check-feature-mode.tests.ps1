@@ -77,18 +77,27 @@ try {
     $feature = "complete-feature"
     $featureDir = Join-Path $Repo "specs/$feature"
     New-Item -ItemType Directory -Force -Path $featureDir | Out-Null
-    $files = @(
-        "requirements.md", "design.md", "ux-spec.md", "frontend-spec.md",
-        "infra-spec.md", "security-spec.md", "acceptance-tests.md", "tasks.md",
-        "traceability.md"
+    # SDD Core v2 requires exactly three files per feature, matching the Bash
+    # checker; the retired layer specs stay optional (#859).
+    $coreFiles = @("requirements.md", "design.md", "tasks.md")
+    $files = $coreFiles + @(
+        "ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md",
+        "acceptance-tests.md", "traceability.md"
     )
     foreach ($name in $files) {
         New-Item -ItemType File -Force -Path (Join-Path $featureDir $name) | Out-Null
     }
 
-    Assert-Result 0 $baseline "TEST-012 PowerShell accepts complete nine-file feature" @("-Root", $Repo, "-Feature", $feature)
+    Assert-Result 0 $baseline "TEST-012 PowerShell accepts complete Core v2 feature" @("-Root", $Repo, "-Feature", $feature)
 
-    foreach ($name in $files) {
+    $coreOnly = Join-Path $Repo "specs/core-only"
+    New-Item -ItemType Directory -Force -Path $coreOnly | Out-Null
+    foreach ($name in $coreFiles) {
+        New-Item -ItemType File -Force -Path (Join-Path $coreOnly $name) | Out-Null
+    }
+    Assert-Result 0 $baseline "TEST-012 PowerShell does not demand retired layer specs" @("-Root", $Repo, "-Feature", "core-only")
+
+    foreach ($name in $coreFiles) {
         Remove-Item -LiteralPath (Join-Path $featureDir $name)
         $expectedStdOut = "missing: specs/$feature/$name`nhost: local"
         $expectedStdErr = "check-sdd-structure: FAIL (1 missing)"
@@ -118,8 +127,8 @@ try {
     foreach ($name in $files) {
         New-Item -ItemType File -Force -Path (Join-Path $linkedFile $name) | Out-Null
     }
-    Remove-Item -LiteralPath (Join-Path $linkedFile "ux-spec.md")
-    New-Item -ItemType SymbolicLink -Path (Join-Path $linkedFile "ux-spec.md") -Target (Join-Path $outside "ux-spec.md") | Out-Null
+    Remove-Item -LiteralPath (Join-Path $linkedFile "design.md")
+    New-Item -ItemType SymbolicLink -Path (Join-Path $linkedFile "design.md") -Target (Join-Path $outside "design.md") | Out-Null
     Assert-Result 1 "invalid feature: linked-file" "TEST-019 PowerShell rejects a feature-file symlink before traversal" @("-Root", $Repo, "-Feature", "linked-file")
 } finally {
     Remove-Item -LiteralPath $Fixture -Recurse -Force -ErrorAction SilentlyContinue
