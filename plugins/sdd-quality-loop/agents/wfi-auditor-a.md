@@ -113,8 +113,10 @@ concrete project reference, emit a Critical finding:
 or review ticket ID cited in Root Cause or Proposed Change)."
 
 **If `Category:` field is absent or has an unrecognized value:**
-Emit a Critical finding: "Category field is missing or invalid. Must be
-plugin-improvement or app-dev-efficiency."
+Emit a Critical finding: "Category field is missing or invalid. Must be one of
+plugin-improvement, app-dev-efficiency, human-process, measurement (see
+plugins/sdd-quality-loop/references/wfi-category-guide.md)." A WFI is never
+rejected for using any of these four canonical values.
 
 ## CHANGE-CONCRETE (Major)
 
@@ -211,7 +213,7 @@ Return your output as valid JSON in your final response (do not write files dire
 {
   "schema": "wfi-auditor-a/v1",
   "wfi_id": "WFI-NNN",
-  "category": "plugin-improvement|app-dev-efficiency",
+  "category": "plugin-improvement|app-dev-efficiency|human-process|measurement",
   "cycle": 1,
   "verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "checks": [

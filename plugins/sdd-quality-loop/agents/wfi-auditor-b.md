@@ -190,7 +190,7 @@ Return your output as valid JSON in your final response (do not write files dire
 {
   "schema": "wfi-auditor-b/v1",
   "wfi_id": "WFI-NNN",
-  "category": "plugin-improvement|app-dev-efficiency",
+  "category": "plugin-improvement|app-dev-efficiency|human-process|measurement",
   "cycle": 2,
   "verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "cycle_1_summary": {
