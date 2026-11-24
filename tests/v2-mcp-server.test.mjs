@@ -500,3 +500,41 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     },
   );
 });
+
+describe('#834 a spec file over the MCP read limit is unverifiable, not deleted', () => {
+  it('the CLI stays CLEAN, MCP reports UNVERIFIABLE and blocks with the reason, and a real deletion is still drift', () => {
+    const repo = createV2TestRepo();
+    const designPath = path.join(repo, 'specs', 'demo-api', 'design.md');
+    const original = fs.readFileSync(designPath, 'utf8');
+    const firstBreak = original.indexOf('\n') + 1;
+    // Padding goes above every section so it is neither an amendment nor an identifier line.
+    fs.writeFileSync(designPath, `${original.slice(0, firstBreak)}\n<!-- ${'x'.repeat(2.2 * 1024 * 1024)} -->\n${original.slice(firstBreak)}`, 'utf8');
+    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'demo-api', '--root', repo, '--rerecord'], { encoding: 'utf8' });
+    const cli = JSON.parse(
+      execFileSync(process.execPath, [path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs'), '--feature', 'demo-api', '--root', repo], { encoding: 'utf8' }),
+    );
+    assert.equal(cli.status, 'CLEAN');
+
+    const [, overviewRes, stateRes] = callMcp(repo, [
+      { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: {} } },
+      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'demo-api' } } },
+    ]);
+    const feature = JSON.parse(overviewRes.result.content[0].text).data.activeFeatures[0];
+    assert.equal(feature.driftStatus, 'UNVERIFIABLE');
+    assert.equal(feature.nextAction.phase, 'blocked');
+    assert.match(feature.nextAction.rationale, /read limit/);
+    assert.doesNotMatch(feature.nextAction.rationale, /revert undeclared edits/);
+    const state = JSON.parse(stateRes.result.content[0].text);
+    assert.equal(state.ok, true);
+    if (Ajv2020) {
+      const ajv = new Ajv2020({ strict: false });
+      ajv.addSchema(JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')), 'sdd-mcp-v2');
+      const validate = ajv.getSchema('sdd-mcp-v2#/$defs/sdd_feature_state_data');
+      assert.equal(validate(state.data), true, JSON.stringify(validate.errors));
+    }
+
+    fs.unlinkSync(designPath);
+    const [, afterDelete] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_project_overview', arguments: {} } }]);
+    assert.equal(JSON.parse(afterDelete.result.content[0].text).data.activeFeatures[0].driftStatus, 'UNDECLARED_DRIFT');
+  });
+});

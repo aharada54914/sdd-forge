@@ -276,3 +276,25 @@ describe('#818 staged human approval is not spec drift', () => {
     assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNDECLARED_DRIFT', 'old baselines cannot tell approval from body edits');
   });
 });
+
+describe('#834 unreadable spec files are reported apart from deletions', () => {
+  it('an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins', async () => {
+    const { checkSpecDriftCore } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const { createFsReadonlyIo } = await import('../plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs');
+    const repo = setupFeatureRepo();
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    const real = createFsReadonlyIo(repo);
+    const capped = { ...real, readText: (rel) => (rel.endsWith('/design.md') ? null : real.readText(rel)) };
+
+    const unreadable = checkSpecDriftCore(capped, { feature: 'checkout' });
+    assert.equal(unreadable.status, 'UNVERIFIABLE');
+    assert.deepEqual(unreadable.unreadableFiles, ['specs/checkout/design.md']);
+    assert.deepEqual(unreadable.deletedFiles, []);
+
+    const reqPath = path.join(repo, 'specs', 'checkout', 'requirements.md');
+    fs.writeFileSync(reqPath, fs.readFileSync(reqPath, 'utf8').replace('HTTP 400', 'HTTP 422'), 'utf8');
+    assert.equal(checkSpecDriftCore(capped, { feature: 'checkout' }).status, 'UNDECLARED_DRIFT');
+    const res = runCheck(repo, 'checkout', ['--fail-on-undeclared']);
+    assert.equal(res.status, 1);
+  });
+});
