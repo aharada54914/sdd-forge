@@ -14,6 +14,11 @@
  *   node factory-metrics.mjs [--root <dir>] [--feature <slug>] [--format json|markdown]
  *   node factory-metrics.mjs record-attribution --feature <slug> --task <T-NNN>
  *        --root-cause requirements|design|code|test|harness [--note "..."] [--human-intervention] [--root <dir>]
+ *   node factory-metrics.mjs record-final-verdict --feature <slug> --task <T-NNN> --verdict PASS|FAIL [--root <dir>]
+ *
+ * `gateRuns` are mechanical run-sdd-gate executions recorded before the
+ * independent G1-G5 review. The final independent verdict is recorded with
+ * record-final-verdict and summarized separately as `finalReviews` (#837).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -76,6 +81,30 @@ export function recordRootCauseAttribution({
   return record;
 }
 
+export function recordFinalVerdict({ projectRoot = null, feature, taskId, verdict }) {
+  assertValidFeatureName(feature);
+  if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
+    throw new Error(`Invalid task ID: ${taskId}`);
+  }
+  const normalized = String(verdict || '').trim().toUpperCase();
+  if (normalized !== 'PASS' && normalized !== 'FAIL') {
+    throw new Error(`Invalid verdict '${verdict}'. Must be PASS or FAIL`);
+  }
+  const root = resolveExplicitOrAutoRoot(projectRoot);
+  const sddDir = path.join(root, '.sdd');
+  fs.mkdirSync(sddDir, { recursive: true });
+  const record = {
+    schema: 'sdd-factory-final-verdict/v1',
+    kind: 'final-verdict',
+    timestamp: new Date().toISOString(),
+    feature,
+    taskId: taskId.toUpperCase(),
+    finalVerdict: normalized,
+  };
+  fs.appendFileSync(path.join(sddDir, 'factory-metrics.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
+  return record;
+}
+
 export function summarizeFactoryMetrics({ projectRoot = null, feature = null } = {}) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const metricsData = readJsonl(path.join(root, '.sdd', 'factory-metrics.jsonl'));
@@ -85,7 +114,12 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const metrics = metricsData.records.filter(filterByFeature);
   const driftEvents = driftData.records.filter(filterByFeature);
 
-  const gateRuns = metrics.filter((r) => r.kind !== 'attribution' && typeof r.verdict === 'string');
+  const gateRuns = metrics.filter(
+    (r) => r.kind !== 'attribution' && r.kind !== 'final-verdict' && typeof r.verdict === 'string',
+  );
+  const finalVerdicts = metrics.filter((r) => r.kind === 'final-verdict' && typeof r.finalVerdict === 'string');
+  const finalPass = finalVerdicts.filter((r) => r.finalVerdict === 'PASS').length;
+  const finalFail = finalVerdicts.filter((r) => r.finalVerdict === 'FAIL').length;
   const attributions = metrics.filter((r) => r.kind === 'attribution' || typeof r.rootCausePhase === 'string');
 
   const passCount = gateRuns.filter((r) => r.verdict === 'PASS').length;
@@ -140,6 +174,13 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
       sensorFindingsTotal,
       provisionalOqBlocks,
     },
+    // Final independent (G1-G5) verdicts: the Done decision, unlike gateRuns.
+    finalReviews: {
+      total: finalVerdicts.length,
+      pass: finalPass,
+      fail: finalFail,
+      passRate: finalVerdicts.length > 0 ? Number(((finalPass / finalVerdicts.length) * 100).toFixed(1)) : null,
+    },
     driftEvents: {
       total: driftEvents.length,
       deny: driftEvents.filter((e) => e.action === 'strict_deny' || e.action === 'confirm_soft_deny').length,
@@ -160,7 +201,8 @@ export function formatFactoryMetricsMarkdown(summary) {
     '',
     '| Metric | Value |',
     '|---|---|',
-    `| Gate Runs (PASS / FAIL) | ${summary.gateRuns.total} (${summary.gateRuns.pass} / ${summary.gateRuns.fail}, ${summary.gateRuns.passRate}%) |`,
+    `| Mechanical Gate Runs (PASS / FAIL) | ${summary.gateRuns.total} (${summary.gateRuns.pass} / ${summary.gateRuns.fail}, ${summary.gateRuns.passRate}%) |`,
+    `| Final Independent Reviews (PASS / FAIL) | ${summary.finalReviews.total} (${summary.finalReviews.pass} / ${summary.finalReviews.fail}${summary.finalReviews.passRate === null ? ', n/a' : `, ${summary.finalReviews.passRate}%`}) |`,
     `| Command Duration (avg / p95) | ${summary.gateRuns.avgDurationMs} ms / ${summary.gateRuns.p95DurationMs} ms |`,
     `| Sensor Findings Total | ${summary.gateRuns.sensorFindingsTotal} |`,
     `| Provisional OQ Blocks | ${summary.gateRuns.provisionalOqBlocks} |`,
@@ -180,10 +222,11 @@ export function formatFactoryMetricsMarkdown(summary) {
 }
 
 function parseArgs(argv) {
-  const isRecord = argv[0] === 'record-attribution';
-  const start = isRecord ? 1 : 0;
+  const sub = argv[0] === 'record-attribution' || argv[0] === 'record-final-verdict' ? argv[0] : null;
+  const start = sub ? 1 : 0;
   const opts = {
-    cmd: isRecord ? 'record-attribution' : 'summary',
+    cmd: sub || 'summary',
+    verdict: null,
     root: null,
     feature: null,
     taskId: null,
@@ -203,6 +246,7 @@ function parseArgs(argv) {
     else if (a === '--human-intervention') opts.humanIntervention = true;
     else if (a === '--auto-fix-round' && argv[i + 1]) opts.autoFixRound = Number(argv[++i]);
     else if (a === '--format' && argv[i + 1]) opts.format = argv[++i];
+    else if (a === '--verdict' && argv[i + 1]) opts.verdict = argv[++i];
   }
   return opts;
 }
@@ -230,6 +274,22 @@ if (isMain) {
         note: opts.note,
         humanIntervention: opts.humanIntervention,
         autoFixRound: opts.autoFixRound,
+      });
+      process.stdout.write(`${JSON.stringify(rec, null, 2)}\n`);
+      process.exit(0);
+    }
+    if (opts.cmd === 'record-final-verdict') {
+      if (!opts.feature || !opts.taskId || !opts.verdict) {
+        process.stderr.write(
+          'Usage: node factory-metrics.mjs record-final-verdict --feature <slug> --task <T-NNN> --verdict PASS|FAIL [--root <dir>]\n',
+        );
+        process.exit(2);
+      }
+      const rec = recordFinalVerdict({
+        projectRoot: opts.root,
+        feature: opts.feature,
+        taskId: opts.taskId,
+        verdict: opts.verdict,
       });
       process.stdout.write(`${JSON.stringify(rec, null, 2)}\n`);
       process.exit(0);

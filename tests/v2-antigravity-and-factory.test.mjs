@@ -50,6 +50,27 @@ describe('#840/#843 factory metrics semantics', () => {
     assert.equal(summary.humanInterventions, 2, 'one explicit attribution + one spec-edit override');
     assert.equal(summary.driftEvents.override, 1);
     assert.equal(summary.gateRuns.provisionalOqBlocks, 2, 'T-002 (recorded) + T-004 (legacy critical)');
+    assert.equal(summary.finalReviews.passRate, null, 'no final verdicts recorded: no rate, never the mechanical one');
+  });
+
+  it('#837: final independent verdicts are summarized apart from mechanical gate PASS', async () => {
+    const { summarizeFactoryMetrics, recordFinalVerdict } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-final-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    const runs = [
+      { feature: 'f', taskId: 'T-001', risk: 'standard', verdict: 'PASS' },
+      { feature: 'f', taskId: 'T-002', risk: 'standard', verdict: 'PASS' },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), runs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    recordFinalVerdict({ projectRoot: dir, feature: 'f', taskId: 'T-001', verdict: 'FAIL' });
+    recordFinalVerdict({ projectRoot: dir, feature: 'f', taskId: 'T-002', verdict: 'pass' });
+    assert.throws(() => recordFinalVerdict({ projectRoot: dir, feature: 'f', taskId: 'T-003', verdict: 'MAYBE' }));
+    const summary = summarizeFactoryMetrics({ projectRoot: dir });
+    assert.deepEqual([summary.gateRuns.total, summary.gateRuns.pass, summary.gateRuns.passRate], [2, 2, 100]);
+    assert.deepEqual(summary.finalReviews, { total: 2, pass: 1, fail: 1, passRate: 50 });
+    fs.rmSync(dir, { recursive: true, force: true });
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });
