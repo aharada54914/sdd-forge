@@ -357,12 +357,6 @@ function countDriftEvents(root: SddRoot): number {
     .filter((line) => line.length > 0).length;
 }
 
-/**
- * Fail-closed verdict parser for independent G1-G5 review reports (H-2).
- * Supports `VERDICT: PASS`, `- **VERDICT**: PASS`, `- **VERDICT**: **PASS**`,
- * `**VERDICT: PASS**` and FAIL equivalents. If any explicit FAIL line exists,
- * returns `"FAIL"` rather than allowing an earlier quoted PASS line to mask it.
- */
 export function sddProjectOverview(
   root: SddRoot,
   options: { includeDoctor?: boolean } = {},
