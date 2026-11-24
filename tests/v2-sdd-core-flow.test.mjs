@@ -196,12 +196,29 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(clean.verdict, 'PASS', 'resolved, other-task, other-feature and minor tickets do not block');
     assert.deepEqual(clean.checks.reviewTickets.blocking, []);
 
+    ticket('RT-6', 'rejected', 'critical', 'payments', 'T-001');
+    try {
+      fs.symlinkSync(path.join(tickets, 'missing-target.yml'), path.join(tickets, 'RT-dangling.yml'));
+    } catch {
+      // symlinks unavailable on this platform: the dangling case is skipped
+    }
+    const stillClean = run();
+    assert.equal(stillClean.status, 0, stillClean.stderr);
+    assert.deepEqual(JSON.parse(stillClean.stdout).checks.reviewTickets.blocking, [], 'rejected tickets do not block');
+
     ticket('RT-5', 'open', 'major', 'payments', 'T-001');
+    // Targets T-001 for payments although a free-text block before `target:`
+    // holds indented feature/task lines and `task:` carries a comment.
+    fs.writeFileSync(
+      path.join(tickets, 'RT-7.yml'),
+      'ticket_id: RT-7\nstatus: open\nseverity: critical\nproblem: |\n  feature: billing\n  task: T-009\ntarget:\n  feature: payments\n  task: T-001 # main task\nsummary: s\n',
+      'utf8',
+    );
     const blocked = run();
     assert.equal(blocked.status, 1);
     const out = JSON.parse(blocked.stdout);
     assert.equal(out.verdict, 'FAIL');
-    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5']);
+    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5', 'RT-7']);
   });
 
   it('fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared', () => {
