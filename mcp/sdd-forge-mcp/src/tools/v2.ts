@@ -16,6 +16,7 @@
 import { err, ok, type Result } from "../envelope.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { isExecutionCoverageComplete } from "../parsers/report-lookup.js";
+import { parseReviewReportVerdict } from "../parsers/review-verdict.js";
 import {
   createGuardedIo,
   guardedDirExists,
@@ -362,38 +363,6 @@ function countDriftEvents(root: SddRoot): number {
  * `**VERDICT: PASS**` and FAIL equivalents. If any explicit FAIL line exists,
  * returns `"FAIL"` rather than allowing an earlier quoted PASS line to mask it.
  */
-export function parseReviewReportVerdict(contents: string): "PASS" | "FAIL" | "UNKNOWN" {
-  const lines = contents.replace(/\r\n/g, "\n").split("\n");
-  let sawPass = false;
-  let sawFail = false;
-  let activeFence: string | null = null;
-  const lineRe =
-    /^[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?(PASS|FAIL)(?:\*\*)?\b/i;
-
-  for (const line of lines) {
-    const trimmed = line.trimStart();
-    if (activeFence !== null) {
-      if (trimmed.startsWith(activeFence)) {
-        activeFence = null;
-      }
-      continue;
-    }
-    const fenceMatch = /^(`{3,}|~{3,})/.exec(trimmed);
-    if (fenceMatch) {
-      activeFence = fenceMatch[1] ?? "```";
-      continue;
-    }
-    const m = lineRe.exec(line);
-    if (!m) continue;
-    const verdict = m[1]?.toUpperCase();
-    if (verdict === "FAIL") sawFail = true;
-    else if (verdict === "PASS") sawPass = true;
-  }
-  if (sawFail) return "FAIL";
-  if (sawPass) return "PASS";
-  return "UNKNOWN";
-}
-
 export function sddProjectOverview(
   root: SddRoot,
   options: { includeDoctor?: boolean } = {},

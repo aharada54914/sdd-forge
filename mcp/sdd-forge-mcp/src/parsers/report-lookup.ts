@@ -18,6 +18,7 @@
 
 import { guardedRead, listGuardedFilesWithDiagnostics } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
+import { parseReviewReportVerdict } from "./review-verdict.js";
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -121,33 +122,16 @@ export function isExecutionCoverageComplete(parsed: Record<string, unknown>): bo
 }
 
 function isQualityGatePassContent(relFilePath: string, contents: string): boolean {
-  if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
-    return true;
-  }
-  if (relFilePath.endsWith(".execution.json")) {
-    try {
-      const parsed: unknown = JSON.parse(contents);
-      if (
-        parsed !== null &&
-        typeof parsed === "object" &&
-        !Array.isArray(parsed) &&
-        (parsed as Record<string, unknown>).schema === "sdd-gate-execution/v1" &&
-        (parsed as Record<string, unknown>).verdict === "PASS" &&
-        isExecutionCoverageComplete(parsed as Record<string, unknown>)
-      ) {
-        return true;
-      }
-    } catch {
-      return false;
-    }
-  }
-  return false;
+  // Done evidence is the independent G1-G5 verdict. A run-sdd-gate
+  // `.execution.json` is the mechanical pre-review result and never counts on
+  // its own (#835).
+  if (relFilePath.endsWith(".execution.json")) return false;
+  return parseReviewReportVerdict(contents) === "PASS";
 }
 
 /**
  * True if, among every quality-gate report mentioning `taskId`, at least one
- * contains `VERDICT: PASS` (Markdown report) or a passing SDD Forge v2
- * `sdd-gate-execution/v1` execution artifact.
+ * independent report's verdict is PASS (see review-verdict.ts).
  */
 export function hasQualityGateVerdictPass(root: SddRoot, relDir: string, taskId: string): boolean {
   return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
