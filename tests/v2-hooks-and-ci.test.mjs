@@ -15,7 +15,7 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
       fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/claude-hooks.json'), 'utf8'),
     );
     const codex = JSON.parse(
-      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/hooks.json'), 'utf8'),
+      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/codex-hooks.json'), 'utf8'),
     );
     const copilot = JSON.parse(
       fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/hooks/copilot-hooks.json'), 'utf8'),
@@ -137,6 +137,28 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         assert.ok(typeof parsed.hookSpecificOutput.additionalContext === 'string' && parsed.hookSpecificOutput.additionalContext.length > 0);
       }
     }
+  });
+
+  it('#855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file', () => {
+    const pluginsDir = path.join(REPO_ROOT, 'plugins');
+    for (const name of fs.readdirSync(pluginsDir)) {
+      const manifestPath = path.join(pluginsDir, name, '.claude-plugin', 'plugin.json');
+      if (!fs.existsSync(manifestPath)) continue;
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      if (typeof manifest.hooks !== 'string') continue;
+      const declared = path.normalize(manifest.hooks);
+      if (declared === path.normalize('./hooks/hooks.json')) continue;
+      assert.equal(
+        fs.existsSync(path.join(pluginsDir, name, 'hooks', 'hooks.json')),
+        false,
+        `${name}: Claude loads hooks/hooks.json in addition to ${manifest.hooks}, registering the guard twice`,
+      );
+    }
+    const codex = JSON.parse(
+      fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/.codex-plugin/plugin.json'), 'utf8'),
+    );
+    assert.equal(codex.hooks, './hooks/codex-hooks.json');
+    assert.ok(fs.existsSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', codex.hooks)));
   });
 
   it('#851/#801: required-checks aggregates every dependency result and installers job runs install suites', () => {

@@ -1646,7 +1646,7 @@ export function runDoctorCore(
   if (scanExtendedRepo) {
     const hookCandidates = [
       'plugins/sdd-quality-loop/hooks/claude-hooks.json',
-      'plugins/sdd-quality-loop/hooks/hooks.json',
+      'plugins/sdd-quality-loop/hooks/codex-hooks.json',
       'plugins/sdd-quality-loop/hooks/copilot-hooks.json',
       'plugins/sdd-quality-loop/hooks.json',
       'plugins/sdd-quality-loop/gemini/hooks/hooks.json',

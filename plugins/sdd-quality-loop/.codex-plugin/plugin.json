@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "description": "Independently verify Implementation Complete tasks, run critical review, fix approved tickets, verify differential baselines, retrospect on workflow performance, and decide Done.",
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json",
+  "hooks": "./hooks/codex-hooks.json",
   "author": {
     "name": "Harada"
   },

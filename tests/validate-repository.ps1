@@ -263,7 +263,7 @@ $requiredFiles = @(
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-component.template.md",
     "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
     "plugins/sdd-quality-loop/agents/evaluator.md",
-    "plugins/sdd-quality-loop/hooks/hooks.json",
+    "plugins/sdd-quality-loop/hooks/codex-hooks.json",
     "plugins/sdd-quality-loop/references/deterministic-check-policy.md",
     "plugins/sdd-quality-loop/references/differential-test-policy.md",
     "plugins/sdd-quality-loop/references/evaluation-rubric.md",
@@ -554,7 +554,7 @@ if (Test-Path $installShFile) {
 }
 
 # Hooks must parse as JSON and reference only bundled scripts.
-$hooksConfig = Read-JsonFile "plugins/sdd-quality-loop/hooks/hooks.json"
+$hooksConfig = Read-JsonFile "plugins/sdd-quality-loop/hooks/codex-hooks.json"
 if (-not $hooksConfig.hooks.PreToolUse) {
     throw "hooks.json does not define PreToolUse hooks."
 }
@@ -622,10 +622,10 @@ if ($claudePluginManifest.hooks -cne "./hooks/claude-hooks.json") {
     throw ".claude-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/claude-hooks.json' (found '$($claudePluginManifest.hooks)')."
 }
 
-# .codex-plugin/plugin.json for sdd-quality-loop must have a hooks field pointing at hooks/hooks.json.
+# .codex-plugin/plugin.json for sdd-quality-loop must have a hooks field pointing at hooks/codex-hooks.json.
 $codexPluginManifest = Read-JsonFile "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
-if ($codexPluginManifest.hooks -cne "./hooks/hooks.json") {
-    throw ".codex-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/hooks.json' (found '$($codexPluginManifest.hooks)')."
+if ($codexPluginManifest.hooks -cne "./hooks/codex-hooks.json") {
+    throw ".codex-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/codex-hooks.json' (found '$($codexPluginManifest.hooks)')."
 }
 
 # claude-hooks.json approval-guard matcher must contain 'apply_patch'.

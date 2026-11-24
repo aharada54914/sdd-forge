@@ -110,7 +110,7 @@ is wired into `PreToolUse` across three runtimes:
 
 - **Claude Code** — `hooks/claude-hooks.json` registers the Node guard for
   `Edit|Write|MultiEdit|apply_patch` and a separate kill-switch for all tools (`*`).
-- **Codex CLI** — reads `hooks/hooks.json`; CLI 0.159.2 uses the `hooks`
+- **Codex CLI** — reads `hooks/codex-hooks.json`; CLI 0.159.2 uses the `hooks`
   feature control (`--enable hooks` / `--disable hooks`). The removed
   `plugin_hooks` selector does not establish activation or non-firing.
   The `command_windows` field provides the PowerShell
