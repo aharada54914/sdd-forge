@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **独立評価の判定を完了根拠に一本化（Closes #835）**: 機械ゲートの `.execution.json` の PASS だけでは Done の根拠にしない。報告の判定は「最初の、引用でない `VERDICT:` 行」で読み、`FAIL` / `NEEDS_WORK` / `BLOCKED` を不合格とする（ゲート監査と Done 判定で同じ解釈）。
+- **未解決レビューチケットでゲートを止める（Closes #823）**: 対象 feature・タスクの `open` かつ `critical` / `major` のチケットを `checks.reviewTickets.blocking` に列挙し FAIL。`resolved` / `rejected`・`minor`・他タスクのチケットは止めない。
+- **途中コミット後の再開（Closes #826）**: `run-sdd-gate.mjs --base <git-ref>` でコミット済みの変更も検査対象に戻せる（既定は従来どおり）。
+- **共有作業ツリーでの検出の区別（Closes #829）**: タスクの `### Scope` 外の所見に `inTaskScope: false`、結果に `scope.outOfScopeFiles` と警告を付与。判定は緩めず、自タスクだけの検証手順（`--changed-files`）を明記。
+- **仕様ベースラインの上書き防止（Closes #819）**: `record-spec-baseline.mjs` は既存ベースラインを上書きせず `EXISTING` を返す。意図的な取り直しは `--rerecord`。壊れたベースラインは報告する。
+- **改善提案（WFI）監査の整合（Closes #841, #845, #846, #847, #849）**: 両監査が正規 4 カテゴリを受理し、プラグイン自身のリポジトリ向け例外を同じ 3 条件で扱う。`Human-Blocked`・試行回数・内容ハッシュをテンプレートで表現でき、`Needs-Followup` は `## Result` に記録。一次監査の判定・件数を二次監査へ渡し、監査合格時はカテゴリによらず人間承認待ちへ進む。
+- **計測の追加修正**: 旧記録の OQ 停止は旧ゲート規則（`high` のみ）で導出し、人の介入は試行 ID で重複排除。
+
 ## v2.1.1 (2026-11-24)
 
 ### Fixed

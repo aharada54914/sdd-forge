@@ -10,7 +10,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | Batch | PR | Issues | Status |
 |---|---|---|---|
 | 1 | #966 | #801, #802, #851, #855, #857, #858, #859, #861, #821, #825 | merged (aafd184) |
-| 2 | (pending) | #822, #828, #824, #833, #840, #843, #852, #837, #844, #838 | PR open |
+| 2 | #967 | #822, #828, #824, #833, #840, #843, #852, #837, #844, #838 | merged (c037db8) |
+| — | #968 | release v2.1.1 | merged (ad19ec4); tag/Release must be created by the owner (git proxy refuses tag pushes) |
+| 3 | (pending) | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | PR open |
 
 ## Resolved
 
@@ -37,6 +39,13 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #844 | Attributions deduplicated by gate `runId`. |
 | #852 | Spec Drift CI reports coverage and lists unbaselined approved features. |
 
+| #835 | Done evidence is the independent report's first plain `VERDICT:` line; execution.json alone never counts. |
+| #823 | Gate blocks on open critical/major review tickets for exactly this feature and task. |
+| #826 | `run-sdd-gate --base <ref>` for tasks that committed midway. |
+| #829 | Out-of-Scope changes labelled (`inTaskScope`, `scope.outOfScopeFiles`); verdict unchanged. |
+| #819 | Baseline recording is idempotent (`EXISTING`); `--rerecord` for agreed re-baselines. |
+| #841, #845, #846, #847, #849 | WFI auditors, template and audit-cycle skill share one vocabulary and carve-out. |
+
 ## Deferred (needs human decision)
 
 | Issue | Reason |
@@ -45,6 +54,10 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
 
 ## Follow-ups
+
+- Design pending (scheduled run): #831 + #832 (stale PASS evidence after a spec change needs input digests and a re-baseline policy), #834 (2 MiB read cap reported as deletion needs an IO status channel).
+- Pre-existing, found by review: Done evidence accepts any `reports/quality-gate/*` file mentioning `T-NNN`, including another feature's report. Should be scoped by feature.
+- Release tags: the session's git proxy refuses tag pushes (HTTP 403), so each release PR is merged here and the owner publishes the GitHub Release (which creates the tag and runs release.yml).
 
 - Method (since batch 2): pstack (`michael-denyer/pstack-claude` @66181d3c) poteto-mode Bug fix playbook; failing test committed before the fix; independent `thermo-nuclear-review` before merge for guard / gate / Done-evidence changes.
 - `docs/contributor/coding-standards/audit/*.json` still name the pre-rename `hooks/hooks.json` (historical audit records, nothing executes them).
