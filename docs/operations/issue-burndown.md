@@ -11,7 +11,7 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 |---|---|---|---|
 | 1 | #966 | #801, #802, #851, #855, #857, #858, #859, #861, #821, #825 | merged (aafd184) |
 | 2 | #967 | #822, #828, #824, #833, #840, #843, #852, #837, #844, #838 | merged (c037db8) |
-| — | #968 | release v2.1.1 | merged (ad19ec4); tag/Release must be created by the owner (git proxy refuses tag pushes) |
+| — | #968 | release v2.1.1 | merged (ad19ec4); tagged via publish-release.yml |
 | 3 | (pending) | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | PR open |
 
 ## Resolved
@@ -57,7 +57,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 - Design pending (scheduled run): #831 + #832 (stale PASS evidence after a spec change needs input digests and a re-baseline policy), #834 (2 MiB read cap reported as deletion needs an IO status channel).
 - Pre-existing, found by review: Done evidence accepts any `reports/quality-gate/*` file mentioning `T-NNN`, including another feature's report. Should be scoped by feature.
-- Release tags: the session's git proxy refuses tag pushes (HTTP 403), so each release PR is merged here and the owner publishes the GitHub Release (which creates the tag and runs release.yml).
+- Release tags: the session's git proxy refuses tag pushes (HTTP 403). After a release PR merges, dispatch `publish-release.yml` (version + release merge commit), which creates the tag and Release and runs release.yml.
+- Batch-3 re-review minors (next batch): flow-style `target: {…}` tickets are skipped instead of blocking (fail-open); Scope bullets like `path(note)` / `dir/{a,b}` are labelled out of scope.
 
 - Method (since batch 2): pstack (`michael-denyer/pstack-claude` @66181d3c) poteto-mode Bug fix playbook; failing test committed before the fix; independent `thermo-nuclear-review` before merge for guard / gate / Done-evidence changes.
 - `docs/contributor/coding-standards/audit/*.json` still name the pre-rename `hooks/hooks.json` (historical audit records, nothing executes them).
