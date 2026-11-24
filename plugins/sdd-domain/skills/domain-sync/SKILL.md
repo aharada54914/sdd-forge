@@ -5,7 +5,7 @@ disable-model-invocation: false
 user-invocable: false
 ---
 
-> **Caller**: `sdd-core-spec` から仕様生成前に呼び出される内部スキル。`domain/` に対して完全 Read-Only、仕様生成を絶対にブロックしない。
+> **Caller**: `sdd-core-spec` から、`concept-test` が `CONTINUE` した後に呼び出される内部スキル。`domain/` に対して完全 Read-Only で、このスキル自身は仕様生成をブロックしない。ただし未承認モデルでは手前の `concept-test` が `BLOCK` するため、bootstrap 全体は停止する（`domain/` 不在時は両方スキップ）。
 
 # Domain Sync
 
