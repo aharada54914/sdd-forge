@@ -15,7 +15,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | 3 | #969 | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | merged (067aaf7); also added publish-release.yml |
 | — | publish-release | v2.1.1 tag + Release | ad19ec42, release.yml signed artifacts attached |
 | 4 | #970 | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | merged (e848b32) |
-| — | #971 | release v2.1.2 | this PR; tag via publish-release.yml after merge |
+| — | #971 | release v2.1.2 | merged (520469d); tagged via publish-release.yml |
+| 5 | (pending) | #815, #816, #818, #827, #830, #809, #811, #862, #834 | PR open |
 
 ## Resolved
 
@@ -58,6 +59,15 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #817 | Unknown / self Blockers are reported and never scheduled; `--strict` fails. |
 | #814 | Finalizer diagnostic token names its own operation. |
 | #820 | Drift report lists changed IDs no amendment entry mentions. |
+| #815 | CLI locks are held by `--owner` until their TTL (not the exiting CLI pid); same-owner re-acquire renews; ship passes one owner id through. |
+| #816 | Scope parsing reads paths in prose, drops notes, expands braces, compares real paths; unknown Scope runs alone. |
+| #818 | tasks.md baselines normalize `Approval:` and record per-task approvals: new approvals are not drift, revocations are. |
+| #827 | Ticket re-verification names feature and task; ship auto-selects gate-pending features. |
+| #830 | One `isApprovedValue` grammar for gate, decision view, drift and MCP. |
+| #809 | Concept Test answers SKIP without `domain/` for every ship-valid feature name. |
+| #811 | v1 domain-review precheck documented as same-tree only and unused by the current review. |
+| #862 | Generated report classifies catalog suites against what `test.yml` really runs. |
+| #834 | Files over the read cap are `UNVERIFIABLE` (listed in `unreadableFiles`), never deletions. |
 
 ## Deferred (needs human decision)
 
@@ -65,6 +75,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 |---|---|
 | #871–#965 (95 `[MCP試験95]` issues) | Each is marked "passed in candidate, awaiting integration": the fixes are on the owner's local `codex/mcp-ddd-next-action` (64812dc8, 369/369 MCP tests). Push that branch to integrate them together. |
 | #865 | The contributor evidence collector calls `generate-evidence-bundle.sh` / `check-evidence-bundle.sh`, retired in v2.0.0 (e2110862). Restore the v1 bundle pipeline, or retire the collector's normal-generation mode with a clear message? Product decision. |
+| #803, #804 | The DDD contract publish step these build on (`domain-model` / `domain-review-loop` publish procedure, validator guarantees) exists only on the owner's local `codex/mcp-ddd-next-action`; editing the same lines here would conflict with that branch. |
+| #812 | Its fix is specified in `specs/native-concept-runtime/` on the owner's local worktree `sdd-forge-n14-spec-review`, not on the remote. |
+| #848 | Needs a product decision: should v2 guarantee automatic collection of domain-conformance findings, or should the retrospective keep reporting N/A? |
 | #850 | Changes GitHub branch-protection / ruleset policy (owner review, required contexts); needs the repository owner's decision. |
 | #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
 
