@@ -40423,6 +40423,11 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
   if (hasDrift) {
     status = hasNewDeclaredAmendment ? "AMENDED" : "UNDECLARED_DRIFT";
   }
+  const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
+  const changedIdsWithoutAmendment = changedIds.filter((id) => {
+    const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, "\\-")}([^0-9]|$)`, "i");
+    return !allCurrentAmendments.some((a) => re.test(a.text));
+  });
   return {
     schema: "sdd-spec-drift/v1",
     feature,
@@ -40436,7 +40441,8 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     modifiedIdentifiers,
     addedIdentifiers,
     amendments: allCurrentAmendments,
-    baselineAmendmentCount
+    baselineAmendmentCount,
+    changedIdsWithoutAmendment
   };
 }
 function computeExecutionPlan(tasks) {

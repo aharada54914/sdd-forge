@@ -621,6 +621,15 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     status = hasNewDeclaredAmendment ? 'AMENDED' : 'UNDECLARED_DRIFT';
   }
 
+  // AMENDED is a count comparison only. Name each changed REQ/AC ID that no
+  // amendment entry mentions, so an unexplained change cannot read as approved;
+  // judging whether each reason is adequate stays with the independent G2 (#820).
+  const changedIds = [...new Set([...removedIdentifiers, ...modifiedIdentifiers, ...addedIdentifiers].map((x) => x.id))].sort();
+  const changedIdsWithoutAmendment = changedIds.filter((id) => {
+    const re = new RegExp(`(^|[^A-Za-z0-9-])${id.replace(/[-]/g, '\\-')}([^0-9]|$)`, 'i');
+    return !allCurrentAmendments.some((a) => re.test(a.text));
+  });
+
   return {
     schema: 'sdd-spec-drift/v1',
     feature,
@@ -635,6 +644,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     addedIdentifiers,
     amendments: allCurrentAmendments,
     baselineAmendmentCount,
+    changedIdsWithoutAmendment,
   };
 }
 
