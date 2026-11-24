@@ -495,3 +495,26 @@ describe('#866 adopt PR template follows the SDD Core v2 artifact set', () => {
     }
   });
 });
+
+describe('#867 user guides never present retired sudo / Lite tooling as current', () => {
+  const BANNER = /v2\.0\.0 で廃止（v1\.x のみの参考情報）/;
+  const docs = ['docs/skill-reference.md', 'docs/troubleshooting.md', 'docs/contributor/workflow-detail.md', 'docs/contributor/skill-reference-detail.md'];
+  it('current command lists and tool tables omit them', () => {
+    const ref = fs.readFileSync(path.join(REPO_ROOT, 'docs/skill-reference.md'), 'utf8');
+    const visible = ref.split('\n').find((l) => l.startsWith('ユーザーに見えるコマンドは'));
+    assert.ok(visible);
+    assert.doesNotMatch(visible, /sdd-sudo/);
+    assert.doesNotMatch(ref, /^\| sdd-sudo \|/m);
+    assert.doesNotMatch(ref, /^\| `check-task-state-lite` \|/m);
+  });
+  it('every remaining sudo / Lite section carries the retirement banner', () => {
+    for (const rel of docs) {
+      const lines = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8').split('\n');
+      lines.forEach((line, i) => {
+        if (!/^#{2,4} /.test(line) || !/sudo|Sudo|lite-spec|lite-gate|check-task-state-lite/.test(line)) return;
+        const next = lines.slice(i + 1, i + 4).join('\n');
+        assert.match(next, BANNER, `${rel}:${i + 1} "${line}" lacks the retirement banner`);
+      });
+    }
+  });
+});
