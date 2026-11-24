@@ -99,12 +99,13 @@ export function hasAnyFileMentioning(root: SddRoot, relDir: string, taskId: stri
 /**
  * True when a `sdd-gate-execution/v1` artifact actually verified something:
  * at least one command ran and neither drift nor sensor checks were skipped
- * (#825). Artifacts written before `coverage` existed are derived from checks.
+ * (#825), derived from `checks` so a self-declared flag cannot override them.
  */
 export function isExecutionCoverageComplete(parsed: Record<string, unknown>): boolean {
+  // A stated coverage.complete can only narrow what the checks show, never widen it.
   const coverage = parsed.coverage as Record<string, unknown> | undefined;
-  if (coverage && typeof coverage === "object" && typeof coverage.complete === "boolean") {
-    return coverage.complete;
+  if (coverage && typeof coverage === "object" && coverage.complete === false) {
+    return false;
   }
   const checks = parsed.checks as Record<string, unknown> | undefined;
   if (!checks || typeof checks !== "object") return false;

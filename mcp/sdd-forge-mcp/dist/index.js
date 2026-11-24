@@ -37355,8 +37355,8 @@ function hasAnyFileMentioning(root, relDir, taskId) {
 }
 function isExecutionCoverageComplete(parsed) {
   const coverage = parsed.coverage;
-  if (coverage && typeof coverage === "object" && typeof coverage.complete === "boolean") {
-    return coverage.complete;
+  if (coverage && typeof coverage === "object" && coverage.complete === false) {
+    return false;
   }
   const checks = parsed.checks;
   if (!checks || typeof checks !== "object") return false;
