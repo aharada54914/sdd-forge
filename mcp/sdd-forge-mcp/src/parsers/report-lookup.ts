@@ -96,6 +96,29 @@ export function hasAnyFileMentioning(root: SddRoot, relDir: string, taskId: stri
   return anyFileContaining(root, relDir, taskId).length > 0;
 }
 
+/**
+ * True when a `sdd-gate-execution/v1` artifact actually verified something:
+ * at least one command ran and neither drift nor sensor checks were skipped
+ * (#825). Artifacts written before `coverage` existed are derived from checks.
+ */
+export function isExecutionCoverageComplete(parsed: Record<string, unknown>): boolean {
+  const coverage = parsed.coverage as Record<string, unknown> | undefined;
+  if (coverage && typeof coverage === "object" && typeof coverage.complete === "boolean") {
+    return coverage.complete;
+  }
+  const checks = parsed.checks as Record<string, unknown> | undefined;
+  if (!checks || typeof checks !== "object") return false;
+  const commands = checks.commands;
+  const drift = checks.specDrift as Record<string, unknown> | undefined;
+  const sensors = checks.nonFunctionalSensors as Record<string, unknown> | undefined;
+  return (
+    Array.isArray(commands) &&
+    commands.length > 0 &&
+    drift?.skipped !== true &&
+    sensors?.skipped !== true
+  );
+}
+
 function isQualityGatePassContent(relFilePath: string, contents: string): boolean {
   if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
     return true;
@@ -108,7 +131,8 @@ function isQualityGatePassContent(relFilePath: string, contents: string): boolea
         typeof parsed === "object" &&
         !Array.isArray(parsed) &&
         (parsed as Record<string, unknown>).schema === "sdd-gate-execution/v1" &&
-        (parsed as Record<string, unknown>).verdict === "PASS"
+        (parsed as Record<string, unknown>).verdict === "PASS" &&
+        isExecutionCoverageComplete(parsed as Record<string, unknown>)
       ) {
         return true;
       }

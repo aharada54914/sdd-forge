@@ -37353,6 +37353,18 @@ function anyFileContaining(root, relDir, pattern) {
 function hasAnyFileMentioning(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).length > 0;
 }
+function isExecutionCoverageComplete(parsed) {
+  const coverage = parsed.coverage;
+  if (coverage && typeof coverage === "object" && typeof coverage.complete === "boolean") {
+    return coverage.complete;
+  }
+  const checks = parsed.checks;
+  if (!checks || typeof checks !== "object") return false;
+  const commands = checks.commands;
+  const drift = checks.specDrift;
+  const sensors = checks.nonFunctionalSensors;
+  return Array.isArray(commands) && commands.length > 0 && drift?.skipped !== true && sensors?.skipped !== true;
+}
 function isQualityGatePassContent(relFilePath, contents) {
   if (/(?:^|\n)[ \t>*-]*(?:\*\*)?VERDICT(?:\*\*)?[ \t]*:[ \t]*PASS\b/.test(contents)) {
     return true;
@@ -37360,7 +37372,7 @@ function isQualityGatePassContent(relFilePath, contents) {
   if (relFilePath.endsWith(".execution.json")) {
     try {
       const parsed = JSON.parse(contents);
-      if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed) && parsed.schema === "sdd-gate-execution/v1" && parsed.verdict === "PASS") {
+      if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed) && parsed.schema === "sdd-gate-execution/v1" && parsed.verdict === "PASS" && isExecutionCoverageComplete(parsed)) {
         return true;
       }
     } catch {
@@ -41138,7 +41150,7 @@ function runDoctorCore(io, {
   if (scanExtendedRepo) {
     const hookCandidates = [
       "plugins/sdd-quality-loop/hooks/claude-hooks.json",
-      "plugins/sdd-quality-loop/hooks/hooks.json",
+      "plugins/sdd-quality-loop/hooks/codex-hooks.json",
       "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
       "plugins/sdd-quality-loop/hooks.json",
       "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
@@ -41747,6 +41759,7 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
             if (sdStatus) {
               executionArtifact.specDriftStatus = sdStatus;
             }
+            executionArtifact.coverageComplete = isExecutionCoverageComplete(parsed);
             if (Array.isArray(checks?.commands)) {
               const failed = checks.commands.filter((c) => Boolean(c) && typeof c === "object" && c.passed === false).map((c) => String(c.label || c.command || "command"));
               executionArtifact.failedCommands = failed;
@@ -41771,7 +41784,7 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
       ) : [];
       const validStatus = task.status === "Implementation Complete" || task.status === "Done";
       const validDrift = drift.status === "CLEAN" || drift.status === "AMENDED";
-      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && reviewReport.verdict === "PASS" && validDrift && blockingProvisionalOqs.length === 0;
+      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && executionArtifact.coverageComplete === true && reviewReport.verdict === "PASS" && validDrift && blockingProvisionalOqs.length === 0;
       return {
         taskId: task.id,
         risk: riskTier,
