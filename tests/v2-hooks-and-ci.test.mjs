@@ -168,8 +168,15 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.doesNotMatch(on, /\b(push|pull_request|pull_request_target|schedule|release):/, 'only a manual dispatch may cut a release');
     assert.match(wf, /if: \$\{\{ github\.ref == 'refs\/heads\/main' \}\}/);
     assert.match(wf, /\^\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\$/, 'version must be strictly X.Y.Z');
-    assert.match(wf, /merge-base --is-ancestor "\$TARGET" "\$GITHUB_SHA"/, 'the release commit must be on main');
+    assert.match(wf, /\^\[0-9a-f\]\{40\}\$/, 'commit must be a full SHA that no tag can shadow');
+    assert.match(wf, /rev-list --first-parent "\$GITHUB_SHA" \| grep -x "\$TARGET" >\/dev\/null/, 'release commit must be on main\'s first-parent line');
+    assert.doesNotMatch(wf, /\| grep -q/, 'grep -q under pipefail can SIGPIPE the producer');
+    assert.match(wf, /git\/ref\/tags\/\$\{TAG\}/, 'exact-match tag lookup');
+    assert.match(wf, /HTTP 404/, 'only a 404 means the tag is absent');
     assert.match(wf, /already exists; refusing to move it/);
+    assert.match(wf, /workflows\/test\.yml\/runs\?head_sha=\$\{TARGET\}&status=success/, 'publish only after CI passed on the commit');
+    assert.match(wf, /--method POST "repos\/\$\{GITHUB_REPOSITORY\}\/git\/refs"/, 'atomic tag creation');
+    assert.match(wf, /gh release create "\$TAG" [^\n]*--verify-tag/);
     assert.match(wf, /gh workflow run release\.yml/, 'release.yml still runs every release gate');
     // Inputs reach shell only through env, never interpolated into run: scripts.
     for (const block of wf.split(/\n\s+run: /).slice(1)) {

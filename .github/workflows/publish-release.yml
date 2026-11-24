@@ -18,8 +18,8 @@ on:
         required: true
         type: string
       commit:
-        description: "Commit on main to release (the release PR's merge commit). Defaults to main's HEAD."
-        required: false
+        description: "Full 40-character SHA of the release PR's merge commit on main"
+        required: true
         type: string
 
 permissions:
@@ -55,14 +55,23 @@ jobs:
             echo "version must be X.Y.Z, got: ${VERSION}" >&2
             exit 1
           fi
-          if [ -z "$COMMIT" ]; then COMMIT="$GITHUB_SHA"; fi
-          if [[ ! "$COMMIT" =~ ^[0-9a-f]{7,40}$ ]]; then
-            echo "commit must be a hex SHA, got: ${COMMIT}" >&2
+          # A full SHA cannot be shadowed by a same-named tag or branch.
+          if [[ ! "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "commit must be a full 40-character lowercase SHA, got: ${COMMIT}" >&2
             exit 1
           fi
-          TARGET="$(git rev-parse --verify "${COMMIT}^{commit}")"
-          if ! git merge-base --is-ancestor "$TARGET" "$GITHUB_SHA"; then
-            echo "${TARGET} is not on main" >&2
+          TARGET="$(git rev-parse --verify --quiet "${COMMIT}^{commit}")" || {
+            echo "commit ${COMMIT} is not in this repository" >&2
+            exit 1
+          }
+          if [ "$TARGET" != "$COMMIT" ]; then
+            echo "commit ${COMMIT} resolved to ${TARGET}" >&2
+            exit 1
+          fi
+          # On main's first-parent line: a merge commit (or a direct commit),
+          # never a commit that only exists on a merged PR branch.
+          if ! git rev-list --first-parent "$GITHUB_SHA" | grep -x "$TARGET" >/dev/null; then
+            echo "${TARGET} is not on main's first-parent history" >&2
             exit 1
           fi
           git checkout -q --detach "$TARGET"
@@ -76,8 +85,21 @@ jobs:
             echo "plugin manifests on main are at ${SHIPPED}, not ${VERSION}" >&2
             exit 1
           fi
-          if gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" >/dev/null 2>&1; then
+          # Singular endpoint: an exact match, not a prefix. Only 404 means absent.
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}" >/dev/null 2>"${RUNNER_TEMP}/ref.err"; then
             echo "tag ${TAG} already exists; refusing to move it" >&2
+            exit 1
+          elif ! grep -q 'HTTP 404' "${RUNNER_TEMP}/ref.err"; then
+            echo "could not check whether ${TAG} exists:" >&2
+            cat "${RUNNER_TEMP}/ref.err" >&2
+            exit 1
+          fi
+          # Publish nothing unless test.yml already passed on this exact commit;
+          # release.yml re-checks it, but a failure there would leave an empty
+          # Release behind that this workflow refuses to retry.
+          GREEN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${TARGET}&status=success&per_page=1" --jq '.total_count')"
+          if [ "${GREEN:-0}" -lt 1 ]; then
+            echo "no successful test.yml run for ${TARGET} yet; wait for CI and dispatch again" >&2
             exit 1
           fi
           # Release notes: the CHANGELOG section for this version.
@@ -97,7 +119,11 @@ jobs:
           TARGET: ${{ steps.check.outputs.target }}
         run: |
           set -euo pipefail
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$TARGET" \
+          # Creating the ref is atomic: GitHub answers 422 if the tag appeared
+          # since the check, so an existing tag is never adopted or moved.
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f ref="refs/tags/${TAG}" -f sha="$TARGET" >/dev/null
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "$TAG" --notes-file "${RUNNER_TEMP}/notes.md"
           echo "Created ${TAG} at ${TARGET}"
 
