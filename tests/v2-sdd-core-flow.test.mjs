@@ -290,6 +290,18 @@ describe('#822/#828 gate change discovery', () => {
     const top = discoverChangedFiles(repo).sort();
     assert.deepEqual(top, ['other.js', 'pkg/src/a.js', 'pkg/src/変更.js', 'pkg/src/新規.js'].sort());
     assert.deepEqual(discoverChangedFiles(repo, ['pkg/src/変更.js']), ['pkg/src/変更.js']);
+
+    // #826: after committing part of the work, the default sees only what is
+    // left uncommitted; --base <ref> brings the committed part back in scope.
+    git('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qam', 'midway');
+    const base = spawnSync('git', ['rev-parse', 'HEAD~1'], { cwd: repo, encoding: 'utf8' }).stdout.trim();
+    fs.writeFileSync(path.join(repo, 'pkg', 'src', 'later.js'), 'export const l = 1;\n');
+    assert.deepEqual(discoverChangedFiles(path.join(repo, 'pkg')).sort(), ['src/later.js', 'src/新規.js'].sort());
+    assert.deepEqual(
+      discoverChangedFiles(path.join(repo, 'pkg'), null, { baseRef: base }).sort(),
+      ['src/a.js', 'src/later.js', 'src/変更.js', 'src/新規.js'].sort(),
+    );
+    assert.throws(() => discoverChangedFiles(repo, null, { baseRef: '--output=/tmp/x' }), /base/i);
     fs.rmSync(repo, { recursive: true, force: true });
   });
 });
