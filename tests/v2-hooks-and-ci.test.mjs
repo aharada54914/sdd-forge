@@ -139,6 +139,17 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 
+  it('#852: Spec Drift CI reports its coverage and lists approved features without a baseline', () => {
+    const wf = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/sdd-guardrails.yml'), 'utf8');
+    assert.match(wf, /Spec Drift coverage: \$\{checked\} baselined feature/);
+    assert.match(wf, /unbaselined\.push\(entry\.name\)/);
+    assert.match(wf, /::warning title=Spec Drift not covered::/);
+    const threat = fs.readFileSync(path.join(REPO_ROOT, 'docs/THREAT-MODEL.md'), 'utf8');
+    assert.doesNotMatch(threat, /100% 捕捉/);
+    const readme = fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8');
+    assert.doesNotMatch(readme, /PR\/CI で確実に抑止/);
+  });
+
   it('#861: Bash and PowerShell installers require the same Cloud entry files', () => {
     const sh = fs.readFileSync(path.join(REPO_ROOT, 'install.sh'), 'utf8');
     const ps = fs.readFileSync(path.join(REPO_ROOT, 'install.ps1'), 'utf8');

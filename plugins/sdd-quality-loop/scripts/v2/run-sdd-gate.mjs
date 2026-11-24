@@ -20,6 +20,7 @@
  *                         [--skip-drift] [--skip-sensors]
  */
 import { execFileSync, spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -32,6 +33,7 @@ import {
   splitSpecAmendments,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
+import { normalizeRiskTier } from './v2-readonly-core.mjs';
 
 const PLACEHOLDER_RE =
   /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
@@ -82,18 +84,23 @@ export function parseTaskBlock(tasksContent, taskId) {
     taskId: taskId.toUpperCase(),
     approval: approvalMatch ? approvalMatch[1].trim() : null,
     status: statusMatch ? statusMatch[1].trim() : null,
-    risk: riskMatch ? riskMatch[1].trim().toLowerCase() : 'standard',
+    // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
+    risk: normalizeRiskTier(riskMatch ? riskMatch[1] : '', 'standard'),
   };
 }
 
-function discoverChangedFiles(projectRoot, explicitFiles) {
+export function discoverChangedFiles(projectRoot, explicitFiles) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
     return [...new Set(explicitFiles.map((f) => normalizeRelPath(f)).filter(Boolean))];
   }
   const files = new Set();
+  // -z + core.quotePath=false: non-ASCII names arrive verbatim instead of as
+  // C-quoted strings the scanner cannot open (#822). --relative: paths are
+  // relative to projectRoot even when it is a subdirectory of the Git root,
+  // and changes outside the project are excluded (#828).
   for (const args of [
-    ['diff', '--name-only', 'HEAD'],
-    ['ls-files', '--others', '--exclude-standard'],
+    ['-c', 'core.quotePath=false', 'diff', '--name-only', '-z', '--relative', 'HEAD'],
+    ['-c', 'core.quotePath=false', 'ls-files', '-z', '--others', '--exclude-standard'],
   ]) {
     try {
       const out = execFileSync('git', args, {
@@ -101,8 +108,8 @@ function discoverChangedFiles(projectRoot, explicitFiles) {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'ignore'],
       });
-      for (const line of out.split('\n')) {
-        const rel = normalizeRelPath(line);
+      for (const entry of out.split('\0')) {
+        const rel = normalizeRelPath(entry);
         if (rel) files.add(rel);
       }
     } catch {
@@ -576,6 +583,9 @@ export function runSddGate({
 
   const result = {
     schema: 'sdd-gate-execution/v1',
+    // Identifies this attempt so a later record-attribution --run-id for the
+    // same failure is counted once, not twice (#844).
+    runId: crypto.randomUUID(),
     feature,
     taskId: taskState.taskId,
     executedAt: new Date().toISOString(),
@@ -599,6 +609,7 @@ export function runSddGate({
   fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
 
   appendFactoryMetric(root, {
+    runId: result.runId,
     timestamp: result.executedAt,
     feature,
     taskId: taskState.taskId,
@@ -608,7 +619,13 @@ export function runSddGate({
     driftSkipped: Boolean(skipDrift),
     sensorsSkipped: Boolean(skipSensors),
     provisionalOqCount: openQuestions.provisionalCount,
+    provisionalOqBlocking: Boolean(openQuestions.blocking),
     sensorFindingCount: nonFunctionalSensors.findings.length,
+    // execution.json is overwritten per task; the per-attempt breakdown the
+    // retrospective needs is kept here (#838).
+    placeholderFindingCount: placeholders.findings.length,
+    failedCommandCount: commandResults.filter((c) => !c.passed).length,
+    commandsRun: commandResults.length,
     advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
     ...(rootCausePhase ? { rootCausePhase } : {}),
     commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),

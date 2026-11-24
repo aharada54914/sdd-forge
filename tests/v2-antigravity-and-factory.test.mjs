@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -18,6 +18,105 @@ const SYNC_KNOWLEDGE = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2
 const GATE_SCRIPT = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs');
 const BASELINE_SCRIPT = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs');
 const SESSION_START = path.join(REPO_ROOT, 'plugins/sdd-implementation/scripts/session-model-start.py');
+
+
+describe('#840/#843 factory metrics semantics', () => {
+  it('separates guard auto-denials from human interventions and counts only real OQ blocks', async () => {
+    const { summarizeFactoryMetrics } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-semantics-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# test\n');
+    const metrics = [
+      // standard-risk run failing a test while an OQ is open: not an OQ block
+      { feature: 'f', taskId: 'T-001', risk: 'standard', verdict: 'FAIL', provisionalOqCount: 1, provisionalOqBlocking: false },
+      // OQ check itself stopped the run
+      { feature: 'f', taskId: 'T-002', risk: 'high', verdict: 'FAIL', provisionalOqCount: 1, provisionalOqBlocking: true },
+      // legacy records without provisionalOqBlocking
+      { feature: 'f', taskId: 'T-003', risk: 'standard', verdict: 'FAIL', provisionalOqCount: 2 },
+      { feature: 'f', taskId: 'T-004', risk: 'critical', verdict: 'FAIL', provisionalOqCount: 1 },
+      { kind: 'attribution', feature: 'f', taskId: 'T-002', rootCausePhase: 'requirements', humanIntervention: true },
+    ];
+    const drift = [
+      { feature: 'f', action: 'confirm_soft_deny' },
+      { feature: 'f', action: 'strict_deny' },
+      { feature: 'f', action: 'allow_override' },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), metrics.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    fs.writeFileSync(path.join(dir, '.sdd', 'drift-events.jsonl'), drift.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    const summary = summarizeFactoryMetrics({ projectRoot: dir });
+    assert.equal(summary.guardAutoDenials, 2);
+    assert.equal(summary.humanInterventions, 2, 'one explicit attribution + one spec-edit override');
+    assert.equal(summary.driftEvents.override, 1);
+    assert.equal(summary.gateRuns.provisionalOqBlocks, 2, 'T-002 (recorded) + T-004 (legacy critical)');
+    assert.equal(summary.finalReviews.passRate, null, 'no final verdicts recorded: no rate, never the mechanical one');
+  });
+
+  it('#838: per-attempt breakdown survives execution.json overwrites', async () => {
+    const { summarizeFactoryMetrics } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-attempts-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    const runs = [
+      { feature: 'f', taskId: 'T-001', timestamp: '2026-01-01T00:00:00Z', verdict: 'FAIL', placeholderFindingCount: 2, failedCommandCount: 0 },
+      { feature: 'f', taskId: 'T-001', timestamp: '2026-01-01T01:00:00Z', verdict: 'PASS', placeholderFindingCount: 0, failedCommandCount: 0 },
+      { feature: 'f', taskId: 'T-002', timestamp: '2026-01-01T02:00:00Z', verdict: 'PASS', placeholderFindingCount: 0 },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), runs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    const summary = summarizeFactoryMetrics({ projectRoot: dir });
+    assert.equal(summary.gateRuns.placeholderFindingsTotal, 2);
+    assert.equal(summary.gateRuns.retriedTasks, 1);
+    const t1 = summary.attemptsByTask['f/T-001'];
+    assert.deepEqual([t1.attempts, t1.failures], [2, 1]);
+    assert.deepEqual(t1.history.map((h) => [h.verdict, h.placeholderFindingCount]), [['FAIL', 2], ['PASS', 0]]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('#844: one failed attempt is attributed once even when recorded by gate and afterwards', async () => {
+    const { summarizeFactoryMetrics, recordRootCauseAttribution } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-attr-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    const runs = [
+      { runId: 'run-a', feature: 'f', taskId: 'T-001', verdict: 'FAIL', rootCausePhase: 'code' },
+      { runId: 'run-b', feature: 'f', taskId: 'T-001', verdict: 'FAIL' },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), runs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    // same attempt recorded again afterwards (sdd-gate + ship): counted once, latest phase wins
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-a' });
+    // a different attempt with the same cause stays a separate attribution
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-001', rootCause: 'test', runId: 'run-b' });
+    // legacy record without runId is still counted
+    recordRootCauseAttribution({ projectRoot: dir, feature: 'f', taskId: 'T-002', rootCause: 'design' });
+    const b = summarizeFactoryMetrics({ projectRoot: dir }).rootCauseBreakdown;
+    assert.deepEqual([b.code, b.test, b.design], [0, 2, 1]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('#837: final independent verdicts are summarized apart from mechanical gate PASS', async () => {
+    const { summarizeFactoryMetrics, recordFinalVerdict } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs')).href
+    );
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-metrics-final-'));
+    fs.mkdirSync(path.join(dir, '.sdd'), { recursive: true });
+    const runs = [
+      { feature: 'f', taskId: 'T-001', risk: 'standard', verdict: 'PASS' },
+      { feature: 'f', taskId: 'T-002', risk: 'standard', verdict: 'PASS' },
+    ];
+    fs.writeFileSync(path.join(dir, '.sdd', 'factory-metrics.jsonl'), runs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+    recordFinalVerdict({ projectRoot: dir, feature: 'f', taskId: 'T-001', verdict: 'FAIL' });
+    recordFinalVerdict({ projectRoot: dir, feature: 'f', taskId: 'T-002', verdict: 'pass' });
+    assert.throws(() => recordFinalVerdict({ projectRoot: dir, feature: 'f', taskId: 'T-003', verdict: 'MAYBE' }));
+    const summary = summarizeFactoryMetrics({ projectRoot: dir });
+    assert.deepEqual([summary.gateRuns.total, summary.gateRuns.pass, summary.gateRuns.passRate], [2, 2, 100]);
+    assert.deepEqual(summary.finalReviews, { total: 2, pass: 1, fail: 1, passRate: 50 });
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});
 
 describe('Antigravity CLI (agy) native support & Software Factory v2.1 (F-1..F-8)', () => {
   it('ships valid .antigravity-plugin/plugin.json for all 8 plugins and root hooks.json for hook-bearing plugins', () => {

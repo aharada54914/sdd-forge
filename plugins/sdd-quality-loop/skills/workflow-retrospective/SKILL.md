@@ -35,9 +35,9 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    ```bash
    node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" --root "<repo-root>" --format markdown
    ```
-   `.sdd/factory-metrics.jsonl` と `.sdd/drift-events.jsonl` から、ゲート合格率・実行時間・人の介在回数・**誤りの原因工程（`requirements` / `design` / `code` / `test` / `harness`）**を集計する。
+   `.sdd/factory-metrics.jsonl` と `.sdd/drift-events.jsonl` から、ゲート合格率・実行時間・人の介在回数・**誤りの原因工程（`requirements` / `design` / `code` / `test` / `harness`）**を集計する。合格率は **`Final Independent Reviews`（独立評価 G1〜G5 の最終 VERDICT）** を使い、`Mechanical Gate Runs` は独立評価前の機械チェック結果として区別して報告する（最終判定の記録がない期間は「n/a」とし、機械 PASS で代用しない）。
 3. **品質ゲート実行証跡（`reports/quality-gate/`）**:
-   `<feature>-<T-NNN>.execution.json` および `<feature>-<T-NNN>.md` から、FAIL/再実行回数・`UNDECLARED_DRIFT` 発生有無・プレースホルダー検知数を集計する。
+   `<feature>-<T-NNN>.execution.json` と `<feature>-<T-NNN>.md` はタスクごとに上書きされる**最新試行だけ**の記録である。FAIL/再実行回数と試行ごとのプレースホルダー検知数は、上書きされない `factory-metrics.mjs` の `attemptsByTask`（試行履歴）と `placeholderFindingsTotal` から集計し、最新ファイルは `UNDECLARED_DRIFT` など直近状態の確認に使う。
 4. **レビュー・チケット・診断履歴**:
    - `reports/spec-check/<feature>.md`（`NEEDS_FIX` や頻出 Blocker）
    - `docs/review-tickets/`（種別・重大度・解決状況）

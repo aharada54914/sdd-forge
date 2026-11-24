@@ -26,7 +26,7 @@ user-invocable: false
    - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` は自動 FAIL）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。
    - `Risk: high` タスクに対する未確定 `OQ-NNN`（非 `Confirmed`）残存ブロック
-   - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を `factory-metrics.mjs record-attribution --root-cause <phase>` で記録）
+   - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を 1 試行につき 1 回だけ `factory-metrics.mjs record-attribution --root-cause <phase> --run-id <execution.json の runId>` で記録する。ゲート実行時に `--root-cause` を渡した場合は記録済みなので重ねない）
 
    ```bash
    node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs" \
@@ -52,7 +52,13 @@ user-invocable: false
 3. **品質レポート出力（`reports/quality-gate/<feature>-<task-id>.md`）**:
    `plugins/sdd-quality-loop/templates/sdd-gate-report.md` を使い、G1〜G5 すべての判定（または明示 `N/A` 理由）とテンプレート冒頭の **Non-checks（検査しないもの）** を記録する。全決定論チェック PASS かつ未解決 Blocking Issues（Critical / Major）がゼロのときのみ `VERDICT: PASS` とする。`execution.json` の `coverage.complete` が `false`（`--cmd` 0 件、または `--skip-drift` / `--skip-sensors`）の機械 PASS は検証範囲が欠けているため Done の根拠にせず、不足した検証を実行してから判定する（MCP `sdd_gate_audit` も `readyForDone: false` を返す）。
 
-4. **Done 遷移**:
+4. **最終判定の計測記録**:
+   レポートの最終 `VERDICT` を計測へ戻す（機械ゲートの PASS だけが合格率に入らないようにするため）:
+   ```bash
+   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" record-final-verdict --feature <feature> --task <task-id> --verdict <PASS|FAIL> --root "<repo-root>"
+   ```
+
+5. **Done 遷移**:
    `VERDICT: PASS` のときのみ `specs/<feature>/tasks.md` の対象タスクを `Status: Done` に更新する（`FAIL` 時は `Implementation Complete` のまま差し戻す）。
 
 ## Boundaries

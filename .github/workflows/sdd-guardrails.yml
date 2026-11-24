@@ -39,12 +39,21 @@ jobs:
           const summaryPath = process.env.GITHUB_STEP_SUMMARY;
           let failed = false;
           let checked = 0;
+          const unbaselined = [];
 
           if (fs.existsSync(specsRoot)) {
             for (const entry of fs.readdirSync(specsRoot, { withFileTypes: true })) {
               if (!entry.isDirectory()) continue;
               const baseline = path.join(specsRoot, entry.name, '.spec-baseline.json');
-              if (!fs.existsSync(baseline)) continue;
+              if (!fs.existsSync(baseline)) {
+                // Approved but never baselined: outside drift coverage. List it
+                // so a zero-comparison run is never mistaken for full coverage (#852).
+                const tasksPath = path.join(specsRoot, entry.name, 'tasks.md');
+                if (fs.existsSync(tasksPath) && /^[ \t]*Approval:[ \t]*Approved\b/m.test(fs.readFileSync(tasksPath, 'utf8'))) {
+                  unbaselined.push(entry.name);
+                }
+                continue;
+              }
               checked += 1;
               const res = spawnSync(
                 process.execPath,
@@ -68,10 +77,14 @@ jobs:
             }
           }
 
-          if (checked === 0) {
-            const msg = 'No baselined specs (`specs/*/.spec-baseline.json`) found in this PR.\n';
-            process.stdout.write(msg);
-            if (summaryPath) fs.appendFileSync(summaryPath, msg, 'utf8');
+          const coverage =
+            `Spec Drift coverage: ${checked} baselined feature(s) compared; ` +
+            `${unbaselined.length} approved feature(s) without a baseline are NOT covered` +
+            (unbaselined.length ? `: ${unbaselined.join(', ')}` : '') + '.\n';
+          process.stdout.write(coverage);
+          if (summaryPath) fs.appendFileSync(summaryPath, coverage, 'utf8');
+          for (const name of unbaselined) {
+            process.stdout.write(`::warning title=Spec Drift not covered::specs/${name} is approved but has no .spec-baseline.json; drift is not checked for it.\n`);
           }
           if (failed) {
             process.exit(1);

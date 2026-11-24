@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -137,6 +137,27 @@ describe('sdd-soft-guard.mjs (v2 Lightweight Guardrails)', () => {
       },
     });
     assert.equal(srcEdit.status, 0);
+  });
+
+  it('#833: a legacy Second Approval line neither hides nor offsets a primary approval', async () => {
+    const { countPrimaryApprovals } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs')).href
+    );
+    assert.equal(countPrimaryApprovals('## T-001\nApproval: Approved\nSecond Approval: Approved\n'), 1);
+    assert.equal(countPrimaryApprovals('## T-001\nApproval: Approved\n'), 1);
+    assert.equal(countPrimaryApprovals('## T-001\nSecond Approval: Approved\n'), 0);
+
+    // Inserting both lines at once used to net to zero and slip past the guard.
+    const draftRepo = createTempRepo({ approved: false });
+    const paired = runGuard(draftRepo, {
+      tool_name: 'Edit',
+      tool_input: {
+        file_path: path.join(draftRepo, 'specs', 'demo-feature', 'tasks.md'),
+        old_string: 'Approval: Draft',
+        new_string: 'Approval: Approved\nSecond Approval: Approved',
+      },
+    });
+    assert.equal(paired.status, 2);
   });
 
   it('AC-003: denies adding Approval: Approved in tasks.md, but allows Status transitions', () => {

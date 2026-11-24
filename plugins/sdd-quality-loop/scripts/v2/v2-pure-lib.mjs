@@ -38,7 +38,6 @@ export const VALID_PRE_IMPL = new Set(['auto', 'always', 'off']);
 export const VALID_RISK_TIERS = new Set(['low', 'standard', 'high']);
 
 const APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
-const SECOND_APPROVAL_RE = /(?:^|\n)[ \t]*Second Approval:[ \t]*Approved\b/g;
 const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approved\b/g;
 const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
@@ -281,10 +280,11 @@ export function matchProtectedSpecRelPath(relPath, config) {
 
 export function countPrimaryApprovals(text) {
   if (!text) return 0;
-  const normalized = normalizeNewlines(text);
-  const primary = (normalized.match(APPROVAL_LINE_RE) || []).length;
-  const second = (normalized.match(SECOND_APPROVAL_RE) || []).length;
-  return Math.max(0, primary - second);
+  // APPROVAL_LINE_RE is anchored to the line start, so legacy
+  // `Second Approval: Approved` lines are already excluded. Subtracting them
+  // again undercounted primary approvals and let a paired insertion of both
+  // lines net to zero in the soft guard (#833).
+  return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
 }
 
 export function countDomainModelApprovals(text) {

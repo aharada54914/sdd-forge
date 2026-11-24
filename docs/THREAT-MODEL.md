@@ -26,7 +26,7 @@ flowchart LR
 3. **暴走時の緊急停止**: 人間が `AGENT_STOP` を配置した際に全ツール実行を即座に停止できること。
 
 ### What the Merge Boundary (Git / PR / CI) Defends Against
-1. **シェル経由・別ツール経由の仕様改変**: ローカルではシェル構文解析を廃止し探索・テスト速度を最大化する代わりに、`sdd-gate` と CI の `check-spec-drift.mjs` が `.spec-baseline.json` と現在ファイルの契約ハッシュおよび `REQ-*` / `AC-*` を決定論的に突き合わせて 100% 捕捉します。
+1. **シェル経由・別ツール経由の仕様改変**: ローカルではシェル構文解析を廃止し探索・テスト速度を最大化する代わりに、`sdd-gate` と CI の `check-spec-drift.mjs` が `.spec-baseline.json` と現在ファイルの契約ハッシュおよび `REQ-*` / `AC-*` を決定論的に突き合わせて検出します。**対象はベースライン（`specs/<feature>/.spec-baseline.json`）を記録済みの機能だけ**で、ベースライン未記録の承認済み機能は比較されません。CI はその件数と機能名を毎回警告として列挙し、比較 0 件の成功を全件検査と誤認させません（#852）。
 2. **ガード・ゲートスクリプト・設定の改ざん**: ローカルの 224 ファイル物理ロック（`human-copy` 儀式）を廃止し、`.github/CODEOWNERS` と GitHub Branch Protection により、ガード／フック／CI／承認済み仕様への変更にリポジトリオーナーの PR レビューを必須化します。
 3. **高リスク変更の複数人承認**: 独自の `Second Approval` パーサーや外部鍵署名を廃止し、GitHub Branch Protection の Required Reviewers 機能へ委譲します。
 

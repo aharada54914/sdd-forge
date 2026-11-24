@@ -13,7 +13,13 @@
  * Usage:
  *   node factory-metrics.mjs [--root <dir>] [--feature <slug>] [--format json|markdown]
  *   node factory-metrics.mjs record-attribution --feature <slug> --task <T-NNN>
- *        --root-cause requirements|design|code|test|harness [--note "..."] [--human-intervention] [--root <dir>]
+ *        --root-cause requirements|design|code|test|harness [--note "..."] [--human-intervention]
+ *        [--run-id <runId from execution.json>] [--root <dir>]
+ *   node factory-metrics.mjs record-final-verdict --feature <slug> --task <T-NNN> --verdict PASS|FAIL [--root <dir>]
+ *
+ * `gateRuns` are mechanical run-sdd-gate executions recorded before the
+ * independent G1-G5 review. The final independent verdict is recorded with
+ * record-final-verdict and summarized separately as `finalReviews` (#837).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,6 +54,7 @@ export function recordRootCauseAttribution({
   note = '',
   humanIntervention = false,
   autoFixRound = null,
+  runId = null,
 }) {
   assertValidFeatureName(feature);
   if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
@@ -68,9 +75,34 @@ export function recordRootCauseAttribution({
     feature,
     taskId: taskId.toUpperCase(),
     rootCausePhase: normalizedCause,
+    ...(runId ? { runId: String(runId) } : {}),
     humanIntervention: Boolean(humanIntervention),
     ...(Number.isInteger(autoFixRound) ? { autoFixRound } : {}),
     note: String(note || '').trim(),
+  };
+  fs.appendFileSync(path.join(sddDir, 'factory-metrics.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
+  return record;
+}
+
+export function recordFinalVerdict({ projectRoot = null, feature, taskId, verdict }) {
+  assertValidFeatureName(feature);
+  if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
+    throw new Error(`Invalid task ID: ${taskId}`);
+  }
+  const normalized = String(verdict || '').trim().toUpperCase();
+  if (normalized !== 'PASS' && normalized !== 'FAIL') {
+    throw new Error(`Invalid verdict '${verdict}'. Must be PASS or FAIL`);
+  }
+  const root = resolveExplicitOrAutoRoot(projectRoot);
+  const sddDir = path.join(root, '.sdd');
+  fs.mkdirSync(sddDir, { recursive: true });
+  const record = {
+    schema: 'sdd-factory-final-verdict/v1',
+    kind: 'final-verdict',
+    timestamp: new Date().toISOString(),
+    feature,
+    taskId: taskId.toUpperCase(),
+    finalVerdict: normalized,
   };
   fs.appendFileSync(path.join(sddDir, 'factory-metrics.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
   return record;
@@ -85,7 +117,12 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const metrics = metricsData.records.filter(filterByFeature);
   const driftEvents = driftData.records.filter(filterByFeature);
 
-  const gateRuns = metrics.filter((r) => r.kind !== 'attribution' && typeof r.verdict === 'string');
+  const gateRuns = metrics.filter(
+    (r) => r.kind !== 'attribution' && r.kind !== 'final-verdict' && typeof r.verdict === 'string',
+  );
+  const finalVerdicts = metrics.filter((r) => r.kind === 'final-verdict' && typeof r.finalVerdict === 'string');
+  const finalPass = finalVerdicts.filter((r) => r.finalVerdict === 'PASS').length;
+  const finalFail = finalVerdicts.filter((r) => r.finalVerdict === 'FAIL').length;
   const attributions = metrics.filter((r) => r.kind === 'attribution' || typeof r.rootCausePhase === 'string');
 
   const passCount = gateRuns.filter((r) => r.verdict === 'PASS').length;
@@ -99,18 +136,56 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const p95DurationMs =
     durations.length > 0 ? durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.95))] : 0;
 
-  const rootCauseBreakdown = Object.fromEntries(VALID_ROOT_CAUSES.map((c) => [c, 0]));
+  // One failed attempt yields one attribution: records sharing a runId (the
+  // gate's --root-cause and a later record-attribution --run-id) collapse to
+  // the latest one (#844). Records without a runId are counted individually.
+  const attributionByRun = new Map();
+  const unkeyedAttributions = [];
   for (const r of attributions) {
+    if (typeof r.runId === 'string' && r.runId) attributionByRun.set(r.runId, r);
+    else unkeyedAttributions.push(r);
+  }
+  const rootCauseBreakdown = Object.fromEntries(VALID_ROOT_CAUSES.map((c) => [c, 0]));
+  for (const r of [...attributionByRun.values(), ...unkeyedAttributions]) {
     const phase = VALID_ROOT_CAUSES.includes(r.rootCausePhase) ? r.rootCausePhase : 'unknown';
     rootCauseBreakdown[phase] += 1;
   }
 
+  // Human interventions are explicit human acts: attributions flagged
+  // humanIntervention and SDD_ALLOW_SPEC_EDIT overrides. A guard deny is an
+  // automatic refusal that waits for no one, so it is counted separately (#840).
   const humanInterventions =
     metrics.filter((r) => r.humanIntervention === true).length +
-    driftEvents.filter((e) => e.action === 'confirm_soft_deny' || e.action === 'strict_deny').length;
+    driftEvents.filter((e) => e.action === 'allow_override').length;
+  const guardAutoDenials = driftEvents.filter(
+    (e) => e.action === 'confirm_soft_deny' || e.action === 'strict_deny',
+  ).length;
 
   const sensorFindingsTotal = gateRuns.reduce((acc, r) => acc + Number(r.sensorFindingCount || 0), 0);
-  const provisionalOqBlocks = gateRuns.filter((r) => r.verdict === 'FAIL' && Number(r.provisionalOqCount || 0) > 0).length;
+  const placeholderFindingsTotal = gateRuns.reduce((acc, r) => acc + Number(r.placeholderFindingCount || 0), 0);
+  // Attempt history per task (oldest first) survives execution.json overwrites (#838).
+  const attemptsByTask = {};
+  for (const r of [...gateRuns].sort((a, b) => String(a.timestamp || '').localeCompare(String(b.timestamp || '')))) {
+    const key = `${r.feature || '?'}/${r.taskId || '?'}`;
+    const entry = (attemptsByTask[key] ||= { attempts: 0, failures: 0, history: [] });
+    entry.attempts += 1;
+    if (r.verdict === 'FAIL') entry.failures += 1;
+    entry.history.push({
+      timestamp: r.timestamp || null,
+      verdict: r.verdict,
+      placeholderFindingCount: Number.isFinite(r.placeholderFindingCount) ? r.placeholderFindingCount : null,
+      failedCommandCount: Number.isFinite(r.failedCommandCount) ? r.failedCommandCount : null,
+    });
+  }
+  // Only runs the Open Questions check itself stopped count as OQ blocks (#843).
+  // Records predating `provisionalOqBlocking` derive it from the gate rule
+  // (high risk with unresolved OQs) instead of "any FAIL with an OQ present".
+  const provisionalOqBlocks = gateRuns.filter((r) => {
+    if (r.verdict !== 'FAIL') return false;
+    if (typeof r.provisionalOqBlocking === 'boolean') return r.provisionalOqBlocking;
+    const risk = String(r.risk || '').toLowerCase();
+    return (risk === 'high' || risk === 'critical') && Number(r.provisionalOqCount || 0) > 0;
+  }).length;
 
   return {
     schema: 'sdd-factory-metrics-summary/v1',
@@ -124,15 +199,27 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
       avgDurationMs,
       p95DurationMs,
       sensorFindingsTotal,
+      placeholderFindingsTotal,
       provisionalOqBlocks,
+      retriedTasks: Object.values(attemptsByTask).filter((t) => t.attempts > 1).length,
+    },
+    attemptsByTask,
+    // Final independent (G1-G5) verdicts: the Done decision, unlike gateRuns.
+    finalReviews: {
+      total: finalVerdicts.length,
+      pass: finalPass,
+      fail: finalFail,
+      passRate: finalVerdicts.length > 0 ? Number(((finalPass / finalVerdicts.length) * 100).toFixed(1)) : null,
     },
     driftEvents: {
       total: driftEvents.length,
       deny: driftEvents.filter((e) => e.action === 'strict_deny' || e.action === 'confirm_soft_deny').length,
       amendedAllow: driftEvents.filter((e) => e.action === 'confirm_amended_allow').length,
       warnAllow: driftEvents.filter((e) => e.action === 'warn_allow').length,
+      override: driftEvents.filter((e) => e.action === 'allow_override').length,
     },
     humanInterventions,
+    guardAutoDenials,
     rootCauseBreakdown,
     parseErrors: metricsData.parseErrors + driftData.parseErrors,
   };
@@ -144,12 +231,16 @@ export function formatFactoryMetricsMarkdown(summary) {
     '',
     '| Metric | Value |',
     '|---|---|',
-    `| Gate Runs (PASS / FAIL) | ${summary.gateRuns.total} (${summary.gateRuns.pass} / ${summary.gateRuns.fail}, ${summary.gateRuns.passRate}%) |`,
+    `| Mechanical Gate Runs (PASS / FAIL) | ${summary.gateRuns.total} (${summary.gateRuns.pass} / ${summary.gateRuns.fail}, ${summary.gateRuns.passRate}%) |`,
+    `| Final Independent Reviews (PASS / FAIL) | ${summary.finalReviews.total} (${summary.finalReviews.pass} / ${summary.finalReviews.fail}${summary.finalReviews.passRate === null ? ', n/a' : `, ${summary.finalReviews.passRate}%`}) |`,
     `| Command Duration (avg / p95) | ${summary.gateRuns.avgDurationMs} ms / ${summary.gateRuns.p95DurationMs} ms |`,
     `| Sensor Findings Total | ${summary.gateRuns.sensorFindingsTotal} |`,
+    `| Placeholder Findings Total (all attempts) | ${summary.gateRuns.placeholderFindingsTotal} |`,
+    `| Tasks Re-run After a Gate Attempt | ${summary.gateRuns.retriedTasks} |`,
     `| Provisional OQ Blocks | ${summary.gateRuns.provisionalOqBlocks} |`,
     `| Guard Events (deny / amended / warn) | ${summary.driftEvents.total} (${summary.driftEvents.deny} / ${summary.driftEvents.amendedAllow} / ${summary.driftEvents.warnAllow}) |`,
-    `| Recorded Human Interventions | ${summary.humanInterventions} |`,
+    `| Recorded Human Interventions (explicit attributions + spec-edit overrides) | ${summary.humanInterventions} |`,
+    `| Guard Auto-Denials (no human involved) | ${summary.guardAutoDenials} |`,
     '',
     '## Root-Cause Phase Attribution（誤りの原因工程）',
     '',
@@ -163,10 +254,12 @@ export function formatFactoryMetricsMarkdown(summary) {
 }
 
 function parseArgs(argv) {
-  const isRecord = argv[0] === 'record-attribution';
-  const start = isRecord ? 1 : 0;
+  const sub = argv[0] === 'record-attribution' || argv[0] === 'record-final-verdict' ? argv[0] : null;
+  const start = sub ? 1 : 0;
   const opts = {
-    cmd: isRecord ? 'record-attribution' : 'summary',
+    cmd: sub || 'summary',
+    verdict: null,
+    runId: null,
     root: null,
     feature: null,
     taskId: null,
@@ -186,6 +279,8 @@ function parseArgs(argv) {
     else if (a === '--human-intervention') opts.humanIntervention = true;
     else if (a === '--auto-fix-round' && argv[i + 1]) opts.autoFixRound = Number(argv[++i]);
     else if (a === '--format' && argv[i + 1]) opts.format = argv[++i];
+    else if (a === '--verdict' && argv[i + 1]) opts.verdict = argv[++i];
+    else if (a === '--run-id' && argv[i + 1]) opts.runId = argv[++i];
   }
   return opts;
 }
@@ -213,6 +308,23 @@ if (isMain) {
         note: opts.note,
         humanIntervention: opts.humanIntervention,
         autoFixRound: opts.autoFixRound,
+        runId: opts.runId,
+      });
+      process.stdout.write(`${JSON.stringify(rec, null, 2)}\n`);
+      process.exit(0);
+    }
+    if (opts.cmd === 'record-final-verdict') {
+      if (!opts.feature || !opts.taskId || !opts.verdict) {
+        process.stderr.write(
+          'Usage: node factory-metrics.mjs record-final-verdict --feature <slug> --task <T-NNN> --verdict PASS|FAIL [--root <dir>]\n',
+        );
+        process.exit(2);
+      }
+      const rec = recordFinalVerdict({
+        projectRoot: opts.root,
+        feature: opts.feature,
+        taskId: opts.taskId,
+        verdict: opts.verdict,
       });
       process.stdout.write(`${JSON.stringify(rec, null, 2)}\n`);
       process.exit(0);

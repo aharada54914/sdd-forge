@@ -12,7 +12,12 @@
 - **構造検査の Bash / PowerShell 差（Closes #859）**: `check-sdd-structure.ps1` の機能指定時の必須ファイルを Bash と同じ Core v2 の3文書へ統一し、両試験を CI で実行。
 - **Cloud マニフェスト必須検査の PowerShell 漏れ（Closes #861）**: `install.ps1` の Cloud 必須一覧に `.antigravity-plugin/plugin.json` を追加し、両導入器の一覧一致を試験で固定。
 - **ゲートのタスク ID 前方一致（Closes #821）**: `run-sdd-gate.mjs` が `T-001` 指定で `## T-001.1` 等の状態を読む不具合を修正（計画・MCP と同じ完全一致）。
-- **コマンド 0 件の機械 PASS（Closes #825）**: `run-sdd-gate.mjs` が検証範囲 `coverage` と警告を出力し、MCP は範囲が欠けた実行記録を完了根拠に数えず `readyForDone: false` を返す。
+- **コマンド 0 件の機械 PASS（Closes #825）**: `run-sdd-gate.mjs` が検証範囲 `coverage` と警告を出力し、MCP は範囲が欠けた実行記録を完了根拠に数えず `readyForDone: false` を返す。実行記録の `coverage.complete` は自己申告として信用せず、`checks` から導出する。
+- **非 ASCII 名・サブディレクトリ配置の変更検出（Closes #822, Closes #828）**: ゲートの変更ファイル列挙を `git -c core.quotePath=false ... -z` と `diff --relative` に変更し、日本語名を開けずに素通りする不具合と、Git ルート配下のプロジェクトでパスが二重になる不具合を修正。
+- **旧 `Risk: critical` のゲート扱い（Closes #824）**: ゲートも計画・MCP と同じく `critical` を `high` として未確定 OQ で停止する。
+- **副承認行による主承認数の過少計上（Closes #833）**: `countPrimaryApprovals` が `Second Approval:` 行を二重に差し引いていた。主承認と副承認の同時挿入でソフトガードを素通りできた経路も塞いだ。
+- **工場計測の意味の修正（Closes #837, #838, #840, #843, #844）**: ガードの自動拒否を人間の介入に数えない（`guardAutoDenials` を分離、`SDD_ALLOW_SPEC_EDIT` の明示上書きを介入として計上）。OQ 停止は実際に OQ 検査で止まった試行だけを数える。独立評価の最終判定を `record-final-verdict` で記録し `finalReviews` として機械ゲートと分けて集計。原因工程は試行 ID（`runId`）で重複排除。試行ごとのプレースホルダー件数などを `attemptsByTask` に保持し、回顧は上書きされる `execution.json` ではなくこちらを参照する。
+- **Spec Drift の保証範囲の明示（Closes #852）**: CI が比較した機能数と、ベースライン未記録の承認済み機能を毎回警告として列挙。THREAT-MODEL / README の「100% 捕捉」「確実に抑止」を実際の範囲に合わせて修正。
 
 ## v2.1.0 (2026-11-22)
 

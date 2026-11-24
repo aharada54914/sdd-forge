@@ -358,6 +358,19 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(zeroAudit.data.tasks[0].reviewReport.verdict, 'PASS');
     assert.equal(zeroAudit.data.tasks[0].readyForDone, false);
 
+    // A self-declared coverage.complete that its own checks contradict is not trusted.
+    const execPath = path.join(repoZero, 'reports', 'quality-gate', 'zero-cmd-T-001.execution.json');
+    const forged = JSON.parse(fs.readFileSync(execPath, 'utf8'));
+    forged.coverage = { ...forged.coverage, complete: true };
+    fs.writeFileSync(execPath, JSON.stringify(forged), 'utf8');
+    const forgedAudit = JSON.parse(
+      callMcp(repoZero, [
+        { method: 'tools/call', params: { name: 'sdd_gate_audit', arguments: { feature: 'zero-cmd', taskId: 'T-001' } } },
+      ])[1].result.content[0].text,
+    );
+    assert.equal(forgedAudit.data.tasks[0].executionArtifact.coverageComplete, false);
+    assert.equal(forgedAudit.data.tasks[0].readyForDone, false);
+
     // NEW-M3a: Existing empty specs/<feature>/ directory must return ok: true, phase: 'bootstrap'
     fs.mkdirSync(path.join(repoC, 'specs', 'empty-draft'), { recursive: true });
     // NEW-M3b: Fenced code block containing VERDICT: FAIL must not trigger false-negative FAIL
