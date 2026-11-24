@@ -40199,6 +40199,21 @@ function extractTaskBlockers(taskBlock) {
   const ids = section.match(/\bT-[A-Za-z0-9._-]+\b/gi) || [];
   return [...new Set(ids.map((id) => id.toUpperCase()))];
 }
+var BARE_BLOCKER_LINE_RE = /^T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*(?:\s*[,、]\s*T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)*$/i;
+function extractDeclaredBlockers(taskBlock) {
+  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
+  if (!blockersMatch) return [];
+  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const ids = [];
+  for (const raw of section.split("\n")) {
+    const line = raw.trim().replace(/^[-*+][ \t]+/, "").trim();
+    if (!BARE_BLOCKER_LINE_RE.test(line)) continue;
+    for (const id of line.split(/\s*[,、]\s*/)) ids.push(id.toUpperCase());
+  }
+  return [...new Set(ids)];
+}
 function extractScopePaths(taskBlock) {
   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
   if (!scopeMatch) return [];
@@ -40247,11 +40262,12 @@ ${afterAmendments}` : beforeAmendments);
     const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], "standard");
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
     const taskId = taskMatch[1].toUpperCase();
-    const declaredBlockers = extractTaskBlockers(block);
-    const blockers = declaredBlockers.filter((b) => b !== taskId);
+    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+    const declaredBlockers = extractDeclaredBlockers(block);
     const selfBlocked = declaredBlockers.includes(taskId);
     tasks.push({
       selfBlocked,
+      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
       id: taskId,
       title: (taskMatch[2] || "").trim(),
       approval,
@@ -40492,7 +40508,7 @@ function computeExecutionPlan(tasks) {
   }
   const unknownBlockers = [];
   for (const t of tasks) {
-    for (const b of t.blockers || []) {
+    for (const b of t.declaredBlockers || []) {
       if (!byId.has(b)) unknownBlockers.push({ task: t.id, blocker: b });
     }
   }
@@ -40511,7 +40527,7 @@ function computeExecutionPlan(tasks) {
   let guard = 0;
   while (remaining.size > 0 && guard < tasks.length + 2) {
     guard += 1;
-    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => t.blockers.every((b) => completed.has(b)));
+    const ready = tasks.filter((t) => remaining.has(t.id)).filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
     if (ready.length === 0) {
       break;
     }
@@ -40536,8 +40552,23 @@ function computeExecutionPlan(tasks) {
       completed.add(id);
     }
   }
-  const cyclicTasks = [...remaining];
-  const invalidBlockerTasks = tasks.filter((t) => invalid.has(t.id)).map((t) => t.id);
+  const onCycle = /* @__PURE__ */ new Set();
+  for (const t of tasks) {
+    const seen = /* @__PURE__ */ new Set();
+    const stack = [...(t.blockers || []).filter((b) => byId.has(b))];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (cur === t.id) {
+        onCycle.add(t.id);
+        break;
+      }
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      for (const b of byId.get(cur)?.blockers || []) if (byId.has(b)) stack.push(b);
+    }
+  }
+  const cyclicTasks = [.../* @__PURE__ */ new Set([...remaining, ...tasks.map((t) => t.id).filter((id) => onCycle.has(id))])];
+  const invalidBlockerTasks = [...new Set(tasks.filter((t) => invalid.has(t.id)).map((t) => t.id))];
   return { batches, scopeConflicts, cyclicTasks, unknownBlockers, invalidBlockerTasks };
 }
 function analyzeTraceabilityCore(io, { feature, changedIds = [], changedFiles = [], checkCodeAndTests = true }) {
@@ -40617,6 +40648,7 @@ ${t.block}`);
       acRefs: t.acRefs,
       blockers: t.blockers,
       selfBlocked: Boolean(t.selfBlocked),
+      declaredBlockers: t.declaredBlockers || [],
       scopePaths,
       domains,
       codePaths,

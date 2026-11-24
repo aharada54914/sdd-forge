@@ -347,6 +347,29 @@ function extractTaskBlockers(taskBlock) {
   return [...new Set(ids.map((id) => id.toUpperCase()))];
 }
 
+const BARE_BLOCKER_LINE_RE = /^T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*(?:\s*[,、]\s*T-[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*)*$/i;
+
+/**
+ * Blocker IDs the author declared as dependencies: a line (optionally a list
+ * item) holding only task IDs separated by commas. IDs inside prose, ranges
+ * (T-002..T-005), file names (T-001.md) and placeholders are mentions, not
+ * declarations, and are never checked for existence or self-reference (#817).
+ */
+function extractDeclaredBlockers(taskBlock) {
+  const blockersMatch = /^###[ \t]+Blockers[ \t]*$/im.exec(taskBlock);
+  if (!blockersMatch) return [];
+  const rest = taskBlock.slice(blockersMatch.index + blockersMatch[0].length);
+  const nextSub = /^###[ \t]+\S/m.exec(rest);
+  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const ids = [];
+  for (const raw of section.split('\n')) {
+    const line = raw.trim().replace(/^[-*+][ \t]+/, '').trim();
+    if (!BARE_BLOCKER_LINE_RE.test(line)) continue;
+    for (const id of line.split(/\s*[,、]\s*/)) ids.push(id.toUpperCase());
+  }
+  return [...new Set(ids)];
+}
+
 export function extractScopePaths(taskBlock) {
   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
   if (!scopeMatch) return [];
@@ -400,12 +423,13 @@ export function parseTasksSummary(tasksText) {
     const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], 'standard');
     const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
     const taskId = taskMatch[1].toUpperCase();
-    const declaredBlockers = extractTaskBlockers(block);
-    const blockers = declaredBlockers.filter((b) => b !== taskId);
+    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+    const declaredBlockers = extractDeclaredBlockers(block);
     const selfBlocked = declaredBlockers.includes(taskId);
 
     tasks.push({
       selfBlocked,
+      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
       id: taskId,
       title: (taskMatch[2] || '').trim(),
       approval,
@@ -704,9 +728,11 @@ export function computeExecutionPlan(tasks) {
   // A Blocker naming no task in this file, or the task itself, can never be
   // satisfied: such tasks and everything downstream stay out of the waves and
   // are reported apart from real cycles (#817).
+  // Only bare declared IDs are checked; prose mentions keep the old meaning
+  // (a known ID is an edge, an unknown token is ignored).
   const unknownBlockers = [];
   for (const t of tasks) {
-    for (const b of t.blockers || []) {
+    for (const b of t.declaredBlockers || []) {
       if (!byId.has(b)) unknownBlockers.push({ task: t.id, blocker: b });
     }
   }
@@ -728,7 +754,7 @@ export function computeExecutionPlan(tasks) {
     guard += 1;
     const ready = tasks
       .filter((t) => remaining.has(t.id))
-      .filter((t) => t.blockers.every((b) => completed.has(b)));
+      .filter((t) => t.blockers.every((b) => !byId.has(b) || completed.has(b)));
     if (ready.length === 0) {
       break;
     }
@@ -754,8 +780,25 @@ export function computeExecutionPlan(tasks) {
     }
   }
 
-  const cyclicTasks = [...remaining];
-  const invalidBlockerTasks = tasks.filter((t) => invalid.has(t.id)).map((t) => t.id);
+  // Tasks on a dependency cycle (over known edges), found on the whole graph
+  // so a cycle stays visible even when it also touches an invalid task.
+  const onCycle = new Set();
+  for (const t of tasks) {
+    const seen = new Set();
+    const stack = [...(t.blockers || []).filter((b) => byId.has(b))];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (cur === t.id) {
+        onCycle.add(t.id);
+        break;
+      }
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      for (const b of byId.get(cur)?.blockers || []) if (byId.has(b)) stack.push(b);
+    }
+  }
+  const cyclicTasks = [...new Set([...remaining, ...tasks.map((t) => t.id).filter((id) => onCycle.has(id))])];
+  const invalidBlockerTasks = [...new Set(tasks.filter((t) => invalid.has(t.id)).map((t) => t.id))];
   return { batches, scopeConflicts, cyclicTasks, unknownBlockers, invalidBlockerTasks };
 }
 
@@ -850,6 +893,7 @@ export function analyzeTraceabilityCore(
       acRefs: t.acRefs,
       blockers: t.blockers,
       selfBlocked: Boolean(t.selfBlocked),
+      declaredBlockers: t.declaredBlockers || [],
       scopePaths,
       domains,
       codePaths,
