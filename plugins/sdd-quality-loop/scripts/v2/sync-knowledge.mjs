@@ -17,12 +17,12 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   assertValidFeatureName,
   createFsReadonlyIo,
   extractAmendmentEntries,
   resolveExplicitOrAutoRoot,
+  isMainModule,
 } from './guardrails-lib.mjs';
 import { buildDecisionViewDataCore } from './v2-readonly-core.mjs';
 
@@ -207,10 +207,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'sync-knowledge.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url);
 
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));

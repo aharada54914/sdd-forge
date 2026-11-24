@@ -23,7 +23,6 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
@@ -31,6 +30,7 @@ import {
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
   splitSpecAmendments,
+  isMainModule,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
 import { extractScopePaths, normalizeRiskTier } from './v2-readonly-core.mjs';
@@ -839,6 +839,6 @@ function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (isMainModule(import.meta.url)) {
   main();
 }

@@ -10,8 +10,7 @@
  *   2 — Usage / runtime / file error
  */
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { createFsReadonlyIo, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
+import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { analyzeTraceabilityCore, scopeMatchesFile } from './v2-readonly-core.mjs';
 
 export { scopeMatchesFile };
@@ -125,10 +124,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'check-traceability.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || (opts.format !== 'json' && opts.format !== 'markdown')) {

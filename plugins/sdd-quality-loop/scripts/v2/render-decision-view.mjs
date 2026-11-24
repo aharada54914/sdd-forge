@@ -11,8 +11,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { createFsReadonlyIo, loadGuardrailsConfig, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
+import { createFsReadonlyIo, loadGuardrailsConfig, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import {
   buildDecisionViewDataCore,
   detectDomains,
@@ -59,10 +58,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'render-decision-view.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || (opts.format !== 'markdown' && opts.format !== 'html')) {

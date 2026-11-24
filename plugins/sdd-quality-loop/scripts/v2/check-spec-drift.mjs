@@ -10,12 +10,12 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   createFsReadonlyIo,
   loadGuardrailsConfig,
   resolveExplicitOrAutoRoot,
   toPosixPath,
+  isMainModule,
 } from './guardrails-lib.mjs';
 import { checkSpecDriftCore } from './v2-readonly-core.mjs';
 
@@ -176,10 +176,6 @@ function main() {
   }
 }
 
-if (
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'check-spec-drift.mjs' &&
-  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
-) {
+if (isMainModule(import.meta.url)) {
   main();
 }

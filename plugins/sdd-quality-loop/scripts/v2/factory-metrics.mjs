@@ -23,8 +23,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { assertValidFeatureName, normalizeNewlines, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
+import { assertValidFeatureName, normalizeNewlines, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 
 export const VALID_ROOT_CAUSES = Object.freeze(['requirements', 'design', 'code', 'test', 'harness', 'unknown']);
 
@@ -287,10 +286,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'factory-metrics.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url);
 
 if (isMain) {
   const opts = parseArgs(process.argv.slice(2));

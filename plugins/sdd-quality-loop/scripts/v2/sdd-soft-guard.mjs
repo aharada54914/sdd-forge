@@ -19,7 +19,6 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   appendDriftEvent,
   countDomainModelApprovals,
@@ -34,6 +33,7 @@ import {
   normalizeNewlines,
   safeRealpath,
   toPosixPath,
+  isMainModule,
 } from './guardrails-lib.mjs';
 
 const FILE_TOOLS = new Set([
@@ -658,6 +658,6 @@ async function main() {
   emitDecision(result, emit);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (isMainModule(import.meta.url)) {
   main();
 }

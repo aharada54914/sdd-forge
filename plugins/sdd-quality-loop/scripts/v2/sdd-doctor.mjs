@@ -11,8 +11,7 @@
  *   1 — One or more NG findings
  */
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { createFsReadonlyIo, resolveExplicitOrAutoRoot } from './guardrails-lib.mjs';
+import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { NON_CHECKS, runDoctorCore } from './v2-readonly-core.mjs';
 
 export { NON_CHECKS };
@@ -66,10 +65,7 @@ function parseCliArgs(argv) {
   return opts;
 }
 
-const isMain =
-  process.argv[1] &&
-  path.basename(process.argv[1]) === 'sdd-doctor.mjs' &&
-  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const opts = parseCliArgs(process.argv.slice(2));
   const report = runDoctor(opts);
