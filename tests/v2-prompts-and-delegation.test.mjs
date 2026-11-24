@@ -518,3 +518,18 @@ describe('#867 user guides never present retired sudo / Lite tooling as current'
     }
   });
 });
+
+describe('#868 a retrospective drafts WFIs from the canonical template with audit-required fields', () => {
+  it('Step 4 names the template and every field the auditors check, without guessing', () => {
+    const skill = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md'), 'utf8');
+    const step3 = skill.slice(skill.indexOf('## Step 3'), skill.indexOf('## Step 4'));
+    const step4 = skill.slice(skill.indexOf('## Step 4'), skill.indexOf('## Boundaries'));
+    assert.match(step4, /templates\/workflow-improvement\.template\.md/);
+    for (const field of ['Category', 'Meta-Change', 'Why-Why Analysis', 'Root Cause Hypothesis', 'Verification Metric', 'Audit-Status: Not-Started']) {
+      assert.ok(step4.includes(field), `Step 4 must carry ${field}`);
+    }
+    assert.match(step4, /推測しない|TBD（人間確認）/);
+    assert.match(step3, /Category/);
+    assert.match(step3, /評価時期/);
+  });
+});
