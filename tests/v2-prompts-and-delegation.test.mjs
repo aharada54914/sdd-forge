@@ -559,3 +559,22 @@ describe('#863 the context-map template states what an edit after approval actua
     assert.match(validator, /Concept Test input changed/, 'the documented stop message is the one the validator emits');
   });
 });
+
+describe('#814 the domain review finalizer names its own operation in diagnostics', () => {
+  it('bash (run) and PowerShell (static) report FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE', () => {
+    const dir = path.join(REPO_ROOT, 'plugins/sdd-domain/scripts');
+    const ps = fs.readFileSync(path.join(dir, 'finalize-domain-review.ps1'), 'utf8');
+    assert.doesNotMatch(ps, /GENERATE_APPROVAL_SIDECAR_RUNTIME_UNAVAILABLE/);
+    assert.match(ps, /FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE/);
+    if (process.platform === 'win32') return;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-finalize-'));
+    try {
+      fs.copyFileSync(path.join(dir, 'finalize-domain-review.sh'), path.join(tmp, 'finalize-domain-review.sh'));
+      const res = spawnSync('bash', [path.join(tmp, 'finalize-domain-review.sh'), '--help'], { encoding: 'utf8' });
+      assert.notEqual(res.status, 0);
+      assert.match(res.stderr, /finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE/);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});
