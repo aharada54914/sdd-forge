@@ -417,3 +417,14 @@ describe('#846 WFI audit states are representable in the canonical template', ()
     assert.match(line, /Status: Applied/);
   });
 });
+
+describe('#849 a passed audit always reaches human approval', () => {
+  it('Human-Pending does not depend on category or on consent to file an issue', () => {
+    const skill = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md'), 'utf8');
+    const step = skill.slice(skill.indexOf('3. **完了遷移**'), skill.indexOf('## Boundaries'));
+    const pendingLine = step.split('\n').find((l) => l.includes('Human-Pending'));
+    assert.ok(pendingLine, 'completion step sets Human-Pending');
+    assert.doesNotMatch(pendingLine, /同意|plugin-improvement/, 'Human-Pending must not be conditional on consent or category');
+    assert.match(step, /追跡 Issue/);
+  });
+});
