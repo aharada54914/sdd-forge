@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -201,6 +201,27 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     const out = JSON.parse(res.stdout);
     assert.equal(out.verdict, 'FAIL');
     assert.equal(out.checks.taskPrecondition.passed, false);
+  });
+});
+
+describe('#821 gate task lookup uses the exact task ID', () => {
+  it('never reads a sibling task whose ID shares a prefix, in either order', async () => {
+    const { parseTaskBlock } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')).href
+    );
+    const sibling = ['## T-001.1 Sibling', 'Approval: Approved', 'Status: Done', 'Risk: high', ''].join('\n');
+    const target = ['## T-001 Target', 'Approval: Draft', 'Status: Planned', 'Risk: low', ''].join('\n');
+    const extra = ['## T-001-extra', 'Approval: Approved', 'Status: Done', ''].join('\n');
+    for (const doc of [`${sibling}\n${extra}\n${target}`, `${target}\n${sibling}\n${extra}`]) {
+      const t = parseTaskBlock(doc, 'T-001');
+      assert.equal(t.approval, 'Draft');
+      assert.equal(t.status, 'Planned');
+      assert.equal(t.risk, 'low');
+      assert.equal(parseTaskBlock(doc, 'T-001.1').status, 'Done');
+      assert.equal(parseTaskBlock(doc, 'T-001-extra').approval, 'Approved');
+    }
+    assert.equal(parseTaskBlock(sibling, 'T-001'), null, 'a prefix-only heading must not satisfy the lookup');
+    assert.equal(parseTaskBlock('## T-001\nApproval: Approved\n', 'T-001').approval, 'Approved');
   });
 });
 

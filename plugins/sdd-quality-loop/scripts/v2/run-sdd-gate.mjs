@@ -64,7 +64,9 @@ export function parseTaskBlock(tasksContent, taskId) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
   const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
   const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:\\b|\\s|$).*$`, 'im');
+  // The ID must end at whitespace or end of line, exactly like the planner and
+  // MCP (parseTasksSummary): `T-001` must never match `## T-001.1` (#821).
+  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:[ \\t].*)?$`, 'im');
   const match = headerRe.exec(body);
   if (!match) return null;
 
