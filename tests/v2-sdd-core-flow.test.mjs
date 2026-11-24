@@ -232,11 +232,22 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
       'ticket_id: RT-8\nstatus: open\nseverity: critical\ntarget: {feature: payments, task: "T-001"}\nsummary: s\n',
       'utf8',
     );
+    // Valid-YAML flow variants: a trailing comment with braces, quoted keys,
+    // and a mapping split over lines.
+    const raw = (id, target) =>
+      fs.writeFileSync(path.join(tickets, `${id}.yml`), `ticket_id: ${id}\nstatus: open\nseverity: major\ntarget: ${target}\nsummary: s\n`, 'utf8');
+    raw('RT-9', '{feature: payments, task: T-001} # see {x}');
+    raw('RT-10', '{"feature": "payments", "task": "T-001"}');
+    raw('RT-11', '{feature: payments,\n  task: T-001}');
+    raw('RT-12', '{feature: payments, task: T-002} # other task');
     const blocked = run();
     assert.equal(blocked.status, 1);
     const out = JSON.parse(blocked.stdout);
     assert.equal(out.verdict, 'FAIL');
-    assert.deepEqual(out.checks.reviewTickets.blocking.map((t) => t.ticketId), ['RT-5', 'RT-7', 'RT-8']);
+    assert.deepEqual(
+      out.checks.reviewTickets.blocking.map((t) => t.ticketId).sort(),
+      ['RT-10', 'RT-11', 'RT-5', 'RT-7', 'RT-8', 'RT-9'].sort(),
+    );
   });
 
   it('fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared', () => {

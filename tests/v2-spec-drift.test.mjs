@@ -192,6 +192,21 @@ describe('#820 AMENDED names the changed IDs no amendment entry mentions', () =>
     const out = JSON.parse(res.stdout);
     assert.equal(out.status, 'AMENDED');
     assert.deepEqual(out.changedIdsWithoutAmendment, ['AC-002']);
+
+    // An amendment written before the baseline does not explain a later change.
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'requirements.md'), req('one', 'two', '- 2026-01-01: AC-002 の初期調整'), 'utf8');
+    assert.equal(
+      spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'f', '--root', dir, '--rerecord'], { encoding: 'utf8' }).status,
+      0,
+    );
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'f', 'requirements.md'),
+      req('one changed', 'two changed', '- 2026-01-01: AC-002 の初期調整\n- 2026-11-25: AC-001 を変更'),
+      'utf8',
+    );
+    const later = JSON.parse(spawnSync(process.execPath, [CHECK_SCRIPT, '--feature', 'f', '--root', dir], { encoding: 'utf8' }).stdout);
+    assert.equal(later.status, 'AMENDED');
+    assert.deepEqual(later.changedIdsWithoutAmendment, ['AC-002']);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });
