@@ -339,6 +339,8 @@ review_cycles: <実施済みサイクル数>
 
 ### 4.9 sudoモード運用
 
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
+
 **目的**: ソロワーク・低リスク作業で、人間の **承認待ち** (タスク承認、`accepted` 差分承認、quality-gate の定型サインオフ) を期限付きで自動通過させ、効率を向上させます。判断・統治・緊急制御は sudo でも人間に残ります（後述）。
 
 **▶ 入り方（最短3ステップ）**

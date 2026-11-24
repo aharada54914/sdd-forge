@@ -535,6 +535,8 @@ Use the workflow-retrospective skill for specs/reservation/
 
 ### sdd-sudo
 
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
+
 **目的**
 
 人間の **承認待ち**（`Approval: Approved`、quality-gate の定型サインオフ、`accepted` 差分承認）を期限付きで自動通過させます。**判断フォーク**（`requires_human_decision`、アーキ/認証/セキュリティ決定、WFI 承認）と AGENT_STOP・すべての決定論的ゲートは常に人間/有効。ソロワーク・低リスク作業の効率向上。**人間専用**（エージェントは有効化不可）。
@@ -640,6 +642,8 @@ Use the cross-model-verify skill for specs/cross-model-verification/tasks.md#T-0
 
 ### lite-spec
 
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
+
 **目的**
 
 社内・部署内アプリ向けの軽量仕様を作ります（`sdd-lite` プラグイン）。`sdd-bootstrap-interviewer` の縮約版で、要件・設計・タスクの3ファイルのみを生成し、traceability・ADR・受け入れテストの厳密記述は任意とします。アプリのコードは実装しません。失敗時の影響が小さい社内開発向け。より高い厳格さが要るなら `sdd-bootstrap-interviewer` に切り替えます。
@@ -690,6 +694,8 @@ lite 成果物はフル SDD の部分集合。複数人開発や高ステーク�
 ---
 
 ### lite-gate
+
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
 
 **目的**
 

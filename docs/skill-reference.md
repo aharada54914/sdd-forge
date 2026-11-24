@@ -32,7 +32,6 @@
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案（friction をなぜなぜ分析で根本原因まで掘り下げて WFI を起草） | quality-gate | — |
-| sdd-sudo | sdd-quality-loop | 期限付き承認待ちの扱い・人間による発行手順（ホスト自動発行は未対応） | — | implement-task, implement-tasks, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
 | wfi-audit-cycle | sdd-quality-loop | WFI-NNN.md Draft を2サイクルの独立監査（品質→影響/リスク）で審査し、合格時はカテゴリによらず Human-Pending に移行するオーケストレーター（追跡 Issue 起票は plugin-improvement かつ同意時のみ） | workflow-retrospective | — (人間承認待ち) |
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
@@ -40,7 +39,9 @@
 
 **重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 9 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間による明示依頼が起点）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
 
-ユーザーに見えるコマンドは次の9つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-implementation:sql-develop`（SQL入力整理）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
+ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-implementation:sql-develop`（SQL入力整理）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate`（明示導入するクラウド操作）。この契約は `tests/validate-repository.ps1` が強制します。
+
+（v1.x の人間専用トグル `/sdd-quality-loop:sdd-sudo` は v2.0.0 で廃止されました。）
 
 ## 2. 各スキル詳細
 
@@ -280,7 +281,7 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 `Approval: Approved` を tasks.md に書き込むエディット操作をブロック。人間のみ、エージェント外でファイルを編集して承認可。自己承認防止。
 
-ただし、有効な `SDD_SUDO` フラグファイルが存在する場合、この guard は無効化されます（sudo モード；期限切れまたはファイル不在で再度有効になります）。詳細は `/sdd-sudo` スキル と `sudo-mode-policy.md` を参照。
+v2.0.0 で `SDD_SUDO` による sudo モード（このガードの一時無効化）は廃止されました。承認は人間がエージェント外で `Approval: Approved` を書きます。
 
 **WFI 承認ガード (WFI Approval Guard)**
 
@@ -442,8 +443,6 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `select-agent-model` | sdd-implementation | sh / ps1 | `contracts/agent-model-capabilities.json` を参照し、リスク階層・失敗履歴からエージェントのモデル / effort 階層を選択 |
 | `validate-implementation-report` | sdd-implementation | sh | 実装レポートの構造検証 |
 | `validate-task-input-manifest` | sdd-implementation | sh / ps1 | タスク入力マニフェスト（単体・バッチ）の検証。バッチはマニフェスト集合全体を起動前に検証 |
-| `check-risk-upgrade` | sdd-lite | sh / ps1 | lite トラックのローカルなリスク昇格チェック（リモート読み取りは一切行わない） |
-| `check-task-state-lite` | sdd-lite | sh / ps1 | lite 用の軽量状態ゲート（[詳細](#check-task-state-lite)） |
 | `spec-review-precheck` | sdd-review-loop | sh / ps1 | 仕様レビュー遷移の前提・プロベナンス検証 |
 | `impl-review-precheck` | sdd-review-loop | sh / ps1 | 実装方針レビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
 | `task-review-precheck` | sdd-review-loop | sh / ps1 | タスクレビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
@@ -597,6 +596,8 @@ sh plugins/sdd-quality-loop/scripts/check-task-state.sh <path-to-tasks.md> [repo
 ---
 
 ### check-task-state-lite
+
+> **v2.0.0 で廃止（v1.x のみの参考情報）**: 現行の配布物には `/sdd-quality-loop:sdd-sudo`（`SDD_SUDO` sudo モード）と `sdd-lite`（`lite-spec` / `lite-gate` / `check-task-state-lite`）は含まれません。v2 では承認は人間がエディタで `Approval: Approved` を書き、軽量運用は SDD Core のリスク階層 `low` を使います。以下は v1.x 利用者向けの記録として残しています。
 
 **目的**
 
