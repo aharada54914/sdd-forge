@@ -168,6 +168,24 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
     }
   });
 
+  it('continues reporting configured adapters when the checker jar cannot be inspected', (t) => {
+    const dir = makeTempProject();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    for (const adapter of ['tlc', 'apalache']) {
+      fs.writeFileSync(path.join(dir, 'sdd/guardrails.json'), JSON.stringify({
+        formal_verification: {
+          enabled: true, checker: { adapter, adapter_options: { [adapter]: { jar: 'x'.repeat(1024) } } },
+        },
+        security_audit: { enabled: true, enabled_adapters: ['builtin-secret-pattern'] },
+      }));
+      const result = spawnSync(process.execPath, [DOCTOR_CLI, '--root', dir, '--json'], { encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+      const { findings } = JSON.parse(result.stdout);
+      assert.equal(findings.find((f) => f.adapter === adapter)?.availability, 'unavailable');
+      assert.equal(findings.find((f) => f.adapter === 'builtin-secret-pattern')?.availability, 'available');
+    }
+  });
+
   it('reports an invalid checker jar path as a JSON configuration finding', () => {
     const dir = makeTempProject();
     for (const adapter of ['apalache', 'tlc']) {

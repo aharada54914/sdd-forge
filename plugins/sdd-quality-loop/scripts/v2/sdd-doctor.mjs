@@ -27,6 +27,15 @@ function probeCommandAvailable(bin, args = ['--version']) {
   }
 }
 
+function isReadableJar(file) {
+  try {
+    fs.accessSync(file, fs.constants.R_OK);
+    return fs.statSync(file).isFile();
+  } catch {
+    return false;
+  }
+}
+
 function configuredAdapterFindings(root, config, probeCommand = probeCommandAvailable) {
   const findings = [];
   function add(adapter, availability, detail) {
@@ -43,7 +52,7 @@ function configuredAdapterFindings(root, config, probeCommand = probeCommandAvai
       const jarName = adapter === 'tlc' ? 'tla2tools.jar' : 'apalache.jar';
       const envJar = adapter === 'tlc' ? process.env.TLA2TOOLS_JAR : process.env.APALACHE_JAR;
       const jar = path.resolve(root, formal.checker.adapter_options[adapter]?.jar || envJar || jarName);
-      const hasJar = fs.statSync(jar, { throwIfNoEntry: false })?.isFile() === true;
+      const hasJar = isReadableJar(jar);
       const hasJava = probeCommand('java', ['-version']);
       add(adapter, hasJava && hasJar ? 'available' : 'unavailable', `java=${hasJava}, ${jarName}=${hasJar}`);
     }
