@@ -863,8 +863,8 @@ describe('#817 review: only bare Blocker IDs are declared dependencies', () => {
     const md = spawnSync(process.execPath, [TRACE_CLI, '--feature', 'prose', '--root', dir, '--plan-batches', '--format', 'markdown'], { encoding: 'utf8' });
     assert.equal(md.status, 0, md.stderr);
     assert.match(md.stdout, /- \*\*Unknown Blocker\*\*: T-005 depends on T-404, which is not a task in this file/);
-    assert.match(md.stdout, /- \*\*Not Scheduled \(invalid Blockers or downstream\)\*\*: T-00[45], T-00[45]/);
-    assert.match(md.stdout, /- \*\*Blocker Cycle Detected\*\*: T-00[45], T-00[45]/);
+    assert.match(md.stdout, /- \*\*Not Scheduled \(invalid Blockers or downstream\)\*\*: (T-004, T-005|T-005, T-004)$/m);
+    assert.match(md.stdout, /- \*\*Blocker Cycle Detected\*\*: (T-004, T-005|T-005, T-004)$/m);
     assert.doesNotMatch(md.stdout, /Unknown Blocker\*\*: T-00[1236]/, 'prose never yields an unknown-blocker line');
   });
 });
