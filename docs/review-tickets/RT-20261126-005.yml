@@ -1,0 +1,16 @@
+ticket_id: RT-20261126-005
+status: open
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-003
+summary: "Hook parity accepts a nonexistent guard directory with the expected filename"
+problem: |
+  The independent evaluator changed the Claude hook target directory from scripts/v2 to scripts/v3.
+  All nine fitness checks still passed.
+expected_fix:
+  - "Validate the actual guard target and output protocol for every declared host command."
+  - "Cover directory-only changes, including the alternate command variants."
+references:
+  - reports/quality-gate/verification-first-factory-T-003.md
