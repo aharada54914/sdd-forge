@@ -22,9 +22,10 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkAntiTampering, checkSpecDrift } from './check-spec-drift.mjs';
+import { checkAntiTampering, checkSpecDrift, readProtectedDiff } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
   createFsReadonlyIo,
@@ -35,8 +36,6 @@ import {
   isMainModule,
 } from './guardrails-lib.mjs';
 import { checkWriteScope } from './check-traceability.mjs';
-import { runRebuildDifferentialCheck } from './rebuild-differential.mjs';
-export { runRebuildDifferentialCheck };
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
 import { runAgentLint } from './run-agent-lint.mjs';
 import { runFormalGate } from './run-formal-gate.mjs';
@@ -44,6 +43,161 @@ import { runSecurityGate } from './run-security-gate.mjs';
 import { acquireLock, releaseLock } from './task-lock.mjs';
 import { isApprovedValue, parseTaskBlock, taskEvidenceInputs } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
+
+const SAMPLE_COUNT = 20;
+const DEFAULT_RATIO = 1.10;
+const PROTECTED_INPUTS = ['contracts/**', 'tests/golden/**', 'nfr-budget.json', '**/nfr-budget.json'];
+
+function git(root, args) {
+  return execFileSync('git', ['-c', `core.hooksPath=${os.devNull}`, ...args], {
+    cwd: root, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8',
+  }).trimEnd();
+}
+
+function immutableChanges(projectRoot, baseRef, budgetFile) {
+  const { revision, changedEntries } = readProtectedDiff(projectRoot, baseRef, [...PROTECTED_INPUTS, budgetFile]);
+  const paths = changedEntries.map(entry => entry.relPath).filter(rel =>
+    rel.startsWith('contracts/') || rel.startsWith('tests/golden/') ||
+    path.posix.basename(rel) === 'nfr-budget.json' || rel === budgetFile);
+  return { revision, paths: [...new Set(paths)].sort() };
+}
+
+function readBudget(checkout, rel, explicit) {
+  const file = path.resolve(checkout, rel);
+  if (!explicit && !fs.existsSync(file)) return {};
+  if (fs.realpathSync(file) !== file || !fs.statSync(file).isFile()) throw new Error('Invalid rebuilt NFR budget file');
+  const budget = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (!budget || typeof budget !== 'object' || Array.isArray(budget)) throw new Error('Invalid NFR budget');
+  for (const key of ['max_duration_ms', 'max_regression_ratio']) {
+    if (key in budget && !(Number.isFinite(budget[key]) && budget[key] > 0)) throw new Error(`Invalid NFR budget: ${key}`);
+  }
+  return budget;
+}
+
+function withFilePair(paths, flags, action) {
+  const first = fs.openSync(paths[0], flags, 0o600);
+  try {
+    const second = fs.openSync(paths[1], flags, 0o600);
+    try {
+      return action(first, second);
+    } finally {
+      fs.closeSync(second);
+    }
+  } finally {
+    fs.closeSync(first);
+  }
+}
+
+function measure(cmd, cwd, deadline, files) {
+  return withFilePair(files, 'w', (stdout, stderr) => {
+    const start = performance.now();
+    if (start >= deadline) throw new Error('Rebuild sampling exceeded its five-minute budget');
+    const res = spawnSync(cmd, {
+      cwd, shell: true, timeout: Math.ceil(Math.min(120000, deadline - start)),
+      stdio: ['ignore', stdout, stderr],
+    });
+    const durationMs = performance.now() - start;
+    if (res.error) throw new Error('Rebuild command execution failed: ' + res.error.message);
+    if (res.status === null) throw new Error('Rebuild command terminated by signal: ' + res.signal);
+    return { durationMs, exitCode: res.status };
+  });
+}
+
+function readBlock(fd, buffer, size) {
+  let offset = 0;
+  while (offset < size) {
+    const count = fs.readSync(fd, buffer, offset, size - offset, null);
+    if (count === 0) throw new Error('Rebuild output ended before the recorded size');
+    offset += count;
+  }
+}
+
+function sameOutput(first, second, deadline) {
+  return withFilePair([first, second], 'r', (a, b) => {
+    const size = fs.fstatSync(a).size;
+    if (size !== fs.fstatSync(b).size) return false;
+    if (size === 0) return true;
+    const left = Buffer.allocUnsafe(Math.min(65536, size));
+    const right = Buffer.allocUnsafe(left.length);
+    for (let offset = 0; offset < size; offset += left.length) {
+      if (performance.now() >= deadline) throw new Error('Rebuild sampling exceeded its five-minute budget');
+      const count = Math.min(left.length, size - offset);
+      readBlock(a, left, count);
+      readBlock(b, right, count);
+      if (!left.subarray(0, count).equals(right.subarray(0, count))) return false;
+    }
+    return true;
+  });
+}
+
+function summarize(durations, exitCode) {
+  const sorted = [...durations].sort((a, b) => a - b);
+  const p95Ms = sorted[Math.ceil(sorted.length * 0.95) - 1];
+  return { exitCode, durationMs: p95Ms, p95Ms, samples: sorted.length };
+}
+
+function compareCommands(baselineCmd, candidateCmd, baselineRoot, projectRoot, budget, temp) {
+  const deadline = performance.now() + 300000;
+  const baselineTimes = [];
+  const candidateTimes = [];
+  const oldFiles = ['baseline.stdout', 'baseline.stderr'].map(name => path.join(temp, name));
+  const newFiles = ['candidate.stdout', 'candidate.stderr'].map(name => path.join(temp, name));
+  let oldRun, newRun, differentialMatched;
+  for (let index = 0; index < SAMPLE_COUNT; index++) {
+    // Alternate order so a systematically warmer second run does not favor one side.
+    if (index % 2 === 0) oldRun = measure(baselineCmd, baselineRoot, deadline, oldFiles);
+    newRun = measure(candidateCmd, projectRoot, deadline, newFiles);
+    if (index % 2 !== 0) oldRun = measure(baselineCmd, baselineRoot, deadline, oldFiles);
+    baselineTimes.push(oldRun.durationMs);
+    candidateTimes.push(newRun.durationMs);
+    differentialMatched = oldRun.exitCode === 0 && newRun.exitCode === 0 &&
+      sameOutput(oldFiles[0], newFiles[0], deadline) && sameOutput(oldFiles[1], newFiles[1], deadline);
+    if (!differentialMatched) break;
+  }
+  const baseline = summarize(baselineTimes, oldRun.exitCode);
+  const candidate = summarize(candidateTimes, newRun.exitCode);
+  const nfrViolations = [];
+  const ratio = budget.max_regression_ratio ?? DEFAULT_RATIO;
+  if (candidate.samples === SAMPLE_COUNT) {
+    if (candidate.p95Ms > baseline.p95Ms * ratio) nfrViolations.push(`Candidate p95 exceeds ${ratio}x baseline`);
+    if (candidate.p95Ms > (budget.max_duration_ms ?? Infinity)) nfrViolations.push('Candidate p95 exceeds max_duration_ms');
+  }
+  const nfrPassed = candidate.samples === SAMPLE_COUNT && nfrViolations.length === 0;
+  return { baseline, candidate, differentialMatched, nfrPassed, nfrViolations, passed: differentialMatched && nfrPassed };
+}
+
+/** Run the old command at the actual Git revision and the new command in the candidate tree. */
+export function runRebuildDifferentialCheck({ projectRoot, baseRef = 'HEAD', baselineCmd, candidateCmd, nfrBudgetPath = null }) {
+  const failure = { passed: false, differentialMatched: false, nfrPassed: false, immutablePaths: [] };
+  if (!baselineCmd || !candidateCmd) return { ...failure, error: 'rebuild mode requires both --baseline-cmd and --candidate-cmd' };
+  try {
+    const budgetPath = path.resolve(projectRoot, nfrBudgetPath || 'nfr-budget.json');
+    const canonicalParent = fs.realpathSync(path.dirname(budgetPath));
+    const rel = path.relative(fs.realpathSync(projectRoot), path.join(canonicalParent, path.basename(budgetPath))).split(path.sep).join('/');
+    if (!rel || rel === '..' || rel.startsWith('../') || path.isAbsolute(rel)) throw new Error('NFR budget must be inside the project');
+    const before = immutableChanges(projectRoot, baseRef || 'HEAD', rel);
+    if (before.paths.length) return { ...failure, immutablePaths: before.paths };
+    const prefix = git(projectRoot, ['rev-parse', '--show-prefix']);
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-rebuild-'));
+    const checkout = path.join(fs.realpathSync(temp), 'baseline');
+    try {
+      git(projectRoot, ['worktree', 'add', '--quiet', '--detach', checkout, before.revision]);
+      try {
+        const baselineRoot = path.join(checkout, prefix);
+        const budget = readBudget(baselineRoot, rel, nfrBudgetPath !== null);
+        const report = compareCommands(baselineCmd, candidateCmd, baselineRoot, projectRoot, budget, temp);
+        const after = immutableChanges(projectRoot, before.revision, rel);
+        return { ...report, immutablePaths: after.paths, passed: report.passed && after.paths.length === 0 };
+      } finally {
+        git(projectRoot, ['worktree', 'remove', '--force', checkout]);
+      }
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  } catch (err) {
+    return { ...failure, error: err.message };
+  }
+}
 
 // The detector is itself scanned. Keep the expression distinct from the text it matches.
 const PLACEHOLDER_RE =

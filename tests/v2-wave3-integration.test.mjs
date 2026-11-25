@@ -111,8 +111,10 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
   it('T-008 rebuild compares large binary streams and preserves command exit codes', (t) => {
     const dir = setupGateProject();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const baselineRecord = path.join(dir, 'baseline-location.txt');
     fs.writeFileSync(path.join(dir, 'emit.cjs'), [
       "const fs = require('node:fs');",
+      `if (fs.realpathSync('.') !== ${JSON.stringify(fs.realpathSync(dir))}) fs.writeFileSync(${JSON.stringify(baselineRecord)}, fs.realpathSync('.'));`,
       "const bytes = Buffer.alloc(2 * 1024 * 1024, 0xff);",
       "for (const fd of [1, 2]) {",
       "  fs.writeFileSync(fd, bytes);",
@@ -123,8 +125,15 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     git(dir, 'add', 'emit.cjs');
     git(dir, 'commit', '-qm', 'rebuild output fixture');
 
-    const run = (arg) => gate(dir, '--mode', 'rebuild', '--baseline-cmd', 'node emit.cjs',
-      '--candidate-cmd', `node emit.cjs ${arg}`);
+    const run = (arg) => {
+      const result = gate(dir, '--mode', 'rebuild', '--baseline-cmd', 'node emit.cjs',
+        '--candidate-cmd', `node emit.cjs ${arg}`);
+      const checkout = fs.readFileSync(baselineRecord, 'utf8');
+      assert.equal(fs.existsSync(checkout), false);
+      assert.equal(fs.existsSync(path.dirname(checkout)), false);
+      fs.unlinkSync(baselineRecord);
+      return result;
+    };
     const matching = run('same');
     const measurement = matching.checks.rebuildDifferential;
     assert.equal(matching.code, 0, JSON.stringify(measurement));
