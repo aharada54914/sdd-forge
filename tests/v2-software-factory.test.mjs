@@ -1231,6 +1231,26 @@ describe('#972 review 4: wrapped prose, table cells, filesystems without hard li
   };
   const tasks = '# t\n\n## T-001 x\nApproval: Approved\nStatus: Done\n\n### Done When\n- AC-001\n';
 
+  it('binds SELF criteria, linked requirements and NFRs by their full IDs', async () => {
+    const rel = 'specs/f/requirements.md';
+    const files = {
+      'specs/f/tasks.md': tasks.replace('AC-001', 'SELF-AC-001'),
+      [rel]: [
+        '| SELF-AC-001 | SELF-REQ-006, NFR-001 |',
+        '| AC-001 | REQ-006 |',
+        '- **SELF-REQ-006** Exact identity',
+        '- **REQ-006** Other scope',
+        '- **NFR-001** Resource budget',
+      ].join('\n'),
+    };
+    const e = await evidence(files);
+    assert.deepEqual(Object.keys(e.before.ids), ['NFR-001', 'SELF-AC-001', 'SELF-REQ-006']);
+    files[rel] = files[rel].replace('Other scope', 'Unrelated change');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), []);
+    files[rel] = files[rel].replace('Exact identity', 'Changed identity').replace('Resource budget', 'Changed budget');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), ['NFR-001', 'SELF-REQ-006']);
+  });
+
   it('a wrapped line that starts with an ID stays part of its entry', async () => {
     const files = { 'specs/f/requirements.md': '# r\n\n- **AC-001**: GET /health answers and per\n  AC-001 the body is JSON; it must never\n  return a 500 status.\n', 'specs/f/tasks.md': tasks };
     const e = await evidence(files);

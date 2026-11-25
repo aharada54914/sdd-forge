@@ -694,10 +694,14 @@ function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
 }
 
-const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
-const LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
+// Bind complete identifiers. A self-verification AC can have the same numeric
+// suffix as a distinct product AC in the same feature.
+const EVIDENCE_ID = String.raw`(?:(?:SELF-)?(?:REQ|AC)|NFR)-\d+`;
+const EVIDENCE_TABLE_ROW_RE = new RegExp(String.raw`^[ \t]*\|[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, 'i');
+const ENTRY_HEAD_RE = new RegExp(String.raw`^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, 'i');
+const LIST_ENTRY_HEAD_RE = new RegExp(String.raw`^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?${EVIDENCE_ID}\b`, 'i');
 
-// Every line that defines a REQ/AC: its bullet line with the indented
+// Every line that defines an evidence ID: its bullet line with the indented
 // continuation lines under it, and table rows whose first cell is the ID.
 function specEntries(text) {
   const entries = new Map();
@@ -712,7 +716,7 @@ function specEntries(text) {
     const line = lines[i];
     if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
     if (fence) continue;
-    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
+    const row = EVIDENCE_TABLE_ROW_RE.exec(line);
     if (row) {
       add(row[1], line);
       continue;
@@ -736,7 +740,8 @@ function specEntries(text) {
 /**
  * What a gate run verifies for each task of a feature (#831): the task's raw
  * section (fences included) with bare Status / Approval values normalized,
- * every REQ/AC entry it depends on (its ACs, the REQs those ACs and the task
+ * every AC, REQ and NFR entry it depends on (including SELF-prefixed ACs
+ * and REQs, plus requirements referenced by its ACs and by the task
  * name; bullet lines with their continuation lines and table rows, from
  * requirements.md and acceptance-tests.md), and design.md without its
  * amendment log. The spec files are read once per feature. Changing an input
@@ -764,19 +769,23 @@ export function featureEvidenceInputs(io, { feature }) {
   // still makes the evidence stale (fail closed); only an ID found nowhere is
   // 'missing'.
   const fallbackHash = (id) => {
-    const re = new RegExp(`\\b${id}\\b`, 'i');
+    const re = new RegExp(`(?<![\\w-])${id}\\b`, 'i');
     const hits = contracts.filter((c) => re.test(c.contract));
     return hits.length === 0 ? 'missing' : sha256Text(hits.map((c) => `${c.name}:\n${c.contract}`).join('\n'));
   };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
-  const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+  const refsIn = (text) => [...text.matchAll(new RegExp(String.raw`(?<![\w-])${EVIDENCE_ID}\b`, 'gi'))]
+    .map(([id]) => id.toUpperCase());
   for (const section of taskSections(tasksRaw)) {
     if (byTask.has(section.id)) continue;
     const task = taskSummary(section);
-    const wanted = new Set(task.acRefs);
-    for (const req of reqsIn(task.block)) wanted.add(req);
-    for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
+    const wanted = new Set(refsIn(task.block));
+    for (const ac of [...wanted].filter((id) => /^(?:SELF-)?AC-/.test(id))) {
+      for (const ref of refsIn((entries.get(ac) || []).join('\n'))) {
+        if (!/^(?:SELF-)?AC-/.test(ref)) wanted.add(ref);
+      }
+    }
     const ids = {};
     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
     const normalized = normalizeTaskFields(section.raw.join('\n'), { approval: true, evidence: true });

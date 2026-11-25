@@ -38814,8 +38814,10 @@ function isTestPath(relPath) {
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === "function" ? io.existsButUnreadable(relPath) : io.exists(relPath);
 }
-var ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
-var LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
+var EVIDENCE_ID = String.raw`(?:(?:SELF-)?(?:REQ|AC)|NFR)-\d+`;
+var EVIDENCE_TABLE_ROW_RE = new RegExp(String.raw`^[ \t]*\|[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, "i");
+var ENTRY_HEAD_RE = new RegExp(String.raw`^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, "i");
+var LIST_ENTRY_HEAD_RE = new RegExp(String.raw`^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?${EVIDENCE_ID}\b`, "i");
 function specEntries(text) {
   const entries = /* @__PURE__ */ new Map();
   const add = (id, line) => {
@@ -38829,7 +38831,7 @@ function specEntries(text) {
     const line = lines[i];
     if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
     if (fence) continue;
-    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
+    const row = EVIDENCE_TABLE_ROW_RE.exec(line);
     if (row) {
       add(row[1], line);
       continue;
@@ -38864,20 +38866,23 @@ function featureEvidenceInputs(io, { feature }) {
     }
   }
   const fallbackHash = (id) => {
-    const re = new RegExp(`\\b${id}\\b`, "i");
+    const re = new RegExp(`(?<![\\w-])${id}\\b`, "i");
     const hits = contracts.filter((c) => re.test(c.contract));
     return hits.length === 0 ? "missing" : sha256Text(hits.map((c) => `${c.name}:
 ${c.contract}`).join("\n"));
   };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"));
-  const reqsIn = (text) => (String(text || "").match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+  const refsIn = (text) => [...text.matchAll(new RegExp(String.raw`(?<![\w-])${EVIDENCE_ID}\b`, "gi"))].map(([id]) => id.toUpperCase());
   for (const section of taskSections(tasksRaw)) {
     if (byTask.has(section.id)) continue;
     const task = taskSummary(section);
-    const wanted = new Set(task.acRefs);
-    for (const req of reqsIn(task.block)) wanted.add(req);
-    for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join("\n"))) wanted.add(req);
+    const wanted = new Set(refsIn(task.block));
+    for (const ac of [...wanted].filter((id) => /^(?:SELF-)?AC-/.test(id))) {
+      for (const ref of refsIn((entries.get(ac) || []).join("\n"))) {
+        if (!/^(?:SELF-)?AC-/.test(ref)) wanted.add(ref);
+      }
+    }
     const ids = {};
     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join("\n")) : fallbackHash(key);
     const normalized = normalizeTaskFields(section.raw.join("\n"), { approval: true, evidence: true });
