@@ -11,6 +11,61 @@ function literal(value) {
   throw new Error('Unsupported TLA+ trace value');
 }
 
+// Replay supports explicit behavior operators and the canonical finite-prefix
+// safety specification. Other temporal formulas require a different projection.
+function replayBehavior(model, cfg) {
+  const sections = [];
+  const config = fs.readFileSync(cfg, 'utf8').replace(/\\\*[^\n]*/g, '');
+  for (const line of config.split(/\r?\n/).filter((line) => line.trim())) {
+    const header =
+      /^\s*(INIT|NEXT|SPECIFICATION|INVARIANTS?|CHECK_DEADLOCK|CONSTANTS?|(?:ACTION_)?CONSTRAINTS?)\b(.*)$/.exec(line);
+    if (header) sections.push({ key: header[1], lines: [header[2]] });
+    else if (/^\s*[A-Z][A-Z_]*\b/.test(line)) throw new Error('Unsupported baseline CFG directive: ' + line.trim());
+    else if (sections.length) sections.at(-1).lines.push(line);
+    else throw new Error('Unsupported baseline CFG for trace replay');
+  }
+  const operators = {};
+  const retained = [];
+  for (const { key, lines } of sections) {
+    const value = lines.join('\n').trim();
+    if (['INIT', 'NEXT', 'SPECIFICATION'].includes(key)) {
+      if (operators[key] || !identifier.test(value)) throw new Error('Invalid baseline CFG ' + key);
+      operators[key] = value;
+    } else if (/^INVARIANTS?$/.test(key)) {
+      if (!value.split(/\s+/).every((name) => identifier.test(name)))
+        throw new Error('Unsupported baseline CFG invariants');
+    } else if (key === 'CHECK_DEADLOCK') {
+      if (!/^(TRUE|FALSE)$/.test(value)) throw new Error('Invalid baseline CFG CHECK_DEADLOCK');
+    } else retained.push(key + ' ' + value);
+  }
+
+  if (operators.SPECIFICATION) {
+    const spec = operators.SPECIFICATION;
+    const source = fs.readFileSync(model, 'utf8').replace(/\\\*[^\n]*/g, '');
+    // Do not infer the behavior from an overridden or ambiguously scoped definition.
+    const overridden = new RegExp('\\b' + spec + '\\s*<-').test(config);
+    const parts = source.split(new RegExp('^' + spec + '[ \\t]*==', 'm'));
+    const body = parts[1]?.split(/^\s*(?:={4,}|[A-Za-z]\w*(?:\([^)\n]*\))?[ \t]*==)/m, 1)[0].trim();
+    const safety =
+      /^([A-Za-z]\w*)\s*\/\\\s*\[\]\s*\[([A-Za-z]\w*)\]\s*_(?:[A-Za-z]\w*|<<\s*[A-Za-z]\w*(?:\s*,\s*[A-Za-z]\w*)*\s*>>)$/.exec(
+        body || '',
+      );
+    if (
+      operators.INIT ||
+      operators.NEXT ||
+      overridden ||
+      source.includes('(*') ||
+      (source.match(/-{4,}\s*MODULE\b/g) || []).length !== 1 ||
+      parts.length !== 2 ||
+      !safety
+    )
+      throw new Error('Unsupported baseline SPECIFICATION for trace replay: ' + spec);
+    return { init: safety[1], next: safety[2], retained };
+  }
+  if (!operators.INIT || !operators.NEXT) throw new Error('Baseline CFG must select both INIT and NEXT');
+  return { init: operators.INIT, next: operators.NEXT, retained };
+}
+
 // Check for an actual path through the baseline model matching every observed
 // action and projected state. Reaching the last observation refutes TraceIncomplete.
 export function prepareTraceReplay({ model, cfg, contract, tracePath, directory }) {
@@ -35,14 +90,15 @@ export function prepareTraceReplay({ model, cfg, contract, tracePath, directory 
   fs.mkdirSync(directory);
   for (const file of fs.readdirSync(path.dirname(model)).filter((file) => file.endsWith('.tla')))
     fs.copyFileSync(path.join(path.dirname(model), file), path.join(directory, file));
+  const behavior = replayBehavior(model, cfg);
   const constraints = (state, prime) => fields.map((field) => field + prime + ' = ' + literal(state[field]));
-  const init = ['Init', 'sddStep = 0', ...constraints(events[0].state, '')].join(' /\\ ');
+  const init = [behavior.init, 'sddStep = 0', ...constraints(events[0].state, '')].join(' /\\ ');
   const transitions = events.slice(1).map(({ action, actor, state }, index) => {
     if (!actions.includes(action)) throw new Error('Unmapped trace action');
     const call = actors.includes(action) ? action + '(' + literal(actor) + ')' : action;
     return (
       '  \\/ ' +
-      ['Next', call, 'sddStep = ' + index, "sddStep' = " + (index + 1), ...constraints(state, "'")].join(' /\\ ')
+      [behavior.next, call, 'sddStep = ' + index, "sddStep' = " + (index + 1), ...constraints(state, "'")].join(' /\\ ')
     );
   });
   const tla = path.join(directory, 'SDDTraceReplay.tla');
@@ -62,18 +118,17 @@ export function prepareTraceReplay({ model, cfg, contract, tracePath, directory 
       '',
     ].join('\n'),
   );
-  // Preserve the baseline model constants and state constraints. Ambiguous cfg
-  // forms are rejected by TLC rather than silently enabling a different model.
-  const original = fs.readFileSync(cfg, 'utf8');
-  const constants = original
-    .split(/\r?\n/)
-    .filter((line) => !/^\s*(?:SPECIFICATION|INIT|NEXT|INVARIANTS?|CHECK_DEADLOCK)\b/.test(line));
   const traceCfg = path.join(directory, 'SDDTraceReplay.cfg');
   fs.writeFileSync(
     traceCfg,
-    [...constants, 'INIT TraceInit', 'NEXT TraceNext', 'INVARIANT TraceIncomplete', 'CHECK_DEADLOCK FALSE', ''].join(
-      '\n',
-    ),
+    [
+      ...behavior.retained,
+      'INIT TraceInit',
+      'NEXT TraceNext',
+      'INVARIANT TraceIncomplete',
+      'CHECK_DEADLOCK FALSE',
+      '',
+    ].join('\n'),
   );
   return { model: tla, cfg: traceCfg };
 }

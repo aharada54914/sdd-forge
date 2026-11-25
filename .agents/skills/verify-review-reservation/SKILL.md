@@ -51,7 +51,7 @@ asset disappears or differs, stop rather than accepting a new jar implicitly.
 Historical v1.8.0 evidence remains unchanged. The new tool's negative, baseline
 and actual-code race observations are recorded separately in
 `reports/verification/formal-reservation-stable-20261031/`.
-Python 3, Bash, jq and sha256sum are required for the Linux real-code replay. No network
+The Linux implementation replay uses Python 3, Bash, jq, sha256sum and Node.js. No network
 call occurs during verification.
 
 ## Run and observe
@@ -74,6 +74,12 @@ Both contenders start together. A process that enters the critical section waits
 after the hash check until its peer has entered or exited. The baseline requires
 one entrant, a matching successful caller and that caller’s persisted ledger
 record. The negative requires both entrants to succeed. A timeout fails the replay.
+
+The intact transaction also records each successful lock acquisition, hash check,
+ledger publication and release with the ledger contents observed at that point.
+The formal gate replays `observed.ndjson` against the configured baseline using
+TLC. It also checks `out-of-order.ndjson`, where the observed hash check is
+replaced with a premature publication. The report records both checker outcomes.
 
 ## Maintenance and cleanup
 

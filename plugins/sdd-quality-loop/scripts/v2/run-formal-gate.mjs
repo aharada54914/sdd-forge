@@ -491,18 +491,21 @@ export function runFormalGate({
       const work = path.join(scratch, name);
       fs.mkdirSync(work);
       const remaining = Math.min(fv.timeout_sec * 1000, deadline - Date.now());
-      if (remaining <= 0) return finish('FAIL', 1, { errors: ['Formal run exceeded total time budget'] });
-      const result = checkRun({
-        adapter,
-        model: source,
-        cfg: file,
-        options,
-        jar,
-        timeout: remaining,
-        work,
-        runner: execRunner,
-        expected,
-      });
+      const budgetError = 'Formal run exceeded total time budget';
+      const result =
+        remaining <= 0
+          ? { ok: false, status: null, timedOut: true, reason: budgetError, log: budgetError + '\n', command: null }
+          : checkRun({
+              adapter,
+              model: source,
+              cfg: file,
+              options,
+              jar,
+              timeout: remaining,
+              work,
+              runner: execRunner,
+              expected,
+            });
       const { log, command, ...summary } = result;
       report.checker ||= { baseline: null, negative: null, command };
       report.checker[name] = { ...summary, command };
@@ -526,7 +529,7 @@ export function runFormalGate({
           const question = recordFormalQuestion(root, feature, report.evidence, structure.moduleName, name, summary);
           report.openQuestion = question;
         }
-        return finish('FAIL', result.timedOut ? 1 : failed);
+        return finish('FAIL', result.timedOut ? 1 : failed, result.reason ? { errors: [result.reason] } : {});
       }
     }
     return finish('PASS', 0);

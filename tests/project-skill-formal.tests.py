@@ -75,6 +75,13 @@ class Reservation(unittest.TestCase):
         for mutated in (True, False):
             replay = P.real_race(mutated)
             self.assertTrue(P.expected_replay(replay, mutated), replay)
+            if not mutated:
+                events = replay["trace"]
+                winner = {"a": 1, "b": 2}[replay["entered"][0]]
+                self.assertEqual([e["action"] for e in events], ["Init", "Acquire", "Check", "Publish", "Release"])
+                self.assertEqual([e.get("actor") for e in events], [None] + [winner] * 4)
+                self.assertEqual([e["state"]["accepted"] for e in events], [[], [], [], [winner], [winner]])
+                self.assertEqual([e["step"] for e in events], list(range(5)))
 
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),

@@ -390,6 +390,97 @@ it('skips an unchanged model and mapped sources only; fails timed-out checks and
   assert.equal(runFormalGate({ ...opts, risk: 'high', execRunner: unavailable }).exitCode, 1);
 });
 
+it('retains a between-phase budget timeout and raises the repair-limit OQ in the decision view', (t) => {
+  const projectRoot = sandbox(t);
+  fs.mkdirSync(path.join(projectRoot, 'specs', 'budget'), { recursive: true });
+  let clock = Date.now();
+  t.mock.method(Date, 'now', () => clock);
+  let calls = 0;
+  const result = runFormalGate({
+    projectRoot,
+    tlaPath: reservation,
+    mode: 'strict',
+    feature: 'budget',
+    round: 99,
+    runId: 'between-phases',
+    execRunner() {
+      calls++;
+      clock += 24 * 3600 * 1000;
+      return { status: 0, stdout: 'Model checking completed. No error has been found.' };
+    },
+  });
+  assert.equal(calls, 1);
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.checker.baseline.ok, true);
+  assert.equal(result.checker.negative?.timedOut, true);
+  assert.equal(result.checker.negative.command, null);
+  assert.match(fs.readFileSync(path.join(projectRoot, result.evidence, 'negative.log'), 'utf8'), /total time budget/);
+  const question = JSON.parse(fs.readFileSync(path.join(projectRoot, result.openQuestion.path)));
+  assert.equal(question.status, 'Provisional');
+  assert.equal(question.evidence, result.evidence);
+  assert.match(
+    renderDecisionViewHtml(buildDecisionViewData({ feature: 'budget', projectRoot })),
+    /Reservation \(negative\).*total time budget/,
+  );
+});
+
+it(
+  'TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas',
+  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
+  (t) => {
+    const projectRoot = sandbox(t);
+    const model = path.join(projectRoot, 'Reservation.tla');
+    fs.cpSync(path.dirname(reservation), projectRoot, { recursive: true });
+    fs.writeFileSync(
+      model,
+      fs
+        .readFileSync(model, 'utf8')
+        .replace(
+          'Spec ==',
+          [
+            'AlternateInit == Init',
+            'Permitted == Next /\\ phase[1] # "acquire"',
+            'Restricted == AlternateInit /\\ [][Permitted]_vars',
+            'Complex == AlternateInit /\\ [][Permitted]_vars',
+            '          /\\ WF_vars(Next)',
+            'Spec ==',
+          ].join('\n'),
+        ),
+    );
+    const tracePath = path.join(projectRoot, 'input.ndjson');
+    fs.writeFileSync(
+      tracePath,
+      [
+        { step: 0, action: 'Init', state: { accepted: [] } },
+        { step: 1, action: 'Acquire', actor: 1, state: { accepted: [] } },
+      ]
+        .map((event) => JSON.stringify(event))
+        .join('\n'),
+    );
+    const cfg = path.join(projectRoot, 'Reservation.cfg');
+    const template = fs.readFileSync(cfg, 'utf8');
+    for (const selector of [
+      'INIT AlternateInit\nNEXT Permitted',
+      'SPECIFICATION Restricted',
+      'SPECIFICATION Complex',
+    ]) {
+      fs.writeFileSync(cfg, template.replace('SPECIFICATION Spec', selector));
+      const result = runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath, runId: 'config' });
+      assert.equal(result.status, 'FAIL', selector);
+      if (selector.endsWith('Complex')) {
+        assert.match(result.errors.join(' '), /SPECIFICATION/);
+      } else {
+        assert.equal(result.checker.baseline.ok, true);
+        assert.equal(result.checker.negative.ok, true);
+        assert.equal(result.checker.replay.status, 0, JSON.stringify(result));
+        const replayModel = fs.readFileSync(path.join(projectRoot, result.evidence, 'SDDTraceReplay.tla'), 'utf8');
+        assert.match(replayModel, /TraceInit == AlternateInit /);
+        assert.match(replayModel, /Permitted \/\\ Acquire\(1\)/);
+      }
+    }
+  },
+);
+
 function captureLock(projectRoot) {
   const arg = { projectRoot, feature: 'demo' };
   const steps = [];
@@ -517,17 +608,8 @@ it(
       return report;
     }
     const cases = [
-      [
-        reservation,
-        'OneAccepted',
-        [
-          { step: 0, action: 'Init', state: { accepted: [] } },
-          { step: 1, action: 'Acquire', actor: 1, state: { accepted: [] } },
-          { step: 2, action: 'Check', actor: 1, state: { accepted: [] } },
-          { step: 3, action: 'Publish', actor: 1, state: { accepted: [1] } },
-          { step: 4, action: 'Release', actor: 1, state: { accepted: [1] } },
-        ],
-      ],
+      // The POSIX reservation pilot captures and replays the real ledger operations.
+      [reservation, 'OneAccepted'],
       [path.join(formal, 'TaskLock.tla'), 'SingleOwner', captureLock(projectRoot)],
       [path.join(formal, 'TaskLockMutation.tla'), 'OneWriter'],
       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(projectRoot)],
@@ -566,7 +648,6 @@ it(
         }
         const invalid = structuredClone(events);
         if (invariant === 'SingleOwner') invalid[1].state.leaseActive = false;
-        else if (invariant === 'OneAccepted') invalid[2].state.accepted = [1];
         else invalid[2].state.rounds = 1;
         fs.writeFileSync(tracePath, invalid.map((ev) => JSON.stringify(ev)).join('\n'));
         const mismatch = run(model, { tracePath, risk: 'high' });

@@ -56,7 +56,15 @@ def real_race(mutated=False, *, barrier_timeout=10):
     if not shutil.which("bash") or not shutil.which("jq"):
         raise ValueError("bash and jq required")
     tail = reservation_tail()
-    if mutated:
+    if not mutated:
+        # Observe only successful operations in the unmodified production tail.
+        markers = {"Acquire": ACQUIRE, "Check": "    fail IDENTITY 'canonical identity ledger changed before reservation'",
+                   "Publish": "    fail IO 'cannot publish identity-ledger reservation'", "Release": RELEASE}
+        for action, marker in markers.items():
+            if tail.count(marker) != 1:
+                raise ValueError("source observation no longer unique: " + action)
+            tail = tail.replace(marker, marker + "\n  observe " + action)
+    else:
         tail = tail.replace(ACQUIRE, "  : # negative mutation: lock removed").replace(
             RELEASE, "  : # no lock to release"
         )
@@ -65,10 +73,14 @@ def real_race(mutated=False, *, barrier_timeout=10):
         ledger = root / "identity-ledger.json"
         ledger.write_text('{"records":[]}\n')
         bound = hashlib.sha256(ledger.read_bytes()).hexdigest()
+        journal = root / "observations.ndjson"
+        initial = {"action": "Init", "actors": [r["run_id"] for r in json.loads(ledger.read_text())["records"]]}
+        journal.write_text(json.dumps(initial) + "\n")
         setup = """set -euo pipefail
 ledger=$1
 run_id=$2
 bound_ledger_sha256=$3
+journal=$4
 reserve=true
 sequence=1
 stage=spec
@@ -83,6 +95,10 @@ BASH_XTRACEFD=9
 PS4='+ ${LINENO}: '
 set -x
 fail() { echo "$*" >&2; exit 1; }
+observe() {
+  if [[ $1 == Release ]]; then [[ ! -d "$lock_dir" ]]; else [[ -d "$lock_dir" ]]; fi || exit 1
+  jq -c --arg action "$1" --arg actor "$run_id" '{action:$action, actor:$actor, actors:[.records[].run_id]}' "$ledger" >> "$journal"
+}
 sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
 check_feature_scratch_history() {
   touch "${ledger}.${run_id}.entered"
@@ -100,7 +116,7 @@ while [ ! -f "${ledger}.start" ]; do sleep 0.01; done
             for actor in actors:
                 processes.append(
                     subprocess.Popen(
-                        ["bash", str(script), str(ledger), actor, bound],
+                        ["bash", str(script), str(ledger), actor, bound, str(journal)],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                     )
@@ -141,6 +157,17 @@ while [ ! -f "${ledger}.start" ]; do sleep 0.01; done
             "entered": [actor for actor, marker in zip(actors, entered) if marker.exists()],
             "ledger": json.loads(ledger.read_text()),
         }
+        if not mutated:
+            actor_ids = {name: number for number, name in enumerate(actors, 1)}
+            events = []
+            for step, line in enumerate(journal.read_text().splitlines()):
+                observed = json.loads(line)
+                event = {"step": step, "action": observed["action"],
+                         "state": {"accepted": [actor_ids[name] for name in observed["actors"]]}}
+                if "actor" in observed:
+                    event["actor"] = actor_ids[observed["actor"]]
+                events.append(event)
+            replay["trace"] = events
         if not expected_replay(replay, mutated):
             for call in results:
                 call["bash_trace"] = (root / f"{ledger.name}.{call['actor']}.trace").read_text()
@@ -165,6 +192,30 @@ def expected_tlc_result(result, mutated):
     if mutated:
         return result.returncode == 12 and "Error: Invariant OneAccepted is violated." in lines
     return result.returncode == 0 and "Model checking completed. No error has been found." in lines
+
+
+def check_observations(directory, jar, events, *, invalid=False):
+    # Replace one actual Check with an out-of-order Publish. Each state still
+    # satisfies OneAccepted; only replay through the selected model rejects it.
+    projected = [dict(event) for event in events]
+    if invalid:
+        check = next(event for event in projected if event["action"] == "Check")
+        check["action"] = "Publish"
+    trace = directory / ("out-of-order.ndjson" if invalid else "observed.ndjson")
+    trace.write_text("".join(json.dumps(event) + "\n" for event in projected))
+    gate = ROOT / "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs"
+    result = subprocess.run(["node", str(gate), "--root", str(directory), "--tla", str(MODEL / "Reservation.tla"),
+                             "--jar", str(jar), "--trace", str(trace), "--adapter", "tlc", "--mode", "strict",
+                             "--risk", "high"], capture_output=True, text=True, timeout=90)
+    report = json.loads(result.stdout)
+    checker = report.get("checker") or {}
+    phase = checker.get("replay") or {}
+    ok = ((checker.get("baseline") or {}).get("ok") and (checker.get("negative") or {}).get("ok")
+          and phase.get("status") == (0 if invalid else 12)
+          and phase.get("ok") is (not invalid)
+          and phase.get("violatedInvariant") == (None if invalid else "TraceIncomplete")
+          and report.get("status") == ("FAIL" if invalid else "PASS") and result.returncode == int(invalid))
+    return {"file": trace.name, "expected_result": bool(ok), "report": report}
 
 
 def main():
@@ -231,7 +282,10 @@ def main():
                 "replay_expected": replay_expected,
             }
         )
-    report["passed"] = all(
+    observed = report["runs"][-1]["real_code_replay"]["trace"]
+    report["trace_replays"] = [check_observations(args.output.resolve(), args.jar.resolve(), observed, invalid=invalid)
+                               for invalid in (False, True)]
+    report["passed"] = all(r["expected_result"] for r in report["trace_replays"]) and all(
         r["expected_result"] and r["replay_expected"] for r in report["runs"]
     )
     (args.output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
