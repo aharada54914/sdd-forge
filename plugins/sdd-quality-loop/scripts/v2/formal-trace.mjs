@@ -1,7 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const identifier = /^[A-Za-z][A-Za-z0-9_]*$/;
+const operatorName = '[A-Za-z][A-Za-z0-9_]*';
+const identifier = new RegExp('^' + operatorName + '$');
+
+// TLC treats /\, [], ]_, << and >> as indivisible tokens. Each token
+// boundary can contain whitespace, including the whitespace left by a comment.
+const tuple = '<<\\s*' + operatorName + '(?:\\s*,\\s*' + operatorName + ')*\\s*>>';
+const safetyFormula = new RegExp([
+  '^(' + operatorName + ')', '/\\\\', '\\[\\]', '\\[', '(' + operatorName + ')', '\\]_', '(?:' + operatorName + '|' + tuple + ')$',
+].join('\\s*'));
 
 function literal(value) {
   if (typeof value === 'boolean') return value ? 'TRUE' : 'FALSE';
@@ -117,11 +125,9 @@ function replayBehavior(model, cfg) {
     // Only match a definition outside the declaration lists of active LETs.
     let letDepth = 0;
     for (const [token] of parts[0].matchAll(/\b(?:LET|IN)\b/g)) letDepth += token === 'LET' ? 1 : -1;
-    const body = parts[1]?.split(/^\s*(?:={4,}|[A-Za-z]\w*(?:\([^)\n]*\))?[ \t]*==)/m, 1)[0].trim();
-    const safety =
-      /^([A-Za-z]\w*)\s*\/\\\s*\[\]\s*\[\s*([A-Za-z]\w*)\s*\]\s*_(?:[A-Za-z]\w*|<<\s*[A-Za-z]\w*(?:\s*,\s*[A-Za-z]\w*)*\s*>>)$/.exec(
-        body || '',
-      );
+    const nextDefinition = /^[ \t]*[A-Za-z]\w*\s*(?:\([^()]*\)\s*)?==/m;
+    const body = parts[1]?.split(nextDefinition, 1)[0].trim();
+    const safety = safetyFormula.exec(body || '');
     if (
       operators.INIT ||
       operators.NEXT ||

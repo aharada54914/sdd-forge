@@ -556,6 +556,69 @@ it(
 );
 
 it(
+  'TLC and replay agree on token boundaries in canonical safety specifications',
+  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
+  (t) => {
+    const projectRoot = sandbox(t);
+    fs.cpSync(path.dirname(reservation), projectRoot, { recursive: true });
+    const model = path.join(projectRoot, 'Reservation.tla');
+    const original = fs.readFileSync(model, 'utf8');
+    const real = 'Spec == Init /\\ [][Next]_vars';
+    const tracePath = path.join(REPO_ROOT, 'specs/verification-first-factory/verification/T-005',
+      'a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson');
+    function nativeBaseline() {
+      const metadata = fs.mkdtempSync(path.join(projectRoot, 'native-states-'));
+      return spawnSync('java', ['-cp', process.env.TLA2TOOLS_JAR, 'tlc2.TLC',
+        '-workers', '1', '-metadir', metadata, '-config', 'Reservation.cfg', 'Reservation.tla'],
+      { cwd: projectRoot }).status;
+    }
+    const replay = () => runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
+    const prefix = ['Spec', '==', 'Init', '/\\', '[]', '[', 'Next', ']_'];
+    const tuple = ['<<', 'phase', ',', 'lock', ',', 'ledger', ',', 'accepted', '>>'];
+    for (const [label, formula, following = 'OneAccepted =='] of [
+      ['original', real],
+      ['after subscript', real.replace('_vars', '_(* ordinary note *)vars')],
+      ['name, block comments', [...prefix, 'vars'].join('(* note *)')],
+      ['tuple, block comments', [...prefix, ...tuple].join('(* note *)')],
+      ['name, whitespace', [...prefix, 'vars'].join('\n  ')],
+      ['tuple, line comments', [...prefix, ...tuple].join(' \\* note\n  '),
+        'OneAccepted (* next operator, with a\n  multi-line comment *) =='],
+    ]) {
+      fs.writeFileSync(model, original.replace(real, formula).replace('OneAccepted ==', following));
+      assert.equal(nativeBaseline(), 0, label + ' native baseline');
+      const checked = replay();
+      assert.equal(checked.status, 'PASS', label + ': ' + JSON.stringify(checked.errors));
+      const phases = ['baseline', 'negative', 'replay'].map((phase) => {
+        const { status, violatedInvariant, distinctStates, depth } = checked.checker[phase];
+        return [status, violatedInvariant, distinctStates, depth];
+      });
+      assert.deepEqual(phases, [[0, null, 15, 8], [12, 'OneAccepted', 25, 7], [12, 'TraceIncomplete', 5, 5]]);
+      t.diagnostic(label + ': TLC baseline=0; replay phases=' + JSON.stringify(phases));
+    }
+
+    // TLC lexes these as single tokens. A comment inside one must not join its fragments.
+    const tupleSpec = real.replace('_vars', '_<<phase, lock, ledger, accepted>>');
+    for (const [token, split] of [
+      ['==', '=(* comment *)='], ['Init', 'In(* comment *)it'], ['/\\', '/(* comment *)\\'],
+      ['[]', '[(* comment *)]'], ['Next', 'Ne(* comment *)xt'], [']_', '](* comment *)_'],
+      ['<<', '<(* comment *)<'], ['phase', 'ph(* comment *)ase'], ['>>', '>(* comment *)>'],
+    ]) {
+      fs.writeFileSync(model, original.replace(real, tupleSpec.replace(token, split)));
+      assert.equal(nativeBaseline(), 150, token + ' native parse error');
+      const rejected = replay();
+      assert.equal(rejected.status, 'FAIL', token);
+      assert.match(rejected.errors.join(' '), /Unsupported baseline SPECIFICATION/, token);
+    }
+    const fairness = [...prefix, ...tuple, '/\\', 'WF_vars(Next)'].join('(* note *)');
+    fs.writeFileSync(model, original.replace(real, fairness));
+    assert.equal(nativeBaseline(), 0, 'TLC accepts the fairness formula');
+    const unsupported = replay();
+    assert.equal(unsupported.status, 'FAIL');
+    assert.match(unsupported.errors.join(' '), /Unsupported baseline SPECIFICATION/);
+  },
+);
+
+it(
   'TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas',
   { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
   (t) => {
