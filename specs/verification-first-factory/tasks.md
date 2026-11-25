@@ -106,7 +106,7 @@ T-001
 ## Wave 3: 統合ゲート・Rebuild・OTel / MCP v2（T-008 / T-009）
 
 ### T-008: Fail-Fast 7ステージ統合・`--mode rebuild`（Differential + NFR）・Write-Scope 連携
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-011`, `REQ-012`（Write-Scope・ロック連携）, `NFR-005`
