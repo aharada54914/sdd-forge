@@ -65,7 +65,7 @@ T-002
 T-001
 
 ### T-005: 状態機械抽出＆チェッカー非依存・Windows 互換の多層形式検証ゲート（TLA+ 標準・Lean 4 予約）
-- **Status:** `Done`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-003`, `REQ-004`, `REQ-005`, `REQ-006`

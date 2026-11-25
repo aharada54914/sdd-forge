@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-002
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -21,3 +21,7 @@ references:
   - specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/diagnostic.json
   - specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/help.sh.txt
 review_cycles: 3
+resolution:
+  commit: "e8428fcb7"
+  evidence: "reports/implementation/verification-first-factory/T-002.md"
+  result: "The public CLI accepts the archived help document without an open question and flags genuine suppression comments before, alongside and after the here-document."

@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-001
-status: open
+status: resolved
 type: regression
 severity: minor
 target:
@@ -20,3 +20,7 @@ expected_fix:
 references:
   - reports/quality-gate/verification-first-factory-T-005.md
 review_cycles: 3
+resolution:
+  commit: "83861a0d1"
+  evidence: "reports/implementation/verification-first-factory/T-005.md"
+  result: "The native TLC baseline, negative control and observed-trace replay agree across ordinary and nested comments. Apparent definitions inside comments cannot supply the configured behavior."
