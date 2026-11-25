@@ -666,7 +666,8 @@ describe('#972 review: Scope literals and lock renewal races', () => {
     // A reads its own record; B replaces the lock right after that read.
     const spy = mock.method(fs, 'readFileSync', function (...args) {
       const out = realRead.apply(this, args);
-      if (!swapped && String(args[0]) === lockPath) {
+      // Suffix match: the root may resolve through a symlink (macOS /var -> /private/var).
+      if (!swapped && String(args[0]).endsWith(path.join('.sdd', 'locks', 'f.lock'))) {
         swapped = true;
         fs.writeFileSync(lockPath, JSON.stringify(other), 'utf8');
       }
