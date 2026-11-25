@@ -21,17 +21,14 @@ same lock; mkdir and same-directory rename must be atomic and hashes collision-f
 A finite-model PASS is not a proof of all implementation schedules or operating
 systems.
 
-The covered source is `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`
-in the combined integration candidate, SHA-256
-`8d4397f7120d07b6eb0513049c519367de7e9cd1d61ea2814c1b8ffcd28dedcf`.
-The unchanged acquire/hash-check/append/rename/release tail has SHA-256
-`099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c`.
-Evidence for the combined candidate is in
-`reports/verification/formal-reservation-combined-20261028/`. The separately
-recorded historical asset check (id 683491413) is in
-`reports/verification/formal-reservation-asset-683491413-20261029/`; earlier
-main-based evidence remains historical. Use the local
-`pstack-maintain-formal-verification-skill` procedure when the mapping drifts.
+The mapping records the current source SHA-256 and the commit used for the
+last comparison. At `cd27d0a4a` the added Concept Test admission checks
+precede the unchanged acquire/check/publish/release transaction. The source
+and the extracted transaction have separate pins so each can be rechecked.
+The two-process replay results are in
+`specs/verification-first-factory/verification/T-006/reservation-bridge.json`.
+After a change, compare the transaction to the last sync commit and rerun
+both the baseline and the lock-removed control before updating either pin.
 
 ## Tool choice and setup
 

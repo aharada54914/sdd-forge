@@ -41,7 +41,9 @@ class Reservation(unittest.TestCase):
         self.assertEqual(
             mapping["source_sha256"], hashlib.sha256(P.SOURCE.read_bytes()).hexdigest()
         )
-        self.assertIn(P.ACQUIRE, P.reservation_tail())
+        tail = P.reservation_tail()
+        self.assertEqual(mapping["reservation_tail_sha256"], hashlib.sha256(tail.encode()).hexdigest())
+        self.assertIn(P.ACQUIRE, tail)
 
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
