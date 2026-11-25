@@ -1,0 +1,23 @@
+ticket_id: RT-20261126-002
+status: open
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+  files:
+    - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+summary: "Shell help examples in a quoted here-document block a normal change"
+problem: |
+  At 2673fb9bf5e7 both independent evaluators reproduced an erroneous
+  suppression finding. The shell emits ordinary help text and exits 0.
+  The anti-tampering CLI reads the displayed example as an active directive,
+  exits 4 and writes an open question. Three repair cycles have finished.
+expected_fix:
+  - "Distinguish shell here-document bodies from active shell comments and retain the existing source directive behavior."
+  - "Test the public CLI with the admitted help example and a real shell comment. Check exit code, diagnostic and open-question state."
+references:
+  - reports/quality-gate/verification-first-factory-T-002.md
+  - specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/diagnostic.json
+  - specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/help.sh.txt
+review_cycles: 3
