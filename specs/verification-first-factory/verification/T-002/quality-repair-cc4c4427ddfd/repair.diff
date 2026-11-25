@@ -1,0 +1,1225 @@
+diff --git a/install.ps1 b/install.ps1
+index 02745a9eb..5262abce4 100644
+--- a/install.ps1
++++ b/install.ps1
+@@ -1010,6 +1010,10 @@ function Get-RequiredPaths {
+         "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+         "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+         "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
++        "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz",
++        "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs",
++        "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go",
++        "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh",
+         "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+         "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+         "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+diff --git a/install.sh b/install.sh
+index b05733dd7..19d585d84 100755
+--- a/install.sh
++++ b/install.sh
+@@ -1252,6 +1252,10 @@ REQUIRED_PATHS=(
+     "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs"
+     "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs"
+     "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs"
++    "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz"
++    "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs"
++    "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go"
++    "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh"
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"
+     "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
+     "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs"
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index eaf195d54..c0de76224 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -10,6 +10,9 @@
+  */
+ import { execFileSync } from 'node:child_process';
+ import fs from 'node:fs';
++import { createHash, webcrypto } from 'node:crypto';
++import { createContext, runInContext } from 'node:vm';
++import { gunzipSync } from 'node:zlib';
+ import path from 'node:path';
+ import {
+   DEFAULT_CONFIG,
+@@ -233,12 +236,118 @@ const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
+ const DIRECTIVE_START = /^\s*(?:\/\/|\/\*+|\*|#)?\s*sdd-lint-disable\b/i;
+ const HASH_NON_CODE = /#[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
+ const JS_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`/g;
++
++const ANSI_C_ESCAPES = {
++  a: '\x07', b: '\b', e: '\x1b', E: '\x1b', f: '\f', n: '\n', r: '\r',
++  t: '\t', v: '\v', '\\': '\\', "'": "'", '"': '"', '?': '?',
++};
++
++// Work in bytes until all adjacent fragments have been joined: two hexadecimal
++// or octal escapes in separate quoted fragments can spell one UTF-8 character.
++function ansiQuotedBytes(text) {
++  const escapes = /\\(?:([0-7]{1,3})|x([\da-fA-F]{1,2})|u([\da-fA-F]{1,4})|U([\da-fA-F]{1,8})|c(\\\\|[\s\S])|([\s\S]))/g;
++  const bytes = text.replace(escapes, (raw, octal, hex, shortUnicode, longUnicode, control, simple) => {
++    if (octal || hex) return String.fromCharCode(parseInt(octal ?? hex, octal ? 8 : 16) & 255);
++    if (shortUnicode || longUnicode) {
++      const code = parseInt(shortUnicode ?? longUnicode, 16);
++      if (code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) return '\xff';
++      return Buffer.from(String.fromCodePoint(code)).toString('latin1');
++    }
++    if (control) return String.fromCharCode(control === '?' ? 127 : control.charCodeAt(0) & 31);
++    return ANSI_C_ESCAPES[simple] ?? raw;
++  });
++  return bytes.split('\0', 1)[0]; // Bash words cannot hold an embedded NUL.
++}
++
++function shellDelimiter(word, dialect) {
++  const raw = Buffer.from(word).toString('latin1');
++  // No variable/command expansion occurs. In the source locale a dollar-double
++  // quote uses the double-quoted text; dollar-single quotes decode ANSI escapes.
++  const fragments = /\$'((?:\\[\s\S]|[^'\\])*)'|'([^']*)'|\$?"((?:\\[\s\S]|[^"\\])*)"|\\([\s\S])/g;
++  const stripped = raw.replace(fragments, (fragment, ansi, single, double, escaped) => {
++    if (ansi !== undefined) return dialect === 'literal' ? '$' + ansi : ansiQuotedBytes(ansi);
++    if (single !== undefined) return single;
++    if (double !== undefined) {
++      const prefix = dialect !== 'bash' && fragment.startsWith('$') ? '$' : '';
++      return prefix + double.replace(/\\([$"`\\\n])/g, (_, c) => c === '\n' ? '' : c);
++    }
++    return escaped === '\n' ? '' : escaped;
++  });
++  const bytes = Buffer.from(stripped, 'latin1');
++  const delimiter = bytes.toString('utf8');
++  return bytes.equals(Buffer.from(delimiter)) ? delimiter : null;
++}
++
++// Only the shipped Go runtime shim runs in this context. Target shell source is
++// passed as data to the syntax parser, with no process or filesystem bindings.
++function parserAsset(name, sha256) {
++  const bytes = fs.readFileSync(new URL('./shell-parser/' + name, import.meta.url));
++  if (createHash('sha256').update(bytes).digest('hex') !== sha256) throw new Error('Shell parser asset digest mismatch: ' + name);
++  return bytes;
++}
++
++let parseShell;
++function shellParser() {
++  if (!parseShell) {
++    const context = createContext({ WebAssembly, TextDecoder, TextEncoder, crypto: webcrypto,
++      performance, setTimeout, clearTimeout, console });
++    runInContext(parserAsset('wasm_exec.cjs', '0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14').toString('utf8'), context);
++    const go = new context.Go();
++    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '8d4529039652d0258776efde1ea0cc3cc10e4a70689d5de2c009fcea00b34d06'));
++    void go.run(new WebAssembly.Instance(new WebAssembly.Module(bytes), go.importObject));
++    parseShell = context.sddParseShellComments;
++  }
++  return parseShell;
++}
++
++function shellDialects(source, file) {
++  const shell = /^#![^\n]*[ \t/](bash|dash|ash|sh|zsh)(?=[ \t\r\n]|$)/.exec(source)?.[1]
++    ?? path.extname(file).slice(1).toLowerCase();
++  if (shell === 'bash' || shell === 'zsh') return [[shell, shell]];
++  if (shell === 'ash' || shell === 'dash') return [['posix', 'literal']];
++  // Generic sh is used for both POSIX editions and for undeclared Bash
++  // scripts. Prefer the local /bin/sh when its implementation is identifiable.
++  let host = '';
++  const systemShell = process.platform === 'darwin' && fs.existsSync('/var/select/sh') ? '/var/select/sh' : '/bin/sh';
++  if (process.platform !== 'win32' && fs.existsSync(systemShell)) host = path.basename(fs.realpathSync(systemShell));
++  const ansi = host === 'bash' ? 'bash' : 'posix';
++  const stops = host === 'dash' || host === 'ash' ? ['literal', ansi] : [ansi, 'literal'];
++  return [...stops.map(mode => ['posix', mode]), ['bash', 'bash']];
++}
++
++function* shellComments(source, file) {
++  const parse = shellParser();
++  let error;
++  for (const [grammar, dialect] of shellDialects(source, file)) {
++    const offsets = parse(source, grammar, word => shellDelimiter(word, dialect));
++    if (typeof offsets === 'string') {
++      error ??= offsets;
++      continue;
++    }
++    // The grammar returns ordered UTF-8 byte offsets. The diff scanner uses
++    // JavaScript string indices, so convert only the stretches between comments.
++    const bytes = Buffer.from(source);
++    const comment = /#[^\n]*/y;
++    let previous = 0;
++    let index = 0;
++    for (const offset of offsets) {
++      index += bytes.toString('utf8', previous, offset).length;
++      previous = offset;
++      comment.lastIndex = index;
++      yield comment.exec(source);
++    }
++    return;
++  }
++  throw new Error('Cannot parse shell source ' + file + ': ' + error);
++}
++
+ const SOURCE_TOKENS = new Map();
+ for (const [extensions, tokens] of [
+   ['js mjs cjs jsx ts mts cts tsx', JS_NON_CODE],
+   ['go c h cc cpp hpp cs java kt kts rs swift scala', GO_NON_CODE],
+   ['py pyw', PYTHON_NON_CODE],
+-  ['sh bash zsh rb pl ps1', HASH_NON_CODE],
++  ['rb pl ps1', HASH_NON_CODE],
++  ['sh bash zsh', shellComments],
+ ]) {
+   for (const ext of extensions.split(' ')) SOURCE_TOKENS.set('.' + ext, tokens);
+ }
+@@ -259,7 +368,8 @@ function addedLintDirectives(root, revision, file, status, source, tokens) {
+   const directives = [];
+   let line = 1;
+   let offset = 0;
+-  for (const token of source.matchAll(tokens)) {
++  const matches = typeof tokens === 'function' ? tokens(source, file) : source.matchAll(tokens);
++  for (const token of matches) {
+     line += source.slice(offset, token.index).split('\n').length - 1;
+     const lines = token[0].split('\n');
+     if (/^(?:#|\/\/|\/\*)/.test(token[0])) {
+diff --git a/plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go b/plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go
+new file mode 100644
+index 000000000..2a7cf70da
+--- /dev/null
++++ b/plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go
+@@ -0,0 +1,27 @@
++Copyright 2009 The Go Authors.
++
++Redistribution and use in source and binary forms, with or without
++modification, are permitted provided that the following conditions are
++met:
++
++   * Redistributions of source code must retain the above copyright
++notice, this list of conditions and the following disclaimer.
++   * Redistributions in binary form must reproduce the above
++copyright notice, this list of conditions and the following disclaimer
++in the documentation and/or other materials provided with the
++distribution.
++   * Neither the name of Google LLC nor the names of its
++contributors may be used to endorse or promote products derived from
++this software without specific prior written permission.
++
++THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+diff --git a/plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh b/plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh
+new file mode 100644
+index 000000000..2a5268e5f
+--- /dev/null
++++ b/plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh
+@@ -0,0 +1,27 @@
++Copyright (c) 2016, Daniel Martí. All rights reserved.
++
++Redistribution and use in source and binary forms, with or without
++modification, are permitted provided that the following conditions are
++met:
++
++   * Redistributions of source code must retain the above copyright
++notice, this list of conditions and the following disclaimer.
++   * Redistributions in binary form must reproduce the above
++copyright notice, this list of conditions and the following disclaimer
++in the documentation and/or other materials provided with the
++distribution.
++   * Neither the name of the copyright holder nor the names of its
++contributors may be used to endorse or promote products derived from
++this software without specific prior written permission.
++
++THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+diff --git a/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz b/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz
+new file mode 100644
+index 000000000..2c61cf377
+Binary files /dev/null and b/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz differ
+diff --git a/plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs b/plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs
+new file mode 100644
+index 000000000..d71af9e97
+--- /dev/null
++++ b/plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs
+@@ -0,0 +1,575 @@
++// Copyright 2018 The Go Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style
++// license that can be found in the LICENSE file.
++
++"use strict";
++
++(() => {
++	const enosys = () => {
++		const err = new Error("not implemented");
++		err.code = "ENOSYS";
++		return err;
++	};
++
++	if (!globalThis.fs) {
++		let outputBuf = "";
++		globalThis.fs = {
++			constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1, O_DIRECTORY: -1 }, // unused
++			writeSync(fd, buf) {
++				outputBuf += decoder.decode(buf);
++				const nl = outputBuf.lastIndexOf("\n");
++				if (nl != -1) {
++					console.log(outputBuf.substring(0, nl));
++					outputBuf = outputBuf.substring(nl + 1);
++				}
++				return buf.length;
++			},
++			write(fd, buf, offset, length, position, callback) {
++				if (offset !== 0 || length !== buf.length || position !== null) {
++					callback(enosys());
++					return;
++				}
++				const n = this.writeSync(fd, buf);
++				callback(null, n);
++			},
++			chmod(path, mode, callback) { callback(enosys()); },
++			chown(path, uid, gid, callback) { callback(enosys()); },
++			close(fd, callback) { callback(enosys()); },
++			fchmod(fd, mode, callback) { callback(enosys()); },
++			fchown(fd, uid, gid, callback) { callback(enosys()); },
++			fstat(fd, callback) { callback(enosys()); },
++			fsync(fd, callback) { callback(null); },
++			ftruncate(fd, length, callback) { callback(enosys()); },
++			lchown(path, uid, gid, callback) { callback(enosys()); },
++			link(path, link, callback) { callback(enosys()); },
++			lstat(path, callback) { callback(enosys()); },
++			mkdir(path, perm, callback) { callback(enosys()); },
++			open(path, flags, mode, callback) { callback(enosys()); },
++			read(fd, buffer, offset, length, position, callback) { callback(enosys()); },
++			readdir(path, callback) { callback(enosys()); },
++			readlink(path, callback) { callback(enosys()); },
++			rename(from, to, callback) { callback(enosys()); },
++			rmdir(path, callback) { callback(enosys()); },
++			stat(path, callback) { callback(enosys()); },
++			symlink(path, link, callback) { callback(enosys()); },
++			truncate(path, length, callback) { callback(enosys()); },
++			unlink(path, callback) { callback(enosys()); },
++			utimes(path, atime, mtime, callback) { callback(enosys()); },
++		};
++	}
++
++	if (!globalThis.process) {
++		globalThis.process = {
++			getuid() { return -1; },
++			getgid() { return -1; },
++			geteuid() { return -1; },
++			getegid() { return -1; },
++			getgroups() { throw enosys(); },
++			pid: -1,
++			ppid: -1,
++			umask() { throw enosys(); },
++			cwd() { throw enosys(); },
++			chdir() { throw enosys(); },
++		}
++	}
++
++	if (!globalThis.path) {
++		globalThis.path = {
++			resolve(...pathSegments) {
++				return pathSegments.join("/");
++			}
++		}
++	}
++
++	if (!globalThis.crypto) {
++		throw new Error("globalThis.crypto is not available, polyfill required (crypto.getRandomValues only)");
++	}
++
++	if (!globalThis.performance) {
++		throw new Error("globalThis.performance is not available, polyfill required (performance.now only)");
++	}
++
++	if (!globalThis.TextEncoder) {
++		throw new Error("globalThis.TextEncoder is not available, polyfill required");
++	}
++
++	if (!globalThis.TextDecoder) {
++		throw new Error("globalThis.TextDecoder is not available, polyfill required");
++	}
++
++	const encoder = new TextEncoder("utf-8");
++	const decoder = new TextDecoder("utf-8");
++
++	globalThis.Go = class {
++		constructor() {
++			this.argv = ["js"];
++			this.env = {};
++			this.exit = (code) => {
++				if (code !== 0) {
++					console.warn("exit code:", code);
++				}
++			};
++			this._exitPromise = new Promise((resolve) => {
++				this._resolveExitPromise = resolve;
++			});
++			this._pendingEvent = null;
++			this._scheduledTimeouts = new Map();
++			this._nextCallbackTimeoutID = 1;
++
++			const setInt64 = (addr, v) => {
++				this.mem.setUint32(addr + 0, v, true);
++				this.mem.setUint32(addr + 4, Math.floor(v / 4294967296), true);
++			}
++
++			const setInt32 = (addr, v) => {
++				this.mem.setUint32(addr + 0, v, true);
++			}
++
++			const getInt64 = (addr) => {
++				const low = this.mem.getUint32(addr + 0, true);
++				const high = this.mem.getInt32(addr + 4, true);
++				return low + high * 4294967296;
++			}
++
++			const loadValue = (addr) => {
++				const f = this.mem.getFloat64(addr, true);
++				if (f === 0) {
++					return undefined;
++				}
++				if (!isNaN(f)) {
++					return f;
++				}
++
++				const id = this.mem.getUint32(addr, true);
++				return this._values[id];
++			}
++
++			const storeValue = (addr, v) => {
++				const nanHead = 0x7FF80000;
++
++				if (typeof v === "number" && v !== 0) {
++					if (isNaN(v)) {
++						this.mem.setUint32(addr + 4, nanHead, true);
++						this.mem.setUint32(addr, 0, true);
++						return;
++					}
++					this.mem.setFloat64(addr, v, true);
++					return;
++				}
++
++				if (v === undefined) {
++					this.mem.setFloat64(addr, 0, true);
++					return;
++				}
++
++				let id = this._ids.get(v);
++				if (id === undefined) {
++					id = this._idPool.pop();
++					if (id === undefined) {
++						id = this._values.length;
++					}
++					this._values[id] = v;
++					this._goRefCounts[id] = 0;
++					this._ids.set(v, id);
++				}
++				this._goRefCounts[id]++;
++				let typeFlag = 0;
++				switch (typeof v) {
++					case "object":
++						if (v !== null) {
++							typeFlag = 1;
++						}
++						break;
++					case "string":
++						typeFlag = 2;
++						break;
++					case "symbol":
++						typeFlag = 3;
++						break;
++					case "function":
++						typeFlag = 4;
++						break;
++				}
++				this.mem.setUint32(addr + 4, nanHead | typeFlag, true);
++				this.mem.setUint32(addr, id, true);
++			}
++
++			const loadSlice = (addr) => {
++				const array = getInt64(addr + 0);
++				const len = getInt64(addr + 8);
++				return new Uint8Array(this._inst.exports.mem.buffer, array, len);
++			}
++
++			const loadSliceOfValues = (addr) => {
++				const array = getInt64(addr + 0);
++				const len = getInt64(addr + 8);
++				const a = new Array(len);
++				for (let i = 0; i < len; i++) {
++					a[i] = loadValue(array + i * 8);
++				}
++				return a;
++			}
++
++			const loadString = (addr) => {
++				const saddr = getInt64(addr + 0);
++				const len = getInt64(addr + 8);
++				return decoder.decode(new DataView(this._inst.exports.mem.buffer, saddr, len));
++			}
++
++			const testCallExport = (a, b) => {
++				this._inst.exports.testExport0();
++				return this._inst.exports.testExport(a, b);
++			}
++
++			const timeOrigin = Date.now() - performance.now();
++			this.importObject = {
++				_gotest: {
++					add: (a, b) => a + b,
++					callExport: testCallExport,
++				},
++				gojs: {
++					// Go's SP does not change as long as no Go code is running. Some operations (e.g. calls, getters and setters)
++					// may synchronously trigger a Go event handler. This makes Go code get executed in the middle of the imported
++					// function. A goroutine can switch to a new stack if the current stack is too small (see morestack function).
++					// This changes the SP, thus we have to update the SP used by the imported function.
++
++					// func wasmExit(code int32)
++					"runtime.wasmExit": (sp) => {
++						sp >>>= 0;
++						const code = this.mem.getInt32(sp + 8, true);
++						this.exited = true;
++						delete this._inst;
++						delete this._values;
++						delete this._goRefCounts;
++						delete this._ids;
++						delete this._idPool;
++						this.exit(code);
++					},
++
++					// func wasmWrite(fd uintptr, p unsafe.Pointer, n int32)
++					"runtime.wasmWrite": (sp) => {
++						sp >>>= 0;
++						const fd = getInt64(sp + 8);
++						const p = getInt64(sp + 16);
++						const n = this.mem.getInt32(sp + 24, true);
++						fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
++					},
++
++					// func resetMemoryDataView()
++					"runtime.resetMemoryDataView": (sp) => {
++						sp >>>= 0;
++						this.mem = new DataView(this._inst.exports.mem.buffer);
++					},
++
++					// func nanotime1() int64
++					"runtime.nanotime1": (sp) => {
++						sp >>>= 0;
++						setInt64(sp + 8, (timeOrigin + performance.now()) * 1000000);
++					},
++
++					// func walltime() (sec int64, nsec int32)
++					"runtime.walltime": (sp) => {
++						sp >>>= 0;
++						const msec = (new Date).getTime();
++						setInt64(sp + 8, msec / 1000);
++						this.mem.setInt32(sp + 16, (msec % 1000) * 1000000, true);
++					},
++
++					// func scheduleTimeoutEvent(delay int64) int32
++					"runtime.scheduleTimeoutEvent": (sp) => {
++						sp >>>= 0;
++						const id = this._nextCallbackTimeoutID;
++						this._nextCallbackTimeoutID++;
++						this._scheduledTimeouts.set(id, setTimeout(
++							() => {
++								this._resume();
++								while (this._scheduledTimeouts.has(id)) {
++									// for some reason Go failed to register the timeout event, log and try again
++									// (temporary workaround for https://github.com/golang/go/issues/28975)
++									console.warn("scheduleTimeoutEvent: missed timeout event");
++									this._resume();
++								}
++							},
++							getInt64(sp + 8),
++						));
++						this.mem.setInt32(sp + 16, id, true);
++					},
++
++					// func clearTimeoutEvent(id int32)
++					"runtime.clearTimeoutEvent": (sp) => {
++						sp >>>= 0;
++						const id = this.mem.getInt32(sp + 8, true);
++						clearTimeout(this._scheduledTimeouts.get(id));
++						this._scheduledTimeouts.delete(id);
++					},
++
++					// func getRandomData(r []byte)
++					"runtime.getRandomData": (sp) => {
++						sp >>>= 0;
++						crypto.getRandomValues(loadSlice(sp + 8));
++					},
++
++					// func finalizeRef(v ref)
++					"syscall/js.finalizeRef": (sp) => {
++						sp >>>= 0;
++						const id = this.mem.getUint32(sp + 8, true);
++						this._goRefCounts[id]--;
++						if (this._goRefCounts[id] === 0) {
++							const v = this._values[id];
++							this._values[id] = null;
++							this._ids.delete(v);
++							this._idPool.push(id);
++						}
++					},
++
++					// func stringVal(value string) ref
++					"syscall/js.stringVal": (sp) => {
++						sp >>>= 0;
++						storeValue(sp + 24, loadString(sp + 8));
++					},
++
++					// func valueGet(v ref, p string) ref
++					"syscall/js.valueGet": (sp) => {
++						sp >>>= 0;
++						const result = Reflect.get(loadValue(sp + 8), loadString(sp + 16));
++						sp = this._inst.exports.getsp() >>> 0; // see comment above
++						storeValue(sp + 32, result);
++					},
++
++					// func valueSet(v ref, p string, x ref)
++					"syscall/js.valueSet": (sp) => {
++						sp >>>= 0;
++						Reflect.set(loadValue(sp + 8), loadString(sp + 16), loadValue(sp + 32));
++					},
++
++					// func valueDelete(v ref, p string)
++					"syscall/js.valueDelete": (sp) => {
++						sp >>>= 0;
++						Reflect.deleteProperty(loadValue(sp + 8), loadString(sp + 16));
++					},
++
++					// func valueIndex(v ref, i int) ref
++					"syscall/js.valueIndex": (sp) => {
++						sp >>>= 0;
++						storeValue(sp + 24, Reflect.get(loadValue(sp + 8), getInt64(sp + 16)));
++					},
++
++					// valueSetIndex(v ref, i int, x ref)
++					"syscall/js.valueSetIndex": (sp) => {
++						sp >>>= 0;
++						Reflect.set(loadValue(sp + 8), getInt64(sp + 16), loadValue(sp + 24));
++					},
++
++					// func valueCall(v ref, m string, args []ref) (ref, bool)
++					"syscall/js.valueCall": (sp) => {
++						sp >>>= 0;
++						try {
++							const v = loadValue(sp + 8);
++							const m = Reflect.get(v, loadString(sp + 16));
++							const args = loadSliceOfValues(sp + 32);
++							const result = Reflect.apply(m, v, args);
++							sp = this._inst.exports.getsp() >>> 0; // see comment above
++							storeValue(sp + 56, result);
++							this.mem.setUint8(sp + 64, 1);
++						} catch (err) {
++							sp = this._inst.exports.getsp() >>> 0; // see comment above
++							storeValue(sp + 56, err);
++							this.mem.setUint8(sp + 64, 0);
++						}
++					},
++
++					// func valueInvoke(v ref, args []ref) (ref, bool)
++					"syscall/js.valueInvoke": (sp) => {
++						sp >>>= 0;
++						try {
++							const v = loadValue(sp + 8);
++							const args = loadSliceOfValues(sp + 16);
++							const result = Reflect.apply(v, undefined, args);
++							sp = this._inst.exports.getsp() >>> 0; // see comment above
++							storeValue(sp + 40, result);
++							this.mem.setUint8(sp + 48, 1);
++						} catch (err) {
++							sp = this._inst.exports.getsp() >>> 0; // see comment above
++							storeValue(sp + 40, err);
++							this.mem.setUint8(sp + 48, 0);
++						}
++					},
++
++					// func valueNew(v ref, args []ref) (ref, bool)
++					"syscall/js.valueNew": (sp) => {
++						sp >>>= 0;
++						try {
++							const v = loadValue(sp + 8);
++							const args = loadSliceOfValues(sp + 16);
++							const result = Reflect.construct(v, args);
++							sp = this._inst.exports.getsp() >>> 0; // see comment above
++							storeValue(sp + 40, result);
++							this.mem.setUint8(sp + 48, 1);
++						} catch (err) {
++							sp = this._inst.exports.getsp() >>> 0; // see comment above
++							storeValue(sp + 40, err);
++							this.mem.setUint8(sp + 48, 0);
++						}
++					},
++
++					// func valueLength(v ref) int
++					"syscall/js.valueLength": (sp) => {
++						sp >>>= 0;
++						setInt64(sp + 16, parseInt(loadValue(sp + 8).length));
++					},
++
++					// valuePrepareString(v ref) (ref, int)
++					"syscall/js.valuePrepareString": (sp) => {
++						sp >>>= 0;
++						const str = encoder.encode(String(loadValue(sp + 8)));
++						storeValue(sp + 16, str);
++						setInt64(sp + 24, str.length);
++					},
++
++					// valueLoadString(v ref, b []byte)
++					"syscall/js.valueLoadString": (sp) => {
++						sp >>>= 0;
++						const str = loadValue(sp + 8);
++						loadSlice(sp + 16).set(str);
++					},
++
++					// func valueInstanceOf(v ref, t ref) bool
++					"syscall/js.valueInstanceOf": (sp) => {
++						sp >>>= 0;
++						this.mem.setUint8(sp + 24, (loadValue(sp + 8) instanceof loadValue(sp + 16)) ? 1 : 0);
++					},
++
++					// func copyBytesToGo(dst []byte, src ref) (int, bool)
++					"syscall/js.copyBytesToGo": (sp) => {
++						sp >>>= 0;
++						const dst = loadSlice(sp + 8);
++						const src = loadValue(sp + 32);
++						if (!(src instanceof Uint8Array || src instanceof Uint8ClampedArray)) {
++							this.mem.setUint8(sp + 48, 0);
++							return;
++						}
++						const toCopy = src.subarray(0, dst.length);
++						dst.set(toCopy);
++						setInt64(sp + 40, toCopy.length);
++						this.mem.setUint8(sp + 48, 1);
++					},
++
++					// func copyBytesToJS(dst ref, src []byte) (int, bool)
++					"syscall/js.copyBytesToJS": (sp) => {
++						sp >>>= 0;
++						const dst = loadValue(sp + 8);
++						const src = loadSlice(sp + 16);
++						if (!(dst instanceof Uint8Array || dst instanceof Uint8ClampedArray)) {
++							this.mem.setUint8(sp + 48, 0);
++							return;
++						}
++						const toCopy = src.subarray(0, dst.length);
++						dst.set(toCopy);
++						setInt64(sp + 40, toCopy.length);
++						this.mem.setUint8(sp + 48, 1);
++					},
++
++					"debug": (value) => {
++						console.log(value);
++					},
++				}
++			};
++		}
++
++		async run(instance) {
++			if (!(instance instanceof WebAssembly.Instance)) {
++				throw new Error("Go.run: WebAssembly.Instance expected");
++			}
++			this._inst = instance;
++			this.mem = new DataView(this._inst.exports.mem.buffer);
++			this._values = [ // JS values that Go currently has references to, indexed by reference id
++				NaN,
++				0,
++				null,
++				true,
++				false,
++				globalThis,
++				this,
++			];
++			this._goRefCounts = new Array(this._values.length).fill(Infinity); // number of references that Go has to a JS value, indexed by reference id
++			this._ids = new Map([ // mapping from JS values to reference ids
++				[0, 1],
++				[null, 2],
++				[true, 3],
++				[false, 4],
++				[globalThis, 5],
++				[this, 6],
++			]);
++			this._idPool = [];   // unused ids that have been garbage collected
++			this.exited = false; // whether the Go program has exited
++
++			// Pass command line arguments and environment variables to WebAssembly by writing them to the linear memory.
++			let offset = 4096;
++
++			const strPtr = (str) => {
++				const ptr = offset;
++				const bytes = encoder.encode(str + "\0");
++				new Uint8Array(this.mem.buffer, offset, bytes.length).set(bytes);
++				offset += bytes.length;
++				if (offset % 8 !== 0) {
++					offset += 8 - (offset % 8);
++				}
++				return ptr;
++			};
++
++			const argc = this.argv.length;
++
++			const argvPtrs = [];
++			this.argv.forEach((arg) => {
++				argvPtrs.push(strPtr(arg));
++			});
++			argvPtrs.push(0);
++
++			const keys = Object.keys(this.env).sort();
++			keys.forEach((key) => {
++				argvPtrs.push(strPtr(`${key}=${this.env[key]}`));
++			});
++			argvPtrs.push(0);
++
++			const argv = offset;
++			argvPtrs.forEach((ptr) => {
++				this.mem.setUint32(offset, ptr, true);
++				this.mem.setUint32(offset + 4, 0, true);
++				offset += 8;
++			});
++
++			// The linker guarantees global data starts from at least wasmMinDataAddr.
++			// Keep in sync with cmd/link/internal/ld/data.go:wasmMinDataAddr.
++			const wasmMinDataAddr = 4096 + 8192;
++			if (offset >= wasmMinDataAddr) {
++				throw new Error("total length of command line and environment variables exceeds limit");
++			}
++
++			this._inst.exports.run(argc, argv);
++			if (this.exited) {
++				this._resolveExitPromise();
++			}
++			await this._exitPromise;
++		}
++
++		_resume() {
++			if (this.exited) {
++				throw new Error("Go program has already exited");
++			}
++			this._inst.exports.resume();
++			if (this.exited) {
++				this._resolveExitPromise();
++			}
++		}
++
++		_makeFuncWrapper(id) {
++			const go = this;
++			return function () {
++				const event = { id: id, this: this, args: arguments };
++				go._pendingEvent = event;
++				go._resume();
++				return event.result;
++			};
++		}
++	}
++})();
+diff --git a/scripts/vendor-shell-parser/build.py b/scripts/vendor-shell-parser/build.py
+new file mode 100644
+index 000000000..f228fb40d
+--- /dev/null
++++ b/scripts/vendor-shell-parser/build.py
+@@ -0,0 +1,55 @@
++"""Rebuild the checked-in Node runtime from the pinned Go module, without modifying its cache."""
++import gzip
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import tempfile
++
++here = Path(__file__).resolve().parent
++output = here.parents[1] / "plugins/sdd-quality-loop/scripts/v2/shell-parser"
++os.chdir(here)
++env = {**os.environ, "GOOS": "js", "GOARCH": "wasm", "CGO_ENABLED": "0", "GOTOOLCHAIN": "local"}
++
++
++def go(*args, capture=True):
++    return subprocess.run(["go", *args], env=env, check=True, text=True, capture_output=capture).stdout
++
++
++if go("env", "GOVERSION").strip() != "go1.26.11":
++    raise SystemExit("Go 1.26.11 is required to regenerate this artifact")
++dependency = json.loads(go("mod", "download", "-json", "mvdan.cc/sh/v3"))
++module = Path(dependency["Dir"])
++goroot = Path(go("env", "GOROOT").strip())
++parser = module / "syntax/parser.go"
++original = parser.read_text()
++# Preserve the product's dialect-aware quote removal for the delimiter word supplied
++# by the actual grammar. Upstream leaves ANSI-C escapes in the stop word verbatim.
++signature = "func (p *Parser) unquotedWordBytes(w *Word) ([]byte, bool) {"
++assert original.count(signature) == 1
++modified = original.replace(signature, "var HeredocDelimiter func(*Word) ([]byte, bool)\n\n" + signature
++                            + "\n\tif HeredocDelimiter != nil { return HeredocDelimiter(w) }")
++with tempfile.TemporaryDirectory() as temp:
++    temp = Path(temp)
++    for name in ("main.go", "go.mod", "go.sum"):
++        shutil.copyfile(here / name, temp / name)
++    os.chdir(temp)
++    go("mod", "vendor", capture=False)
++    (temp / "vendor/mvdan.cc/sh/v3/syntax/parser.go").write_text(modified)
++    # The lexer measures the first rune of a delimiter line in bytes. Its
++    # upstream one-byte subtraction splits non-ASCII terminators such as é.
++    lexer = temp / "vendor/mvdan.cc/sh/v3/syntax/lexer.go"
++    text = lexer.read_text()
++    start = "lStart := len(p.litBs) - 1"
++    assert text.count(start) == 2
++    lexer.write_text(text.replace(start, start + "\n\tif r >= utf8.RuneSelf && r <= utf8.MaxRune { lStart -= utf8.RuneLen(r)-1 }"))
++    wasm = temp / "parser.wasm"
++    go("build", "-mod=vendor", "-trimpath", "-buildvcs=false", "-ldflags=-s -w -buildid=",
++       "-o", str(wasm), ".", capture=False)
++    with (output / "parser.wasm.gz").open("wb") as dest:
++        with gzip.GzipFile(fileobj=dest, filename="", mode="wb", mtime=0) as archive:
++            archive.write(wasm.read_bytes())
++shutil.copyfile(goroot / "lib/wasm/wasm_exec.js", output / "wasm_exec.cjs")
++shutil.copyfile(goroot / "LICENSE", output / "LICENSE.Go")
++shutil.copyfile(module / "LICENSE", output / "LICENSE.mvdan-sh")
+diff --git a/scripts/vendor-shell-parser/go.mod b/scripts/vendor-shell-parser/go.mod
+new file mode 100644
+index 000000000..d849b43f4
+--- /dev/null
++++ b/scripts/vendor-shell-parser/go.mod
+@@ -0,0 +1,5 @@
++module sdd-forge/shell-parser
++
++go 1.26.11
++
++require mvdan.cc/sh/v3 v3.14.1
+diff --git a/scripts/vendor-shell-parser/go.sum b/scripts/vendor-shell-parser/go.sum
+new file mode 100644
+index 000000000..967dc9105
+--- /dev/null
++++ b/scripts/vendor-shell-parser/go.sum
+@@ -0,0 +1,2 @@
++mvdan.cc/sh/v3 v3.14.1 h1:bXkhQWNHCs0KZEChF8hYS6FC+T2N9mUZLbQv9blditI=
++mvdan.cc/sh/v3 v3.14.1/go.mod h1:syYCoFET8w9tvevxiXUtY8/ICrU+l26jHmhJDra3Vwo=
+diff --git a/scripts/vendor-shell-parser/main.go b/scripts/vendor-shell-parser/main.go
+new file mode 100644
+index 000000000..284e3457e
+--- /dev/null
++++ b/scripts/vendor-shell-parser/main.go
+@@ -0,0 +1,58 @@
++//go:build js && wasm
++
++// Parse static source only. The entry point only uses the shell syntax package.
++package main
++
++import (
++	"slices"
++	"strings"
++	"syscall/js"
++
++	"mvdan.cc/sh/v3/syntax"
++)
++
++func scan(_ js.Value, args []js.Value) any {
++	source := args[0].String()
++	var dialect syntax.LangVariant
++	if err := dialect.Set(args[1].String()); err != nil {
++		return err.Error()
++	}
++	decode := args[2]
++	invalidDelimiter := false
++	syntax.HeredocDelimiter = func(word *syntax.Word) ([]byte, bool) {
++		raw := source[word.Pos().Offset():word.End().Offset()]
++		value := decode.Invoke(raw)
++		if value.Type() != js.TypeString {
++			invalidDelimiter = true
++			return nil, true
++		}
++		return []byte(value.String()), strings.ContainsAny(strings.ReplaceAll(raw, "\\\n", ""), "'\"\\")
++	}
++	defer func() { syntax.HeredocDelimiter = nil }()
++	parser := syntax.NewParser(syntax.Variant(dialect), syntax.KeepComments(true))
++	file, err := parser.Parse(strings.NewReader(source), "")
++	if invalidDelimiter {
++		return "non-UTF-8 here-document delimiter"
++	}
++	if err != nil {
++		return err.Error()
++	}
++	var offsets []int
++	syntax.Walk(file, func(node syntax.Node) bool {
++		if comment, ok := node.(*syntax.Comment); ok {
++			offsets = append(offsets, int(comment.Hash.Offset()))
++		}
++		return true
++	})
++	slices.Sort(offsets)
++	result := js.Global().Get("Array").New(len(offsets))
++	for i, offset := range offsets {
++		result.SetIndex(i, offset)
++	}
++	return result
++}
++
++func main() {
++	js.Global().Set("sddParseShellComments", js.FuncOf(scan))
++	select {}
++}
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index b00705b25..d3590d024 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -427,6 +427,251 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+   });
+ 
++  const shellMarker = ['# sdd-lint', '-disable'].join('');
++  const helpExample = "#!/bin/sh\ncat <<'HELP'\n" + shellMarker + ' example-rule\nHELP\n';
++
++  it('accepts the shell here-document help example without a diagnostic or OQ', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    fs.writeFileSync(path.join(dir, 'help.sh'), helpExample);
++    const shown = spawnSync('sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
++    assert.equal(shown.status, 0, shown.stderr);
++    assert.equal(shown.stdout, shellMarker + ' example-rule\n');
++
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 0, result.stdout);
++    const report = JSON.parse(result.stdout);
++    assert.equal(report.status, 'CLEAN');
++    assert.deepEqual(report.violations, []);
++    assert.equal(report.openQuestion, undefined);
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++  });
++
++  it('distinguishes help from active comments in nested shell command substitutions', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.sh');
++    const example = shellMarker + ' shown-rule';
++    const document = ['Use " for inches.', example, 'HELP'];
++    const script = [
++      '#!/bin/sh',
++      'help_text="$(cat <<\'HELP\'', ...document, ')"',
++      'printf \'%s\\n\' "$help_text"',
++      'printf \'%s\\n\' "$(printf \'%s\' "$(cat <<-\\HELP',
++      ...document.map(line => '\t' + line), ')")"',
++      "help_text=$( ( cat <<'HELP'", ...document, ') )',
++      'printf \'%s\\n\' "$help_text"',
++      'help_text="$(case help in help) cat <<\'HELP\'', ...document, ';; esac)"',
++      'printf \'%s\\n\' "$help_text"',
++      // Two pending redirects belong to different command substitutions.
++      'cat 3<<OUTER "$(printf \'/dev/%s\' "$(cat <<INNER',
++      'null', 'INNER', ')")"', example, 'OUTER',
++      ''
++    ].join('\n');
++    const expected = (document.slice(0, -1).join('\n') + '\n').repeat(4);
++    fs.writeFileSync(file, script);
++    // Older macOS /bin/bash rejects the unpaired quote in this otherwise
++    // literal body. The CLI assertions below apply on every host.
++    const shells = [];
++    if (spawnSync('bash', ['-c', 'v="$(cat <<EOF\n"\nEOF\n)"']).status === 0) shells.push('bash');
++    if (!spawnSync('dash', ['-c', ':']).error) shells.push('dash');
++    for (const shell of shells) {
++      const shown = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
++      assert.equal(shown.status, 0, shown.stderr);
++      assert.equal(shown.stderr, '');
++      assert.equal(shown.stdout, expected);
++    }
++    const clean = runAntiTamper(dir);
++    assert.equal(clean.status, 0, clean.stderr + clean.stdout);
++    assert.deepEqual(JSON.parse(clean.stdout).violations, []);
++    assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++
++    const activeSource = script.replace('cat <<', 'true ' + shellMarker + ' inner-rule\ncat <<')
++      + shellMarker + ' outer-rule\n';
++    fs.writeFileSync(file, activeSource);
++    const active = runAntiTamper(dir);
++    assert.equal(active.status, 4, active.stdout);
++    const report = JSON.parse(active.stdout);
++    assert.equal(report.status, 'TAMPER_DETECTED');
++    assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner-rule', ' outer-rule']);
++    assert.ok(report.violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.sh'));
++    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
++    assert.deepEqual(question.violations, report.violations.map(({ code, path }) => ({ code, path })));
++  });
++
++  it('parses compound shell grammar around captured help and its actual comments', (t) => {
++    for (const [shell, prefix, suffix] of [
++      ['bash', 'time case help in', 'esac'],
++      ['dash', 'for arg do case "$arg" in', 'esac; done'],
++    ]) {
++      const { dir } = initGitRepoWithTests();
++      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++      const file = path.join(dir, 'help.sh');
++      const body = 'Use " for inches.\n' + shellMarker + ' shown';
++      const script = [
++        '#!/bin/' + shell, 'set -- help', 'value="$(' + prefix,
++        "help) cat <<'HELP'", body, 'HELP', ';;', suffix, ')"',
++        'printf \'%s\\n\' "$value"', ''
++      ].join('\n');
++      fs.writeFileSync(file, script);
++      const native = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
++      // Old system Bash versions reject an unmatched literal quote in a
++      // substitution's quoted here-document. Always exercise the static CLI.
++      if (!native.error && !(shell === 'bash' && native.status === 2 && native.stderr.includes('unexpected EOF'))) {
++        assert.equal(native.status, 0, native.stderr);
++        assert.equal(native.stdout, body + '\n');
++      }
++      fs.appendFileSync(file, ': > would-run\n');
++      const clean = runAntiTamper(dir);
++      assert.equal(clean.status, 0, clean.stderr + clean.stdout);
++      assert.deepEqual(JSON.parse(clean.stdout).violations, []);
++      assert.equal(fs.existsSync(path.join(dir, 'would-run')), false);
++      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++
++      fs.writeFileSync(file, script.replace(';;', shellMarker + ' inner\n;;')
++        + 'printf \'%s\\n\' \'' + shellMarker + ' quoted\' \\#literal\n' + shellMarker + ' after\n');
++      const detected = runAntiTamper(dir);
++      assert.equal(detected.status, 4, detected.stdout + detected.stderr);
++      const { violations, openQuestion } = JSON.parse(detected.stdout);
++      assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
++      const oq = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
++      assert.deepEqual(oq.violations, violations.map(({ code, path }) => ({ code, path })));
++    }
++  });
++
++  it('matches the native sh delimiter when both dialect spellings occur in the body', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.sh');
++    // The other dialect's terminator also forms a harmless command after the document.
++    fs.writeFileSync(file, ["#!/bin/sh", 'true=:', "cat <<$'true'", '$true',
++      shellMarker + ' between', 'true', shellMarker + ' after', ''].join('\n'));
++    const native = spawnSync('/bin/sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
++    if (!native.error) assert.equal(native.status, 0, native.stderr);
++    const betweenIsData = native.error ? true : native.stdout.includes(shellMarker + ' between');
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 4, result.stdout + result.stderr);
++    assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.detail.split(shellMarker).at(-1)),
++      betweenIsData ? [' after'] : [' between', ' after']);
++  });
++
++  it('reports a tool error for invalid shell syntax and an unavailable or damaged parser', (t) => {
++    const { dir } = initGitRepoWithTests();
++    const copy = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-parser-copy-'));
++    t.after(() => { for (const temp of [dir, copy]) fs.rmSync(temp, { recursive: true, force: true }); });
++    const file = path.join(dir, 'help.sh');
++    fs.writeFileSync(file, "#!/bin/bash\necho 'unclosed\n" + shellMarker + ' sample\n');
++    const invalid = runAntiTamper(dir);
++    assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
++    assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
++
++    fs.cpSync(path.dirname(CHECK_SCRIPT), copy, { recursive: true });
++    fs.writeFileSync(file, '#!/bin/sh\n' + shellMarker + ' active\n');
++    const asset = path.join(copy, 'shell-parser/parser.wasm.gz');
++    for (const damaged of [true, false]) {
++      if (damaged) fs.appendFileSync(asset, 'damaged');
++      else fs.unlinkSync(asset);
++      const result = spawnSync(process.execPath, [path.join(copy, path.basename(CHECK_SCRIPT)),
++        '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
++      assert.equal(result.status, 2, result.stdout + result.stderr);
++      assert.match(result.stderr, /parser\.wasm\.gz/);
++      assert.doesNotMatch(result.stdout, /CLEAN/);
++    }
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++  });
++
++  it('matches Bash dollar-quoted here-document delimiters and preserves the following directive', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const cases = [
++      ["$'HELP'", 'HELP'],
++      [String.raw`PRE$'\x48\105'LP`, 'PREHELP'],
++      [String.raw`$'single\'quote'$"END"`, "single'quoteEND"],
++      [String.raw`$'A\t\cI\102\x43'`, 'A\t\tBC'],
++      [String.raw`$'\xC3'$'\xA9'`, 'é'],
++      [String.raw`$'A\0tail'B`, 'AB'],
++      [String.raw`$"DOC"$'\\'END`, 'DOC\\END'],
++      [String.raw`\$'PLAIN'`, '$PLAIN'],
++    ];
++    const file = path.join(dir, 'help.bash');
++    const body = shellMarker + ' shown-rule';
++    fs.writeFileSync(file, cases.map(([word, end]) => ['cat <<' + word, body, end, ''].join('\n')).join(''));
++    const shown = spawnSync('bash', ['--noprofile', '--norc', 'help.bash'], {
++      cwd: dir, encoding: 'utf8', env: { ...process.env, BASH_ENV: '', LC_ALL: 'C' },
++    });
++    assert.equal(shown.status, 0, shown.stderr);
++    assert.equal(shown.stderr, '');
++    assert.equal(shown.stdout, (body + '\n').repeat(cases.length));
++
++    const clean = runAntiTamper(dir);
++    assert.equal(clean.status, 0, clean.stderr + clean.stdout);
++    const report = JSON.parse(clean.stdout);
++    assert.equal(report.status, 'CLEAN');
++    assert.deepEqual(report.violations, []);
++    assert.equal(report.openQuestion, undefined);
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++
++    fs.appendFileSync(file, shellMarker + ' active-rule\n');
++    const active = runAntiTamper(dir);
++    assert.equal(active.status, 4, active.stdout);
++    const { status, violations, openQuestion } = JSON.parse(active.stdout);
++    assert.equal(status, 'TAMPER_DETECTED');
++    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' active-rule']);
++    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
++    assert.deepEqual(question.violations, [{ code: 'LINT_DISABLE_ADDED', path: 'help.bash' }]);
++    assert.equal(question.id, openQuestion.id);
++  });
++
++  it('uses the declared shell and preserves a literal-dollar terminator in generic sh', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.sh');
++    for (const [shebang, bodyLine, end] of [
++      ['#!/usr/bin/env bash', '$HELP', 'HELP'],
++      ['#!/bin/dash', 'HELP', '$HELP'],
++      ['#!/bin/sh', 'example', '$HELP'],
++    ]) {
++      fs.writeFileSync(file, [shebang, "cat <<$'HELP'", bodyLine, shellMarker + ' shown', end, shellMarker + ' active', ''].join('\n'));
++      const result = runAntiTamper(dir);
++      assert.equal(result.status, 4, result.stdout);
++      const report = JSON.parse(result.stdout);
++      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
++      assert.ok(fs.existsSync(path.join(dir, report.openQuestion.path)));
++    }
++  });
++
++  it('reports only active shell comments before, beside and after queued here-documents', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.bash');
++    // The existing redirect is outside the added-line hunk.
++    fs.writeFileSync(file, "cat <<'HELP'\nunchanged\nHELP\n");
++    assert.equal(git('add', 'help.bash').status, 0);
++    assert.equal(git('commit', '-m', 'initial shell help').status, 0);
++    fs.writeFileSync(file, [
++      "cat <<'HELP'", shellMarker + ' existing-body', 'unchanged', 'HELP',
++      "printf '%s' '<<FAKE' \\#literal # <<FAKE",
++      'echo "$((1 << 2))" <<<"here-string"; (( number = 1 << 3 ))',
++      shellMarker + ' before',
++      'cat <<FIRST 3<<-"SEC OND" 4<<\\LAST ' + shellMarker + ' beside',
++      shellMarker + ' first-body', "unmatched ' in help text", 'FIRST',
++      '\t' + shellMarker + ' second-body', '\tSEC OND',
++      shellMarker + ' last-body', 'LAST',
++      'true ' + shellMarker + ' after', '',
++    ].join('\n'));
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 4, result.stdout);
++    const { status, violations, openQuestion } = JSON.parse(result.stdout);
++    assert.equal(status, 'TAMPER_DETECTED');
++    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' before', ' beside', ' after']);
++    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.bash'));
++    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
++    assert.equal(question.id, openQuestion.id);
++    assert.equal(question.status, 'Provisional');
++    assert.deepEqual(question.violations, violations.map(({ code, path }) => ({ code, path })));
++  });
++
+   it('reports added lint directives in source comments with a persisted OQ', (t) => {
+     const { dir } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
