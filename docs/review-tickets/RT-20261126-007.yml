@@ -1,0 +1,13 @@
+ticket_id: RT-20261126-007
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-007
+summary: "Deleting a package.json causes a scanner error in CI"
+resolution:
+  commit: f6224c5
+  result: "Both built-in adapters accept removed manifests and return exit 2 for present unreadable manifests in strict CI."
+references:
+  - reports/quality-gate/verification-first-factory-T-007.md
