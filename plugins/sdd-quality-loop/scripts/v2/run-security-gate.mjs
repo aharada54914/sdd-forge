@@ -108,6 +108,17 @@ function collectFiles(root, relDir = '', out = []) {
   return out;
 }
 
+// A Git change list includes deletions. Other read or stat failures must remain visible.
+function isRemovedScanInput(root, rel) {
+  const safe = sanitizeRelPath(rel);
+  if (!safe) return false;
+  try {
+    return fs.lstatSync(path.join(root, safe), { throwIfNoEntry: false }) === undefined;
+  } catch {
+    return false;
+  }
+}
+
 export function scanSecretsInFiles(root, relFiles, onUnreadable = () => {}) {
   const findings = [];
   const io = createFsReadonlyIo(root);
@@ -115,12 +126,7 @@ export function scanSecretsInFiles(root, relFiles, onUnreadable = () => {}) {
     if (!SCANNABLE_EXT_RE.test(rel)) continue;
     const text = io.readText(rel);
     if (text == null) {
-      // A changed-file list includes deletions. Every remaining scan target must be readable.
-      try {
-        if (sanitizeRelPath(rel) && !fs.lstatSync(path.join(root, rel), { throwIfNoEntry: false })) continue;
-      } catch {
-        // A failed stat cannot establish that the target was deleted.
-      }
+      if (isRemovedScanInput(root, rel)) continue;
       onUnreadable();
       continue;
     }
@@ -152,7 +158,10 @@ export function scanSlopsquatting(root, files = collectFiles(root)) {
   const io = createFsReadonlyIo(root);
   for (const rel of files.filter(f => path.posix.basename(f) === 'package.json')) {
     const raw = io.readText(rel);
-    if (raw == null) throw new Error('UNREADABLE_MANIFEST');
+    if (raw == null) {
+      if (isRemovedScanInput(root, rel)) continue;
+      throw new Error('UNREADABLE_MANIFEST');
+    }
     const pkg = JSON.parse(raw);
     const dependencies = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.optionalDependencies, ...pkg.peerDependencies };
     for (const [name, version] of Object.entries(dependencies)) {

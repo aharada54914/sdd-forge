@@ -214,6 +214,19 @@ describe('Security adapter contracts and bootstrap integration', () => {
     assert.equal(deleted.status, 'PASS');
   });
 
+  it('accepts a removed manifest in a CI change list and reports an unreadable remaining manifest', t => {
+    const root = project(t);
+    const manifest = path.join(root, 'package.json');
+    fs.writeFileSync(manifest, '{}');
+    fs.unlinkSync(manifest);
+    const check = adapter => runSecurityGate({ projectRoot: root, mode: 'strict', ci: true,
+      adapters: [adapter], files: ['package.json'] });
+    const adapters = ['builtin-secret-pattern', 'builtin-slopsquatting'];
+    for (const adapter of adapters) assert.equal(check(adapter).exitCode, 0, adapter);
+    fs.mkdirSync(manifest);
+    for (const adapter of adapters) assert.equal(check(adapter).exitCode, 2, adapter);
+  });
+
   it('fails closed when it cannot enumerate paths for a security scan', t => {
     const root = project(t);
     const dir = path.join(root, 'unreadable-fixture');
