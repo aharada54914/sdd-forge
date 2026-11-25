@@ -18,7 +18,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | — | #971 | release v2.1.2 | merged (520469d); tagged via publish-release.yml |
 | 5 | #972 | #815, #816, #818, #827, #830, #809, #811, #862, #834 | merged (f95bf9f) after 5 independent reviews |
 | 6 | #972 | #831, #832 | merged with batch 5 (f95bf9f) |
-| — | (this PR) | release v2.1.3 | tag via publish-release.yml after merge |
+| — | #973 | release v2.1.3 | merged (484cbe7); tagged via publish-release.yml |
+| 7 | #974 | integrates `codex/mcp-ddd-next-action`: closes #871–#965 (each mapped to its passing MCP test); refs the 13 `[監査60]` issues | merged (8052dbf) after 2 independent reviews; owner approval now required on main |
+| 8 | (this PR) | #865, #848, review follow-ups on #974 (`.ps1` evidence-checker parity, v1 signature order, concept-test messages) | open |
 
 ## Resolved
 
@@ -77,13 +79,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 | Issue | Reason |
 |---|---|
-| #871–#965 (95 `[MCP試験95]` issues) | Each is marked "passed in candidate, awaiting integration": the fixes are on the owner's local `codex/mcp-ddd-next-action` (64812dc8, 369/369 MCP tests). Push that branch to integrate them together. |
-| #865 | The contributor evidence collector calls `generate-evidence-bundle.sh` / `check-evidence-bundle.sh`, retired in v2.0.0 (e2110862). Restore the v1 bundle pipeline, or retire the collector's normal-generation mode with a clear message? Product decision. |
-| #803, #804 | The DDD contract publish step these build on (`domain-model` / `domain-review-loop` publish procedure, validator guarantees) exists only on the owner's local `codex/mcp-ddd-next-action`; editing the same lines here would conflict with that branch. |
-| #812 | Its fix is specified in `specs/native-concept-runtime/` on the owner's local worktree `sdd-forge-n14-spec-review`, not on the remote. |
-| #848 | Needs a product decision: should v2 guarantee automatic collection of domain-conformance findings, or should the retrospective keep reporting N/A? |
+| #803, #804 | Build on the DDD contract publish step now on main (#974). Workable next. |
+| #812 | Specified on `codex/n14-package-spec` (pushed by the owner); next to implement after #803/#804. |
 | #850 | Changes GitHub branch-protection / ruleset policy (owner review, required contexts); needs the repository owner's decision. |
-| #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
 
 ## Follow-ups
 
@@ -103,3 +101,5 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Workable issues: none left after batch 6. Everything open is Deferred (owner decision or the owner's local branches).
 - Review-5 minors on #972: a failed write after the no-hard-link fallback's exclusive create leaves an empty lock (fails closed, needs --break-stale); on Windows FAT `linkSync` may report `EISDIR`, which the fallback list lacks (unverified); the pre-existing --break-stale restore path (`linkSync(claim, lock)`) has no no-hard-link fallback; evidence inputs do not bind lazy unindented continuations, bold-label paragraphs, or heading bodies of IDs that also have a bullet elsewhere (all pre-existing; document in skill reference).
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.
+- Audit-60 issues referenced by #974 (#805–#808, #810, #813, #836, #839, #842, #853, #854, #856, #860): verify each on main and close with evidence. Tests located so far: D5 `v2-mcp-server` 'D5:', D6 `v2-software-factory` 'D6:', R3/H4/N21 `v2-prompts-and-delegation` 'H4/N21/G7/R3', R6 and N12/N24 `v2-real-flows-e2e`, H5 `v2-hooks-and-ci` '(H5)', N27 MCP `dashboard.test.ts`, D4 MCP `next-command.test.ts` (sdd_feature_state path untested), H7 specs list == AGENTS list; D3 (#805) is documentation.
+- Main ruleset (since 2026-11-25): 1 approving review required, stale approvals dismissed on push. Agent PRs need the owner's approval or a ruleset change (relates to #850).
