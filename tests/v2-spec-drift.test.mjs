@@ -450,6 +450,72 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
       ['tests/sample_test.go', 'tests/sample_test.py']);
   });
 
+  it('counts Node test context calls using the callback parameter, including subtests', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'tests/sample.test.mjs');
+    const method = ['sk', 'ip'].join('');
+    const existing = 'test("context", async (ctx) => { ctx.' + method + '("platform"); });\n';
+    fs.writeFileSync(file, existing);
+    assert.equal(git('commit', '-am', 'record one platform-specific test').status, 0);
+    const renamed = existing.replace('platform', 'optional fixture');
+    fs.writeFileSync(file, renamed + 'test("metadata", () => { list.' + method + '(2); });\n');
+    assert.equal(runAntiTamper(dir).status, 0);
+    for (const call of [
+      'it("feature", t => t.' + method + '("optional"));',
+      'test("feature", function (context) { context.' + method + '(); });',
+      'test("parent", async parent => { await parent.test("child", child => child.' + method + '()); });',
+    ]) {
+      fs.writeFileSync(file, renamed + call);
+      const added = runAntiTamper(dir);
+      assert.equal(added.status, 4, added.stdout);
+      assert.deepEqual(JSON.parse(added.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
+    }
+  });
+
+  it('distinguishes an entire TRUE definition from conjunctions and their continuations', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'specs/demo/formal/Model.tla');
+    function writeBody(body) {
+      fs.writeFileSync(file, '---- MODULE Model ----\nVARIABLE x\nInv == ' + body + '\n====\n');
+    }
+    for (const body of ['TRUE /\\ x = 1', 'TRUE\n     /\\ x = 1', 'TRUE (* checked below *)\n     /\\ x = 1']) {
+      writeBody(body);
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 0, result.stdout);
+    }
+    for (const body of ['TRUE', '\n    TRUE \\* constant predicate']) {
+      writeBody(body);
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 4, result.stdout);
+      assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.code), ['FORMAL_INVARIANT_WEAKENED']);
+    }
+  });
+
+  it('ignores Python and Go documentation while counting executable skip directives', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const py = path.join(dir, 'tests/sample_test.py');
+    const go = path.join(dir, 'tests/sample_test.go');
+    const decorator = ['unittest', '.skip'].join('');
+    const goMethod = ['t.', 'Skip'].join('');
+    fs.writeFileSync(py, '# ' + decorator + ' is used for platform exclusions\n' +
+      '"""\nAn example is @' + decorator + '("reason").\n"""\n' +
+      'message = "' + decorator + '"\n');
+    fs.writeFileSync(go, 'package sample\n// ' + goMethod + '("optional")\n' +
+      '/* ' + goMethod + '("old") */\nconst doc = `' + goMethod + '("demo")`\n');
+    assert.equal(git('add', 'tests').status, 0);
+    const docs = runAntiTamper(dir);
+    assert.equal(docs.status, 0, docs.stdout);
+    fs.appendFileSync(py, '@' + decorator + '("requires device")\ndef test_device():\n    pass\n');
+    fs.appendFileSync(go, 'func TestDevice(t *testing.T) { ' + goMethod + '("requires device") }\n');
+    const added = runAntiTamper(dir);
+    assert.equal(added.status, 4, added.stdout);
+    assert.deepEqual(JSON.parse(added.stdout).violations.map(v => v.path).sort(),
+      ['tests/sample_test.go', 'tests/sample_test.py']);
+  });
+
   for (const defect of ['invalid JSON', 'wrong id', 'wrong feature']) {
     it('preserves an existing question with ' + defect + ' and records a valid replacement', (t) => {
       const { dir } = initGitRepoWithTests();
