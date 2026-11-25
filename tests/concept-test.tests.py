@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Concept Test acceptance: real signed evidence, stale inputs, and read-only gates."""
+from concurrent.futures import ThreadPoolExecutor
 import contextlib
 import copy
 import hashlib
@@ -807,8 +808,6 @@ class DomainContractSchemaAgreementTests(unittest.TestCase):
         cls.directory.cleanup()
 
     def run_twin(self, command):
-        from concurrent.futures import ThreadPoolExecutor
-
         def run(path):
             result = subprocess.run(command + [str(path)], capture_output=True, text=True, timeout=120)
             return result.returncode, result.stdout, result.stderr

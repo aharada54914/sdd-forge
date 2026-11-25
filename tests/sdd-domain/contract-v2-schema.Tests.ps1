@@ -2679,6 +2679,15 @@ Describe "T-003 REQ-002 anchor regression -- a trailing newline is rejected by b
 # Both directions are covered below, so the parity property is locked in each
 # polarity rather than assumed from one example.
 #
+# Issue #804 (full schema conformance, addendum-804-full-schema-conformance.md)
+# changed the pinned verdicts but not the property. A case-variant key is an
+# undeclared key under the schema's additionalProperties:false, so each twin
+# now also reports it as V2-UNKNOWN-KEY, and the two "inverted" contracts --
+# which the Concept Test's schema check always rejected -- now exit 1. Their
+# pinned stderr is that ONE line and nothing else: a case-folding lookup would
+# still add the V2-SELF-CONTRADICTION / V2-DANGLING-TERM line the ordinal
+# lookup never produces.
+#
 # This is NOT the already-adjudicated ConvertFrom-Json key-casing class. That
 # one needs BOTH spellings present in ONE document, is rejected at the
 # object-build step before any member is read, and OVER-rejects. Each fixture
@@ -2775,24 +2784,27 @@ function New-CaseKeyParityCase {
 $caseKeyDanglingContextPair = "V2-DANGLING-CONTEXT: concepts[0].context: context order-taking is not declared in contexts`n" +
                               "V2-DANGLING-CONTEXT: concepts[1].context: context order-taking is not declared in contexts"
 $caseKeyDanglingTermLine = "V2-DANGLING-TERM: contexts[0].terms[0].concept_id: CONCEPT-ORDER does not resolve to any declared concept id"
+$caseKeyUnknownKeySuffix = ": key is not declared by the domain-contract/v2 schema"
 
 $caseKeyParityCases = @(
     # --- fail-open polarity: .sh rejected, .ps1 returned 0 ------------------
     (New-CaseKeyParityCase -Class 'fail-open (1) contexts[0] spells its name "Name"' -Polarity "fail-open" `
-        -ExitCode 1 -Expected $caseKeyDanglingContextPair -Marker '"Name":' `
+        -ExitCode 1 -Expected ("V2-MISSING-KEY: contexts[0].name: required key is absent`n" +
+            "V2-UNKNOWN-KEY: contexts[0].Name" + $caseKeyUnknownKeySuffix + "`n" + $caseKeyDanglingContextPair) -Marker '"Name":' `
         -Override @{ CONTEXTS = $caseKeyContextsNameKey }),
     (New-CaseKeyParityCase -Class 'fail-open (2) concepts[0] spells its id "ID"' -Polarity "fail-open" `
-        -ExitCode 1 -Expected ("V2-MISSING-KEY: concepts[0].id: required key is absent`n" + $caseKeyDanglingTermLine) -Marker '"ID":' `
+        -ExitCode 1 -Expected ("V2-MISSING-KEY: concepts[0].id: required key is absent`n" +
+            "V2-UNKNOWN-KEY: concepts[0].ID" + $caseKeyUnknownKeySuffix + "`n" + $caseKeyDanglingTermLine) -Marker '"ID":' `
         -Override @{ C_ID = '"ID": "CONCEPT-ORDER", ' }),
     (New-CaseKeyParityCase -Class 'fail-open (3) the contract root spells its discriminator "Schema"' -Polarity "fail-open" `
         -ExitCode 1 -Expected "V2-MISSING-KEY: schema: required key is absent at the contract root" -Marker '"Schema":' `
         -Override @{ ROOT = $caseKeySchemaKey }),
-    # --- inverted polarity: .sh accepted, .ps1 rejected ---------------------
+    # --- inverted polarity: .sh accepted, .ps1 rejected (before #804) -------
     (New-CaseKeyParityCase -Class 'inverted (1) concepts[0] spells its optional list "Must_Not_Own"' -Polarity "inverted" `
-        -ExitCode 0 -Expected "" -Marker '"Must_Not_Own":' `
+        -ExitCode 1 -Expected ("V2-UNKNOWN-KEY: concepts[0].Must_Not_Own" + $caseKeyUnknownKeySuffix) -Marker '"Must_Not_Own":' `
         -Override @{ CONCEPT_MAIN = $caseKeyMustNotOwnKey; C_MUST_NOT_OWN = '["purchase intent"]' }),
     (New-CaseKeyParityCase -Class 'inverted (2) a term spells its optional link "Concept_Id"' -Polarity "inverted" `
-        -ExitCode 0 -Expected "" -Marker '"Concept_Id":' `
+        -ExitCode 1 -Expected ("V2-UNKNOWN-KEY: contexts[0].terms[0].Concept_Id" + $caseKeyUnknownKeySuffix) -Marker '"Concept_Id":' `
         -Override @{ CONTEXTS = $caseKeyTermConceptIdKey }),
     # --- referent-index locks: these FAIL if either twin's declared-value ---
     # --- index stops being ordinal (the surviving mutant) -------------------
@@ -2800,7 +2812,7 @@ $caseKeyParityCases = @(
         -ExitCode 1 -Expected ("V2-PATTERN: concepts[0].id: value CONCEPT-Order does not match ^CONCEPT-[A-Z][A-Z0-9-]*$`n" + $caseKeyDanglingTermLine) -Marker '"CONCEPT-Order"' `
         -Override @{ C_ID = '"id": "CONCEPT-Order", ' }),
     (New-CaseKeyParityCase -Class 'referent (2) the declared context name differs from the concept reference only in case' -Polarity "referent" `
-        -ExitCode 1 -Expected $caseKeyDanglingContextPair -Marker '"Order-Taking"' `
+        -ExitCode 1 -Expected ("V2-PATTERN: contexts[0].name: value Order-Taking does not match ^[a-z][a-z0-9-]*$`n" + $caseKeyDanglingContextPair) -Marker '"Order-Taking"' `
         -Override @{ CONTEXTS = $caseKeyContextsNameCaseVariant })
 )
 
@@ -2836,11 +2848,16 @@ Describe "RT-20260819-002 case-variant key fixture corpus integrity (non-vacuity
         @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "referent" }).Count | Should Be 2
     }
 
-    It "both polarities really are represented -- some case must reject and some must accept" {
-        # Without this the block could degenerate into a one-sided corpus that
-        # a validator rejecting (or accepting) everything would satisfy.
-        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 1 }).Count | Should Be 5
-        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 0 }).Count | Should Be 2
+    It "the inverted cases pin a lone V2-UNKNOWN-KEY line, so they still fail if the shadowed member is read" {
+        # Since #804 every case rejects: a case-variant key is an undeclared
+        # key. A validator rejecting everything still fails here, because each
+        # case pins its exact stderr, and the base-contract block below pins
+        # acceptance of the unmutated contract.
+        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 1 }).Count | Should Be 7
+        foreach ($caseKeyCase in @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "inverted" })) {
+            ($caseKeyCase.Expected -split "`n").Count | Should Be 1
+            $caseKeyCase.Expected.StartsWith('V2-UNKNOWN-KEY: ', [StringComparison]::Ordinal) | Should Be $true
+        }
     }
 
     It "every fixture body is distinct and really is a mutation of the accepted base contract" {
