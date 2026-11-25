@@ -1,0 +1,16 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs b/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
+index 3fcd8766e..bc0bfa2fc 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
+@@ -829,10 +829,8 @@ export function runSddGate({
+         risk: taskState.risk,
+         feature,
+         baseRef,
+-        adapter: config.formal_verification?.checker?.adapter || 'none',
+-        mode: config.formal_verification?.enabled ? config.formal_verification.mode : 'shadow',
+       });
+-      formalGate = { skipped: false, passed: fReport.exitCode === 0, ...fReport };
++      formalGate = { skipped: fReport.status === 'SKIPPED', passed: fReport.exitCode === 0, ...fReport };
+       if (failFast && !formalGate.passed) failFastStoppedAt = 'formalGate';
+     }
+ 

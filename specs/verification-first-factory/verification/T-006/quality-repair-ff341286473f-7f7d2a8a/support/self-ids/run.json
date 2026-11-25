@@ -1,0 +1,22 @@
+{
+  "test": "tests/v2-software-factory.test.mjs",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=binds SELF criteria",
+    "tests/v2-software-factory.test.mjs"
+  ],
+  "red_test_revision": "f755b33f3",
+  "results": {
+    "red": {
+      "checkout": "6bd28d413ccc4affee468410dfc1649071b3e1c7",
+      "exit": 1,
+      "test_sha256": "20dfc6a76fe7f10f9ad9c6baf7458ca6b3a5038c8585e1b9970707b4c6c5b7a0"
+    },
+    "green": {
+      "checkout": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "exit": 0,
+      "test_sha256": "20dfc6a76fe7f10f9ad9c6baf7458ca6b3a5038c8585e1b9970707b4c6c5b7a0"
+    }
+  }
+}

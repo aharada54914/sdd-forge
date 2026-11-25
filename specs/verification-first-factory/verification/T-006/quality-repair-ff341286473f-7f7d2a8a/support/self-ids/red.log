@@ -1,0 +1,39 @@
+▶ #972 review 4: wrapped prose, table cells, filesystems without hard links
+  ✖ binds SELF criteria, linked requirements and NFRs by their full IDs (2.113375ms)
+✖ #972 review 4: wrapped prose, table cells, filesystems without hard links (2.443875ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.254792
+
+✖ failing tests:
+
+test at tests/v2-software-factory.test.mjs:1234:3
+✖ binds SELF criteria, linked requirements and NFRs by their full IDs (2.113375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'AC-001',
+  +   'REQ-006'
+  -   'NFR-001',
+  -   'SELF-AC-001',
+  -   'SELF-REQ-006'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/sdd-formal-next.oOloOZ/self-evidence/before/tests/v2-software-factory.test.mjs:1247:12)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1518:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'AC-001', 'REQ-006' ],
+    expected: [ 'NFR-001', 'SELF-AC-001', 'SELF-REQ-006' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

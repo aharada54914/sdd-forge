@@ -1,0 +1,184 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "8c11d3fe-fc36-432e-8144-bd2cdcfd1b21",
+  "feature": "verification-first-factory",
+  "taskId": "T-006",
+  "mode": "standard",
+  "executedAt": "2026-11-25T18:42:09.222Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "19d26f5f525721f85e8c9d2da8bcdad1269c908f474c9ef69fdcaabfa9dbc023",
+    "ids": {
+      "SELF-AC-001": "9ccdfe9040178ea863bee295cb5098a40ed0754f9aebefad84c1a67f584846b2",
+      "SELF-AC-002": "02784b167a8ae0458dace8ec73b7471b1eb92e407fac734af9931dd843a2895f",
+      "SELF-AC-006": "a6b8f6fb0d74b76c6d9349544b807eccc43f76a21a2d89b3a7a41f92c301ef33",
+      "SELF-REQ-001": "089937e77b3816cd11dae5d4aab5f8a81769d9dc1c8c41a1d9871a0f3f905e32",
+      "SELF-REQ-002": "75503935acbd27db126a7db13c4ac32088d1d35a4df427a421ae113f5ab0f8b8",
+      "SELF-REQ-006": "4928bfc8a58010519b8949609802c17d160d899f237b56706f689cebae5e6704"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 2,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "specs/self-verification/formal/TaskLock.tla",
+      "specs/self-verification/formal/TaskLock.cfg",
+      "specs/self-verification/formal/GateLifecycle.tla",
+      "specs/self-verification/formal/GateLifecycle.cfg",
+      "specs/self-verification/formal/mapping.json",
+      "tests/project-skill-formal.tests.py",
+      "sdd/approved-test-retirements.json"
+    ],
+    "outOfScopeFiles": [
+      "specs/self-verification/formal/GateLifecycle.drift.negative.cfg",
+      "specs/self-verification/formal/GateLifecycle.negative.cfg",
+      "specs/self-verification/formal/GateLifecycle.oq.negative.cfg",
+      "specs/self-verification/formal/GateLifecycle.retry.negative.cfg",
+      "specs/self-verification/formal/GateLifecycle.tamper.negative.cfg",
+      "specs/self-verification/formal/TaskLock.negative.cfg",
+      "specs/self-verification/formal/TaskLockMutation.cfg",
+      "specs/self-verification/formal/TaskLockMutation.negative.cfg",
+      "specs/self-verification/formal/TaskLockMutation.tla",
+      "tests/v2-formal-gate.test.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 10 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-006",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "high",
+      "scopePaths": [
+        "specs/self-verification/formal/TaskLock.tla",
+        "specs/self-verification/formal/TaskLock.cfg",
+        "specs/self-verification/formal/GateLifecycle.tla",
+        "specs/self-verification/formal/GateLifecycle.cfg",
+        "specs/self-verification/formal/mapping.json",
+        "tests/project-skill-formal.tests.py",
+        "sdd/approved-test-retirements.json"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "formal",
+        "command": "node --test tests/v2-formal-gate.test.mjs",
+        "exitCode": 0,
+        "durationMs": 29835,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate\n  ✔ checks literal TRUE only for invariants selected by the active CFG (1.808459ms)\n  ✔ stops a disabled formal gate in CI and honors an explicit checker mode (95.407583ms)\n  ✔ respects disabled formal configuration in the integrated gate (20.414042ms)\n  ✔ AC-003: discovers formal verification triggers from Risk: high and state-machine signals (1.166917ms)\n  ✔ AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4 (0.255333ms)\n  ✔ AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace (4.421292ms)\n✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (123.866209ms)\n▶ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)\n  ✔ validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces (1.126792ms)\n✔ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle) (1.176834ms)\n▶ checker verdicts match the observed failure\n  ✔ does not accept a tool error mentioning the invariant as a negative control (1.483625ms)\n  ✔ defers a missing tool locally and fails CI (1.888ms)\n  ✔ rejects a gate pass with undeclared drift and an unapproved completion (0.330875ms)\n✔ checker verdicts match the observed failure (3.770875ms)\n✔ TaskLock Release preserves an unreadable owner and its lease until explicitly forced (354.912792ms)\n✔ scan finds related compound branches and graph validation fails on unreachable states (51.487875ms)\n✔ skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view (93.500083ms)\n✔ retains a between-phase budget timeout and raises the repair-limit OQ in the decision view (4.067959ms)\n✔ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (4100.265208ms)\n✔ TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces (25035.47075ms)\nℹ Reservation baseline no violation exit=0 states=15 depth=8\nℹ Reservation negative OneAccepted exit=12 states=25 depth=7\nℹ TaskLock baseline no violation exit=0 states=5 depth=3\nℹ TaskLock negative SingleOwner exit=12 states=4 depth=3\nℹ TaskLock replay TraceIncomplete exit=12 states=4 depth=4\nℹ TaskLock baseline no violation exit=0 states=null depth=null\nℹ TaskLock negative SingleOwner exit=12 states=null depth=null\nℹ TaskLock replay TraceIncomplete exit=12 states=null depth=null\nℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10\nℹ TaskLock baseline no violation exit=0 states=5 depth=3\nℹ TaskLock negative SingleOwner exit=12 states=4 depth=3\nℹ TaskLock replay no violation exit=0 states=1 depth=1\nℹ TaskLockMutation baseline no violation exit=0 states=54 depth=7\nℹ TaskLockMutation negative OneWriter exit=12 states=27 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay no violation exit=0 states=2 depth=2\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay no violation exit=0 states=2 depth=2\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative RetryBound exit=12 states=35 depth=12\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative EscalationRequiresOQ exit=12 states=8 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative NoTamperRepair exit=12 states=13 depth=6\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative NoDriftPass exit=12 states=6 depth=5\nℹ tests 16\nℹ suites 3\nℹ pass 16\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 29811.500833\n",
+        "stderr": ""
+      },
+      {
+        "label": "python",
+        "command": "python3 tests/project-skill-formal.tests.py -v",
+        "exitCode": 0,
+        "durationMs": 1186,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": "test_delayed_contender_still_reaches_negative_barrier (__main__.Reservation.test_delayed_contender_still_reaches_negative_barrier) ... ok\ntest_mutation_and_baseline (__main__.Reservation.test_mutation_and_baseline) ... ok\ntest_negative_barrier_timeout_is_reported (__main__.Reservation.test_negative_barrier_timeout_is_reported) ... ok\ntest_negative_model_requires_a_completed_invariant_violation (__main__.Reservation.test_negative_model_requires_a_completed_invariant_violation) ... ok\ntest_source_mapping_current (__main__.Reservation.test_source_mapping_current) ... ok\ntest_spawn_failure_cleans_up_first_contender (__main__.Reservation.test_spawn_failure_cleans_up_first_contender) ... ok\ntest_successful_reservation_must_publish_the_winning_actor (__main__.Reservation.test_successful_reservation_must_publish_the_winning_actor) ... ok\ntest_wrong_tool_bytes_are_rejected_before_execution (__main__.Reservation.test_wrong_tool_bytes_are_rejected_before_execution) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 1.120s\n\nOK\n"
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

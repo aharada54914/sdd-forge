@@ -1,0 +1,125 @@
+{
+  "revision": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+  "task": "T-006",
+  "groups": [
+    {
+      "role": "task",
+      "reason": "T-006 の当初モデル・対応表・廃止承認記録（上限は初回審査の版）。",
+      "paths": [
+        "specs/self-verification/formal/GateLifecycle.cfg",
+        "specs/self-verification/formal/GateLifecycle.drift.negative.cfg",
+        "specs/self-verification/formal/GateLifecycle.negative.cfg",
+        "specs/self-verification/formal/GateLifecycle.oq.negative.cfg",
+        "specs/self-verification/formal/GateLifecycle.retry.negative.cfg",
+        "specs/self-verification/formal/GateLifecycle.tamper.negative.cfg",
+        "specs/self-verification/formal/GateLifecycle.tla",
+        "specs/self-verification/formal/TaskLock.cfg",
+        "specs/self-verification/formal/TaskLock.negative.cfg",
+        "specs/self-verification/formal/TaskLock.tla",
+        "specs/self-verification/formal/TaskLockMutation.cfg",
+        "specs/self-verification/formal/TaskLockMutation.negative.cfg",
+        "specs/self-verification/formal/TaskLockMutation.tla",
+        "specs/self-verification/formal/mapping.json",
+        "sdd/approved-test-retirements.json"
+      ],
+      "base": "40eec6263bc39642c499d5a35c623600546edd90",
+      "head": "cf53793720d0f3eb996e154627ace69dac893793",
+      "patch": "scope-01-task.diff"
+    },
+    {
+      "role": "task",
+      "reason": "T-006 の修正サイクルはモデル対応表に現在のソースハッシュを反映した。",
+      "paths": [
+        "specs/self-verification/formal/mapping.json"
+      ],
+      "base": "6b8f09ccd8e8a2a6db5cb26e9602648c5f0cb80a",
+      "head": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "patch": "scope-02-task.diff"
+    },
+    {
+      "role": "test",
+      "reason": "対応するPythonテストと、モデルを実行する両チェッカー有効の共有Node試験。",
+      "paths": [
+        "tests/project-skill-formal.tests.py",
+        "tests/v2-formal-gate.test.mjs"
+      ],
+      "base": "40eec6263bc39642c499d5a35c623600546edd90",
+      "head": "cf53793720d0f3eb996e154627ace69dac893793",
+      "patch": "scope-03-test.diff"
+    },
+    {
+      "role": "product",
+      "reason": "広い製品修正としてのロックと統合ゲートの競合防止。T-006 のタスクScopeに含まれない。",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"
+      ],
+      "base": "dc86a706cf3fe3b93ea5d9af3eec885e3290a769",
+      "head": "c7f22ad69b02293dec6fd83937deba26c0fec13b",
+      "patch": "scope-04-product.diff"
+    },
+    {
+      "role": "product",
+      "reason": "製品の release 所有者検証。Scope表上 task-lock.mjs はT-006/T-008いずれにも含まれない。",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
+      ],
+      "base": "c7f22ad69b02293dec6fd83937deba26c0fec13b",
+      "head": "a3d9a7574c4b60886bc8f087dc4e7dcc98664650",
+      "patch": "scope-05-product.diff"
+    },
+    {
+      "role": "dependency",
+      "reason": "最終候補にバインドされたモデルの実装、統合テスト、CIのワークフロー、T-005のチェック器はT-006の検証依存。",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+        "tests/verify-review-reservation.py",
+        "tests/v2-wave3-integration.test.mjs",
+        "tests/v2-software-factory.test.mjs",
+        ".github/workflows/test.yml",
+        ".github/workflows/sdd-guardrails.yml"
+      ],
+      "base": "cf53793720d0f3eb996e154627ace69dac893793",
+      "head": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "patch": "scope-06-dependency.diff"
+    },
+    {
+      "role": "dependency",
+      "reason": "T-006 の合格証跡を SELF 名前空間に結び付ける共有読取りコードと Red/Green の該当テスト。",
+      "base": "6bd28d413ccc4affee468410dfc1649071b3e1c7",
+      "head": "f755b33f3a68ee1ec6dd34087d32bdce274da544",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+        "tests/v2-software-factory.test.mjs"
+      ],
+      "patch": "scope-07-dependency.diff"
+    }
+  ],
+  "mirrored_sources": [
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "sha256": "f712ac527a08adf65ecea7dd0ad714efbdc1df78ca57717b86585f23fd0295a8",
+      "review_copy": "specs/verification-first-factory/verification/T-006/quality-repair-ff341286473f-7f7d2a8a/revision-sources/specs/self-verification/formal/mapping.json"
+    },
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "sha256": "f712ac527a08adf65ecea7dd0ad714efbdc1df78ca57717b86585f23fd0295a8",
+      "review_copy": "specs/verification-first-factory/verification/T-006/quality-repair-ff341286473f-7f7d2a8a/revision-sources/specs/self-verification/formal/mapping.json"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sha256": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
+      "review_copy": "specs/verification-first-factory/verification/T-006/quality-repair-ff341286473f-7f7d2a8a/revision-sources/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "provenance": "git show ff341286473f8b51531440feb33f5c0d0d23ca61:plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "reason": "live workspace differs from tested source"
+    }
+  ]
+}

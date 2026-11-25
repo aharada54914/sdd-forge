@@ -1,0 +1,422 @@
+diff --git a/specs/self-verification/formal/GateLifecycle.cfg b/specs/self-verification/formal/GateLifecycle.cfg
+new file mode 100644
+index 000000000..b7d14a873
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.cfg
+@@ -0,0 +1,9 @@
++SPECIFICATION Spec
++CONSTANT MaxRounds = 2
++CONSTANT Fault = "None"
++CHECK_DEADLOCK FALSE
++INVARIANT DoneRequiresGatePass
++INVARIANT RetryBound
++INVARIANT NoTamperRepair
++INVARIANT NoDriftPass
++INVARIANT EscalationRequiresOQ
+diff --git a/specs/self-verification/formal/GateLifecycle.drift.negative.cfg b/specs/self-verification/formal/GateLifecycle.drift.negative.cfg
+new file mode 100644
+index 000000000..b311d635d
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.drift.negative.cfg
+@@ -0,0 +1,5 @@
++SPECIFICATION Spec
++CONSTANT MaxRounds = 2
++CONSTANT Fault = "Drift"
++CHECK_DEADLOCK FALSE
++INVARIANT NoDriftPass
+diff --git a/specs/self-verification/formal/GateLifecycle.negative.cfg b/specs/self-verification/formal/GateLifecycle.negative.cfg
+new file mode 100644
+index 000000000..5be157018
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.negative.cfg
+@@ -0,0 +1,5 @@
++SPECIFICATION Spec
++CONSTANT MaxRounds = 2
++CONSTANT Fault = "Approval"
++CHECK_DEADLOCK FALSE
++INVARIANT DoneRequiresGatePass
+diff --git a/specs/self-verification/formal/GateLifecycle.oq.negative.cfg b/specs/self-verification/formal/GateLifecycle.oq.negative.cfg
+new file mode 100644
+index 000000000..57e6d63f3
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.oq.negative.cfg
+@@ -0,0 +1,5 @@
++SPECIFICATION Spec
++CONSTANT MaxRounds = 2
++CONSTANT Fault = "MissingOQ"
++CHECK_DEADLOCK FALSE
++INVARIANT EscalationRequiresOQ
+diff --git a/specs/self-verification/formal/GateLifecycle.retry.negative.cfg b/specs/self-verification/formal/GateLifecycle.retry.negative.cfg
+new file mode 100644
+index 000000000..ec7dafa5b
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.retry.negative.cfg
+@@ -0,0 +1,5 @@
++SPECIFICATION Spec
++CONSTANT MaxRounds = 2
++CONSTANT Fault = "Retry"
++CHECK_DEADLOCK FALSE
++INVARIANT RetryBound
+diff --git a/specs/self-verification/formal/GateLifecycle.tamper.negative.cfg b/specs/self-verification/formal/GateLifecycle.tamper.negative.cfg
+new file mode 100644
+index 000000000..4c5488c6d
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.tamper.negative.cfg
+@@ -0,0 +1,5 @@
++SPECIFICATION Spec
++CONSTANT MaxRounds = 2
++CONSTANT Fault = "Tamper"
++CHECK_DEADLOCK FALSE
++INVARIANT NoTamperRepair
+diff --git a/specs/self-verification/formal/GateLifecycle.tla b/specs/self-verification/formal/GateLifecycle.tla
+new file mode 100644
+index 000000000..9bc1b9895
+--- /dev/null
++++ b/specs/self-verification/formal/GateLifecycle.tla
+@@ -0,0 +1,65 @@
++----------------------------- MODULE GateLifecycle -----------------------------
++EXTENDS Naturals
++CONSTANT
++    \* @type: Int;
++    MaxRounds,
++    \* @type: Str;
++    Fault
++VARIABLES
++    \* @type: Str;
++    status,
++    \* @type: Bool;
++    approved,
++    \* @type: Str;
++    gateVerdict,
++    \* @type: Int;
++    rounds,
++    \* @type: Bool;
++    tamper,
++    \* @type: Str;
++    drift,
++    \* @type: Bool;
++    oq
++
++\* Explicit frame equalities let Apalache use these actions as trace predicates
++\* even after Next has already assigned the successor state.
++vars == <<status, approved, gateVerdict, rounds, tamper, drift, oq>>
++Init == /\ status = "Planned" /\ approved = FALSE /\ gateVerdict = "NONE"
++        /\ rounds = 0 /\ tamper = FALSE /\ drift = "CLEAN" /\ oq = FALSE
++
++Approve == /\ status = "Planned" /\ ~approved /\ approved' = TRUE
++           /\ status' = status /\ gateVerdict' = gateVerdict /\ rounds' = rounds /\ tamper' = tamper /\ drift' = drift /\ oq' = oq
++StartTask == /\ status = "Planned" /\ (approved \/ Fault = "Approval")
++             /\ status' = "InProgress"
++             /\ approved' = approved /\ gateVerdict' = gateVerdict /\ rounds' = rounds /\ tamper' = tamper /\ drift' = drift /\ oq' = oq
++CompleteImpl == /\ status = "InProgress" /\ status' = "ImplComplete"
++                /\ approved' = approved /\ gateVerdict' = gateVerdict /\ rounds' = rounds /\ tamper' = tamper /\ drift' = drift /\ oq' = oq
++
++RunGatePass == /\ status = "ImplComplete" /\ gateVerdict = "NONE"
++               /\ gateVerdict' = "PASS" /\ tamper' = FALSE
++               /\ drift' \in IF Fault = "Drift" THEN {"CLEAN", "UNDECLARED_DRIFT"} ELSE {"CLEAN"}
++               /\ status' = status /\ approved' = approved /\ rounds' = rounds /\ oq' = oq
++RunGateFail == /\ status = "ImplComplete" /\ gateVerdict = "NONE"
++               /\ gateVerdict' = "FAIL" /\ tamper' \in BOOLEAN
++               /\ oq' = (tamper' /\ Fault /= "MissingOQ")
++               /\ drift' \in {"CLEAN", "UNDECLARED_DRIFT"}
++               /\ status' = status /\ approved' = approved /\ rounds' = rounds
++Repair == /\ status = "ImplComplete" /\ gateVerdict = "FAIL"
++          /\ (~tamper \/ Fault = "Tamper")
++          /\ (rounds < MaxRounds \/ (Fault = "Retry" /\ rounds = MaxRounds))
++          /\ status' = "InProgress" /\ rounds' = rounds + 1 /\ gateVerdict' = "NONE"
++          /\ approved' = approved /\ tamper' = tamper /\ drift' = drift /\ oq' = oq
++Escalate == /\ status = "ImplComplete" /\ gateVerdict = "FAIL" /\ (tamper \/ rounds >= MaxRounds)
++            /\ status' = "Blocked" /\ oq' = (Fault /= "MissingOQ")
++            /\ approved' = approved /\ gateVerdict' = gateVerdict /\ rounds' = rounds /\ tamper' = tamper /\ drift' = drift
++MarkDone == /\ status = "ImplComplete" /\ gateVerdict = "PASS"
++            /\ status' = "Done" /\ approved' = approved /\ gateVerdict' = gateVerdict /\ rounds' = rounds /\ tamper' = tamper /\ drift' = drift /\ oq' = oq
++Next == Approve \/ StartTask \/ CompleteImpl \/ RunGatePass \/ RunGateFail \/ Repair \/ Escalate \/ MarkDone
++Spec == Init /\ [][Next]_vars
++
++DoneRequiresGatePass == status = "Done" => (approved /\ gateVerdict = "PASS")
++RetryBound == rounds <= MaxRounds
++EscalationRequiresOQ == (status = "Blocked" \/ (tamper /\ gateVerdict = "FAIL")) => oq
++NoTamperRepair == status = "InProgress" => ~tamper
++NoDriftPass == gateVerdict = "PASS" => drift /= "UNDECLARED_DRIFT"
++===============================================================================
+diff --git a/specs/self-verification/formal/TaskLock.cfg b/specs/self-verification/formal/TaskLock.cfg
+new file mode 100644
+index 000000000..fc5cc5850
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLock.cfg
+@@ -0,0 +1,3 @@
++SPECIFICATION Spec
++CONSTANT UseAtomicLock = TRUE
++INVARIANT SingleOwner
+diff --git a/specs/self-verification/formal/TaskLock.negative.cfg b/specs/self-verification/formal/TaskLock.negative.cfg
+new file mode 100644
+index 000000000..7fce1d112
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLock.negative.cfg
+@@ -0,0 +1,3 @@
++SPECIFICATION Spec
++CONSTANT UseAtomicLock = FALSE
++INVARIANT SingleOwner
+diff --git a/specs/self-verification/formal/TaskLock.tla b/specs/self-verification/formal/TaskLock.tla
+new file mode 100644
+index 000000000..fc421e784
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLock.tla
+@@ -0,0 +1,62 @@
++--------------------------- MODULE TaskLock ---------------------------
++EXTENDS Naturals, FiniteSets
++CONSTANT
++    \* @type: Bool;
++    UseAtomicLock
++Owners == {"w1", "w2"}
++VARIABLES
++    \* @type: Str;
++    holder,
++    \* @type: Bool;
++    leaseActive,
++    \* @type: Set(Str);
++    holders
++
++\* Explicit frame equalities let Apalache use these actions as trace predicates
++\* even after Next has already assigned the successor state.
++vars == <<holder, leaseActive, holders>>
++
++Init ==
++    /\ holder = "none"
++    /\ leaseActive = FALSE
++    /\ holders = {}
++
++Acquire(o) ==
++    /\ o \notin holders
++    /\ IF UseAtomicLock THEN holder = "none" ELSE TRUE
++    /\ holder' = o
++    /\ leaseActive' = TRUE
++    /\ holders' = holders \cup {o}
++
++Renew(o) ==
++    /\ holder = o
++    /\ leaseActive' = TRUE
++    /\ holder' = holder /\ holders' = holders
++
++Expire ==
++    /\ holder /= "none"
++    /\ leaseActive = TRUE
++    /\ leaseActive' = FALSE
++    /\ holder' = holder /\ holders' = holders
++
++ReclaimStale(o) ==
++    /\ holder /= "none"
++    /\ leaseActive = FALSE
++    /\ holder' = o
++    /\ leaseActive' = TRUE
++    /\ holders' = {o}
++
++Release(o) ==
++    /\ holder = o
++    /\ holder' = "none"
++    /\ leaseActive' = FALSE
++    /\ holders' = holders \ {o}
++
++Next ==
++    \/ \E o \in Owners : Acquire(o) \/ Renew(o) \/ ReclaimStale(o) \/ Release(o)
++    \/ Expire
++
++Spec == Init /\ [][Next]_vars
++
++SingleOwner == Cardinality(holders) <= 1
++=============================================================================
+diff --git a/specs/self-verification/formal/TaskLockMutation.cfg b/specs/self-verification/formal/TaskLockMutation.cfg
+new file mode 100644
+index 000000000..9d87b335c
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLockMutation.cfg
+@@ -0,0 +1,3 @@
++SPECIFICATION Spec
++CONSTANT CheckPeers = TRUE
++INVARIANT OneWriter
+diff --git a/specs/self-verification/formal/TaskLockMutation.negative.cfg b/specs/self-verification/formal/TaskLockMutation.negative.cfg
+new file mode 100644
+index 000000000..4bb80c9c9
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLockMutation.negative.cfg
+@@ -0,0 +1,3 @@
++SPECIFICATION Spec
++CONSTANT CheckPeers = FALSE
++INVARIANT OneWriter
+diff --git a/specs/self-verification/formal/TaskLockMutation.tla b/specs/self-verification/formal/TaskLockMutation.tla
+new file mode 100644
+index 000000000..cc65ccd64
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLockMutation.tla
+@@ -0,0 +1,28 @@
++------------------------- MODULE TaskLockMutation -------------------------
++EXTENDS Naturals, FiniteSets
++CONSTANT
++    \* @type: Bool;
++    CheckPeers
++Workers == {"w1", "w2", "w3"}
++VARIABLE
++    \* @type: Str -> Str;
++    phase
++
++Init == phase = [w \in Workers |-> "idle"]
++Move(w, target) == phase' = [phase EXCEPT ![w] = target]
++Announce(w) == /\ phase[w] = "idle"
++               /\ Move(w, "announced")
++Enter(w) == /\ phase[w] = "announced"
++            /\ ~CheckPeers \/ \A p \in Workers \ {w} : phase[p] \in {"idle", "dead"}
++            /\ Move(w, "editing")
++Withdraw(w) == /\ phase[w] \in {"announced", "editing"}
++               /\ Move(w, "idle")
++Crash(w) == /\ phase[w] \in {"announced", "editing"}
++            /\ Move(w, "dead")
++Reap(w) == /\ phase[w] = "dead"
++           /\ Move(w, "idle")
++
++Next == \E w \in Workers : Announce(w) \/ Enter(w) \/ Withdraw(w) \/ Crash(w) \/ Reap(w)
++Spec == Init /\ [][Next]_phase
++OneWriter == Cardinality({w \in Workers : phase[w] = "editing"}) <= 1
++===========================================================================
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+new file mode 100644
+index 000000000..237f0468e
+--- /dev/null
++++ b/specs/self-verification/formal/mapping.json
+@@ -0,0 +1,137 @@
++{
++  "schema": "sdd-formal-mapping/v1",
++  "property": "A task has at most one recorded lock owner. A gate can complete only an approved task after PASS; drift, tamper, and the repair limit constrain the next action.",
++  "models": {
++    "TaskLock": {
++      "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
++      "invariant": "SingleOwner",
++      "actions": {
++        "Acquire": "acquireLock: claim a writer intent before atomically publishing the lock",
++        "Renew": "acquireLock -> renewLock: own lock lease",
++        "Expire": "getLockStatus -> evaluateStale: TTL expiration",
++        "ReclaimStale": "acquireLock: replace an expired record under the writer intent",
++        "Release": "releaseLock: matching, non-empty recorded owner under the writer intent"
++      },
++      "sources": [
++        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
++      ],
++      "expected_violated_invariant": "SingleOwner",
++      "trace": {
++        "fields": [
++          "holders",
++          "leaseActive"
++        ],
++        "actor_actions": [
++          "Acquire",
++          "Renew",
++          "ReclaimStale",
++          "Release"
++        ]
++      }
++    },
++    "GateLifecycle": {
++      "source": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
++      "invariant": "DoneRequiresGatePass",
++      "actions": {
++        "StartTask": "tasks.md Status: Planned -> In Progress",
++        "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
++        "RunGatePass": "run-sdd-gate.mjs verdict PASS",
++        "RunGateFail": "run-sdd-gate.mjs verdict FAIL, including a blocking Concept Test decision before project commands",
++        "MarkDone": "quality-gate transitions Status -> Done",
++        "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
++        "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
++        "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
++      },
++      "sources": [
++        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
++        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
++        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
++        "plugins/sdd-ship/skills/ship/SKILL.md",
++        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md",
++        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
++        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs"
++      ],
++      "expected_violated_invariant": "DoneRequiresGatePass",
++      "invariants": [
++        "DoneRequiresGatePass",
++        "RetryBound",
++        "NoTamperRepair",
++        "NoDriftPass",
++        "EscalationRequiresOQ"
++      ],
++      "trace": {
++        "fields": [
++          "status",
++          "approved",
++          "gateVerdict",
++          "rounds",
++          "tamper",
++          "drift",
++          "oq"
++        ],
++        "actor_actions": []
++      }
++    },
++    "TaskLockMutation": {
++      "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
++      "invariant": "OneWriter",
++      "actions": {
++        "Announce": "withLockMutation: publish a unique intent with wx",
++        "Enter": "withLockMutation: scan published intents and enter only in the absence of live peers",
++        "Withdraw": "withLockMutation: remove own intent after refusal or completion",
++        "Crash": "a local process exits during a mutation, leaving its intent",
++        "Reap": "withLockMutation: remove the unique intent of a local PID confirmed dead"
++      },
++      "sources": [
++        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
++      ],
++      "expected_violated_invariant": "OneWriter"
++    }
++  },
++  "mapping": {
++    "Acquire": "acquireLock: claim a writer intent before atomically publishing the lock",
++    "Renew": "acquireLock -> renewLock: own lock lease",
++    "Expire": "getLockStatus -> evaluateStale: TTL expiration",
++    "ReclaimStale": "acquireLock: replace an expired record under the writer intent",
++    "Release": "releaseLock: matching, non-empty recorded owner under the writer intent",
++    "StartTask": "tasks.md Status: Planned -> In Progress",
++    "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
++    "RunGatePass": "run-sdd-gate.mjs verdict PASS",
++    "RunGateFail": "run-sdd-gate.mjs verdict FAIL, including a blocking Concept Test decision before project commands",
++    "MarkDone": "quality-gate transitions Status -> Done",
++    "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
++    "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
++    "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops",
++    "Announce": "withLockMutation: publish a unique intent with wx",
++    "Enter": "withLockMutation: scan published intents and enter only in the absence of live peers",
++    "Withdraw": "withLockMutation: remove own intent after refusal or completion",
++    "Crash": "a local process exits during a mutation, leaving its intent",
++    "Reap": "withLockMutation: remove the unique intent of a local PID confirmed dead"
++  },
++  "assumptions": [
++    "Local atomic exclusive creation, atomic rename, and coherent directory enumeration; every writer uses the same intent protocol. Local peers with the same hostname share a PID namespace.",
++    "Only quality-gate sets Status: Done after reading execution.json verdict"
++  ],
++  "excluded": [
++    "Network filesystems (NFS/SMB) without atomic O_EXCL",
++    "Manual human override via git commit",
++    "Explicit operator recovery with task-lock release --force; malformed or ownerless records refuse ordinary Release."
++  ],
++  "bounds": [
++    "Two lock contenders; abstract, indivisible filesystem operations; holders includes the owner of a stale record until reclaimed.",
++    "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
++    "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
++  ],
++  "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
++  "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
++  "source_sha256": {
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
++    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb",
++    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d",
++    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
++    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02",
++    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648",
++    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
++    "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
++  }
++}
