@@ -1112,6 +1112,60 @@ describe('#972 re-review: nested braces, bare route groups, lease renewal', () =
   });
 });
 
+describe('Wave task plans in CLI and read-only views', () => {
+  const plan = [
+    '# Tasks', '- **Approval:** `Draft`', '## Wave 1', '### T-009: Task evidence',
+    '~~~~markdown', '## Spec Amendments', '~~~', '### T-099: Example', 'Status: Done',
+    'Approval: Approved', 'REQ-099', '~~~~',
+    '- **Status:** `Implementation Complete`', '- **Approval:** `Approved`', '- **Risk:** `medium`',
+    '- **Covers:** `REQ-012`', '- **Verification (`AC-012`):** local check',
+    '- **Scope:** `src/{one,two}.mjs`, `src/app/(admin)/ui.ts`（`UI` のみ）',
+    '### Blockers', 'T-008', '## Wave 2', 'REQ-090', '## T-010 Legacy', 'Status: Planned', 'Approval: Draft',
+  ].join('\n');
+
+  it('resolves real H3 metadata, scope and blockers with the same task boundaries as the gate', async () => {
+    const { parseTasksSummary, extractScopePaths } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const { parseTaskBlock } = await import('../plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs');
+    const tasks = parseTasksSummary(plan);
+    assert.deepEqual(tasks.map((t) => t.id), ['T-009', 'T-010']);
+    const task = tasks[0];
+    assert.equal(task.title, 'Task evidence');
+    assert.equal(task.status, 'Implementation Complete');
+    assert.equal(task.approval, 'Approved');
+    assert.equal(task.risk, 'standard');
+    assert.deepEqual(task.blockers, ['T-008']);
+    assert.deepEqual(task.acRefs, ['AC-012']);
+    assert.doesNotMatch(task.block, /REQ-099|REQ-090/);
+    const paths = ['src/one.mjs', 'src/two.mjs', 'src/app/(admin)/ui.ts'];
+    assert.deepEqual(extractScopePaths(task.block), paths);
+    assert.deepEqual(parseTaskBlock(plan, task.id), {
+      taskId: task.id, approval: task.approval, status: task.status, risk: task.risk, scopePaths: paths,
+    });
+    assert.equal(parseTaskBlock(plan, 'T-099'), null);
+    assert.equal(parseTaskBlock('### T-009: Empty\n## Wave 2\nApproval: Approved', 'T-009').approval, null);
+  });
+
+  it('binds fenced bytes and task references while normalizing a real lifecycle transition', async () => {
+    const { featureEvidenceInputs, diffEvidenceInputs, taskApprovalBaseline } =
+      await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const input = (text) => featureEvidenceInputs({ readText: (rel) => rel.endsWith('/tasks.md') ? text : null }, { feature: 'f' }).get('T-009');
+    const baseline = (text) => taskApprovalBaseline(text, 'tasks.md');
+    const before = input(plan);
+    assert.deepEqual(Object.keys(before.ids), ['AC-012', 'REQ-012']);
+    const moved = plan.replace('`Implementation Complete`', '`Done`').replace('`Approved`', '`Draft`');
+    assert.deepEqual(diffEvidenceInputs(before, input(moved)), []);
+    assert.deepEqual(diffEvidenceInputs(before, input(plan.replace('REQ-090', 'REQ-091'))), []);
+    assert.deepEqual(baseline(plan).taskApprovals, { 'T-009': 'Approved', 'T-010': 'Draft' });
+    assert.equal(baseline(moved).taskApprovals['T-009'], 'Draft');
+    assert.equal(baseline(plan).approvalContractSha256, baseline(moved).approvalContractSha256);
+    for (const changed of [plan.replace('Status: Done', 'Status: Planned'), plan.replace('Approval: Approved', 'Approval: Draft')]) {
+      assert.deepEqual(diffEvidenceInputs(before, input(changed)), ['task']);
+      assert.notEqual(baseline(changed).approvalContractSha256, baseline(plan).approvalContractSha256);
+    }
+    assert.notEqual(baseline(plan.replace('`Draft`', '`Approved`')).approvalContractSha256, baseline(plan).approvalContractSha256);
+  });
+});
+
 describe('#972 review 4: wrapped prose, table cells, filesystems without hard links', () => {
   const evidence = async (files) => {
     const { featureEvidenceInputs, diffEvidenceInputs } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');

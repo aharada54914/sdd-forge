@@ -37613,7 +37613,6 @@ var VALID_SECURITY_ADAPTERS = /* @__PURE__ */ new Set([
 var VALID_GATE_MODES = /* @__PURE__ */ new Set(["off", "shadow", "warn", "strict"]);
 var VALID_ANTI_TAMPER_MODES = /* @__PURE__ */ new Set(["off", "warn", "strict"]);
 var APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
-var STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 var AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 var IDENTIFIER_LINE_RE = /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
 var PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none(?:\s+yet)?\.?|n\/a|\(none\)|no\s+changes?(?:\s+yet)?\.?|（なし）|なし|（初期版のため変更なし）|初期版[。．.・\s]*変更なし[。．.]?|初期版（変更なし）|\(initial\s+version[^)]*\))$/i;
@@ -38061,9 +38060,44 @@ function countPrimaryApprovals(text) {
   if (!text) return 0;
   return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
 }
+function* markdownLines(text) {
+  let fence = "";
+  for (const line of normalizeNewlines(text || "").split("\n")) {
+    const marker = /^[ \t]*(`{3,}|~{3,})(.*)$/.exec(line);
+    const fenced = Boolean(fence || marker);
+    if (marker && !fence) fence = marker[1];
+    else if (marker && marker[1].startsWith(fence) && !marker[2].trim()) fence = "";
+    yield { line, fenced };
+  }
+}
+function taskHeading(line) {
+  return /^#{2,3}[ \t]+(T-[A-Za-z0-9._-]+)(?:(?:[ \t]*:[ \t]*|[ \t]+)(.*))?$/i.exec(line.trimEnd());
+}
+var TASK_FIELD = /^[ \t]*(?:-[ \t]*)?(?:\*\*)?(Approval|Status|Risk|Scope):(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
+function taskField(line) {
+  const match = TASK_FIELD.exec(line);
+  if (!match) return null;
+  return { name: match[1].toLowerCase(), raw: match[2], value: match[2].trim().replace(/^[`*_]+|[`*_]+$/g, "") };
+}
+function normalizeTaskFields(text, { approval = false, evidence = false } = {}) {
+  let inTask = false;
+  return Array.from(markdownLines(text), ({ line, fenced }) => {
+    if (fenced) return line;
+    if (taskHeading(line)) inTask = true;
+    else if (/^##[ \t]+\S/.test(line)) inTask = false;
+    const field = taskField(line);
+    if (!field || !inTask && !/^[ \t]*(?:Status|Approval):/.test(line)) return line;
+    if (field.name === "status") return evidence ? "<NORMALIZED>" : "Status: <NORMALIZED>";
+    if (approval && field.name === "approval" && (field.value === "Draft" || isApprovedValue(field.value))) {
+      return evidence ? "<NORMALIZED>" : "Approval: <NORMALIZED>";
+    }
+    return line;
+  }).join("\n");
+}
 function parseSpecAmendmentsSection(text) {
   const normalized = normalizeNewlines(text);
-  const match = AMENDMENT_HEADING_RE.exec(normalized);
+  const headings = Array.from(markdownLines(normalized), ({ line, fenced }) => fenced ? " ".repeat(line.length) : line).join("\n");
+  const match = AMENDMENT_HEADING_RE.exec(headings);
   if (!match) {
     return {
       beforeAmendments: normalized,
@@ -38080,7 +38114,7 @@ function parseSpecAmendmentsSection(text) {
   const afterHeadingStart = headingStart + match[0].length;
   const rest = normalized.slice(afterHeadingStart);
   const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, "m");
-  const nextMatch = nextHeadingRe.exec(rest);
+  const nextMatch = nextHeadingRe.exec(headings.slice(afterHeadingStart));
   if (!nextMatch) {
     return {
       beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
@@ -38141,7 +38175,7 @@ function canonicalSpecContractText(text, fileName) {
 
 ${afterAmendments}` : beforeAmendments;
   if (String(fileName || "").toLowerCase() === "tasks.md") {
-    combined = combined.replace(STATUS_LINE_RE, "Status: <NORMALIZED>");
+    combined = normalizeTaskFields(combined);
   }
   return combined.trim();
 }
@@ -38259,25 +38293,7 @@ function loadGuardrailsConfigFromIo(io) {
   return normalizeGuardrailsConfig(parsed, sourcePath);
 }
 function stripFencedCodeBlocks(text) {
-  const lines = normalizeNewlines(text || "").split("\n");
-  const out = [];
-  let inFence = false;
-  let fenceChar = "";
-  for (const line of lines) {
-    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
-    if (m) {
-      if (!inFence) {
-        inFence = true;
-        fenceChar = m[1][0];
-      } else if (m[1][0] === fenceChar) {
-        inFence = false;
-        fenceChar = "";
-      }
-      continue;
-    }
-    if (!inFence) out.push(line);
-  }
-  return out.join("\n");
+  return [...markdownLines(text)].filter(({ fenced }) => !fenced).map(({ line }) => line).join("\n");
 }
 function splitMarkdownTableRow(line) {
   let trimmed = String(line || "").trim();
@@ -38473,11 +38489,12 @@ function extractDeclaredBlockers(taskBlock) {
   return [...new Set(ids)];
 }
 function extractScopePaths(taskBlock) {
+  const inline = taskBlock.split("\n").map(taskField).find((field) => field?.name === "scope" && field.raw);
   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
-  if (!scopeMatch) return [];
-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+  if (!inline && !scopeMatch) return [];
+  const rest = inline ? "" : taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
   const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const section = inline ? `- ${stripScopeNote(inline.raw)}` : nextSub ? rest.slice(0, nextSub.index) : rest;
   const paths = [];
   for (const line of section.split("\n")) {
     const trimmed = line.trim();
@@ -38566,44 +38583,53 @@ function normalizeRiskTier(raw, fallback = "standard") {
   if (value === "low") return "low";
   return fallback;
 }
-function parseTasksSummary(tasksText) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || "");
-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}
+function taskSections(text) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text || "");
+  const body = afterAmendments ? `${beforeAmendments}
 
-${afterAmendments}` : beforeAmendments);
-  const tasks = [];
-  const h2Re = /^##[ \t]+(.+)$/gm;
-  const headings = [...body.matchAll(h2Re)];
-  for (let i = 0; i < headings.length; i += 1) {
-    const h = headings[i];
-    const titleLine = h[1].trim();
-    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
-    if (!taskMatch) continue;
-    const start = h.index + h[0].length;
-    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
-    const block = body.slice(start, end);
-    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || "Draft";
-    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || "Planned";
-    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], "standard");
-    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
-    const taskId = taskMatch[1].toUpperCase();
-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
-    const declaredBlockers = extractDeclaredBlockers(block);
-    const selfBlocked = declaredBlockers.includes(taskId);
-    tasks.push({
-      selfBlocked,
-      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
-      id: taskId,
-      title: (taskMatch[2] || "").trim(),
-      approval,
-      status,
-      risk,
-      acRefs,
-      blockers,
-      block
-    });
+${afterAmendments}` : beforeAmendments;
+  const sections = [];
+  let current = null;
+  for (const { line, fenced } of markdownLines(body)) {
+    const heading = !fenced && taskHeading(line);
+    if (heading) {
+      current = { id: heading[1].toUpperCase(), title: (heading[2] || "").trim(), raw: [line], body: [], fields: {} };
+      sections.push(current);
+    } else if (!fenced && /^##[ \t]+\S/.test(line)) {
+      current = null;
+    } else if (current) {
+      current.raw.push(line);
+      if (fenced) continue;
+      current.body.push(line);
+      const field = taskField(line);
+      if (field?.value && !(field.name in current.fields)) current.fields[field.name] = field.value;
+    }
   }
-  return tasks;
+  return sections;
+}
+function taskSummary({ id: taskId, title, body, fields }) {
+  const block = body.join("\n");
+  const { approval = "Draft", status = "Planned" } = fields;
+  const risk = normalizeRiskTier(fields.risk);
+  const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+  const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+  const declaredBlockers = extractDeclaredBlockers(block);
+  const selfBlocked = declaredBlockers.includes(taskId);
+  return {
+    selfBlocked,
+    declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
+    id: taskId,
+    title,
+    approval,
+    status,
+    risk,
+    acRefs,
+    blockers,
+    block
+  };
+}
+function parseTasksSummary(tasksText) {
+  return taskSections(tasksText).map(taskSummary);
 }
 function detectDomains(combinedText) {
   const text = String(combinedText || "");
@@ -38710,30 +38736,8 @@ function isTestPath(relPath) {
   const lower = normalizeRelPath(relPath).toLowerCase();
   return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
 }
-var APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === "function" ? io.existsButUnreadable(relPath) : io.exists(relPath);
-}
-function rawTaskSections(tasksRaw) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ""));
-  const lines = (afterAmendments ? `${beforeAmendments}
-
-${afterAmendments}` : beforeAmendments).split("\n");
-  const sections = /* @__PURE__ */ new Map();
-  let fence = false;
-  let current = null;
-  for (const line of lines) {
-    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
-    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
-    if (heading) {
-      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
-      if (current && !sections.has(current)) sections.set(current, [line]);
-      else if (current) current = null;
-      continue;
-    }
-    if (current) sections.get(current).push(line);
-  }
-  return new Map([...sections].map(([id, body]) => [id, body.join("\n")]));
 }
 var ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
 var LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
@@ -38792,16 +38796,17 @@ ${c.contract}`).join("\n"));
   };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"));
-  const sections = rawTaskSections(tasksRaw);
   const reqsIn = (text) => (String(text || "").match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
-  for (const task of parseTasksSummary(tasksRaw)) {
+  for (const section of taskSections(tasksRaw)) {
+    if (byTask.has(section.id)) continue;
+    const task = taskSummary(section);
     const wanted = new Set(task.acRefs);
     for (const req of reqsIn(task.block)) wanted.add(req);
     for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join("\n"))) wanted.add(req);
     const ids = {};
     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join("\n")) : fallbackHash(key);
-    const section = (sections.get(task.id) || task.block).replace(/^[ \t]*Status:[ \t]*.*$/gm, "<NORMALIZED>").replace(APPROVAL_FIELD_RE, "<NORMALIZED>");
-    byTask.set(task.id, { schema: "sdd-task-evidence-inputs/v2", task: sha256Text(section.trim()), ids, design });
+    const normalized = normalizeTaskFields(section.raw.join("\n"), { approval: true, evidence: true });
+    byTask.set(task.id, { schema: "sdd-task-evidence-inputs/v2", task: sha256Text(normalized.trim()), ids, design });
   }
   return byTask;
 }
@@ -38818,7 +38823,7 @@ function diffEvidenceInputs(recorded, current) {
 }
 function taskApprovalBaseline(rawText, fileName) {
   if (String(fileName || "").toLowerCase() !== "tasks.md") return null;
-  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, "Approval: <NORMALIZED>");
+  const contract = normalizeTaskFields(canonicalSpecContractText(rawText, fileName), { approval: true });
   const taskApprovals = {};
   for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
   return { approvalContractSha256: sha256Text(contract), taskApprovals };
@@ -38870,7 +38875,7 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
     const fileName = baseInfo && baseInfo.fileName || path2.posix.basename(safeRel);
     const approvalView = typeof baseInfo?.approvalContractSha256 === "string" ? taskApprovalBaseline(rawText, fileName) : null;
     if (approvalView) {
-      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256 && sha256Text(rawText) !== baseInfo.rawSha256) {
         changedFiles.push(safeRel);
       }
       for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {

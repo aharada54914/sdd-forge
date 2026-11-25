@@ -36,9 +36,9 @@
         "StartTask": "tasks.md Status: Planned -> In Progress",
         "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
         "RunGatePass": "run-sdd-gate.mjs verdict PASS",
-        "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
+        "RunGateFail": "run-sdd-gate.mjs verdict FAIL, including a blocking Concept Test decision before project commands",
         "MarkDone": "quality-gate transitions Status -> Done",
-        "Approve": "human approval recorded in tasks.md",
+        "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
         "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
         "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
       },
@@ -47,7 +47,9 @@
         "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
         "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
         "plugins/sdd-ship/skills/ship/SKILL.md",
-        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
+        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md",
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs"
       ],
       "expected_violated_invariant": "DoneRequiresGatePass",
       "invariants": [
@@ -80,9 +82,9 @@
     "StartTask": "tasks.md Status: Planned -> In Progress",
     "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
     "RunGatePass": "run-sdd-gate.mjs verdict PASS",
-    "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
+    "RunGateFail": "run-sdd-gate.mjs verdict FAIL, including a blocking Concept Test decision before project commands",
     "MarkDone": "quality-gate transitions Status -> Done",
-    "Approve": "human approval recorded in tasks.md",
+    "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
     "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
     "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
   },
@@ -98,14 +100,16 @@
     "Two lock contenders; abstract, indivisible filesystem operations; holders includes the owner of a stale record until reclaimed.",
     "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only."
   ],
-  "source_sync_commit": "fc166bd1a8b8303531c0445ff78965897ea59c61",
+  "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
   "source_sha256": {
     "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb",
-    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "510f5242a04e17c9bc4acd1fb33696fd816bb4a490bc5fc62309979d24c977c9",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "2d67724fc842505ad8c3fa3b20e6dfdf5ad4709dd89c0fbc6aef38442d9ac594",
     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "2e57f256b3772f59666081e2c0dec7cf69d67081155ae4b624e0df43a90f546f",
-    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "74114588cdb40699479984a5902349fe40055a29731410ae65d3699b4cfac5e8",
+    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02",
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "3bdc70b823003dfe798f766ce49bc8d5596e85b56941b6ee0f6806555ebae672",
+    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
     "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
   }
 }

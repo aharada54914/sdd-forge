@@ -91,7 +91,6 @@ export const VALID_ANTI_TAMPER_MODES = new Set(['off', 'warn', 'strict']);
 
 const APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
 const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approved\b/g;
-const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
 const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 const IDENTIFIER_LINE_RE =
   /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
@@ -633,9 +632,51 @@ export function countDomainModelApprovals(text) {
   return (normalizeNewlines(text).match(DOMAIN_MODEL_APPROVAL_RE) || []).length;
 }
 
+// Preserve fenced bytes for evidence while keeping examples out of the plan grammar.
+export function* markdownLines(text) {
+  let fence = '';
+  for (const line of normalizeNewlines(text || '').split('\n')) {
+    const marker = /^[ \t]*(`{3,}|~{3,})(.*)$/.exec(line);
+    const fenced = Boolean(fence || marker);
+    if (marker && !fence) fence = marker[1];
+    else if (marker && marker[1].startsWith(fence) && !marker[2].trim()) fence = '';
+    yield { line, fenced };
+  }
+}
+
+export function taskHeading(line) {
+  return /^#{2,3}[ \t]+(T-[A-Za-z0-9._-]+)(?:(?:[ \t]*:[ \t]*|[ \t]+)(.*))?$/i.exec(line.trimEnd());
+}
+
+const TASK_FIELD = /^[ \t]*(?:-[ \t]*)?(?:\*\*)?(Approval|Status|Risk|Scope):(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
+
+export function taskField(line) {
+  const match = TASK_FIELD.exec(line);
+  if (!match) return null;
+  return { name: match[1].toLowerCase(), raw: match[2], value: match[2].trim().replace(/^[`*_]+|[`*_]+$/g, '') };
+}
+
+export function normalizeTaskFields(text, { approval = false, evidence = false } = {}) {
+  let inTask = false;
+  return Array.from(markdownLines(text), ({ line, fenced }) => {
+    if (fenced) return line;
+    if (taskHeading(line)) inTask = true;
+    else if (/^##[ \t]+\S/.test(line)) inTask = false;
+    const field = taskField(line);
+    if (!field || (!inTask && !/^[ \t]*(?:Status|Approval):/.test(line))) return line;
+    if (field.name === 'status') return evidence ? '<NORMALIZED>' : 'Status: <NORMALIZED>';
+    if (approval && field.name === 'approval' && (field.value === 'Draft' || isApprovedValue(field.value))) {
+      return evidence ? '<NORMALIZED>' : 'Approval: <NORMALIZED>';
+    }
+    return line;
+  }).join('\n');
+}
+
 function parseSpecAmendmentsSection(text) {
   const normalized = normalizeNewlines(text);
-  const match = AMENDMENT_HEADING_RE.exec(normalized);
+  // Mask fenced headings without shifting source offsets.
+  const headings = Array.from(markdownLines(normalized), ({ line, fenced }) => fenced ? ' '.repeat(line.length) : line).join('\n');
+  const match = AMENDMENT_HEADING_RE.exec(headings);
   if (!match) {
     return {
       beforeAmendments: normalized,
@@ -654,7 +695,7 @@ function parseSpecAmendmentsSection(text) {
   const rest = normalized.slice(afterHeadingStart);
 
   const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, 'm');
-  const nextMatch = nextHeadingRe.exec(rest);
+  const nextMatch = nextHeadingRe.exec(headings.slice(afterHeadingStart));
 
   if (!nextMatch) {
     return {
@@ -726,7 +767,7 @@ export function canonicalSpecContractText(text, fileName) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
   let combined = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
   if (String(fileName || '').toLowerCase() === 'tasks.md') {
-    combined = combined.replace(STATUS_LINE_RE, 'Status: <NORMALIZED>');
+    combined = normalizeTaskFields(combined);
   }
   return combined.trim();
 }
@@ -737,8 +778,8 @@ export function isSafeSpecEditOnly(oldContent, newContent, fileName, allowAmendm
     return canonicalSpecContractText(oldContent, lower) === canonicalSpecContractText(newContent, lower);
   }
   if (lower === 'tasks.md') {
-    const oldNorm = normalizeNewlines(oldContent).replace(STATUS_LINE_RE, 'Status: <NORMALIZED>').trim();
-    const newNorm = normalizeNewlines(newContent).replace(STATUS_LINE_RE, 'Status: <NORMALIZED>').trim();
+    const oldNorm = normalizeTaskFields(oldContent).trim();
+    const newNorm = normalizeTaskFields(newContent).trim();
     return oldNorm === newNorm;
   }
   return normalizeNewlines(oldContent).trim() === normalizeNewlines(newContent).trim();

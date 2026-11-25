@@ -1,8 +1,8 @@
 {
   "schema": "sdd-spec-baseline/v1",
   "feature": "verification-first-factory",
-  "recordedAt": "2026-11-25T15:45:57.492Z",
-  "gitHead": "fc166bd1a8b8303531c0445ff78965897ea59c61",
+  "recordedAt": "2026-11-25T16:43:30.106Z",
+  "gitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
   "amendmentCount": 2,
   "files": {
     "specs/verification-first-factory/design.md": {
@@ -71,11 +71,22 @@
     "specs/verification-first-factory/tasks.md": {
       "fileName": "tasks.md",
       "rawSha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0",
-      "contractSha256": "64a25ef2f0ac828b78796bfbec60ca52ed835fe7ea708e634372b409103a2328",
+      "contractSha256": "0f30df5a7a53ed68334e3402f667c2d3b1048168a8a89e9afcce640e0a78f0d7",
       "identifiers": {},
       "amendmentCount": 1,
-      "approvalContractSha256": "64a25ef2f0ac828b78796bfbec60ca52ed835fe7ea708e634372b409103a2328",
-      "taskApprovals": {}
+      "approvalContractSha256": "d14d0d1b084a66e749a6ccf7af6b939d5111ce20799c301ce44c2446ae4b3c83",
+      "taskApprovals": {
+        "T-001": "Approved",
+        "T-002": "Approved",
+        "T-003": "Approved",
+        "T-004": "Approved",
+        "T-005": "Approved",
+        "T-006": "Approved",
+        "T-007": "Approved",
+        "T-008": "Approved",
+        "T-009": "Approved",
+        "T-010": "Approved"
+      }
     }
   },
   "identifiers": {

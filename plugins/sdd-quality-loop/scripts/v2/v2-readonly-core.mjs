@@ -11,13 +11,14 @@ import path from 'node:path';
 import {
   assertValidFeatureName,
   canonicalSpecContractText,
-  countPrimaryApprovals,
   extractAmendmentEntries,
   extractSpecIdentifiers,
   globToRegExp,
   isApprovedValue,
   matchProtectedSpecRelPath,
+  markdownLines,
   normalizeGuardrailsConfig,
+  normalizeTaskFields,
   normalizeNewlines,
   normalizeRelPath,
   parseSimpleYaml,
@@ -25,6 +26,8 @@ import {
   sha256Text,
   splitSpecAmendments,
   stripYamlComment,
+  taskField,
+  taskHeading,
   VALID_MODES,
   VALID_PRE_IMPL,
   VALID_RISK_TIERS,
@@ -131,25 +134,7 @@ export function loadGuardrailsConfigFromIo(io) {
 }
 
 export function stripFencedCodeBlocks(text) {
-  const lines = normalizeNewlines(text || '').split('\n');
-  const out = [];
-  let inFence = false;
-  let fenceChar = '';
-  for (const line of lines) {
-    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
-    if (m) {
-      if (!inFence) {
-        inFence = true;
-        fenceChar = m[1][0];
-      } else if (m[1][0] === fenceChar) {
-        inFence = false;
-        fenceChar = '';
-      }
-      continue;
-    }
-    if (!inFence) out.push(line);
-  }
-  return out.join('\n');
+  return [...markdownLines(text)].filter(({ fenced }) => !fenced).map(({ line }) => line).join('\n');
 }
 
 export function splitMarkdownTableRow(line) {
@@ -376,11 +361,12 @@ function extractDeclaredBlockers(taskBlock) {
 }
 
 export function extractScopePaths(taskBlock) {
+  const inline = taskBlock.split('\n').map(taskField).find((field) => field?.name === 'scope' && field.raw);
   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
-  if (!scopeMatch) return [];
-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+  if (!inline && !scopeMatch) return [];
+  const rest = inline ? '' : taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
   const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const section = inline ? `- ${stripScopeNote(inline.raw)}` : (nextSub ? rest.slice(0, nextSub.index) : rest);
   const paths = [];
   for (const line of section.split('\n')) {
     const trimmed = line.trim();
@@ -420,6 +406,14 @@ function stripScopeNote(token) {
   let out = '';
   for (let i = 0; i < text.length; i += 1) {
     const ch = text[i];
+    if (ch === '`') {
+      const end = text.indexOf('`', i + 1);
+      if (end !== -1) {
+        out += text.slice(i, end + 1);
+        i = end;
+        continue;
+      }
+    }
     if (ch !== '(' && ch !== '（') {
       out += ch;
       continue;
@@ -497,46 +491,62 @@ export function normalizeRiskTier(raw, fallback = 'standard') {
   return fallback;
 }
 
-export function parseTasksSummary(tasksText) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || '');
-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
-  const tasks = [];
-  const h2Re = /^##[ \t]+(.+)$/gm;
-  const headings = [...body.matchAll(h2Re)];
-
-  for (let i = 0; i < headings.length; i += 1) {
-    const h = headings[i];
-    const titleLine = h[1].trim();
-    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
-    if (!taskMatch) continue;
-
-    const start = h.index + h[0].length;
-    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
-    const block = body.slice(start, end);
-
-    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Draft';
-    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Planned';
-    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], 'standard');
-    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
-    const taskId = taskMatch[1].toUpperCase();
-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
-    const declaredBlockers = extractDeclaredBlockers(block);
-    const selfBlocked = declaredBlockers.includes(taskId);
-
-    tasks.push({
-      selfBlocked,
-      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
-      id: taskId,
-      title: (taskMatch[2] || '').trim(),
-      approval,
-      status,
-      risk,
-      acRefs,
-      blockers,
-      block,
-    });
+// One structural scan for the CLI, public read-only views and evidence hashing.
+function taskSections(text) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text || '');
+  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
+  const sections = [];
+  let current = null;
+  for (const { line, fenced } of markdownLines(body)) {
+    const heading = !fenced && taskHeading(line);
+    if (heading) {
+      current = { id: heading[1].toUpperCase(), title: (heading[2] || '').trim(), raw: [line], body: [], fields: {} };
+      sections.push(current);
+    } else if (!fenced && /^##[ \t]+\S/.test(line)) {
+      current = null;
+    } else if (current) {
+      current.raw.push(line);
+      if (fenced) continue;
+      current.body.push(line);
+      const field = taskField(line);
+      if (field?.value && !(field.name in current.fields)) current.fields[field.name] = field.value;
+    }
   }
-  return tasks;
+  return sections;
+}
+
+export function parseTaskBlock(tasksContent, taskId) {
+  const section = taskSections(tasksContent).find(({ id }) => id === taskId.toUpperCase());
+  if (!section) return null;
+  const { approval = null, status = null, risk } = section.fields;
+  return { taskId: section.id, approval, status, risk: normalizeRiskTier(risk), scopePaths: extractScopePaths(section.body.join('\n')) };
+}
+
+function taskSummary({ id: taskId, title, body, fields }) {
+  const block = body.join('\n');
+  const { approval = 'Draft', status = 'Planned' } = fields;
+  const risk = normalizeRiskTier(fields.risk);
+  const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+  const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+  const declaredBlockers = extractDeclaredBlockers(block);
+  const selfBlocked = declaredBlockers.includes(taskId);
+
+  return {
+    selfBlocked,
+    declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
+    id: taskId,
+    title,
+    approval,
+    status,
+    risk,
+    acRefs,
+    blockers,
+    block,
+  };
+}
+
+export function parseTasksSummary(tasksText) {
+  return taskSections(tasksText).map(taskSummary);
 }
 
 export function detectDomains(combinedText) {
@@ -678,36 +688,10 @@ function isTestPath(relPath) {
   );
 }
 
-// Only a line that is exactly an approval value is normalized; any other text
-// on the line (a waiver, a scope note) stays part of the contract hash.
-const APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
-
 // An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
 // but unreadable"; IOs without the method fall back to exists().
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
-}
-
-// Raw text of each task section in tasks.md, fenced code included (the
-// parsed task block drops fences, but a command in a fence is a spec too).
-function rawTaskSections(tasksRaw) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ''));
-  const lines = (afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments).split('\n');
-  const sections = new Map();
-  let fence = false;
-  let current = null;
-  for (const line of lines) {
-    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
-    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
-    if (heading) {
-      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
-      if (current && !sections.has(current)) sections.set(current, [line]);
-      else if (current) current = null; // a repeated heading keeps the first section
-      continue;
-    }
-    if (current) sections.get(current).push(line);
-  }
-  return new Map([...sections].map(([id, body]) => [id, body.join('\n')]));
 }
 
 const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
@@ -786,18 +770,17 @@ export function featureEvidenceInputs(io, { feature }) {
   };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
-  const sections = rawTaskSections(tasksRaw);
   const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
-  for (const task of parseTasksSummary(tasksRaw)) {
+  for (const section of taskSections(tasksRaw)) {
+    if (byTask.has(section.id)) continue;
+    const task = taskSummary(section);
     const wanted = new Set(task.acRefs);
     for (const req of reqsIn(task.block)) wanted.add(req);
     for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
     const ids = {};
     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
-    const section = (sections.get(task.id) || task.block)
-      .replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>')
-      .replace(APPROVAL_FIELD_RE, '<NORMALIZED>');
-    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(section.trim()), ids, design });
+    const normalized = normalizeTaskFields(section.raw.join('\n'), { approval: true, evidence: true });
+    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(normalized.trim()), ids, design });
   }
   return byTask;
 }
@@ -831,7 +814,7 @@ export function diffEvidenceInputs(recorded, current) {
  */
 export function taskApprovalBaseline(rawText, fileName) {
   if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
-  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');
+  const contract = normalizeTaskFields(canonicalSpecContractText(rawText, fileName), { approval: true });
   const taskApprovals = {};
   for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
   return { approvalContractSha256: sha256Text(contract), taskApprovals };
@@ -898,7 +881,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     // older comparison, where any Approval: edit changes the file.
     const approvalView = typeof baseInfo?.approvalContractSha256 === 'string' ? taskApprovalBaseline(rawText, fileName) : null;
     if (approvalView) {
-      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+      // Older baselines used a narrower grammar. Identical raw bytes always match.
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256 && sha256Text(rawText) !== baseInfo.rawSha256) {
         changedFiles.push(safeRel);
       }
       for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
@@ -907,7 +891,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
         if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
         else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
       }
-    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256 && sha256Text(rawText) !== baseInfo?.rawSha256) {
       changedFiles.push(safeRel);
     }
 
@@ -2257,8 +2241,9 @@ export function runDoctorCore(
     const content = io.readText(relTasks);
     if (content === null) continue;
 
-    const approvedCount = countPrimaryApprovals(content);
-    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
+    const tasks = parseTasksSummary(content);
+    const approvedCount = tasks.filter((task) => isApprovedValue(task.approval)).length;
+    const hasActiveTask = tasks.some((task) => /^(?:Planned|In Progress|Implementation Complete|Blocked)$/.test(task.status));
     const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
 
     if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
@@ -2272,7 +2257,7 @@ export function runDoctorCore(
       );
     }
 
-    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
+    if (tasks.some((task) => task.status === 'In Progress')) {
       const mtimeMs = io.statMtimeMs(relTasks);
       if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
         const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1000));

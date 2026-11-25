@@ -32,7 +32,6 @@ import {
   normalizeNewlines,
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
-  splitSpecAmendments,
   isMainModule,
 } from './guardrails-lib.mjs';
 import { checkWriteScope } from './check-traceability.mjs';
@@ -43,7 +42,7 @@ import { runAgentLint } from './run-agent-lint.mjs';
 import { runFormalGate } from './run-formal-gate.mjs';
 import { runSecurityGate } from './run-security-gate.mjs';
 import { acquireLock, releaseLock } from './task-lock.mjs';
-import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
+import { isApprovedValue, parseTaskBlock, taskEvidenceInputs } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
 
 // The detector is itself scanned. Keep the expression distinct from the text it matches.
@@ -74,40 +73,7 @@ function truncateTail(text) {
   return `...[truncated ${s.length - MAX_OUTPUT_CHARS} chars]...\n${s.slice(-MAX_OUTPUT_CHARS)}`;
 }
 
-export function parseTaskBlock(tasksContent, taskId) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
-  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
-  const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // Accept both legacy H2 task headings and the current H3 `### T-NNN:` plan
-  // format. Keep the identifier boundary strict (`T-001` must not match
-  // `T-001.1`) and stop at the next task heading, not merely the next H2.
-  const headerRe = new RegExp(`^#{2,3}[ \\t]+${escaped}(?![A-Za-z0-9_.-])(?:[:][^\\r\\n]*|[ \\t][^\\r\\n]*)?$`, 'im');
-  const match = headerRe.exec(body);
-  if (!match) return null;
-
-  const rest = body.slice(match.index + match[0].length);
-  const nextSection = /^(?:##[ \t]+\S|###[ \t]+T-[0-9]{3}\b)/im.exec(rest);
-  const block = nextSection ? rest.slice(0, nextSection.index) : rest;
-
-  const field = (name) => block.match(new RegExp(`^[ \\t]*(?:-\\s*)?(?:\\*\\*)?${name}:(?:\\*\\*)?[ \\t]*(.+?)(?:\\*\\*)?[ \\t]*$`, 'im'));
-  const value = (match) => match ? match[1].trim().replace(/^[`*_]+|[`*_]+$/g, '') : null;
-  const approvalMatch = field('Approval');
-  const statusMatch = field('Status');
-  const riskMatch = field('Risk');
-  const scopeMatch = field('Scope');
-  const scopePaths = scopeMatch
-    ? extractScopePaths(`### Scope\n- ${scopeMatch[1].replace(/\*\*$/, '').replace(/（[^）]*）|\([^)]*\)/g, '').trim()}\n### EndScope`)
-    : extractScopePaths(block);
-
-  return {
-    taskId: taskId.toUpperCase(),
-    approval: value(approvalMatch),
-    status: value(statusMatch),
-    // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
-    risk: normalizeRiskTier(value(riskMatch) || '', 'standard'),
-    scopePaths,
-  };
-}
+export { parseTaskBlock };
 
 export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = null } = {}) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
