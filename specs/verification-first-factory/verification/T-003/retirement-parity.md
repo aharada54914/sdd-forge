@@ -88,3 +88,7 @@
 | 1 | `tests/resolve-project-context-parity.tests.sh` | `17e90d223fefb2a8c4ea2ed73931bc2c0299cea1` |
 | 1 | `tests/rollback-1.5.0.tests.ps1` | `cb9f58fe4a8bed48dbc64b04b32d7e8ec2759bf0` |
 | 1 | `tests/rollback-1.5.0.tests.sh` | `d22d28e22ade07f95188592a88b7c582d40a6de1` |
+
+## 所有者の個別確認方針
+
+2026-11-26、所有者は、後継が同じ失敗をすべて検知できると実証できた候補を個別に確認すると決定した。今回調べた36件のうち全条件を満たした候補は0件。承認マニフェストの追加・既存テストの削除は0件。

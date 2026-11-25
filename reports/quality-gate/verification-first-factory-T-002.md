@@ -1,6 +1,6 @@
 Task ID: T-002
 Feature: verification-first-factory
-Run ID: 1b691380-7dc0-4428-bc24-bdde07fb6489
+Run ID: 6009e361-5e53-4f5e-aba5-8f871f7fc524
 VERDICT: NEEDS_WORK
 Critical: 0
 Major: 1
@@ -10,8 +10,8 @@ Minor: 1
 
 # Independent quality gate for T-002
 
-Evaluators verified all 40 admitted hashes at `d1c616cfc245eb54c33adc692e7e66cd9965488f`. G1/G2/G5 were reviewed by `1b691380-7dc0-4428-bc24-bdde07fb6489` (ledger 1229) and G3/G4 by `32545e25-5232-4bd7-a7e6-b93eff8c6700` (ledger 1230). Machine execution `dacfad3e-a964-42d5-b548-b10d177587ec` returned PASS.
+Evaluators verified all 40 admitted hashes at `da5e3b1f290edbe5754ec34c60526bd92a960217`. G1/G2/G5 were reviewed by `6009e361-5e53-4f5e-aba5-8f871f7fc524` (ledger 1233) and G3/G4 by `5389ddf9-6265-41a9-864e-9989ae7ff001` (ledger 1234). Machine execution `5bf43bfe-c3bb-4484-9b12-85110521e10b` returned PASS.
 
-G1 passed. The public CLI suite passed all 29 tests without skips. The recorded Bash ANSI-C-quoted input changed from one false finding to exit 0/no question. Appending a genuine directive still produced exit 4 and one question. The recorded baseline still covers design, requirements and tasks. G2 passed with one minor documentation discrepancy: the design mentions .github/CODEOWNERS, whereas the approved task and actual rule use root CODEOWNERS. G5 is inapplicable to the CLI and Git policy.
+G1 passed. The command substitution regression reproduced clean help and one real directive after the body. The baseline stayed limited to three spec files. G2 identified a previously recorded Minor: the design cites .github/CODEOWNERS but the approved task and implementation use root CODEOWNERS. The formal source pin is a single SHA update. G5 is inapplicable to this CLI.
 
-G3 failed one Major. The independent evaluator ran a normal Bash command substitution assigning the output of a quoted help here-document to a variable. A literal double quote in the displayed help confused the outer quoting state. Bash printed both help lines and exited 0. The public scanner exited 4 and wrote an erroneous LINT_DISABLE_ADDED question. G4 passed its review of committed approvals, path/blob binding and OQ handling. Both reviews reproduced the 29 passing regressions. Non-checks include remote branch-protection configuration and other host interpreters.
+G3 found a Major. Bash time case and dash for arg do case in a command substitution printed the help example with exit 0. The public CLI reported LINT_DISABLE_ADDED and saved an OQ for each. A normal pipeline control produced CLEAN with no OQ. G4 passed the inspected trust controls. Each evaluator verified 40 input hashes and independently passed all 30 tests. RT-20261126-004 records the remaining bug and the owner's authorization for one additional correction and independent evaluation. Windows hardware and generic shell dialect coverage were not verified.
