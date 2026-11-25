@@ -16,7 +16,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | — | publish-release | v2.1.1 tag + Release | ad19ec42, release.yml signed artifacts attached |
 | 4 | #970 | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | merged (e848b32) |
 | — | #971 | release v2.1.2 | merged (520469d); tagged via publish-release.yml |
-| 5 | (pending) | #815, #816, #818, #827, #830, #809, #811, #862, #834 | PR open |
+| 5 | #972 | #815, #816, #818, #827, #830, #809, #811, #862, #834 | merged |
+| 6 | (pending) | #831, #832 | PR open (stacked on #972) |
 
 ## Resolved
 
@@ -68,6 +69,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #811 | v1 domain-review precheck documented as same-tree only and unused by the current review. |
 | #862 | Generated report classifies catalog suites against what `test.yml` really runs. |
 | #834 | Files over the read cap are `UNVERIFIABLE` (listed in `unreadableFiles`), never deletions. |
+| #831 | Gate records `specInputs`; MCP readiness requires them unchanged (legacy evidence only while drift is CLEAN). |
+| #832 | Stale Done tasks route to a per-task gate re-run; status is never rewritten without a human. |
 
 ## Deferred (needs human decision)
 
@@ -83,7 +86,6 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 ## Follow-ups
 
-- Design pending (scheduled run): #831 + #832 (stale PASS evidence after a spec change needs input digests and a re-baseline policy), #834 (2 MiB read cap reported as deletion needs an IO status channel).
 - Pre-existing, found by review: Done evidence accepts any `reports/quality-gate/*` file mentioning `T-NNN`, including another feature's report. Should be scoped by feature.
 - Release tags: the session's git proxy refuses tag pushes (HTTP 403). After a release PR merges, dispatch `publish-release.yml` (version + release merge commit), which creates the tag and Release and runs release.yml.
 - Batch-3 re-review minors: flow-style ticket targets fixed in batch 4. Still open: Scope bullets like `path(note)` / `dir/{a,b}` are labelled out of scope (labels only).
@@ -95,4 +97,6 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Batch-4 review minors: a hand-edited baseline without the per-file `amendmentCount` treats every amendment as new; an amendment inserted above older ones in the same file shifts which entries count as new. Ranges like `T-002..T-005` in Blockers are not expanded (prose, ignored as before).
 - Release-suite drift: `tests/bump-version-gate.tests.sh` and `tests/release-config-lock.tests.sh` fail on main too (v1-era expectations, not in CI). Retire or port them.
 
+- Batch-5 review (accepted trade-off): a task approved after the baseline is surfaced (drift Markdown, gate `APPROVED_AFTER_BASELINE`), not blocked; a shell self-approval is caught only by the independent review and CODEOWNERS. A signed approval record would make it deterministic.
+- Batch-5 review minors: a prose Scope directory without extension or trailing slash (`- src/lib を更新`) yields no path, so the gate labels every file in scope for that task; the gate crashes with EISDIR when a spec file is replaced by a directory.
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.
