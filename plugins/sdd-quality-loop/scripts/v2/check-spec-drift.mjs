@@ -233,12 +233,74 @@ const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
 const DIRECTIVE_START = /^\s*(?:\/\/|\/\*+|\*|#)?\s*sdd-lint-disable\b/i;
 const HASH_NON_CODE = /#[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
 const JS_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`/g;
+
+function shellDelimiter(word) {
+  // A delimiter undergoes quote removal without variable expansion.
+  return word.replace(/'([^']*)'|"((?:\\[\s\S]|[^"\\])*)"|\\([\s\S])/g, (_, single, double, escaped) => {
+    if (single !== undefined) return single;
+    if (double !== undefined) return double.replace(/\\([$"`\\])/g, '$1');
+    return escaped;
+  });
+}
+
+function hereDocumentEnd(source, cursor, { delimiter, stripTabs, quoted }) {
+  let logicalLine = '';
+  while (cursor < source.length) {
+    const newline = source.indexOf('\n', cursor);
+    const end = newline < 0 ? source.length : newline;
+    logicalLine += source.slice(cursor, end);
+    cursor = newline < 0 ? end : end + 1;
+    if (!quoted && newline >= 0 && /(?:^|[^\\])(?:\\\\)*\\$/.test(logicalLine)) {
+      logicalLine = logicalLine.slice(0, -1);
+      continue;
+    }
+    if ((stripTabs ? logicalLine.replace(/^\t+/, '') : logicalLine) === delimiter) return cursor;
+    logicalLine = '';
+  }
+  // Uncertain boundaries must leave later comments visible to the checker.
+  return null;
+}
+
+// Keep shell words intact so quoted operators and a # within a word are literal.
+// Here-documents start after the command's unescaped newline, in redirect order.
+function* shellComments(source) {
+  const tokens = /\\\n|[ \t]+|#[^\n]*|<<<|<<-?|\(\(|[()]|\n|(?<word>(?:'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)|./g;
+  const pending = [];
+  let redirect = '';
+  let arithmeticDepth = 0;
+  for (let match; (match = tokens.exec(source));) {
+    const token = match[0];
+    if (token === '\\\n' || /^[ \t]/.test(token)) continue;
+    if (token === '\n') {
+      for (const document of pending) {
+        const end = hereDocumentEnd(source, tokens.lastIndex, document);
+        if (end === null) break;
+        tokens.lastIndex = end;
+      }
+      pending.length = 0;
+    } else if (token.startsWith('#')) {
+      yield match;
+    } else if (redirect && match.groups.word) {
+      const word = token.replace(/\\\n/g, '');
+      pending.push({ delimiter: shellDelimiter(word), stripTabs: redirect === '<<-', quoted: /['"\\]/.test(word) });
+    } else if (token === '((') {
+      arithmeticDepth += 2;
+    } else if (arithmeticDepth && token === '(') {
+      arithmeticDepth++;
+    } else if (arithmeticDepth && token === ')') {
+      arithmeticDepth--;
+    }
+    redirect = !arithmeticDepth && (token === '<<' || token === '<<-') ? token : '';
+  }
+}
+
 const SOURCE_TOKENS = new Map();
 for (const [extensions, tokens] of [
   ['js mjs cjs jsx ts mts cts tsx', JS_NON_CODE],
   ['go c h cc cpp hpp cs java kt kts rs swift scala', GO_NON_CODE],
   ['py pyw', PYTHON_NON_CODE],
-  ['sh bash zsh rb pl ps1', HASH_NON_CODE],
+  ['rb pl ps1', HASH_NON_CODE],
+  ['sh bash zsh', shellComments],
 ]) {
   for (const ext of extensions.split(' ')) SOURCE_TOKENS.set('.' + ext, tokens);
 }
@@ -259,7 +321,8 @@ function addedLintDirectives(root, revision, file, status, source, tokens) {
   const directives = [];
   let line = 1;
   let offset = 0;
-  for (const token of source.matchAll(tokens)) {
+  const matches = typeof tokens === 'function' ? tokens(source) : source.matchAll(tokens);
+  for (const token of matches) {
     line += source.slice(offset, token.index).split('\n').length - 1;
     const lines = token[0].split('\n');
     if (/^(?:#|\/\/|\/\*)/.test(token[0])) {

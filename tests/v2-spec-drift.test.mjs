@@ -427,6 +427,57 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
   });
 
+  const shellMarker = ['# sdd-lint', '-disable'].join('');
+  const helpExample = "#!/bin/sh\ncat <<'HELP'\n" + shellMarker + ' example-rule\nHELP\n';
+
+  it('accepts the shell here-document help example without a diagnostic or OQ', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(dir, 'help.sh'), helpExample);
+    const shown = spawnSync('sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.equal(shown.stdout, shellMarker + ' example-rule\n');
+
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 0, result.stdout);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.status, 'CLEAN');
+    assert.deepEqual(report.violations, []);
+    assert.equal(report.openQuestion, undefined);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+  });
+
+  it('reports only active shell comments before, beside and after queued here-documents', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.bash');
+    // The existing redirect is outside the added-line hunk.
+    fs.writeFileSync(file, "cat <<'HELP'\nunchanged\nHELP\n");
+    assert.equal(git('add', 'help.bash').status, 0);
+    assert.equal(git('commit', '-m', 'initial shell help').status, 0);
+    fs.writeFileSync(file, [
+      "cat <<'HELP'", shellMarker + ' existing-body', 'unchanged', 'HELP',
+      "printf '%s' '<<FAKE' \\#literal # <<FAKE",
+      'echo "$((1 << 2))" <<<"here-string"; (( number = 1 << 3 ))',
+      shellMarker + ' before',
+      'cat <<FIRST 3<<-"SEC OND" 4<<\\LAST ' + shellMarker + ' beside',
+      shellMarker + ' first-body', "unmatched ' in help text", 'FIRST',
+      '\t' + shellMarker + ' second-body', '\tSEC OND',
+      shellMarker + ' last-body', 'LAST',
+      'true ' + shellMarker + ' after', '',
+    ].join('\n'));
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 4, result.stdout);
+    const { status, violations, openQuestion } = JSON.parse(result.stdout);
+    assert.equal(status, 'TAMPER_DETECTED');
+    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' before', ' beside', ' after']);
+    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.bash'));
+    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+    assert.equal(question.id, openQuestion.id);
+    assert.equal(question.status, 'Provisional');
+    assert.deepEqual(question.violations, violations.map(({ code, path }) => ({ code, path })));
+  });
+
   it('reports added lint directives in source comments with a persisted OQ', (t) => {
     const { dir } = initGitRepoWithTests();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
