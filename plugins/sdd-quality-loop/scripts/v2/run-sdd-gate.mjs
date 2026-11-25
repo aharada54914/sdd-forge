@@ -23,10 +23,11 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkSpecDrift } from './check-spec-drift.mjs';
+import { checkAntiTampering, checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
   createFsReadonlyIo,
+  loadGuardrailsConfig,
   normalizeNewlines,
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
@@ -34,6 +35,10 @@ import {
   isMainModule,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
+import { runAgentLint } from './run-agent-lint.mjs';
+import { runFormalGate } from './run-formal-gate.mjs';
+import { runSecurityGate } from './run-security-gate.mjs';
+import { acquireLock, releaseLock } from './task-lock.mjs';
 import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
 
@@ -606,6 +611,68 @@ function runVerificationCommands(projectRoot, commands) {
   return results;
 }
 
+export function runRebuildDifferentialCheck({ projectRoot, baselineCmd, candidateCmd, nfrBudgetPath = null }) {
+  if (!baselineCmd || !candidateCmd) {
+    return {
+      passed: false,
+      error: 'rebuild mode requires both --baseline-cmd and --candidate-cmd',
+      differentialMatched: false,
+      nfrPassed: false,
+    };
+  }
+  const runOne = (cmd) => {
+    const t0 = performance.now();
+    const res = spawnSync(cmd, { cwd: projectRoot, shell: true, encoding: 'utf8', timeout: 120000 });
+    return {
+      exitCode: typeof res.status === 'number' ? res.status : 1,
+      durationMs: Math.max(1, Math.round(performance.now() - t0)),
+      stdout: normalizeNewlines(res.stdout || '').trim(),
+      stderr: truncateTail(res.stderr),
+    };
+  };
+  const baseline = runOne(baselineCmd);
+  const candidate = runOne(candidateCmd);
+  const differentialMatched =
+    baseline.exitCode === 0 &&
+    candidate.exitCode === 0 &&
+    baseline.stdout === candidate.stdout;
+
+  let nfrBudget = null;
+  let nfrPassed = true;
+  const nfrViolations = [];
+  if (nfrBudgetPath) {
+    const absBudget = path.isAbsolute(nfrBudgetPath) ? nfrBudgetPath : path.resolve(projectRoot, nfrBudgetPath);
+    if (!fs.existsSync(absBudget)) {
+      nfrPassed = false;
+      nfrViolations.push(`nfr-budget file not found: ${nfrBudgetPath}`);
+    } else {
+      nfrBudget = JSON.parse(fs.readFileSync(absBudget, 'utf8'));
+      if (typeof nfrBudget.max_duration_ms === 'number' && candidate.durationMs > nfrBudget.max_duration_ms) {
+        nfrPassed = false;
+        nfrViolations.push(`candidate duration ${candidate.durationMs}ms exceeds max_duration_ms (${nfrBudget.max_duration_ms}ms)`);
+      }
+      if (
+        typeof nfrBudget.max_regression_ratio === 'number' &&
+        candidate.durationMs > baseline.durationMs * nfrBudget.max_regression_ratio + 50
+      ) {
+        nfrPassed = false;
+        nfrViolations.push(
+          `candidate duration ${candidate.durationMs}ms exceeds ${nfrBudget.max_regression_ratio}x baseline (${baseline.durationMs}ms)`,
+        );
+      }
+    }
+  }
+
+  return {
+    passed: differentialMatched && nfrPassed,
+    differentialMatched,
+    nfrPassed,
+    nfrViolations,
+    baseline: { exitCode: baseline.exitCode, durationMs: baseline.durationMs },
+    candidate: { exitCode: candidate.exitCode, durationMs: candidate.durationMs },
+  };
+}
+
 export function runSddGate({
   feature,
   taskId,
@@ -618,6 +685,17 @@ export function runSddGate({
   skipSensors = false,
   outputPath = null,
   rootCausePhase = null,
+  mode = 'standard',
+  baselineCmd = null,
+  candidateCmd = null,
+  nfrBudgetPath = null,
+  lockOwner = null,
+  enableAntiTamper = false,
+  enableAgentLint = false,
+  enableSecurityGate = false,
+  formalTla = null,
+  formalCfg = null,
+  failFast = false,
 }) {
   assertValidFeatureName(feature);
   if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
@@ -625,6 +703,7 @@ export function runSddGate({
   }
 
   const root = resolveExplicitOrAutoRoot(projectRoot);
+  const config = loadGuardrailsConfig(root);
   const tasksPath = path.join(root, 'specs', feature, 'tasks.md');
   if (!fs.existsSync(tasksPath)) {
     throw new Error(`Tasks file not found: specs/${feature}/tasks.md`);
@@ -635,160 +714,254 @@ export function runSddGate({
     throw new Error(`Task ${taskId} not found in specs/${feature}/tasks.md`);
   }
 
-  const taskCheckErrors = [];
-  if (!isApprovedValue(taskState.approval)) {
-    taskCheckErrors.push(`Task ${taskId} is not Approved (found: ${taskState.approval || 'missing'})`);
+  // Optional fail-closed lock acquisition (NFR-005: task-lock.mjs exit 1 stays untouched)
+  let lockCheck = { checked: false, passed: true, acquired: null };
+  let acquiredLockForRelease = false;
+  if (lockOwner) {
+    const lockRes = acquireLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
+    lockCheck = { checked: true, passed: Boolean(lockRes.acquired), ...lockRes };
+    acquiredLockForRelease = Boolean(lockRes.acquired && !lockRes.reentrant);
   }
-  if (taskState.status !== 'Implementation Complete' && taskState.status !== 'Done') {
-    taskCheckErrors.push(
-      `Task ${taskId} must be 'Implementation Complete' or 'Done' (found: ${taskState.status || 'missing'})`,
-    );
-  }
-  const taskPrecondition = {
-    passed: taskCheckErrors.length === 0,
-    ...taskState,
-    errors: taskCheckErrors,
-  };
 
-  let specDrift = { skipped: true, passed: true, status: 'SKIPPED' };
-  if (!skipDrift) {
-    try {
-      const report = checkSpecDrift({ feature, projectRoot: root, baselinePath });
-      specDrift = {
+  try {
+    const taskCheckErrors = [];
+    if (!isApprovedValue(taskState.approval)) {
+      taskCheckErrors.push(`Task ${taskId} is not Approved (found: ${taskState.approval || 'missing'})`);
+    }
+    if (taskState.status !== 'Implementation Complete' && taskState.status !== 'Done') {
+      taskCheckErrors.push(
+        `Task ${taskId} must be 'Implementation Complete' or 'Done' (found: ${taskState.status || 'missing'})`,
+      );
+    }
+    const taskPrecondition = {
+      passed: taskCheckErrors.length === 0,
+      ...taskState,
+      errors: taskCheckErrors,
+    };
+
+    let failFastStoppedAt = null;
+    if (!lockCheck.passed) {
+      failFastStoppedAt = 'lockCheck';
+    }
+
+    let specDrift = { skipped: true, passed: true, status: 'SKIPPED' };
+    if (!skipDrift && !failFastStoppedAt) {
+      try {
+        const report = checkSpecDrift({ feature, projectRoot: root, baselinePath });
+        specDrift = {
+          skipped: false,
+          passed: report.status !== 'UNDECLARED_DRIFT' && report.status !== 'UNVERIFIABLE',
+          ...report,
+        };
+      } catch (err) {
+        specDrift = {
+          skipped: false,
+          passed: false,
+          status: 'BASELINE_ERROR',
+          error: err.message,
+        };
+      }
+      if (failFast && !specDrift.passed) failFastStoppedAt = 'specDrift';
+    }
+
+    let antiTamper = { skipped: true, passed: true, status: 'SKIPPED' };
+    if (enableAntiTamper && !failFastStoppedAt) {
+      try {
+        const atReport = checkAntiTampering({ projectRoot: root, baseRef: baseRef || 'HEAD', config });
+        antiTamper = { skipped: false, passed: atReport.status === 'CLEAN', ...atReport };
+      } catch (err) {
+        antiTamper = { skipped: false, passed: false, status: 'TOOL_ERROR', error: err.message };
+      }
+      if (failFast && !antiTamper.passed) failFastStoppedAt = 'antiTamper';
+    }
+
+    const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
+
+    let agentLint = { skipped: true, passed: true, status: 'SKIPPED' };
+    if ((enableAgentLint || config.agent_lint?.enabled) && !failFastStoppedAt) {
+      const lintReport = runAgentLint({
+        projectRoot: root,
+        files: resolvedChanged.length > 0 ? resolvedChanged : null,
+        mode: enableAgentLint ? 'strict' : config.agent_lint?.mode,
+      });
+      agentLint = { skipped: false, passed: lintReport.status !== 'FAIL', ...lintReport };
+      if (failFast && !agentLint.passed) failFastStoppedAt = 'agentLint';
+    }
+
+    let securityGate = { skipped: true, passed: true, status: 'SKIPPED' };
+    if ((enableSecurityGate || config.security_audit?.enabled) && !failFastStoppedAt) {
+      const secReport = runSecurityGate({
+        projectRoot: root,
+        files: resolvedChanged.length > 0 ? resolvedChanged : null,
+        mode: enableSecurityGate ? 'strict' : config.security_audit?.mode,
+      });
+      securityGate = { skipped: false, passed: secReport.exitCode === 0, ...secReport };
+      if (failFast && !securityGate.passed) failFastStoppedAt = 'securityGate';
+    }
+
+    let formalGate = { skipped: true, passed: true, status: 'SKIPPED' };
+    if (formalTla && !failFastStoppedAt) {
+      const fReport = runFormalGate({
+        projectRoot: root,
+        tlaPath: formalTla,
+        cfgPath: formalCfg,
+        adapter: config.formal_verification?.checker?.adapter || 'none',
+        mode: config.formal_verification?.enabled ? config.formal_verification.mode : 'shadow',
+      });
+      formalGate = { skipped: false, passed: fReport.exitCode === 0, ...fReport };
+      if (failFast && !formalGate.passed) failFastStoppedAt = 'formalGate';
+    }
+
+    const placeholders = failFastStoppedAt
+      ? { passed: true, skipped: true, scannedFiles: [], findings: [] }
+      : scanPlaceholders(root, resolvedChanged);
+    const nonFunctionalSensors =
+      skipSensors || failFastStoppedAt
+        ? { skipped: true, passed: true, findings: [] }
+        : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
+    const openQuestions = failFastStoppedAt
+      ? { passed: true, blocking: false, provisionalCount: 0, provisionalIds: [] }
+      : checkOpenQuestionsGate(root, feature, taskState);
+    const reviewTickets = failFastStoppedAt
+      ? { passed: true, blocking: [] }
+      : checkReviewTickets(root, feature, taskState);
+
+    const taskScope = taskState.scopePaths;
+    const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
+    for (const finding of [...placeholders.findings, ...(nonFunctionalSensors.findings || [])]) {
+      if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
+    }
+    const scope = {
+      mode: Array.isArray(changedFiles) && changedFiles.length > 0 ? 'explicit' : baseRef ? 'base' : 'uncommitted',
+      ...(baseRef ? { baseRef } : {}),
+      taskScope,
+      outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
+    };
+    const commandResults = failFastStoppedAt ? [] : runVerificationCommands(root, commands);
+    const allCommandsPassed = commandResults.every((r) => r.passed);
+
+    let rebuildDifferential = { skipped: true, passed: true };
+    if (mode === 'rebuild' && !failFastStoppedAt) {
+      rebuildDifferential = {
         skipped: false,
-        passed: report.status !== 'UNDECLARED_DRIFT' && report.status !== 'UNVERIFIABLE',
-        ...report,
-      };
-    } catch (err) {
-      specDrift = {
-        skipped: false,
-        passed: false,
-        status: 'BASELINE_ERROR',
-        error: err.message,
+        ...runRebuildDifferentialCheck({
+          projectRoot: root,
+          baselineCmd,
+          candidateCmd,
+          nfrBudgetPath,
+        }),
       };
     }
+
+    const verdict =
+      !failFastStoppedAt &&
+      lockCheck.passed &&
+      taskPrecondition.passed &&
+      specDrift.passed &&
+      antiTamper.passed &&
+      agentLint.passed &&
+      securityGate.passed &&
+      formalGate.passed &&
+      placeholders.passed &&
+      nonFunctionalSensors.passed &&
+      openQuestions.passed &&
+      reviewTickets.passed &&
+      allCommandsPassed &&
+      rebuildDifferential.passed
+        ? 'PASS'
+        : 'FAIL';
+
+    const coverage = {
+      commandsRun: commandResults.length,
+      specDriftChecked: !specDrift.skipped,
+      sensorsChecked: !nonFunctionalSensors.skipped,
+    };
+    coverage.complete = coverage.commandsRun > 0 && coverage.specDriftChecked && coverage.sensorsChecked;
+    const warnings = [];
+    if (coverage.commandsRun === 0 && mode !== 'rebuild') {
+      warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
+    }
+    if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
+    if ((specDrift.newlyApprovedTasks || []).includes(taskState.taskId)) {
+      warnings.push(
+        `APPROVED_AFTER_BASELINE: ${taskState.taskId} became Approved after the spec baseline was recorded; confirm a human approved it.`,
+      );
+    }
+    if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
+    if (scope.outOfScopeFiles.length > 0) {
+      warnings.push(
+        `OUT_OF_SCOPE_CHANGES: ${scope.outOfScopeFiles.length} changed file(s) outside this task's Scope were scanned; ` +
+          'in a shared working tree pass the task\'s own files with --changed-files.',
+      );
+    }
+
+    const result = {
+      schema: 'sdd-gate-execution/v1',
+      runId: crypto.randomUUID(),
+      feature,
+      taskId: taskState.taskId,
+      mode,
+      ...(failFastStoppedAt ? { failFastStoppedAt } : {}),
+      executedAt: new Date().toISOString(),
+      verdict,
+      specInputs: taskEvidenceInputs(createFsReadonlyIo(root), { feature, taskId: taskState.taskId }),
+      coverage,
+      scope,
+      warnings,
+      checks: {
+        lockCheck,
+        taskPrecondition,
+        specDrift,
+        antiTamper,
+        agentLint,
+        securityGate,
+        formalGate,
+        placeholders,
+        nonFunctionalSensors,
+        openQuestions,
+        reviewTickets,
+        commands: commandResults,
+        rebuildDifferential,
+      },
+    };
+
+    const resolvedOutput = outputPath
+      ? path.resolve(outputPath)
+      : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
+    fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
+    fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+
+    appendFactoryMetric(root, {
+      runId: result.runId,
+      timestamp: result.executedAt,
+      feature,
+      taskId: taskState.taskId,
+      risk: taskState.risk,
+      verdict,
+      specDriftStatus: specDrift.status,
+      driftSkipped: Boolean(skipDrift),
+      sensorsSkipped: Boolean(skipSensors),
+      provisionalOqCount: openQuestions.provisionalCount,
+      provisionalOqBlocking: Boolean(openQuestions.blocking),
+      sensorFindingCount: nonFunctionalSensors.findings.length,
+      placeholderFindingCount: placeholders.findings.length,
+      failedCommandCount: commandResults.filter((c) => !c.passed).length,
+      commandsRun: commandResults.length,
+      advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
+      ...(rootCausePhase ? { rootCausePhase } : {}),
+      commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
+    });
+
+    return { result, outputPath: resolvedOutput };
+  } finally {
+    if (acquiredLockForRelease && lockOwner) {
+      try {
+        releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
+      } catch {
+        // non-fatal release
+      }
+    }
   }
-
-  const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
-  const placeholders = scanPlaceholders(root, resolvedChanged);
-  const nonFunctionalSensors = skipSensors
-    ? { skipped: true, passed: true, findings: [] }
-    : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
-  const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
-  const reviewTickets = checkReviewTickets(root, feature, taskState);
-  // Label what lies outside the task's ### Scope (#829). The verdict is not
-  // relaxed: in a shared working tree, pass the task's own files with
-  // --changed-files instead.
-  const taskScope = taskState.scopePaths;
-  const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
-  for (const finding of [...placeholders.findings, ...(nonFunctionalSensors.findings || [])]) {
-    if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
-  }
-  const scope = {
-    mode: Array.isArray(changedFiles) && changedFiles.length > 0 ? 'explicit' : baseRef ? 'base' : 'uncommitted',
-    ...(baseRef ? { baseRef } : {}),
-    taskScope,
-    outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
-  };
-  const commandResults = runVerificationCommands(root, commands);
-  const allCommandsPassed = commandResults.every((r) => r.passed);
-
-  const verdict =
-    taskPrecondition.passed &&
-    specDrift.passed &&
-    placeholders.passed &&
-    nonFunctionalSensors.passed &&
-    openQuestions.passed &&
-    reviewTickets.passed &&
-    allCommandsPassed
-      ? 'PASS'
-      : 'FAIL';
-
-  // What this run actually verified (#825). A mechanical PASS with zero
-  // verification commands or skipped drift/sensor checks is not Done evidence;
-  // consumers must read `coverage.complete` before treating PASS as such.
-  const coverage = {
-    commandsRun: commandResults.length,
-    specDriftChecked: !specDrift.skipped,
-    sensorsChecked: !nonFunctionalSensors.skipped,
-  };
-  coverage.complete = coverage.commandsRun > 0 && coverage.specDriftChecked && coverage.sensorsChecked;
-  const warnings = [];
-  if (coverage.commandsRun === 0) {
-    warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
-  }
-  if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
-  if ((specDrift.newlyApprovedTasks || []).includes(taskState.taskId)) {
-    // A staged human approval and a shell edit look the same in the file; the
-    // independent evaluator must confirm a human approved this task.
-    warnings.push(
-      `APPROVED_AFTER_BASELINE: ${taskState.taskId} became Approved after the spec baseline was recorded; confirm a human approved it.`,
-    );
-  }
-  if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
-  if (scope.outOfScopeFiles.length > 0) {
-    warnings.push(
-      `OUT_OF_SCOPE_CHANGES: ${scope.outOfScopeFiles.length} changed file(s) outside this task's Scope were scanned; ` +
-        'in a shared working tree pass the task\'s own files with --changed-files.',
-    );
-  }
-
-  const result = {
-    schema: 'sdd-gate-execution/v1',
-    // Identifies this attempt so a later record-attribution --run-id for the
-    // same failure is counted once, not twice (#844).
-    runId: crypto.randomUUID(),
-    feature,
-    taskId: taskState.taskId,
-    executedAt: new Date().toISOString(),
-    verdict,
-    // The spec inputs this run verified; a later change to them makes the
-    // verdict stale for Done readiness (#831).
-    specInputs: taskEvidenceInputs(createFsReadonlyIo(root), { feature, taskId: taskState.taskId }),
-    coverage,
-    scope,
-    warnings,
-    checks: {
-      taskPrecondition,
-      specDrift,
-      placeholders,
-      nonFunctionalSensors,
-      openQuestions,
-      reviewTickets,
-      commands: commandResults,
-    },
-  };
-
-  const resolvedOutput = outputPath
-    ? path.resolve(outputPath)
-    : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
-  fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
-  fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
-
-  appendFactoryMetric(root, {
-    runId: result.runId,
-    timestamp: result.executedAt,
-    feature,
-    taskId: taskState.taskId,
-    risk: taskState.risk,
-    verdict,
-    specDriftStatus: specDrift.status,
-    driftSkipped: Boolean(skipDrift),
-    sensorsSkipped: Boolean(skipSensors),
-    provisionalOqCount: openQuestions.provisionalCount,
-    provisionalOqBlocking: Boolean(openQuestions.blocking),
-    sensorFindingCount: nonFunctionalSensors.findings.length,
-    // execution.json is overwritten per task; the per-attempt breakdown the
-    // retrospective needs is kept here (#838).
-    placeholderFindingCount: placeholders.findings.length,
-    failedCommandCount: commandResults.filter((c) => !c.passed).length,
-    commandsRun: commandResults.length,
-    advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
-    ...(rootCausePhase ? { rootCausePhase } : {}),
-    commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
-  });
-
-  return { result, outputPath: resolvedOutput };
 }
 
 function parseArgs(argv) {
@@ -804,6 +977,17 @@ function parseArgs(argv) {
     skipDrift: false,
     skipSensors: false,
     rootCausePhase: null,
+    mode: 'standard',
+    baselineCmd: null,
+    candidateCmd: null,
+    nfrBudgetPath: null,
+    lockOwner: null,
+    enableAntiTamper: false,
+    enableAgentLint: false,
+    enableSecurityGate: false,
+    formalTla: null,
+    formalCfg: null,
+    failFast: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -823,6 +1007,28 @@ function parseArgs(argv) {
       opts.changedFiles = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
     } else if (arg === '--base' && argv[i + 1]) {
       opts.baseRef = argv[++i];
+    } else if (arg === '--mode' && argv[i + 1]) {
+      opts.mode = argv[++i];
+    } else if (arg === '--baseline-cmd' && argv[i + 1]) {
+      opts.baselineCmd = argv[++i];
+    } else if (arg === '--candidate-cmd' && argv[i + 1]) {
+      opts.candidateCmd = argv[++i];
+    } else if (arg === '--nfr-budget' && argv[i + 1]) {
+      opts.nfrBudgetPath = argv[++i];
+    } else if (arg === '--lock-owner' && argv[i + 1]) {
+      opts.lockOwner = argv[++i];
+    } else if (arg === '--anti-tamper') {
+      opts.enableAntiTamper = true;
+    } else if (arg === '--agent-lint') {
+      opts.enableAgentLint = true;
+    } else if (arg === '--security-gate') {
+      opts.enableSecurityGate = true;
+    } else if (arg === '--formal-tla' && argv[i + 1]) {
+      opts.formalTla = argv[++i];
+    } else if (arg === '--formal-cfg' && argv[i + 1]) {
+      opts.formalCfg = argv[++i];
+    } else if (arg === '--fail-fast') {
+      opts.failFast = true;
     } else if (arg === '--cmd' && argv[i + 1]) {
       const raw = argv[++i];
       const eq = raw.indexOf('=');
@@ -844,7 +1050,7 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
-      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--output <path>] [--skip-drift] [--skip-sensors]\n',
+      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--mode standard|rebuild] [--baseline-cmd <cmd> --candidate-cmd <cmd>] [--nfr-budget <path>] [--lock-owner <id>] [--anti-tamper] [--agent-lint] [--security-gate] [--fail-fast] [--output <path>] [--skip-drift] [--skip-sensors]\n',
     );
     process.exit(2);
   }
@@ -861,6 +1067,17 @@ function main() {
       skipSensors: opts.skipSensors,
       outputPath: opts.outputPath,
       rootCausePhase: opts.rootCausePhase,
+      mode: opts.mode,
+      baselineCmd: opts.baselineCmd,
+      candidateCmd: opts.candidateCmd,
+      nfrBudgetPath: opts.nfrBudgetPath,
+      lockOwner: opts.lockOwner,
+      enableAntiTamper: opts.enableAntiTamper,
+      enableAgentLint: opts.enableAgentLint,
+      enableSecurityGate: opts.enableSecurityGate,
+      formalTla: opts.formalTla,
+      formalCfg: opts.formalCfg,
+      failFast: opts.failFast,
     });
     process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);
     for (const warning of result.warnings) process.stderr.write(`run-sdd-gate warning: ${warning}\n`);

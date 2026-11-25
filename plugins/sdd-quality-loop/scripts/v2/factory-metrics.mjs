@@ -254,6 +254,55 @@ export function formatFactoryMetricsMarkdown(summary) {
   return `${lines.join('\n')}\n`;
 }
 
+export function buildOtelGenAiTelemetry(summary, { collectPromptBody = false } = {}) {
+  const s = summary || {};
+  const gate = s.gateRuns || {};
+  return {
+    schema: 'sdd-otel-genai/v1',
+    generatedAt: s.generatedAt || new Date().toISOString(),
+    privacy: {
+      collect_prompt_body: Boolean(collectPromptBody),
+      prompt_body_redacted: true,
+    },
+    resource: {
+      'service.name': 'sdd-forge',
+      'gen_ai.system': 'sdd-forge',
+      'sdd.feature': s.feature || 'all',
+    },
+    metrics: [
+      {
+        name: 'sdd.gate.runs.total',
+        unit: '{runs}',
+        value: Number(gate.total || 0),
+        attributes: {
+          'gen_ai.operation.name': 'sdd.quality_gate',
+          'sdd.gate.pass_count': Number(gate.pass || 0),
+          'sdd.gate.fail_count': Number(gate.fail || 0),
+        },
+      },
+      {
+        name: 'sdd.gate.duration.avg',
+        unit: 'ms',
+        value: Number(gate.avgDurationMs || 0),
+        attributes: { 'gen_ai.operation.name': 'sdd.quality_gate' },
+      },
+      {
+        name: 'sdd.gate.duration.p95',
+        unit: 'ms',
+        value: Number(gate.p95DurationMs || 0),
+        attributes: { 'gen_ai.operation.name': 'sdd.quality_gate' },
+      },
+      {
+        name: 'sdd.factory.human_interventions',
+        unit: '{events}',
+        value: Number(s.humanInterventions || 0),
+        attributes: { 'sdd.guard.auto_denials': Number(s.guardAutoDenials || 0) },
+      },
+    ],
+    rootCauseBreakdown: s.rootCauseBreakdown || {},
+  };
+}
+
 function parseArgs(argv) {
   const sub = argv[0] === 'record-attribution' || argv[0] === 'record-final-verdict' ? argv[0] : null;
   const start = sub ? 1 : 0;
@@ -328,9 +377,13 @@ if (isMain) {
       process.exit(0);
     }
     const summary = summarizeFactoryMetrics({ projectRoot: opts.root, feature: opts.feature });
-    process.stdout.write(
-      opts.format === 'markdown' ? formatFactoryMetricsMarkdown(summary) : `${JSON.stringify(summary, null, 2)}\n`,
-    );
+    if (opts.format === 'markdown') {
+      process.stdout.write(formatFactoryMetricsMarkdown(summary));
+    } else if (opts.format === 'otel') {
+      process.stdout.write(`${JSON.stringify(buildOtelGenAiTelemetry(summary), null, 2)}\n`);
+    } else {
+      process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+    }
     process.exit(0);
   } catch (err) {
     process.stderr.write(`factory-metrics error: ${err.message}\n`);

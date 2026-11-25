@@ -106,7 +106,7 @@ T-001
 ## Wave 3: 統合ゲート・Rebuild・OTel / MCP v2（T-008 / T-009）
 
 ### T-008: Fail-Fast 7ステージ統合・`--mode rebuild`（Differential + NFR）・Write-Scope 連携
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-011`, `REQ-012`（Write-Scope・ロック連携）, `NFR-005`
@@ -118,7 +118,7 @@ T-001
 T-002, T-004, T-005, T-007
 
 ### T-009: `v2-readonly-core.mjs`・`factory-metrics.mjs`（OTel GenAI）・`sdd-forge-mcp` オプショナル拡張
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-012`（OTel / MCP v2）, `NFR-003`

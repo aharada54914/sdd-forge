@@ -2295,6 +2295,7 @@ export function runDoctorCore(
     info: findings.filter((f) => f.severity === 'INFO').length,
   };
 
+  const normalizedCfg = normalizeGuardrailsConfig(parsed, configRel);
   const result = {
     schema: 'sdd-doctor/v1',
     checked_at: new Date().toISOString(),
@@ -2302,6 +2303,27 @@ export function runDoctorCore(
     summary,
     non_checks: [...NON_CHECKS],
     findings,
+    v2_2_gates: {
+      formal_verification: {
+        enabled: normalizedCfg.formal_verification.enabled,
+        mode: normalizedCfg.formal_verification.mode,
+        adapter: normalizedCfg.formal_verification.checker.adapter,
+      },
+      agent_lint: {
+        enabled: normalizedCfg.agent_lint.enabled,
+        mode: normalizedCfg.agent_lint.mode,
+        waiver_count: normalizedCfg.agent_lint.waivers.length,
+      },
+      security_audit: {
+        enabled: normalizedCfg.security_audit.enabled,
+        mode: normalizedCfg.security_audit.mode,
+        enabled_adapters: normalizedCfg.security_audit.enabled_adapters,
+      },
+      anti_tampering: {
+        enabled: normalizedCfg.anti_tampering.enabled,
+        mode: normalizedCfg.anti_tampering.mode,
+      },
+    },
   };
   if (rootLabel !== null) {
     result.root = rootLabel;
