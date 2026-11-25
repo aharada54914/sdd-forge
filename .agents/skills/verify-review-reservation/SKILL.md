@@ -22,8 +22,9 @@ A finite-model PASS is not a proof of all implementation schedules or operating
 systems.
 
 The mapping records the current source SHA-256 and the commit used for the
-last comparison. At `cd27d0a4a` the added Concept Test admission checks
-precede the unchanged acquire/check/publish/release transaction. The source
+last comparison. The acquisition now uses Python’s `os.mkdir` to observe exclusive directory
+creation directly. Concurrent hosted Linux reservations had returned a success
+for a process whose record was absent from the resulting ledger. The source
 and the extracted transaction have separate pins so each can be rechecked.
 The two-process replay results are in
 `specs/verification-first-factory/verification/T-006/reservation-bridge.json`.
@@ -50,7 +51,7 @@ asset disappears or differs, stop rather than accepting a new jar implicitly.
 Historical v1.8.0 evidence remains unchanged. The new tool's negative, baseline
 and actual-code race observations are recorded separately in
 `reports/verification/formal-reservation-stable-20261031/`.
-Bash, jq and sha256sum are required for the Linux real-code replay. No network
+Python 3, Bash, jq and sha256sum are required for the Linux real-code replay. No network
 call occurs during verification.
 
 ## Run and observe
@@ -69,8 +70,10 @@ isolated scratch state and invokes two competing processes. The negative mutates
 that extracted code's acquire/release guard; both calls must succeed. The intact
 code must accept only one. The fixture replaces unrelated input-validation setup,
 so this proves the reservation tail's observed behavior, not the whole review CLI.
-For the negative replay the parent releases both contenders only after both
-reach the post-hash-check barrier; timeout is a synchronization failure.
+Both contenders start together. A process that enters the critical section waits
+after the hash check until its peer has entered or exited. The baseline requires
+one entrant, a matching successful caller and that caller’s persisted ledger
+record. The negative requires both entrants to succeed. A timeout fails the replay.
 
 ## Maintenance and cleanup
 
