@@ -23,7 +23,7 @@ user-invocable: false
 1. **決定論チェックの一括実行（`run-sdd-gate.mjs`）**:
    プロジェクトの lint / typecheck / build / test コマンドを渡し、単一コマンドで以下を実行・記録する:
    - タスク前提確認（`Approval: Approved`, `Status: Implementation Complete`）
-   - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` は自動 FAIL）
+   - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` と `UNVERIFIABLE`（読取上限超で未判定の仕様ファイルあり）は自動 FAIL。ベースライン後に承認されたタスクは `APPROVED_AFTER_BASELINE` 警告になるため、独立レビューで人間の承認であることを確認する）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。
    - `Risk: high` タスクに対する未確定 `OQ-NNN`（非 `Confirmed`）残存ブロック
    - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を 1 試行につき 1 回だけ `factory-metrics.mjs record-attribution --root-cause <phase> --run-id <execution.json の runId>` で記録する。ゲート実行時に `--root-cause` を渡した場合は記録済みなので重ねない）
@@ -70,4 +70,4 @@ user-invocable: false
 
 ## Handoff
 
-`VERDICT`、Spec Drift ステータス（`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT`）、G1〜G5 検証サマリ、および `Status: Done` 遷移結果（または差し戻し理由）を `ship` へ返す。
+`VERDICT`、Spec Drift ステータス（`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` / `UNVERIFIABLE`）、G1〜G5 検証サマリ、および `Status: Done` 遷移結果（または差し戻し理由）を `ship` へ返す。

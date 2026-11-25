@@ -35,7 +35,7 @@ disable-model-invocation: true
 - 引数なし時は `AGENTS.md` の `## Active Spec Directories`（または `specs/*/tasks.md`）から `Approval: Approved` かつ `Status: Planned` / `In Progress` / `Implementation Complete`（ゲート待ち）のタスクを持つフィーチャーを探す（1 件一致なら自動選択、0 件または複数一致なら一覧を表示して停止）。
 
 ### Step 2 — 実行ロック取得 & 仕様ベースライン固定
-二重起動・並列書込衝突を防ぐため `task-lock.mjs` で排他ロックを取得し、実装開始前に `specs/<feature>/.spec-baseline.json` が無ければ記録する。ロックはこの ship 実行の所有者 ID（例: `ship-<feature>-<UTC 時刻>`）で取得し、同じ ID を子の `implement-tasks` に渡し、完了または異常終了時に同じ ID で `task-lock.mjs release --owner <id>` を実行して解放する。CLI はすぐ終了するため、ロックは所有者 ID と有効期限（`--ttl`、既定 1800 秒）で保持される。同じ所有者の再取得は期限の延長として成功し、別の所有者は期限切れまで拒否される。期限切れのロックは、作業者がいないことを確認してから `--break-stale` で回収する。`record-spec-baseline.mjs` は既存のベースラインを上書きせず `status: EXISTING` を返すため、再開・再入のたびに同じコマンドを実行してよい。仕様変更に人間が合意して基準を取り直すときだけ `--rerecord` を付ける:
+二重起動・並列書込衝突を防ぐため `task-lock.mjs` で排他ロックを取得し、実装開始前に `specs/<feature>/.spec-baseline.json` が無ければ記録する。ロックはこの ship 実行の所有者 ID（例: `ship-<feature>-<UTC 時刻>`）で取得し、同じ ID を子の `implement-tasks` に渡し、完了または異常終了時に同じ ID で `task-lock.mjs release --owner <id>` を実行して解放する。CLI はすぐ終了するため、ロックは所有者 ID と有効期限（`--ttl`、既定 1800 秒。長い実行では `--ttl 7200` など実行時間に合わせる）で保持される。同じ所有者の再取得は期限切れ後も含めて期限の延長として成功し、別の所有者は期限切れまで拒否される。期限切れのロックは、作業者がいないことを確認してから `--break-stale` で回収する。`record-spec-baseline.mjs` は既存のベースラインを上書きせず `status: EXISTING` を返すため、再開・再入のたびに同じコマンドを実行してよい。仕様変更に人間が合意して基準を取り直すときだけ `--rerecord` を付ける:
 
 ```bash
 node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs" \

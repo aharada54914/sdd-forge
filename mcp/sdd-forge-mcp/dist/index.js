@@ -38160,9 +38160,16 @@ function bareScopeTokens(text) {
 function stripScopeNote(token) {
   return String(token).replace(/\([^()]*\)|（[^（）]*）/g, " ").replace(/[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
 }
+var MAX_SCOPE_ALTERNATIVES = 64;
 function expandScopeToken(token) {
   const cleaned = String(token);
   if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
+  const groups = [...cleaned.matchAll(/\{([^{}]*,[^{}]*)\}/g)];
+  const total = groups.reduce((n, g) => n * g[1].split(",").length, 1);
+  if (total > MAX_SCOPE_ALTERNATIVES) return ["**"];
+  return expandBraces(cleaned);
+}
+function expandBraces(cleaned) {
   const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
   if (!brace) {
     const normalized = normalizeRelPath(cleaned);
@@ -38170,7 +38177,7 @@ function expandScopeToken(token) {
   }
   const head = cleaned.slice(0, brace.index);
   const tail = cleaned.slice(brace.index + brace[0].length);
-  return brace[1].split(",").flatMap((alt) => expandScopeToken(`${head}${alt}${tail}`));
+  return brace[1].split(",").flatMap((alt) => expandBraces(`${head}${alt}${tail}`));
 }
 function canonicalScopeEntry(io, entry) {
   if (!io || typeof io.canonicalRelPath !== "function") return entry;

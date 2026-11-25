@@ -120,7 +120,9 @@ export function acquireLock({
       if (!err || err.code !== 'EEXIST') throw err;
       const existing = readLockRecord(lockPath);
       const { stale, reason } = evaluateStale(existing);
-      if (!stale && owner && existing.owner === owner) {
+      // The holder renews its own lock, also after its TTL ran out; the claim
+      // in renewLock fails if someone else reclaimed it meanwhile.
+      if (owner && existing && existing.owner === owner) {
         const renewed = renewLock(lockPath, existing, record);
         if (renewed) return renewed;
         continue; // the lock vanished (released meanwhile): try to create it

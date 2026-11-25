@@ -14,7 +14,7 @@
 ## Deterministic Checks
 
 - **Execution Evidence**: `reports/quality-gate/<feature>-<T-NNN>.execution.json`
-- **Spec Drift**: CLEAN | AMENDED | UNDECLARED_DRIFT
+- **Spec Drift**: CLEAN | AMENDED | UNDECLARED_DRIFT | UNVERIFIABLE
 - **Placeholder Scan**: PASS | FAIL
 - **Non-Functional Sensors (SQL / Cloud / Secrets)**: PASS | FAIL | SKIPPED
 - **Open Questions Gate (`Risk: high`)**: PASS | BLOCKED (Provisional OQ)

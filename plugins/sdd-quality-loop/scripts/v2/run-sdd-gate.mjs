@@ -717,6 +717,13 @@ export function runSddGate({
     warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
   }
   if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
+  if ((specDrift.newlyApprovedTasks || []).includes(taskState.taskId)) {
+    // A staged human approval and a shell edit look the same in the file; the
+    // independent evaluator must confirm a human approved this task.
+    warnings.push(
+      `APPROVED_AFTER_BASELINE: ${taskState.taskId} became Approved after the spec baseline was recorded; confirm a human approved it.`,
+    );
+  }
   if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
   if (scope.outOfScopeFiles.length > 0) {
     warnings.push(

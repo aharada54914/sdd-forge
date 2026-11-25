@@ -421,10 +421,21 @@ function stripScopeNote(token) {
     .replace(/[:,;、。]+$/, '');
 }
 
+const MAX_SCOPE_ALTERNATIVES = 64;
+
 // One level of brace alternatives per group: "src/{a,b}.ts" -> src/a.ts, src/b.ts.
+// Past MAX_SCOPE_ALTERNATIVES the entry stands for everything ('**'), so the
+// task runs alone instead of the planner expanding exponentially.
 function expandScopeToken(token) {
   const cleaned = String(token);
   if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
+  const groups = [...cleaned.matchAll(/\{([^{}]*,[^{}]*)\}/g)];
+  const total = groups.reduce((n, g) => n * g[1].split(',').length, 1);
+  if (total > MAX_SCOPE_ALTERNATIVES) return ['**'];
+  return expandBraces(cleaned);
+}
+
+function expandBraces(cleaned) {
   const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
   if (!brace) {
     const normalized = normalizeRelPath(cleaned);
@@ -432,7 +443,7 @@ function expandScopeToken(token) {
   }
   const head = cleaned.slice(0, brace.index);
   const tail = cleaned.slice(brace.index + brace[0].length);
-  return brace[1].split(',').flatMap((alt) => expandScopeToken(`${head}${alt}${tail}`));
+  return brace[1].split(',').flatMap((alt) => expandBraces(`${head}${alt}${tail}`));
 }
 
 // The real location of a Scope entry, so two spellings of one file (a

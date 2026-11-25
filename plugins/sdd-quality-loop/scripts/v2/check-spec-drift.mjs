@@ -70,7 +70,12 @@ export function formatDriftMarkdown(report) {
   ];
 
   if (report.status === 'CLEAN') {
-    lines.push('- 承認済み仕様ファイルに実質的な変更はありません（`tasks.md` の `Status:` 更新のみ許容）。');
+    lines.push('- 承認済み仕様ファイルに実質的な変更はありません（`tasks.md` の `Status:` / `Approval:` 更新のみ許容）。');
+    if ((report.newlyApprovedTasks || []).length > 0) {
+      // Shown even when CLEAN: the reviewer confirms a human made each approval
+      // (the soft guard does not see shell edits).
+      lines.push(`- **Approved since the baseline — confirm a human approved each**: ${report.newlyApprovedTasks.join(', ')}`);
+    }
     return `${lines.join('\n')}\n`;
   }
 
