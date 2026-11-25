@@ -28,6 +28,7 @@ import {
   VALID_MODES,
   VALID_PRE_IMPL,
   VALID_RISK_TIERS,
+  validateGuardrailsExtensions,
 } from './v2-pure-lib.mjs';
 
 const CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
@@ -2025,6 +2026,9 @@ export function runDoctorCore(
     const maxRounds = parsed?.limits?.max_auto_fix_rounds;
     if (maxRounds !== undefined && (!Number.isInteger(maxRounds) || maxRounds < 0 || maxRounds > 10)) {
       addFinding(findings, 'NG', 'config', `不正な limits.max_auto_fix_rounds: ${maxRounds}`, configRel, '0〜10 の整数を指定してください');
+    }
+    for (const extErr of validateGuardrailsExtensions(parsed)) {
+      addFinding(findings, 'NG', 'config', extErr.message, configRel, extErr.action);
     }
   }
 

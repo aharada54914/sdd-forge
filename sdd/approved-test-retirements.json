@@ -1,0 +1,5 @@
+{
+  "schema": "sdd-approved-test-retirements/v1",
+  "policy": "Protected by CODEOWNERS. Every test file deletion or retirement excluded from Anti-Tampering must list its exact repository-relative path and git_blob_sha (from `git rev-parse HEAD:<path>`), plus rationale and human approver.",
+  "retirements": []
+}

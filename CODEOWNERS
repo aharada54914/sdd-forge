@@ -11,6 +11,7 @@
 /plugins/sdd-quality-loop/references/      @aharada54914
 /contracts/guardrails.schema.json          @aharada54914
 /sdd/guardrails.yaml                       @aharada54914
+/sdd/approved-test-retirements.json        @aharada54914
 
 # CI/CD and governance
 /.github/                                  @aharada54914

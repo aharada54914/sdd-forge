@@ -23,3 +23,48 @@ risk_defaults:
 
 limits:
   max_auto_fix_rounds: 2 # Escalate unresolved items as OQ-NNN for human decision after N rounds
+
+# --- Optional v2.2 Verification-First Extensions (ADR-0054, default OFF) ---
+# formal_verification:
+#   enabled: false
+#   mode: shadow # off | shadow | warn | strict
+#   checker:
+#     adapter: tlc # tlc | apalache | lean4 | none (allowlist only)
+#     adapter_options:
+#       tlc:
+#         workers: auto
+#       apalache:
+#         length: 10
+#   trigger_tiers:
+#     - high
+#
+# agent_lint:
+#   enabled: false
+#   mode: shadow # off | shadow | warn | strict
+#   diff_only: true
+#   waivers:
+#     - rule: no-console-log
+#       path: scripts/cli.mjs
+#       reason: CLI stdout logging
+#       expires_on: 2027-01-01
+#
+# security_audit:
+#   enabled: false
+#   mode: shadow # off | shadow | warn | strict
+#   # Allowlist only — arbitrary `command:` keys are strictly rejected (exit 2).
+#   enabled_adapters:
+#     - builtin-secret-pattern
+#     - builtin-slopsquatting
+#     # - semgrep
+#     # - gitleaks
+#
+# anti_tampering:
+#   enabled: true
+#   mode: strict # off | warn | strict
+#   base_ref: HEAD
+#   retirements_manifest: sdd/approved-test-retirements.json
+#   protected_repo_paths:
+#     - sdd/guardrails.yaml
+#     - sdd/approved-test-retirements.json
+#     - .github/workflows/**
+#     - CODEOWNERS

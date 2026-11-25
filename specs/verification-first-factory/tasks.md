@@ -2,7 +2,7 @@
 
 - **Feature:** `verification-first-factory`
 - **Version:** `v2.2`（正規ステータス `Planned`・タスク別 `Risk` / `### Blockers`・単一責務 10 タスク分割版）
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Related Spec:** `specs/verification-first-factory/requirements.md`, `specs/verification-first-factory/design.md`
 - **Related ADR:** `docs/adr/0054-verification-first-and-agentic-factory.md`（WFI-013: 起票・マージ前空き番号再確認必須）
 
@@ -11,8 +11,8 @@
 ## Wave 1: 基盤・スキーマ・Anti-Tampering・本体 Fitness ＆ カタログ棚卸し
 
 ### T-001: ADR-0054 正式化・`guardrails-lib.mjs` スキーマ拡張・`sdd-doctor.mjs` 診断・`AGENTS.md` 登録
-- **Status:** `Planned`
-- **Approval:** `Draft`
+- **Status:** `Implementation Complete`
+- **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-009`（アローリスト検証）, `REQ-012`（`sdd-doctor.mjs`）, `NFR-001`, `NFR-003`, `NFR-005`
 - **Scope:** `docs/adr/0054-verification-first-and-agentic-factory.md`, `AGENTS.md`（`Active Spec Directories` 追加）, `sdd/guardrails.example.yaml`, `plugins/sdd-quality-loop/scripts/v2/{guardrails-lib,sdd-doctor}.mjs`
@@ -23,8 +23,8 @@
 None
 
 ### T-002: `git diff` ベース Anti-Tampering ＆ `CODEOWNERS` 保護 `sdd/approved-test-retirements.json`
-- **Status:** `Planned`
-- **Approval:** `Draft`
+- **Status:** `Implementation Complete`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-010`, `SELF-REQ-006`（承認マニフェスト分離）, `NFR-001`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs`, `sdd/approved-test-retirements.json`（新規）, `CODEOWNERS`
@@ -35,8 +35,8 @@ None
 T-001
 
 ### T-003: 本体 Self-Fitness Functions（`tests/self-fitness.test.mjs`）＆ ゴースト 56 件掃除・カテゴリ1/4 安全廃止
-- **Status:** `Planned`
-- **Approval:** `Draft`
+- **Status:** `Implementation Complete`
+- **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `SELF-REQ-003`, `SELF-REQ-006`（カテゴリ1・4）, `NFR-002`
 - **Scope:** `tests/self-fitness.test.mjs`（新規）, `tests/verification-catalog.json`, `tests/verification-timings.json`, `docs/operations/verification-catalog-status.md`, `sdd/approved-test-retirements.json`
@@ -54,7 +54,7 @@ T-002
 
 ### T-004: Layer 2/3 専用 AST Agent-Strict Lint ＆ 内蔵 Waiver（Shadow 運用開始）
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-007`, `REQ-008`, `NFR-002`, `NFR-004`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs`（新規）, `plugins/sdd-quality-loop/rules/**`, `tests/fixtures/agent-lint/**`
@@ -66,7 +66,7 @@ T-001
 
 ### T-005: 状態機械抽出＆チェッカー非依存・Windows 互換の多層形式検証ゲート（TLA+ 標準・Lean 4 予約）
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-003`, `REQ-004`, `REQ-005`, `REQ-006`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/{discover-state-machines,run-formal-gate,render-decision-view}.mjs`, `tests/fixtures/project-skills/formal-review-reservation/mapping.json`
@@ -79,7 +79,7 @@ T-001
 
 ### T-006: 本体公式 TLA+ モデル（`TaskLock.tla` / `GateLifecycle.tla`）＆ カテゴリ3重複列挙テスト圧縮
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-001`, `SELF-REQ-002`, `SELF-REQ-006`（カテゴリ3）
 - **Scope:** `specs/self-verification/formal/{TaskLock,GateLifecycle}.{tla,cfg}`, `specs/self-verification/formal/mapping.json`, `tests/project-skill-formal.tests.py`（CI 復帰）, `sdd/approved-test-retirements.json`
@@ -91,7 +91,7 @@ T-002, T-005
 
 ### T-007: 固定アローリスト Security Gate・本体敵対的テスト・Reframing / Meta-Analyze
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-004`, `REQ-001`, `REQ-002`, `REQ-009`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/{run-security-gate,sync-knowledge}.mjs`, `plugins/sdd-bootstrap/**`, `tests/self-security-adversarial.test.mjs`（新規）
@@ -107,7 +107,7 @@ T-001
 
 ### T-008: Fail-Fast 7ステージ統合・`--mode rebuild`（Differential + NFR）・Write-Scope 連携
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-011`, `REQ-012`（Write-Scope・ロック連携）, `NFR-005`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/{run-sdd-gate,check-traceability}.mjs`, `plugins/sdd-ship/**`
@@ -119,7 +119,7 @@ T-002, T-004, T-005, T-007
 
 ### T-009: `v2-readonly-core.mjs`・`factory-metrics.mjs`（OTel GenAI）・`sdd-forge-mcp` オプショナル拡張
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-012`（OTel / MCP v2）, `NFR-003`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/{v2-readonly-core,factory-metrics}.mjs`, `mcp/sdd-forge-mcp/src/**`
@@ -135,7 +135,7 @@ T-008
 
 ### T-010: CI 2層 SAST / `actions/cache` 統合・純増オーバーヘッド計測・Self-Rebuild 完了後のカテゴリ2廃止
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-005`, `SELF-REQ-006`（カテゴリ2）, `NFR-004`, `AC-013`
 - **Scope:** `.github/workflows/sdd-guardrails.yml`, `.github/workflows/test.yml`, `tests/verification-catalog.json`, `sdd/approved-test-retirements.json`, `.gitignore`

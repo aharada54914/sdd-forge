@@ -358,3 +358,76 @@ describe('#972 re-review: text added to an Approval line is drift', () => {
     assert.equal(res.status, 'UNDECLARED_DRIFT');
   });
 });
+
+describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest', () => {
+  function initGitRepoWithTests() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-anti-tamper-'));
+    const git = (...args) =>
+      spawnSync('git', args, { cwd: dir, encoding: 'utf8', shell: false });
+    assert.equal(git('init').status, 0);
+    assert.equal(git('config', 'user.email', 'test@example.com').status, 0);
+    assert.equal(git('config', 'user.name', 'Test User').status, 0);
+
+    fs.mkdirSync(path.join(dir, 'tests'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'specs', 'demo', 'formal'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'sdd'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'tests', 'sample.test.mjs'), 'import { it } from "node:test";\nit("ok", () => {});\n', 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'demo', 'formal', 'Model.tla'), '---- MODULE Model ----\nInv == x >= 0\n====\n', 'utf8');
+    fs.writeFileSync(path.join(dir, 'sdd', 'approved-test-retirements.json'), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements: [] }, null, 2), 'utf8');
+    assert.equal(git('add', '.').status, 0);
+    assert.equal(git('commit', '-m', 'init').status, 0);
+    return { dir, git };
+  }
+
+  it('exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening', () => {
+    const { dir } = initGitRepoWithTests();
+    const clean = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(clean.status, 0, clean.stderr);
+    assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
+
+    // Construct markers dynamically (WFI-012)
+    const skipCall = ['it', '.skip("tampered", () => {});'].join('');
+    const disableComment = ['// ', 'sdd-lint', '-disable next-line'].join('');
+    fs.writeFileSync(path.join(dir, 'tests', 'sample.test.mjs'), `import { it } from "node:test";\n${skipCall}\n${disableComment}\n`, 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'demo', 'formal', 'Model.tla'), '---- MODULE Model ----\nInv == TRUE\n====\n', 'utf8');
+
+    const tampered = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(tampered.status, 4);
+    const report = JSON.parse(tampered.stdout);
+    assert.equal(report.status, 'TAMPER_DETECTED');
+    const codes = new Set(report.violations.map((v) => v.code));
+    assert.ok(codes.has('TEST_SKIP_ADDED'), JSON.stringify(report.violations));
+    assert.ok(codes.has('LINT_DISABLE_ADDED'), JSON.stringify(report.violations));
+    assert.ok(codes.has('FORMAL_INVARIANT_WEAKENED'), JSON.stringify(report.violations));
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0)', () => {
+    const { dir, git } = initGitRepoWithTests();
+    const blobSha = git('rev-parse', 'HEAD:tests/sample.test.mjs').stdout.trim();
+    fs.rmSync(path.join(dir, 'tests', 'sample.test.mjs'));
+
+    const unapproved = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(unapproved.status, 4);
+    assert.ok(JSON.parse(unapproved.stdout).violations.some((v) => v.code === 'UNAUTHORIZED_TEST_DELETION'));
+
+    // Commit human-approved retirement manifest on base commit, then delete test file
+    git('checkout', '--', 'tests/sample.test.mjs');
+    fs.writeFileSync(
+      path.join(dir, 'sdd', 'approved-test-retirements.json'),
+      JSON.stringify({
+        schema: 'sdd-approved-test-retirements/v1',
+        retirements: [{ path: 'tests/sample.test.mjs', git_blob_sha: blobSha, approved_by: '@aharada54914', reason: 'Superseded' }],
+      }, null, 2),
+      'utf8',
+    );
+    assert.equal(git('add', 'sdd/approved-test-retirements.json').status, 0);
+    assert.equal(git('commit', '-m', 'approve retirement').status, 0);
+
+    fs.rmSync(path.join(dir, 'tests', 'sample.test.mjs'));
+    const approved = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(approved.status, 0, approved.stdout);
+    assert.equal(JSON.parse(approved.stdout).status, 'CLEAN');
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});

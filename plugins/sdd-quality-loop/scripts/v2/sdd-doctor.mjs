@@ -10,22 +10,60 @@
  *   0 — No NG findings (WARN / INFO may be present)
  *   1 — One or more NG findings
  */
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { NON_CHECKS, runDoctorCore } from './v2-readonly-core.mjs';
 
 export { NON_CHECKS };
 
+function probeCommandAvailable(bin, args = ['--version']) {
+  try {
+    execFileSync(bin, args, { shell: false, stdio: 'ignore', timeout: 1500 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function probeExternalAdapters() {
+  return {
+    java: probeCommandAvailable('java', ['-version']),
+    semgrep: probeCommandAvailable('semgrep', ['--version']),
+    gitleaks: probeCommandAvailable('gitleaks', ['version']),
+  };
+}
+
 export function runDoctor(options = {}) {
   const root = resolveExplicitOrAutoRoot(options.root);
   const staleDays = Number.isFinite(options.staleDays) ? options.staleDays : 14;
   const io = createFsReadonlyIo(root);
-  return runDoctorCore(io, {
+  const report = runDoctorCore(io, {
     staleDays,
     nodeVersion: process.versions.node,
     rootLabel: root,
     scanExtendedRepo: true,
   });
+
+  if (options.probeAdapters !== false) {
+    const adapters = probeExternalAdapters();
+    const available = Object.entries(adapters)
+      .filter(([, ok]) => ok)
+      .map(([name]) => name);
+    const missing = Object.entries(adapters)
+      .filter(([, ok]) => !ok)
+      .map(([name]) => name);
+    report.findings.push({
+      severity: 'INFO',
+      category: 'adapters',
+      message: `外部検証アダプタ検出: available=[${available.join(', ') || 'none'}], unavailable=[${missing.join(', ') || 'none'}]`,
+      path: null,
+      action: 'formal_verification / security_audit で外部アダプタを有効化する場合は対応バイナリを導入してください',
+    });
+    report.summary.info += 1;
+  }
+
+  return report;
 }
 
 export function formatDoctorText(report, { quietInfo = false } = {}) {
