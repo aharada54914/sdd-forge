@@ -20,7 +20,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | 6 | #972 | #831, #832 | merged with batch 5 (f95bf9f) |
 | — | #973 | release v2.1.3 | merged (484cbe7); tagged via publish-release.yml |
 | 7 | #974 | integrates `codex/mcp-ddd-next-action`: closes #871–#965 (each mapped to its passing MCP test); refs the 13 `[監査60]` issues | merged (8052dbf) after 2 independent reviews; owner approval now required on main |
-| 8 | (this PR) | #865, #848, review follow-ups on #974 (`.ps1` evidence-checker parity, v1 signature order, concept-test messages) | open |
+| 8 | #975 | #865, #848, #803, review follow-ups on #974 (`.ps1` evidence-checker parity, v1 signature order, concept-test messages) | merged (3497bb1) |
+| — | (this PR) | release v2.1.4 | tag via publish-release.yml after merge |
 
 ## Resolved
 
@@ -102,5 +103,5 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Review-5 minors on #972: a failed write after the no-hard-link fallback's exclusive create leaves an empty lock (fails closed, needs --break-stale); on Windows FAT `linkSync` may report `EISDIR`, which the fallback list lacks (unverified); the pre-existing --break-stale restore path (`linkSync(claim, lock)`) has no no-hard-link fallback; evidence inputs do not bind lazy unindented continuations, bold-label paragraphs, or heading bodies of IDs that also have a bullet elsewhere (all pre-existing; document in skill reference).
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.
 - Audit-60 issues referenced by #974 (#805–#808, #810, #813, #836, #839, #842, #853, #854, #856, #860): verify each on main and close with evidence. Tests located so far: D5 `v2-mcp-server` 'D5:', D6 `v2-software-factory` 'D6:', R3/H4/N21 `v2-prompts-and-delegation` 'H4/N21/G7/R3', R6 and N12/N24 `v2-real-flows-e2e`, H5 `v2-hooks-and-ci` '(H5)', N27 MCP `dashboard.test.ts`, D4 MCP `next-command.test.ts` (sdd_feature_state path untested), H7 specs list == AGENTS list; D3 (#805) is documentation.
-- Main ruleset (since 2026-11-25): 1 approving review required, stale approvals dismissed on push. Agent PRs need the owner's approval or a ruleset change (relates to #850).
+- Main ruleset "Protect main branch": 1 approving review, with an always-bypass for the admin role (agent merges through the API pass). The 2026-11-25 merge failures on #974 were GitHub 5xx errors, not the ruleset.
 - Batch-8 review Low 4: `check-evidence-bundle.ps1` renders a non-string `required_workflow` (number, array, object) differently from Python's `str()` in the signed canonical form, so such a critical bundle verifies on `.sh` only. Both v1 signers wrote strings and the generator is retired; a type check (string or absent) on both sides would close it.

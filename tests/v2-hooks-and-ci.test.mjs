@@ -383,3 +383,27 @@ describe('#862 the verification catalog report matches what CI runs', () => {
     assert.equal(committed, status.renderReport(result), 'regenerate with: node tests/verification-catalog-status.mjs --write');
   });
 });
+
+describe('#850 the committed ruleset, the CI jobs and the threat model agree', () => {
+  it('every required check is a real job, the Spec Drift job is required, and docs do not claim owner review', () => {
+    const read = (rel) => fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+    const ruleset = JSON.parse(read('.github/rulesets/main.json'));
+    const rule = (type) => ruleset.rules.find((r) => r.type === type);
+    const required = rule('required_status_checks').parameters.required_status_checks.map((c) => c.context);
+    const workflows = fs.readdirSync(path.join(REPO_ROOT, '.github/workflows')).map((f) => read(`.github/workflows/${f}`)).join('\n');
+    const jobNames = new Set();
+    for (const m of workflows.matchAll(/^\s+name:\s*(.+?)\s*$/gm)) jobNames.add(m[1].replace(/^["']|["']$/g, ''));
+    for (const os of ['ubuntu-latest', 'macos-latest', 'windows-latest']) {
+      assert.ok(required.includes(`test (${os})`), `test (${os}) is required`);
+    }
+    assert.ok(jobNames.has('test (${{ matrix.os }})'), 'the test matrix job exists');
+    for (const context of ['required-checks', 'Lightweight Guardrails & Spec Drift Check']) {
+      assert.ok(required.includes(context), `${context} is required`);
+      assert.ok(jobNames.has(context), `${context} is a job name`);
+    }
+    assert.equal(rule('pull_request').parameters.require_code_owner_review, false);
+    for (const rel of ['docs/THREAT-MODEL.md', 'README.md']) {
+      assert.doesNotMatch(read(rel), /オーナー(の PR )?レビュー(を)?必須/, rel);
+    }
+  });
+});

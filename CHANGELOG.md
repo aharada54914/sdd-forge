@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v2.1.4 (2026-11-25)
 
 ### Fixed
 
@@ -11,6 +11,7 @@
 - **v1 署名の互換性**: 旧 Python 発行器（コードポイント順）と旧 PowerShell 発行器（UTF-16 順）のどちらの署名も、両方の検査器で検証できる。
 - **ドメインモデル承認の案内（Closes #803）**: context-map テンプレート・domain-interviewer の引き継ぎ・sdd-domain の GEMINI.md が、承認には契約（`domain/domain-contract.json`）の発行も必要なことを示し、`domain-review-loop` の発行手順へ案内する。context-map だけを承認すると Concept Test が停止する。
 - **Concept Test のエラー表示**: OS エラーと検証器のタイムアウトは絶対パスを出さない固定文言にする。確認ロックが残っている場合はロックの相対パスを示す。
+- **ブランチ保護の文書と定義（Closes #850）**: `.github/rulesets/main.json` の必須チェックを実設定（3 OS の `test`・`required-checks`）に合わせ、Spec Drift チェック（`Lightweight Guardrails & Spec Drift Check`）を追加。脅威モデルと README は「オーナーレビュー必須」と書かず、承認 1 件（管理者はバイパス可）と必須チェックを説明する。必須チェック名が実在する CI ジョブであることをテストで検査する。
 
 ## v2.1.3 (2026-11-25)
 

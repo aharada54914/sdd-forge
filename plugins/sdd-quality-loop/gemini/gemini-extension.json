@@ -1,6 +1,6 @@
 {
   "name": "sdd-quality-loop",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Lightweight soft guardrails (BeforeTool), Spec Drift detection, and unified sdd-gate independent quality verification for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }

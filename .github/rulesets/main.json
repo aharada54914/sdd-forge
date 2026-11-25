@@ -24,7 +24,11 @@
       "parameters": {
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
-          { "context": "required-checks" }
+          { "context": "test (ubuntu-latest)" },
+          { "context": "test (macos-latest)" },
+          { "context": "test (windows-latest)" },
+          { "context": "required-checks" },
+          { "context": "Lightweight Guardrails & Spec Drift Check" }
         ]
       }
     },
