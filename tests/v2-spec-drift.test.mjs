@@ -402,6 +402,76 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  function runAntiTamper(dir) {
+    return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+  }
+
+  it('allows renaming an already skipped test and editing existing skip reasons', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'tests/sample.test.mjs');
+    const skipped = ['it', '.skip'].join('');
+    fs.writeFileSync(file, skipped + '("old description", () => {});\n');
+    assert.equal(git('commit', '-am', 'record existing test state').status, 0);
+    fs.writeFileSync(file, skipped + '("new description", () => {});\n');
+    const report = runAntiTamper(dir);
+    assert.equal(report.status, 0, report.stdout);
+  });
+
+  it('counts active Node options across layout changes alongside prior Python and Go directives', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'tests/sample.test.mjs');
+    const option = ['sk', 'ip'].join('');
+    function source(values) {
+      return ['const metadata = { ' + option + ': true };',
+        ...values.map((value, index) => 'test("case ' + index + '", {\n  timeout: 100,\n  "' + option + '": ' + value + ',\n}, () => {});')].join('\n');
+    }
+    fs.writeFileSync(file, source(['"old reason"', 'false']));
+    assert.equal(git('commit', '-am', 'record conditional test options').status, 0);
+    fs.writeFileSync(file, source(['"new reason"', 'false']));
+    assert.equal(runAntiTamper(dir).status, 0);
+    fs.writeFileSync(file, source(['"new reason"', 'true']));
+    const increased = runAntiTamper(dir);
+    assert.equal(increased.status, 4, increased.stdout);
+    assert.deepEqual(JSON.parse(increased.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
+    fs.writeFileSync(file, source(['false']));
+    assert.equal(runAntiTamper(dir).status, 0);
+    for (const [name, marker] of [['sample_test.py', ['@pytest.mark.', 'skip'].join('')],
+      ['sample_test.go', ['t.', 'Skip'].join('')]]) {
+      fs.writeFileSync(path.join(dir, 'tests', name), marker + '("reason")\n');
+      assert.equal(git('add', 'tests/' + name).status, 0);
+    }
+    assert.deepEqual(JSON.parse(runAntiTamper(dir).stdout).violations.map(v => v.path).sort(),
+      ['tests/sample_test.go', 'tests/sample_test.py']);
+  });
+
+  for (const defect of ['invalid JSON', 'wrong id', 'wrong feature']) {
+    it('preserves an existing question with ' + defect + ' and records a valid replacement', (t) => {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      fs.appendFileSync(path.join(dir, 'sdd/approved-test-retirements.json'), '\n');
+      const first = JSON.parse(runAntiTamper(dir).stdout).openQuestion;
+      const filename = path.join(dir, first.path);
+      const question = JSON.parse(fs.readFileSync(filename));
+      const old = defect === 'invalid JSON' ? '{' : JSON.stringify({
+        ...question, [defect === 'wrong id' ? 'id' : 'feature']: 'other',
+      });
+      fs.writeFileSync(filename, old);
+      const next = runAntiTamper(dir);
+      assert.equal(next.status, 4, next.stderr);
+      const replacement = JSON.parse(next.stdout).openQuestion;
+      assert.equal(replacement.id, 'OQ-002');
+      assert.equal(fs.readFileSync(filename, 'utf8'), old);
+      const replacementFile = path.join(dir, replacement.path);
+      const persisted = JSON.parse(fs.readFileSync(replacementFile));
+      assert.equal(persisted.id, replacement.id);
+      assert.equal(persisted.feature, 'demo');
+      fs.writeFileSync(replacementFile, JSON.stringify({ ...persisted, status: 'Confirmed' }));
+      assert.deepEqual(JSON.parse(runAntiTamper(dir).stdout).openQuestion, replacement);
+    });
+  }
+
   it('uses committed retirement approvals and mandatory protection; records a repeatable OQ', (t) => {
     const { dir, git } = initGitRepoWithTests();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
