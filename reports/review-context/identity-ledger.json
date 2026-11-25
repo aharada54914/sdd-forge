@@ -10797,6 +10797,16 @@
       "previous_record_sha256": "e13e0951c8300afde9a7a088922811396abf12cf09e4a7ee0bec550570ca91d6",
       "record_sha256": "046d144336dcf107f5db9ee2fff333415633180749391592b32438181fe53d83",
       "scratch_declaration_sha256": "3ea80a314d0255b431385550a1e535d728881bebf6218615b843640c1055f7b6"
+    },
+    {
+      "sequence": 1198,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "9f2a647f-3b8a-4f71-89a1-86d6a9864d82",
+      "host_session_id": "01a213e4-e38e-78a1-99e2-30b564258553",
+      "previous_record_sha256": "046d144336dcf107f5db9ee2fff333415633180749391592b32438181fe53d83",
+      "record_sha256": "10de7af20b2f2edd8b92545607486164fe48e9a18897c9ff8ec8955ddd9d3fdb",
+      "scratch_declaration_sha256": "082c781d71ca42cfe2bb8ac025c19b402bb92a62e25c5213e8c258412228994c"
     }
   ]
 }

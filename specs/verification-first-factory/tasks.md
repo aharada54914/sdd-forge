@@ -118,7 +118,7 @@ T-001
 T-002, T-004, T-005, T-007
 
 ### T-009: `v2-readonly-core.mjs`・`factory-metrics.mjs`（OTel GenAI）・`sdd-forge-mcp` オプショナル拡張
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-012`（OTel / MCP v2）, `NFR-003`

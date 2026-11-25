@@ -1,0 +1,22 @@
+{
+  "input_commit": "431babdcde8fe33a6714e6cf7844dc616ca4b06b",
+  "modified_file": "install.sh",
+  "original_sha256": "aac5561c0425c2e5a7afa941799c6beb75ec3c1b198350b6c365e07e69edb86c",
+  "modified_sha256": "def7ba646a4a9c9b805959d4433c47115fe6ca5808d0441da2019c0fa6130232",
+  "only_change": "Default SKIP_MCP value 1 → 0 in temporary isolated checkout",
+  "command": "node --test --test-name-pattern=install.sh places dashboard CLI runtime tests/v2-mcp-server.test.mjs",
+  "exit_code": 1,
+  "output_sha256": "4aea7cdbdb61f2bb2e12529315254747197b80a1f1f11ef3c6110b92de745f18",
+  "expected_result": "Default profile changes and new test fails at the unchanged-config equality assertion.",
+  "observed_result": "Unexpected [mcp_servers.sdd-forge-mcp], command=node and entry path in the default profile",
+  "summaries": [
+    "ℹ tests 1",
+    "ℹ suites 1",
+    "ℹ pass 0",
+    "ℹ fail 1",
+    "ℹ cancelled 0",
+    "ℹ skipped 0",
+    "ℹ todo 0",
+    "ℹ duration_ms 3183.776583"
+  ]
+}

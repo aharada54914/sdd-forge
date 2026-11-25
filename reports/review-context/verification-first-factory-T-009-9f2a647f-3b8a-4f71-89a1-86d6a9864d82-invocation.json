@@ -1,0 +1,131 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "verification-first-factory",
+  "task_id": "T-009",
+  "run_id": "9f2a647f-3b8a-4f71-89a1-86d6a9864d82",
+  "host_session_id": "01a213e4-e38e-78a1-99e2-30b564258553",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "9d16cdb104ca2f6eb987d036bbc55a8ae09ba6aa5709062c8341f4f9e350e8da",
+  "previous_record_sha256": "046d144336dcf107f5db9ee2fff333415633180749391592b32438181fe53d83",
+  "sequence": 1198,
+  "implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-009/main-integration/registration-followup/task-input-manifest.json",
+    "sha256": "fd5c73b91a815292aab566917de1a8c3ba6db37ae463c5f059df58af578356fb"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "contracts/sdd-mcp.v2.schema.json",
+      "sha256": "eb3bd9e3e3f41da34d7396936e8d488a047927811ab6f08e29643090f82d18a8"
+    },
+    {
+      "path": "install.sh",
+      "sha256": "aac5561c0425c2e5a7afa941799c6beb75ec3c1b198350b6c365e07e69edb86c"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "sha256": "35cc604f0ce9837fd109b397db8d4702978348e584896a53a87a3f6f0db1e5dd"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package.json",
+      "sha256": "23b00d05eda316382c519bece5687c57a2821d1a489740bfd50861698ae7b8cb"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/server.ts",
+      "sha256": "7e5a84beea66f839a299485eda3053347284564a8a1753413b4a81057b2c64bb"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/v2.ts",
+      "sha256": "c7f43b09a1cb39e2f2e9fb241109524a292572baa30512676f721b392a9c3d25"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "sha256": "9122b5cce0bac86e246975a4586e636586a9435077c6ca759c7295c0e85add88"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "sha256": "1a4de21844d83391b1e630a59b0197ecb260d223350aa637621ad7a5e6bbac36"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648"
+    },
+    {
+      "path": "reports/implementation/verification-first-factory/T-009.md",
+      "sha256": "b26b708ec60eed4520b8444b57c5fa498f0998bef27b0afedff4671a2d920a9b"
+    },
+    {
+      "path": "reports/quality-gate/verification-first-factory-T-009.execution.json",
+      "sha256": "5b208e3609ac48cabfdecccb9ff67815ecaee26fbf98748938c8b66731cbcbb8"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/compatibility.json",
+      "sha256": "126fa7f2d743b6cf392a108e55abcd324719be4c8d7a54410be1f47c838e5479"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/final/task-input-manifest.json",
+      "sha256": "0bba9182677319c3a4af7480b029facb110a0f4e49def14771b33390da8a63b7"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/final/test-result.log",
+      "sha256": "25b9e32c49a5c632ce7d15115c13e948b58e5e70f5e8a49241f31a1d3dd9ea7c"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/registration-followup/installer-sensitivity.json",
+      "sha256": "6a29bcf320b69260e02e1ec5750b3a59a9124e491c75e9034ac426f0832f471e"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/registration-followup/task-input-manifest.json",
+      "sha256": "fd5c73b91a815292aab566917de1a8c3ba6db37ae463c5f059df58af578356fb"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/registration-followup/test-result.log",
+      "sha256": "910711a2a9e785881f3648843cad498c0b9b4dac46e9dedf01a339b522872980"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/task-input-manifest.json",
+      "sha256": "b2e6fa7bf01b24b20b4ee9521d048cc154e762eee648e9edf9cd2651b1adff9c"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/test-result.log",
+      "sha256": "57221f03a56458deb767bbddae73e8148306a78c9fd6702ce110435236b6632f"
+    },
+    {
+      "path": "tests/v2-mcp-server.test.mjs",
+      "sha256": "9d56d3461fa8671e47a67aa9b05e7b2bc979ea8b9109ab2350345c02a11d80a3"
+    },
+    {
+      "path": "tests/v2-software-factory.test.mjs",
+      "sha256": "16dd405595007f68712c2099e63878fc9f8fdf27743c26f5ce5818c68530c27e"
+    },
+    {
+      "path": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "f4ea8c7e687689638ecd4fe7cb27d242557cdb9b400288c50c3e3f39145ed5a8"
+    }
+  ],
+  "scratch_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-reg-independent-_e93zh4i"
+}
