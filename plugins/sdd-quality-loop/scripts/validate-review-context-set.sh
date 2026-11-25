@@ -1212,7 +1212,10 @@ fi
 record_hash=$(printf '%s' "$record_text" | sha256_text)
 if $reserve; then
   lock_dir="$ledger.lock"
-  mkdir "$lock_dir" 2>/dev/null ||
+  # Reservation needs the mkdir syscall's exclusive result. Some coreutils
+  # implementations report success when a concurrent mkdir actually got EEXIST.
+  command -v python3 >/dev/null 2>&1 || fail RUNTIME 'deterministic-runtime-unavailable: python3'
+  python3 -c 'import os, sys; os.mkdir(sys.argv[1])' "$lock_dir" 2>/dev/null ||
     fail IDENTITY 'canonical identity ledger reservation is already in progress'
   trap 'rm -f "${temp_ledger:-}"; rmdir "${lock_dir:-}" 2>/dev/null || true' EXIT
   [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]] ||

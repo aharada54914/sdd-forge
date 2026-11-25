@@ -54,7 +54,9 @@ class Reservation(unittest.TestCase):
 
     def test_successful_reservation_must_publish_the_winning_actor(self):
         replay = {
-            "calls": [{"actor": "a", "exit_code": 0}, {"actor": "b", "exit_code": 1}],
+            "calls": [{"actor": "a", "exit_code": 0}, {"actor": "b", "exit_code": 1,
+                       "stderr": "IDENTITY canonical identity ledger reservation is already in progress"}],
+            "entered": ["a"],
             "ledger": {"records": []},
         }
         self.assertFalse(P.expected_replay(replay, False))
@@ -62,14 +64,17 @@ class Reservation(unittest.TestCase):
         self.assertFalse(P.expected_replay(replay, False))
         replay["ledger"]["records"] = [{"run_id": "a"}]
         self.assertTrue(P.expected_replay(replay, False))
+        replay["entered"].append("b")
+        self.assertFalse(P.expected_replay(replay, False))
 
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
         "POSIX jq/sha256sum replay only",
     )
     def test_mutation_and_baseline(self):
-        self.assertEqual(P.real_race(True)["accepted"], 2)
-        self.assertEqual(P.real_race(False)["accepted"], 1)
+        for mutated in (True, False):
+            replay = P.real_race(mutated)
+            self.assertTrue(P.expected_replay(replay, mutated), replay)
 
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),

@@ -15,7 +15,8 @@ MODEL = ROOT / "tests/fixtures/project-skills/formal-review-reservation"
 SOURCE = ROOT / "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 JAR_SHA256 = "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
 ASSET_ID = 184694200  # GitHub release asset id of tla2tools.jar under tag v1.7.4
-ACQUIRE = "  mkdir \"$lock_dir\" 2>/dev/null ||\n    fail IDENTITY 'canonical identity ledger reservation is already in progress'"
+ACQUIRE = """  python3 -c 'import os, sys; os.mkdir(sys.argv[1])' "$lock_dir" 2>/dev/null ||
+    fail IDENTITY 'canonical identity ledger reservation is already in progress'"""
 RELEASE = (
     "  rmdir \"$lock_dir\" ||\n    fail IO 'cannot release identity-ledger reservation'"
 )
@@ -33,6 +34,22 @@ def reservation_tail():
     ):
         raise ValueError("source mapping stale")
     return tail
+
+
+def wait_for_barrier(ready, processes, deadline, *, allow_exit=False):
+    while True:
+        arrived = [path.exists() for path in ready]
+        exited = [p.poll() is not None for p in processes]
+        if all(arrived):
+            return
+        unfinished = [done for reached, done in zip(arrived, exited) if not reached]
+        if allow_exit and any(arrived) and all(unfinished):
+            return
+        if (not allow_exit and any(unfinished)) or all(exited):
+            raise RuntimeError("replay contender exited before synchronization")
+        if time.monotonic() >= deadline:
+            raise TimeoutError("replay synchronization timeout")
+        time.sleep(0.01)
 
 
 def real_race(mutated=False, *, barrier_timeout=10):
@@ -61,22 +78,26 @@ previous_record_sha256=""
 record_hash=$run_id
 scratch_binding=""
 input_binding=""
+exec 9>"${ledger}.${run_id}.trace"
+BASH_XTRACEFD=9
+PS4='+ ${LINENO}: '
+set -x
 fail() { echo "$*" >&2; exit 1; }
 sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
+check_feature_scratch_history() {
+  touch "${ledger}.${run_id}.entered"
+  while [ ! -f "${ledger}.release" ]; do sleep 0.01; done
+}
+touch "${ledger}.${run_id}.ready"
+while [ ! -f "${ledger}.start" ]; do sleep 0.01; done
 """
-        setup += (
-            'check_feature_scratch_history() {\n'
-            '  touch "${ledger}.${run_id}.ready"\n'
-            '  while [ ! -f "${ledger}.release" ]; do sleep 0.01; done\n'
-            '}\n'
-            if mutated else 'check_feature_scratch_history() { :; }\n'
-        )
         script = root / "race.sh"
         script.write_text(setup + tail)
+        actors = ("a", "b")
         processes = []
         results = []
         try:
-            for actor in ("a", "b"):
+            for actor in actors:
                 processes.append(
                     subprocess.Popen(
                         ["bash", str(script), str(ledger), actor, bound],
@@ -84,17 +105,15 @@ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
                         stderr=subprocess.PIPE,
                     )
                 )
-            if mutated:
-                deadline = time.monotonic() + barrier_timeout
-                ready = [root / (ledger.name + "." + actor + ".ready") for actor in ("a", "b")]
-                while not all(path.exists() for path in ready):
-                    if any(p.poll() is not None for p in processes):
-                        raise RuntimeError("negative replay contender exited before synchronization")
-                    if time.monotonic() >= deadline:
-                        raise TimeoutError("negative replay synchronization timeout")
-                    time.sleep(0.01)
-                (root / (ledger.name + ".release")).touch()
-            for actor, p in zip(("a", "b"), processes):
+            ready = [root / f"{ledger.name}.{actor}.ready" for actor in actors]
+            entered = [root / f"{ledger.name}.{actor}.entered" for actor in actors]
+            wait_for_barrier(ready, processes, time.monotonic() + barrier_timeout)
+            (root / f"{ledger.name}.start").touch()
+            # Hold each real writer after its ledger hash check. In the baseline
+            # its peer must finish its attempt before the holder can release.
+            wait_for_barrier(entered, processes, time.monotonic() + barrier_timeout, allow_exit=not mutated)
+            (root / f"{ledger.name}.release").touch()
+            for actor, p in zip(actors, processes):
                 out, err = p.communicate(timeout=10)
                 results.append(
                     {
@@ -104,24 +123,41 @@ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
                         "stderr": err.decode(),
                     }
                 )
+        except (RuntimeError, TimeoutError) as error:
+            diagnostics = [str(error)]
+            for actor in actors:
+                trace = root / f"{ledger.name}.{actor}.trace"
+                if trace.exists():
+                    diagnostics.append(f"actor {actor}, last Bash commands:\n{trace.read_text()[-2000:]}")
+            raise type(error)("\n".join(diagnostics)) from error
         finally:
             for p in processes:
                 if p.poll() is None:
                     p.kill()
                 p.communicate()
-        return {
+        replay = {
             "accepted": sum(r["exit_code"] == 0 for r in results),
             "calls": results,
+            "entered": [actor for actor, marker in zip(actors, entered) if marker.exists()],
             "ledger": json.loads(ledger.read_text()),
         }
+        if not expected_replay(replay, mutated):
+            for call in results:
+                call["bash_trace"] = (root / f"{ledger.name}.{call['actor']}.trace").read_text()
+        return replay
 
 
 def expected_replay(replay, mutated):
     accepted = [call["actor"] for call in replay["calls"] if call["exit_code"] == 0]
+    if replay["entered"] != accepted:
+        return False
     if mutated:
         return len(accepted) == 2
     records = replay["ledger"]["records"]
-    return len(accepted) == 1 and [record["run_id"] for record in records] == accepted
+    refused = [call for call in replay["calls"] if call["exit_code"] != 0]
+    return (len(accepted) == 1 and [record["run_id"] for record in records] == accepted
+            and len(refused) == 1 and refused[0]["exit_code"] == 1
+            and "IDENTITY canonical identity ledger reservation is already in progress" in refused[0]["stderr"])
 
 
 def expected_tlc_result(result, mutated):
