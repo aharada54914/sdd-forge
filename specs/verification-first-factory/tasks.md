@@ -18,15 +18,17 @@
 - **Scope:** `docs/adr/0053-verification-first-and-agentic-factory.md`, `sdd/guardrails.example.yaml`, `plugins/sdd-quality-loop/scripts/v2/{guardrails-lib,check-spec-drift,sdd-doctor}.mjs`
 - **Verification (`AC-008`, `AC-009`, `AC-012`, `AC-013`):** `python3 tests/verification.py --profile local-posix`
 
-### T2（軸A先行）: 本体 Self-Fitness Functions 導入 ＆ カテゴリ1（v1残骸）・カテゴリ4（散在整合スクリプト）の安全廃止
+### T2（軸A先行）: 本体 Self-Fitness Functions 導入 ＆ カタログ実測に基づくゴースト56件・CI外196件の仕分け・カテゴリ1/4の安全廃止
 - **Status:** `Todo`
 - **Approval:** `Draft`
 - **Covers:** `SELF-REQ-003`, `SELF-REQ-006`（カテゴリ1・4）, `NFR-002`
-- **Scope:** `tests/self-fitness.test.mjs`（新規）, `tests/verification-catalog.json`, `tests/verification-timings.json`, 承認済み廃止対象テスト（`resolve-project-context-*`, `human-copy-*`, `rollback-1.5.0`, `doc-diagrams.*` 等）
+- **Scope:** `tests/self-fitness.test.mjs`（新規）, `tests/verification-catalog.json`, `tests/verification-timings.json`, `docs/operations/verification-catalog-status.md`, 承認済み廃止対象テスト（`resolve-project-context-*`, `human-copy-*`, `rollback-1.5.0`, `doc-diagrams.*` 等）
+- **Measured Baseline (`node tests/verification-catalog-status.mjs`, 2026-11-25):**
+  - 登録 262 スイートの内訳：現行 CI 稼働 **10 件**（6ジョブ：`v2-guardrails`, `sdd-forge-mcp-v2`, `mcp-tests`, `cloud-and-ddd`, `installers`, `required-checks`）／ **CI 外（ファイル残存・未実行）196 件**（`posix-regression` 57, `test` 42, `version-gates` 39, `loops-routing` 23, `test-windows-heavy` 17 他）／ **廃止済みゴースト登録 56 件**（`version-gates` 39, `test` 7, `posix-regression` 4, `test-windows-heavy` 3, `cli-hook-enforcement` 2, `windows-powershell` 1）。
 - **Implementation Notes:**
-  - `node tests/verification-catalog-status.mjs` で `unwired` / v1 残骸を確定し、`## Spec Amendments` に廃止リストを明記。
-  - `v2-readonly-core.mjs` 純粋性、`sdd-soft-guard.mjs` 300行/200ms ガード、4 CLI パリティ、Doc-Gardening を `tests/self-fitness.test.mjs` に実装し、負例検知パリティ確認後にカテゴリ1・4を廃止。
-- **Verification (`SELF-AC-003`, `SELF-AC-006`):** `node --test tests/self-fitness.test.mjs` および `verification-timings.json` 削減確認
+  - まずゴースト登録 56 件を `tests/verification-catalog.json` から掃除し、CI 外 196 件を「①即廃止（v1残骸）」「②Self-Fitness / TLA+ 置換対象」「③CI 復帰対象（例：`tests/project-skill-formal.tests.py` → T4 へ引き継ぎ）」の3区分に確定して `## Spec Amendments` へ明記する。
+  - `v2-readonly-core.mjs` 純粋性、`sdd-soft-guard.mjs` 300行/200ms ガード、4 CLI パリティ、Doc-Gardening を `tests/self-fitness.test.mjs` に実装し、負例検知パリティ確認後にカテゴリ1・4を廃止する。
+- **Verification (`SELF-AC-003`, `SELF-AC-006`):** `node --test tests/self-fitness.test.mjs`, `node tests/verification-catalog-status.mjs --write`（ゴースト 0 件確認）および `verification-timings.json` 削減確認
 
 ---
 
