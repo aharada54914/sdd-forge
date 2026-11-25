@@ -38147,7 +38147,7 @@ function extractScopePaths(taskBlock) {
   return [...new Set(paths)];
 }
 var SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
-var SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~]+$/;
+var SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~()]+$/;
 function bareScopeTokens(text) {
   const words = stripScopeNote(text).split(/\s+/).filter(Boolean).map(stripScopeNote);
   if (words.length === 1) {
@@ -38158,26 +38158,37 @@ function bareScopeTokens(text) {
   );
 }
 function stripScopeNote(token) {
-  return String(token).replace(/\([^()]*\)|（[^（）]*）/g, " ").replace(/[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
+  return String(token).replace(/(?<!\/)(?:\([^()]*\)|（[^（）]*）)(?!\/)/g, " ").replace(/(?<!\/)[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
 }
 var MAX_SCOPE_ALTERNATIVES = 64;
 function expandScopeToken(token) {
   const cleaned = String(token);
   if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
-  const groups = [...cleaned.matchAll(/\{([^{}]*,[^{}]*)\}/g)];
-  const total = groups.reduce((n, g) => n * g[1].split(",").length, 1);
-  if (total > MAX_SCOPE_ALTERNATIVES) return ["**"];
-  return expandBraces(cleaned);
-}
-function expandBraces(cleaned) {
-  const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
-  if (!brace) {
-    const normalized = normalizeRelPath(cleaned);
-    return normalized ? [normalized] : [];
+  let pending = [cleaned];
+  const done = [];
+  while (pending.length > 0) {
+    const next = [];
+    for (const item of pending) {
+      const brace = innermostBraceList(item);
+      if (!brace) {
+        done.push(item);
+        continue;
+      }
+      for (const alt of brace.alternatives) next.push(`${brace.head}${alt}${brace.tail}`);
+    }
+    if (done.length + next.length > MAX_SCOPE_ALTERNATIVES) return ["**"];
+    pending = next;
   }
-  const head = cleaned.slice(0, brace.index);
-  const tail = cleaned.slice(brace.index + brace[0].length);
-  return brace[1].split(",").flatMap((alt) => expandBraces(`${head}${alt}${tail}`));
+  return [...new Set(done.map((p) => normalizeRelPath(p)).filter(Boolean))];
+}
+function innermostBraceList(text) {
+  const match = /\{([^{}]*,[^{}]*)\}/.exec(text);
+  if (!match) return null;
+  return {
+    head: text.slice(0, match.index),
+    tail: text.slice(match.index + match[0].length),
+    alternatives: match[1].split(",")
+  };
 }
 function canonicalScopeEntry(io, entry) {
   if (!io || typeof io.canonicalRelPath !== "function") return entry;
@@ -38315,7 +38326,7 @@ function isTestPath(relPath) {
   const lower = normalizeRelPath(relPath).toLowerCase();
   return lower.startsWith("tests/") || lower.startsWith("test/") || lower.includes("/tests/") || lower.includes("/__tests__/") || /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower);
 }
-var APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
+var APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === "function" ? io.existsButUnreadable(relPath) : io.exists(relPath);
 }
@@ -38343,7 +38354,7 @@ function taskEvidenceInputs(io, { feature, taskId }) {
   const designRaw = io.readText(`specs/${feature}/design.md`);
   return {
     schema: "sdd-task-evidence-inputs/v1",
-    task: sha256Text(task.block.replace(/^[ \t]*(?:Status|Approval):[ \t]*.*$/gm, "<NORMALIZED>").trim()),
+    task: sha256Text(task.block.replace(/^[ \t]*Status:[ \t]*.*$/gm, "<NORMALIZED>").replace(APPROVAL_FIELD_RE, "<NORMALIZED>").trim()),
     ids,
     design: designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"))
   };

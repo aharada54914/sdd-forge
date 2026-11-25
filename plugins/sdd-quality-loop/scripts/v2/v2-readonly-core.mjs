@@ -394,7 +394,7 @@ export function extractScopePaths(taskBlock) {
 }
 
 const SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
-const SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~]+$/;
+const SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~()]+$/;
 
 // A bare Scope bullet names a path either as its only word, or as words that
 // look like file paths inside prose ("src/a.ts を更新", "a.ts / b.ts"): a file
@@ -413,37 +413,52 @@ function bareScopeTokens(text) {
 
 // "src/a.ts(note)", "src/a.ts （note）", "src/a.ts:" and an unclosed note that
 // continues on the next line all name src/a.ts.
+// A parenthesized directory between slashes (a route group such as
+// src/app/(admin)/page.tsx) is part of the path, not a note.
 function stripScopeNote(token) {
   return String(token)
-    .replace(/\([^()]*\)|（[^（）]*）/g, ' ')
-    .replace(/[(（].*$/, '')
+    .replace(/(?<!\/)(?:\([^()]*\)|（[^（）]*）)(?!\/)/g, ' ')
+    .replace(/(?<!\/)[(（].*$/, '')
     .trim()
     .replace(/[:,;、。]+$/, '');
 }
 
 const MAX_SCOPE_ALTERNATIVES = 64;
 
-// One level of brace alternatives per group: "src/{a,b}.ts" -> src/a.ts, src/b.ts.
-// Past MAX_SCOPE_ALTERNATIVES the entry stands for everything ('**'), so the
-// task runs alone instead of the planner expanding exponentially.
+// Brace alternatives, nested or not: "src/{a,{b,c}}.ts" -> src/a.ts, src/b.ts,
+// src/c.ts. Expansion is breadth-first and stops at MAX_SCOPE_ALTERNATIVES:
+// beyond it the entry stands for everything ('**'), so the task runs alone
+// and a short line cannot make the planner expand exponentially.
 function expandScopeToken(token) {
   const cleaned = String(token);
   if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
-  const groups = [...cleaned.matchAll(/\{([^{}]*,[^{}]*)\}/g)];
-  const total = groups.reduce((n, g) => n * g[1].split(',').length, 1);
-  if (total > MAX_SCOPE_ALTERNATIVES) return ['**'];
-  return expandBraces(cleaned);
+  let pending = [cleaned];
+  const done = [];
+  while (pending.length > 0) {
+    const next = [];
+    for (const item of pending) {
+      const brace = innermostBraceList(item);
+      if (!brace) {
+        done.push(item);
+        continue;
+      }
+      for (const alt of brace.alternatives) next.push(`${brace.head}${alt}${brace.tail}`);
+    }
+    if (done.length + next.length > MAX_SCOPE_ALTERNATIVES) return ['**'];
+    pending = next;
+  }
+  return [...new Set(done.map((p) => normalizeRelPath(p)).filter(Boolean))];
 }
 
-function expandBraces(cleaned) {
-  const brace = /\{([^{}]*,[^{}]*)\}/.exec(cleaned);
-  if (!brace) {
-    const normalized = normalizeRelPath(cleaned);
-    return normalized ? [normalized] : [];
-  }
-  const head = cleaned.slice(0, brace.index);
-  const tail = cleaned.slice(brace.index + brace[0].length);
-  return brace[1].split(',').flatMap((alt) => expandBraces(`${head}${alt}${tail}`));
+// The first innermost {x,y} group (no braces inside), split into its parts.
+function innermostBraceList(text) {
+  const match = /\{([^{}]*,[^{}]*)\}/.exec(text);
+  if (!match) return null;
+  return {
+    head: text.slice(0, match.index),
+    tail: text.slice(match.index + match[0].length),
+    alternatives: match[1].split(','),
+  };
 }
 
 // The real location of a Scope entry, so two spellings of one file (a
@@ -614,7 +629,9 @@ function isTestPath(relPath) {
   );
 }
 
-const APPROVAL_FIELD_RE = /^[ \t]*Approval:[ \t]*.*$/gm;
+// Only a line that is exactly an approval value is normalized; any other text
+// on the line (a waiver, a scope note) stays part of the contract hash.
+const APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
 
 // An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
 // but unreadable"; IOs without the method fall back to exists().
@@ -659,7 +676,7 @@ export function taskEvidenceInputs(io, { feature, taskId }) {
   const designRaw = io.readText(`specs/${feature}/design.md`);
   return {
     schema: 'sdd-task-evidence-inputs/v1',
-    task: sha256Text(task.block.replace(/^[ \t]*(?:Status|Approval):[ \t]*.*$/gm, '<NORMALIZED>').trim()),
+    task: sha256Text(task.block.replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>').replace(APPROVAL_FIELD_RE, '<NORMALIZED>').trim()),
     ids,
     design: designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md')),
   };

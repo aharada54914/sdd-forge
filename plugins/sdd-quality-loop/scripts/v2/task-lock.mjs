@@ -54,6 +54,31 @@ function readLockRecord(lockPath) {
   }
 }
 
+// Renewal never rewrites the lock file (that would open a moment with no lock,
+// or overwrite a lock someone else took). It writes a lease next to it, bound
+// to the lock's owner and acquiredAt; a lease for any other lock is ignored.
+function leasePath(lockPath) {
+  return `${lockPath}.lease`;
+}
+
+function withLease(record, lockPath) {
+  if (!record || typeof record !== 'object') return record;
+  const lease = readLockRecord(leasePath(lockPath));
+  if (!lease || lease.owner !== record.owner || lease.acquiredAt !== record.acquiredAt) return record;
+  const leaseMs = Date.parse(lease.expiresAt || '');
+  const ownMs = Date.parse(record.expiresAt || '');
+  if (!Number.isFinite(leaseMs) || (Number.isFinite(ownMs) && ownMs >= leaseMs)) return record;
+  return { ...record, expiresAt: lease.expiresAt, renewedAt: lease.renewedAt };
+}
+
+function removeQuietly(p) {
+  try {
+    fs.unlinkSync(p);
+  } catch {
+    // already gone
+  }
+}
+
 function evaluateStale(record, nowMs = Date.now()) {
   if (!record || typeof record !== 'object') {
     return { stale: true, reason: 'corrupt-lock-file' };
@@ -75,7 +100,7 @@ export function getLockStatus({ feature, taskId = null, projectRoot = null }) {
   if (!fs.existsSync(lockPath)) {
     return { locked: false, stale: false, lockPath, record: null };
   }
-  const record = readLockRecord(lockPath);
+  const record = withLease(readLockRecord(lockPath), lockPath);
   const { stale, reason } = evaluateStale(record);
   return { locked: true, stale, staleReason: reason, lockPath, record };
 }
@@ -118,7 +143,7 @@ export function acquireLock({
       return { acquired: true, lockPath, record };
     } catch (err) {
       if (!err || err.code !== 'EEXIST') throw err;
-      const existing = readLockRecord(lockPath);
+      const existing = withLease(readLockRecord(lockPath), lockPath);
       const { stale, reason } = evaluateStale(existing);
       // The holder renews its own lock, also after its TTL ran out; the claim
       // in renewLock fails if someone else reclaimed it meanwhile.
@@ -135,7 +160,7 @@ export function acquireLock({
           // Another process already reclaimed or replaced the lock; fail closed.
           continue;
         }
-        const claimed = readLockRecord(claimPath);
+        const claimed = withLease(readLockRecord(claimPath), lockPath);
         const claimedEval = evaluateStale(claimed);
         if (claimedEval.stale) {
           try {
@@ -180,63 +205,43 @@ export function acquireLock({
   return { acquired: false, lockPath, stale: false, message: 'Lock contention.' };
 }
 
-// Re-entry by the holder: keep acquiredAt, extend expiresAt. The lock file is
-// first moved aside (only one process can win that rename), checked to be the
-// record that was read, and the renewed record is then linked in, which fails
-// rather than overwrite a lock another worker created meanwhile. Returns null
-// when the lock was already gone, so the caller can try to create it.
+// Re-entry by the holder: write a lease for this exact lock (owner +
+// acquiredAt), then check the lock file still is that lock. The lock file is
+// never moved or rewritten, so there is no moment without a lock and no lock
+// of another owner can be overwritten. Returns null when the lock vanished
+// (released meanwhile), so the caller can try to create it.
 function renewLock(lockPath, existing, fresh) {
-  const suffix = `${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
-  const claimPath = `${lockPath}.renew-claim.${suffix}`;
-  try {
-    fs.renameSync(lockPath, claimPath);
-  } catch {
-    return null;
-  }
-  const removeQuietly = (p) => {
-    try {
-      fs.unlinkSync(p);
-    } catch {
-      // already gone
-    }
+  const lease = {
+    schema: 'sdd-task-lock-lease/v1',
+    owner: existing.owner,
+    acquiredAt: existing.acquiredAt,
+    renewedAt: fresh.acquiredAt,
+    expiresAt: fresh.expiresAt,
   };
-  const claimed = readLockRecord(claimPath);
-  if (JSON.stringify(claimed) !== JSON.stringify(existing)) {
-    // Someone replaced the lock after it was read: put theirs back untouched.
-    try {
-      fs.linkSync(claimPath, lockPath);
-    } catch {
-      // a third process already holds lockPath; never overwrite it
-    }
-    removeQuietly(claimPath);
-    return {
-      acquired: false,
-      lockPath,
-      stale: false,
-      existing: claimed,
-      message: `Lock changed while renewing; now held by ${claimed?.owner || 'unknown'}.`,
-    };
-  }
-  const renewed = { ...fresh, acquiredAt: existing.acquiredAt || fresh.acquiredAt };
-  const tmpPath = `${lockPath}.renew.${suffix}`;
-  fs.writeFileSync(tmpPath, `${JSON.stringify(renewed, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+  const tmpPath = `${leasePath(lockPath)}.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
+  fs.writeFileSync(tmpPath, `${JSON.stringify(lease, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
   try {
-    fs.linkSync(tmpPath, lockPath);
-  } catch {
-    const current = readLockRecord(lockPath);
+    fs.renameSync(tmpPath, leasePath(lockPath));
+  } catch (err) {
     removeQuietly(tmpPath);
-    removeQuietly(claimPath);
-    return {
-      acquired: false,
-      lockPath,
-      stale: false,
-      existing: current,
-      message: `Lock was taken by ${current?.owner || 'unknown'} while renewing.`,
-    };
+    throw err;
   }
-  removeQuietly(tmpPath);
-  removeQuietly(claimPath);
-  return { acquired: true, reentrant: true, lockPath, record: renewed };
+  const current = readLockRecord(lockPath);
+  if (current && current.owner === existing.owner && current.acquiredAt === existing.acquiredAt) {
+    return { acquired: true, reentrant: true, lockPath, record: withLease(current, lockPath) };
+  }
+  // The lock changed hands (or was released) after it was read: withdraw the
+  // lease so nothing is left behind; it never applied to another lock anyway.
+  const leftover = readLockRecord(leasePath(lockPath));
+  if (leftover && leftover.owner === lease.owner && leftover.acquiredAt === lease.acquiredAt) removeQuietly(leasePath(lockPath));
+  if (!current) return null;
+  return {
+    acquired: false,
+    lockPath,
+    stale: false,
+    existing: current,
+    message: `Lock changed while renewing; now held by ${current.owner || 'unknown'}.`,
+  };
 }
 
 export function releaseLock({ feature, taskId = null, projectRoot = null, owner = null, force = false }) {
@@ -259,6 +264,7 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner 
     };
   }
   fs.unlinkSync(lockPath);
+  removeQuietly(leasePath(lockPath));
   return { released: true, existed: true, lockPath };
 }
 

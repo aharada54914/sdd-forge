@@ -697,7 +697,7 @@ describe('#972 review: bounded braces and owner renewal after expiry', () => {
   });
 
   it('the owner of an expired lock renews it without --break-stale; another owner still cannot', async () => {
-    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const { acquireLock, getLockStatus } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
     const dir = trackTempDir('sdd-lock-own-expiry-');
     fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
     assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' }).acquired, true);
@@ -711,7 +711,10 @@ describe('#972 review: bounded braces and owner renewal after expiry', () => {
     assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'B' }).acquired, false);
     const renewed = acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' });
     assert.equal(renewed.acquired, true, JSON.stringify(renewed));
-    assert.ok(Date.parse(JSON.parse(fs.readFileSync(lockPath, 'utf8')).expiresAt) > Date.now());
+    const status = getLockStatus({ feature: 'f', projectRoot: dir });
+    assert.equal(status.stale, false);
+    assert.ok(Date.parse(status.record.expiresAt) > Date.now());
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'B' }).acquired, false, 'the renewed lock refuses others');
   });
 });
 
