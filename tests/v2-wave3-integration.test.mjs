@@ -108,6 +108,47 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it('T-008 rebuild compares large binary streams and preserves command exit codes', (t) => {
+    const dir = setupGateProject();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(dir, 'emit.cjs'), [
+      "const fs = require('node:fs');",
+      "const bytes = Buffer.alloc(2 * 1024 * 1024, 0xff);",
+      "for (const fd of [1, 2]) {",
+      "  fs.writeFileSync(fd, bytes);",
+      "  fs.writeFileSync(fd, Buffer.from([String(fd) === process.argv[2] ? 1 : 0]));",
+      "}",
+      "if (process.argv[2] === 'error') process.exitCode = 7;",
+    ].join('\n'));
+    git(dir, 'add', 'emit.cjs');
+    git(dir, 'commit', '-qm', 'rebuild output fixture');
+
+    const run = (arg) => gate(dir, '--mode', 'rebuild', '--baseline-cmd', 'node emit.cjs',
+      '--candidate-cmd', `node emit.cjs ${arg}`);
+    const matching = run('same');
+    const measurement = matching.checks.rebuildDifferential;
+    assert.equal(matching.code, 0, JSON.stringify(measurement));
+    assert.equal(matching.report.verdict, 'PASS');
+    assert.equal(measurement.differentialMatched, true);
+    assert.equal(measurement.nfrPassed, true);
+    for (const side of [measurement.baseline, measurement.candidate]) {
+      assert.equal(side.exitCode, 0);
+      assert.equal(side.samples, 20);
+      assert.ok(side.p95Ms > 0);
+    }
+    for (const arg of ['1', '2', 'error']) {
+      const result = run(arg);
+      const measured = result.checks.rebuildDifferential;
+      assert.equal(result.code, 1);
+      assert.equal(result.report.verdict, 'FAIL');
+      assert.equal(measured.differentialMatched, false);
+      assert.equal(measured.nfrPassed, false);
+      assert.equal(measured.baseline.exitCode, 0);
+      assert.equal(measured.candidate.exitCode, arg === 'error' ? 7 : 0);
+      assert.equal(measured.candidate.samples, 1);
+    }
+  });
+
   it('T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection', (t) => {
     const dir = setupGateProject();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
