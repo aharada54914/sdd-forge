@@ -108,7 +108,7 @@
     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "2d67724fc842505ad8c3fa3b20e6dfdf5ad4709dd89c0fbc6aef38442d9ac594",
     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "2e57f256b3772f59666081e2c0dec7cf69d67081155ae4b624e0df43a90f546f",
     "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02",
-    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "3bdc70b823003dfe798f766ce49bc8d5596e85b56941b6ee0f6806555ebae672",
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648",
     "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
     "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
   }

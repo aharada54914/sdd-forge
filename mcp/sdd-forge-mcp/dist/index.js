@@ -37612,7 +37612,6 @@ var VALID_SECURITY_ADAPTERS = /* @__PURE__ */ new Set([
 ]);
 var VALID_GATE_MODES = /* @__PURE__ */ new Set(["off", "shadow", "warn", "strict"]);
 var VALID_ANTI_TAMPER_MODES = /* @__PURE__ */ new Set(["off", "warn", "strict"]);
-var APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
 var AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 var IDENTIFIER_LINE_RE = /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
 var PLACEHOLDER_AMENDMENT_RE = /^(?:[-*+]\s*)?(?:none(?:\s+yet)?\.?|n\/a|\(none\)|no\s+changes?(?:\s+yet)?\.?|（なし）|なし|（初期版のため変更なし）|初期版[。．.・\s]*変更なし[。．.]?|初期版（変更なし）|\(initial\s+version[^)]*\))$/i;
@@ -38055,10 +38054,6 @@ function matchProtectedSpecRelPath(relPath, config2) {
     feature: featureMatch ? featureMatch[1] : null,
     fileName: path.posix.basename(rel).toLowerCase()
   };
-}
-function countPrimaryApprovals(text) {
-  if (!text) return 0;
-  return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
 }
 function* markdownLines(text) {
   let fence = "";
@@ -38521,6 +38516,14 @@ function stripScopeNote(token) {
   let out = "";
   for (let i = 0; i < text.length; i += 1) {
     const ch = text[i];
+    if (ch === "`") {
+      const end = text.indexOf("`", i + 1);
+      if (end !== -1) {
+        out += text.slice(i, end + 1);
+        i = end;
+        continue;
+      }
+    }
     if (ch !== "(" && ch !== "\uFF08") {
       out += ch;
       continue;
@@ -38884,7 +38887,7 @@ function checkSpecDriftCore(io, { feature, baselineRelPath = null, config: confi
         if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
         else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
       }
-    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256 && sha256Text(rawText) !== baseInfo?.rawSha256) {
       changedFiles.push(safeRel);
     }
     const curIds = extractSpecIdentifiers(rawText);
@@ -39916,8 +39919,9 @@ function runDoctorCore(io, {
     const relTasks = `specs/${entry.name}/tasks.md`;
     const content = io.readText(relTasks);
     if (content === null) continue;
-    const approvedCount = countPrimaryApprovals(content);
-    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
+    const tasks = parseTasksSummary(content);
+    const approvedCount = tasks.filter((task) => isApprovedValue(task.approval)).length;
+    const hasActiveTask = tasks.some((task) => /^(?:Planned|In Progress|Implementation Complete|Blocked)$/.test(task.status));
     const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
     if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
       addFinding(
@@ -39929,7 +39933,7 @@ function runDoctorCore(io, {
         `record-spec-baseline.mjs --feature ${entry.name} \u3092\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044`
       );
     }
-    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
+    if (tasks.some((task) => task.status === "In Progress")) {
       const mtimeMs = io.statMtimeMs(relTasks);
       if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
         const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1e3));
