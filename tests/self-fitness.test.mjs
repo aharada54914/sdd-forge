@@ -88,27 +88,32 @@ function checkHostParity(read) {
     if (manifest.name !== 'sdd-quality-loop' || manifest.version !== version) violations.push(manifestPath);
     if (hookPath.startsWith('hooks/') && manifest.hooks?.replace(/^\.\//, '') !== hookPath) violations.push(manifestPath);
     const hooks = read(hookPath);
-    let commands;
-    let protocol;
     if (hookPath.includes('copilot')) {
       const hook = hooks.hooks.preToolUse?.[0];
-      if (hook?.type !== 'command') violations.push(hookPath);
-      commands = [hook?.bash, hook?.powershell];
-      protocol = 'copilot';
-    } else {
-      const groups = hookPath === 'hooks.json' ? hooks['sdd-soft-guard']?.PreToolUse
-        : hookPath.startsWith('gemini/') ? hooks.hooks?.BeforeTool : hooks.hooks?.PreToolUse;
-      const hook = groups?.[0]?.hooks?.[0];
-      if (groups?.[0]?.matcher !== '*' || hook?.type !== 'command') violations.push(hookPath);
-      commands = [[hook?.command, ...(hook?.args ?? [])].join(' ')];
-      if (hookPath.includes('codex')) commands.push(hook?.command_windows);
-      protocol = hookPath === 'hooks.json' ? 'antigravity' : hookPath.includes('gemini') ? 'gemini' : 'exit';
+      const bashTarget = /(?:^|;)\s*node "\$root\/scripts\/v2\/sdd-soft-guard\.mjs" --emit copilot\s*$/;
+      const psTarget = /\$guard\s*=\s*if\s*\(\$root\)\s*\{\s*Join-Path \$root 'scripts\/v2\/sdd-soft-guard\.mjs'\s*\}/;
+      if (hook?.type !== 'command' || !bashTarget.test(hook.bash) || !psTarget.test(hook.powershell)
+          || !/& node \$guard --emit copilot\s*$/.test(hook.powershell)) violations.push(hookPath);
+      continue;
     }
-    for (const command of commands) {
-      const normalized = (command ?? '').replaceAll("','", ' ').replaceAll("'", '');
-      if (!/\bnode\s/.test(normalized) || !normalized.includes('sdd-soft-guard.mjs') || !new RegExp(`--emit\\s+${protocol}(?=[\\s")\\],;]|$)`).test(normalized)) {
-        violations.push(hookPath);
-      }
+    const groups = hookPath === 'hooks.json' ? hooks['sdd-soft-guard']?.PreToolUse
+      : hookPath.startsWith('gemini/') ? hooks.hooks?.BeforeTool : hooks.hooks?.PreToolUse;
+    const hook = groups?.[0]?.hooks?.[0];
+    if (groups?.[0]?.matcher !== '*' || hook?.type !== 'command') {
+      violations.push(hookPath);
+      continue;
+    }
+    if (hookPath.includes('claude')) {
+      const args = ['${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs', '--emit', 'exit'];
+      if (hook.command !== 'node' || JSON.stringify(hook.args) !== JSON.stringify(args)) violations.push(hookPath);
+    } else if (hookPath.includes('codex')) {
+      const posix = 'node "${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/v2/sdd-soft-guard.mjs" --emit exit';
+      const windows = /cp\.spawnSync\(process\.execPath,\s*\[p\.join\(r,\s*'scripts',\s*'v2',\s*'sdd-soft-guard\.mjs'\),\s*'--emit',\s*'exit'\]/;
+      if (hook.command !== posix || !windows.test(hook.command_windows)) violations.push(hookPath);
+    } else {
+      const command = hookPath === 'hooks.json' ? 'node ./scripts/v2/sdd-soft-guard.mjs --emit antigravity'
+        : 'node "${extensionPath}/../scripts/v2/sdd-soft-guard.mjs" --emit gemini';
+      if (hook.command !== command) violations.push(hookPath);
     }
   }
   return violations;
@@ -182,6 +187,32 @@ describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () =>
         return data;
       };
       assert.ok(checkHostParity(mutate).length, target);
+    }
+  });
+
+  it('rejects a directory-only change to each host guard invocation', () => {
+    const cases = [
+      ['hooks/claude-hooks.json', data => data.hooks.PreToolUse[0].hooks[0].args, 0],
+      ['hooks/codex-hooks.json', data => data.hooks.PreToolUse[0].hooks[0], 'command'],
+      ['hooks/codex-hooks.json', data => data.hooks.PreToolUse[0].hooks[0], 'command_windows'],
+      ['hooks/copilot-hooks.json', data => data.hooks.preToolUse[0], 'bash'],
+      ['hooks/copilot-hooks.json', data => data.hooks.preToolUse[0], 'powershell'],
+      ['hooks.json', data => data['sdd-soft-guard'].PreToolUse[0].hooks[0], 'command'],
+      ['gemini/hooks/hooks.json', data => data.hooks.BeforeTool[0].hooks[0], 'command'],
+    ];
+    for (const [target, select, key] of cases) {
+      const read = rel => {
+        const data = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', rel), 'utf8'));
+        if (rel === target) {
+          const command = select(data);
+          // Copilot Bash checks existence first. Change only the executable target.
+          const index = command[key].lastIndexOf('v2');
+          assert.ok(index >= 0);
+          command[key] = command[key].slice(0, index) + 'v3' + command[key].slice(index + 2);
+        }
+        return data;
+      };
+      assert.ok(checkHostParity(read).includes(target), target + ' ' + key);
     }
   });
 
