@@ -43,7 +43,7 @@ flowchart TD
 |---|---|---|
 | **Layer 1: 編集時ソフトガード** | `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs` | Node.js ESM 単一実装（5 環境対応: Claude / Codex / Copilot / Antigravity / Gemini）。① `AGENT_STOP` 緊急停止 ② `Approval: Approved` 自己追加抑止 ③ 承認済み仕様本文の編集検知（既定 `confirm`、`sdd/guardrails.yaml` で `warn`/`confirm`/`strict` 設定可）。`Bash` / `shell` / `run_shell_command` / `run_command` / `Read` 等は `AGENT_STOP` 以外ではブロックしません。 |
 | **Layer 2: Spec Drift 検知** | `record-spec-baseline.mjs` / `check-spec-drift.mjs` / `run-sdd-gate.mjs` | 外部署名鍵不要。承認時の仕様契約ハッシュ・`REQ-*` / `AC-*` と比較し、`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` を決定論的に判定（`tasks.md` の `Status:` 更新は誤検知なし）。 |
-| **Layer 3: マージ境界ガバナンス** | `.github/workflows/sdd-guardrails.yml` + `CODEOWNERS` | PR 上で自動テスト＋Spec Drift チェックを実行し、ガード・仕様変更に人間のレビューを強制します。 |
+| **Layer 3: マージ境界ガバナンス** | `.github/workflows/sdd-guardrails.yml` + `CODEOWNERS` | PR 上の自動テストと Spec Drift チェックを必須チェックとし、承認 1 件を要求します（管理者はバイパス可。オーナー承認は必須ではない）。 |
 
 ### リスクレベル別の滑らかな伸縮
 

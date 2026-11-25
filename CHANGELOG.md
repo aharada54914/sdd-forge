@@ -4,6 +4,12 @@
 
 ### Fixed
 
+- **ブランチ保護の文書と定義（Closes #850）**: `.github/rulesets/main.json` の必須チェックを実設定（3 OS の `test`・`required-checks`）に合わせ、Spec Drift チェック（`Lightweight Guardrails & Spec Drift Check`）を追加。脅威モデルと README は「オーナーレビュー必須」と書かず、承認 1 件（管理者はバイパス可）と必須チェックを説明する。必須チェック名が実在する CI ジョブであることをテストで検査する。
+
+## Unreleased
+
+### Fixed
+
 - **MCP 試験 95 件（Closes #871–#965）**: オーナーの `codex/mcp-ddd-next-action` を統合（#974）。各 issue 名の MCP テストがすべて通過する。
 - **寄稿者向け証跡収集 CLI（Closes #865）**: v2.0.0 で廃止した bundle 生成を呼ばず、`--prepare` なしでは何も実行せずに理由を示して停止する。
 - **ドメイン適合の回顧集計（Closes #848）**: v2 の `sdd-gate` は `check-domain-conformance` を実行しないことを契約・ADR・回顧テンプレートに明記。`N/A` は未実行、`0` は実行して指摘なし。
