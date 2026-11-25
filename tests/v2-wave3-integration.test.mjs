@@ -146,7 +146,10 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     fs.writeFileSync(path.join(dir, 'nfr-budget.json'), '{}');
     git(dir, 'commit', '-qam', 'default budget');
-    const rebuild = (...args) => gate(dir, '--mode', 'rebuild', '--baseline-cmd', 'node -v', ...args);
+    // Use the same JS output path on both sides. On Windows node -v and
+    // console.log can emit different line endings, which is a real byte difference.
+    const versionCommand = 'node -e "console.log(process.version)"';
+    const rebuild = (...args) => gate(dir, '--mode', 'rebuild', '--baseline-cmd', versionCommand, ...args);
     const slow = rebuild('--candidate-cmd', 'node -e "setTimeout(() => console.log(process.version), 60)"');
     assert.equal(slow.code, 1);
     assert.equal(slow.checks.rebuildDifferential.differentialMatched, true);
@@ -154,7 +157,7 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     assert.match(slow.checks.rebuildDifferential.nfrViolations.join(' '), /1\.1/);
     fs.writeFileSync(path.join(dir, 'nfr-budget.json'), '{"max_duration_ms":0.1,"max_regression_ratio":10}');
     git(dir, 'commit', '-qam', 'absolute budget');
-    const capped = rebuild('--candidate-cmd', 'node -v');
+    const capped = rebuild('--candidate-cmd', versionCommand);
     assert.equal(capped.code, 1);
     assert.match(capped.checks.rebuildDifferential.nfrViolations.join(' '), /max_duration_ms/);
     const spaces = rebuild('--candidate-cmd', 'node -e "console.log(process.version + String.fromCharCode(32))"');

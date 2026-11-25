@@ -6,9 +6,14 @@ Seed-Source: {{seed_source}}
 
 `Domain-Model-Status` tracks this domain model's review/approval state:
 `Pending` (default; not yet reviewed), `Reviewed` (domain-review-loop
-reached PASS), or `Approved` (a human has signed off by editing this line
-directly). Only a human may set `Approved`; the hook guard rejects an
-agent-authored write of that value. Nothing resets this field automatically:
+reached PASS), or `Approved` (a human has signed off). Approving takes two
+human steps, described in domain-review-loop under "人による承認と契約の発行":
+set this line to `Approved`, then publish the domain contract
+(`domain/domain-contract.json` with `meta.status` `Approved` and the next patch
+version, checked by `validate-domain-contract`). Changing only this line leaves
+the contract `Pending`, and the Concept Test stops with
+`domain model must be approved`. Only a human may set `Approved`; the hook
+guard rejects an agent-authored write of that value. Nothing resets this field automatically:
 `/sdd-domain:domain-model update` sets it back to `Pending` (requiring
 re-review), while a direct edit of an approved `domain/` file leaves it
 `Approved`. If the edited file is one of an existing Concept Test proposal's

@@ -1,31 +1,32 @@
-/**
- * Shared (non-test) helpers for the T-009 resources suite. Reuses the T-004
- * core-tools fixture builder (synthetic SDD repo + in-memory MCP
- * client/server pair) so tool <-> resource parity assertions run against the
- * exact same fixture data. Deliberately not named `*.test.ts` (node:test glob
- * avoidance — see mcp/sdd-forge-mcp/.claude/agent-memory/coder
- * feedback-node-test-shared-helpers).
- */
+import assert from "node:assert/strict";
+import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Result } from "../../src/envelope.js";
+import type { FeatureStateData, ProjectOverviewData } from "../../src/tools/v2.js";
+import { getV2DefValidator } from "../core-tools/test-helpers.js";
 
-import type { ReadResourceResult } from "@modelcontextprotocol/sdk/types.js";
-import { getEnvelopeValidator, makeCoreToolsFixture, parseEnvelope } from "../core-tools/test-helpers.js";
-import type { CoreToolsFixture } from "../core-tools/test-helpers.js";
-
-export type { CoreToolsFixture };
-export { getEnvelopeValidator, makeCoreToolsFixture };
-
-/** Builds the same synthetic fixture the core-tools suite uses, for tool<->resource parity checks. */
-export async function makeResourcesFixture(prefix: string): Promise<CoreToolsFixture> {
-  return makeCoreToolsFixture(prefix);
+interface ResourceData {
+  sdd_project_overview_data: ProjectOverviewData;
+  sdd_feature_state_data: FeatureStateData;
 }
 
-/** Parses a single-content `ReadResourceResult`'s `contents[0].text` as JSON (the v1 envelope). */
-export function parseResourceEnvelope(result: ReadResourceResult): unknown {
-  const first = result.contents[0];
-  if (first === undefined || !("text" in first) || typeof first.text !== "string") {
-    throw new Error(`Expected a text resource content block, got: ${JSON.stringify(result.contents)}`);
+/** Check the wire representation as well as the named v2 payload schema. */
+export async function readResource<K extends keyof ResourceData>(
+  client: Client, uri: string, definition: K,
+): Promise<Result<ResourceData[K]>> {
+  const { contents } = await client.readResource({ uri });
+  assert.equal(contents.length, 1);
+  const [content] = contents;
+  assert.ok(content && "text" in content);
+  assert.equal(content.uri, uri);
+  assert.equal(content.mimeType, "application/json");
+
+  const envelope = JSON.parse(content.text) as Result<ResourceData[K]>;
+  if (envelope.ok === true) {
+    const validate = getV2DefValidator(definition);
+    assert.ok(validate(envelope.data), JSON.stringify(validate.errors));
+  } else {
+    const validate = getV2DefValidator("errorEnvelope");
+    assert.ok(validate(envelope), JSON.stringify(validate.errors));
   }
-  return JSON.parse(first.text);
+  return envelope;
 }
-
-export { parseEnvelope };

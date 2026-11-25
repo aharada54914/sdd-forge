@@ -1010,7 +1010,7 @@ print("true" if result.stdout else "false")
         }
         $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$' -and
             ($declaredInput.path -cmatch '^(domain|design-system)/' -or
-             $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))
+             $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json|\.decision\.json)$'))
         $researchPacketPath = "specs/$($document.feature)/research/review-input.json"
         $researchPath = $declaredInput.path
         $researchHash = $declaredInput.sha256
@@ -1059,7 +1059,14 @@ print("true" if result.stdout else "false")
             $conceptDeclared = $false
             if (@($inputs | Where-Object { $_.path -ceq $conceptRecordPath }).Count -eq 1) {
                 try {
-                    $conceptRecord = Get-Content -Raw -LiteralPath (Join-Path $root $conceptRecordPath) | ConvertFrom-Json -AsHashtable
+                    $conceptRoot = $root
+                    if ($FixedInputRecord) {
+                        if (@($fixedSources | Where-Object { $_.path -ceq $conceptRecordPath }).Count -ne 1) {
+                            throw 'fixed inventory omits Concept Test proposal'
+                        }
+                        $conceptRoot = [IO.Path]::GetFullPath($FixedInputSnapshot)
+                    }
+                    $conceptRecord = Get-Content -Raw -LiteralPath (Join-Path $conceptRoot $conceptRecordPath) | ConvertFrom-Json -AsHashtable
                     $conceptPath = $declaredInput.path
                     $conceptHash = $declaredInput.sha256
                     $conceptDeclared = @($conceptRecord.inputs | Where-Object { $_.path -ceq $conceptPath -and $_.sha256 -ceq $conceptHash }).Count -eq 1
@@ -1067,7 +1074,7 @@ print("true" if result.stdout else "false")
             }
             if ($allowedConditionalPaths -cnotcontains $declaredInput.path -and
                 -not ($conceptDeclared -or ($document.stage -ceq 'impl' -and $declaredInput.path -cmatch '^domain/aggregates/[^/]+\.md$') -or
-                      $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))) {
+                      $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json|\.decision\.json)$'))) {
                 $false
             } elseif ($null -ne $persistedMatch) {
                 $persistedMatch.ContainsKey('allowed_inputs_sha256')
@@ -1089,6 +1096,9 @@ print("true" if result.stdout else "false")
         $inputRoot = $root
         if (@($fixedSources | Where-Object { $_.path -ceq $declaredInput.path }).Count -eq 1) {
             $inputRoot = [IO.Path]::GetFullPath($FixedInputSnapshot)
+        } elseif ($FixedInputRecord -and ($declaredInput.path.StartsWith('domain/', [StringComparison]::Ordinal) -or
+                $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(\.|-seed\.md$)'))) {
+            Fail-ReviewContext 'INPUT' "fixed inventory omits a domain or Concept Test input: $($declaredInput.path)"
         }
         $inputRootPrefix = $inputRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
         $candidate = [IO.Path]::GetFullPath((Join-Path $inputRoot $declaredInput.path))

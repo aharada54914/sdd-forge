@@ -1,23 +1,26 @@
-# No-domain regression: exercise the production gate and preserve existing bytes.
+﻿# No-domain regression: exercise the production gate and preserve existing bytes.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $gate = Join-Path $repositoryRoot 'plugins/sdd-domain/scripts/validate-concept-test.ps1'
-$bootstrap = Join-Path $repositoryRoot 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
+$bootstrap = Join-Path $repositoryRoot 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md'
 $sync = Join-Path $repositoryRoot 'plugins/sdd-domain/skills/domain-sync/SKILL.md'
 $powerShellHost = (Get-Process -Id $PID).Path
 
 Describe 'No-domain bootstrap preserves the documented skip branch' {
-    It 'runs Concept Test only when the full profile has domain evidence' {
-        $text = Get-Content -Raw -LiteralPath $bootstrap
-        $text | Should Match 'For the full profile with `domain/`'
-        $text | Should Match 'proceed exactly as if\s*`domain/`\s*were absent'
+    It 'delegates Concept Test and synchronization only on the domain-present branch before risk selection' {
+        $text = Get-Content -Raw -Encoding UTF8 -LiteralPath $bootstrap
+        $line = @($text -split '\r?\n' | Where-Object { $_ -cmatch '`concept-test`' })
+        $line.Count | Should Be 1
+        $line[0] | Should Match '`domain/`.*存在する場合のみ.*`concept-test`.*`domain-sync`.*domain-sync skipped: no domain/ directory'
+        $text.IndexOf($line[0]) | Should BeLessThan $text.IndexOf('2. **タスク単位のリスク判定')
     }
 
     It 'domain sync records one skip line and stops at its first failed check' {
         $text = Get-Content -Raw -LiteralPath $sync
         ($text | Select-String -Pattern 'domain-sync skipped: no domain/ directory' -AllMatches).Matches.Count | Should Be 1
-        $text | Should Match 'The first\s*check that fails ends the run'
+        $text | Should Match '(?m)^1\. .*`domain/`.*domain-sync skipped: no domain/ directory.*終了'
+        $text | Should Match '最初の不一致で 1 行記録して終了'
     }
 }
 

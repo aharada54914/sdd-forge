@@ -151,6 +151,83 @@ class LateStageAdmission(unittest.TestCase):
         self.addCleanup(self.fixture.doCleanups)
         self.root = self.fixture.root
 
+    def test_local_decision_admission_and_persistence(self):
+        # Installed consumer projects receive schemas from the plugin.
+        shutil.rmtree(self.root / 'contracts')
+        subprocess.run(['git', '-C', str(self.root), 'init', '-q'], check=True)
+        story = 'domain/domain-story.md'
+        self.fixture.write(story, 'A visitor finds a publication.\n')
+        contract = 'domain/domain-contract.json'
+        domain = json.loads((self.root / contract).read_bytes())
+        domain['meta']['generated_from'].append(story)
+        self.fixture.write(contract, domain)
+        self.fixture.record['inputs'].append({'path': story})
+        for item in self.fixture.record['inputs']:
+            item['sha256'] = hashlib.sha256((self.root / item['path']).read_bytes()).hexdigest()
+        self.fixture.local_proposal()
+        self.fixture.local_confirmation('proceed')
+        self.test_task_and_quality_require_every_concept_pin()
+
+    def check_fixed_with_live_changes(self, command, runtime, selected):
+        fixed = load('local_concept_snapshot', ROOT / 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py')
+        git = ['git', '-C', str(self.root)]
+        names = [entry['path'] for entry in selected]
+        subprocess.run(git + ['add', '--', *names], check=True)
+        subprocess.run(git + ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                              'commit', '--allow-empty', '-qm', 'Synthetic review inputs'], check=True)
+        commit = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+        with tempfile.TemporaryDirectory() as directory:
+            record = Path(directory) / 'fixed.json'
+            snapshot = Path(directory) / 'snapshot'
+            fixed.prepare(self.root, commit, names, snapshot, record)
+            flags = (['--fixed-input-record', str(record), '--fixed-input-snapshot', str(snapshot)] if runtime == 'bash'
+                     else ['-FixedInputRecord', str(record), '-FixedInputSnapshot', str(snapshot)])
+            proposal = self.root / 'specs/example/concept-test.json'
+            before = proposal.read_bytes()
+            try:
+                proposal.write_bytes(b'{}')
+                live = subprocess.run(command, capture_output=True, text=True, timeout=40)
+                self.assertNotEqual(live.returncode, 0, live.stdout + live.stderr)
+                selected_revision = subprocess.run(command + flags, capture_output=True, text=True, timeout=40)
+                self.assertEqual(selected_revision.returncode, 0, selected_revision.stdout + selected_revision.stderr)
+            finally:
+                proposal.write_bytes(before)
+            # Identical relative filenames and content cannot bind a repository inventory to a subproject.
+            with tempfile.TemporaryDirectory(dir=self.root) as nested_dir:
+                nested = Path(nested_dir)
+                for name in ('domain', 'specs', 'reports'):
+                    shutil.copytree(self.root / name, nested / name)
+                invocation = self.root / 'invocation.json'
+                shutil.copyfile(invocation, nested / invocation.name)
+                locations = {str(self.root): str(nested), str(invocation): str(nested / invocation.name)}
+                nested_command = [locations.get(arg, arg) for arg in command]
+                live = subprocess.run(nested_command, capture_output=True, text=True, timeout=40)
+                self.assertEqual(live.returncode, 0, live.stdout + live.stderr)
+                mismatch = subprocess.run(nested_command + flags, capture_output=True, text=True, timeout=40)
+                self.assertNotEqual(mismatch.returncode, 0, mismatch.stdout + mismatch.stderr)
+                self.assertIn('legacy fixed review inventory requires the Git worktree root',
+                              mismatch.stdout + mismatch.stderr)
+
+    def test_packet_uses_only_original_signed_contract(self):
+        factory = load('local_concept_packet_fixture', ROOT / 'tests/factory-workflow.tests.py')
+        packet = factory.fixture(self.root)
+        task_path = 'specs/example/tasks.md'
+        (self.root / task_path).write_bytes((self.root / 'specs/pilot/tasks.md').read_bytes())
+        packet.update(feature='example', approval=factory.reference(self.root, task_path), concept_test=True)
+        def validate_packet():
+            return factory.packet.validate(self.root, packet, 'example', 'T-001', 'experiment-1',
+                                           factory.packet.packet_digest(packet))
+        local = self.fixture.local_proposal()
+        self.fixture.local_confirmation('proceed')
+        with self.assertRaisesRegex(ValueError, 'unsupported Concept Test version'):
+            validate_packet()
+        local.unlink()
+        self.fixture.record.update(schema='concept-test/v1', decision='proceed')
+        self.fixture.save()
+        self.fixture.sign()
+        with mock.patch.dict(os.environ, self.fixture.env, clear=True):
+            self.assertEqual('proceed', validate_packet()['concept_decision'])
+
     def test_signed_decision_admission_and_persistence(self):
         self.fixture.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.fixture.save()
@@ -217,6 +294,8 @@ class LateStageAdmission(unittest.TestCase):
                         self.assertEqual(ledger.read_bytes(), before)
                         if omitted is None:
                             self.assertEqual(launcher.required_dependencies(self.root, invocation)['inputs'], selected)
+                            if stage == 'task' and self.fixture.record['schema'] == 'concept-test/v2':
+                                self.check_fixed_with_live_changes(command, runtime, selected)
                             if 'decision' in self.fixture.record:
                                 evidence = {p: (self.root / p).read_bytes() for p in (
                                     'specs/example/concept-test.md', 'specs/example/concept-test.json',
@@ -263,15 +342,19 @@ class LateStageAdmission(unittest.TestCase):
 
 
 class DomainInputManifest(unittest.TestCase):
-    def test_documented_domain_inputs_form_a_reservable_unique_manifest(self):
+    def test_legacy_domain_precheck_inputs_form_a_reservable_unique_manifest(self):
+        canonical = ['domain/domain-story.md', 'domain/event-storming.md', 'domain/concept-model.md',
+                     'domain/ubiquitous-language.md', 'domain/context-map.md', 'domain/aggregates/Order.md',
+                     'domain/message-flow.md']
         author = (ROOT / 'plugins/sdd-domain/skills/domain-interviewer/SKILL.md').read_text()
-        canonical = re.findall(r'^\| [1-7] \|.*?`(domain/[^`]+)`', author, re.M)
-        self.assertEqual(len(canonical), 7)
-        skill = (ROOT / 'plugins/sdd-domain/skills/domain-review-loop/SKILL.md').read_text()
-        step = skill.split('1. Build a stage `domain`', 1)[1].split('\n2.', 1)[0]
-        additional = re.findall(r'`((?:domain|plugins)/[^`]+\.(?:md|json))`', step)
+        documented = re.findall(r'`(domain/[^`]+\.md)`', author)
+        outputs = {re.sub(r'/<[^>/]+>\.md$', '/Order.md', path) for path in documented}
+        self.assertTrue(set(canonical) <= outputs, set(canonical) - outputs)
+        # The v1 precheck still consumes these inputs; the public v2 review writes latest.md.
+        calibration = 'plugins/sdd-domain/references/domain-review-calibration.md'
+        additional = ['domain/domain-contract.json', calibration]
         precheck = 'reports/domain-review/attempt-1/round-1/precheck-result.json'
-        paths = [p.replace('<name>', 'Order') for p in canonical] + additional + [precheck]
+        paths = canonical + additional + [precheck]
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             for name in paths:
@@ -279,6 +362,9 @@ class DomainInputManifest(unittest.TestCase):
                     continue
                 target = root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
+                if name == calibration:
+                    shutil.copyfile(ROOT / calibration, target)
+                    continue
                 target.write_text('Domain-Model-Status: Pending\n' if name == 'domain/context-map.md'
                                   else '{}\n' if name.endswith('.json') else '# Domain fixture\n')
             script = root / 'plugins/sdd-domain/scripts/domain-review-precheck.sh'
@@ -293,12 +379,12 @@ class DomainInputManifest(unittest.TestCase):
                                                        sessionId='fixture-host-session', context=dict(cwd=str(root))))))
             with mock.patch.dict(os.environ, COPILOT_HOME=str(root / 'native')):
                 initial_document = concept.identity.initialize(root, events)
-            documented = re.search(r'`((?:bash )?plugins/sdd-domain/scripts/domain-review-precheck.sh) <attempt> <round>`', skill)
-            self.assertIsNotNone(documented)
-            command = documented.group(1).split()
-            command[-1] = str(script)
-            checked = subprocess.run(command + ['1', '1'], capture_output=True, text=True)
+            checked = subprocess.run(['bash', str(script), '1', '1'], capture_output=True, text=True)
             self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+            report = json.loads((root / precheck).read_bytes())
+            self.assertEqual((report['schema'], report['stage'], report['domain_model_status_field']),
+                             ('domain-review-precheck/v1', 'domain', 'Pending'))
+            self.assertEqual(report['calibration_sha256'], hashlib.sha256((root / calibration).read_bytes()).hexdigest())
             entries = [dict(path=p, sha256=hashlib.sha256((root / p).read_bytes()).hexdigest()) for p in paths]
             ledger = root / 'reports/review-context/identity-ledger.json'
             initial = initial_document['records'][0]
@@ -310,9 +396,9 @@ class DomainInputManifest(unittest.TestCase):
                               identity_ledger_sha256=hashlib.sha256(before).hexdigest(),
                               previous_record_sha256=initial['record_sha256'], allowed_input_manifest=entries)
             manifest = root / 'invocation.json'
-            manifest.write_text(json.dumps(invocation))
             for runtime in ('bash', 'pwsh'):
                 with self.subTest(runtime=runtime):
+                    manifest.write_text(json.dumps(invocation))
                     ledger.write_bytes(before)
                     validator = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
                     command = (['bash', str(validator) + '.sh', str(manifest), str(root), '--reserve']
@@ -322,6 +408,16 @@ class DomainInputManifest(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertIn('REVIEW_CONTEXT_OK', result.stdout)
                     self.assertEqual(len(json.loads(ledger.read_bytes())['records']), 2)
+                    ledger.write_bytes(before)
+                    changed = dict(invocation, allowed_input_manifest=[
+                        dict(entry, sha256='0' * 64) if entry['path'] == calibration else entry
+                        for entry in entries])
+                    manifest.write_text(json.dumps(changed))
+                    rejected = subprocess.run(command, capture_output=True, text=True)
+                    self.assertNotEqual(rejected.returncode, 0)
+                    self.assertIn('hash mismatch', (rejected.stderr + rejected.stdout).lower())
+                    self.assertIn(calibration, rejected.stderr + rejected.stdout)
+                    self.assertEqual(ledger.read_bytes(), before)
             self.assertEqual(len(paths), len(set(paths)))
 
 

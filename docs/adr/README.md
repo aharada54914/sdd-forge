@@ -273,3 +273,4 @@ must never rely on a bare legacy number.
 | 0049 | [Verification feedback remains observational](0049-verification-feedback-observations.md) | Proposed |
 | 0050 | [Session model preferences without weakening launch admission](0050-session-model-preferences.md) | Accepted |
 | 0051 | [Lightweight Guardrails and SDD Core Consolidation](0051-lightweight-guardrails-and-sdd-core.md) | Accepted |
+| 0053 | [DDDの概念判断を対話ターミナルで記録する](0053-keyless-concept-decisions.md) | Proposed |

@@ -125,6 +125,16 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
     assert.match(retro, /2 回以上/);
     assert.doesNotMatch(retro, /\bSDD_SUDO\b|--track <full\|lite>|spec-review-loop|impl-review-loop|task-review-loop/);
 
+    const domainTemplate = /\[.*?\]\(([^)]+)#domain-drift-metrics\)/.exec(retro);
+    assert.ok(domainTemplate, 'the active retrospective must load the optional domain report section');
+    const retroDir = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective');
+    const template = fs.readFileSync(path.resolve(retroDir, domainTemplate[1]), 'utf8');
+    const domainRows = template.split('## Domain Drift Metrics')[1].split('\n## ')[0];
+    assert.match(domainRows, /Term-Deviation Count/);
+    assert.match(domainRows, /Boundary-Violation Count/);
+    assert.match(domainRows, /Combined Domain-Drift Count/);
+    assert.match(retro, /## Deterministic Summary[\s\S]*Domain Drift Metrics[\s\S]*## Recurring Friction/);
+
     const createSkill = fs.readFileSync(
       path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md'),
       'utf8',

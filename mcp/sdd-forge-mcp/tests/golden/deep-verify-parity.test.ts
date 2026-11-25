@@ -1,84 +1,74 @@
-/**
- * AC-012 (T-005, ADR-0009): host-script parity goldens. For each of four
- * fixture classes — consistent bundle (pass), tampered on-disk artifact
- * (fail), spec drift on a high-risk bundle (fail), tampered recorded
- * artifact hash (fail) — this asserts that the real
- * `check-evidence-bundle.sh` and `evidenceDeepVerify()` agree on pass vs.
- * fail for the exact same bundle + on-disk artifact state.
- *
- * Only this test file (via `deep-verify-parity-helpers.ts`) ever shells out
- * to git or `check-evidence-bundle.sh` — `evidence_deep_verify` itself never
- * spawns a subprocess (ADR-0008; also exercised statically by
- * `tests/readonly`). Every fixture is a throwaway, git-backed synthetic SDD
- * root; none of its content is derived from real repository files (REQ-009).
- *
- * "Spec drift" is modeled as a `risk: "high"` bundle whose recorded
- * `spec_revision` is `""` even though `specs/<feature>/{requirements,
- * design,acceptance-tests}.md` exist on disk (i.e. the bundle predates the
- * spec files / was never regenerated after they were added). This is the
- * one dimension where `check-evidence-bundle.sh` and `evidenceDeepVerify()`
- * reach the same "fail" conclusion via genuinely different logic:
- * `check-evidence-bundle.sh` never recomputes `spec_revision` from the spec
- * files at all — for `high`/`critical` risk it only enforces that the
- * *recorded* value is present and 64-hex-shaped (an empty string fails that
- * shape check), while `evidenceDeepVerify()` recomputes the canonical value
- * and compares it to the recorded one directly (REQ-005). A low-risk bundle
- * would not exercise this on the host side at all, since
- * `check-evidence-bundle.sh` only gates `spec_revision` for `high`/`critical`
- * bundles.
- */
-
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { findRepoRoot } from "./shell-runner.js";
 import { evidenceDeepVerify } from "../../src/tools/evidence.js";
 import { writeFile } from "../test-helpers.js";
 import {
   buildParityFixtureBase,
   readBundleJson,
-  runCheckEvidenceBundle,
   type ParityFixtureFiles,
 } from "./deep-verify-parity-helpers.js";
 
-/**
- * Runs both sides against the same fixture and asserts they agree with each
- * other *and* with the fixture's intended verdict — the latter guards
- * against a fixture-construction bug that happens to make both sides wrong
- * in the same direction.
- */
-function assertHostAndToolAgree(fx: ParityFixtureFiles, expectedVerdict: "pass" | "fail"): void {
-  const shellResult = runCheckEvidenceBundle(fx.dir, fx.bundleRel);
-  const hostVerdict = shellResult.exitCode === 0 ? "pass" : "fail";
-  assert.equal(
-    hostVerdict,
-    expectedVerdict,
-    `check-evidence-bundle.sh verdict mismatch for ${fx.taskId} ` +
-      `(exit ${shellResult.exitCode}, expected ${expectedVerdict}): ${shellResult.combinedOutput}`,
-  );
-
-  const toolResult = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
-  assert.equal(
-    toolResult.ok,
-    true,
-    `evidenceDeepVerify envelope error for ${fx.taskId}: ${
-      toolResult.ok ? "" : JSON.stringify(toolResult.error)
-    }`,
-  );
-  if (!toolResult.ok) {
-    return;
-  }
-  assert.equal(
-    toolResult.data.verdict,
-    expectedVerdict,
-    `evidenceDeepVerify verdict mismatch for ${fx.taskId}: failures=${JSON.stringify(toolResult.data.failures)}`,
-  );
-
-  assert.equal(toolResult.data.verdict, hostVerdict, `host/tool disagreement for ${fx.taskId}`);
+// These outputs were recorded by the retired host program. Point
+// SDD_GOLDEN_EVIDENCE_CHECKER at that script in the identified revision to
+// replay it on the very same fixtures, including its Git ancestry checks.
+interface HostCase {
+  fixtureCommit: string;
+  exitCode: number;
+  failures: string[];
+}
+const recordingPath = join(findRepoRoot(), "mcp/sdd-forge-mcp/tests/golden/fixtures/deep-verify-host.json");
+const recording: { revision: string; blob: string; cases: Record<string, HostCase> } = JSON.parse(readFileSync(recordingPath, "utf8"));
+const liveChecker = process.env.SDD_GOLDEN_EVIDENCE_CHECKER;
+if (liveChecker) {
+  const script = readFileSync(liveChecker);
+  const blob = createHash("sha1").update(`blob ${script.length}\0`).update(script).digest("hex");
+  assert.equal(blob, recording.blob, `Expected check-evidence-bundle.sh from ${recording.revision}`);
 }
 
-test("AC-012: consistent bundle -- check-evidence-bundle.sh and evidence_deep_verify both pass", () => {
-  const fx = buildParityFixtureBase("golden-parity-pass", "golden-parity", "T-900");
+function buildFixture(taskId: string, options: { risk?: string; specRevisionOverride?: string } = {}) {
+  const host = recording.cases[taskId];
+  assert.ok(host, `missing historical host recording for ${taskId}`);
+  return buildParityFixtureBase("golden-parity", "golden-parity", taskId, {
+    ...options,
+    fixtureCommit: liveChecker ? undefined : host.fixtureCommit,
+  });
+}
+
+function assertHostAndToolAgree(fx: ParityFixtureFiles, expected: "pass" | "artifact mismatch" | "spec drift"): void {
+  const host = recording.cases[fx.taskId];
+  const hostFailures = {
+    pass: [],
+    "artifact mismatch": [`artifact sha256 mismatch for ${fx.artifactRel}`],
+    "spec drift": ["high/critical bundle requires spec_revision (64-hex), got: (empty)"],
+  }[expected];
+  assert.deepEqual(host.failures, hostFailures);
+  assert.equal(host.exitCode, expected === "pass" ? 0 : 1);
+
+  if (liveChecker) {
+    const replay = spawnSync("sh", [resolve(liveChecker), fx.bundleRel, fx.dir], { cwd: fx.dir, encoding: "utf8" });
+    if (replay.error) throw replay.error;
+    const output = replay.stdout + replay.stderr;
+    assert.equal(replay.status, host.exitCode, output);
+    const failures = output.split(/\r?\n/).filter(line => line.startsWith(" - ")).map(line => line.slice(3));
+    assert.deepEqual(failures, host.failures, output);
+    if (host.exitCode === 0) assert.ok(output.includes(`Evidence bundle passed for task ${fx.taskId}.`), output);
+  }
+
+  const result = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
+  assert.ok(result.ok, JSON.stringify(result));
+  assert.equal(result.data.verdict, host.exitCode === 0 ? "pass" : "fail", result.data.failures.join("\n"));
+  assert.deepEqual(result.data.artifacts.filter(a => a.status !== "match").map(a => [a.path, a.status]),
+    expected === "artifact mismatch" ? [[fx.artifactRel, "mismatch"]] : []);
+  assert.equal(result.data.invariants.specRevision.status, expected === "spec drift" ? "mismatch" : "match");
+}
+
+test("AC-012: consistent bundle -- evidence_deep_verify matches the recorded host pass", () => {
+  const fx = buildFixture("T-900");
   try {
     assertHostAndToolAgree(fx, "pass");
   } finally {
@@ -86,32 +76,32 @@ test("AC-012: consistent bundle -- check-evidence-bundle.sh and evidence_deep_ve
   }
 });
 
-test("AC-012: tampered on-disk artifact -- check-evidence-bundle.sh and evidence_deep_verify both fail", () => {
-  const fx = buildParityFixtureBase("golden-parity-tamper-disk", "golden-parity", "T-901");
+test("AC-012: tampered on-disk artifact -- evidence_deep_verify matches the recorded host failure", () => {
+  const fx = buildFixture("T-901");
   try {
     // Tamper the on-disk file only; the bundle's recorded sha256 is
     // unchanged, so recorded != on-disk on both the host and tool side.
     writeFile(fx.dir, fx.artifactRel, `${fx.artifactContents}TAMPERED\n`);
-    assertHostAndToolAgree(fx, "fail");
+    assertHostAndToolAgree(fx, "artifact mismatch");
   } finally {
     fx.tempRoot.cleanup();
   }
 });
 
-test("AC-012: spec drift on a high-risk bundle -- check-evidence-bundle.sh and evidence_deep_verify both fail", () => {
-  const fx = buildParityFixtureBase("golden-parity-spec-drift", "golden-parity", "T-902", {
+test("AC-012: spec drift on a high-risk bundle -- evidence_deep_verify matches the recorded host failure", () => {
+  const fx = buildFixture("T-902", {
     risk: "high",
     specRevisionOverride: "",
   });
   try {
-    assertHostAndToolAgree(fx, "fail");
+    assertHostAndToolAgree(fx, "spec drift");
   } finally {
     fx.tempRoot.cleanup();
   }
 });
 
-test("AC-012: tampered recorded artifact hash -- check-evidence-bundle.sh and evidence_deep_verify both fail", () => {
-  const fx = buildParityFixtureBase("golden-parity-tamper-recorded", "golden-parity", "T-903");
+test("AC-012: tampered recorded artifact hash -- evidence_deep_verify matches the recorded host failure", () => {
+  const fx = buildFixture("T-903");
   try {
     // Tamper the bundle's recorded sha256 only; the on-disk file is
     // unchanged, so recorded != on-disk on both the host and tool side --
@@ -124,7 +114,7 @@ test("AC-012: tampered recorded artifact hash -- check-evidence-bundle.sh and ev
     target.sha256 = realSha === "0".repeat(64) ? "f".repeat(64) : "0".repeat(64);
     writeFileSync(join(fx.dir, fx.bundleRel), JSON.stringify(bundle, null, 2), "utf-8");
 
-    assertHostAndToolAgree(fx, "fail");
+    assertHostAndToolAgree(fx, "artifact mismatch");
   } finally {
     fx.tempRoot.cleanup();
   }

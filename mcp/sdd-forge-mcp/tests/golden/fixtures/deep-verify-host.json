@@ -1,0 +1,33 @@
+{
+  "revision": "d27ce86824ec293b83c4262ca28490086e22a449",
+  "script": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+  "blob": "494967040e860595becc7be216253421432760c4",
+  "cases": {
+    "T-900": {
+      "fixtureCommit": "673706193c8cfb1c63a69a43e5bf55adce86b2b5",
+      "exitCode": 0,
+      "failures": []
+    },
+    "T-901": {
+      "fixtureCommit": "58792c7dfcbbe896e71915fd77cb2046d0ced002",
+      "exitCode": 1,
+      "failures": [
+        "artifact sha256 mismatch for specs/golden-parity/artifact.md"
+      ]
+    },
+    "T-902": {
+      "fixtureCommit": "a5e2d09141ee01ce4b43baa5f4ecee8f710c99f8",
+      "exitCode": 1,
+      "failures": [
+        "high/critical bundle requires spec_revision (64-hex), got: (empty)"
+      ]
+    },
+    "T-903": {
+      "fixtureCommit": "b4b5d9fe16747c65be10b30ca67ff357e1abc32c",
+      "exitCode": 1,
+      "failures": [
+        "artifact sha256 mismatch for specs/golden-parity/artifact.md"
+      ]
+    }
+  }
+}

@@ -87,6 +87,13 @@
       "runtime": "python"
     },
     {
+      "path": "tests/check-evidence-bundle-parity.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "cloud-and-ddd"
+      ]
+    },
+    {
       "path": "tests/sql-development-contract.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -799,7 +806,8 @@
       "path": "tests/domain-review-finalize.tests.py",
       "runtime": "python",
       "ci_jobs": [
-        "test"
+        "test",
+        "cloud-and-ddd"
       ]
     },
     {

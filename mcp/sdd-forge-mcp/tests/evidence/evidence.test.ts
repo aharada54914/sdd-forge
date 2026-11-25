@@ -1,9 +1,9 @@
 /**
- * AC-014: every evidence tool's response, called through a real MCP
- * client/server pair (SDK InMemoryTransport), must validate against
- * contracts/sdd-forge-mcp-tools.v1.schema.json and carry the expected `kind`
- * / field values for both real repository data (sdd-forge-refactor) and
- * synthetic fixtures (missing/mismatch/unsafe-path cases).
+ * AC-014: every retained evidence domain function's `Result` envelope must
+ * validate against contracts/sdd-forge-mcp-tools.v1.schema.json and carry the
+ * expected `kind` / field values for both real repository data
+ * (sdd-forge-refactor) and synthetic fixtures (missing/mismatch/unsafe-path
+ * cases).
  *
  * `evidence_find_missing`'s Done-requirement set is verified to agree with
  * `get_task_state`'s (check-task-state.sh-equivalent) Done verdict: a real
@@ -28,59 +28,40 @@ import assert from "node:assert/strict";
 import { chmodSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { makeTempSddRoot, writeFile, type TempSddRoot } from "../test-helpers.js";
-import {
-  connectFixture,
-  getEnvelopeValidator,
-  makeRealRepoRoot,
-  parseEnvelope,
-  seedDemoFixture,
-  sha256Of,
-  type EvidenceToolsFixture,
-} from "./test-helpers.js";
-import { buildServer } from "../../src/server.js";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { getEnvelopeValidator, makeRealRepoRoot, seedDemoFixture, sha256Of } from "./test-helpers.js";
+import type { SddRoot } from "../../src/root.js";
 import { parseTaskState } from "../../src/parsers/tasks.js";
 import { parseVerificationContract } from "../../src/parsers/evidence.js";
+import {
+  evidenceCompareToTraceability,
+  evidenceFindMissing,
+  evidenceGetBundle,
+  evidenceSummarizeContractChecks,
+  evidenceValidatePaths,
+} from "../../src/tools/evidence.js";
 
 // --- evidence_get_bundle ----------------------------------------------------
 
-test("evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields", async () => {
+test("evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields", () => {
   const root = makeRealRepoRoot();
-  const server = buildServer(root);
-  const client = new Client({ name: "test-client", version: "0.0.0" });
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
-  try {
-    const result = await client.callTool({
-      name: "evidence_get_bundle",
-      arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
-    });
-    const envelope = parseEnvelope(result);
-    assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
+  const envelope = evidenceGetBundle(root, "sdd-forge-refactor", "T-001");
+  assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
 
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as { ok: true; data: { kind: string; feature: string; taskId: string; bundle: Record<string, unknown> } }
-    ).data;
-    assert.equal(data.kind, "evidence-bundle");
-    assert.equal(data.feature, "sdd-forge-refactor");
-    assert.equal(data.taskId, "T-001");
-    assert.equal(data.bundle.task_id, "T-001");
-    assert.equal(data.bundle.risk, "low");
-    assert.ok(Array.isArray(data.bundle.artifacts));
-  } finally {
-    await client.close();
-    await server.close();
-  }
+  assert.equal(envelope.ok, true);
+  const bundle = envelope.data.bundle;
+  assert.equal(envelope.data.kind, "evidence-bundle");
+  assert.equal(envelope.data.feature, "sdd-forge-refactor");
+  assert.equal(envelope.data.taskId, "T-001");
+  assert.equal(bundle.task_id, "T-001");
+  assert.equal(bundle.risk, "low");
+  assert.ok(Array.isArray(bundle.artifacts));
 });
 
-test("evidence_get_bundle: synthetic, echoes signature value without verifying it", async () => {
+test("evidence_get_bundle: synthetic, echoes signature value without verifying it", () => {
   const tempRoot = seedDemoFixture("evidence-get-bundle-signature");
-  const fixture = await connectFixture(tempRoot);
   try {
     writeFile(
-      fixture.tempRoot.dir,
+      tempRoot.dir,
       "specs/demo/verification/T-009.evidence.json",
       JSON.stringify({
         task_id: "T-009",
@@ -90,91 +71,60 @@ test("evidence_get_bundle: synthetic, echoes signature value without verifying i
         signature: { alg: "hmac-sha256", value: "deadbeef" },
       }),
     );
-    const result = await fixture.client.callTool({
-      name: "evidence_get_bundle",
-      arguments: { feature: "demo", taskId: "T-009" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceGetBundle(tempRoot.root, "demo", "T-009");
     assert.ok(getEnvelopeValidator()(envelope));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (envelope as { ok: true; data: { bundle: { signature?: unknown } } }).data;
-    assert.deepEqual(data.bundle.signature, { alg: "hmac-sha256", value: "deadbeef" });
+    assert.equal(envelope.ok, true);
+    const bundle = envelope.data.bundle;
+    assert.deepEqual(bundle.signature, { alg: "hmac-sha256", value: "deadbeef" });
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_get_bundle: not-found for a task with no evidence.json", async () => {
+test("evidence_get_bundle: not-found for a task with no evidence.json", () => {
   const tempRoot = seedDemoFixture("evidence-get-bundle-not-found");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_get_bundle",
-      arguments: { feature: "demo", taskId: "T-002" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceGetBundle(tempRoot.root, "demo", "T-002");
     assert.ok(getEnvelopeValidator()(envelope));
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "not-found");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "not-found");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_get_bundle: invalid-input for a malformed taskId", async () => {
+test("evidence_get_bundle: invalid-input for a malformed taskId", () => {
   const tempRoot = seedDemoFixture("evidence-get-bundle-invalid-taskid");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_get_bundle",
-      arguments: { feature: "demo", taskId: "not-a-task-id" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceGetBundle(tempRoot.root, "demo", "not-a-task-id");
     assert.ok(getEnvelopeValidator()(envelope));
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "invalid-input");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "invalid-input");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
 // --- evidence_validate_paths -------------------------------------------------
 
-test("evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist", async () => {
+test("evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist", () => {
   const root = makeRealRepoRoot();
-  const server = buildServer(root);
-  const client = new Client({ name: "test-client", version: "0.0.0" });
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
-  try {
-    const result = await client.callTool({
-      name: "evidence_validate_paths",
-      arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
-    });
-    const envelope = parseEnvelope(result);
-    assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as { ok: true; data: { kind: string; results: Array<{ path: string; safe: boolean; exists: boolean }> } }
-    ).data;
-    assert.equal(data.kind, "evidence-paths");
-    assert.ok(data.results.length >= 1);
-    for (const entry of data.results) {
-      assert.equal(entry.safe, true, `expected ${entry.path} to be safe`);
-      assert.equal(entry.exists, true, `expected ${entry.path} to exist`);
-    }
-  } finally {
-    await client.close();
-    await server.close();
+  const envelope = evidenceValidatePaths(root, "sdd-forge-refactor", "T-001");
+  assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
+  assert.equal(envelope.ok, true);
+  assert.equal(envelope.data.kind, "evidence-paths");
+  assert.ok(envelope.data.results.length >= 1);
+  for (const entry of envelope.data.results) {
+    assert.equal(entry.safe, true, `expected ${entry.path} to be safe`);
+    assert.equal(entry.exists, true, `expected ${entry.path} to exist`);
   }
 });
 
-test("evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe", async () => {
+test("evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe", () => {
   const tempRoot = seedDemoFixture("evidence-validate-paths-unsafe");
-  const fixture = await connectFixture(tempRoot);
   try {
     writeFile(
-      fixture.tempRoot.dir,
+      tempRoot.dir,
       "specs/demo/verification/T-020.evidence.json",
       JSON.stringify({
         task_id: "T-020",
@@ -190,34 +140,24 @@ test("evidence_validate_paths: synthetic, flags a traversal artifact path as uns
       }),
     );
 
-    const result = await fixture.client.callTool({
-      name: "evidence_validate_paths",
-      arguments: { feature: "demo", taskId: "T-020" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceValidatePaths(tempRoot.root, "demo", "T-020");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: { results: Array<{ path: string; safe: boolean; exists: boolean; reason?: string }> };
-      }
-    ).data;
+    assert.equal(envelope.ok, true);
 
-    const traversal = data.results.find((r) => r.path === "../../etc/passwd");
+    const traversal = envelope.data.results.find((r) => r.path === "../../etc/passwd");
     assert.ok(traversal !== undefined && traversal.safe === false && traversal.exists === false);
     assert.ok(typeof traversal?.reason === "string" && traversal.reason.length > 0);
 
-    const absolute = data.results.find((r) => r.path === "/etc/passwd");
+    const absolute = envelope.data.results.find((r) => r.path === "/etc/passwd");
     assert.ok(absolute !== undefined && absolute.safe === false && absolute.exists === false);
 
-    const safeAndPresent = data.results.find((r) => r.path === "specs/demo/investigation.md");
+    const safeAndPresent = envelope.data.results.find((r) => r.path === "specs/demo/investigation.md");
     assert.ok(safeAndPresent !== undefined && safeAndPresent.safe === true && safeAndPresent.exists === true);
 
-    const safeButMissing = data.results.find((r) => r.path === "specs/demo/verification/T-020.nope.json");
+    const safeButMissing = envelope.data.results.find((r) => r.path === "specs/demo/verification/T-020.nope.json");
     assert.ok(safeButMissing !== undefined && safeButMissing.safe === true && safeButMissing.exists === false);
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
@@ -239,16 +179,12 @@ interface EvidenceMissingShape {
   undeterminable: string[];
 }
 
-/** Calls `evidence_find_missing` on the `demo` fixture feature and returns its ajv-validated ok data. */
-async function callFindMissing(fixture: EvidenceToolsFixture, taskId: string): Promise<EvidenceMissingShape> {
-  const result = await fixture.client.callTool({
-    name: "evidence_find_missing",
-    arguments: { feature: "demo", taskId },
-  });
-  const envelope = parseEnvelope(result);
+/** Calls `evidenceFindMissing` on the `demo` fixture feature and returns its ajv-validated ok data. */
+function callFindMissing(root: SddRoot, taskId: string): EvidenceMissingShape {
+  const envelope = evidenceFindMissing(root, "demo", taskId);
   assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-  assert.equal((envelope as { ok: boolean }).ok, true);
-  return (envelope as { ok: true; data: EvidenceMissingShape }).data;
+  assert.equal(envelope.ok, true);
+  return envelope.data;
 }
 
 /**
@@ -324,56 +260,28 @@ function seedScanFailureFixture(prefix: string): TempSddRoot {
   return tempRoot;
 }
 
-test("evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing", async () => {
+test("evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing", () => {
   const root = makeRealRepoRoot();
-  const server = buildServer(root);
-  const client = new Client({ name: "test-client", version: "0.0.0" });
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
-  try {
-    const result = await client.callTool({
-      name: "evidence_find_missing",
-      arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
-    });
-    const envelope = parseEnvelope(result);
-    assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: { kind: string; required: string[]; present: string[]; missing: string[]; undeterminable: string[] };
-      }
-    ).data;
-    assert.equal(data.kind, "evidence-missing");
-    assert.deepEqual(data.missing, []);
-    assert.deepEqual([...data.present].sort(), [...data.required].sort());
-    // AC-012 leg (REQ-004): this pre-existing shape assertion is extended to
-    // the new field. The real repository's reports/quality-gate scans
-    // successfully, so nothing is undeterminable here.
-    assert.deepEqual(data.undeterminable, []);
-  } finally {
-    await client.close();
-    await server.close();
-  }
+  const envelope = evidenceFindMissing(root, "sdd-forge-refactor", "T-001");
+  assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
+  assert.equal(envelope.ok, true);
+  const data = envelope.data;
+  assert.equal(data.kind, "evidence-missing");
+  assert.deepEqual(data.missing, []);
+  assert.deepEqual([...data.present].sort(), [...data.required].sort());
+  // AC-012 leg (REQ-004): this pre-existing shape assertion is extended to
+  // the new field. The real repository's reports/quality-gate scans
+  // successfully, so nothing is undeterminable here.
+  assert.deepEqual(data.undeterminable, []);
 });
 
-test("evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict", async () => {
+test("evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict", () => {
   const tempRoot = seedDemoFixture("evidence-find-missing-done-parity");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_find_missing",
-      arguments: { feature: "demo", taskId: "T-001" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceFindMissing(tempRoot.root, "demo", "T-001");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: { required: string[]; present: string[]; missing: string[]; undeterminable: string[] };
-      }
-    ).data;
+    assert.equal(envelope.ok, true);
+    const data = envelope.data;
     assert.deepEqual(data.missing, []);
     assert.deepEqual([...data.present].sort(), [...data.required].sort());
     // AC-012 leg (REQ-004): the scan succeeds for this fixture, so the new
@@ -387,7 +295,7 @@ test("evidence_find_missing: synthetic Done task with a fully valid bundle has n
     // done-quality-gate-* failure either, confirming find_missing's
     // presence-only requirements agree with check-task-state.sh's Done
     // requirements for the "everything present" case.
-    const taskStateResult = parseTaskState(fixture.root, "demo", "specs/demo/tasks.md");
+    const taskStateResult = parseTaskState(tempRoot.root, "demo", "specs/demo/tasks.md");
     assert.equal(taskStateResult.ok, true);
     if (taskStateResult.ok) {
       const doneFailures = taskStateResult.data.failures.filter(
@@ -397,27 +305,17 @@ test("evidence_find_missing: synthetic Done task with a fully valid bundle has n
       assert.equal(taskStateResult.data.verdict, "pass");
     }
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing", async () => {
+test("evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing", () => {
   const tempRoot = seedDemoFixture("evidence-find-missing-all-missing");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_find_missing",
-      arguments: { feature: "demo", taskId: "T-002" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceFindMissing(tempRoot.root, "demo", "T-002");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: { required: string[]; present: string[]; missing: string[]; undeterminable: string[] };
-      }
-    ).data;
+    assert.equal(envelope.ok, true);
+    const data = envelope.data;
     assert.deepEqual(data.present, []);
     assert.deepEqual([...data.missing].sort(), [...data.required].sort());
 
@@ -434,43 +332,33 @@ test("evidence_find_missing: synthetic, a task with no verification artifacts ha
     assert.deepEqual(data.undeterminable, []);
     assertPartitionsRequired(data, "TEST-008 no-artifacts fixture");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only", async () => {
+test("evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only", () => {
   const tempRoot = seedDemoFixture("evidence-find-missing-no-pass-verdict");
-  const fixture = await connectFixture(tempRoot);
   try {
     writeFile(
-      fixture.tempRoot.dir,
+      tempRoot.dir,
       "specs/demo/verification/T-030.evidence.json",
       JSON.stringify({ task_id: "T-030", feature: "demo", risk: "low", required_workflow: "tdd" }),
     );
     writeFile(
-      fixture.tempRoot.dir,
+      tempRoot.dir,
       "specs/demo/verification/T-030.contract.json",
       JSON.stringify({ task_id: "T-030", risk: "low", checks: [] }),
     );
     writeFile(
-      fixture.tempRoot.dir,
+      tempRoot.dir,
       "reports/quality-gate/demo-T-030.md",
       ["# Quality Gate — T-030", "", "Task ID: T-030", "", "VERDICT: FAIL", ""].join("\n"),
     );
 
-    const result = await fixture.client.callTool({
-      name: "evidence_find_missing",
-      arguments: { feature: "demo", taskId: "T-030" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceFindMissing(tempRoot.root, "demo", "T-030");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: { required: string[]; present: string[]; missing: string[]; undeterminable: string[] };
-      }
-    ).data;
+    assert.equal(envelope.ok, true);
+    const data = envelope.data;
     assert.deepEqual(data.missing, ["quality-gate-report-pass"]);
     assert.deepEqual([...data.present].sort(), ["evidence-bundle", "verification-contract"]);
     // AC-012 leg (REQ-004): a report that IS found but carries VERDICT: FAIL
@@ -479,15 +367,14 @@ test("evidence_find_missing: synthetic, a task whose quality-gate report lacks V
     assert.deepEqual(data.undeterminable, []);
     assertPartitionsRequired(data, "no-pass-verdict fixture");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quality-gate-report-pass in undeterminable and in NEITHER present NOR missing", async () => {
+test("TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quality-gate-report-pass in undeterminable and in NEITHER present NOR missing", () => {
   const tempRoot = seedScanFailureFixture("evidence-find-missing-scan-failure");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const data = await callFindMissing(fixture, "T-001");
+    const data = callFindMissing(tempRoot.root, "T-001");
 
     assert.deepEqual(
       data.undeterminable,
@@ -512,11 +399,11 @@ test("TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quali
     assert.deepEqual([...data.present].sort(), ["evidence-bundle", "verification-contract"]);
     assert.deepEqual(data.missing, []);
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that really holds a VERDICT: PASS report is undeterminable, not missing", async (t) => {
+test("TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that really holds a VERDICT: PASS report is undeterminable, not missing", (t) => {
   if (process.platform === "win32") {
     t.skip(
       "SKIP REASON: mode 0o000 does not deny directory listing on Windows/NTFS, so a readdirSync failure cannot be constructed there. The portable variant of this sub-case is the not-a-directory TEST-007 case above, which runs on every OS in the 3-OS matrix.",
@@ -531,7 +418,6 @@ test("TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that reall
   }
 
   const tempRoot = seedDemoFixture("evidence-find-missing-scan-unreadable");
-  const fixture = await connectFixture(tempRoot);
   const qgDir = join(tempRoot.dir, "reports", "quality-gate");
   try {
     // The fixture's own reports/quality-gate/demo-T-001.md (VERDICT: PASS,
@@ -541,7 +427,7 @@ test("TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that reall
     // reporting `missing` here would be an outright false negative.
     chmodSync(qgDir, 0o000);
 
-    const data = await callFindMissing(fixture, "T-001");
+    const data = callFindMissing(tempRoot.root, "T-001");
 
     assert.deepEqual(data.undeterminable, [QUALITY_GATE_REQUIREMENT]);
     assert.ok(
@@ -556,11 +442,11 @@ test("TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that reall
     } catch {
       // Best effort: the fixture is mktemp-scoped and removed immediately below.
     }
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/parseTaskState parity holds over `missing ∪ undeterminable` on both fixtures", async () => {
+test("TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/parseTaskState parity holds over `missing ∪ undeterminable` on both fixtures", () => {
   // SCOPE, stated explicitly because the broader phrasing of this invariant is
   // NOT universally true and must not be silently over-claimed:
   //
@@ -588,9 +474,8 @@ test("TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/pars
   ];
 
   for (const { label, tempRoot } of cases) {
-    const fixture = await connectFixture(tempRoot);
     try {
-      const state = parseTaskState(fixture.root, "demo", "specs/demo/tasks.md");
+      const state = parseTaskState(tempRoot.root, "demo", "specs/demo/tasks.md");
       assert.equal(state.ok, true, `${label}: parseTaskState must parse the fixture's tasks.md`);
       if (!state.ok) {
         continue;
@@ -600,7 +485,7 @@ test("TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/pars
       assert.ok(doneTasks.length > 0, `${label}: fixture must contain a Done task, else the parity check is vacuous`);
 
       for (const task of doneTasks) {
-        const data = await callFindMissing(fixture, task.id);
+        const data = callFindMissing(tempRoot.root, task.id);
         assertPartitionsRequired(data, `${label} / ${task.id}`);
 
         const inUnion =
@@ -632,17 +517,16 @@ test("TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/pars
         );
       }
     } finally {
-      await fixture.cleanup();
+      tempRoot.cleanup();
     }
   }
 });
 
-test("TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pinned — undeterminable yes, missing no, task-validation.ts still reporting the failure", async () => {
+test("TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pinned — undeterminable yes, missing no, task-validation.ts still reporting the failure", () => {
   const tempRoot = seedScanFailureFixture("evidence-parity-asymmetry");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const data = await callFindMissing(fixture, "T-001");
-    const state = parseTaskState(fixture.root, "demo", "specs/demo/tasks.md");
+    const data = callFindMissing(tempRoot.root, "T-001");
+    const state = parseTaskState(tempRoot.root, "demo", "specs/demo/tasks.md");
     assert.equal(state.ok, true);
     if (!state.ok) {
       return;
@@ -671,7 +555,7 @@ test("TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pin
       "the `missing`-only parity form must be FALSE here; if it ever holds, REQ-004's routing has been undone",
     );
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
@@ -751,144 +635,77 @@ test("TEST-009 leg (AC-009): the v1 contract requires undeterminable on evidence
 
 // --- evidence_summarize_contract_checks --------------------------------------
 
-test("evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly", async () => {
+test("evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly", () => {
   const root = makeRealRepoRoot();
-  const server = buildServer(root);
-  const client = new Client({ name: "test-client", version: "0.0.0" });
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
-  try {
-    const result = await client.callTool({
-      name: "evidence_summarize_contract_checks",
-      arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
-    });
-    const envelope = parseEnvelope(result);
-    assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: {
-          kind: string;
-          checks: Array<{ id: string; required: boolean; passes: boolean; requirementIds?: string[] }>;
-        };
-      }
-    ).data;
-    assert.equal(data.kind, "contract-checks");
-    const placeholderScan = data.checks.find((c) => c.id === "placeholder-scan");
-    assert.ok(placeholderScan !== undefined);
-    assert.equal(placeholderScan?.required, true);
-    assert.equal(placeholderScan?.passes, true);
-    assert.ok(placeholderScan?.requirementIds?.includes("REQ-001"));
-  } finally {
-    await client.close();
-    await server.close();
-  }
+  const envelope = evidenceSummarizeContractChecks(root, "sdd-forge-refactor", "T-001");
+  assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
+  assert.equal(envelope.ok, true);
+  const data = envelope.data;
+  assert.equal(data.kind, "contract-checks");
+  const placeholderScan = data.checks.find((c) => c.id === "placeholder-scan");
+  assert.ok(placeholderScan !== undefined);
+  assert.equal(placeholderScan?.required, true);
+  assert.equal(placeholderScan?.passes, true);
+  assert.ok(placeholderScan?.requirementIds?.includes("REQ-001"));
 });
 
-test("evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds", async () => {
+test("evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds", () => {
   const tempRoot = seedDemoFixture("evidence-summarize-contract-checks");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_summarize_contract_checks",
-      arguments: { feature: "demo", taskId: "T-001" },
-    });
-    const envelope = parseEnvelope(result);
+    const path = join(tempRoot.dir, "specs/demo/verification/T-001.contract.json");
+    const contract = JSON.parse(readFileSync(path, "utf-8"));
+    contract.checks.push({ id: "optional-check", required: false, passes: false, waiver_reason: "outside scope" });
+    writeFileSync(path, JSON.stringify(contract));
+
+    const envelope = evidenceSummarizeContractChecks(tempRoot.root, "demo", "T-001");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as { ok: true; data: { checks: Array<{ id: string; requirementIds?: string[] }> } }
-    ).data;
-    assert.deepEqual(
-      data.checks.map((c) => c.id),
-      ["unit-tests"],
-    );
-    assert.deepEqual(data.checks[0]?.requirementIds, ["REQ-001"]);
+    assert.equal(envelope.ok, true);
+    assert.deepEqual(envelope.data.checks, [
+      { id: "unit-tests", required: true, passes: true, requirementIds: ["REQ-001"] },
+      { id: "optional-check", required: false, passes: false, waiverReason: "outside scope" },
+    ]);
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_summarize_contract_checks: cannot-parse for a malformed contract.json", async () => {
+test("evidence_summarize_contract_checks: cannot-parse for a malformed contract.json", () => {
   const tempRoot = seedDemoFixture("evidence-summarize-contract-checks-broken");
-  const fixture = await connectFixture(tempRoot);
   try {
-    writeFile(fixture.tempRoot.dir, "specs/demo/verification/T-040.contract.json", "{ not valid json");
-    const result = await fixture.client.callTool({
-      name: "evidence_summarize_contract_checks",
-      arguments: { feature: "demo", taskId: "T-040" },
-    });
-    const envelope = parseEnvelope(result);
+    writeFile(tempRoot.dir, "specs/demo/verification/T-040.contract.json", "{ not valid json");
+    const envelope = evidenceSummarizeContractChecks(tempRoot.root, "demo", "T-040");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "cannot-parse");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "cannot-parse");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
 // --- evidence_compare_to_traceability -----------------------------------------
 
-test("evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md", async () => {
+test("evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md", () => {
   const root = makeRealRepoRoot();
-  const server = buildServer(root);
-  const client = new Client({ name: "test-client", version: "0.0.0" });
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
-  try {
-    const result = await client.callTool({
-      name: "evidence_compare_to_traceability",
-      arguments: { feature: "sdd-forge-mcp" },
-    });
-    const envelope = parseEnvelope(result);
-    assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: {
-          kind: string;
-          matches: number;
-          mismatches: Array<{ subject: string }>;
-          unreadableContracts: Array<{ taskId: string; reason: string }>;
-        };
-      }
-    ).data;
-    assert.equal(data.kind, "traceability-comparison");
-    assert.ok(data.matches > 0);
-    assert.deepEqual(data.mismatches, []);
-    // AC-012: this pre-existing suite now also asserts the new field. Every
-    // task in specs/sdd-forge-mcp/tasks.md has a readable contract.json, so
-    // the real-repository response carries an empty unreadableContracts.
-    assert.deepEqual(data.unreadableContracts, []);
-  } finally {
-    await client.close();
-    await server.close();
-  }
+  const envelope = evidenceCompareToTraceability(root, "sdd-forge-mcp");
+  assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
+  assert.equal(envelope.ok, true);
+  const data = envelope.data;
+  assert.equal(data.kind, "traceability-comparison");
+  assert.ok(data.matches > 0);
+  assert.deepEqual(data.mismatches, []);
+  // AC-012: this pre-existing suite now also asserts the new field. Every
+  // task in specs/sdd-forge-mcp/tasks.md has a readable contract.json, so
+  // the real-repository response carries an empty unreadableContracts.
+  assert.deepEqual(data.unreadableContracts, []);
 });
 
-test("evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task", async () => {
+test("evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task", () => {
   const tempRoot = seedDemoFixture("evidence-compare-to-traceability-mismatch");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_compare_to_traceability",
-      arguments: { feature: "demo" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceCompareToTraceability(tempRoot.root, "demo");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: {
-          matches: number;
-          mismatches: Array<{ subject: string; issue: string }>;
-          unreadableContracts: Array<{ taskId: string; reason: string }>;
-        };
-      }
-    ).data;
+    assert.equal(envelope.ok, true);
+    const data = envelope.data;
     assert.equal(data.mismatches.length, 1);
     assert.match(data.mismatches[0]?.subject ?? "", /REQ-002/);
     assert.match(data.mismatches[0]?.issue ?? "", /T-099/);
@@ -901,16 +718,15 @@ test("evidence_compare_to_traceability: synthetic, flags a REQ -> Task row refer
       ["T-002"],
     );
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares", async () => {
+test("evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares", () => {
   const tempRoot = seedDemoFixture("evidence-compare-to-traceability-contract-mismatch");
-  const fixture = await connectFixture(tempRoot);
   try {
     writeFile(
-      fixture.tempRoot.dir,
+      tempRoot.dir,
       "specs/demo/verification/T-001.contract.json",
       JSON.stringify({
         task_id: "T-001",
@@ -928,22 +744,10 @@ test("evidence_compare_to_traceability: synthetic, flags a contract requirementI
       }),
     );
 
-    const result = await fixture.client.callTool({
-      name: "evidence_compare_to_traceability",
-      arguments: { feature: "demo" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceCompareToTraceability(tempRoot.root, "demo");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (
-      envelope as {
-        ok: true;
-        data: {
-          mismatches: Array<{ subject: string; issue: string }>;
-          unreadableContracts: Array<{ taskId: string; reason: string }>;
-        };
-      }
-    ).data;
+    assert.equal(envelope.ok, true);
+    const data = envelope.data;
     const contractMismatch = data.mismatches.find((m) => m.subject === "T-001 contract -> REQ-ID");
     assert.ok(contractMismatch !== undefined);
     assert.match(contractMismatch?.issue ?? "", /REQ-999/);
@@ -954,26 +758,21 @@ test("evidence_compare_to_traceability: synthetic, flags a contract requirementI
       ["T-002"],
     );
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("evidence_compare_to_traceability: not-found when traceability.md does not exist", async () => {
+test("evidence_compare_to_traceability: not-found when traceability.md does not exist", () => {
   const tempRoot = seedDemoFixture("evidence-compare-to-traceability-not-found");
-  const fixture = await connectFixture(tempRoot);
   try {
     // "demo" (the fixture's only feature) has a traceability.md, so a
     // nonexistent feature name reproduces the "no traceability.md" case.
-    const result = await fixture.client.callTool({
-      name: "evidence_compare_to_traceability",
-      arguments: { feature: "no-such-feature" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceCompareToTraceability(tempRoot.root, "no-such-feature");
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "not-found");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "not-found");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
@@ -1182,22 +981,17 @@ interface TraceabilityComparisonResponse {
   unreadableContracts: Array<{ taskId: string; reason: string }>;
 }
 
-async function callCompare(fixture: { client: Client }): Promise<TraceabilityComparisonResponse> {
-  const result = await fixture.client.callTool({
-    name: "evidence_compare_to_traceability",
-    arguments: { feature: "demo" },
-  });
-  const envelope = parseEnvelope(result);
+function callCompare(root: SddRoot): TraceabilityComparisonResponse {
+  const envelope = evidenceCompareToTraceability(root, "demo");
   assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
-  assert.equal((envelope as { ok: boolean }).ok, true);
-  return (envelope as { ok: true; data: TraceabilityComparisonResponse }).data;
+  assert.equal(envelope.ok, true);
+  return envelope.data;
 }
 
-test("TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches", async () => {
+test("TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches", () => {
   const tempRoot = seedUnreadableContractFixture("evidence-compare-unreadable-contracts");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const data = await callCompare(fixture);
+    const data = callCompare(tempRoot.root);
 
     // TEST-001 / TEST-017: BOTH the Done task with an unparsable contract
     // (T-002) and the non-Done task with no contract at all (T-003) appear.
@@ -1213,9 +1007,9 @@ test("TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts nam
     // fixture root, so a re-worded or path-interpolated string fails here
     // (security-spec.md Boundary B1).
     for (const taskId of ["T-002", "T-003"]) {
-      const direct = parseVerificationContract(fixture.root, "demo", taskId);
+      const direct = parseVerificationContract(tempRoot.root, "demo", taskId);
       assert.equal(direct.ok, false, `${taskId}'s contract should not parse in this fixture`);
-      const expectedReason = (direct as { ok: false; error: { message: string } }).error.message;
+      const expectedReason = direct.error.message;
       const entry = data.unreadableContracts.find((candidate) => candidate.taskId === taskId);
       assert.ok(entry !== undefined, `${taskId} should appear in unreadableContracts`);
       assert.equal(entry?.reason, expectedReason);
@@ -1245,25 +1039,24 @@ test("TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts nam
       false,
     );
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable", async () => {
+test("TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable", () => {
   const tempRoot = seedAllContractsReadableFixture("evidence-compare-all-contracts-readable");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const data = await callCompare(fixture);
+    const data = callCompare(tempRoot.root);
     assert.ok(Array.isArray(data.unreadableContracts));
     assert.deepEqual(data.unreadableContracts, []);
     assert.deepEqual(data.mismatches, []);
     assert.equal(data.matches, 5);
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });
 
-test("TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on traceabilityComparisonData and keeps additionalProperties:false and $id", async () => {
+test("TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on traceabilityComparisonData and keeps additionalProperties:false and $id", () => {
   const schemaPath = join(makeRealRepoRoot().path, "contracts", "sdd-forge-mcp-tools.v1.schema.json");
   const schema = JSON.parse(readFileSync(schemaPath, "utf-8")) as {
     $id: string;
@@ -1314,39 +1107,21 @@ test("TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on tra
 
 // --- input validation --------------------------------------------------------
 
-test("every evidence tool rejects a malformed feature argument as invalid-input", async () => {
+test("every evidence tool rejects a malformed feature argument as invalid-input", () => {
   const tempRoot = seedDemoFixture("evidence-invalid-feature");
-  const fixture = await connectFixture(tempRoot);
   try {
-    for (const name of [
-      "evidence_get_bundle",
-      "evidence_validate_paths",
-      "evidence_find_missing",
-      "evidence_summarize_contract_checks",
-    ]) {
-      const result = await fixture.client.callTool({
-        name,
-        arguments: { feature: "../escape", taskId: "T-001" },
-      });
-      const envelope = parseEnvelope(result);
-      assert.ok(getEnvelopeValidator()(envelope), `${name}: ${JSON.stringify(getEnvelopeValidator().errors)}`);
-      assert.equal((envelope as { ok: boolean }).ok, false, `${name} should reject ../escape`);
-      assert.equal(
-        (envelope as { ok: false; error: { code: string } }).error.code,
-        "invalid-input",
-        `${name} should report invalid-input`,
-      );
+    for (const check of [evidenceGetBundle, evidenceValidatePaths, evidenceFindMissing, evidenceSummarizeContractChecks]) {
+      const envelope = check(tempRoot.root, "../escape", "T-001");
+      assert.ok(getEnvelopeValidator()(envelope), `${check.name}: ${JSON.stringify(getEnvelopeValidator().errors)}`);
+      assert.equal(envelope.ok, false, `${check.name} should reject the malformed feature`);
+      assert.equal(envelope.error.code, "invalid-input", `${check.name} should report invalid-input`);
     }
 
-    const compareResult = await fixture.client.callTool({
-      name: "evidence_compare_to_traceability",
-      arguments: { feature: "../escape" },
-    });
-    const compareEnvelope = parseEnvelope(compareResult);
+    const compareEnvelope = evidenceCompareToTraceability(tempRoot.root, "../escape");
     assert.ok(getEnvelopeValidator()(compareEnvelope));
-    assert.equal((compareEnvelope as { ok: boolean }).ok, false);
-    assert.equal((compareEnvelope as { ok: false; error: { code: string } }).error.code, "invalid-input");
+    assert.equal(compareEnvelope.ok, false);
+    assert.equal(compareEnvelope.error.code, "invalid-input");
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });

@@ -13,7 +13,7 @@ user-invocable: false
 
 ## Preconditions
 
-- ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:sdd-adopt` を案内して停止）。
+- ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:bootstrap adopt` を案内して停止）。
 - `specs/<feature>/tasks.md` に `Approval: Approved` かつ `Status: Planned` / `In Progress` のタスクが 1 件以上存在すること。
 
 ## Task Selection

@@ -1,5 +1,6 @@
 /**
- * AC-015 (REQ-012): contract conformance for evidence_deep_verify.
+ * AC-015 (REQ-012): the retained evidence readers produce v1 contract envelopes.
+ * The v2 registry no longer exposes the v1 tool names.
  *
  * Unlike deep-verify-tool.test.ts (which asserts the ok `evidenceDeepVerifyData`
  * shape *structurally* and only ajv-validates the shared error envelopes), this
@@ -8,7 +9,7 @@
  * (contracts/sdd-forge-mcp-tools.v1.schema.json) via ajv, exercising the
  * `evidenceDeepVerifyData` oneOf branch that T-007 adds to the contract. It also
  * re-checks the three error envelopes (invalid-input / not-found / cannot-parse)
- * and, for additivity, confirms the existing five evidence tools' ok responses
+ * and, for additivity, confirms the other five evidence readers' ok responses
  * still conform after the additive contract change.
  *
  * The ajv validator (`getEnvelopeValidator`) compiles the whole envelope schema
@@ -28,12 +29,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  evidenceCompareToTraceability,
+  evidenceDeepVerify,
+  evidenceFindMissing,
+  evidenceGetBundle,
+  evidenceSummarizeContractChecks,
+  evidenceValidatePaths,
+} from "../../src/tools/evidence.js";
 import { writeFile } from "../test-helpers.js";
 import {
-  connectFixture,
   findSddForgeRepoRoot,
   getEnvelopeValidator,
-  parseEnvelope,
   seedDemoFixture,
 } from "../evidence/test-helpers.js";
 import { seedDeepVerifyRepo } from "./deep-verify-helpers.js";
@@ -144,18 +151,6 @@ function verdictFromPreExistingInputsOnly(data: DeepVerifyOkShape): "pass" | "fa
   return allSatisfied ? "pass" : "fail";
 }
 
-/** Drives the registered tool once against an already-seeded fixture. */
-async function callDeepVerify(
-  fx: ReturnType<typeof seedDeepVerifyRepo>,
-): Promise<{ envelope: unknown; cleanup: () => Promise<void> }> {
-  const fixture = await connectFixture(fx.tempRoot);
-  const result = await fixture.client.callTool({
-    name: "evidence_deep_verify",
-    arguments: { feature: fx.feature, taskId: fx.taskId },
-  });
-  return { envelope: parseEnvelope(result), cleanup: fixture.cleanup };
-}
-
 /** Applies the same multi-dimension tamper the fail-verdict fixture uses. */
 function tamperForFailVerdict(fx: ReturnType<typeof seedDeepVerifyRepo>): void {
   const bundle = fx.baseBundle();
@@ -169,18 +164,13 @@ function tamperForFailVerdict(fx: ReturnType<typeof seedDeepVerifyRepo>): void {
   writeFile(fx.dir, fx.artifactRel, `${fx.artifactContents}TAMPER\n`);
 }
 
-test("AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv)", async () => {
+test("AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv)", () => {
   const fx = seedDeepVerifyRepo("dv-conformance-pass");
-  const fixture = await connectFixture(fx.tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_deep_verify",
-      arguments: { feature: fx.feature, taskId: fx.taskId },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
 
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    assert.equal((envelope as { data: { verdict: string } }).data.verdict, "pass");
+    assert.equal(envelope.ok, true);
+    assert.equal(envelope.data.verdict, "pass");
     assertConforms(envelope, "passing evidence_deep_verify envelope");
     // TEST-003 (AC-003): the pass-verdict half of the always-present assertion.
     assertHostRequiredChecks(
@@ -188,11 +178,11 @@ test("AC-015: a passing evidence_deep_verify response conforms to the v1 contrac
       "pass-verdict fixture",
     );
   } finally {
-    await fixture.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
-test("AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv)", async () => {
+test("AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv)", () => {
   const fx = seedDeepVerifyRepo("dv-conformance-fail");
   const bundle = fx.baseBundle();
   // Drive as many contract-branch shapes as possible in one response:
@@ -211,18 +201,11 @@ test("AC-015: a failing evidence_deep_verify response (mixed statuses) conforms 
   // Tamper the on-disk baseline artifact so its recorded (valid) sha mismatches.
   writeFile(fx.dir, fx.artifactRel, `${fx.artifactContents}TAMPER\n`);
 
-  const fixture = await connectFixture(fx.tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_deep_verify",
-      arguments: { feature: fx.feature, taskId: fx.taskId },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
 
-    assert.equal((envelope as { ok: boolean }).ok, true);
-    const data = (envelope as {
-      data: { verdict: string; failures: string[]; artifacts: Array<{ status: string }> };
-    }).data;
+    assert.equal(envelope.ok, true);
+    const data = envelope.data;
     assert.equal(data.verdict, "fail");
     assert.ok(data.failures.length > 0);
     const statuses = new Set(data.artifacts.map((a) => a.status));
@@ -236,77 +219,66 @@ test("AC-015: a failing evidence_deep_verify response (mixed statuses) conforms 
       "fail-verdict fixture",
     );
   } finally {
-    await fixture.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
-test("AC-015: an invalid-input error envelope conforms to the v1 contract (ajv)", async () => {
+test("AC-015: an invalid-input error envelope conforms to the v1 contract (ajv)", () => {
   const fx = seedDeepVerifyRepo("dv-conformance-invalid-input");
-  const fixture = await connectFixture(fx.tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_deep_verify",
-      arguments: { feature: fx.feature, taskId: "not-a-task-id" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, "not-a-task-id");
 
     assertConforms(envelope, "invalid-input error envelope");
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { error: { code: string } }).error.code, "invalid-input");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "invalid-input");
   } finally {
-    await fixture.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
-test("AC-015: a not-found error envelope conforms to the v1 contract (ajv)", async () => {
+test("AC-015: a not-found error envelope conforms to the v1 contract (ajv)", () => {
   const fx = seedDeepVerifyRepo("dv-conformance-not-found");
-  const fixture = await connectFixture(fx.tempRoot);
   try {
     // Valid taskId shape, but no <T-999>.evidence.json exists in the fixture.
-    const result = await fixture.client.callTool({
-      name: "evidence_deep_verify",
-      arguments: { feature: fx.feature, taskId: "T-999" },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, "T-999");
 
     assertConforms(envelope, "not-found error envelope");
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { error: { code: string } }).error.code, "not-found");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "not-found");
   } finally {
-    await fixture.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
-test("AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv)", async () => {
+test("AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv)", () => {
   const fx = seedDeepVerifyRepo("dv-conformance-cannot-parse");
-  // Overwrite the consistent bundle with invalid JSON before connecting.
+  // Overwrite the consistent bundle with invalid JSON before reading it.
   writeFile(fx.dir, fx.bundleRel, "{ this is not valid json");
-  const fixture = await connectFixture(fx.tempRoot);
   try {
-    const result = await fixture.client.callTool({
-      name: "evidence_deep_verify",
-      arguments: { feature: fx.feature, taskId: fx.taskId },
-    });
-    const envelope = parseEnvelope(result);
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
 
     assertConforms(envelope, "cannot-parse error envelope");
-    assert.equal((envelope as { ok: boolean }).ok, false);
-    assert.equal((envelope as { error: { code: string } }).error.code, "cannot-parse");
+    assert.equal(envelope.ok, false);
+    assert.equal(envelope.error.code, "cannot-parse");
   } finally {
-    await fixture.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
-test("TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures", async () => {
+test("TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures", () => {
   const passFx = seedDeepVerifyRepo("dv-host-checks-verdict-pass");
   const failFx = seedDeepVerifyRepo("dv-host-checks-verdict-fail");
   tamperForFailVerdict(failFx);
 
-  const passCall = await callDeepVerify(passFx);
-  const failCall = await callDeepVerify(failFx);
   try {
-    const passData = okData(passCall.envelope, "pass-verdict envelope");
-    const failData = okData(failCall.envelope, "fail-verdict envelope");
+    const passData = okData(
+      evidenceDeepVerify(passFx.tempRoot.root, passFx.feature, passFx.taskId),
+      "pass-verdict envelope",
+    );
+    const failData = okData(
+      evidenceDeepVerify(failFx.tempRoot.root, failFx.feature, failFx.taskId),
+      "fail-verdict envelope",
+    );
 
     // 1. Both verdicts are fully explained by the pre-existing inputs alone.
     assert.equal(passData.verdict, "pass");
@@ -351,12 +323,12 @@ test("TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and f
       );
     }
   } finally {
-    await passCall.cleanup();
-    await failCall.cleanup();
+    passFx.tempRoot.cleanup();
+    failFx.tempRoot.cleanup();
   }
 });
 
-test("TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks", async () => {
+test("TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks", () => {
   const fx = seedDeepVerifyRepo("dv-host-checks-no-signature");
   const bundle = fx.baseBundle();
   // Explicitly assert the sub-case's precondition at fixture level: no
@@ -364,35 +336,35 @@ test("TEST-018a (AC-018): a bundle with no signature block still carries both ho
   delete bundle.signature;
   fx.writeBundle(bundle);
 
-  const call = await callDeepVerify(fx);
   try {
-    const data = okData(call.envelope, "no-signature envelope");
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
+    const data = okData(envelope, "no-signature envelope");
     assert.equal(data.signature.present, false, "sub-case precondition: signature.present is false");
-    assertConforms(call.envelope, "no-signature evidence_deep_verify envelope");
+    assertConforms(envelope, "no-signature evidence_deep_verify envelope");
     assertHostRequiredChecks(data, "TEST-018a no-signature fixture");
   } finally {
-    await call.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
-test("TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks", async () => {
+test("TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks", () => {
   const fx = seedDeepVerifyRepo("dv-host-checks-bad-git-commit");
   const bundle = fx.baseBundle();
   bundle.git_commit = "not-40-hex";
   fx.writeBundle(bundle);
 
-  const call = await callDeepVerify(fx);
   try {
-    const data = okData(call.envelope, "bad-git-commit envelope");
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
+    const data = okData(envelope, "bad-git-commit envelope");
     assert.equal(
       data.invariants.gitCommit.shapeValid,
       false,
       "sub-case precondition: gitCommit.shapeValid is false",
     );
-    assertConforms(call.envelope, "bad-git-commit evidence_deep_verify envelope");
+    assertConforms(envelope, "bad-git-commit evidence_deep_verify envelope");
     assertHostRequiredChecks(data, "TEST-018b bad-git-commit fixture");
   } finally {
-    await call.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
@@ -443,14 +415,14 @@ test("TEST-009 leg (AC-009): the schema requires hostRequiredChecks and pins its
   assert.equal(items.properties.note.type, "string");
 });
 
-test("TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation", async () => {
+test("TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation", () => {
   const fx = seedDeepVerifyRepo("dv-host-checks-ajv-omission");
-  const call = await callDeepVerify(fx);
   try {
+    const envelope = evidenceDeepVerify(fx.tempRoot.root, fx.feature, fx.taskId);
     const validate = getEnvelopeValidator();
-    assert.equal(validate(call.envelope), true, "the real response must validate");
+    assert.equal(validate(envelope), true, "the real response must validate");
 
-    const stripped = JSON.parse(JSON.stringify(call.envelope)) as {
+    const stripped = JSON.parse(JSON.stringify(envelope)) as {
       data: Record<string, unknown>;
     };
     delete stripped.data.hostRequiredChecks;
@@ -460,7 +432,7 @@ test("TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChe
       "an envelope omitting hostRequiredChecks must FAIL validation once the field is required",
     );
   } finally {
-    await call.cleanup();
+    fx.tempRoot.cleanup();
   }
 });
 
@@ -535,24 +507,23 @@ test("TEST-016 (AC-016): the schema description is verbatim requirements.md's CO
   assert.ok((description ?? "").includes("Never affects verdict."));
 });
 
-test("AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract", async () => {
+test("AC-015 additivity: five retained evidence readers return their expected v1 contract kinds", () => {
   const tempRoot = seedDemoFixture("dv-conformance-existing");
-  const fixture = await connectFixture(tempRoot);
   try {
-    const calls = [
-      { name: "evidence_get_bundle", arguments: { feature: "demo", taskId: "T-001" } },
-      { name: "evidence_validate_paths", arguments: { feature: "demo", taskId: "T-001" } },
-      { name: "evidence_find_missing", arguments: { feature: "demo", taskId: "T-001" } },
-      { name: "evidence_summarize_contract_checks", arguments: { feature: "demo", taskId: "T-001" } },
-      { name: "evidence_compare_to_traceability", arguments: { feature: "demo" } },
-    ];
-    for (const call of calls) {
-      const result = await fixture.client.callTool(call);
-      const envelope = parseEnvelope(result);
-      assert.equal((envelope as { ok: boolean }).ok, true, `${call.name} did not return an ok envelope`);
-      assertConforms(envelope, `${call.name} ok envelope`);
+    const root = tempRoot.root;
+    const results = [
+      ["evidence-bundle", evidenceGetBundle(root, "demo", "T-001")],
+      ["evidence-paths", evidenceValidatePaths(root, "demo", "T-001")],
+      ["evidence-missing", evidenceFindMissing(root, "demo", "T-001")],
+      ["contract-checks", evidenceSummarizeContractChecks(root, "demo", "T-001")],
+      ["traceability-comparison", evidenceCompareToTraceability(root, "demo")],
+    ] as const;
+    for (const [kind, envelope] of results) {
+      assert.equal(envelope.ok, true, kind);
+      assert.equal(envelope.data.kind, kind);
+      assertConforms(envelope, kind);
     }
   } finally {
-    await fixture.cleanup();
+    tempRoot.cleanup();
   }
 });

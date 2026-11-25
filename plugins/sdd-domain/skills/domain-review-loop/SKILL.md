@@ -35,8 +35,22 @@ user-invocable: false
 - 両レビュアーとも Critical / Major（Blocker）なし → `PASS`（Minor のみなら `PASS_WITH_NOTES`）。`domain/context-map.md` の `Domain-Model-Status:` を `Reviewed` に更新し、人間へ `Domain-Model-Status: Approved` への承認を依頼する。
 - いずれかに Critical / Major あり → `NEEDS_FIX`。Blocker と修正案を人間へ提示して停止（`domain/` 修正後に再度 `/sdd-domain:domain-model review` を実行）。
 
+### 人による承認と契約の発行
+
+初回と更新後とも、`PASS` または `PASS_WITH_NOTES` の `reports/domain-review/latest.md` と `Reviewed` の正本を人が確認する。人が承認を選んだら、レビュー時の正本と契約の内容に変更がないことを確認し、本人が次を行う。
+
+1. `domain/context-map.md` の `Domain-Model-Status: Reviewed` を `Approved` に変える。未レビューの `Pending`、`NEEDS_FIX`、またはレビュー後に本文が変わった場合は `domain-model review` へ戻る。
+2. 同じ版の `domain/domain-contract.json` を一時ファイルにコピーし、本人が `meta.status` を `Approved`、`meta.version` を次のパッチ版にする。置換前に v2 スキーマ（`contracts/domain-contract.v2.schema.json`）の `meta` と照合する。旧有効版のバージョンは半角数字3組の `major.minor.patch` 形式とし、その major と minor を維持し、patch の整数値に 1 を加えた文字列と候補を完全一致させる（例：`1.0.9` → `1.0.10`）。状態は正本の `Approved` と完全一致させる。旧版と候補の差分がこの2項目だけで、`meta.generated_from` の各入力もレビュー済みのままであることを確認する。すでに同じ承認済み内容が発行済みなら再発行は不要。
+3. interviewer の「`domain-contract.json` (v2) 再生成」と同じ配布 `scripts/validate-domain-contract.sh <candidate>`（Windows は `.ps1`）で検証する。この検証器は期待する版番号と承認状態の完全一致を判定しない。手順2の照合をすべて満たし、終了値が 0 で入力が同じ版のままの場合だけ、本人が一時ファイルで契約を原子的に置換する。旧版の有効性を確認できない、期待値や入力が違う、検証に失敗した場合は既存の契約を保持し、先に原因を解決する。
+4. 正本と契約の両方が `Approved` の現在の入力から Concept Test 提案を作る。発行前の提案は旧入力に結び付いている。
+
 ## Boundaries
 
 - `Domain-Model-Status: Approved` は絶対に書き込まない（人間のみ）。
 - レビュアーは `domain/` 成果物本文やステータスを書き換えない（`Reviewed` 遷移およびレポート出力は親オーケストレータの責務）。
 - 外部クロスモデル送信や権限昇格トークンによるロック解除は行わない。
+
+## Contract Boundary: Public v2 Single-Pass vs. Historical v1 Scripts
+
+- 本スキル（公開 v2 単一パス経路）は、`domain-reviewer-a` / `domain-reviewer-b` から 4 キー JSON（`schema: "domain-reviewer-{a,b}/v2"`, `role`, `verdict: "PASS" | "PASS_WITH_NOTES" | "NEEDS_FIX"`, `checks`）を並列受領し、統合レポートを `reports/domain-review/latest.md` へ出力する。
+- 同梱の旧 v1 互換スクリプト（`plugins/sdd-domain/scripts/domain-review-precheck.{sh,ps1}` および `plugins/sdd-domain/scripts/finalize-domain-review.{py,sh,ps1}`）は **本スキルの現行 v2 出力（`domain-reviewer-{a,b}/v2` JSON や `reports/domain-review/latest.md`）を受理しない**。旧 v1 経路は `reports/domain-review/attempt-<N>/round-<M>/precheck-result.json`（`domain-review-precheck/v1`）、`reports/review-context/identity-ledger.json` による順次予約と `reviewer-{a,b}-invocation.json`、8 キーの `reviewer-{a,b}.json`（`schema: "domain-reviewer-{a,b}/v1"`, `verdict: "PASS" | "NEEDS_WORK" | "BLOCKED"`）、および Reviewer A からの `--mode summary`（`integrated-summary.json`）を要求する別契約であり、v2 単一パス経路と混用しない。

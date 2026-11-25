@@ -32,8 +32,15 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    ```
    `NG` / `WARN` / `INFO` の件数と項目をそのまま記録する。
 2. **工場計測と原因工程遡及（`factory-metrics.mjs` & `.sdd/drift-events.jsonl`）**:
+   単一フィーチャー（`<feature>`）を対象とする回顧では `--feature "<feature>"` を明示して対象フィーチャーのみを集計する。プロジェクト横断で複数フィーチャー全体を集計する場合のみ `--feature` を省略する:
    ```bash
-   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" --root "<repo-root>" --format markdown
+   # 単一フィーチャーの回顧（既定: /sdd-ship:ship --retro specs/<feature>/tasks.md 経由）
+   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" \
+     --root "<repo-root>" --feature "<feature>" --format markdown
+
+   # プロジェクト横断の回顧（複数フィーチャー全体を集計する場合のみ）
+   node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs" \
+     --root "<repo-root>" --format markdown
    ```
    `.sdd/factory-metrics.jsonl` と `.sdd/drift-events.jsonl` から、ゲート合格率・実行時間・人の介在回数・**誤りの原因工程（`requirements` / `design` / `code` / `test` / `harness`）**を集計する。合格率は **`Final Independent Reviews`（独立評価 G1〜G5 の最終 VERDICT）** を使い、`Mechanical Gate Runs` は独立評価前の機械チェック結果として区別して報告する（最終判定の記録がない期間は「n/a」とし、機械 PASS で代用しない）。
 3. **品質ゲート実行証跡（`reports/quality-gate/`）**:
@@ -43,8 +50,16 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    - `docs/review-tickets/`（種別・重大度・解決状況）
    - `reports/diagnosis/*.md`（繰り返し発生する不具合カテゴリ）
    - 過去の `reports/retrospective/*.md`・`docs/workflow-improvements/WFI-*.md`・`sdd/rejected-decisions.md`
-5. **ドメイン適合ドリフト（`domain/` が存在する場合のみ）**:
-   `reports/quality-gate/` に記録済みの `check-domain-conformance` 指摘から用語逸脱・境界違反件数を集計する（`domain/` 不在時はセクションごと省略）。
+5. **ドメイン適合ドリフト**：`domain/` がない場合はレポートの該当節を省略する。ある場合は対象機能・期間の保存済みレポートだけを読む。検査の再実行やドメインモデルからの推定は行わない。
+   - 現行の `reports/quality-gate/<feature>-<T-NNN>.md` は対象タスクごとに1回読む。旧レポートは機能が一致し、タスク識別行（`Task ID:` または旧 `Task:`）と空でない `Run ID:` が各1行のものを使う。同じタスク・実行の複製はリポジトリ相対パスの辞書順で先頭の1件を採る。識別が曖昧なレポートは除外する。
+   - `check-domain-conformance WARN` と `check-domain-conformance FAILED` の所見行を次の表で分類する。入力エラーなど、どちらにも該当しない行は集計から外す。
+
+   | 指標 | 1件と数える所見 |
+   |---|---|
+   | Term-Deviation Count | `unrecognized term '...'`、`aggregate reference '...' not found in domain-contract.json aggregates`、`aggregate reference '...' has no domain/aggregates/....md card` |
+   | Boundary-Violation Count | `Bounded-Context '...' not found in domain-contract.json`、`Bounded-Context lists two contexts (...) with no declared relation in context map` |
+
+   `check-domain-conformance passed.` は0件と数える。検査結果が欠けていれば `Data Completeness` に記し、対象全件で結果がなければ件数は `N/A` とする。`N/A` は検査未実行を意味し、`0`（実行して指摘ゼロ）とは区別して報告する。v2 の `sdd-gate` はこの検査を自動実行しないため、記録は利用者が検査を実行して品質ゲート報告に出力行を残した場合だけ存在する。合計を同じ機能・集計範囲の前回値と比べ、比較できないときは傾向を `N/A` とする。
 
 ## Step 2: 既存改善（Applied WFI）の効果検証
 
@@ -56,6 +71,8 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 ## Step 3: 改善候補の抽出とレポート出力
 
 出力先: `reports/retrospective/<YYYYMMDD-HHMMSS>.md`
+
+`domain/` がある場合は、下記の挿入位置に[レポートテンプレート](../../templates/retrospective-report.template.md#domain-drift-metrics)の3行を Step 1 の計測値で埋める。
 
 ```markdown
 # Retrospective Report: <feature>
@@ -71,6 +88,8 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
 | sdd-gate Runs (PASS / FAIL) | <pass> / <fail> |
 | Guard Events (deny / confirm / warn) | <d> / <c> / <w> |
 | Review Tickets (critical / major / minor) | <c> / <m> / <min> |
+
+<!-- domain/ がある場合にテンプレートの Domain Drift Metrics 節を挿入 -->
 
 ## Recurring Friction Patterns (2+ occurrences)
 - 該当なし（今回改善候補なし）

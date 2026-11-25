@@ -13,7 +13,7 @@ user-invocable: false
 
 ## Preconditions
 
-- ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:sdd-adopt` を案内して停止）。
+- ルートに `AGENTS.md` が存在すること（不在時は `/sdd-bootstrap:bootstrap adopt` を案内して停止）。
 - `sdd/guardrails.yaml`（または `sdd/guardrails.json`）が存在すれば読み、不在時は既定値（`default_tier: standard`）を使用する。
 
 ## Process
@@ -39,6 +39,7 @@ user-invocable: false
    - `templates/design.md` → `specs/<feature>/design.md`:
      `node <sdd-bootstrap>/scripts/render-design-template.mjs --risk <確定したリスク>` の標準出力を使う。利用者の明示した `--reframe` があれば同じ引数を付ける。問題設定の再検証欄には、案件固有の前提、二案それぞれの実現費用と制約、採用理由を書く。
      **SSoT はソースコード**（詳細設計をソースと二重管理しない）。概要設計として方針・変更ファイル・モジュール跨ぎ契約・**採らなかった設計（Alternatives Rejected）**・影響範囲・テスト方針・`## Spec Amendments` のみを記載する（`Risk: high` を含む場合はセキュリティ・移行・ロールバック方針を明記し、必要に応じ `docs/adr/` へ ADR を作成）。
+     コンテナ構成図が必要な場合は `templates/c4-container.template.md` を使用し、設計上のコンテナと確認済みコンテキスト・概念の対応根拠を記録する。
    - `templates/tasks.md` → `specs/<feature>/tasks.md`:
      各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`（実装ファイルおよび対応テストファイル）、`### Done When`（対応 `AC-NNN` 参照）、`### Blockers`、末尾に `## Spec Amendments` を記載する。
 

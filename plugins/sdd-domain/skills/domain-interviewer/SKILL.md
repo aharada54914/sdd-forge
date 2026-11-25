@@ -66,4 +66,4 @@ user-invocable: false
 
 ## Handoff
 
-確定したステージ・成果物パス・`domain/domain-contract.json` の検証結果を `domain-model` へ返す。全 7 ステージ完了時は `/sdd-domain:domain-model review`（`domain-review-loop`）の準備完了と、最終承認（`Domain-Model-Status: Approved`）は人間操作であることを明示する。
+確定したステージ・成果物パス・`domain/domain-contract.json` の検証結果を `domain-model` へ返す。全 7 ステージ完了時は `/sdd-domain:domain-model review`（`domain-review-loop`）の準備完了と、最終承認は人間操作であることを明示する。承認は `domain-review-loop` の「人による承認と契約の発行」に従い、本人が `Domain-Model-Status: Approved` にしたうえで `domain/domain-contract.json` を発行する（context-map だけを承認すると契約は `Pending` のままで、Concept Test が停止する）。
