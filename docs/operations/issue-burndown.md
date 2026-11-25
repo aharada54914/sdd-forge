@@ -83,7 +83,7 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 | Issue | Reason |
 |---|---|
-| #812 | Specified on `codex/n14-package-spec` (pushed by the owner); next to implement after #803/#804. |
+| #812 | Owner decision (2026-11-25): workaround and a CI reproduction first; the full fix (`specs/native-concept-runtime/` T-001, Draft, on `codex/n14-package-spec`) waits until Codex-plugin DDD support is a goal. `tests/codex-versioned-cache.tests.py` rebuilds the cache layout; its two expected failures turn into the T-001 acceptance test. |
 | (v1 Concept Test records) | The gate treats an unsigned v1-only record like no record (`NOT_APPLICABLE`) while the validator blocks it. Deliberate: verifying a v1 signature needs `SDD_CONTEXT_KEY`, which CI lacks, so blocking would also stop legitimately signed v1 records. Decide: keep v1 as unverified history, or provide the key to CI. |
 
 ## Follow-ups

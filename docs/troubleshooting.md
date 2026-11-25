@@ -161,6 +161,23 @@ Claude の manifest 修正は Claude Code の validator 互換性に限定して
 Codex の `.codex-plugin` manifest、marketplace、agent TOML の配布経路は変更せず、
 インストーラー試験で `codex plugin add` を継続して検証します。
 
+### Codex で DDD の Concept Test が BLOCK になる（#812）
+
+**症状：** Codex に導入したプラグインで、`domain/` のある機能の Concept Test が正しい提案（FITS）でも
+`VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE` で止まる。`sdd-gate` は `checks.conceptTest` が `BLOCK` になり、
+`Concept Test runtime not found next to sdd-quality-loop` と表示する。
+
+**原因：** Codex はプラグインごと・版ごとのフォルダー（`<cache>/sdd-plugins/<plugin>/<version>/`）に導入します。
+`./install.sh --target Codex` も `codex plugin add` を使うため同じ配置になります。Concept Test は別プラグインと
+共通の `contracts/` を相対パスで読むため、この配置では見つかりません。DDD を使わない機能（`domain/` なし）は影響を受けません。
+
+**回避策：** DDD の機能では、Concept Test とゲートを sdd-forge のソース（`install.sh` に渡すリポジトリ）から直接実行します。
+```bash
+sh <sdd-forge>/plugins/sdd-domain/scripts/validate-concept-test.sh --root <project> --feature <feature>
+node <sdd-forge>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs --root <project> --feature <feature> --task <T-NNN>
+```
+この配置は `tests/codex-versioned-cache.tests.py` が再現しており、修正されると想定失敗の 2 件が成功に変わります。
+
 ### 三段階レビューが次の段階へ進まない
 
 **症状：** `impl-review-loop` または `task-review-loop` が predecessor を検証できず停止する。
