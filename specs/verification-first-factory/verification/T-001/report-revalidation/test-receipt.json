@@ -1,0 +1,108 @@
+{
+  "revision": "585feab2f825f62a155dd90509635c68cc073279",
+  "run_id": "3e936ae1-3c2f-4a12-a7f7-eb8ea2846792",
+  "input_manifest_sha256": "f74da4715106eaa6f17a6a7facbfad9f437d31b320b8da0143f9a87efda45ab0",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/v2-sdd-doctor.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)\n  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (304.972917ms)\n  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (8.021291ms)\n  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.415625ms)\n  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (2.0015ms)\n  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (28.21625ms)\n  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.369542ms)\n  ✔ normalizes inline extension mappings, including nested options and quoted commas (73.865416ms)\n  ✔ continues reporting configured adapters when the checker jar cannot be inspected (81.768833ms)\n  ✔ reports an invalid checker jar path as a JSON configuration finding (112.697166ms)\n  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (79.844583ms)\n✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (693.715083ms)\nℹ tests 10\nℹ suites 1\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 729.813083\n"
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "--test-name-pattern",
+        "cannot be inspected",
+        "tests/v2-sdd-doctor.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)\n  ✔ continues reporting configured adapters when the checker jar cannot be inspected (80.930208ms)\n✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (81.308459ms)\nℹ tests 1\nℹ suites 1\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 117.337042\n"
+    }
+  ],
+  "isolated_replay": {
+    "source": "only allowed_inputs from task-input-manifest.json",
+    "argv": [
+      "node",
+      "--test",
+      "tests/v2-sdd-doctor.test.mjs"
+    ],
+    "exit_code": 0,
+    "stdout": "▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)\n  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (39.828792ms)\n  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (8.076ms)\n  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.359834ms)\n  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (2.142667ms)\n  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (28.869875ms)\n  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.39875ms)\n  ✔ normalizes inline extension mappings, including nested options and quoted commas (73.98925ms)\n  ✔ continues reporting configured adapters when the checker jar cannot be inspected (84.618833ms)\n  ✔ reports an invalid checker jar path as a JSON configuration finding (139.604375ms)\n  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (101.038833ms)\n✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (480.508209ms)\nℹ tests 10\nℹ suites 1\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 518.9475\n",
+    "stderr": ""
+  },
+  "inaccessible_parent": {
+    "method": "On macOS create a regular checker JAR under a mode-000 directory. Confirm os.stat raises EACCES. Run the doctor with the specified configuration, capture JSON and exit code, then restore the directory mode.",
+    "platform": "Darwin",
+    "euid": 501,
+    "commands": [
+      {
+        "config": {
+          "formal_verification": {
+            "enabled": true,
+            "checker": {
+              "adapter": "tlc",
+              "adapter_options": {
+                "tlc": {
+                  "jar": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-eacces-mbigo41_/restricted/checker.jar"
+                }
+              }
+            }
+          },
+          "security_audit": {
+            "enabled": true,
+            "enabled_adapters": [
+              "builtin-secret-pattern"
+            ]
+          }
+        },
+        "argv": [
+          "node",
+          "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+          "--root",
+          "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-eacces-mbigo41_",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"schema\": \"sdd-doctor/v1\",\n  \"checked_at\": \"2026-11-25T23:40:32.151Z\",\n  \"status\": \"CLEAN\",\n  \"summary\": {\n    \"ng\": 0,\n    \"warn\": 0,\n    \"info\": 3\n  },\n  \"non_checks\": [\n    \"仕様・設計・ドメインモデルの意味的妥当性や文書間の内容矛盾\",\n    \"テストケースの網羅性・プロダクションコードの論理バグや性能\",\n    \"クラウド環境（AWS/Azure）や本番データベースの実状態・認証有効性\",\n    \"外部ホスト CLI（Claude Code / Codex / Copilot / Antigravity / Gemini）内部の非公開挙動\"\n  ],\n  \"findings\": [\n    {\n      \"severity\": \"INFO\",\n      \"category\": \"hooks\",\n      \"message\": \"プロジェクト配下にローカルフック設定は検出されませんでした（ユーザーホーム側設定を利用中の可能性）\",\n      \"path\": null,\n      \"action\": \"フック動作を確認する場合はホスト設定（~/.claude / ~/.codex / ~/.gemini/config 等）を確認してください\"\n    },\n    {\n      \"severity\": \"INFO\",\n      \"category\": \"adapters\",\n      \"adapter\": \"tlc\",\n      \"availability\": \"unavailable\",\n      \"message\": \"tlc: unavailable (java=false, tla2tools.jar=false)\",\n      \"path\": null,\n      \"action\": \"設定した検証ツールの導入先を確認してください\"\n    },\n    {\n      \"severity\": \"INFO\",\n      \"category\": \"adapters\",\n      \"adapter\": \"builtin-secret-pattern\",\n      \"availability\": \"available\",\n      \"message\": \"builtin-secret-pattern: available (built-in)\",\n      \"path\": null,\n      \"action\": \"追加対応なし\"\n    }\n  ],\n  \"v2_2_gates\": {\n    \"formal_verification\": {\n      \"enabled\": true,\n      \"mode\": \"shadow\",\n      \"adapter\": \"tlc\"\n    },\n    \"agent_lint\": {\n      \"enabled\": false,\n      \"mode\": \"shadow\",\n      \"waiver_count\": 0\n    },\n    \"security_audit\": {\n      \"enabled\": true,\n      \"mode\": \"shadow\",\n      \"enabled_adapters\": [\n        \"builtin-secret-pattern\"\n      ]\n    },\n    \"anti_tampering\": {\n      \"enabled\": true,\n      \"mode\": \"strict\"\n    }\n  },\n  \"root\": \"/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-eacces-mbigo41_\"\n}\n",
+        "stderr": ""
+      },
+      {
+        "config": {
+          "formal_verification": {
+            "enabled": true,
+            "checker": {
+              "adapter": "apalache",
+              "adapter_options": {
+                "apalache": {
+                  "jar": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-eacces-mbigo41_/restricted/checker.jar"
+                }
+              }
+            }
+          },
+          "security_audit": {
+            "enabled": true,
+            "enabled_adapters": [
+              "builtin-secret-pattern"
+            ]
+          }
+        },
+        "argv": [
+          "node",
+          "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+          "--root",
+          "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-eacces-mbigo41_",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"schema\": \"sdd-doctor/v1\",\n  \"checked_at\": \"2026-11-25T23:40:32.191Z\",\n  \"status\": \"CLEAN\",\n  \"summary\": {\n    \"ng\": 0,\n    \"warn\": 0,\n    \"info\": 3\n  },\n  \"non_checks\": [\n    \"仕様・設計・ドメインモデルの意味的妥当性や文書間の内容矛盾\",\n    \"テストケースの網羅性・プロダクションコードの論理バグや性能\",\n    \"クラウド環境（AWS/Azure）や本番データベースの実状態・認証有効性\",\n    \"外部ホスト CLI（Claude Code / Codex / Copilot / Antigravity / Gemini）内部の非公開挙動\"\n  ],\n  \"findings\": [\n    {\n      \"severity\": \"INFO\",\n      \"category\": \"hooks\",\n      \"message\": \"プロジェクト配下にローカルフック設定は検出されませんでした（ユーザーホーム側設定を利用中の可能性）\",\n      \"path\": null,\n      \"action\": \"フック動作を確認する場合はホスト設定（~/.claude / ~/.codex / ~/.gemini/config 等）を確認してください\"\n    },\n    {\n      \"severity\": \"INFO\",\n      \"category\": \"adapters\",\n      \"adapter\": \"apalache\",\n      \"availability\": \"unavailable\",\n      \"message\": \"apalache: unavailable (java=false, apalache.jar=false)\",\n      \"path\": null,\n      \"action\": \"設定した検証ツールの導入先を確認してください\"\n    },\n    {\n      \"severity\": \"INFO\",\n      \"category\": \"adapters\",\n      \"adapter\": \"builtin-secret-pattern\",\n      \"availability\": \"available\",\n      \"message\": \"builtin-secret-pattern: available (built-in)\",\n      \"path\": null,\n      \"action\": \"追加対応なし\"\n    }\n  ],\n  \"v2_2_gates\": {\n    \"formal_verification\": {\n      \"enabled\": true,\n      \"mode\": \"shadow\",\n      \"adapter\": \"apalache\"\n    },\n    \"agent_lint\": {\n      \"enabled\": false,\n      \"mode\": \"shadow\",\n      \"waiver_count\": 0\n    },\n    \"security_audit\": {\n      \"enabled\": true,\n      \"mode\": \"shadow\",\n      \"enabled_adapters\": [\n        \"builtin-secret-pattern\"\n      ]\n    },\n    \"anti_tampering\": {\n      \"enabled\": true,\n      \"mode\": \"strict\"\n    }\n  },\n  \"root\": \"/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-eacces-mbigo41_\"\n}\n",
+        "stderr": ""
+      }
+    ],
+    "fixture_errno": "EACCES"
+  }
+}
