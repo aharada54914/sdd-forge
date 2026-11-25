@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-002
-status: resolved
+status: open
 type: regression
 severity: major
 target:
@@ -25,3 +25,4 @@ resolution:
   commit: "e8428fcb7"
   evidence: "reports/implementation/verification-first-factory/T-002.md"
   result: "The public CLI accepts the archived help document without an open question and flags genuine suppression comments before, alongside and after the here-document."
+reopened: "Independent evaluation at cc5872c2905e reproduced the same help-text false positive with a Bash ANSI-C-quoted delimiter."

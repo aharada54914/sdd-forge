@@ -1,0 +1,162 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "f8d31e7b-4c2e-4ee5-abd8-edb78b07775d",
+  "feature": "verification-first-factory",
+  "taskId": "T-002",
+  "mode": "standard",
+  "executedAt": "2026-11-25T23:11:10.144Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "7df343ae4070a46630e5603e9d45d9d75576a9e4f2bc31179bf9a4621f3982e2",
+    "ids": {
+      "AC-009": "ce5afc16852a66dcbe0f41b2fb1b8ad027ea02cd0bcd503ac124caa7c81d6ebe",
+      "NFR-001": "4377c9370ebf8772f76b1ab4e279965f587a804c158e171da17976e804c75aab",
+      "REQ-010": "a23115a97d1b86fb4a86f62023ef4493f91de14d88df5e55262f99257c146a6a",
+      "SELF-REQ-006": "4928bfc8a58010519b8949609802c17d160d899f237b56706f689cebae5e6704"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 1,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "baseRef": "HEAD",
+    "taskScope": [
+      "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sdd/approved-test-retirements.json",
+      "CODEOWNERS"
+    ],
+    "outOfScopeFiles": [
+      "tests/v2-spec-drift.test.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 1 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-002",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "high",
+      "scopePaths": [
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "sdd/approved-test-retirements.json",
+        "CODEOWNERS"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-anti-tamper/v1",
+      "status": "CLEAN",
+      "baseRef": "HEAD",
+      "checkedFilesCount": 0,
+      "violations": []
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "task-tests",
+        "command": "node --test tests/v2-spec-drift.test.mjs",
+        "exitCode": 0,
+        "durationMs": 7471,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (101.065ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (73.165125ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (99.833042ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (274.416ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (207.410125ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (207.477041ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (140.800042ms)\n  ✔ a baseline recorded before this change keeps its old comparison (112.550083ms)\n✔ #818 staged human approval is not spec drift (253.465541ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (95.216291ms)\n✔ #834 unreadable spec files are reported apart from deletions (95.304292ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (191.309209ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (163.934291ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (355.338292ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (80.365ms)\n✔ #972 re-review: text added to an Approval line is drift (80.419375ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (274.59275ms)\n  ✔ allows documentation and quoted examples of inline lint directives without opening an OQ (248.166125ms)\n  ✔ accepts the shell here-document help example without a diagnostic or OQ (164.716625ms)\n  ✔ reports only active shell comments before, beside and after queued here-documents (226.460959ms)\n  ✔ reports added lint directives in source comments with a persisted OQ (197.334208ms)\n  ✔ allows renaming an already skipped test and editing existing skip reasons (295.301416ms)\n  ✔ counts active Node options across layout changes alongside prior Python and Go directives (668.440958ms)\n  ✔ counts Node test context calls using the callback parameter, including subtests (518.623416ms)\n  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (647.531375ms)\n  ✔ ignores Python and Go documentation while counting executable skip directives (353.853625ms)\n  ✔ preserves an existing question with invalid JSON and records a valid replacement (334.928791ms)\n  ✔ preserves an existing question with wrong id and records a valid replacement (569.228666ms)\n  ✔ preserves an existing question with wrong feature and records a valid replacement (519.777834ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (336.890083ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (217.963083ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (219.683584ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (353.172166ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (6147.104042ms)\nℹ tests 27\nℹ suites 7\nℹ pass 27\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 7447.6115\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}
