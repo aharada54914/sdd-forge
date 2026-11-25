@@ -1,6 +1,6 @@
 {
   "name": "sdd-domain",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "DDD upstream domain modeling, domain review loop, concept tests, and domain-sync conformance workflows for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }
