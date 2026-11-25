@@ -1,0 +1,46 @@
+{
+  "red": {
+    "commit": "d1c616cfc245eb54c33adc692e7e66cd9965488f",
+    "args": [
+      "node",
+      "--test",
+      "--test-name-pattern",
+      "cannot be inspected",
+      "tests/v2-sdd-doctor.test.mjs"
+    ],
+    "exit_code": 1,
+    "error": "ENAMETOOLONG",
+    "tests_sha256": "dec857bf04bc568f5adf938dd54d04bb63fe759704bec868c522bd2df9cc80e2",
+    "test_summary": [
+      "ℹ tests 1",
+      "ℹ suites 1",
+      "ℹ pass 0",
+      "ℹ fail 1",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0"
+    ]
+  },
+  "green": {
+    "commit": "2a20f64c5cd8adcac6ba5248004194acc58f663c",
+    "args": [
+      "node",
+      "--test",
+      "--test-name-pattern",
+      "cannot be inspected",
+      "tests/v2-sdd-doctor.test.mjs"
+    ],
+    "exit_code": 0,
+    "error": null,
+    "tests_sha256": "dec857bf04bc568f5adf938dd54d04bb63fe759704bec868c522bd2df9cc80e2",
+    "test_summary": [
+      "ℹ tests 1",
+      "ℹ suites 1",
+      "ℹ pass 1",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0"
+    ]
+  }
+}
