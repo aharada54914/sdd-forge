@@ -1,0 +1,177 @@
+{
+  "ticket": "RT-20261126-002",
+  "regression_suite": "tests/v2-spec-drift.test.mjs",
+  "suite_sha256": "2a2f3573762ac9c93dd1b15feb15485de5bab882f96ec35a5b3251db705f3e9d",
+  "help_fixture": "specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/help.sh.txt",
+  "help_fixture_sha256": "e23942532a78c8e686a1cecc47e2e2836c4eba858b1c418a0aaa06f4d7278d10",
+  "command": [
+    "node",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "--anti-tamper",
+    "--root",
+    "<temporary Git repository>",
+    "--feature",
+    "example"
+  ],
+  "revisions": {
+    "red": {
+      "source_commit": "84ec68a80259f61a4f42ca7f4056cbcf42f6c3e3",
+      "cli_sha256": "f81eeecacf88a5c59012107f27f6376a134c8e68b0cdf0120b714fb094729c99",
+      "cases": {
+        "help": {
+          "shell_exit": 0,
+          "shell_stdout": "# sdd-lint-disable example-rule\n",
+          "shell_stderr": "",
+          "exit_code": 4,
+          "diagnostic": {
+            "schema": "sdd-anti-tamper/v1",
+            "status": "TAMPER_DETECTED",
+            "baseRef": "HEAD",
+            "checkedFilesCount": 1,
+            "openQuestion": {
+              "id": "OQ-001",
+              "path": "reports/verification/example/anti-tampering/OQ-001.json"
+            },
+            "violations": [
+              {
+                "code": "LINT_DISABLE_ADDED",
+                "path": "help.sh",
+                "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable example-rule"
+              }
+            ]
+          },
+          "stderr": "",
+          "persisted_questions": [
+            {
+              "id": "OQ-001",
+              "status": "Provisional",
+              "feature": "example",
+              "baseCommit": "b30c43d12764edf9ab480b7366ae162430d87e75",
+              "violations": [
+                {
+                  "code": "LINT_DISABLE_ADDED",
+                  "path": "help.sh"
+                }
+              ]
+            }
+          ]
+        },
+        "real-comment": {
+          "shell_exit": 0,
+          "shell_stdout": "",
+          "shell_stderr": "",
+          "exit_code": 4,
+          "diagnostic": {
+            "schema": "sdd-anti-tamper/v1",
+            "status": "TAMPER_DETECTED",
+            "baseRef": "HEAD",
+            "checkedFilesCount": 1,
+            "openQuestion": {
+              "id": "OQ-001",
+              "path": "reports/verification/example/anti-tampering/OQ-001.json"
+            },
+            "violations": [
+              {
+                "code": "LINT_DISABLE_ADDED",
+                "path": "help.sh",
+                "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable active-rule"
+              }
+            ]
+          },
+          "stderr": "",
+          "persisted_questions": [
+            {
+              "id": "OQ-001",
+              "status": "Provisional",
+              "feature": "example",
+              "baseCommit": "b30c43d12764edf9ab480b7366ae162430d87e75",
+              "violations": [
+                {
+                  "code": "LINT_DISABLE_ADDED",
+                  "path": "help.sh"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "green": {
+      "source_commit": "4bb28e779bc3e699013f59e0d7dd688cb90cc933",
+      "cli_sha256": "5d6756867cf2951766e8cc5d27c54a7f3ee53da5c282c2a9cfffa17c98d70c3c",
+      "cases": {
+        "help": {
+          "shell_exit": 0,
+          "shell_stdout": "# sdd-lint-disable example-rule\n",
+          "shell_stderr": "",
+          "exit_code": 0,
+          "diagnostic": {
+            "schema": "sdd-anti-tamper/v1",
+            "status": "CLEAN",
+            "baseRef": "HEAD",
+            "checkedFilesCount": 1,
+            "violations": []
+          },
+          "stderr": "",
+          "persisted_questions": []
+        },
+        "real-comment": {
+          "shell_exit": 0,
+          "shell_stdout": "",
+          "shell_stderr": "",
+          "exit_code": 4,
+          "diagnostic": {
+            "schema": "sdd-anti-tamper/v1",
+            "status": "TAMPER_DETECTED",
+            "baseRef": "HEAD",
+            "checkedFilesCount": 1,
+            "openQuestion": {
+              "id": "OQ-001",
+              "path": "reports/verification/example/anti-tampering/OQ-001.json"
+            },
+            "violations": [
+              {
+                "code": "LINT_DISABLE_ADDED",
+                "path": "help.sh",
+                "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable active-rule"
+              }
+            ]
+          },
+          "stderr": "",
+          "persisted_questions": [
+            {
+              "id": "OQ-001",
+              "status": "Provisional",
+              "feature": "example",
+              "baseCommit": "b30c43d12764edf9ab480b7366ae162430d87e75",
+              "violations": [
+                {
+                  "code": "LINT_DISABLE_ADDED",
+                  "path": "help.sh"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "suite_result": {
+    "command": [
+      "node",
+      "--test",
+      "tests/v2-spec-drift.test.mjs"
+    ],
+    "exit_code": 0,
+    "summary": [
+      "ℹ tests 27",
+      "ℹ suites 7",
+      "ℹ pass 27",
+      "ℹ fail 0",
+      "ℹ cancelled 0",
+      "ℹ skipped 0",
+      "ℹ todo 0",
+      "ℹ duration_ms 6715.041291"
+    ]
+  }
+}
