@@ -42,6 +42,13 @@ node <installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs
 node <installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs release --feature <slug> --owner "$RUN_ID" --root .
 ```
 
+Acquisition, renewal, and release coordinate through short-lived writer intents
+in `.sdd/lock-mutations/`. Upgrade all workers sharing a workspace together.
+A process that detects a dead peer on the same host removes its intent. If a
+contention result repeatedly names the same `peerIntent`, stop all workers
+sharing the workspace and remove that specific file before restarting them.
+The task lock itself keeps its recorded owner and TTL.
+
 ## 4. Human-on-the-Loop Governance
 
 - Automated runs MUST NEVER write `Approval: Approved` (blocked deterministically by `sdd-soft-guard.mjs`).

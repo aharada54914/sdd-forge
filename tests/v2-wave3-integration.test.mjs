@@ -220,11 +220,31 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     assert.deepEqual(result.checks.writeScope.violations, ['proof.txt']);
   });
 
+  it('reports a failed lock release after saving a completed gate execution', (t) => {
+    const dir = setupGateProject();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const peerName = Buffer.from(os.hostname()).toString('base64url') + '.' + process.pid + '.fixture';
+    const peerPath = path.join(dir, '.sdd', 'lock-mutations', 'rebuild-demo--T-001.lock', peerName);
+    fs.writeFileSync(path.join(dir, 'hold-intent.cjs'),
+      `require('node:fs').writeFileSync(${JSON.stringify(peerPath)}, '')`);
+    const result = gate(dir, '--lock-owner', 'worker', '--changed-files', 'src/app.mjs', '--cmd', 'test=node hold-intent.cjs');
+    assert.equal(result.code, 2);
+    assert.match(result.report.lockCleanupError, /worker/);
+    assert.ok(result.report.lockCleanupError.includes(peerName));
+    assert.equal(JSON.parse(fs.readFileSync(result.report.outputPath)).verdict, 'PASS');
+    fs.unlinkSync(peerPath);
+    assert.equal(releaseLock({ feature: 'rebuild-demo', taskId: 'T-001', owner: 'worker', projectRoot: dir }).released, true);
+  });
+
   it('T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast', () => {
     const dir = setupGateProject();
     const lock = acquireLock({ feature: 'rebuild-demo', taskId: 'T-001', owner: 'worker-other', projectRoot: dir });
     assert.equal(lock.acquired, true);
 
+    const ownerReport = JSON.stringify({ verdict: 'PASS', runId: 'holder' });
+    const reportPath = path.join(dir, 'reports', 'quality-gate', 'rebuild-demo-T-001.execution.json');
+    fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+    fs.writeFileSync(reportPath, ownerReport);
     const blockedRes = spawnSync(
       process.execPath,
       [
@@ -243,6 +263,8 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     assert.equal(blockedReport.failFastStoppedAt, 'lockCheck');
     assert.equal(blockedReport.checks.lockCheck.acquired, false);
     assert.equal(blockedReport.checks.commands.length, 0);
+    assert.equal(blockedReport.outputPath, null);
+    assert.equal(fs.readFileSync(reportPath, 'utf8'), ownerReport);
 
     releaseLock({ feature: 'rebuild-demo', taskId: 'T-001', owner: 'worker-other', projectRoot: dir });
 

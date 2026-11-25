@@ -6,11 +6,11 @@
       "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
       "invariant": "SingleOwner",
       "actions": {
-        "Acquire": "acquireLock: exclusive link or wx create",
+        "Acquire": "acquireLock: claim a writer intent before atomically publishing the lock",
         "Renew": "acquireLock -> renewLock: own lock lease",
         "Expire": "getLockStatus -> evaluateStale: TTL expiration",
-        "ReclaimStale": "acquireLock: breakStale then retry",
-        "Release": "releaseLock: matching owner"
+        "ReclaimStale": "acquireLock: replace an expired record under the writer intent",
+        "Release": "releaseLock: matching owner under the writer intent"
       },
       "sources": [
         "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
@@ -71,14 +71,29 @@
         ],
         "actor_actions": []
       }
+    },
+    "TaskLockMutation": {
+      "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "invariant": "OneWriter",
+      "actions": {
+        "Announce": "withLockMutation: publish a unique intent with wx",
+        "Enter": "withLockMutation: scan published intents and enter only in the absence of live peers",
+        "Withdraw": "withLockMutation: remove own intent after refusal or completion",
+        "Crash": "a local process exits during a mutation, leaving its intent",
+        "Reap": "withLockMutation: remove the unique intent of a local PID confirmed dead"
+      },
+      "sources": [
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
+      ],
+      "expected_violated_invariant": "OneWriter"
     }
   },
   "mapping": {
-    "Acquire": "acquireLock: exclusive link or wx create",
+    "Acquire": "acquireLock: claim a writer intent before atomically publishing the lock",
     "Renew": "acquireLock -> renewLock: own lock lease",
     "Expire": "getLockStatus -> evaluateStale: TTL expiration",
-    "ReclaimStale": "acquireLock: breakStale then retry",
-    "Release": "releaseLock: matching owner",
+    "ReclaimStale": "acquireLock: replace an expired record under the writer intent",
+    "Release": "releaseLock: matching owner under the writer intent",
     "StartTask": "tasks.md Status: Planned -> In Progress",
     "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
     "RunGatePass": "run-sdd-gate.mjs verdict PASS",
@@ -86,10 +101,15 @@
     "MarkDone": "quality-gate transitions Status -> Done",
     "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
     "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
-    "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
+    "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops",
+    "Announce": "withLockMutation: publish a unique intent with wx",
+    "Enter": "withLockMutation: scan published intents and enter only in the absence of live peers",
+    "Withdraw": "withLockMutation: remove own intent after refusal or completion",
+    "Crash": "a local process exits during a mutation, leaving its intent",
+    "Reap": "withLockMutation: remove the unique intent of a local PID confirmed dead"
   },
   "assumptions": [
-    "Local POSIX/NTFS atomic file creation or hardlink semantics hold for task-lock.mjs",
+    "Local atomic exclusive creation, atomic rename, and coherent directory enumeration; every writer uses the same intent protocol. Local peers with the same hostname share a PID namespace.",
     "Only quality-gate sets Status: Done after reading execution.json verdict"
   ],
   "excluded": [
@@ -98,15 +118,16 @@
   ],
   "bounds": [
     "Two lock contenders; abstract, indivisible filesystem operations; holders includes the owner of a stale record until reclaimed.",
-    "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only."
+    "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
+    "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
   ],
   "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
   "source_sha256": {
     "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb",
-    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "2d67724fc842505ad8c3fa3b20e6dfdf5ad4709dd89c0fbc6aef38442d9ac594",
-    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "2e57f256b3772f59666081e2c0dec7cf69d67081155ae4b624e0df43a90f546f",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d",
+    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "1a4de21844d83391b1e630a59b0197ecb260d223350aa637621ad7a5e6bbac36",
     "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02",
     "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648",
     "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",

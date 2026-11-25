@@ -727,6 +727,7 @@ export function runSddGate({
     acquiredLockForRelease = Boolean(lockRes.acquired && !lockRes.reentrant);
   }
 
+  let outcome;
   try {
     const taskCheckErrors = [];
     if (!isApprovedValue(taskState.approval)) {
@@ -963,11 +964,16 @@ export function runSddGate({
       },
     };
 
-    const resolvedOutput = outputPath
-      ? path.resolve(outputPath)
-      : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
-    fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
-    fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+    // Only the lock holder may publish the task's execution report. A denied
+    // contender still returns its diagnostic through the API and CLI stdout.
+    let resolvedOutput = null;
+    if (lockCheck.passed) {
+      resolvedOutput = outputPath
+        ? path.resolve(outputPath)
+        : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
+      fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
+      fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+    }
 
     appendFactoryMetric(root, {
       runId: result.runId,
@@ -990,13 +996,17 @@ export function runSddGate({
       commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
     });
 
-    return { result, outputPath: resolvedOutput };
+    outcome = { result, outputPath: resolvedOutput };
+    return outcome;
   } finally {
     if (acquiredLockForRelease && lockOwner) {
       try {
-        releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
-      } catch {
-        // non-fatal release
+        const cleanup = releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
+        if (!cleanup.released) throw new Error([cleanup.message, cleanup.peerIntent].filter(Boolean).join(' '));
+      } catch (err) {
+        const message = `Could not release ${lockCheck.lockPath} for owner '${lockOwner}': ${err.message}`;
+        if (outcome) outcome.lockCleanupError = message;
+        else process.stderr.write(`run-sdd-gate error: ${message}\n`);
       }
     }
   }
@@ -1099,7 +1109,7 @@ function main() {
     process.exit(2);
   }
   try {
-    const { result, outputPath } = runSddGate({
+    const { result, outputPath, lockCleanupError } = runSddGate({
       feature: opts.feature,
       taskId: opts.taskId,
       projectRoot: opts.root || process.cwd(),
@@ -1126,8 +1136,12 @@ function main() {
       formalRound: opts.formalRound,
       failFast: opts.failFast,
     });
-    process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ ...result, outputPath, lockCleanupError }, null, 2)}\n`);
     for (const warning of result.warnings) process.stderr.write(`run-sdd-gate warning: ${warning}\n`);
+    if (lockCleanupError) {
+      process.stderr.write(`run-sdd-gate error: ${lockCleanupError}\n`);
+      process.exit(2);
+    }
     process.exit(result.verdict === 'PASS' ? 0 : 1);
   } catch (err) {
     process.stderr.write(`run-sdd-gate error: ${err.message}\n`);

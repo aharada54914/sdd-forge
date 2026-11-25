@@ -501,6 +501,7 @@ it(
         ],
       ],
       [path.join(formal, 'TaskLock.tla'), 'SingleOwner', captureLock(projectRoot)],
+      [path.join(formal, 'TaskLockMutation.tla'), 'OneWriter'],
       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(projectRoot)],
       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(sandbox(t), true)],
     ];

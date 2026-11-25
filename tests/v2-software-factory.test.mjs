@@ -989,6 +989,63 @@ describe('#972 review: Scope literals and lock renewal races', () => {
     );
   });
 
+  it('a concurrent release and acquire cannot remove a newly acquired lock', async () => {
+    const { acquireLock, getLockStatus, releaseLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-release-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    const args = { feature: 'f', projectRoot: dir };
+    const first = acquireLock({ ...args, owner: 'A' });
+    assert.equal(first.acquired, true);
+    const cli = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const child = (...args) => {
+      const res = spawnSync(process.execPath, [cli, ...args, '--feature', 'f', '--root', dir], { encoding: 'utf8' });
+      assert.ok([0, 1].includes(res.status), res.stderr);
+      return JSON.parse(res.stdout);
+    };
+    const read = fs.readFileSync;
+    let nextOwner;
+    const spy = mock.method(fs, 'readFileSync', function (...params) {
+      const value = read.apply(this, params);
+      if (!nextOwner && params[0] === first.lockPath) {
+        child('release', '--owner', 'A');
+        nextOwner = child('acquire', '--owner', 'B');
+      }
+      return value;
+    });
+    try {
+      assert.equal(releaseLock({ ...args, owner: 'A' }).released, true);
+    } finally {
+      spy.mock.restore();
+    }
+    assert.ok(nextOwner, 'both child calls overlapped the release');
+    if (!nextOwner.acquired) assert.equal(acquireLock({ ...args, owner: 'B' }).acquired, true);
+    assert.equal(getLockStatus(args).record?.owner, 'B');
+  });
+
+  it('a process exit during acquisition does not strand an intent or publish partial data', async () => {
+    const { acquireLock, getLockStatus } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-intent-exit-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    const args = { feature: 'f', projectRoot: dir };
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', `
+      import fs from 'node:fs';
+      import { acquireLock } from './plugins/sdd-quality-loop/scripts/v2/task-lock.mjs';
+      const rename = fs.renameSync;
+      fs.renameSync = (src, dest) => {
+        if (dest.endsWith('f.lock')) process.exit(90);
+        return rename(src, dest);
+      };
+      acquireLock({ feature: 'f', owner: 'A', projectRoot: process.argv[1] });
+    `, dir], { cwd: REPO_ROOT, encoding: 'utf8' });
+    assert.equal(child.status, 90, child.stderr);
+    assert.equal(getLockStatus(args).locked, false);
+    const intents = path.join(dir, '.sdd', 'lock-mutations', 'f.lock');
+    assert.equal(fs.readdirSync(intents).length, 1);
+    assert.equal(acquireLock({ ...args, owner: 'B' }).acquired, true);
+    assert.deepEqual(fs.readdirSync(intents), []);
+    assert.equal(getLockStatus(args).record.owner, 'B');
+  });
+
   it('renewal never overwrites a lock another worker took after it was read', async () => {
     const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
     const dir = trackTempDir('sdd-lock-race-');
