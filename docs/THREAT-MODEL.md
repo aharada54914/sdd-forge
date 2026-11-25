@@ -27,7 +27,7 @@ flowchart LR
 
 ### What the Merge Boundary (Git / PR / CI) Defends Against
 1. **シェル経由・別ツール経由の仕様改変**: ローカルではシェル構文解析を廃止し探索・テスト速度を最大化する代わりに、`sdd-gate` と CI の `check-spec-drift.mjs` が `.spec-baseline.json` と現在ファイルの契約ハッシュおよび `REQ-*` / `AC-*` を決定論的に突き合わせて検出します。**対象はベースライン（`specs/<feature>/.spec-baseline.json`）を記録済みの機能だけ**で、ベースライン未記録の承認済み機能は比較されません。CI はその件数と機能名を毎回警告として列挙し、比較 0 件の成功を全件検査と誤認させません（#852）。
-2. **ガード・ゲートスクリプト・設定の改ざん**: ローカルの 224 ファイル物理ロック（`human-copy` 儀式）を廃止し、`.github/CODEOWNERS` と GitHub Branch Protection により、ガード／フック／CI／承認済み仕様への変更にリポジトリオーナーの PR レビューを必須化します。
+2. **ガード・ゲートスクリプト・設定の改ざん**: ローカルの 224 ファイル物理ロック（`human-copy` 儀式）を廃止し、`.github/CODEOWNERS` と GitHub Branch Protection により保護します。`main` への変更は PR 経由で、承認 1 件と必須チェック（3 OS の `test`・`required-checks`・`Lightweight Guardrails & Spec Drift Check`）の合格を要求します。CODEOWNERS はレビュー依頼先を決めますが、コードオーナーの承認は必須ではありません（`require_code_owner_review: false`）。管理者ロールは承認要件をバイパスできるため、管理者自身の変更に対する最終防衛線は必須チェックです（定義は `.github/rulesets/main.json`）。
 3. **高リスク変更の複数人承認**: 独自の `Second Approval` パーサーや外部鍵署名を廃止し、GitHub Branch Protection の Required Reviewers 機能へ委譲します。
 
 ## Controls Summary
@@ -39,10 +39,10 @@ flowchart LR
 | **Soft Spec Guard** | Layer 1 (Local) | `sdd/guardrails.yaml` の `mode: warn \| confirm \| strict`（既定 `confirm`） | `## Spec Amendments` への追記は許可。意図的変更は合意後 `SDD_ALLOW_SPEC_EDIT=1` で解除＋`.sdd/drift-events.jsonl` 記録 |
 | **Spec Drift Check** | Layer 2 (`sdd-gate`) & Layer 3 (CI) | `CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` / `UNVERIFIABLE` | `tasks.md` の `Status:` 変更と、ベースライン記録後の `Approval:` 変更は差分から除外（承認の取り消しは差分）。理由なき本文変更・`REQ`/`AC` 削除・読取不能な仕様ファイルは `--fail-on-undeclared` で FAIL |
 | **Independent Gate (`sdd-gate`)** | Layer 2 | 決定論コマンド実行 + プレースホルダー検査 + 独立 1 パスレビュー | 実装者の自己申告のみで `Done` にしない |
-| **CODEOWNERS & CI (`sdd-guardrails.yml`)** | Layer 3 (GitHub) | PR ステータスチェック + オーナーレビュー必須 | プラグイン・フック・スキーマ・仕様・CI 変更の最終防衛線 |
+| **CODEOWNERS & CI (`sdd-guardrails.yml`)** | Layer 3 (GitHub) | PR ステータスチェック（必須）＋承認 1 件（管理者はバイパス可、オーナー承認は必須ではない） | プラグイン・フック・スキーマ・仕様・CI 変更の最終防衛線 |
 | **Read-Only MCP Servers** | Advisory | `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` は読み取り専用 | write ツールを持たず、ファイルベース手続きを上書きしない |
 
 ## Residual Risks & Explicit Trade-offs
 
-- **ローカルセッション内の意図的な `Bash` 迂回**: `sdd-soft-guard.mjs` は DX 最優先のため `Bash` / `run_shell_command` を解析しません。シェル経由で承認済み仕様の本文を書き換えた場合、ローカル編集中は停止しませんが、直後の `sdd-gate` および PR 上の CI（`check-spec-drift.mjs --fail-on-undeclared`）で `UNDECLARED_DRIFT` として検出・遮断されます。例外は `Approval:` の新規承認です。段階承認（#818）を止めないため、ベースライン記録後に `Draft` から `Approved` になったタスクは差分として遮断せず、Spec Drift の出力（`CLEAN` でも Markdown に列挙）と `sdd-gate` の `APPROVED_AFTER_BASELINE` 警告で可視化します。ファイル内容からは人間の承認とシェル経由の自己承認を区別できないため、この経路の最終防衛線は独立レビューでの確認と PR の CODEOWNERS レビューです。
+- **ローカルセッション内の意図的な `Bash` 迂回**: `sdd-soft-guard.mjs` は DX 最優先のため `Bash` / `run_shell_command` を解析しません。シェル経由で承認済み仕様の本文を書き換えた場合、ローカル編集中は停止しませんが、直後の `sdd-gate` および PR 上の CI（`check-spec-drift.mjs --fail-on-undeclared`）で `UNDECLARED_DRIFT` として検出・遮断されます。例外は `Approval:` の新規承認です。段階承認（#818）を止めないため、ベースライン記録後に `Draft` から `Approved` になったタスクは差分として遮断せず、Spec Drift の出力（`CLEAN` でも Markdown に列挙）と `sdd-gate` の `APPROVED_AFTER_BASELINE` 警告で可視化します。ファイル内容からは人間の承認とシェル経由の自己承認を区別できないため、この経路の最終防衛線は独立レビューでの確認と PR の承認レビューです（管理者は承認をバイパスできるため、管理者自身の PR では独立レビューだけが残ります）。
 - **ホスト側権限設定**: Claude Code / Codex / Copilot / Gemini の実行権限は最小権限に保ち、外部 URL や取得テキストはデータとして扱う原則を維持します。

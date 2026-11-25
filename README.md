@@ -1,6 +1,6 @@
 # SDD Forge
 
-v2.1.3 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
+v2.1.4 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
 
 ## クイックスタート（2 コマンド）
 
@@ -16,6 +16,7 @@ v2.1.3 — 開発者体験（DX）・AI エージェントの自律性と仕様�
 > **v2.x での主な刷新（[ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) / [ADR-0052](docs/adr/0052-mcp-architecture-and-v2-consolidation.md)）**:
 > - 重厚な **SDD Full**（3 連レビューループ・7 層仕様・外部鍵署名・224 ファイル物理ロック・7,247 行の 4 言語フック・カナリア儀式・ADR-0023 `ERROR_STOP`）と、軽すぎる **SDD Lite**（事前レビューゼロ）を廃止し、**単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ統合しました。
 > - **「Local Soft, Boundary Firm」** 設計により、ローカルでは AI の自律的な探索・テスト・実装を妨げず、承認済み仕様ファイルの意図しない改変（ゴールポスト移動）だけをソフトガード＋Spec Drift 検知＋PR/CI で抑止します（Spec Drift の比較対象はベースライン記録済みの機能。未記録の承認済み機能は CI が警告で列挙します）。
+> - **v2.1.4**: MCP 試験 95 件と監査指摘の統合（#974）。証跡バンドル検査の `.ps1` 版を `.sh` 版と同じ判定にし（大文字小文字・dirty 判定・相対 root）、旧 v1 署名はどちらの発行器の並び順でも検証できる。寄稿者向け証跡収集は `--prepare` のみ、ドメイン適合指摘の `N/A`（未実行）と `0` を区別、ドメインモデル承認の案内に契約の発行を追加。ブランチ保護の定義と文書を実設定に合わせ、Spec Drift チェックを必須に（#850）。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.3**: 監査是正の仕上げ（11 件）。CLI ロックの所有者保持と期限延長（リース方式）、Scope の重複判定（実パス比較・注記・`{a,b}`）、段階承認を差分にしない、承認欄の解釈の統一、読取上限超の仕様を `UNVERIFIABLE` として扱う、ゲート証跡を検証した仕様入力に結び付けて古い合格を完了扱いにしない。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.2**: 監査是正の続き。独立評価の判定だけを Done の根拠にする、未解決レビューチケットでゲート停止、`--base` による再開、Blockers の検証（未知 ID・自己依存）、改定理由のない仕様差分の可視化、シンボリックリンク経由の CLI 起動修正、WFI 監査の整合。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.1**: 監査（#801〜#861）の是正 20 件。CI の `required-checks` 集約とインストーラ試験の CI 登録、Claude でのガード二重登録の解消、ゲート／MCP の Done 判定（コマンド 0 件の機械 PASS を完了根拠にしない等）、工場計測の意味の修正。詳細は [CHANGELOG](CHANGELOG.md)。
@@ -42,7 +43,7 @@ flowchart TD
 |---|---|---|
 | **Layer 1: 編集時ソフトガード** | `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs` | Node.js ESM 単一実装（5 環境対応: Claude / Codex / Copilot / Antigravity / Gemini）。① `AGENT_STOP` 緊急停止 ② `Approval: Approved` 自己追加抑止 ③ 承認済み仕様本文の編集検知（既定 `confirm`、`sdd/guardrails.yaml` で `warn`/`confirm`/`strict` 設定可）。`Bash` / `shell` / `run_shell_command` / `run_command` / `Read` 等は `AGENT_STOP` 以外ではブロックしません。 |
 | **Layer 2: Spec Drift 検知** | `record-spec-baseline.mjs` / `check-spec-drift.mjs` / `run-sdd-gate.mjs` | 外部署名鍵不要。承認時の仕様契約ハッシュ・`REQ-*` / `AC-*` と比較し、`CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` を決定論的に判定（`tasks.md` の `Status:` 更新は誤検知なし）。 |
-| **Layer 3: マージ境界ガバナンス** | `.github/workflows/sdd-guardrails.yml` + `CODEOWNERS` | PR 上で自動テスト＋Spec Drift チェックを実行し、ガード・仕様変更に人間のレビューを強制します。 |
+| **Layer 3: マージ境界ガバナンス** | `.github/workflows/sdd-guardrails.yml` + `CODEOWNERS` | PR 上の自動テストと Spec Drift チェックを必須チェックとし、承認 1 件を要求します（管理者はバイパス可。オーナー承認は必須ではない）。 |
 
 ### リスクレベル別の滑らかな伸縮
 
