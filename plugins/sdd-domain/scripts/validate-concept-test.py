@@ -274,7 +274,11 @@ def main():
     except (EOFError, KeyboardInterrupt):
         print('concept-test: BLOCK: confirmation cancelled', file=sys.stderr)
         return 1
-    except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError, auth.ValidateApprovalSidecarError) as error:
+    except OSError:
+        # str(OSError) carries absolute paths; keep main's fixed wording.
+        print('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved', file=sys.stderr)
+        return 1
+    except (ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError, auth.ValidateApprovalSidecarError) as error:
         print('concept-test: BLOCK: ' + str(error), file=sys.stderr)
         return 1
 

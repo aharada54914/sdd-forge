@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Concept Test acceptance: real signed evidence, stale inputs, and read-only gates."""
+import contextlib
 import copy
 import hashlib
 import importlib.util
@@ -235,6 +236,17 @@ class ConceptTests(unittest.TestCase):
         self.assertEqual('SKIP', concept.validate(self.root, 'example'))
         with self.assertRaises(ValueError):
             concept.validate(self.root, 'example', require_v2=True)
+
+    def test_storage_error_blocks_without_leaking_absolute_paths(self):
+        leaked = str(self.root / 'specs/example/concept-test.json')
+        def unreadable(*_args, **_kwargs):
+            raise PermissionError(13, 'Permission denied', leaked)
+        stderr = io.StringIO()
+        argv = ['validate-concept-test.py', '--root', str(self.root), '--feature', 'example']
+        with mock.patch.object(concept, 'validate', unreadable), mock.patch.object(sys, 'argv', argv), \
+                contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(1, concept.main())
+        self.assertEqual('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved\n', stderr.getvalue())
 
     def test_keyless_absent_stale_invalid_or_mixed_decisions_block(self):
         path = self.local_proposal()

@@ -197,7 +197,7 @@
     {"path": "tests/doc-diagrams.tests.py", "runtime": "python", "delegated_to": "tests/doc-diagrams.tests.sh"},
     {"path": "tests/doc-diagrams.tests.sh", "runtime": "bash"},
     {"path": "tests/deterministic-lane-selfcheck.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
-    {"path": "tests/domain-review-finalize.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+    {"path": "tests/domain-review-finalize.tests.py", "runtime": "python", "ci_jobs": ["test", "cloud-and-ddd"]},
     {"path": "tests/downstream-review-precheck-parity.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
     {"path": "tests/downstream-review-precheck.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/downstream-review-precheck.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
