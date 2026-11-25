@@ -741,7 +741,8 @@ describe('#972 re-review: nested braces, bare route groups, lease renewal', () =
     // While A renews, B tries a plain acquire at every write A makes.
     const spy = mock.method(fs, 'writeFileSync', function (...args) {
       const out = realWrite.apply(this, args);
-      if (stolen === null && /\.sdd[\\/]locks[\\/]f\.lock\./.test(String(args[0]))) {
+      if (stolen === null && /\.sdd[\\/]locks[\\/]f\.lock\.lease\./.test(String(args[0]))) {
+        stolen = 'pending';
         stolen = acquireLock({ feature: 'f', projectRoot: dir, owner: 'B' }).acquired;
       }
       return out;

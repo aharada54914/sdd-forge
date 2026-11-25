@@ -38390,7 +38390,7 @@ function specEntries(text) {
     const indent = head[1].length;
     for (let j = i + 1; j < lines.length; j += 1) {
       const next = lines[j];
-      if (!next.trim() || next.length - next.trimStart().length <= indent) break;
+      if (!next.trim() || next.length - next.trimStart().length <= indent || ENTRY_HEAD_RE.test(next)) break;
       add(head[2], next);
       i = j;
     }
@@ -38403,13 +38403,22 @@ function featureEvidenceInputs(io, { feature }) {
   const byTask = /* @__PURE__ */ new Map();
   if (tasksRaw === null) return byTask;
   const entries = /* @__PURE__ */ new Map();
+  const contracts = [];
   for (const name of ["requirements.md", "acceptance-tests.md"]) {
     const raw = io.readText(`specs/${feature}/${name}`);
     if (raw === null) continue;
-    for (const [id, lines] of specEntries(canonicalSpecContractText(raw, name))) {
+    const contract = canonicalSpecContractText(raw, name);
+    contracts.push({ name, contract });
+    for (const [id, lines] of specEntries(contract)) {
       entries.set(id, [...entries.get(id) || [], `${name}:`, ...lines]);
     }
   }
+  const fallbackHash = (id) => {
+    const re = new RegExp(`\\b${id}\\b`, "i");
+    const hits = contracts.filter((c) => re.test(c.contract));
+    return hits.length === 0 ? "missing" : sha256Text(hits.map((c) => `${c.name}:
+${c.contract}`).join("\n"));
+  };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"));
   const sections = rawTaskSections(tasksRaw);
@@ -38419,7 +38428,7 @@ function featureEvidenceInputs(io, { feature }) {
     for (const req of reqsIn(task.block)) wanted.add(req);
     for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join("\n"))) wanted.add(req);
     const ids = {};
-    for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join("\n")) : "missing";
+    for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join("\n")) : fallbackHash(key);
     const section = (sections.get(task.id) || task.block).replace(/^[ \t]*Status:[ \t]*.*$/gm, "<NORMALIZED>").replace(APPROVAL_FIELD_RE, "<NORMALIZED>");
     byTask.set(task.id, { schema: "sdd-task-evidence-inputs/v2", task: sha256Text(section.trim()), ids, design });
   }
@@ -41755,10 +41764,14 @@ function doneAttention(root, feature, tasks, driftStatus, current) {
       }
     }
     const changed = parsed ? changedEvidenceInputs(current, task.id, parsed) : void 0;
-    if (changed === void 0) {
-      if (driftStatus === "AMENDED") result.stale.push(task.id);
-    } else if (changed.length > 0) {
+    const report = guardedRead(root, `reports/quality-gate/${feature}-${task.id}.md`);
+    const reviewFailed = report.ok && parseReviewReportVerdict(report.data.contents) === "FAIL";
+    if (changed !== void 0 && changed.length > 0) {
       result.stale.push(task.id);
+    } else if (reviewFailed) {
+      result.failed.push(task.id);
+    } else if (changed === void 0) {
+      if (driftStatus === "AMENDED") result.stale.push(task.id);
     } else if (parsed?.verdict !== "PASS" || !isExecutionCoverageComplete(parsed)) {
       result.failed.push(task.id);
     }

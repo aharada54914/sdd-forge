@@ -274,10 +274,16 @@ function doneAttention(root: SddRoot, feature: string, tasks: readonly V2TaskSum
       }
     }
     const changed = parsed ? changedEvidenceInputs(current, task.id, parsed) : undefined;
-    if (changed === undefined) {
-      if (driftStatus === "AMENDED") result.stale.push(task.id);
-    } else if (changed.length > 0) {
+    // The independent review's verdict is the final one: an explicit FAIL is
+    // never complete, whatever the mechanical run says.
+    const report = guardedRead(root, `reports/quality-gate/${feature}-${task.id}.md`);
+    const reviewFailed = report.ok && parseReviewReportVerdict(report.data.contents) === "FAIL";
+    if (changed !== undefined && changed.length > 0) {
       result.stale.push(task.id);
+    } else if (reviewFailed) {
+      result.failed.push(task.id);
+    } else if (changed === undefined) {
+      if (driftStatus === "AMENDED") result.stale.push(task.id);
     } else if (parsed?.verdict !== "PASS" || !isExecutionCoverageComplete(parsed)) {
       result.failed.push(task.id);
     }

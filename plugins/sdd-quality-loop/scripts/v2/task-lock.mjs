@@ -134,11 +134,15 @@ export function acquireLock({
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      const fd = fs.openSync(lockPath, 'wx', 0o600);
+      // The lock appears with its content already written (temp file, then a
+      // hard link that fails if the lock exists), so a racing --break-stale
+      // never reads an empty file and takes it for a corrupt, stale lock.
+      const tmpPath = `${lockPath}.new.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
+      fs.writeFileSync(tmpPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
       try {
-        fs.writeFileSync(fd, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
+        fs.linkSync(tmpPath, lockPath);
       } finally {
-        fs.closeSync(fd);
+        removeQuietly(tmpPath);
       }
       return { acquired: true, lockPath, record };
     } catch (err) {

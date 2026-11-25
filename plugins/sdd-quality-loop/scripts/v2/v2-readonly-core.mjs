@@ -698,7 +698,7 @@ function specEntries(text) {
     const indent = head[1].length;
     for (let j = i + 1; j < lines.length; j += 1) {
       const next = lines[j];
-      if (!next.trim() || next.length - next.trimStart().length <= indent) break;
+      if (!next.trim() || next.length - next.trimStart().length <= indent || ENTRY_HEAD_RE.test(next)) break;
       add(head[2], next);
       i = j;
     }
@@ -722,13 +722,25 @@ export function featureEvidenceInputs(io, { feature }) {
   const byTask = new Map();
   if (tasksRaw === null) return byTask;
   const entries = new Map();
+  const contracts = [];
   for (const name of ['requirements.md', 'acceptance-tests.md']) {
     const raw = io.readText(`specs/${feature}/${name}`);
     if (raw === null) continue;
-    for (const [id, lines] of specEntries(canonicalSpecContractText(raw, name))) {
+    const contract = canonicalSpecContractText(raw, name);
+    contracts.push({ name, contract });
+    for (const [id, lines] of specEntries(contract)) {
       entries.set(id, [...(entries.get(id) || []), `${name}:`, ...lines]);
     }
   }
+  // An ID used in a form specEntries does not read (a heading, prose) is
+  // bound to the whole text of every file that mentions it, so an edit there
+  // still makes the evidence stale (fail closed); only an ID found nowhere is
+  // 'missing'.
+  const fallbackHash = (id) => {
+    const re = new RegExp(`\\b${id}\\b`, 'i');
+    const hits = contracts.filter((c) => re.test(c.contract));
+    return hits.length === 0 ? 'missing' : sha256Text(hits.map((c) => `${c.name}:\n${c.contract}`).join('\n'));
+  };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
   const sections = rawTaskSections(tasksRaw);
@@ -738,7 +750,7 @@ export function featureEvidenceInputs(io, { feature }) {
     for (const req of reqsIn(task.block)) wanted.add(req);
     for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
     const ids = {};
-    for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : 'missing';
+    for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
     const section = (sections.get(task.id) || task.block)
       .replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>')
       .replace(APPROVAL_FIELD_RE, '<NORMALIZED>');
