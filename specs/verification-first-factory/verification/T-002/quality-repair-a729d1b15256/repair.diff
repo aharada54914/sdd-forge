@@ -1,0 +1,244 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index 2a18d7a3d..79e159a10 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -157,7 +157,34 @@ const JS_TOKEN = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S
+ const TEST_FUNCTIONS = new Set(['it', 'test', 'describe', 'suite']);
+ const DISABLED_SKIP_VALUES = new Set(['false', "''", '""', '``', 'null', 'undefined', '0']);
+ 
++// Remove documentation and literals before counting executable language-specific markers.
++const PYTHON_NON_CODE = /#[^\n]*|"""(?:\\[\s\S]|(?!""")[^\\])*"""|'''(?:\\[\s\S]|(?!''')[^\\])*'''|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
++const GO_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g;
++const PYTHON_SKIP = /@pytest\.mark\.skip(?:if)?\b|\b(?:unittest\.skip(?:If|Unless)?|pytest\.skip|self\.skipTest)\s*\(/g;
++const GO_SKIP = /\bt\.Skip(?:f|Now)?\s*\(/g;
++
++// The first parameter of an inline node:test callback receives its TestContext.
++// Its name is chosen by the caller; an unrelated object's skip method is ordinary code.
++function callbackContext(tokens, offset) {
++  let i = offset;
++  if (tokens[i] === 'async') i++;
++  const functionExpression = tokens[i] === 'function';
++  if (functionExpression) {
++    i++;
++    if (tokens[i] !== '(') i++; // named function expression
++  }
++  const grouped = tokens[i] === '(';
++  if (grouped) i++;
++  const name = tokens[i];
++  if (!/^[A-Za-z_$][\w$]*$/.test(name || '')) return null;
++  if (functionExpression) return grouped ? name : null;
++  const end = grouped ? tokens.indexOf(')', i + 1) + 1 : i + 1;
++  return end > 0 && tokens[end] === '=' && tokens[end + 1] === '>' ? name : null;
++}
++
+ function countTestSkips(file, source) {
++  if (/\.pyw?$/i.test(file)) return Array.from(source.replace(PYTHON_NON_CODE, ' ').matchAll(PYTHON_SKIP)).length;
++  if (/\.go$/i.test(file)) return Array.from(source.replace(GO_NON_CODE, ' ').matchAll(GO_SKIP)).length;
+   if (!/\.[cm]?[jt]sx?$/i.test(file)) return Array.from(source.matchAll(TEST_SKIP_RE)).length;
+   // Keep strings intact and ignore comments so that a label, example or callback
+   // object does not become a skip option. Only inspect direct test arguments.
+@@ -168,8 +195,14 @@ function countTestSkips(file, source) {
+     const token = tokens[i];
+     const previous = tokens[i - 1];
+     const parent = stack.at(-1);
++    if (parent?.testCall && (previous === '(' || previous === ',')) {
++      const context = callbackContext(tokens, i);
++      if (context) parent.context = context;
++    }
+     if (token === '(') {
+-      const method = previous === 'skip' && tokens[i - 2] === '.' && TEST_FUNCTIONS.has(tokens[i - 3]);
++      const receiver = tokens[i - 3];
++      const method = previous === 'skip' && tokens[i - 2] === '.' &&
++        (TEST_FUNCTIONS.has(receiver) || stack.some(frame => frame.context && frame.context === receiver));
+       const skipped = method || previous === 'xit' || previous === 'xdescribe';
+       if (skipped) count++;
+       stack.push({ testCall: !skipped && TEST_FUNCTIONS.has(previous) });
+@@ -194,7 +227,41 @@ function countTestSkips(file, source) {
+ }
+ 
+ const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
+-const TLA_TRIVIAL_INVARIANT_RE = /^[A-Za-z0-9_]+\s*==\s*TRUE\b/;
++const TLA_DECLARATION = /^(?:={4,}|-{4,}|(?:LOCAL\s+)?\w+(?:\s*\([^)]*\))?[ \t]*==|(?:ASSUME|ASSUMPTION|AXIOM|CONSTANTS?|VARIABLES?|INSTANCE|THEOREM|LEMMA|RECURSIVE)\b)/;
++
++function unconditionalTrueDefinitions(source) {
++  const names = new Set();
++  // Strings are tokens, including when they contain comment delimiters. Preserve
++  // physical lines across nested block comments so declarations remain anchored.
++  let commentDepth = 0;
++  const lines = source.split(/\r?\n/).map(line => {
++    let code = '';
++    for (let i = 0; i < line.length;) {
++      const pair = line.slice(i, i + 2);
++      if (pair === '(*') { commentDepth++; code += ' '; i += 2; }
++      else if (commentDepth && pair === '*)') { commentDepth--; i += 2; }
++      else if (commentDepth) i++;
++      else if (pair === '\\*') break;
++      else if (line[i] === '"') {
++        const quoted = /^"(?:\\.|[^"\\])*"/.exec(line.slice(i));
++        code += '""';
++        i += quoted ? quoted[0].length : line.length - i;
++      } else code += line[i++];
++    }
++    return code.trim();
++  }).filter(Boolean);
++  for (let i = 0; i < lines.length; i++) {
++    const definition = /^(?:LOCAL\s+)?(\w+)\s*==\s*(TRUE)?$/.exec(lines[i]);
++    if (!definition) continue;
++    let end = i + 1;
++    if (!definition[2]) {
++      if (lines[end] !== 'TRUE') continue;
++      end++;
++    }
++    if (end === lines.length || TLA_DECLARATION.test(lines[end])) names.add(definition[1]);
++  }
++  return names;
++}
+ 
+ function isTestFileRelPath(relPath) {
+   const lower = normalizeRelPath(relPath).toLowerCase();
+@@ -329,7 +396,7 @@ export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
+ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
+   const root = resolveExplicitOrAutoRoot(projectRoot);
+   const testGlobs = ['tests/**', 'test/**', '**/tests/**', '**/__tests__/**', '*.test.*', '*.spec.*', '*_test.*', '*.tests.*'];
+-  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, testGlobs);
++  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, [...testGlobs, '*.tla']);
+   const approvedRetirements = loadApprovedTestRetirements(root, revision);
+   const violations = [];
+ 
+@@ -357,11 +424,13 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
+ 
+   for (const { status, relPath: currentFile } of changedEntries) {
+     if (status === 'D') continue;
+-    if (isTestFileRelPath(currentFile)) {
+-      const absolute = path.join(root, currentFile);
+-      if (fs.lstatSync(absolute).isFile()) {
+-        const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
+-        const after = fs.readFileSync(absolute, 'utf8');
++    const isTest = isTestFileRelPath(currentFile);
++    const isTla = currentFile.toLowerCase().endsWith('.tla');
++    const absolute = path.join(root, currentFile);
++    if ((isTest || isTla) && fs.lstatSync(absolute).isFile()) {
++      const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
++      const after = fs.readFileSync(absolute, 'utf8');
++      if (isTest) {
+         const previousCount = countTestSkips(currentFile, before);
+         const currentCount = countTestSkips(currentFile, after);
+         if (currentCount > previousCount) {
+@@ -369,6 +438,13 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
+             detail: `テストの skip 指定が ${previousCount} 件から ${currentCount} 件に増えました` });
+         }
+       }
++      if (isTla) {
++        const previous = unconditionalTrueDefinitions(before);
++        for (const name of unconditionalTrueDefinitions(after)) {
++          if (!previous.has(name)) violations.push({ code: 'FORMAL_INVARIANT_WEAKENED', path: currentFile,
++            detail: `TLA+ 不変条件が自明な == TRUE へ弱体化されています: ${name}` });
++        }
++      }
+     }
+     const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', currentFile]);
+     let inHunk = false;
+@@ -383,13 +459,6 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
+           detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${addedText.trim()}`,
+         });
+       }
+-      if (currentFile.toLowerCase().endsWith('.tla') && TLA_TRIVIAL_INVARIANT_RE.test(addedText.trim())) {
+-        violations.push({
+-          code: 'FORMAL_INVARIANT_WEAKENED',
+-          path: currentFile,
+-          detail: `TLA+ 不変条件が自明な == TRUE へ弱体化されています: ${addedText.trim()}`,
+-        });
+-      }
+     }
+   }
+ 
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index f76e29528..467842a36 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -125,7 +125,7 @@
+   "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "f82d676e8e331f3d19eddb69f1c08bfa03cfecd919f659deb29f661eb2a2e339",
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "d39bf2d72558974ce36127119a94a3e3aa63a4d77705943035ae3c87e35722a7",
+     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "807c73f35ab75e1ae2eeb9d2718663c8f6695ff23baab72da0a5f9a73c1428bd",
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
+     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index a0cf51cd6..74509bdc3 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -450,6 +450,72 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+       ['tests/sample_test.go', 'tests/sample_test.py']);
+   });
+ 
++  it('counts Node test context calls using the callback parameter, including subtests', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'tests/sample.test.mjs');
++    const method = ['sk', 'ip'].join('');
++    const existing = 'test("context", async (ctx) => { ctx.' + method + '("platform"); });\n';
++    fs.writeFileSync(file, existing);
++    assert.equal(git('commit', '-am', 'record one platform-specific test').status, 0);
++    const renamed = existing.replace('platform', 'optional fixture');
++    fs.writeFileSync(file, renamed + 'test("metadata", () => { list.' + method + '(2); });\n');
++    assert.equal(runAntiTamper(dir).status, 0);
++    for (const call of [
++      'it("feature", t => t.' + method + '("optional"));',
++      'test("feature", function (context) { context.' + method + '(); });',
++      'test("parent", async parent => { await parent.test("child", child => child.' + method + '()); });',
++    ]) {
++      fs.writeFileSync(file, renamed + call);
++      const added = runAntiTamper(dir);
++      assert.equal(added.status, 4, added.stdout);
++      assert.deepEqual(JSON.parse(added.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
++    }
++  });
++
++  it('distinguishes an entire TRUE definition from conjunctions and their continuations', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'specs/demo/formal/Model.tla');
++    function writeBody(body) {
++      fs.writeFileSync(file, '---- MODULE Model ----\nVARIABLE x\nInv == ' + body + '\n====\n');
++    }
++    for (const body of ['TRUE /\\ x = 1', 'TRUE\n     /\\ x = 1', 'TRUE (* checked below *)\n     /\\ x = 1']) {
++      writeBody(body);
++      const result = runAntiTamper(dir);
++      assert.equal(result.status, 0, result.stdout);
++    }
++    for (const body of ['TRUE', '\n    TRUE \\* constant predicate']) {
++      writeBody(body);
++      const result = runAntiTamper(dir);
++      assert.equal(result.status, 4, result.stdout);
++      assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.code), ['FORMAL_INVARIANT_WEAKENED']);
++    }
++  });
++
++  it('ignores Python and Go documentation while counting executable skip directives', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const py = path.join(dir, 'tests/sample_test.py');
++    const go = path.join(dir, 'tests/sample_test.go');
++    const decorator = ['unittest', '.skip'].join('');
++    const goMethod = ['t.', 'Skip'].join('');
++    fs.writeFileSync(py, '# ' + decorator + ' is used for platform exclusions\n' +
++      '"""\nAn example is @' + decorator + '("reason").\n"""\n' +
++      'message = "' + decorator + '"\n');
++    fs.writeFileSync(go, 'package sample\n// ' + goMethod + '("optional")\n' +
++      '/* ' + goMethod + '("old") */\nconst doc = `' + goMethod + '("demo")`\n');
++    assert.equal(git('add', 'tests').status, 0);
++    const docs = runAntiTamper(dir);
++    assert.equal(docs.status, 0, docs.stdout);
++    fs.appendFileSync(py, '@' + decorator + '("requires device")\ndef test_device():\n    pass\n');
++    fs.appendFileSync(go, 'func TestDevice(t *testing.T) { ' + goMethod + '("requires device") }\n');
++    const added = runAntiTamper(dir);
++    assert.equal(added.status, 4, added.stdout);
++    assert.deepEqual(JSON.parse(added.stdout).violations.map(v => v.path).sort(),
++      ['tests/sample_test.go', 'tests/sample_test.py']);
++  });
++
+   for (const defect of ['invalid JSON', 'wrong id', 'wrong feature']) {
+     it('preserves an existing question with ' + defect + ' and records a valid replacement', (t) => {
+       const { dir } = initGitRepoWithTests();

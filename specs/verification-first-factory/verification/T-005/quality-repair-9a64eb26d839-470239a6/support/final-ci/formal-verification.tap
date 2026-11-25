@@ -1,0 +1,145 @@
+TAP version 13
+# Subtest: ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+    # Subtest: checks literal TRUE only for invariants selected by the active CFG
+    ok 1 - checks literal TRUE only for invariants selected by the active CFG
+      ---
+      duration_ms: 5.830129
+      ...
+    # Subtest: stops a disabled formal gate in CI and honors an explicit checker mode
+    ok 2 - stops a disabled formal gate in CI and honors an explicit checker mode
+      ---
+      duration_ms: 175.906456
+      ...
+    # Subtest: respects disabled formal configuration in the integrated gate
+    ok 3 - respects disabled formal configuration in the integrated gate
+      ---
+      duration_ms: 15.366517
+      ...
+    # Subtest: AC-003: discovers formal verification triggers from Risk: high and state-machine signals
+    ok 4 - AC-003: discovers formal verification triggers from Risk: high and state-machine signals
+      ---
+      duration_ms: 2.272269
+      ...
+    # Subtest: AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4
+    ok 5 - AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4
+      ---
+      duration_ms: 0.89277
+      ...
+    # Subtest: AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace
+    ok 6 - AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace
+      ---
+      duration_ms: 8.591371
+      ...
+    1..6
+ok 1 - ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+  ---
+  duration_ms: 210.241653
+  type: 'suite'
+  ...
+# Subtest: ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)
+    # Subtest: validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces
+    ok 1 - validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces
+      ---
+      duration_ms: 2.131972
+      ...
+    1..1
+ok 2 - ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)
+  ---
+  duration_ms: 2.363584
+  type: 'suite'
+  ...
+# Subtest: checker verdicts match the observed failure
+    # Subtest: does not accept a tool error mentioning the invariant as a negative control
+    ok 1 - does not accept a tool error mentioning the invariant as a negative control
+      ---
+      duration_ms: 2.543289
+      ...
+    # Subtest: defers a missing tool locally and fails CI
+    ok 2 - defers a missing tool locally and fails CI
+      ---
+      duration_ms: 3.041015
+      ...
+    # Subtest: rejects a gate pass with undeclared drift and an unapproved completion
+    ok 3 - rejects a gate pass with undeclared drift and an unapproved completion
+      ---
+      duration_ms: 0.658664
+      ...
+    1..3
+ok 3 - checker verdicts match the observed failure
+  ---
+  duration_ms: 6.531766
+  type: 'suite'
+  ...
+# Subtest: TaskLock Release preserves an unreadable owner and its lease until explicitly forced
+ok 4 - TaskLock Release preserves an unreadable owner and its lease until explicitly forced
+  ---
+  duration_ms: 609.45807
+  ...
+# Subtest: scan finds related compound branches and graph validation fails on unreachable states
+ok 5 - scan finds related compound branches and graph validation fails on unreachable states
+  ---
+  duration_ms: 100.493849
+  ...
+# Subtest: skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view
+ok 6 - skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view
+  ---
+  duration_ms: 63.295674
+  ...
+# Subtest: retains a between-phase budget timeout and raises the repair-limit OQ in the decision view
+ok 7 - retains a between-phase budget timeout and raises the repair-limit OQ in the decision view
+  ---
+  duration_ms: 5.871921
+  ...
+# Subtest: TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas
+ok 8 - TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas
+  ---
+  duration_ms: 26975.126978
+  ...
+# Constraint layout "\\n": baseline=1 replay=1 status=FAIL
+# Constraint layout " ": baseline=1 replay=1 status=FAIL
+# TLC baseline exit=0 "CONSTANT LOCK = TRUE"
+# TLC baseline exit=0 "CONSTANT\\n  LOCK = TRUE"
+# Subtest: TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces
+ok 9 - TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces
+  ---
+  duration_ms: 28258.947236
+  ...
+# Reservation baseline no violation exit=0 states=15 depth=8
+# Reservation negative OneAccepted exit=12 states=25 depth=7
+# TaskLock baseline no violation exit=0 states=5 depth=3
+# TaskLock negative SingleOwner exit=12 states=4 depth=3
+# TaskLock replay TraceIncomplete exit=12 states=4 depth=4
+# TaskLock baseline no violation exit=0 states=5 depth=3
+# TaskLock negative SingleOwner exit=12 states=4 depth=3
+# TaskLock replay no violation exit=0 states=1 depth=1
+# TaskLockMutation baseline no violation exit=0 states=54 depth=7
+# TaskLockMutation negative OneWriter exit=12 states=27 depth=5
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+# GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+# GateLifecycle replay no violation exit=0 states=2 depth=2
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+# GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+# GateLifecycle replay no violation exit=0 states=2 depth=2
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative RetryBound exit=12 states=35 depth=12
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative EscalationRequiresOQ exit=12 states=8 depth=5
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative NoTamperRepair exit=12 states=13 depth=6
+# GateLifecycle baseline no violation exit=0 states=38 depth=12
+# GateLifecycle negative NoDriftPass exit=12 states=6 depth=5
+1..9
+# tests 16
+# suites 3
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56345.616683

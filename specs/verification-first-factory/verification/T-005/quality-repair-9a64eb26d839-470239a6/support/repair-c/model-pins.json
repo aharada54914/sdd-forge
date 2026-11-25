@@ -1,0 +1,19 @@
+{
+  "tested_revision": "00543593b2ba57467dc5f99e29620d5d948403cd",
+  "source": "specs/self-verification/formal/mapping.json",
+  "source_sha256_matches": {
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": true,
+    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": true,
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": true,
+    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": true,
+    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": true,
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": true,
+    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": true,
+    "plugins/sdd-ship/skills/ship/SKILL.md": true
+  },
+  "changed_paths": [
+    "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+    "tests/v2-formal-gate.test.mjs"
+  ],
+  "changed_paths_in_mapping": []
+}

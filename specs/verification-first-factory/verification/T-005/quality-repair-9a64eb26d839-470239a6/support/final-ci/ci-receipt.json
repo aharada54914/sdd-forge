@@ -1,0 +1,21 @@
+{
+  "tested_revision": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+  "event": "push",
+  "run_id": 45680828519,
+  "job_url": "https://github.com/aharada54914/sdd-forge/actions/runs/45680828519/job/139440599722",
+  "job_conclusion": "success",
+  "step": {
+    "name": "Run bounded TLC checks and the reservation bridge",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 14,
+    "started_at": "2026-11-25T19:01:24Z",
+    "completed_at": "2026-11-25T19:02:30Z"
+  },
+  "artifact_id": 15054915982,
+  "zip_sha256": "6ae401bc08380661c8d2b9879a40112bde2b2179a7239e3bf91a7a201570555c",
+  "members": {
+    "formal-verification.tap": "77ac3b127c984282cbc7a8f8195fb10c0dac3e20138a5a439c5db7db836ad7bf",
+    "reservation/report.json": "1059285f1fffa26df92bbd4db068ed79d69c979978dd39594665e8b547f9f95a"
+  }
+}

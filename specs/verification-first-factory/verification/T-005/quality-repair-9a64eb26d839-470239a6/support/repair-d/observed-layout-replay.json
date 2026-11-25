@@ -1,0 +1,32 @@
+{
+  "implementation_revision": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+  "observed_sha256": "7b739db41ae5a43d213e5a89d47768c634a9e093e47d676bd53549cfe3c305bd",
+  "results": [
+    {
+      "layout": "inline",
+      "cfg": "CONSTANT UseLock = TRUE\nSPECIFICATION Spec\nINVARIANT OneAccepted CONSTRAINT OnlyUnlocked\nCHECK_DEADLOCK FALSE\n",
+      "status": "FAIL",
+      "checker": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "baseline_exit": 0,
+      "baseline_states": 1,
+      "replay_exit": 0,
+      "replay_states": 1,
+      "violations": [
+        "The baseline model could not reproduce the observed trace"
+      ]
+    },
+    {
+      "layout": "multiline",
+      "cfg": "CONSTANT UseLock = TRUE\nSPECIFICATION Spec\nINVARIANT OneAccepted\nCONSTRAINT OnlyUnlocked\nCHECK_DEADLOCK FALSE\n",
+      "status": "FAIL",
+      "checker": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "baseline_exit": 0,
+      "baseline_states": 1,
+      "replay_exit": 0,
+      "replay_states": 1,
+      "violations": [
+        "The baseline model could not reproduce the observed trace"
+      ]
+    }
+  ]
+}

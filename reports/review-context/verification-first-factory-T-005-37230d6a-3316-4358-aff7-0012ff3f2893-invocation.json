@@ -1,0 +1,355 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "verification-first-factory",
+  "task_id": "T-005",
+  "run_id": "37230d6a-3316-4358-aff7-0012ff3f2893",
+  "host_session_id": "01a21417-f4e2-7952-acd4-56701e71397b",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ab117cc03c51b06f1f537a5df0c5f2a543b9d418fc91512e1921874a621406cd",
+  "previous_record_sha256": "9ed49fc22e45277dc8cb08e64e874eb6b10d561dad713780918f717c2505fa6a",
+  "sequence": 1218,
+  "implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-005/01a21382-9a07-7220-9daa-2fdbca554b31/task-input-manifest.json",
+    "sha256": "01af186c082a692fa8872d93b280925327382412176d9091560b24a97e22840f"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/discover-state-machines.mjs",
+      "sha256": "a352c3a50e80b45ab5aec9681efbd8e6608bd3d9a731eed1e573020fe4326949"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "sha256": "a7aee485341a1a50f7427e81893384502e1fdf09429be64bf85ab7c70a519892"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "sha256": "4a49246e4115b3a4c097150a0318931b8f747100c51454b154fb97da21cdf1fd"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/mapping.json",
+      "sha256": "9951b1e0e6018019e2b6aa9dc1f520053f6dc0b2e420a33771a7190f19888abc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+      "sha256": "a0b88c9f10711e6ffa89f474b1c9b64c50da170d01c4f51b607c3845c52ea8e6"
+    },
+    {
+      "path": "tests/v2-formal-gate.test.mjs",
+      "sha256": "c37c2c7c9edb0742dabdbf49b8a3f69591ee98b6626716c53a5abac7dcbf1bc1"
+    },
+    {
+      "path": "tests/project-skill-formal.tests.py",
+      "sha256": "f3aaf45856a6ab7fd95593fb63c24862b6461955ab3e6a5f740edd58a844f73c"
+    },
+    {
+      "path": "tests/verify-review-reservation.py",
+      "sha256": "407be3b908b087a4d7673f6457802dea9107b436b330c3618963c0a4078ccb08"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.tla",
+      "sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg",
+      "sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.negative.cfg",
+      "sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/agent-lint-ast.mjs",
+      "sha256": "8675b5764205df8602f7af1e97ebd16cf5988ab47ed68a5b0a61f846a32c0a06"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package.json",
+      "sha256": "61acad78570f9db3a87b424e27ff97c84fc7bff2a42b85a715bd4fec6364cdce"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package-lock.json",
+      "sha256": "11c8bef06f85c87fcae33a7d471e9d0ac43f5432637331102a3f2b7619ba275d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7"
+    },
+    {
+      "path": ".github/workflows/sdd-guardrails.yml",
+      "sha256": "483fe852d3d6d2af2d4d0b50e409b1c5e425d751af9e7ff0446894862cd0b334"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/ci-jobs.json",
+      "sha256": "0464d88dbc7e26845875ea50b3b94c89c373db335b4a5c7091e85fe727708c75"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-03-test.diff",
+      "sha256": "2323b3072c8149fae47ddf2000bc0e4fb78d6534d451f24871765d71950fbe1b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-08-task.diff",
+      "sha256": "8c01f98b3d5d1e809dc9b0f5aa7276aa86686ed0740cfccfebc32e5ab8f1fa3f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/local-run.json",
+      "sha256": "55b6785b3156dbfa4834815c543da4ea70bab99a1b5c66a03ecbb803823c1f9f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-04-dependency.diff",
+      "sha256": "360b91c01ff248a3d759d237893db6bc49cfccdfc4beccdfadb8c44e4fd34e82"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/ci-run.json",
+      "sha256": "684e257b07593e8f3d28d31fc6ea583b7d0b8d6a220ccbf4d2159ab5a23d825e"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope.json",
+      "sha256": "55ca03e1e3c176b90f858f12299be2bb8dd8faa5437166c94ba3f88ca12e8e96"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-05-other-task.diff",
+      "sha256": "22beaa9b7fc4aa6dbc7d3d82b9243dac8be8ee38f5ea11ac0bd6a511e56f424a"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-02-task.diff",
+      "sha256": "fb99c0ebd08773c6189931ac401f46d309850826298d7ac16c9a4a426e3ba30a"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-09-test.diff",
+      "sha256": "4d363131af1787531156d619959ded18073949215f626ae69b83378f7af26e99"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/python-green.log",
+      "sha256": "082481da9fd259399818ccdbbed5b70cf03c4661bc69b4fa393462ed5eb7361c"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-06-dependency.diff",
+      "sha256": "cae15dfcece40436052a5a67d1e1922e488f9f1686f02e70d3cd2225448d8bf1"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-10-dependency.diff",
+      "sha256": "4c30bcfc8b0c22759a97e69dec1cec1540fb2a293ddc27c7032e0e8609265585"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-01-task.diff",
+      "sha256": "f9c32f30193fef88dbbc2965b56dcd5dbebd51bb59f470eb1838ee32e07e556d"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/scope-07-test.diff",
+      "sha256": "42422d5a506d53473d87a1b4d63c06a33a67377a505fba091bf4ba31f0405efd"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/formal-green.log",
+      "sha256": "fde18ad5a006c792890325ec0a8a39149cbcdf6d2adfd3477194b3150d0840c8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/execution.json",
+      "sha256": "4fcceb00fe5f9c777b1fff30d1f39216471106f3ec97333dc072c4498381e40c"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/capture/report.json",
+      "sha256": "c9f3e212cb19c34bd7f02212a816b31b1dcde1ebc2b07911f4402c287929f152"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/capture/out-of-order.ndjson",
+      "sha256": "440d18e8c80a63f6c592904d8c16a386c1ec3b4db6ba842e3cba1423beb61e4d"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/capture/observed.ndjson",
+      "sha256": "7b739db41ae5a43d213e5a89d47768c634a9e093e47d676bd53549cfe3c305bd"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/previous-ci/report.json",
+      "sha256": "7b9fc3d84714b571f5f6d18081bbf60659cc375b9e56e6b6c4f44740acc372f8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/previous-ci/formal-verification.tap",
+      "sha256": "64b64c61a8e986f5f4b353166c7ec707733c922dd7a2b0f3f65e181c0b37db45"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/previous-ci/ci-receipt.json",
+      "sha256": "9ab007bd282d820fadbaf2fa96f91456a96c211e1a443e1e23f6e97c81ba25c1"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/final-ci/report.json",
+      "sha256": "1059285f1fffa26df92bbd4db068ed79d69c979978dd39594665e8b547f9f95a"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/final-ci/formal-verification.tap",
+      "sha256": "77ac3b127c984282cbc7a8f8195fb10c0dac3e20138a5a439c5db7db836ad7bf"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/final-ci/ci-receipt.json",
+      "sha256": "a0b498f42b5d8492a7f25607a0f4cddada39be3a88e04c04e68cb52f4450ccfa"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-python.log",
+      "sha256": "016dc49ec4fdd1c618559d2696ba94a8561fbedc62494c775b5c4b6e1826ea89"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-formal.log",
+      "sha256": "308b67d26a161a740590523ed542e768523d258b1e08ba395818ccf662f64adb"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-npm.log",
+      "sha256": "2ea09d33a347a02a7a93a9b9ca5b13fe3f1b1f3b887c1f1c3309419bdf18c96a"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/node-green.log",
+      "sha256": "910c2321d8f1dda6ba38bf71c90b44e579265666fcc51ddef7cd81695fae4839"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/python-green.log",
+      "sha256": "6dcb64801c358afc5b044c39afaa78bfdb01789fa1b7b2829a9814e2b3a4aac7"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/python-red.log",
+      "sha256": "eb8a6dd50cd5da0f3dcc9f565a436832dc5aecc0543f7da2393b79784587b484"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-reservation.log",
+      "sha256": "68f2e047d98f3a73475f10c42511e8d86c822e1a9b5f3959ecd43c1374bc1938"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/node-red.log",
+      "sha256": "fc5fd43ff4904b0393d384a06bce6d4079e3080a638f940ff1245988e747d1fe"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-b/combined-green.log",
+      "sha256": "5b611295c51932b23cc54ba73ac53b5060cc58ed64c462cbcbbbfee5c549d3d8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-b/combined-red.log",
+      "sha256": "882c0015c1fc27f97ca964329cb09774a0950c5bda4786e7140eae1b6c60fbec"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-c/red.log",
+      "sha256": "3cd384b089a00cb172c14d8b0f55229c10ef715f64af624046e5cbad7a735512"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-c/green.log",
+      "sha256": "a80565c9fce562b094039f928d2cb6dfc7be59bd7a1d96befc2790f92d2c744b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-c/observed-layout-replay.json",
+      "sha256": "cd9c94633487e617319675b1dee1d3292361ce1518fe2542eac5bfca19ebdc33"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-c/model-pins.json",
+      "sha256": "836efaa02c1d81339cc38b6762ce0bc643bf847a326e21162cc64c8e1db6e597"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-d/red.log",
+      "sha256": "83638224edbd4a363a9b72e704268b883b8443812f2edf7663b409fc90c03eb4"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-d/observed-layout-red.json",
+      "sha256": "05e867100c8a30b4489b08daae9c22f06195a72714306f8d0daa453aff445a46"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-d/green.log",
+      "sha256": "eb8c10c53f3644b4db67d9df12eeee5fdd9c71c375112fc13038e12e6d2587c8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-d/observed-layout-replay.json",
+      "sha256": "6c96b222b43f86ae878abaf5ebe57b89ac9375e898c8951b1d6ae0d3b67b987e"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-d/model-pins.json",
+      "sha256": "6fe9d9cbb4c48b8dd19c24cdd38e7db323489b72c7494e4d4ed4bfbd4fa8b390"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/previous-ci-00543593b/report.json",
+      "sha256": "4fcd276142b8d5d87c910ca186d7dc386b2ba62ad9d42961c0824a6f58fb44bc"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/previous-ci-00543593b/formal-verification.tap",
+      "sha256": "2392114684472d074a03983175b243a7c8e63bb5b1784ad2a9a756d7187c9570"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/previous-ci-00543593b/ci-receipt.json",
+      "sha256": "5aa03294d9ab58863ad51c63efb32ebbdb9270c80d864e46a3cb67c7abfbb517"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/pilot/report.json",
+      "sha256": "ec0c1650f939aa74c06a89dad08ca0fa3a40fbaf096bb55c939046af9509ef1b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/pilot/out-of-order.ndjson",
+      "sha256": "440d18e8c80a63f6c592904d8c16a386c1ec3b4db6ba842e3cba1423beb61e4d"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/pilot/observed.ndjson",
+      "sha256": "7b739db41ae5a43d213e5a89d47768c634a9e093e47d676bd53549cfe3c305bd"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-pilot/report.json",
+      "sha256": "68f2e047d98f3a73475f10c42511e8d86c822e1a9b5f3959ecd43c1374bc1938"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-pilot/out-of-order.ndjson",
+      "sha256": "99bf5c46be27e8a608b107416bba8ff449cf2aeebfbfe376b300af85491ff3d3"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/support/repair-a/final-pilot/observed.ndjson",
+      "sha256": "1f56f5d16059503f02d4200d486fe29861d5f31e0a966779f7d3e4a427192bef"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/specs/self-verification/formal/mapping.json",
+      "sha256": "943ea6b7836423afd1d4e6c496e88f3f14c377e915adfba57e2ff996664a7cee"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/capture/negative/tlc.log",
+      "sha256": "1f1e7a76654442a34bd61bca7ad57824756a177e4e9d21a49e5b6dab16eb583e"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/capture/baseline/tlc.log",
+      "sha256": "a00135c17ba125c0a76915f44d791b0b02050d957d549ae3759987324bfaba62"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "29ad301c8e55b790a20e5b23e0c0715cc218ee75198eff40d6e20d6d96ab0519"
+    },
+    {
+      "path": "reports/implementation/verification-first-factory/T-005.md",
+      "sha256": "ba704e7fa73e6c158d6697ee46b9e1cc6482921aba15a92c6cef94e86ee2de0b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/01a21382-9a07-7220-9daa-2fdbca554b31/task-input-manifest.json",
+      "sha256": "01af186c082a692fa8872d93b280925327382412176d9091560b24a97e22840f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/declaration.json",
+      "sha256": "4bbdffe5918b35e6ec4a27a5af50c043fb34a688b9d09bab808181c0c2239684"
+    }
+  ],
+  "supplemental_delivery_declaration": {
+    "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/declaration.json",
+    "sha256": "4bbdffe5918b35e6ec4a27a5af50c043fb34a688b9d09bab808181c0c2239684"
+  },
+  "scratch_root": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-T-005-review-nuk4hs6r"
+}

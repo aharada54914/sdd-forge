@@ -1,0 +1,138 @@
+{
+  "revision": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+  "task": "T-005",
+  "groups": [
+    {
+      "role": "task",
+      "reason": "T-005 の Scope に載る初期実装と正規フィクスチャ対応表。",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/discover-state-machines.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+        "tests/fixtures/project-skills/formal-review-reservation/mapping.json"
+      ],
+      "base": "40eec6263bc39642c499d5a35c623600546edd90",
+      "head": "cf53793720d0f3eb996e154627ace69dac893793",
+      "patch": "scope-01-task.diff"
+    },
+    {
+      "role": "task",
+      "reason": "修正サイクルの形式ゲートと、そのゲートが使うトレース射影の実装。formal-trace は Scope 表に直接列挙されず、shared helper として切り出されている。",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs"
+      ],
+      "base": "6b8f09ccd8e8a2a6db5cb26e9602648c5f0cb80a",
+      "head": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "patch": "scope-02-task.diff"
+    },
+    {
+      "role": "test",
+      "reason": "T-005 の修正を検証する単体・実行時テスト。共有テストファイル全体の他タスク部分をT-005の専有成果とはしない。",
+      "paths": [
+        "tests/v2-formal-gate.test.mjs",
+        "tests/project-skill-formal.tests.py",
+        "tests/verify-review-reservation.py"
+      ],
+      "base": "6b8f09ccd8e8a2a6db5cb26e9602648c5f0cb80a",
+      "head": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "patch": "scope-03-test.diff"
+    },
+    {
+      "role": "dependency",
+      "reason": "予約コード、正規フィクスチャ、走査・表示共有コードは観測対象・実行上の依存。",
+      "paths": [
+        "tests/fixtures/project-skills/formal-review-reservation/Reservation.tla",
+        "tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg",
+        "tests/fixtures/project-skills/formal-review-reservation/Reservation.negative.cfg",
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+        "plugins/sdd-quality-loop/rules/agent-lint-ast.mjs",
+        "plugins/sdd-quality-loop/rules/package.json",
+        "plugins/sdd-quality-loop/rules/package-lock.json",
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        ".github/workflows/sdd-guardrails.yml"
+      ],
+      "base": "cf53793720d0f3eb996e154627ace69dac893793",
+      "head": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "patch": "scope-04-dependency.diff"
+    },
+    {
+      "role": "other-task",
+      "reason": "統合ゲート設定 off の実装は共有製品コードの修正。このファイルはT-008のScopeに記載される。",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"
+      ],
+      "base": "6b8f09ccd8e8a2a6db5cb26e9602648c5f0cb80a",
+      "head": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+      "patch": "scope-05-other-task.diff"
+    },
+    {
+      "role": "dependency",
+      "reason": "T-005 のトレース射影における正式TLC形式のCFG継続行の修正。",
+      "base": "9e31af75edf746892748cd11d745dc58065e735b",
+      "head": "00543593b2ba57467dc5f99e29620d5d948403cd",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs"
+      ],
+      "patch": "scope-06-dependency.diff"
+    },
+    {
+      "role": "test",
+      "reason": "TLC と replay の inline・改行CFG互換性、未対応のPROPERTYおよび未知節の拒否の実TLC回帰。",
+      "base": "9e31af75edf746892748cd11d745dc58065e735b",
+      "head": "00543593b2ba57467dc5f99e29620d5d948403cd",
+      "paths": [
+        "tests/v2-formal-gate.test.mjs"
+      ],
+      "patch": "scope-07-test.diff"
+    },
+    {
+      "role": "task",
+      "reason": "3回目の修正。事前検査とトレース射影で共通のCFGセクション読み取りを行い、制約をそのまま保持する。formal-trace はランナーの共有依存。",
+      "base": "078be16bf83b6eb7ead6a4879725506f06018917",
+      "head": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs"
+      ],
+      "patch": "scope-08-task.diff"
+    },
+    {
+      "role": "test",
+      "reason": "実TLCで空白と改行の制約拒否、キーワードを含む引用・コメント・ACTION_CONSTRAINTの保持、未対応宣言の拒否を確認。",
+      "base": "078be16bf83b6eb7ead6a4879725506f06018917",
+      "head": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+      "paths": [
+        "tests/v2-formal-gate.test.mjs"
+      ],
+      "patch": "scope-09-test.diff"
+    },
+    {
+      "role": "dependency",
+      "reason": "T-006の対応表のうちT-005に実依存するランナーのpinと参照コミットを更新。",
+      "base": "078be16bf83b6eb7ead6a4879725506f06018917",
+      "head": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+      "paths": [
+        "specs/self-verification/formal/mapping.json"
+      ],
+      "patch": "scope-10-dependency.diff"
+    }
+  ],
+  "mirrored_sources": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
+      "review_copy": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "provenance": "git show 9a64eb26d83938a90502b0e880930f07be31b7ad:plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "reason": "live workspace differs from tested source"
+    },
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "sha256": "943ea6b7836423afd1d4e6c496e88f3f14c377e915adfba57e2ff996664a7cee",
+      "review_copy": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/specs/self-verification/formal/mapping.json",
+      "provenance": "git show 9a64eb26d83938a90502b0e880930f07be31b7ad:specs/self-verification/formal/mapping.json",
+      "reason": "live workspace differs from tested source"
+    }
+  ]
+}

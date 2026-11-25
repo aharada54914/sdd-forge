@@ -1,0 +1,153 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs b/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+index c1653abe8..569e10591 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+@@ -11,42 +11,77 @@ function literal(value) {
+   throw new Error('Unsupported TLA+ trace value');
+ }
+ 
++// TLC 2.19 separates sections by reserved tokens, independently of line breaks.
++// Also recognize newer ALIAS/POSTCONDITION sections so replay rejects them.
++const cfgKeywords = new Set([
++  'CONSTANT', 'CONSTANTS', 'CONSTRAINT', 'CONSTRAINTS', 'ACTION_CONSTRAINT', 'ACTION_CONSTRAINTS',
++  'INIT', 'NEXT', 'SPECIFICATION', 'INVARIANT', 'INVARIANTS', 'CHECK_DEADLOCK',
++  'PROPERTY', 'PROPERTIES', 'TYPE', 'TYPE_CONSTRAINT', 'VIEW', 'SYMMETRY', 'ALIAS', 'POSTCONDITION',
++]);
++
++export function parseCfgSections(config) {
++  // Strings are atomic. Keep the original section text for the checker so that
++  // quoted values, operator overrides and punctuation are never reconstructed.
++  const lexer = /\s+|\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|[A-Za-z0-9_]+|<-|[^\s]/gy;
++  const sections = [];
++  let section;
++  let match;
++  while ((match = lexer.exec(config))) {
++    const token = match[0];
++    if (token === '(*') {
++      const delimiters = /\(\*|\*\)/g;
++      delimiters.lastIndex = lexer.lastIndex;
++      let depth = 1;
++      while (depth) {
++        const next = delimiters.exec(config);
++        if (!next) throw new Error('Unterminated baseline CFG comment');
++        depth += next[0] === '(*' ? 1 : -1;
++      }
++      lexer.lastIndex = delimiters.lastIndex;
++    } else if (token === '"' || token === '*)') {
++      throw new Error('Invalid baseline CFG string or comment delimiter');
++    } else if (!token.trim() || token.startsWith('\\*')) {
++      continue;
++    } else if (cfgKeywords.has(token)) {
++      if (section) section.end = match.index;
++      section = { key: token, tokens: [], start: match.index, end: config.length };
++      sections.push(section);
++    } else {
++      if (!section) throw new Error('Unsupported baseline CFG directive: ' + token);
++      section.tokens.push(token);
++    }
++  }
++  return sections.map(({ key, tokens, start, end }) => ({ key, tokens, text: config.slice(start, end).trimEnd() }));
++}
++
+ // Replay supports explicit behavior operators and the canonical finite-prefix
+ // safety specification. Other temporal formulas require a different projection.
+ function replayBehavior(model, cfg) {
+-  const sections = [];
+-  const config = fs.readFileSync(cfg, 'utf8').replace(/\\\*[^\n]*/g, '');
+-  for (const line of config.split(/\r?\n/).filter((line) => line.trim())) {
+-    const header =
+-      /^\s*(INIT|NEXT|SPECIFICATION|INVARIANTS?|CHECK_DEADLOCK|CONSTANTS?|(?:ACTION_)?CONSTRAINTS?)\b(.*)$/.exec(line);
+-    if (header) sections.push({ key: header[1], lines: [header[2]] });
+-    // The remaining TLC 2.19 section keywords have semantics replay cannot project.
+-    // Uppercase identifiers and values can continue a section across line breaks.
+-    else if (/^\s*(VIEW|SYMMETRY|PROPERT(?:Y|IES)|TYPE(?:_CONSTRAINT)?)\b/.test(line))
+-      throw new Error('Unsupported baseline CFG directive: ' + line.trim());
+-    else if (sections.length) sections.at(-1).lines.push(line);
+-    else throw new Error('Unsupported baseline CFG for trace replay');
+-  }
++  const sections = parseCfgSections(fs.readFileSync(cfg, 'utf8'));
+   const operators = {};
+   const retained = [];
+-  for (const { key, lines } of sections) {
+-    const value = lines.join('\n').trim();
++  for (const { key, tokens, text } of sections) {
+     if (['INIT', 'NEXT', 'SPECIFICATION'].includes(key)) {
+-      if (operators[key] || !identifier.test(value)) throw new Error('Invalid baseline CFG ' + key);
+-      operators[key] = value;
++      if (operators[key] || tokens.length !== 1 || !identifier.test(tokens[0])) throw new Error('Invalid baseline CFG ' + key);
++      operators[key] = tokens[0];
+     } else if (/^INVARIANTS?$/.test(key)) {
+-      if (!value.split(/\s+/).every((name) => identifier.test(name)))
++      if (!tokens.length || !tokens.every((name) => identifier.test(name)))
+         throw new Error('Unsupported baseline CFG invariants');
+     } else if (key === 'CHECK_DEADLOCK') {
+-      if (!/^(TRUE|FALSE)$/.test(value)) throw new Error('Invalid baseline CFG CHECK_DEADLOCK');
+-    } else retained.push(key + ' ' + value);
++      if (tokens.length !== 1 || !['TRUE', 'FALSE'].includes(tokens[0])) throw new Error('Invalid baseline CFG CHECK_DEADLOCK');
++    } else if (/^CONSTANTS?$|^(?:ACTION_)?CONSTRAINTS?$/.test(key)) {
++      retained.push(text);
++    } else {
++      throw new Error('Unsupported baseline CFG directive: ' + key);
++    }
+   }
+ 
+   if (operators.SPECIFICATION) {
+     const spec = operators.SPECIFICATION;
+     const source = fs.readFileSync(model, 'utf8').replace(/\\\*[^\n]*/g, '');
+     // Do not infer the behavior from an overridden or ambiguously scoped definition.
+-    const overridden = new RegExp('\\b' + spec + '\\s*<-').test(config);
++    const overridden = sections.some(({ key, tokens }) => /^CONSTANTS?$/.test(key) &&
++      tokens.some((token, index) => token === spec && tokens[index + 1] === '<-'));
+     const parts = source.split(new RegExp('^' + spec + '[ \\t]*==', 'm'));
+     const body = parts[1]?.split(/^\s*(?:={4,}|[A-Za-z]\w*(?:\([^)\n]*\))?[ \t]*==)/m, 1)[0].trim();
+     const safety =
+diff --git a/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs b/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
+index 55515a857..b495d9dd0 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
+@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import os from 'node:os';
+-import { prepareTraceReplay } from './formal-trace.mjs';
++import { parseCfgSections, prepareTraceReplay } from './formal-trace.mjs';
+ import { randomUUID } from 'node:crypto';
+ import {
+   VALID_FORMAL_ADAPTERS,
+@@ -33,23 +33,6 @@ import {
+ } from './guardrails-lib.mjs';
+ 
+ const TLA_MODULE_RE = /-{4,}\s*MODULE\s+([A-Za-z0-9_]+)\s*-{4,}/;
+-const CFG_SECTION = /^(INIT|NEXT|SPECIFICATION|INVARIANTS?|PROPERT(?:Y|IES)|CONSTANTS?|(?:ACTION_)?CONSTRAINTS?|TYPE(?:_CONSTRAINT)?|VIEW|SYMMETRY|CHECK_DEADLOCK|ALIAS|POSTCONDITION)\b/;
+-
+-function configuredInvariants(cfgText) {
+-  const names = [];
+-  let inInvariants = false;
+-  for (const line of cfgText.split(/\r?\n/)) {
+-    let text = line.replace(/\\\*.*/, '').trim();
+-    const section = CFG_SECTION.exec(text);
+-    if (section) {
+-      inInvariants = /^INVARIANTS?$/.test(section[1]);
+-      text = text.slice(section[0].length).trim();
+-    }
+-    if (inInvariants && text) names.push(...text.split(/\s+/));
+-  }
+-  return names;
+-}
+-
+ // A following operator or module declaration ends the RHS. A continuation
+ // such as "/\ predicate" on the next line still belongs to the definition.
+ const TLA_TRUE_DEFINITION = /^[ \t]*(\w+)[ \t]*==\s*TRUE[ \t]*\r?$/gm;
+@@ -102,7 +85,11 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
+       errors.push(`Config file not found: ${cfgPath}`);
+     } else {
+       const cfgText = fs.readFileSync(cfgPath, 'utf8');
+-      invariants = configuredInvariants(cfgText);
++      try {
++        invariants = parseCfgSections(cfgText).filter(({ key }) => /^INVARIANTS?$/.test(key)).flatMap(({ tokens }) => tokens);
++      } catch (error) {
++        errors.push(error.message);
++      }
+       if (invariants.length === 0) {
+         errors.push(`No INVARIANT declared in ${cfgPath}`);
+       }

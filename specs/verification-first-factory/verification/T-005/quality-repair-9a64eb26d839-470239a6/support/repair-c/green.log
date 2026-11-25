@@ -1,0 +1,11 @@
+✔ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (9549.071958ms)
+ℹ TLC baseline exit=0 "CONSTANT LOCK = TRUE"
+ℹ TLC baseline exit=0 "CONSTANT\n  LOCK = TRUE"
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9589.721

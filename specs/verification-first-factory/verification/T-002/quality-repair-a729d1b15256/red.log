@@ -1,0 +1,129 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✖ counts Node test context calls using the callback parameter, including subtests (282.928666ms)
+  ✖ distinguishes an entire TRUE definition from conjunctions and their continuations (145.390875ms)
+  ✖ ignores Python and Go documentation while counting executable skip directives (154.931208ms)
+✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (583.674ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 616.537292
+
+✖ failing tests:
+
+test at tests/v2-spec-drift.test.mjs:453:3
+✖ counts Node test context calls using the callback parameter, including subtests (282.928666ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "CLEAN",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 1,
+    "violations": []
+  }
+  
+  
+  0 !== 4
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:471:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-spec-drift.test.mjs:476:3
+✖ distinguishes an entire TRUE definition from conjunctions and their continuations (145.390875ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "TAMPER_DETECTED",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 1,
+    "openQuestion": {
+      "id": "OQ-001",
+      "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+    },
+    "violations": [
+      {
+        "code": "FORMAL_INVARIANT_WEAKENED",
+        "path": "specs/demo/formal/Model.tla",
+        "detail": "TLA+ 不変条件が自明な == TRUE へ弱体化されています: Inv == TRUE /\\ x = 1"
+      }
+    ]
+  }
+  
+  
+  4 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:486:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Promise.all (index 3)
+      at async Suite.run (node:internal/test_runner/test:1518:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-spec-drift.test.mjs:496:3
+✖ ignores Python and Go documentation while counting executable skip directives (154.931208ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "TAMPER_DETECTED",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 2,
+    "openQuestion": {
+      "id": "OQ-001",
+      "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+    },
+    "violations": [
+      {
+        "code": "TEST_SKIP_ADDED",
+        "path": "tests/sample_test.go",
+        "detail": "テストの skip 指定が 0 件から 3 件に増えました"
+      },
+      {
+        "code": "TEST_SKIP_ADDED",
+        "path": "tests/sample_test.py",
+        "detail": "テストの skip 指定が 0 件から 3 件に増えました"
+      }
+    ]
+  }
+  
+  
+  4 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:510:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

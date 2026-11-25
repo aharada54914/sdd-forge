@@ -1,0 +1,32 @@
+✖ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (8061.088625ms)
+ℹ Constraint layout "\n": baseline=1 replay=1 status=FAIL
+ℹ Constraint layout " ": baseline=1 replay=5 status=PASS
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8103.240209
+
+✖ failing tests:
+
+test at tests/v2-formal-gate.test.mjs:483:1
+✖ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (8061.088625ms)
+  AssertionError [ERR_ASSERTION]: the constrained model cannot replay the observation
+  
+  'PASS' !== 'FAIL'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-formal-gate.test.mjs:549:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'PASS',
+    expected: 'FAIL',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

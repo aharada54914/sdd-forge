@@ -1,10 +1,10 @@
 {
   "schema": "sdd-gate-execution/v1",
-  "runId": "bbfdc170-33eb-4b34-95e4-b5e1b987893b",
+  "runId": "33a249ab-4f18-49e8-a7ec-c145b5fa717a",
   "feature": "verification-first-factory",
   "taskId": "T-002",
   "mode": "standard",
-  "executedAt": "2026-11-25T18:47:50.293Z",
+  "executedAt": "2026-11-25T18:57:37.712Z",
   "verdict": "PASS",
   "specInputs": {
     "schema": "sdd-task-evidence-inputs/v2",
@@ -25,7 +25,7 @@
   },
   "scope": {
     "mode": "explicit",
-    "baseRef": "33a9733b2573660a1380e41263ce45093eae39ff",
+    "baseRef": "a729d1b152567af6cca0f921588338846dc90427",
     "taskScope": [
       "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
       "sdd/approved-test-retirements.json",
@@ -92,7 +92,7 @@
       "passed": true,
       "schema": "sdd-anti-tamper/v1",
       "status": "CLEAN",
-      "baseRef": "33a9733b2573660a1380e41263ce45093eae39ff",
+      "baseRef": "a729d1b152567af6cca0f921588338846dc90427",
       "checkedFilesCount": 0,
       "violations": []
     },
@@ -148,10 +148,10 @@
         "label": "task-tests",
         "command": "node --test tests/v2-spec-drift.test.mjs",
         "exitCode": 0,
-        "durationMs": 4083,
+        "durationMs": 6021,
         "passed": true,
         "error": null,
-        "stdout": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (97.520958ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (70.054375ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (96.7805ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (264.707875ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (216.927541ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (216.98975ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (127.001417ms)\n  ✔ a baseline recorded before this change keeps its old comparison (96.794875ms)\n✔ #818 staged human approval is not spec drift (223.886209ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (78.108916ms)\n✔ #834 unreadable spec files are reported apart from deletions (78.188917ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (177.813042ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (136.365125ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (314.254583ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (67.566541ms)\n✔ #972 re-review: text added to an Approval line is drift (67.61175ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (245.190125ms)\n  ✔ allows renaming an already skipped test and editing existing skip reasons (186.895458ms)\n  ✔ counts active Node options across layout changes alongside prior Python and Go directives (613.382834ms)\n  ✔ preserves an existing question with invalid JSON and records a valid replacement (317.843ms)\n  ✔ preserves an existing question with wrong id and records a valid replacement (317.696ms)\n  ✔ preserves an existing question with wrong feature and records a valid replacement (326.884209ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (264.557666ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (165.326125ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (165.942542ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (259.8025ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (2863.751042ms)\nℹ tests 20\nℹ suites 7\nℹ pass 20\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4061.357834\n",
+        "stdout": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (106.825875ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (70.583958ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (101.881416ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (279.65925ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (209.353417ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (209.421667ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (144.66975ms)\n  ✔ a baseline recorded before this change keeps its old comparison (109.001208ms)\n✔ #818 staged human approval is not spec drift (253.768125ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (81.621916ms)\n✔ #834 unreadable spec files are reported apart from deletions (81.694541ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (178.705292ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (138.23475ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (317.021584ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (75.776833ms)\n✔ #972 re-review: text added to an Approval line is drift (75.834917ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (294.647875ms)\n  ✔ allows renaming an already skipped test and editing existing skip reasons (171.322542ms)\n  ✔ counts active Node options across layout changes alongside prior Python and Go directives (687.546417ms)\n  ✔ counts Node test context calls using the callback parameter, including subtests (573.198541ms)\n  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (690.981375ms)\n  ✔ ignores Python and Go documentation while counting executable skip directives (305.470667ms)\n  ✔ preserves an existing question with invalid JSON and records a valid replacement (337.518041ms)\n  ✔ preserves an existing question with wrong id and records a valid replacement (369.460625ms)\n  ✔ preserves an existing question with wrong feature and records a valid replacement (335.979916ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (311.496542ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (175.794542ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (176.675959ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (312.219667ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (4742.605667ms)\nℹ tests 23\nℹ suites 7\nℹ pass 23\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5995.957875\n",
         "stderr": ""
       }
     ],

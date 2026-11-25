@@ -1,0 +1,14 @@
+E
+======================================================================
+ERROR: test_mutation_and_baseline (__main__.Reservation.test_mutation_and_baseline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/sdd-forge/tests/project-skill-formal.tests.py", line 79, in test_mutation_and_baseline
+    events = replay["trace"]
+             ~~~~~~^^^^^^^^^
+KeyError: 'trace'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.124s
+
+FAILED (errors=1)
