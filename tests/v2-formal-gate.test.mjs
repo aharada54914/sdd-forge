@@ -491,6 +491,71 @@ it('retains a between-phase budget timeout and raises the repair-limit OQ in the
 });
 
 it(
+  'TLC replay recognizes the selected specification outside comments and strings',
+  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
+  (t) => {
+    const projectRoot = sandbox(t);
+    fs.cpSync(path.dirname(reservation), projectRoot, { recursive: true });
+    const model = path.join(projectRoot, 'Reservation.tla');
+    const original = fs.readFileSync(model, 'utf8');
+    const tracePath = path.join(REPO_ROOT, 'specs/verification-first-factory/verification/T-005',
+      'a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson');
+    const run = (source) => {
+      fs.writeFileSync(model, source);
+      return runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
+    };
+    const nested = [
+      '(* block containing a nested (* comment *)',
+      '---- MODULE Pretend ----',
+      'OneAccepted == TRUE',
+      'Spec == WrongInit /\\ [][WrongNext]_vars',
+      '*)',
+      '\\* unmatched (* and quoted " in a line comment',
+    ].join('\n');
+    const real = 'Spec == Init /\\ [][Next]_vars';
+    const commented = original.replace('EXTENDS', nested + '\nEXTENDS');
+    const variants = [
+      ['original', original],
+      ['ordinary', original.replace('EXTENDS', '(* ordinary note *)\nEXTENDS')],
+      ['nested', commented],
+      ['strings and inline comments', original.replace(real, [
+        'Label == "escaped \\" ---- MODULE Fake ---- (* \\\\* *)"',
+        '(* prefix *) Spec (* a multi-line',
+        '   definition comment *) == Init /\\ \\* Next == Wrong',
+        '  [][(* transition *) Next ]_vars',
+      ].join('\n'))],
+    ];
+    let expected;
+    for (const [label, source] of variants) {
+      const result = run(source);
+      assert.equal(result.status, 'PASS', label + ': ' + JSON.stringify(result.errors || result.structure.errors));
+      const phases = ['baseline', 'negative', 'replay'].map((phase) => {
+        const { status, violatedInvariant, distinctStates, depth } = result.checker[phase];
+        return [status, violatedInvariant, distinctStates, depth];
+      });
+      if (!expected) expected = phases;
+      assert.deepEqual(phases, expected, label);
+      assert.equal(result.checker.replay.violatedInvariant, 'TraceIncomplete');
+      t.diagnostic(label + ' ' + JSON.stringify(phases));
+    }
+    const unsupported = commented.replace(real, real + '\n  /\\ WF_vars(Next)');
+    const result = run(unsupported.replace('WrongInit /\\ [][WrongNext]_vars', 'Init /\\ [][Next]_vars'));
+    assert.equal(result.status, 'FAIL');
+    assert.match(result.errors.join(' '), /Unsupported baseline SPECIFICATION/);
+    for (const hidden of ['(* ' + real + ' *)', 'LocalFormula == LET\n  ' + real + '\n  IN Spec']) {
+      const incomplete = run(original.replace(real, hidden));
+      assert.equal(incomplete.status, 'FAIL');
+      assert.match(incomplete.errors.join(' '), /Unsupported baseline SPECIFICATION/);
+    }
+    for (const malformed of ['(* unclosed (* nested *)', '*)', 'Label == "unclosed']) {
+      const invalid = run(original.replace('EXTENDS', malformed + '\nEXTENDS'));
+      assert.equal(invalid.status, 'FAIL');
+      assert.match(invalid.structure.errors.join(' '), /TLA\+ (?:comment|string)/);
+    }
+  },
+);
+
+it(
   'TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas',
   { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
   (t) => {

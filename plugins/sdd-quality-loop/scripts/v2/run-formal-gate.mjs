@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { parseCfgSections, prepareTraceReplay } from './formal-trace.mjs';
+import { parseCfgSections, prepareTraceReplay, tlaDeclarationSource } from './formal-trace.mjs';
 import { randomUUID } from 'node:crypto';
 import {
   VALID_FORMAL_ADAPTERS,
@@ -70,7 +70,12 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
   if (!fs.existsSync(tlaPath)) {
     return { ok: false, moduleName: null, invariants: [], errors: [`TLA+ file not found: ${tlaPath}`] };
   }
-  const tlaText = fs.readFileSync(tlaPath, 'utf8');
+  let tlaText;
+  try {
+    tlaText = tlaDeclarationSource(fs.readFileSync(tlaPath, 'utf8'));
+  } catch (error) {
+    return { ok: false, moduleName: null, invariants: [], errors: [error.message] };
+  }
   const modMatch = TLA_MODULE_RE.exec(tlaText);
   if (!modMatch) {
     errors.push(`Missing TLA+ MODULE header in ${tlaPath}`);
@@ -93,11 +98,10 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
       if (invariants.length === 0) {
         errors.push(`No INVARIANT declared in ${cfgPath}`);
       }
-      const definitions = tlaText.replace(/\(\*[\s\S]*?\*\)/g, ' ').replace(/\\\*[^\n]*/g, '');
-      for (const match of definitions.matchAll(TLA_TRUE_DEFINITION)) {
+      for (const match of tlaText.matchAll(TLA_TRUE_DEFINITION)) {
         const name = match[1];
         if (!invariants.includes(name)) continue;
-        const next = definitions.slice(match.index + match[0].length).trimStart();
+        const next = tlaText.slice(match.index + match[0].length).trimStart();
         if (!next || TLA_NEXT_DECLARATION.test(next)) {
           errors.push(`Trivial tautology invariant detected (${name} == TRUE) in ${tlaPath}`);
         }

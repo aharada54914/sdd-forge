@@ -19,6 +19,41 @@ const cfgKeywords = new Set([
   'PROPERTY', 'PROPERTIES', 'TYPE', 'TYPE_CONSTRAINT', 'VIEW', 'SYMMETRY', 'ALIAS', 'POSTCONDITION',
 ]);
 
+function blockCommentEnd(source, start, kind) {
+  const delimiters = /\(\*|\*\)/g;
+  delimiters.lastIndex = start;
+  let depth = 1;
+  while (depth) {
+    const next = delimiters.exec(source);
+    if (!next) throw new Error('Unterminated ' + kind + ' comment');
+    depth += next[0] === '(*' ? 1 : -1;
+  }
+  return delimiters.lastIndex;
+}
+
+// Expose only model code to declaration checks. Comments are whitespace and
+// strings remain opaque operands, so neither can introduce a new definition.
+export function tlaDeclarationSource(source) {
+  const specials = /\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/g;
+  let code = '';
+  let start = 0;
+  let match;
+  while ((match = specials.exec(source))) {
+    code += source.slice(start, match.index);
+    const token = match[0];
+    if (token === '(*') {
+      specials.lastIndex = blockCommentEnd(source, specials.lastIndex, 'TLA+');
+      code += source.slice(match.index, specials.lastIndex).replace(/[^\r\n]+/g, ' ');
+    } else if (token === '"' || token === '*)') {
+      throw new Error('Invalid TLA+ string or comment delimiter');
+    } else {
+      code += token.startsWith('"') ? '""' : ' ';
+    }
+    start = specials.lastIndex;
+  }
+  return code + source.slice(start);
+}
+
 export function parseCfgSections(config) {
   // Strings are atomic. Keep the original section text for the checker so that
   // quoted values, operator overrides and punctuation are never reconstructed.
@@ -29,15 +64,7 @@ export function parseCfgSections(config) {
   while ((match = lexer.exec(config))) {
     const token = match[0];
     if (token === '(*') {
-      const delimiters = /\(\*|\*\)/g;
-      delimiters.lastIndex = lexer.lastIndex;
-      let depth = 1;
-      while (depth) {
-        const next = delimiters.exec(config);
-        if (!next) throw new Error('Unterminated baseline CFG comment');
-        depth += next[0] === '(*' ? 1 : -1;
-      }
-      lexer.lastIndex = delimiters.lastIndex;
+      lexer.lastIndex = blockCommentEnd(config, lexer.lastIndex, 'baseline CFG');
     } else if (token === '"' || token === '*)') {
       throw new Error('Invalid baseline CFG string or comment delimiter');
     } else if (!token.trim() || token.startsWith('\\*')) {
@@ -78,22 +105,28 @@ function replayBehavior(model, cfg) {
 
   if (operators.SPECIFICATION) {
     const spec = operators.SPECIFICATION;
-    const source = fs.readFileSync(model, 'utf8').replace(/\\\*[^\n]*/g, '');
+    const source = tlaDeclarationSource(fs.readFileSync(model, 'utf8'));
     // Do not infer the behavior from an overridden or ambiguously scoped definition.
     const overridden = sections.some(({ key, tokens }) => /^CONSTANTS?$/.test(key) &&
       tokens.some((token, index) => token === spec && tokens[index + 1] === '<-'));
-    const parts = source.split(new RegExp('^' + spec + '[ \\t]*==', 'm'));
+    const headers = [...source.matchAll(/-{4,}\s*MODULE\b/g)];
+    const footer = /^[ \t]*={4,}[ \t]*\r?$/m.exec(source);
+    const module = headers.length === 1 && footer ? source.slice(headers[0].index, footer.index) : '';
+    const parts = module.split(new RegExp('^[ \\t]*' + spec + '\\s*==', 'm'));
+    // A LET-local definition can shadow an operator inherited through EXTENDS.
+    // Only match a definition outside the declaration lists of active LETs.
+    let letDepth = 0;
+    for (const [token] of parts[0].matchAll(/\b(?:LET|IN)\b/g)) letDepth += token === 'LET' ? 1 : -1;
     const body = parts[1]?.split(/^\s*(?:={4,}|[A-Za-z]\w*(?:\([^)\n]*\))?[ \t]*==)/m, 1)[0].trim();
     const safety =
-      /^([A-Za-z]\w*)\s*\/\\\s*\[\]\s*\[([A-Za-z]\w*)\]\s*_(?:[A-Za-z]\w*|<<\s*[A-Za-z]\w*(?:\s*,\s*[A-Za-z]\w*)*\s*>>)$/.exec(
+      /^([A-Za-z]\w*)\s*\/\\\s*\[\]\s*\[\s*([A-Za-z]\w*)\s*\]\s*_(?:[A-Za-z]\w*|<<\s*[A-Za-z]\w*(?:\s*,\s*[A-Za-z]\w*)*\s*>>)$/.exec(
         body || '',
       );
     if (
       operators.INIT ||
       operators.NEXT ||
       overridden ||
-      source.includes('(*') ||
-      (source.match(/-{4,}\s*MODULE\b/g) || []).length !== 1 ||
+      letDepth !== 0 ||
       parts.length !== 2 ||
       !safety
     )
