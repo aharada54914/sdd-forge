@@ -152,7 +152,47 @@ export function formatDriftMarkdown(report) {
   return `${lines.join('\n')}\n`;
 }
 
-const TEST_SKIP_RE = /(?:\b(?:it|test|describe)\.skip\s*\(|\b(?:xit|xdescribe)\s*\(|@pytest\.mark\.skip\b|unittest\.skip\b|\bt\.Skip\s*\()/;
+const TEST_SKIP_RE = /(?:\b(?:it|test|describe)\.skip\s*\(|\b(?:xit|xdescribe)\s*\(|@pytest\.mark\.skip\b|unittest\.skip\b|\bt\.Skip\s*\()/g;
+const JS_TOKEN = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`|[\w$]+|[^\s]/g;
+const TEST_FUNCTIONS = new Set(['it', 'test', 'describe', 'suite']);
+const DISABLED_SKIP_VALUES = new Set(['false', "''", '""', '``', 'null', 'undefined', '0']);
+
+function countTestSkips(file, source) {
+  if (!/\.[cm]?[jt]sx?$/i.test(file)) return Array.from(source.matchAll(TEST_SKIP_RE)).length;
+  // Keep strings intact and ignore comments so that a label, example or callback
+  // object does not become a skip option. Only inspect direct test arguments.
+  const tokens = (source.match(JS_TOKEN) || []).filter(token => !token.startsWith('//') && !token.startsWith('/*'));
+  const stack = [];
+  let count = 0;
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const previous = tokens[i - 1];
+    const parent = stack.at(-1);
+    if (token === '(') {
+      const method = previous === 'skip' && tokens[i - 2] === '.' && TEST_FUNCTIONS.has(tokens[i - 3]);
+      const skipped = method || previous === 'xit' || previous === 'xdescribe';
+      if (skipped) count++;
+      stack.push({ testCall: !skipped && TEST_FUNCTIONS.has(previous) });
+    } else if (token === '{' || token === '[') {
+      const options = token === '{' && parent?.testCall && (previous === '(' || previous === ',');
+      stack.push({ options });
+    } else if (token === '}' || token === ']' || token === ')') {
+      stack.pop();
+    } else if (parent?.options && (previous === '{' || previous === ',') && /^(?:skip|"skip"|'skip')$/.test(token)) {
+      // Computed conditions may activate a skip. Only a complete falsy literal
+      // unconditionally leaves the test enabled.
+      const next = tokens[i + 1];
+      if (next === ':') {
+        const valueEnds = tokens[i + 3] === ',' || tokens[i + 3] === '}';
+        if (!valueEnds || !DISABLED_SKIP_VALUES.has(tokens[i + 2])) count++;
+      } else if (token === 'skip' && (next === ',' || next === '}')) {
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
 const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
 const TLA_TRIVIAL_INVARIANT_RE = /^[A-Za-z0-9_]+\s*==\s*TRUE\b/;
 
@@ -167,14 +207,15 @@ function isTestFileRelPath(relPath) {
   );
 }
 
-function gitText(root, args) {
-  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+function gitText(root, args, options = {}) {
+  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options });
 }
 
 function committedText(root, revision, file) {
-  const entry = gitText(root, ['ls-tree', '-z', revision, '--', file]);
-  if (!/^100(?:644|755) blob /.test(entry)) return null;
-  return gitText(root, ['show', `${revision}:./${file}`]);
+  const entry = gitText(root, ['--literal-pathspecs', 'ls-tree', '-lz', revision, '--', file]);
+  const blob = /^100(?:644|755) blob ([a-f0-9]+)\s+(\d+)\t/.exec(entry);
+  if (!blob) return null;
+  return gitText(root, ['cat-file', 'blob', blob[1]], { maxBuffer: Math.max(1, Number(blob[2])) });
 }
 
 function committedPolicy(root, revision) {
@@ -223,9 +264,18 @@ function recordTamperingQuestion(root, feature, revision, violations) {
       } catch (err) {
         if (err.code !== 'EEXIST') throw err;
       }
-      if (!fs.lstatSync(filename).isFile()) throw new Error('Invalid escalation file');
-      const existing = JSON.parse(fs.readFileSync(filename, 'utf8'));
-      if (existing.baseCommit === revision && JSON.stringify(existing.violations) === JSON.stringify(facts)) return ref;
+      if (!fs.lstatSync(filename).isFile()) continue;
+      const text = fs.readFileSync(filename, 'utf8');
+      let existing;
+      try {
+        existing = JSON.parse(text);
+      } catch (err) {
+        if (err instanceof SyntaxError) continue;
+        throw err;
+      }
+      if (existing?.id === id && existing.feature === feature && existing.baseCommit === revision &&
+          ['Provisional', 'Confirmed'].includes(existing.status) &&
+          JSON.stringify(existing.violations) === JSON.stringify(facts)) return ref;
     }
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
@@ -278,7 +328,8 @@ export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
  */
 export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
-  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef);
+  const testGlobs = ['tests/**', 'test/**', '**/tests/**', '**/__tests__/**', '*.test.*', '*.spec.*', '*_test.*', '*.tests.*'];
+  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, testGlobs);
   const approvedRetirements = loadApprovedTestRetirements(root, revision);
   const violations = [];
 
@@ -306,19 +357,25 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
 
   for (const { status, relPath: currentFile } of changedEntries) {
     if (status === 'D') continue;
+    if (isTestFileRelPath(currentFile)) {
+      const absolute = path.join(root, currentFile);
+      if (fs.lstatSync(absolute).isFile()) {
+        const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
+        const after = fs.readFileSync(absolute, 'utf8');
+        const previousCount = countTestSkips(currentFile, before);
+        const currentCount = countTestSkips(currentFile, after);
+        if (currentCount > previousCount) {
+          violations.push({ code: 'TEST_SKIP_ADDED', path: currentFile,
+            detail: `テストの skip 指定が ${previousCount} 件から ${currentCount} 件に増えました` });
+        }
+      }
+    }
     const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', currentFile]);
     let inHunk = false;
     for (const line of patch.split(/\r?\n/)) {
       if (line.startsWith('@@ ')) inHunk = true;
       if (!inHunk || !line.startsWith('+')) continue;
       const addedText = line.slice(1);
-      if (isTestFileRelPath(currentFile) && TEST_SKIP_RE.test(addedText)) {
-        violations.push({
-          code: 'TEST_SKIP_ADDED',
-          path: currentFile,
-          detail: `テストの skip 指定が追加されました: ${addedText.trim()}`,
-        });
-      }
       if (LINT_DISABLE_RE.test(addedText)) {
         violations.push({
           code: 'LINT_DISABLE_ADDED',

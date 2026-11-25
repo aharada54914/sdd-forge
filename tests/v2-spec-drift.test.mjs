@@ -437,6 +437,10 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.deepEqual(JSON.parse(increased.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
     fs.writeFileSync(file, source(['false']));
     assert.equal(runAntiTamper(dir).status, 0);
+    fs.writeFileSync(file, ['test({ ' + option + ': true }, () => {});',
+      'it("conditional", { ' + option + ': process.env.CI }, () => {});'].join('\n'));
+    assert.equal(runAntiTamper(dir).status, 4);
+    fs.writeFileSync(file, source(['false']));
     for (const [name, marker] of [['sample_test.py', ['@pytest.mark.', 'skip'].join('')],
       ['sample_test.go', ['t.', 'Skip'].join('')]]) {
       fs.writeFileSync(path.join(dir, 'tests', name), marker + '("reason")\n');
