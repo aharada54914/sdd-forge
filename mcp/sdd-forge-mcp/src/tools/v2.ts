@@ -33,7 +33,7 @@ import {
   isApprovedValue,
   renderDecisionViewMarkdown,
   runDoctorCore,
-  taskEvidenceInputs,
+  featureEvidenceInputs,
 } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
 
 const FEATURE_RE = /^[A-Za-z0-9._-]+$/;
@@ -226,44 +226,63 @@ function validateTaskId(taskId: string): Result<string> {
 
 type GuardedIo = ReturnType<typeof createGuardedIo>;
 
+type EvidenceInputs = Map<string, unknown>;
+
 /**
  * Spec inputs that changed since a task's gate run (#831). `undefined` when
- * the run recorded none (before #831) or there is no matching run.
+ * the run recorded none (before #831). `current` is the feature's inputs,
+ * computed once per feature.
  */
-function changedEvidenceInputs(
-  io: GuardedIo,
-  feature: string,
-  taskId: string,
-  parsed: Record<string, unknown>,
-): string[] | undefined {
-  const changed = diffEvidenceInputs(parsed.specInputs, taskEvidenceInputs(io, { feature, taskId })) as string[] | null;
+function changedEvidenceInputs(current: EvidenceInputs, taskId: string, parsed: Record<string, unknown>): string[] | undefined {
+  const changed = diffEvidenceInputs(parsed.specInputs, current.get(taskId.toUpperCase()) ?? null) as string[] | null;
   return changed ?? undefined;
 }
 
+interface DoneAttention {
+  /** Done tasks whose evidence no longer covers the current spec. */
+  stale: string[];
+  /** Done tasks whose latest gate run (on current inputs) did not pass with full coverage. */
+  failed: string[];
+}
+
 /**
- * Done tasks whose gate evidence no longer matches the spec (#832): their
- * recorded inputs changed, or (evidence from before #831, or none) the spec
- * was amended since the baseline, which they cannot be shown to cover.
+ * Done tasks that need a human or a gate run (#832). A task whose latest
+ * run recorded inputs is checked like readyForDone: same identity, inputs
+ * unchanged, verdict PASS and full coverage. A run that recorded nothing
+ * (before #831), or no run at all, counts only while the spec is not
+ * amended since the baseline.
  */
-function staleDoneTasks(io: GuardedIo, root: SddRoot, feature: string, tasks: readonly V2TaskSummary[], driftStatus: DriftStatus): string[] {
-  const stale: string[] = [];
+function doneAttention(root: SddRoot, feature: string, tasks: readonly V2TaskSummary[], driftStatus: DriftStatus, current: EvidenceInputs): DoneAttention {
+  const result: DoneAttention = { stale: [], failed: [] };
   for (const task of tasks) {
     if (task.status !== "Done") continue;
+    let parsed: Record<string, unknown> | undefined;
     const read = guardedRead(root, `reports/quality-gate/${feature}-${task.id}.execution.json`);
-    let changed: string[] | undefined;
     if (read.ok) {
       try {
-        const parsed = JSON.parse(read.data.contents) as Record<string, unknown>;
-        if (parsed.feature === feature && typeof parsed.taskId === "string" && parsed.taskId.toUpperCase() === task.id.toUpperCase()) {
-          changed = changedEvidenceInputs(io, feature, task.id, parsed);
+        const candidate = JSON.parse(read.data.contents) as Record<string, unknown>;
+        if (
+          candidate.schema === "sdd-gate-execution/v1" &&
+          candidate.feature === feature &&
+          typeof candidate.taskId === "string" &&
+          candidate.taskId.toUpperCase() === task.id.toUpperCase()
+        ) {
+          parsed = candidate;
         }
       } catch {
-        changed = undefined;
+        parsed = undefined;
       }
     }
-    if (changed ? changed.length > 0 : driftStatus === "AMENDED") stale.push(task.id);
+    const changed = parsed ? changedEvidenceInputs(current, task.id, parsed) : undefined;
+    if (changed === undefined) {
+      if (driftStatus === "AMENDED") result.stale.push(task.id);
+    } else if (changed.length > 0) {
+      result.stale.push(task.id);
+    } else if (parsed?.verdict !== "PASS" || !isExecutionCoverageComplete(parsed)) {
+      result.failed.push(task.id);
+    }
   }
-  return stale;
+  return result;
 }
 
 function computeNextAction(
@@ -273,7 +292,7 @@ function computeNextAction(
   highestRisk: RiskTier,
   hasSpecs: boolean,
   driftStatus: DriftStatus,
-  staleDone: readonly string[] = [],
+  attention: () => DoneAttention = () => ({ stale: [], failed: [] }),
 ): NextAction {
   if (!hasSpecs || tasks.length === 0) {
     return {
@@ -331,6 +350,15 @@ function computeNextAction(
       phase: "sdd-gate",
       command: `/sdd-ship:ship specs/${feature}/tasks.md`,
       rationale: `Approved task(s) are Implementation Complete and awaiting sdd-gate verification.`,
+    };
+  }
+  // Computed only here, when every other phase is settled (#832).
+  const { stale: staleDone, failed: failedDone } = attention();
+  if (failedDone.length > 0) {
+    return {
+      phase: "blocked",
+      command: `human: review the gate result for ${failedDone.join(", ")} in specs/${feature}`,
+      rationale: `The latest gate run for Done task(s) ${failedDone.join(", ")} did not pass with full coverage; a human decides whether to reopen the task or re-run the gate.`,
     };
   }
   if (staleDone.length > 0) {
@@ -458,7 +486,7 @@ export function sddProjectOverview(
           highestRisk,
           hasSpecs,
           drift.status,
-          staleDoneTasks(io, root, feature, tasks, drift.status),
+          () => doneAttention(root, feature, tasks, drift.status, featureEvidenceInputs(io, { feature }) as EvidenceInputs),
         ),
       });
     } catch {
@@ -562,7 +590,7 @@ export function sddFeatureState(
         highestRisk,
         files.requirements && files.tasks,
         drift.status,
-        staleDoneTasks(io, root, feature, dv.tasks as V2TaskSummary[], drift.status),
+        () => doneAttention(root, feature, dv.tasks as V2TaskSummary[], drift.status, featureEvidenceInputs(io, { feature }) as EvidenceInputs),
       ),
     };
 
@@ -613,6 +641,7 @@ export function sddGateAudit(
     }
 
     const allOqs = dv.openQuestions as V2OpenQuestion[];
+    const evidenceInputs = featureEvidenceInputs(io, { feature }) as EvidenceInputs;
 
     const tasks: GateAuditTaskEntry[] = selectedTasks.map((task) => {
       const execRel = `reports/quality-gate/${feature}-${task.id}.execution.json`;
@@ -645,7 +674,7 @@ export function sddGateAudit(
               executionArtifact.specDriftStatus = sdStatus;
             }
             executionArtifact.coverageComplete = isExecutionCoverageComplete(parsed);
-            const changed = changedEvidenceInputs(io, feature, task.id, parsed);
+            const changed = changedEvidenceInputs(evidenceInputs, task.id, parsed);
             if (changed) {
               executionArtifact.specInputsCurrent = changed.length === 0;
               if (changed.length > 0) executionArtifact.specInputsChanged = changed;

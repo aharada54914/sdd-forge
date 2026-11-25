@@ -13,8 +13,9 @@
 - **旧ドメインレビュー事前検査の配置（Closes #811）**: v1 互換専用で、対象プロジェクトと同じツリーでだけ動くことをスキル参照に明記。現行の `domain-model review` は使わない。
 - **検証カタログと実際の CI（Closes #862）**: カタログ登録だけを「CI で実行済み」と数えず、現行 `test.yml` が実行するかで分類した報告（`docs/operations/verification-catalog-status.md`）を生成・検査する。
 - **読取上限を超える仕様ファイル（Closes #834）**: 存在するが読めないファイルは削除扱いにせず `unreadableFiles` に列挙し、状態 `UNVERIFIABLE`（ゲート・`--fail-on-undeclared` で不合格、MCP は理由付きで blocked）。MCP 契約スキーマに追加。
-- **仕様変更後の古い合格証跡（Closes #831）**: `run-sdd-gate.mjs` は検証した入力（タスク本文・依存する REQ/AC 行・design.md）のダイジェストを `specInputs` に記録する。`sdd_gate_audit` は `specInputsCurrent` / `specInputsChanged` を返し、入力が変わった合格は `readyForDone` にしない（`specInputs` のない旧証跡は Spec Drift が `CLEAN` の間だけ有効）。MCP 契約スキーマに追加。
-- **影響を受けた Done タスクの再検証（Closes #832）**: 証跡が古くなった `Done` タスクがあると、MCP の次アクションは `done` ではなくそのタスクの ship（ゲート再実行）を案内する。ship と sdd-gate は `Done` タスクを状態を変えずに再検証し、`FAIL` は人間へ報告する。無関係な `Done` タスクは再実行しない。
+- **仕様変更後の古い合格証跡（Closes #831）**: `run-sdd-gate.mjs` は検証した入力（コードブロックを含むタスク本文・依存する REQ/AC の項目（継続行・表の行を含む）・design.md）のダイジェストを `specInputs` に記録する。`sdd_gate_audit` は `specInputsCurrent` / `specInputsChanged` を返し、入力が変わった合格は `readyForDone` にしない（`specInputs` のない旧証跡は Spec Drift が `CLEAN` の間だけ有効）。MCP 契約スキーマに追加。
+- **影響を受けた Done タスクの再検証（Closes #832）**: 証跡が古くなった `Done` タスクがあると、MCP の次アクションは `done` ではなくそのタスクの ship（ゲート再実行）を案内する。ship と sdd-gate は `Done` タスクを状態を変えずに再検証し、`FAIL` は人間へ報告する。無関係な `Done` タスクは再実行しない。再検証が `PASS` にならなかった `Done` タスクは `blocked`（人間判断）として示す。
+  - **更新時の影響**: `specInputs` のない証跡（#831 以前）や証跡のない `Done` タスクは、Spec Drift が `AMENDED` の機能では再検証の対象になる。`AMENDED` の完了済み機能は、更新後に MCP が `done` ではなくゲート再実行を案内する。
 
 ## v2.1.2 (2026-11-25)
 

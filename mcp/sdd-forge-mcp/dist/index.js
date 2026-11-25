@@ -38158,7 +38158,21 @@ function bareScopeTokens(text) {
   );
 }
 function stripScopeNote(token) {
-  return String(token).replace(/(?<!\/)(?:\([^()]*\)|（[^（）]*）)(?!\/)/g, " ").replace(/(?<!\/)[(（].*$/, "").trim().replace(/[:,;、。]+$/, "");
+  const text = String(token);
+  let out = "";
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch !== "(" && ch !== "\uFF08") {
+      out += ch;
+      continue;
+    }
+    const close = text.indexOf(ch === "(" ? ")" : "\uFF09", i + 1);
+    if (close === -1) break;
+    const routeGroup = text[i - 1] === "/" && text[close + 1] === "/";
+    out += routeGroup ? text.slice(i, close + 1) : " ";
+    i = close;
+  }
+  return out.trim().replace(/[:,;、。]+$/, "");
 }
 var MAX_SCOPE_ALTERNATIVES = 64;
 function expandScopeToken(token) {
@@ -38330,34 +38344,86 @@ var APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === "function" ? io.existsButUnreadable(relPath) : io.exists(relPath);
 }
-function taskEvidenceInputs(io, { feature, taskId }) {
+function rawTaskSections(tasksRaw) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ""));
+  const lines = (afterAmendments ? `${beforeAmendments}
+
+${afterAmendments}` : beforeAmendments).split("\n");
+  const sections = /* @__PURE__ */ new Map();
+  let fence = false;
+  let current = null;
+  for (const line of lines) {
+    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
+    if (heading) {
+      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
+      if (current && !sections.has(current)) sections.set(current, [line]);
+      else if (current) current = null;
+      continue;
+    }
+    if (current) sections.get(current).push(line);
+  }
+  return new Map([...sections].map(([id, body]) => [id, body.join("\n")]));
+}
+var ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
+function specEntries(text) {
+  const entries = /* @__PURE__ */ new Map();
+  const add = (id, line) => {
+    const key = id.toUpperCase();
+    if (!entries.has(key)) entries.set(key, []);
+    entries.get(key).push(line.trim().replace(/\s+/g, " "));
+  };
+  const lines = text.split("\n");
+  let fence = false;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+    if (fence) continue;
+    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?[ \t]*\|/i.exec(line);
+    if (row) {
+      add(row[1], line);
+      continue;
+    }
+    const head = ENTRY_HEAD_RE.exec(line);
+    if (!head) continue;
+    add(head[2], line);
+    const indent = head[1].length;
+    for (let j = i + 1; j < lines.length; j += 1) {
+      const next = lines[j];
+      if (!next.trim() || next.length - next.trimStart().length <= indent) break;
+      add(head[2], next);
+      i = j;
+    }
+  }
+  return entries;
+}
+function featureEvidenceInputs(io, { feature }) {
   assertValidFeatureName(feature);
-  const id = String(taskId || "").toUpperCase();
   const tasksRaw = io.readText(`specs/${feature}/tasks.md`);
-  if (tasksRaw === null) return null;
-  const task = parseTasksSummary(tasksRaw).find((t) => t.id === id);
-  if (!task) return null;
-  const idLines = {};
+  const byTask = /* @__PURE__ */ new Map();
+  if (tasksRaw === null) return byTask;
+  const entries = /* @__PURE__ */ new Map();
   for (const name of ["requirements.md", "acceptance-tests.md"]) {
     const raw = io.readText(`specs/${feature}/${name}`);
     if (raw === null) continue;
-    for (const [key, info] of Object.entries(extractSpecIdentifiers(raw))) {
-      if (!(key in idLines)) idLines[key] = info;
+    for (const [id, lines] of specEntries(canonicalSpecContractText(raw, name))) {
+      entries.set(id, [...entries.get(id) || [], `${name}:`, ...lines]);
     }
   }
-  const wanted = new Set(task.acRefs);
-  const reqsIn = (text) => (String(text || "").match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
-  for (const req of reqsIn(task.block)) wanted.add(req);
-  for (const ac of task.acRefs) for (const req of reqsIn(idLines[ac]?.line)) wanted.add(req);
-  const ids = {};
-  for (const key of [...wanted].sort()) ids[key] = idLines[key] ? idLines[key].hash : "missing";
   const designRaw = io.readText(`specs/${feature}/design.md`);
-  return {
-    schema: "sdd-task-evidence-inputs/v1",
-    task: sha256Text(task.block.replace(/^[ \t]*Status:[ \t]*.*$/gm, "<NORMALIZED>").replace(APPROVAL_FIELD_RE, "<NORMALIZED>").trim()),
-    ids,
-    design: designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"))
-  };
+  const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, "design.md"));
+  const sections = rawTaskSections(tasksRaw);
+  const reqsIn = (text) => (String(text || "").match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+  for (const task of parseTasksSummary(tasksRaw)) {
+    const wanted = new Set(task.acRefs);
+    for (const req of reqsIn(task.block)) wanted.add(req);
+    for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join("\n"))) wanted.add(req);
+    const ids = {};
+    for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join("\n")) : "missing";
+    const section = (sections.get(task.id) || task.block).replace(/^[ \t]*Status:[ \t]*.*$/gm, "<NORMALIZED>").replace(APPROVAL_FIELD_RE, "<NORMALIZED>");
+    byTask.set(task.id, { schema: "sdd-task-evidence-inputs/v2", task: sha256Text(section.trim()), ids, design });
+  }
+  return byTask;
 }
 function diffEvidenceInputs(recorded, current) {
   if (!recorded || typeof recorded !== "object" || !current) return null;
@@ -41668,31 +41734,38 @@ function validateTaskId(taskId) {
   }
   return ok(taskId);
 }
-function changedEvidenceInputs(io, feature, taskId, parsed) {
-  const changed = diffEvidenceInputs(parsed.specInputs, taskEvidenceInputs(io, { feature, taskId }));
+function changedEvidenceInputs(current, taskId, parsed) {
+  const changed = diffEvidenceInputs(parsed.specInputs, current.get(taskId.toUpperCase()) ?? null);
   return changed ?? void 0;
 }
-function staleDoneTasks(io, root, feature, tasks, driftStatus) {
-  const stale = [];
+function doneAttention(root, feature, tasks, driftStatus, current) {
+  const result = { stale: [], failed: [] };
   for (const task of tasks) {
     if (task.status !== "Done") continue;
+    let parsed;
     const read = guardedRead(root, `reports/quality-gate/${feature}-${task.id}.execution.json`);
-    let changed;
     if (read.ok) {
       try {
-        const parsed = JSON.parse(read.data.contents);
-        if (parsed.feature === feature && typeof parsed.taskId === "string" && parsed.taskId.toUpperCase() === task.id.toUpperCase()) {
-          changed = changedEvidenceInputs(io, feature, task.id, parsed);
+        const candidate = JSON.parse(read.data.contents);
+        if (candidate.schema === "sdd-gate-execution/v1" && candidate.feature === feature && typeof candidate.taskId === "string" && candidate.taskId.toUpperCase() === task.id.toUpperCase()) {
+          parsed = candidate;
         }
       } catch {
-        changed = void 0;
+        parsed = void 0;
       }
     }
-    if (changed ? changed.length > 0 : driftStatus === "AMENDED") stale.push(task.id);
+    const changed = parsed ? changedEvidenceInputs(current, task.id, parsed) : void 0;
+    if (changed === void 0) {
+      if (driftStatus === "AMENDED") result.stale.push(task.id);
+    } else if (changed.length > 0) {
+      result.stale.push(task.id);
+    } else if (parsed?.verdict !== "PASS" || !isExecutionCoverageComplete(parsed)) {
+      result.failed.push(task.id);
+    }
   }
-  return stale;
+  return result;
 }
-function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus, staleDone = []) {
+function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpecs, driftStatus, attention = () => ({ stale: [], failed: [] })) {
   if (!hasSpecs || tasks.length === 0) {
     return {
       phase: "bootstrap",
@@ -41749,6 +41822,14 @@ function computeNextAction(feature, tasks, specCheckVerdict, highestRisk, hasSpe
       phase: "sdd-gate",
       command: `/sdd-ship:ship specs/${feature}/tasks.md`,
       rationale: `Approved task(s) are Implementation Complete and awaiting sdd-gate verification.`
+    };
+  }
+  const { stale: staleDone, failed: failedDone } = attention();
+  if (failedDone.length > 0) {
+    return {
+      phase: "blocked",
+      command: `human: review the gate result for ${failedDone.join(", ")} in specs/${feature}`,
+      rationale: `The latest gate run for Done task(s) ${failedDone.join(", ")} did not pass with full coverage; a human decides whether to reopen the task or re-run the gate.`
     };
   }
   if (staleDone.length > 0) {
@@ -41855,7 +41936,7 @@ function sddProjectOverview(root, options = {}) {
           highestRisk,
           hasSpecs,
           drift.status,
-          staleDoneTasks(io, root, feature, tasks, drift.status)
+          () => doneAttention(root, feature, tasks, drift.status, featureEvidenceInputs(io, { feature }))
         )
       });
     } catch {
@@ -41940,7 +42021,7 @@ function sddFeatureState(root, rawFeature, options = {}) {
         highestRisk,
         files.requirements && files.tasks,
         drift.status,
-        staleDoneTasks(io, root, feature, dv.tasks, drift.status)
+        () => doneAttention(root, feature, dv.tasks, drift.status, featureEvidenceInputs(io, { feature }))
       )
     };
     if (options.includeDecisionViewMarkdown) {
@@ -41977,6 +42058,7 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
       return err("not-found", `Task '${filterTaskId}' not found in specs/${feature}/tasks.md.`);
     }
     const allOqs = dv.openQuestions;
+    const evidenceInputs = featureEvidenceInputs(io, { feature });
     const tasks = selectedTasks.map((task) => {
       const execRel = `reports/quality-gate/${feature}-${task.id}.execution.json`;
       const mdRel = `reports/quality-gate/${feature}-${task.id}.md`;
@@ -42002,7 +42084,7 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
               executionArtifact.specDriftStatus = sdStatus;
             }
             executionArtifact.coverageComplete = isExecutionCoverageComplete(parsed);
-            const changed = changedEvidenceInputs(io, feature, task.id, parsed);
+            const changed = changedEvidenceInputs(evidenceInputs, task.id, parsed);
             if (changed) {
               executionArtifact.specInputsCurrent = changed.length === 0;
               if (changed.length > 0) executionArtifact.specInputsChanged = changed;
