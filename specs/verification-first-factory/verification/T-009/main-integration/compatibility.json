@@ -1,0 +1,308 @@
+{
+  "criterion": "AC-013",
+  "result": "partial coverage",
+  "measured_at_utc": "2026-11-25T16:44:29+00:00",
+  "baseline": {
+    "tag": "v2.1.3",
+    "commit": "484cbe7aef828488ee49fa5d92569917e74c5891"
+  },
+  "candidate": {
+    "head_at_snapshot": "cd27d0a4a90bd4cede2197072aeac5b8625dc258",
+    "runtime_sha256_differing_from_head": {},
+    "shipped_mcp_bundle_sha256": "e085947210ab0041af3003c394aac6234d1beb950a54459aea2b16d05435f0df",
+    "runtime_files_still_match_at_end": true
+  },
+  "host": {
+    "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+    "arch": "arm64",
+    "node": "v24.13.0"
+  },
+  "fixture": {
+    "source_commit": "484cbe7aef828488ee49fa5d92569917e74c5891",
+    "materialization": "Use tag files listed in sources, unmodified. The tag ships the example with an instruction to copy it to sdd/guardrails.yaml. Initialize a temporary Git repository and add an AGENTS.md containing only the Active Spec Directories heading and one bullet for this feature.",
+    "sources": {
+      "sdd/guardrails.yaml": "sdd/guardrails.example.yaml",
+      "specs/v2-lightweight-guardrails/requirements.md": "specs/v2-lightweight-guardrails/requirements.md",
+      "specs/v2-lightweight-guardrails/design.md": "specs/v2-lightweight-guardrails/design.md",
+      "specs/v2-lightweight-guardrails/tasks.md": "specs/v2-lightweight-guardrails/tasks.md"
+    },
+    "input_sha256": {
+      "AGENTS.md": "8ad39f40ea53f3bc03ac1f3b95f314df0396b2b0327a859e67c8b578c02a4ab5",
+      "sdd/guardrails.yaml": "79d3cca3689f58c681467e1ab90e4b1e5f276ec8014c6b1ce69cf2e2a3b98557",
+      "specs/v2-lightweight-guardrails/design.md": "c118f25f62501f9e5a47c8ff6eb7c9a8f797415d765df261f5cbb12818d7f3c9",
+      "specs/v2-lightweight-guardrails/requirements.md": "7a63d1e41c78080060294b2768d7652f45974680b16d213e77495bf5a6366559",
+      "specs/v2-lightweight-guardrails/tasks.md": "df7f192d19fe7b5448ce1aa37bea90cdda072cfbe56a9587b0993f06bbedbb73"
+    },
+    "unchanged_after_measurement": true
+  },
+  "method": "Five paired samples per command on one shared fixture. Alternate baseline-first and candidate-first. Times in milliseconds include Node process creation, output checks and exit. Each runtime was copied once before timing.",
+  "max_allowed_paired_increase_ms": 15000,
+  "measurements": {
+    "doctor": {
+      "command": "node <runtime>/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root <fixture> --json",
+      "v2.1.3": {
+        "elapsed_ms": [
+          48.71,
+          53.07,
+          44.87,
+          63.58,
+          67.26
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": {
+          "schema": "sdd-doctor/v1",
+          "status": "CLEAN"
+        }
+      },
+      "candidate": {
+        "elapsed_ms": [
+          57.64,
+          47.69,
+          50.72,
+          44.74,
+          50.49
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": {
+          "schema": "sdd-doctor/v1",
+          "status": "CLEAN",
+          "enabled": {
+            "formal_verification": false,
+            "agent_lint": false,
+            "security_audit": false,
+            "anti_tampering": true
+          }
+        }
+      },
+      "paired_delta_ms_range": [
+        -18.84,
+        8.93
+      ],
+      "exit_codes_match": true,
+      "all_deltas_at_most_15000ms": true
+    },
+    "traceability": {
+      "command": "node <runtime>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs --root <fixture> --feature v2-lightweight-guardrails --format json",
+      "v2.1.3": {
+        "elapsed_ms": [
+          41.39,
+          49.97,
+          38.26,
+          51.99,
+          39.36
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": {
+          "schema": "sdd-traceability/v1",
+          "feature": "v2-lightweight-guardrails",
+          "requirement_count": 5,
+          "task_count": 4
+        }
+      },
+      "candidate": {
+        "elapsed_ms": [
+          39.31,
+          45.23,
+          60.11,
+          47.01,
+          50.42
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": {
+          "schema": "sdd-traceability/v1",
+          "feature": "v2-lightweight-guardrails",
+          "requirement_count": 5,
+          "task_count": 4
+        }
+      },
+      "paired_delta_ms_range": [
+        -4.98,
+        21.85
+      ],
+      "exit_codes_match": true,
+      "all_deltas_at_most_15000ms": true
+    },
+    "decision": {
+      "command": "node <runtime>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs --root <fixture> --feature v2-lightweight-guardrails --format markdown",
+      "v2.1.3": {
+        "elapsed_ms": [
+          86.98,
+          63.38,
+          67.81,
+          62.7,
+          60.19
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": "markdown with feature heading"
+      },
+      "candidate": {
+        "elapsed_ms": [
+          75.17,
+          71.02,
+          71.96,
+          64.7,
+          91.19
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": "markdown with feature heading"
+      },
+      "paired_delta_ms_range": [
+        -11.81,
+        31.0
+      ],
+      "exit_codes_match": true,
+      "all_deltas_at_most_15000ms": true
+    },
+    "usage_error": {
+      "command": "node <runtime>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs --root <fixture> --feature v2-lightweight-guardrails --format invalid",
+      "v2.1.3": {
+        "elapsed_ms": [
+          50.27,
+          47.87,
+          48.43,
+          41.51,
+          35.87
+        ],
+        "exit_codes": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "contract": "usage on stderr"
+      },
+      "candidate": {
+        "elapsed_ms": [
+          50.49,
+          43.09,
+          75.56,
+          62.99,
+          61.41
+        ],
+        "exit_codes": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "contract": "usage on stderr"
+      },
+      "paired_delta_ms_range": [
+        -4.78,
+        27.13
+      ],
+      "exit_codes_match": true,
+      "all_deltas_at_most_15000ms": true
+    },
+    "mcp_stdio": {
+      "command": "node <runtime>/mcp/sdd-forge-mcp/dist/index.js --root <fixture> (initialize, notifications/initialized, tools/list, resources/list, resources/templates/list, tools/call sdd_project_overview with includeDoctor=true, EOF)",
+      "v2.1.3": {
+        "elapsed_ms": [
+          177.2,
+          204.0,
+          177.27,
+          166.06,
+          154.78
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": {
+          "tools": [
+            "sdd_dashboard_snapshot",
+            "sdd_feature_state",
+            "sdd_gate_audit",
+            "sdd_project_overview"
+          ],
+          "resources": [
+            "sdd://overview"
+          ],
+          "resource_templates": [
+            "sdd://feature/{feature}"
+          ],
+          "doctor": "CLEAN"
+        }
+      },
+      "candidate": {
+        "elapsed_ms": [
+          189.94,
+          224.51,
+          290.91,
+          177.62,
+          229.41
+        ],
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contract": {
+          "tools": [
+            "sdd_dashboard_snapshot",
+            "sdd_feature_state",
+            "sdd_gate_audit",
+            "sdd_project_overview"
+          ],
+          "resources": [
+            "sdd://overview"
+          ],
+          "resource_templates": [
+            "sdd://feature/{feature}"
+          ],
+          "doctor": "CLEAN"
+        }
+      },
+      "paired_delta_ms_range": [
+        11.56,
+        113.64
+      ],
+      "exit_codes_match": true,
+      "all_deltas_at_most_15000ms": true
+    }
+  },
+  "bounds": "Local diagnostic/read-only commands, one ordinary usage error and a directly launched stdio MCP over a legacy guardrails configuration. This run does not cover every legacy script, project size or workflow profile, installer default registration, npm test, hosted CI or Windows."
+}

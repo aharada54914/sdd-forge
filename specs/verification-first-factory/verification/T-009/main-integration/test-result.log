@@ -1,0 +1,231 @@
+T-009 integration verification
+Run ID: f860eee8-2a80-4db1-b4b8-e6a519cc97ae
+Session ID: 01a2138c-0726-7f03-860a-38fe123172d2
+Commit: e9f3e3e00cb85d4c039d88582d7ba541925c3d00
+Tree: f0ce28a9d64ac95a1fd681b5b7fac647edc7e9ef
+Parents: 4fa6e2bb28c31c0b0cadf87e333c240109193343 3497bb17997499c440b5461e3b7709d6dbc00909
+Scratch root: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-main-t009-8xsx0f7k
+Manifest SHA-256: b2e6fa7bf01b24b20b4ee9521d048cc154e762eee648e9edf9cd2651b1adff9c
+Host: macOS arm64 / Node v24.22.1
+Timing: seconds. SHA-256 covers the raw combined command output.
+
+[manifest] cwd=. exit=0 seconds=0.04
+bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest specs/verification-first-factory/verification/T-009/main-integration/task-input-manifest.json --expected-task T-009 --snapshot-root .
+sha256=5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75
+TASK_INPUT_OK
+
+[install] cwd=mcp/sdd-forge-mcp exit=0 seconds=1.441
+npm ci --no-fund --no-audit
+sha256=bbd0bda260b34827dfa95fdac6f112fc0450092ff5b15f4019446caadf194ffe
+
+[typecheck] cwd=mcp/sdd-forge-mcp exit=0 seconds=0.414
+npm run typecheck
+sha256=d98491a6045f8063d4a9c471169ec6a809148072a49ec613ce54e9f3001fc4bc
+
+[build] cwd=mcp/sdd-forge-mcp exit=0 seconds=0.1
+npm run build
+sha256=9a3c246e6363666f3754ff68a8ea2fad7e37ebfd3ff7ce097d1639396975276d
+
+[dist-freshness] cwd=. exit=0 seconds=0.282
+git diff --exit-code -- mcp/sdd-forge-mcp/dist/index.js
+sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+[package] cwd=mcp/sdd-forge-mcp exit=0 seconds=23.215
+npm test
+sha256=b192a5b5b8e5ac738021720961132f3165f4e0f6d5224a91d1f5cd82c96d4dfd
+ℹ tests 369
+ℹ suites 0
+ℹ pass 369
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22940.926375
+
+[contracts] cwd=. exit=0 seconds=18.436
+node --test tests/v2-mcp-server.test.mjs
+sha256=8a768a12f762954f22e1ed151413eea969c7249f20e6a7f85118fc8a41b2cbdd
+ℹ tests 25
+ℹ suites 6
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18402.143041
+
+[wave3] cwd=. exit=1 seconds=9.509
+node --test --test-name-pattern=T-009 tests/v2-wave3-integration.test.mjs
+sha256=f4cd0129929d93f00db8e1e832d1cba96195d82c1fe447150fcc2475cfbf9e94
+✖ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (9434.757833ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9479.2945
+✖ failing tests:
+✖ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (203.872959ms)
+
+[rules-install] cwd=plugins/sdd-quality-loop/rules exit=0 seconds=0.256
+npm ci --no-audit --no-fund
+sha256=3df4b3d86383852d6d7e1cad3f2df6b557391e797dfbf0d4c9b2e0255a746b56
+
+[wave3-final] cwd=. exit=0 seconds=9.206
+node --test tests/v2-wave3-integration.test.mjs
+sha256=a83e50229b00ef17b280604e446952ea7b4748912510cd084fab4c11bd7ab408
+ℹ tests 10
+ℹ suites 1
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9180.257708
+
+[cross-critique] cwd=mcp/sdd-forge-mcp exit=0 seconds=3.427
+node --test dist-test/mcp/sdd-forge-mcp/tests/cross-critique-contract.test.js
+sha256=81674ab873c4d55d9681703e25b903c68a9c820befb5e684b4f618770e2422e7
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3398.5755
+
+[historical-live] cwd=mcp/sdd-forge-mcp exit=1 seconds=0.738
+env SDD_GOLDEN_EVIDENCE_CHECKER=/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-main-t009-8xsx0f7k/historical-host/check-evidence-bundle.sh node --test dist-test/mcp/sdd-forge-mcp/tests/golden/deep-verify-parity.test.js
+sha256=3c67c622e6b1fc5bbfeddb8cc268fdd177c3c21d8d60c539fcb5033f84d8184c
+✖ AC-012: consistent bundle -- evidence_deep_verify matches the recorded host pass (161.938167ms)
+✖ AC-012: tampered on-disk artifact -- evidence_deep_verify matches the recorded host failure (166.733417ms)
+✖ AC-012: spec drift on a high-risk bundle -- evidence_deep_verify matches the recorded host failure (161.25075ms)
+✖ AC-012: tampered recorded artifact hash -- evidence_deep_verify matches the recorded host failure (168.987583ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 708.994833
+✖ failing tests:
+✖ AC-012: consistent bundle -- evidence_deep_verify matches the recorded host pass (161.938167ms)
+✖ AC-012: tampered on-disk artifact -- evidence_deep_verify matches the recorded host failure (166.733417ms)
+✖ AC-012: spec drift on a high-risk bundle -- evidence_deep_verify matches the recorded host failure (161.25075ms)
+✖ AC-012: tampered recorded artifact hash -- evidence_deep_verify matches the recorded host failure (168.987583ms)
+
+[historical-live-final] cwd=mcp/sdd-forge-mcp exit=0 seconds=0.663
+env SDD_GOLDEN_EVIDENCE_CHECKER=/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-main-t009-8xsx0f7k/historical-host/check-evidence-bundle.sh node --test dist-test/mcp/sdd-forge-mcp/tests/golden/deep-verify-parity.test.js
+sha256=80d2cdab56909d9d76737a87bca898fd68151fdd32003644a774ef778c3f0d2b
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 637.92275
+
+Wave 3 initial run: T-009 passed. T-008 expected exit 1 and got exit 2 before installing the rules package dependencies. The full suite then passed.
+Historical checker initial run: check-contract.py required its sibling validate-path.py. Restoring the original Python siblings from d27ce86824ec293b83c4262ca28490086e22a449 allowed the four checker comparisons to pass. Checker blob 494967040e860595becc7be216253421432760c4.
+
+Historical issue mapping F001–F095 from normal-path-mcp95.csv (release v2.1.3, candidate 64812dc8). Names are matched against the succeeding npm test output except F016, whose module is also run independently. F041–F044 are additionally compared to the live historical checker.
+F001 | 試験環境 | PASS | report currentness rejects changed head, base, diff, and report bytes
+F002 | 試験環境 | PASS | publishing evidence in a separate repository preserves target currentness
+F003 | 廃止RPCを期待する試験 | PASS | list_active_specs: schema-valid, flags feature-a active and feature-b inactive
+F004 | 廃止RPCを期待する試験 | PASS | get_spec_status: schema-valid, reports artifact existence and review-status headers
+F005 | 廃止RPCを期待する試験 | PASS | get_task_state: schema-valid, valid task state includes the blocked task in feature-a
+F006 | 廃止RPCを期待する試験 | PASS | get_task_state: not-found for a feature whose tasks.md does not exist
+F007 | 廃止RPCを期待する試験 | PASS | list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a
+F008 | 廃止RPCを期待する試験 | PASS | list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a
+F009 | 廃止RPCを期待する試験 | PASS | list_review_tickets: schema-valid, includes the seeded RT ticket
+F010 | 廃止RPCを期待する試験 | PASS | get_quality_gate_summary: schema-valid, includes the seeded PASS report
+F011 | 廃止RPCを期待する試験 | PASS | get_next_sdd_command: feature-a has a Blocked task -> blocked takes priority
+F012 | 廃止RPCを期待する試験 | PASS | get_next_sdd_command: no feature argument auto-selects feature-a (only active feature)
+F013 | 現行の公開機能又は旧名の非公開を検査 | PASS | every tool's input schema never declares a root parameter
+F014 | 現行の公開機能又は旧名の非公開を検査 | PASS | invalid feature argument shape is rejected as invalid-input
+F015 | 現行の公開機能又は旧名の非公開を検査 | PASS | sdd_dashboard_snapshot: real MCP response is schema-valid and read-only
+F016 | 試験環境 | PASS | cross-critique-contract.test.js (21/21)
+F017 | 廃止RPCを期待する試験 | PASS | evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields
+F018 | 廃止RPCを期待する試験 | PASS | evidence_get_bundle: synthetic, echoes signature value without verifying it
+F019 | 廃止RPCを期待する試験 | PASS | evidence_get_bundle: not-found for a task with no evidence.json
+F020 | 廃止RPCを期待する試験 | PASS | evidence_get_bundle: invalid-input for a malformed taskId
+F021 | 廃止RPCを期待する試験 | PASS | evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist
+F022 | 廃止RPCを期待する試験 | PASS | evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe
+F023 | 廃止RPCを期待する試験 | PASS | evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing
+F024 | 廃止RPCを期待する試験 | PASS | evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict
+F025 | 廃止RPCを期待する試験 | PASS | evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing
+F026 | 廃止RPCを期待する試験 | PASS | evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only
+F027 | 廃止RPCを期待する試験 | PASS | TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quality-gate-report-pass in undeterminable and in NEITHER present NOR missing
+F028 | 廃止RPCを期待する試験 | PASS | TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that really holds a VERDICT: PASS report is undeterminable, not missing
+F029 | 廃止RPCを期待する試験 | PASS | TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/parseTaskState parity holds over `missing ∪ undeterminable` on both fixtures
+F030 | 廃止RPCを期待する試験 | PASS | TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pinned — undeterminable yes, missing no, task-validation.ts still reporting the failure
+F031 | 廃止RPCを期待する試験 | PASS | evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly
+F032 | 廃止RPCを期待する試験 | PASS | evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds
+F033 | 廃止RPCを期待する試験 | PASS | evidence_summarize_contract_checks: cannot-parse for a malformed contract.json
+F034 | 廃止RPCを期待する試験 | PASS | evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md
+F035 | 廃止RPCを期待する試験 | PASS | evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task
+F036 | 廃止RPCを期待する試験 | PASS | evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares
+F037 | 廃止RPCを期待する試験 | PASS | evidence_compare_to_traceability: not-found when traceability.md does not exist
+F038 | 廃止RPCを期待する試験 | PASS | TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches
+F039 | 廃止RPCを期待する試験 | PASS | TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable
+F040 | 廃止RPCを期待する試験 | PASS | every evidence tool rejects a malformed feature argument as invalid-input
+F041 | 旧ホストとの互換比較 | PASS | AC-012: consistent bundle -- evidence_deep_verify matches the recorded host pass
+F042 | 旧ホストとの互換比較 | PASS | AC-012: tampered on-disk artifact -- evidence_deep_verify matches the recorded host failure
+F043 | 旧ホストとの互換比較 | PASS | AC-012: spec drift on a high-risk bundle -- evidence_deep_verify matches the recorded host failure
+F044 | 旧ホストとの互換比較 | PASS | AC-012: tampered recorded artifact hash -- evidence_deep_verify matches the recorded host failure
+F045 | 明示依頼された互換コマンド | PASS | live shell comparison: parseTaskState matches check-task-state.sh for every golden feature
+F046 | 明示依頼された互換コマンド | PASS | active Context still rejects historical high-risk contracts without coverage
+F047 | 現行の公開機能又は旧名の非公開を検査 | PASS | resources/list and resources/templates/list advertise the two v2 JSON views
+F048 | 現行の公開機能又は旧名の非公開を検査 | PASS | sdd://overview includes health and matches the project overview tool
+F049 | 現行の公開機能又は旧名の非公開を検査 | PASS | sdd://feature reads the requested feature state and its rendered Decision View
+F050 | 現行の公開機能又は旧名の非公開を検査 | PASS | the feature tool defaults to the same state without the resource's optional markdown
+F051 | 現行の公開機能又は旧名の非公開を検査 | PASS | a feature slug containing a space reports the resource and tool input errors
+F052 | 現行の公開機能又は旧名の非公開を検査 | PASS | the retired project, spec, task and ticket resource URIs have no public read handler
+F053 | 現行の公開機能又は旧名の非公開を検査 | PASS | the retired quality summary URI is absent and gate audit identifies a task's review report
+F054 | 現行の公開機能又は旧名の非公開を検査 | PASS | inspector CLI: tools/list reports the four public v2 tools
+F055 | 現行の公開機能又は旧名の非公開を検査 | PASS | inspector CLI: each public tool declares read-only behavior and a strict input schema
+F056 | 現行の公開機能又は旧名の非公開を検査 | PASS | inspector CLI: the server lists the overview and feature resource template
+F057 | 現行の公開機能又は旧名の非公開を検査 | PASS | inspector CLI: sdd_project_overview returns schema-valid active features for the real repo
+F058 | 現行の公開機能又は旧名の非公開を検査 | PASS | local status view exposes fresh guarded state and rejects untrusted requests
+F059 | 現行の公開機能又は旧名の非公開を検査 | PASS | indeterminate status keeps known review progress and recovers to the quality gate when the report appears
+F060 | 廃止RPCを期待する試験 | PASS | AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv)
+F061 | 廃止RPCを期待する試験 | PASS | AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv)
+F062 | 廃止RPCを期待する試験 | PASS | AC-015: an invalid-input error envelope conforms to the v1 contract (ajv)
+F063 | 廃止RPCを期待する試験 | PASS | AC-015: a not-found error envelope conforms to the v1 contract (ajv)
+F064 | 廃止RPCを期待する試験 | PASS | AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv)
+F065 | 廃止RPCを期待する試験 | PASS | TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures
+F066 | 廃止RPCを期待する試験 | PASS | TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks
+F067 | 廃止RPCを期待する試験 | PASS | TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks
+F068 | 廃止RPCを期待する試験 | PASS | TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation
+F069 | 廃止RPCを期待する試験 | PASS | AC-015 additivity: five retained evidence readers return their expected v1 contract kinds
+F070 | 廃止RPCを期待する試験 | PASS | AC-013: the serialized evidenceDeepVerify pass result is identical on two reads of one root
+F071 | 廃止RPCを期待する試験 | PASS | AC-001: legacy evidenceDeepVerify returns an ok pass envelope for a consistent bundle
+F072 | 廃止RPCを期待する試験 | PASS | error envelope: an invalid taskId maps to invalid-input in evidenceDeepVerify
+F073 | 廃止RPCを期待する試験 | PASS | error envelope: an invalid feature maps to invalid-input in evidenceDeepVerify
+F074 | 廃止RPCを期待する試験 | PASS | error envelope: a missing bundle maps to not-found in evidenceDeepVerify
+F075 | 廃止RPCを期待する試験 | PASS | error envelope: a malformed-JSON bundle maps to cannot-parse in evidenceDeepVerify
+F076 | 廃止RPCを期待する試験 | PASS | bundle null
+F077 | 廃止RPCを期待する試験 | PASS | bundle []
+F078 | 廃止RPCを期待する試験 | PASS | bundle 7
+F079 | 廃止RPCを期待する試験 | PASS | bundle "scalar"
+F080 | 廃止RPCを期待する試験 | PASS | bundle true
+F081 | 廃止RPCを期待する試験 | PASS | contract null
+F082 | 廃止RPCを期待する試験 | PASS | contract []
+F083 | 廃止RPCを期待する試験 | PASS | contract 7
+F084 | 廃止RPCを期待する試験 | PASS | contract "scalar"
+F085 | 廃止RPCを期待する試験 | PASS | artifact null retains valid siblings
+F086 | 廃止RPCを期待する試験 | PASS | artifact [] retains valid siblings
+F087 | 廃止RPCを期待する試験 | PASS | artifact 7 retains valid siblings
+F088 | 廃止RPCを期待する試験 | PASS | artifact "scalar" retains valid siblings
+F089 | 廃止RPCを期待する試験 | PASS | checks null
+F090 | 廃止RPCを期待する試験 | PASS | checks {}
+F091 | 廃止RPCを期待する試験 | PASS | checks [null]
+F092 | 廃止RPCを期待する試験 | PASS | checks [[]]
+F093 | 廃止RPCを期待する試験 | PASS | checks [3]
+F094 | 廃止RPCを期待する試験 | PASS | object-valued fields cannot replace primitive conversion methods
+F095 | 廃止RPCを期待する試験 | PASS | legacy evidence and task-state readers return domain results for malformed JSON shapes and recover

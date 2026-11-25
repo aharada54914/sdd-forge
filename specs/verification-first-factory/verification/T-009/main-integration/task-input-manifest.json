@@ -1,0 +1,514 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-009",
+  "run_id": "f860eee8-2a80-4db1-b4b8-e6a519cc97ae",
+  "session_id": "01a2138c-0726-7f03-860a-38fe123172d2",
+  "agent_instance_id": "codex-01a2138c-0726-7f03-860a-38fe123172d2",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Incremental estimate for the existing Codex desktop session.",
+  "cost_estimate_timestamp": "2026-11-25T16:35:04Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "contracts/sdd-mcp.v2.schema.json",
+      "sha256": "eb3bd9e3e3f41da34d7396936e8d488a047927811ab6f08e29643090f82d18a8"
+    },
+    {
+      "path": "docs/adr/0052-mcp-architecture-and-v2-consolidation.md",
+      "sha256": "b93b25f3d492fbab9b68d14179eca04c4b0061357a92b5598a485e0733f4903d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/.gitignore",
+      "sha256": "2d8c51a68666a4a287c697de7dec52d523a7b5f4c9a3e76669717f54bc4f4026"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "sha256": "4756b683c53e5500af7f3612a0ff6606bbe21bbd258c7552a11a81a62a4e29f4"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package-lock.json",
+      "sha256": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package.json",
+      "sha256": "49c31b7342851bb8557d615b9ec3e2ee535eaaf61e69e00608ef7ba616fba213"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs",
+      "sha256": "edc7fa7bb43ead51a037e5f0276ace1d0c57de3954dec87375709d8737a90eb1"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs",
+      "sha256": "d3d1ee9c580e4f9c5c1fe1c00725b562ad4f06c1382f7dfb3630b97b3bce7e1c"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/scripts/record-golden-fixtures.ts",
+      "sha256": "ba467aa90ffc0b33760a85d1dac7f2780990e9be18b4828468b350b7a5b28a89"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/scripts/run-tests.mjs",
+      "sha256": "56a256e6d16c9a0786415aa1a058cb4bec51a79cd9ed52693086334338fc5ed3"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/concept-gate-advice.ts",
+      "sha256": "e5e0489aeec200ac8bad51c402ec8ae7dc57eb05609ffc1548c6c13951a56bd5"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/concept-proposal-advice.ts",
+      "sha256": "ea12fd371b261366cc362469f7080b07905e0d77e614b8b585ea54cec6c59c36"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/dashboard/decision-reader.ts",
+      "sha256": "b1372cced0899efa7c398ffc449bcb37867f429c52ebdfc0a40f17e06fb7d122"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/dashboard/decisions.js",
+      "sha256": "a55e955ce396b3c2927335403d9ba45fa0eefd7dc6d24a7a55bb2164dbba7a34"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/dashboard/observations.js",
+      "sha256": "e7ff050033d86892cc42968c43f5c47a1ec4d9bb6274973b28937b17ffd3ac78"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/dashboard/snapshot.ts",
+      "sha256": "96a9c1dd7b04a6d356f6d864868db016bd18b2763de0c32594f5bda98a97ada3"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/envelope.ts",
+      "sha256": "756e7944925eda2b5fcd0750c033c3357cd3d37c511814d72fa9c6c7d96ce724"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/index.ts",
+      "sha256": "e051299bf6ada61c7f49c23374b74767270f9714abea519651f0d13bc918f3e7"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/next-command.ts",
+      "sha256": "3120064227a5419ae15e7c8974b4a97dd9d7e45276ec730f3249799502f5f704"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/agents-md.ts",
+      "sha256": "8f7b29faa03981df3b5b73506938dd152a041ddb9fa0d1f03eb5f85b2262df97"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/evidence-bundle.ts",
+      "sha256": "fea06ede74c0748506b8a4c7dc19176e95778bf03e30447f835aa551f4e39731"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/evidence.ts",
+      "sha256": "1df7e57aee4f05f6996b82673519fe408c0131cd0848964bc83e4cb968c86d8b"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/json-object.ts",
+      "sha256": "c25c0a36a544721c424d1c53bd763ed0090399afed72a3c644407c2e1ac9dc5e"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/quality-report.ts",
+      "sha256": "39cfa446a855b117b2b9bf6deafe72f6a5ed69d1864c05a92cd3eaf0d26e38b0"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+      "sha256": "b819ac2ffa8713491a0233540a33134cea80d6287ba6024c16925e2c62e86cf7"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/review-ticket.ts",
+      "sha256": "d152eaa95ba7b8f609b8f6e72cc78b784f25339a12522cb568dd2e612cea1bce"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/review-verdict.ts",
+      "sha256": "76977556227a744a6ea0f0c6b4582ac91694586823bf4c6d22e59a8c885109aa"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/spec-header.ts",
+      "sha256": "b9347e127e479727eb296bb22072a96f6f9be4c066f15312e041aec62ac166c4"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/task-types.ts",
+      "sha256": "b7a71c2f754507a54b7e57bab247172c1890e8abf0ff4ca223a1888553f8f1e3"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+      "sha256": "19695dcf62f27105ed2afa08f76f23c362f0a1340dfce70e9474e7ecf4b4fe6b"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+      "sha256": "b2c2135e0de03ee39725b906c24accac662c35a3eaddcca4cbb7ec22a55adc34"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/traceability.ts",
+      "sha256": "5a64e2b2d30aa1ed88c4ca7b84c4ead9165229a6b47dcab977e0890dd8a1fab8"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+      "sha256": "f45697ec15ac69c5f0a4cbf9f4d74c81b85e4036d9e35da06a3193b90f2e44c6"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/pre-approval-review.ts",
+      "sha256": "34f3e1de76af04c41085f0a78645eca2748ddebd849cf3158e03ccfc9ace7834"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/profile.ts",
+      "sha256": "9b2551f17ddb75586973cf153238734f85d1994c0c378e3f53a3cc028ebffa39"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/resources.ts",
+      "sha256": "481fe38c3603ff65687a3092589e22630fb5810d0b678c59ea3aceec01dd640c"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/root.ts",
+      "sha256": "f63b01718368ce3fb6fde68a46947bd58b711c6269526078f3103c3984bc6e85"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/server.ts",
+      "sha256": "c6042c6f785815aee0dec4c3a751d3dcf29d824c7c4b75b50bb928436dd2816d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/status-view.ts",
+      "sha256": "9a2f1e0378824f4f9b587400f2b4e7618c2a89b86ebe4b9b4504778da2fa959a"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/core.ts",
+      "sha256": "4e7aa337bbb4ec2bfc1476b1d91d969062b43cd076ee1cfcfba23bb2dbe150e6"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/evidence.ts",
+      "sha256": "18b51a88ada5ebd4a5a72725058338162a54737674a9e8e1b2c5ba04f2f929e2"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/v2.ts",
+      "sha256": "c7f43b09a1cb39e2f2e9fb241109524a292572baa30512676f721b392a9c3d25"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/adversarial-report-current.test.ts",
+      "sha256": "5213f1a2867c7432c35726f6f355476d01131ffe7252abcf9043c8b5e1d1e40f"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/concept-proposal-advice.test.ts",
+      "sha256": "59ec2e5ba25521d8c4f7cda04f18ec2c372981b674396222b2c1d8f8a44656c5"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/core-tools/core-tools.test.ts",
+      "sha256": "20a5979928f59ee775d450585aa7fdfe5267c2d2afa6afe4066cb25dc41a5207"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/core-tools/test-helpers.ts",
+      "sha256": "34908a55525f3fb2702badf1a1a4243f09c362a72fc245954ff6507c55395178"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/cross-critique-contract.test.ts",
+      "sha256": "91902d5d16c790521018170d383d738d822e3bfa136126371b28d7dea7aae616"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/dashboard.test.ts",
+      "sha256": "5e02501f987ebf3131e0cf9945fbd35975277e20248ca3610ff9f0e7db6414a5"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/error-paths/deep-verify-error-paths.test.ts",
+      "sha256": "da34a3fe0d277fc38fff2501aa176a0b9cb1b79d790655badaae8691dc34cca9"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/error-paths/too-large-and-not-sdd-root.test.ts",
+      "sha256": "ad691f83b6f1ddb4382d4a0cd1e91139a1ad0d660d247c0d249d2e352f3874b2"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts",
+      "sha256": "90b878cc983314ff44fb9d9e1f259509076c18ab4e5b862bda2a5479bed5daec"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/evidence/test-helpers.ts",
+      "sha256": "ad772569ce18df692f6aaeae0d1b9dccb1f1a5d9049501634bac88626c37f058"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/deep-verify-parity-helpers.ts",
+      "sha256": "c46765b082c5c362726abff4157442e5c5332a6afa05175416faf75a90828d10"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/deep-verify-parity.test.ts",
+      "sha256": "570df9a1f243d0371c938e91757c04b16bab461930ec9b4ecfda9650ab1e037a"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/environment-dependence.test.ts",
+      "sha256": "233032beb6496589799c8a9cf3d925db3d29d427fb8e57a7e6f5e8abad5feb36"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/bootstrap-interviewer-enhancement.expected.json",
+      "sha256": "a267e594217e4f479d1abeac352d2a273c23704a94ea76caada11b688ea65402"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/ci-mcp.expected.json",
+      "sha256": "727ca4bf247915fd4b6b5d9202b3d0aba148e695ea5b313d5d63c033ff8ee4eb"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/claude-workflow-compatibility.expected.json",
+      "sha256": "00e3ecc9406f82b0f0a2e6e35808fa7c52c028786a55462ea4e5ab4e9c6c9886"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/cross-model-verification.expected.json",
+      "sha256": "fca87351f9f95237cd7f32b5b401a8b174aa76671d4f9b917519b2d4e05f6743"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/deep-verify-host.json",
+      "sha256": "f0d76b1d2614893262d48b0f79304bb4d0dc18a015d03a19fbfbd22d1e5ee815"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/evidence-deep-verify.expected.json",
+      "sha256": "8120b67fa2a5c7e30a7de04fff494dc33839d6f3649e052c375931a154921b11"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/risk-adaptive-layer.expected.json",
+      "sha256": "c18712794362e2049a306623b0b06337b2a6b1830c3acecd974d1731e2823530"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json",
+      "sha256": "b7078459625ee6380f9af4c85307b103909cb2169d7d566157d4b038b22dafe8"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-lite.expected.json",
+      "sha256": "03f18878205f29f8023e1238fba6b07d385071a3b7e5ae55a63865cf8081eb87"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/shell-runner.ts",
+      "sha256": "104ad7196a40b5a915f4b4c1e4d63e7bbc7403ce8fb1fbbb0ebd781b5fb95b17"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts",
+      "sha256": "567ff84100b11bc658e41f970fe2fe3f588b00b5620e1c8832009115f4231552"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/locate-source.ts",
+      "sha256": "2f3588d87ed090d9c5f307bf5c3e350efaaf3e5f83651805f67653536fece57d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/next-command/next-command.test.ts",
+      "sha256": "ecabf44909b9c9fd9ff5bbab61bd5787ec2870cc22c750d47a75c76575e7f485"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/next-command/test-helpers.ts",
+      "sha256": "0c8ac4c4dbf864fcbf55c9e14be0346db53f78aa17beafa6a55f39c1f76a93b1"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/no-secrets/deep-verify-signature.test.ts",
+      "sha256": "fb1a9f00e5691bef73b3986e29fb45322ff2d52c1f3680342ec12baf85fdc757"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parser/baseline-and-io.test.ts",
+      "sha256": "6284ea4eef221c133bbc53f51ec075da8190b6ad8b6a62505f0d6369d9613596"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parser/done-state.test.ts",
+      "sha256": "b7bb6cfcb1566545262845cf0a71466f152256a48632a035fa719e508c610e0f"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parser/evidence-bundle.test.ts",
+      "sha256": "c6c77373b81bbfa81455ab0e708141d5910d30cd77637e4a7c42068623678843"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts",
+      "sha256": "a60a47e217da46648c54191a523e62d90226e2048411b0900612c483213a27e2"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parser/test-helpers.ts",
+      "sha256": "d996c54a727ef3a68b830f7cf944c10b4c8275f2cf65442f02064d18243bc0f4"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-evidence/evidence.test.ts",
+      "sha256": "d75d6cfa2d0264a2ce236fc3d3f73f2f8e53607fd901e99003f784bde53ce435"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-evidence/test-helpers.ts",
+      "sha256": "e4df3a7c97a388865da6f38c168d68a3d5dfd4904eea462bef42880fac5f5af6"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-evidence/traceability.test.ts",
+      "sha256": "557d9a7b2536cde282d9e6f1a5dc4f5b1fc893ccb80927b3c3b91bf4e1f354f2"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/agents-md.test.ts",
+      "sha256": "aa27881e926cc0e8c91fede5f06fb78675579ee96e1ef775c7611bd5f6a69ebd"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/quality-report.test.ts",
+      "sha256": "30f6407e975c15793dd15ae4a19a80698e8933ce95898d45e39d8ff7aa5e7435"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts",
+      "sha256": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/review-ticket.test.ts",
+      "sha256": "607e1695a7dc1a66269b4a19438ecfdc92cf87800c503cedd6d7aba54b0f1eae"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/test-helpers.ts",
+      "sha256": "8a5e444b335d696a3681475465c4ffb8758c581cafc7a15e5027d6131d467358"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/path-security/denylist.test.ts",
+      "sha256": "f8e201180644754c22d7101d80f72e2a0273dd6557d785676fe765d4a60ac140"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/path-security/denylisted-ancestor.test.ts",
+      "sha256": "4b9f75b761f5e8bce06f37927389c619d5e6e32472984e1a4c4119b55e49b8bc"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts",
+      "sha256": "f4ac1acba98f46604aa8f73cefaf00e8aa602847eb912f15cce49205c36ffa3d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/path-security/traversal-and-symlink.test.ts",
+      "sha256": "cc068165d3a56ae35e319f652a2e6a41289f11b874b241a6df2c591fef5b5343"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/readonly/core-tools-snapshot.test.ts",
+      "sha256": "d9e7aa989402d279145abf83e22a3b39db79ee08a203c14c5167ae807c45ca90"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/readonly/deep-verify-static-check.test.ts",
+      "sha256": "41398c794f5170c0520562a597174ec77740a715ce0735adbe3b8c634fa26aec"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts",
+      "sha256": "fed37ec3cdc0a2e66079b50b818dafea824f457ddd678aa00de6b2aa52d56b19"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/resources/resources.test.ts",
+      "sha256": "c790be27ffc62df37de5c77e6340d016a3259fe2ae2e4fa13d38768ab257822f"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/resources/test-helpers.ts",
+      "sha256": "289c1ef5e3c3975a60785b04116f5618ca43ed4d6ba306c71d1576be3c8e8d8a"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/root-immutable/root-immutable.test.ts",
+      "sha256": "3d93aa1c9e2ce94fcf21e7a3ecb40515c88ed90e1dd406cf8ecbfc93f7dab566"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/smoke/inspector-smoke.test.ts",
+      "sha256": "b4e88359a23c42e14e8ab0544c2ea89e83713a682a59fa73f79a2c525fc5bc16"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/status-view.test.ts",
+      "sha256": "1e443b6b519e0867dd3f8fb97cb6bd37f43743780ca9fdd4ce774c23d497157d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/test-helpers.ts",
+      "sha256": "ae81930daf647a9f126698150e5545bc74cd5630851c339b951fa2d4e3654470"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts",
+      "sha256": "cdaf67dbd4db8566f297694f865697bf01bf860d73adeb1b77304e64fc8b0fe2"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-determinism.test.ts",
+      "sha256": "7ac337e44f56d808f24fba338fcfcf56cfe2c9ecd2d6e12541f82368e16ad57d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-helpers.ts",
+      "sha256": "70dbe855ea99ff6afe7f66e0390d632123e459bce01d44e8db1440f67a4990eb"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-invariants.test.ts",
+      "sha256": "16af306316cab00899318e52482b74ae106be768cd7bc662b0d517c2a1c1d3c5"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts",
+      "sha256": "bf2cb85e76151e67466ecac47958bf192168df6d29b92d78a69a5d31ac333f57"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts",
+      "sha256": "b7609c168f695b911037b51f9ea59d6c1f47ad5a634f09c0204554b806116bb0"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/evidence-shape-boundaries.test.ts",
+      "sha256": "2aa09278e990dbd7d80d6f7b65aa83f68a9161f9ce7f734226aa0a7770b11013"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/workflow-profile-artifacts.test.ts",
+      "sha256": "e47474df20985ebd9088c8ff0d53544e42c5355f865912822c338339e5254618"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tsconfig.json",
+      "sha256": "95df07f102e18a6300422c9bf2942c52129769f1b136ac66b82fae8de29d2696"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tsconfig.test.json",
+      "sha256": "ffa93c402a529c6aea1521f9cf6980e75d7f6c69758d7063298f816828e12528"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/ui/dashboard-page.ts",
+      "sha256": "63c67cbe713b0c28b9c2e83ad52acfc3a10cf34f06b3599b1c0181d865114189"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package-lock.json",
+      "sha256": "11c8bef06f85c87fcae33a7d471e9d0ac43f5432637331102a3f2b7619ba275d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "sha256": "9122b5cce0bac86e246975a4586e636586a9435077c6ca759c7295c0e85add88"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "e8a19b0b4b9d3ac255cdbb30ea30e55b505b82d1545a1441b5a4660b14ba762b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "58e185e4f51a0922e40c07852f01f96d88cdc3d6c83bb03352a4211e71953d3f"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/prior-report.md",
+      "sha256": "0150c7ac4aa29e14f64a66c85a4e01ac5020c20d8f56cb9114683d7839839ea8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/report-revalidation/prior-report.md",
+      "sha256": "b962386f49d7658765a140bd674ea3f1696da2718f47912911d1931e4a616bb3"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/report-revalidation/task-input-manifest.json",
+      "sha256": "23375a28098e87175a47aabd4e4482bf17b65d2677726f216ab8de9846a49832"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/report-revalidation/test-result.log",
+      "sha256": "8eb09849c26870bf01092d3a030dce31f407ff40bb43feedde6cf538fffaf305"
+    },
+    {
+      "path": "tests/dashboard-observations.tests.mjs",
+      "sha256": "0b79b0753676b0637918762a093d689e9bdc3e41821fb1de05dda37023f3c49b"
+    },
+    {
+      "path": "tests/hosted-status-worker.tests.mjs",
+      "sha256": "49c030d4e34acc13dea230d8dd8eedf277ac259a07cb564e36ddf94724c318d2"
+    },
+    {
+      "path": "tests/v2-mcp-server.test.mjs",
+      "sha256": "af68c09b7d19ac6b8c930b48ca02f516317194ebeac1dd849d6705995980256a"
+    },
+    {
+      "path": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "9a2d430e2cc10c915c259a7dfde394765bb5137fae045d7d5813a368a8ad4178"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-009.md",
+    "specs/verification-first-factory/verification/T-009/main-integration/test-result.log"
+  ]
+}

@@ -10787,6 +10787,16 @@
       "host_session_id": "issue423-t004-task-a5r1-b-session-2a7b3c190b8b44a9929e63c088d6fe92",
       "previous_record_sha256": "ac5cabc95a5e49ac743bc0db3370454d6ee8fde099803388afcdb9367e982458",
       "record_sha256": "e13e0951c8300afde9a7a088922811396abf12cf09e4a7ee0bec550570ca91d6"
+    },
+    {
+      "sequence": 1197,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "20adf5b4-3569-410d-9990-67923dddd87d",
+      "host_session_id": "01a21390-1bcf-7e92-bec4-0c2a7c389d30",
+      "previous_record_sha256": "e13e0951c8300afde9a7a088922811396abf12cf09e4a7ee0bec550570ca91d6",
+      "record_sha256": "046d144336dcf107f5db9ee2fff333415633180749391592b32438181fe53d83",
+      "scratch_declaration_sha256": "3ea80a314d0255b431385550a1e535d728881bebf6218615b843640c1055f7b6"
     }
   ]
 }
