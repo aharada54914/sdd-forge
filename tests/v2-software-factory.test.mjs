@@ -1155,3 +1155,35 @@ describe('#972 review 4: wrapped prose, table cells, filesystems without hard li
     assert.equal(JSON.parse(fs.readFileSync(path.join(dir, '.sdd', 'locks', 'f.lock'), 'utf8')).owner, 'A');
   });
 });
+
+describe('batch-5 follow-up: a spec file replaced by a directory fails the gate instead of crashing it', () => {
+  it('design.md or requirements.md as a directory gives a FAIL verdict that names the file', () => {
+    for (const name of ['design.md', 'requirements.md']) {
+      const dir = trackTempDir('sdd-gate-eisdir-');
+      fs.mkdirSync(path.join(dir, 'specs', 'f'), { recursive: true });
+      fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+      if (name !== 'requirements.md') {
+        fs.writeFileSync(path.join(dir, 'specs', 'f', 'requirements.md'), '# r\n\n- **REQ-001**: x\n- **AC-001** (REQ-001): y\n');
+      }
+      fs.writeFileSync(path.join(dir, 'specs', 'f', 'tasks.md'),
+        '## T-001 t\nApproval: Approved\nStatus: Implementation Complete\nRisk: standard\n\n### Scope\n- `src/a.js`\n\n### Done When\n- AC-001\n');
+      fs.mkdirSync(path.join(dir, 'specs', 'f', name));
+      const { result } = runSddGate({ feature: 'f', taskId: 'T-001', projectRoot: dir, skipDrift: true, skipSensors: true });
+      assert.equal(result.verdict, 'FAIL', name);
+      assert.match(JSON.stringify(result.checks.openQuestions), new RegExp(`specs/f/${name.replace('.', '\\.')} is not a regular file`), name);
+    }
+    // A symlink loop fails the same way instead of throwing ELOOP, and the
+    // metric does not record an open-question block that does not exist.
+    const dir = trackTempDir('sdd-gate-eloop-');
+    fs.mkdirSync(path.join(dir, 'specs', 'f'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'requirements.md'), '# r\n\n- **REQ-001**: x\n- **AC-001** (REQ-001): y\n');
+    fs.writeFileSync(path.join(dir, 'specs', 'f', 'tasks.md'),
+      '## T-001 t\nApproval: Approved\nStatus: Implementation Complete\nRisk: standard\n\n### Scope\n- `src/a.js`\n\n### Done When\n- AC-001\n');
+    fs.symlinkSync('design.md', path.join(dir, 'specs', 'f', 'design.md'));
+    const { result } = runSddGate({ feature: 'f', taskId: 'T-001', projectRoot: dir, skipDrift: true, skipSensors: true });
+    assert.equal(result.verdict, 'FAIL');
+    assert.match(result.checks.openQuestions.error, /specs\/f\/design\.md could not be read/);
+    assert.equal(result.checks.openQuestions.blocking, false, 'not an open-question block');
+  });
+});
