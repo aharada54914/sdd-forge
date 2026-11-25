@@ -338,7 +338,7 @@ v2.0.0 で `SDD_SUDO` による sudo モード（このガードの一時無効�
 | `check-contract` | sh / ps1 / py | Default-FAIL 検証契約 (JSON) の検証（[詳細](#check-contract)） |
 | `check-cross-model` | sh / ps1 | クロスモデル合意検証。パネリスト verdict と主評価者 verdict の突き合わせ |
 | `check-design-system` | sh / ps1 | デザインシステム準拠の warn フェーズゲート（[詳細](#check-design-system)） |
-| `check-domain-conformance` | sh / ps1 | ドメイン適合の warn フェーズゲート。`domain/` 不在時は exit 0 でスキップ |
+| `check-domain-conformance` | sh / ps1 | ドメイン適合の単独検査（v2 の `sdd-gate` は実行しない。結果は品質ゲート報告に記録する、#848）。`domain/` 不在時は exit 0 でスキップ |
 | `check-evidence-bundle` | sh / ps1 | Done 判定用 evidence bundle の存在・SHA-256・プロベナンス検証（[詳細](#check-evidence-bundle)） |
 | `check-hook-activation-handshake` | sh / ps1 / py | ホストカナリア方式のチャレンジ/レスポンスでフック実装が実際に発火しているかを検証 |
 | `check-placeholders` | sh / ps1 | placeholder / stub / generic-fallback 実装の検出（[詳細](#check-placeholders)） |

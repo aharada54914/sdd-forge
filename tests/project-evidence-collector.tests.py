@@ -88,7 +88,7 @@ class CollectorTests(unittest.TestCase):
 
     def collect(self):
         # --prepare is the only supported mode since the v1 bundle generator
-        # and checker were retired in v2.0.0 (#865).
+        # was retired in v2.0.0 (#865).
         return C.collect(
             self.root, self.contract, self.fixture.task_path, "example", "smoke", prepare=True
         )
@@ -160,13 +160,6 @@ class CollectorTests(unittest.TestCase):
             self.contract.write_text(json.dumps(changed))
             with self.assertRaises(C.V.Invalid):
                 self.collect()
-            self.assertFalse(self.fixture.observation.exists())
-
-    def test_tdd_and_critical_are_not_silently_waived(self):
-        for extra in ({"risk": "high"}, {"risk": "critical"}):
-            self.contract.write_text(json.dumps(self.original | extra))
-            with self.assertRaises(C.V.Invalid):
-                C.collect(self.root, self.contract, self.fixture.task_path, "example", "smoke")
             self.assertFalse(self.fixture.observation.exists())
 
     def setup_tdd(self):

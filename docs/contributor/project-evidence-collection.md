@@ -6,8 +6,11 @@ check; it does not import a PASS observation, issue an independent review, appro
 a task, or set Done.
 
 > **`--prepare` is the only supported mode.** Normal mode generated a v1 evidence
-> bundle with `generate-evidence-bundle.sh`, which was retired in v2.0.0. Without `--prepare` the collector now stops before running
-> anything, with `project-evidence: blocked: normal-generation-retired` (#865). Execution currently requires the runner's Linux process
+> bundle with `generate-evidence-bundle.sh`, which was retired in v2.0.0. Without
+> `--prepare` the collector stops before running anything, with
+> `project-evidence: blocked: normal-generation-retired` (#865).
+
+Execution currently requires the runner's Linux process
 ownership backend. Unsupported platforms retain their actual not-run result.
 
 The ordinary options are `--execution-root`, `--contract`,
