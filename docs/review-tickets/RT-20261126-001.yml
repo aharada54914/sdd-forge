@@ -1,0 +1,22 @@
+ticket_id: RT-20261126-001
+status: open
+type: regression
+severity: minor
+target:
+  feature: verification-first-factory
+  task: T-005
+  files:
+    - plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+summary: "A valid TLA+ block comment prevents SPECIFICATION replay"
+problem: |
+  At 9a64eb26d839, adding a standalone block comment before EXTENDS
+  to the accepted reservation model produces Unsupported baseline SPECIFICATION.
+  Independent evaluator 37230d6a-3316-4358-aff7-0012ff3f2893 reproduced
+  the change of outcome using the admitted fixture. The configured models
+  still meet AC-003 through AC-006. The third repair cycle has finished.
+expected_fix:
+  - "Recognize definitions outside comments and retain fail-closed behavior for unsupported specifications."
+  - "Compare replay of the intact model, the same model with an ordinary comment, and a comment containing a purported definition."
+references:
+  - reports/quality-gate/verification-first-factory-T-005.md
+review_cycles: 3
