@@ -1,0 +1,260 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index 6fb137639..2a18d7a3d 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -152,7 +152,47 @@ export function formatDriftMarkdown(report) {
+   return `${lines.join('\n')}\n`;
+ }
+ 
+-const TEST_SKIP_RE = /(?:\b(?:it|test|describe)\.skip\s*\(|\b(?:xit|xdescribe)\s*\(|@pytest\.mark\.skip\b|unittest\.skip\b|\bt\.Skip\s*\()/;
++const TEST_SKIP_RE = /(?:\b(?:it|test|describe)\.skip\s*\(|\b(?:xit|xdescribe)\s*\(|@pytest\.mark\.skip\b|unittest\.skip\b|\bt\.Skip\s*\()/g;
++const JS_TOKEN = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`|[\w$]+|[^\s]/g;
++const TEST_FUNCTIONS = new Set(['it', 'test', 'describe', 'suite']);
++const DISABLED_SKIP_VALUES = new Set(['false', "''", '""', '``', 'null', 'undefined', '0']);
++
++function countTestSkips(file, source) {
++  if (!/\.[cm]?[jt]sx?$/i.test(file)) return Array.from(source.matchAll(TEST_SKIP_RE)).length;
++  // Keep strings intact and ignore comments so that a label, example or callback
++  // object does not become a skip option. Only inspect direct test arguments.
++  const tokens = (source.match(JS_TOKEN) || []).filter(token => !token.startsWith('//') && !token.startsWith('/*'));
++  const stack = [];
++  let count = 0;
++  for (let i = 0; i < tokens.length; i++) {
++    const token = tokens[i];
++    const previous = tokens[i - 1];
++    const parent = stack.at(-1);
++    if (token === '(') {
++      const method = previous === 'skip' && tokens[i - 2] === '.' && TEST_FUNCTIONS.has(tokens[i - 3]);
++      const skipped = method || previous === 'xit' || previous === 'xdescribe';
++      if (skipped) count++;
++      stack.push({ testCall: !skipped && TEST_FUNCTIONS.has(previous) });
++    } else if (token === '{' || token === '[') {
++      const options = token === '{' && parent?.testCall && (previous === '(' || previous === ',');
++      stack.push({ options });
++    } else if (token === '}' || token === ']' || token === ')') {
++      stack.pop();
++    } else if (parent?.options && (previous === '{' || previous === ',') && /^(?:skip|"skip"|'skip')$/.test(token)) {
++      // Computed conditions may activate a skip. Only a complete falsy literal
++      // unconditionally leaves the test enabled.
++      const next = tokens[i + 1];
++      if (next === ':') {
++        const valueEnds = tokens[i + 3] === ',' || tokens[i + 3] === '}';
++        if (!valueEnds || !DISABLED_SKIP_VALUES.has(tokens[i + 2])) count++;
++      } else if (token === 'skip' && (next === ',' || next === '}')) {
++        count++;
++      }
++    }
++  }
++  return count;
++}
++
+ const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
+ const TLA_TRIVIAL_INVARIANT_RE = /^[A-Za-z0-9_]+\s*==\s*TRUE\b/;
+ 
+@@ -167,14 +207,15 @@ function isTestFileRelPath(relPath) {
+   );
+ }
+ 
+-function gitText(root, args) {
+-  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
++function gitText(root, args, options = {}) {
++  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options });
+ }
+ 
+ function committedText(root, revision, file) {
+-  const entry = gitText(root, ['ls-tree', '-z', revision, '--', file]);
+-  if (!/^100(?:644|755) blob /.test(entry)) return null;
+-  return gitText(root, ['show', `${revision}:./${file}`]);
++  const entry = gitText(root, ['--literal-pathspecs', 'ls-tree', '-lz', revision, '--', file]);
++  const blob = /^100(?:644|755) blob ([a-f0-9]+)\s+(\d+)\t/.exec(entry);
++  if (!blob) return null;
++  return gitText(root, ['cat-file', 'blob', blob[1]], { maxBuffer: Math.max(1, Number(blob[2])) });
+ }
+ 
+ function committedPolicy(root, revision) {
+@@ -223,9 +264,18 @@ function recordTamperingQuestion(root, feature, revision, violations) {
+       } catch (err) {
+         if (err.code !== 'EEXIST') throw err;
+       }
+-      if (!fs.lstatSync(filename).isFile()) throw new Error('Invalid escalation file');
+-      const existing = JSON.parse(fs.readFileSync(filename, 'utf8'));
+-      if (existing.baseCommit === revision && JSON.stringify(existing.violations) === JSON.stringify(facts)) return ref;
++      if (!fs.lstatSync(filename).isFile()) continue;
++      const text = fs.readFileSync(filename, 'utf8');
++      let existing;
++      try {
++        existing = JSON.parse(text);
++      } catch (err) {
++        if (err instanceof SyntaxError) continue;
++        throw err;
++      }
++      if (existing?.id === id && existing.feature === feature && existing.baseCommit === revision &&
++          ['Provisional', 'Confirmed'].includes(existing.status) &&
++          JSON.stringify(existing.violations) === JSON.stringify(facts)) return ref;
+     }
+   } finally {
+     fs.rmSync(tempDir, { recursive: true, force: true });
+@@ -278,7 +328,8 @@ export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
+  */
+ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
+   const root = resolveExplicitOrAutoRoot(projectRoot);
+-  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef);
++  const testGlobs = ['tests/**', 'test/**', '**/tests/**', '**/__tests__/**', '*.test.*', '*.spec.*', '*_test.*', '*.tests.*'];
++  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, testGlobs);
+   const approvedRetirements = loadApprovedTestRetirements(root, revision);
+   const violations = [];
+ 
+@@ -306,19 +357,25 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
+ 
+   for (const { status, relPath: currentFile } of changedEntries) {
+     if (status === 'D') continue;
++    if (isTestFileRelPath(currentFile)) {
++      const absolute = path.join(root, currentFile);
++      if (fs.lstatSync(absolute).isFile()) {
++        const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
++        const after = fs.readFileSync(absolute, 'utf8');
++        const previousCount = countTestSkips(currentFile, before);
++        const currentCount = countTestSkips(currentFile, after);
++        if (currentCount > previousCount) {
++          violations.push({ code: 'TEST_SKIP_ADDED', path: currentFile,
++            detail: `テストの skip 指定が ${previousCount} 件から ${currentCount} 件に増えました` });
++        }
++      }
++    }
+     const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', currentFile]);
+     let inHunk = false;
+     for (const line of patch.split(/\r?\n/)) {
+       if (line.startsWith('@@ ')) inHunk = true;
+       if (!inHunk || !line.startsWith('+')) continue;
+       const addedText = line.slice(1);
+-      if (isTestFileRelPath(currentFile) && TEST_SKIP_RE.test(addedText)) {
+-        violations.push({
+-          code: 'TEST_SKIP_ADDED',
+-          path: currentFile,
+-          detail: `テストの skip 指定が追加されました: ${addedText.trim()}`,
+-        });
+-      }
+       if (LINT_DISABLE_RE.test(addedText)) {
+         violations.push({
+           code: 'LINT_DISABLE_ADDED',
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index 94fbde670..f76e29528 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -125,7 +125,7 @@
+   "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "f82d676e8e331f3d19eddb69f1c08bfa03cfecd919f659deb29f661eb2a2e339",
+     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "807c73f35ab75e1ae2eeb9d2718663c8f6695ff23baab72da0a5f9a73c1428bd",
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
+     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+diff --git a/specs/verification-first-factory/verification/T-002/independent-review-repair.md b/specs/verification-first-factory/verification/T-002/independent-review-repair.md
+new file mode 100644
+index 000000000..2dfd7e9a9
+--- /dev/null
++++ b/specs/verification-first-factory/verification/T-002/independent-review-repair.md
+@@ -0,0 +1,17 @@
++# T-002 独立レビュー後の検証
++
++## スキップ件数と OQ の復旧
++
++修正前の回帰テストをコミット `b89e38a94` に記録した。すでにスキップしているテストの説明変更は終了コード4になった。既存OQのJSONが壊れた場合は終了コード2となり、IDまたはfeatureが一致しない場合は、いずれも古いOQを再利用した。この4ケースはすべて期待値と異なった。
++
++修正後はテストファイルごとに基準コミットと作業ツリーのスキップ指定を数える。Nodeのテストオプションはオブジェクトの改行、文字列理由、無効値、条件式を区別する。防御チェックは条件式を実行せず、スキップされ得る指定として数える。既存表記の説明変更と理由変更では終了コード0、件数増では4となった。PythonとGoの既存表記でも増加を検出した。
++
++OQの番号・feature・基準コミット・違反一覧・ステータスが整合するときは同じ記録を使う。不整合な記録はそのまま残し、新しい番号のOQと終了コード4を返した。正当な既存のConfirmedは再利用できた。
++
++- `node --test tests/v2-spec-drift.test.mjs` は20件成功。
++- 実TLCを指定した `node --test tests/v2-spec-drift.test.mjs tests/v2-formal-gate.test.mjs tests/v2-sdd-core-flow.test.mjs` は63件成功、スキップ0件。GateLifecycleのEscalate対応と実行トレースを再検証した。最終テストの通常のオプション表記追加後に、上記20件を再実行した。
++- MCPの標準esbuild設定で一時バンドルを生成し、275個の入力に `check-spec-drift.mjs` が含まれないことと、既存配布物とバイト単位で一致することを確認した。SHA-256は `bce07ec7a875ee7c1f01e7724b9c78022c59aa6e7fc96ca37b2ea27c2e76663b`。
++
++## CODEOWNERS の配置
++
++設計書64行目に記載した廃止承認マニフェストの所有者指定は、このブランチではルートの `CODEOWNERS:14` にあり、所有者は `@aharada54914` である。`git ls-files -- .github/CODEOWNERS CODEOWNERS docs/CODEOWNERS` の出力は `CODEOWNERS` の1行だった。GitHubはPRのベースブランチで `.github/`、ルート、`docs/` の順に最初のファイルを使う。現行配置を維持した。ブランチ保護でレビューを必須にしているかどうかは、このファイルの検証範囲外である。[GitHub公式の配置とレビュー条件](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index 18a26a807..a0cf51cd6 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -402,6 +402,80 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     fs.rmSync(dir, { recursive: true, force: true });
+   });
+ 
++  function runAntiTamper(dir) {
++    return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
++  }
++
++  it('allows renaming an already skipped test and editing existing skip reasons', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'tests/sample.test.mjs');
++    const skipped = ['it', '.skip'].join('');
++    fs.writeFileSync(file, skipped + '("old description", () => {});\n');
++    assert.equal(git('commit', '-am', 'record existing test state').status, 0);
++    fs.writeFileSync(file, skipped + '("new description", () => {});\n');
++    const report = runAntiTamper(dir);
++    assert.equal(report.status, 0, report.stdout);
++  });
++
++  it('counts active Node options across layout changes alongside prior Python and Go directives', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'tests/sample.test.mjs');
++    const option = ['sk', 'ip'].join('');
++    function source(values) {
++      return ['const metadata = { ' + option + ': true };',
++        ...values.map((value, index) => 'test("case ' + index + '", {\n  timeout: 100,\n  "' + option + '": ' + value + ',\n}, () => {});')].join('\n');
++    }
++    fs.writeFileSync(file, source(['"old reason"', 'false']));
++    assert.equal(git('commit', '-am', 'record conditional test options').status, 0);
++    fs.writeFileSync(file, source(['"new reason"', 'false']));
++    assert.equal(runAntiTamper(dir).status, 0);
++    fs.writeFileSync(file, source(['"new reason"', 'true']));
++    const increased = runAntiTamper(dir);
++    assert.equal(increased.status, 4, increased.stdout);
++    assert.deepEqual(JSON.parse(increased.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
++    fs.writeFileSync(file, source(['false']));
++    assert.equal(runAntiTamper(dir).status, 0);
++    fs.writeFileSync(file, ['test({ ' + option + ': true }, () => {});',
++      'it("conditional", { ' + option + ': process.env.CI }, () => {});'].join('\n'));
++    assert.equal(runAntiTamper(dir).status, 4);
++    fs.writeFileSync(file, source(['false']));
++    for (const [name, marker] of [['sample_test.py', ['@pytest.mark.', 'skip'].join('')],
++      ['sample_test.go', ['t.', 'Skip'].join('')]]) {
++      fs.writeFileSync(path.join(dir, 'tests', name), marker + '("reason")\n');
++      assert.equal(git('add', 'tests/' + name).status, 0);
++    }
++    assert.deepEqual(JSON.parse(runAntiTamper(dir).stdout).violations.map(v => v.path).sort(),
++      ['tests/sample_test.go', 'tests/sample_test.py']);
++  });
++
++  for (const defect of ['invalid JSON', 'wrong id', 'wrong feature']) {
++    it('preserves an existing question with ' + defect + ' and records a valid replacement', (t) => {
++      const { dir } = initGitRepoWithTests();
++      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++      fs.appendFileSync(path.join(dir, 'sdd/approved-test-retirements.json'), '\n');
++      const first = JSON.parse(runAntiTamper(dir).stdout).openQuestion;
++      const filename = path.join(dir, first.path);
++      const question = JSON.parse(fs.readFileSync(filename));
++      const old = defect === 'invalid JSON' ? '{' : JSON.stringify({
++        ...question, [defect === 'wrong id' ? 'id' : 'feature']: 'other',
++      });
++      fs.writeFileSync(filename, old);
++      const next = runAntiTamper(dir);
++      assert.equal(next.status, 4, next.stderr);
++      const replacement = JSON.parse(next.stdout).openQuestion;
++      assert.equal(replacement.id, 'OQ-002');
++      assert.equal(fs.readFileSync(filename, 'utf8'), old);
++      const replacementFile = path.join(dir, replacement.path);
++      const persisted = JSON.parse(fs.readFileSync(replacementFile));
++      assert.equal(persisted.id, replacement.id);
++      assert.equal(persisted.feature, 'demo');
++      fs.writeFileSync(replacementFile, JSON.stringify({ ...persisted, status: 'Confirmed' }));
++      assert.deepEqual(JSON.parse(runAntiTamper(dir).stdout).openQuestion, replacement);
++    });
++  }
++
+   it('uses committed retirement approvals and mandatory protection; records a repeatable OQ', (t) => {
+     const { dir, git } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

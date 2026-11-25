@@ -1,0 +1,238 @@
+{
+  "tested_revision": "33a9733b2573660a1380e41263ce45093eae39ff",
+  "sources": [
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "review_file": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sha256": "f82d676e8e331f3d19eddb69f1c08bfa03cfecd919f659deb29f661eb2a2e339",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+      "sha256": "674d8533ab91b652105a623d4e30f2f6e1ea96769220a5e9d4b4a54c32a997b8",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "sha256": "9122b5cce0bac86e246975a4586e636586a9435077c6ca759c7295c0e85add88",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+      "sha256": "165eb077592da01c6c7e5e68a1913747a4574ce3ac8a54c8b7c94f17c2664a3b",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+      "sha256": "62b948661fef0b3df9800a4843b51f36f79bfa05ae8b925da0183f7372d94c86",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "sha256": "4a49246e4115b3a4c097150a0318931b8f747100c51454b154fb97da21cdf1fd",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "sha256": "9ba1d0a985cf95d517d139dda7ae04e62bbe79ad764b93f41ab50ea7a745453b",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "review_file": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "sha256": "807c73f35ab75e1ae2eeb9d2718663c8f6695ff23baab72da0a5f9a73c1428bd",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "sha256": "2eaa4c88d52514b2de9de0746aa2a564b0fe305f5e5f0ff1ab07a3328de664e3",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "sha256": "ffbf1c7dd715f52e872a60d75c81671ff3fd15b8c4d0f64f92106906bedfdb87",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "sha256": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "review_file": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "sha256": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "sdd/guardrails.example.yaml",
+      "review_file": "sdd/guardrails.example.yaml",
+      "sha256": "3bfb11b809dde42e200f9ca36ff7668b70de8a42a69128a01b2bdbdc2ba93a76",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "specs/verification-first-factory/design.md",
+      "review_file": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "specs/verification-first-factory/requirements.md",
+      "review_file": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "specs/verification-first-factory/tasks.md",
+      "review_file": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/specs/verification-first-factory/tasks.md",
+      "sha256": "4329f816a9abdb8f8c601d6aaf6911bf4586379bd5db59717c0ec9775c91a28e",
+      "live_bytes_equal_at_intake": false
+    },
+    {
+      "source": "tests/v2-sdd-core-flow.test.mjs",
+      "review_file": "tests/v2-sdd-core-flow.test.mjs",
+      "sha256": "b82ff94afb131d7a9966ad54927fc643b384f1224529f43accdc86b86e434140",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "tests/v2-spec-drift.test.mjs",
+      "review_file": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/tests/v2-spec-drift.test.mjs",
+      "sha256": "9df2bde3fa7de021d8dcbbec741012167cffde1828128d59629ffb17ae5367a9",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "tests/v2-wave3-integration.test.mjs",
+      "review_file": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "f4ea8c7e687689638ecd4fe7cb27d242557cdb9b400288c50c3e3f39145ed5a8",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "review_file": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "sha256": "0aaf0786d8161d109dd664bad873330a33507aa97eb053f17e86acef83651399",
+      "live_bytes_equal_at_intake": true
+    },
+    {
+      "source": "specs/verification-first-factory/.spec-baseline.json",
+      "review_file": "specs/verification-first-factory/.spec-baseline.json",
+      "sha256": "77e20bdad7b8f20498611de41ea1eecaa895918d17edafd15023fa4ac7f01f52",
+      "live_bytes_equal_at_intake": true
+    }
+  ],
+  "patches": [
+    {
+      "base": "81cb10df29ebafe457ebf4f42af5ff70453e857e",
+      "head": "4ce2aaa85cce3bafbebf1395493a3c0a0beba5e5",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "tests/v2-wave3-integration.test.mjs",
+        "tests/v2-sdd-core-flow.test.mjs",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "diff": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-wave3.diff",
+      "meaning": "Initial Wave 3 task and shared integration tests, with T-009 hunks on shared paths."
+    },
+    {
+      "base": "fc166bd1a8b8303531c0445ff78965897ea59c61",
+      "head": "5006c3747efc8f959ebcb37387d4c0d072dbce97",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "tests/v2-wave3-integration.test.mjs",
+        "tests/v2-sdd-core-flow.test.mjs",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "diff": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-hardening.diff",
+      "meaning": "T-008 repair and tests. Includes shared T-002 anti-tampering hunks in the drift helper and its tests."
+    },
+    {
+      "base": "dc86a706cf3fe3b93ea5d9af3eec885e3290a769",
+      "head": "c7f22ad69b02293dec6fd83937deba26c0fec13b",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+        "tests/v2-wave3-integration.test.mjs"
+      ],
+      "diff": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-lock.diff",
+      "meaning": "Later lock coordination and release handling shared by the integrated gate."
+    },
+    {
+      "base": "f755b33f3a68ee1ec6dd34087d32bdce274da544",
+      "head": "33a9733b2573660a1380e41263ce45093eae39ff",
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "tests/v2-wave3-integration.test.mjs",
+        "tests/v2-sdd-core-flow.test.mjs",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "diff": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-since-prior.diff",
+      "meaning": "Differences on the eight explicit scanned paths between the previous 53-test gate and this 58-test gate."
+    }
+  ],
+  "declared_task_scope": [
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+    "plugins/sdd-ship/**"
+  ],
+  "scanner_out_of_scope": [
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+    "tests/v2-sdd-core-flow.test.mjs",
+    "tests/v2-spec-drift.test.mjs",
+    "tests/v2-wave3-integration.test.mjs"
+  ],
+  "scope_evidence": {
+    "rebuild-differential.mjs": "run-sdd-gate.mjs imports runRebuildDifferentialCheck; separate product implementation outside the literal task Scope.",
+    "check-spec-drift.mjs": "check-traceability.mjs and rebuild-differential.mjs import readProtectedDiff; this module also owns T-002 changes.",
+    "tests": "Three test files exercise public commands. Includes separately owned T-002/T-009 regressions."
+  },
+  "anti_tamper_scope": "Clean checkout compared to itself, zero changed files. Check the regression tests separately for actual mutations.",
+  "directories_at_tested_revision": {
+    "domain": false,
+    "design-system": false
+  }
+}

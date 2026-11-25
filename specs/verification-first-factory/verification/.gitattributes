@@ -1,5 +1,6 @@
 # A space is the unified-diff context marker for an empty source line.
 task-scoped.diff whitespace=-blank-at-eol
-scope-*.diff whitespace=-blank-at-eol,-blank-at-eof
+T-*/quality-repair-*/*.diff whitespace=-blank-at-eol,-blank-at-eof
 # Raw regression output is hash-bound to the reviewer input.
 T-*/quality-repair-*/support/**/*red.log whitespace=-blank-at-eol
+T-*/quality-repair-*/*red.log whitespace=-blank-at-eol

@@ -1,0 +1,105 @@
+▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+  ✖ checks literal TRUE only for invariants selected by the active CFG (1.741708ms)
+  ✖ stops a disabled formal gate in CI and honors an explicit checker mode (24.186583ms)
+  ✖ respects disabled formal configuration in the integrated gate (19.146208ms)
+✖ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (45.446416ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84.229042
+
+✖ failing tests:
+
+test at tests/v2-formal-gate.test.mjs:28:3
+✖ checks literal TRUE only for invariants selected by the active CFG (1.741708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'Trivial tautology invariant detected (Enabled == TRUE) in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.tla',
+  +   'Trivial tautology invariant detected (TypeOK == TRUE) in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.tla',
+  +   'Trivial tautology invariant detected (Ready == TRUE) in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.tla',
+  +   'No INVARIANT declared in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.cfg'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-formal-gate.test.mjs:38:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Trivial tautology invariant detected (Enabled == TRUE) in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.tla', 'Trivial tautology invariant detected (TypeOK == TRUE) in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.tla', 'Trivial tautology invariant detected (Ready == TRUE) in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.tla', 'No INVARIANT declared in /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-formal-integration-xDhUvr/Flags.cfg' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-formal-gate.test.mjs:46:3
+✖ stops a disabled formal gate in CI and honors an explicit checker mode (24.186583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'shadow',
+  +   'TOOL_UNAVAILABLE',
+  +   1
+  -   'off',
+  -   'SKIPPED',
+  -   0
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-formal-gate.test.mjs:62:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1518:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'shadow', 'TOOL_UNAVAILABLE', 1 ],
+    expected: [ 'off', 'SKIPPED', 0 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-formal-gate.test.mjs:69:3
+✖ respects disabled formal configuration in the integrated gate (19.146208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'FAIL',
+  +   false,
+  -   'SKIPPED',
+      true,
+  -   true
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-formal-gate.test.mjs:81:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'FAIL', false, true ],
+    expected: [ 'SKIPPED', true, true ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

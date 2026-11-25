@@ -1,0 +1,13 @@
+▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+  ✔ checks literal TRUE only for invariants selected by the active CFG (1.87625ms)
+  ✔ stops a disabled formal gate in CI and honors an explicit checker mode (109.575333ms)
+  ✔ respects disabled formal configuration in the integrated gate (20.008375ms)
+✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (131.877333ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 172.593084

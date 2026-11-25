@@ -1,0 +1,13 @@
+test_delayed_contender_still_reaches_negative_barrier (__main__.Reservation.test_delayed_contender_still_reaches_negative_barrier) ... ok
+test_mutation_and_baseline (__main__.Reservation.test_mutation_and_baseline) ... ok
+test_negative_barrier_timeout_is_reported (__main__.Reservation.test_negative_barrier_timeout_is_reported) ... ok
+test_negative_model_requires_a_completed_invariant_violation (__main__.Reservation.test_negative_model_requires_a_completed_invariant_violation) ... ok
+test_source_mapping_current (__main__.Reservation.test_source_mapping_current) ... ok
+test_spawn_failure_cleans_up_first_contender (__main__.Reservation.test_spawn_failure_cleans_up_first_contender) ... ok
+test_successful_reservation_must_publish_the_winning_actor (__main__.Reservation.test_successful_reservation_must_publish_the_winning_actor) ... ok
+test_wrong_tool_bytes_are_rejected_before_execution (__main__.Reservation.test_wrong_tool_bytes_are_rejected_before_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.126s
+
+OK

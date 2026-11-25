@@ -1,0 +1,96 @@
+▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)
+  ✔ passes cleanly when task is approved, specs are CLEAN, code has no placeholders, and tests pass (106.6485ms)
+  ✔ #819: re-entering ship keeps the existing baseline; only --rerecord replaces it (311.124333ms)
+  ✔ #829: findings outside the task Scope are labelled, and the verdict stays fail-closed (236.817083ms)
+  ✔ #823: an unresolved critical/major review ticket for this task fails the gate; others do not (228.955459ms)
+  ✔ fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared (123.232375ms)
+  ✔ scans the gate source itself and reports only actual unfinished work (124.837458ms)
+  ✔ fails gate when changed production code contains placeholders or a verification command fails (104.772333ms)
+  ✔ rejects unapproved tasks at precondition check (95.605209ms)
+✔ run-sdd-gate.mjs (SDD Core unified deterministic gate) (1332.615875ms)
+▶ #821 gate task lookup uses the exact task ID
+  ✔ never reads a sibling task whose ID shares a prefix, in either order (7.30975ms)
+✔ #821 gate task lookup uses the exact task ID (7.380875ms)
+▶ #822/#828 gate change discovery
+  ✔ lists non-ASCII names verbatim and stays relative to a nested project root (135.076333ms)
+✔ #822/#828 gate change discovery (135.1275ms)
+▶ Phase 2 SDD Core skill & template contracts
+  ✔ all consolidated SDD Core skills have valid frontmatter and zero legacy canary/ERROR_STOP rituals (0.4275ms)
+  ✔ ship and sdd-gate skills wire directly to v2 Node.js ESM guardrail tools (0.1175ms)
+  ✔ spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes (0.338042ms)
+  ✔ all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions (0.942666ms)
+  ✔ SDD Core templates include REQ/AC/Risk structure and Spec Amendments section (0.202959ms)
+✔ Phase 2 SDD Core skill & template contracts (2.120958ms)
+▶ #827 re-verifying a fixed review ticket reaches the gate for exactly that task
+  ✔ fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete (0.136125ms)
+✔ #827 re-verifying a fixed review ticket reaches the gate for exactly that task (0.161583ms)
+▶ #832 a Done task affected by a spec change has a re-verification path
+  ✔ ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status (0.156292ms)
+✔ #832 a Done task affected by a spec change has a re-verification path (0.174667ms)
+▶ human concept-test decisions at the public gate
+  ✔ stops incomplete, malformed and receipt-only projects before verification (433.772041ms)
+  ✔ runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs (685.467917ms)
+  ✔ records a baseline when invoked through an install symlink (44.611084ms)
+  ✔ rejects human receipt edits when invoked through an install symlink (27.426333ms)
+  ✔ preserves ordinary and v1-only feature history and scopes receipts by feature (142.690208ms)
+  ✔ keeps the Node-only path without a Git executable but blocks visible v2 evidence (83.445209ms)
+  ✔ detects an indexed proposal missing from the working tree in an unborn repository (236.202375ms)
+  ✔ scopes index evidence to the nested project with the same feature name (182.106833ms)
+  ✔ uses current proposal and decision inputs equally in full and shallow clones (283.653958ms)
+  ✔ distinguishes unstaged proposal loss from a staged change of inputs (212.670209ms)
+✔ human concept-test decisions at the public gate (2332.2825ms)
+▶ record-spec-baseline.mjs & check-spec-drift.mjs
+  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (113.96875ms)
+  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (74.525709ms)
+  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (107.437459ms)
+✔ record-spec-baseline.mjs & check-spec-drift.mjs (296.331917ms)
+▶ #820 AMENDED names the changed IDs no amendment entry mentions
+  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (226.505292ms)
+✔ #820 AMENDED names the changed IDs no amendment entry mentions (226.580209ms)
+▶ #818 staged human approval is not spec drift
+  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (156.254333ms)
+  ✔ a baseline recorded before this change keeps its old comparison (108.179709ms)
+✔ #818 staged human approval is not spec drift (264.535167ms)
+▶ #834 unreadable spec files are reported apart from deletions
+  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (86.469292ms)
+✔ #834 unreadable spec files are reported apart from deletions (86.566167ms)
+▶ #972 review: unreadable and newly approved are visible and enforced
+  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (192.403125ms)
+  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (151.818375ms)
+✔ #972 review: unreadable and newly approved are visible and enforced (344.309292ms)
+▶ #972 re-review: text added to an Approval line is drift
+  ✔ only a bare approval value is normalized (74.447208ms)
+✔ #972 re-review: text added to an Approval line is drift (74.502208ms)
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (289.18475ms)
+  ✔ allows renaming an already skipped test and editing existing skip reasons (199.436084ms)
+  ✔ counts active Node options across layout changes alongside prior Python and Go directives (727.037416ms)
+  ✔ preserves an existing question with invalid JSON and records a valid replacement (385.934375ms)
+  ✔ preserves an existing question with wrong id and records a valid replacement (376.038ms)
+  ✔ preserves an existing question with wrong feature and records a valid replacement (376.78475ms)
+  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (311.557958ms)
+  ✔ requires a nonempty retirement reason in the trusted manifest (220.305625ms)
+  ✔ requires a nonempty retirement approved_by in the trusted manifest (179.294667ms)
+  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (291.033584ms)
+✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (3356.884875ms)
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1395.025333ms)
+  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (177.636833ms)
+  ✔ T-008 resolves the baseline command against the committed implementation (329.215792ms)
+  ✔ T-008 stops at the first failing verification command in fail-fast mode (170.103125ms)
+  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3877.981125ms)
+  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (905.65625ms)
+  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (304.378042ms)
+  ✔ T-008 resolves a nested project’s protected paths from its committed policy (179.415417ms)
+  ✔ reports a failed lock release after saving a completed gate execution (185.257667ms)
+  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (201.913542ms)
+  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (358.446792ms)
+✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (8085.689083ms)
+ℹ tests 58
+ℹ suites 15
+ℹ pass 58
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8121.25425

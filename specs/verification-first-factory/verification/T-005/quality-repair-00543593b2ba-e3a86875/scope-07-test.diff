@@ -1,0 +1,39 @@
+diff --git a/tests/v2-formal-gate.test.mjs b/tests/v2-formal-gate.test.mjs
+index ec620162d..12f8749d9 100644
+--- a/tests/v2-formal-gate.test.mjs
++++ b/tests/v2-formal-gate.test.mjs
+@@ -534,6 +534,34 @@ it(
+         assert.match(replayModel, /Permitted \/\\ Acquire\(1\)/);
+       }
+     }
++    // Compare the same observation against both layouts accepted by TLC.
++    fs.writeFileSync(model, fs.readFileSync(model, 'utf8').replaceAll('UseLock', 'LOCK'));
++    const negative = path.join(projectRoot, 'Reservation.negative.cfg');
++    fs.writeFileSync(negative, fs.readFileSync(negative, 'utf8').replaceAll('UseLock', 'LOCK'));
++    const checkLayout = (assignment) => {
++      fs.writeFileSync(cfg, template.replace('CONSTANT UseLock = TRUE', assignment));
++      const baseline = spawnSync('java', ['-cp', process.env.TLA2TOOLS_JAR, 'tlc2.TLC',
++        '-workers', '1', '-config', cfg, model], { cwd: projectRoot, encoding: 'utf8' });
++      assert.equal(baseline.status, 0, baseline.stdout + baseline.stderr);
++      t.diagnostic('TLC baseline exit=0 ' + JSON.stringify(assignment));
++      return runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
++    };
++    const inline = checkLayout('CONSTANT LOCK = TRUE');
++    const multiline = checkLayout('CONSTANT\n  LOCK = TRUE');
++    for (const result of [inline, multiline]) {
++      assert.equal(result.status, 'PASS', result.errors?.join(' '));
++      assert.equal(result.checker.replay.violatedInvariant, 'TraceIncomplete');
++    }
++    for (const [directive, error] of [
++      ['PROPERTY Spec', /Unsupported baseline CFG directive/],
++      ['UNKNOWN_SECTION Spec', /Invalid baseline CFG CHECK_DEADLOCK/],
++    ]) {
++      fs.appendFileSync(cfg, directive + '\n');
++      const result = runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
++      assert.equal(result.status, 'FAIL');
++      assert.match(result.errors.join(' '), error);
++      fs.writeFileSync(cfg, template.replace('UseLock', 'LOCK'));
++    }
+   },
+ );
+ 
