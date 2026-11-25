@@ -16,6 +16,16 @@
 #     `check_structure` / `check_cross_references` extension points below.
 #     Later steps must not introduce a second output path.
 #
+# Issue #804 widened the structural pass to the whole of
+# contracts/domain-contract.v2.schema.json: every contract that schema rejects
+# is rejected here too, so this pre-publish check cannot pass a contract the
+# downstream Concept Test's schema check blocks. The schema's rules are
+# encoded below rather than read from contracts/ at run time, because an
+# installed plugin has no contracts/ directory (#812); tests/concept-test.tests.py
+# (DomainContractSchemaAgreementTests) keeps the encoding and the schema in
+# step. Scope record:
+# specs/sdd-domain-concept-contract/verification/addendum-804-full-schema-conformance.md
+#
 # No external dependency: a single python3 invocation using only the stdlib
 # `json` module. No external JSON-Schema engine of any kind, no network, and
 # no writes (design.md DD-4, INV-005, security-spec.md).
@@ -67,6 +77,33 @@ CONCEPT_NAME_PATTERN_TEXT = "^[A-Z][A-Za-z0-9]*$"
 CONCEPT_NAME_RE = re.compile(r"\A[A-Z][A-Za-z0-9]*\Z")
 CONTEXT_PATTERN_TEXT = "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
 CONTEXT_RE = re.compile(r"\A[a-z][a-z0-9]*(-[a-z0-9]+)*\Z")
+
+# The remaining patterns, enums and declared key sets of
+# contracts/domain-contract.v2.schema.json (issue #804). The boundedContext
+# name pattern is deliberately looser than CONTEXT_PATTERN_TEXT: the schema
+# declares the two separately, and a concept.context must satisfy both.
+# aggregate.name shares the concept-name PascalCase pattern. Keep every value
+# identical to its counterpart in the .ps1 twin.
+VERSION_PATTERN_TEXT = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+VERSION_RE = re.compile(r"\A[0-9]+\.[0-9]+\.[0-9]+\Z")
+CONTEXT_NAME_PATTERN_TEXT = "^[a-z][a-z0-9-]*$"
+CONTEXT_NAME_RE = re.compile(r"\A[a-z][a-z0-9-]*\Z")
+STATUS_VALUES = ("Pending", "Reviewed", "Approved")
+RELATION_PATTERN_VALUES = (
+    "partnership", "shared-kernel", "customer-supplier", "conformist",
+    "anticorruption-layer", "open-host-service", "published-language",
+    "separate-ways",
+)
+ROOT_KEYS = ("schema", "meta", "contexts", "concepts", "relations")
+META_KEYS = ("version", "status", "generated_from")
+CONTEXT_KEYS = ("name", "description", "terms", "aggregates")
+TERM_KEYS = ("canonical", "ja", "definition", "forbidden_synonyms", "concept_id")
+AGGREGATE_KEYS = ("name", "root_entity", "invariants", "transaction_boundary", "card")
+RELATION_KEYS = ("from", "to", "pattern", "note")
+CONCEPT_KEYS = ("id", "name", "context", "definition", "essence", "responsibilities",
+                "must_not_own", "stakeholder_perspectives", "distinguished_from", "evidence")
+PERSPECTIVE_KEYS = ("actor", "concern")
+DISTINCTION_KEYS = ("concept_id", "reasons")
 
 # The single violation accumulator. Every check appends `RULE-ID: message`
 # strings here; nothing writes to stderr directly. Exit status is 1 when this
@@ -172,6 +209,27 @@ def check_pattern(value, compiled, pattern_text, path, add_violation):
         )
 
 
+def check_enum(value, allowed, path, add_violation):
+    """enum: exact, case-sensitive membership."""
+    if value not in allowed:
+        add_violation(
+            "V2-ENUM",
+            "%s: value %s is not one of %s" % (path, safe(value), ", ".join(allowed)),
+        )
+
+
+def check_declared_keys(container, declared, path, add_violation):
+    """additionalProperties: false. Runs after the object's declared members,
+    and reports undeclared keys in document order."""
+    for key in container:
+        if key not in declared:
+            key_path = safe(key) if path == "" else "%s.%s" % (path, safe(key))
+            add_violation(
+                "V2-UNKNOWN-KEY",
+                "%s: key is not declared by the domain-contract/v2 schema" % key_path,
+            )
+
+
 def check_non_empty_string(value, path, add_violation):
     if len(value) == 0:
         add_violation(
@@ -180,8 +238,10 @@ def check_non_empty_string(value, path, add_violation):
         )
 
 
-def check_string_array(values, path, add_violation, min_items_one):
-    """minItems, then per-element type, then per-element minLength."""
+def check_string_array(values, path, add_violation, min_items_one,
+                       allow_empty_items=False):
+    """minItems, then per-element type, then per-element minLength (skipped
+    for the arrays whose items declare no minLength)."""
     if min_items_one and len(values) == 0:
         add_violation(
             "V2-EMPTY-ARRAY",
@@ -196,7 +256,8 @@ def check_string_array(values, path, add_violation, min_items_one):
                 "%s: expected string, found %s" % (item_path, json_type_name(item)),
             )
             continue
-        check_non_empty_string(item, item_path, add_violation)
+        if not allow_empty_items:
+            check_non_empty_string(item, item_path, add_violation)
 
 
 def check_object_array(values, path, add_violation, member_check):
@@ -216,7 +277,8 @@ def check_object_array(values, path, add_violation, member_check):
 
 
 def check_concept(concept, path, add_violation):
-    """One concepts[] element against requirements.md `## Field Definitions`."""
+    """One concepts[] element against the schema's `concept` (the rows of
+    requirements.md `## Field Definitions`, plus no undeclared key)."""
     value = check_member(concept, "id", "string", path + ".id", add_violation)
     if value is not None:
         check_pattern(value, CONCEPT_ID_RE, CONCEPT_ID_PATTERN_TEXT,
@@ -262,6 +324,7 @@ def check_concept(concept, path, add_violation):
                 text = check_member(entry, key, "string", field_path, add_violation)
                 if text is not None:
                     check_non_empty_string(text, field_path, add_violation)
+            check_declared_keys(entry, PERSPECTIVE_KEYS, entry_path, add_violation)
 
         check_object_array(value, member_path, add_violation, check_perspective)
 
@@ -280,48 +343,93 @@ def check_concept(concept, path, add_violation):
                                    add_violation)
             if reasons is not None:
                 check_string_array(reasons, reasons_path, add_violation, True)
+            check_declared_keys(entry, DISTINCTION_KEYS, entry_path, add_violation)
 
         check_object_array(value, member_path, add_violation, check_distinction)
 
+    check_declared_keys(concept, CONCEPT_KEYS, path, add_violation)
 
-def check_contexts(contexts, add_violation):
-    """The one member requirements.md `## Field Definitions` declares inside
-    the contexts subtree is `contexts[].terms[].concept_id` -- the v2 addition
-    (REQ-003). The v1-inherited boundedContext / term shape around it is
-    declared by the schema file but is outside this pass's authority table and
-    outside the Negative-path coverage matrix, so a non-conforming intermediate
-    is walked past here rather than reported."""
-    for index, entry in enumerate(contexts):
-        if not isinstance(entry, dict):
-            continue
-        terms = entry.get("terms")
-        if not isinstance(terms, list):
-            continue
-        for term_index, term in enumerate(terms):
-            if not isinstance(term, dict):
-                continue
-            if "concept_id" not in term:
-                continue
-            check_member(
-                term,
-                "concept_id",
-                "string",
-                "contexts[%d].terms[%d].concept_id" % (index, term_index),
-                add_violation,
-                required=False,
+
+def check_term(term, path, add_violation):
+    """One contexts[].terms[] element against the schema's `term`."""
+    for key in ("canonical", "ja", "definition"):
+        check_member(term, key, "string", "%s.%s" % (path, key), add_violation,
+                     required=key != "ja")
+    member_path = path + ".forbidden_synonyms"
+    value = check_member(term, "forbidden_synonyms", "array", member_path,
+                         add_violation, required=False)
+    if value is not None:
+        check_string_array(value, member_path, add_violation, False,
+                           allow_empty_items=True)
+    # Type only: the concept_id pattern (AC-022) and its resolution (AC-009)
+    # belong to check_cross_references, so the malformed and the dangling
+    # cases are told apart in one place.
+    check_member(term, "concept_id", "string", path + ".concept_id",
+                 add_violation, required=False)
+    check_declared_keys(term, TERM_KEYS, path, add_violation)
+
+
+def check_aggregate(aggregate, path, add_violation):
+    """One contexts[].aggregates[] element against the schema's `aggregate`."""
+    value = check_member(aggregate, "name", "string", path + ".name", add_violation)
+    if value is not None:
+        check_pattern(value, CONCEPT_NAME_RE, CONCEPT_NAME_PATTERN_TEXT,
+                      path + ".name", add_violation)
+    check_member(aggregate, "root_entity", "string", path + ".root_entity", add_violation)
+    member_path = path + ".invariants"
+    value = check_member(aggregate, "invariants", "array", member_path, add_violation)
+    if value is not None:
+        check_string_array(value, member_path, add_violation, True,
+                           allow_empty_items=True)
+    for key in ("transaction_boundary", "card"):
+        check_member(aggregate, key, "string", "%s.%s" % (path, key), add_violation)
+    check_declared_keys(aggregate, AGGREGATE_KEYS, path, add_violation)
+
+
+def check_context(context, path, add_violation):
+    """One contexts[] element against the schema's `boundedContext`."""
+    value = check_member(context, "name", "string", path + ".name", add_violation)
+    if value is not None:
+        check_pattern(value, CONTEXT_NAME_RE, CONTEXT_NAME_PATTERN_TEXT,
+                      path + ".name", add_violation)
+    check_member(context, "description", "string", path + ".description", add_violation)
+    for key, member_check in (("terms", check_term), ("aggregates", check_aggregate)):
+        member_path = "%s.%s" % (path, key)
+        value = check_member(context, key, "array", member_path, add_violation)
+        if value is not None:
+            check_object_array(
+                value, member_path, add_violation,
+                lambda entry, entry_path, member_check=member_check:
+                    member_check(entry, entry_path, add_violation),
             )
+    check_declared_keys(context, CONTEXT_KEYS, path, add_violation)
+
+
+def check_relation(relation, path, add_violation):
+    """One relations[] element against the schema's `contextRelation`."""
+    for key in ("from", "to"):
+        check_member(relation, key, "string", "%s.%s" % (path, key), add_violation)
+    value = check_member(relation, "pattern", "string", path + ".pattern", add_violation)
+    if value is not None:
+        check_enum(value, RELATION_PATTERN_VALUES, path + ".pattern", add_violation)
+    check_member(relation, "note", "string", path + ".note", add_violation,
+                 required=False)
+    check_declared_keys(relation, RELATION_KEYS, path, add_violation)
 
 
 def check_structure(document, add_violation):
     """REQ-004(c) -- JSON type conformance, then required-key presence, then
-    pattern, minLength and minItems; a value whose type does not conform is
-    recorded and then excluded from the later checks.
+    pattern, enum, minLength and minItems; a value whose type does not conform
+    is recorded and then excluded from the later checks. Undeclared keys are
+    reported after an object's declared members.
 
-    Owned by T-003. Appends through `add_violation` only: it does not write to
-    stderr and does not exit. Runs only after the document has been admitted as
+    Owned by T-003; widened by issue #804 from requirements.md `## Field
+    Definitions` to every rule of contracts/domain-contract.v2.schema.json.
+    Appends through `add_violation` only: it does not write to stderr and does
+    not exit. Runs only after the document has been admitted as
     domain-contract/v2 by the dispatch below. Rule ids: V2-TYPE-MISMATCH /
     V2-MISSING-KEY / V2-PATTERN / V2-EMPTY-ARRAY / V2-EMPTY-STRING (design.md
-    Error Handling).
+    Error Handling), plus V2-ENUM and V2-UNKNOWN-KEY (#804 addendum).
     """
     # `schema` is deliberately absent from this pass: admission has already
     # established that it is present, a string, and equal to domain-contract/v2,
@@ -329,15 +437,34 @@ def check_structure(document, add_violation):
     meta = check_member(document, "meta", "object", "meta", add_violation,
                         at_root=True)
     if meta is not None:
-        check_member(meta, "version", "string", "meta.version", add_violation)
-        check_member(meta, "status", "string", "meta.status", add_violation)
-        check_member(meta, "generated_from", "array", "meta.generated_from",
-                     add_violation)
+        value = check_member(meta, "version", "string", "meta.version", add_violation)
+        if value is not None:
+            check_pattern(value, VERSION_RE, VERSION_PATTERN_TEXT, "meta.version",
+                          add_violation)
+        value = check_member(meta, "status", "string", "meta.status", add_violation)
+        if value is not None:
+            check_enum(value, STATUS_VALUES, "meta.status", add_violation)
+        value = check_member(meta, "generated_from", "array", "meta.generated_from",
+                             add_violation)
+        if value is not None:
+            check_string_array(value, "meta.generated_from", add_violation, True,
+                               allow_empty_items=True)
+        check_declared_keys(meta, META_KEYS, "meta", add_violation)
 
     contexts = check_member(document, "contexts", "array", "contexts",
                             add_violation, at_root=True)
     if contexts is not None:
-        check_contexts(contexts, add_violation)
+        if len(contexts) == 0:
+            add_violation(
+                "V2-EMPTY-ARRAY",
+                "contexts: array is empty; at least one entry is required",
+            )
+        else:
+            check_object_array(
+                contexts, "contexts", add_violation,
+                lambda entry, entry_path: check_context(entry, entry_path,
+                                                        add_violation),
+            )
 
     concepts = check_member(document, "concepts", "array", "concepts",
                             add_violation, at_root=True)
@@ -357,6 +484,17 @@ def check_structure(document, add_violation):
                 lambda entry, entry_path: check_concept(entry, entry_path,
                                                         add_violation),
             )
+
+    relations = check_member(document, "relations", "array", "relations",
+                             add_violation, required=False)
+    if relations is not None:
+        check_object_array(
+            relations, "relations", add_violation,
+            lambda entry, entry_path: check_relation(entry, entry_path,
+                                                     add_violation),
+        )
+
+    check_declared_keys(document, ROOT_KEYS, "", add_violation)
 
 
 def reference_well_formed(value, path, add_violation):
@@ -410,8 +548,8 @@ def check_cross_references(document, add_violation):
     V2-DANGLING-TERM / V2-SELF-CONTRADICTION / V2-DUP-NAME-IN-CONTEXT, plus
     V2-PATTERN for a malformed reference (design.md Error Handling).
 
-    These six checks are why this validator exists rather than a JSON Schema
-    run: draft-07 cannot express referential integrity (DD-1, INV-003).
+    These six checks are what this validator adds on top of the schema:
+    draft-07 cannot express referential integrity (DD-1, INV-003).
     """
     concepts = document.get("concepts")
     contexts = document.get("contexts")

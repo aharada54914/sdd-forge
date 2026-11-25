@@ -97,8 +97,15 @@ jobs:
           # Publish nothing unless test.yml already passed on this exact commit;
           # release.yml re-checks it, but a failure there would leave an empty
           # Release behind that this workflow refuses to retry.
-          GREEN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${TARGET}&status=success&per_page=1" --jq '.total_count')"
-          if [ "${GREEN:-0}" -lt 1 ]; then
+          # Count only runs release.yml accepts: this exact commit, tested by a
+          # push to main or a manual dispatch (a PR run tests a synthetic merge).
+          GREEN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${TARGET}&status=success&per_page=100" \
+            --jq "[.workflow_runs[] | select(.head_sha == \"${TARGET}\" and .conclusion == \"success\" and ((.event == \"push\" and .head_branch == \"main\") or .event == \"workflow_dispatch\"))] | length")"
+          if [[ ! "$GREEN" =~ ^[0-9]+$ ]]; then
+            echo "could not count successful test.yml runs for ${TARGET}: ${GREEN}" >&2
+            exit 1
+          fi
+          if [ "$GREEN" -lt 1 ]; then
             echo "no successful test.yml run for ${TARGET} yet; wait for CI and dispatch again" >&2
             exit 1
           fi

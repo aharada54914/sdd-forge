@@ -686,13 +686,23 @@ function checkReviewTickets(projectRoot, feature, taskState) {
 }
 
 function checkOpenQuestionsGate(projectRoot, feature, taskState) {
-  const featureDir = path.join(projectRoot, 'specs', feature);
-  const reqPath = path.join(featureDir, 'requirements.md');
-  const designPath = path.join(featureDir, 'design.md');
-  const allOqs = mergeOpenQuestions(
-    fs.existsSync(reqPath) ? parseOpenQuestions(fs.readFileSync(reqPath, 'utf8')) : [],
-    fs.existsSync(designPath) ? parseOpenQuestions(fs.readFileSync(designPath, 'utf8')) : [],
-  );
+  const texts = [];
+  for (const name of ['requirements.md', 'design.md']) {
+    const rel = `specs/${feature}/${name}`;
+    // A spec path that cannot be read as a file fails this check. It is not an
+    // open-question block, so `blocking` (the OQ metric) stays false.
+    const unreadable = (error) => ({ passed: false, blocking: false, provisionalCount: 0, provisionalIds: [], error });
+    let stat;
+    try {
+      stat = fs.statSync(path.join(projectRoot, rel), { throwIfNoEntry: false });
+    } catch (err) {
+      return unreadable(`${rel} could not be read (${err.code || err.message})`);
+    }
+    if (!stat) continue;
+    if (!stat.isFile()) return unreadable(`${rel} is not a regular file`);
+    texts.push(fs.readFileSync(path.join(projectRoot, rel), 'utf8'));
+  }
+  const allOqs = mergeOpenQuestions(...texts.map((text) => parseOpenQuestions(text)));
   const targetTask = taskState.taskId.toUpperCase();
   const provisional = allOqs.filter((q) => {
     if (q.confirmed) return false;

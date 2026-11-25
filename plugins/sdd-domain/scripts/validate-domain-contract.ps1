@@ -15,6 +15,16 @@
 #     through the Invoke-StructureCheck / Invoke-CrossReferenceCheck extension
 #     points below. Later steps must not introduce a second output path.
 #
+# Issue #804 widened the structural pass to the whole of
+# contracts/domain-contract.v2.schema.json: every contract that schema rejects
+# is rejected here too, so this pre-publish check cannot pass a contract the
+# downstream Concept Test's schema check blocks. The schema's rules are
+# encoded below rather than read from contracts/ at run time, because an
+# installed plugin has no contracts/ directory (#812); tests/concept-test.tests.py
+# (DomainContractSchemaAgreementTests) keeps the encoding and the schema in
+# step. Scope record:
+# specs/sdd-domain-concept-contract/verification/addendum-804-full-schema-conformance.md
+#
 # PS5.1-safe by construction. Validity is decided by the hand-written strict
 # JSON scanner below (Test-StrictJsonText), which accepts exactly what the .sh
 # twin's python3 `json.loads` accepts; ConvertFrom-Json only BUILDS the object
@@ -61,6 +71,32 @@ $ConceptNamePatternText = '^[A-Z][A-Za-z0-9]*$'
 $ConceptNameMatchPattern = '\A[A-Z][A-Za-z0-9]*\z'
 $ContextPatternText = '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
 $ContextMatchPattern = '\A[a-z][a-z0-9]*(-[a-z0-9]+)*\z'
+
+# The remaining patterns, enums and declared key sets of
+# contracts/domain-contract.v2.schema.json (issue #804). The boundedContext
+# name pattern is deliberately looser than $ContextPatternText: the schema
+# declares the two separately, and a concept.context must satisfy both.
+# aggregate.name shares the concept-name PascalCase pattern. Enum and key
+# membership is ordinal (Test-OrdinalMember), never -contains / -in, which
+# compare case-insensitively. Keep every value identical to its counterpart
+# in the .sh twin.
+$VersionPatternText = '^[0-9]+\.[0-9]+\.[0-9]+$'
+$VersionMatchPattern = '\A[0-9]+\.[0-9]+\.[0-9]+\z'
+$ContextNamePatternText = '^[a-z][a-z0-9-]*$'
+$ContextNameMatchPattern = '\A[a-z][a-z0-9-]*\z'
+$StatusValues = @('Pending', 'Reviewed', 'Approved')
+$RelationPatternValues = @('partnership', 'shared-kernel', 'customer-supplier', 'conformist',
+    'anticorruption-layer', 'open-host-service', 'published-language', 'separate-ways')
+$RootKeys = @('schema', 'meta', 'contexts', 'concepts', 'relations')
+$MetaKeys = @('version', 'status', 'generated_from')
+$ContextKeys = @('name', 'description', 'terms', 'aggregates')
+$TermKeys = @('canonical', 'ja', 'definition', 'forbidden_synonyms', 'concept_id')
+$AggregateKeys = @('name', 'root_entity', 'invariants', 'transaction_boundary', 'card')
+$RelationKeys = @('from', 'to', 'pattern', 'note')
+$ConceptKeys = @('id', 'name', 'context', 'definition', 'essence', 'responsibilities',
+    'must_not_own', 'stakeholder_perspectives', 'distinguished_from', 'evidence')
+$PerspectiveKeys = @('actor', 'concern')
+$DistinctionKeys = @('concept_id', 'reasons')
 
 # The single violation accumulator. Every check appends `RULE-ID: message`
 # strings here; nothing writes to stderr directly. Exit status is 1 when this
@@ -247,6 +283,41 @@ function Test-DeclaredPattern {
     }
 }
 
+function Test-OrdinalMember {
+    param([string]$Value, [string[]]$Allowed)
+    foreach ($candidate in $Allowed) {
+        if ([string]::Equals($Value, $candidate, [StringComparison]::Ordinal)) { return $true }
+    }
+    return $false
+}
+
+function Test-DeclaredEnum {
+    # enum: exact, case-sensitive membership.
+    param([string]$Value, [string[]]$Allowed, [string]$Path)
+    if (-not (Test-OrdinalMember -Value $Value -Allowed $Allowed)) {
+        Add-Violation 'V2-ENUM' ($Path + ': value ' + (ConvertTo-SafeText $Value) + ' is not one of ' + ($Allowed -join ', '))
+    }
+}
+
+function Test-DeclaredKeys {
+    # additionalProperties: false. Runs after the object's declared members,
+    # and reports undeclared keys in document order.
+    param($Container, [string[]]$Declared, [string]$Path)
+    foreach ($property in $Container.PSObject.Properties) {
+        if (Test-OrdinalMember -Value $property.Name -Allowed $Declared) { continue }
+        $keyPath = ConvertTo-SafeText $property.Name
+        if ($Path.Length -gt 0) { $keyPath = $Path + '.' + $keyPath }
+        Add-Violation 'V2-UNKNOWN-KEY' ($keyPath + ': key is not declared by the domain-contract/v2 schema')
+    }
+}
+
+function Test-ArrayElementIsObject {
+    param($Entry, [string]$EntryPath)
+    if (Test-IsJsonObject $Entry) { return $true }
+    Add-Violation 'V2-TYPE-MISMATCH' ($EntryPath + ': expected object, found ' + (Get-JsonTypeName -Value $Entry -RawText $null))
+    return $false
+}
+
 function Test-DeclaredNonEmptyString {
     param([string]$Value, [string]$Path)
     if ($Value.Length -eq 0) {
@@ -255,8 +326,9 @@ function Test-DeclaredNonEmptyString {
 }
 
 function Test-DeclaredStringArray {
-    # minItems, then per-element type, then per-element minLength.
-    param($Values, [string]$Path, [switch]$MinItemsOne)
+    # minItems, then per-element type, then per-element minLength (skipped for
+    # the arrays whose items declare no minLength).
+    param($Values, [string]$Path, [switch]$MinItemsOne, [switch]$AllowEmptyItems)
     if ($MinItemsOne -and $Values.Count -eq 0) {
         Add-Violation 'V2-EMPTY-ARRAY' ($Path + ': array is empty; at least one entry is required')
         return
@@ -268,12 +340,15 @@ function Test-DeclaredStringArray {
             Add-Violation 'V2-TYPE-MISMATCH' ($itemPath + ': expected string, found ' + (Get-JsonTypeName -Value $item -RawText $null))
             continue
         }
-        Test-DeclaredNonEmptyString -Value $item -Path $itemPath
+        if (-not $AllowEmptyItems) {
+            Test-DeclaredNonEmptyString -Value $item -Path $itemPath
+        }
     }
 }
 
 function Test-ConceptStructure {
-    # One concepts[] element against requirements.md `## Field Definitions`.
+    # One concepts[] element against the schema's `concept` (the rows of
+    # requirements.md `## Field Definitions`, plus no undeclared key).
     param($Concept, [string]$Path)
 
     if (Test-DeclaredMember -Container $Concept -Name 'id' -Expected 'string' -Path ($Path + '.id')) {
@@ -326,6 +401,7 @@ function Test-ConceptStructure {
                     Test-DeclaredNonEmptyString -Value (Get-ContractValue $entry $key) -Path $fieldPath
                 }
             }
+            Test-DeclaredKeys -Container $entry -Declared $PerspectiveKeys -Path $entryPath
         }
     }
 
@@ -347,45 +423,101 @@ function Test-ConceptStructure {
             if (Test-DeclaredMember -Container $entry -Name 'reasons' -Expected 'array' -Path $reasonsPath) {
                 Test-DeclaredStringArray -Values (Get-ContractValue $entry 'reasons') -Path $reasonsPath -MinItemsOne
             }
+            Test-DeclaredKeys -Container $entry -Declared $DistinctionKeys -Path $entryPath
         }
     }
+
+    Test-DeclaredKeys -Container $Concept -Declared $ConceptKeys -Path $Path
 }
 
-function Test-ContextsStructure {
-    # The one member requirements.md `## Field Definitions` declares inside the
-    # contexts subtree is `contexts[].terms[].concept_id` -- the v2 addition
-    # (REQ-003). The v1-inherited boundedContext / term shape around it is
-    # declared by the schema file but is outside this pass's authority table and
-    # outside the Negative-path coverage matrix, so a non-conforming
-    # intermediate is walked past here rather than reported.
-    param($Contexts)
-    for ($index = 0; $index -lt $Contexts.Count; $index++) {
-        $entry = $Contexts[$index]
-        if (-not (Test-IsJsonObject $entry)) { continue }
-        if (-not (Test-ContractMemberPresent $entry 'terms')) { continue }
-        $terms = Get-ContractValue $entry 'terms'
-        if ($terms -is [string]) { continue }
-        if (-not ($terms -is [System.Collections.IList])) { continue }
-        for ($termIndex = 0; $termIndex -lt $terms.Count; $termIndex++) {
-            $term = $terms[$termIndex]
-            if (-not (Test-IsJsonObject $term)) { continue }
-            if (-not (Test-ContractMemberPresent $term 'concept_id')) { continue }
-            [void](Test-DeclaredMember -Container $term -Name 'concept_id' -Expected 'string' `
-                -Path ('contexts[{0}].terms[{1}].concept_id' -f $index, $termIndex) -Optional)
+function Test-TermStructure {
+    # One contexts[].terms[] element against the schema's `term`.
+    param($Term, [string]$Path)
+    foreach ($key in @('canonical', 'ja', 'definition')) {
+        [void](Test-DeclaredMember -Container $Term -Name $key -Expected 'string' -Path ($Path + '.' + $key) `
+            -Optional:([string]::Equals($key, 'ja', [StringComparison]::Ordinal)))
+    }
+    $memberPath = $Path + '.forbidden_synonyms'
+    if (Test-DeclaredMember -Container $Term -Name 'forbidden_synonyms' -Expected 'array' -Path $memberPath -Optional) {
+        Test-DeclaredStringArray -Values (Get-ContractValue $Term 'forbidden_synonyms') -Path $memberPath -AllowEmptyItems
+    }
+    # Type only: the concept_id pattern (AC-022) and its resolution (AC-009)
+    # belong to Invoke-CrossReferenceCheck, so the malformed and the dangling
+    # cases are told apart in one place.
+    [void](Test-DeclaredMember -Container $Term -Name 'concept_id' -Expected 'string' -Path ($Path + '.concept_id') -Optional)
+    Test-DeclaredKeys -Container $Term -Declared $TermKeys -Path $Path
+}
+
+function Test-AggregateStructure {
+    # One contexts[].aggregates[] element against the schema's `aggregate`.
+    param($Aggregate, [string]$Path)
+    if (Test-DeclaredMember -Container $Aggregate -Name 'name' -Expected 'string' -Path ($Path + '.name')) {
+        Test-DeclaredPattern -Value (Get-ContractValue $Aggregate 'name') `
+            -MatchPattern $ConceptNameMatchPattern -PatternText $ConceptNamePatternText -Path ($Path + '.name')
+    }
+    [void](Test-DeclaredMember -Container $Aggregate -Name 'root_entity' -Expected 'string' -Path ($Path + '.root_entity'))
+    $memberPath = $Path + '.invariants'
+    if (Test-DeclaredMember -Container $Aggregate -Name 'invariants' -Expected 'array' -Path $memberPath) {
+        Test-DeclaredStringArray -Values (Get-ContractValue $Aggregate 'invariants') -Path $memberPath -MinItemsOne -AllowEmptyItems
+    }
+    foreach ($key in @('transaction_boundary', 'card')) {
+        [void](Test-DeclaredMember -Container $Aggregate -Name $key -Expected 'string' -Path ($Path + '.' + $key))
+    }
+    Test-DeclaredKeys -Container $Aggregate -Declared $AggregateKeys -Path $Path
+}
+
+function Test-ContextStructure {
+    # One contexts[] element against the schema's `boundedContext`.
+    param($Context, [string]$Path)
+    if (Test-DeclaredMember -Container $Context -Name 'name' -Expected 'string' -Path ($Path + '.name')) {
+        Test-DeclaredPattern -Value (Get-ContractValue $Context 'name') `
+            -MatchPattern $ContextNameMatchPattern -PatternText $ContextNamePatternText -Path ($Path + '.name')
+    }
+    [void](Test-DeclaredMember -Container $Context -Name 'description' -Expected 'string' -Path ($Path + '.description'))
+    foreach ($key in @('terms', 'aggregates')) {
+        $memberPath = $Path + '.' + $key
+        if (-not (Test-DeclaredMember -Container $Context -Name $key -Expected 'array' -Path $memberPath)) { continue }
+        $entries = Get-ContractValue $Context $key
+        for ($index = 0; $index -lt $entries.Count; $index++) {
+            $entryPath = ('{0}[{1}]' -f $memberPath, $index)
+            $entry = $entries[$index]
+            if (-not (Test-ArrayElementIsObject -Entry $entry -EntryPath $entryPath)) { continue }
+            if ([string]::Equals($key, 'terms', [StringComparison]::Ordinal)) {
+                Test-TermStructure -Term $entry -Path $entryPath
+            } else {
+                Test-AggregateStructure -Aggregate $entry -Path $entryPath
+            }
         }
     }
+    Test-DeclaredKeys -Container $Context -Declared $ContextKeys -Path $Path
+}
+
+function Test-RelationStructure {
+    # One relations[] element against the schema's `contextRelation`.
+    param($Relation, [string]$Path)
+    foreach ($key in @('from', 'to')) {
+        [void](Test-DeclaredMember -Container $Relation -Name $key -Expected 'string' -Path ($Path + '.' + $key))
+    }
+    if (Test-DeclaredMember -Container $Relation -Name 'pattern' -Expected 'string' -Path ($Path + '.pattern')) {
+        Test-DeclaredEnum -Value (Get-ContractValue $Relation 'pattern') -Allowed $RelationPatternValues -Path ($Path + '.pattern')
+    }
+    [void](Test-DeclaredMember -Container $Relation -Name 'note' -Expected 'string' -Path ($Path + '.note') -Optional)
+    Test-DeclaredKeys -Container $Relation -Declared $RelationKeys -Path $Path
 }
 
 function Invoke-StructureCheck {
     # REQ-004(c) -- JSON type conformance, then required-key presence, then
-    # pattern, minLength and minItems; a value whose type does not conform is
-    # recorded and then excluded from the later checks.
+    # pattern, enum, minLength and minItems; a value whose type does not
+    # conform is recorded and then excluded from the later checks. Undeclared
+    # keys are reported after an object's declared members.
     #
-    # Owned by T-003. Appends through Add-Violation only: it does not write to
-    # stderr and does not exit. Runs only after the document has been admitted
-    # as domain-contract/v2 by the dispatch below. Rule ids: V2-TYPE-MISMATCH /
+    # Owned by T-003; widened by issue #804 from requirements.md `## Field
+    # Definitions` to every rule of contracts/domain-contract.v2.schema.json.
+    # Appends through Add-Violation only: it does not write to stderr and does
+    # not exit. Runs only after the document has been admitted as
+    # domain-contract/v2 by the dispatch below. Rule ids: V2-TYPE-MISMATCH /
     # V2-MISSING-KEY / V2-PATTERN / V2-EMPTY-ARRAY / V2-EMPTY-STRING (design.md
-    # Error Handling).
+    # Error Handling), plus V2-ENUM and V2-UNKNOWN-KEY (#804 addendum).
     param($Document)
 
     # `schema` is deliberately absent from this pass: admission has already
@@ -393,13 +525,31 @@ function Invoke-StructureCheck {
     # so re-checking it here would emit that violation twice.
     if (Test-DeclaredMember -Container $Document -Name 'meta' -Expected 'object' -Path 'meta' -AtRoot) {
         $meta = Get-ContractValue $Document 'meta'
-        [void](Test-DeclaredMember -Container $meta -Name 'version' -Expected 'string' -Path 'meta.version')
-        [void](Test-DeclaredMember -Container $meta -Name 'status' -Expected 'string' -Path 'meta.status')
-        [void](Test-DeclaredMember -Container $meta -Name 'generated_from' -Expected 'array' -Path 'meta.generated_from')
+        if (Test-DeclaredMember -Container $meta -Name 'version' -Expected 'string' -Path 'meta.version') {
+            Test-DeclaredPattern -Value (Get-ContractValue $meta 'version') `
+                -MatchPattern $VersionMatchPattern -PatternText $VersionPatternText -Path 'meta.version'
+        }
+        if (Test-DeclaredMember -Container $meta -Name 'status' -Expected 'string' -Path 'meta.status') {
+            Test-DeclaredEnum -Value (Get-ContractValue $meta 'status') -Allowed $StatusValues -Path 'meta.status'
+        }
+        if (Test-DeclaredMember -Container $meta -Name 'generated_from' -Expected 'array' -Path 'meta.generated_from') {
+            Test-DeclaredStringArray -Values (Get-ContractValue $meta 'generated_from') -Path 'meta.generated_from' -MinItemsOne -AllowEmptyItems
+        }
+        Test-DeclaredKeys -Container $meta -Declared $MetaKeys -Path 'meta'
     }
 
     if (Test-DeclaredMember -Container $Document -Name 'contexts' -Expected 'array' -Path 'contexts' -AtRoot) {
-        Test-ContextsStructure -Contexts (Get-ContractValue $Document 'contexts')
+        $contexts = Get-ContractValue $Document 'contexts'
+        if ($contexts.Count -eq 0) {
+            Add-Violation 'V2-EMPTY-ARRAY' 'contexts: array is empty; at least one entry is required'
+        } else {
+            for ($index = 0; $index -lt $contexts.Count; $index++) {
+                $contextPath = ('contexts[{0}]' -f $index)
+                $context = $contexts[$index]
+                if (-not (Test-ArrayElementIsObject -Entry $context -EntryPath $contextPath)) { continue }
+                Test-ContextStructure -Context $context -Path $contextPath
+            }
+        }
     }
 
     if (Test-DeclaredMember -Container $Document -Name 'concepts' -Expected 'array' -Path 'concepts' -AtRoot) {
@@ -420,6 +570,18 @@ function Invoke-StructureCheck {
             }
         }
     }
+
+    if (Test-DeclaredMember -Container $Document -Name 'relations' -Expected 'array' -Path 'relations' -Optional) {
+        $relations = Get-ContractValue $Document 'relations'
+        for ($index = 0; $index -lt $relations.Count; $index++) {
+            $relationPath = ('relations[{0}]' -f $index)
+            $relation = $relations[$index]
+            if (-not (Test-ArrayElementIsObject -Entry $relation -EntryPath $relationPath)) { continue }
+            Test-RelationStructure -Relation $relation -Path $relationPath
+        }
+    }
+
+    Test-DeclaredKeys -Container $Document -Declared $RootKeys -Path ''
 }
 
 function Test-ReferenceWellFormed {
@@ -496,8 +658,8 @@ function Invoke-CrossReferenceCheck {
     # V2-DANGLING-TERM / V2-SELF-CONTRADICTION / V2-DUP-NAME-IN-CONTEXT, plus
     # V2-PATTERN for a malformed reference (design.md Error Handling).
     #
-    # These six checks are why this validator exists rather than a JSON Schema
-    # run: draft-07 cannot express referential integrity (DD-1, INV-003).
+    # These six checks are what this validator adds on top of the schema:
+    # draft-07 cannot express referential integrity (DD-1, INV-003).
     param($Document)
 
     $concepts = Get-JsonArrayMember -Object $Document -Name 'concepts'

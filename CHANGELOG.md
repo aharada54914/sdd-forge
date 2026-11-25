@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.1.5 (2026-11-25)
+
+### Fixed
+
+- **ドメイン契約の発行前検査（Closes #804）**: `validate-domain-contract.sh` / `.ps1` が `contracts/domain-contract.v2.schema.json` の全規則を検査する。`aggregates` のない context、`meta.status` の列挙外の値（`approved` など大文字小文字違いを含む）、`meta.version` の形式違反、宣言されていないキーなどを、Concept Test のスキーマ検査と同じく拒否する。新しい規則 ID は `V2-ENUM` と `V2-UNKNOWN-KEY`。範囲の変更は `specs/sdd-domain-concept-contract/verification/addendum-804-full-schema-conformance.md` に記録した。
+- **仕様ファイルがディレクトリの場合のゲート**: `requirements.md` / `design.md` の位置にディレクトリがあると、ゲートが EISDIR で判定を出さずに停止していた。ファイル名を示して `FAIL` にする。
+- **リリース前の CI 合格確認**: `publish-release.yml` は、`release.yml` と同じ条件（同じコミットを main への push または手動実行で検査した成功）だけを数え、件数が数値でなければ停止する。PR の CI（一時的なマージを検査）は数えない。
+
 ## v2.1.4 (2026-11-25)
 
 ### Fixed
