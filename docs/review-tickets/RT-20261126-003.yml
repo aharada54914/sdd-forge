@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-003
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -14,3 +14,7 @@ expected_fix:
   - "Match native behavior for trailing prose and preserve failures inside the TLA+ module."
 references:
   - reports/quality-gate/verification-first-factory-T-005.md
+resolution:
+  commit: f90ecd1ce
+  result: "Strict replay reports the unreachable observed step. Native and projected models agree on text after the module terminator."
+  evidence: reports/implementation/verification-first-factory/T-005.md
