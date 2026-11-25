@@ -554,10 +554,17 @@ function checkOpenQuestionsGate(projectRoot, feature, taskState) {
   const texts = [];
   for (const name of ['requirements.md', 'design.md']) {
     const rel = `specs/${feature}/${name}`;
-    const stat = fs.statSync(path.join(projectRoot, rel), { throwIfNoEntry: false });
+    // A spec path that cannot be read as a file fails this check. It is not an
+    // open-question block, so `blocking` (the OQ metric) stays false.
+    const unreadable = (error) => ({ passed: false, blocking: false, provisionalCount: 0, provisionalIds: [], error });
+    let stat;
+    try {
+      stat = fs.statSync(path.join(projectRoot, rel), { throwIfNoEntry: false });
+    } catch (err) {
+      return unreadable(`${rel} could not be read (${err.code || err.message})`);
+    }
     if (!stat) continue;
-    // A spec path that is not a file cannot be checked for open questions.
-    if (!stat.isFile()) return { passed: false, blocking: true, provisionalCount: 0, provisionalIds: [], error: `${rel} is not a regular file` };
+    if (!stat.isFile()) return unreadable(`${rel} is not a regular file`);
     texts.push(fs.readFileSync(path.join(projectRoot, rel), 'utf8'));
   }
   const allOqs = mergeOpenQuestions(...texts.map((text) => parseOpenQuestions(text)));
