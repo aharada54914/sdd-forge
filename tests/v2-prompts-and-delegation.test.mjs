@@ -720,3 +720,34 @@ describe('#811 the v1 domain-review precheck is optional and its placement limit
     assert.match(row, /版別キャッシュ/);
   });
 });
+
+describe('#848 domain-conformance findings are opt-in in v2, and "not run" differs from zero', () => {
+  it('the contract and ADR do not claim the gate runs the check; retro and template tell N/A from 0', () => {
+    const contracts = fs.readFileSync(path.join(REPO_ROOT, 'PLUGIN-CONTRACTS.md'), 'utf8');
+    const conformance = contracts.split('\n').filter((l) => /check-domain-conformance|DOMAIN-CONFORMANCE/.test(l)).join('\n');
+    assert.doesNotMatch(conformance, /deterministic gate/, 'v2 sdd-gate does not run the check');
+    assert.match(contracts, /does not run\s+`check-domain-conformance`/);
+    const adr = fs.readFileSync(path.join(REPO_ROOT, 'docs/adr/0015-ddd-upstream-domain-lane.md'), 'utf8');
+    assert.match(adr, /Status note, v2: the v2 `sdd-gate` does not run\s+`check-domain-conformance`/);
+    const retro = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md'), 'utf8');
+    assert.match(retro, /`N\/A`[^\n]*未実行/);
+    const template = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/templates/retrospective-report.template.md'), 'utf8');
+    assert.match(template, /N\/A[^\n]*not run/);
+    assert.match(template, /0[^\n]*ran with no findings|ran with no findings[^\n]*0/);
+  });
+});
+
+describe('#803 approving the domain model also publishes the contract', () => {
+  it('every place that tells a human how to approve names the contract publication step', () => {
+    const read = (rel) => fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+    // Approving only context-map.md leaves domain-contract.json Pending, and the
+    // Concept Test then stops with "domain model must be approved".
+    const template = read('plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md');
+    assert.match(template, /publish(es|ing)? the domain contract/i);
+    assert.match(template, /domain-review-loop/);
+    assert.doesNotMatch(template, /signed off by editing this line directly\)/);
+    for (const rel of ['plugins/sdd-domain/skills/domain-interviewer/SKILL.md', 'plugins/sdd-domain/GEMINI.md']) {
+      assert.match(read(rel), /人による承認と契約の発行/, rel);
+    }
+  });
+});

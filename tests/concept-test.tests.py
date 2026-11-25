@@ -248,6 +248,17 @@ class ConceptTests(unittest.TestCase):
             self.assertEqual(1, concept.main())
         self.assertEqual('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved\n', stderr.getvalue())
 
+    def test_validator_timeout_blocks_without_leaking_absolute_paths(self):
+        leaked = str(self.root / 'domain-contract.json')
+        def slow(*_args, **_kwargs):
+            raise subprocess.TimeoutExpired(['bash', leaked], 30)
+        stderr = io.StringIO()
+        argv = ['validate-concept-test.py', '--root', str(self.root), '--feature', 'example']
+        with mock.patch.object(concept, 'validate', slow), mock.patch.object(sys, 'argv', argv), \
+                contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(1, concept.main())
+        self.assertEqual('concept-test: BLOCK: the domain contract validator did not finish\n', stderr.getvalue())
+
     def test_keyless_absent_stale_invalid_or_mixed_decisions_block(self):
         path = self.local_proposal()
         self.gate(1)
@@ -315,7 +326,7 @@ class ConceptTests(unittest.TestCase):
         self.assertEqual('rejected', json.loads(prior)['decision'])
         lock = path.with_suffix('.lock')
         lock.touch()
-        with self.assertRaises(FileExistsError):
+        with self.assertRaisesRegex(ValueError, 'a confirmation lock is held: specs/example/'):
             self.local_confirmation('proceed')
         self.assertTrue(lock.exists())
         lock.unlink()

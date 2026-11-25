@@ -34,7 +34,9 @@ artifacts plus a machine-readable `domain/domain-contract.json`
 hook-guard-protected approval (`Domain-Model-Status: Approved`). Downstream,
 `domain-sync` injects approved context/terms into bootstrap Phase 1 and
 `check-domain-conformance` runs at quality-gate as warn, escalating to error
-two releases later by human edit. Absence of `domain/` disables the lane
+two releases later by human edit. (Status note, v2: the v2 `sdd-gate` does not run
+`check-domain-conformance`; it is an opt-in standalone check whose output a
+project records in the quality-gate report, #848.) Absence of `domain/` disables the lane
 entirely. Input modes: interview, existing documents, and reverse-generation
 from code via investigate-codebase.
 

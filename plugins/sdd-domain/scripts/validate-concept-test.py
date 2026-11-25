@@ -225,7 +225,11 @@ def confirm(root, feature):
                 raise ValueError('inputs or the prior decision changed during confirmation')
 
     check_unchanged(observed)
-    owner = lock.open('x')
+    try:
+        owner = lock.open('x')
+    except FileExistsError:
+        raise ValueError('a confirmation lock is held: ' + Path(decision_path).with_suffix('.lock').as_posix()
+                         + '; remove it only when no other confirmation is running') from None
     try:
         with tempfile.TemporaryDirectory(dir=dest.parent) as staging:
             temporary = Path(staging) / 'decision.json'
@@ -274,11 +278,15 @@ def main():
     except (EOFError, KeyboardInterrupt):
         print('concept-test: BLOCK: confirmation cancelled', file=sys.stderr)
         return 1
+    except subprocess.SubprocessError:
+        # str() of a timeout carries the validator's absolute command line.
+        print('concept-test: BLOCK: the domain contract validator did not finish', file=sys.stderr)
+        return 1
     except OSError:
         # str(OSError) carries absolute paths; keep main's fixed wording.
         print('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved', file=sys.stderr)
         return 1
-    except (ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError, auth.ValidateApprovalSidecarError) as error:
+    except (ValueError, KeyError, TypeError, UnicodeError, auth.ValidateApprovalSidecarError) as error:
         print('concept-test: BLOCK: ' + str(error), file=sys.stderr)
         return 1
 

@@ -7,7 +7,9 @@ half runs only where pwsh is installed.
 """
 
 import hashlib
+import hmac
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -45,6 +47,8 @@ class Fixture:
                 "evidence": "qg/" + log.name,
             })
         self.bundle = {"task_id": "T-1", "feature": "foo"}
+        self.extra_artifacts = []
+        self.extra_files = {}
         git = ["git", "-C", str(self.root)]
         subprocess.run(git + ["init", "-q"], check=True)
         (self.root / "README").write_text("fixture\n", encoding="utf-8")
@@ -62,11 +66,16 @@ class Fixture:
         contract.write_text(json.dumps(self.contract), encoding="utf-8")
         paths = [self.report_name, self.contract_name]
         paths += [c["evidence"] for c in self.contract["checks"]]
+        artifacts = [{"path": p, "sha256": sha(self.root / p)} for p in paths]
+        artifacts += [{"path": p, "sha256": "0" * 64} for p in self.extra_artifacts]
+        for name, text in self.extra_files.items():
+            (self.root / name).write_text(text, encoding="utf-8")
+            artifacts.append({"path": name, "sha256": sha(self.root / name)})
         bundle = {
             "quality_report": self.report_name,
             "verification_contract": self.contract_name,
             "git_commit": self.commit,
-            "artifacts": [{"path": p, "sha256": sha(self.root / p)} for p in paths],
+            "artifacts": artifacts,
         }
         bundle.update(self.bundle)
         path = self.root / self.bundle_name
@@ -85,9 +94,26 @@ def run_ps1(bundle, root, cwd):
 
 
 def runners():
+    """The .ps1 runner is None without pwsh, so each test reports that half as skipped."""
     yield "sh", run_sh
-    if PWSH:
-        yield "ps1", run_ps1
+    yield "ps1", run_ps1 if PWSH else None
+
+
+def canonical(bundle, order="code-point"):
+    """Mirror of the v1 signers: Python sorted by code point, PowerShell by UTF-16 unit."""
+    def s(v):
+        return str(v if v is not None else "").strip()
+    key = (lambda p: p.encode("utf-16-be")) if order == "utf-16" else None
+    pairs = sorted((str(a.get("path", "")).strip() + "\x00" + str(a.get("sha256", "")).strip().lower()
+                    for a in bundle.get("artifacts") or []), key=key)
+    digest = hashlib.sha256("\n".join(pairs).encode("utf-8")).hexdigest()
+    rv = bundle.get("review_verdict")
+    return "\n".join([
+        "sdd-evidence-v1", s(bundle.get("task_id")), s(bundle.get("feature")), s(bundle.get("risk")),
+        s(bundle.get("required_workflow")), s(bundle.get("spec_revision")), s(bundle.get("git_commit")),
+        "true" if bundle.get("git_generated_dirty") is True else "false",
+        str(rv.get("verdict", "")).strip() if isinstance(rv, dict) else "", digest,
+    ])
 
 
 class BaselineTests(unittest.TestCase):
@@ -97,6 +123,8 @@ class BaselineTests(unittest.TestCase):
             bundle = fx.write()
             for name, run in runners():
                 with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
                     result = run(bundle, fx.root, fx.root)
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -106,6 +134,8 @@ class BaselineTests(unittest.TestCase):
             bundle = fx.write()
             for name, run in runners():
                 with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
                     result = run(bundle, "repo", base)
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -120,6 +150,8 @@ class MisCasedInputTests(unittest.TestCase):
             bundle = fx.write()
             for name, run in runners():
                 with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
                     result = run(bundle, fx.root, fx.root)
                     self.assertNotEqual(result.returncode, 0, result.stdout)
                     self.assertIn(message, result.stdout + result.stderr)
@@ -190,8 +222,86 @@ class MisCasedInputTests(unittest.TestCase):
             bundle = fx.write()
             for name, run in runners():
                 with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
                     result = run(bundle, fx.root, fx.root)
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class StrictValueTests(unittest.TestCase):
+    """Values the Python checker reads strictly; the .ps1 port must not coerce them."""
+
+    def assert_absent(self, mutate, message, sign=False, order="code-point"):
+        with tempfile.TemporaryDirectory() as base:
+            fx = Fixture(base)
+            mutate(fx)
+            bundle = fx.write()
+            if sign:
+                data = json.loads(bundle.read_text(encoding="utf-8"))
+                data["signature"]["value"] = hmac.new(b"parity-key", canonical(data, order).encode("utf-8"),
+                                                      hashlib.sha256).hexdigest()
+                bundle.write_text(json.dumps(data), encoding="utf-8")
+            for name, run in runners():
+                with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
+                    result = run(bundle, fx.root, fx.root)
+                    # The final verdict line proves the checker ran to the end.
+                    self.assertIn("Evidence bundle FAILED for task T-1:", result.stdout)
+                    self.assertNotIn(message, result.stdout + result.stderr)
+
+    @staticmethod
+    def critical(fx, dirty):
+        fx.contract["risk"] = "critical"
+        fx.bundle.update({
+            "risk": "critical", "spec_revision": "a" * 64, "build_env": {"os": "linux"},
+            "review_verdict": {"verdict": "PASS"}, "git_generated_dirty": dirty,
+            "signature": {"alg": "hmac-sha256", "value": "00"},
+        })
+
+    def test_string_true_is_not_a_dirty_tree(self):
+        self.assert_absent(lambda fx: self.critical(fx, "true"), "dirty working tree")
+
+    def test_string_false_signs_as_clean(self):
+        os.environ["SDD_EVIDENCE_KEY"] = "parity-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        for message in ("HMAC mismatch", "cannot be verified", "null-valued"):
+            self.assert_absent(lambda fx: self.critical(fx, "false"), message, sign=True)
+
+    def test_either_v1_signer_order_verifies_on_both_runners(self):
+        # U+E000 sorts before U+1F4C4 by code point but after it by UTF-16 unit.
+        os.environ["SDD_EVIDENCE_KEY"] = "parity-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        def mutate(fx):
+            self.critical(fx, False)
+            fx.extra_files = {"\ue000.txt": "private use\n", "\U0001f4c4.txt": "page\n"}
+        for order in ("code-point", "utf-16"):
+            with self.subTest(order=order):
+                self.assert_absent(mutate, "HMAC mismatch", sign=True, order=order)
+
+    def test_wrong_key_still_fails_the_signature(self):
+        os.environ["SDD_EVIDENCE_KEY"] = "another-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        with tempfile.TemporaryDirectory() as base:
+            fx = Fixture(base)
+            self.critical(fx, True)
+            bundle = fx.write()
+            data = json.loads(bundle.read_text(encoding="utf-8"))
+            data["signature"]["value"] = hmac.new(b"parity-key", canonical(data).encode("utf-8"),
+                                                  hashlib.sha256).hexdigest()
+            bundle.write_text(json.dumps(data), encoding="utf-8")
+            for name, run in runners():
+                with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
+                    output = run(bundle, fx.root, fx.root).stdout
+                    self.assertIn("critical bundle signature is invalid (HMAC mismatch)", output)
+                    self.assertIn("dirty working tree", output)
+
+    def test_kelvin_sign_is_not_a_drive_letter(self):
+        def mutate(fx):
+            fx.extra_artifacts = ["\u212a:x.txt"]
+        self.assert_absent(mutate, "is an absolute path")
 
 
 if __name__ == "__main__":

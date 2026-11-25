@@ -87,14 +87,30 @@ class CollectorTests(unittest.TestCase):
         )
 
     def collect(self):
+        # --prepare is the only supported mode since the v1 bundle generator
+        # was retired in v2.0.0 (#865).
         return C.collect(
-            self.root, self.contract, self.fixture.task_path, "example", "smoke"
+            self.root, self.contract, self.fixture.task_path, "example", "smoke", prepare=True
         )
 
-    def test_actual_run_generates_valid_existing_contract_and_bundle(self):
+    def test_normal_generation_is_retired_before_anything_runs(self):
+        with self.assertRaisesRegex(C.V.Invalid, "normal-generation-retired"):
+            C.collect(self.root, self.contract, self.fixture.task_path, "example", "smoke")
+        self.assertFalse(self.fixture.observation.exists())
+        self.assertFalse(list(self.root.rglob("T-001.contract.json")))
+        cli = subprocess.run([
+            sys.executable, str(C.HERE / "collect-project-evidence.py"),
+            "--execution-root", str(self.root), "--contract", str(self.contract),
+            "--task-input-manifest", str(self.fixture.task_path), "--skill", "example", "--check", "smoke",
+        ], capture_output=True, text=True)
+        self.assertEqual(cli.returncode, 1)
+        self.assertIn("normal-generation-retired", cli.stderr)
+        self.assertIn("--prepare", cli.stderr)
+
+    def test_actual_run_prepares_a_valid_contract_without_a_bundle(self):
         result = self.collect()
         self.assertTrue(result["contract_valid"], result)
-        self.assertTrue(result["bundle_valid"], result)
+        self.assertIsNone(result["bundle"])
         self.assertIsNone(result["task_transition"])
         self.assertEqual(json.loads(self.contract.read_text()), self.original)
         generated = json.loads((self.root / result["contract"]).read_text())
@@ -103,17 +119,6 @@ class CollectorTests(unittest.TestCase):
         self.assertTrue(check["passes"])
         evidence = self.root / check["evidence"]
         self.assertIn(b"real invocation", evidence.read_bytes())
-        evidence.write_text("tampered")
-        checked = subprocess.run(
-            [
-                "sh",
-                str(ROOT / "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"),
-                str(self.root / result["bundle"]),
-                str(self.root),
-            ],
-            capture_output=True,
-        )
-        self.assertNotEqual(checked.returncode, 0)
 
     def test_failed_real_check_is_not_pass(self):
         entry = self.fixture.skill / "run.py"
@@ -157,13 +162,6 @@ class CollectorTests(unittest.TestCase):
                 self.collect()
             self.assertFalse(self.fixture.observation.exists())
 
-    def test_tdd_and_critical_are_not_silently_waived(self):
-        for extra in ({"risk": "high"}, {"risk": "critical"}):
-            self.contract.write_text(json.dumps(self.original | extra))
-            with self.assertRaises(C.V.Invalid):
-                self.collect()
-            self.assertFalse(self.fixture.observation.exists())
-
     def setup_tdd(self):
         self.fixture.manifest["checks"] = ["unit-tests"]
         entry = self.fixture.skill / "run.py"
@@ -195,13 +193,14 @@ class CollectorTests(unittest.TestCase):
         return transition
 
     def tdd(self, transition, **kwargs):
+        kwargs.setdefault("prepare", True)  # the only supported mode (#865)
         return C.collect(self.root, self.contract, self.fixture.task_path, "example", "unit-tests",
                          tdd_transition=transition, tdd_sources=["implementation.txt"], **kwargs)
 
-    def test_original_red_and_green_are_in_the_hash_bound_bundle(self):
-        result = self.tdd(self.setup_tdd())
+    def test_original_red_and_green_are_in_the_prepared_evidence(self):
+        result = self.tdd(self.setup_tdd(), prepare=True)
         self.assertTrue(result["contract_valid"], result)
-        self.assertTrue(result["bundle_valid"], result)
+        self.assertEqual(result["contract_sha256"], C.V.digest((self.root / result["contract"]).read_bytes()))
         contract = json.loads((self.root / result["contract"]).read_text())
         check = contract["checks"][0]
         log = self.root / check["evidence"]
@@ -211,10 +210,6 @@ class CollectorTests(unittest.TestCase):
         self.assertIn(b"green:observation", raw)
         self.assertIn(b"actual green", raw)
         self.assertEqual(check["red_evidence"], check["evidence"])
-        log.write_bytes(raw.replace(b"AssertionError", b"fabricated"))
-        check_result = subprocess.run(["sh", str(C.HERE / "check-evidence-bundle.sh"),
-                                       str(self.root / result["bundle"]), str(self.root)], capture_output=True)
-        self.assertNotEqual(check_result.returncode, 0)
 
     def test_cli_live_red_then_green_handoff(self):
         transition = self.setup_tdd()
@@ -223,6 +218,7 @@ class CollectorTests(unittest.TestCase):
             "--execution-root", str(self.root), "--contract", str(self.contract),
             "--task-input-manifest", str(self.fixture.task_path), "--skill", "example",
             "--check", "unit-tests", "--tdd-input-stdin", "--tdd-source", "implementation.txt",
+            "--prepare",
         ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             line = json.loads(process.stdout.readline())
@@ -230,7 +226,7 @@ class CollectorTests(unittest.TestCase):
             green = transition(red)
             stdout, stderr = process.communicate(str(green) + "\n", timeout=15)
             self.assertEqual(process.returncode, 0, stderr)
-            self.assertTrue(json.loads(stdout)["bundle_valid"])
+            self.assertTrue(json.loads(stdout)["contract_valid"])
         finally:
             if process.poll() is None:
                 process.kill()
@@ -357,50 +353,6 @@ class CollectorTests(unittest.TestCase):
         self.assertFalse(result["contract_valid"])  # Risk/TDD requirements are still enforced.
         self.assertFalse(list(self.root.rglob("*.evidence.json")))
         self.assertEqual(result["contract_sha256"], C.V.digest((self.root / result["contract"]).read_bytes()))
-
-    def test_critical_prepare_then_existing_clean_tree_signing_route(self):
-        transition = self.setup_tdd()
-        # Other checks/review are synthetic manual fixtures, not issued authority.
-        (self.root / "manual-fixture.log").write_text("synthetic existing check evidence\n")
-        self.original["risk"] = "critical"
-        for name in ("acceptance-tests", "regression", "requirement-traceability"):
-            self.original["checks"].append({"id": name})
-        for check in self.original["checks"]:
-            if check["id"] != "unit-tests":
-                check.update(required=True, passes=True, evidence="manual-fixture.log", waiver_reason="")
-            if check["id"] == "acceptance-tests":
-                check.update(red_evidence="manual-fixture.log", green_evidence="manual-fixture.log")
-        spec = self.root / "specs/fixture"
-        spec.mkdir(parents=True)
-        (spec / "requirements.md").write_text("synthetic specification\n")
-        self.contract.write_text(json.dumps(self.original))
-        result = self.tdd(transition, prepare=True)
-        self.assertTrue(result["contract_valid"], result)
-        self.assertIsNone(result["bundle"])
-        review = self.root / "independent-fixture-review.md"
-        review.write_text("Task ID: T-001\nFeature: fixture\nVERDICT: PASS\nSynthetic review for test only.\n")
-        contract = self.root / result["contract"]
-        with tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {"SDD_EVIDENCE_KEY": "synthetic-critical-test-key"}):
-            bundle = Path(temporary) / "T-001.evidence.json"
-            def generate_and_check():
-                generated = subprocess.run(["sh", str(C.HERE / "generate-evidence-bundle.sh"),
-                                            str(contract), str(review), str(self.root), str(bundle)], capture_output=True)
-                self.assertEqual(generated.returncode, 0, generated.stderr)
-                return subprocess.run(["sh", str(C.HERE / "check-evidence-bundle.sh"),
-                                       str(bundle), str(self.root)], capture_output=True)
-            self.assertNotEqual(generate_and_check().returncode, 0)  # Dirty capture cannot be signed validly.
-            subprocess.run(["git", "-C", str(self.root), "add", "."], check=True)
-            subprocess.run(["git", "-C", str(self.root), "-c", "user.name=Fixture", "-c",
-                            "user.email=fixture@example.invalid", "commit", "-qm", "prepared synthetic evidence"], check=True)
-            checked = generate_and_check()
-            self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
-            doc = json.loads(bundle.read_text())
-            self.assertFalse(doc["git_generated_dirty"])
-            self.assertIn("signature", doc)
-            with patch.dict(os.environ, {"SDD_EVIDENCE_KEY": "wrong-synthetic-key"}):
-                checked = subprocess.run(["sh", str(C.HERE / "check-evidence-bundle.sh"),
-                                          str(bundle), str(self.root)], capture_output=True)
-                self.assertNotEqual(checked.returncode, 0)
 
     def test_signing_environment_is_rejected_before_execution(self):
         for name in ("SDD_EVIDENCE_KEY", "SDD_EVIDENCE_KEY_FILE"):

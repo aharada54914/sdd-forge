@@ -59,7 +59,7 @@ SDD ワークフロー自体の摩擦・再発不具合を**事実ログから�
    | Term-Deviation Count | `unrecognized term '...'`、`aggregate reference '...' not found in domain-contract.json aggregates`、`aggregate reference '...' has no domain/aggregates/....md card` |
    | Boundary-Violation Count | `Bounded-Context '...' not found in domain-contract.json`、`Bounded-Context lists two contexts (...) with no declared relation in context map` |
 
-   `check-domain-conformance passed.` は0件と数える。検査結果が欠けていれば `Data Completeness` に記し、対象全件で結果がなければ件数は `N/A` とする。合計を同じ機能・集計範囲の前回値と比べ、比較できないときは傾向を `N/A` とする。
+   `check-domain-conformance passed.` は0件と数える。検査結果が欠けていれば `Data Completeness` に記し、対象全件で結果がなければ件数は `N/A` とする。`N/A` は検査未実行を意味し、`0`（実行して指摘ゼロ）とは区別して報告する。v2 の `sdd-gate` はこの検査を自動実行しないため、記録は利用者が検査を実行して品質ゲート報告に出力行を残した場合だけ存在する。合計を同じ機能・集計範囲の前回値と比べ、比較できないときは傾向を `N/A` とする。
 
 ## Step 2: 既存改善（Applied WFI）の効果検証
 

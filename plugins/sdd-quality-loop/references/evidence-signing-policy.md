@@ -56,6 +56,11 @@ NUL, so there is no ambiguity); **sort these strings ascending** (so artifact
 order in the bundle does not affect the signature); join them with LF; SHA-256
 the UTF-8 bytes. An empty `artifacts[]` digests the empty string.
 
+"Ascending" had two meanings among v1 signers: the Python signer sorted by
+Unicode code point, the PowerShell signer by UTF-16 code unit. They differ only
+when a path holds characters outside the BMP. Verifiers compute both orders and
+accept a match on either.
+
 The leading `sdd-evidence-v1` line is a domain/version tag that prevents
 cross-protocol confusion (e.g. a sudo token being replayed as an evidence
 signature) and lets future versions change the field set without ambiguity.
@@ -97,9 +102,9 @@ self-asserted risk — see the T-006 fix). When it is `critical`:
    - Resolve the evidence key. **If no key resolves, FAIL** (cannot verify ⇒
      fail-closed — never silently pass).
    - Recompute the canonical string from the bundle's own fields, recompute the
-     HMAC, and compare **constant-time** (Python/Node `compare_digest`;
-     PowerShell does an ordinal compare of equal-length lowercased hex). Mismatch
-     ⇒ FAIL.
+     HMAC for each artifact order above, and compare **constant-time**
+     (Python `compare_digest`; PowerShell XORs every byte of both lowercased hex
+     strings). No order matches ⇒ FAIL.
 4. Else if `alg == "sigstore"`: require env `SDD_EVIDENCE_SIGSTORE_VERIFIED` to be
    truthy (set **only** by the CI step that has already verified the attestation).
    If unset, FAIL. This prevents an agent from writing `alg: sigstore` locally to

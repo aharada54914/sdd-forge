@@ -127,7 +127,12 @@ def resolve_evidence_key():
             pass
     return None, None
 
-def evidence_canonical(bundle):
+# v1 signers sorted artifact pairs differently: the Python signer by code point,
+# the PowerShell signer by UTF-16 code unit. A signature matching either is valid.
+SIGNER_ORDERS = {"code-point": None, "utf-16": lambda pair: pair.encode("utf-16-be", "surrogatepass")}
+
+
+def evidence_canonical(bundle, order="code-point"):
     def s(v):
         return str(v if v is not None else "").strip()
     artifacts = bundle.get("artifacts") or []
@@ -136,7 +141,7 @@ def evidence_canonical(bundle):
         p = str((a or {}).get("path", "")).strip()
         sh = str((a or {}).get("sha256", "")).strip().lower()
         pairs.append(p + "\x00" + sh)
-    pairs.sort()
+    pairs.sort(key=SIGNER_ORDERS[order])
     artifacts_digest = hashlib.sha256("\n".join(pairs).encode("utf-8")).hexdigest()
     dirty = bundle.get("git_generated_dirty")
     dirty_str = "true" if dirty is True else "false"
@@ -385,9 +390,14 @@ if effective_risk == "critical":
             if key_bytes is None:
                 fail("critical bundle signature cannot be verified: no evidence key available")
             else:
-                canonical = evidence_canonical(bundle)
-                expected = hmac.new(key_bytes, canonical.encode("utf-8"), hashlib.sha256).hexdigest()
-                if not hmac.compare_digest(expected, value):
+                matches = [
+                    hmac.compare_digest(
+                        hmac.new(key_bytes, evidence_canonical(bundle, order).encode("utf-8"), hashlib.sha256).hexdigest(),
+                        value,
+                    )
+                    for order in SIGNER_ORDERS
+                ]
+                if not any(matches):
                     fail("critical bundle signature is invalid (HMAC mismatch)")
         elif alg == "sigstore":
             if os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED") != "1":

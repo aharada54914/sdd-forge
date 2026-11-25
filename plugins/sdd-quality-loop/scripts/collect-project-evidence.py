@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Project actual runner observations into existing contract/report/bundle formats.
+"""Project actual runner observations into existing contract/report formats.
 
 This command runs a check; it never imports a caller-supplied PASS observation.
 It prepares candidate evidence, not a task transition or reviewer verdict.
@@ -101,6 +101,10 @@ def write_transcript(output, transcript, phase):
 
 def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
             tdd_transition=None, tdd_sources=(), prepare=False):
+    # Normal mode generated a bundle with generate-evidence-bundle.sh, which
+    # was retired in v2.0.0 (#865). Refuse before running anything.
+    if not prepare:
+        raise V.Invalid("normal-generation-retired")
     if (
         type(timeout) not in (int, float)
         or not math.isfinite(timeout)
@@ -120,8 +124,6 @@ def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
         "[a-z0-9][a-z0-9-]*", contract["feature"]
     ):
         raise V.Invalid("feature-invalid")
-    if contract.get("risk") in {"high", "critical"} and not prepare:
-        raise V.Invalid("high-risk-requires-existing-review-signing-route")
     needs_pair = contract.get("required_workflow") == "tdd" and check_id in {"unit-tests", "acceptance-tests"}
     if tdd_transition is not None and not needs_pair:
         raise V.Invalid("tdd-check-mismatch")
@@ -223,46 +225,12 @@ def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
         output.write(
             "Verdict scope: deterministic contract verification only. Other checks are retained unchanged. No independent review or Done decision is inferred.\n"
         )
-    if prepare:
-        return {
-            "task_id": task["task_id"], "run_id": task["run_id"], "check_id": check_id,
-            "execution_outcome": validated[2], "contract": str(output_contract.relative_to(root)),
-            "contract_sha256": V.digest(output_contract.read_bytes()),
-            "report": str(report.relative_to(root)), "bundle": None,
-            "contract_valid": checked.returncode == 0, "bundle_valid": False,
-            "task_transition": None,
-        }
-    bundle = evidence / (task["task_id"] + ".evidence.json")
-    generator = HERE / "generate-evidence-bundle.sh"
-    generated = subprocess.run(
-        [
-            "sh",
-            str(generator),
-            str(output_contract),
-            str(report),
-            str(root),
-            str(bundle),
-        ],
-        capture_output=True,
-        check=False,
-    )
-    if generated.returncode != 0:
-        raise V.Invalid("bundle-generation-failed")
-    bundle_checked = subprocess.run(
-        ["sh", str(HERE / "check-evidence-bundle.sh"), str(bundle), str(root)],
-        capture_output=True,
-        check=False,
-    )
     return {
-        "task_id": task["task_id"],
-        "run_id": task["run_id"],
-        "check_id": check_id,
-        "execution_outcome": validated[2],
-        "contract": str(output_contract.relative_to(root)),
-        "report": str(report.relative_to(root)),
-        "bundle": str(bundle.relative_to(root)),
-        "contract_valid": checked.returncode == 0,
-        "bundle_valid": bundle_checked.returncode == 0,
+        "task_id": task["task_id"], "run_id": task["run_id"], "check_id": check_id,
+        "execution_outcome": validated[2], "contract": str(output_contract.relative_to(root)),
+        "contract_sha256": V.digest(output_contract.read_bytes()),
+        "report": str(report.relative_to(root)), "bundle": None,
+        "contract_valid": checked.returncode == 0, "bundle_valid": False,
         "task_transition": None,
     }
 
@@ -273,7 +241,7 @@ def main(argv=None):
         parser.add_argument("--" + name, required=True)
     parser.add_argument("--timeout", type=float, default=30)
     parser.add_argument("--prepare", action="store_true",
-                        help="Prepare evidence only; review, commit and signing remain in the existing route")
+                        help="Required: prepare the contract and report only; review and Done stay with sdd-gate")
     parser.add_argument("--tdd-input-stdin", action="store_true",
                         help="After actual Red, read the new Green task manifest path from stdin")
     parser.add_argument("--tdd-source", action="append", default=[],
@@ -305,9 +273,15 @@ def main(argv=None):
             + (str(exc) if isinstance(exc, V.Invalid) else "invalid-input-or-storage"),
             file=sys.stderr,
         )
+        if str(exc) == "normal-generation-retired":
+            print(
+                "project-evidence: bundle generation was retired in v2.0.0; "
+                "run with --prepare to capture the contract and report.",
+                file=sys.stderr,
+            )
         return 1
     print(json.dumps(result, sort_keys=True))
-    return 0 if result["contract_valid"] and (args.prepare or result["bundle_valid"]) else 1
+    return 0 if result["contract_valid"] else 1
 
 
 if __name__ == "__main__":

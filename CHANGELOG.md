@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **MCP 試験 95 件（Closes #871–#965）**: オーナーの `codex/mcp-ddd-next-action` を統合（#974）。各 issue 名の MCP テストがすべて通過する。
+- **寄稿者向け証跡収集 CLI（Closes #865）**: v2.0.0 で廃止した bundle 生成を呼ばず、`--prepare` なしでは何も実行せずに理由を示して停止する。
+- **ドメイン適合の回顧集計（Closes #848）**: v2 の `sdd-gate` は `check-domain-conformance` を実行しないことを契約・ADR・回顧テンプレートに明記。`N/A` は未実行、`0` は実行して指摘なし。
+- **証跡バンドル検査の `.ps1` 版**: 大文字小文字を区別して `.sh` 版と同じ入力を拒否する。`git_generated_dirty` は JSON の `true` だけを汚れとして扱う。`required_workflow` のない critical バンドルで落ちない。相対パスの root を二重に適用しない（`.sh`）。
+- **v1 署名の互換性**: 旧 Python 発行器（コードポイント順）と旧 PowerShell 発行器（UTF-16 順）のどちらの署名も、両方の検査器で検証できる。
+- **ドメインモデル承認の案内（Closes #803）**: context-map テンプレート・domain-interviewer の引き継ぎ・sdd-domain の GEMINI.md が、承認には契約（`domain/domain-contract.json`）の発行も必要なことを示し、`domain-review-loop` の発行手順へ案内する。context-map だけを承認すると Concept Test が停止する。
+- **Concept Test のエラー表示**: OS エラーと検証器のタイムアウトは絶対パスを出さない固定文言にする。確認ロックが残っている場合はロックの相対パスを示す。
+
 ## v2.1.3 (2026-11-25)
 
 ### Fixed
