@@ -453,6 +453,18 @@
     {
       "feature": "visual-spec-decisions",
       "profile": "full"
+    },
+    {
+      "feature": "v2-lightweight-guardrails",
+      "profile": "lite"
+    },
+    {
+      "feature": "verification-first-factory",
+      "profile": "lite"
+    },
+    {
+      "feature": "self-verification",
+      "profile": "lite"
     }
   ]
 }
