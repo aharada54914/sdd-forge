@@ -146,7 +146,8 @@ export function runAgentLint({
     if (!cache.has(rel)) {
       const file = projectFile(root, rel);
       if (!file) throw new Error(`Cannot inspect project file: ${rel}`);
-      const reportTool = !explicit && (rel.startsWith('tests/') || rel.startsWith('reports/verification/'));
+      const reportTool = !explicit && rel.endsWith('.mjs') &&
+        (rel.startsWith('tests/') || rel.startsWith('reports/verification/'));
       cache.set(rel, analyzeSource(fs.readFileSync(file, 'utf8'), rel, {
         maxDepth: alCfg.max_abstraction_depth,
         allowJsonReportOutput: reportTool,

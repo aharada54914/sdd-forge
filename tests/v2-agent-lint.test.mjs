@@ -121,11 +121,12 @@ describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & B
       fs.writeFileSync(path.join(root, dir, 'tool.mjs'), "console.log(JSON.stringify({ ok: true }));\nconsole.log('debug');\ntry {} catch {}\n");
     }
     fs.writeFileSync(path.join(root, 'tests/module.mjs'), 'export const emit = data => console.log(JSON.stringify(data));');
+    fs.writeFileSync(path.join(root, 'tests/module.cjs'), 'exports.emit = data => console.log(JSON.stringify(data));');
     const report = runAgentLint({ projectRoot: root, mode: 'shadow', diffOnly: false });
     const consoleLocations = report.findings.filter(f => f.rule === 'no-console-log').map(f => [f.path, f.line]).sort();
     assert.deepEqual(consoleLocations, [
       ['reports/verification/tool.mjs', 2], ['src/tool.mjs', 1], ['src/tool.mjs', 2],
-      ['tests/module.mjs', 1], ['tests/tool.mjs', 2],
+      ['tests/module.cjs', 1], ['tests/module.mjs', 1], ['tests/tool.mjs', 2],
     ]);
     assert.equal(report.findings.filter(f => f.rule === 'no-empty-catch').length, 3);
     const explicit = runAgentLint({ projectRoot: root, mode: 'shadow', files: ['tests/tool.mjs'] });
