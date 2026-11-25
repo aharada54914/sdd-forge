@@ -79,7 +79,7 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 | Issue | Reason |
 |---|---|
-| #803, #804 | Build on the DDD contract publish step now on main (#974). Workable next. |
+| #804 | The pre-publish validator deliberately leaves the v1-inherited shape (e.g. `contexts[].aggregates`, `meta.status` enum) to the schema; `specs/sdd-domain-concept-contract/` scopes it out (authority table, Negative-path matrix), while the Concept Test validates the full schema. Decide the pre-publish guarantee: recommended, reject everything the downstream schema check rejects, in both .sh and .ps1 (spec amendment). |
 | #812 | Specified on `codex/n14-package-spec` (pushed by the owner); next to implement after #803/#804. |
 | #850 | Changes GitHub branch-protection / ruleset policy (owner review, required contexts); needs the repository owner's decision. |
 
