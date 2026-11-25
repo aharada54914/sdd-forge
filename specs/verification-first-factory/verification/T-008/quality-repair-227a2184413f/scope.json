@@ -1,0 +1,58 @@
+{
+  "tested_revision": "227a2184413f6875a8ae3262b37504e998dd9433",
+  "red_revision": "55b2ac8d00b0af427b6c645216c6b4aad35e5de7",
+  "comparison_base": "9a64eb26d83938a90502b0e880930f07be31b7ad",
+  "review_files_at_tested_sha": {
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs": "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs": "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+    "plugins/sdd-ship/skills/ship/SKILL.md": "plugins/sdd-ship/skills/ship/SKILL.md",
+    "sdd/guardrails.example.yaml": "sdd/guardrails.example.yaml",
+    "specs/verification-first-factory/design.md": "specs/verification-first-factory/design.md",
+    "specs/verification-first-factory/requirements.md": "specs/verification-first-factory/requirements.md",
+    "specs/verification-first-factory/tasks.md": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/specs/verification-first-factory/tasks.md",
+    "tests/v2-sdd-core-flow.test.mjs": "tests/v2-sdd-core-flow.test.mjs",
+    "tests/v2-spec-drift.test.mjs": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/tests/v2-spec-drift.test.mjs",
+    "tests/v2-wave3-integration.test.mjs": "tests/v2-wave3-integration.test.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+    "specs/verification-first-factory/.spec-baseline.json": "specs/verification-first-factory/.spec-baseline.json",
+    "specs/self-verification/formal/mapping.json": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/specs/self-verification/formal/mapping.json",
+    "tests/v2-formal-gate.test.mjs": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/tests/v2-formal-gate.test.mjs"
+  },
+  "prior_gate": {
+    "path": "reports/quality-gate/20261126T035814-verification-first-factory-T-008.md",
+    "sha256": "a234b9f97dfe56ac13c3194a2a19b2ebafb0cb6aca584ebc33968ae24afd94ef"
+  },
+  "task_plan": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/specs/verification-first-factory/tasks.md",
+  "literal_scope": [
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+    "plugins/sdd-ship/**"
+  ],
+  "machine_scope_warnings": [
+    "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+    "tests/v2-sdd-core-flow.test.mjs",
+    "tests/v2-wave3-integration.test.mjs",
+    "tests/v2-spec-drift.test.mjs",
+    "specs/self-verification/formal/mapping.json"
+  ],
+  "repair_diff": {
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "Owns rebuild implementation and comparison; public named export retained.",
+    "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs": "Removed. No implementation remains at this task-external path.",
+    "tests/v2-wave3-integration.test.mjs": "Tests byte-exact matching and individual stderr/stdout tail changes, exit 7, worktree and capture directory cleanup.",
+    "specs/self-verification/formal/mapping.json": "Existing T-006 GateLifecycle source pin follows updated gate bytes; its mapping is exercised by the second machine command.",
+    "reports/implementation/verification-first-factory/T-008.md": "WFI-001 preflight for the repair."
+  },
+  "context": "The previous initial implementation and common dependencies can be examined using the admitted scope-wave3, scope-hardening and scope-lock patches. Anti-tampering in the outer run compared the clean checkout with itself; the public-CLI integration suite creates actual changes."
+}

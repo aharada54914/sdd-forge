@@ -1,0 +1,98 @@
+...[truncated 288 chars]...
+ outside the task Scope are labelled, and the verdict stays fail-closed (226.329625ms)
+  ✔ #823: an unresolved critical/major review ticket for this task fails the gate; others do not (227.80225ms)
+  ✔ fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared (122.875167ms)
+  ✔ scans the gate source itself and reports only actual unfinished work (124.185708ms)
+  ✔ fails gate when changed production code contains placeholders or a verification command fails (103.696542ms)
+  ✔ rejects unapproved tasks at precondition check (96.716875ms)
+✔ run-sdd-gate.mjs (SDD Core unified deterministic gate) (1313.529041ms)
+▶ #821 gate task lookup uses the exact task ID
+  ✔ never reads a sibling task whose ID shares a prefix, in either order (7.587709ms)
+✔ #821 gate task lookup uses the exact task ID (7.671584ms)
+▶ #822/#828 gate change discovery
+  ✔ lists non-ASCII names verbatim and stays relative to a nested project root (141.553209ms)
+✔ #822/#828 gate change discovery (141.608084ms)
+▶ Phase 2 SDD Core skill & template contracts
+  ✔ all consolidated SDD Core skills have valid frontmatter and zero legacy canary/ERROR_STOP rituals (0.389875ms)
+  ✔ ship and sdd-gate skills wire directly to v2 Node.js ESM guardrail tools (0.108167ms)
+  ✔ spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes (0.06325ms)
+  ✔ all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions (0.938833ms)
+  ✔ SDD Core templates include REQ/AC/Risk structure and Spec Amendments section (0.109875ms)
+✔ Phase 2 SDD Core skill & template contracts (1.68ms)
+▶ #827 re-verifying a fixed review ticket reaches the gate for exactly that task
+  ✔ fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete (0.177041ms)
+✔ #827 re-verifying a fixed review ticket reaches the gate for exactly that task (0.219541ms)
+▶ #832 a Done task affected by a spec change has a re-verification path
+  ✔ ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status (0.24275ms)
+✔ #832 a Done task affected by a spec change has a re-verification path (0.299417ms)
+▶ human concept-test decisions at the public gate
+  ✔ stops incomplete, malformed and receipt-only projects before verification (434.1415ms)
+  ✔ runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs (686.307792ms)
+  ✔ records a baseline when invoked through an install symlink (43.24625ms)
+  ✔ rejects human receipt edits when invoked through an install symlink (28.520083ms)
+  ✔ preserves ordinary and v1-only feature history and scopes receipts by feature (144.988958ms)
+  ✔ keeps the Node-only path without a Git executable but blocks visible v2 evidence (82.901625ms)
+  ✔ detects an indexed proposal missing from the working tree in an unborn repository (231.261041ms)
+  ✔ scopes index evidence to the nested project with the same feature name (181.880042ms)
+  ✔ uses current proposal and decision inputs equally in full and shallow clones (281.210291ms)
+  ✔ distinguishes unstaged proposal loss from a staged change of inputs (210.035792ms)
+✔ human concept-test decisions at the public gate (2324.731375ms)
+▶ record-spec-baseline.mjs & check-spec-drift.mjs
+  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (110.157208ms)
+  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (73.838959ms)
+  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (107.632167ms)
+✔ record-spec-baseline.mjs & check-spec-drift.mjs (292.021292ms)
+▶ #820 AMENDED names the changed IDs no amendment entry mentions
+  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (225.603375ms)
+✔ #820 AMENDED names the changed IDs no amendment entry mentions (225.675ms)
+▶ #818 staged human approval is not spec drift
+  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (140.953292ms)
+  ✔ a baseline recorded before this change keeps its old comparison (106.959208ms)
+✔ #818 staged human approval is not spec drift (248.019458ms)
+▶ #834 unreadable spec files are reported apart from deletions
+  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (87.08925ms)
+✔ #834 unreadable spec files are reported apart from deletions (87.17325ms)
+▶ #972 review: unreadable and newly approved are visible and enforced
+  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (193.148708ms)
+  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (150.147875ms)
+✔ #972 review: unreadable and newly approved are visible and enforced (343.382041ms)
+▶ #972 re-review: text added to an Approval line is drift
+  ✔ only a bare approval value is normalized (73.708708ms)
+✔ #972 re-review: text added to an Approval line is drift (73.769375ms)
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (308.039708ms)
+  ✔ allows renaming an already skipped test and editing existing skip reasons (198.878583ms)
+  ✔ counts active Node options across layout changes alongside prior Python and Go directives (752.686042ms)
+  ✔ counts Node test context calls using the callback parameter, including subtests (558.767708ms)
+  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (663.002667ms)
+  ✔ ignores Python and Go documentation while counting executable skip directives (284.4675ms)
+  ✔ preserves an existing question with invalid JSON and records a valid replacement (346.859875ms)
+  ✔ preserves an existing question with wrong id and records a valid replacement (343.080458ms)
+  ✔ preserves an existing question with wrong feature and records a valid replacement (345.440083ms)
+  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (279.026208ms)
+  ✔ requires a nonempty retirement reason in the trusted manifest (179.752542ms)
+  ✔ requires a nonempty retirement approved_by in the trusted manifest (179.387709ms)
+  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (278.099959ms)
+✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (4717.790667ms)
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1355.328292ms)
+  ✔ T-008 rebuild compares large binary streams and preserves command exit codes (1866.052ms)
+  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (175.640083ms)
+  ✔ T-008 resolves the baseline command against the committed implementation (320.432458ms)
+  ✔ T-008 stops at the first failing verification command in fail-fast mode (169.38525ms)
+  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3749.930625ms)
+  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (896.855625ms)
+  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (295.65475ms)
+  ✔ T-008 resolves a nested project’s protected paths from its committed policy (179.24125ms)
+  ✔ reports a failed lock release after saving a completed gate execution (190.722125ms)
+  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (533.642625ms)
+  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (312.045041ms)
+✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (10045.614958ms)
+ℹ tests 62
+ℹ suites 15
+ℹ pass 62
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10081.158
