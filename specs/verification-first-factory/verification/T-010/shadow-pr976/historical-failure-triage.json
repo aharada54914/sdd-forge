@@ -1,0 +1,1339 @@
+{
+  "historical_snapshot": {
+    "base": "fc166bd1a8b8303531c0445ff78965897ea59c61",
+    "clean": false,
+    "hashes": {
+      "local-posix.log": "f98c593f97d71b5ca7f83f6a89ef6968f0d4eb7e24f97a88657046c3962c0568",
+      "remaining.log": "37c0a288334d2cee6f87166e176ae80ae2b58a926183788ffb2139ba3752fa09",
+      "remaining.json": "45b8fb123d4dccb1a039739d6b554d95ca3dc870ccf27b9c6824d70000cee300"
+    }
+  },
+  "compared_commits": {
+    "release": "484cbe7aef828488ee49fa5d92569917e74c5891",
+    "base": "2db182ad22706c86734b85a00e4263f23fda03f0",
+    "head": "cc5872c2905ea3933c0463f9062f3c569ca10ce5"
+  },
+  "hosted_test_run": {
+    "base": 45702351630,
+    "head": 45719350065
+  },
+  "profile_size": 195,
+  "historical_failures": 113,
+  "historical_passes": 82,
+  "primary_evidence_counts": {
+    "prior_failure_current_outcome_unverified": 47,
+    "missing_dependency_in_all_three_trees": 39,
+    "same_failure_reproduced_on_both": 7,
+    "historical_environment_unverified": 1,
+    "registry_diagnostic_verified_in_both_trees": 7,
+    "registry_failure_reproduced_on_both": 2,
+    "workflow_registration_assertion_fails_in_all_three_trees": 6,
+    "now_passes_local": 1,
+    "old_dirty_workflow_precondition_absent": 3
+  },
+  "ci_suite_paths_explicitly_invoked_by_both": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/concept-test.tests.py",
+    "tests/domain-review-finalize.tests.py",
+    "tests/install.tests.sh",
+    "tests/structure-check-feature-mode.tests.sh",
+    "tests/uninstall.tests.sh"
+  ],
+  "checks": [
+    {
+      "suite": "tests/codex-review-identity.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/risk-upgrade-context.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "tests/risk-upgrade-context-cases.py",
+          "log_line": 12416
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/installed-review-precheck.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/install-cloud.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/gemini-environment-loops.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "log_line": 9814
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/run-measurement-integration.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-lite/lib/run-lite-gate.py",
+          "log_line": 12430
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/project-evidence-collector.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/project-skill-observation.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/research-owner-integration.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/research-consumers.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/research-acquire.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/research-evidence.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/golden-eval.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/ci-claude-install.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "c56d4f517d0ca8048ac7ad1917942ec347925a27bf8727b8dc9e9e286ac5f909",
+          "first_diagnostic": "AssertionError: []"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "c56d4f517d0ca8048ac7ad1917942ec347925a27bf8727b8dc9e9e286ac5f909",
+          "first_diagnostic": "AssertionError: []"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/adversarial-review-contracts.tests.sh",
+      "historical_log": "local-posix.log",
+      "historical_environment": "Ajv unavailable",
+      "hosted_success": [],
+      "primary_evidence": "historical_environment_unverified"
+    },
+    {
+      "suite": "tests/install-uninstall-matrix.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/gates.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+          "log_line": 9774
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/wfi-058-outputs-anchor.tests.sh",
+      "historical_log": "remaining.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+          "log_line": 268
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/wfi-059-evidence-path-base.tests.sh",
+      "historical_log": "remaining.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+          "log_line": 275
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/spec-review-loop.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/downstream-review-precheck.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/impl-layer-review-inputs.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/downstream-review-precheck-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/task-review-precheck.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/impl-review-adr-inputs.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/review-agent-isolation.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/agent-model-routing.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/render-agent-frontmatter.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+          "log_line": 11776
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+          "log_line": 11777
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+          "log_line": 11778
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+          "log_line": 11779
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/turn-first-workflow.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/retrospective-loop.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/emit-run-record-feature-scope.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 9537
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/release-config-lock.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": ".github/workflows/context-approval.yml",
+          "log_line": 11746
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/cross-model.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+          "log_line": 8840
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+          "log_line": 8861
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/eval.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+          "log_line": 9550
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/scenario.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+          "log_line": 12515
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+          "log_line": 12492
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+      "historical_log": "remaining.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/workflow-state-registry.tests.sh",
+      "historical_log": "remaining.log",
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+          "first_diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+          "first_diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+        }
+      ],
+      "primary_evidence": "registry_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/workflow-state-registry-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+          "first_diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+          "first_diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+        }
+      ],
+      "primary_evidence": "registry_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/workflow-state-ci-integration.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 5745
+        }
+      ],
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "c80642e7767e13efb47197126f2b57623e92e37a13edf6dc70560e109aae5c78",
+          "first_diagnostic": "FileNotFoundError: [Errno 2] No such file or directory: 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md'"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "811ddb80e357c6718ced22fca5bc879045d52b937f9c4530bb58fddeb1dc710e",
+          "first_diagnostic": "FileNotFoundError: [Errno 2] No such file or directory: 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md'"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/quality-gate-cycle-limit.tests.sh",
+      "historical_log": "local-posix.log",
+      "required_workflow_literal_absent_in_all_three": {
+        "suite_assertion_line": 474,
+        "literal": "quality-gate-cycle-limit.tests.sh",
+        "workflow": ".github/workflows/test.yml"
+      },
+      "hosted_success": [],
+      "primary_evidence": "workflow_registration_assertion_fails_in_all_three_trees"
+    },
+    {
+      "suite": "tests/quality-loop-calibration.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 11612
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/self-improvement-guard.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/p0-hardening.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "cb652d06e59dd9786aadfe9d2f113ce290d34bd9cc229d465b4a40125675cd88",
+          "first_diagnostic": "FAIL: REQ-002 disk-based limit absent"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "cb652d06e59dd9786aadfe9d2f113ce290d34bd9cc229d465b4a40125675cd88",
+          "first_diagnostic": "FAIL: REQ-002 disk-based limit absent"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/deterministic-lane-selfcheck.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/repository-release-validation.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/template-validator-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-lite/templates/quality-report-lite.md",
+          "log_line": 14346
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+          "log_line": 14344
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/task-lifecycle-enum-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-lite/scripts/check-task-state-lite.ps1",
+          "log_line": 14262
+        },
+        {
+          "path": "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+          "log_line": 14259
+        }
+      ],
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "960081f96c04533e1bb49a5b7c16e84d03e33619e2ee3c506660e2f61e6c892c",
+          "first_diagnostic": "grep: plugins/sdd-lite/scripts/check-task-state-lite.sh: No such file or directory"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "d5ebf42bab4ff3a5ffdc51210957c93452f9dbd5ebd6aaae390fce6d1858fff9",
+          "first_diagnostic": "grep: plugins/sdd-lite/scripts/check-task-state-lite.sh: No such file or directory"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/task-state-grammar-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+          "log_line": 3914
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/task-plan-binding-durability.tests.sh",
+      "historical_log": "local-posix.log",
+      "registry_diagnostics": [
+        "self-verification",
+        "v2-lightweight-guardrails",
+        "verification-first-factory"
+      ],
+      "hosted_success": [],
+      "primary_evidence": "registry_diagnostic_verified_in_both_trees"
+    },
+    {
+      "suite": "tests/loop-inventory.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/review-prompt-calibration.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/review-context-boundary.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+          "log_line": 1288
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/boundary-reference-authorization-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 6137
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+          "log_line": 6080
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+          "log_line": 6084
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+          "log_line": 6088
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+          "log_line": 6092
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/design-system-contract.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "log_line": 9123
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md",
+          "log_line": 9119
+        },
+        {
+          "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+          "log_line": 9138
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/design-system-compliance.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/loop-escalation.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/hitl-wfi-terminal.tests.sh",
+      "historical_log": "local-posix.log",
+      "required_workflow_literal_absent_in_all_three": {
+        "suite_assertion_line": 364,
+        "literal": "hitl-wfi-terminal.tests.sh",
+        "workflow": ".github/workflows/test.yml"
+      },
+      "hosted_success": [],
+      "primary_evidence": "workflow_registration_assertion_fails_in_all_three_trees"
+    },
+    {
+      "suite": "tests/check-placeholders-brownfield.tests.sh",
+      "historical_log": "local-posix.log",
+      "required_workflow_literal_absent_in_all_three": {
+        "suite_assertion_line": 200,
+        "literal": "check-placeholders-brownfield.tests.sh",
+        "workflow": ".github/workflows/test.yml"
+      },
+      "hosted_success": [],
+      "primary_evidence": "workflow_registration_assertion_fails_in_all_three_trees"
+    },
+    {
+      "suite": "tests/bootstrap-layer-templates.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md",
+          "log_line": 6033
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/frontend-spec.template.md",
+          "log_line": 5899
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/infra-spec.template.md",
+          "log_line": 5900
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/security-spec.template.md",
+          "log_line": 5901
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md",
+          "log_line": 6023
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md",
+          "log_line": 5898
+        }
+      ],
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "8e35ae1846a4bbb0f82421bf81bc7f804e847775bcef6cb451eda6462608b9d8",
+          "first_diagnostic": "FAIL: TEST-001 UX layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md)"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "94b4bd0f5dad55a287cfd3180ca470296568fae6ae75984b3d4f65a62fec3c2e",
+          "first_diagnostic": "FAIL: TEST-001 UX layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md)"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/bootstrap-interview-guidance.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/interview-question-bank.md",
+          "log_line": 5854
+        }
+      ],
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "bb13bb995c9d8bd8d15906e3e6ee9a547d4ee58aa138f358837c05a914b6780b",
+          "first_diagnostic": "grep: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/interview-question-bank.md: No such file or directory"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "414ffec5f87f28c8463be970d535cd4cdfd7a54f75e3966da43a9f28447c22b3",
+          "first_diagnostic": "grep: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/interview-question-bank.md: No such file or directory"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/bootstrap-cross-layer-index.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md",
+          "log_line": 4473
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md",
+          "log_line": 4495
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/workflow-documentation.tests.sh",
+      "historical_log": "remaining.log",
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "d15bb9e6bc11965460b23e83521c6d1d9ff63667418b122815534f3a69629588",
+          "first_diagnostic": "not ok: README.md must name spec-review-loop"
+        },
+        {
+          "arm": "head",
+          "exit_code": 1,
+          "log_sha256": "d15bb9e6bc11965460b23e83521c6d1d9ff63667418b122815534f3a69629588",
+          "first_diagnostic": "not ok: README.md must name spec-review-loop"
+        }
+      ],
+      "primary_evidence": "same_failure_reproduced_on_both"
+    },
+    {
+      "suite": "tests/doc-diagrams.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "paired_local": [
+        {
+          "arm": "base",
+          "exit_code": 1,
+          "log_sha256": "099b41215c6a25ff4835b90250b26ca05ea93226b2c2b8a3e26d2deabdec1524",
+          "first_diagnostic": "not ok: docs/README.md: broken relative link -> ../plugins/sdd-lite/references/lite-flow-policy.md"
+        },
+        {
+          "arm": "head",
+          "exit_code": 0,
+          "log_sha256": "c8f1cc0c4bd118d5878e74378b823e555b062cb5d3d8c885b349b3bbce1488ac",
+          "first_diagnostic": ""
+        }
+      ],
+      "primary_evidence": "now_passes_local"
+    },
+    {
+      "suite": "tests/bump-version-gate.tests.sh",
+      "historical_log": "local-posix.log",
+      "required_workflow_literal_absent_in_all_three": {
+        "suite_assertion_line": 468,
+        "literal": "bump-version-gate.tests.sh",
+        "workflow": ".github/workflows/test.yml"
+      },
+      "hosted_success": [],
+      "primary_evidence": "workflow_registration_assertion_fails_in_all_three_trees"
+    },
+    {
+      "suite": "tests/release-loop-gate.tests.sh",
+      "historical_log": "local-posix.log",
+      "required_workflow_literal_absent_in_all_three": {
+        "suite_assertion_line": 272,
+        "literal": "release-loop-gate.tests.sh",
+        "workflow": ".github/workflows/test.yml"
+      },
+      "hosted_success": [],
+      "primary_evidence": "workflow_registration_assertion_fails_in_all_three_trees"
+    },
+    {
+      "suite": "tests/run-panelist-effort.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+          "log_line": 12471
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/model-freshness-check.tests.sh",
+      "historical_log": "local-posix.log",
+      "required_workflow_literal_absent_in_all_three": {
+        "suite_assertion_line": 528,
+        "literal": "model-freshness-check.tests.sh",
+        "workflow": ".github/workflows/test.yml"
+      },
+      "missing_in_release_base_head": [
+        {
+          "path": ".github/scripts/check-model-freshness.ps1",
+          "log_line": 10869
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "workflow_registration_assertion_fails_in_all_three_trees"
+    },
+    {
+      "suite": "tests/facet-manifest-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "dirty_workflow_precondition": true,
+      "hosted_success": [],
+      "primary_evidence": "old_dirty_workflow_precondition_absent"
+    },
+    {
+      "suite": "tests/a9-dogfood.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/detect-policy-weakening.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh",
+          "log_line": 9440
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/design-sync-standing-consent.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md",
+          "log_line": 8988
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/design-sync-scan.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/resolve-project-context-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "dirty_workflow_precondition": true,
+      "hosted_success": [],
+      "primary_evidence": "old_dirty_workflow_precondition_absent"
+    },
+    {
+      "suite": "tests/resolve-project-context-caller-contract.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/compatibility-byte-identical.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/structural-compatibility.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "log_line": 4641
+        },
+        {
+          "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+          "log_line": 4642
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/validate-live-host-proof.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "log_line": 3436
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/human-copy-runner-contract.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/registry-migration-cli.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "log_line": 4675
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/validate-capability-registry.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "log_line": 16769
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/generate-gate-capabilities.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+          "log_line": 9946
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+          "log_line": 9942
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/capability-registry-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "log_line": 6158
+        }
+      ],
+      "dirty_workflow_precondition": true,
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/ownership-digest.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/check-component-coverage.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 6317
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/component-path-ownership-parity.tests.sh",
+      "historical_log": "local-posix.log",
+      "dirty_workflow_precondition": true,
+      "hosted_success": [],
+      "primary_evidence": "old_dirty_workflow_precondition_absent"
+    },
+    {
+      "suite": "tests/cross-runtime-handoff.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "log_line": 4296
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/check-installed-plugin-drift.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/check-a8-process-integrity.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-004.tests.sh",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "log_line": 4121
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md",
+          "log_line": 4017
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md",
+          "log_line": 4032
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/frontend-spec.template.md",
+          "log_line": 4047
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/infra-spec.template.md",
+          "log_line": 4062
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md",
+          "log_line": 4077
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/security-spec.template.md",
+          "log_line": 4092
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md",
+          "log_line": 4107
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/design-sync-policy.tests.sh",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 12650
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/quality-nontty-transport.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/traceability-freeze-contract.tests.py",
+      "historical_log": "remaining.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/sdd-domain.tests.ps1",
+      "historical_log": "remaining.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "log_line": 965
+        },
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md",
+          "log_line": 4763
+        },
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 1490
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/current-byte-capture.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/concept-review-continuity.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/fixed-review-inputs.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+          "log_line": 9727
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/codex-review-launcher.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/session-models.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-implementation/scripts/session-panelist.py",
+          "log_line": 12704
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/spec-review-verify-inputs.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md",
+          "log_line": 14363
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/host-review-preflight.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+          "log_line": 10154
+        },
+        {
+          "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+          "log_line": 10126
+        },
+        {
+          "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+          "log_line": 10112
+        },
+        {
+          "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+          "log_line": 10140
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/unified-launch-order.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/unified-task-launch.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/task-structured-output.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/model-observation.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/model-identity.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/model-policy.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/model-selector-package.tests.py",
+      "historical_log": "local-posix.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/model-policy-launch.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+          "log_line": 1402
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/model-policy-installed.tests.py",
+      "historical_log": "local-posix.log",
+      "missing_in_release_base_head": [
+        {
+          "path": "plugins/sdd-implementation/scripts/session-panelist.py",
+          "log_line": 396
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+          "log_line": 22
+        },
+        {
+          "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+          "log_line": 205
+        }
+      ],
+      "hosted_success": [],
+      "primary_evidence": "missing_dependency_in_all_three_trees"
+    },
+    {
+      "suite": "tests/verification-ci-plan.tests.py",
+      "historical_log": "remaining.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    },
+    {
+      "suite": "tests/verification-ci.tests.py",
+      "historical_log": "remaining.log",
+      "hosted_success": [],
+      "primary_evidence": "prior_failure_current_outcome_unverified"
+    }
+  ]
+}

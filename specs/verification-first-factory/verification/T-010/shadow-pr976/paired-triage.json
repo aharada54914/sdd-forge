@@ -1,0 +1,175 @@
+{
+  "command": "bash <suite>",
+  "base": "2db182ad22706c86734b85a00e4263f23fda03f0",
+  "head": "cc5872c29",
+  "observations": [
+    {
+      "arm": "base",
+      "suite": "tests/bootstrap-interview-guidance.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "bb13bb995c9d8bd8d15906e3e6ee9a547d4ee58aa138f358837c05a914b6780b",
+      "diagnostic": "grep: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/interview-question-bank.md: No such file or directory"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/bootstrap-interview-guidance.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "414ffec5f87f28c8463be970d535cd4cdfd7a54f75e3966da43a9f28447c22b3",
+      "diagnostic": "grep: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/interview-question-bank.md: No such file or directory"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/bootstrap-layer-templates.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "8e35ae1846a4bbb0f82421bf81bc7f804e847775bcef6cb451eda6462608b9d8",
+      "diagnostic": "FAIL: TEST-001 UX layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md)"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/bootstrap-layer-templates.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "94b4bd0f5dad55a287cfd3180ca470296568fae6ae75984b3d4f65a62fec3c2e",
+      "diagnostic": "FAIL: TEST-001 UX layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md)"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/workflow-documentation.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "d15bb9e6bc11965460b23e83521c6d1d9ff63667418b122815534f3a69629588",
+      "diagnostic": "not ok: README.md must name spec-review-loop"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/workflow-documentation.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "d15bb9e6bc11965460b23e83521c6d1d9ff63667418b122815534f3a69629588",
+      "diagnostic": "not ok: README.md must name spec-review-loop"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/p0-hardening.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "cb652d06e59dd9786aadfe9d2f113ce290d34bd9cc229d465b4a40125675cd88",
+      "diagnostic": "FAIL: REQ-002 disk-based limit absent"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/p0-hardening.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "cb652d06e59dd9786aadfe9d2f113ce290d34bd9cc229d465b4a40125675cd88",
+      "diagnostic": "FAIL: REQ-002 disk-based limit absent"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/task-lifecycle-enum-parity.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "960081f96c04533e1bb49a5b7c16e84d03e33619e2ee3c506660e2f61e6c892c",
+      "diagnostic": "grep: plugins/sdd-lite/scripts/check-task-state-lite.sh: No such file or directory"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/task-lifecycle-enum-parity.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "d5ebf42bab4ff3a5ffdc51210957c93452f9dbd5ebd6aaae390fce6d1858fff9",
+      "diagnostic": "grep: plugins/sdd-lite/scripts/check-task-state-lite.sh: No such file or directory"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/ci-claude-install.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "c56d4f517d0ca8048ac7ad1917942ec347925a27bf8727b8dc9e9e286ac5f909",
+      "diagnostic": "AssertionError: []"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/ci-claude-install.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "c56d4f517d0ca8048ac7ad1917942ec347925a27bf8727b8dc9e9e286ac5f909",
+      "diagnostic": "AssertionError: []"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/workflow-state-ci-integration.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "c80642e7767e13efb47197126f2b57623e92e37a13edf6dc70560e109aae5c78",
+      "diagnostic": "FileNotFoundError: [Errno 2] No such file or directory: 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md'"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/workflow-state-ci-integration.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "811ddb80e357c6718ced22fca5bc879045d52b937f9c4530bb58fddeb1dc710e",
+      "diagnostic": "FileNotFoundError: [Errno 2] No such file or directory: 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md'"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/workflow-state-registry.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+      "diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/workflow-state-registry.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+      "diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/workflow-state-registry-parity.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+      "diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/workflow-state-registry-parity.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "489ada149e0cabeaf27ebf8e997a20412b428b0359fd2cb9a13c111339b0b3f1",
+      "diagnostic": "not ok: registry does not exactly cover first-level specs directories"
+    },
+    {
+      "arm": "base",
+      "suite": "tests/doc-diagrams.tests.sh",
+      "exit_code": 1,
+      "log_sha256": "099b41215c6a25ff4835b90250b26ca05ea93226b2c2b8a3e26d2deabdec1524",
+      "diagnostic": "not ok: docs/README.md: broken relative link -> ../plugins/sdd-lite/references/lite-flow-policy.md"
+    },
+    {
+      "arm": "head",
+      "suite": "tests/doc-diagrams.tests.sh",
+      "exit_code": 0,
+      "log_sha256": "c8f1cc0c4bd118d5878e74378b823e555b062cb5d3d8c885b349b3bbce1488ac",
+      "diagnostic": null
+    },
+    {
+      "arm": "base",
+      "suite": "tests/constant-parity.tests.sh",
+      "exit_code": 0,
+      "log_sha256": "dcb62ef8144ba31c38c3e3171c47304bf980c02f91a948ccf373fd4f646d21fb",
+      "diagnostic": null
+    },
+    {
+      "arm": "head",
+      "suite": "tests/constant-parity.tests.sh",
+      "exit_code": 0,
+      "log_sha256": "dcb62ef8144ba31c38c3e3171c47304bf980c02f91a948ccf373fd4f646d21fb",
+      "diagnostic": null
+    },
+    {
+      "arm": "base",
+      "suite": "tests/crlf-parity.tests.sh",
+      "exit_code": 0,
+      "log_sha256": "beab199bb14a350ea1297880888479e1cc1e4c30567298b7dae20db2e647ec7c",
+      "diagnostic": null
+    },
+    {
+      "arm": "head",
+      "suite": "tests/crlf-parity.tests.sh",
+      "exit_code": 0,
+      "log_sha256": "beab199bb14a350ea1297880888479e1cc1e4c30567298b7dae20db2e647ec7c",
+      "diagnostic": null
+    }
+  ]
+}
