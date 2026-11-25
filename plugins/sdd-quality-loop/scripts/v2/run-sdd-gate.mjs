@@ -829,10 +829,8 @@ export function runSddGate({
         risk: taskState.risk,
         feature,
         baseRef,
-        adapter: config.formal_verification?.checker?.adapter || 'none',
-        mode: config.formal_verification?.enabled ? config.formal_verification.mode : 'shadow',
       });
-      formalGate = { skipped: false, passed: fReport.exitCode === 0, ...fReport };
+      formalGate = { skipped: fReport.status === 'SKIPPED', passed: fReport.exitCode === 0, ...fReport };
       if (failFast && !formalGate.passed) failFastStoppedAt = 'formalGate';
     }
 

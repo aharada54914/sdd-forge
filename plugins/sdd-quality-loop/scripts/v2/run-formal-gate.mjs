@@ -33,7 +33,27 @@ import {
 } from './guardrails-lib.mjs';
 
 const TLA_MODULE_RE = /-{4,}\s*MODULE\s+([A-Za-z0-9_]+)\s*-{4,}/;
-const TLA_TRIVIAL_INV_RE = /^[ \t]*([A-Za-z0-9_]+)\s*==\s*TRUE\b/gm;
+const CFG_SECTION = /^(INIT|NEXT|SPECIFICATION|INVARIANTS?|PROPERT(?:Y|IES)|CONSTANTS?|(?:ACTION_)?CONSTRAINTS?|TYPE(?:_CONSTRAINT)?|VIEW|SYMMETRY|CHECK_DEADLOCK|ALIAS|POSTCONDITION)\b/;
+
+function configuredInvariants(cfgText) {
+  const names = [];
+  let inInvariants = false;
+  for (const line of cfgText.split(/\r?\n/)) {
+    let text = line.replace(/\\\*.*/, '').trim();
+    const section = CFG_SECTION.exec(text);
+    if (section) {
+      inInvariants = /^INVARIANTS?$/.test(section[1]);
+      text = text.slice(section[0].length).trim();
+    }
+    if (inInvariants && text) names.push(...text.split(/\s+/));
+  }
+  return names;
+}
+
+// A following operator or module declaration ends the RHS. A continuation
+// such as "/\ predicate" on the next line still belongs to the definition.
+const TLA_TRUE_DEFINITION = /^[ \t]*(\w+)[ \t]*==\s*TRUE[ \t]*\r?$/gm;
+const TLA_NEXT_DECLARATION = /^(?:={4,}|-{4,}|(?:LOCAL\s+)?\w+(?:\s*\([^)]*\))?[ \t]*==|(?:ASSUME|ASSUMPTION|AXIOM|CONSTANTS?|VARIABLES?|INSTANCE|THEOREM|LEMMA)\b)/;
 
 /**
  * Builds a Windows/POSIX-safe `{ bin, args, options }` invocation spec for external model checkers.
@@ -76,24 +96,24 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
     errors.push(`Missing TLA+ ==== footer in ${tlaPath}`);
   }
 
-  TLA_TRIVIAL_INV_RE.lastIndex = 0;
-  let m;
-  while ((m = TLA_TRIVIAL_INV_RE.exec(tlaText)) !== null) {
-    errors.push(`Trivial tautology invariant detected (${m[1]} == TRUE) in ${tlaPath}`);
-  }
-
-  const invariants = [];
+  let invariants = [];
   if (cfgPath) {
     if (!fs.existsSync(cfgPath)) {
       errors.push(`Config file not found: ${cfgPath}`);
     } else {
       const cfgText = fs.readFileSync(cfgPath, 'utf8');
-      for (const line of cfgText.split(/\r?\n/)) {
-        const invMatch = /^\s*INVARIANT\s+([A-Za-z0-9_]+)/.exec(line);
-        if (invMatch) invariants.push(invMatch[1]);
-      }
+      invariants = configuredInvariants(cfgText);
       if (invariants.length === 0) {
         errors.push(`No INVARIANT declared in ${cfgPath}`);
+      }
+      const definitions = tlaText.replace(/\(\*[\s\S]*?\*\)/g, ' ').replace(/\\\*[^\n]*/g, '');
+      for (const match of definitions.matchAll(TLA_TRUE_DEFINITION)) {
+        const name = match[1];
+        if (!invariants.includes(name)) continue;
+        const next = definitions.slice(match.index + match[0].length).trimStart();
+        if (!next || TLA_NEXT_DECLARATION.test(next)) {
+          errors.push(`Trivial tautology invariant detected (${name} == TRUE) in ${tlaPath}`);
+        }
       }
     }
   }
@@ -378,7 +398,7 @@ export function runFormalGate({
   const config = settings.config;
   const fv = config.formal_verification;
   adapter ||= fv.checker.adapter;
-  mode ||= fv.enabled ? fv.mode : 'shadow';
+  mode ||= fv.enabled ? fv.mode : 'off';
   const report = { schema: 'sdd-formal-gate/v1', adapter, mode };
   const finish = (status, exitCode, more = {}) => ({ ...report, status, exitCode, ...more });
   const failed = mode === 'strict' ? 1 : 0;
