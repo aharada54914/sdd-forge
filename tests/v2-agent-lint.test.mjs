@@ -118,13 +118,18 @@ describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & B
     t.after(() => fs.rmSync(root, { recursive: true, force: true }));
     for (const dir of ['src', 'tests', 'reports/verification']) {
       fs.mkdirSync(path.join(root, dir), { recursive: true });
-      fs.writeFileSync(path.join(root, dir, 'tool.mjs'), "console.log('summary');\ntry {} catch {}\n");
+      fs.writeFileSync(path.join(root, dir, 'tool.mjs'), "console.log(JSON.stringify({ ok: true }));\nconsole.log('debug');\ntry {} catch {}\n");
     }
+    fs.writeFileSync(path.join(root, 'tests/module.mjs'), 'export const emit = data => console.log(JSON.stringify(data));');
     const report = runAgentLint({ projectRoot: root, mode: 'shadow', diffOnly: false });
-    assert.deepEqual(report.findings.filter(f => f.rule === 'no-console-log').map(f => f.path), ['src/tool.mjs']);
+    const consoleLocations = report.findings.filter(f => f.rule === 'no-console-log').map(f => [f.path, f.line]).sort();
+    assert.deepEqual(consoleLocations, [
+      ['reports/verification/tool.mjs', 2], ['src/tool.mjs', 1], ['src/tool.mjs', 2],
+      ['tests/module.mjs', 1], ['tests/tool.mjs', 2],
+    ]);
     assert.equal(report.findings.filter(f => f.rule === 'no-empty-catch').length, 3);
     const explicit = runAgentLint({ projectRoot: root, mode: 'shadow', files: ['tests/tool.mjs'] });
-    assert.ok(explicit.findings.some(f => f.rule === 'no-console-log'));
+    assert.ok(explicit.findings.some(f => f.rule === 'no-console-log' && f.line === 1));
   });
 
   it('uses TS syntax, scoped flag groups, configured control depth and comment nodes', t => {

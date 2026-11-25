@@ -146,14 +146,15 @@ export function runAgentLint({
     if (!cache.has(rel)) {
       const file = projectFile(root, rel);
       if (!file) throw new Error(`Cannot inspect project file: ${rel}`);
-      cache.set(rel, analyzeSource(fs.readFileSync(file, 'utf8'), rel, { maxDepth: alCfg.max_abstraction_depth }));
+      const reportTool = !explicit && (rel.startsWith('tests/') || rel.startsWith('reports/verification/'));
+      cache.set(rel, analyzeSource(fs.readFileSync(file, 'utf8'), rel, {
+        maxDepth: alCfg.max_abstraction_depth,
+        allowJsonReportOutput: reportTool,
+      }));
     }
     return cache.get(rel);
   }
   function add(rel, raw) {
-    // Explicit file checks can exercise every rule, including on its fixtures.
-    if (!explicit && raw.rule === 'no-console-log' &&
-        (rel.startsWith('tests/') || rel.startsWith('reports/verification/'))) return;
     const f = describeFinding(raw, rel, rulesMap);
     const waiver = activeWaivers.find(w => w.rule === f.rule && w.pathRe.test(rel));
     if (waiver) {

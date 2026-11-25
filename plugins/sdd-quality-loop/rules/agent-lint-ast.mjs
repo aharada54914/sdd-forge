@@ -68,8 +68,10 @@ export function readImports(source, filename) {
   }).map(localEdge).filter(Boolean);
 }
 
-export function analyzeSource(source, filename, { maxDepth = 6 } = {}) {
+export function analyzeSource(source, filename, { maxDepth = 6, allowJsonReportOutput = false } = {}) {
   const ast = parseSource(source, filename);
+  // Exported modules can be consumed by production even under a test directory.
+  const standaloneReport = allowJsonReportOutput && !ast.namedChildren().some(node => node.is('export_statement'));
   const findings = [];
   const imports = [];
   const groups = new Map();
@@ -100,7 +102,12 @@ export function analyzeSource(source, filename, { maxDepth = 6 } = {}) {
       const fn = node.field('function');
       if (fn?.text() === 'eval') record('no-eval-or-new-function', fn);
       if (fn?.text() === 'execSync') record('no-child-process-shell-true', fn);
-      if (memberIs(fn, 'console', 'log')) record('no-console-log', fn);
+      if (memberIs(fn, 'console', 'log')) {
+        const args = node.field('arguments')?.namedChildren() ?? [];
+        const jsonOutput = args.length === 1 && args[0].is('call_expression') &&
+          memberIs(args[0].field('function'), 'JSON', 'stringify');
+        if (!standaloneReport || !jsonOutput) record('no-console-log', fn);
+      }
     }
     if (kind === 'new_expression' && node.field('constructor')?.text() === 'Function') {
       record('no-eval-or-new-function', node.field('constructor'));
