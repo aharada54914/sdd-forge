@@ -684,3 +684,32 @@ describe('#972 review: Scope literals and lock renewal races', () => {
     assert.deepEqual(fs.readdirSync(path.dirname(lockPath)), ['f.lock'], 'no temporary files are left behind');
   });
 });
+
+describe('#972 review: bounded braces and owner renewal after expiry', () => {
+  it('a Scope whose brace expansion is too large is treated as touching everything', async () => {
+    const { extractScopePaths } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const huge = `src/${'{a,b}'.repeat(14)}.ts`;
+    const started = Date.now();
+    assert.deepEqual(extractScopePaths(`### Scope\n- \`${huge}\`\n`), ['**']);
+    assert.ok(Date.now() - started < 1000);
+    assert.equal(extractScopePaths('### Scope\n- `src/{a,b}/{c,d}.ts`\n').length, 4, 'small lists still expand');
+  });
+
+  it('the owner of an expired lock renews it without --break-stale; another owner still cannot', async () => {
+    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-own-expiry-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' }).acquired, true);
+    const lockPath = path.join(dir, '.sdd', 'locks', 'f.lock');
+    const expire = () => {
+      const r = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+      r.expiresAt = '2020-01-01T00:00:00.000Z';
+      fs.writeFileSync(lockPath, JSON.stringify(r), 'utf8');
+    };
+    expire();
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'B' }).acquired, false);
+    const renewed = acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' });
+    assert.equal(renewed.acquired, true, JSON.stringify(renewed));
+    assert.ok(Date.parse(JSON.parse(fs.readFileSync(lockPath, 'utf8')).expiresAt) > Date.now());
+  });
+});

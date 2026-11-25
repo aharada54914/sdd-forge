@@ -298,3 +298,51 @@ describe('#834 unreadable spec files are reported apart from deletions', () => {
     assert.equal(res.status, 1);
   });
 });
+
+describe('#972 review: unreadable and newly approved are visible and enforced', () => {
+  const GATE = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs');
+  const breakDesign = (repo) => {
+    // Over the CLI's 8 MiB read cap: present, but not read for drift.
+    const design = path.join(repo, 'specs', 'checkout', 'design.md');
+    const text = fs.readFileSync(design, 'utf8');
+    const cut = text.indexOf('\n') + 1;
+    fs.writeFileSync(design, `${text.slice(0, cut)}\n<!-- ${'x'.repeat(9 * 1024 * 1024)} -->\n${text.slice(cut)}`, 'utf8');
+  };
+  const gate = (repo, task = 'T-001') =>
+    spawnSync(process.execPath, [GATE, '--feature', 'checkout', '--task', task, '--root', repo, '--cmd', 'ok=node -e "process.exit(0)"'], { cwd: repo, encoding: 'utf8' });
+
+  it('UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Status: Planned', 'Status: Implementation Complete'), 'utf8');
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    breakDesign(repo);
+    const res = runCheck(repo, 'checkout', ['--fail-on-undeclared']);
+    assert.equal(JSON.parse(res.stdout).status, 'UNVERIFIABLE');
+    assert.equal(res.status, 1, 'UNVERIFIABLE on its own must fail');
+    const gated = JSON.parse(gate(repo).stdout);
+    assert.equal(gated.checks.specDrift.status, 'UNVERIFIABLE');
+    assert.equal(gated.verdict, 'FAIL');
+
+    const reqPath = path.join(repo, 'specs', 'checkout', 'requirements.md');
+    fs.writeFileSync(reqPath, fs.readFileSync(reqPath, 'utf8')
+      .replace('HTTP 400', 'HTTP 422')
+      .replace('- （初期版のため変更なし）', '- 2026-11-25: AC-002 uses 422 (owner agreed).'), 'utf8');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNVERIFIABLE', 'an amendment does not excuse an unread file');
+  });
+
+  it('a task approved after the baseline is listed even when CLEAN, and its gate run warns', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8')
+      .replace('Approval: Approved', 'Approval: Draft')
+      .replace('Status: Planned', 'Status: Implementation Complete'), 'utf8');
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Approval: Draft', 'Approval: Approved'), 'utf8');
+    const md = runCheck(repo, 'checkout', ['--format', 'markdown']).stdout;
+    assert.match(md, /CLEAN/);
+    assert.match(md, /T-001/, 'the approval change is shown to the PR reviewer');
+    const gated = JSON.parse(gate(repo).stdout);
+    assert.ok(gated.warnings.some((w) => /^APPROVED_AFTER_BASELINE: .*T-001/.test(w)), JSON.stringify(gated.warnings));
+  });
+});
