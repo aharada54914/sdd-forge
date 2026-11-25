@@ -36,7 +36,7 @@ import subprocess
 import sys
 
 bundle_path = os.environ["BUNDLE"]
-root = os.environ["ROOT"]
+root = str(pathlib.Path(os.environ["ROOT"]).resolve())
 script_dir = os.environ["SCRIPT_DIR"]
 failures = []
 

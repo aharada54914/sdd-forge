@@ -71,7 +71,7 @@ function Resolve-RepositoryPath {
     }
 
     $sep = [System.IO.Path]::DirectorySeparatorChar
-    if (-not ($resolved.StartsWith($rootPath + $sep) -or $resolved -eq $rootPath)) {
+    if (-not ($resolved.StartsWith($rootPath + $sep, [StringComparison]::Ordinal) -or $resolved -ceq $rootPath)) {
         Add-Failure "$Label escapes repo root: $RelativePath"
         return $null
     }
@@ -156,13 +156,13 @@ $gitCommit = $bundle.git_commit
 $gitGeneratedDirty = $bundle.git_generated_dirty
 $artifacts = @()
 
-if ($taskId -notmatch '^T-\d+$') {
+if ($taskId -cnotmatch '^T-\d+$') {
     Add-Failure "task_id is invalid: $taskId"
 }
-if ($bundleFeature -and $bundleFeature -notmatch '^[a-z0-9][a-z0-9-]*$') {
+if ($bundleFeature -and $bundleFeature -cnotmatch '^[a-z0-9][a-z0-9-]*$') {
     Add-Failure "feature is invalid: $bundleFeature"
 }
-if ((Split-Path -Leaf $BundlePath) -ne "$taskId.evidence.json") {
+if ((Split-Path -Leaf $BundlePath) -cne "$taskId.evidence.json") {
     Add-Failure "bundle filename does not match task_id: $(Split-Path -Leaf $BundlePath) vs $taskId"
 }
 if ($null -eq $bundle.artifacts) {
@@ -182,20 +182,20 @@ $contractInfo = Resolve-RepositoryPath -RelativePath ([string]$verificationContr
 $qualityText = $null
 if ($qualityInfo) {
     $qualityText = Get-Content -Raw -Encoding Utf8 -LiteralPath $qualityInfo.Resolved
-    if ($qualityText -notmatch "(?m)^Task ID:\s*$([regex]::Escape($taskId))\s*$") {
+    if ($qualityText -cnotmatch "(?m)^Task ID:\s*$([regex]::Escape($taskId))\s*$") {
         Add-Failure "quality_report missing Task ID: $taskId"
     }
     if ($qualityText -cnotmatch "(?m)^VERDICT:\s*PASS\s*$") {
         Add-Failure "quality_report missing VERDICT: PASS"
     }
-    if ((Split-Path -Leaf $qualityInfo.Resolved) -notmatch '\.md$') {
+    if ((Split-Path -Leaf $qualityInfo.Resolved) -cnotmatch '\.md$') {
         Add-Failure "quality_report must point to a markdown report: $qualityReport"
     }
 }
 
 $contract = $null
 if ($contractInfo) {
-    if ((Split-Path -Leaf $contractInfo.Resolved) -notmatch '\.contract\.json$') {
+    if ((Split-Path -Leaf $contractInfo.Resolved) -cnotmatch '\.contract\.json$') {
         Add-Failure "verification_contract must point to a contract JSON file: $verificationContract"
     }
     try {
@@ -208,11 +208,11 @@ if ($contractInfo) {
     } catch {
         Add-Failure "verification_contract could not be parsed as JSON: $verificationContract"
     }
-    if ($contract -and ([string]$contract.task_id).Trim() -ne $taskId) {
+    if ($contract -and ([string]$contract.task_id).Trim() -cne $taskId) {
         Add-Failure "verification_contract task_id mismatch: $($contract.task_id) != $taskId"
     }
     $contractFeature = if ($contract) { ([string]$contract.feature).Trim() } else { "" }
-    if ($contract -and ($contractFeature -or $bundleFeature) -and $contractFeature -ne $bundleFeature) {
+    if ($contract -and ($contractFeature -or $bundleFeature) -and $contractFeature -cne $bundleFeature) {
         Add-Failure "verification_contract feature mismatch: $contractFeature != $bundleFeature"
     }
 }
@@ -283,7 +283,7 @@ foreach ($artifact in @($artifacts)) {
     if (-not $artifactInfo) {
         continue
     }
-    if ($artifactSha -notmatch '^[a-f0-9]{64}$') {
+    if ($artifactSha -cnotmatch '^[a-f0-9]{64}$') {
         Add-Failure "artifact sha256 is invalid for ${artifactPath}: $($artifact.sha256)"
         continue
     }
@@ -293,7 +293,7 @@ foreach ($artifact in @($artifacts)) {
     }
     $artifactIndex[$artifactInfo.Normalized] = $artifactSha
     $actual = Get-Sha256 -Path $artifactInfo.Resolved
-    if ($actual -ne $artifactSha) {
+    if ($actual -cne $artifactSha) {
         Add-Failure "artifact sha256 mismatch for $($artifactInfo.Normalized)"
     }
 }
@@ -330,7 +330,7 @@ if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhi
                     $hashesOk = ($artifactIndex.Count -gt 0)
                     foreach ($norm in $artifactIndex.Keys) {
                         $artPath = [System.IO.Path]::Combine($absRoot, $norm)
-                        if (-not (Test-Path -LiteralPath $artPath) -or (Get-Sha256 -Path $artPath) -ne $artifactIndex[$norm]) {
+                        if (-not (Test-Path -LiteralPath $artPath) -or (Get-Sha256 -Path $artPath) -cne $artifactIndex[$norm]) {
                             $hashesOk = $false
                             break
                         }
@@ -358,7 +358,7 @@ $bundleRisk = ([string]$bundle.risk).Trim()
 # risk must NOT be able to dodge the provenance requirements.
 $contractRisk = ""
 if ($contract) { $contractRisk = ([string]$contract.risk).Trim() }
-if ($contractRisk -and $contractRisk -ne $bundleRisk) {
+if ($contractRisk -and $contractRisk -cne $bundleRisk) {
     $shownRisk = if ($bundleRisk) { $bundleRisk } else { "(empty)" }
     Add-Failure "bundle risk '$shownRisk' != contract risk '$contractRisk'"
 }
@@ -366,9 +366,9 @@ if ($contractRisk -and $contractRisk -ne $bundleRisk) {
 $effectiveRisk = if ($contractRisk) { $contractRisk } else { $bundleRisk }
 
 # High/critical tier provenance requirements
-if (@("high", "critical") -contains $effectiveRisk) {
+if (@("high", "critical") -ccontains $effectiveRisk) {
     $specRevision = ([string]$bundle.spec_revision).Trim()
-    if ($specRevision -notmatch '^[a-f0-9]{64}$') {
+    if ($specRevision -cnotmatch '^[a-f0-9]{64}$') {
         Add-Failure "high/critical bundle requires spec_revision (64-hex), got: $(if ($specRevision) { $specRevision } else { '(empty)' })"
     }
 
@@ -386,7 +386,7 @@ if (@("high", "critical") -contains $effectiveRisk) {
 }
 
 # Critical-only signature verification (T-007a)
-if ($effectiveRisk -eq "critical") {
+if ($effectiveRisk -ceq "critical") {
     if ($gitGeneratedDirty -eq $true) {
         Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
     }
@@ -398,7 +398,7 @@ if ($effectiveRisk -eq "critical") {
         $value = ([string]$signature.value).Trim().ToLowerInvariant()
         if ([string]::IsNullOrWhiteSpace($alg) -or [string]::IsNullOrWhiteSpace($value)) {
             Add-Failure "critical bundle signature requires non-empty alg and value"
-        } elseif ($alg -eq "hmac-sha256") {
+        } elseif ($alg -ceq "hmac-sha256") {
             $keyInfo = Resolve-EvidenceKey
             if ($null -eq $keyInfo) {
                 Add-Failure "critical bundle signature cannot be verified: no evidence key available"
@@ -409,11 +409,11 @@ if ($effectiveRisk -eq "critical") {
                 $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
                 $expectedBytes = $hmac.ComputeHash($canonicalBytes)
                 $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
-                if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {
+                if ([string]::Compare($expected, $value, [System.StringComparison]::Ordinal) -ne 0) {
                     Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
                 }
             }
-        } elseif ($alg -eq "sigstore") {
+        } elseif ($alg -ceq "sigstore") {
             $verified = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_SIGSTORE_VERIFIED")
             if ($verified -cne "1") {
                 Add-Failure "critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set"
