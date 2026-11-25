@@ -551,13 +551,16 @@ function checkReviewTickets(projectRoot, feature, taskState) {
 }
 
 function checkOpenQuestionsGate(projectRoot, feature, taskState) {
-  const featureDir = path.join(projectRoot, 'specs', feature);
-  const reqPath = path.join(featureDir, 'requirements.md');
-  const designPath = path.join(featureDir, 'design.md');
-  const allOqs = mergeOpenQuestions(
-    fs.existsSync(reqPath) ? parseOpenQuestions(fs.readFileSync(reqPath, 'utf8')) : [],
-    fs.existsSync(designPath) ? parseOpenQuestions(fs.readFileSync(designPath, 'utf8')) : [],
-  );
+  const texts = [];
+  for (const name of ['requirements.md', 'design.md']) {
+    const rel = `specs/${feature}/${name}`;
+    const stat = fs.statSync(path.join(projectRoot, rel), { throwIfNoEntry: false });
+    if (!stat) continue;
+    // A spec path that is not a file cannot be checked for open questions.
+    if (!stat.isFile()) return { passed: false, blocking: true, provisionalCount: 0, provisionalIds: [], error: `${rel} is not a regular file` };
+    texts.push(fs.readFileSync(path.join(projectRoot, rel), 'utf8'));
+  }
+  const allOqs = mergeOpenQuestions(...texts.map((text) => parseOpenQuestions(text)));
   const targetTask = taskState.taskId.toUpperCase();
   const provisional = allOqs.filter((q) => {
     if (q.confirmed) return false;

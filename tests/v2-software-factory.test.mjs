@@ -1168,7 +1168,7 @@ describe('batch-5 follow-up: a spec file replaced by a directory fails the gate 
       fs.writeFileSync(path.join(dir, 'specs', 'f', 'tasks.md'),
         '## T-001 t\nApproval: Approved\nStatus: Implementation Complete\nRisk: standard\n\n### Scope\n- `src/a.js`\n\n### Done When\n- AC-001\n');
       fs.mkdirSync(path.join(dir, 'specs', 'f', name));
-      const result = runSddGate({ feature: 'f', taskId: 'T-001', projectRoot: dir, skipDrift: true, skipSensors: true });
+      const { result } = runSddGate({ feature: 'f', taskId: 'T-001', projectRoot: dir, skipDrift: true, skipSensors: true });
       assert.equal(result.verdict, 'FAIL', name);
       assert.match(JSON.stringify(result.checks.openQuestions), new RegExp(`specs/f/${name.replace('.', '\\.')} is not a regular file`), name);
     }
