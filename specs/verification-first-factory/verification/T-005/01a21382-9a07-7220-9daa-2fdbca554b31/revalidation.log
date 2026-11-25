@@ -1,0 +1,408 @@
+T-005 report revalidation 01a21382-9a07-7220-9daa-2fdbca554b31
+Scratch root: /private/tmp/vff-t005-report-8wzh8d0f
+Input manifest SHA-256: 01af186c082a692fa8872d93b280925327382412176d9091560b24a97e22840f
+TLA2TOOLS_JAR=/private/tmp/sdd-formal-runtime/tla2tools.jar SHA-256=936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88
+
+$ bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest /Users/jrmag/sdd-forge/specs/verification-first-factory/verification/T-005/01a21382-9a07-7220-9daa-2fdbca554b31/task-input-manifest.json --snapshot-root /private/tmp/vff-t005-report-8wzh8d0f --expected-task T-005
+TASK_INPUT_OK
+exit=0 (expected 0)
+
+$ java -version
+openjdk version "21.0.13.1" 2026-11-17 LTS
+OpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)
+exit=0 (expected 0)
+
+$ node --version
+v24.13.0
+exit=0 (expected 0)
+
+$ node --test '--test-name-pattern=ADR-0054 T-005|scan finds|skips unchanged|changed inputs|retry exhaustion' tests/v2-formal-gate.test.mjs
+▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+  ✔ AC-003: discovers formal verification triggers from Risk: high and state-machine signals (2.438541ms)
+  ✔ AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4 (0.800125ms)
+  ✔ AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace (7.872292ms)
+✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (11.585709ms)
+✔ scan finds related compound branches and graph validation fails on unreachable states (423.168959ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 493.369208
+exit=0 (expected 0)
+
+$ python3 tests/project-skill-formal.tests.py -v
+test_delayed_contender_still_reaches_negative_barrier (__main__.Reservation.test_delayed_contender_still_reaches_negative_barrier) ... ok
+test_mutation_and_baseline (__main__.Reservation.test_mutation_and_baseline) ... ok
+test_negative_barrier_timeout_is_reported (__main__.Reservation.test_negative_barrier_timeout_is_reported) ... ok
+test_source_mapping_current (__main__.Reservation.test_source_mapping_current) ... ok
+test_spawn_failure_cleans_up_first_contender (__main__.Reservation.test_spawn_failure_cleans_up_first_contender) ... ok
+test_wrong_tool_bytes_are_rejected_before_execution (__main__.Reservation.test_wrong_tool_bytes_are_rejected_before_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.032s
+
+OK
+exit=0 (expected 0)
+
+$ node plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs --adapter tlc --mode strict --tla tests/fixtures/project-skills/formal-review-reservation/Reservation.tla --trace specs/verification-first-factory/verification/T-005/a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson --risk high --run-id reservation-valid
+{
+  "schema": "sdd-formal-gate/v1",
+  "adapter": "tlc",
+  "mode": "strict",
+  "moduleName": "Reservation",
+  "structure": {
+    "ok": true,
+    "moduleName": "Reservation",
+    "invariants": [
+      "OneAccepted"
+    ],
+    "mapping": {
+      "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "source_sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8",
+      "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
+      "mapping": {
+        "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
+        "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
+        "Publish": "jq staged append followed by mv temp_ledger ledger",
+        "Release": "rmdir lock and EXIT cleanup"
+      },
+      "assumptions": [
+        "mkdir and same-directory rename are atomic",
+        "every writer honors this same lock",
+        "hash collision excluded",
+        "no hostile filesystem changes",
+        "two contenders each uses the same initial hash and attempts once"
+      ],
+      "excluded": [
+        "crash recovery",
+        "lease expiry",
+        "network filesystems",
+        "Windows behavior",
+        "entire application correctness"
+      ],
+      "previous_source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+      "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
+      "mapping_recheck": "Compared with bd94f864: #743 exact quality delivery declaration admission was added/refactored before conditional design/domain paths; no ledger writer, lock, post-lock hash check, staged publish or release changed. The full reservation transaction remains byte-identical (reservation_tail_sha256). Current-source six-test baseline/mutation replay and pinned TLC baseline/negative model are re-run separately in the archived evidence at https://github.com/aharada54914/sdd-forge/tree/78a84dcad51709ee6881eba44ed162369ae048fb/reports/verification/all-features-20261114/inventory/formal-reservation. Scope/assumptions/exclusions unchanged.",
+      "source_sync_commit": "3f5521b01f63570460adf85cc2511cc0143fa98f",
+      "expected_violated_invariant": "OneAccepted",
+      "sources": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+      ],
+      "trace": {
+        "fields": [
+          "accepted"
+        ],
+        "actor_actions": [
+          "Acquire",
+          "Check",
+          "Publish",
+          "Release"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "trace": {
+    "ok": true,
+    "stepsChecked": 5,
+    "violations": []
+  },
+  "checker": {
+    "baseline": {
+      "ok": true,
+      "status": 0,
+      "unavailable": false,
+      "timedOut": false,
+      "violatedInvariant": null,
+      "distinctStates": 15,
+      "depth": 8,
+      "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "command": {
+        "bin": "java",
+        "shell": false,
+        "args": [
+          "-XX:+UseParallelGC",
+          "-cp",
+          "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+          "tlc2.TLC",
+          "-generateSpecTE",
+          "-workers",
+          "1",
+          "-config",
+          "Reservation.cfg",
+          "Reservation.tla"
+        ]
+      }
+    },
+    "negative": {
+      "ok": true,
+      "status": 12,
+      "unavailable": false,
+      "timedOut": false,
+      "violatedInvariant": "OneAccepted",
+      "distinctStates": 25,
+      "depth": 7,
+      "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "expectedViolatedInvariant": "OneAccepted",
+      "invariantMentioned": true,
+      "command": {
+        "bin": "java",
+        "shell": false,
+        "args": [
+          "-XX:+UseParallelGC",
+          "-cp",
+          "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+          "tlc2.TLC",
+          "-generateSpecTE",
+          "-workers",
+          "1",
+          "-config",
+          "Reservation.negative.cfg",
+          "Reservation.tla"
+        ]
+      }
+    },
+    "command": {
+      "bin": "java",
+      "shell": false,
+      "args": [
+        "-XX:+UseParallelGC",
+        "-cp",
+        "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+        "tlc2.TLC",
+        "-generateSpecTE",
+        "-workers",
+        "1",
+        "-config",
+        "Reservation.cfg",
+        "Reservation.tla"
+      ]
+    },
+    "replay": {
+      "ok": true,
+      "status": 12,
+      "unavailable": false,
+      "timedOut": false,
+      "violatedInvariant": "TraceIncomplete",
+      "distinctStates": 5,
+      "depth": 5,
+      "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "expectedViolatedInvariant": "TraceIncomplete",
+      "invariantMentioned": true,
+      "command": {
+        "bin": "java",
+        "shell": false,
+        "args": [
+          "-XX:+UseParallelGC",
+          "-cp",
+          "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+          "tlc2.TLC",
+          "-generateSpecTE",
+          "-workers",
+          "1",
+          "-config",
+          "SDDTraceReplay.cfg",
+          "SDDTraceReplay.tla"
+        ]
+      }
+    }
+  },
+  "evidence": "reports/verification/reservation-valid/checker-Zg48Sz",
+  "status": "PASS",
+  "exitCode": 0
+}
+exit=0 (expected 0)
+
+$ node plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs --adapter tlc --mode strict --tla tests/fixtures/project-skills/formal-review-reservation/Reservation.tla --trace /private/tmp/vff-t005-report-8wzh8d0f/tmp/changed-check.ndjson --risk high --run-id reservation-changed-check
+{
+  "schema": "sdd-formal-gate/v1",
+  "adapter": "tlc",
+  "mode": "strict",
+  "moduleName": "Reservation",
+  "structure": {
+    "ok": true,
+    "moduleName": "Reservation",
+    "invariants": [
+      "OneAccepted"
+    ],
+    "mapping": {
+      "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "source_sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8",
+      "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
+      "mapping": {
+        "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
+        "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
+        "Publish": "jq staged append followed by mv temp_ledger ledger",
+        "Release": "rmdir lock and EXIT cleanup"
+      },
+      "assumptions": [
+        "mkdir and same-directory rename are atomic",
+        "every writer honors this same lock",
+        "hash collision excluded",
+        "no hostile filesystem changes",
+        "two contenders each uses the same initial hash and attempts once"
+      ],
+      "excluded": [
+        "crash recovery",
+        "lease expiry",
+        "network filesystems",
+        "Windows behavior",
+        "entire application correctness"
+      ],
+      "previous_source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+      "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
+      "mapping_recheck": "Compared with bd94f864: #743 exact quality delivery declaration admission was added/refactored before conditional design/domain paths; no ledger writer, lock, post-lock hash check, staged publish or release changed. The full reservation transaction remains byte-identical (reservation_tail_sha256). Current-source six-test baseline/mutation replay and pinned TLC baseline/negative model are re-run separately in the archived evidence at https://github.com/aharada54914/sdd-forge/tree/78a84dcad51709ee6881eba44ed162369ae048fb/reports/verification/all-features-20261114/inventory/formal-reservation. Scope/assumptions/exclusions unchanged.",
+      "source_sync_commit": "3f5521b01f63570460adf85cc2511cc0143fa98f",
+      "expected_violated_invariant": "OneAccepted",
+      "sources": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+      ],
+      "trace": {
+        "fields": [
+          "accepted"
+        ],
+        "actor_actions": [
+          "Acquire",
+          "Check",
+          "Publish",
+          "Release"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "trace": {
+    "ok": false,
+    "stepsChecked": 5,
+    "violations": [
+      "The baseline model could not reproduce the observed trace"
+    ]
+  },
+  "checker": {
+    "baseline": {
+      "ok": true,
+      "status": 0,
+      "unavailable": false,
+      "timedOut": false,
+      "violatedInvariant": null,
+      "distinctStates": 15,
+      "depth": 8,
+      "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "command": {
+        "bin": "java",
+        "shell": false,
+        "args": [
+          "-XX:+UseParallelGC",
+          "-cp",
+          "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+          "tlc2.TLC",
+          "-generateSpecTE",
+          "-workers",
+          "1",
+          "-config",
+          "Reservation.cfg",
+          "Reservation.tla"
+        ]
+      }
+    },
+    "negative": {
+      "ok": true,
+      "status": 12,
+      "unavailable": false,
+      "timedOut": false,
+      "violatedInvariant": "OneAccepted",
+      "distinctStates": 25,
+      "depth": 7,
+      "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "expectedViolatedInvariant": "OneAccepted",
+      "invariantMentioned": true,
+      "command": {
+        "bin": "java",
+        "shell": false,
+        "args": [
+          "-XX:+UseParallelGC",
+          "-cp",
+          "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+          "tlc2.TLC",
+          "-generateSpecTE",
+          "-workers",
+          "1",
+          "-config",
+          "Reservation.negative.cfg",
+          "Reservation.tla"
+        ]
+      }
+    },
+    "command": {
+      "bin": "java",
+      "shell": false,
+      "args": [
+        "-XX:+UseParallelGC",
+        "-cp",
+        "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+        "tlc2.TLC",
+        "-generateSpecTE",
+        "-workers",
+        "1",
+        "-config",
+        "Reservation.cfg",
+        "Reservation.tla"
+      ]
+    },
+    "replay": {
+      "ok": false,
+      "status": 0,
+      "unavailable": false,
+      "timedOut": false,
+      "violatedInvariant": null,
+      "distinctStates": 2,
+      "depth": 2,
+      "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "expectedViolatedInvariant": "TraceIncomplete",
+      "invariantMentioned": false,
+      "command": {
+        "bin": "java",
+        "shell": false,
+        "args": [
+          "-XX:+UseParallelGC",
+          "-cp",
+          "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+          "tlc2.TLC",
+          "-generateSpecTE",
+          "-workers",
+          "1",
+          "-config",
+          "SDDTraceReplay.cfg",
+          "SDDTraceReplay.tla"
+        ]
+      }
+    }
+  },
+  "evidence": "reports/verification/reservation-changed-check/checker-jhE5wh",
+  "status": "FAIL",
+  "exitCode": 1
+}
+exit=1 (expected 1)
+
+Assertion failures: []
+
+$ node --test '--test-name-pattern=checker verdicts|skips an unchanged model' tests/v2-formal-gate.test.mjs
+▶ checker verdicts match the observed failure
+  ✔ does not accept a tool error mentioning the invariant as a negative control (2.476583ms)
+  ✔ defers a missing tool locally and fails CI (1.689916ms)
+  ✔ rejects a gate pass with undeclared drift and an unapproved completion (0.326375ms)
+✔ checker verdicts match the observed failure (4.758667ms)
+✔ skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view (102.596125ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.244084
+exit=0

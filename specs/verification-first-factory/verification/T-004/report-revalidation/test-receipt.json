@@ -1,0 +1,43 @@
+{
+  "revision": "725eb86c5ec64d7c3465db5bee24123e9fbe2712",
+  "run_id": "b69f8201-f0d9-442e-b51a-2f4a2a960333",
+  "input_manifest_sha256": "beab848e39ab1cc0bdfc186253edb4d03bf1621fc9cfcb32939435fd000b78ea",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "--format",
+        "json"
+      ],
+      "exit_code": 0,
+      "output": "{\n  \"schema\": \"sdd-agent-lint/v1\",\n  \"mode\": \"off\",\n  \"status\": \"SKIPPED\",\n  \"scannedFiles\": 0,\n  \"durationMs\": 1,\n  \"findings\": [],\n  \"waived\": [],\n  \"expiredWaivers\": []\n}\n"
+    },
+    {
+      "argv": [
+        "node",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "--format",
+        "json",
+        "--mode",
+        "shadow",
+        "--diff-only",
+        "--base-ref",
+        "origin/main"
+      ],
+      "exit_code": 0,
+      "output": "{\n  \"schema\": \"sdd-agent-lint/v1\",\n  \"mode\": \"shadow\",\n  \"status\": \"WARN\",\n  \"scannedFiles\": 34,\n  \"durationMs\": 1181,\n  \"findings\": [\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs\",\n      \"line\": 40,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-empty-catch\",\n      \"severity\": \"error\",\n      \"category\": \"reliability\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 4,\n      \"message\": \"空の catch ブロックが例外を無言で握り潰しています\",\n      \"remediation_hint\": \"例外をログ出力・再送出するか、意図的に無視する場合は理由コメントまたは guardrails.yaml の agent_lint.waivers に登録してください\",\n      \"snippet\": \"catch (err) {}\"\n    },\n    {\n      \"rule\": \"no-eval-or-new-function\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 8,\n      \"message\": \"eval() または new Function() の動的コード実行が検出されました\",\n      \"remediation_hint\": \"動的評価を廃止し、静的マッピング・JSON.parse・安全なパーサへ置き換えてください\",\n      \"snippet\": \"eval\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 12,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 16,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    }\n  ],\n  \"waived\": [],\n  \"expiredWaivers\": []\n}\n"
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/v2-agent-lint.test.mjs",
+        "tests/v2-wave3-integration.test.mjs",
+        "tests/v2-sdd-doctor.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "▶ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n  ✔ passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode (72.254167ms)\n  ✔ honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode (2.3605ms)\n  ✔ reports changed lines, untracked files and changed local imports on a clean branch checkout (183.219125ms)\n  ✔ uses TS syntax, scoped flag groups, configured control depth and comment nodes (1.442041ms)\n  ✔ NFR-004 performance budget: lints 100 files in <= 3000ms (18.485791ms)\n✔ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers (278.322583ms)\n▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)\n  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (314.403916ms)\n  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (8.622125ms)\n  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.439333ms)\n  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (1.613625ms)\n  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (29.284ms)\n  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.453625ms)\n  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (94.264959ms)\n✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (451.114542ms)\n▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2\n  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1400.754792ms)\n  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (168.085208ms)\n  ✔ T-008 resolves the baseline command against the committed implementation (321.016458ms)\n  ✔ T-008 stops at the first failing verification command in fail-fast mode (168.805708ms)\n  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3524.363375ms)\n  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (1038.030791ms)\n  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (334.559083ms)\n  ✔ T-008 resolves a nested project’s protected paths from its committed policy (198.213917ms)\n  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (199.354167ms)\n  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (285.748709ms)\n✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (7639.742792ms)\nℹ tests 22\nℹ suites 3\nℹ pass 22\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 7680.923417\n"
+    }
+  ]
+}

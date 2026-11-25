@@ -1,0 +1,90 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-004",
+  "run_id": "b69f8201-f0d9-442e-b51a-2f4a2a960333",
+  "session_id": "01a21387-9cbd-7871-a5a1-61e66fc880b8",
+  "agent_instance_id": "01a21387-9cbd-7871-a5a1-61e66fc880b8",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimated incremental API charge for this report run under the Codex subscription. Excludes subscription cost.",
+  "cost_estimate_timestamp": "2026-11-25T16:27:08Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "plugins/sdd-quality-loop/rules/agent-lint-ast.mjs",
+      "sha256": "8675b5764205df8602f7af1e97ebd16cf5988ab47ed68a5b0a61f846a32c0a06"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/agent-strict-rules.json",
+      "sha256": "391f63a048cf678dbe0ccb5105121d4a70f9900b3fc752945d313bb2b39c3060"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/lint-diff.mjs",
+      "sha256": "94998d112def4fbafa56f5ce675d227c67c2b4e275b89e941f58d62782baf3eb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/local-module-graph.mjs",
+      "sha256": "45db94d88fb3f62a70fcf297c52540e688be01e8cc77b2e44455fd01ec42f2a8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package-lock.json",
+      "sha256": "11c8bef06f85c87fcae33a7d471e9d0ac43f5432637331102a3f2b7619ba275d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package.json",
+      "sha256": "61acad78570f9db3a87b424e27ff97c84fc7bff2a42b85a715bd4fec6364cdce"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/source-ast.mjs",
+      "sha256": "bd55fc26a795ae02a83aca6596d4932ba09d7e9d4fd6ea5978a7ea678a81dabb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "72d0e6091955dd301e06aeb737e03d775768da59fe2f9859c3cd2ed9af783a44"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "sha256": "9ba1d0a985cf95d517d139dda7ae04e62bbe79ad764b93f41ab50ea7a745453b"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "tests/fixtures/agent-lint/clean.mjs",
+      "sha256": "9f59a71c37882b063c85cca88bbd852b04035e39694fe1e5969b2d256cfbd899"
+    },
+    {
+      "path": "tests/fixtures/agent-lint/violations.mjs",
+      "sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744"
+    },
+    {
+      "path": "tests/v2-agent-lint.test.mjs",
+      "sha256": "f74636412342f57a8dbbce057dd9168e65357ae17b9d34683fe8670173333e14"
+    },
+    {
+      "path": "tests/v2-sdd-doctor.test.mjs",
+      "sha256": "6e4aaea7d8f570f5c19f59a5ce1eb63965e63fa724f8532925a886b207f58c4c"
+    },
+    {
+      "path": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "4e64edab22db218a653f94dc5793b14942e80c565a19c1c6c4c84349c79233ea"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/verification-first-factory/verification/T-004/report-revalidation/test-receipt.json",
+    "reports/implementation/verification-first-factory/T-004.md"
+  ]
+}

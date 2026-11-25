@@ -1,0 +1,23 @@
+Revision: 725eb86c5ec64d7c3465db5bee24123e9fbe2712
+Snapshot: git archive, /private/tmp/sdd-vff-t001-vxmmag_2
+Input manifest SHA-256: 4df1799d9b1b5151be099a441d0d753d7c7e50ffde84364e578ee6d96bf3f134
+Command: rtk proxy node --test tests/v2-sdd-doctor.test.mjs
+Exit: 0
+
+▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)
+  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (161.200583ms)
+  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (7.442791ms)
+  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.322208ms)
+  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (1.574416ms)
+  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (26.597042ms)
+  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.270583ms)
+  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (85.031041ms)
+✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (283.922541ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 318.973791

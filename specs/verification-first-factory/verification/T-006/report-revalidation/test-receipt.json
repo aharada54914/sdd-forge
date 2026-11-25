@@ -1,0 +1,52 @@
+{
+  "revision": "725eb86c5ec64d7c3465db5bee24123e9fbe2712",
+  "run_id": "c7f9769d-4fcc-46f8-a258-f4eaecb5024c",
+  "input_manifest_sha256": "afb7d638cbfd61108a8752f459847d84f1b8ca3d839d6a1d34eb1634231eb25d",
+  "commands": [
+    {
+      "argv": [
+        "shasum",
+        "-a",
+        "256",
+        "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+        "/private/tmp/sdd-formal-runtime/apalache.jar"
+      ],
+      "exit_code": 0,
+      "output": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88  /private/tmp/sdd-formal-runtime/tla2tools.jar\nf2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9  /private/tmp/sdd-formal-runtime/apalache.jar\n"
+    },
+    {
+      "argv": [
+        "/private/tmp/sdd-formal-runtime/jdk-21.0.13.1+2-jre/Contents/Home/bin/java",
+        "-version"
+      ],
+      "exit_code": 0,
+      "output": "openjdk version \"21.0.13.1\" 2026-11-17 LTS\nOpenJDK Runtime Environment Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.13.1+2 (build 21.0.13.1+2-LTS, mixed mode, sharing)\n"
+    },
+    {
+      "argv": [
+        "sh",
+        "-c",
+        "export JAVA_HOME=\"/private/tmp/sdd-formal-runtime/jdk-21.0.13.1+2-jre/Contents/Home\" TLA2TOOLS_JAR=\"/private/tmp/sdd-formal-runtime/tla2tools.jar\" APALACHE_JAR=\"/private/tmp/sdd-formal-runtime/apalache.jar\"; export PATH=\"$JAVA_HOME/bin:$PATH\"; exec node --test tests/v2-formal-gate.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate\n  ✔ AC-003: discovers formal verification triggers from Risk: high and state-machine signals (2.0435ms)\n  ✔ AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4 (0.675667ms)\n  ✔ AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace (4.236541ms)\n✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (7.276875ms)\n▶ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)\n  ✔ validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces (1.486833ms)\n✔ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle) (1.545ms)\n▶ checker verdicts match the observed failure\n  ✔ does not accept a tool error mentioning the invariant as a negative control (1.609333ms)\n  ✔ defers a missing tool locally and fails CI (1.974708ms)\n  ✔ rejects a gate pass with undeclared drift and an unapproved completion (0.346625ms)\n✔ checker verdicts match the observed failure (4.018125ms)\n✔ scan finds related compound branches and graph validation fails on unreachable states (55.674ms)\n✔ skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view (116.175833ms)\n✔ TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces (25490.855875ms)\nℹ Reservation baseline no violation exit=0 states=15 depth=8\nℹ Reservation negative OneAccepted exit=12 states=25 depth=7\nℹ Reservation replay TraceIncomplete exit=12 states=5 depth=5\nℹ Reservation baseline no violation exit=0 states=15 depth=8\nℹ Reservation negative OneAccepted exit=12 states=25 depth=7\nℹ Reservation replay no violation exit=0 states=2 depth=2\nℹ TaskLock baseline no violation exit=0 states=5 depth=3\nℹ TaskLock negative SingleOwner exit=12 states=4 depth=3\nℹ TaskLock replay TraceIncomplete exit=12 states=4 depth=4\nℹ TaskLock baseline no violation exit=0 states=null depth=null\nℹ TaskLock negative SingleOwner exit=12 states=null depth=null\nℹ TaskLock replay TraceIncomplete exit=12 states=null depth=null\nℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10\nℹ TaskLock baseline no violation exit=0 states=5 depth=3\nℹ TaskLock negative SingleOwner exit=12 states=4 depth=3\nℹ TaskLock replay no violation exit=0 states=1 depth=1\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay no violation exit=0 states=2 depth=2\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay no violation exit=0 states=2 depth=2\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative RetryBound exit=12 states=35 depth=12\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative EscalationRequiresOQ exit=12 states=8 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative NoTamperRepair exit=12 states=13 depth=6\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative NoDriftPass exit=12 states=6 depth=5\nℹ tests 10\nℹ suites 3\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 25717.425542\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/project-skill-formal.tests.py"
+      ],
+      "exit_code": 0,
+      "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 1.005s\n\nOK\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-c",
+        "import json; from pathlib import Path; entries=json.loads(Path('sdd/approved-test-retirements.json').read_text())['retirements']; print('Approved retirements:', len(entries)); assert entries == []"
+      ],
+      "exit_code": 0,
+      "output": "Approved retirements: 0\n"
+    }
+  ]
+}

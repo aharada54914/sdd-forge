@@ -1,0 +1,66 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "6de20319-418b-4d91-84ea-816d633b9370",
+  "session_id": "01a21386-225c-7121-8ed1-576b2469d0cb",
+  "agent_instance_id": "01a21386-225c-7121-8ed1-576b2469d0cb",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimated incremental API charge for this report run under the Codex subscription. Excludes subscription cost.",
+  "cost_estimate_timestamp": "2026-11-25T16:25:41Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "CODEOWNERS",
+      "sha256": "da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sha256": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "72d0e6091955dd301e06aeb737e03d775768da59fe2f9859c3cd2ed9af783a44"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+      "sha256": "62b948661fef0b3df9800a4843b51f36f79bfa05ae8b925da0183f7372d94c86"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "21a4b28f8499aaff70b0d0931e97cb8b31abe39f202a359ddf50291731856e7d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "c2007ac8d4e781ca9868e01e38f595d2905f9fc1116cbb9abcaf2759c5277b2a"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "tests/v2-spec-drift.test.mjs",
+      "sha256": "c52511137cf1a5cd88e13da05e62a5fd3942f4c12516c8010dd15e89662e3f81"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/verification-first-factory/verification/T-002/report-revalidation/test-receipt.json",
+    "reports/implementation/verification-first-factory/T-002.md"
+  ]
+}

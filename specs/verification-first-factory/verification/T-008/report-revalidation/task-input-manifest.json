@@ -1,0 +1,110 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-008",
+  "run_id": "2bf703b2-cd55-4959-824e-862aa56241f3",
+  "session_id": "01a21386-3fc2-7a02-8f2f-75c04fff1faf",
+  "agent_instance_id": "01a21386-3fc2-7a02-8f2f-75c04fff1faf",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimated incremental API charge for this report run under the Codex subscription. Excludes subscription cost.",
+  "cost_estimate_timestamp": "2026-11-25T16:25:33Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sha256": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+      "sha256": "674d8533ab91b652105a623d4e30f2f6e1ea96769220a5e9d4b4a54c32a997b8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "sha256": "9122b5cce0bac86e246975a4586e636586a9435077c6ca759c7295c0e85add88"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "72d0e6091955dd301e06aeb737e03d775768da59fe2f9859c3cd2ed9af783a44"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+      "sha256": "165eb077592da01c6c7e5e68a1913747a4574ce3ac8a54c8b7c94f17c2664a3b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+      "sha256": "62b948661fef0b3df9800a4843b51f36f79bfa05ae8b925da0183f7372d94c86"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "sha256": "4a49246e4115b3a4c097150a0318931b8f747100c51454b154fb97da21cdf1fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "sha256": "9ba1d0a985cf95d517d139dda7ae04e62bbe79ad764b93f41ab50ea7a745453b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "sha256": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "510f5242a04e17c9bc4acd1fb33696fd816bb4a490bc5fc62309979d24c977c9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "sha256": "2eaa4c88d52514b2de9de0746aa2a564b0fe305f5e5f0ff1ab07a3328de664e3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "sha256": "9729ceab134dfa0302a30289be7d6594cf703e4c507f96eea0cc9e868a2ddf68"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "sha256": "2e57f256b3772f59666081e2c0dec7cf69d67081155ae4b624e0df43a90f546f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "21a4b28f8499aaff70b0d0931e97cb8b31abe39f202a359ddf50291731856e7d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "c2007ac8d4e781ca9868e01e38f595d2905f9fc1116cbb9abcaf2759c5277b2a"
+    },
+    {
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "sha256": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "tests/v2-sdd-core-flow.test.mjs",
+      "sha256": "78b3a1be82a87781c7c82c821bcd758fd7584d7a2e0b0806cac81d709ca94224"
+    },
+    {
+      "path": "tests/v2-spec-drift.test.mjs",
+      "sha256": "c52511137cf1a5cd88e13da05e62a5fd3942f4c12516c8010dd15e89662e3f81"
+    },
+    {
+      "path": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "4e64edab22db218a653f94dc5793b14942e80c565a19c1c6c4c84349c79233ea"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/verification-first-factory/verification/T-008/report-revalidation/test-receipt.json",
+    "reports/implementation/verification-first-factory/T-008.md"
+  ]
+}

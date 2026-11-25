@@ -1,0 +1,110 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-007",
+  "run_id": "eeed4db5-448b-438e-b8d1-0b2fda54a583",
+  "session_id": "01a21382-afc5-7640-9497-da032816273f",
+  "agent_instance_id": "codex-01a21382-afc5-7640-9497-da032816273f",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "ChatGPT-authenticated Codex session; incremental API charge estimate, excluding subscription and usage credits.",
+  "cost_estimate_timestamp": "2026-11-25T16:23:05Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "592fbdc3d43c64c81596c14efafc6d2fc07bf8311f703e4b98c5e20ddb63341a"
+    },
+    {
+      "path": "README.md",
+      "sha256": "9b31b1e2b87f053d4ccffc3d08ab6fcdec29fb25e026a9af03e21189b93a550c"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/read-issue-source.mjs",
+      "sha256": "c245d508d1d113a4a0ba9a512367b44d703cbe6a54b5c8aa0f57010e4e29cff9"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/render-design-template.mjs",
+      "sha256": "fc81e4f80bbce3cc5955fc668dc319c9951269d7c57aee0677fd5f08ec80139b"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "sha256": "bce57b23f56fc76e450cfabaca8514ab6e0381c713852d53e0d33f174feddd48"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md",
+      "sha256": "feced0ef178cd1b03295a13c449afbae6b61de769a08d56e98f3e8317231364d"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-core-spec/templates/design.md",
+      "sha256": "52c23169a5a2f107adc8335696ba11f82d1b551edb63830dd321dc0f445c24f8"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "17df050152304f6d7eddadc49ae77b0504cfba1b6d220d38dce620a390baaf42"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "181e28c74c811dbbaebe9a9a860547841b1ff6e020a687b64541f7894a064d90"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/security.yml",
+      "sha256": "7cdc8f6add9e2a20979b8f4ae40d5e3eec617604a0191011c09e628d21a2896f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "72d0e6091955dd301e06aeb737e03d775768da59fe2f9859c3cd2ed9af783a44"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "sha256": "2eaa4c88d52514b2de9de0746aa2a564b0fe305f5e5f0ff1ab07a3328de664e3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "sha256": "15e56dac448c452a0ec56e3e0d54f1a455936b67e47db80d241859c62672037d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
+      "sha256": "aafa1d4c540197791581375faa626973e9932470c921d87626fb5b4fc362a297"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "21a4b28f8499aaff70b0d0931e97cb8b31abe39f202a359ddf50291731856e7d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "c2007ac8d4e781ca9868e01e38f595d2905f9fc1116cbb9abcaf2759c5277b2a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "tests/self-security-adversarial.test.mjs",
+      "sha256": "303bae835ba9590d74ba642d73c466985171eee1e76f6bfbfdcccbb1cb295045"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-007.md",
+    "specs/verification-first-factory/verification/T-007/eeed4db5-448b-438e-b8d1-0b2fda54a583/test-evidence.txt"
+  ]
+}

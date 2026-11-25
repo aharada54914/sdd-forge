@@ -1,0 +1,86 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-003",
+  "run_id": "cb3966ba-5ec9-42f9-b69b-6d15714f80ef",
+  "session_id": "01a21387-88c9-7621-a211-f6b2f38b739f",
+  "agent_instance_id": "01a21387-88c9-7621-a211-f6b2f38b739f",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimated incremental API charge for this report run under the Codex subscription. Excludes subscription cost.",
+  "cost_estimate_timestamp": "2026-11-25T16:26:58Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "3d6b5a2f8b96a026c2f243e035bfdedfd4d08bf23ec5d3cfa54f3e9ae85b2f92"
+    },
+    {
+      "path": "docs/operations/verification-catalog-status.md",
+      "sha256": "f583688fa48d0a5cdc05f747675e6cb40dc6e2cf1e9d43fe8a9dba78d78da43b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/source-ast.mjs",
+      "sha256": "bd55fc26a795ae02a83aca6596d4932ba09d7e9d4fd6ea5978a7ea678a81dabb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "sha256": "15e56dac448c452a0ec56e3e0d54f1a455936b67e47db80d241859c62672037d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "21a4b28f8499aaff70b0d0931e97cb8b31abe39f202a359ddf50291731856e7d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "c2007ac8d4e781ca9868e01e38f595d2905f9fc1116cbb9abcaf2759c5277b2a"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "tests/self-fitness.test.mjs",
+      "sha256": "a4e52a9cbfde922cf468cabf3c5cc062b27e11a16c49cdd2c39bcad3a7a1b3a8"
+    },
+    {
+      "path": "tests/verification-catalog-status.mjs",
+      "sha256": "385a4f65ff166acfd8e8784f5666f85a62c6e6b64315d5a9ae158538b024d5e7"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "1e78d83e8708c69bd2fe9d5e8489ceb6891668ffc7b2d92c85071b6ad27e657f"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "71dfbf310bd6d96005c011b52b2bb6d7396440589b3904de08b7e1c7f3b436c5"
+    },
+    {
+      "path": "tests/verification-timings.json",
+      "sha256": "76f7b31490f174580f182c73143d172b227054556177591b252d6ed426499050"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "279f532983c10e007c2138724fb667f0c4c2243cabee91e0e9e29c24c8b1137b"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/verification-first-factory/verification/T-003/report-revalidation/test-receipt.json",
+    "reports/implementation/verification-first-factory/T-003.md"
+  ]
+}

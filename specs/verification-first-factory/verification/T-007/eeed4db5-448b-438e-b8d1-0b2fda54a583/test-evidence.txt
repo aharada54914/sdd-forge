@@ -1,0 +1,126 @@
+Task: T-007
+Operation: verification of already implemented task in a fresh worker
+Run ID: eeed4db5-448b-438e-b8d1-0b2fda54a583
+Codex worker thread: 01a21382-afc5-7640-9497-da032816273f
+Agent path: /root/reports_security
+Source revision: 725eb86c5ec64d7c3465db5bee24123e9fbe2712
+Previous implementation report revision: 5006c3747efc8f959ebcb37387d4c0d072dbce97
+Previous implementation report SHA-256: 2bbe37fc88b82e1342dfb0cd842777f1dff986f83d391f13ae73eb7fab91e661
+Input manifest: specs/verification-first-factory/verification/T-007/eeed4db5-448b-438e-b8d1-0b2fda54a583/task-input-manifest.json
+Input manifest SHA-256: c14c7070ae2c46afdd53547de3ea3070aae1c0daa07076f4bc0a6872b75000f8
+Input validation before test: TASK_INPUT_OK
+Scratch root: /private/tmp/vff-T007-41kne2p8
+Node: v24.13.0
+Started (UTC): 2026-11-25T16:23:23.243648+00:00
+Finished (UTC): 2026-11-25T16:23:23.601415+00:00
+Command: rtk proxy node --test --test-reporter=tap tests/self-security-adversarial.test.mjs
+Exit code: 0
+
+TAP version 13
+# Subtest: ADR-0054 T-007 (SELF-AC-004 / AC-008): Adversarial Security Suite & Allowlist Security Gate
+    # Subtest: 1. Rejects arbitrary command keys in guardrails.yaml and unallowed adapters with exit code 2
+    ok 1 - 1. Rejects arbitrary command keys in guardrails.yaml and unallowed adapters with exit code 2
+      ---
+      duration_ms: 26.732541
+      type: 'test'
+      ...
+    # Subtest: 2. Refuses Windows .cmd/.bat wrappers (CVE-2024-27980 defense) and enforces shell: false
+    ok 2 - 2. Refuses Windows .cmd/.bat wrappers (CVE-2024-27980 defense) and enforces shell: false
+      ---
+      duration_ms: 0.429375
+      type: 'test'
+      ...
+    # Subtest: 3. Detects leaked secrets and ALWAYS masks raw secret tokens in output
+    ok 3 - 3. Detects leaked secrets and ALWAYS masks raw secret tokens in output
+      ---
+      duration_ms: 29.818167
+      type: 'test'
+      ...
+    # Subtest: 4. Detects slopsquatting / typosquatting packages and insecure HTTP deps in package.json
+    ok 4 - 4. Detects slopsquatting / typosquatting packages and insecure HTTP deps in package.json
+      ---
+      duration_ms: 1.141334
+      type: 'test'
+      ...
+    # Subtest: 5. Fails closed (exit 2) in CI strict mode when an enabled external adapter is unavailable
+    ok 5 - 5. Fails closed (exit 2) in CI strict mode when an enabled external adapter is unavailable
+      ---
+      duration_ms: 0.200792
+      type: 'test'
+      ...
+    # Subtest: 6. Core path traversal & soft-guard self-approval defense hold against adversarial inputs
+    ok 6 - 6. Core path traversal & soft-guard self-approval defense hold against adversarial inputs
+      ---
+      duration_ms: 27.390583
+      type: 'test'
+      ...
+    1..6
+ok 1 - ADR-0054 T-007 (SELF-AC-004 / AC-008): Adversarial Security Suite & Allowlist Security Gate
+  ---
+  duration_ms: 86.183417
+  type: 'suite'
+  ...
+# Subtest: Security adapter contracts and bootstrap integration
+    # Subtest: rejects incomplete scans in CI and on configured high risk paths
+    ok 1 - rejects incomplete scans in CI and on configured high risk paths
+      ---
+      duration_ms: 1.391459
+      type: 'test'
+      ...
+    # Subtest: uses explicit opt-in and rejects invalid modes, paths and malformed config
+    ok 2 - uses explicit opt-in and rejects invalid modes, paths and malformed config
+      ---
+      duration_ms: 0.756458
+      type: 'test'
+      ...
+    # Subtest: keeps simulated Issue instructions in the source body and rejects shell metacharacters in adapter IDs
+    ok 3 - keeps simulated Issue instructions in the source body and rejects shell metacharacters in adapter IDs
+      ---
+      duration_ms: 23.545375
+      type: 'test'
+      ...
+    # Subtest: checks nested package manifests and fails closed on unreadable dependencies
+    ok 4 - checks nested package manifests and fails closed on unreadable dependencies
+      ---
+      duration_ms: 1.249041
+      type: 'test'
+      ...
+    # Subtest: interprets CodeQL SARIF results and requires a report after database analysis
+    ok 5 - interprets CodeQL SARIF results and requires a report after database analysis
+      ---
+      duration_ms: 1.024083
+      type: 'test'
+      ...
+    # Subtest: runs Socket policy checks, identifies malformed reports and masks raw output
+    ok 6 - runs Socket policy checks, identifies malformed reports and masks raw output
+      ---
+      duration_ms: 0.449667
+      type: 'test'
+      ...
+    # Subtest: persists deterministic meta-analysis and reads repository-wide learning, knowledge and OQ inputs
+    ok 7 - persists deterministic meta-analysis and reads repository-wide learning, knowledge and OQ inputs
+      ---
+      duration_ms: 88.707583
+      type: 'test'
+      ...
+    # Subtest: renders the design reframing section for standard, high and an explicit low-risk override
+    ok 8 - renders the design reframing section for standard, high and an explicit low-risk override
+      ---
+      duration_ms: 90.880167
+      type: 'test'
+      ...
+    1..8
+ok 2 - Security adapter contracts and bootstrap integration
+  ---
+  duration_ms: 208.200166
+  type: 'suite'
+  ...
+1..2
+# tests 14
+# suites 2
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 330.287209
