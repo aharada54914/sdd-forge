@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-002
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -31,3 +31,7 @@ followup_resolution:
   evidence: "specs/verification-first-factory/verification/T-002/RT-20261126-002-bash/public-cli-receipt.json"
   result: "Bash ANSI-C-quoted here-document help exits 0 without an open question. Appending a real suppression comment exits 4 and persists exactly one finding."
 command_substitution_followup: "The independent review found a false directive in help captured via a quoted Bash command substitution containing a literal quotation mark."
+command_substitution_resolution:
+  commit: "49c0e30f9"
+  evidence: "specs/verification-first-factory/verification/T-002/RT-20261126-002-command-substitution/public-cli-receipt.json"
+  result: "Captured help exits 0 with no findings. An appended real directive exits 4 with exactly one finding."
