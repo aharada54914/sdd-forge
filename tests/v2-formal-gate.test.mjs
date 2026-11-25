@@ -25,6 +25,62 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
 
 describe('ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate', () => {
+  it('checks literal TRUE only for invariants selected by the active CFG', (t) => {
+    const dir = sandbox(t);
+    const tlaPath = path.join(dir, 'Flags.tla');
+    const cfgPath = path.join(dir, 'Flags.cfg');
+    fs.writeFileSync(tlaPath, [
+      '---- MODULE Flags ----', 'VARIABLE flag', 'Enabled == TRUE',
+      'TypeOK == TRUE /\\ flag \\in BOOLEAN', 'Ready == TRUE', '    /\\ TypeOK', '====',
+    ].join('\n'));
+    fs.writeFileSync(cfgPath, 'INVARIANTS\n  TypeOK\n  Ready\n');
+    const valid = validateTlaModelStructure({ tlaPath, cfgPath });
+    assert.deepEqual(valid.errors, []);
+    assert.deepEqual(valid.invariants, ['TypeOK', 'Ready']);
+    fs.writeFileSync(cfgPath, 'INVARIANT Enabled\n');
+    const invalid = validateTlaModelStructure({ tlaPath, cfgPath });
+    assert.equal(invalid.ok, false);
+    assert.ok(invalid.errors.some((message) => message.includes('Enabled == TRUE')));
+  });
+
+  it('stops a disabled formal gate in CI and honors an explicit checker mode', (t) => {
+    const projectRoot = sandbox(t);
+    const settings = path.join(projectRoot, 'sdd/guardrails.json');
+    fs.mkdirSync(path.dirname(settings));
+    const cli = (...flags) => {
+      const result = spawnSync(process.execPath, [path.join(scripts, 'run-formal-gate.mjs'),
+        '--root', projectRoot, '--tla', reservation, '--jar', path.join(projectRoot, 'missing.jar'), ...flags],
+      { env: { ...process.env, CI: 'true' }, encoding: 'utf8' });
+      const report = JSON.parse(result.stdout);
+      assert.equal(result.status, report.exitCode);
+      return [report.mode, report.status, report.exitCode];
+    };
+    function configure(enabled) {
+      fs.writeFileSync(settings, JSON.stringify({ formal_verification: { enabled, mode: 'strict', checker: { adapter: 'tlc' } } }));
+    }
+    configure(false);
+    assert.deepEqual(cli(), ['off', 'SKIPPED', 0]);
+    assert.deepEqual(cli('--mode', 'shadow'), ['shadow', 'TOOL_UNAVAILABLE', 1]);
+    configure(true);
+    assert.deepEqual(cli(), ['strict', 'TOOL_UNAVAILABLE', 1]);
+    assert.deepEqual(cli('--mode', 'off'), ['off', 'SKIPPED', 0]);
+  });
+
+  it('respects disabled formal configuration in the integrated gate', (t) => {
+    const projectRoot = sandbox(t);
+    const spec = path.join(projectRoot, 'specs/demo');
+    fs.mkdirSync(spec, { recursive: true });
+    fs.writeFileSync(path.join(spec, 'tasks.md'), '## T-001 Formal rollback\nApproval: Approved\nStatus: Implementation Complete\nRisk: low\n');
+    fs.mkdirSync(path.join(projectRoot, 'sdd'));
+    fs.writeFileSync(path.join(projectRoot, 'sdd/guardrails.json'), JSON.stringify({
+      formal_verification: { enabled: false, mode: 'strict', checker: { adapter: 'tlc' } },
+    }));
+    const { result } = runSddGate({ projectRoot, feature: 'demo', taskId: 'T-001',
+      formalTla: 'unused.tla', changedFiles: [], commands: [], skipDrift: true, skipSensors: true });
+    const formalGate = result.checks.formalGate;
+    assert.deepEqual([formalGate.status, formalGate.skipped, formalGate.passed], ['SKIPPED', true, true]);
+  });
+
   it('AC-003: discovers formal verification triggers from Risk: high and state-machine signals', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-discover-sm-'));
     fs.mkdirSync(path.join(dir, 'specs', 'payments'), { recursive: true });
