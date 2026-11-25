@@ -23,9 +23,9 @@
 test at tests/v2-sdd-doctor.test.mjs:147:3
 ✖ normalizes inline extension mappings, including nested options and quoted commas (22.558125ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   false !== true
-  
+
       at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-rereview-v3ngzm9y/evidence-clone/tests/v2-sdd-doctor.test.mjs:158:12)
       at Test.runInAsyncScope (node:async_hooks:214:14)
       at Test.run (node:internal/test_runner/test:1106:25)
@@ -123,10 +123,10 @@ test at tests/v2-sdd-doctor.test.mjs:171:3
       }
     }
   }
-  
-  
+
+
   0 !== 2
-  
+
       at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-rereview-v3ngzm9y/evidence-clone/tests/v2-sdd-doctor.test.mjs:180:14)
       at Test.runInAsyncScope (node:async_hooks:214:14)
       at Test.run (node:internal/test_runner/test:1106:25)
@@ -146,10 +146,10 @@ test at tests/v2-sdd-doctor.test.mjs:189:3
 ✖ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (94.483083ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected
-  
+
   + 'unavailable'
   - 'available'
-  
+
       at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-rereview-v3ngzm9y/evidence-clone/tests/v2-sdd-doctor.test.mjs:292:12)
       at Test.runInAsyncScope (node:async_hooks:214:14)
       at Test.run (node:internal/test_runner/test:1106:25)
