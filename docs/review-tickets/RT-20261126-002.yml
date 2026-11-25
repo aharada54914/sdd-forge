@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-002
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -26,3 +26,7 @@ resolution:
   evidence: "reports/implementation/verification-first-factory/T-002.md"
   result: "The public CLI accepts the archived help document without an open question and flags genuine suppression comments before, alongside and after the here-document."
 reopened: "Independent evaluation at cc5872c2905e reproduced the same help-text false positive with a Bash ANSI-C-quoted delimiter."
+followup_resolution:
+  commit: "88f93aae0"
+  evidence: "specs/verification-first-factory/verification/T-002/RT-20261126-002-bash/public-cli-receipt.json"
+  result: "Bash ANSI-C-quoted here-document help exits 0 without an open question. Appending a real suppression comment exits 4 and persists exactly one finding."
