@@ -1,0 +1,42 @@
+# 要件　Codex の版別プラグインから Concept Test を実行する
+
+通常の Codex 導入で、DDD を採用した利用者が承認済みドメインモデルと機能提案を検証し、結果に従って仕様作成と品質確認を進められること。起点は監査 N14、製品候補 `de75c168ebf723da63f5c165a0a4329989fb3d54`。同候補の macOS 実測では登録は終了0、正常な FITS でも登録先の両ラッパーと Node ゲートは終了1。同じ利用者プロジェクトを平坦な導入元で読む3件と、DDDなしの両配置のゲートは成功した。生ログ `n14-de75c168-native-package.json` の SHA-256 は `f19c9729142e0a3bd5f9e3c31fca4f04176a7562d0b94c000b8ce8cb1133d74d`。公式の配置元は `.agents/plugins/marketplace.json:51,77`、登録処理は `install.sh:334` と `install.ps1:324`。
+
+## 要件
+
+- **REQ-001**: Codex が選んだ公開プラグインの版だけで、利用者は bootstrap から Concept Test の説明と実行可能なコマンドへ到達し、品質ゲートは同じ契約を再検査できる。プロジェクトに製品コードやスキーマを用意する作業は不要。
+- **REQ-002**: FITS は鍵不要で進め、Non-FITS に対する進行・保留・却下は人がターミナルで明示する。受理する feature・提案・入力・判断と、停止時の後続処理は既存契約に従う。
+- **REQ-003**: 旧署名付き v1 と、現行／固定時点のレビューが参照した入力バイト・信頼済み実行資材の拘束を保持する。版別配置に合わせるために、利用者の状態や過去の承認・履歴を書き換える必要はない。
+- **REQ-004**: 各版の公式配布物の資材を再生成・照合でき、資材の欠落、不整合を検出して停止する。DDD を使わない機能では既存の Node 単体動作を保つ。
+
+## 受入条件
+
+以下は実装後の検収条件。ゲート欄は他のゲート条件を満たした孤立 fixture に検証用コマンドを1個登録して測る。ラッパーは実配布された POSIX `.sh` と PowerShell `.ps1` の双方を指す。
+
+- **AC-001** (REQ-001): 実 Codex と一時 HOME/CODEX_HOME で公式 marketplace を追加し domain を登録する。登録の終了0、実際に返った domain・quality の版別ルートを記録する。利用者プロジェクトは別ディレクトリで製品の `plugins/` と `contracts/` を持たない。空白を含む利用者プロジェクトで、少なくとも1つの実ホストの公開 `/sdd-bootstrap:bootstrap feature --feature <slug> <source>` から委譲を観測する。未確認の区別はseed保存・質問待ちで止まる。区別について本人の明示確認を得た別の代表Non-FITSケースで、ホストが実際に使ったモデル検証器・提案スキーマの場所と、本人向けに表示した `--confirm` コマンドの原文を採取する。そのパスが選択版に属し、表示された一行を本人が対応シェルにそのまま渡すと、対象プロジェクト・featureの端末確認画面に届く。EOFまたは中断で終了し判断記録が作られないことまで確認できる。登録ログから後で合成したコマンド、スキル文面のみの確認はこの対話の合格証拠にならない。両シェルの実行はAC-002～004で検証する。根拠は `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md:14–15,50–54`、`plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md:25`、`plugins/sdd-domain/skills/concept-test/SKILL.md:14,18–21`。
+- **AC-002** (REQ-001, REQ-002): 承認済みモデルと正常な `FITS_EXISTING_CONCEPTS` v2 の場合、鍵・registry・判断記録なしに各ラッパーが `0 CONTINUE`。quality の実 Node ゲートは `0 PASS`、`checks.conceptTest.status=CONTINUE`、後続1回。gate は domain プラグインを隣に置かなくてもこの結果になる。契約の出典は `plugins/sdd-domain/skills/concept-test/SKILL.md:19–26`、`plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs:545–556,630–631`。
+- **AC-003** (REQ-002): `NEW_CONCEPT_CANDIDATE`、`RESPONSIBILITY_CONFLICT`、`REQUIRES_HUMAN_DECISION` の各提案について、`--confirm` の端末に project、feature、提案、根拠、区別、入力、そのJSON/MarkdownのSHA-256が出る。各分類と3選択の全9組を両ラッパーで合成端末・別fixtureで確認する。発行後は通常の読取と Node ゲートにも渡す。期待値は下表。提案ファイルとモデルのバイトは不変、判断記録の schema・feature・両ダイジェスト・選択は実データと一致する。根拠は `contracts/concept-test.v2.schema.json:23–28`、`plugins/sdd-domain/scripts/validate-concept-test.py:184–210,251–267`。
+
+| 人の選択 | 確認・再読取の終了値と出力 | ゲート終了値／判定／conceptTest.status／後続回数 |
+|---|---|---|
+| proceed | 0 CONTINUE | 0／PASS／CONTINUE／1 |
+| defer-to-domain-update | 2 DEFER | 1／FAIL／DEFER／0 |
+| rejected | 3 REJECT | 1／FAIL／REJECT／0 |
+
+- **AC-004** (REQ-002): 記録なしのNon-FITSでは両読取入口が1、Nodeは1／BLOCK／後続0。非TTY・空入力・EOF・中断・選択中の入力変更は確認失敗で、新規記録はなく、既存記録があればそのバイトを保持する。feature違い、提案JSONのダイジェスト違い、Markdownのダイジェスト違い、固定済みモデル入力の変更、JSON/Markdownの内容不一致、v2に旧sidecarが混在、FITSに余分な判断記録を各々独立に与えると、検証は1で停止し、対象v2のゲートも1／BLOCK／後続0。入力を正規に更新した同一featureは、人の再確認と再検査で回復できる。根拠は `plugins/sdd-domain/scripts/validate-concept-test.py:67–107,119–132,213–248` と `tests/concept-test.tests.py:239,279`。
+- **AC-005** (REQ-003): 旧 v1 FITS は従来通り、Non-FITS は真正な合成署名・registryによる既存の3判断を両ラッパーで0／2／3へ写す。署名不正、sidecar欠落、registry欠落、v1へのv2記録混在を個別に与えると各々1。旧 decision packet の signed-only 正負は従来の平坦な正式製品配置で実行する。署名済みv1の判断を表示し、v2ローカル判断を代用できない。版別配置の検収入口はdomainの両ラッパーとqualityのNodeゲートとし、旧packetの版別提供を追加しない。v1だけの正規機能は軽量Nodeゲートで NOT_APPLICABLE、v2を要求した直接検証にv1は1。旧記録の内容は検査前後で一致。根拠は `plugins/sdd-bootstrap/scripts/decision-packet.py:512–528`、`plugins/sdd-domain/scripts/validate-concept-test.py:55–66,140–165`、`tests/concept-test.tests.py:411–428,492`。
+- **AC-006** (REQ-003): 同名featureがある親とネスト先で、quality の条件付き読取を spec・impl・task・quality の各段階で検査する。対象は引数で指定した利用者プロジェクト。固定commitのproceed・現在のdeferまたはrejectなら固定だけを受理。固定時点に記録なし・現在はproceedなら現在だけを受理。受理時の入力パスとSHA-256を選択時点の実バイトに照合する。別root用の旧fixed inventoryは従来通り不受理。従来の固定レビュー前提を満たす利用者プロジェクトPと、ランチャーが選んだ実行資材の配布元Rを別の物理ディレクトリに置く。条件付き読取モジュールをRとPの同じ相対位置・同じバイトで用意しても、実ロード先と `dependencies.json` の絶対パス・SHA-256がRの実体に一致することを観測する。N14で実際に使うschema・実装・資材選択に用いる一覧やmanifestも同様に拘束する。Pの同名コピーを保持したままRの対象を個別に欠落・変更させると処理は失敗し、予約追記・審査開始はともに0。従来Pで固定している資材の変更・欠落も従来通り拒否する。参照 `plugins/sdd-review-loop/scripts/launch-impl-review.py:20–73,89–104,469–492,540–573`、`tests/concept-test.tests.py:334–405`、`tests/concept-review-continuity.tests.py:186–209`。
+- **AC-007** (REQ-001, REQ-004): sourceに含まれる配布資材と正本の一覧・SHA-256を機械照合する。完全な同版なら成功、必要なラッパー依存・schemaの欠落、宣言版不一致、正本と異なる1ファイルは個別に検出する。実行中の版で必須資材欠落・版または内容の不一致があれば、他版キャッシュ・利用者側に同名の無害な代替を置いても該当入口は診断付き失敗。ゲートなら1／BLOCK／後続0。domain単体とquality単体、平坦なcheckoutの正常対照、実パスに戻るシンボリックリンク経由で対象資材の選択結果を確認する。参照 `docs/adr/0029-registry-discovery-contract.md:53–94`。
+- **AC-008** (REQ-004): DDDなしの利用者ではラッパーによる通常読取が0／SKIP、Nodeが0／PASS／NOT_APPLICABLE／後続1。NodeではPython・domain一式がなくてもよい。対照として正常な対象v2を同じ版に置き、Pythonインタープリターだけを利用不能にする。両ラッパーは終了3、標準出力は空、標準エラーにPython不在を示す。Nodeは1／FAIL／BLOCK／後続0。人の却下はAC-003の終了3＋標準出力REJECTおよびゲートのREJECTで区別できる。根拠は `plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh:26–33`、`plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1:36–42`、`plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs:545–556`。既存のv2適用条件を維持し、現在のindexだけにv2が残り作業木の記録が欠ける場合は1／BLOCK／後続0、現在の作業木・indexのどちらにも該当記録がなければ、履歴にv2があっても適用しない。根拠は `plugins/sdd-domain/scripts/validate-concept-test.py:171–181`、`plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs:501–549`。
+
+## 対象外
+
+旧手続の一般提供、署名・schema・承認・適用条件の再設計、全プラグインの配布再編、ホストの信頼設定、管理版や公開版の更新は扱わない。
+
+## Open Questions
+
+現段階で追加の事業判断、利用者操作、外部契約または不可逆な変更の決定は求めていない。パッケージ内でどの資材を実際に読み、同じ版として拘束するかは独立審査の対象とする。
+
+## Spec Amendments
+
+2026-11-23　第1回独立審査の指摘を反映。AC-001、005、006、008の対象配置・観測・停止条件を具体化した。
