@@ -206,6 +206,9 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
         '  enabled_adapters:',
         '    - builtin-secret-pattern',
         '    - semgrep',
+        '    - trufflehog',
+        '    - codeql',
+        '    - socket',
         'anti_tampering:',
         '  enabled: true',
         '  mode: strict',
@@ -220,10 +223,15 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
     assert.equal(parsedValid.config.formal_verification.checker.adapter, 'apalache');
     assert.equal(parsedValid.config.formal_verification.checker.adapter_options.apalache.length, 12);
     assert.equal(parsedValid.config.agent_lint.waivers.length, 1);
-    assert.deepEqual(parsedValid.config.security_audit.enabled_adapters, ['builtin-secret-pattern', 'semgrep']);
+    assert.deepEqual(parsedValid.config.security_audit.enabled_adapters, ['builtin-secret-pattern', 'semgrep', 'trufflehog', 'codeql', 'socket']);
 
     const validDoc = runDoctor({ root: dirValid });
     assert.equal(validDoc.summary.ng, 0, JSON.stringify(validDoc.findings, null, 2));
-    assert.ok(validDoc.findings.some((f) => f.severity === 'INFO' && f.category === 'adapters'));
+    const diagnosis = validDoc.findings.filter((f) => f.category === 'adapters');
+    assert.deepEqual(diagnosis.map((finding) => finding.adapter).sort(), [
+      'apalache', 'builtin-secret-pattern', 'codeql', 'semgrep', 'socket', 'trufflehog',
+    ]);
+    assert.equal(diagnosis.find((finding) => finding.adapter === 'builtin-secret-pattern').availability, 'available');
+    assert.equal(diagnosis.find((finding) => finding.adapter === 'apalache').availability, 'unavailable');
   });
 });

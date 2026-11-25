@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isBuiltin } from 'node:module';
+import { parseSource } from '../plugins/sdd-quality-loop/rules/source-ast.mjs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { classifyCatalog } from './verification-catalog-status.mjs';
@@ -17,50 +19,98 @@ const PURE_READONLY_TARGETS = [
 const SOFT_GUARD_PATH = 'plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs';
 const SOFT_GUARD_MAX_LINES = 700;
 
-const FOUR_CLI_HOOKS = [
-  'plugins/sdd-quality-loop/hooks/claude-hooks.json',
-  'plugins/sdd-quality-loop/hooks/codex-hooks.json',
-  'plugins/sdd-quality-loop/hooks/copilot-hooks.json',
-  'plugins/sdd-quality-loop/gemini/hooks/hooks.json',
-];
+function literal(node) {
+  return node?.kind() === 'string' ? node.text().slice(1, -1) : null;
+}
 
-function stripJsComments(source) {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|[^:\\])\/\/[^\n]*/g, '$1');
+function moduleSpecifiers(root) {
+  const specifiers = [];
+  for (const node of root.findAll({ rule: { any: ['import_statement', 'export_statement', 'call_expression'].map(kind => ({ kind })) } })) {
+    if (node.kind() === 'call_expression') {
+      if (['import', 'require'].includes(node.field('function')?.text())) {
+        specifiers.push(literal(node.field('arguments')?.namedChildren()[0]) ?? '<dynamic>');
+      }
+    } else if (node.field('source')) {
+      specifiers.push(literal(node.field('source')));
+    }
+  }
+  return specifiers;
 }
 
 export function checkReadOnlyPurity(source, label = '<source>') {
-  const code = stripJsComments(source);
+  const root = parseSource(source, label);
   const violations = [];
-  const forbiddenImportRe = /(?:import\s+[\s\S]*?from\s+|import\s*\(\s*|require\s*\(\s*)['"](?:node:)?(fs|fs\/promises|child_process|os|net|http|https)['"]/g;
-  for (const m of code.matchAll(forbiddenImportRe)) {
-    violations.push(`${label}: forbidden side-effect import "${m[1]}"`);
+  for (const spec of moduleSpecifiers(root)) {
+    if (spec === '<dynamic>' || /^(?:node:)?(?:fs(?:\/promises)?|child_process|os|net|https?|process)$/.test(spec)) {
+      violations.push(`${label}: forbidden side-effect import ${spec}`);
+    }
   }
-  if (/\bprocess\.env\b/.test(code)) {
-    violations.push(`${label}: forbidden process.env access`);
+  const writeMethods = /^(?:(?:writeFile|appendFile|createWriteStream|mkdir|mkdtemp|rmdir|rm|unlink|rename|truncate|copyFile|chmod|symlink|link)(?:Sync)?|writeText)$/;
+  for (const node of root.findAll({ rule: { any: [{ kind: 'member_expression' }, { kind: 'subscript_expression' }] } })) {
+    const prop = node.field('property')?.text() ?? literal(node.field('index'));
+    if (writeMethods.test(prop) || (['process', 'globalThis.process'].includes(node.field('object')?.text()) && ['argv', 'env'].includes(prop))) {
+      violations.push(`${label}: forbidden access ${node.text()}`);
+    }
   }
-  if (/\bprocess\.argv\b/.test(code)) {
-    violations.push(`${label}: forbidden process.argv access`);
+  for (const node of root.findAll({ rule: { kind: 'variable_declarator' } })) {
+    if (node.field('value')?.text() === 'process' && node.field('name')?.kind() === 'object_pattern') {
+      violations.push(`${label}: process destructuring`);
+    }
   }
   return violations;
 }
 
 export function checkSoftGuardRatchet(source, maxLines = SOFT_GUARD_MAX_LINES) {
-  const lines = source.split(/\r?\n/);
+  const lineCount = source.split(/\r?\n/).length - Number(source.endsWith('\n'));
   const violations = [];
-  if (lines.length > maxLines) {
-    violations.push(`sdd-soft-guard.mjs has ${lines.length} lines (limit <= ${maxLines})`);
-  }
-  const code = stripJsComments(source);
-  const importRe = /(?:import\s+[\s\S]*?from\s+|import\s*\(\s*)['"]([^'"]+)['"]/g;
-  for (const m of code.matchAll(importRe)) {
-    const spec = m[1];
-    if (!spec.startsWith('node:') && !spec.startsWith('./') && !spec.startsWith('../')) {
-      violations.push(`sdd-soft-guard.mjs imports non-builtin external package "${spec}"`);
+  if (lineCount > maxLines) violations.push(`sdd-soft-guard.mjs has ${lineCount} lines (limit <= ${maxLines})`);
+  for (const spec of moduleSpecifiers(parseSource(source))) {
+    if (!isBuiltin(spec) && !spec.startsWith('./') && !spec.startsWith('../')) {
+      violations.push(`sdd-soft-guard.mjs imports external dependency ${spec}`);
     }
   }
-  return { lineCount: lines.length, violations };
+  return { lineCount, violations };
+}
+
+function checkHostParity(read) {
+  const violations = [];
+  const hosts = [
+    ['.claude-plugin/plugin.json', 'hooks/claude-hooks.json'],
+    ['.codex-plugin/plugin.json', 'hooks/codex-hooks.json'],
+    ['.plugin/plugin.json', 'hooks/copilot-hooks.json'],
+    ['.antigravity-plugin/plugin.json', 'hooks.json'],
+    ['gemini/gemini-extension.json', 'gemini/hooks/hooks.json'],
+  ];
+  const version = read(hosts[0][0]).version;
+  for (const [manifestPath, hookPath] of hosts) {
+    const manifest = read(manifestPath);
+    if (manifest.name !== 'sdd-quality-loop' || manifest.version !== version) violations.push(manifestPath);
+    if (hookPath.startsWith('hooks/') && manifest.hooks?.replace(/^\.\//, '') !== hookPath) violations.push(manifestPath);
+    const hooks = read(hookPath);
+    let commands;
+    let protocol;
+    if (hookPath.includes('copilot')) {
+      const hook = hooks.hooks.preToolUse?.[0];
+      if (hook?.type !== 'command') violations.push(hookPath);
+      commands = [hook?.bash, hook?.powershell];
+      protocol = 'copilot';
+    } else {
+      const groups = hookPath === 'hooks.json' ? hooks['sdd-soft-guard']?.PreToolUse
+        : hookPath.startsWith('gemini/') ? hooks.hooks?.BeforeTool : hooks.hooks?.PreToolUse;
+      const hook = groups?.[0]?.hooks?.[0];
+      if (groups?.[0]?.matcher !== '*' || hook?.type !== 'command') violations.push(hookPath);
+      commands = [[hook?.command, ...(hook?.args ?? [])].join(' ')];
+      if (hookPath.includes('codex')) commands.push(hook?.command_windows);
+      protocol = hookPath === 'hooks.json' ? 'antigravity' : hookPath.includes('gemini') ? 'gemini' : 'exit';
+    }
+    for (const command of commands) {
+      const normalized = (command ?? '').replaceAll("','", ' ').replaceAll("'", '');
+      if (!/\bnode\s/.test(normalized) || !normalized.includes('sdd-soft-guard.mjs') || !new RegExp(`--emit\\s+${protocol}(?=[\\s")\\],;]|$)`).test(normalized)) {
+        violations.push(hookPath);
+      }
+    }
+  }
+  return violations;
 }
 
 describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () => {
@@ -100,13 +150,32 @@ describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () =>
     assert.ok(neg.violations.length > 0, 'Expected ratchet check to fail when exceeding line cap');
   });
 
-  it('3. 4-CLI hook parity: Claude / Codex / Copilot / Antigravity(Gemini) hook manifests are valid JSON referencing sdd-soft-guard.mjs', () => {
-    for (const rel of FOUR_CLI_HOOKS) {
-      const abs = path.join(REPO_ROOT, rel);
-      assert.ok(fs.existsSync(abs), `Missing CLI hook manifest: ${rel}`);
-      const raw = fs.readFileSync(abs, 'utf8');
-      assert.doesNotThrow(() => JSON.parse(raw), `Invalid JSON in ${rel}`);
-      assert.match(raw, /sdd-soft-guard\.mjs/, `${rel} must invoke sdd-soft-guard.mjs`);
+  it('parses side-effect syntax independent of quotes, comments and strings', () => {
+    for (const code of ["import 'node:fs';", "export * from 'child_process';",
+      "function f(io) { io.writeText('out', 'data'); }", "export const p = process['env'];"]) {
+      assert.ok(checkReadOnlyPurity(code).length, code);
+    }
+    assert.deepEqual(checkReadOnlyPurity('const help = "Examples use process.env and fs.writeFile";'), []);
+  });
+
+  it('detects a new external dependency imported for its side effect', () => {
+    assert.ok(checkSoftGuardRatchet("import 'fixture-dependency';").violations.length);
+  });
+
+  it('detects a host manifest pointing to the wrong hook or a hook changing output protocol', () => {
+    const read = rel => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', rel), 'utf8'));
+    assert.deepEqual(checkHostParity(read), []);
+    for (const target of ['.codex-plugin/plugin.json', 'gemini/hooks/hooks.json', 'hooks/copilot-hooks.json']) {
+      const mutate = rel => {
+        const data = read(rel);
+        if (rel === target) {
+          if (target.includes('plugin.json')) data.hooks = './hooks/claude-hooks.json';
+          else if (target.startsWith('gemini')) data.hooks.BeforeTool[0].hooks[0].command += '-wrong';
+          else data.hooks.preToolUse[0].powershell = 'echo sdd-soft-guard.mjs';
+        }
+        return data;
+      };
+      assert.ok(checkHostParity(mutate).length, target);
     }
   });
 
@@ -130,6 +199,11 @@ describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () =>
   it('5. Verification Catalog hygiene (SELF-AC-006): zero file-missing ghost suites in tests/verification-catalog.json', () => {
     const { suites } = classifyCatalog(REPO_ROOT);
     const ghosts = suites.filter((s) => s.state === 'file-missing').map((s) => s.path);
+    const catalog = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tests/verification-catalog.json'), 'utf8'));
+    const registered = new Set(catalog.suites.map(s => s.path));
+    for (const [profile, paths] of Object.entries(catalog.profiles)) {
+      assert.deepEqual(paths.filter(p => !registered.has(p)), [], profile);
+    }
     assert.deepEqual(ghosts, [], `Found ${ghosts.length} ghost catalog entries: ${ghosts.slice(0, 5).join(', ')}`);
   });
 });

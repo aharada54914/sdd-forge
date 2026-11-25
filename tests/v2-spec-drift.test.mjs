@@ -402,6 +402,53 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it('uses committed retirement approvals and mandatory protection; records a repeatable OQ', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const testPath = 'tests/sample.test.mjs';
+    const row = { path: testPath, git_blob_sha: git('rev-parse', 'HEAD:' + testPath).stdout.trim(),
+      reason: 'superseded', approved_by: 'fixture-owner' };
+    const manifest = 'sdd/approved-test-retirements.json';
+    fs.writeFileSync(path.join(dir, 'sdd', 'guardrails.json'), JSON.stringify({
+      anti_tampering: { retirements_manifest: 'sdd/other.json', protected_repo_paths: ['custom/**'] },
+    }));
+    fs.writeFileSync(path.join(dir, 'sdd', 'other.json'), JSON.stringify({ retirements: [row] }));
+    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ retirements: [row] }));
+    fs.rmSync(path.join(dir, testPath));
+    function run() {
+      return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+    }
+    const first = run();
+    assert.equal(first.status, 4, first.stdout);
+    const report = JSON.parse(first.stdout);
+    assert.ok(report.violations.some(v => v.code === 'PROTECTED_PATH_MODIFIED' && v.path === manifest));
+    assert.ok(report.violations.some(v => v.code === 'UNAUTHORIZED_TEST_DELETION' && v.path === testPath));
+    assert.match(report.openQuestion.id, /^OQ-[0-9]{3,}$/);
+    const persisted = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path), 'utf8'));
+    assert.equal(persisted.id, report.openQuestion.id);
+    assert.equal(persisted.status, 'Provisional');
+    assert.deepEqual(persisted.violations, report.violations.map(({ code, path }) => ({code, path})));
+    assert.deepEqual(JSON.parse(run().stdout).openQuestion, report.openQuestion);
+  });
+
+  for (const field of ['reason', 'approved_by']) {
+    it('requires a nonempty retirement ' + field + ' in the trusted manifest', (t) => {
+      const { dir, git } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      const file = 'tests/sample.test.mjs';
+      const entry = { path: file, git_blob_sha: git('rev-parse', 'HEAD:' + file).stdout.trim(),
+        reason: 'replaced', approved_by: 'owner', [field]: '  ' };
+      fs.writeFileSync(path.join(dir, 'sdd/approved-test-retirements.json'), JSON.stringify({
+        schema: 'sdd-approved-test-retirements/v1', retirements: [entry],
+      }));
+      assert.equal(git('add', 'sdd/approved-test-retirements.json').status, 0);
+      assert.equal(git('commit', '-m', 'fixture metadata').status, 0);
+      fs.rmSync(path.join(dir, file));
+      const result = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+      assert.equal(result.status, 4, result.stdout);
+    });
+  }
+
   it('rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0)', () => {
     const { dir, git } = initGitRepoWithTests();
     const blobSha = git('rev-parse', 'HEAD:tests/sample.test.mjs').stdout.trim();

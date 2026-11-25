@@ -13,17 +13,29 @@ import path from 'node:path';
 import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { analyzeTraceabilityCore, scopeMatchesFile } from './v2-readonly-core.mjs';
 
+import { readProtectedDiff } from './check-spec-drift.mjs';
+
 export { scopeMatchesFile };
 
-export function analyzeTraceability({ feature, projectRoot, changedIds = [], changedFiles = [] }) {
+export function checkWriteScope({ projectRoot, role, baseRef = null }) {
+  if (role !== 'implementer') throw new Error('Supported write-scope role: implementer');
+  const { revision, protectedRegexes, changedEntries } = readProtectedDiff(projectRoot, baseRef);
+  const violations = changedEntries.map(entry => entry.relPath)
+    .filter(rel => protectedRegexes.some(pattern => pattern.test(rel))).sort();
+  return { role, baseRef: revision, violations, passed: violations.length === 0 };
+}
+
+export function analyzeTraceability({ feature, projectRoot, changedIds = [], changedFiles = [], role = null, baseRef = null }) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const io = createFsReadonlyIo(root);
-  return analyzeTraceabilityCore(io, {
+  const report = analyzeTraceabilityCore(io, {
     feature,
     changedIds,
     changedFiles,
     checkCodeAndTests: true,
   });
+  if (role !== null) report.writeScope = checkWriteScope({ projectRoot: root, role, baseRef });
+  return report;
 }
 
 function escapeMdCell(text) {
@@ -70,6 +82,10 @@ export function formatTraceabilityMarkdown(report, { includeBatches = false } = 
     lines.push(
       `| ${escapeMdCell(t.id)} | ${escapeMdCell(t.risk)} | ${escapeMdCell(t.domains.join(', '))} | ${escapeMdCell(t.blockers.join(', ') || 'None')} | ${escapeMdCell(t.scopePaths.join(', ') || '—')} |`,
     );
+  }
+  if (report.writeScope) {
+    lines.push('', `Write scope (${report.writeScope.role}): ${report.writeScope.passed ? 'PASS' : 'FAIL'}`);
+    for (const rel of report.writeScope.violations) lines.push(`- ${escapeMdCell(rel)}`);
   }
   if (includeBatches && report.executionPlan) {
     lines.push('');
@@ -120,6 +136,8 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--feature' && argv[i + 1]) opts.feature = argv[++i];
+    else if (a === '--role') opts.role = argv[++i] || '';
+    else if (a === '--base' && argv[i + 1]) opts.baseRef = argv[++i];
     else if (a === '--root' && argv[i + 1]) opts.root = argv[++i];
     else if (a === '--changed-ids' && argv[i + 1]) opts.changedIds.push(...argv[++i].split(',').filter(Boolean));
     else if (a === '--changed-files' && argv[i + 1]) opts.changedFiles.push(...argv[++i].split(',').filter(Boolean));
@@ -135,7 +153,7 @@ if (isMain) {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || (opts.format !== 'json' && opts.format !== 'markdown')) {
     process.stderr.write(
-      'Usage: node check-traceability.mjs --feature <feature> [--root <dir>] [--changed-ids REQ-001] [--changed-files path] [--format json|markdown] [--plan-batches] [--strict]\n',
+      'Usage: node check-traceability.mjs --feature <feature> [--root <dir>] [--changed-ids REQ-001] [--changed-files path] [--format json|markdown] [--plan-batches] [--strict] [--role implementer --base <ref>]\n',
     );
     process.exit(2);
   }
@@ -144,6 +162,8 @@ if (isMain) {
       feature: opts.feature,
       projectRoot: opts.root || process.cwd(),
       changedIds: opts.changedIds,
+      role: opts.role,
+      baseRef: opts.baseRef,
       changedFiles: opts.changedFiles,
     });
     process.stdout.write(
@@ -153,7 +173,7 @@ if (isMain) {
     );
     const hasCycle = (report.executionPlan?.cyclicTasks?.length || 0) > 0;
     const hasInvalidBlockers = (report.executionPlan?.invalidBlockerTasks?.length || 0) > 0;
-    process.exit(opts.strict && (!report.complete || hasCycle || hasInvalidBlockers) ? 1 : 0);
+    process.exit(report.writeScope?.passed === false || opts.strict && (!report.complete || hasCycle || hasInvalidBlockers) ? 1 : 0);
   } catch (err) {
     process.stderr.write(`check-traceability error: ${err.message}\n`);
     process.exit(2);

@@ -1,0 +1,85 @@
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-hXkLAD/negative/_apalache-out/TaskLock.tla/2026-11-26T00-58-42_15732879861422380010
+# APALACHE version: 0.63.0 | build: 67b8ec6                       I@00:58:42.857
+  > TaskLock.negative.cfg: Loading TLC configuration              I@00:58:42.861
+checker.inv overrides the value from the TLC configuration.       W@00:58:42.922
+Tuning:                                                           I@00:58:42.922
+PASS #0: SanyParser                                               I@00:58:43.119
+PASS #1: TypeCheckerSnowcat                                       I@00:58:43.298
+ > Running Snowcat .::.                                           I@00:58:43.298
+ > Your types are purrfect!                                       I@00:58:43.471
+ > All expressions are typed                                      I@00:58:43.471
+PASS #2: ConfigurationPass                                        I@00:58:43.472
+  > TaskLock.negative.cfg: Using SPECIFICATION Spec               I@00:58:43.636
+  > TaskLock.negative.cfg: found INVARIANTS: SingleOwner          I@00:58:43.639
+  > Set the initialization predicate to Init                      I@00:58:43.640
+  > Set the transition predicate to Next                          I@00:58:43.640
+  > Set the constant initialization predicate to CInit            I@00:58:43.641
+  > Set an invariant to SingleOwner                               I@00:58:43.641
+PASS #3: DesugarerPass                                            I@00:58:43.644
+  > Desugaring...                                                 I@00:58:43.644
+PASS #4: InlinePass                                               I@00:58:43.655
+Leaving only relevant operators: CInit, CInitPrimed, Init, InitPrimed, Next, SingleOwner I@00:58:43.655
+PASS #5: TemporalPass                                             I@00:58:43.687
+  > Rewriting temporal operators...                               I@00:58:43.687
+  > No temporal property specified, nothing to encode             I@00:58:43.687
+PASS #6: InlinePass                                               I@00:58:43.688
+Leaving only relevant operators: CInit, CInitPrimed, Init, InitPrimed, Next, SingleOwner I@00:58:43.688
+PASS #7: PrimingPass                                              I@00:58:43.690
+  > Introducing CInitPrimed for CInit'                            I@00:58:43.691
+  > Introducing InitPrimed for Init'                              I@00:58:43.692
+PASS #8: VCGen                                                    I@00:58:43.692
+  > Producing verification conditions from the invariant SingleOwner I@00:58:43.693
+  > VCGen produced 1 verification condition(s)                    I@00:58:43.699
+PASS #9: PreprocessingPass                                        I@00:58:43.701
+  > Before preprocessing: unique renaming                         I@00:58:43.702
+ > Applying standard transformations:                             I@00:58:43.708
+  > PrimePropagation                                              I@00:58:43.709
+  > Desugarer                                                     I@00:58:43.710
+  > UniqueRenamer                                                 I@00:58:43.710
+  > Normalizer                                                    I@00:58:43.712
+  > SetMembershipSimplifier                                       I@00:58:43.715
+  > Keramelizer                                                   I@00:58:43.720
+  > After preprocessing: UniqueRenamer                            I@00:58:43.724
+PASS #10: TransitionFinderPass                                    I@00:58:43.729
+  > Found 1 initializing transitions                              I@00:58:43.747
+  > Found 5 transitions                                           I@00:58:43.756
+  > Found constant initializer CInit                              I@00:58:43.756
+  > Applying unique renaming                                      I@00:58:43.758
+PASS #11: OptimizationPass                                        I@00:58:43.762
+ > Applying optimizations:                                        I@00:58:43.769
+  > ConstSimplifier                                               I@00:58:43.770
+  > ExprOptimizer                                                 I@00:58:43.776
+  > SetMembershipSimplifier                                       I@00:58:43.779
+  > ConstSimplifier                                               I@00:58:43.782
+PASS #12: AnalysisPass                                            I@00:58:43.788
+ > Marking skolemizable existentials and sets to be expanded...   I@00:58:43.790
+  > Skolemization                                                 I@00:58:43.794
+  > Expansion                                                     I@00:58:43.795
+  > Remove unused let-in defs                                     I@00:58:43.800
+ > Running analyzers...                                           I@00:58:43.803
+  > Introduced expression grades                                  I@00:58:43.807
+PASS #13: BoundedChecker                                          I@00:58:43.807
+State 0: Checking 1 state invariants                              I@00:58:44.439
+State 0: state invariant 0 holds.                                 I@00:58:44.446
+Step 0: picking a transition out of 1 transition(s)               I@00:58:44.449
+Step 1: Transition #0 is disabled                                 I@00:58:44.457
+State 1: Checking 1 state invariants                              I@00:58:44.479
+State 1: state invariant 0 holds.                                 I@00:58:44.485
+Step 1: Transition #2 is disabled                                 I@00:58:44.491
+Step 1: Transition #3 is disabled                                 I@00:58:44.498
+Step 1: Transition #4 is disabled                                 I@00:58:44.503
+Step 1: picking a transition out of 1 transition(s)               I@00:58:44.503
+State 2: Checking 1 state invariants                              I@00:58:44.514
+Check the trace in: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-hXkLAD/negative/_apalache-out/TaskLock.tla/2026-11-26T00-58-42_15732879861422380010/violation1.tla, /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-hXkLAD/negative/_apalache-out/TaskLock.tla/2026-11-26T00-58-42_15732879861422380010/MCviolation1.out, /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-hXkLAD/negative/_apalache-out/TaskLock.tla/2026-11-26T00-58-42_15732879861422380010/violation1.json, /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-hXkLAD/negative/_apalache-out/TaskLock.tla/2026-11-26T00-58-42_15732879861422380010/violation1.itf.json I@00:58:44.645
+State 2: state invariant 0 violated.                              I@00:58:44.646
+Found 1 error(s)                                                  I@00:58:44.647
+The outcome is: Error                                             I@00:58:44.649
+Checker has found an error                                        I@00:58:44.667
+It took me 0 days  0 hours  0 min  1 sec                          I@00:58:44.667
+Total time: 1.807 sec                                             I@00:58:44.667
+EXITCODE: ERROR (12)
+
+Command failed: java -jar /tmp/sdd-formal-runtime/apalache.jar check --inv=SingleOwner --length=10 --config=TaskLock.negative.cfg TaskLock.tla

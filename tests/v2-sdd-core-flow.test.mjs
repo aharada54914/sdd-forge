@@ -364,6 +364,12 @@ describe('#821 gate task lookup uses the exact task ID', () => {
     }
     assert.equal(parseTaskBlock(sibling, 'T-001'), null, 'a prefix-only heading must not satisfy the lookup');
     assert.equal(parseTaskBlock('## T-001\nApproval: Approved\n', 'T-001').approval, 'Approved');
+    const realPlan = fs.readFileSync(path.join(REPO_ROOT, 'specs/verification-first-factory/tasks.md'), 'utf8');
+    const implemented = parseTaskBlock(realPlan, 'T-002');
+    assert.equal(implemented.approval, 'Approved');
+    assert.equal(implemented.status, 'Implementation Complete');
+    assert.equal(implemented.risk, 'high');
+    assert.ok(implemented.scopePaths.includes('plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs'));
   });
 });
 

@@ -8,7 +8,7 @@
  *   - External binaries are invoked via `execFileSync(..., { shell: false })` and `.cmd`/`.bat`
  *     wrappers are strictly rejected (Windows CVE-2024-27980 safe).
  *   - All detected secrets are masked before output; raw secret values never appear in stdout/logs.
- *   - In CI (`--ci` or `CI=true`) + `strict` mode, missing enabled external adapters fail closed (exit 2).
+ *   - CI, strict mode and high-risk paths fail closed when an enabled adapter cannot complete.
  *
  * Exit codes:
  *   0 — PASS (or shadow/warn/off mode)
@@ -18,10 +18,14 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import {
   VALID_SECURITY_ADAPTERS,
   isMainModule,
-  normalizeRelPath,
+  sanitizeRelPath,
+  globToRegExp,
+  createFsReadonlyIo,
   resolveExplicitOrAutoRoot,
   validateGuardrailsFile,
 } from './guardrails-lib.mjs';
@@ -50,6 +54,10 @@ export function maskSecret(raw) {
   return `${s.slice(0, 4)}****${s.slice(-2)}`;
 }
 
+function maskEvidence(value) {
+  return SECRET_RULES.reduce((masked, rule) => masked.replace(new RegExp(rule.re), maskSecret), value);
+}
+
 export function levenshtein(a, b) {
   const m = a.length;
   const n = b.length;
@@ -69,23 +77,23 @@ export function resolveSafeExternalCommand(adapter, projectRoot, binaryOverride 
   if (!VALID_SECURITY_ADAPTERS.has(adapter)) {
     throw new Error(`Unallowed security adapter: ${adapter}`);
   }
-  const map = {
-    semgrep: { bin: binaryOverride || 'semgrep', args: ['scan', '--json', '--quiet', projectRoot] },
-    gitleaks: { bin: binaryOverride || 'gitleaks', args: ['detect', '--source', projectRoot, '--no-git', '--report-format', 'json'] },
-    trufflehog: { bin: binaryOverride || 'trufflehog', args: ['filesystem', '--json', projectRoot] },
-    codeql: { bin: binaryOverride || 'codeql', args: ['version'] },
-    socket: { bin: binaryOverride || 'socket', args: ['--version'] },
+  const rules = fileURLToPath(new URL('../../rules/security.yml', import.meta.url));
+  const commands = {
+    semgrep: ['scan', '--config', rules, '--error', '--strict', '--metrics=off', '--quiet', projectRoot],
+    gitleaks: ['dir', '--redact=100', '--exit-code=42', projectRoot],
+    trufflehog: ['filesystem', '--fail', '--no-verification', '--no-update', '--fail-on-scan-errors', projectRoot],
+    socket: ['scan', 'create', '--report', '--json', '--no-interactive', projectRoot],
+    codeql: ['database', 'create', '--language=javascript-typescript', '--build-mode=none', `--source-root=${projectRoot}`],
   };
-  const spec = map[adapter];
-  if (!spec) return null;
+  if (!Object.hasOwn(commands, adapter)) return null;
+  const spec = { bin: binaryOverride || adapter, args: commands[adapter] };
   if (WINDOWS_WRAPPER_RE.test(spec.bin)) {
     throw new Error(`Refusing to execute Windows batch wrapper (.cmd/.bat) without shell: ${spec.bin}`);
   }
-  return { bin: spec.bin, args: spec.args, options: { shell: false, encoding: 'utf8' } };
+  return { bin: spec.bin, args: spec.args, options: { shell: false, encoding: 'utf8', cwd: projectRoot } };
 }
 
-function collectFiles(root, relDir = '', out = [], maxFiles = 1500) {
-  if (out.length >= maxFiles) return out;
+function collectFiles(root, relDir = '', out = []) {
   const absDir = relDir ? path.join(root, ...relDir.split('/')) : root;
   let entries;
   try {
@@ -94,12 +102,11 @@ function collectFiles(root, relDir = '', out = [], maxFiles = 1500) {
     return out;
   }
   for (const entry of entries) {
-    if (out.length >= maxFiles) break;
     if (IGNORED_DIRS.has(entry.name)) continue;
     const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
-      collectFiles(root, childRel, out, maxFiles);
-    } else if (entry.isFile() && SCANNABLE_EXT_RE.test(entry.name)) {
+      collectFiles(root, childRel, out);
+    } else if (entry.isFile()) {
       out.push(childRel);
     }
   }
@@ -108,17 +115,11 @@ function collectFiles(root, relDir = '', out = [], maxFiles = 1500) {
 
 export function scanSecretsInFiles(root, relFiles) {
   const findings = [];
+  const io = createFsReadonlyIo(root);
   for (const rel of relFiles) {
-    const abs = path.join(root, ...rel.split('/'));
-    if (!fs.existsSync(abs)) continue;
-    let text;
-    try {
-      const st = fs.statSync(abs);
-      if (!st.isFile() || st.size > 2 * 1024 * 1024) continue;
-      text = fs.readFileSync(abs, 'utf8');
-    } catch {
-      continue;
-    }
+    if (!SCANNABLE_EXT_RE.test(rel)) continue;
+    const text = io.readText(rel);
+    if (text == null) continue;
     const lines = text.split(/\r?\n/);
     for (let idx = 0; idx < lines.length; idx += 1) {
       const line = lines[idx];
@@ -130,7 +131,7 @@ export function scanSecretsInFiles(root, relFiles) {
             adapter: 'builtin-secret-pattern',
             rule: rule.id,
             severity: 'high',
-            path: rel,
+            path: maskEvidence(rel),
             line: idx + 1,
             masked_match: maskSecret(m[0]),
             message: rule.message,
@@ -142,69 +143,145 @@ export function scanSecretsInFiles(root, relFiles) {
   return findings;
 }
 
-export function scanSlopsquatting(root) {
+export function scanSlopsquatting(root, files = collectFiles(root)) {
   const findings = [];
-  const pkgPath = path.join(root, 'package.json');
-  if (fs.existsSync(pkgPath)) {
-    try {
-      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-      const allDeps = {
-        ...(pkg.dependencies || {}),
-        ...(pkg.devDependencies || {}),
-      };
-      for (const [depName, ver] of Object.entries(allDeps)) {
-        const lower = depName.toLowerCase();
-        if (POPULAR_PACKAGES.includes(lower)) continue;
-        for (const pop of POPULAR_PACKAGES) {
-          if (Math.abs(lower.length - pop.length) <= 1 && levenshtein(lower, pop) <= 1) {
-            findings.push({
-              adapter: 'builtin-slopsquatting',
-              rule: 'suspected-typosquat-package',
-              severity: 'high',
-              path: 'package.json',
-              line: 1,
-              masked_match: depName,
-              message: `パッケージ "${depName}" は人気パッケージ "${pop}" のタイポスクワット/Slopsquatting の可能性があります`,
-            });
-            break;
-          }
-        }
-        if (/^http:\/\//i.test(String(ver || ''))) {
-          findings.push({
-            adapter: 'builtin-slopsquatting',
-            rule: 'insecure-http-dependency',
-            severity: 'high',
-            path: 'package.json',
-            line: 1,
-            masked_match: `${depName}@http://...`,
-            message: `パッケージ "${depName}" が非暗号化 HTTP URL から参照されています`,
-          });
-        }
-      }
-    } catch {
-      // ignore malformed package.json here
+  const io = createFsReadonlyIo(root);
+  for (const rel of files.filter(f => path.posix.basename(f) === 'package.json')) {
+    const raw = io.readText(rel);
+    if (raw == null) throw new Error('UNREADABLE_MANIFEST');
+    const pkg = JSON.parse(raw);
+    const dependencies = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.optionalDependencies, ...pkg.peerDependencies };
+    for (const [name, version] of Object.entries(dependencies)) {
+      const lower = name.toLowerCase();
+      const similar = !POPULAR_PACKAGES.includes(lower) && POPULAR_PACKAGES.find(
+        p => Math.abs(lower.length - p.length) <= 1 && levenshtein(lower, p) <= 1,
+      );
+      if (similar) findings.push({
+        adapter: 'builtin-slopsquatting', rule: 'suspected-typosquat-package', severity: 'high', path: maskEvidence(rel),
+        line: 1, masked_match: maskEvidence(name), message: `依存パッケージ名が ${similar} に酷似しています`,
+      });
+      if (/^http:\/\//i.test(version)) findings.push({
+        adapter: 'builtin-slopsquatting', rule: 'insecure-http-dependency', severity: 'high', path: maskEvidence(rel),
+        line: 1, masked_match: 'http://…', message: '依存パッケージが非暗号化 HTTP URL を使用しています',
+      });
     }
   }
   return findings;
 }
 
-function defaultExternalRunner(cmdSpec) {
+const NATIVE_HEADERS = new Set(['7f454c46', 'feedface', 'cefaedfe', 'feedfacf', 'cffaedfe', 'cafebabe', 'bebafeca', 'cafebabf', 'bfbafeca']);
+
+function isNative(real) {
+  fs.accessSync(real, fs.constants.X_OK);
+  const fd = fs.openSync(real, 'r');
   try {
-    const stdout = execFileSync(cmdSpec.bin, cmdSpec.args, {
-      ...cmdSpec.options,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: 30000,
-    });
-    return { status: 0, stdout: String(stdout || ''), stderr: '' };
-  } catch (err) {
-    if (err && err.code === 'ENOENT') {
-      return { status: 127, unavailable: true, stdout: '', stderr: String(err.message || '') };
+    const signature = Buffer.alloc(4);
+    fs.readSync(fd, signature, 0, 4, 0);
+    return signature.subarray(0, 2).toString('ascii') === 'MZ' || NATIVE_HEADERS.has(signature.toString('hex'));
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+function installedBinary(adapter, root) {
+  const project = fs.realpathSync(root);
+  function outsideProject(file) {
+    const rel = path.relative(project, file);
+    return rel === '..' || rel.startsWith('..' + path.sep) || path.isAbsolute(rel);
+  }
+  for (const dir of (process.env.PATH || '').split(path.delimiter).filter(path.isAbsolute)) {
+    const names = process.platform === 'win32' ? [adapter + '.exe'] : [adapter];
+    // The official CodeQL distribution may expose only a shell/batch launcher.
+    // Use its distribution path to locate the bundled JVM; never execute the launcher.
+    if (adapter === 'codeql' && process.platform === 'win32') names.push('codeql.cmd');
+    if (adapter === 'socket') names.push('node_modules/@socketsecurity/cli/bin/cli.js');
+    for (const name of names) {
+      try {
+        const real = fs.realpathSync(path.join(dir, name));
+        if (!outsideProject(real) || !fs.statSync(real).isFile()) continue;
+        if (adapter === 'codeql') {
+          const distro = path.dirname(real);
+          const platform = { darwin: 'osx64', win32: 'win64', linux: process.arch === 'arm64' ? 'linux-arm64' : 'linux64' }[process.platform];
+          const runtime = platform === 'osx64' && process.arch === 'arm64' ? 'java-aarch64' : 'java';
+          const java = platform && path.join(distro, 'tools', platform, runtime, 'bin', process.platform === 'win32' ? 'java.exe' : 'java');
+          const jar = path.join(distro, 'tools', 'codeql.jar');
+          if (java && fs.existsSync(java) && fs.existsSync(jar) && outsideProject(fs.realpathSync(java)) &&
+              outsideProject(fs.realpathSync(jar)) && isNative(java)) {
+            return { bin: java, prefix: ['--add-modules', 'jdk.unsupported', '--enable-native-access=ALL-UNNAMED', '-cp', jar, 'com.semmle.cli2.CodeQL'],
+              env: { CODEQL_DIST: distro, CODEQL_PLATFORM: platform } };
+          }
+        }
+        if (WINDOWS_WRAPPER_RE.test(real)) continue;
+        if (/\.(?:js|mjs|cjs)$/i.test(real)) return { bin: process.execPath, prefix: [real] };
+        if (isNative(real)) return { bin: real, prefix: [] };
+        // pip/uv install the Semgrep console script beside its venv interpreter.
+        // Preserve the venv path, run in isolated mode, and never dispatch a shell.
+        if (adapter === 'semgrep' && process.platform !== 'win32') {
+          const interpreter = path.join(path.dirname(real), 'python3');
+          if (outsideProject(fs.realpathSync(interpreter)) && isNative(interpreter)) {
+            return { bin: interpreter, prefix: ['-I', real] };
+          }
+        }
+      } catch {
+        // Try the next installed copy.
+      }
     }
-    return {
-      status: typeof err?.status === 'number' ? err.status : 1,
-      stdout: String(err?.stdout || ''),
-      stderr: String(err?.stderr || err?.message || ''),
-    };
+  }
+  return null;
+}
+
+function defaultExternalRunner(cmdSpec) {
+  const installed = installedBinary(cmdSpec.bin, cmdSpec.options.cwd);
+  if (!installed) return { unavailable: true };
+  try {
+    const stdout = execFileSync(installed.bin, [...installed.prefix, ...cmdSpec.args], {
+      ...cmdSpec.options, env: { ...process.env, ...installed.env }, stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: cmdSpec.bin === 'codeql' ? 15 * 60_000 : 120_000, maxBuffer: 8 * 1024 * 1024,
+    });
+    return { status: 0, stdout };
+  } catch (err) {
+    return { status: err.status, stdout: err.stdout, unavailable: err.code === 'ENOENT' };
+  }
+}
+
+function codeqlScan(cmd, runner) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-codeql-'));
+  try {
+    const db = path.join(tmp, 'db');
+    const sarif = path.join(tmp, 'results.sarif');
+    const created = runner({ ...cmd, args: [...cmd.args, db] });
+    if (created.unavailable) return 'unavailable';
+    if (created.status !== 0) return 'error';
+    const analyzed = runner({ ...cmd, args: ['database', 'analyze', db, 'codeql/javascript-queries:codeql-suites/javascript-security-extended.qls',
+      '--format=sarifv2.1.0', `--output=${sarif}`] });
+    if (analyzed.status !== 0) return 'error';
+    const report = JSON.parse(fs.readFileSync(sarif, 'utf8'));
+    if (report.version !== '2.1.0' || !Array.isArray(report.runs) || !report.runs.length ||
+        !report.runs.every(r => Array.isArray(r.results) && r.invocations?.every(i => i.executionSuccessful !== false) !== false)) return 'error';
+    return report.runs.some(r => r.results.length) ? 'finding' : 'clean';
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+function scanExternal(adapter, root, runner) {
+  const cmd = resolveSafeExternalCommand(adapter, root);
+  try {
+    if (adapter === 'codeql') return codeqlScan(cmd, runner);
+    const result = runner(cmd);
+    if (result.unavailable) return 'unavailable';
+    if (adapter === 'socket') {
+      const report = JSON.parse(result.stdout);
+      if (result.status === 0 && report.healthy === true) return 'clean';
+      if (result.status === 1 && report.healthy === false) return 'finding';
+      return 'error';
+    }
+    if (result.status === 0) return 'clean';
+    const findingCode = { semgrep: 1, gitleaks: 42, trufflehog: 183 };
+    return result.status === findingCode[adapter] ? 'finding' : 'error';
+  } catch {
+    // Tool output may contain raw credentials; publish only the status below.
+    return 'error';
   }
 }
 
@@ -213,24 +290,27 @@ export function runSecurityGate({
   files = null,
   adapters = null,
   mode = null,
-  ci = Boolean(process.env.CI),
+  ci = ['true', '1'].includes(process.env.CI),
   externalRunner = defaultExternalRunner,
 } = {}) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const validation = validateGuardrailsFile(root);
-  const secErrors = validation.errors.filter((e) => e.path.startsWith('security_audit'));
+  const secErrors = validation.errors.filter((e) => e.path.startsWith('security_audit') || e.path.startsWith('risk_defaults') || e.code === 'PARSE_ERROR');
   if (secErrors.length > 0) {
     return {
       schema: 'sdd-security-gate/v1',
       status: 'TOOL_ERROR',
       exitCode: 2,
-      errors: secErrors,
+      errors: secErrors.map(({ code }) => ({ code, message: '無効なセキュリティ設定です' })),
       findings: [],
     };
   }
 
   const saCfg = validation.config.security_audit || {};
-  const effectiveMode = mode || (saCfg.enabled ? saCfg.mode : 'shadow');
+  const effectiveMode = mode ?? (saCfg.enabled ? saCfg.mode : 'off');
+  if (!['off', 'warn', 'shadow', 'strict'].includes(effectiveMode)) {
+    return { schema: 'sdd-security-gate/v1', status: 'TOOL_ERROR', exitCode: 2, errors: [{ code: 'INVALID_MODE' }], findings: [] };
+  }
   const requestedAdapters = Array.isArray(adapters) && adapters.length > 0 ? adapters : saCfg.enabled_adapters || [];
 
   for (const ad of requestedAdapters) {
@@ -239,7 +319,7 @@ export function runSecurityGate({
         schema: 'sdd-security-gate/v1',
         status: 'TOOL_ERROR',
         exitCode: 2,
-        errors: [{ code: 'UNALLOWED_SECURITY_ADAPTER', message: `未許可のセキュリティアダプタ: ${ad}` }],
+        errors: [{ code: 'UNALLOWED_SECURITY_ADAPTER', message: '未許可のセキュリティアダプタです' }],
         findings: [],
       };
     }
@@ -257,11 +337,13 @@ export function runSecurityGate({
     };
   }
 
-  const targetFiles =
-    Array.isArray(files) && files.length > 0
-      ? files.map((f) => normalizeRelPath(f)).filter(Boolean)
-      : collectFiles(root);
-
+  const targetFiles = files == null ? collectFiles(root) : files.map(sanitizeRelPath);
+  if (targetFiles.some(file => file === null)) {
+    return { schema: 'sdd-security-gate/v1', status: 'TOOL_ERROR', exitCode: 2, errors: [{ code: 'INVALID_PATH' }], findings: [] };
+  }
+  const patterns = validation.config.risk_defaults.high_risk_paths.map(globToRegExp);
+  const highRisk = targetFiles.some(file => patterns.some(p => p.test(file)));
+  const failClosed = effectiveMode === 'strict' || ci || highRisk;
   const findings = [];
   const warnings = [];
   const adaptersRun = [];
@@ -271,38 +353,40 @@ export function runSecurityGate({
     if (ad === 'builtin-secret-pattern') {
       findings.push(...scanSecretsInFiles(root, targetFiles));
     } else if (ad === 'builtin-slopsquatting') {
-      findings.push(...scanSlopsquatting(root));
+      try {
+        findings.push(...scanSlopsquatting(root, targetFiles));
+      } catch {
+        const code = 'UNREADABLE_MANIFEST';
+        if (failClosed) return { schema: 'sdd-security-gate/v1', mode: effectiveMode, status: 'TOOL_ERROR', exitCode: 2,
+          adaptersRun, errors: [{ code }], findings, warnings };
+        warnings.push(code);
+      }
     } else {
-      const cmdSpec = resolveSafeExternalCommand(ad, root);
-      const res = externalRunner(cmdSpec);
-      if (res.unavailable) {
-        if (ci && effectiveMode === 'strict') {
-          return {
-            schema: 'sdd-security-gate/v1',
-            mode: effectiveMode,
-            status: 'TOOL_ERROR',
-            exitCode: 2,
-            adaptersRun,
-            errors: [{ code: 'CI_ADAPTER_UNAVAILABLE', message: `CI strict モードで必須アダプタ ${ad} が利用不可です` }],
-            findings,
-          };
+      const outcome = scanExternal(ad, root, externalRunner);
+      if (outcome === 'unavailable' || outcome === 'error') {
+        const code = outcome === 'unavailable' ? 'ADAPTER_UNAVAILABLE' : 'ADAPTER_ERROR';
+        const message = `${ad}: ${code}`;
+        if (failClosed) {
+          const missingOnHighRiskPath = highRisk && outcome === 'unavailable';
+          return { schema: 'sdd-security-gate/v1', mode: effectiveMode, status: missingOnHighRiskPath ? 'FAIL' : 'TOOL_ERROR', exitCode: missingOnHighRiskPath ? 1 : 2,
+            adaptersRun, errors: [{ code, message }], findings, warnings };
         }
-        warnings.push(`外部アダプタ ${ad} が見つかりませんでした（ローカル/shadow のため継続）`);
-      } else if (res.status !== 0) {
+        warnings.push(message);
+      } else if (outcome === 'finding') {
         findings.push({
           adapter: ad,
           rule: `${ad}-finding`,
           severity: 'high',
           path: '.',
           line: 1,
-          masked_match: `${ad} exit=${res.status}`,
+          masked_match: '****',
           message: `外部アダプタ ${ad} がセキュリティ問題を検出しました`,
         });
       }
     }
   }
 
-  const status = findings.length > 0 ? (effectiveMode === 'strict' ? 'FAIL' : 'WARN') : 'PASS';
+  const status = findings.length > 0 && failClosed ? 'FAIL' : findings.length || warnings.length ? 'WARN' : 'PASS';
   return {
     schema: 'sdd-security-gate/v1',
     mode: effectiveMode,
@@ -315,7 +399,7 @@ export function runSecurityGate({
 }
 
 function parseArgs(argv) {
-  const opts = { root: null, files: null, adapters: null, mode: null, ci: Boolean(process.env.CI) };
+  const opts = { root: null, files: null, adapters: null, mode: null, ci: ['true', '1'].includes(process.env.CI) };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--root' && argv[i + 1]) opts.root = argv[++i];

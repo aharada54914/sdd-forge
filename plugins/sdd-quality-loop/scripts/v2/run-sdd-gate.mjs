@@ -34,6 +34,9 @@ import {
   splitSpecAmendments,
   isMainModule,
 } from './guardrails-lib.mjs';
+import { checkWriteScope } from './check-traceability.mjs';
+import { runRebuildDifferentialCheck } from './rebuild-differential.mjs';
+export { runRebuildDifferentialCheck };
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
 import { runAgentLint } from './run-agent-lint.mjs';
 import { runFormalGate } from './run-formal-gate.mjs';
@@ -73,27 +76,34 @@ export function parseTaskBlock(tasksContent, taskId) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
   const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
   const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // The ID must end at whitespace or end of line, exactly like the planner and
-  // MCP (parseTasksSummary): `T-001` must never match `## T-001.1` (#821).
-  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:[ \\t].*)?$`, 'im');
+  // Accept both legacy H2 task headings and the current H3 `### T-NNN:` plan
+  // format. Keep the identifier boundary strict (`T-001` must not match
+  // `T-001.1`) and stop at the next task heading, not merely the next H2.
+  const headerRe = new RegExp(`^#{2,3}[ \\t]+${escaped}(?![A-Za-z0-9_.-])(?:[:][^\\r\\n]*|[ \\t][^\\r\\n]*)?$`, 'im');
   const match = headerRe.exec(body);
   if (!match) return null;
 
   const rest = body.slice(match.index + match[0].length);
-  const nextH2 = /^##[ \t]+\S/m.exec(rest);
-  const block = nextH2 ? rest.slice(0, nextH2.index) : rest;
+  const nextSection = /^(?:##[ \t]+\S|###[ \t]+T-[0-9]{3}\b)/im.exec(rest);
+  const block = nextSection ? rest.slice(0, nextSection.index) : rest;
 
-  const approvalMatch = block.match(/^[ \t]*Approval:[ \t]*(.+)$/m);
-  const statusMatch = block.match(/^[ \t]*Status:[ \t]*(.+)$/m);
-  const riskMatch = block.match(/^[ \t]*Risk:[ \t]*(.+)$/m);
+  const field = (name) => block.match(new RegExp(`^[ \\t]*(?:-\\s*)?(?:\\*\\*)?${name}:(?:\\*\\*)?[ \\t]*(.+?)(?:\\*\\*)?[ \\t]*$`, 'im'));
+  const value = (match) => match ? match[1].trim().replace(/^[`*_]+|[`*_]+$/g, '') : null;
+  const approvalMatch = field('Approval');
+  const statusMatch = field('Status');
+  const riskMatch = field('Risk');
+  const scopeMatch = field('Scope');
+  const scopePaths = scopeMatch
+    ? extractScopePaths(`### Scope\n- ${scopeMatch[1].replace(/\*\*$/, '').replace(/（[^）]*）|\([^)]*\)/g, '').trim()}\n### EndScope`)
+    : extractScopePaths(block);
 
   return {
     taskId: taskId.toUpperCase(),
-    approval: approvalMatch ? approvalMatch[1].trim() : null,
-    status: statusMatch ? statusMatch[1].trim() : null,
+    approval: value(approvalMatch),
+    status: value(statusMatch),
     // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
-    risk: normalizeRiskTier(riskMatch ? riskMatch[1] : '', 'standard'),
-    scopePaths: extractScopePaths(block),
+    risk: normalizeRiskTier(value(riskMatch) || '', 'standard'),
+    scopePaths,
   };
 }
 
@@ -585,7 +595,7 @@ function appendFactoryMetric(projectRoot, record) {
   }
 }
 
-function runVerificationCommands(projectRoot, commands) {
+function runVerificationCommands(projectRoot, commands, failFast) {
   const results = [];
   for (const { label, command } of commands) {
     const start = Date.now();
@@ -607,70 +617,9 @@ function runVerificationCommands(projectRoot, commands) {
       stdout: truncateTail(res.stdout),
       stderr: truncateTail(res.stderr),
     });
+    if (failFast && (exitCode !== 0 || res.error)) break;
   }
   return results;
-}
-
-export function runRebuildDifferentialCheck({ projectRoot, baselineCmd, candidateCmd, nfrBudgetPath = null }) {
-  if (!baselineCmd || !candidateCmd) {
-    return {
-      passed: false,
-      error: 'rebuild mode requires both --baseline-cmd and --candidate-cmd',
-      differentialMatched: false,
-      nfrPassed: false,
-    };
-  }
-  const runOne = (cmd) => {
-    const t0 = performance.now();
-    const res = spawnSync(cmd, { cwd: projectRoot, shell: true, encoding: 'utf8', timeout: 120000 });
-    return {
-      exitCode: typeof res.status === 'number' ? res.status : 1,
-      durationMs: Math.max(1, Math.round(performance.now() - t0)),
-      stdout: normalizeNewlines(res.stdout || '').trim(),
-      stderr: truncateTail(res.stderr),
-    };
-  };
-  const baseline = runOne(baselineCmd);
-  const candidate = runOne(candidateCmd);
-  const differentialMatched =
-    baseline.exitCode === 0 &&
-    candidate.exitCode === 0 &&
-    baseline.stdout === candidate.stdout;
-
-  let nfrBudget = null;
-  let nfrPassed = true;
-  const nfrViolations = [];
-  if (nfrBudgetPath) {
-    const absBudget = path.isAbsolute(nfrBudgetPath) ? nfrBudgetPath : path.resolve(projectRoot, nfrBudgetPath);
-    if (!fs.existsSync(absBudget)) {
-      nfrPassed = false;
-      nfrViolations.push(`nfr-budget file not found: ${nfrBudgetPath}`);
-    } else {
-      nfrBudget = JSON.parse(fs.readFileSync(absBudget, 'utf8'));
-      if (typeof nfrBudget.max_duration_ms === 'number' && candidate.durationMs > nfrBudget.max_duration_ms) {
-        nfrPassed = false;
-        nfrViolations.push(`candidate duration ${candidate.durationMs}ms exceeds max_duration_ms (${nfrBudget.max_duration_ms}ms)`);
-      }
-      if (
-        typeof nfrBudget.max_regression_ratio === 'number' &&
-        candidate.durationMs > baseline.durationMs * nfrBudget.max_regression_ratio + 50
-      ) {
-        nfrPassed = false;
-        nfrViolations.push(
-          `candidate duration ${candidate.durationMs}ms exceeds ${nfrBudget.max_regression_ratio}x baseline (${baseline.durationMs}ms)`,
-        );
-      }
-    }
-  }
-
-  return {
-    passed: differentialMatched && nfrPassed,
-    differentialMatched,
-    nfrPassed,
-    nfrViolations,
-    baseline: { exitCode: baseline.exitCode, durationMs: baseline.durationMs },
-    candidate: { exitCode: candidate.exitCode, durationMs: candidate.durationMs },
-  };
 }
 
 export function runSddGate({
@@ -686,6 +635,7 @@ export function runSddGate({
   outputPath = null,
   rootCausePhase = null,
   mode = 'standard',
+  role = null,
   baselineCmd = null,
   candidateCmd = null,
   nfrBudgetPath = null,
@@ -695,9 +645,12 @@ export function runSddGate({
   enableSecurityGate = false,
   formalTla = null,
   formalCfg = null,
+  formalTrace = null,
+  formalRound = 0,
   failFast = false,
 }) {
   assertValidFeatureName(feature);
+  if (!['standard', 'rebuild'].includes(mode)) throw new Error('Unsupported gate mode');
   if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
     throw new Error(`Invalid task ID: ${taskId}`);
   }
@@ -742,6 +695,8 @@ export function runSddGate({
     let failFastStoppedAt = null;
     if (!lockCheck.passed) {
       failFastStoppedAt = 'lockCheck';
+    } else if (failFast && !taskPrecondition.passed) {
+      failFastStoppedAt = 'taskPrecondition';
     }
 
     let specDrift = { skipped: true, passed: true, status: 'SKIPPED' };
@@ -767,7 +722,7 @@ export function runSddGate({
     let antiTamper = { skipped: true, passed: true, status: 'SKIPPED' };
     if (enableAntiTamper && !failFastStoppedAt) {
       try {
-        const atReport = checkAntiTampering({ projectRoot: root, baseRef: baseRef || 'HEAD', config });
+        const atReport = checkAntiTampering({ projectRoot: root, baseRef, feature });
         antiTamper = { skipped: false, passed: atReport.status === 'CLEAN', ...atReport };
       } catch (err) {
         antiTamper = { skipped: false, passed: false, status: 'TOOL_ERROR', error: err.message };
@@ -775,13 +730,25 @@ export function runSddGate({
       if (failFast && !antiTamper.passed) failFastStoppedAt = 'antiTamper';
     }
 
-    const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
+    let writeScope = { skipped: true, passed: true };
+    if (role !== null && !failFastStoppedAt) {
+      try {
+        writeScope = { skipped: false, ...checkWriteScope({ projectRoot: root, role, baseRef }) };
+      } catch (err) {
+        writeScope = { skipped: false, passed: false, role, error: err.message };
+      }
+      if (failFast && !writeScope.passed) failFastStoppedAt = 'writeScope';
+    }
+    const resolvedChanged = failFastStoppedAt ? [] : discoverChangedFiles(root, changedFiles, { baseRef });
 
     let agentLint = { skipped: true, passed: true, status: 'SKIPPED' };
     if ((enableAgentLint || config.agent_lint?.enabled) && !failFastStoppedAt) {
       const lintReport = runAgentLint({
         projectRoot: root,
-        files: resolvedChanged.length > 0 ? resolvedChanged : null,
+        files: resolvedChanged,
+        baseRef,
+        diffOnly: config.agent_lint.diff_only && (!Array.isArray(changedFiles) || baseRef !== null ||
+          spawnSync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0),
         mode: enableAgentLint ? 'strict' : config.agent_lint?.mode,
       });
       agentLint = { skipped: false, passed: lintReport.status !== 'FAIL', ...lintReport };
@@ -805,6 +772,11 @@ export function runSddGate({
         projectRoot: root,
         tlaPath: formalTla,
         cfgPath: formalCfg,
+        tracePath: formalTrace,
+        round: formalRound,
+        risk: taskState.risk,
+        feature,
+        baseRef,
         adapter: config.formal_verification?.checker?.adapter || 'none',
         mode: config.formal_verification?.enabled ? config.formal_verification.mode : 'shadow',
       });
@@ -815,16 +787,20 @@ export function runSddGate({
     const placeholders = failFastStoppedAt
       ? { passed: true, skipped: true, scannedFiles: [], findings: [] }
       : scanPlaceholders(root, resolvedChanged);
+    if (failFast && !placeholders.passed) failFastStoppedAt = 'placeholders';
     const nonFunctionalSensors =
       skipSensors || failFastStoppedAt
         ? { skipped: true, passed: true, findings: [] }
         : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
+    if (failFast && !nonFunctionalSensors.passed) failFastStoppedAt = 'nonFunctionalSensors';
     const openQuestions = failFastStoppedAt
       ? { passed: true, blocking: false, provisionalCount: 0, provisionalIds: [] }
       : checkOpenQuestionsGate(root, feature, taskState);
+    if (failFast && !openQuestions.passed) failFastStoppedAt = 'openQuestions';
     const reviewTickets = failFastStoppedAt
       ? { passed: true, blocking: [] }
       : checkReviewTickets(root, feature, taskState);
+    if (failFast && !reviewTickets.passed) failFastStoppedAt = 'reviewTickets';
 
     const taskScope = taskState.scopePaths;
     const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
@@ -837,8 +813,10 @@ export function runSddGate({
       taskScope,
       outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
     };
-    const commandResults = failFastStoppedAt ? [] : runVerificationCommands(root, commands);
+    const commandResults = failFastStoppedAt ? [] : runVerificationCommands(root, commands, failFast);
     const allCommandsPassed = commandResults.every((r) => r.passed);
+
+    if (failFast && !allCommandsPassed) failFastStoppedAt = 'commands';
 
     let rebuildDifferential = { skipped: true, passed: true };
     if (mode === 'rebuild' && !failFastStoppedAt) {
@@ -846,6 +824,7 @@ export function runSddGate({
         skipped: false,
         ...runRebuildDifferentialCheck({
           projectRoot: root,
+          baseRef,
           baselineCmd,
           candidateCmd,
           nfrBudgetPath,
@@ -859,6 +838,7 @@ export function runSddGate({
       taskPrecondition.passed &&
       specDrift.passed &&
       antiTamper.passed &&
+      writeScope.passed &&
       agentLint.passed &&
       securityGate.passed &&
       formalGate.passed &&
@@ -913,6 +893,7 @@ export function runSddGate({
         taskPrecondition,
         specDrift,
         antiTamper,
+        writeScope,
         agentLint,
         securityGate,
         formalGate,
@@ -1007,6 +988,8 @@ function parseArgs(argv) {
       opts.changedFiles = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
     } else if (arg === '--base' && argv[i + 1]) {
       opts.baseRef = argv[++i];
+    } else if (arg === '--role') {
+      opts.role = argv[++i] || '';
     } else if (arg === '--mode' && argv[i + 1]) {
       opts.mode = argv[++i];
     } else if (arg === '--baseline-cmd' && argv[i + 1]) {
@@ -1025,6 +1008,10 @@ function parseArgs(argv) {
       opts.enableSecurityGate = true;
     } else if (arg === '--formal-tla' && argv[i + 1]) {
       opts.formalTla = argv[++i];
+    } else if (arg === '--formal-trace' && argv[i + 1]) {
+      opts.formalTrace = argv[++i];
+    } else if (arg === '--formal-round' && argv[i + 1]) {
+      opts.formalRound = Number(argv[++i]);
     } else if (arg === '--formal-cfg' && argv[i + 1]) {
       opts.formalCfg = argv[++i];
     } else if (arg === '--fail-fast') {
@@ -1050,7 +1037,7 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
-      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--mode standard|rebuild] [--baseline-cmd <cmd> --candidate-cmd <cmd>] [--nfr-budget <path>] [--lock-owner <id>] [--anti-tamper] [--agent-lint] [--security-gate] [--fail-fast] [--output <path>] [--skip-drift] [--skip-sensors]\n',
+      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--role implementer] [--mode standard|rebuild] [--baseline-cmd <cmd> --candidate-cmd <cmd>] [--nfr-budget <path>] [--lock-owner <id>] [--anti-tamper] [--agent-lint] [--security-gate] [--formal-tla <path> --formal-cfg <path> --formal-trace <path> --formal-round <n>] [--fail-fast] [--output <path>] [--skip-drift] [--skip-sensors]\n',
     );
     process.exit(2);
   }
@@ -1068,6 +1055,7 @@ function main() {
       outputPath: opts.outputPath,
       rootCausePhase: opts.rootCausePhase,
       mode: opts.mode,
+      role: opts.role,
       baselineCmd: opts.baselineCmd,
       candidateCmd: opts.candidateCmd,
       nfrBudgetPath: opts.nfrBudgetPath,
@@ -1077,6 +1065,8 @@ function main() {
       enableSecurityGate: opts.enableSecurityGate,
       formalTla: opts.formalTla,
       formalCfg: opts.formalCfg,
+      formalTrace: opts.formalTrace,
+      formalRound: opts.formalRound,
       failFast: opts.failFast,
     });
     process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);

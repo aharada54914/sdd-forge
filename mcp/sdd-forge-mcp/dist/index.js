@@ -32196,12 +32196,16 @@ var DEFAULT_CONFIG = Object.freeze({
         lean4: {}
       }
     },
-    trigger_tiers: ["high"]
+    trigger_tiers: ["high"],
+    timeout_sec: 120,
+    pr_total_budget_sec: 300,
+    on_timeout: "fail"
   },
   agent_lint: {
     enabled: false,
     mode: "shadow",
     diff_only: true,
+    max_abstraction_depth: 6,
     waivers: []
   },
   security_audit: {
@@ -32444,6 +32448,24 @@ function validateGuardrailsExtensions(parsed) {
   const forbiddenNames = /* @__PURE__ */ new Set(["command", "shell", "exec", "cmd"]);
   if (parsed.formal_verification && typeof parsed.formal_verification === "object") {
     const fv = parsed.formal_verification;
+    for (const field of ["timeout_sec", "pr_total_budget_sec"]) {
+      if (fv[field] !== void 0 && (!Number.isSafeInteger(fv[field]) || fv[field] < 1 || fv[field] > 2147483)) {
+        errors.push({
+          code: "INVALID_FORMAL_BUDGET",
+          path: "formal_verification." + field,
+          message: field + " must be a positive timeout in seconds",
+          action: "Use an integer from 1 to 2147483"
+        });
+      }
+    }
+    if (fv.on_timeout !== void 0 && fv.on_timeout !== "fail") {
+      errors.push({
+        code: "INVALID_TIMEOUT_POLICY",
+        path: "formal_verification.on_timeout",
+        message: "Unsupported timeout policy",
+        action: "Set on_timeout to fail"
+      });
+    }
     for (const kp of findForbiddenKeys(fv, "formal_verification", forbiddenNames)) {
       errors.push({
         code: "FORBIDDEN_COMMAND_KEY",
@@ -32472,6 +32494,14 @@ function validateGuardrailsExtensions(parsed) {
   }
   if (parsed.agent_lint && typeof parsed.agent_lint === "object") {
     const al = parsed.agent_lint;
+    if (al.max_abstraction_depth !== void 0 && (!Number.isSafeInteger(al.max_abstraction_depth) || al.max_abstraction_depth < 1)) {
+      errors.push({
+        code: "INVALID_ABSTRACTION_DEPTH",
+        path: "agent_lint.max_abstraction_depth",
+        message: "max_abstraction_depth \u306F\u6B63\u306E\u6574\u6570\u3067\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044",
+        action: "1 \u4EE5\u4E0A\u306E\u6574\u6570\u3092\u6307\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044"
+      });
+    }
     if (al.mode !== void 0 && !VALID_GATE_MODES.has(al.mode)) {
       errors.push({
         code: "INVALID_GATE_MODE",
@@ -32589,12 +32619,16 @@ function normalizeGuardrailsConfig(parsed, sourcePath = null) {
           lean4: fvAdapterOpts.lean4 && typeof fvAdapterOpts.lean4 === "object" ? { ...fvAdapterOpts.lean4 } : {}
         }
       },
+      timeout_sec: Number.isSafeInteger(fv.timeout_sec) && fv.timeout_sec > 0 ? fv.timeout_sec : DEFAULT_CONFIG.formal_verification.timeout_sec,
+      pr_total_budget_sec: Number.isSafeInteger(fv.pr_total_budget_sec) && fv.pr_total_budget_sec > 0 ? fv.pr_total_budget_sec : DEFAULT_CONFIG.formal_verification.pr_total_budget_sec,
+      on_timeout: "fail",
       trigger_tiers: Array.isArray(fv.trigger_tiers) && fv.trigger_tiers.length > 0 ? fv.trigger_tiers.map((t) => String(t)) : [...DEFAULT_CONFIG.formal_verification.trigger_tiers]
     },
     agent_lint: {
       enabled: typeof al.enabled === "boolean" ? al.enabled : DEFAULT_CONFIG.agent_lint.enabled,
       mode: VALID_GATE_MODES.has(al.mode) ? al.mode : DEFAULT_CONFIG.agent_lint.mode,
       diff_only: typeof al.diff_only === "boolean" ? al.diff_only : DEFAULT_CONFIG.agent_lint.diff_only,
+      max_abstraction_depth: Number.isSafeInteger(al.max_abstraction_depth) && al.max_abstraction_depth > 0 ? al.max_abstraction_depth : DEFAULT_CONFIG.agent_lint.max_abstraction_depth,
       waivers: Array.isArray(al.waivers) ? al.waivers.filter((w) => w && typeof w === "object") : []
     },
     security_audit: {
@@ -33927,7 +33961,27 @@ function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
   const reqText = reqRaw || "";
   const designText = designRaw || "";
   const tasksText = tasksRaw || "";
+  const formalDir = `reports/verification/${feature}/formal-questions`;
+  const formalQuestions = io.listDir(formalDir).filter((entry) => entry.isFile && /^OQ-\d+\.json$/.test(entry.name)).map((entry) => {
+    const sourceFile = formalDir + "/" + entry.name;
+    const q = JSON.parse(io.readText(sourceFile));
+    if (q.feature !== feature || q.id + ".json" !== entry.name || typeof q.fact !== "string" || typeof q.evidence !== "string")
+      throw new Error("Invalid formal question: " + sourceFile);
+    return {
+      id: q.id,
+      status: q.status,
+      confirmed: isOpenQuestionConfirmed(q.status),
+      category: "\u5F62\u5F0F\u691C\u8A3C",
+      fact: q.fact,
+      reason: q.evidence,
+      question: "\u53CD\u4F8B\u3068\u30E2\u30C7\u30EB\u30FB\u5B9F\u88C5\u306E\u5BFE\u5FDC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+      impactedTasks: [],
+      sourceFile,
+      sourceRef: sourceFile
+    };
+  });
   const openQuestions = mergeOpenQuestions(
+    formalQuestions,
     parseOpenQuestions(reqText, reqRel),
     parseOpenQuestions(designText, designRel)
   );
@@ -36903,7 +36957,8 @@ function sddProjectOverview(root, options = {}) {
       status: toDoctorStatus(doc.status),
       ngCount: doc.summary.ng,
       warnCount: doc.summary.warn,
-      driftEventCount: countDriftEvents(root)
+      driftEventCount: countDriftEvents(root),
+      v2_2_gates: doc.v2_2_gates
     };
   }
   return ok(data);

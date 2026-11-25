@@ -77,6 +77,74 @@ describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & B
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it('reports changed lines, untracked files and changed local imports on a clean branch checkout', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-diff-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const git = (...args) => {
+      const result = spawnSync('git', ['-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', ...args], {
+        cwd: root, encoding: 'utf8',
+      });
+      assert.equal(result.status, 0, result.stderr);
+      return result.stdout.trim();
+    };
+    const write = (name, code) => fs.writeFileSync(path.join(root, name), code);
+    git('init', '--quiet');
+    write('a file.ts', "console.log('existing');\nexport const a: number = 1;\n");
+    write('b.ts', "export { a } from './a file.ts';\n");
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'base');
+    const base = git('rev-parse', 'HEAD');
+    fs.appendFileSync(path.join(root, 'a file.ts'), "import './b.ts';\nconsole.log('new');\n");
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'changed edge');
+    assert.equal(git('status', '--porcelain'), '');
+    const result = spawnSync(process.execPath, [LINT_CLI, '--root', root, '--mode', 'strict',
+      '--diff-only', '--base-ref', base, '--format', 'json'], { encoding: 'utf8' });
+    assert.equal(result.status, 1, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.scannedFiles, 1);
+    assert.deepEqual(report.findings.map(f => [f.rule, f.path, f.line]).sort(), [
+      ['no-console-log', 'a file.ts', 4], ['no-dependency-cycle', 'a file.ts', 3],
+    ]);
+    write('new.tsx', 'export const component = <div>{console.log("value")}</div>;\n');
+    const scoped = runAgentLint({projectRoot: root, mode: 'strict', files: ['new.tsx','b.ts'], diffOnly: true, baseRef: base});
+    assert.equal(scoped.scannedFiles, 1);
+    assert.deepEqual(scoped.findings.map(f => f.path), ['new.tsx']);
+    assert.throws(() => runAgentLint({projectRoot: root, mode: 'strict', baseRef: 'missing-ref'}));
+  });
+
+  it('uses TS syntax, scoped flag groups, configured control depth and comment nodes', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-ast-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(root, 'sdd'));
+    fs.writeFileSync(path.join(root,'sdd/guardrails.json'), JSON.stringify({
+      agent_lint: { enabled: true, mode: 'strict', max_abstraction_depth: 1 }
+    }));
+    const directive = ['eslint', 'disable'].join('-');
+    const lines = [
+      'export function route(a: boolean, b: boolean) {',
+      '  if (a && b) return 1;',
+      '  if (a && !b) return 2;',
+      '  if (a) { if (b) return 3; }',
+      '  return { safe: { nested: { data: "" } } };',
+      '}',
+      'export function other(a: boolean, b: boolean) { if (a && b) return 4; }',
+      'export const markers = /eval[(]|console[.]log/;',
+      'export const note = "' + directive + '";',
+      '// ' + directive + '-next-line',
+      '// ' + ['sdd', 'lint', 'disable'].join('-'),
+      '// ' + ['@ts', 'ignore'].join('-'),
+      '// Why ' + directive + ' is disallowed.',
+    ];
+    fs.writeFileSync(path.join(root,'app.ts'), lines.join('\n'));
+    const report = runAgentLint({projectRoot: root, files: ['app.ts']});
+    assert.deepEqual(report.findings.map(f => [f.rule, f.line]).sort(), [
+      ['no-combinatorial-flags', 2], ['no-combinatorial-flags', 3],
+      ['no-deep-nesting', 4], ['no-inline-suppression', 10], ['no-inline-suppression', 11],
+      ['no-inline-suppression', 12],
+    ]);
+  });
+
   it('NFR-004 performance budget: lints 100 files in <= 3000ms', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-agent-lint-perf-'));
     fs.mkdirSync(path.join(dir, 'src'), { recursive: true });

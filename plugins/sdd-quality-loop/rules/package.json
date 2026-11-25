@@ -1,0 +1,8 @@
+{
+  "name": "sdd-quality-loop-rules",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@ast-grep/napi": "0.51.3"
+  }
+}

@@ -1,16 +1,32 @@
 {
   "schema": "sdd-formal-mapping/v1",
-  "property": "TaskLock guarantees at most one live owner (SingleOwner) and GateLifecycle guarantees Done requires a prior PASS gate verdict (DoneRequiresGatePass).",
+  "property": "A task has at most one recorded lock owner. A gate can complete only an approved task after PASS; drift, tamper, and the repair limit constrain the next action.",
   "models": {
     "TaskLock": {
       "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
       "invariant": "SingleOwner",
       "actions": {
-        "Acquire": "acquireTaskLock (atomic link/O_EXCL lock creation)",
-        "Renew": "renewTaskLock (owner lease extension without releasing)",
-        "Expire": "lease TTL expiration",
-        "ReclaimStale": "stale lock recovery after TTL expiry",
-        "Release": "releaseTaskLock (owner-verified unlink)"
+        "Acquire": "acquireLock: exclusive link or wx create",
+        "Renew": "acquireLock -> renewLock: own lock lease",
+        "Expire": "getLockStatus -> evaluateStale: TTL expiration",
+        "ReclaimStale": "acquireLock: breakStale then retry",
+        "Release": "releaseLock: matching owner"
+      },
+      "sources": [
+        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
+      ],
+      "expected_violated_invariant": "SingleOwner",
+      "trace": {
+        "fields": [
+          "holders",
+          "leaseActive"
+        ],
+        "actor_actions": [
+          "Acquire",
+          "Renew",
+          "ReclaimStale",
+          "Release"
+        ]
       }
     },
     "GateLifecycle": {
@@ -21,21 +37,54 @@
         "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
         "RunGatePass": "run-sdd-gate.mjs verdict PASS",
         "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
-        "MarkDone": "quality-gate transitions Status -> Done"
+        "MarkDone": "quality-gate transitions Status -> Done",
+        "Approve": "human approval recorded in tasks.md",
+        "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
+        "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
+      },
+      "sources": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+        "plugins/sdd-ship/skills/ship/SKILL.md",
+        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
+      ],
+      "expected_violated_invariant": "DoneRequiresGatePass",
+      "invariants": [
+        "DoneRequiresGatePass",
+        "RetryBound",
+        "NoTamperRepair",
+        "NoDriftPass",
+        "EscalationRequiresOQ"
+      ],
+      "trace": {
+        "fields": [
+          "status",
+          "approved",
+          "gateVerdict",
+          "rounds",
+          "tamper",
+          "drift",
+          "oq"
+        ],
+        "actor_actions": []
       }
     }
   },
   "mapping": {
-    "Acquire": "task-lock.mjs:acquireTaskLock",
-    "Renew": "task-lock.mjs:renewTaskLock",
-    "Expire": "task-lock.mjs:isLeaseExpired",
-    "ReclaimStale": "task-lock.mjs:reclaimStaleLock",
-    "Release": "task-lock.mjs:releaseTaskLock",
-    "StartTask": "tasks.md:StartTask",
-    "CompleteImpl": "tasks.md:CompleteImpl",
-    "RunGatePass": "run-sdd-gate.mjs:PASS",
-    "RunGateFail": "run-sdd-gate.mjs:FAIL",
-    "MarkDone": "quality-gate:Done"
+    "Acquire": "acquireLock: exclusive link or wx create",
+    "Renew": "acquireLock -> renewLock: own lock lease",
+    "Expire": "getLockStatus -> evaluateStale: TTL expiration",
+    "ReclaimStale": "acquireLock: breakStale then retry",
+    "Release": "releaseLock: matching owner",
+    "StartTask": "tasks.md Status: Planned -> In Progress",
+    "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
+    "RunGatePass": "run-sdd-gate.mjs verdict PASS",
+    "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
+    "MarkDone": "quality-gate transitions Status -> Done",
+    "Approve": "human approval recorded in tasks.md",
+    "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
+    "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
   },
   "assumptions": [
     "Local POSIX/NTFS atomic file creation or hardlink semantics hold for task-lock.mjs",
@@ -44,5 +93,19 @@
   "excluded": [
     "Network filesystems (NFS/SMB) without atomic O_EXCL",
     "Manual human override via git commit"
-  ]
+  ],
+  "bounds": [
+    "Two lock contenders; abstract, indivisible filesystem operations; holders includes the owner of a stale record until reclaimed.",
+    "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only."
+  ],
+  "source_sync_commit": "fc166bd1a8b8303531c0445ff78965897ea59c61",
+  "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+  "source_sha256": {
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
+    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "510f5242a04e17c9bc4acd1fb33696fd816bb4a490bc5fc62309979d24c977c9",
+    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "2e57f256b3772f59666081e2c0dec7cf69d67081155ae4b624e0df43a90f546f",
+    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "74114588cdb40699479984a5902349fe40055a29731410ae65d3699b4cfac5e8",
+    "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
+  }
 }

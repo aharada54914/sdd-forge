@@ -16,6 +16,7 @@
  *   node sync-knowledge.mjs extract --feature <slug> [--root <dir>] [--write]
  */
 import fs from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import {
   assertValidFeatureName,
@@ -195,6 +196,43 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
   };
 }
 
+function countKnowledgeSources(io, start) {
+  const pending = [start];
+  const seen = new Set();
+  let files = 0;
+  let entries = 0;
+  while (pending.length) {
+    const dir = pending.pop();
+    const real = io.canonicalRelPath(dir);
+    if (real === null || seen.has(real) || (real !== start && !real.startsWith(start + '/'))) continue;
+    seen.add(real);
+    for (const entry of io.listDir(dir)) {
+      if (entry.isDirectory) pending.push(dir + '/' + entry.name);
+      else if (entry.isFile && /\.(md|json|ya?ml)$/i.test(entry.name)) {
+        const content = io.readText(dir + '/' + entry.name);
+        if (content === null) continue;
+        files++;
+        const records = start === '.learnings' ? /^## \[(?:ERR|LRN|FEAT)-[^\]]+\]/gm : /^(?:#{1,3} | *- id: )/gm;
+        entries += [...content.matchAll(records)].length;
+      }
+    }
+  }
+  return { files, entries };
+}
+
+function writeMetaAnalysis(root, data) {
+  const reports = path.join(fs.realpathSync(root), 'reports');
+  fs.mkdirSync(reports, { recursive: true });
+  if (fs.realpathSync(reports) !== reports) throw new Error('reports must be a project directory');
+  const tmp = path.join(reports, '.spec-meta-analysis-' + randomUUID());
+  try {
+    fs.writeFileSync(tmp, data, { flag: 'wx' });
+    fs.renameSync(tmp, path.join(reports, 'spec-meta-analysis.json'));
+  } finally {
+    fs.rmSync(tmp, { force: true });
+  }
+}
+
 export function runMetaAnalyze({ projectRoot = null, feature = null } = {}) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const io = createFsReadonlyIo(root);
@@ -205,7 +243,8 @@ export function runMetaAnalyze({ projectRoot = null, feature = null } = {}) {
     for (const line of driftRaw.split(/\r?\n/)) {
       if (!line.trim()) continue;
       try {
-        driftEvents.push(JSON.parse(line));
+        const event = JSON.parse(line);
+        if (event && typeof event === 'object') driftEvents.push(event);
       } catch {
         // skip malformed lines
       }
@@ -222,14 +261,27 @@ export function runMetaAnalyze({ projectRoot = null, feature = null } = {}) {
   }
   const recurringTriggers = [...byReason.entries()]
     .filter(([, count]) => count >= 2)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([reason, count]) => ({ reason, count }));
 
+  if (feature) assertValidFeatureName(feature);
+  const features = feature ? [feature] : io.listDir('specs')
+    .filter(entry => entry.isDirectory && io.exists('specs/' + entry.name + '/requirements.md'))
+    .map(entry => entry.name);
   let provisionalOqs = 0;
-  if (feature) {
-    assertValidFeatureName(feature);
-    const dv = buildDecisionViewDataCore(io, { feature });
-    provisionalOqs = dv.counts.openQuestionsProvisional;
+  let confirmedOqs = 0;
+  for (const slug of features) {
+    const view = buildDecisionViewDataCore(io, { feature: slug });
+    provisionalOqs += view.counts.openQuestionsProvisional;
+    confirmedOqs += view.openQuestions.filter(q => q.confirmed).length;
   }
+  const learnings = countKnowledgeSources(io, '.learnings');
+  const knowledge = countKnowledgeSources(io, 'sdd/knowledge');
+  const inputs = {
+    learningFiles: learnings.files,
+    knowledgeFiles: knowledge.files,
+    features: features.length,
+  };
 
   const reframingRecommended = recurringTriggers.length > 0 || provisionalOqs >= 3;
   const recommendations = [];
@@ -250,6 +302,10 @@ export function runMetaAnalyze({ projectRoot = null, feature = null } = {}) {
   return {
     schema: 'sdd-meta-analyze/v1',
     feature: feature || null,
+    inputs,
+    learningRecords: learnings.entries,
+    knowledgeHeadingsAndRules: knowledge.entries,
+    confirmedOqs,
     driftEventCount: driftEvents.length,
     denialCount: denials.length,
     recurringTriggers,
@@ -299,7 +355,9 @@ if (isMain) {
         projectRoot: opts.root,
         feature: opts.feature,
       });
-      process.stdout.write(`${JSON.stringify(res, null, 2)}\n`);
+      const json = `${JSON.stringify(res, null, 2)}\n`;
+      writeMetaAnalysis(resolveExplicitOrAutoRoot(opts.root), json);
+      process.stdout.write(json);
       process.exit(0);
     }
     process.stderr.write(

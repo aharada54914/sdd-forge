@@ -33,8 +33,36 @@
       "id": "no-deep-nesting",
       "severity": "warn",
       "category": "maintainability",
-      "message": "ブロックのネスト深度が上限（6 段）を超えています",
+      "message": "制御構造のネストが max_abstraction_depth を超えています",
       "remediation_hint": "早期 return（ガード節）またはヘルパー関数抽出でネストを浅くしてください"
+    },
+    {
+      "id": "no-combinatorial-flags",
+      "severity": "error",
+      "category": "maintainability",
+      "message": "同一スコープ内の複数の分岐が同じフラグの組み合わせに依存しています",
+      "remediation_hint": "分岐を明示的な状態または決定表にまとめてください"
+    },
+    {
+      "id": "no-dependency-cycle",
+      "severity": "error",
+      "category": "architecture",
+      "message": "このローカル import が循環依存に参加しています",
+      "remediation_hint": "依存の向きを揃えるか共通処理を独立したモジュールへ抽出してください"
+    },
+    {
+      "id": "no-inline-suppression",
+      "severity": "error",
+      "category": "maintainability",
+      "message": "新しいインライン抑止コメントがあります",
+      "remediation_hint": "理由と期限を agent_lint.waivers に登録してください"
+    },
+    {
+      "id": "syntax-error",
+      "severity": "error",
+      "category": "correctness",
+      "message": "構文解析できない箇所があります",
+      "remediation_hint": "ファイルの言語と構文を確認してください"
     }
   ]
 }

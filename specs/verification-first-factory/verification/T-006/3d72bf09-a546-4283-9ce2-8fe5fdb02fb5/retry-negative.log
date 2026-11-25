@@ -1,0 +1,192 @@
+@!@!@STARTMSG 1000:0 @!@!@
+Will generate a SpecTE file pair if error states are encountered.
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 96 and seed 3809605113146140232 with 1 worker on 10 cores with 5461MB heap and 64MB offheap memory [pid: 11411] (Mac OS X 27.2.1 aarch64, Eclipse Adoptium 21.0.13.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-eUghv4/negative/GateLifecycle.tla
+Parsing file /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module GateLifecycle
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-11-26 00:58:47)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2026-11-26 00:58:47.
+@!@!@ENDMSG 2190 @!@!@
+@!@!@STARTMSG 2110:1 @!@!@
+Invariant RetryBound is violated.
+@!@!@ENDMSG 2110 @!@!@
+@!@!@STARTMSG 2121:1 @!@!@
+The behavior up to this point is:
+@!@!@ENDMSG 2121 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+1: <Initial predicate>
+/\ drift = "CLEAN"
+/\ rounds = 0
+/\ approved = FALSE
+/\ oq = FALSE
+/\ status = "Planned"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+2: <Approve line 30, col 12 to line 31, col 130 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 0
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "Planned"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+3: <StartTask line 32, col 14 to line 34, col 136 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 0
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "InProgress"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+4: <CompleteImpl line 35, col 17 to line 36, col 139 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 0
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "ImplComplete"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+5: <RunGateFail line 42, col 16 to line 46, col 78 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 0
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "ImplComplete"
+/\ tamper = FALSE
+/\ gateVerdict = "FAIL"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+6: <Repair line 47, col 11 to line 51, col 83 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 1
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "InProgress"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+7: <CompleteImpl line 35, col 17 to line 36, col 139 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 1
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "ImplComplete"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+8: <RunGateFail line 42, col 16 to line 46, col 78 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 1
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "ImplComplete"
+/\ tamper = FALSE
+/\ gateVerdict = "FAIL"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+9: <Repair line 47, col 11 to line 51, col 83 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 2
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "InProgress"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+10: <CompleteImpl line 35, col 17 to line 36, col 139 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 2
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "ImplComplete"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+11: <RunGateFail line 42, col 16 to line 46, col 78 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 2
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "ImplComplete"
+/\ tamper = FALSE
+/\ gateVerdict = "FAIL"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+12: <Repair line 47, col 11 to line 51, col 83 of module GateLifecycle>
+/\ drift = "CLEAN"
+/\ rounds = 3
+/\ approved = TRUE
+/\ oq = FALSE
+/\ status = "InProgress"
+/\ tamper = FALSE
+/\ gateVerdict = "NONE"
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(12) at 2026-11-26 00:58:47: 45 states generated (5,806 s/min), 35 distinct states found (4,516 ds/min), 4 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+45 states generated, 35 distinct states found, 4 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 12.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2268:0 @!@!@
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 5 and the 95th percentile is 5).
+@!@!@ENDMSG 2268 @!@!@
+@!@!@STARTMSG 1000:0 @!@!@
+The model check run produced error-states - we will generate the SpecTE files now.
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 1000:0 @!@!@
+The file /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-eUghv4/negative/SpecTE.tla has been created.
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 1000:0 @!@!@
+The file /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-checker-eUghv4/negative/SpecTE.cfg has been created.
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 499ms at (2026-11-26 00:58:47)
+@!@!@ENDMSG 2186 @!@!@
+
+Command failed: java -XX:+UseParallelGC -cp /tmp/sdd-formal-runtime/tla2tools.jar tlc2.TLC -generateSpecTE -workers 1 -config GateLifecycle.retry.negative.cfg GateLifecycle.tla

@@ -140,6 +140,7 @@ export interface ProjectOverviewData {
     ngCount: number;
     warnCount: number;
     driftEventCount: number;
+    v2_2_gates?: ReturnType<typeof runDoctorCore>["v2_2_gates"];
   };
 }
 
@@ -516,6 +517,7 @@ export function sddProjectOverview(
       ngCount: doc.summary.ng,
       warnCount: doc.summary.warn,
       driftEventCount: countDriftEvents(root),
+      v2_2_gates: doc.v2_2_gates,
     };
   }
 

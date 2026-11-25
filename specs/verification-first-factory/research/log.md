@@ -1,0 +1,13 @@
+# Research log
+
+## Round 0 — 2026-11-26
+
+- Question: compare Pstack's formal-verification workflow and major OSS logic/practices with this branch's formal-verification implementation, then refactor toward practical use.
+- Budget: 10 returned sources across at most 4 rounds; saturation threshold 0.7 (provisional). Stopped after one official and one citation-trail route because sources were sufficient to identify actionable workflow gaps; this is not semantic verification of all claims.
+- Readers: no search-reader agents used; the main agent performed both routes. No delegation capacity was available without delaying implementation.
+- Official route queries: `Pstack formal verification workflow`, `TLA+ TLC`, `Apalache`, and `Alloy` official documentation/specifications. Inspected Cursor Pstack create skill, official Apalache README/tool docs, Alloy official specification and repository README. Canonical source acquisitions: SRC-001, SRC-003, SRC-004. Alloy spec acquisition attempt returned `ssrf-blocked` and is recorded as SRC-005; official Apalache docs hostname attempt also returned `ssrf-blocked` and is not counted as acquired evidence.
+- Citation-trail route: followed Pstack's official maintenance skill and the Apalache README's official documentation links; inspected original pages. Acquired Pstack maintenance source SRC-002. No third-party citations needed for the Pstack claim.
+- Actual acquisition facts: raw GitHub content fetched by `research-acquire.py` with reference-only storage; hashes are in `research-evidence.json`. Direct `apalache-mc.org` and `alloytools.org` acquisition was refused by the adapter's address policy. Browser inspection is recorded as discovery only, not as original-byte verification.
+- Assessed proposition: Pstack's published workflow explicitly asks for code-mapped verification, demonstrated failure on a broken variant, disclosed bounds, a cheap reproducible command, and a code/model sync record. Apalache's README describes bounded safety checks and inductive invariants. These are method claims; local evidence does not establish efficacy in this repository.
+- Unresolved: Alloy finite-scope statement has no acquired snapshot; TLC primary documentation was not acquired; source branches are mutable and commit SHAs are not pinned; original quote verification is pending; CLM-004 tool-selection claim remains unassessed.
+- Stop reason: sufficient evidence for implementation changes plus two acquisition walls; no saturation calculation is claimed because result sets were not a fixed complete search corpus. Actual tool calls/cost are not known.

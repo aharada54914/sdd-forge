@@ -1,9 +1,19 @@
 --------------------------- MODULE TaskLock ---------------------------
 EXTENDS Naturals, FiniteSets
-CONSTANT UseAtomicLock
+CONSTANT
+    \* @type: Bool;
+    UseAtomicLock
 Owners == {"w1", "w2"}
-VARIABLES holder, leaseActive, holders
+VARIABLES
+    \* @type: Str;
+    holder,
+    \* @type: Bool;
+    leaseActive,
+    \* @type: Set(Str);
+    holders
 
+\* Explicit frame equalities let Apalache use these actions as trace predicates
+\* even after Next has already assigned the successor state.
 vars == <<holder, leaseActive, holders>>
 
 Init ==
@@ -21,13 +31,13 @@ Acquire(o) ==
 Renew(o) ==
     /\ holder = o
     /\ leaseActive' = TRUE
-    /\ UNCHANGED <<holder, holders>>
+    /\ holder' = holder /\ holders' = holders
 
 Expire ==
     /\ holder /= "none"
     /\ leaseActive = TRUE
     /\ leaseActive' = FALSE
-    /\ UNCHANGED <<holder, holders>>
+    /\ holder' = holder /\ holders' = holders
 
 ReclaimStale(o) ==
     /\ holder /= "none"

@@ -1507,7 +1507,24 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
   const designText = designRaw || '';
   const tasksText = tasksRaw || '';
 
+  const formalDir = `reports/verification/${feature}/formal-questions`;
+  const formalQuestions = io.listDir(formalDir)
+    .filter((entry) => entry.isFile && /^OQ-\d+\.json$/.test(entry.name))
+    .map((entry) => {
+      const sourceFile = formalDir + '/' + entry.name;
+      const q = JSON.parse(io.readText(sourceFile));
+      if (q.feature !== feature || q.id + '.json' !== entry.name ||
+          typeof q.fact !== 'string' || typeof q.evidence !== 'string') {
+        throw new Error('Invalid formal question: ' + sourceFile);
+      }
+      return {
+        id: q.id, status: q.status, confirmed: isOpenQuestionConfirmed(q.status), category: '形式検証',
+        fact: q.fact, reason: q.evidence, question: '反例とモデル・実装の対応を確認してください。',
+        impactedTasks: [], sourceFile, sourceRef: sourceFile,
+      };
+    });
   const openQuestions = mergeOpenQuestions(
+    formalQuestions,
     parseOpenQuestions(reqText, reqRel),
     parseOpenQuestions(designText, designRel),
   );

@@ -127,7 +127,45 @@
             "status": { "type": "string", "enum": ["CLEAN", "WARN", "NG"] },
             "ngCount": { "type": "integer", "minimum": 0 },
             "warnCount": { "type": "integer", "minimum": 0 },
-            "driftEventCount": { "type": "integer", "minimum": 0 }
+            "driftEventCount": { "type": "integer", "minimum": 0 },
+            "v2_2_gates": {
+              "type": "object",
+              "required": ["formal_verification", "agent_lint", "security_audit", "anti_tampering"],
+              "additionalProperties": false,
+              "properties": {
+                "formal_verification": {
+                  "type": "object", "required": ["enabled", "mode", "adapter"], "additionalProperties": false,
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "mode": { "enum": ["off", "shadow", "warn", "strict"] },
+                    "adapter": { "enum": ["none", "tlc", "apalache", "lean4"] }
+                  }
+                },
+                "agent_lint": {
+                  "type": "object", "required": ["enabled", "mode", "waiver_count"], "additionalProperties": false,
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "mode": { "enum": ["off", "shadow", "warn", "strict"] },
+                    "waiver_count": { "type": "integer", "minimum": 0 }
+                  }
+                },
+                "security_audit": {
+                  "type": "object", "required": ["enabled", "mode", "enabled_adapters"], "additionalProperties": false,
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "mode": { "enum": ["off", "shadow", "warn", "strict"] },
+                    "enabled_adapters": { "type": "array", "items": { "type": "string" } }
+                  }
+                },
+                "anti_tampering": {
+                  "type": "object", "required": ["enabled", "mode"], "additionalProperties": false,
+                  "properties": {
+                    "enabled": { "type": "boolean" },
+                    "mode": { "enum": ["off", "warn", "strict"] }
+                  }
+                }
+              }
+            }
           }
         }
       }

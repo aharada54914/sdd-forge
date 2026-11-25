@@ -43,11 +43,15 @@ export const DEFAULT_CONFIG = Object.freeze({
       },
     },
     trigger_tiers: ['high'],
+    timeout_sec: 120,
+    pr_total_budget_sec: 300,
+    on_timeout: 'fail',
   },
   agent_lint: {
     enabled: false,
     mode: 'shadow',
     diff_only: true,
+    max_abstraction_depth: 6,
     waivers: [],
   },
   security_audit: {
@@ -337,6 +341,16 @@ export function validateGuardrailsExtensions(parsed) {
 
   if (parsed.formal_verification && typeof parsed.formal_verification === 'object') {
     const fv = parsed.formal_verification;
+    for (const field of ['timeout_sec', 'pr_total_budget_sec']) {
+      if (fv[field] !== undefined && (!Number.isSafeInteger(fv[field]) || fv[field] < 1 || fv[field] > 2147483)) {
+        errors.push({code:'INVALID_FORMAL_BUDGET',path:'formal_verification.'+field,
+          message: field+' must be a positive timeout in seconds',action:'Use an integer from 1 to 2147483'});
+      }
+    }
+    if (fv.on_timeout !== undefined && fv.on_timeout !== 'fail') {
+      errors.push({code:'INVALID_TIMEOUT_POLICY',path:'formal_verification.on_timeout',
+        message:'Unsupported timeout policy',action:'Set on_timeout to fail'});
+    }
     for (const kp of findForbiddenKeys(fv, 'formal_verification', forbiddenNames)) {
       errors.push({
         code: 'FORBIDDEN_COMMAND_KEY',
@@ -366,6 +380,15 @@ export function validateGuardrailsExtensions(parsed) {
 
   if (parsed.agent_lint && typeof parsed.agent_lint === 'object') {
     const al = parsed.agent_lint;
+    if (al.max_abstraction_depth !== undefined &&
+      (!Number.isSafeInteger(al.max_abstraction_depth) || al.max_abstraction_depth < 1)) {
+      errors.push({
+        code: 'INVALID_ABSTRACTION_DEPTH',
+        path: 'agent_lint.max_abstraction_depth',
+        message: 'max_abstraction_depth は正の整数で指定してください',
+        action: '1 以上の整数を指定してください',
+      });
+    }
     if (al.mode !== undefined && !VALID_GATE_MODES.has(al.mode)) {
       errors.push({
         code: 'INVALID_GATE_MODE',
@@ -510,6 +533,9 @@ export function normalizeGuardrailsConfig(parsed, sourcePath = null) {
           lean4: fvAdapterOpts.lean4 && typeof fvAdapterOpts.lean4 === 'object' ? { ...fvAdapterOpts.lean4 } : {},
         },
       },
+      timeout_sec: Number.isSafeInteger(fv.timeout_sec) && fv.timeout_sec > 0 ? fv.timeout_sec : DEFAULT_CONFIG.formal_verification.timeout_sec,
+      pr_total_budget_sec: Number.isSafeInteger(fv.pr_total_budget_sec) && fv.pr_total_budget_sec > 0 ? fv.pr_total_budget_sec : DEFAULT_CONFIG.formal_verification.pr_total_budget_sec,
+      on_timeout: 'fail',
       trigger_tiers:
         Array.isArray(fv.trigger_tiers) && fv.trigger_tiers.length > 0
           ? fv.trigger_tiers.map((t) => String(t))
@@ -519,6 +545,8 @@ export function normalizeGuardrailsConfig(parsed, sourcePath = null) {
       enabled: typeof al.enabled === 'boolean' ? al.enabled : DEFAULT_CONFIG.agent_lint.enabled,
       mode: VALID_GATE_MODES.has(al.mode) ? al.mode : DEFAULT_CONFIG.agent_lint.mode,
       diff_only: typeof al.diff_only === 'boolean' ? al.diff_only : DEFAULT_CONFIG.agent_lint.diff_only,
+      max_abstraction_depth: Number.isSafeInteger(al.max_abstraction_depth) && al.max_abstraction_depth > 0
+        ? al.max_abstraction_depth : DEFAULT_CONFIG.agent_lint.max_abstraction_depth,
       waivers: Array.isArray(al.waivers) ? al.waivers.filter((w) => w && typeof w === 'object') : [],
     },
     security_audit: {

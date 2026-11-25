@@ -12,7 +12,11 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
+  DEFAULT_CONFIG,
+  assertValidFeatureName,
   createFsReadonlyIo,
+  normalizeGuardrailsConfig,
+  parseSimpleYaml,
   globToRegExp,
   loadGuardrailsConfig,
   normalizeRelPath,
@@ -163,25 +167,74 @@ function isTestFileRelPath(relPath) {
   );
 }
 
-function loadApprovedTestRetirements(root, manifestRelPath) {
-  const rel = normalizeRelPath(manifestRelPath || 'sdd/approved-test-retirements.json');
-  const abs = path.join(root, ...rel.split('/'));
+function gitText(root, args) {
+  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+function committedText(root, revision, file) {
+  const entry = gitText(root, ['ls-tree', '-z', revision, '--', file]);
+  if (!/^100(?:644|755) blob /.test(entry)) return null;
+  return gitText(root, ['show', `${revision}:./${file}`]);
+}
+
+function committedPolicy(root, revision) {
+  const json = committedText(root, revision, 'sdd/guardrails.json');
+  const yaml = json === null && committedText(root, revision, 'sdd/guardrails.yaml');
+  return normalizeGuardrailsConfig(json !== null ? JSON.parse(json) : yaml ? parseSimpleYaml(yaml) : {}).anti_tampering;
+}
+
+function loadApprovedTestRetirements(root, revision) {
   const byPath = new Map();
-  if (!fs.existsSync(abs)) return byPath;
-  const parsed = JSON.parse(fs.readFileSync(abs, 'utf8'));
-  const entries = Array.isArray(parsed?.retirements) ? parsed.retirements : [];
-  for (const item of entries) {
-    if (!item || typeof item.path !== 'string' || typeof item.git_blob_sha !== 'string') continue;
-    const key = normalizeRelPath(item.path);
-    if (!byPath.has(key)) byPath.set(key, new Set());
-    byPath.get(key).add(item.git_blob_sha.trim().toLowerCase());
+  const text = committedText(root, revision, DEFAULT_CONFIG.anti_tampering.retirements_manifest);
+  if (text === null) return byPath;
+  const manifest = JSON.parse(text);
+  if (manifest.schema !== 'sdd-approved-test-retirements/v1' || !Array.isArray(manifest.retirements)) return byPath;
+  for (const item of manifest.retirements) {
+    if (!item || typeof item.path !== 'string' || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(item.git_blob_sha)) continue;
+    if (![item.reason, item.approved_by].every(value => typeof value === 'string' && value.trim())) continue;
+    if (!byPath.has(item.path)) byPath.set(item.path, new Set());
+    byPath.get(item.path).add(item.git_blob_sha);
   }
   return byPath;
 }
 
+function recordTamperingQuestion(root, feature, revision, violations) {
+  assertValidFeatureName(feature);
+  let directory = root;
+  for (const part of ['reports', 'verification', feature, 'anti-tampering']) {
+    directory = path.join(directory, part);
+    fs.mkdirSync(directory, { recursive: true });
+    if (fs.lstatSync(directory).isSymbolicLink()) throw new Error('Unsafe escalation directory');
+  }
+  // Publish a complete question atomically. Concurrent retries reuse the same evidence.
+  const facts = violations.map(({ code, path }) => ({ code, path }));
+  const tempDir = fs.mkdtempSync(path.join(directory, '.pending-'));
+  const candidate = path.join(tempDir, 'question.json');
+  try {
+    for (let number = 1; ; number++) {
+      const id = 'OQ-' + String(number).padStart(3, '0');
+      const filename = path.join(directory, id + '.json');
+      const ref = { id, path: toPosixPath(path.relative(root, filename)) };
+      const issue = { id, status: 'Provisional', feature, baseCommit: revision, violations: facts };
+      fs.writeFileSync(candidate, JSON.stringify(issue, null, 2) + '\n');
+      try {
+        fs.linkSync(candidate, filename);
+        return ref;
+      } catch (err) {
+        if (err.code !== 'EEXIST') throw err;
+      }
+      if (!fs.lstatSync(filename).isFile()) throw new Error('Invalid escalation file');
+      const existing = JSON.parse(fs.readFileSync(filename, 'utf8'));
+      if (existing.baseCommit === revision && JSON.stringify(existing.violations) === JSON.stringify(facts)) return ref;
+    }
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 function getGitBlobSha(root, baseRef, relPath) {
   try {
-    return execFileSync('git', ['rev-parse', `${baseRef}:${relPath}`], {
+    return execFileSync('git', ['rev-parse', `${baseRef}:./${relPath}`], {
       cwd: root,
       encoding: 'utf8',
       shell: false,
@@ -194,44 +247,40 @@ function getGitBlobSha(root, baseRef, relPath) {
   }
 }
 
+/** Compare a trusted revision and the worktree, including new protected files. */
+export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
+  const effectiveBaseRef = baseRef || committedPolicy(root, 'HEAD').base_ref;
+  const revision = gitText(root, ['rev-parse', '--verify', '--end-of-options', effectiveBaseRef + '^{commit}']).trim();
+  const policy = committedPolicy(root, revision);
+  const protectedGlobs = new Set([...DEFAULT_CONFIG.anti_tampering.protected_repo_paths,
+    'sdd/guardrails.json', '.github/CODEOWNERS', 'docs/CODEOWNERS', ...policy.protected_repo_paths]);
+  const protectedRegexes = Array.from(protectedGlobs, glob => globToRegExp(glob));
+  const nameStatusRaw = gitText(root, ['diff', '--name-status', '-z', '--no-renames', '--relative', revision, '--']);
+
+  const changedEntries = [];
+  const fields = nameStatusRaw.split('\0');
+  for (let i = 0; i + 1 < fields.length; i += 2) {
+    changedEntries.push({ status: fields[i], relPath: fields[i + 1] });
+  }
+  const untracked = gitText(root, ['ls-files', '--others', '--exclude-standard', '-z', '--', ...protectedGlobs, ...additionalGlobs]);
+  for (const relPath of untracked.split('\0').filter(Boolean)) {
+    changedEntries.push({ status: 'A', relPath });
+  }
+
+  return { effectiveBaseRef, revision, protectedRegexes, changedEntries };
+}
+
 /**
  * Checks `git diff <baseRef>` for verification-surface tampering (ADR-0054 REQ-010 / AC-009):
  * - Unapproved modifications to protected repository paths
  * - Test file deletions not matched by path + git_blob_sha in CODEOWNERS-protected manifest
  * - Added test skip directives, inline sdd-lint-disable comments, or TLA+ `== TRUE` weakening
  */
-export function checkAntiTampering({ projectRoot, baseRef = null, config = null }) {
+export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
-  const effectiveConfig = config || loadGuardrailsConfig(root);
-  const atCfg = effectiveConfig.anti_tampering || {};
-  const effectiveBaseRef = baseRef || atCfg.base_ref || 'HEAD';
-  const protectedGlobs = Array.isArray(atCfg.protected_repo_paths) ? atCfg.protected_repo_paths : [];
-  const protectedRegexes = protectedGlobs.map((g) => globToRegExp(g));
-  const approvedRetirements = loadApprovedTestRetirements(root, atCfg.retirements_manifest);
-
-  const nameStatusRaw = execFileSync('git', ['diff', '--name-status', '--no-renames', effectiveBaseRef], {
-    cwd: root,
-    encoding: 'utf8',
-    shell: false,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-
-  const diffRaw = execFileSync('git', ['diff', '--unified=0', '--no-renames', effectiveBaseRef], {
-    cwd: root,
-    encoding: 'utf8',
-    shell: false,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-
+  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef);
+  const approvedRetirements = loadApprovedTestRetirements(root, revision);
   const violations = [];
-  const changedEntries = [];
-  for (const line of nameStatusRaw.split(/\r?\n/)) {
-    if (!line.trim()) continue;
-    const [statusCode, ...rest] = line.split('\t');
-    const relPath = normalizeRelPath(rest.join('\t'));
-    if (!relPath) continue;
-    changedEntries.push({ status: statusCode.trim(), relPath });
-  }
 
   for (const { status, relPath } of changedEntries) {
     if (protectedRegexes.some((re) => re.test(relPath))) {
@@ -242,7 +291,7 @@ export function checkAntiTampering({ projectRoot, baseRef = null, config = null 
       });
     }
     if (status === 'D' && isTestFileRelPath(relPath)) {
-      const blobSha = getGitBlobSha(root, effectiveBaseRef, relPath);
+      const blobSha = getGitBlobSha(root, revision, relPath);
       const allowedShas = approvedRetirements.get(relPath);
       const isApproved = Boolean(blobSha && allowedShas && allowedShas.has(blobSha));
       if (!isApproved) {
@@ -255,38 +304,35 @@ export function checkAntiTampering({ projectRoot, baseRef = null, config = null 
     }
   }
 
-  let currentFile = null;
-  for (const line of diffRaw.split(/\r?\n/)) {
-    if (line.startsWith('+++ b/')) {
-      currentFile = normalizeRelPath(line.slice(6));
-      continue;
-    }
-    if (line.startsWith('+++ /dev/null')) {
-      currentFile = null;
-      continue;
-    }
-    if (!currentFile || !line.startsWith('+') || line.startsWith('+++')) continue;
-    const addedText = line.slice(1);
-    if (isTestFileRelPath(currentFile) && TEST_SKIP_RE.test(addedText)) {
-      violations.push({
-        code: 'TEST_SKIP_ADDED',
-        path: currentFile,
-        detail: `テストの skip 指定が追加されました: ${addedText.trim()}`,
-      });
-    }
-    if (LINT_DISABLE_RE.test(addedText)) {
-      violations.push({
-        code: 'LINT_DISABLE_ADDED',
-        path: currentFile,
-        detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${addedText.trim()}`,
-      });
-    }
-    if (currentFile.toLowerCase().endsWith('.tla') && TLA_TRIVIAL_INVARIANT_RE.test(addedText.trim())) {
-      violations.push({
-        code: 'FORMAL_INVARIANT_WEAKENED',
-        path: currentFile,
-        detail: `TLA+ 不変条件が自明な == TRUE へ弱体化されています: ${addedText.trim()}`,
-      });
+  for (const { status, relPath: currentFile } of changedEntries) {
+    if (status === 'D') continue;
+    const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', currentFile]);
+    let inHunk = false;
+    for (const line of patch.split(/\r?\n/)) {
+      if (line.startsWith('@@ ')) inHunk = true;
+      if (!inHunk || !line.startsWith('+')) continue;
+      const addedText = line.slice(1);
+      if (isTestFileRelPath(currentFile) && TEST_SKIP_RE.test(addedText)) {
+        violations.push({
+          code: 'TEST_SKIP_ADDED',
+          path: currentFile,
+          detail: `テストの skip 指定が追加されました: ${addedText.trim()}`,
+        });
+      }
+      if (LINT_DISABLE_RE.test(addedText)) {
+        violations.push({
+          code: 'LINT_DISABLE_ADDED',
+          path: currentFile,
+          detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${addedText.trim()}`,
+        });
+      }
+      if (currentFile.toLowerCase().endsWith('.tla') && TLA_TRIVIAL_INVARIANT_RE.test(addedText.trim())) {
+        violations.push({
+          code: 'FORMAL_INVARIANT_WEAKENED',
+          path: currentFile,
+          detail: `TLA+ 不変条件が自明な == TRUE へ弱体化されています: ${addedText.trim()}`,
+        });
+      }
     }
   }
 
@@ -295,6 +341,7 @@ export function checkAntiTampering({ projectRoot, baseRef = null, config = null 
     status: violations.length > 0 ? 'TAMPER_DETECTED' : 'CLEAN',
     baseRef: effectiveBaseRef,
     checkedFilesCount: changedEntries.length,
+    ...(violations.length && { openQuestion: recordTamperingQuestion(root, feature, revision, violations) }),
     violations,
   };
 }
@@ -309,7 +356,7 @@ export function formatAntiTamperMarkdown(report) {
     `- **Checked Changed Files**: ${report.checkedFilesCount}`,
   ];
   if (report.violations.length > 0) {
-    lines.push('', '### Violations');
+    lines.push('', `- **Open question**: ${report.openQuestion.id} (\`${report.openQuestion.path}\`)`, '', '### Violations');
     for (const v of report.violations) {
       lines.push(`- **${v.code}** (\`${v.path}\`): ${v.detail}`);
     }
@@ -359,6 +406,7 @@ function main() {
       const report = checkAntiTampering({
         projectRoot: opts.root || process.cwd(),
         baseRef: opts.baseRef,
+        feature: opts.feature || 'repository',
       });
       if (opts.format === 'markdown') {
         process.stdout.write(formatAntiTamperMarkdown(report));

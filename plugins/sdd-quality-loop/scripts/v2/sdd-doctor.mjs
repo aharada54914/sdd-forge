@@ -11,8 +11,9 @@
  *   1 — One or more NG findings
  */
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
-import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
+import { createFsReadonlyIo, loadGuardrailsConfig, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { NON_CHECKS, runDoctorCore } from './v2-readonly-core.mjs';
 
 export { NON_CHECKS };
@@ -26,6 +27,42 @@ function probeCommandAvailable(bin, args = ['--version']) {
   }
 }
 
+function configuredAdapterFindings(root, config) {
+  const findings = [];
+  function add(adapter, availability, detail) {
+    findings.push({ severity: 'INFO', category: 'adapters', adapter, availability,
+      message: `${adapter}: ${availability} (${detail})`, path: null,
+      action: availability === 'unavailable' ? '設定した検証ツールの導入先を確認してください' : '追加対応なし' });
+  }
+  const formal = config.formal_verification;
+  if (formal.enabled && formal.mode !== 'off') {
+    const adapter = formal.checker.adapter;
+    if (adapter === 'lean4' || adapter === 'none') {
+      add(adapter, adapter === 'lean4' ? 'reserved' : 'disabled', 'formal_verification.checker.adapter');
+    } else {
+      const jarName = adapter === 'tlc' ? 'tla2tools.jar' : 'apalache.jar';
+      const envJar = adapter === 'tlc' ? process.env.TLA2TOOLS_JAR : process.env.APALACHE_JAR;
+      const jar = path.resolve(root, formal.checker.adapter_options[adapter]?.jar || envJar || jarName);
+      const hasJar = fs.statSync(jar, { throwIfNoEntry: false })?.isFile() === true;
+      const hasJava = probeCommandAvailable('java', ['-version']);
+      add(adapter, hasJava && hasJar ? 'available' : 'unavailable', `java=${hasJava}, ${jarName}=${hasJar}`);
+    }
+  }
+  const security = config.security_audit;
+  if (security.enabled && security.mode !== 'off') {
+    for (const adapter of new Set(security.enabled_adapters)) {
+      if (adapter.startsWith('builtin-')) {
+        add(adapter, 'available', 'built-in');
+      } else {
+        const args = ['gitleaks', 'codeql'].includes(adapter) ? ['version'] : ['--version'];
+        add(adapter, probeCommandAvailable(adapter, args) ? 'available' : 'unavailable', args.join(' '));
+      }
+    }
+  }
+  return findings;
+}
+
+// Compatibility for callers that request the original environment inventory.
 export function probeExternalAdapters() {
   return {
     java: probeCommandAvailable('java', ['-version']),
@@ -46,21 +83,9 @@ export function runDoctor(options = {}) {
   });
 
   if (options.probeAdapters !== false) {
-    const adapters = probeExternalAdapters();
-    const available = Object.entries(adapters)
-      .filter(([, ok]) => ok)
-      .map(([name]) => name);
-    const missing = Object.entries(adapters)
-      .filter(([, ok]) => !ok)
-      .map(([name]) => name);
-    report.findings.push({
-      severity: 'INFO',
-      category: 'adapters',
-      message: `外部検証アダプタ検出: available=[${available.join(', ') || 'none'}], unavailable=[${missing.join(', ') || 'none'}]`,
-      path: null,
-      action: 'formal_verification / security_audit で外部アダプタを有効化する場合は対応バイナリを導入してください',
-    });
-    report.summary.info += 1;
+    const findings = configuredAdapterFindings(root, loadGuardrailsConfig(root));
+    report.findings.push(...findings);
+    report.summary.info += findings.length;
   }
 
   return report;

@@ -183,6 +183,7 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
 
   it('serves contract-valid v2 overview, feature state, gate audit, dashboard snapshot, and rejects extra/traversal args', () => {
     const repo = createV2TestRepo();
+    fs.appendFileSync(path.join(repo, 'sdd/guardrails.yaml'), 'agent_lint:\n  enabled: true\n  mode: strict\n');
     const responses = callMcp(repo, [
       { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: true } } },
       {
@@ -206,6 +207,9 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(overview.data.activeFeatures[0].driftStatus, 'CLEAN');
     assert.equal(overview.data.activeFeatures[0].nextAction.phase, 'sdd-gate');
     assert.ok(['CLEAN', 'WARN', 'NG'].includes(overview.data.doctor.status));
+    assert.deepEqual(overview.data.doctor.v2_2_gates.agent_lint, { enabled: true, mode: 'strict', waiver_count: 0 });
+    const [, compact] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } }]);
+    assert.equal(JSON.parse(compact.result.content[0].text).data.doctor, undefined);
 
     const featureState = JSON.parse(responses[2].result.content[0].text);
     assert.equal(featureState.ok, true);

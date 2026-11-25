@@ -37,6 +37,7 @@ user-invocable: false
    - `templates/requirements.md` → `specs/<feature>/requirements.md`:
      全 `REQ-NNN` に観測・テスト可能な `AC-NNN` を紐付け、末尾に `## Spec Amendments` を置く。
    - `templates/design.md` → `specs/<feature>/design.md`:
+     `node <sdd-bootstrap>/scripts/render-design-template.mjs --risk <確定したリスク>` の標準出力を使う。利用者の明示した `--reframe` があれば同じ引数を付ける。問題設定の再検証欄には、案件固有の前提、二案それぞれの実現費用と制約、採用理由を書く。
      **SSoT はソースコード**（詳細設計をソースと二重管理しない）。概要設計として方針・変更ファイル・モジュール跨ぎ契約・**採らなかった設計（Alternatives Rejected）**・影響範囲・テスト方針・`## Spec Amendments` のみを記載する（`Risk: high` を含む場合はセキュリティ・移行・ロールバック方針を明記し、必要に応じ `docs/adr/` へ ADR を作成）。
    - `templates/tasks.md` → `specs/<feature>/tasks.md`:
      各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`（実装ファイルおよび対応テストファイル）、`### Done When`（対応 `AC-NNN` 参照）、`### Blockers`、末尾に `## Spec Amendments` を記載する。

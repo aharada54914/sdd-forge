@@ -37,6 +37,9 @@ jobs:
       - name: Install sdd-forge-mcp dependencies (Ajv for MCP contract checks, #857)
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
+      - name: Install AST dependencies
+        run: npm ci --prefix plugins/sdd-quality-loop/rules --ignore-scripts
+
       - name: Run v2 Lightweight Guardrails & SDD Core tests
         env:
           SDD_REQUIRE_AJV: "1"
