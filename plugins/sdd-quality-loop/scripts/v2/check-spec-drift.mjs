@@ -227,6 +227,54 @@ function countTestSkips(file, source) {
 }
 
 const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
+
+// Match the directive at the start of a comment line. Quoted examples and
+// explanations can contain the same spelling without suppressing a check.
+const DIRECTIVE_START = /^\s*(?:\/\/|\/\*+|\*|#)?\s*sdd-lint-disable\b/i;
+const HASH_NON_CODE = /#[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
+const JS_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`/g;
+const SOURCE_TOKENS = new Map();
+for (const [extensions, tokens] of [
+  ['js mjs cjs jsx ts mts cts tsx', JS_NON_CODE],
+  ['go c h cc cpp hpp cs java kt kts rs swift scala', GO_NON_CODE],
+  ['py pyw', PYTHON_NON_CODE],
+  ['sh bash zsh rb pl ps1', HASH_NON_CODE],
+]) {
+  for (const ext of extensions.split(' ')) SOURCE_TOKENS.set('.' + ext, tokens);
+}
+
+function addedLintDirectives(root, revision, file, status, source, tokens) {
+  if (!LINT_DISABLE_RE.test(source)) return [];
+  // Reading the entire post-image preserves comment and string context across
+  // diff hunk boundaries. Only comment lines added by this change are reported.
+  const added = [];
+  if (status === 'A') added.push([1, Infinity]);
+  else {
+    const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-color', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', file]);
+    for (const hunk of patch.matchAll(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/gm)) {
+      const first = Number(hunk[1]);
+      added.push([first, first + Number(hunk[2] ?? 1) - 1]);
+    }
+  }
+  const directives = [];
+  let line = 1;
+  let offset = 0;
+  for (const token of source.matchAll(tokens)) {
+    line += source.slice(offset, token.index).split('\n').length - 1;
+    const lines = token[0].split('\n');
+    if (/^(?:#|\/\/|\/\*)/.test(token[0])) {
+      for (const [i, text] of lines.entries()) {
+        if (DIRECTIVE_START.test(text) && added.some(([start, end]) => start <= line + i && line + i <= end)) {
+          directives.push(text.trim());
+        }
+      }
+    }
+    offset = token.index + token[0].length;
+    line += lines.length - 1;
+  }
+  return directives;
+}
+
 const TLA_DECLARATION = /^(?:={4,}|-{4,}|(?:LOCAL\s+)?\w+(?:\s*\([^)]*\))?[ \t]*==|(?:ASSUME|ASSUMPTION|AXIOM|CONSTANTS?|VARIABLES?|INSTANCE|THEOREM|LEMMA|RECURSIVE)\b)/;
 
 function unconditionalTrueDefinitions(source) {
@@ -396,7 +444,8 @@ export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
 export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const testGlobs = ['tests/**', 'test/**', '**/tests/**', '**/__tests__/**', '*.test.*', '*.spec.*', '*_test.*', '*.tests.*'];
-  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, [...testGlobs, '*.tla']);
+  const sourceGlobs = Array.from(SOURCE_TOKENS.keys(), ext => ':(icase,glob)**/*' + ext);
+  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, [...testGlobs, '*.tla', ...sourceGlobs]);
   const approvedRetirements = loadApprovedTestRetirements(root, revision);
   const violations = [];
 
@@ -427,9 +476,11 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
     const isTest = isTestFileRelPath(currentFile);
     const isTla = currentFile.toLowerCase().endsWith('.tla');
     const absolute = path.join(root, currentFile);
-    if ((isTest || isTla) && fs.lstatSync(absolute).isFile()) {
+    const sourceTokens = SOURCE_TOKENS.get(path.extname(currentFile).toLowerCase());
+    if ((!isTest && !isTla && !sourceTokens) || !fs.lstatSync(absolute).isFile()) continue;
+    const after = fs.readFileSync(absolute, 'utf8');
+    if (isTest || isTla) {
       const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
-      const after = fs.readFileSync(absolute, 'utf8');
       if (isTest) {
         const previousCount = countTestSkips(currentFile, before);
         const currentCount = countTestSkips(currentFile, after);
@@ -446,17 +497,11 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
         }
       }
     }
-    const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', currentFile]);
-    let inHunk = false;
-    for (const line of patch.split(/\r?\n/)) {
-      if (line.startsWith('@@ ')) inHunk = true;
-      if (!inHunk || !line.startsWith('+')) continue;
-      const addedText = line.slice(1);
-      if (LINT_DISABLE_RE.test(addedText)) {
+    if (sourceTokens) {
+      for (const directive of addedLintDirectives(root, revision, currentFile, status, after, sourceTokens)) {
         violations.push({
-          code: 'LINT_DISABLE_ADDED',
-          path: currentFile,
-          detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${addedText.trim()}`,
+          code: 'LINT_DISABLE_ADDED', path: currentFile,
+          detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${directive}`,
         });
       }
     }
