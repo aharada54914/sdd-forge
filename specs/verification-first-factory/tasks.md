@@ -78,7 +78,7 @@ T-001
 T-001
 
 ### T-006: 本体公式 TLA+ モデル（`TaskLock.tla` / `GateLifecycle.tla`）＆ カテゴリ3重複列挙テスト圧縮
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-001`, `SELF-REQ-002`, `SELF-REQ-006`（カテゴリ3）
