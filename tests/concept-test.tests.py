@@ -660,6 +660,227 @@ class ConceptTests(unittest.TestCase):
                 concept.conditional.resolve(self.root, 'example', stage)
 
 
+VALIDATOR = ROOT / 'plugins/sdd-domain/scripts/validate-domain-contract'
+PWSH = shutil.which('pwsh')
+DOMAIN_SCHEMA_NAME = 'domain-contract.v2.schema.json'
+# The validator's checks that no JSON Schema keyword expresses (design.md DD-1,
+# INV-003). They are the only reason it may reject a schema-valid contract.
+CROSS_REFERENCE_RULES = {
+    'V2-DUP-CONCEPT-ID', 'V2-DANGLING-CONTEXT', 'V2-DANGLING-DISTINCTION',
+    'V2-DANGLING-TERM', 'V2-SELF-CONTRADICTION', 'V2-DUP-NAME-IN-CONTEXT',
+}
+# Every keyword the validators encode. A schema edit that introduces another
+# one fails test_schema_uses_only_keywords_the_validators_encode until both
+# twins enforce it.
+ENCODED_KEYWORDS = {
+    '$schema', '$id', '$ref', 'title', 'description', 'definitions', 'type',
+    'properties', 'required', 'additionalProperties', 'items', 'minItems',
+    'minLength', 'pattern', 'enum', 'const',
+}
+# One oracle message fragment per keyword class, from
+# validate-approval-sidecar.py `_schema_validate`.
+ORACLE_KEYWORD_MESSAGES = {
+    'required': 'missing required field', 'additionalProperties': 'additional property',
+    'type': ': expected ', 'pattern': 'does not match pattern', 'enum': 'not in enum',
+    'minItems': 'fewer than minItems', 'minLength': 'shorter than minLength',
+    'const': 'expected const',
+}
+AGREEMENT_BASE = {
+    'schema': 'domain-contract/v2',
+    'meta': {'version': '1.2.3', 'status': 'Approved', 'generated_from': ['domain/context-map.md']},
+    'contexts': [
+        {'name': 'catalog', 'description': 'Books on offer.',
+         'terms': [{'canonical': 'Book', 'ja': 'hon', 'definition': 'A title on offer.',
+                    'forbidden_synonyms': ['Item'], 'concept_id': 'CONCEPT-BOOK'}],
+         'aggregates': [{'name': 'Book', 'root_entity': 'Book', 'invariants': ['isbn is unique'],
+                         'transaction_boundary': 'one book', 'card': 'domain/aggregates/book.md'}]},
+        {'name': 'shelving', 'description': 'Where books sit.', 'terms': [], 'aggregates': []},
+    ],
+    'concepts': [
+        {'id': 'CONCEPT-BOOK', 'name': 'Book', 'context': 'catalog', 'definition': 'A title.',
+         'essence': 'what is read', 'responsibilities': ['bibliographic identity'],
+         'must_not_own': ['display position'],
+         'stakeholder_perspectives': [{'actor': 'reader', 'concern': 'what to read'}],
+         'distinguished_from': [{'concept_id': 'CONCEPT-PLACEMENT', 'reasons': ['different lifecycle']}],
+         'evidence': ['domain-story:activity-1']},
+        {'id': 'CONCEPT-PLACEMENT', 'name': 'Placement', 'context': 'shelving',
+         'definition': 'Where a book sits.', 'essence': 'position', 'responsibilities': ['display position'],
+         'evidence': ['domain-story:activity-2']},
+    ],
+    'relations': [{'from': 'catalog', 'to': 'shelving', 'pattern': 'customer-supplier', 'note': 'n'}],
+}
+
+
+def _nodes(value, path=()):
+    yield path, value
+    children = value.items() if isinstance(value, dict) else enumerate(value) if isinstance(value, list) else ()
+    for key, child in children:
+        yield from _nodes(child, path + (key,))
+
+
+def _replaced(document, path, mutate):
+    clone = copy.deepcopy(document)
+    parent = clone
+    for key in path[:-1]:
+        parent = parent[key]
+    mutate(parent, path[-1])
+    return clone
+
+
+def _set(value):
+    def mutate(parent, key):
+        parent[key] = value
+    return mutate
+
+
+def _rename_key(parent, key):
+    parent[key.upper()] = parent.pop(key)
+
+
+def _agreement_corpus():
+    """Generic single-point mutations of every node of a base contract that
+    populates every property the schema declares, plus boundary values for
+    each pattern and enum. Labels make a failure name the mutation."""
+    corpus = [('base', AGREEMENT_BASE)]
+    for path, value in _nodes(AGREEMENT_BASE):
+        label = '/'.join(str(part) for part in path) or '<root>'
+        variants = []
+        if path:
+            variants.append(('number', _set(42)))
+            if isinstance(path[-1], str):
+                variants.append(('deleted', lambda parent, key: parent.pop(key)))
+                variants.append(('key upper-cased', _rename_key))
+        if isinstance(value, str):
+            variants += [('empty string', _set('')), ('case swapped', _set(value.swapcase())),
+                         ('trailing newline', _set(value + '\n'))]
+        if isinstance(value, list):
+            variants.append(('empty array', _set([])))
+        if isinstance(value, dict):
+            variants.append(('unknown key', lambda parent, key: parent[key].__setitem__('x_extra', 'v')))
+        for name, mutate in variants:
+            if not path:
+                document = copy.deepcopy(AGREEMENT_BASE)
+                document['x_extra'] = 'v'
+            else:
+                document = _replaced(AGREEMENT_BASE, path, mutate)
+            corpus.append(('%s: %s' % (label, name), document))
+    boundaries = [
+        (('meta', 'version'), ['0.0.0', '10.20.30', '1.0', '1.0.0.0', 'v1.0.0', ' 1.0.0', '1.0.0 ', '1.a.0']),
+        (('meta', 'status'), ['Pending', 'Reviewed', 'Approved', 'approved', 'APPROVED', 'Bogus', 'Approved ']),
+        (('relations', 0, 'pattern'), ['partnership', 'shared-kernel', 'customer-supplier', 'conformist',
+                                       'anticorruption-layer', 'open-host-service', 'published-language',
+                                       'separate-ways', 'Partnership', 'Shared-Kernel', 'friendship']),
+        (('contexts', 1, 'name'), ['shelving-', 'shelving--wall', 's', 'Shelving', 'shelving_wall', '1shelving']),
+        (('contexts', 0, 'aggregates', 0, 'name'), ['B', 'BookCopy2', 'book', 'Book_Copy', 'Book-Copy']),
+        (('contexts', 0, 'description'), ['']),
+        (('contexts', 0, 'terms', 0, 'canonical'), ['']),
+        (('meta', 'generated_from', 0), ['']),
+    ]
+    for path, values in boundaries:
+        for value in values:
+            corpus.append(('%s = %r' % ('/'.join(map(str, path)), value), _replaced(AGREEMENT_BASE, path, _set(value))))
+    return corpus
+
+
+class DomainContractSchemaAgreementTests(unittest.TestCase):
+    """Issue #804: validate-domain-contract.{sh,ps1} is the pre-publish check
+    for domain/domain-contract.json. It must reject every contract the
+    downstream Concept Test's schema check rejects (the same oracle the gate
+    calls), and both twins must reach the same verdict. The validators encode
+    the schema's rules instead of reading contracts/ at runtime (#812), so this
+    is the test that keeps the encoding and the schema from drifting apart."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = concept.parse((ROOT / 'contracts' / DOMAIN_SCHEMA_NAME).read_bytes())
+        cls.corpus = _agreement_corpus()
+        cls.directory = tempfile.TemporaryDirectory()
+        cls.paths = []
+        for index, (_, document) in enumerate(cls.corpus):
+            path = Path(cls.directory.name) / ('contract-%03d.json' % index)
+            path.write_text(json.dumps(document), encoding='utf-8')
+            cls.paths.append(path)
+        cls.oracle = [concept.auth._schema_validate(cls.schema, document) for _, document in cls.corpus]
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.directory.cleanup()
+
+    def run_twin(self, command):
+        from concurrent.futures import ThreadPoolExecutor
+
+        def run(path):
+            result = subprocess.run(command + [str(path)], capture_output=True, text=True, timeout=120)
+            return result.returncode, result.stdout, result.stderr
+        with ThreadPoolExecutor(max_workers=os.cpu_count() or 2) as pool:
+            return list(pool.map(run, self.paths))
+
+    def assert_agrees_with_schema(self, results):
+        mismatches = []
+        for (label, _), errors, (code, stdout, stderr) in zip(self.corpus, self.oracle, results):
+            rules = {line.split(':', 1)[0] for line in stderr.splitlines() if line}
+            if stdout or code not in (0, 1):
+                mismatches.append('%s: exit %d, stdout %r' % (label, code, stdout))
+            elif errors and code != 1:
+                mismatches.append('%s: schema rejects (%s) but the validator exits 0' % (label, errors[0]))
+            elif not errors and not rules <= CROSS_REFERENCE_RULES:
+                mismatches.append('%s: schema accepts but the validator reports %s' % (label, stderr.strip()))
+        self.assertEqual([], mismatches)
+
+    def test_corpus_exercises_every_schema_keyword_and_property(self):
+        declared, populated = set(), set()
+
+        def walk(schema, instance, where):
+            if '$ref' in schema:
+                where = schema['$ref'].split('/')[-1]
+                schema = self.schema['definitions'][where]
+            for key, child in schema.get('properties', {}).items():
+                declared.add((where, key))
+                if isinstance(instance, dict) and key in instance:
+                    populated.add((where, key))
+                    walk(child, instance[key], where + '.' + key)
+            if 'items' in schema and isinstance(instance, list):
+                for item in instance:
+                    walk(schema['items'], item, where + '[]')
+        walk(self.schema, AGREEMENT_BASE, 'root')
+        self.assertEqual(set(), declared - populated, 'the base contract must populate every declared property')
+        self.assertEqual(len(self.schema['definitions']), len({where for where, _ in declared if where in self.schema['definitions']}))
+        self.assertEqual([], concept.auth._schema_validate(self.schema, AGREEMENT_BASE))
+        messages = [message for errors in self.oracle for message in errors]
+        for keyword, fragment in ORACLE_KEYWORD_MESSAGES.items():
+            self.assertTrue(any(fragment in message for message in messages), keyword)
+        rejected = sum(1 for errors in self.oracle if errors)
+        self.assertGreater(rejected, 150)
+        self.assertGreater(len(self.corpus) - rejected, 40)
+
+    def test_schema_uses_only_keywords_the_validators_encode(self):
+        used = set()
+
+        def walk(node, under_properties=False):
+            if isinstance(node, dict):
+                for key, child in node.items():
+                    if not under_properties:
+                        used.add(key)
+                    walk(child, key in ('properties', 'definitions') and not under_properties)
+            elif isinstance(node, list):
+                for child in node:
+                    walk(child)
+        walk(self.schema)
+        self.assertEqual(set(), used - ENCODED_KEYWORDS)
+
+    def test_sh_validator_rejects_whatever_the_concept_test_schema_check_rejects(self):
+        self.assert_agrees_with_schema(self.run_twin(['bash', str(VALIDATOR.with_suffix('.sh'))]))
+
+    @unittest.skipUnless(PWSH, 'pwsh is not installed')
+    def test_ps1_validator_agrees_with_the_schema_and_the_sh_twin(self):
+        ps1 = self.run_twin([PWSH, '-NoProfile', '-NonInteractive', '-File', str(VALIDATOR.with_suffix('.ps1'))])
+        self.assert_agrees_with_schema(ps1)
+        sh = self.run_twin(['bash', str(VALIDATOR.with_suffix('.sh'))])
+        divergent = ['%s\n  sh:  %r\n  ps1: %r' % (label, s[2], p[2])
+                     for (label, _), s, p in zip(self.corpus, sh, ps1) if s[:2] != p[:2] or s[2] != p[2]]
+        self.assertEqual([], divergent)
+
+
 class InitialReviewIdentityTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
