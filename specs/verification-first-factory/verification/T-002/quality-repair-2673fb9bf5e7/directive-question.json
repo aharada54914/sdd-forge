@@ -1,0 +1,12 @@
+{
+  "id": "OQ-002",
+  "status": "Provisional",
+  "feature": "verification-first-factory",
+  "baseCommit": "2673fb9bf5e7ef55557f4fc631be676e1bb43b0c",
+  "violations": [
+    {
+      "code": "LINT_DISABLE_ADDED",
+      "path": "tests/v2-spec-drift.test.mjs"
+    }
+  ]
+}
