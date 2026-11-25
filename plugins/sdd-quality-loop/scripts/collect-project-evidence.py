@@ -101,6 +101,10 @@ def write_transcript(output, transcript, phase):
 
 def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
             tdd_transition=None, tdd_sources=(), prepare=False):
+    # Normal mode generated a bundle with generate/check-evidence-bundle.sh,
+    # both retired in v2.0.0 (#865). Refuse before running anything.
+    if not prepare:
+        raise V.Invalid("normal-generation-retired")
     if (
         type(timeout) not in (int, float)
         or not math.isfinite(timeout)
@@ -305,6 +309,12 @@ def main(argv=None):
             + (str(exc) if isinstance(exc, V.Invalid) else "invalid-input-or-storage"),
             file=sys.stderr,
         )
+        if str(exc) == "normal-generation-retired":
+            print(
+                "project-evidence: bundle generation was retired in v2.0.0; "
+                "run with --prepare to capture the contract and report.",
+                file=sys.stderr,
+            )
         return 1
     print(json.dumps(result, sort_keys=True))
     return 0 if result["contract_valid"] and (args.prepare or result["bundle_valid"]) else 1

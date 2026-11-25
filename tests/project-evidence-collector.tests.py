@@ -200,6 +200,7 @@ class CollectorTests(unittest.TestCase):
         return transition
 
     def tdd(self, transition, **kwargs):
+        kwargs.setdefault("prepare", True)  # the only supported mode (#865)
         return C.collect(self.root, self.contract, self.fixture.task_path, "example", "unit-tests",
                          tdd_transition=transition, tdd_sources=["implementation.txt"], **kwargs)
 

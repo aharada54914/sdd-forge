@@ -1,9 +1,14 @@
 # Project execution evidence collection
 
 `plugins/sdd-quality-loop/scripts/collect-project-evidence.py` reuses the project
-skill runner and existing contract/report/bundle formats. It executes the selected
+skill runner and existing contract/report formats. It executes the selected
 check; it does not import a PASS observation, issue an independent review, approve
-a task, or set Done. Execution currently requires the runner's Linux process
+a task, or set Done.
+
+> **`--prepare` is the only supported mode.** Normal mode generated a v1 evidence
+> bundle with `generate-evidence-bundle.sh` / `check-evidence-bundle.sh`, which were
+> retired in v2.0.0. Without `--prepare` the collector now stops before running
+> anything, with `project-evidence: blocked: normal-generation-retired` (#865). Execution currently requires the runner's Linux process
 ownership backend. Unsupported platforms retain their actual not-run result.
 
 The ordinary options are `--execution-root`, `--contract`,
@@ -44,10 +49,9 @@ against old source after implementation or modify frozen historical evidence.
 Failed Green stays failed. Timeouts, cancellation, unavailable runtime, and
 runner-boundary violations cannot serve as Red.
 
-## Critical preparation and signing
+## Preparation
 
-Use `--prepare` for high or critical capture; automatic bundling from the
-mechanical report is refused for both tiers. It writes the candidate contract and a
+`--prepare` writes the candidate contract and a
 mechanical report, returns the contract SHA-256, and generates **no bundle**.
 Contract failures still produce a failing exit status. Keep signing credentials
 out of the execution environment: the collector refuses `SDD_EVIDENCE_KEY` and
@@ -55,26 +59,19 @@ out of the execution environment: the collector refuses `SDD_EVIDENCE_KEY` and
 isolation sandbox; run capture in the existing isolated environment without
 access to the signing account's home key or other credentials.
 
-Then use the existing quality/review route:
+Then use the current quality/review route:
 
 1. Complete every required check and obtain the actual independent review report.
    The collector's mechanical report is not that review.
 2. Review the prepared contract and original artifacts, including its returned
-   digest. Commit those inputs and the independent report normally. Verify a clean
-   checkout. Do not weaken risk, TDD, signature, or human approval requirements.
-3. In the separate signing environment, invoke existing
-   `generate-evidence-bundle.sh CONTRACT INDEPENDENT_REPORT ROOT OUTPUT` (or its
-   PowerShell equivalent), with `OUTPUT` outside the checkout and the existing key
-   resolver. Use the required `T-<number>.evidence.json` basename. Creating the
-   bundle must not dirty its own source checkout.
-4. Run existing `check-evidence-bundle.sh OUTPUT ROOT` (or its PowerShell
-   equivalent). Existing task transition and two-person critical approval remain
-   outside the collector.
+   digest. Commit those inputs and the independent report normally. Do not weaken
+   risk, TDD, or human approval requirements. Task transitions remain outside the
+   collector; Done is set only by `sdd-gate`.
 
-The collector suite exercises actual Red/Green and the complete critical
-prepare/dirty rejection/clean commit/sign/verify route using explicitly synthetic
-manual checks, an explicitly synthetic independent report, and a synthetic key.
-This verifies integration, not production reviewer authority or real acceptance.
+The v1 signing route (`generate-evidence-bundle.sh` / `check-evidence-bundle.sh`)
+was retired in v2.0.0 and is no longer part of this procedure. The collector suite
+exercises actual Red/Green and preparation with explicitly synthetic fixtures; it
+verifies integration, not production reviewer authority or real acceptance.
 
 ## Measured preparation scope
 
