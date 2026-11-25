@@ -634,3 +634,68 @@ describe('#831/#832 gate evidence is bound to the spec inputs it verified', () =
     assert.equal(overviewAction(repo).phase, 'done');
   });
 });
+
+describe('#972 batch-6 review: re-verification outcome and input coverage', () => {
+  const overview = (repo) => {
+    const [, res] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_project_overview', arguments: {} } }]);
+    return JSON.parse(res.result.content[0].text).data.activeFeatures[0].nextAction;
+  };
+  const audit = (repo) => {
+    const [, res] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_gate_audit', arguments: { feature: 'demo-api' } } }]);
+    return JSON.parse(res.result.content[0].text).data.tasks[0];
+  };
+  const gate = (repo, cmd) =>
+    spawnSync(process.execPath, [GATE_SCRIPT, '--feature', 'demo-api', '--task', 'T-001', '--root', repo, ...(cmd ? ['--cmd', cmd] : [])], { encoding: 'utf8' });
+  const edit = (file, from, to) => {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.ok(text.includes(from), from);
+    fs.writeFileSync(file, text.replace(from, to), 'utf8');
+  };
+  const doneRepo = () => {
+    const repo = createV2TestRepo();
+    const tasksPath = path.join(repo, 'specs', 'demo-api', 'tasks.md');
+    edit(tasksPath, 'Status: Implementation Complete', 'Status: Done');
+    assert.equal(overview(repo).phase, 'done');
+    return repo;
+  };
+  const amend = (repo, from, to, file = 'requirements.md') => {
+    const p = path.join(repo, 'specs', 'demo-api', file);
+    edit(p, from, to);
+    if (fs.readFileSync(p, 'utf8').includes('- （初期版のため変更なし）')) edit(p, '- （初期版のため変更なし）', '- 2026-11-25: amended (owner agreed).');
+  };
+
+  it('a failed or command-less re-verification of a Done task is not reported as done', () => {
+    const repo = doneRepo();
+    amend(repo, 'GET /health returns `{ ok: true }`.', 'GET /health returns `{ ok: true, v: 2 }`.');
+    assert.equal(overview(repo).phase, 'sdd-gate');
+    gate(repo, 'test=node -e "process.exit(1)"');
+    const failed = overview(repo);
+    assert.equal(failed.phase, 'blocked', JSON.stringify(failed));
+    assert.match(failed.rationale, /T-001/);
+    gate(repo, null);
+    assert.notEqual(overview(repo).phase, 'done', 'a run with no verification commands does not complete it');
+    gate(repo, 'test=node -e "process.exit(0)"');
+    assert.equal(overview(repo).phase, 'done');
+  });
+
+  it('continuation lines, table rows and fenced code in the task are part of the inputs', () => {
+    const repo = createV2TestRepo();
+    const req = path.join(repo, 'specs', 'demo-api', 'requirements.md');
+    edit(req, '- **AC-001** (REQ-001): GET /health returns `{ ok: true }`.', '- **AC-001** (REQ-001): GET /health returns `{ ok: true }`.\n  - Then the body has no other keys');
+    fs.writeFileSync(path.join(repo, 'specs', 'demo-api', 'acceptance-tests.md'), '# AT\n\n| AC | REQ | Test | Check |\n|---|---|---|---|\n| AC-001 | REQ-001 | TEST-001 | status 200 |\n', 'utf8');
+    const tasksPath = path.join(repo, 'specs', 'demo-api', 'tasks.md');
+    edit(tasksPath, '### Done When\n- AC-001 passes', '### Done When\n- AC-001 passes\n\n```bash\ncurl -s localhost/health\n```');
+    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'demo-api', '--root', repo, '--rerecord'], { encoding: 'utf8' });
+    gate(repo, 'test=node -e "process.exit(0)"');
+    assert.equal(audit(repo).executionArtifact.specInputsCurrent, true);
+
+    edit(req, '  - Then the body has no other keys', '  - Then the body may carry a version');
+    assert.equal(audit(repo).executionArtifact.specInputsCurrent, false, 'continuation line');
+    gate(repo, 'test=node -e "process.exit(0)"');
+    edit(path.join(repo, 'specs', 'demo-api', 'acceptance-tests.md'), '| status 200 |', '| status 204 |');
+    assert.equal(audit(repo).executionArtifact.specInputsCurrent, false, 'table row');
+    gate(repo, 'test=node -e "process.exit(0)"');
+    edit(tasksPath, 'curl -s localhost/health', 'curl -sf localhost/health');
+    assert.equal(audit(repo).executionArtifact.specInputsCurrent, false, 'fenced code in the task');
+  });
+});
