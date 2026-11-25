@@ -1,0 +1,164 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "e6bcb038-344a-4193-8e6a-c075625b8ec2",
+  "feature": "verification-first-factory",
+  "taskId": "T-008",
+  "mode": "standard",
+  "executedAt": "2026-11-25T18:33:32.952Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "164f0140a656210b9540531d6306d0ace179910dc8d32944fd5491bd21742133",
+    "ids": {
+      "AC-010": "ee03c1ebe454e62fd2867a3a140fe3b8e02c136e343f7ed13970c027910a035c",
+      "AC-011": "41453b80cb9cd38d86b06f6d5cbb7ce7cd83f4d7c39cb6d750d64824a16b35fc",
+      "REQ-011": "5d6dc876c4837b5ca5816436ecfaa7b73b385f985a3d69d5ce49cde00614761c",
+      "REQ-012": "1383543317e6145bfc5f464eb6ac03c3ad5bdeb2b05bf4e606479b0b3e4b0a3d"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 1,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+      "plugins/sdd-ship/**"
+    ],
+    "outOfScopeFiles": [
+      "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+      "tests/v2-sdd-core-flow.test.mjs",
+      "tests/v2-spec-drift.test.mjs",
+      "tests/v2-wave3-integration.test.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 5 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-008",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "high",
+      "scopePaths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-ship/**"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "task-tests",
+        "command": "node --test tests/v2-wave3-integration.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs",
+        "exitCode": 0,
+        "durationMs": 8358,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)\n  ✔ passes cleanly when task is approved, specs are CLEAN, code has no placeholders, and tests pass (103.298375ms)\n  ✔ #819: re-entering ship keeps the existing baseline; only --rerecord replaces it (311.066959ms)\n  ✔ #829: findings outside the task Scope are labelled, and the verdict stays fail-closed (224.54825ms)\n  ✔ #823: an unresolved critical/major review ticket for this task fails the gate; others do not (227.655833ms)\n  ✔ fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared (122.49275ms)\n  ✔ scans the gate source itself and reports only actual unfinished work (125.096958ms)\n  ✔ fails gate when changed production code contains placeholders or a verification command fails (102.419209ms)\n  ✔ rejects unapproved tasks at precondition check (96.663375ms)\n✔ run-sdd-gate.mjs (SDD Core unified deterministic gate) (1314.171375ms)\n▶ #821 gate task lookup uses the exact task ID\n  ✔ never reads a sibling task whose ID shares a prefix, in either order (7.154958ms)\n✔ #821 gate task lookup uses the exact task ID (7.222209ms)\n▶ #822/#828 gate change discovery\n  ✔ lists non-ASCII names verbatim and stays relative to a nested project root (163.984292ms)\n✔ #822/#828 gate change discovery (164.037ms)\n▶ Phase 2 SDD Core skill & template contracts\n  ✔ all consolidated SDD Core skills have valid frontmatter and zero legacy canary/ERROR_STOP rituals (0.437875ms)\n  ✔ ship and sdd-gate skills wire directly to v2 Node.js ESM guardrail tools (0.320708ms)\n  ✔ spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes (0.098208ms)\n  ✔ all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions (0.893709ms)\n  ✔ SDD Core templates include REQ/AC/Risk structure and Spec Amendments section (0.158792ms)\n✔ Phase 2 SDD Core skill & template contracts (2.00425ms)\n▶ #827 re-verifying a fixed review ticket reaches the gate for exactly that task\n  ✔ fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete (0.146375ms)\n✔ #827 re-verifying a fixed review ticket reaches the gate for exactly that task (0.180875ms)\n▶ #832 a Done task affected by a spec change has a re-verification path\n  ✔ ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status (0.160291ms)\n✔ #832 a Done task affected by a spec change has a re-verification path (0.181208ms)\n▶ human concept-test decisions at the public gate\n  ✔ stops incomplete, malformed and receipt-only projects before verification (437.019458ms)\n  ✔ runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs (676.083458ms)\n  ✔ records a baseline when invoked through an install symlink (42.586792ms)\n  ✔ rejects human receipt edits when invoked through an install symlink (25.795ms)\n  ✔ preserves ordinary and v1-only feature history and scopes receipts by feature (136.657375ms)\n  ✔ keeps the Node-only path without a Git executable but blocks visible v2 evidence (77.630417ms)\n  ✔ detects an indexed proposal missing from the working tree in an unborn repository (222.137417ms)\n  ✔ scopes index evidence to the nested project with the same feature name (170.610167ms)\n  ✔ uses current proposal and decision inputs equally in full and shallow clones (262.83375ms)\n  ✔ distinguishes unstaged proposal loss from a staged change of inputs (206.553167ms)\n✔ human concept-test decisions at the public gate (2258.107584ms)\n▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (110.499208ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (74.678ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (107.383375ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (292.958125ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (227.6575ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (227.728ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (141.241375ms)\n  ✔ a baseline recorded before this change keeps its old comparison (109.248833ms)\n✔ #818 staged human approval is not spec drift (250.610875ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (86.99825ms)\n✔ #834 unreadable spec files are reported apart from deletions (87.08225ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (242.769584ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (148.816583ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (391.669042ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (76.138959ms)\n✔ #972 re-review: text added to an Approval line is drift (76.188375ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (295.97775ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (306.92975ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (197.189208ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (193.9955ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (306.115708ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (1300.341375ms)\n▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2\n  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1369.91675ms)\n  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (201.631292ms)\n  ✔ T-008 resolves the baseline command against the committed implementation (322.69875ms)\n  ✔ T-008 stops at the first failing verification command in fail-fast mode (172.652ms)\n  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3788.175666ms)\n  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (886.980292ms)\n  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (296.505916ms)\n  ✔ T-008 resolves a nested project’s protected paths from its committed policy (172.148875ms)\n  ✔ reports a failed lock release after saving a completed gate execution (174.952875ms)\n  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (557.240834ms)\n  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (356.980292ms)\n✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (8300.551083ms)\nℹ tests 53\nℹ suites 15\nℹ pass 53\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 8335.781792\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

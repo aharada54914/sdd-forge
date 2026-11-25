@@ -1,0 +1,77 @@
+▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)
+  ✔ passes cleanly when task is approved, specs are CLEAN, code has no placeholders, and tests pass (233.87225ms)
+  ✔ #819: re-entering ship keeps the existing baseline; only --rerecord replaces it (596.03975ms)
+  ✔ #829: findings outside the task Scope are labelled, and the verdict stays fail-closed (431.069542ms)
+  ✔ #823: an unresolved critical/major review ticket for this task fails the gate; others do not (447.96125ms)
+  ✔ fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared (257.629625ms)
+  ✔ fails gate when changed production code contains placeholders or a verification command fails (210.892875ms)
+  ✔ rejects unapproved tasks at precondition check (259.981084ms)
+✔ run-sdd-gate.mjs (SDD Core unified deterministic gate) (2438.545291ms)
+▶ #821 gate task lookup uses the exact task ID
+  ✔ never reads a sibling task whose ID shares a prefix, in either order (17.925292ms)
+✔ #821 gate task lookup uses the exact task ID (18.078958ms)
+▶ #822/#828 gate change discovery
+  ✔ lists non-ASCII names verbatim and stays relative to a nested project root (373.734333ms)
+✔ #822/#828 gate change discovery (373.845833ms)
+▶ Phase 2 SDD Core skill & template contracts
+  ✔ all consolidated SDD Core skills have valid frontmatter and zero legacy canary/ERROR_STOP rituals (0.772958ms)
+  ✔ ship and sdd-gate skills wire directly to v2 Node.js ESM guardrail tools (0.197125ms)
+  ✔ spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes (0.1115ms)
+  ✔ all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions (1.368667ms)
+  ✔ SDD Core templates include REQ/AC/Risk structure and Spec Amendments section (0.190541ms)
+✔ Phase 2 SDD Core skill & template contracts (2.765334ms)
+▶ #827 re-verifying a fixed review ticket reaches the gate for exactly that task
+  ✔ fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete (0.199333ms)
+✔ #827 re-verifying a fixed review ticket reaches the gate for exactly that task (0.259375ms)
+▶ #832 a Done task affected by a spec change has a re-verification path
+  ✔ ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status (0.238458ms)
+✔ #832 a Done task affected by a spec change has a re-verification path (0.267042ms)
+▶ record-spec-baseline.mjs & check-spec-drift.mjs
+  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (231.750167ms)
+  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (149.453333ms)
+  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (212.407417ms)
+✔ record-spec-baseline.mjs & check-spec-drift.mjs (594.264041ms)
+▶ #820 AMENDED names the changed IDs no amendment entry mentions
+  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (429.876ms)
+✔ #820 AMENDED names the changed IDs no amendment entry mentions (430.027708ms)
+▶ #818 staged human approval is not spec drift
+  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (267.283084ms)
+  ✔ a baseline recorded before this change keeps its old comparison (210.973875ms)
+✔ #818 staged human approval is not spec drift (478.479708ms)
+▶ #834 unreadable spec files are reported apart from deletions
+  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (171.81425ms)
+✔ #834 unreadable spec files are reported apart from deletions (171.998625ms)
+▶ #972 review: unreadable and newly approved are visible and enforced
+  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (382.183ms)
+  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (337.816417ms)
+✔ #972 review: unreadable and newly approved are visible and enforced (720.261792ms)
+▶ #972 re-review: text added to an Approval line is drift
+  ✔ only a bare approval value is normalized (180.70225ms)
+✔ #972 re-review: text added to an Approval line is drift (180.813875ms)
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (686.395125ms)
+  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (653.597ms)
+  ✔ requires a nonempty retirement reason in the trusted manifest (484.78175ms)
+  ✔ requires a nonempty retirement approved_by in the trusted manifest (421.489625ms)
+  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (662.588958ms)
+✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (2909.545125ms)
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (2904.666541ms)
+  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (350.632625ms)
+  ✔ T-008 resolves the baseline command against the committed implementation (657.161666ms)
+  ✔ T-008 stops at the first failing verification command in fail-fast mode (370.110166ms)
+  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (5663.605959ms)
+  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (1947.8875ms)
+  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (727.745875ms)
+  ✔ T-008 resolves a nested project’s protected paths from its committed policy (423.362ms)
+  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (404.219208ms)
+  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (644.074542ms)
+✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (14094.940791ms)
+ℹ tests 41
+ℹ suites 14
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14189.443875
