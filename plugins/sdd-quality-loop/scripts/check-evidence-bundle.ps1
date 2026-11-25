@@ -106,8 +106,12 @@ function Get-Sha256 {
 
 # --- Signing verification helpers (T-007a) ---
 
+# v1 signers sorted artifact pairs differently: the Python signer by code point,
+# the PowerShell signer by UTF-16 code unit. A signature matching either is valid.
+$SignerOrders = @("code-point", "utf-16")
+
 function Get-EvidenceCanonical {
-    param([Parameter(Mandatory)]$Bundle)
+    param([Parameter(Mandatory)]$Bundle, [Parameter(Mandatory)][string]$Order)
     $artifacts = @($Bundle.artifacts)
     $pairs = @()
     foreach ($artifact in $artifacts) {
@@ -118,7 +122,14 @@ function Get-EvidenceCanonical {
     # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
     # and would diverge across runtimes, breaking signature parity).
     $pairsArr = [string[]]$pairs
-    [System.Array]::Sort($pairsArr, [System.StringComparer]::Ordinal)
+    if ($Order -ceq "code-point") {
+        # Big-endian UTF-32 bytes, hex-encoded, compare in code-point order.
+        $utf32 = [System.Text.UTF32Encoding]::new($true, $false)
+        $keys = [string[]]@($pairsArr | ForEach-Object { ($utf32.GetBytes($_) | ForEach-Object { "{0:x2}" -f $_ }) -join "" })
+        [System.Array]::Sort($keys, $pairsArr, [System.StringComparer]::Ordinal)
+    } else {
+        [System.Array]::Sort($pairsArr, [System.StringComparer]::Ordinal)
+    }
     $pairsStr = $pairsArr -join "`n"
     $pairsBytes = [System.Text.Encoding]::UTF8.GetBytes($pairsStr)
     $hasher = [System.Security.Cryptography.SHA256]::Create()
@@ -405,20 +416,22 @@ if ($effectiveRisk -ceq "critical") {
             if ($null -eq $keyInfo) {
                 Add-Failure "critical bundle signature cannot be verified: no evidence key available"
             } else {
-                $canonical = Get-EvidenceCanonical -Bundle $bundle
-                $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
                 # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
                 $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
-                $expectedBytes = $hmac.ComputeHash($canonicalBytes)
-                $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
-                # Constant-time like Python's hmac.compare_digest; also runs on Windows PowerShell 5.1.
-                $expectedUtf8 = [System.Text.Encoding]::UTF8.GetBytes($expected)
                 $valueUtf8 = [System.Text.Encoding]::UTF8.GetBytes($value)
-                $diff = $expectedUtf8.Length -bxor $valueUtf8.Length
-                for ($i = 0; $i -lt $expectedUtf8.Length; $i++) {
-                    $diff = $diff -bor ($expectedUtf8[$i] -bxor $valueUtf8[$i % [Math]::Max(1, $valueUtf8.Length)])
+                $matched = $false
+                foreach ($order in $SignerOrders) {
+                    $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes((Get-EvidenceCanonical -Bundle $bundle -Order $order))
+                    $expected = ($hmac.ComputeHash($canonicalBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+                    # Constant-time like Python's hmac.compare_digest; also runs on Windows PowerShell 5.1.
+                    $expectedUtf8 = [System.Text.Encoding]::UTF8.GetBytes($expected)
+                    $diff = $expectedUtf8.Length -bxor $valueUtf8.Length
+                    for ($i = 0; $i -lt $expectedUtf8.Length; $i++) {
+                        $diff = $diff -bor ($expectedUtf8[$i] -bxor $valueUtf8[$i % [Math]::Max(1, $valueUtf8.Length)])
+                    }
+                    if ($diff -eq 0) { $matched = $true }
                 }
-                if ($diff -ne 0) {
+                if (-not $matched) {
                     Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
                 }
             }
