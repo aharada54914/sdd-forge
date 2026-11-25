@@ -292,6 +292,34 @@ function sandbox(t) {
   return root;
 }
 
+it('TaskLock Release preserves an unreadable owner and its lease until explicitly forced', (t) => {
+  const projectRoot = sandbox(t);
+  const args = { feature: 'demo', projectRoot };
+  const cli = (...options) => spawnSync(process.execPath, [
+    path.join(scripts, 'task-lock.mjs'), 'release', '--feature', args.feature, '--root', projectRoot, ...options,
+  ], { encoding: 'utf8' });
+  for (const bytes of ['{', '{}', '{"owner":null}', '{"owner":""}', '{"owner":7}']) {
+    const { lockPath } = acquireLock({ ...args, owner: 'w1' });
+    fs.writeFileSync(lockPath, bytes);
+    const leasePath = lockPath + '.lease';
+    fs.writeFileSync(leasePath, 'retained lease');
+    for (const options of [[], ['--owner', 'w1']]) {
+      const attempt = cli(...options);
+      assert.equal(attempt.status, 1, bytes + ' ' + attempt.stdout);
+      const result = JSON.parse(attempt.stdout);
+      assert.equal(result.released, false);
+      assert.match(result.message, /--force/);
+    }
+    assert.equal(releaseLock({ ...args, owner: 7 }).released, false);
+    assert.equal(releaseLock({ ...args, force: 'false' }).released, false);
+    assert.equal(fs.readFileSync(lockPath, 'utf8'), bytes);
+    assert.equal(fs.readFileSync(leasePath, 'utf8'), 'retained lease');
+    assert.equal(cli('--force').status, 0);
+    assert.equal(fs.existsSync(lockPath), false);
+    assert.equal(fs.existsSync(leasePath), false);
+  }
+});
+
 it('scan finds related compound branches and graph validation fails on unreachable states', (t) => {
   const root = sandbox(t);
   fs.writeFileSync(

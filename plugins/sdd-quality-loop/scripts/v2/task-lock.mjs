@@ -253,16 +253,15 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner 
   return withLockMutation(lockPath, busy, () => {
     if (!fs.existsSync(lockPath)) return { released: true, existed: false, lockPath };
     const existing = readLockRecord(lockPath);
-    if (!force && existing?.owner && (!owner || existing.owner !== owner)) {
-      return {
-        released: false,
-        existed: true,
-        lockPath,
-        existing,
-        message: owner
-          ? `Lock is owned by '${existing.owner}', not '${owner}'. Pass --force to override.`
-          : `Lock is owned by '${existing.owner}'. Pass matching --owner or --force to release.`,
-      };
+    const recordedOwner = typeof existing?.owner === 'string' ? existing.owner : null;
+    if (force !== true && (!recordedOwner || recordedOwner !== owner)) {
+      let message = 'Cannot verify the lock owner. Pass --force to release after checking for active workers.';
+      if (recordedOwner) {
+        message = owner
+          ? `Lock is owned by '${recordedOwner}', not '${owner}'. Pass --force to override.`
+          : `Lock is owned by '${recordedOwner}'. Pass matching --owner or --force to release.`;
+      }
+      return { released: false, existed: true, lockPath, existing, message };
     }
     fs.unlinkSync(lockPath);
     removeQuietly(leasePath(lockPath));
