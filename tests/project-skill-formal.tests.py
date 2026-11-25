@@ -45,6 +45,24 @@ class Reservation(unittest.TestCase):
         self.assertEqual(mapping["reservation_tail_sha256"], hashlib.sha256(tail.encode()).hexdigest())
         self.assertIn(P.ACQUIRE, tail)
 
+    def test_negative_model_requires_a_completed_invariant_violation(self):
+        message = "Error: Invariant OneAccepted is violated.\n"
+        result = subprocess.CompletedProcess([], 12, stdout=message)
+        self.assertTrue(P.expected_tlc_result(result, True))
+        result.returncode = 1
+        self.assertFalse(P.expected_tlc_result(result, True))
+
+    def test_successful_reservation_must_publish_the_winning_actor(self):
+        replay = {
+            "calls": [{"actor": "a", "exit_code": 0}, {"actor": "b", "exit_code": 1}],
+            "ledger": {"records": []},
+        }
+        self.assertFalse(P.expected_replay(replay, False))
+        replay["ledger"]["records"] = [{"run_id": "b"}]
+        self.assertFalse(P.expected_replay(replay, False))
+        replay["ledger"]["records"] = [{"run_id": "a"}]
+        self.assertTrue(P.expected_replay(replay, False))
+
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
         "POSIX jq/sha256sum replay only",

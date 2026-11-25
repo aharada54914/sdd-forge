@@ -94,10 +94,11 @@ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
                         raise TimeoutError("negative replay synchronization timeout")
                     time.sleep(0.01)
                 (root / (ledger.name + ".release")).touch()
-            for p in processes:
+            for actor, p in zip(("a", "b"), processes):
                 out, err = p.communicate(timeout=10)
                 results.append(
                     {
+                        "actor": actor,
                         "exit_code": p.returncode,
                         "stdout": out.decode(),
                         "stderr": err.decode(),
@@ -113,6 +114,21 @@ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
             "calls": results,
             "ledger": json.loads(ledger.read_text()),
         }
+
+
+def expected_replay(replay, mutated):
+    accepted = [call["actor"] for call in replay["calls"] if call["exit_code"] == 0]
+    if mutated:
+        return len(accepted) == 2
+    records = replay["ledger"]["records"]
+    return len(accepted) == 1 and [record["run_id"] for record in records] == accepted
+
+
+def expected_tlc_result(result, mutated):
+    lines = result.stdout.splitlines()
+    if mutated:
+        return result.returncode == 12 and "Error: Invariant OneAccepted is violated." in lines
+    return result.returncode == 0 and "Model checking completed. No error has been found." in lines
 
 
 def main():
@@ -140,13 +156,8 @@ def main():
         directory = args.output / label
         directory.mkdir()
         shutil.copyfile(MODEL / "Reservation.tla", directory / "Reservation.tla")
-        (directory / "Reservation.cfg").write_text(
-            (MODEL / "Reservation.cfg")
-            .read_text()
-            .replace("UseLock = TRUE", "UseLock = FALSE")
-            if mutated
-            else (MODEL / "Reservation.cfg").read_text()
-        )
+        cfg = "Reservation.negative.cfg" if mutated else "Reservation.cfg"
+        shutil.copyfile(MODEL / cfg, directory / "Reservation.cfg")
         start = time.monotonic()
         result = subprocess.run(
             [
@@ -170,13 +181,9 @@ def main():
             result.stdout.splitlines()[0] if result.stdout else None
         )
         counterexample = "Invariant OneAccepted is violated" in result.stdout
-        expected = (
-            counterexample
-            if mutated
-            else result.returncode == 0 and "No error has been found" in result.stdout
-        )
+        expected = expected_tlc_result(result, mutated)
         replay = real_race(mutated)
-        replay_expected = replay["accepted"] == (2 if mutated else 1)
+        replay_expected = expected_replay(replay, mutated)
         report["runs"].append(
             {
                 "case": label,

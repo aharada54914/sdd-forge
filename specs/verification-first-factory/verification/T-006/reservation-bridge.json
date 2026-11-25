@@ -9,18 +9,20 @@
     {
       "case": "negative",
       "exit_code": 12,
-      "seconds": 0.8119437920395285,
+      "seconds": 0.8204226670204662,
       "counterexample": true,
       "expected_result": true,
       "real_code_replay": {
         "accepted": 2,
         "calls": [
           {
+            "actor": "a",
             "exit_code": 0,
             "stdout": "",
             "stderr": ""
           },
           {
+            "actor": "b",
             "exit_code": 0,
             "stdout": "",
             "stderr": ""
@@ -45,18 +47,20 @@
     {
       "case": "baseline",
       "exit_code": 0,
-      "seconds": 0.7214929590118118,
+      "seconds": 0.7099617919884622,
       "counterexample": false,
       "expected_result": true,
       "real_code_replay": {
         "accepted": 1,
         "calls": [
           {
+            "actor": "a",
             "exit_code": 0,
             "stdout": "",
             "stderr": ""
           },
           {
+            "actor": "b",
             "exit_code": 1,
             "stdout": "",
             "stderr": "IDENTITY canonical identity ledger reservation is already in progress\n"
