@@ -293,43 +293,128 @@ function hereDocumentEnd(source, cursor, { delimiters, stripTabs, quoted }) {
   return null;
 }
 
-// Keep shell words intact so quoted operators and a # within a word are literal.
-// Here-documents start after the command's unescaped newline, in redirect order.
+// Each command substitution starts a new shell command, even inside double
+// quotes. Its quote state and pending here-documents end with that command.
 function* shellComments(source, file) {
   const interpreter = /^#![^\n]*[ \t/](bash|dash|ash|sh|zsh)(?=[ \t\r\n]|$)/.exec(source)?.[1]
     ?? path.extname(file).slice(1).toLowerCase();
-  // A generic .sh file may run under either interpretation of dollar quotes.
-  // Stop at the first plausible terminator to preserve following source comments.
   const dialects = interpreter === 'sh' ? ['bash', 'literal'] :
     [interpreter === 'bash' || interpreter === 'zsh' ? interpreter : 'literal'];
-  const tokens = /\\\n|[ \t]+|#[^\n]*|<<<|<<-?|\(\(|[()]|\n|(?<word>(?:\$'(?:\\[\s\S]|[^'\\])*'|'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)|./g;
-  const pending = [];
-  let redirect = '';
-  let arithmeticDepth = 0;
-  for (let match; (match = tokens.exec(source));) {
-    const token = match[0];
-    if (token === '\\\n' || /^[ \t]/.test(token)) continue;
-    if (token === '\n') {
-      for (const document of pending) {
-        const end = hereDocumentEnd(source, tokens.lastIndex, document);
-        if (end === null) break;
-        tokens.lastIndex = end;
+  const delimiter = /(?:[ \t]|\\\n)*((?:\$'(?:\\[\s\S]|[^'\\])*'|'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)/y;
+  const comment = /#[^\n]*/y;
+  const reserved = /(?:case|esac|if|then|else|elif|while|until|do|!|\{)(?=[ \t\n;&|()<>]|$)/y;
+  const command = end => ({
+    end, quote: '', wordStart: true, commandStart: true, cases: 0, pending: [], parentheses: 0, arithmetic: 0,
+  });
+  const stack = [command('')];
+  for (let i = 0; i < source.length; i++) {
+    const frame = stack.at(-1);
+    const c = source[i];
+    const next = source[i + 1];
+    // A case pattern also ends in ')'. Keep its containing command open until
+    // the matching esac. Reserved words are recognized only in command position.
+    if (!frame.quote && frame.wordStart && !/[ \t\n;&|()<>#]/.test(c) &&
+        !(c === '\\' && next === '\n')) {
+      reserved.lastIndex = i;
+      const keyword = frame.commandStart ? reserved.exec(source)?.[0] : undefined;
+      if (keyword === 'case') frame.cases++;
+      if (keyword === 'esac' && frame.cases) frame.cases--;
+      frame.commandStart = Boolean(keyword && keyword !== 'case' && keyword !== 'esac');
+      if (keyword) {
+        frame.wordStart = false;
+        i += keyword.length - 1;
+        continue;
       }
-      pending.length = 0;
-    } else if (token.startsWith('#')) {
-      yield match;
-    } else if (redirect && match.groups.word) {
-      const word = token.replace(/\\\n/g, '');
-      const delimiters = dialects.map(dialect => shellDelimiter(token, dialect));
-      pending.push({ delimiters, stripTabs: redirect === '<<-', quoted: /['"\\]/.test(word) });
-    } else if (token === '((') {
-      arithmeticDepth += 2;
-    } else if (arithmeticDepth && token === '(') {
-      arithmeticDepth++;
-    } else if (arithmeticDepth && token === ')') {
-      arithmeticDepth--;
     }
-    redirect = !arithmeticDepth && (token === '<<' || token === '<<-') ? token : '';
+    if (frame.quote === "'" || frame.quote === 'ansi') {
+      if (c === "'") frame.quote = '';
+      else if (c === '\\' && frame.quote === 'ansi') i++;
+      continue;
+    }
+    if (c === '\\') {
+      if (!frame.quote || '$"`\\\n'.includes(next)) {
+        if (next !== '\n') frame.wordStart = false;
+        i++;
+      }
+      continue;
+    }
+    if (c === '$' && next === '(' && source[i + 2] !== '(') {
+      frame.wordStart = false;
+      stack.push(command(')'));
+      i++;
+      continue;
+    }
+    if (c === '`' && (!frame.quote || frame.quote === '"')) {
+      if (frame.end === '`' && !frame.quote) stack.pop();
+      else { frame.wordStart = false; stack.push(command('`')); }
+      continue;
+    }
+    if (c === '"') {
+      frame.quote = frame.quote ? '' : '"';
+      frame.wordStart = false;
+      continue;
+    }
+    if (frame.quote) continue;
+    if (c === "'" || (c === '$' && next === "'")) {
+      frame.quote = c === "'" ? "'" : 'ansi';
+      frame.wordStart = false;
+      if (c === '$') i++;
+      continue;
+    }
+    if (c === '(' && next === '(') {
+      frame.arithmetic += 2;
+      i++;
+      continue;
+    }
+    if (frame.arithmetic) {
+      if (c === '(') frame.arithmetic++;
+      if (c === ')') frame.arithmetic--;
+      continue;
+    }
+    if (c === '#' && frame.wordStart) {
+      comment.lastIndex = i;
+      yield comment.exec(source);
+      i = comment.lastIndex - 1;
+      continue;
+    }
+    if (c === '\n') {
+      let bodyStart = i + 1;
+      for (const document of frame.pending) {
+        const end = hereDocumentEnd(source, bodyStart, document);
+        if (end === null) break;
+        bodyStart = end;
+      }
+      frame.pending.length = 0;
+      frame.commandStart = true;
+      frame.wordStart = true;
+      i = bodyStart - 1;
+      continue;
+    }
+    if (c === '<' && next === '<') {
+      frame.wordStart = true;
+      if (source[i + 2] === '<') { i += 2; continue; }
+      const stripTabs = source[i + 2] === '-';
+      i += stripTabs ? 2 : 1;
+      delimiter.lastIndex = i + 1;
+      const match = delimiter.exec(source);
+      if (match && !match[1].startsWith('#')) {
+        const word = match[1];
+        frame.pending.push({
+          delimiters: dialects.map(dialect => shellDelimiter(word, dialect)),
+          stripTabs, quoted: /['"\\]/.test(word.replace(/\\\n/g, '')),
+        });
+        i = delimiter.lastIndex - 1;
+        frame.wordStart = false;
+      }
+      continue;
+    }
+    if (c === '(') frame.parentheses++;
+    if (c === ')') {
+      if (frame.parentheses) frame.parentheses--;
+      else if (!frame.cases && frame.end === ')') stack.pop();
+    }
+    if (';&|()'.includes(c)) frame.commandStart = true;
+    frame.wordStart = /[ \t;&|()<>]/.test(c);
   }
 }
 

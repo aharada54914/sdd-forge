@@ -447,6 +447,59 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
   });
 
+  it('distinguishes help from active comments in nested shell command substitutions', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.sh');
+    const example = shellMarker + ' shown-rule';
+    const document = ['Use " for inches.', example, 'HELP'];
+    const script = [
+      '#!/bin/sh',
+      'help_text="$(cat <<\'HELP\'', ...document, ')"',
+      'printf \'%s\\n\' "$help_text"',
+      'printf \'%s\\n\' "$(printf \'%s\' "$(cat <<-\\HELP',
+      ...document.map(line => '\t' + line), ')")"',
+      "help_text=$( ( cat <<'HELP'", ...document, ') )',
+      'printf \'%s\\n\' "$help_text"',
+      'help_text="$(case help in help) cat <<\'HELP\'', ...document, ';; esac)"',
+      'printf \'%s\\n\' "$help_text"',
+      // Two pending redirects belong to different command substitutions.
+      'cat 3<<OUTER "$(printf \'/dev/%s\' "$(cat <<INNER',
+      'null', 'INNER', ')")"', example, 'OUTER',
+      ''
+    ].join('\n');
+    const expected = (document.slice(0, -1).join('\n') + '\n').repeat(4);
+    fs.writeFileSync(file, script);
+    // Older macOS /bin/bash rejects the unpaired quote in this otherwise
+    // literal body. The CLI assertions below apply on every host.
+    const shells = [];
+    if (spawnSync('bash', ['-c', 'v="$(cat <<EOF\n"\nEOF\n)"']).status === 0) shells.push('bash');
+    if (!spawnSync('dash', ['-c', ':']).error) shells.push('dash');
+    for (const shell of shells) {
+      const shown = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
+      assert.equal(shown.status, 0, shown.stderr);
+      assert.equal(shown.stderr, '');
+      assert.equal(shown.stdout, expected);
+    }
+    const clean = runAntiTamper(dir);
+    assert.equal(clean.status, 0, clean.stdout);
+    assert.deepEqual(JSON.parse(clean.stdout).violations, []);
+    assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+
+    const activeSource = script.replace('cat <<', 'true ' + shellMarker + ' inner-rule\ncat <<')
+      + shellMarker + ' outer-rule\n';
+    fs.writeFileSync(file, activeSource);
+    const active = runAntiTamper(dir);
+    assert.equal(active.status, 4, active.stdout);
+    const report = JSON.parse(active.stdout);
+    assert.equal(report.status, 'TAMPER_DETECTED');
+    assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner-rule', ' outer-rule']);
+    assert.ok(report.violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.sh'));
+    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
+    assert.deepEqual(question.violations, report.violations.map(({ code, path }) => ({ code, path })));
+  });
+
   it('matches Bash dollar-quoted here-document delimiters and preserves the following directive', (t) => {
     const { dir } = initGitRepoWithTests();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
