@@ -48,6 +48,7 @@ class Fixture:
             })
         self.bundle = {"task_id": "T-1", "feature": "foo"}
         self.extra_artifacts = []
+        self.extra_files = {}
         git = ["git", "-C", str(self.root)]
         subprocess.run(git + ["init", "-q"], check=True)
         (self.root / "README").write_text("fixture\n", encoding="utf-8")
@@ -67,6 +68,9 @@ class Fixture:
         paths += [c["evidence"] for c in self.contract["checks"]]
         artifacts = [{"path": p, "sha256": sha(self.root / p)} for p in paths]
         artifacts += [{"path": p, "sha256": "0" * 64} for p in self.extra_artifacts]
+        for name, text in self.extra_files.items():
+            (self.root / name).write_text(text, encoding="utf-8")
+            artifacts.append({"path": name, "sha256": sha(self.root / name)})
         bundle = {
             "quality_report": self.report_name,
             "verification_contract": self.contract_name,
@@ -95,12 +99,13 @@ def runners():
     yield "ps1", run_ps1 if PWSH else None
 
 
-def canonical(bundle):
-    """Mirror of evidence_canonical in check-evidence-bundle.sh."""
+def canonical(bundle, order="code-point"):
+    """Mirror of the v1 signers: Python sorted by code point, PowerShell by UTF-16 unit."""
     def s(v):
         return str(v if v is not None else "").strip()
-    pairs = sorted(str(a.get("path", "")).strip() + "\x00" + str(a.get("sha256", "")).strip().lower()
-                   for a in bundle.get("artifacts") or [])
+    key = (lambda p: p.encode("utf-16-be")) if order == "utf-16" else None
+    pairs = sorted((str(a.get("path", "")).strip() + "\x00" + str(a.get("sha256", "")).strip().lower()
+                    for a in bundle.get("artifacts") or []), key=key)
     digest = hashlib.sha256("\n".join(pairs).encode("utf-8")).hexdigest()
     rv = bundle.get("review_verdict")
     return "\n".join([
@@ -226,14 +231,14 @@ class MisCasedInputTests(unittest.TestCase):
 class StrictValueTests(unittest.TestCase):
     """Values the Python checker reads strictly; the .ps1 port must not coerce them."""
 
-    def assert_absent(self, mutate, message, sign=False):
+    def assert_absent(self, mutate, message, sign=False, order="code-point"):
         with tempfile.TemporaryDirectory() as base:
             fx = Fixture(base)
             mutate(fx)
             bundle = fx.write()
             if sign:
                 data = json.loads(bundle.read_text(encoding="utf-8"))
-                data["signature"]["value"] = hmac.new(b"parity-key", canonical(data).encode("utf-8"),
+                data["signature"]["value"] = hmac.new(b"parity-key", canonical(data, order).encode("utf-8"),
                                                       hashlib.sha256).hexdigest()
                 bundle.write_text(json.dumps(data), encoding="utf-8")
             for name, run in runners():
@@ -262,6 +267,17 @@ class StrictValueTests(unittest.TestCase):
         self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
         for message in ("HMAC mismatch", "cannot be verified", "null-valued"):
             self.assert_absent(lambda fx: self.critical(fx, "false"), message, sign=True)
+
+    def test_either_v1_signer_order_verifies_on_both_runners(self):
+        # U+E000 sorts before U+1F4C4 by code point but after it by UTF-16 unit.
+        os.environ["SDD_EVIDENCE_KEY"] = "parity-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        def mutate(fx):
+            self.critical(fx, False)
+            fx.extra_files = {"\ue000.txt": "private use\n", "\U0001f4c4.txt": "page\n"}
+        for order in ("code-point", "utf-16"):
+            with self.subTest(order=order):
+                self.assert_absent(mutate, "HMAC mismatch", sign=True, order=order)
 
     def test_wrong_key_still_fails_the_signature(self):
         os.environ["SDD_EVIDENCE_KEY"] = "another-key"
