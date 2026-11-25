@@ -14,9 +14,9 @@
 | **domain-model** | **sdd-domain** | **[公開] DDD 上流レーンのエントリーポイント（`/sdd-domain:domain-model`）。`new`（既定）/ `update` / `reverse` を domain-interviewer・update モードの限定再インタビュー・domain-reverse へルーティングし、`domain/` 成果物セットを sdd-bootstrap Phase 1 の手前で生成・維持する** | **—** | **domain-interviewer, domain-reverse, domain-review-loop** |
 | domain-interviewer | sdd-domain | 7段階の DDD インタビュー（Domain Story → Event Storming → Concept Model → Ubiquitous Language → Context Map → Domain Model (集約) → Domain Message Flow）を実行。各段階を次段階の開始前にディスクへチェックポイントし、段階ごとに `domain/domain-contract.json` を再生成。`domain/` 配下の唯一の書き込み者で、中断後は再開可能 | domain-model, domain-reverse (seed 経由) | domain-review-loop |
 | domain-reverse | sdd-domain | 既存コードベースに investigate-codebase を実行し、その investigation.md を候補ドメインモデル seed（候補 Bounded Context・ユビキタス言語用語・イベント/集約のヒント）へ変換。中間生成物のみで `domain/` には書き込まない | domain-model (`reverse` モード) | domain-interviewer |
-| domain-review-loop | sdd-domain | `domain/` 成果物セット（戦略/戦術）を `domain-reviewer-a/b` が独立レビューし、検証済み verdict を永続化。`Domain-Model-Status: Pending → Reviewed` に遷移できる唯一の機構（`Approved` は人間のみ）。承認後のドリフトも検出 | domain-interviewer | — (人間承認待ち) |
+| domain-review-loop | sdd-domain | v2 は契約を検証し、独立した戦略・戦術の 2 視点を `reports/domain-review/latest.md` に統合。通過時に `Reviewed` とし、人へ同じ版の承認と契約発行を依頼する | domain-model review | 人間承認後に concept-test |
 | domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
-| sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
+| sdd-adopt | sdd-bootstrap | 既存プロジェクトに SDD 構造を導入する内部スキル | `/sdd-bootstrap:bootstrap adopt` | investigate-codebase, sdd-bootstrap-interviewer |
 | research-sources | sdd-bootstrap | 外部一次資料の二経路探索・原文照合・未確認事項を保持して既存レビューへ渡す内部スキル | bootstrap investigate / feature | sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
@@ -30,7 +30,7 @@
 | visual-verify-loop | sdd-implementation | UI タスク実装後の視覚検証ループ（Claude Preview / wpf-visual-verify、advisory・最大5回、証跡を `reports/visual-evidence/` に保存） | implement-task | — |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
-| fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
+| fix-by-review-ticket | sdd-quality-loop | 承認済みレビューチケットの修正を実装・テスト | `sdd-gate` の指摘 | `/sdd-ship:ship specs/<feature>/tasks.md#<task-id>` で対象タスクを再検証 |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案（friction をなぜなぜ分析で根本原因まで掘り下げて WFI を起草） | quality-gate | — |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
 | wfi-audit-cycle | sdd-quality-loop | WFI-NNN.md Draft を2サイクルの独立監査（品質→影響/リスク）で審査し、合格時はカテゴリによらず Human-Pending に移行するオーケストレーター（追跡 Issue 起票は plugin-improvement かつ同意時のみ） | workflow-retrospective | — (人間承認待ち) |
@@ -259,6 +259,7 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 a/b ペアはいずれも「互いの結果を見ない」ことを前提に設計されています。
 
 - 両者とも fresh context（実装者・生成者と履歴を共有しない）・read-only（`tools: Read, Grep, Glob` ± `Bash`、`disallowedTools: Write, Edit, NotebookEdit`）で走ります。
+- 旧レビューの b には `disallowedPaths` と件数・ID のサマリを用いる。公開 v2 のドメインレビューは、A・B に別々の読取専用コンテキストと同じ正本を渡し、互いの生出力を渡さない。並列実行できないホストでも両方を別コンテキストで実行する。
 - `wfi-auditor-b` はサイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされ、統合サマリ（判定と件数のみ）だけを受け取ります。
 
 これにより、spec-check・domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を避けます。
@@ -418,13 +419,12 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `detect-panel` | sh / ps1 | 利用可能な非 Anthropic パネリスト CLI を検出し、slug を改行区切りで列挙 |
 | `registry_discovery` | py | Registry 探索契約の共有ヘルパモジュール。パッケージ同梱コピー優先のフェイルクローズ解決順を実装 |
 
-**運用・強制系（8本）**： フック・停止・公開・記録・外部パネリスト実行を担います。
+**運用・強制系（7本）**： フック・停止・公開・記録・外部パネリスト実行を担います。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
 | `sdd-hook-guard` | sh / ps1 / py / js | 統一 PreToolUse ガードのディスパッチャ（承認ガード / WFI 承認ガード。[詳細](#hook-guard-script)） |
 | `kill-switch` | sh / ps1 / js | `AGENT_STOP` が存在する間、全ツール呼び出しを停止する PreToolUse フック |
-| `apply-human-copy` | sh / ps1 | Anchored-publisher 相当の human-copy 公開ツール。sh / ps1 が**それぞれ独立に**完全な publisher ロジックを実装（Python マスタなし） |
 | `emit-run-record` | sh / ps1 | WFI 効果測定用の run record を決定論的に発行（feature slug・トラック・モデル・effort・プラグインバージョン） |
 | `vendor-capability-registry` | sh / ps1 / py | 正準の top-level `contracts/*` から `plugins/sdd-quality-loop/contracts/*` を再取り込み（vendored copy のドリフト検査 / リリースゲート） |
 | `prepare-panelist-input` | sh / ps1 | サニタイズ済みパネリスト入力バンドルを同意ゲート付きで準備 |
@@ -682,9 +682,9 @@ sh plugins/sdd-quality-loop/scripts/check-traceability.sh <traceability.json> [r
 
 ### check-evidence-bundle
 
-**目的**
+v2 でタスクを完了するときは、`/sdd-ship:ship` から `/sdd-quality-loop:sdd-gate` に進みます。ゲートはプロジェクトの検査を実行し、独立レビューの判定を記録します。公開 MCP の `sdd_gate_audit` では、その実行結果とレビューレポートを個人の検証鍵なしで参照できます。
 
-`Done` 判定に使う quality report、verification contract、passing evidence の存在と SHA-256 を検証。`high`/`critical` タスクでは `risk`・`required_workflow`・`spec_revision`・`build_env`・`builder`・`review_verdict` のプロベナンスフィールドを必須検証。`critical` タスクでは HMAC-SHA256 署名も検証（鍵は `SDD_EVIDENCE_KEY` / `SDD_EVIDENCE_KEY_FILE` / `~/.sdd/evidence-key` から解決）。
+過去の `Done` の証跡バンドルを再検証するときは、次のスクリプトを使います。quality report、verification contract、passing evidence の存在と SHA-256 を照合します。旧形式の `high` / `critical` では `risk`・`required_workflow`・`spec_revision`・`build_env.os`・`review_verdict` も検査します。HMAC-SHA256 で署名された `critical` の記録は、`SDD_EVIDENCE_KEY`、`SDD_EVIDENCE_KEY_FILE`、`~/.sdd/evidence-key` のいずれかに設定した鍵で照合します。Sigstore の記録では、呼び出し側が行った署名検証の結果を参照します。
 
 ```bash
 sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh <path-to-evidence.json> [repo-root]
@@ -806,29 +806,17 @@ python3 plugins/sdd-quality-loop/scripts/resolve-component-paths.py \
 
 ---
 
-### apply-human-copy
+### 新しいDDDの概念判断を確認する
 
-**目的**
+bootstrap が新しい概念や責務の衝突を報告したら、担当者が対話ターミナルで確認します。次は feature 名が `catalog-search` の場合の例です。プラグインと対象プロジェクトを別々に配置している場合は、スクリプトにインストール先のパスを、`--root` に対象プロジェクトのルートを指定します。
 
-Anchored-publisher 相当の human-copy 公開ツール。ステージングされた候補ファイル群を、パス置換攻撃に耐える形で最終位置へ原子的に公開します。
-
-**設計上の特徴**
-
-- **Python マスタを持ちません。** `.sh` と `.ps1` が**それぞれ独立に**完全な publisher ロジックを実装しており、互いにディスパッチしません（T-007 のアーキテクチャ制約）
-- POSIX には `openat()` / `renameat()` の束縛が無いため、POSIX 側では「保持したディレクトリハンドル経由で相対パスを1セグメントずつ解決する」保証を、プロセス自身の作業ディレクトリ束縛（相対名に対する `chdir(2)`）で実現しています
-- 残存する窓（各セグメントの `-L` チェックと `cd` の間、および最終再チェックと `mv` システムコールの間）は単一のシステムコールでは閉じられず、これは FFI を持たない可搬 POSIX シェルで到達できる最強の保証である旨が明記されています。詳細は `docs/adr/0025-*`
-
-**使用法**
-
-```bash
-# 公開
-sh plugins/sdd-quality-loop/scripts/apply-human-copy.sh --staging-dir <dir> --manifest <file>
-
-# 引数なし: 起動時に必須のクラッシュリカバリ走査だけを実行して終了
-sh plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+```sh
+sh plugins/sdd-domain/scripts/validate-concept-test.sh --root . --feature catalog-search --confirm
 ```
 
-`--staging-dir` / `--manifest` を与えない起動は、トランザクショナルバンドル契約が定める**起動時必須のクラッシュリカバリ走査のみ**を行います。
+PowerShell では `plugins/sdd-domain/scripts/validate-concept-test.ps1` に同じ引数を渡します。表示された提案と根拠を確認して、進行・ドメインモデル更新まで保留・却下のいずれかを選びます。新形式では個人の署名鍵や承認者の事前登録は不要です。
+
+判断は対象の feature と提案の内容に結び付けて保存されます。内容を変更した場合は、新しい内容を確認してください。自動検証は `--confirm` を省いて実行します。過去の `concept-test/v1` で記録した署名付き判断を調べるときは、当時の承認者登録と署名検証手順を使います。
 
 ---
 
@@ -858,32 +846,27 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 
 ### sdd-bootstrap
 
-| テンプレートパス | 生成物説明 |
-|---|---|
-| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md` | INV-xxx 所見付き調査レポート |
-| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md` | BL-xxx 項目付き baseline 記録 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/AGENTS.template.md` | プロジェクト agent・role 定義 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/CLAUDE.template.md` | Claude インタラクションガイドライン |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md` | 機能要件書 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md` | アーキテクチャ・設計決定 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md` | 受け入れ基準・テスト |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md` | タスク分割 (T-xxx) |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md` | トレーサビリティ行列 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json` | `design-system/` トークン契約の雛形（W3C DTCG、meta エンベロープは `contracts/design-system.contract.v1.schema.json` で検証） |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md` | UI 規約の雛形（3層構造: トークン / Do・Don't / レビューチェックリスト、WCAG 2.2 AA） |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md` | 言語非依存の普遍的 UX 規約（アクション / ダイアログ / アイコン / フロー / 状態 / 認知負荷 の6カテゴリ、既定値込み） |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/adr.template.md` | Architecture Decision Record |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md` | AI 特化タスク template |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md` | C4 Context diagram |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md` | C4 Container diagram |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-component.template.md` | C4 Component diagram |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/openapi.template.yaml` | OpenAPI 仕様 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/json-schema.template.json` | JSON Schema 定義 |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml` | GitHub Actions CI workflow |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml` | GitLab CI pipeline |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/pull-request.template.md` | GitHub PR template |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/merge-request.template.md` | GitLab MR template |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/gitlab-issue.template.md` | GitLab Issue template |
+新しく作る機能仕様は `requirements.md`、`design.md`、`tasks.md` の3ファイルで、受け入れ基準は `requirements.md` に書きます。旧版で作成した独立の `acceptance-tests.md` や `traceability.md` は、当時の仕様・レビュー履歴を確認する資料です。旧手順で管理中の案件では、その案件の承認済み契約に従って参照します。
+
+| 同梱テンプレートのパス | 用途 | 使用する条件 |
+|---|---|---|
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/requirements.md` | 要件と受け入れ基準 | 機能仕様を作成するとき |
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/design.md` | 設計方針、代替案、テスト方針 | 機能仕様を作成するとき |
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/tasks.md` | リスク、対象ファイル、完了条件を持つタスク | 機能仕様を作成するとき |
+| `plugins/sdd-bootstrap/skills/sdd-core-spec/templates/c4-container.template.md` | コンテナ構成と論理ドメインの対応図 | 設計で構成図が必要なとき |
+| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md` | 根拠付きの調査所見（`INV-NNN`） | コードベース調査を行うとき |
+| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md` | 調査で把握したコード構成 | コードベース調査を行うとき |
+| `plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md` | 維持すべき既存の挙動（`BL-NNN`） | `bugfix` または `refactor` の調査時 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/AGENTS.template.md` | リポジトリの運用ルール | SDD導入時に `AGENTS.md` が未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/CLAUDE.template.md` | Claude向けのプロジェクト指示 | SDD導入時に `CLAUDE.md` が未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/ci-github.template.yml` | GitHub ActionsのCI | 導入先がGitHubで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/pull-request.template.md` | GitHubのプルリクエスト | 導入先がGitHubで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/ci-gitlab.template.yml` | GitLab CI | 導入先がGitLabで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/gitlab-issue.template.md` | GitLabのIssue | 導入先がGitLabで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/sdd-adopt/templates/merge-request.template.md` | GitLabのマージリクエスト | 導入先がGitLabで、対象ファイルが未作成 |
+| `plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json` | 色、タイポグラフィ、余白のトークン | UI規約が未整備でテンプレートから作成するとき |
+| `plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md` | トークンを使うUI規約 | UI規約が未整備でデザイン同期を行うとき |
+| `plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md` | 操作、状態、フィードバックの規約 | UI規約が未整備でデザイン同期を行うとき |
 
 ### sdd-implementation
 
@@ -926,7 +909,7 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 
 ³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。CLI 1.0.98 の実セッションでは親・サブエージェントとも拒否を確認しました。バージョンや実行経路だけで稼働を推定せず、各セッションの canary が拒否されなければ Capability Mode を停止します。
 
-⁴ Copilot 用の `copilot-agents/*.agent.md` は `sdd-investigator` と `sdd-evaluator` の2体分しか存在せず、Codex 用の `.codex/agents/*.toml` は4体分（上記2体 + パネリスト2体）です。reviewer 系・domain 系・wfi-auditor 系にはどちらのツインもありません。これらの環境では、各ペアを新規コンテキストで同等の手順としてインライン実行し、`spec-review-precheck` / `impl-review-precheck` / `task-review-precheck` / `domain-review-precheck` と `validate-review-context-set` で独立性の前提を決定論的に確認してください。
+⁴ Copilot 用の `copilot-agents/*.agent.md` は `sdd-investigator` と `sdd-evaluator` の2体分、Codex 用の `.codex/agents/*.toml` は4体分（上記2体 + パネリスト2体）です。専用ツインのない公開 v2 ドメインレビューは、`domain-review-loop` の戦略・戦術を別々の読取専用コンテキストで実行してください。旧 round 形式の既存案件を扱う場合に限り、該当する `spec-review-precheck` / `impl-review-precheck` / `task-review-precheck` / `domain-review-precheck` と `validate-review-context-set` を使います。
 
 **フックは補助線 (defense in depth)。決定論的スクリプト (`check-contract` / `check-task-state`) が最終防衛線です。**
 

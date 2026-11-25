@@ -37,7 +37,7 @@ disable-model-invocation: true
 
 ## Preconditions
 
-1. ルートに `AGENTS.md` が無い場合、`feature` / `bugfix` / `refactor` / `project` では先に `/sdd-bootstrap:sdd-adopt` を実行または案内する。
+1. ルートに `AGENTS.md` が無い場合、`feature` / `bugfix` / `refactor` / `project` では先に内部スキル `sdd-adopt` を実行するか、ユーザーへ公開コマンド `/sdd-bootstrap:bootstrap adopt` の実行を案内する。
 2. `sdd/guardrails.yaml`（または `sdd/guardrails.json`）があれば読み込む。不在時は既定値（`spec_guard.mode: confirm`, `review.pre_impl_check: auto`, `risk_defaults.default_tier: standard`）を使用する。
 3. オプトイン MCP（`sdd_project_overview` / `sdd_feature_state`）が有効な場合は参考情報として参照してよいが、ルーティング判断は常にファイル状態を正とする。
 4. `<source>` に GitHub Issue URL が渡された場合は `gh issue view`（利用可能時）で要件本文を取得してよい。

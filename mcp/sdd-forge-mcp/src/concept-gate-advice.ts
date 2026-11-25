@@ -1,0 +1,88 @@
+import { isJsonObject } from "./parsers/json-object.js";
+import { guardedRead } from "./path-guard.js";
+import type { SddRoot } from "./root.js";
+
+type Stop = "BLOCK" | "DEFER" | "REJECT";
+interface BlockedAction {
+  phase: "blocked";
+  command: string;
+  rationale: string;
+}
+
+// Shared by the audit and guidance readers. A copied report is not this task's result.
+export function parseTaskExecution(contents: string, feature: string, taskId: string) {
+  const report: unknown = JSON.parse(contents);
+  if (isJsonObject(report) && report.schema === "sdd-gate-execution/v1" && report.feature === feature &&
+      typeof report.taskId === "string" && report.taskId.toUpperCase() === taskId.toUpperCase()) {
+    return report;
+  }
+  return undefined;
+}
+
+export function conceptStopAction(feature: string, status: Stop, source: string, diagnostic?: string): BlockedAction {
+  const observation = `${source} の Concept Test の記録は ${status} です。`;
+  if (status === "DEFER") return {
+    phase: "blocked", command: `human: run the installed validate-concept-test.sh --root . --feature ${feature} --require-v2`,
+    rationale: `${observation} まず配布版の検証器（PowerShell は .ps1）で現在の入力を確認してください。現在も DEFER でモデルが未更新なら /sdd-domain:domain-model update を実行し、レビュー・本人の承認・契約の発行を経て提案を更新してください。更新済みなら発行済みの契約から提案を作り直してください。`,
+  };
+  if (status === "REJECT") return {
+    phase: "blocked", command: `human: stop work on the rejected proposal for ${feature}`,
+    rationale: `${observation} 記録が指す提案は却下されました。その提案での作業を停止してください。`,
+  };
+
+  // A missing packaged script is reported by the shell before the validator can emit its own diagnostic.
+  const missingShellScript = /^(?:\/bin\/)?sh: [^\r\n]*\/validate-concept-test\.sh: No such file(?: or directory)?$/m;
+  const missingPowerShellScript = /^The argument ['"][^\r\n]*[\\/]validate-concept-test\.ps1['"] is not recognized as the name of a script file\./m;
+  if (diagnostic && (diagnostic.includes("VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE") ||
+      missingShellScript.test(diagnostic) || missingPowerShellScript.test(diagnostic))) {
+    return {
+      phase: "blocked", command: `human: restore the installed Concept Test runtime for ${feature}`,
+      rationale: `${observation} 配布された検証器と依存ファイルの配置を確認し、動作する配布版を復旧してください。現在の版別パッケージで復旧できなければ、${source} の診断を添えて配布元に報告し、作業は停止したままにしてください。復旧後に validate-concept-test.sh（PowerShell は .ps1）を --root . --feature ${feature} --require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行してください。`,
+    };
+  }
+
+  let recovery = "checks.conceptTest.error の診断に沿って、検証器の配置・入力・提案・判断記録を確認してください。";
+  if (diagnostic === "concept-test: BLOCK: run --confirm in a separate human-operated terminal") {
+    recovery = "この実行時点で人の判断が必要でした。対象と提案を確認し、本人が端末で配布版の検証器に --confirm を指定して判断してください。";
+  } else if (diagnostic === "concept-test: BLOCK: domain model must be approved" ||
+             diagnostic === "concept-test: BLOCK: approved context map must be pinned") {
+    recovery = "モデルのレビュー、本人の承認、対応する契約の発行を確認し、その版で提案を更新してください。";
+  }
+  return {
+    phase: "blocked", command: `human: inspect checks.conceptTest.error in ${source}`,
+    rationale: `${observation} ${recovery} 対象プロジェクトで配布版の validate-concept-test.sh（PowerShell は .ps1）を --root . --feature ${feature} --require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行してください。`,
+  };
+}
+
+interface GateStop {
+  status: Stop;
+  path: string;
+  missingDecision: boolean;
+  action: BlockedAction;
+}
+
+export function recordedConceptStop(root: SddRoot, feature: string, tasks: readonly { id: string; status: string }[]): GateStop | undefined {
+  for (const task of tasks) {
+    if (task.status !== "Implementation Complete" && task.status !== "Blocked") continue;
+    if (!/^T-[A-Za-z0-9._-]+$/.test(task.id)) continue;
+    const path = `reports/quality-gate/${feature}-${task.id}.execution.json`;
+    const read = guardedRead(root, path);
+    if (!read.ok) continue;
+    let report;
+    try { report = parseTaskExecution(read.data.contents, feature, task.id); }
+    catch { continue; }
+    if (report?.verdict !== "FAIL") continue;
+    const check = isJsonObject(report.checks) ? report.checks.conceptTest : undefined;
+    if (!isJsonObject(check) || check.passed !== false) continue;
+    if (check.status === "BLOCK" || check.status === "DEFER" || check.status === "REJECT") {
+      const action = conceptStopAction(feature, check.status, path, typeof check.error === "string" ? check.error.trim() : undefined);
+      if (check.status !== "BLOCK") {
+        action.rationale += " この実行後に提案や判断を更新済みの場合は、対象の Concept Test を再検証し、CONTINUE を確認後に品質ゲートを再実行してください。";
+      }
+      return {
+        status: check.status, path, action,
+        missingDecision: check.error === "concept-test: BLOCK: run --confirm in a separate human-operated terminal",
+      };
+    }
+  }
+}

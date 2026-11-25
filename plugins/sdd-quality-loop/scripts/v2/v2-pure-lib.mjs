@@ -292,13 +292,15 @@ export function countDomainModelApprovals(text) {
   return (normalizeNewlines(text).match(DOMAIN_MODEL_APPROVAL_RE) || []).length;
 }
 
-export function splitSpecAmendments(text) {
+function parseSpecAmendmentsSection(text) {
   const normalized = normalizeNewlines(text);
   const match = AMENDMENT_HEADING_RE.exec(normalized);
   if (!match) {
     return {
       beforeAmendments: normalized,
       amendmentsBody: '',
+      amendmentsRawBody: '',
+      amendmentsHeadingLine: null,
       afterAmendments: '',
       hasHeading: false,
     };
@@ -306,6 +308,7 @@ export function splitSpecAmendments(text) {
 
   const headingLevel = match[1].length;
   const headingStart = match.index;
+  const headingLine = normalized.slice(0, headingStart).split('\n').length;
   const afterHeadingStart = headingStart + match[0].length;
   const rest = normalized.slice(afterHeadingStart);
 
@@ -316,31 +319,57 @@ export function splitSpecAmendments(text) {
     return {
       beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
       amendmentsBody: rest.trim(),
+      amendmentsRawBody: rest,
+      amendmentsHeadingLine: headingLine,
       afterAmendments: '',
       hasHeading: true,
     };
   }
 
+  const rawBody = rest.slice(0, nextMatch.index);
   return {
     beforeAmendments: normalized.slice(0, headingStart).trimEnd(),
-    amendmentsBody: rest.slice(0, nextMatch.index).trim(),
+    amendmentsBody: rawBody.trim(),
+    amendmentsRawBody: rawBody,
+    amendmentsHeadingLine: headingLine,
     afterAmendments: rest.slice(nextMatch.index).trimStart(),
     hasHeading: true,
   };
 }
 
-export function extractAmendmentEntries(text) {
-  const { hasHeading, amendmentsBody } = splitSpecAmendments(text);
+export function splitSpecAmendments(text) {
+  const { beforeAmendments, amendmentsBody, afterAmendments, hasHeading } = parseSpecAmendmentsSection(text);
+  return {
+    beforeAmendments,
+    amendmentsBody,
+    afterAmendments,
+    hasHeading,
+  };
+}
+
+export function extractAmendmentEntriesWithLines(text, sourceFile = null) {
+  const { hasHeading, amendmentsBody, amendmentsRawBody, amendmentsHeadingLine } = parseSpecAmendmentsSection(text);
   if (!hasHeading || !amendmentsBody) return [];
 
   const entries = [];
-  for (const line of amendmentsBody.split('\n')) {
-    const trimmed = line.trim();
+  const rawLines = amendmentsRawBody.split('\n');
+  for (let i = 0; i < rawLines.length; i += 1) {
+    const trimmed = rawLines[i].trim();
     if (!trimmed) continue;
     if (PLACEHOLDER_AMENDMENT_RE.test(trimmed)) continue;
-    entries.push(trimmed);
+    const lineNumber = amendmentsHeadingLine + i;
+    entries.push({
+      text: trimmed,
+      sourceFile,
+      sourceLine: lineNumber,
+      sourceRef: sourceFile ? `${sourceFile}:L${lineNumber}` : null,
+    });
   }
   return entries;
+}
+
+export function extractAmendmentEntries(text) {
+  return extractAmendmentEntriesWithLines(text).map((entry) => entry.text);
 }
 
 /**

@@ -358,7 +358,7 @@ path_is_authorized() {
     return
   fi
   if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$ ]] &&
-      [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$ ]]; then
+      [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json|\.decision\.json)$ ]]; then
     # Exact quality delivery declarations are independent of optional concept inputs.
     if [[ "$stage:$role" == quality:sdd-evaluator ]] &&
         quality_delivery_input_is_declared "$path" "$expected_hash"; then
@@ -373,7 +373,12 @@ path_is_authorized() {
         if [[ "$stage" != impl || ! "$path" =~ ^domain/aggregates/[^/]+\.md$ ]]; then
           local concept_record="specs/$feature/concept-test.json"
           jq -e --arg p "$concept_record" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null || return 1
-          jq -e --arg p "$path" --arg h "$expected_hash" 'any(.inputs[]; .path == $p and .sha256 == $h)' "$repository_root/$concept_record" >/dev/null 2>&1 || return 1
+          local concept_root="$repository_root"
+          if [[ -n "$fixed_record" ]]; then
+            jq -e --arg p "$concept_record" 'any(.[]; .path == $p)' <<< "$fixed_sources" >/dev/null || return 1
+            concept_root="$fixed_snapshot"
+          fi
+          jq -e --arg p "$path" --arg h "$expected_hash" 'any(.inputs[]; .path == $p and .sha256 == $h)' "$concept_root/$concept_record" >/dev/null 2>&1 || return 1
         fi
         ;;
     esac
@@ -1042,6 +1047,8 @@ while IFS=$'\t' read -r path expected_hash; do
   input_root="$repository_root"
   if jq -e --arg p "$path" 'any(.[]; .path == $p)' <<< "$fixed_sources" >/dev/null; then
     input_root="$fixed_snapshot"
+  elif [[ -n "$fixed_record" && ( "$path" == domain/* || "$path" == "specs/$feature/concept-test."* || "$path" == "specs/$feature/concept-test-seed.md" ) ]]; then
+    fail INPUT "fixed inventory omits a domain or Concept Test input: $path"
   fi
   candidate="$input_root/$path"
   current="$input_root"

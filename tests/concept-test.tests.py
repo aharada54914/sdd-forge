@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Concept Test acceptance: real signed evidence, stale inputs, and read-only gates."""
+import contextlib
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -85,6 +87,334 @@ class ConceptTests(unittest.TestCase):
                                     env=self.env, capture_output=True, text=True)
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             shutil.copyfile(output / 'specs/example/concept-test.approval.json', self.feature / 'concept-test.approval.json')
+
+    def local_proposal(self, proposal='NEW_CONCEPT_CANDIDATE'):
+        self.record.update(schema='concept-test/v2', proposal=proposal)
+        self.record.pop('decision', None)
+        self.save()
+        return self.feature / 'concept-test.decision.json'
+
+    def test_manual_publication_of_the_reviewed_model(self):
+        # Simulate a human's documented edits on an isolated project. The
+        # product reads both canonical files and never grants approval itself.
+        contract_path = self.root / 'domain/domain-contract.json'
+        context_path = self.root / 'domain/context-map.md'
+        contract = json.loads(contract_path.read_bytes())
+        shell = (['pwsh', '-NoProfile', '-File', str(SCRIPT.with_name('validate-domain-contract.ps1'))]
+                 if os.name == 'nt' else ['bash', str(SCRIPT.with_name('validate-domain-contract.sh'))])
+
+        def propose():
+            for source in self.record['inputs']:
+                source['sha256'] = hashlib.sha256((self.root / source['path']).read_bytes()).hexdigest()
+            self.local_proposal('FITS_EXISTING_CONCEPTS')
+
+        def publish_after_comparison(staged):
+            # Simulate the human comparing the old release, the reviewed status
+            # and the candidate, before the shipped checker and atomic replace.
+            current = json.loads(contract_path.read_bytes())
+            candidate = contract_path.with_suffix('.candidate')
+            candidate.write_text(json.dumps(staged), encoding='utf-8')
+            for document in (current, staged):
+                try:
+                    concept.check_schema('domain-contract.v2.schema.json', document)
+                except ValueError:
+                    return False
+            major, minor, patch = current['meta']['version'].split('.')
+            expected = copy.deepcopy(current)
+            expected['meta'].update(status='Approved', version=f'{major}.{minor}.{int(patch) + 1}')
+            if staged != expected or context_path.read_text().splitlines() != ['Domain-Model-Status: Approved']:
+                return False
+            check = subprocess.run([*shell, str(candidate)], capture_output=True, text=True)
+            self.assertEqual(0, check.returncode, check.stdout + check.stderr)
+            candidate.replace(contract_path)
+            return True
+
+        for revision in (1, 2):  # Initial review and the next explicit update.
+            with self.subTest(revision=revision):
+                contract['meta']['status'] = 'Pending'
+                self.write('domain/domain-contract.json', contract)
+                for status in ('Pending', 'Reviewed', 'Approved'):
+                    context_path.write_text(f'Domain-Model-Status: {status}\n')
+                    propose()
+                    self.gate(1)
+                contract['meta'].update(status='Approved', version=f'1.0.{revision}')
+                before = contract_path.read_bytes()
+                for metadata in ({'version': f'1.0.{revision}.'}, {'version': f'1.0.{revision + 1}'},
+                                 {'version': f'2.0.{revision}'}, {'version': f'1.1.{revision}'},
+                                 {'status': 'Reviewed'}, {'status': 'ApprovedLater'}):
+                    with self.subTest(metadata=metadata):
+                        staged = copy.deepcopy(contract)
+                        staged['meta'].update(metadata)
+                        self.assertFalse(publish_after_comparison(staged))
+                        self.assertEqual(before, contract_path.read_bytes())
+                altered = copy.deepcopy(contract)
+                altered['concepts'][0]['definition'] += ' Unreviewed change.'
+                self.assertFalse(publish_after_comparison(altered))
+                self.assertEqual(before, contract_path.read_bytes())
+                self.assertTrue(publish_after_comparison(contract))
+                self.gate(1)  # The previous proposal still pins the old version.
+                propose()
+                before = contract_path.read_bytes()
+                self.assertEqual('CONTINUE\n', self.gate().stdout)
+                self.assertEqual(before, contract_path.read_bytes())
+                context_path.write_text('Domain-Model-Status: Reviewed\n')
+                propose()
+                self.gate(1)  # An Approved JSON alone does not authorize the model.
+
+        contract['meta']['version'] += '.'
+        self.write('domain/domain-contract.json', contract)
+        before = contract_path.read_bytes()
+        contract['meta']['version'] = '1.0.3'
+        context_path.write_text('Domain-Model-Status: Approved\n')
+        self.assertFalse(publish_after_comparison(contract))
+        self.assertEqual(before, contract_path.read_bytes())
+
+    def local_confirmation(self, answer):
+        # Synthetic terminal input only, inside this test's temporary project.
+        output = io.StringIO()
+        with mock.patch.object(sys.stdin, 'isatty', return_value=True), mock.patch.object(sys, 'stdout', output), \
+                mock.patch.object(output, 'isatty', return_value=True), mock.patch('builtins.input') as prompt:
+            if callable(answer) or isinstance(answer, BaseException):
+                prompt.side_effect = answer
+            else:
+                prompt.return_value = answer
+            result = concept.confirm(self.root, 'example')
+            self.assertIn('proceed / defer-to-domain-update / rejected', prompt.call_args.args[0])
+            return result, output.getvalue()
+
+    def test_keyless_all_proposals_and_choices(self):
+        (self.root / 'sdd/approver-registry.yaml').unlink()
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop('SDD_CONTEXT_KEY', None)
+            os.environ.pop('SDD_CONTEXT_KEY_FILE', None)
+            for proposal in ('NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION'):
+                path = self.local_proposal(proposal)
+                for answer, outcome in (('proceed', 'CONTINUE'), ('defer-to-domain-update', 'DEFER'), ('rejected', 'REJECT')):
+                    with self.subTest(proposal=proposal, answer=answer):
+                        result, output = self.local_confirmation(answer)
+                        self.assertEqual(outcome, result)
+                        displayed = json.loads(output)
+                        for key in ('feature', 'proposal', 'rationale', 'distinctions', 'inputs'):
+                            self.assertEqual(self.record[key], displayed[key])
+                        receipt = json.loads(path.read_bytes())
+                        self.assertEqual(answer, receipt['decision'])
+                        self.assertEqual('example', receipt['feature'])
+                        self.assertEqual('concept-test-decision/v1', receipt['schema'])
+                        for ext in ('json', 'md'):
+                            expected = hashlib.sha256((self.feature / ('concept-test.' + ext)).read_bytes()).hexdigest()
+                            self.assertEqual(expected, receipt['proposal_' + ext + '_sha256'])
+                            self.assertEqual(expected, displayed['proposal_' + ext + '_sha256'])
+                        before = {f.name: f.read_bytes() for f in self.feature.iterdir()}
+                        self.assertEqual(outcome, concept.validate(self.root, 'example', require_v2=True))
+                        self.assertEqual(before, {f.name: f.read_bytes() for f in self.feature.iterdir()})
+
+    def test_keyless_fits_strict_mode_and_dispatchers(self):
+        with self.assertRaises(ValueError):
+            concept.validate(self.root, 'example', require_v2=True)
+        path = self.local_proposal('FITS_EXISTING_CONCEPTS')
+        self.assertEqual('CONTINUE', concept.validate(self.root, 'example', require_v2=True))
+        with self.assertRaises(ValueError):
+            self.local_confirmation('proceed')
+        self.assertFalse(path.exists())
+        self.local_proposal()
+        self.local_confirmation('defer-to-domain-update')
+        for wrapper in ([sys.executable, str(SCRIPT)], ['sh', str(SCRIPT.with_suffix('.sh'))],
+                        ['pwsh', '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))]):
+            if not shutil.which(wrapper[0]):
+                continue
+            self.assertEqual('DEFER\n', self.gate(2, wrapper=wrapper + ['--require-v2']).stdout)
+            blocked = subprocess.run(wrapper + ['--confirm', '--root', str(self.root), '--feature', 'example'],
+                                     input='proceed\n', capture_output=True, text=True)
+            self.assertEqual(1, blocked.returncode)
+            self.assertIn('interactive', blocked.stderr)
+        invalid = subprocess.run([sys.executable, str(SCRIPT), '--root', str(self.root), '--feature', 'example',
+                                  '--confirm', '--decision', 'proceed'], capture_output=True, text=True)
+        self.assertNotEqual(0, invalid.returncode)
+        self.assertIn('unrecognized arguments', invalid.stderr)
+        self.assertEqual('defer-to-domain-update', json.loads(path.read_bytes())['decision'])
+        shutil.rmtree(self.root / 'domain')
+        self.assertEqual('SKIP', concept.validate(self.root, 'example'))
+        with self.assertRaises(ValueError):
+            concept.validate(self.root, 'example', require_v2=True)
+
+    def test_storage_error_blocks_without_leaking_absolute_paths(self):
+        leaked = str(self.root / 'specs/example/concept-test.json')
+        def unreadable(*_args, **_kwargs):
+            raise PermissionError(13, 'Permission denied', leaked)
+        stderr = io.StringIO()
+        argv = ['validate-concept-test.py', '--root', str(self.root), '--feature', 'example']
+        with mock.patch.object(concept, 'validate', unreadable), mock.patch.object(sys, 'argv', argv), \
+                contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(1, concept.main())
+        self.assertEqual('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved\n', stderr.getvalue())
+
+    def test_keyless_absent_stale_invalid_or_mixed_decisions_block(self):
+        path = self.local_proposal()
+        self.gate(1)
+        self.local_confirmation('proceed')
+        receipt = json.loads(path.read_bytes())
+        for update in ({'feature': 'different'}, {'decision': 'unknown'}, {'proposal_json_sha256': '0' * 64},
+                       {'proposal_md_sha256': '0' * 64}, {'extra': True}, {'schema': 'unknown'}):
+            with self.subTest(update=update):
+                path.write_text(json.dumps(dict(receipt, **update)), encoding='utf-8')
+                self.gate(1)
+        path.write_text(json.dumps(receipt), encoding='utf-8')
+        for ext in ('md', 'json'):
+            f = self.feature / ('concept-test.' + ext)
+            original = f.read_bytes()
+            f.write_bytes(original + b'\n')
+            self.gate(1)
+            f.write_bytes(original)
+        self.record['decision'] = 'proceed'
+        self.save()
+        self.gate(1)
+        self.local_proposal()
+        approval = self.feature / 'concept-test.approval.json'
+        approval.write_text('{}', encoding='utf-8')
+        self.gate(1)
+        with self.assertRaises(ValueError):
+            self.local_confirmation('proceed')
+        self.local_proposal('FITS_EXISTING_CONCEPTS')
+        path.unlink()
+        self.gate(1)
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        self.gate(1)
+        approval.unlink()
+        path.write_text(json.dumps(receipt), encoding='utf-8')
+        self.gate(1)
+        self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
+        self.save()
+        self.sign()
+        self.gate(1)
+
+    def test_keyless_cancel_concurrent_choice_and_failed_publication(self):
+        path = self.local_proposal()
+        for answer, error in (('', ValueError), ('unknown', ValueError), (EOFError(), EOFError)):
+            with self.assertRaises(error):
+                self.local_confirmation(answer)
+            self.assertFalse(path.exists())
+
+        def change_inputs(prompt):
+            seed = self.feature / 'concept-test-seed.md'
+            seed.write_bytes(seed.read_bytes() + b' updated')
+            return 'proceed'
+
+        with self.assertRaisesRegex(ValueError, 'changed'):
+            self.local_confirmation(change_inputs)
+        self.assertFalse(path.exists())
+        self.write('specs/example/concept-test-seed.md', 'Find a publication.\n')
+
+        def other_confirmation(prompt):
+            self.local_confirmation('rejected')
+            return 'proceed'
+
+        with self.assertRaisesRegex(ValueError, 'changed'):
+            self.local_confirmation(other_confirmation)
+        prior = path.read_bytes()
+        self.assertEqual('rejected', json.loads(prior)['decision'])
+        lock = path.with_suffix('.lock')
+        lock.touch()
+        with self.assertRaises(FileExistsError):
+            self.local_confirmation('proceed')
+        self.assertTrue(lock.exists())
+        lock.unlink()
+        before = set(self.feature.iterdir())
+        with mock.patch.object(concept.os, 'replace', side_effect=OSError('fixture write failure')):
+            with self.assertRaisesRegex(OSError, 'fixture write failure'):
+                self.local_confirmation('proceed')
+        self.assertEqual(prior, path.read_bytes())
+        self.assertEqual(before, set(self.feature.iterdir()))
+
+        publish = os.replace
+        def concurrent_edit(source, destination):
+            publish(source, destination)
+            change_inputs(None)
+
+        with mock.patch.object(concept.os, 'replace', side_effect=concurrent_edit):
+            with self.assertRaisesRegex(ValueError, 'input changed'):
+                self.local_confirmation('proceed')
+        self.assertEqual(path.read_bytes(), prior)
+        self.gate(1)
+        path.unlink()
+        self.write('specs/example/concept-test-seed.md', 'Find a publication.\n')
+        with mock.patch.object(concept.os, 'replace', side_effect=concurrent_edit):
+            with self.assertRaisesRegex(ValueError, 'input changed'):
+                self.local_confirmation('proceed')
+        self.assertFalse(path.exists())
+
+    def test_keyless_review_manifest_and_fixed_revision(self):
+        # An installed consumer project does not contain the plugin source contracts.
+        shutil.rmtree(self.root / 'contracts')
+        path = self.local_proposal()
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+
+        def git(*args):
+            return subprocess.check_output(['git', '-C', str(self.root), *args], text=True).strip()
+
+        def commit(message):
+            git('add', '.')
+            git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', message)
+            return git('rev-parse', 'HEAD')
+
+        git('init', '-q')
+        absent = commit('Proposal only')
+        self.local_confirmation('proceed')
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        selected = commit('Synthetic local decision')
+        with self.assertRaises(ValueError):
+            concept.evidence(self.root, 'example')  # Legacy signed decision-packet consumer.
+        for stage in ('spec', 'impl', 'task', 'quality'):
+            with self.subTest(stage=stage):
+                with self.assertRaises(ValueError):
+                    concept.conditional.resolve(self.root, 'example', stage, absent)
+                live = concept.conditional.resolve(self.root, 'example', stage)
+                fixed = concept.conditional.resolve(self.root, 'example', stage, selected)
+                self.assertEqual(live['inputs'], fixed['inputs'])
+                self.assertIn({'path': 'specs/example/concept-test.decision.json', 'sha256': digest}, fixed['inputs'])
+                self.assertNotIn('sdd/approver-registry.yaml', fixed['observed'])
+        for answer in ('defer-to-domain-update', 'rejected'):
+            self.local_confirmation(answer)
+            for stage in ('spec', 'impl', 'task', 'quality'):
+                with self.assertRaises(ValueError):
+                    concept.conditional.resolve(self.root, 'example', stage)
+                self.assertTrue(concept.conditional.resolve(self.root, 'example', stage, selected)['inputs'])
+
+    def test_nested_installed_project_selects_its_own_revision(self):
+        # The monorepo and the nested project deliberately share a feature name.
+        nested = self.root / 'apps/billing'
+        (self.root / 'apps').mkdir()
+        nested.mkdir()
+        for name in ('domain', 'specs'):
+            shutil.copytree(self.root / name, nested / name)
+        self.local_proposal('FITS_EXISTING_CONCEPTS')
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        self.root = nested
+        self.feature = nested / 'specs/example'
+        self.local_proposal()
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        self.local_confirmation('proceed')
+        git = ['git', '-C', str(nested.parents[1])]
+        subprocess.run(git + ['init', '-q'], check=True)
+        subprocess.run(git + ['add', '.'], check=True)
+        subprocess.run(git + ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                              'commit', '-qm', 'Two projects sharing a feature name'], check=True)
+        revision = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+        for stage in ('spec', 'impl', 'task', 'quality'):
+            with self.subTest(stage=stage):
+                live = concept.conditional.resolve(nested, 'example', stage)
+                fixed = concept.conditional.resolve(nested, 'example', stage, revision)
+                self.assertEqual('active', fixed['domain_status'])
+                self.assertEqual(live['inputs'], fixed['inputs'])
+                self.assertIn('specs/example/concept-test.decision.json', {e['path'] for e in fixed['inputs']})
+        self.local_confirmation('rejected')
+        subprocess.run(git + ['add', '.'], check=True)
+        subprocess.run(git + ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                              'commit', '-qm', 'Rejected nested proposal'], check=True)
+        rejected = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+        for stage in ('spec', 'impl', 'task', 'quality'):
+            with self.assertRaisesRegex(ValueError, 'does not permit'):
+                concept.conditional.resolve(nested, 'example', stage, rejected)
 
     def test_no_domain_skips(self):
         shutil.rmtree(self.root / 'domain')

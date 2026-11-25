@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Unified deterministic runner for SDD Core's sdd-gate (v2 Lightweight Guardrails).
- * Zero external dependencies — Node.js >= 20 LTS built-in modules only.
+ * Uses the packaged domain validator for features with v2 Concept Test evidence.
  *
  * Runs in one invocation:
  *   1. Task precondition check (Approval: Approved, Status: Implementation Complete|Done)
@@ -23,6 +23,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
@@ -37,8 +38,9 @@ import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.m
 import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
 
+// The detector is itself scanned. Keep the expression distinct from the text it matches.
 const PLACEHOLDER_RE =
-  /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
+  /\bTODO\b|\bFIXME\b|\bTBD\b|NotImplemented(?:Error)|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
 const MAX_OUTPUT_CHARS = 8192;
 
 const SECRET_SENSOR_RULES = [
@@ -606,6 +608,89 @@ function runVerificationCommands(projectRoot, commands) {
   return results;
 }
 
+function conceptRecordSchema(contents, filename) {
+  let raw = contents;
+  if (filename.endsWith('.md')) {
+    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
+    if (blocks.length !== 1) return null;
+    raw = blocks[0][1];
+  }
+  try {
+    const schema = JSON.parse(raw)?.schema;
+    if (schema === 'concept-test/v2') return schema;
+    if (schema !== 'concept-test/v1') return null;
+    // JSON.parse alone retains only the last duplicate schema key.
+    let schemaKeys = 0;
+    for (const match of raw.matchAll(/("(?:[^"\\]|\\.)*")\s*(:)?/g)) {
+      if (match[2] && JSON.parse(match[1]) === 'schema') schemaKeys++;
+    }
+    return schemaKeys === 1 ? schema : null;
+  } catch {
+    return null;
+  }
+}
+
+function needsConceptCheck(root, feature) {
+  const prefix = `specs/${feature}/concept-test`;
+  const receipt = prefix + '.decision.json';
+  const paths = [receipt, prefix + '.json', prefix + '.md'];
+  for (const rel of paths) {
+    const file = path.join(root, rel);
+    const stat = fs.lstatSync(file, { throwIfNoEntry: false });
+    if (stat && (rel === receipt || !stat.isFile()
+        || conceptRecordSchema(fs.readFileSync(file, 'utf8'), rel) !== 'concept-test/v1')) return true;
+  }
+
+  // The index can still contain current evidence missing from the working tree.
+  let repo = root;
+  while (!fs.existsSync(path.join(repo, '.git'))) {
+    const parent = path.dirname(repo);
+    if (parent === repo) return false;
+    repo = parent;
+  }
+  const marker = path.join(repo, '.git');
+  if (fs.statSync(marker).isDirectory() && !fs.existsSync(path.join(marker, 'HEAD'))
+      && fs.readdirSync(marker).length === 0) return false;
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+  const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
+    encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
+  });
+  let index;
+  try {
+    index = git('ls-files', '--stage', '-z', '--', ...paths);
+  } catch (err) {
+    // Git is optional for SDD Core. Live v2 evidence was checked above.
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
+  for (const entry of index.split('\0').filter(Boolean)) {
+    const [meta, filename] = entry.split('\t');
+    if (filename === receipt) return true;
+    const [mode, oid] = meta.split(' ');
+    if (mode !== '100644' && mode !== '100755') return true;
+    if (conceptRecordSchema(git('cat-file', 'blob', oid), filename) !== 'concept-test/v1') return true;
+  }
+  return false;
+}
+
+function checkConceptTest(root, feature) {
+  try {
+    const required = needsConceptCheck(root, feature);
+    if (required === null) return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
+    if (!required) return { passed: true, status: 'NOT_APPLICABLE' };
+    const win = process.platform === 'win32';
+    const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
+    const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
+    const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
+    const status = result.stdout?.trim();
+    if (result.status === 0 && status === 'CONTINUE') return { passed: true, status };
+    if ((result.status === 2 && status === 'DEFER') || (result.status === 3 && status === 'REJECT')) return { passed: false, status };
+    return { passed: false, status: 'BLOCK', error: truncateTail(result.error?.message || result.stderr || 'Invalid concept-test result').trim() };
+  } catch (err) {
+    return { passed: false, status: 'BLOCK', error: truncateTail(err.message) };
+  }
+}
+
 export function runSddGate({
   feature,
   taskId,
@@ -690,7 +775,8 @@ export function runSddGate({
     taskScope,
     outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
   };
-  const commandResults = runVerificationCommands(root, commands);
+  const conceptTest = checkConceptTest(root, feature);
+  const commandResults = conceptTest.passed ? runVerificationCommands(root, commands) : [];
   const allCommandsPassed = commandResults.every((r) => r.passed);
 
   const verdict =
@@ -700,6 +786,7 @@ export function runSddGate({
     nonFunctionalSensors.passed &&
     openQuestions.passed &&
     reviewTickets.passed &&
+    conceptTest.passed &&
     allCommandsPassed
       ? 'PASS'
       : 'FAIL';
@@ -755,6 +842,7 @@ export function runSddGate({
       nonFunctionalSensors,
       openQuestions,
       reviewTickets,
+      conceptTest,
       commands: commandResults,
     },
   };

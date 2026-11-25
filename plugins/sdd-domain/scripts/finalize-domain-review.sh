@@ -6,7 +6,12 @@
 # lib/py-dispatch.sh, shared by every python-master wrapper.
 set -u
 
-dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+case "$0" in
+  /*) dir_raw="${0%/*}"; [ -n "$dir_raw" ] || dir_raw="/" ;;
+  */*) dir_raw="${0%/*}" ;;
+  *) dir_raw="." ;;
+esac
+dir="$(CDPATH= cd -- "$dir_raw" && pwd)"
 
 # Probe before sourcing: POSIX shells (dash among them) treat a failed `.`
 # special builtin as fatal, so an if-guard around the dot itself can never
@@ -14,6 +19,7 @@ dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 # exit 3 reachable on a partial or damaged installation.
 if [ ! -r "$dir/../../sdd-quality-loop/scripts/lib/py-dispatch.sh" ]; then
   echo 'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2
+  echo 'finalize-domain-review: operation=finalize-domain-review cause=missing-dispatch-helper (../../sdd-quality-loop/scripts/lib/py-dispatch.sh unavailable)' >&2
   exit 3
 fi
 . "$dir/../../sdd-quality-loop/scripts/lib/py-dispatch.sh"

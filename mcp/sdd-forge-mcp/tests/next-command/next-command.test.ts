@@ -277,6 +277,17 @@ test("done: every Approved task is Done", () => {
     const result = getNextSddCommand(tempRoot.root, "feat-done");
     const data = assertOkPhase(result, "done");
     assert.equal(data.nextCommand, "feature complete");
+
+    writeFile(tempRoot.dir, "reports/spec-check/feat-done.md", "- **Verdict**: NEEDS_FIX\n");
+    assertOkPhase(getNextSddCommand(tempRoot.root, "feat-done"), "done");
+
+    writeFile(tempRoot.dir, "specs/feat-done/tasks.md", tasksMd("Passed", [
+      ...tasks, { id: "T-002", approved: false, status: "Planned" },
+    ]));
+    const pending = assertOkPhase(getNextSddCommand(tempRoot.root, "feat-done"), "spec-check");
+    assert.match(pending.rationale, /NEEDS_FIX/);
+    writeFile(tempRoot.dir, "reports/spec-check/feat-done.md", "- **Verdict**: PASS_WITH_NOTES\n");
+    assertOkPhase(getNextSddCommand(tempRoot.root, "feat-done"), "approval-gate");
   } finally {
     tempRoot.cleanup();
   }

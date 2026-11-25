@@ -18,27 +18,56 @@ SCRIPT = pathlib.Path(__file__).resolve().parents[1] / 'plugins/sdd-review-loop/
 
 
 class SnapshotTests(unittest.TestCase):
-    def assert_helper_protection(self, runtime, extension):
-        guard = SCRIPT.parents[2] / ('sdd-quality-loop/scripts/sdd-hook-guard.' + extension)
-        target = 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py'
-        for tool, expected in [('write', 2), ('read', 0)]:
-            with self.subTest(tool=tool):
-                payload = {'tool_name': tool, 'tool_input': {'file_path': target}}
-                if tool == 'write':
-                    payload['tool_input']['content'] = 'replacement'
-                result = subprocess.run(
-                    [runtime, str(guard), '--emit', 'exit'],
-                    input=json.dumps(payload), capture_output=True, text=True,
-                    env={**os.environ, 'CLAUDE_PROJECT_DIR': str(self.root)},
-                )
-                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    def test_fixed_helper_cli_exposes_only_verified_snapshot_bytes(self):
+        snapshot, record = self.root / 'snapshot', self.root / 'inventory.json'
+        args = ['--repo', str(self.repo), '--snapshot', str(snapshot), '--record', str(record)]
+        prepare = subprocess.run([sys.executable, str(SCRIPT), 'prepare', *args,
+                                  '--commit', self.commit, '--input', 'spec.md'],
+                                 capture_output=True, text=True)
+        self.assertEqual(prepare.returncode, 0, prepare.stderr)
+        self.addCleanup(snapshot.chmod, 0o700)
+        inventory = record.read_bytes()
+        command = [sys.executable, str(SCRIPT), 'source-map', *args]
+        original = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(original.returncode, 0, original.stderr)
+        selected = snapshot.resolve() / 'spec.md'
+        self.assertEqual(json.loads(original.stdout),
+                         {'commit': self.commit, 'sources': {'spec.md': str(selected)}})
+        selected.chmod(0o644)
+        selected.write_text('updated fixture content')
+        selected.chmod(0o444)
+        changed = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(changed.returncode, 1)
+        self.assertEqual(changed.stdout, '')
+        self.assertIn('FIXED_INPUTS_STOPPED: snapshot input bytes changed', changed.stderr)
+        self.assertEqual(record.read_bytes(), inventory)
 
-    def test_python_guard_rejects_helper_write_and_allows_read(self):
-        self.assert_helper_protection(sys.executable, 'py')
-
-    @unittest.skipUnless(shutil.which('node'), 'Node runtime unavailable')
-    def test_javascript_guard_rejects_helper_write_and_allows_read(self):
-        self.assert_helper_protection(shutil.which('node'), 'js')
+    def test_pinned_reviewer_guard_allows_helper_read_and_rejects_write(self):
+        guard = SCRIPT.parent / 'nontty-impl-pretool-guard.mjs'
+        helper = self.repo / SCRIPT.name
+        shutil.copyfile(SCRIPT, helper)
+        original = helper.read_bytes()
+        policy = self.root / 'policy.json'
+        policy.write_text(json.dumps({'schema': 'impl-nontty-pretool/v1',
+                                     'read_paths': [str(helper.resolve())], 'bash_commands': []}))
+        pin = hashlib.sha256(policy.read_bytes()).hexdigest()
+        for tool, digest, allowed in [('Read', pin, True), ('Write', pin, False), ('Read', '0' * 64, False)]:
+            with self.subTest(tool=tool, digest=digest):
+                inputs = {'file_path': str(helper)}
+                if tool == 'Write':
+                    inputs['content'] = 'updated fixture content'
+                result = subprocess.run(['node', str(guard), str(policy), digest],
+                                        input=json.dumps({'tool_name': tool, 'tool_input': inputs}),
+                                        capture_output=True, text=True)
+                self.assertEqual((result.returncode, result.stderr), (0, ''))
+                if allowed:
+                    self.assertEqual(result.stdout, '')
+                else:
+                    decision = json.loads(result.stdout)['hookSpecificOutput']
+                    self.assertEqual((decision['hookEventName'], decision['permissionDecision']),
+                                     ('PreToolUse', 'deny'))
+                    self.assertIn('caller-pinned inputs', decision['permissionDecisionReason'])
+        self.assertEqual(helper.read_bytes(), original)
 
     def test_reviewer_index_preserves_originals_and_rejects_stale_sources(self):
         output = self.root / 'index-snapshot'

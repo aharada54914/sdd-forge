@@ -1,4 +1,4 @@
-#
+﻿#
 # T-007 domain-sync -- acceptance-first Pester test
 #
 # Required Workflow for T-007 is "acceptance-first" (Risk: medium). Like
@@ -25,15 +25,14 @@
 #   3. A two-context worked fixture exercising the Edge Case: two contexts
 #      plus the declared relation pattern.
 #
-# ASCII-only: no non-ASCII literal characters appear anywhere in this file
-# (BOM-less .ps1 is read as ANSI on this Windows environment).
+# UTF-8 BOM preserves localized contract assertions on Windows PowerShell.
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $skillPath = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-sync/SKILL.md"
-$bootstrapSkillPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+$bootstrapSkillPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md"
 $schemaPath = Join-Path $repositoryRoot "contracts/domain-contract.v2.schema.json"
 
 # Set-StrictMode -Version Latest throws on a missing property access for a
@@ -110,10 +109,11 @@ Describe "domain-sync SKILL.md contract" {
     }
 
     It "documents the three-step detection order: domain/ existence, Domain-Model-Status, contract validation" {
-        $script:skillText | Should Match "Does\s*``domain/``\s*exist"
-        $script:skillText | Should Match "Domain-Model-Status: Approved"
-        $script:skillText | Should Match ([regex]::Escape("domain/domain-contract.json"))
-        $script:skillText | Should Match ([regex]::Escape("contracts/domain-contract.v2.schema.json"))
+        $checks = [regex]::Matches($script:skillText, '(?m)^(\d+)\. \*\*`(domain/|domain/context-map\.md|domain/domain-contract\.json)`')
+        $checks.Count | Should Be 3
+        ($checks | ForEach-Object { $_.Groups[2].Value }) -join ',' | Should BeExactly 'domain/,domain/context-map.md,domain/domain-contract.json'
+        $script:skillText | Should Match 'Domain-Model-Status is <value>, not Approved; proceeding without injection'
+        $script:skillText | Should Match 'validate-domain-contract\.sh domain/domain-contract\.json.*`domain-contract/v2`'
     }
 
     It "documents exactly one skip line when domain/ is absent (AC-010)" {
@@ -138,8 +138,8 @@ Describe "domain-sync SKILL.md contract" {
     }
 
     It "documents the two-context Bounded-Context: field format with relation pattern (Edge Case)" {
-        $script:skillText | Should Match ([regex]::Escape("Bounded-Context: <context-a>, <context-b>"))
-        $script:skillText | Should Match "relation pattern"
+        $script:skillText | Should Match ([regex]::Escape('Bounded-Context: <context-a>, <context-b> (<relation-pattern>)'))
+        $script:skillText | Should Match 'relations\[\].*\(relation: undeclared\)'
     }
 
     It "documents the undeclared-relation fallback note" {
@@ -147,17 +147,20 @@ Describe "domain-sync SKILL.md contract" {
     }
 
     It "documents aggregate card cross-references injected into design.md" {
-        $script:skillText | Should Match ([regex]::Escape("domain/aggregates/<name>.md"))
-        $script:skillText | Should Match "aggregate.?s.\[\].card|aggregates\[\]\.card"
+        $script:skillText | Should Match 'design\.md.*aggregates\[\]\.name.*aggregates\[\]\.root_entity'
+        $script:skillText | Should Match ([regex]::Escape('[<AggregateName>](../../<aggregates[].card>)'))
+        $script:skillText | Should Match '契約にない集約リンクは作らない'
     }
 
     It "documents the never-block guarantee" {
-        $script:skillText | Should Match "Never-Block Guarantee"
-        $script:skillText | Should Match "never (raises|raise) an\s*error that halts"
+        $script:skillText | Should Match '未承認・異常ケースでも仕様生成をブロックしない'
+        $script:skillText | Should Match 'skip / warning.*`sdd-core-spec` を継続'
     }
 
     It "documents it is never the writer of domain/ files (domain-interviewer owns that)" {
-        $script:skillText | Should Match "Never write to any file under\s*``domain/``"
+        $script:skillText | Should Match '`domain/` 配下へ一切書き込まない'
+        $interviewer = Get-Content -Raw -Encoding UTF8 (Join-Path $repositoryRoot 'plugins/sdd-domain/skills/domain-interviewer/SKILL.md')
+        $interviewer | Should Match '`domain/` 本文の唯一の執筆者'
     }
 
     It "documents no-matching-context outcome (feature has no domain overlap)" {
@@ -165,33 +168,30 @@ Describe "domain-sync SKILL.md contract" {
     }
 }
 
-Describe "sdd-bootstrap-interviewer SKILL.md calls domain-sync at Phase 1 start" {
+Describe "sdd-core-spec invokes domain-sync before the three canonical outputs" {
 
     BeforeAll {
         $script:bootstrapText = Get-Content -Raw -Encoding UTF8 -LiteralPath $bootstrapSkillPath
     }
 
-    It "references domain-sync in the Intake And Investigation section" {
-        $script:bootstrapText | Should Match "domain-sync"
+    It "calls Concept Test and domain-sync in the domain-aware intake" {
+        $script:bootstrapText | Should Match '`concept-test` および `domain-sync`'
     }
 
     It "documents that absence of domain/ produces unchanged behavior (AC-010)" {
-        $script:bootstrapText | Should Match "AC-010"
+        $script:bootstrapText | Should Match '`domain/` 不在時は `domain-sync skipped: no domain/ directory`'
     }
 
-    It "the domain-sync call happens before any Phase 1 artifact is generated" {
-        # The Intake And Investigation section (where domain-sync is called)
-        # must appear before the Required Outputs / Phase 1 section header
-        # in the file text.
-        $intakeIndex = $script:bootstrapText.IndexOf("## Intake And Investigation")
-        $domainSyncIndex = $script:bootstrapText.IndexOf("domain-sync")
-        $requiredOutputsIndex = $script:bootstrapText.IndexOf("## Required Outputs")
-
-        $intakeIndex | Should Not Be -1
-        $domainSyncIndex | Should Not Be -1
-        $requiredOutputsIndex | Should Not Be -1
-        ($domainSyncIndex -lt $requiredOutputsIndex) | Should Be $true
-        ($domainSyncIndex -gt $intakeIndex) | Should Be $true
+    It "runs intake with domain-sync before generating requirements, design and tasks" {
+        $processIndex = $script:bootstrapText.IndexOf('## Process')
+        $syncIndex = $script:bootstrapText.IndexOf('`domain-sync`')
+        $outputIndex = $script:bootstrapText.IndexOf('3. **3 ファイル生成')
+        $processIndex | Should BeGreaterThan -1
+        $syncIndex | Should BeGreaterThan $processIndex
+        $outputIndex | Should BeGreaterThan $syncIndex
+        foreach ($name in 'requirements.md','design.md','tasks.md') {
+            $script:bootstrapText.IndexOf(('templates/' + $name), $outputIndex) | Should BeGreaterThan $outputIndex
+        }
     }
 }
 

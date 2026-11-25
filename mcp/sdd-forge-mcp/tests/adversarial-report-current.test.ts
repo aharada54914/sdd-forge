@@ -3,13 +3,13 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { spawnSync, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { packagePath } from "./locate-source.js";
 
 test("report currentness rejects changed head, base, diff, and report bytes", () => {
   const repo = mkdtempSync(join(tmpdir(), "ar-current-"));
-  const cli = fileURLToPath(new URL("../../scripts/check-adversarial-report.mjs", import.meta.url));
+  const cli = packagePath("scripts", "check-adversarial-report.mjs");
   const git = (...args: string[]) => execFileSync("git", ["-C", repo, ...args]);
   const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
   try {
@@ -88,7 +88,7 @@ test("publishing evidence in a separate repository preserves target currentness"
   const root = mkdtempSync(join(tmpdir(), "ar-publication-"));
   const target = join(root, "target");
   const evidence = join(root, "evidence");
-  const cli = fileURLToPath(new URL("../../scripts/check-adversarial-report.mjs", import.meta.url));
+  const cli = packagePath("scripts", "check-adversarial-report.mjs");
   const git = (repo: string, ...args: string[]) => execFileSync("git", ["-C", repo, ...args]);
   const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
   try {

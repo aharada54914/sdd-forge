@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 # T-004: domain-model update-mode algorithm (AC-016).
@@ -306,22 +306,23 @@ Describe "Fixture: editing stage 2 (Event Storming) leaves only stage 1 upstream
 Describe "domain-model SKILL.md documents the update algorithm this fixture simulates" {
 
     $skillPath = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-model/SKILL.md"
-    $skillContent = Get-Content -LiteralPath $skillPath -Raw
+    $skillContent = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 
     It "domain-model SKILL.md exists" {
         Test-Path -LiteralPath $skillPath | Should Be $true
     }
 
     It "documents re-running the edited stage plus every downstream stage" {
-        $skillContent | Should Match "downstream stage"
+        $skillContent | Should Match '(?m)^5\. .*`N\.\.7` を順に `domain-interviewer`'
     }
 
     It "documents confirmation mode as re-presenting existing artifacts for approval" {
-        $skillContent | Should Match "[Cc]onfirmation mode"
+        $skillContent | Should Match 'Mode: update \(confirmation\).*既存内容を提示して人間の明示確認・編集を得てから置換'
     }
 
     It "documents verifying upstream stages remain byte-identical" {
-        $skillContent | Should Match "byte-identical"
+        $skillContent | Should Match '(?m)^3\. .*`1\.\.N-1` の内容ハッシュ'
+        $skillContent | Should Match '(?m)^6\. .*`1\.\.N-1` がステップ 3 とバイト一致.*`Pending` リセット除く'
     }
 
     It "documents resetting Domain-Model-Status to Pending" {
@@ -329,7 +330,7 @@ Describe "domain-model SKILL.md documents the update algorithm this fixture simu
     }
 
     It "documents that only a human may set Approved, never this skill" {
-        $skillContent | Should Match "never sets `Domain-Model-Status: Approved`|never set.*Approved"
+        $skillContent | Should Match '`Domain-Model-Status: Approved` は絶対に書き込まない（人間承認専用'
     }
 }
 

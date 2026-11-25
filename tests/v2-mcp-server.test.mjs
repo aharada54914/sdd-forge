@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
@@ -398,11 +399,334 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
       'utf8',
     );
     execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'verdict-test', '--root', repoC, '--rerecord'], { encoding: 'utf8' });
-    const nextRes = callMcp(repoC, [
-      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'verdict-test' } } },
+    const nextPhase = () => {
+      const result = callMcp(repoC, [
+        { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'verdict-test' } } },
+      ]);
+      return JSON.parse(result[1].result.content[0].text).data.nextAction.phase;
+    };
+    assert.equal(nextPhase(), 'spec-check', 'The high-risk Draft requires its pre-implementation review');
+    const reviewDir = path.join(repoC, 'reports', 'spec-check');
+    fs.mkdirSync(reviewDir, { recursive: true });
+    fs.writeFileSync(path.join(reviewDir, 'verdict-test.md'), '# Spec Check Report: verdict-test\n\n- **Verdict**: PASS\n');
+    assert.equal(nextPhase(), 'approval-gate', 'The reviewed Draft still needs approval even when the other task is Done');
+  });
+
+  it('D5: requires design.md alongside requirements.md and tasks.md in both sdd_project_overview and sdd_feature_state before guiding to approval-gate', () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-mcp-d5-'));
+    fs.mkdirSync(path.join(repo, '.git'), { recursive: true });
+    fs.mkdirSync(path.join(repo, 'specs', 'missing-design'), { recursive: true });
+    fs.writeFileSync(
+      path.join(repo, 'AGENTS.md'),
+      '# AGENTS.md\n\n## Active Spec Directories\n- `specs/missing-design/`\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(repo, 'specs', 'missing-design', 'requirements.md'),
+      '# 要件: missing-design\n\n- **REQ-001**: Return 200.\n- **AC-001** (REQ-001): GET / returns 200.\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(repo, 'specs', 'missing-design', 'tasks.md'),
+      [
+        '# タスク: missing-design',
+        '',
+        '## T-001 Implement endpoint',
+        'Approval: Draft',
+        'Status: Planned',
+        'Risk: low',
+        '',
+        '### Scope',
+        '- `src/app.mjs`',
+        '',
+        '### Done When',
+        '- AC-001 passes',
+        '',
+        '### Blockers',
+        '- None',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const beforeRes = callMcp(repo, [
+      { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'missing-design' } } },
     ]);
-    const nextState = JSON.parse(nextRes[1].result.content[0].text);
-    assert.equal(nextState.data.nextAction.phase, 'approval-gate');
+    const overviewBefore = JSON.parse(beforeRes[1].result.content[0].text);
+    const stateBefore = JSON.parse(beforeRes[2].result.content[0].text);
+
+    assert.equal(overviewBefore.ok, true);
+    assert.equal(overviewBefore.data.activeFeatures.length, 1);
+    assert.equal(overviewBefore.data.activeFeatures[0].nextAction.phase, 'bootstrap');
+    assert.equal(
+      overviewBefore.data.activeFeatures[0].nextAction.command,
+      '/sdd-bootstrap:bootstrap feature --feature missing-design',
+    );
+
+    assert.equal(stateBefore.ok, true);
+    assert.deepEqual(stateBefore.data.files, {
+      requirements: true,
+      design: false,
+      tasks: true,
+      baseline: false,
+    });
+    assert.equal(stateBefore.data.nextAction.phase, 'bootstrap');
+    assert.equal(
+      stateBefore.data.nextAction.command,
+      '/sdd-bootstrap:bootstrap feature --feature missing-design',
+    );
+
+    // Adding design.md completes the 3-file SDD Core spec set -> both paths advance to approval-gate.
+    fs.writeFileSync(path.join(repo, 'specs', 'missing-design', 'design.md'), '# 設計: missing-design\n', 'utf8');
+    const afterRes = callMcp(repo, [
+      { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+      { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'missing-design' } } },
+    ]);
+    const overviewAfter = JSON.parse(afterRes[1].result.content[0].text);
+    const stateAfter = JSON.parse(afterRes[2].result.content[0].text);
+
+    assert.equal(overviewAfter.data.activeFeatures[0].nextAction.phase, 'approval-gate');
+    assert.equal(stateAfter.data.files.design, true);
+    assert.equal(stateAfter.data.nextAction.phase, 'approval-gate');
+  });
+
+  describe('DDD gate guidance over public stdio', () => {
+    const feature = 'demo-api';
+
+    function setup(t) {
+      const repo = createV2TestRepo(feature);
+      t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+      const implDir = path.join(repo, 'reports', 'implementation', feature);
+      fs.mkdirSync(implDir, { recursive: true });
+      fs.writeFileSync(path.join(implDir, 'T-001.md'), '# Implementation report\nTask ID: T-001\n');
+      const gateDir = path.join(repo, 'reports', 'quality-gate');
+      fs.writeFileSync(path.join(gateDir, feature + '-T-001.md'), '# SDD Gate Report\nTask ID: T-001\nVERDICT: PASS\n');
+      const executionPath = path.join(gateDir, feature + '-T-001.execution.json');
+      const pass = fs.readFileSync(executionPath, 'utf8');
+
+      function recordStop(status, recordedFeature = feature, taskId = 'T-001') {
+        const report = JSON.parse(pass);
+        report.feature = recordedFeature;
+        report.taskId = taskId;
+        report.verdict = 'FAIL';
+        report.checks.conceptTest = { passed: false, status };
+        report.checks.commands = [];
+        const output = path.join(gateDir, recordedFeature + '-' + taskId + '.execution.json');
+        fs.writeFileSync(output, JSON.stringify(report));
+      }
+      return { repo, executionPath, pass, recordStop };
+    }
+
+    function readAdvice(repo, expectedPhase) {
+      const responses = callMcp(repo, [
+        { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature } } },
+        { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+        { method: 'resources/read', params: { uri: 'sdd://feature/' + feature } },
+        { method: 'resources/read', params: { uri: 'sdd://overview' } },
+        { method: 'tools/call', params: { name: 'sdd_dashboard_snapshot', arguments: {} } },
+      ]);
+      const [state, overview, stateResource, overviewResource, dash] = responses.slice(1).map(({ result }) => {
+        const envelope = JSON.parse((result.content ?? result.contents)[0].text);
+        assert.equal(envelope.ok, true, JSON.stringify(envelope.error));
+        return envelope.data;
+      });
+      const advice = state.nextAction;
+      for (const summary of [overview, overviewResource]) {
+        assert.deepEqual(summary.activeFeatures.find(row => row.feature === feature)?.nextAction, advice);
+      }
+      assert.deepEqual(stateResource.nextAction, advice);
+      const dashboardRow = dash.snapshot.data.features.find(row => row.id === feature);
+      assert.ok(dashboardRow, 'The dashboard must include the fixture feature');
+      if (expectedPhase !== undefined) {
+        assert.deepEqual([advice.phase, dashboardRow.phase], [expectedPhase, expectedPhase]);
+      }
+      return { advice, dashboardRow };
+    }
+
+    for (const status of ['BLOCK', 'DEFER', 'REJECT']) {
+      it('shows the recorded ' + status + ' instead of a gate retry', (t) => {
+        const { repo, executionPath, recordStop } = setup(t);
+        recordStop(status);
+        const before = fs.readFileSync(executionPath, 'utf8');
+        const { advice, dashboardRow } = readAdvice(repo, 'blocked');
+        assert.match(advice.command + ' ' + advice.rationale, new RegExp('\\b' + status + '\\b'));
+        assert.match(advice.command + ' ' + advice.rationale, /T-001/);
+        assert.doesNotMatch(advice.command, /^\/sdd-ship:ship\b/);
+        assert.equal(dashboardRow.nextCommand, advice.command);
+        assert.equal(fs.readFileSync(executionPath, 'utf8'), before);
+      });
+    }
+
+    function writeConceptProposal(repo, classification) {
+      const dir = path.join(repo, 'specs', feature);
+      const json = path.join(dir, 'concept-test.json');
+      const md = path.join(dir, 'concept-test.md');
+      const receipt = path.join(dir, 'concept-test.decision.json');
+      const digest = file => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+      const inputs = ['domain/domain-contract.json', 'domain/context-map.md', 'specs/' + feature + '/concept-test-seed.md'];
+      fs.mkdirSync(path.join(repo, 'domain'), { recursive: true });
+      fs.writeFileSync(path.join(repo, inputs[0]), JSON.stringify({
+        schema: 'domain-contract/v2', meta: { version: '1.0.0', status: 'Approved', generated_from: [inputs[1]] },
+        contexts: [{ name: 'operations', description: 'Service monitoring', terms: [], aggregates: [] }],
+        concepts: [{ id: 'CONCEPT-HEALTH', name: 'Health', context: 'operations', definition: 'Service availability',
+          essence: 'Availability', responsibilities: ['Report service availability'], evidence: [inputs[1]] }],
+      }));
+      fs.writeFileSync(path.join(repo, inputs[1]), 'Domain-Model-Status: Approved\n');
+      fs.writeFileSync(path.join(repo, inputs[2]), 'Should readiness include downstream availability?\n');
+      const document = {
+        schema: 'concept-test/v2', feature, proposal: classification,
+        rationale: 'Decide whether readiness and health represent the same responsibility.',
+        distinctions: [{ concepts: ['CONCEPT-HEALTH'], judgment: classification === 'FITS_EXISTING_CONCEPTS' ? 'same' : 'undecided', confirmed: true }],
+        inputs: inputs.map(file => ({ path: file, sha256: digest(path.join(repo, file)) })),
+      };
+      const proposal = JSON.stringify(document);
+      fs.writeFileSync(json, proposal + '\n');
+      fs.writeFileSync(md, '# Concept Test\n\n' + '```json\n' + proposal + '\n```\n');
+      function writeDecision(decision, recordedFeature = feature) {
+        fs.writeFileSync(receipt, JSON.stringify({ schema: 'concept-test-decision/v1', feature: recordedFeature, decision,
+          proposal_json_sha256: digest(json), proposal_md_sha256: digest(md) }));
+      }
+      return { document, json, md, writeDecision };
+    }
+
+    it('requires validation when only the rationale of one FITS proposal copy changes', (t) => {
+      const { repo, executionPath } = setup(t);
+      const { document, json, md } = writeConceptProposal(repo, 'FITS_EXISTING_CONCEPTS');
+      // The validator compares the two JSON values regardless of object key order or formatting.
+      const reverseKeys = Object.fromEntries(Object.entries(document).reverse());
+      fs.writeFileSync(md, '# Concept Test\n\n```json\n' + JSON.stringify(reverseKeys, null, 2) + '\n```\n');
+      readAdvice(repo, 'sdd-gate');
+      fs.writeFileSync(json, JSON.stringify({ ...document, rationale: 'Health must only describe this service.' }));
+      const { advice, dashboardRow } = readAdvice(repo, 'blocked');
+      assert.match(advice.command, /validate-concept-test\.sh .*--require-v2/);
+      assert.equal(dashboardRow.nextCommand, advice.command);
+
+      const dir = path.join(repo, 'specs', feature);
+      for (const file of ['requirements.md', 'design.md', 'tasks.md', '.spec-baseline.json']) {
+        fs.unlinkSync(path.join(dir, file));
+      }
+      fs.unlinkSync(executionPath);
+      for (const classification of ['FITS_EXISTING_CONCEPTS', 'REQUIRES_HUMAN_DECISION']) {
+        const current = writeConceptProposal(repo, classification);
+        if (classification === 'REQUIRES_HUMAN_DECISION') current.writeDecision('proceed');
+        const draft = readAdvice(repo);
+        for (const instructions of [draft.advice.command + ' ' + draft.advice.rationale,
+          [draft.dashboardRow.nextCommand, ...draft.dashboardRow.warnings].join(' ')]) {
+          assert.match(instructions, /bootstrap/i);
+          assert.match(instructions, /resume|元の対話|再開/i);
+          assert.match(instructions, /\bmode\b|モード/i);
+          assert.match(instructions, /\bsource\b|入力元|要件原文/i);
+        }
+        assert.equal(draft.dashboardRow.nextCommand, draft.advice.command);
+      }
+    });
+
+    it('revalidates a deferred decision before recommending a model update or a new proposal', (t) => {
+      const { repo, executionPath } = setup(t);
+      fs.unlinkSync(executionPath);
+      const { writeDecision } = writeConceptProposal(repo, 'REQUIRES_HUMAN_DECISION');
+      writeDecision('defer-to-domain-update');
+      const { advice, dashboardRow } = readAdvice(repo, 'blocked');
+      assert.match(advice.command, /validate-concept-test\.sh .*--require-v2/);
+      assert.equal(dashboardRow.nextCommand, advice.command);
+      for (const rationale of [advice.rationale, dashboardRow.warnings.join(' ')]) {
+        assert.match(rationale, /\bDEFER\b/);
+        assert.match(rationale, /未更新|not (yet )?updated/i);
+        assert.match(rationale, /domain-model update/);
+        assert.match(rationale, /更新済[^。]*(?:再提案|提案.{0,15}(?:更新|作り直|作成し直))|already updated[^.]*propos/i);
+      }
+      assert.equal(fs.existsSync(executionPath), false);
+    });
+
+    it('prioritizes a rejection bound to the current feature and both proposals over a previous gate stop', (t) => {
+      const { repo, executionPath, recordStop } = setup(t);
+      const { json, md, writeDecision } = writeConceptProposal(repo, 'REQUIRES_HUMAN_DECISION');
+
+      for (const oldStatus of ['BLOCK', 'DEFER']) {
+        recordStop(oldStatus);
+        const previousGate = fs.readFileSync(executionPath, 'utf8');
+        writeDecision('rejected');
+        const { advice, dashboardRow } = readAdvice(repo, 'blocked');
+        assert.match(advice.rationale, /\bREJECT\b/);
+        assert.match(advice.command, /stop|停止/i);
+        assert.equal(dashboardRow.nextCommand, advice.command);
+        assert.match([dashboardRow.nextCommand, ...dashboardRow.warnings].join(' '), /reject|却下/i);
+
+        function assertPriorDecisionIsNotApplied() {
+          const stale = readAdvice(repo, 'blocked');
+          assert.notEqual(stale.advice.command, advice.command);
+          assert.match(stale.advice.rationale, /\b(?:BLOCK|DEFER)\b|SHA-256|対象/);
+          assert.equal(stale.dashboardRow.nextCommand, stale.advice.command);
+        }
+        for (const file of [json, md]) {
+          const original = fs.readFileSync(file);
+          fs.appendFileSync(file, '\n');
+          assertPriorDecisionIsNotApplied();
+          fs.writeFileSync(file, original);
+        }
+        writeDecision('rejected', 'other-feature');
+        assertPriorDecisionIsNotApplied();
+        assert.equal(fs.readFileSync(executionPath, 'utf8'), previousGate);
+      }
+    });
+
+    it('uses the latest gate and keeps an ordinary failing command on the gate path', (t) => {
+      const { repo, executionPath, pass, recordStop } = setup(t);
+      recordStop('DEFER');
+      const failed = spawnSync(process.execPath, [GATE_SCRIPT, '--root', repo, '--feature', feature, '--task', 'T-001',
+        '--cmd', 'unit=node -e "process.exit(1)"'], { encoding: 'utf8' });
+      assert.equal(failed.status, 1, failed.stderr);
+      const report = JSON.parse(fs.readFileSync(executionPath, 'utf8'));
+      assert.equal(report.verdict, 'FAIL');
+      assert.equal(report.checks.conceptTest.passed, true);
+      assert.equal(report.checks.commands[0].passed, false);
+      readAdvice(repo, 'sdd-gate');
+      fs.writeFileSync(executionPath, pass);
+      readAdvice(repo, 'sdd-gate');
+    });
+
+    it('keeps another feature or task from blocking the current task', (t) => {
+      const { repo, recordStop } = setup(t);
+      recordStop('BLOCK', 'another-feature', 'T-001');
+      recordStop('REJECT', feature, 'T-002');
+      readAdvice(repo, 'sdd-gate');
+    });
+
+    it('does not reopen an already Done task because of a retained stop', (t) => {
+      const { repo, recordStop } = setup(t);
+      recordStop('REJECT');
+      const tasks = path.join(repo, 'specs', feature, 'tasks.md');
+      fs.writeFileSync(tasks, fs.readFileSync(tasks, 'utf8').replace('Status: Implementation Complete', 'Status: Done'));
+      // The task stays Done (nothing reopens it), but its latest run on the
+      // current inputs failed, so a human reviews it (#832).
+      readAdvice(repo, 'blocked');
+    });
+  });
+
+  it('retains the blocked action when an existing design is lost or a task has a recorded blocker', (t) => {
+    const repo = createV2TestRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const dir = path.join(repo, 'specs', 'demo-api');
+    fs.unlinkSync(path.join(dir, 'design.md'));
+
+    function assertBlocked(expectedReason) {
+      const responses = callMcp(repo, [
+        { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } },
+        { method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature: 'demo-api' } } },
+      ]);
+      const overview = JSON.parse(responses[1].result.content[0].text).data;
+      const state = JSON.parse(responses[2].result.content[0].text).data;
+      assert.equal(state.nextAction.phase, 'blocked');
+      assert.match(state.nextAction.rationale, expectedReason);
+      assert.deepEqual(overview.activeFeatures.find(f => f.feature === 'demo-api').nextAction, state.nextAction);
+    }
+
+    assertBlocked(/UNDECLARED_DRIFT/);
+    fs.unlinkSync(path.join(dir, '.spec-baseline.json'));
+    const tasks = path.join(dir, 'tasks.md');
+    fs.writeFileSync(tasks, fs.readFileSync(tasks, 'utf8').replace('Status: Implementation Complete', 'Status: Blocked'));
+    assertBlocked(/T-001/);
   });
 
   it('#835: a Done task with a mechanical PASS but a failing or missing independent verdict shows as failed', () => {

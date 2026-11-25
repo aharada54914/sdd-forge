@@ -29,7 +29,7 @@ $ErrorActionPreference = "Stop"
 
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $checkPs1 = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-domain-conformance.ps1"
-$skillPath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+$skillPath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
 
 function New-DomainFixture {
     param(
@@ -126,17 +126,33 @@ Describe "check-domain-conformance script exists and matches check-design-system
         Test-Path -LiteralPath $shPath | Should Be $true
     }
 
-    It "quality-gate SKILL.md registers check-domain-conformance immediately after check-design-system" {
+    It "the public gate runs a selected conformance command and records its failure for G5" {
         $skillText = Get-Content -Raw -Encoding UTF8 -LiteralPath $skillPath
-        $designSystemIndex = $skillText.IndexOf("check-design-system")
-        $domainConformanceIndex = $skillText.IndexOf("check-domain-conformance")
-        $workflowStateIndex = $skillText.IndexOf("check-workflow-state")
-
-        $designSystemIndex | Should Not Be -1
-        $domainConformanceIndex | Should Not Be -1
-        $workflowStateIndex | Should Not Be -1
-        ($domainConformanceIndex -gt $designSystemIndex) | Should Be $true
-        ($domainConformanceIndex -lt $workflowStateIndex) | Should Be $true
+        $skillText | Should Match '(?m)^ *\| \*\*G5\*\*.*`domain/`.*`design-system/`.*N/A'
+        $root = Join-Path $TestDrive 'gate conformance'
+        $fixture = New-DomainFixture -FixtureRoot $root
+        $specs = $fixture.SpecsDir
+        Set-Content (Join-Path $specs 'requirements.md') -Value "Bounded-Context: unknown-context"
+        Set-Content (Join-Path $specs 'design.md') -Value '# Design'
+        Set-Content (Join-Path $specs 'tasks.md') -Value @('## T-001 Verify domain','Approval: Approved','Status: Implementation Complete','Risk: standard')
+        $record = Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs'
+        $gate = Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs'
+        & node $record --root $root --feature demo | Out-Null
+        $LASTEXITCODE | Should Be 0
+        $command = 'domain=pwsh -NoProfile -File "' + $checkPs1 + '" -ProjectRoot "." -RequirementsMd "specs/demo/requirements.md"'
+        $oldMode = $env:SDD_DOMAIN_ENFORCE
+        try {
+            foreach ($case in @(@('warn','PASS',0),@('error','FAIL',1))) {
+                $env:SDD_DOMAIN_ENFORCE = $case[0]
+                $output = & node $gate --feature demo --task T-001 --root $root --cmd $command
+                $LASTEXITCODE | Should Be $case[2]
+                $result = $output -join "`n" | ConvertFrom-Json
+                $result.verdict | Should BeExactly $case[1]
+                $result.checks.commands.Count | Should Be 1
+                $result.checks.commands[0].label | Should BeExactly 'domain'
+                ($result.checks.commands[0].stdout + $result.checks.commands[0].stderr) | Should Match 'unknown-context'
+            }
+        } finally { $env:SDD_DOMAIN_ENFORCE = $oldMode }
     }
 }
 

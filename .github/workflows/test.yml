@@ -151,6 +151,16 @@ jobs:
       - name: Run SQL Development Contract tests
         run: python3 tests/sql-development-contract.tests.py
 
+      - name: Run evidence-bundle checker parity tests (.sh vs .ps1)
+        shell: bash
+        run: |
+          command -v pwsh  # the .ps1 half is skipped silently without it
+          python3 tests/check-evidence-bundle-parity.tests.py
+
+      - name: Run domain-review finalize wrapper tests (.sh and .ps1)
+        shell: bash
+        run: python3 tests/domain-review-finalize.tests.py
+
   installers:
     # tests/verification-catalog.json routes install/uninstall suites to the
     # `installers` job; without it the POSIX installer regressions went unseen.

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -295,6 +296,37 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     assert.equal(passJson.checks.specDrift.status, 'AMENDED');
   });
 
+  it('scans the gate source itself and reports only actual unfinished work', t => {
+    const repo = setupCoreRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const file = path.relative(REPO_ROOT, GATE_SCRIPT).split(path.sep).join('/');
+    const copy = path.join(repo, file);
+    fs.mkdirSync(path.dirname(copy), { recursive: true });
+    const original = fs.readFileSync(GATE_SCRIPT, 'utf8');
+    fs.writeFileSync(copy, original);
+    const baseline = spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo]);
+    assert.equal(baseline.status, 0, baseline.stderr.toString());
+    const args = [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', file];
+    const scan = () => spawnSync(process.execPath, args, { encoding: 'utf8' });
+    const clean = scan();
+    assert.equal(clean.status, 0, clean.stdout + clean.stderr);
+    assert.deepEqual(JSON.parse(clean.stdout).checks.placeholders, {
+      passed: true, scannedFiles: [file], findings: [],
+    });
+
+    const [todo, fixme, tbd] = ['todo', 'fixme', 'tbd'].map(word => word.toUpperCase());
+    const defects = [todo, fixme, tbd, 'Not' + 'ImplementedError',
+      'throw new Error(' + "'Not implemented')", 'unimplemented!' + '()'];
+    const benign = ['todo', 'prefix' + todo, fixme + '_suffix', 'tbd!', 'NotimplementedError'];
+    const firstLine = original.split('\n').length + 1;
+    fs.appendFileSync(copy, '\n' + [...defects, ...benign].map(text => '// ' + text).join('\n') + '\n');
+    const dirty = scan();
+    assert.equal(dirty.status, 1, dirty.stdout + dirty.stderr);
+    // inTaskScope is the #829 label; this task's Scope does not list the gate file.
+    assert.deepEqual(JSON.parse(dirty.stdout).checks.placeholders.findings,
+      defects.map((text, i) => ({ file, line: firstLine + i, text: '// ' + text, inTaskScope: false })));
+  });
+
   it('fails gate when changed production code contains placeholders or a verification command fails', () => {
     const repo = setupCoreRepo();
     assert.equal(
@@ -519,8 +551,8 @@ describe('#827 re-verifying a fixed review ticket reaches the gate for exactly t
   it('fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete', () => {
     const fix = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md'), 'utf8');
     const ship = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/skills/ship/SKILL.md'), 'utf8');
-    assert.match(fix, /\/sdd-ship:ship specs\/<feature>\/tasks\.md#<task>/, 'the re-run names the ticket feature and task');
-    assert.match(fix, /target[^\n]*(?:feature|task)[^\n]*停止/, 'a ticket without feature and task stops instead of guessing');
+    assert.match(fix, /\/sdd-ship:ship specs\/<feature>\/tasks\.md#<task-id>/, 'the re-run names the ticket feature and task');
+    assert.match(fix, /<task-id>` が欠けている場合[^\n]*停止/, 'a ticket without feature and task stops instead of guessing');
     const selection = ship.split('### Step 1')[1].split('### Step 2')[0];
     assert.match(selection, /Implementation Complete/, 'a feature whose only open work awaits the gate is selectable');
   });
@@ -533,5 +565,239 @@ describe('#832 a Done task affected by a spec change has a re-verification path'
     assert.match(ship, /影響を受けた `Done` タスク[^\n]*sdd-gate[^\n]*再実行/);
     assert.match(ship, /Status[^\n]*変えない|状態を変えず/);
     assert.match(gate.split('## Process')[0], /再検証[^\n]*`Done`|`Done`[^\n]*再検証/);
+  });
+});
+
+describe('human concept-test decisions at the public gate', () => {
+  function linkedPackage(t) {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-installed-alias-'));
+    t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+    const link = path.join(tmp, 'install-root');
+    fs.symlinkSync(REPO_ROOT, link, process.platform === 'win32' ? 'junction' : 'dir');
+    return path.join(link, 'plugins/sdd-quality-loop/scripts/v2');
+  }
+  function setup(t, gateScript = GATE_SCRIPT) {
+    const repo = setupCoreRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const feature = path.join(repo, 'specs/payments');
+    function run(root = repo, options = {}) {
+      const { env = process.env, commands = ['--cmd', 'unit=node -e "require(\'fs\').writeFileSync(\'ran\',\'yes\')"'] } = options;
+      const response = spawnSync(process.execPath, [
+        gateScript, '--root', root, '--feature', 'payments', '--task', 'T-001',
+        '--skip-drift', '--skip-sensors', '--changed-files', 'src/refund.js',
+        ...commands,
+      ], { encoding: 'utf8', env });
+      const report = JSON.parse(response.stdout);
+      assert.equal(response.status, report.verdict === 'PASS' ? 0 : 1);
+      return report;
+    }
+    function git(...args) {
+      const response = spawnSync('git', ['-c', 'user.name=test', '-c', 'user.email=test@example.invalid', ...args],
+        { cwd: repo, encoding: 'utf8' });
+      assert.equal(response.status, 0, response.stderr);
+    }
+    function expectBlock() {
+      const report = run();
+      assert.equal(report.verdict, 'FAIL');
+      assert.equal(report.checks.conceptTest.status, 'BLOCK');
+      assert.deepEqual(report.checks.commands, []);
+      assert.equal(fs.existsSync(path.join(repo, 'ran')), false);
+    }
+    return { repo, feature, run, git, expectBlock };
+  }
+
+  it('stops incomplete, malformed and receipt-only projects before verification', (t) => {
+    const { feature, expectBlock } = setup(t);
+    const proposal = path.join(feature, 'concept-test.json');
+    fs.writeFileSync(proposal, JSON.stringify({ schema: 'concept-test/v2' }));
+    expectBlock();
+    fs.writeFileSync(proposal, '{');
+    expectBlock();
+    fs.writeFileSync(proposal, '{"schema":"concept-test/v2","schema":"concept-test/v1"}');
+    expectBlock();
+    fs.unlinkSync(proposal);
+    const mirror = path.join(feature, 'concept-test.md');
+    fs.writeFileSync(mirror, '```json\n{"schema":"concept-test/v2"}\n```\n');
+    expectBlock();
+    fs.unlinkSync(mirror);
+    fs.writeFileSync(path.join(feature, 'concept-test.decision.json'), '{}');
+    expectBlock();
+  });
+
+  it('runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs', (t) => {
+    const { repo, feature, run, expectBlock } = setup(t, path.join(linkedPackage(t), 'run-sdd-gate.mjs'));
+    const files = ['domain/domain-contract.json', 'domain/context-map.md', 'specs/payments/concept-test-seed.md'];
+    fs.mkdirSync(path.join(repo, 'domain'));
+    fs.writeFileSync(path.join(repo, files[0]), JSON.stringify({
+      schema: 'domain-contract/v2',
+      meta: { version: '1.0.0', status: 'Approved', generated_from: [files[1]] },
+      contexts: [{ name: 'billing', description: 'Payments', terms: [], aggregates: [] }],
+      concepts: [{ id: 'CONCEPT-REFUND', name: 'Refund', context: 'billing', definition: 'Return a payment',
+        essence: 'Reimbursement', responsibilities: ['Repay customer'], evidence: [files[1]] }],
+    }));
+    fs.writeFileSync(path.join(repo, files[1]), 'Domain-Model-Status: Approved\n');
+    fs.writeFileSync(path.join(repo, files[2]), 'Refund a payment.\n');
+    const digest = filename => createHash('sha256').update(fs.readFileSync(filename)).digest('hex');
+    const proposal = { schema: 'concept-test/v2', feature: 'payments', proposal: 'FITS_EXISTING_CONCEPTS',
+      rationale: 'The refund has the same responsibility.',
+      distinctions: [{ concepts: ['CONCEPT-REFUND'], judgment: 'same', confirmed: true }],
+      inputs: files.map(file => ({ path: file, sha256: digest(path.join(repo, file)) })) };
+    const json = path.join(feature, 'concept-test.json');
+    const md = path.join(feature, 'concept-test.md');
+    const receipt = path.join(feature, 'concept-test.decision.json');
+    const commandMarker = path.join(repo, 'ran');
+    function saveProposal() {
+      fs.writeFileSync(json, JSON.stringify(proposal));
+      fs.writeFileSync(md, '# Concept Test\n\n```json\n' + JSON.stringify(proposal) + '\n```\n');
+    }
+    function expectResult(status) {
+      const report = run();
+      assert.equal(report.checks.conceptTest.status, status, JSON.stringify(report.checks.conceptTest));
+      const proceed = status === 'CONTINUE';
+      assert.equal(report.verdict, proceed ? 'PASS' : 'FAIL');
+      assert.equal(fs.existsSync(commandMarker), proceed);
+      assert.equal(report.checks.commands.length, proceed ? 1 : 0);
+      if (proceed) fs.unlinkSync(commandMarker);
+    }
+    saveProposal();
+    expectResult('CONTINUE');
+    proposal.proposal = 'REQUIRES_HUMAN_DECISION';
+    saveProposal();
+    expectBlock();
+    const decision = { schema: 'concept-test-decision/v1', feature: 'payments',
+      proposal_json_sha256: digest(json), proposal_md_sha256: digest(md) };
+    for (const [value, expected] of [['defer-to-domain-update', 'DEFER'], ['rejected', 'REJECT'], ['proceed', 'CONTINUE']]) {
+      fs.writeFileSync(receipt, JSON.stringify({ ...decision, decision: value }));
+      expectResult(expected);
+    }
+    fs.appendFileSync(path.join(repo, files[2]), 'The customer changed the request.\n');
+    expectBlock();
+  });
+
+  it('records a baseline when invoked through an install symlink', (t) => {
+    const scripts = linkedPackage(t);
+    const { repo, feature } = setup(t);
+    const record = spawnSync(process.execPath, [path.join(scripts, 'record-spec-baseline.mjs'),
+      '--root', repo, '--feature', 'payments'], { encoding: 'utf8' });
+    assert.equal(record.status, 0, record.stderr);
+    assert.equal(fs.existsSync(path.join(feature, '.spec-baseline.json')), true, record.stdout);
+    assert.equal(JSON.parse(record.stdout).status, 'RECORDED');
+  });
+
+  it('rejects human receipt edits when invoked through an install symlink', (t) => {
+    const scripts = linkedPackage(t);
+    const { repo, feature } = setup(t);
+    const guard = spawnSync(process.execPath, [path.join(scripts, 'sdd-soft-guard.mjs'), '--root', repo],
+      { cwd: repo, encoding: 'utf8', input: JSON.stringify({ tool_name: 'Edit',
+        tool_input: { file_path: path.join(feature, 'concept-test.decision.json') } }) });
+    assert.equal(guard.status, 2);
+    assert.match(guard.stderr, /concept-test\.decision\.json/);
+  });
+
+  it('preserves ordinary and v1-only feature history and scopes receipts by feature', (t) => {
+    const { repo, feature, git, run } = setup(t);
+    git('init', '-q');
+    const markdown = path.join(feature, 'concept-test.md');
+    fs.writeFileSync(markdown, '# Concept Test\nThe classification is still under discussion.\n');
+    git('add', 'specs');
+    git('commit', '-qm', 'start narrative concept draft');
+    const legacy = JSON.stringify({ schema: 'concept-test/v1' });
+    fs.writeFileSync(path.join(feature, 'concept-test.json'), legacy);
+    fs.writeFileSync(markdown, '```json\n' + legacy + '\n```\n');
+    fs.mkdirSync(path.join(repo, 'specs/other'));
+    fs.writeFileSync(path.join(repo, 'specs/other/concept-test.decision.json'), '{}');
+    git('add', 'specs');
+    git('commit', '-qm', 'legacy project');
+    const report = run();
+    assert.equal(report.verdict, 'PASS');
+    assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE');
+    assert.equal(report.checks.commands[0].passed, true);
+  });
+
+  it('keeps the Node-only path without a Git executable but blocks visible v2 evidence', (t) => {
+    const { repo, feature, run, git } = setup(t);
+    git('init', '-q');
+    const env = { ...process.env, PATH: path.join(repo, 'empty-path') };
+    const ordinary = run(repo, { env, commands: [] });
+    assert.equal(ordinary.verdict, 'PASS');
+    assert.equal(ordinary.checks.conceptTest.history, 'GIT_UNAVAILABLE');
+    fs.writeFileSync(path.join(feature, 'concept-test.decision.json'), '{}');
+    const enrolled = run(repo, { env, commands: [] });
+    assert.equal(enrolled.verdict, 'FAIL');
+    assert.equal(enrolled.checks.conceptTest.status, 'BLOCK');
+  });
+
+  it('detects an indexed proposal missing from the working tree in an unborn repository', (t) => {
+    const { feature, git, expectBlock } = setup(t);
+    git('init', '-q');
+    const file = path.join(feature, 'concept-test.json');
+    fs.writeFileSync(file, JSON.stringify({ schema: 'concept-test/v2' }));
+    git('add', 'specs');
+    fs.unlinkSync(file);
+    expectBlock();
+    fs.writeFileSync(file, '{');
+    git('add', 'specs');
+    fs.unlinkSync(file);
+    expectBlock();
+  });
+
+  it('scopes index evidence to the nested project with the same feature name', (t) => {
+    const { repo, git, run } = setup(t);
+    git('init', '-q');
+    const nested = path.join(repo, 'application');
+    fs.mkdirSync(nested);
+    for (const name of ['specs', 'src']) fs.cpSync(path.join(repo, name), path.join(nested, name), { recursive: true });
+    const receipt = path.join(nested, 'specs/payments/concept-test.decision.json');
+    fs.writeFileSync(receipt, '{}');
+    git('add', 'application');
+    fs.unlinkSync(receipt);
+    const parent = run();
+    assert.equal(parent.checks.conceptTest.status, 'NOT_APPLICABLE');
+    assert.equal(parent.checks.commands.length, 1);
+    const child = run(nested);
+    assert.equal(child.checks.conceptTest.status, 'BLOCK');
+    assert.deepEqual(child.checks.commands, []);
+  });
+
+  it('uses current proposal and decision inputs equally in full and shallow clones', (t) => {
+    const { repo, feature, git, run } = setup(t);
+    git('init', '-q');
+    const proposal = path.join(feature, 'concept-test.json');
+    const receipt = path.join(feature, 'concept-test.decision.json');
+    fs.writeFileSync(proposal, JSON.stringify({ schema: 'concept-test/v2' }));
+    git('add', 'specs', 'src');
+    git('commit', '-qm', 'proposal draft');
+    fs.unlinkSync(proposal);
+    fs.writeFileSync(receipt, '{}');
+    git('add', 'specs');
+    git('commit', '-qm', 'receipt draft');
+    fs.unlinkSync(receipt);
+    git('commit', '-qam', 'current inputs');
+    const copies = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-clone-gate-'));
+    t.after(() => fs.rmSync(copies, { recursive: true, force: true }));
+    for (const [name, options] of [['full', []], ['shallow', ['--depth', '1']]]) {
+      const checkout = path.join(copies, name);
+      git('clone', '-q', ...options, pathToFileURL(repo).href, checkout);
+      const report = run(checkout);
+      assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE', name);
+      assert.equal(report.verdict, 'PASS');
+      assert.equal(report.checks.commands.length, 1);
+      assert.equal(fs.readFileSync(path.join(checkout, 'ran'), 'utf8'), 'yes');
+    }
+  });
+
+  it('distinguishes unstaged proposal loss from a staged change of inputs', (t) => {
+    const { feature, git, run, expectBlock } = setup(t);
+    git('init', '-q');
+    const file = path.join(feature, 'concept-test.json');
+    fs.writeFileSync(file, JSON.stringify({ schema: 'concept-test/v2' }));
+    git('add', 'specs');
+    git('commit', '-qm', 'proposal draft');
+    fs.unlinkSync(file);
+    expectBlock();
+    git('add', '-u');
+    const report = run();
+    assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE');
+    assert.equal(report.checks.commands.length, 1);
   });
 });

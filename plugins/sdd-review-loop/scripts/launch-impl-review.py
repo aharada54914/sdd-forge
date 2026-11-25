@@ -44,6 +44,8 @@ def runtime_files(root, stage, fixed_inputs=False, model_policy=False):
     names.update('contracts/domain-contract.' + version + '.schema.json'
                  for version in ('v1', 'v2'))
     names.update(('contracts/concept-test.v1.schema.json',
+                  'contracts/concept-test.v2.schema.json',
+                  'contracts/concept-test-decision.v1.schema.json',
                   'contracts/approval-sidecar.schema.json',
                   'contracts/approver-registry.schema.json',
                   quality + 'canonicalize-sdd-yaml.py',

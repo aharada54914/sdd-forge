@@ -13,7 +13,10 @@
  *     unresolved `Risk: high` provisional Open Questions.
  */
 
+import { parseTaskExecution } from "../concept-gate-advice.js";
+import { conceptAdvice } from "../concept-proposal-advice.js";
 import { err, ok, type Result } from "../envelope.js";
+import { beforeTaskApproval } from "../pre-approval-review.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { isExecutionCoverageComplete } from "../parsers/report-lookup.js";
 import { parseReviewReportVerdict } from "../parsers/review-verdict.js";
@@ -291,21 +294,60 @@ function doneAttention(root: SddRoot, feature: string, tasks: readonly V2TaskSum
   return result;
 }
 
+/** The next action for Done tasks that need attention, or null when none do. */
+function doneAttentionAction(feature: string, { stale, failed }: DoneAttention): NextAction | null {
+  if (failed.length > 0) {
+    return {
+      phase: "blocked",
+      command: `human: review the gate result for ${failed.join(", ")} in specs/${feature}`,
+      rationale: `The latest gate run for Done task(s) ${failed.join(", ")} did not pass with full coverage; a human decides whether to reopen the task or re-run the gate.`,
+    };
+  }
+  if (stale.length > 0) {
+    return {
+      phase: "sdd-gate",
+      command: `/sdd-ship:ship specs/${feature}/tasks.md#${stale[0]}`,
+      rationale: `The spec changed after Done task(s) ${stale.join(", ")} passed the gate; re-run the gate for each (a failure is reported to a human, who decides whether to reopen the task).`,
+    };
+  }
+  return null;
+}
+
+/**
+ * The #832 check for one feature as the other read paths (the dashboard's
+ * next-command) need it: the same drift status and evidence inputs the v2
+ * tools use. Returns null when no Done task needs attention.
+ */
+export function featureDoneAttentionAction(
+  root: SddRoot,
+  feature: string,
+  tasks: readonly { id: string; status: string }[],
+): NextAction | null {
+  const io = createGuardedIo(root);
+  const drift = readDriftSummary(root, feature);
+  const summaries = tasks.map((t) => ({ id: t.id, title: "", risk: "", approval: "", status: t.status }));
+  return doneAttentionAction(
+    feature,
+    doneAttention(root, feature, summaries, drift.status, featureEvidenceInputs(io, { feature }) as EvidenceInputs),
+  );
+}
+
 function computeNextAction(
+  root: SddRoot,
   feature: string,
   tasks: readonly V2TaskSummary[],
-  specCheckVerdict: string,
   highestRisk: RiskTier,
-  hasSpecs: boolean,
+  files: { requirements: boolean; design: boolean; tasks: boolean },
   driftStatus: DriftStatus,
   attention: () => DoneAttention = () => ({ stale: [], failed: [] }),
 ): NextAction {
-  if (!hasSpecs || tasks.length === 0) {
-    return {
-      phase: "bootstrap",
-      command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
-      rationale: `specs/${feature} is missing core SDD specification files or tasks.`,
-    };
+  const bootstrap: NextAction = {
+    phase: "bootstrap",
+    command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
+    rationale: `specs/${feature} is missing core SDD specification files or tasks.`,
+  };
+  if (!files.requirements || !files.tasks || tasks.length === 0) {
+    return conceptAdvice(root, feature, tasks, true) ?? bootstrap;
   }
   if (driftStatus === "UNVERIFIABLE") {
     return {
@@ -321,6 +363,8 @@ function computeNextAction(
       rationale: `specs/${feature} has ${driftStatus}; revert undeclared edits, record a rationale under '## Spec Amendments', or repair .spec-baseline.json.`,
     };
   }
+  const concept = conceptAdvice(root, feature, tasks, !files.design);
+  if (concept) return concept;
   const blocked = tasks.filter((t) => t.status === "Blocked");
   if (blocked.length > 0) {
     return {
@@ -329,19 +373,18 @@ function computeNextAction(
       rationale: `Task(s) ${blocked.map((t) => t.id).join(", ")} are Blocked in specs/${feature}/tasks.md.`,
     };
   }
+  if (!files.design) return bootstrap;
   const approved = tasks.filter((t) => isApprovedValue(t.approval));
-  if (approved.length === 0) {
-    if (highestRisk !== "low" && specCheckVerdict === "Not Run") {
-      return {
-        phase: "spec-check",
-        command: `/sdd-bootstrap:bootstrap feature --feature ${feature}`,
-        rationale: `Risk: ${highestRisk} feature has no recorded spec-check report yet.`,
-      };
-    }
+  const remaining = tasks.filter((t) => !isApprovedValue(t.approval));
+  if (remaining.length > 0 && approved.every((t) => t.status === "Done")) {
+    const review = beforeTaskApproval(root, feature, highestRisk === "low");
+    if (review) return review;
     return {
       phase: "approval-gate",
       command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
-      rationale: `No task in specs/${feature}/tasks.md is Approved yet.`,
+      rationale: approved.length === 0
+        ? `No task in specs/${feature}/tasks.md is Approved yet.`
+        : `Remaining task(s) ${remaining.map((t) => t.id).join(", ")} are still unapproved.`,
     };
   }
   if (approved.some((t) => t.status === "Planned" || t.status === "In Progress")) {
@@ -359,35 +402,14 @@ function computeNextAction(
     };
   }
   // Computed only here, when every other phase is settled (#832).
-  const { stale: staleDone, failed: failedDone } = attention();
-  if (failedDone.length > 0) {
-    return {
-      phase: "blocked",
-      command: `human: review the gate result for ${failedDone.join(", ")} in specs/${feature}`,
-      rationale: `The latest gate run for Done task(s) ${failedDone.join(", ")} did not pass with full coverage; a human decides whether to reopen the task or re-run the gate.`,
-    };
-  }
-  if (staleDone.length > 0) {
-    return {
-      phase: "sdd-gate",
-      command: `/sdd-ship:ship specs/${feature}/tasks.md#${staleDone[0]}`,
-      rationale: `The spec changed after Done task(s) ${staleDone.join(", ")} passed the gate; re-run the gate for each (a failure is reported to a human, who decides whether to reopen the task).`,
-    };
-  }
+  const doneAction = doneAttentionAction(feature, attention());
+  if (doneAction) return doneAction;
   // Only report `done` when ALL tasks in tasks.md are Approved and Done (M-2).
   if (approved.length === tasks.length && approved.every((t) => t.status === "Done")) {
     return {
       phase: "done",
       command: "feature complete",
       rationale: `All tasks in specs/${feature}/tasks.md are Approved and Done.`,
-    };
-  }
-  if (approved.length < tasks.length && approved.every((t) => t.status === "Done")) {
-    const unapprovedIds = tasks.filter((t) => !isApprovedValue(t.approval)).map((t) => t.id);
-    return {
-      phase: "approval-gate",
-      command: `human: set Approval: Approved in specs/${feature}/tasks.md`,
-      rationale: `Remaining task(s) ${unapprovedIds.join(", ")} are still unapproved.`,
     };
   }
   return {
@@ -468,9 +490,11 @@ export function sddProjectOverview(
     try {
       const dv = buildDecisionViewDataCore(io, { feature });
       const drift = readDriftSummary(root, feature);
-      const hasSpecs =
-        guardedExists(root, `specs/${feature}/requirements.md`) &&
-        guardedExists(root, `specs/${feature}/tasks.md`);
+      const files = {
+        requirements: guardedExists(root, `specs/${feature}/requirements.md`),
+        design: guardedExists(root, `specs/${feature}/design.md`),
+        tasks: guardedExists(root, `specs/${feature}/tasks.md`),
+      };
       const tasks = dv.tasks as V2TaskSummary[];
       const highestRisk = toRiskTier(dv.highestRisk);
       activeFeatures.push({
@@ -486,11 +510,11 @@ export function sddProjectOverview(
         },
         driftStatus: drift.status,
         nextAction: computeNextAction(
+          root,
           feature,
           tasks,
-          dv.specCheckVerdict,
           highestRisk,
-          hasSpecs,
+          files,
           drift.status,
           () => doneAttention(root, feature, tasks, drift.status, featureEvidenceInputs(io, { feature }) as EvidenceInputs),
         ),
@@ -590,11 +614,11 @@ export function sddFeatureState(
         provisionalIds,
       },
       nextAction: computeNextAction(
+        root,
         feature,
         dv.tasks as V2TaskSummary[],
-        dv.specCheckVerdict,
         highestRisk,
-        files.requirements && files.tasks,
+        files,
         drift.status,
         () => doneAttention(root, feature, dv.tasks as V2TaskSummary[], drift.status, featureEvidenceInputs(io, { feature }) as EvidenceInputs),
       ),
@@ -659,14 +683,8 @@ export function sddGateAudit(
         executionArtifact.exists = true;
         executionArtifact.path = execRel;
         try {
-          const parsed = JSON.parse(execRead.data.contents) as Record<string, unknown>;
-          const matchesIdentity =
-            parsed.schema === "sdd-gate-execution/v1" &&
-            parsed.feature === feature &&
-            typeof parsed.taskId === "string" &&
-            parsed.taskId.toUpperCase() === task.id.toUpperCase();
-
-          if (matchesIdentity) {
+          const parsed = parseTaskExecution(execRead.data.contents, feature, task.id);
+          if (parsed) {
             if (parsed.verdict === "PASS" || parsed.verdict === "FAIL") {
               executionArtifact.verdict = parsed.verdict;
             }

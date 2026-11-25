@@ -13,6 +13,7 @@
 | カタログのジョブ名 | 現行に存在 | 登録数 | 実行中 | CI 外 | 廃止 |
 |---|---|---|---|---|---|
 | `cli-hook-enforcement` | no | 2 | 0 | 0 | 2 |
+| `cloud-and-ddd` | yes | 2 | 2 | 0 | 0 |
 | `cloud-native` | no | 6 | 4 | 2 | 0 |
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
 | `installers` | yes | 7 | 2 | 5 | 0 |
@@ -23,7 +24,7 @@
 | `sql-mysql` | no | 1 | 0 | 1 | 0 |
 | `sql-postgres` | no | 1 | 0 | 1 | 0 |
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
-| `test` | no | 51 | 2 | 42 | 7 |
+| `test` | no | 51 | 3 | 41 | 7 |
 | `test-windows-heavy` | no | 20 | 0 | 17 | 3 |
 | `version-gates` | no | 78 | 0 | 39 | 39 |
 | `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
