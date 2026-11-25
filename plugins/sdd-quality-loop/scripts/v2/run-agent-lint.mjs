@@ -151,6 +151,9 @@ export function runAgentLint({
     return cache.get(rel);
   }
   function add(rel, raw) {
+    // Explicit file checks can exercise every rule, including on its fixtures.
+    if (!explicit && raw.rule === 'no-console-log' &&
+        (rel.startsWith('tests/') || rel.startsWith('reports/verification/'))) return;
     const f = describeFinding(raw, rel, rulesMap);
     const waiver = activeWaivers.find(w => w.rule === f.rule && w.pathRe.test(rel));
     if (waiver) {

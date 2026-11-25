@@ -113,6 +113,20 @@ describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & B
     assert.throws(() => runAgentLint({projectRoot: root, mode: 'strict', baseRef: 'missing-ref'}));
   });
 
+  it('applies the production console rule to source while retaining other checks in test and reporting tools', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-tool-output-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    for (const dir of ['src', 'tests', 'reports/verification']) {
+      fs.mkdirSync(path.join(root, dir), { recursive: true });
+      fs.writeFileSync(path.join(root, dir, 'tool.mjs'), "console.log('summary');\ntry {} catch {}\n");
+    }
+    const report = runAgentLint({ projectRoot: root, mode: 'shadow', diffOnly: false });
+    assert.deepEqual(report.findings.filter(f => f.rule === 'no-console-log').map(f => f.path), ['src/tool.mjs']);
+    assert.equal(report.findings.filter(f => f.rule === 'no-empty-catch').length, 3);
+    const explicit = runAgentLint({ projectRoot: root, mode: 'shadow', files: ['tests/tool.mjs'] });
+    assert.ok(explicit.findings.some(f => f.rule === 'no-console-log'));
+  });
+
   it('uses TS syntax, scoped flag groups, configured control depth and comment nodes', t => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-ast-'));
     t.after(() => fs.rmSync(root, { recursive: true, force: true }));
