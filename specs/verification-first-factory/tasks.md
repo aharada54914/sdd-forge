@@ -134,7 +134,7 @@ T-008
 ## Wave 4: CI 統合・Shadow→Strict 昇格検証・Self-Rebuild（カテゴリ2テスト廃止）
 
 ### T-010: CI 2層 SAST / `actions/cache` 統合・純増オーバーヘッド計測・Self-Rebuild 完了後のカテゴリ2廃止
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-005`, `SELF-REQ-006`（カテゴリ2）, `NFR-004`, `AC-013`

@@ -2,7 +2,7 @@ name: Test (SDD Forge v2)
 
 on:
   push:
-    branches: [main, "feat/v2-*"]
+    branches: [main, "feat/v2-*", "feat/adr-*"]
   pull_request:
     branches: [main]
   merge_group:
@@ -40,7 +40,7 @@ jobs:
       - name: Run v2 Lightweight Guardrails & SDD Core tests
         env:
           SDD_REQUIRE_AJV: "1"
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs tests/v2-agent-lint.test.mjs tests/v2-formal-gate.test.mjs tests/v2-wave3-integration.test.mjs tests/self-fitness.test.mjs tests/self-security-adversarial.test.mjs
 
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, "feat/v2-*"]
+    branches: [main, "feat/v2-*", "feat/adr-*"]
 
 permissions:
   contents: read
@@ -22,11 +22,16 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Run v2 Lightweight Guardrails test suite
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs
+      - name: Run v2 Lightweight Guardrails & ADR-0054 Self-Verification test suite
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-agent-lint.test.mjs tests/v2-formal-gate.test.mjs tests/v2-wave3-integration.test.mjs tests/self-fitness.test.mjs tests/self-security-adversarial.test.mjs
 
       - name: Run sdd-doctor read-only harness health check
         run: node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info
+
+      - name: Run ADR-0054 Shadow Gates (Agent-Strict Lint & Allowlist Security Gate)
+        run: |
+          node plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --diff-only --mode shadow --format markdown
+          node plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs --adapters builtin-secret-pattern,builtin-slopsquatting --mode shadow > /dev/null
 
       - name: Check Spec Drift across all baselined features
         run: |
