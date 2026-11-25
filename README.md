@@ -1,6 +1,6 @@
 # SDD Forge
 
-v2.1.2 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
+v2.1.3 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
 
 ## クイックスタート（2 コマンド）
 
@@ -16,6 +16,7 @@ v2.1.2 — 開発者体験（DX）・AI エージェントの自律性と仕様�
 > **v2.x での主な刷新（[ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) / [ADR-0052](docs/adr/0052-mcp-architecture-and-v2-consolidation.md)）**:
 > - 重厚な **SDD Full**（3 連レビューループ・7 層仕様・外部鍵署名・224 ファイル物理ロック・7,247 行の 4 言語フック・カナリア儀式・ADR-0023 `ERROR_STOP`）と、軽すぎる **SDD Lite**（事前レビューゼロ）を廃止し、**単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ統合しました。
 > - **「Local Soft, Boundary Firm」** 設計により、ローカルでは AI の自律的な探索・テスト・実装を妨げず、承認済み仕様ファイルの意図しない改変（ゴールポスト移動）だけをソフトガード＋Spec Drift 検知＋PR/CI で抑止します（Spec Drift の比較対象はベースライン記録済みの機能。未記録の承認済み機能は CI が警告で列挙します）。
+> - **v2.1.3**: 監査是正の仕上げ（11 件）。CLI ロックの所有者保持と期限延長（リース方式）、Scope の重複判定（実パス比較・注記・`{a,b}`）、段階承認を差分にしない、承認欄の解釈の統一、読取上限超の仕様を `UNVERIFIABLE` として扱う、ゲート証跡を検証した仕様入力に結び付けて古い合格を完了扱いにしない。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.2**: 監査是正の続き。独立評価の判定だけを Done の根拠にする、未解決レビューチケットでゲート停止、`--base` による再開、Blockers の検証（未知 ID・自己依存）、改定理由のない仕様差分の可視化、シンボリックリンク経由の CLI 起動修正、WFI 監査の整合。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.1**: 監査（#801〜#861）の是正 20 件。CI の `required-checks` 集約とインストーラ試験の CI 登録、Claude でのガード二重登録の解消、ゲート／MCP の Done 判定（コマンド 0 件の機械 PASS を完了根拠にしない等）、工場計測の意味の修正。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.0**: MCP 4 ツール統合＆オプトイン登録（ADR-0052）、Google Antigravity CLI（`agy`）フルネイティブ対応、Software Factory 拡張（レビュー観点採否表・並列ロック＆ウェーブ計画・出典リンク・メトリクス帰属・2 層ナレッジ還流・非対話ファクトリ運用）を追加しました。

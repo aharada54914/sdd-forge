@@ -16,8 +16,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | — | publish-release | v2.1.1 tag + Release | ad19ec42, release.yml signed artifacts attached |
 | 4 | #970 | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | merged (e848b32) |
 | — | #971 | release v2.1.2 | merged (520469d); tagged via publish-release.yml |
-| 5 | #972 | #815, #816, #818, #827, #830, #809, #811, #862, #834 | merged |
-| 6 | (pending) | #831, #832 | PR open (stacked on #972) |
+| 5 | #972 | #815, #816, #818, #827, #830, #809, #811, #862, #834 | merged (f95bf9f) after 5 independent reviews |
+| 6 | #972 | #831, #832 | merged with batch 5 (f95bf9f) |
+| — | (this PR) | release v2.1.3 | tag via publish-release.yml after merge |
 
 ## Resolved
 
@@ -99,4 +100,6 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 - Batch-5 review (accepted trade-off): a task approved after the baseline is surfaced (drift Markdown, gate `APPROVED_AFTER_BASELINE`), not blocked; a shell self-approval is caught only by the independent review and CODEOWNERS. A signed approval record would make it deterministic.
 - Batch-5 review minors: a prose Scope directory without extension or trailing slash (`- src/lib を更新`) yields no path, so the gate labels every file in scope for that task; the gate crashes with EISDIR when a spec file is replaced by a directory.
+- Workable issues: none left after batch 6. Everything open is Deferred (owner decision or the owner's local branches).
+- Review-5 minors on #972: a failed write after the no-hard-link fallback's exclusive create leaves an empty lock (fails closed, needs --break-stale); on Windows FAT `linkSync` may report `EISDIR`, which the fallback list lacks (unverified); the pre-existing --break-stale restore path (`linkSync(claim, lock)`) has no no-hard-link fallback; evidence inputs do not bind lazy unindented continuations, bold-label paragraphs, or heading bodies of IDs that also have a bullet elsewhere (all pre-existing; document in skill reference).
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.

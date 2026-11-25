@@ -1,6 +1,6 @@
 {
   "name": "sdd-forge-mcp",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "private": true,
   "type": "module",
   "description": "Read-only SDD Forge MCP v2 server (4 coarse-grained tools backed by v2 ESM engine, ADR-0052).",
