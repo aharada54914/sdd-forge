@@ -30,23 +30,42 @@ def parse(raw):
     return json.loads(raw, object_pairs_hook=conditional.unique_object)
 
 
-def evidence(root, feature, read=None):
-    """Return the evidence plus every pinned input, using live or fixed reads."""
+DECISIONS = {'proceed': 'CONTINUE', 'defer-to-domain-update': 'DEFER', 'rejected': 'REJECT'}
+
+
+def check_schema(filename, document):
+    schema = parse((ROOT / 'contracts' / filename).read_bytes())
+    if not isinstance(document, dict) or auth._schema_validate(schema, document):
+        raise ValueError('invalid Concept Test document')
+
+
+def snapshot_reader(source):
+    observed = {}
+
+    def read(path, optional=False):
+        if path not in observed:
+            observed[path] = source(path, optional)
+        if observed[path] is None and not optional:
+            raise ValueError('missing Concept Test input: ' + path)
+        return observed[path]
+
+    return read, observed
+
+
+def collect(feature, read, *, allow_local, require_v2=False, preparing=False):
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
         raise ValueError('invalid feature')
-    source = read or (lambda path: conditional.read_safe(root, path))
-    snapshot_bytes = {}
-
-    def read(path):
-        if path not in snapshot_bytes:
-            snapshot_bytes[path] = source(path)
-        return snapshot_bytes[path]
     prefix = 'specs/' + feature + '/concept-test'
     document = parse(read(prefix + '.json'))
-    schema = parse((ROOT / 'contracts/concept-test.v1.schema.json').read_bytes())
-    errors = auth._schema_validate(schema, document)
-    if errors or document.get('feature') != feature:
-        raise ValueError('invalid Concept Test record')
+    version = document.get('schema') if isinstance(document, dict) else None
+    if version == 'concept-test/v2' and allow_local:
+        check_schema('concept-test.v2.schema.json', document)
+    elif version == 'concept-test/v1' and not require_v2:
+        check_schema('concept-test.v1.schema.json', document)
+    else:
+        raise ValueError('unsupported Concept Test version for this operation')
+    if document['feature'] != feature:
+        raise ValueError('wrong Concept Test feature')
     blocks = re.findall(r'^```json\r?\n(.*?)^```[ \t]*\r?$', read(prefix + '.md').decode('utf-8'), re.M | re.S)
     if len(blocks) != 1 or json.dumps(parse(blocks[0]), sort_keys=True) != json.dumps(document, sort_keys=True):
         raise ValueError('Markdown and JSON evidence differ')
@@ -80,17 +99,36 @@ def evidence(root, feature, read=None):
     for distinction in document['distinctions']:
         if not set(distinction['concepts']) <= known:
             raise ValueError('unknown concept in distinction')
-    if document['proposal'] == 'FITS_EXISTING_CONCEPTS':
-        if 'decision' in document:
-            raise ValueError('FITS evidence must omit decision')
-    elif 'decision' not in document:
-        raise ValueError('human decision is required')
+    fits = document['proposal'] == 'FITS_EXISTING_CONCEPTS'
+    legacy = version == 'concept-test/v1'
+    approval_path = prefix + '.approval.json'
+    decision_path = prefix + '.decision.json'
+    approval = read(approval_path, True)
+    decision_raw = read(decision_path, True)
+    if (fits and (approval is not None or decision_raw is not None or 'decision' in document)
+            or legacy and decision_raw is not None or not legacy and approval is not None):
+        raise ValueError('incompatible Concept Test decision records')
     result = [{'path': prefix + ext, 'sha256': hashlib.sha256(read(prefix + ext)).hexdigest()}
               for ext in ('.md', '.json')]
     result.extend(document['inputs'])
-    if document['proposal'] != 'FITS_EXISTING_CONCEPTS':
-        sidecar = prefix + '.approval.json'
-        result.append({'path': sidecar, 'sha256': hashlib.sha256(read(sidecar)).hexdigest()})
+    if not fits and legacy:
+        if 'decision' not in document or approval is None:
+            raise ValueError('signed human decision is required')
+        result.append({'path': approval_path, 'sha256': hashlib.sha256(approval).hexdigest()})
+    elif not fits:
+        if decision_raw is not None:
+            decision = parse(decision_raw)
+            check_schema('concept-test-decision.v1.schema.json', decision)
+            if decision['feature'] != feature:
+                raise ValueError('wrong local decision feature')
+            if not preparing:
+                if (decision['proposal_md_sha256'] != result[0]['sha256']
+                        or decision['proposal_json_sha256'] != result[1]['sha256']):
+                    raise ValueError('local decision refers to an earlier proposal')
+                document = dict(document, decision=decision['decision'])
+                result.append({'path': decision_path, 'sha256': hashlib.sha256(decision_raw).hexdigest()})
+        elif not preparing:
+            raise ValueError('run --confirm in a separate human-operated terminal')
     # Reuse the exact gate checks against the selected source, including Git
     # snapshots. Never fall back to live files when resolving a fixed revision.
     with tempfile.TemporaryDirectory(prefix='concept-validation-') as temporary:
@@ -103,7 +141,7 @@ def evidence(root, feature, read=None):
         validation = subprocess.run(command + [str(contract_path)], capture_output=True, timeout=30)
         if validation.returncode:
             raise ValueError('invalid v2 domain contract references')
-        if document['proposal'] != 'FITS_EXISTING_CONCEPTS':
+        if not fits and legacy:
             content = snapshot / 'concept-test.json'
             approval = snapshot / 'concept-test.approval.json'
             registry = snapshot / 'approver-registry.yaml'
@@ -123,7 +161,18 @@ class FeatureNameError(ValueError):
     """A feature name the DDD lane cannot use; the message says why."""
 
 
-def validate(root, feature):
+def evidence(root, feature, read=None, *, allow_local=False, require_v2=False):
+    """Legacy decision packets require signed evidence. Other consumers opt in explicitly."""
+    source = read or (lambda path, optional: conditional.read_safe(root, path, optional))
+    cached, observed = snapshot_reader(source)
+    document, inputs = collect(feature, cached, allow_local=allow_local, require_v2=require_v2)
+    for path, data in observed.items():
+        if source(path, True) != data:
+            raise ValueError('Concept Test inputs changed during validation')
+    return document, inputs
+
+
+def validate(root, feature, require_v2=False):
     root = Path(root).resolve(strict=True)
     # Applicability first (#809): without domain/ the Concept Test does not
     # apply, for every feature name ship accepts (no separators, not . or ..).
@@ -132,29 +181,101 @@ def validate(root, feature):
     domain = root / 'domain'
     if domain.is_symlink() or (domain.exists() and not domain.is_dir()):
         raise ValueError('unsafe domain directory')
-    if not domain.exists():
+    if not domain.exists() and not require_v2:
         return 'SKIP'
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
         raise FeatureNameError('concept-test: BLOCK: DDD features need lowercase kebab-case names '
                                '([a-z0-9][a-z0-9-]*); rename specs/' + feature + '/ to use the DDD lane')
-    document, _ = evidence(root, feature)
-    return {'proceed': 'CONTINUE', 'defer-to-domain-update': 'DEFER', 'rejected': 'REJECT'}.get(document.get('decision'), 'CONTINUE')
+    document, _ = evidence(root, feature, allow_local=True, require_v2=require_v2)
+    return DECISIONS[document['decision']] if 'decision' in document else 'CONTINUE'
+
+
+def confirm(root, feature):
+    """Record one local operator choice. The terminal is an operational boundary, not authentication."""
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        raise ValueError('confirmation requires an interactive human-operated terminal')
+    root = Path(root).resolve(strict=True)
+    source = lambda path, optional: conditional.read_safe(root, path, optional)
+    cached, observed = snapshot_reader(source)
+    proposal, inputs = collect(feature, cached, allow_local=True, require_v2=True, preparing=True)
+    if proposal['proposal'] == 'FITS_EXISTING_CONCEPTS':
+        raise ValueError('FITS needs no decision')
+    prefix = 'specs/' + feature + '/concept-test'
+    decision_path = prefix + '.decision.json'
+    receipt = {'schema': 'concept-test-decision/v1', 'feature': feature,
+               'proposal_md_sha256': inputs[0]['sha256'], 'proposal_json_sha256': inputs[1]['sha256']}
+    display = {'project': str(root), **proposal, 'proposal_md_sha256': receipt['proposal_md_sha256'],
+               'proposal_json_sha256': receipt['proposal_json_sha256']}
+    if observed[decision_path] is not None:
+        display['previous_local_decision'] = parse(observed[decision_path])
+    # Escape control characters in project-authored text before displaying it on the terminal.
+    rendered = json.dumps(display, indent=2, ensure_ascii=False)
+    print(''.join(ch if ch == '\n' or ch.isprintable() else json.dumps(ch)[1:-1] for ch in rendered))
+    answer = input('Select proceed / defer-to-domain-update / rejected (Enter cancels): ').strip()
+    if answer not in DECISIONS:
+        raise ValueError('no valid decision selected')
+    receipt['decision'] = answer
+    dest = root / decision_path
+    lock = dest.with_suffix('.lock')
+    # Only one issuer can publish. Compare the complete proposal and previous decision after
+    # the operator replies so concurrent confirmations cannot silently overwrite one another.
+    def check_unchanged(expected):
+        for path, data in expected.items():
+            if source(path, True) != data:
+                raise ValueError('inputs or the prior decision changed during confirmation')
+
+    check_unchanged(observed)
+    owner = lock.open('x')
+    try:
+        with tempfile.TemporaryDirectory(dir=dest.parent) as staging:
+            temporary = Path(staging) / 'decision.json'
+            with temporary.open('w', encoding='utf-8', newline='\n') as output:
+                json.dump(receipt, output, ensure_ascii=False, indent=2)
+                output.write('\n')
+                output.flush()
+                os.fsync(output.fileno())
+            published = temporary.read_bytes()
+            check_unchanged(observed)
+            os.replace(temporary, dest)
+            # Project inputs can be edited independently of the issuer lock. If the
+            # published decision cannot be admitted, preserve the previous choice.
+            try:
+                outcome = validate(root, feature, require_v2=True)
+                check_unchanged({**observed, decision_path: published})
+                return outcome
+            except (Exception, KeyboardInterrupt):
+                if source(decision_path, True) == published:
+                    previous = observed[decision_path]
+                    if previous is None:
+                        dest.unlink()
+                    else:
+                        temporary.write_bytes(previous)
+                        os.replace(temporary, dest)
+                raise
+    finally:
+        owner.close()
+        lock.unlink()
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument('--root', required=True)
     parser.add_argument('--feature', required=True)
+    parser.add_argument('--require-v2', action='store_true', help='reject missing domain or older proposals')
+    parser.add_argument('--confirm', action='store_true', help='interactively record a local v2 decision')
     args = parser.parse_args()
     try:
-        result = validate(args.root, args.feature)
+        result = confirm(args.root, args.feature) if args.confirm else validate(args.root, args.feature, args.require_v2)
         print(result)
         return {'SKIP': 0, 'CONTINUE': 0, 'DEFER': 2, 'REJECT': 3}[result]
     except FeatureNameError as error:
         print(str(error), file=sys.stderr)
         return 1
-    except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError, auth.ValidateApprovalSidecarError):
-        print('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved', file=sys.stderr)
+    except (EOFError, KeyboardInterrupt):
+        print('concept-test: BLOCK: confirmation cancelled', file=sys.stderr)
+        return 1
+    except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError, auth.ValidateApprovalSidecarError) as error:
+        print('concept-test: BLOCK: ' + str(error), file=sys.stderr)
         return 1
 
 

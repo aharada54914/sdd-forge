@@ -306,10 +306,18 @@ Templates for all three artifacts live in
   `domain-contract.json`.
 - `investigate-codebase`'s `specs/<feature>/investigation.md` output, read
   only by `domain-reverse` to build a candidate seed — never written to.
-- `tasks.md`-mediated consent is not used for cross-model verification;
-  `domain-review-loop` invokes `prepare-panelist-input.sh` /
-  `check-cross-model.sh` directly under human (`SDD_SUDO`-style)
-  authorization instead.
+- Cross-model panelist invocation (`prepare-panelist-input.sh` /
+  `check-cross-model.sh`) and `SDD_SUDO` authorization are retired in v2
+  ([ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md)); the
+  public v2 single-pass `domain-review-loop` runs `domain-reviewer-a` and
+  `domain-reviewer-b` locally (4-key `domain-reviewer-{a,b}/v2` JSON,
+  `PASS` / `PASS_WITH_NOTES` / `NEEDS_FIX`, writing
+  `reports/domain-review/latest.md`) without external cross-model calls or
+  privilege-escalation tokens. The historical v1 compatibility scripts
+  (`domain-review-precheck.{sh,ps1}` and `finalize-domain-review.{py,sh,ps1}`)
+  remain a separate entry point requiring 8-key `domain-reviewer-{a,b}/v1`
+  inputs (`PASS` / `NEEDS_WORK` / `BLOCKED`), `domain-review-precheck/v1`,
+  and `identity-ledger.json` reservations, and do not accept v2 outputs.
 
 ### What sdd-domain writes
 
@@ -326,11 +334,27 @@ per-feature `specs/<feature>/`):
   `domain/aggregates/*.md`, `domain/message-flow.md` — the seven-stage Markdown artifact set, each
   checkpointed to disk before the next stage begins (resumable on
   interruption).
-- A `Domain-Model-Status` field (Pending / Approved) inside `domain/`,
-  gated on `domain/context-map.md`: only a human may set it to Approved;
-  `sdd-hook-guard` rejects an agent-authored write of the approved value
-  (a valid `SDD_SUDO` token permits it, matching the `tasks.md`
-  approval-guard pattern).
+- A `Domain-Model-Status` field (`Pending` / `Reviewed` / `Approved`) inside `domain/`,
+  gated on `domain/context-map.md`: `domain-review-loop` may set `Reviewed`
+  after a passing review, while only a human may set `Approved`. The retired
+  v1 `sdd-hook-guard` + `SDD_SUDO` bypass is replaced per
+  [ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) by
+  `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs`, which denies direct
+  file-editing tool and `apply_patch` edits that increase
+  `Domain-Model-Status: Approved` in `domain/context-map.md` (with no
+  `SDD_SUDO` bypass; shell tools pass through unless `AGENT_STOP` is present).
+
+The feature Concept Test writes its proposal to
+`specs/<feature>/concept-test.json` and mirrors it in `concept-test.md`.
+For a new `concept-test/v2` proposal outside the existing concepts, a
+human runs the validator with `--confirm` in a terminal. The resulting
+`concept-test.decision.json` records the feature, the SHA-256 of both
+proposal files and the choice. Only `proceed` permits subsequent work.
+Changes to either proposal file require a fresh decision. A proposal that
+fits the existing concepts proceeds after validation without a decision
+record. Historical `concept-test/v1` approvals retain their signature
+checks. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
+· [ADR-0053](docs/adr/0053-keyless-concept-decisions.md)
 
 ### Handoff Rules
 
@@ -357,10 +381,15 @@ per-feature `specs/<feature>/`):
   `workflow-retrospective` aggregates its warn findings into domain-drift
   metrics (term-deviation count, boundary-violation count) when they have
   been recorded in quality-gate reports.
-- Absence contract: when `domain/` does not exist, every hook, sync step,
-  and gate skips with exactly one recorded skip line — absence never
-  blocks a workflow, and existing workflows produce byte-identical
-  artifacts (AC-010).
+- In projects with no domain model or Concept Test, the optional domain
+  workflow skips with one recorded reason, preserving its existing outputs
+  (AC-010). The quality gate checks the current project's working tree and
+  Git index for the feature's v2 Concept Test proposal or decision record.
+  An incomplete proposal also triggers validation. When v2 validation is
+  required, a proposal missing from the working tree or a missing domain
+  directory blocks the gate. A v2 proposal that remains in the index still
+  counts. If commit history is the feature's only evidence requiring v2
+  validation, the check is `NOT_APPLICABLE` in both full and shallow clones.
 - Cross-plugin file ownership: sdd-domain never reads another plugin's
   files by relative filesystem path at runtime. Its seven stage templates
   are local to domain-interviewer. C4 architecture diagrams use bootstrap

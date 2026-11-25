@@ -5,7 +5,7 @@
  * only test code may invoke the shell scripts; src/ never does).
  */
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -44,17 +44,20 @@ export function findRepoRoot(): string {
  * read this same isolated input tree; the live repository is never modified.
  * Contract-policy enforcement is tested separately, not claimed as parser parity.
  */
-export function historicalGoldenRoot(repoRoot: string): { path: string; cleanup: () => void } {
+export function historicalGoldenRoot(repoRoot: string, options: { withHistory?: boolean } = {}): { path: string; cleanup: () => void } {
   const path = mkdtempSync(join(tmpdir(), "sdd-golden-"));
   try {
     for (const directory of ["specs", "reports", "plugins", "contracts"]) {
       cpSync(join(repoRoot, directory), join(path, directory), { recursive: true });
     }
-    // Preserve the real read-only commit graph for evidence ancestry checks.
-    const gitDir = execFileSync("git", ["rev-parse", "--absolute-git-dir"], {
-      cwd: repoRoot, encoding: "utf-8",
-    }).trim();
-    writeFileSync(join(path, ".git"), `gitdir: ${gitDir}\n`);
+    // Only the live host can check ancestry. Recorded comparisons also run
+    // from source exports without a Git repository or installed Git binary.
+    if (options.withHistory && existsSync(join(repoRoot, ".git"))) {
+      const gitDir = execFileSync("git", ["rev-parse", "--absolute-git-dir"], {
+        cwd: repoRoot, encoding: "utf-8",
+      }).trim();
+      writeFileSync(join(path, ".git"), `gitdir: ${gitDir}\n`);
+    }
     return { path, cleanup: () => rmSync(path, { recursive: true, force: true }) };
   } catch (error) {
     rmSync(path, { recursive: true, force: true });
@@ -73,27 +76,16 @@ export function historicalGoldenRoot(repoRoot: string): { path: string; cleanup:
  * the parser's relative-path output for reasons that have nothing to do with
  * verdict correctness.
  */
-export function runCheckTaskState(repoRoot: string, feature: string): ShellRunResult {
-  const tasksRelPath = join("specs", feature, "tasks.md");
-  const scriptPath = join(
-    repoRoot,
-    "plugins",
-    "sdd-quality-loop",
-    "scripts",
-    "check-task-state.sh",
-  );
-  try {
-    const stdout = execFileSync("bash", [scriptPath, tasksRelPath], {
-      cwd: repoRoot,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    return { exitCode: 0, combinedOutput: stdout };
-  } catch (error) {
-    const execError = error as { status?: number; stdout?: string; stderr?: string };
-    const combinedOutput = `${execError.stdout ?? ""}${execError.stderr ?? ""}`;
-    return { exitCode: execError.status ?? 1, combinedOutput };
-  }
+export function runCheckTaskState(
+  repoRoot: string,
+  feature: string,
+  scriptPath = join(repoRoot, "plugins", "sdd-quality-loop", "scripts", "check-task-state.sh"),
+): ShellRunResult {
+  const tasksRelPath = `specs/${feature}/tasks.md`;
+  const run = spawnSync("bash", [scriptPath, tasksRelPath], { cwd: repoRoot, encoding: "utf8" });
+  if (run.error) throw run.error;
+  if (run.status === null) throw new Error(`check-task-state.sh terminated by ${run.signal}`);
+  return { exitCode: run.status, combinedOutput: run.stdout + run.stderr };
 }
 
 /**

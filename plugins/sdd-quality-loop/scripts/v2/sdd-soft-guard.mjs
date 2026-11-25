@@ -9,13 +9,12 @@
  *
  * Three crisp responsibilities only:
  *   1. Kill switch (AGENT_STOP) — always fail-closed.
- *   2. Approval guard — block net increase of 'Approval: Approved' in tasks.md.
+ *   2. Human approval guards — protect task/domain approvals and Concept Test decisions.
  *   3. Soft spec guard — protect approved specs/<feature>/*.md body edits
  *      according to sdd/guardrails.yaml (warn | confirm | strict; default confirm).
  *
  * Non-file-mutating tools (Bash/shell/run_shell_command/Read/Glob/Grep) pass
- * immediately with zero shell-parsing overhead. Out-of-band spec mutations are
- * deterministically caught by check-spec-drift.mjs in sdd-gate and CI.
+ * immediately with zero shell-parsing overhead.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -76,6 +75,10 @@ const APPROVAL_MSG =
 const DOMAIN_APPROVAL_MSG =
   "SDD ソフトガード: エージェントは domain/context-map.md の 'Domain-Model-Status: Approved' を増やせません。ドメインモデルの承認は人間が直接行ってください。\n" +
   "[EN] SDD soft guard: agents cannot add 'Domain-Model-Status: Approved' in domain/context-map.md. Only a human may approve the domain model.";
+
+const CONCEPT_DECISION_MSG =
+  'SDD ソフトガード: concept-test.decision.json は人間専用の判断記録です。専用の対話確認手順を使用してください。\n' +
+  '[EN] Only a human may record a Concept Test decision through the interactive confirmation.';
 
 function buildSpecGuardMessage(mode, relPath, feature) {
   if (mode === 'strict') {
@@ -197,7 +200,7 @@ function normalizePayload(rawPayload, emitMode) {
   if (emitMode === 'copilot' && ('toolName' in rawPayload || 'toolArgs' in rawPayload)) {
     const toolName = String(rawPayload.toolName || '').toLowerCase();
     let args = rawPayload.toolArgs;
-    if (typeof args === 'string' && toolName !== 'apply_patch') {
+    if (typeof args === 'string' && (toolName !== 'apply_patch' || args.trimStart().startsWith('{'))) {
       try {
         args = JSON.parse(args);
       } catch {
@@ -206,7 +209,7 @@ function normalizePayload(rawPayload, emitMode) {
     }
     const cwd = typeof rawPayload.cwd === 'string' ? rawPayload.cwd : undefined;
     if (toolName === 'apply_patch') {
-      return { tool_name: 'apply_patch', tool_input: { command: String(args || '') }, cwd };
+      return { tool_name: 'apply_patch', tool_input: args, cwd };
     }
     if (toolName === 'create' && args && typeof args === 'object') {
       return {
@@ -389,6 +392,15 @@ function evaluateSingleMutation({ filePath, oldContent, newContent, fallbackOldS
   }
 
   const normalizedTarget = toPosixPath(filePath);
+  // Check both the addressed name (including a move/delete) and the resolved
+  // target. For a new file, its existing parent may itself be a symlink.
+  const receiptPath = /^specs\/[^/]+\/concept-test\.decision\.json$/i;
+  const resolvedParent = safeRealpath(path.dirname(filePath));
+  const targets = [path.resolve(filePath), path.join(resolvedParent, path.basename(filePath)), safeRealpath(filePath)];
+  if (targets.some(target => [effectiveRoot, projectRoot].some(root =>
+    receiptPath.test(toPosixPath(path.relative(root, target)))))) {
+    return { decision: 'deny', reason: CONCEPT_DECISION_MSG, warning: null };
+  }
   const isTasksMd = normalizedTarget.toLowerCase().endsWith('tasks.md');
   const isDomainContextMap = normalizedTarget.toLowerCase().endsWith('domain/context-map.md');
 
@@ -513,7 +525,9 @@ export function evaluateHookPayload(rawPayload, options = {}) {
 
   // apply_patch handling (Codex / Copilot)
   if (toolName === 'apply_patch') {
-    const patchText = String(toolInput.command || '');
+    const patchText = typeof payload.tool_input === 'string'
+      ? payload.tool_input
+      : String(toolInput.command ?? toolInput.patch ?? toolInput.input ?? '');
     const sections = parsePatchSections(patchText);
     let combinedWarning = null;
     for (const section of sections) {

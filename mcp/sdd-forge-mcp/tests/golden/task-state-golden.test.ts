@@ -19,6 +19,8 @@
  */
 
 import { test } from "node:test";
+import { spawnSync } from "node:child_process";
+import { join } from "node:path";
 import assert from "node:assert/strict";
 import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { parseTaskState } from "../../src/parsers/tasks.js";
@@ -104,7 +106,7 @@ test("live shell comparison: parseTaskState matches check-task-state.sh for ever
     return;
   }
 
-  const fixture = historicalGoldenRoot(findRepoRoot());
+  const fixture = historicalGoldenRoot(findRepoRoot(), { withHistory: true });
   t.after(fixture.cleanup);
   const repoRoot = fixture.path;
   const root = makeRepoRoot(repoRoot);
@@ -175,6 +177,30 @@ test("recorded fixture comparison: parseTaskState matches the committed golden f
   }
 });
 
+test("contract checker enforces component coverage when Context is activated", (t) => {
+  const repository = findRepoRoot();
+  const fixture = historicalGoldenRoot(repository);
+  t.after(fixture.cleanup);
+  const scripts = join(fixture.path, "plugins/sdd-quality-loop/scripts");
+  const contract = "specs/bootstrap-interviewer-enhancement/verification/T-004.contract.json";
+  const checkContract = () => {
+    const windows = process.platform === "win32";
+    const args = windows
+      ? ["-NoProfile", "-File", join(scripts, "check-contract.ps1"), contract, fixture.path]
+      : [join(scripts, "check-contract.sh"), contract, fixture.path];
+    const result = spawnSync(windows ? "powershell.exe" : "sh", args, { cwd: fixture.path, encoding: "utf8" });
+    if (result.error) throw result.error;
+    return { status: result.status, output: result.stdout + result.stderr };
+  };
+  const historical = checkContract();
+  assert.equal(historical.status, 0, historical.output);
+  mkdirSync(join(fixture.path, "sdd"));
+  cpSync(join(repository, "sdd/project-context.yaml"), join(fixture.path, "sdd/project-context.yaml"));
+  const active = checkContract();
+  assert.equal(active.status, 1, active.output);
+  assert.match(active.output, /requires check 'check-component-coverage' present and required:true \(missing\)/);
+});
+
 // Active Context changes the shell contract policy, which the read-only parser
 // explicitly does not reimplement. Keep that refusal visible instead of masking it.
 test("active Context still rejects historical high-risk contracts without coverage", (t) => {
@@ -183,7 +209,7 @@ test("active Context still rejects historical high-risk contracts without covera
     return;
   }
   const repository = findRepoRoot();
-  const fixture = historicalGoldenRoot(repository);
+  const fixture = historicalGoldenRoot(repository, { withHistory: true });
   t.after(fixture.cleanup);
   assert.equal(existsSync(`${fixture.path}/sdd/project-context.yaml`), false);
   assert.equal(existsSync(`${fixture.path}/sdd/project-context.approval.json`), false);

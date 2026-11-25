@@ -16,7 +16,7 @@ disable-model-invocation: true
 4. 必要なテストを追加・更新し、スコープ内のチェックを実行する。
 5. 修正とテストが通った場合のみチケットを `resolved` とし、対象タスクを `Status: Implementation Complete` に戻す。
 6. **2 回再発ルール**: 同一パターンの不具合・指摘が 2 回以上発生している場合は個別修正だけで終えず、共通ルール（`AGENTS.md` / `sdd/knowledge/`）・回帰テスト・`sdd-doctor` 検査への昇格を人間へ提案する。
-7. `Done` にする前に、チケットの `target` の feature とタスクを明示して `/sdd-ship:ship specs/<feature>/tasks.md#<task>` を実行し、そのタスクだけ `sdd-gate` を再実行する（ship は `Implementation Complete` のタスクを実装せずゲートへ進む）。チケットの target に feature または task がない場合は推測せず停止し、人間に対象を確認する。
+7. `Done` にする前に、チケットから確定した実際の `<feature>` と `<task-id>` を両方明示した `/sdd-ship:ship specs/<feature>/tasks.md#<task-id>` のみで再検証に入り、`sdd-gate` を通す（同一フィーチャー内の未着手な `Planned` タスク等を巻き込まないため、`#<task-id>` を省いたフィーチャー全体指定は行わない。チケットに一意な `<feature>` または `<task-id>` が欠けている場合は、推測や全体指定へフォールバックせず手順 2 に従って停止し人間へ確認する）。
 
 ## Boundaries
 

@@ -594,21 +594,31 @@ export function scopeMatchesFile(scopeEntry, changedFile) {
   return cf === sp || cf.startsWith(`${sp}/`);
 }
 
-function globStaticDir(glob) {
-  const parts = glob.split('/');
-  const staticParts = [];
-  for (const part of parts) {
-    if (/[*?]/.test(part)) break;
-    staticParts.push(part);
+function normalizeScopePattern(entry) {
+  let norm = normalizeRelPath(entry);
+  while (norm.startsWith('./')) {
+    norm = norm.slice(2).replace(/\/+$/, '');
   }
-  return staticParts.join('/');
+  return norm;
 }
 
-function scopeEntriesOverlap(a, b) {
-  const na = normalizeRelPath(a);
-  const nb = normalizeRelPath(b);
+function isAmbiguousScopePattern(norm) {
+  if (norm.startsWith('/') || norm.includes('//')) return true;
+  return norm.split('/').some((seg) => seg === '.' || seg === '..');
+}
+
+function fixedLiteralSuffix(pattern) {
+  const lastMeta = Math.max(pattern.lastIndexOf('*'), pattern.lastIndexOf('?'), pattern.lastIndexOf('/'));
+  return pattern.slice(lastMeta + 1);
+}
+
+export function scopeEntriesOverlap(a, b) {
+  const na = normalizeScopePattern(a);
+  const nb = normalizeScopePattern(b);
   if (!na || !nb) return false;
   if (na === nb) return true;
+  if (isAmbiguousScopePattern(na) || isAmbiguousScopePattern(nb)) return true;
+
   const aWild = /[*?]/.test(na);
   const bWild = /[*?]/.test(nb);
   if (!aWild && !bWild) {
@@ -617,14 +627,43 @@ function scopeEntriesOverlap(a, b) {
   if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
     return true;
   }
-  if (aWild && bWild) {
-    const dirA = globStaticDir(na);
-    const dirB = globStaticDir(nb);
-    if (dirA === dirB) return true;
-    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
-    if ((!dirA && na.includes('**')) || (!dirB && nb.includes('**'))) return true;
+
+  const segsA = na.split('/');
+  const segsB = nb.split('/');
+  const aHasDouble = na.includes('**');
+  const bHasDouble = nb.includes('**');
+
+  // Fixed segment-count bounds when a wildcard pattern has no `**`.
+  if (aWild && !aHasDouble) {
+    if (bWild && !bHasDouble && segsA.length !== segsB.length) return false;
+    if (!bWild && segsA.length < segsB.length) return false;
   }
-  return false;
+  if (bWild && !bHasDouble && !aWild && segsB.length < segsA.length) {
+    return false;
+  }
+
+  // Leading path-component constraints before any `**` segment.
+  const minLen = Math.min(segsA.length, segsB.length);
+  for (let i = 0; i < minLen; i += 1) {
+    const sa = segsA[i];
+    const sb = segsB[i];
+    if (sa.includes('**') || sb.includes('**')) break;
+    if (!/[*?]/.test(sb)) {
+      if (!globToRegExp(sa).test(sb)) return false;
+    } else if (!/[*?]/.test(sa) && !globToRegExp(sb).test(sa)) {
+      return false;
+    }
+  }
+
+  // Disjoint fixed literal suffixes for wildcard pairs (both anchored at end of path).
+  if (aWild && bWild) {
+    const sufA = fixedLiteralSuffix(na);
+    const sufB = fixedLiteralSuffix(nb);
+    const length = Math.min(sufA.length, sufB.length);
+    if (length && !globToRegExp(sufA.slice(-length)).test(sufB.slice(-length))) return false;
+  }
+
+  return true;
 }
 
 function isTestPath(relPath) {
@@ -1400,6 +1439,8 @@ export function buildReviewPerspectiveMatrix({
   const hasCloud = domains.includes('AWS') || domains.includes('Azure') || domains.includes('Cloud');
   const hasDdd = domains.includes('DDD');
   const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
+  const effectiveSpecCheck = specCheckVerdict || 'Not Run';
+  const specCheckConfirmed = effectiveSpecCheck === 'PASS' || effectiveSpecCheck === 'PASS_WITH_NOTES';
 
   const matrix = COMMON_REVIEW_PERSPECTIVES.map((p) => {
     let disposition = p.defaultDisposition;
@@ -1407,10 +1448,15 @@ export function buildReviewPerspectiveMatrix({
 
     if (p.id === 'C01') {
       disposition = alternativesRejected.length > 0 ? '採用' : '軽く確認';
-      reason =
-        alternativesRejected.length > 0
-          ? `採らなかった設計が ${alternativesRejected.length} 件記録されており判断根拠の確認が必要。`
-          : '標準構成。spec-check で既存設計との整合を確認済み。';
+      if (alternativesRejected.length > 0) {
+        reason = `採らなかった設計が ${alternativesRejected.length} 件記録されており判断根拠の確認が必要。`;
+      } else if (specCheckConfirmed) {
+        reason = `標準構成。spec-check (${effectiveSpecCheck}) の判定を記録。設計整合の個別結果はレポートを確認すること。`;
+      } else if (effectiveSpecCheck === 'Not Run') {
+        reason = `標準構成。spec-check (${effectiveSpecCheck}) は未実施。既存設計との整合は未確認。`;
+      } else {
+        reason = `標準構成。spec-check (${effectiveSpecCheck}) は未通過のため、既存設計との整合を確認すること。`;
+      }
     } else if (p.id === 'C02') {
       disposition = hasSql || hasDdd || highestRisk === 'high' ? '最重要' : '軽く確認';
       reason =
@@ -1440,16 +1486,22 @@ export function buildReviewPerspectiveMatrix({
       reason =
         provisionalCount > 0
           ? `未確定事項（OQ-NNN）が ${provisionalCount} 件あり、事業判断・業務例外の確認が必要。`
-          : '業務ルール・境界値は AC とテスト方針に落とし込み済み。';
+          : '未確定の OQ-NNN はなし。業務ルール・境界値が AC とテスト方針に反映されているか確認。';
     } else if (p.id === 'C07') {
       disposition = '機械検証';
-      reason = `check-traceability.mjs / check-spec-drift.mjs / spec-check (${specCheckVerdict}) で自動照合済み。人は逸脱時のみ確認。`;
+      if (specCheckConfirmed) {
+        reason = `spec-check (${effectiveSpecCheck}) は確認済み。check-traceability.mjs / check-spec-drift.mjs の実行結果で逸脱がないか確認すること。`;
+      } else if (effectiveSpecCheck === 'Not Run') {
+        reason = `spec-check (${effectiveSpecCheck}) は未実施。check-traceability.mjs / check-spec-drift.mjs の実行結果とあわせて確認すること。`;
+      } else {
+        reason = `spec-check (${effectiveSpecCheck}) は未通過。check-traceability.mjs / check-spec-drift.mjs の実行結果とあわせて確認すること。`;
+      }
     } else if (p.id === 'C08') {
       disposition = hasSql || hasCloud || highestRisk === 'high' ? '最重要' : '機械検証';
       reason =
         hasSql || hasCloud || highestRisk === 'high'
-          ? 'SQL/Cloud/高リスク領域を含むため、機械センサー＋人間の切戻し確認を併用。'
-          : 'run-sdd-gate.mjs の決定論センサー（Secret/Placeholder/lint/test）で自動検証。';
+          ? 'SQL/Cloud/高リスク領域を含むため、run-sdd-gate.mjs / CI の機械センサー実行と人間の切戻し確認を併用すること。'
+          : '実装後の run-sdd-gate.mjs / CI（Secret/Placeholder/lint/test）の機械検証結果を確認してください。';
     }
 
     return {
@@ -1622,7 +1674,7 @@ export function renderDecisionViewMarkdown(data) {
   const lines = [];
   lines.push(`# Decision View: ${data.feature}`);
   lines.push('');
-  lines.push('> 全文を読み解く代わりに、**人が判断すべき要点（事実・理由・問い）** と **機械検証済みの領域** を分離したレビュービューです。');
+  lines.push('> 全文を読み解く代わりに、**人が判断すべき要点（事実・理由・問い）** と **機械検証の対象領域・既知の spec-check 結果** を整理したレビュービューです。');
   lines.push('');
   lines.push('## 1. 全体像（Overview）');
   lines.push('');
@@ -1829,7 +1881,7 @@ export function renderDecisionViewHtml(data) {
 </head>
 <body>
   <h1>Decision View: ${escapeHtml(data.feature)}</h1>
-  <p class="muted">生成時刻: ${escapeHtml(data.generatedAt)} — 機械確認済み項目と人間が判断すべき問いを分離したビュー</p>
+  <p class="muted">生成時刻: ${escapeHtml(data.generatedAt)} — 機械検証の対象領域・既知の spec-check 結果と人間が判断すべき問いを整理したビュー</p>
   <div class="meta">
     <span class="pill">Domains: ${escapeHtml(data.domains.join(' / '))}</span>
     <span class="pill">Highest Risk: ${escapeHtml(data.highestRisk)}</span>

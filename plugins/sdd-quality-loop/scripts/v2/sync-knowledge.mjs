@@ -20,7 +20,7 @@ import path from 'node:path';
 import {
   assertValidFeatureName,
   createFsReadonlyIo,
-  extractAmendmentEntries,
+  extractAmendmentEntriesWithLines,
   resolveExplicitOrAutoRoot,
   isMainModule,
 } from './guardrails-lib.mjs';
@@ -101,8 +101,13 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
     const rel = `specs/${feature}/${fileName}`;
     const raw = io.readText(rel);
     if (!raw) continue;
-    for (const entry of extractAmendmentEntries(raw)) {
-      amendments.push({ file: rel, text: entry });
+    for (const entry of extractAmendmentEntriesWithLines(raw, rel)) {
+      amendments.push({
+        file: rel,
+        line: entry.sourceLine,
+        sourceRef: entry.sourceRef,
+        text: entry.text,
+      });
     }
   }
 
@@ -139,7 +144,7 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
     lines.push('- 該当なし');
   } else {
     for (const a of amendments) {
-      lines.push(`- (\`${a.file}\`) ${a.text}`);
+      lines.push(`- (\`${a.sourceRef || a.file}\`) ${a.text}`);
     }
   }
 

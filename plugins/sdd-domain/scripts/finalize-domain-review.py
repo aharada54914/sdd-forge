@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Validate reserved domain reviews and publish immutable, approval-pending evidence."""
+"""Validate reserved historical v1 domain reviews and publish immutable, approval-pending evidence.
+
+Historical v1 compatibility tool only -- NOT compatible with the current public
+v2 single-pass `domain-review-loop` outputs (`domain-reviewer-{a,b}/v2`,
+`PASS_WITH_NOTES` / `NEEDS_FIX`, `reports/domain-review/latest.md`). Requires
+`reports/domain-review/attempt-<N>/round-<M>/precheck-result.json`
+(`domain-review-precheck/v1`), sequential `reports/review-context/identity-ledger.json`
+reservations (`reviewer-{a,b}-invocation.json`), 8-key `reviewer-{a,b}.json`
+(`schema: domain-reviewer-{a,b}/v1`, `verdict: PASS | NEEDS_WORK | BLOCKED`),
+and `--mode summary` (`integrated-summary.json`) before Reviewer B.
+"""
 import argparse
 import hashlib
 import json

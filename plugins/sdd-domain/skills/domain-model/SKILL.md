@@ -50,7 +50,7 @@ disable-model-invocation: true
 
 ### `review`
 1. `domain-review-loop` スキルを呼び出し、決定論スキーマ検証＋2 視点独立並列レビューを実行する。
-2. レビュー結果（`PASS` / `PASS_WITH_NOTES` / `NEEDS_FIX`）と `reports/domain-review/latest.md` のパスを人間へ報告する。
+2. `reports/domain-review/latest.md` のパスと判定を人に返す。`PASS` / `PASS_WITH_NOTES` なら Handoff の承認・発行手順を案内する。`NEEDS_FIX` なら Blocker と修正後の再レビューを案内して停止する。
 
 ## Hard Rules
 
@@ -60,4 +60,6 @@ disable-model-invocation: true
 
 ## Handoff
 
-実行モード・更新/検証した成果物パス・`domain-contract.json` 検証結果、および次のアクション（`review` 未実施なら `/sdd-domain:domain-model review`、`Reviewed` 到達済みなら人間による `Domain-Model-Status: Approved` 設定）を報告する。
+実行モード、成果物パス、`domain-contract.json` の検証結果を報告する。レビュー前なら `/sdd-domain:domain-model review` を案内する。
+
+`Reviewed` に達したら、[人による承認と契約の発行](../domain-review-loop/SKILL.md#人による承認と契約の発行) の手順を人に示す。承認を選んだ本人が `domain/context-map.md` を `Approved` にし、同じレビュー済みの版から `domain/domain-contract.json` の候補を検証して発行する。発行後は新しい入力で Concept Test 提案を作り直す。

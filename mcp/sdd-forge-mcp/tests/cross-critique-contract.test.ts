@@ -4,12 +4,11 @@ import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Ajv } from "ajv";
 import { load } from "js-yaml";
+import { packagePath, repoPath } from "./locate-source.js";
 
-// Compiled tests live under mcp/sdd-forge-mcp/dist-test/tests/.
-const schema = JSON.parse(readFileSync(new URL("../../../../contracts/cross-critique.v1.schema.json", import.meta.url), "utf8"));
+const schema = JSON.parse(readFileSync(repoPath("contracts", "cross-critique.v1.schema.json"), "utf8"));
 const validate = new Ajv({ strict: false, validateFormats: false }).compile(schema);
 const citation = { path: "src/example.ts", line_start: 1, line_end: 1, claim: "Concrete supporting evidence" };
 function verdict() {
@@ -25,10 +24,9 @@ function accepts(record: unknown) {
 }
 
 test("evaluation accepts unavailable duration without treating it as zero", () => {
-  const root = new URL("../../../../", import.meta.url);
-  const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-evaluation.v1.schema.json", root), "utf8"));
+  const contract = JSON.parse(readFileSync(repoPath("contracts", "adversarial-review-evaluation.v1.schema.json"), "utf8"));
   const check = new Ajv({ strict: false, validateFormats: false }).compile(contract);
-  const record = JSON.parse(readFileSync(new URL("reports/adversarial-review/feat-adversarial-review-enhancements/evaluation.json", root), "utf8"));
+  const record = JSON.parse(readFileSync(repoPath("reports", "adversarial-review", "feat-adversarial-review-enhancements", "evaluation.json"), "utf8"));
   assert.equal(check(record), true, "historical record remains valid");
   for (const duration of [null, 0, 1234]) {
     assert.equal(check({ ...record, duration_ms: duration }), true, JSON.stringify(check.errors));
@@ -42,7 +40,7 @@ test("cross critique accepts a supported finding", () => assert.equal(accepts(ve
 test("cross critique accepts completed zero-finding reviews without weakening unavailable validation", () => {
   const dir = mkdtempSync(join(tmpdir(), "cross-critique-empty-"));
   const path = join(dir, "annex.json");
-  const cli = fileURLToPath(new URL("../../scripts/check-cross-critique.mjs", import.meta.url));
+  const cli = packagePath("scripts", "check-cross-critique.mjs");
   try {
     for (const lane of [undefined, "sdd-gate", "standalone-adversarial"]) {
       const base = { schema_version: "cross-critique.v1", round_id: "round-clean",
@@ -73,7 +71,7 @@ test("cross critique accepts completed zero-finding reviews without weakening un
 test("cross critique CLI rejects reversed ranges without rejecting single-line citations", () => {
   const dir = mkdtempSync(join(tmpdir(), "cross-critique-"));
   const path = join(dir, "annex.json");
-  const cli = fileURLToPath(new URL("../../scripts/check-cross-critique.mjs", import.meta.url));
+  const cli = packagePath("scripts", "check-cross-critique.mjs");
   try {
     for (const [start, end, expected] of [[1, 1, 0], [2, 5, 0], [5, 2, 1]]) {
       writeFileSync(path, JSON.stringify({ schema_version: "cross-critique.v1", round_id: "round-1",
@@ -118,10 +116,9 @@ for (const kind of ["code_evidence", "spec_evidence"]) {
   });
 }
 test("evaluation distinguishes measured tokens from unavailable telemetry", () => {
-  const root = new URL("../../../../", import.meta.url);
-  const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-evaluation.v1.schema.json", root), "utf8"));
+  const contract = JSON.parse(readFileSync(repoPath("contracts", "adversarial-review-evaluation.v1.schema.json"), "utf8"));
   const check = new Ajv({ strict: false, validateFormats: false }).compile(contract);
-  const record = JSON.parse(readFileSync(new URL("reports/adversarial-review/feat-adversarial-review-enhancements/evaluation.json", root), "utf8"));
+  const record = JSON.parse(readFileSync(repoPath("reports", "adversarial-review", "feat-adversarial-review-enhancements", "evaluation.json"), "utf8"));
   assert.equal(check(record), true, "do not fabricate telemetry for historical records");
   for (const token_usage of [
     { total_tokens: null, unavailable_reason: "Host does not expose token telemetry" },
@@ -165,7 +162,7 @@ test("severity vocabulary is selected explicitly without weakening legacy gates"
 test("annex CLI preserves standalone severity while rejecting gate vocabulary mixing", () => {
   const dir = mkdtempSync(join(tmpdir(), "cross-critique-lane-"));
   const path = join(dir, "annex.json");
-  const cli = fileURLToPath(new URL("../../scripts/check-cross-critique.mjs", import.meta.url));
+  const cli = packagePath("scripts", "check-cross-critique.mjs");
   try {
     for (const [review_lane, proposed_severity, expected] of [
       ["standalone-adversarial", "MEDIUM", 0], ["standalone-adversarial", "Major", 1],
@@ -226,10 +223,9 @@ test("concerns retain their assertion and reject an absent or blank claim", () =
 });
 
 test("filled report template conforms to its metadata contract", () => {
-  const root = new URL("../../../../", import.meta.url);
-  const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-report.v1.schema.json", root), "utf8"));
+  const contract = JSON.parse(readFileSync(repoPath("contracts", "adversarial-review-report.v1.schema.json"), "utf8"));
   const check = new Ajv({ strict: false, validateFormats: false }).compile(contract);
-  const template = readFileSync(new URL("skills/adversarial-review/templates/report-template.md", root), "utf8");
+  const template = readFileSync(repoPath("skills", "adversarial-review", "templates", "report-template.md"), "utf8");
   const block = template.match(/```yaml\n([\s\S]*?)\n```/);
   assert.ok(block, "metadata YAML block must exist");
   const values: Record<string, string> = {

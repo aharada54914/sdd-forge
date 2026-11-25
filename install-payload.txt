@@ -23,6 +23,7 @@ install-payload.txt
 plugins/
 contracts/
 templates/cloud/
+sdd/guardrails.example.yaml
 scripts/check-sdd-structure.sh
 install.sh
 install.ps1
@@ -47,6 +48,8 @@ docs/troubleshooting.md
 docs/verification.md
 docs/workflow-guide.md
 docs/hosted-status-views.md
+docs/non-interactive-factory.md
+docs/sql-development.md
 docs/architecture/
 docs/adr/
 docs/contributor/workflow-detail.md

@@ -377,6 +377,120 @@ print('OK')
       assert.ok(schema.$defs?.[def], `Missing $defs.${def} in contracts/sdd-mcp.v2.schema.json`);
     }
   });
+
+  it('H4/N21/G7/R3: sdd-adopt templates, bootstrap adopt guidance, ticket-scoped ship reentry, and feature-scoped retrospective metrics stay aligned with v2 public commands', () => {
+    // H4: generated sdd-adopt templates use current public commands, accurate internal roles, human approvals, and task-scoped ticket retry
+    for (const rel of [
+      'plugins/sdd-bootstrap/skills/sdd-adopt/templates/AGENTS.template.md',
+      'plugins/sdd-bootstrap/skills/sdd-adopt/templates/CLAUDE.template.md',
+    ]) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      const withoutReportPaths = content.replace(/reports\/quality-gate\/?/g, '');
+      assert.doesNotMatch(
+        withoutReportPaths,
+        /\bsdd-bootstrap-interviewer\b|\bquality-gate\b|\blite-spec\b|\blite-gate\b|\bspec-review-loop\b|\bimpl-review-loop\b|\btask-review-loop\b|\/sdd-implementation:implement-task\b/,
+        `${rel} must not reference retired v1 or non-public slash skills`,
+      );
+      assert.match(content, /\/sdd-bootstrap:bootstrap/, `${rel} must reference public /sdd-bootstrap:bootstrap`);
+      assert.match(content, /\/sdd-ship:ship specs\/<feature>\/tasks\.md/, `${rel} must reference public /sdd-ship:ship`);
+      assert.match(
+        content,
+        /\/sdd-quality-loop:fix-by-review-ticket/,
+        `${rel} must reference public /sdd-quality-loop:fix-by-review-ticket`,
+      );
+      assert.match(content, /\bsdd-core-spec\b/, `${rel} must state internal sdd-core-spec responsibility`);
+      assert.match(content, /\bspec-check\b/, `${rel} must state internal spec-check responsibility`);
+      assert.match(content, /\bsdd-gate\b/, `${rel} must state internal sdd-gate Done responsibility`);
+      assert.match(content, /Approval: Approved/, `${rel} must preserve human-only Approval: Approved gate`);
+
+      const ticketLine = content.split(/\r?\n/).find((line) => line.includes('/sdd-quality-loop:fix-by-review-ticket'));
+      assert.ok(ticketLine, `${rel} must contain a review-ticket workflow step`);
+      const ticketShipCmds = [...ticketLine.matchAll(/\/sdd-ship:ship(?:\s+[^\s`）)。,;]+)*/g)].map((m) => m[0]);
+      assert.ok(ticketShipCmds.length >= 1, `${rel} ticket step must specify a /sdd-ship:ship retry command`);
+      for (const cmd of ticketShipCmds) {
+        assert.match(
+          cmd,
+          /^\/sdd-ship:ship\s+specs\/<feature>\/tasks\.md#<task-id>$/,
+          `${rel} ticket retry must include #<task-id> so unrelated Planned tasks are not started: ${cmd}`,
+        );
+      }
+    }
+
+    // N21: bootstrap and internal skills guide users to public /sdd-bootstrap:bootstrap adopt (never /sdd-bootstrap:sdd-adopt)
+    for (const rel of [
+      'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md',
+      'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md',
+      'plugins/sdd-implementation/skills/implement-task/SKILL.md',
+      'plugins/sdd-implementation/skills/implement-tasks/SKILL.md',
+    ]) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      assert.doesNotMatch(
+        content,
+        /\/sdd-bootstrap:sdd-adopt\b/,
+        `${rel} must not guide users to non-user-invocable /sdd-bootstrap:sdd-adopt`,
+      );
+      assert.match(content, /\/sdd-bootstrap:bootstrap adopt\b/, `${rel} must guide users to public /sdd-bootstrap:bootstrap adopt`);
+    }
+
+    // G7: fix-by-review-ticket reentry ALWAYS includes #<task-id> from the ticket so a same-feature unrelated Planned task is never started
+    const fixTicket = fs.readFileSync(
+      path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md'),
+      'utf8',
+    );
+    const reentryCmds = [...fixTicket.matchAll(/\/sdd-ship:ship(?:\s+[^\s`）)。,;]+)*/g)].map((m) => m[0]);
+    assert.ok(reentryCmds.length >= 1, 'fix-by-review-ticket must specify a /sdd-ship:ship reentry command');
+    for (const cmd of reentryCmds) {
+      assert.match(
+        cmd,
+        /^\/sdd-ship:ship\s+specs\/<feature>\/tasks\.md#<task-id>$/,
+        `fix-by-review-ticket reentry must always require both <feature> and #<task-id> fragment: ${cmd}`,
+      );
+    }
+
+    // Concrete same-feature fixture: ticket targets T-001 (Implementation Complete) while T-002 is an unrelated Approved Planned task
+    const sameFeatureTasks = [
+      { id: 'T-001', approval: 'Approved', status: 'Implementation Complete' },
+      { id: 'T-002', approval: 'Approved', status: 'Planned' },
+    ];
+    const resolvedTicket = { feature: 'payments', task: 'T-001' };
+    for (const template of reentryCmds) {
+      const invoked = template
+        .replace('<feature>', resolvedTicket.feature)
+        .replace('<task-id>', resolvedTicket.task);
+      const match = invoked.match(/^\/sdd-ship:ship\s+specs\/([^/\s]+)\/tasks\.md#([^\s]+)$/);
+      assert.ok(match, `Resolved ticket reentry must carry explicit feature and #task-id fragment: ${invoked}`);
+      const [, targetFeature, targetTaskId] = match;
+      assert.equal(targetFeature, 'payments');
+      const selected = sameFeatureTasks.filter((t) => t.id === targetTaskId);
+      assert.deepEqual(
+        selected.map((t) => t.id),
+        ['T-001'],
+        'Reentry fragment must isolate the ticket task and exclude same-feature unrelated Planned task T-002',
+      );
+    }
+    assert.match(fixTicket, /手順\s*2/, 'fix-by-review-ticket must defer to step 2 when ticket lacks an unambiguous task ID');
+    assert.match(fixTicket, /Status: Implementation Complete/);
+    assert.match(fixTicket, /Approval:/);
+    assert.match(fixTicket, /Status: Done/);
+
+    // R3: workflow-retrospective uses factory-metrics.mjs --feature "<feature>" for single-feature scope and keeps project-wide option
+    const retro = fs.readFileSync(
+      path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md'),
+      'utf8',
+    );
+    const retroUnwrapped = retro.replace(/\\\r?\n\s*/g, ' ');
+    const metricsCmds = retroUnwrapped
+      .split(/\r?\n/)
+      .filter((line) => line.includes('factory-metrics.mjs') && line.includes('--root'));
+    assert.ok(
+      metricsCmds.some((line) => line.includes('--feature "<feature>"')),
+      'workflow-retrospective must pass --feature "<feature>" for single-feature retrospective',
+    );
+    assert.ok(
+      metricsCmds.some((line) => !line.includes('--feature')),
+      'workflow-retrospective must keep project-wide factory-metrics.mjs invocation without --feature',
+    );
+  });
 });
 
 describe('#841 WFI category contract is one vocabulary', () => {
@@ -590,7 +704,12 @@ describe('#811 the v1 domain-review precheck is optional and its placement limit
       if (!fs.existsSync(dir)) continue;
       for (const skill of fs.readdirSync(dir)) {
         const file = path.join(dir, skill, 'SKILL.md');
-        if (fs.existsSync(file) && fs.readFileSync(file, 'utf8').includes('domain-review-precheck')) offenders.push(`${plugin}/${skill}`);
+        if (!fs.existsSync(file)) continue;
+        // A line may name the v1 precheck to say it is old and not used; any
+        // other mention would make the public review depend on it.
+        const uses = fs.readFileSync(file, 'utf8').split('\n')
+          .filter((line) => line.includes('domain-review-precheck') && !/旧 v1|v1 互換/.test(line));
+        if (uses.length > 0) offenders.push(`${plugin}/${skill}`);
       }
     }
     assert.deepEqual(offenders, [], 'the public domain review must not depend on the v1 precheck');
