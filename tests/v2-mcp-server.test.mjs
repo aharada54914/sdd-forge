@@ -699,3 +699,52 @@ describe('#972 batch-6 review: re-verification outcome and input coverage', () =
     assert.equal(audit(repo).executionArtifact.specInputsCurrent, false, 'fenced code in the task');
   });
 });
+
+describe('#972 review 3: heading-style IDs and failed review verdicts', () => {
+  const tool = (repo, name, args) => {
+    const [, res] = callMcp(repo, [{ method: 'tools/call', params: { name, arguments: args } }]);
+    return JSON.parse(res.result.content[0].text).data;
+  };
+  const gate = (repo) =>
+    execFileSync(process.execPath, [GATE_SCRIPT, '--feature', 'demo-api', '--task', 'T-001', '--root', repo, '--cmd', 'test=node -e "process.exit(0)"'], { encoding: 'utf8' });
+  const edit = (file, from, to) => {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.ok(text.includes(from), from);
+    fs.writeFileSync(file, text.replace(from, to), 'utf8');
+  };
+
+  it('an AC written as a heading is still an evidence input', () => {
+    const repo = createV2TestRepo();
+    const req = path.join(repo, 'specs', 'demo-api', 'requirements.md');
+    edit(req, '- **AC-001** (REQ-001): GET /health returns `{ ok: true }`.', '### AC-001 (REQ-001)\nGET /health returns `{ ok: true }`.');
+    execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'demo-api', '--root', repo, '--rerecord'], { encoding: 'utf8' });
+    gate(repo);
+    assert.equal(tool(repo, 'sdd_gate_audit', { feature: 'demo-api' }).tasks[0].executionArtifact.specInputsCurrent, true);
+    edit(req, 'GET /health returns `{ ok: true }`.', 'GET /health returns 500.');
+    edit(req, '- （初期版のため変更なし）', '- 2026-11-25: AC-001 changed (owner agreed).');
+    const t1 = tool(repo, 'sdd_gate_audit', { feature: 'demo-api' }).tasks[0];
+    assert.equal(t1.executionArtifact.specInputsCurrent, false);
+    assert.equal(t1.readyForDone, false);
+  });
+
+  it('a nested AC bullet under its REQ is its own entry', async () => {
+    const { featureEvidenceInputs, diffEvidenceInputs } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const files = {
+      'specs/f/requirements.md': '# r\n\n- **REQ-001**: health\n  - **AC-001**: returns 200\n  - **AC-002**: returns json\n',
+      'specs/f/tasks.md': '# t\n\n## T-001 x\nApproval: Approved\nStatus: Done\n\n### Done When\n- AC-001\n',
+    };
+    const io = { readText: (rel) => files[rel] ?? null, exists: (rel) => rel in files };
+    const before = featureEvidenceInputs(io, { feature: 'f' }).get('T-001');
+    files['specs/f/requirements.md'] = files['specs/f/requirements.md'].replace('returns 200', 'returns 204');
+    assert.ok(diffEvidenceInputs(before, featureEvidenceInputs(io, { feature: 'f' }).get('T-001')).includes('AC-001'));
+  });
+
+  it('a Done task re-verified with a FAIL review verdict is not reported as done', () => {
+    const repo = createV2TestRepo();
+    const tasksPath = path.join(repo, 'specs', 'demo-api', 'tasks.md');
+    edit(tasksPath, 'Status: Implementation Complete', 'Status: Done');
+    fs.writeFileSync(path.join(repo, 'reports', 'quality-gate', 'demo-api-T-001.md'), '# SDD Gate Report\n\nVERDICT: FAIL\n', 'utf8');
+    const action = tool(repo, 'sdd_project_overview', {}).activeFeatures[0].nextAction;
+    assert.equal(action.phase, 'blocked', JSON.stringify(action));
+  });
+});
