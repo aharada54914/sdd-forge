@@ -482,7 +482,7 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
       assert.equal(shown.stdout, expected);
     }
     const clean = runAntiTamper(dir);
-    assert.equal(clean.status, 0, clean.stdout);
+    assert.equal(clean.status, 0, clean.stderr + clean.stdout);
     assert.deepEqual(JSON.parse(clean.stdout).violations, []);
     assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
     assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
@@ -498,6 +498,87 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.ok(report.violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.sh'));
     const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
     assert.deepEqual(question.violations, report.violations.map(({ code, path }) => ({ code, path })));
+  });
+
+  it('parses compound shell grammar around captured help and its actual comments', (t) => {
+    for (const [shell, prefix, suffix] of [
+      ['bash', 'time case help in', 'esac'],
+      ['dash', 'for arg do case "$arg" in', 'esac; done'],
+    ]) {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      const file = path.join(dir, 'help.sh');
+      const body = 'Use " for inches.\n' + shellMarker + ' shown';
+      const script = [
+        '#!/bin/' + shell, 'set -- help', 'value="$(' + prefix,
+        "help) cat <<'HELP'", body, 'HELP', ';;', suffix, ')"',
+        'printf \'%s\\n\' "$value"', ''
+      ].join('\n');
+      fs.writeFileSync(file, script);
+      const native = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
+      // Old system Bash versions reject an unmatched literal quote in a
+      // substitution's quoted here-document. Always exercise the static CLI.
+      if (!native.error && !(shell === 'bash' && native.status === 2 && native.stderr.includes('unexpected EOF'))) {
+        assert.equal(native.status, 0, native.stderr);
+        assert.equal(native.stdout, body + '\n');
+      }
+      fs.appendFileSync(file, ': > would-run\n');
+      const clean = runAntiTamper(dir);
+      assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+      assert.deepEqual(JSON.parse(clean.stdout).violations, []);
+      assert.equal(fs.existsSync(path.join(dir, 'would-run')), false);
+      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+
+      fs.writeFileSync(file, script.replace(';;', shellMarker + ' inner\n;;')
+        + 'printf \'%s\\n\' \'' + shellMarker + ' quoted\' \\#literal\n' + shellMarker + ' after\n');
+      const detected = runAntiTamper(dir);
+      assert.equal(detected.status, 4, detected.stdout + detected.stderr);
+      const { violations, openQuestion } = JSON.parse(detected.stdout);
+      assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
+      const oq = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+      assert.deepEqual(oq.violations, violations.map(({ code, path }) => ({ code, path })));
+    }
+  });
+
+  it('matches the native sh delimiter when both dialect spellings occur in the body', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.sh');
+    // The other dialect's terminator also forms a harmless command after the document.
+    fs.writeFileSync(file, ["#!/bin/sh", 'true=:', "cat <<$'true'", '$true',
+      shellMarker + ' between', 'true', shellMarker + ' after', ''].join('\n'));
+    const native = spawnSync('/bin/sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
+    if (!native.error) assert.equal(native.status, 0, native.stderr);
+    const betweenIsData = native.error ? true : native.stdout.includes(shellMarker + ' between');
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 4, result.stdout + result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.detail.split(shellMarker).at(-1)),
+      betweenIsData ? [' after'] : [' between', ' after']);
+  });
+
+  it('reports a tool error for invalid shell syntax and an unavailable or damaged parser', (t) => {
+    const { dir } = initGitRepoWithTests();
+    const copy = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-parser-copy-'));
+    t.after(() => { for (const temp of [dir, copy]) fs.rmSync(temp, { recursive: true, force: true }); });
+    const file = path.join(dir, 'help.sh');
+    fs.writeFileSync(file, "#!/bin/bash\necho 'unclosed\n" + shellMarker + ' sample\n');
+    const invalid = runAntiTamper(dir);
+    assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
+    assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
+
+    fs.cpSync(path.dirname(CHECK_SCRIPT), copy, { recursive: true });
+    fs.writeFileSync(file, '#!/bin/sh\n' + shellMarker + ' active\n');
+    const asset = path.join(copy, 'shell-parser/parser.wasm.gz');
+    for (const damaged of [true, false]) {
+      if (damaged) fs.appendFileSync(asset, 'damaged');
+      else fs.unlinkSync(asset);
+      const result = spawnSync(process.execPath, [path.join(copy, path.basename(CHECK_SCRIPT)),
+        '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+      assert.equal(result.status, 2, result.stdout + result.stderr);
+      assert.match(result.stderr, /parser\.wasm\.gz/);
+      assert.doesNotMatch(result.stdout, /CLEAN/);
+    }
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
   });
 
   it('matches Bash dollar-quoted here-document delimiters and preserves the following directive', (t) => {
@@ -524,7 +605,7 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.equal(shown.stdout, (body + '\n').repeat(cases.length));
 
     const clean = runAntiTamper(dir);
-    assert.equal(clean.status, 0, clean.stdout);
+    assert.equal(clean.status, 0, clean.stderr + clean.stdout);
     const report = JSON.parse(clean.stdout);
     assert.equal(report.status, 'CLEAN');
     assert.deepEqual(report.violations, []);

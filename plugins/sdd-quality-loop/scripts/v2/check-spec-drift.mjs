@@ -10,6 +10,9 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createHash, webcrypto } from 'node:crypto';
+import { createContext, runInContext } from 'node:vm';
+import { gunzipSync } from 'node:zlib';
 import path from 'node:path';
 import {
   DEFAULT_CONFIG,
@@ -275,147 +278,67 @@ function shellDelimiter(word, dialect) {
   return bytes.equals(Buffer.from(delimiter)) ? delimiter : null;
 }
 
-function hereDocumentEnd(source, cursor, { delimiters, stripTabs, quoted }) {
-  let logicalLine = '';
-  while (cursor < source.length) {
-    const newline = source.indexOf('\n', cursor);
-    const end = newline < 0 ? source.length : newline;
-    logicalLine += source.slice(cursor, end);
-    cursor = newline < 0 ? end : end + 1;
-    if (!quoted && newline >= 0 && /(?:^|[^\\])(?:\\\\)*\\$/.test(logicalLine)) {
-      logicalLine = logicalLine.slice(0, -1);
-      continue;
-    }
-    if (delimiters.includes(stripTabs ? logicalLine.replace(/^\t+/, '') : logicalLine)) return cursor;
-    logicalLine = '';
-  }
-  // Uncertain boundaries must leave later comments visible to the checker.
-  return null;
+// Only the shipped Go runtime shim runs in this context. Target shell source is
+// passed as data to the syntax parser, with no process or filesystem bindings.
+function parserAsset(name, sha256) {
+  const bytes = fs.readFileSync(new URL('./shell-parser/' + name, import.meta.url));
+  if (createHash('sha256').update(bytes).digest('hex') !== sha256) throw new Error('Shell parser asset digest mismatch: ' + name);
+  return bytes;
 }
 
-// Each command substitution starts a new shell command, even inside double
-// quotes. Its quote state and pending here-documents end with that command.
-function* shellComments(source, file) {
-  const interpreter = /^#![^\n]*[ \t/](bash|dash|ash|sh|zsh)(?=[ \t\r\n]|$)/.exec(source)?.[1]
-    ?? path.extname(file).slice(1).toLowerCase();
-  const dialects = interpreter === 'sh' ? ['bash', 'literal'] :
-    [interpreter === 'bash' || interpreter === 'zsh' ? interpreter : 'literal'];
-  const delimiter = /(?:[ \t]|\\\n)*((?:\$'(?:\\[\s\S]|[^'\\])*'|'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)/y;
-  const comment = /#[^\n]*/y;
-  const reserved = /(?:case|esac|if|then|else|elif|while|until|do|!|\{)(?=[ \t\n;&|()<>]|$)/y;
-  const command = end => ({
-    end, quote: '', wordStart: true, commandStart: true, cases: 0, pending: [], parentheses: 0, arithmetic: 0,
-  });
-  const stack = [command('')];
-  for (let i = 0; i < source.length; i++) {
-    const frame = stack.at(-1);
-    const c = source[i];
-    const next = source[i + 1];
-    // A case pattern also ends in ')'. Keep its containing command open until
-    // the matching esac. Reserved words are recognized only in command position.
-    if (!frame.quote && frame.wordStart && !/[ \t\n;&|()<>#]/.test(c) &&
-        !(c === '\\' && next === '\n')) {
-      reserved.lastIndex = i;
-      const keyword = frame.commandStart ? reserved.exec(source)?.[0] : undefined;
-      if (keyword === 'case') frame.cases++;
-      if (keyword === 'esac' && frame.cases) frame.cases--;
-      frame.commandStart = Boolean(keyword && keyword !== 'case' && keyword !== 'esac');
-      if (keyword) {
-        frame.wordStart = false;
-        i += keyword.length - 1;
-        continue;
-      }
-    }
-    if (frame.quote === "'" || frame.quote === 'ansi') {
-      if (c === "'") frame.quote = '';
-      else if (c === '\\' && frame.quote === 'ansi') i++;
-      continue;
-    }
-    if (c === '\\') {
-      if (!frame.quote || '$"`\\\n'.includes(next)) {
-        if (next !== '\n') frame.wordStart = false;
-        i++;
-      }
-      continue;
-    }
-    if (c === '$' && next === '(' && source[i + 2] !== '(') {
-      frame.wordStart = false;
-      stack.push(command(')'));
-      i++;
-      continue;
-    }
-    if (c === '`' && (!frame.quote || frame.quote === '"')) {
-      if (frame.end === '`' && !frame.quote) stack.pop();
-      else { frame.wordStart = false; stack.push(command('`')); }
-      continue;
-    }
-    if (c === '"') {
-      frame.quote = frame.quote ? '' : '"';
-      frame.wordStart = false;
-      continue;
-    }
-    if (frame.quote) continue;
-    if (c === "'" || (c === '$' && next === "'")) {
-      frame.quote = c === "'" ? "'" : 'ansi';
-      frame.wordStart = false;
-      if (c === '$') i++;
-      continue;
-    }
-    if (c === '(' && next === '(') {
-      frame.arithmetic += 2;
-      i++;
-      continue;
-    }
-    if (frame.arithmetic) {
-      if (c === '(') frame.arithmetic++;
-      if (c === ')') frame.arithmetic--;
-      continue;
-    }
-    if (c === '#' && frame.wordStart) {
-      comment.lastIndex = i;
-      yield comment.exec(source);
-      i = comment.lastIndex - 1;
-      continue;
-    }
-    if (c === '\n') {
-      let bodyStart = i + 1;
-      for (const document of frame.pending) {
-        const end = hereDocumentEnd(source, bodyStart, document);
-        if (end === null) break;
-        bodyStart = end;
-      }
-      frame.pending.length = 0;
-      frame.commandStart = true;
-      frame.wordStart = true;
-      i = bodyStart - 1;
-      continue;
-    }
-    if (c === '<' && next === '<') {
-      frame.wordStart = true;
-      if (source[i + 2] === '<') { i += 2; continue; }
-      const stripTabs = source[i + 2] === '-';
-      i += stripTabs ? 2 : 1;
-      delimiter.lastIndex = i + 1;
-      const match = delimiter.exec(source);
-      if (match && !match[1].startsWith('#')) {
-        const word = match[1];
-        frame.pending.push({
-          delimiters: dialects.map(dialect => shellDelimiter(word, dialect)),
-          stripTabs, quoted: /['"\\]/.test(word.replace(/\\\n/g, '')),
-        });
-        i = delimiter.lastIndex - 1;
-        frame.wordStart = false;
-      }
-      continue;
-    }
-    if (c === '(') frame.parentheses++;
-    if (c === ')') {
-      if (frame.parentheses) frame.parentheses--;
-      else if (!frame.cases && frame.end === ')') stack.pop();
-    }
-    if (';&|()'.includes(c)) frame.commandStart = true;
-    frame.wordStart = /[ \t;&|()<>]/.test(c);
+let parseShell;
+function shellParser() {
+  if (!parseShell) {
+    const context = createContext({ WebAssembly, TextDecoder, TextEncoder, crypto: webcrypto,
+      performance, setTimeout, clearTimeout, console });
+    runInContext(parserAsset('wasm_exec.cjs', '0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14').toString('utf8'), context);
+    const go = new context.Go();
+    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '8d4529039652d0258776efde1ea0cc3cc10e4a70689d5de2c009fcea00b34d06'));
+    void go.run(new WebAssembly.Instance(new WebAssembly.Module(bytes), go.importObject));
+    parseShell = context.sddParseShellComments;
   }
+  return parseShell;
+}
+
+function shellDialects(source, file) {
+  const shell = /^#![^\n]*[ \t/](bash|dash|ash|sh|zsh)(?=[ \t\r\n]|$)/.exec(source)?.[1]
+    ?? path.extname(file).slice(1).toLowerCase();
+  if (shell === 'bash' || shell === 'zsh') return [[shell, shell]];
+  if (shell === 'ash' || shell === 'dash') return [['posix', 'literal']];
+  // Generic sh is used for both POSIX editions and for undeclared Bash
+  // scripts. Prefer the local /bin/sh when its implementation is identifiable.
+  let host = '';
+  const systemShell = process.platform === 'darwin' && fs.existsSync('/var/select/sh') ? '/var/select/sh' : '/bin/sh';
+  if (process.platform !== 'win32' && fs.existsSync(systemShell)) host = path.basename(fs.realpathSync(systemShell));
+  const ansi = host === 'bash' ? 'bash' : 'posix';
+  const stops = host === 'dash' || host === 'ash' ? ['literal', ansi] : [ansi, 'literal'];
+  return [...stops.map(mode => ['posix', mode]), ['bash', 'bash']];
+}
+
+function* shellComments(source, file) {
+  const parse = shellParser();
+  let error;
+  for (const [grammar, dialect] of shellDialects(source, file)) {
+    const offsets = parse(source, grammar, word => shellDelimiter(word, dialect));
+    if (typeof offsets === 'string') {
+      error ??= offsets;
+      continue;
+    }
+    // The grammar returns ordered UTF-8 byte offsets. The diff scanner uses
+    // JavaScript string indices, so convert only the stretches between comments.
+    const bytes = Buffer.from(source);
+    const comment = /#[^\n]*/y;
+    let previous = 0;
+    let index = 0;
+    for (const offset of offsets) {
+      index += bytes.toString('utf8', previous, offset).length;
+      previous = offset;
+      comment.lastIndex = index;
+      yield comment.exec(source);
+    }
+    return;
+  }
+  throw new Error('Cannot parse shell source ' + file + ': ' + error);
 }
 
 const SOURCE_TOKENS = new Map();
