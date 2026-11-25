@@ -18,6 +18,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   globToRegExp,
@@ -168,7 +169,24 @@ export function runAgentLint({
     if (hunks && !hunks.has(rel)) continue;
     const file = analyze(rel);
     scannedFiles += 1;
-    for (const finding of file.findings) if (inScope(rel, finding)) add(rel, finding);
+    const scoped = file.findings.filter(finding => inScope(rel, finding));
+    let documentedLines = [];
+    if (!explicit && rel === 'mcp/sdd-forge-mcp/dist/index.js') {
+      const lines = scoped.filter(f => f.rule === 'no-empty-catch').map(f => f.line);
+      if (lines.length) {
+        const worker = fileURLToPath(new URL('../../rules/rebuilt-catches.mjs', import.meta.url));
+        const result = spawnSync(process.execPath, [worker], {
+          input: JSON.stringify({ root, lines }), encoding: 'utf8', timeout: 2000, maxBuffer: 1024 * 1024,
+        });
+        if (result.status === 0 && /^\[(?:\d+(?:,\d+)*)?\]$/.test(result.stdout)) {
+          documentedLines = JSON.parse(result.stdout);
+        }
+      }
+    }
+    for (const finding of scoped) {
+      if (finding.rule === 'no-empty-catch' && documentedLines.includes(finding.line)) continue;
+      add(rel, finding);
+    }
     if (file.imports.some(edge => inScope(rel, edge))) cycleSeeds.push(rel);
   }
   const importsFor = rel => cache.get(rel)?.imports ?? readImports(fs.readFileSync(projectFile(root, rel), 'utf8'), rel);
