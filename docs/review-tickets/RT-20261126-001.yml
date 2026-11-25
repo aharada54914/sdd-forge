@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-001
-status: resolved
+status: open
 type: regression
 severity: minor
 target:
@@ -24,3 +24,4 @@ resolution:
   commit: "83861a0d1"
   evidence: "reports/implementation/verification-first-factory/T-005.md"
   result: "The native TLC baseline, negative control and observed-trace replay agree across ordinary and nested comments. Apparent definitions inside comments cannot supply the configured behavior."
+reopened: "At cc5872c2905e an ordinary comment after the subscript underscore passes native TLC but the replay parser rejects the equivalent model."
