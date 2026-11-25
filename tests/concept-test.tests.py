@@ -822,6 +822,10 @@ class DomainContractSchemaAgreementTests(unittest.TestCase):
                 mismatches.append('%s: exit %d, stdout %r' % (label, code, stdout))
             elif errors and code != 1:
                 mismatches.append('%s: schema rejects (%s) but the validator exits 0' % (label, errors[0]))
+            elif errors and not rules - CROSS_REFERENCE_RULES:
+                # A cross-reference error must not stand in for a missing structural rule.
+                mismatches.append('%s: schema rejects (%s) but the validator reports only %s'
+                                  % (label, errors[0], sorted(rules)))
             elif not errors and not rules <= CROSS_REFERENCE_RULES:
                 mismatches.append('%s: schema accepts but the validator reports %s' % (label, stderr.strip()))
         self.assertEqual([], mismatches)

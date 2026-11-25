@@ -102,6 +102,17 @@ For any input that the dispatch admits as `domain-contract/v2`:
   cross-reference rules `V2-DUP-CONCEPT-ID`, `V2-DANGLING-CONTEXT`,
   `V2-DANGLING-DISTINCTION`, `V2-DANGLING-TERM`, `V2-SELF-CONTRADICTION` and
   `V2-DUP-NAME-IN-CONTEXT`, which draft-07 cannot express (DD-1, INV-003).
+- When the schema rejects, at least one reported rule id is not a
+  cross-reference rule, so a dangling reference cannot stand in for a
+  missing structural rule.
+
+Limitation: on PowerShell 7.0–7.4, `ConvertFrom-Json` turns a string whose
+whole value is an ISO date-time (for example `"2024-01-01T00:00:00Z"`) into
+a DateTime before the `.ps1` twin sees it, so the `.ps1` twin rejects such a
+string field with `V2-TYPE-MISMATCH` while the `.sh` twin and the schema
+accept it. It fails closed. PowerShell 7.5 and later read it as a string
+(`-DateKind String`). Tracked as a follow-up in
+`docs/operations/issue-burndown.md`.
 
 The twins encode the schema's rules. They do not read `contracts/` at run
 time, because an installed plugin cache has no `contracts/` directory

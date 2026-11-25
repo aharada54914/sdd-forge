@@ -3315,13 +3315,23 @@ $fullSchemaPositiveBodies = @(
 Describe "validate-domain-contract full schema conformance (#804) -- acceptance side" {
 
     foreach ($body in $fullSchemaPositiveBodies) {
-        It ("ps1 and sh twins accept a schema-valid contract: " + $body.Substring(0, [Math]::Min(80, $body.Length))) {
+        $label = $body.Substring(0, [Math]::Min(80, $body.Length))
+        It ("ps1 twin accepts a schema-valid contract: " + $label) {
             $fixturePath = New-EphemeralContractFile -Content $body
             try {
-                foreach ($result in @((Invoke-ValidatorPs1 -ContractPath $fixturePath), (Invoke-ValidatorSh -ContractPath $fixturePath))) {
-                    $result.StdErr | Should Be ''
-                    $result.ExitCode | Should Be 0
-                }
+                $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+                $result.StdErr | Should Be ''
+                $result.ExitCode | Should Be 0
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+        It ("sh twin accepts a schema-valid contract: " + $label) -Skip:(-not $shTwinAvailable) {
+            $fixturePath = New-EphemeralContractFile -Content $body
+            try {
+                $result = Invoke-ValidatorSh -ContractPath $fixturePath
+                $result.StdErr | Should Be ''
+                $result.ExitCode | Should Be 0
             } finally {
                 Remove-EphemeralPath -Path $fixturePath
             }
