@@ -53,6 +53,18 @@ describe('ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agn
     assert.ok(invalid.errors.some((message) => message.includes('Enabled == TRUE')));
   });
 
+  it('keeps scanning outer declarations after a nested module footer', (t) => {
+    const dir = sandbox(t);
+    const tlaPath = path.join(dir, 'Outer.tla');
+    const cfgPath = path.join(dir, 'Outer.cfg');
+    fs.writeFileSync(cfgPath, 'INVARIANT Foo\n');
+    fs.writeFileSync(tlaPath, [
+      '---- MODULE Outer ----', '---- MODULE Nested ----', '====', 'Foo == TRUE', '====', 'Documentation 6" across',
+    ].join('\n'));
+    const result = validateTlaModelStructure({ tlaPath, cfgPath });
+    assert.ok(result.errors.some((error) => error.includes('Foo == TRUE')));
+  });
+
   it('stops a disabled formal gate in CI and honors an explicit checker mode', (t) => {
     const projectRoot = sandbox(t);
     const settings = path.join(projectRoot, 'sdd/guardrails.json');
@@ -456,6 +468,58 @@ it('skips an unchanged model and mapped sources only; fails timed-out checks and
   assert.equal(runFormalGate({ ...opts, risk: 'high', execRunner: unavailable }).exitCode, 1);
 });
 
+it('explains the failed checker phase in the decision view and trace result',
+  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' }, (t) => {
+    const projectRoot = sandbox(t);
+    const feature = 'diagnostics';
+    fs.mkdirSync(path.join(projectRoot, 'specs', feature), { recursive: true });
+    const original = path.join(REPO_ROOT, 'specs/verification-first-factory/verification/T-005',
+      'a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson');
+    const options = { projectRoot, feature, round: 99, mode: 'strict', tlaPath: reservation, runId: 'checker-diagnostics' };
+    const good = runFormalGate({ ...options, tracePath: original });
+    assert.equal(good.status, 'PASS');
+    assert.equal(good.openQuestion, undefined);
+    assert.deepEqual(good.trace.violations, []);
+    function checkQuestion(result, phase, expected) {
+      assert.equal(result.status, 'FAIL');
+      const question = JSON.parse(fs.readFileSync(path.join(projectRoot, result.openQuestion.path)));
+      assert.match(question.fact, expected);
+      assert.equal(question.evidence, result.evidence);
+      assert.ok(renderDecisionViewHtml(buildDecisionViewData({ projectRoot, feature })).includes(question.fact));
+      assert.deepEqual(result.errors, [result.checker[phase].reason]);
+      assert.ok(question.fact.endsWith(result.errors[0]));
+      t.diagnostic(question.fact);
+    }
+
+    const observations = fs.readFileSync(original, 'utf8').trim().split('\n').map(JSON.parse);
+    [observations[1].action, observations[2].action] = [observations[2].action, observations[1].action];
+    const reordered = path.join(projectRoot, 'reordered.ndjson');
+    fs.writeFileSync(reordered, observations.map((event) => JSON.stringify(event)).join('\n'));
+    const mismatch = runFormalGate({ ...options, tracePath: reordered });
+    assert.equal(mismatch.checker.replay.status, 0);
+    checkQuestion(mismatch, 'replay', /replay.*could not reproduce the observed trace.*step 1 \(Check\)/i);
+    assert.deepEqual(mismatch.trace.violations, mismatch.errors);
+
+    const baseline = runFormalGate({ ...options, cfgPath: reservation.replace('.tla', '.negative.cfg') });
+    checkQuestion(baseline, 'baseline', /baseline.*invariant OneAccepted was violated/i);
+    const parseFailure = runFormalGate({ ...options, execRunner: () =>
+      ({ status: 150, stdout: 'Error: Parsing or semantic analysis failed.' }) });
+    checkQuestion(parseFailure, 'baseline', /baseline.*could not parse or resolve the model/i);
+    const surviving = runFormalGate({ ...options, negativeCfgPath: reservation.replace('.tla', '.cfg') });
+    checkQuestion(surviving, 'negative', /negative.*did not violate.*OneAccepted/i);
+
+    let calls = 0;
+    const interrupted = runFormalGate({ ...options, tracePath: original, execRunner() {
+      return [
+        { status: 0, stdout: 'Model checking completed. No error has been found.' },
+        { status: 12, stdout: 'Error: Invariant OneAccepted is violated.' },
+        { status: 1, timedOut: true, stderr: 'deadline' },
+      ][calls++];
+    } });
+    checkQuestion(interrupted, 'replay', /replay.*timeout/i);
+    assert.deepEqual(interrupted.trace.violations, interrupted.errors);
+  });
+
 it('retains a between-phase budget timeout and raises the repair-limit OQ in the decision view', (t) => {
   const projectRoot = sandbox(t);
   fs.mkdirSync(path.join(projectRoot, 'specs', 'budget'), { recursive: true });
@@ -517,6 +581,8 @@ it(
     const variants = [
       ['original', original],
       ['ordinary', original.replace('EXTENDS', '(* ordinary note *)\nEXTENDS')],
+      ['post-module documentation', original.replace('EXTENDS', '(*\n====\n*)\nEXTENDS') +
+        'Documentation: the display measures 6" across.\n(* more prose; Spec == FALSE'],
       ['nested', commented],
       ['strings and inline comments', original.replace(real, [
         'Label == "escaped \\" ---- MODULE Fake ---- (* \\\\* *)"',
@@ -548,7 +614,7 @@ it(
       assert.match(incomplete.errors.join(' '), /Unsupported baseline SPECIFICATION/);
     }
     for (const malformed of ['(* unclosed (* nested *)', '*)', 'Label == "unclosed']) {
-      const invalid = run(original.replace('EXTENDS', malformed + '\nEXTENDS'));
+      const invalid = run(original.replace('EXTENDS', '(* false end\n====\n*)\n' + malformed + '\nEXTENDS'));
       assert.equal(invalid.status, 'FAIL');
       assert.match(invalid.structure.errors.join(' '), /TLA\+ (?:comment|string)/);
     }

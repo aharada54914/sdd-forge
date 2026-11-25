@@ -42,14 +42,25 @@ function blockCommentEnd(source, start, kind) {
 // Expose only model code to declaration checks. Comments are whitespace and
 // strings remain opaque operands, so neither can introduce a new definition.
 export function tlaDeclarationSource(source) {
-  const specials = /\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/g;
+  const specials = /-{4,}\s*MODULE\b|={4,}|\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/g;
   let code = '';
+  let moduleDepth = 0;
   let start = 0;
   let match;
   while ((match = specials.exec(source))) {
     code += source.slice(start, match.index);
     const token = match[0];
-    if (token === '(*') {
+    if (token.startsWith('-')) {
+      moduleDepth++;
+      code += token;
+    } else if (token.startsWith('=')) {
+      code += token;
+      // Source files may contain free-form prose after the outer module.
+      if (moduleDepth > 0) {
+        moduleDepth--;
+        if (moduleDepth === 0) return code;
+      }
+    } else if (token === '(*') {
       specials.lastIndex = blockCommentEnd(source, specials.lastIndex, 'TLA+');
       code += source.slice(match.index, specials.lastIndex).replace(/[^\r\n]+/g, ' ');
     } else if (token === '"' || token === '*)') {
@@ -207,5 +218,5 @@ export function prepareTraceReplay({ model, cfg, contract, tracePath, directory 
       '',
     ].join('\n'),
   );
-  return { model: tla, cfg: traceCfg };
+  return { model: tla, cfg: traceCfg, actions: events.map((event) => event.action) };
 }

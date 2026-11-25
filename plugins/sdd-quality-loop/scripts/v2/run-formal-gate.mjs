@@ -243,15 +243,13 @@ function evidenceDirectory(root, runId) {
   return fs.mkdtempSync(path.join(dir, 'checker-'));
 }
 
-function recordFormalQuestion(root, feature, evidence, model, phase, result) {
+function recordFormalQuestion(root, feature, evidence, model, phase, reason) {
   let directory = root;
   for (const segment of ['reports', 'verification', feature, 'formal-questions']) {
     directory = path.join(directory, segment);
     fs.mkdirSync(directory, { recursive: true });
     if (!fs.lstatSync(directory).isDirectory()) throw new Error('Unsafe formal question directory');
   }
-  const reason =
-    result.reason || (result.timedOut ? 'timeout' : result.violatedInvariant || 'checker exit ' + result.status);
   const fact = model + ' (' + phase + '): ' + reason;
   const taken = new Set();
   for (const name of ['requirements.md', 'design.md']) {
@@ -295,7 +293,26 @@ function inputsChanged(root, baseRef, files) {
   );
 }
 
-function checkRun({ adapter, model, cfg, options, jar, timeout, work, runner, expected }) {
+function checkerFailureReason({ result, expected, violated, checked, replayActions, depth, bound, log }) {
+  if (result.timedOut) return 'timeout before the checker completed';
+  if (result.status === 0 && checked && replayActions) {
+    const reason = 'The baseline model could not reproduce the observed trace';
+    // Each projected transition advances exactly one observation. TLC depth counts the initial state.
+    if (depth !== null && depth < replayActions.length)
+      return reason + ': step ' + depth + ' (' + replayActions[depth] + ') was unreachable';
+    return reason + ': the final observation was not reached' + (bound !== null ? ' within ' + bound + ' transitions' : '');
+  }
+  if (result.status === 0 && checked && expected) return 'The negative control did not violate invariant ' + expected;
+  if (violated && result.status === 12)
+    return 'Invariant ' + violated + ' was violated' + (expected ? ', expected ' + expected : '');
+  if (result.status === 12 && /state invariant \d+ violated/i.test(log)) return 'A state invariant was violated';
+  if (/Parsing or semantic analysis failed/i.test(log)) return 'The checker could not parse or resolve the model';
+  if (result.status === 0) return 'Checker exited without confirming that model checking completed';
+  return 'Checker failed (exit ' + result.status + ') before confirming ' +
+    (expected ? 'the expected violation of invariant ' + expected : 'baseline safety');
+}
+
+function checkRun({ adapter, model, cfg, options, jar, timeout, work, runner, expected, replayActions }) {
   const stagedModel = path.join(work, path.basename(model));
   for (const entry of fs.readdirSync(path.dirname(model))) {
     if (entry.endsWith('.tla') || entry.endsWith('.cfg'))
@@ -326,19 +343,24 @@ function checkRun({ adapter, model, cfg, options, jar, timeout, work, runner, ex
       : /Checker reports no error|NoError|EXITCODE: OK/.test(log);
   const ok =
     !result.timedOut && (expected ? result.status === 12 && violated === expected : result.status === 0 && checked);
+  const depth = Number(log.match(/depth of the complete state graph search is (\d+)\./)?.[1]) || null;
+  const bound = adapter === 'apalache' ? Number(options.length || 10) : null;
   return {
     ok,
+    ...(!ok && !result.unavailable ? {
+      reason: checkerFailureReason({ result, expected, violated, checked, replayActions, depth, bound, log }),
+    } : {}),
     status: result.status,
     unavailable: Boolean(result.unavailable),
     timedOut: Boolean(result.timedOut),
     violatedInvariant: violated || null,
     distinctStates: Number(log.match(/(\d+) distinct states found, \d+ states? left on queue\./)?.[1]) || null,
-    depth: Number(log.match(/depth of the complete state graph search is (\d+)\./)?.[1]) || null,
+    depth,
     version:
       log.match(/^TLC2 Version [^\r\n]+/m)?.[0] ||
       log.match(/APALACHE version: ([^ |]+) \| build: ([a-f0-9]+)/)?.[0] ||
       null,
-    ...(adapter === 'apalache' ? { length: Number(options.length || 10) } : {}),
+    ...(adapter === 'apalache' ? { length: bound } : {}),
     ...(expected ? { expectedViolatedInvariant: expected, invariantMentioned: violated === expected } : {}),
     log,
     command: { bin: command.bin, shell: false, args: command.args },
@@ -437,9 +459,7 @@ export function runFormalGate({
       fs.writeFileSync(path.join(dir, 'trace.log'), errors.join('\n') + '\n');
       report.evidence = path.relative(root, dir).split(path.sep).join('/');
       if (feature && round >= config.limits.max_auto_fix_rounds) {
-        report.openQuestion = recordFormalQuestion(root, feature, report.evidence, structure.moduleName, 'trace', {
-          reason: errors[0],
-        });
+        report.openQuestion = recordFormalQuestion(root, feature, report.evidence, structure.moduleName, 'trace', errors[0]);
       }
     }
     return finish('FAIL', failed, { errors });
@@ -493,12 +513,12 @@ export function runFormalGate({
           tracePath: trace,
           directory: path.join(scratch, 'projection'),
         });
-        runs.push(['replay', replay.model, replay.cfg, 'TraceIncomplete']);
+        runs.push(['replay', replay.model, replay.cfg, 'TraceIncomplete', replay.actions]);
       } catch (err) {
         return traceFailure([err.message]);
       }
     }
-    for (const [name, source, file, expected] of runs) {
+    for (const [name, source, file, expected, replayActions] of runs) {
       const work = path.join(scratch, name);
       fs.mkdirSync(work);
       const remaining = Math.min(fv.timeout_sec * 1000, deadline - Date.now());
@@ -516,13 +536,14 @@ export function runFormalGate({
               work,
               runner: execRunner,
               expected,
+              replayActions,
             });
       const { log, command, ...summary } = result;
       report.checker ||= { baseline: null, negative: null, command };
       report.checker[name] = { ...summary, command };
       if (name === 'replay') {
         report.trace.ok = result.ok;
-        if (!result.ok) report.trace.violations.push('The baseline model could not reproduce the observed trace');
+        if (result.reason) report.trace.violations.push(result.reason);
       }
       if (result.unavailable) return unavailable();
       if (runId || execRunner === defaultExecRunner) {
@@ -537,7 +558,7 @@ export function runFormalGate({
       }
       if (!result.ok) {
         if (feature && round >= config.limits.max_auto_fix_rounds && saved) {
-          const question = recordFormalQuestion(root, feature, report.evidence, structure.moduleName, name, summary);
+          const question = recordFormalQuestion(root, feature, report.evidence, structure.moduleName, name, result.reason);
           report.openQuestion = question;
         }
         return finish('FAIL', result.timedOut ? 1 : failed, result.reason ? { errors: [result.reason] } : {});
