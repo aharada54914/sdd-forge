@@ -726,9 +726,9 @@ describe('#848 domain-conformance findings are opt-in in v2, and "not run" diffe
     const contracts = fs.readFileSync(path.join(REPO_ROOT, 'PLUGIN-CONTRACTS.md'), 'utf8');
     const conformance = contracts.split('\n').filter((l) => /check-domain-conformance|DOMAIN-CONFORMANCE/.test(l)).join('\n');
     assert.doesNotMatch(conformance, /deterministic gate/, 'v2 sdd-gate does not run the check');
-    assert.match(contracts, /does not run `check-domain-conformance`/);
+    assert.match(contracts, /does not run\s+`check-domain-conformance`/);
     const adr = fs.readFileSync(path.join(REPO_ROOT, 'docs/adr/0015-ddd-upstream-domain-lane.md'), 'utf8');
-    assert.match(adr, /v2[^\n]*does not run[^\n]*check-domain-conformance|check-domain-conformance[^\n]*not run[^\n]*v2/);
+    assert.match(adr, /Status note, v2: the v2 `sdd-gate` does not run\s+`check-domain-conformance`/);
     const retro = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md'), 'utf8');
     assert.match(retro, /`N\/A`[^\n]*未実行/);
     const template = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/templates/retrospective-report.template.md'), 'utf8');

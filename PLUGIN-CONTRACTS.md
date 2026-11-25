@@ -372,15 +372,17 @@ checks. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
 - `spec-reviewer-a/b` and `impl-reviewer-a/b` add a DOMAIN-CONFORMANCE
   observation to their fixed check list; `check-domain-conformance`
   (`plugins/sdd-quality-loop/scripts/check-domain-conformance.{sh,ps1}`) is
-  a warn-phase-only deterministic gate (`SDD_DOMAIN_ENFORCE=error`
-  escalates to failure on demand). It was introduced in v1.9.0 with a
-  stated default flip to error two releases after introduction, by human
-  edit, mirroring `check-design-system`; as of v1.15.0 that window has
-  passed and the default is still `warn`. Flipping the default remains a
-  pending human decision.
-  `workflow-retrospective` aggregates its warn findings into domain-drift
-  metrics (term-deviation count, boundary-violation count) when they have
-  been recorded in quality-gate reports.
+  a standalone, warn-phase-only check (`SDD_DOMAIN_ENFORCE=error`
+  escalates to failure on demand). The v2 `sdd-gate` does not run
+  `check-domain-conformance`; a project that wants its findings runs it
+  and records its output lines in the task's quality-gate report (#848).
+  It was introduced in v1.9.0 with a stated default flip to error two
+  releases after introduction, by human edit, mirroring
+  `check-design-system`; the default is still `warn`, and flipping it
+  remains a pending human decision.
+  `workflow-retrospective` aggregates those recorded findings into
+  domain-drift metrics (term-deviation count, boundary-violation count).
+  A report without recorded output is "not run" (`N/A`), not zero.
 - In projects with no domain model or Concept Test, the optional domain
   workflow skips with one recorded reason, preserving its existing outputs
   (AC-010). The quality gate checks the current project's working tree and

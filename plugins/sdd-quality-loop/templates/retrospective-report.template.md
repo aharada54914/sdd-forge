@@ -36,7 +36,8 @@ or conflicting artifacts in the Data Completeness explanation.
 
 Counts are sourced only from `check-domain-conformance` findings already
 recorded in the retained `reports/quality-gate/*.md` reports for this
-feature.
+feature. The v2 gate does not run the check: `N/A` means it was not run (no
+recorded output), and `0` means it ran with no findings.
 
 ## Friction Patterns
 
