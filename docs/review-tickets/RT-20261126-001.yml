@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-001
-status: open
+status: resolved
 type: regression
 severity: minor
 target:
@@ -25,3 +25,7 @@ resolution:
   evidence: "reports/implementation/verification-first-factory/T-005.md"
   result: "The native TLC baseline, negative control and observed-trace replay agree across ordinary and nested comments. Apparent definitions inside comments cannot supply the configured behavior."
 reopened: "At cc5872c2905e an ordinary comment after the subscript underscore passes native TLC but the replay parser rejects the equivalent model."
+followup_resolution:
+  commit: "f94cafa6e"
+  evidence: "reports/implementation/verification-first-factory/T-005.md"
+  result: "Six legal comment layouts agree across TLC and replay with the same state counts. Nine layouts splitting identifiers or compound tokens are rejected by both."
