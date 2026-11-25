@@ -720,3 +720,19 @@ describe('#811 the v1 domain-review precheck is optional and its placement limit
     assert.match(row, /版別キャッシュ/);
   });
 });
+
+describe('#848 domain-conformance findings are opt-in in v2, and "not run" differs from zero', () => {
+  it('the contract and ADR do not claim the gate runs the check; retro and template tell N/A from 0', () => {
+    const contracts = fs.readFileSync(path.join(REPO_ROOT, 'PLUGIN-CONTRACTS.md'), 'utf8');
+    const conformance = contracts.split('\n').filter((l) => /check-domain-conformance|DOMAIN-CONFORMANCE/.test(l)).join('\n');
+    assert.doesNotMatch(conformance, /deterministic gate/, 'v2 sdd-gate does not run the check');
+    assert.match(contracts, /does not run `check-domain-conformance`/);
+    const adr = fs.readFileSync(path.join(REPO_ROOT, 'docs/adr/0015-ddd-upstream-domain-lane.md'), 'utf8');
+    assert.match(adr, /v2[^\n]*does not run[^\n]*check-domain-conformance|check-domain-conformance[^\n]*not run[^\n]*v2/);
+    const retro = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md'), 'utf8');
+    assert.match(retro, /`N\/A`[^\n]*未実行/);
+    const template = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/templates/retrospective-report.template.md'), 'utf8');
+    assert.match(template, /N\/A[^\n]*not run/);
+    assert.match(template, /0[^\n]*ran with no findings|ran with no findings[^\n]*0/);
+  });
+});
