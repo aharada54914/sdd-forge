@@ -198,6 +198,10 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(wf, /HTTP 404/, 'only a 404 means the tag is absent');
     assert.match(wf, /already exists; refusing to move it/);
     assert.match(wf, /workflows\/test\.yml\/runs\?head_sha=\$\{TARGET\}&status=success/, 'publish only after CI passed on the commit');
+    // Count only runs release.yml would accept: the exact commit, tested by a
+    // push to main or a manual dispatch, never a PR run's synthetic merge.
+    assert.match(wf, /select\(\.head_sha == \\"\$\{TARGET\}\\" and \.conclusion == \\"success\\" and \(\(\.event == \\"push\\" and \.head_branch == \\"main\\"\) or \.event == \\"workflow_dispatch\\"\)\)/);
+    assert.match(wf, /\[\[ ! "\$GREEN" =~ \^\[0-9\]\+\$ \]\]/, 'the green count is a number before it is compared');
     assert.match(wf, /--method POST "repos\/\$\{GITHUB_REPOSITORY\}\/git\/refs"/, 'atomic tag creation');
     assert.match(wf, /gh release create "\$TAG" [^\n]*--verify-tag/);
     assert.match(wf, /gh workflow run release\.yml/, 'release.yml still runs every release gate');
