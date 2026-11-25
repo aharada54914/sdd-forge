@@ -1,0 +1,40 @@
+{
+  "schema": "sdd-agent-lint-rules/v1",
+  "rules": [
+    {
+      "id": "no-empty-catch",
+      "severity": "error",
+      "category": "reliability",
+      "message": "空の catch ブロックが例外を無言で握り潰しています",
+      "remediation_hint": "例外をログ出力・再送出するか、意図的に無視する場合は理由コメントまたは guardrails.yaml の agent_lint.waivers に登録してください"
+    },
+    {
+      "id": "no-eval-or-new-function",
+      "severity": "error",
+      "category": "security",
+      "message": "eval() または new Function() の動的コード実行が検出されました",
+      "remediation_hint": "動的評価を廃止し、静的マッピング・JSON.parse・安全なパーサへ置き換えてください"
+    },
+    {
+      "id": "no-child-process-shell-true",
+      "severity": "error",
+      "category": "security",
+      "message": "shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました",
+      "remediation_hint": "execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください"
+    },
+    {
+      "id": "no-console-log",
+      "severity": "warn",
+      "category": "observability",
+      "message": "プロダクションコードに console.log が残存しています",
+      "remediation_hint": "構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください"
+    },
+    {
+      "id": "no-deep-nesting",
+      "severity": "warn",
+      "category": "maintainability",
+      "message": "ブロックのネスト深度が上限（6 段）を超えています",
+      "remediation_hint": "早期 return（ガード節）またはヘルパー関数抽出でネストを浅くしてください"
+    }
+  ]
+}

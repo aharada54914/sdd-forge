@@ -195,6 +195,70 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
   };
 }
 
+export function runMetaAnalyze({ projectRoot = null, feature = null } = {}) {
+  const root = resolveExplicitOrAutoRoot(projectRoot);
+  const io = createFsReadonlyIo(root);
+
+  const driftEvents = [];
+  const driftRaw = io.readText('.sdd/drift-events.jsonl');
+  if (driftRaw) {
+    for (const line of driftRaw.split(/\r?\n/)) {
+      if (!line.trim()) continue;
+      try {
+        driftEvents.push(JSON.parse(line));
+      } catch {
+        // skip malformed lines
+      }
+    }
+  }
+
+  const denials = driftEvents.filter(
+    (e) => e.decision === 'deny' || e.action === 'strict_deny' || e.action === 'confirm_soft_deny',
+  );
+  const byReason = new Map();
+  for (const d of denials) {
+    const key = String(d.reason || d.action || 'unspecified');
+    byReason.set(key, (byReason.get(key) || 0) + 1);
+  }
+  const recurringTriggers = [...byReason.entries()]
+    .filter(([, count]) => count >= 2)
+    .map(([reason, count]) => ({ reason, count }));
+
+  let provisionalOqs = 0;
+  if (feature) {
+    assertValidFeatureName(feature);
+    const dv = buildDecisionViewDataCore(io, { feature });
+    provisionalOqs = dv.counts.openQuestionsProvisional;
+  }
+
+  const reframingRecommended = recurringTriggers.length > 0 || provisionalOqs >= 3;
+  const recommendations = [];
+  if (recurringTriggers.length > 0) {
+    recommendations.push(
+      `同一ガード拒否が 2 回以上発生しています（${recurringTriggers.map((r) => `${r.reason} x${r.count}`).join(', ')}）。プロンプト修正ではなくルール・仕様の再定義（Reframing）または決定論ガード更新を検討してください。`,
+    );
+  }
+  if (provisionalOqs >= 3) {
+    recommendations.push(
+      `未確定事項（Provisional OQ）が ${provisionalOqs} 件残っています。実装前に問題の前提・境界を Reframing して OQ を確定してください。`,
+    );
+  }
+  if (recommendations.length === 0) {
+    recommendations.push('現時点で反復的なガード拒否や未確定論点の滞留は検出されていません。');
+  }
+
+  return {
+    schema: 'sdd-meta-analyze/v1',
+    feature: feature || null,
+    driftEventCount: driftEvents.length,
+    denialCount: denials.length,
+    recurringTriggers,
+    provisionalOqs,
+    reframingRecommended,
+    recommendations,
+  };
+}
+
 function parseArgs(argv) {
   const cmd = argv[0] || '';
   const opts = { cmd, root: null, feature: null, write: false };
@@ -230,8 +294,16 @@ if (isMain) {
       }
       process.exit(0);
     }
+    if (opts.cmd === 'meta-analyze') {
+      const res = runMetaAnalyze({
+        projectRoot: opts.root,
+        feature: opts.feature,
+      });
+      process.stdout.write(`${JSON.stringify(res, null, 2)}\n`);
+      process.exit(0);
+    }
     process.stderr.write(
-      'Usage: node sync-knowledge.mjs <init|extract --feature <slug> [--write]> [--root <dir>]\n',
+      'Usage: node sync-knowledge.mjs <init|extract --feature <slug> [--write]|meta-analyze [--feature <slug>]> [--root <dir>]\n',
     );
     process.exit(2);
   } catch (err) {

@@ -1,0 +1,48 @@
+{
+  "schema": "sdd-formal-mapping/v1",
+  "property": "TaskLock guarantees at most one live owner (SingleOwner) and GateLifecycle guarantees Done requires a prior PASS gate verdict (DoneRequiresGatePass).",
+  "models": {
+    "TaskLock": {
+      "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "invariant": "SingleOwner",
+      "actions": {
+        "Acquire": "acquireTaskLock (atomic link/O_EXCL lock creation)",
+        "Renew": "renewTaskLock (owner lease extension without releasing)",
+        "Expire": "lease TTL expiration",
+        "ReclaimStale": "stale lock recovery after TTL expiry",
+        "Release": "releaseTaskLock (owner-verified unlink)"
+      }
+    },
+    "GateLifecycle": {
+      "source": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "invariant": "DoneRequiresGatePass",
+      "actions": {
+        "StartTask": "tasks.md Status: Planned -> In Progress",
+        "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
+        "RunGatePass": "run-sdd-gate.mjs verdict PASS",
+        "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
+        "MarkDone": "quality-gate transitions Status -> Done"
+      }
+    }
+  },
+  "mapping": {
+    "Acquire": "task-lock.mjs:acquireTaskLock",
+    "Renew": "task-lock.mjs:renewTaskLock",
+    "Expire": "task-lock.mjs:isLeaseExpired",
+    "ReclaimStale": "task-lock.mjs:reclaimStaleLock",
+    "Release": "task-lock.mjs:releaseTaskLock",
+    "StartTask": "tasks.md:StartTask",
+    "CompleteImpl": "tasks.md:CompleteImpl",
+    "RunGatePass": "run-sdd-gate.mjs:PASS",
+    "RunGateFail": "run-sdd-gate.mjs:FAIL",
+    "MarkDone": "quality-gate:Done"
+  },
+  "assumptions": [
+    "Local POSIX/NTFS atomic file creation or hardlink semantics hold for task-lock.mjs",
+    "Only quality-gate sets Status: Done after reading execution.json verdict"
+  ],
+  "excluded": [
+    "Network filesystems (NFS/SMB) without atomic O_EXCL",
+    "Manual human override via git commit"
+  ]
+}

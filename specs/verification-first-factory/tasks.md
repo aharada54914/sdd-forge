@@ -53,7 +53,7 @@ T-002
 ## Wave 2: 新規決定論的ゲート群の並列実装（T-004 / T-005 / T-006 / T-007）
 
 ### T-004: Layer 2/3 専用 AST Agent-Strict Lint ＆ 内蔵 Waiver（Shadow 運用開始）
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-007`, `REQ-008`, `NFR-002`, `NFR-004`
@@ -65,7 +65,7 @@ T-002
 T-001
 
 ### T-005: 状態機械抽出＆チェッカー非依存・Windows 互換の多層形式検証ゲート（TLA+ 標準・Lean 4 予約）
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-003`, `REQ-004`, `REQ-005`, `REQ-006`
@@ -78,7 +78,7 @@ T-001
 T-001
 
 ### T-006: 本体公式 TLA+ モデル（`TaskLock.tla` / `GateLifecycle.tla`）＆ カテゴリ3重複列挙テスト圧縮
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-001`, `SELF-REQ-002`, `SELF-REQ-006`（カテゴリ3）
@@ -90,7 +90,7 @@ T-001
 T-002, T-005
 
 ### T-007: 固定アローリスト Security Gate・本体敵対的テスト・Reframing / Meta-Analyze
-- **Status:** `Planned`
+- **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-004`, `REQ-001`, `REQ-002`, `REQ-009`
