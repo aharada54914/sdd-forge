@@ -1,0 +1,315 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs b/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+index 569e10591..f62d1c4ec 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+@@ -1,7 +1,15 @@
+ import fs from 'node:fs';
+ import path from 'node:path';
+ 
+-const identifier = /^[A-Za-z][A-Za-z0-9_]*$/;
++const operatorName = '[A-Za-z][A-Za-z0-9_]*';
++const identifier = new RegExp('^' + operatorName + '$');
++
++// TLC treats /\, [], ]_, << and >> as indivisible tokens. Each token
++// boundary can contain whitespace, including the whitespace left by a comment.
++const tuple = '<<\\s*' + operatorName + '(?:\\s*,\\s*' + operatorName + ')*\\s*>>';
++const safetyFormula = new RegExp([
++  '^(' + operatorName + ')', '/\\\\', '\\[\\]', '\\[', '(' + operatorName + ')', '\\]_', '(?:' + operatorName + '|' + tuple + ')$',
++].join('\\s*'));
+ 
+ function literal(value) {
+   if (typeof value === 'boolean') return value ? 'TRUE' : 'FALSE';
+@@ -19,6 +27,41 @@ const cfgKeywords = new Set([
+   'PROPERTY', 'PROPERTIES', 'TYPE', 'TYPE_CONSTRAINT', 'VIEW', 'SYMMETRY', 'ALIAS', 'POSTCONDITION',
+ ]);
+ 
++function blockCommentEnd(source, start, kind) {
++  const delimiters = /\(\*|\*\)/g;
++  delimiters.lastIndex = start;
++  let depth = 1;
++  while (depth) {
++    const next = delimiters.exec(source);
++    if (!next) throw new Error('Unterminated ' + kind + ' comment');
++    depth += next[0] === '(*' ? 1 : -1;
++  }
++  return delimiters.lastIndex;
++}
++
++// Expose only model code to declaration checks. Comments are whitespace and
++// strings remain opaque operands, so neither can introduce a new definition.
++export function tlaDeclarationSource(source) {
++  const specials = /\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/g;
++  let code = '';
++  let start = 0;
++  let match;
++  while ((match = specials.exec(source))) {
++    code += source.slice(start, match.index);
++    const token = match[0];
++    if (token === '(*') {
++      specials.lastIndex = blockCommentEnd(source, specials.lastIndex, 'TLA+');
++      code += source.slice(match.index, specials.lastIndex).replace(/[^\r\n]+/g, ' ');
++    } else if (token === '"' || token === '*)') {
++      throw new Error('Invalid TLA+ string or comment delimiter');
++    } else {
++      code += token.startsWith('"') ? '""' : ' ';
++    }
++    start = specials.lastIndex;
++  }
++  return code + source.slice(start);
++}
++
+ export function parseCfgSections(config) {
+   // Strings are atomic. Keep the original section text for the checker so that
+   // quoted values, operator overrides and punctuation are never reconstructed.
+@@ -29,15 +72,7 @@ export function parseCfgSections(config) {
+   while ((match = lexer.exec(config))) {
+     const token = match[0];
+     if (token === '(*') {
+-      const delimiters = /\(\*|\*\)/g;
+-      delimiters.lastIndex = lexer.lastIndex;
+-      let depth = 1;
+-      while (depth) {
+-        const next = delimiters.exec(config);
+-        if (!next) throw new Error('Unterminated baseline CFG comment');
+-        depth += next[0] === '(*' ? 1 : -1;
+-      }
+-      lexer.lastIndex = delimiters.lastIndex;
++      lexer.lastIndex = blockCommentEnd(config, lexer.lastIndex, 'baseline CFG');
+     } else if (token === '"' || token === '*)') {
+       throw new Error('Invalid baseline CFG string or comment delimiter');
+     } else if (!token.trim() || token.startsWith('\\*')) {
+@@ -78,22 +113,26 @@ function replayBehavior(model, cfg) {
+ 
+   if (operators.SPECIFICATION) {
+     const spec = operators.SPECIFICATION;
+-    const source = fs.readFileSync(model, 'utf8').replace(/\\\*[^\n]*/g, '');
++    const source = tlaDeclarationSource(fs.readFileSync(model, 'utf8'));
+     // Do not infer the behavior from an overridden or ambiguously scoped definition.
+     const overridden = sections.some(({ key, tokens }) => /^CONSTANTS?$/.test(key) &&
+       tokens.some((token, index) => token === spec && tokens[index + 1] === '<-'));
+-    const parts = source.split(new RegExp('^' + spec + '[ \\t]*==', 'm'));
+-    const body = parts[1]?.split(/^\s*(?:={4,}|[A-Za-z]\w*(?:\([^)\n]*\))?[ \t]*==)/m, 1)[0].trim();
+-    const safety =
+-      /^([A-Za-z]\w*)\s*\/\\\s*\[\]\s*\[([A-Za-z]\w*)\]\s*_(?:[A-Za-z]\w*|<<\s*[A-Za-z]\w*(?:\s*,\s*[A-Za-z]\w*)*\s*>>)$/.exec(
+-        body || '',
+-      );
++    const headers = [...source.matchAll(/-{4,}\s*MODULE\b/g)];
++    const footer = /^[ \t]*={4,}[ \t]*\r?$/m.exec(source);
++    const module = headers.length === 1 && footer ? source.slice(headers[0].index, footer.index) : '';
++    const parts = module.split(new RegExp('^[ \\t]*' + spec + '\\s*==', 'm'));
++    // A LET-local definition can shadow an operator inherited through EXTENDS.
++    // Only match a definition outside the declaration lists of active LETs.
++    let letDepth = 0;
++    for (const [token] of parts[0].matchAll(/\b(?:LET|IN)\b/g)) letDepth += token === 'LET' ? 1 : -1;
++    const nextDefinition = /^[ \t]*[A-Za-z]\w*\s*(?:\([^()]*\)\s*)?==/m;
++    const body = parts[1]?.split(nextDefinition, 1)[0].trim();
++    const safety = safetyFormula.exec(body || '');
+     if (
+       operators.INIT ||
+       operators.NEXT ||
+       overridden ||
+-      source.includes('(*') ||
+-      (source.match(/-{4,}\s*MODULE\b/g) || []).length !== 1 ||
++      letDepth !== 0 ||
+       parts.length !== 2 ||
+       !safety
+     )
+diff --git a/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs b/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
+index b495d9dd0..e4fadf569 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
+@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import os from 'node:os';
+-import { parseCfgSections, prepareTraceReplay } from './formal-trace.mjs';
++import { parseCfgSections, prepareTraceReplay, tlaDeclarationSource } from './formal-trace.mjs';
+ import { randomUUID } from 'node:crypto';
+ import {
+   VALID_FORMAL_ADAPTERS,
+@@ -70,7 +70,12 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
+   if (!fs.existsSync(tlaPath)) {
+     return { ok: false, moduleName: null, invariants: [], errors: [`TLA+ file not found: ${tlaPath}`] };
+   }
+-  const tlaText = fs.readFileSync(tlaPath, 'utf8');
++  let tlaText;
++  try {
++    tlaText = tlaDeclarationSource(fs.readFileSync(tlaPath, 'utf8'));
++  } catch (error) {
++    return { ok: false, moduleName: null, invariants: [], errors: [error.message] };
++  }
+   const modMatch = TLA_MODULE_RE.exec(tlaText);
+   if (!modMatch) {
+     errors.push(`Missing TLA+ MODULE header in ${tlaPath}`);
+@@ -93,11 +98,10 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
+       if (invariants.length === 0) {
+         errors.push(`No INVARIANT declared in ${cfgPath}`);
+       }
+-      const definitions = tlaText.replace(/\(\*[\s\S]*?\*\)/g, ' ').replace(/\\\*[^\n]*/g, '');
+-      for (const match of definitions.matchAll(TLA_TRUE_DEFINITION)) {
++      for (const match of tlaText.matchAll(TLA_TRUE_DEFINITION)) {
+         const name = match[1];
+         if (!invariants.includes(name)) continue;
+-        const next = definitions.slice(match.index + match[0].length).trimStart();
++        const next = tlaText.slice(match.index + match[0].length).trimStart();
+         if (!next || TLA_NEXT_DECLARATION.test(next)) {
+           errors.push(`Trivial tautology invariant detected (${name} == TRUE) in ${tlaPath}`);
+         }
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index dfa1f9f5c..192b0e615 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -122,11 +122,11 @@
+     "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
+     "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
+   ],
+-  "source_sync_commit": "c88f27401d1844b99950d293e6a1fe3dfb127402",
++  "source_sync_commit": "e8428fcb766537d3a48b089f26e0e6b8851af2a5",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "f81eeecacf88a5c59012107f27f6376a134c8e68b0cdf0120b714fb094729c99",
+-    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "a7aee485341a1a50f7427e81893384502e1fdf09429be64bf85ab7c70a519892",
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "6ed5c7b94643366d8ee283a3846480a576949e4615be4860f81cea5cc1f13eb2",
++    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "cd75d370dd0c7bef8930c145a3ae25d6c609c9479ab479bf9a62b6559f303753",
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "10932749cfa4e9742e89e1270184caed2624f5aec05dc2ef84d34513b2cb7501",
+     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+     "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+diff --git a/tests/v2-formal-gate.test.mjs b/tests/v2-formal-gate.test.mjs
+index f5b361f0f..13b926c7f 100644
+--- a/tests/v2-formal-gate.test.mjs
++++ b/tests/v2-formal-gate.test.mjs
+@@ -490,6 +490,134 @@ it('retains a between-phase budget timeout and raises the repair-limit OQ in the
+   );
+ });
+ 
++it(
++  'TLC replay recognizes the selected specification outside comments and strings',
++  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
++  (t) => {
++    const projectRoot = sandbox(t);
++    fs.cpSync(path.dirname(reservation), projectRoot, { recursive: true });
++    const model = path.join(projectRoot, 'Reservation.tla');
++    const original = fs.readFileSync(model, 'utf8');
++    const tracePath = path.join(REPO_ROOT, 'specs/verification-first-factory/verification/T-005',
++      'a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson');
++    const run = (source) => {
++      fs.writeFileSync(model, source);
++      return runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
++    };
++    const nested = [
++      '(* block containing a nested (* comment *)',
++      '---- MODULE Pretend ----',
++      'OneAccepted == TRUE',
++      'Spec == WrongInit /\\ [][WrongNext]_vars',
++      '*)',
++      '\\* unmatched (* and quoted " in a line comment',
++    ].join('\n');
++    const real = 'Spec == Init /\\ [][Next]_vars';
++    const commented = original.replace('EXTENDS', nested + '\nEXTENDS');
++    const variants = [
++      ['original', original],
++      ['ordinary', original.replace('EXTENDS', '(* ordinary note *)\nEXTENDS')],
++      ['nested', commented],
++      ['strings and inline comments', original.replace(real, [
++        'Label == "escaped \\" ---- MODULE Fake ---- (* \\\\* *)"',
++        '(* prefix *) Spec (* a multi-line',
++        '   definition comment *) == Init /\\ \\* Next == Wrong',
++        '  [][(* transition *) Next ]_vars',
++      ].join('\n'))],
++    ];
++    let expected;
++    for (const [label, source] of variants) {
++      const result = run(source);
++      assert.equal(result.status, 'PASS', label + ': ' + JSON.stringify(result.errors || result.structure.errors));
++      const phases = ['baseline', 'negative', 'replay'].map((phase) => {
++        const { status, violatedInvariant, distinctStates, depth } = result.checker[phase];
++        return [status, violatedInvariant, distinctStates, depth];
++      });
++      if (!expected) expected = phases;
++      assert.deepEqual(phases, expected, label);
++      assert.equal(result.checker.replay.violatedInvariant, 'TraceIncomplete');
++      t.diagnostic(label + ' ' + JSON.stringify(phases));
++    }
++    const unsupported = commented.replace(real, real + '\n  /\\ WF_vars(Next)');
++    const result = run(unsupported.replace('WrongInit /\\ [][WrongNext]_vars', 'Init /\\ [][Next]_vars'));
++    assert.equal(result.status, 'FAIL');
++    assert.match(result.errors.join(' '), /Unsupported baseline SPECIFICATION/);
++    for (const hidden of ['(* ' + real + ' *)', 'LocalFormula == LET\n  ' + real + '\n  IN Spec']) {
++      const incomplete = run(original.replace(real, hidden));
++      assert.equal(incomplete.status, 'FAIL');
++      assert.match(incomplete.errors.join(' '), /Unsupported baseline SPECIFICATION/);
++    }
++    for (const malformed of ['(* unclosed (* nested *)', '*)', 'Label == "unclosed']) {
++      const invalid = run(original.replace('EXTENDS', malformed + '\nEXTENDS'));
++      assert.equal(invalid.status, 'FAIL');
++      assert.match(invalid.structure.errors.join(' '), /TLA\+ (?:comment|string)/);
++    }
++  },
++);
++
++it(
++  'TLC and replay agree on token boundaries in canonical safety specifications',
++  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
++  (t) => {
++    const projectRoot = sandbox(t);
++    fs.cpSync(path.dirname(reservation), projectRoot, { recursive: true });
++    const model = path.join(projectRoot, 'Reservation.tla');
++    const original = fs.readFileSync(model, 'utf8');
++    const real = 'Spec == Init /\\ [][Next]_vars';
++    const tracePath = path.join(REPO_ROOT, 'specs/verification-first-factory/verification/T-005',
++      'a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson');
++    function nativeBaseline() {
++      const metadata = fs.mkdtempSync(path.join(projectRoot, 'native-states-'));
++      return spawnSync('java', ['-cp', process.env.TLA2TOOLS_JAR, 'tlc2.TLC',
++        '-workers', '1', '-metadir', metadata, '-config', 'Reservation.cfg', 'Reservation.tla'],
++      { cwd: projectRoot }).status;
++    }
++    const replay = () => runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
++    const prefix = ['Spec', '==', 'Init', '/\\', '[]', '[', 'Next', ']_'];
++    const tuple = ['<<', 'phase', ',', 'lock', ',', 'ledger', ',', 'accepted', '>>'];
++    for (const [label, formula, following = 'OneAccepted =='] of [
++      ['original', real],
++      ['after subscript', real.replace('_vars', '_(* ordinary note *)vars')],
++      ['name, block comments', [...prefix, 'vars'].join('(* note *)')],
++      ['tuple, block comments', [...prefix, ...tuple].join('(* note *)')],
++      ['name, whitespace', [...prefix, 'vars'].join('\n  ')],
++      ['tuple, line comments', [...prefix, ...tuple].join(' \\* note\n  '),
++        'OneAccepted (* next operator, with a\n  multi-line comment *) =='],
++    ]) {
++      fs.writeFileSync(model, original.replace(real, formula).replace('OneAccepted ==', following));
++      assert.equal(nativeBaseline(), 0, label + ' native baseline');
++      const checked = replay();
++      assert.equal(checked.status, 'PASS', label + ': ' + JSON.stringify(checked.errors));
++      const phases = ['baseline', 'negative', 'replay'].map((phase) => {
++        const { status, violatedInvariant, distinctStates, depth } = checked.checker[phase];
++        return [status, violatedInvariant, distinctStates, depth];
++      });
++      assert.deepEqual(phases, [[0, null, 15, 8], [12, 'OneAccepted', 25, 7], [12, 'TraceIncomplete', 5, 5]]);
++      t.diagnostic(label + ': TLC baseline=0; replay phases=' + JSON.stringify(phases));
++    }
++
++    // TLC lexes these as single tokens. A comment inside one must not join its fragments.
++    const tupleSpec = real.replace('_vars', '_<<phase, lock, ledger, accepted>>');
++    for (const [token, split] of [
++      ['==', '=(* comment *)='], ['Init', 'In(* comment *)it'], ['/\\', '/(* comment *)\\'],
++      ['[]', '[(* comment *)]'], ['Next', 'Ne(* comment *)xt'], [']_', '](* comment *)_'],
++      ['<<', '<(* comment *)<'], ['phase', 'ph(* comment *)ase'], ['>>', '>(* comment *)>'],
++    ]) {
++      fs.writeFileSync(model, original.replace(real, tupleSpec.replace(token, split)));
++      assert.equal(nativeBaseline(), 150, token + ' native parse error');
++      const rejected = replay();
++      assert.equal(rejected.status, 'FAIL', token);
++      assert.match(rejected.errors.join(' '), /Unsupported baseline SPECIFICATION/, token);
++    }
++    const fairness = [...prefix, ...tuple, '/\\', 'WF_vars(Next)'].join('(* note *)');
++    fs.writeFileSync(model, original.replace(real, fairness));
++    assert.equal(nativeBaseline(), 0, 'TLC accepts the fairness formula');
++    const unsupported = replay();
++    assert.equal(unsupported.status, 'FAIL');
++    assert.match(unsupported.errors.join(' '), /Unsupported baseline SPECIFICATION/);
++  },
++);
++
+ it(
+   'TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas',
+   { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },

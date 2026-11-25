@@ -1,0 +1,186 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "2749d120-935b-4f71-82c3-12fb3fe05ce4",
+  "feature": "verification-first-factory",
+  "taskId": "T-005",
+  "mode": "standard",
+  "executedAt": "2026-11-25T23:26:38.444Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "d073e4332c03a3487a0e0dce0deedb5c9fb2b3ef23af497ec6501318ba413313",
+    "ids": {
+      "AC-003": "4e2f3c1fd875b9f6a2019794a2cb2fea1053be3bf38a6b3f65b6d3f0b01cd3cc",
+      "AC-004": "e91f0bf495571d6120088136c37fd4f5ea31eb58524546092b2b74a5fa4173cd",
+      "AC-005": "14addcf449a506c0d7424895f5b9795d481570f0363347a448dc37deec759ba3",
+      "AC-006": "94b6fe9c4baf35c0fb3b0bc297e099d3490851c88f445bd55ac99e8adb82b115",
+      "REQ-003": "cbba41228253f22d76edf8b27e32e28649c0988737bca97bac3b0b677dcd7a6b",
+      "REQ-004": "76317919409ae7540f4f91a65ac2d8bd2743bb0191781398f954d723619a6396",
+      "REQ-005": "2b1e707be1f767694e4034cf495f8855e73c1d8565208b8d798fde3a5ac3adc9",
+      "REQ-006": "e8c0f415fe345c732f83b510406624073067a1fef6be907598360d70da764100"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 3,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "plugins/sdd-quality-loop/scripts/v2/discover-state-machines.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "tests/fixtures/project-skills/formal-review-reservation/mapping.json"
+    ],
+    "outOfScopeFiles": [
+      "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+      "tests/v2-formal-gate.test.mjs",
+      "specs/self-verification/formal/mapping.json"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 3 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-005",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "high",
+      "scopePaths": [
+        "plugins/sdd-quality-loop/scripts/v2/discover-state-machines.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+        "tests/fixtures/project-skills/formal-review-reservation/mapping.json"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "formal",
+        "command": "node --test tests/v2-formal-gate.test.mjs",
+        "exitCode": 0,
+        "durationMs": 73081,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate\n  ✔ checks literal TRUE only for invariants selected by the active CFG (2.214583ms)\n  ✔ stops a disabled formal gate in CI and honors an explicit checker mode (107.53925ms)\n  ✔ respects disabled formal configuration in the integrated gate (23.502708ms)\n  ✔ AC-003: discovers formal verification triggers from Risk: high and state-machine signals (1.276209ms)\n  ✔ AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4 (0.306ms)\n  ✔ AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace (11.213875ms)\n✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (146.498916ms)\n▶ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)\n  ✔ validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces (1.126791ms)\n✔ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle) (1.182708ms)\n▶ checker verdicts match the observed failure\n  ✔ does not accept a tool error mentioning the invariant as a negative control (1.709333ms)\n  ✔ defers a missing tool locally and fails CI (2.103291ms)\n  ✔ rejects a gate pass with undeclared drift and an unapproved completion (0.566375ms)\n✔ checker verdicts match the observed failure (4.447416ms)\n✔ TaskLock Release preserves an unreadable owner and its lease until explicitly forced (386.694333ms)\n✔ scan finds related compound branches and graph validation fails on unreachable states (1535.144958ms)\n✔ skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view (114.829459ms)\n✔ retains a between-phase budget timeout and raises the repair-limit OQ in the decision view (5.332459ms)\n✔ TLC replay recognizes the selected specification outside comments and strings (8574.86ms)\nℹ original [[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ ordinary [[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ nested [[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ strings and inline comments [[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\n✔ TLC and replay agree on token boundaries in canonical safety specifications (18977.862542ms)\nℹ original: TLC baseline=0; replay phases=[[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ after subscript: TLC baseline=0; replay phases=[[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ name, block comments: TLC baseline=0; replay phases=[[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ tuple, block comments: TLC baseline=0; replay phases=[[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ name, whitespace: TLC baseline=0; replay phases=[[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\nℹ tuple, line comments: TLC baseline=0; replay phases=[[0,null,15,8],[12,\"OneAccepted\",25,7],[12,\"TraceIncomplete\",5,5]]\n✔ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (15738.410209ms)\nℹ Constraint layout \"\\n\": baseline=1 replay=1 status=FAIL\nℹ Constraint layout \" \": baseline=1 replay=1 status=FAIL\nℹ TLC baseline exit=0 \"CONSTANT LOCK = TRUE\"\nℹ TLC baseline exit=0 \"CONSTANT\\n  LOCK = TRUE\"\n✔ TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces (27523.635458ms)\nℹ Reservation baseline no violation exit=0 states=15 depth=8\nℹ Reservation negative OneAccepted exit=12 states=25 depth=7\nℹ TaskLock baseline no violation exit=0 states=5 depth=3\nℹ TaskLock negative SingleOwner exit=12 states=4 depth=3\nℹ TaskLock replay TraceIncomplete exit=12 states=4 depth=4\nℹ TaskLock baseline no violation exit=0 states=null depth=null\nℹ TaskLock negative SingleOwner exit=12 states=null depth=null\nℹ TaskLock replay TraceIncomplete exit=12 states=null depth=null\nℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10\nℹ TaskLock baseline no violation exit=0 states=5 depth=3\nℹ TaskLock negative SingleOwner exit=12 states=4 depth=3\nℹ TaskLock replay no violation exit=0 states=1 depth=1\nℹ TaskLockMutation baseline no violation exit=0 states=54 depth=7\nℹ TaskLockMutation negative OneWriter exit=12 states=27 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay no violation exit=0 states=2 depth=2\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5\nℹ GateLifecycle replay no violation exit=0 states=2 depth=2\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative RetryBound exit=12 states=35 depth=12\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative EscalationRequiresOQ exit=12 states=8 depth=5\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative NoTamperRepair exit=12 states=13 depth=6\nℹ GateLifecycle baseline no violation exit=0 states=38 depth=12\nℹ GateLifecycle negative NoDriftPass exit=12 states=6 depth=5\nℹ tests 18\nℹ suites 3\nℹ pass 18\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 73055.174792\n",
+        "stderr": ""
+      },
+      {
+        "label": "python",
+        "command": "python3 tests/project-skill-formal.tests.py -v",
+        "exitCode": 0,
+        "durationMs": 1221,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": "test_delayed_contender_still_reaches_negative_barrier (__main__.Reservation.test_delayed_contender_still_reaches_negative_barrier) ... ok\ntest_mutation_and_baseline (__main__.Reservation.test_mutation_and_baseline) ... ok\ntest_negative_barrier_timeout_is_reported (__main__.Reservation.test_negative_barrier_timeout_is_reported) ... ok\ntest_negative_model_requires_a_completed_invariant_violation (__main__.Reservation.test_negative_model_requires_a_completed_invariant_violation) ... ok\ntest_source_mapping_current (__main__.Reservation.test_source_mapping_current) ... ok\ntest_spawn_failure_cleans_up_first_contender (__main__.Reservation.test_spawn_failure_cleans_up_first_contender) ... ok\ntest_successful_reservation_must_publish_the_winning_actor (__main__.Reservation.test_successful_reservation_must_publish_the_winning_actor) ... ok\ntest_wrong_tool_bytes_are_rejected_before_execution (__main__.Reservation.test_wrong_tool_bytes_are_rejected_before_execution) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 1.154s\n\nOK\n"
+      },
+      {
+        "label": "observed",
+        "command": "python3 tests/verify-review-reservation.py --jar /private/tmp/sdd-formal-runtime/tla2tools.jar --output /private/tmp/vff-976-two-4f611fe23a68/T-005/capture",
+        "exitCode": 0,
+        "durationMs": 5621,
+        "passed": true,
+        "error": null,
+        "stdout": "...[truncated 7568 chars]...\n      \"args\": [\n                \"-XX:+UseParallelGC\",\n                \"-cp\",\n                \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n                \"tlc2.TLC\",\n                \"-generateSpecTE\",\n                \"-workers\",\n                \"1\",\n                \"-config\",\n                \"Reservation.negative.cfg\",\n                \"Reservation.tla\"\n              ]\n            }\n          },\n          \"command\": {\n            \"bin\": \"java\",\n            \"shell\": false,\n            \"args\": [\n              \"-XX:+UseParallelGC\",\n              \"-cp\",\n              \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n              \"tlc2.TLC\",\n              \"-generateSpecTE\",\n              \"-workers\",\n              \"1\",\n              \"-config\",\n              \"Reservation.cfg\",\n              \"Reservation.tla\"\n            ]\n          },\n          \"replay\": {\n            \"ok\": true,\n            \"status\": 12,\n            \"unavailable\": false,\n            \"timedOut\": false,\n            \"violatedInvariant\": \"TraceIncomplete\",\n            \"distinctStates\": 5,\n            \"depth\": 5,\n            \"version\": \"TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)\",\n            \"expectedViolatedInvariant\": \"TraceIncomplete\",\n            \"invariantMentioned\": true,\n            \"command\": {\n              \"bin\": \"java\",\n              \"shell\": false,\n              \"args\": [\n                \"-XX:+UseParallelGC\",\n                \"-cp\",\n                \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n                \"tlc2.TLC\",\n                \"-generateSpecTE\",\n                \"-workers\",\n                \"1\",\n                \"-config\",\n                \"SDDTraceReplay.cfg\",\n                \"SDDTraceReplay.tla\"\n              ]\n            }\n          }\n        },\n        \"evidence\": \"reports/verification/formal-3dd422da-cbf1-4c2f-8498-52eba494cb00/checker-2jPhZz\",\n        \"status\": \"PASS\",\n        \"exitCode\": 0\n      }\n    },\n    {\n      \"file\": \"out-of-order.ndjson\",\n      \"expected_result\": true,\n      \"report\": {\n        \"schema\": \"sdd-formal-gate/v1\",\n        \"adapter\": \"tlc\",\n        \"mode\": \"strict\",\n        \"moduleName\": \"Reservation\",\n        \"structure\": {\n          \"ok\": true,\n          \"moduleName\": \"Reservation\",\n          \"invariants\": [\n            \"OneAccepted\"\n          ],\n          \"mapping\": {\n            \"source\": \"plugins/sdd-quality-loop/scripts/validate-review-context-set.sh\",\n            \"source_sha256\": \"51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7\",\n            \"property\": \"At most one contender with the same pre-reservation ledger hash is accepted.\",\n            \"mapping\": {\n              \"Acquire\": \"Python os.mkdir of identity-ledger.json.lock; only a successful OS directory creation grants the reservation\",\n              \"Check\": \"sha256_file ledger equals bound_ledger_sha256 after acquisition\",\n              \"Publish\": \"jq staged append followed by mv temp_ledger ledger\",\n              \"Release\": \"rmdir lock and EXIT cleanup\"\n            },\n            \"assumptions\": [\n              \"mkdir and same-directory rename are atomic\",\n              \"every writer honors this same lock\",\n              \"hash collision excluded\",\n              \"no hostile filesystem changes\",\n              \"two contenders each uses the same initial hash and attempts once\"\n            ],\n            \"excluded\": [\n              \"crash recovery\",\n              \"lease expiry\",\n              \"network filesystems\",\n              \"Windows behavior\",\n              \"entire application correctness\"\n            ],\n            \"previous_source_sha256\": \"3aa2fe5b3209a9d1a06692523fbce23eabb7c71fe2e317e18468fedb8d0b761a\",\n            \"reservation_tail_sha256\": \"91a91e8728c5ea71d0d86003672c2b0f67b9a60ec0dff33a0eed61f508c74615\",\n            \"mapping_recheck\": \"Acquire uses the mkdir syscall result directly, preserving the model's exclusive acquisition on Ubuntu 26.04. The replay holds the winner inside Check until its peer has attempted acquisition and compares critical-section entry, process status and the published ledger record. The mutation removes Acquire and Release and must admit both contenders.\",\n            \"previous_source_commit\": \"dc86a706cf3fe3b93ea5d9af3eec885e3290a769\",\n            \"expected_violated_invariant\": \"OneAccepted\",\n            \"sources\": [\n              \"plugins/sdd-quality-loop/scripts/validate-review-context-set.sh\"\n            ],\n            \"trace\": {\n              \"fields\": [\n                \"accepted\"\n              ],\n              \"actor_actions\": [\n                \"Acquire\",\n                \"Check\",\n                \"Publish\",\n                \"Release\"\n              ]\n            }\n          },\n          \"errors\": []\n        },\n        \"trace\": {\n          \"ok\": false,\n          \"stepsChecked\": 5,\n          \"violations\": [\n            \"The baseline model could not reproduce the observed trace\"\n          ]\n        },\n        \"checker\": {\n          \"baseline\": {\n            \"ok\": true,\n            \"status\": 0,\n            \"unavailable\": false,\n            \"timedOut\": false,\n            \"violatedInvariant\": null,\n            \"distinctStates\": 15,\n            \"depth\": 8,\n            \"version\": \"TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)\",\n            \"command\": {\n              \"bin\": \"java\",\n              \"shell\": false,\n              \"args\": [\n                \"-XX:+UseParallelGC\",\n                \"-cp\",\n                \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n                \"tlc2.TLC\",\n                \"-generateSpecTE\",\n                \"-workers\",\n                \"1\",\n                \"-config\",\n                \"Reservation.cfg\",\n                \"Reservation.tla\"\n              ]\n            }\n          },\n          \"negative\": {\n            \"ok\": true,\n            \"status\": 12,\n            \"unavailable\": false,\n            \"timedOut\": false,\n            \"violatedInvariant\": \"OneAccepted\",\n            \"distinctStates\": 25,\n            \"depth\": 7,\n            \"version\": \"TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)\",\n            \"expectedViolatedInvariant\": \"OneAccepted\",\n            \"invariantMentioned\": true,\n            \"command\": {\n              \"bin\": \"java\",\n              \"shell\": false,\n              \"args\": [\n                \"-XX:+UseParallelGC\",\n                \"-cp\",\n                \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n                \"tlc2.TLC\",\n                \"-generateSpecTE\",\n                \"-workers\",\n                \"1\",\n                \"-config\",\n                \"Reservation.negative.cfg\",\n                \"Reservation.tla\"\n              ]\n            }\n          },\n          \"command\": {\n            \"bin\": \"java\",\n            \"shell\": false,\n            \"args\": [\n              \"-XX:+UseParallelGC\",\n              \"-cp\",\n              \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n              \"tlc2.TLC\",\n              \"-generateSpecTE\",\n              \"-workers\",\n              \"1\",\n              \"-config\",\n              \"Reservation.cfg\",\n              \"Reservation.tla\"\n            ]\n          },\n          \"replay\": {\n            \"ok\": false,\n            \"status\": 0,\n            \"unavailable\": false,\n            \"timedOut\": false,\n            \"violatedInvariant\": null,\n            \"distinctStates\": 2,\n            \"depth\": 2,\n            \"version\": \"TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)\",\n            \"expectedViolatedInvariant\": \"TraceIncomplete\",\n            \"invariantMentioned\": false,\n            \"command\": {\n              \"bin\": \"java\",\n              \"shell\": false,\n              \"args\": [\n                \"-XX:+UseParallelGC\",\n                \"-cp\",\n                \"/private/tmp/sdd-formal-runtime/tla2tools.jar\",\n                \"tlc2.TLC\",\n                \"-generateSpecTE\",\n                \"-workers\",\n                \"1\",\n                \"-config\",\n                \"SDDTraceReplay.cfg\",\n                \"SDDTraceReplay.tla\"\n              ]\n            }\n          }\n        },\n        \"evidence\": \"reports/verification/formal-4561afe8-28b2-4da5-afae-cd48b8f2252d/checker-aUyFrD\",\n        \"status\": \"FAIL\",\n        \"exitCode\": 1\n      }\n    }\n  ],\n  \"passed\": true\n}\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}
