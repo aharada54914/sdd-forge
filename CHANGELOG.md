@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **CLI のロックが取得直後に stale になる（Closes #815）**: `task-lock.mjs acquire` は `--owner` 必須。ロックは所有者 ID と有効期限で保持し、終了した CLI の PID では判定しない。同じ所有者の再取得は（期限切れ後も）期限の延長として成功し、更新中に別の所有者が取得したロックは上書きしない。ship は 1 つの所有者 ID を `implement-tasks` と解放まで渡す。
+- **Scope の重複判定（Closes #816）**: 文中のパス（`src/a.ts を更新`）、`(注記)`、`{a,b}`（展開 64 件まで。超えると全体扱いで単独実行）を読み、バッククォート内のパスはそのまま使い（`src/app/(admin)/page.tsx`）、シンボリックリンク経由の別名や未作成のファイルも実体のパスで比べる。パスを読めない Scope のタスクは単独の Wave で実行する（既存仕様の並列計画は、パスのない Scope のタスクが直列になる）。
+- **段階承認が仕様差分になる（Closes #818）**: 新しく記録したベースラインは `Approval:` 値を正規化した tasks.md のハッシュと各タスクの承認状態を持つ。別タスクの承認は `CLEAN`（`newlyApprovedTasks` に列挙し、`CLEAN` でも Markdown に表示）、承認の取り消しは差分（`revokedApprovals`）。ゲートは自タスクがベースライン後に承認された場合 `APPROVED_AFTER_BASELINE` 警告を出す（シェル経由の自己承認とは区別できないため、独立レビューと PR レビューで確認する。脅威モデルに明記）。既存ベースラインは従来の比較のまま。
+- **チケット修正後の再検証（Closes #827）**: `fix-by-review-ticket` はチケットの feature とタスクを明示して ship を呼び、target が欠けていれば停止する。ship の自動選定はゲート待ち（`Implementation Complete`）のタスクを持つ機能も対象にする。
+- **承認欄の解釈を統一（Closes #830）**: ゲート・判断画面・Spec Drift・MCP が同じ規則（`Approved` と任意の `(注記)` だけ。大文字小文字違いや後続の語は未承認）を使う。
+- **DDD なしの Concept Test（Closes #809）**: `domain/` がなければ、ship が受け付ける機能名（`order_sync` など）すべてで `SKIP`。`domain/` がある場合の命名規則違反は理由を示して停止する。
+- **旧ドメインレビュー事前検査の配置（Closes #811）**: v1 互換専用で、対象プロジェクトと同じツリーでだけ動くことをスキル参照に明記。現行の `domain-model review` は使わない。
+- **検証カタログと実際の CI（Closes #862）**: カタログ登録だけを「CI で実行済み」と数えず、現行 `test.yml` が実行するかで分類した報告（`docs/operations/verification-catalog-status.md`）を生成・検査する。
+- **読取上限を超える仕様ファイル（Closes #834）**: 存在するが読めないファイルは削除扱いにせず `unreadableFiles` に列挙し、状態 `UNVERIFIABLE`（ゲート・`--fail-on-undeclared` で不合格、MCP は理由付きで blocked）。MCP 契約スキーマに追加。
+- **仕様変更後の古い合格証跡（Closes #831）**: `run-sdd-gate.mjs` は検証した入力（コードブロックを含むタスク本文・依存する REQ/AC の項目（継続行・表の行を含む）・design.md）のダイジェストを `specInputs` に記録する。`sdd_gate_audit` は `specInputsCurrent` / `specInputsChanged` を返し、入力が変わった合格は `readyForDone` にしない（`specInputs` のない旧証跡は Spec Drift が `CLEAN` の間だけ有効）。MCP 契約スキーマに追加。
+- **影響を受けた Done タスクの再検証（Closes #832）**: 証跡が古くなった `Done` タスクがあると、MCP の次アクションは `done` ではなくそのタスクの ship（ゲート再実行）を案内する。ship と sdd-gate は `Done` タスクを状態を変えずに再検証し、`FAIL` は人間へ報告する。無関係な `Done` タスクは再実行しない。再検証が `PASS` にならなかった `Done` タスクは `blocked`（人間判断）として示す。
+  - **更新時の影響**: `specInputs` のない証跡（#831 以前）や証跡のない `Done` タスクは、Spec Drift が `AMENDED` の機能では再検証の対象になる。`AMENDED` の完了済み機能は、更新後に MCP が `done` ではなくゲート再実行を案内する。
+
 ## v2.1.2 (2026-11-25)
 
 ### Fixed

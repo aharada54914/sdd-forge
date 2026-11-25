@@ -345,3 +345,18 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     }
   });
 });
+
+describe('#862 the verification catalog report matches what CI runs', () => {
+  it('a suite counts as run only when a current test.yml job names it; the committed report is current', async () => {
+    const status = await import('./verification-catalog-status.mjs');
+    const jobs = status.parseWorkflowJobs('name: x\njobs:\n  alpha:\n    steps:\n      - run: bash tests/a.tests.sh\n  beta:\n    steps: []\nother: 1\n');
+    assert.deepEqual([...jobs.keys()], ['alpha', 'beta']);
+    const result = status.classifyCatalog();
+    for (const s of result.suites.filter((x) => x.state === 'run')) {
+      assert.ok(s.runIn.every((j) => result.jobs.includes(j)), s.path);
+    }
+    assert.ok(result.suites.some((s) => s.catalogJobs.includes('posix-regression') && s.state !== 'run'), 'catalog links alone are not runs');
+    const committed = fs.readFileSync(path.join(REPO_ROOT, status.REPORT_PATH), 'utf8');
+    assert.equal(committed, status.renderReport(result), 'regenerate with: node tests/verification-catalog-status.mjs --write');
+  });
+});

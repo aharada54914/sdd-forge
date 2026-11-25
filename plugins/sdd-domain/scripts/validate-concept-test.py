@@ -119,15 +119,24 @@ def evidence(root, feature, read=None):
     return document, result
 
 
+class FeatureNameError(ValueError):
+    """A feature name the DDD lane cannot use; the message says why."""
+
+
 def validate(root, feature):
     root = Path(root).resolve(strict=True)
-    if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
+    # Applicability first (#809): without domain/ the Concept Test does not
+    # apply, for every feature name ship accepts (no separators, not . or ..).
+    if not feature or feature in ('.', '..') or re.search(r'[\\/\0]', feature):
         raise ValueError('invalid feature')
     domain = root / 'domain'
     if domain.is_symlink() or (domain.exists() and not domain.is_dir()):
         raise ValueError('unsafe domain directory')
     if not domain.exists():
         return 'SKIP'
+    if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
+        raise FeatureNameError('concept-test: BLOCK: DDD features need lowercase kebab-case names '
+                               '([a-z0-9][a-z0-9-]*); rename specs/' + feature + '/ to use the DDD lane')
     document, _ = evidence(root, feature)
     return {'proceed': 'CONTINUE', 'defer-to-domain-update': 'DEFER', 'rejected': 'REJECT'}.get(document.get('decision'), 'CONTINUE')
 
@@ -141,6 +150,9 @@ def main():
         result = validate(args.root, args.feature)
         print(result)
         return {'SKIP': 0, 'CONTINUE': 0, 'DEFER': 2, 'REJECT': 3}[result]
+    except FeatureNameError as error:
+        print(str(error), file=sys.stderr)
+        return 1
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError, auth.ValidateApprovalSidecarError):
         print('concept-test: BLOCK: evidence is missing, invalid, stale, or unapproved', file=sys.stderr)
         return 1

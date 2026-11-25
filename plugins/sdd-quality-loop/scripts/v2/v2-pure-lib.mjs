@@ -343,6 +343,15 @@ export function extractAmendmentEntries(text) {
   return entries;
 }
 
+/**
+ * The one approval grammar every consumer uses (#830): exactly `Approved`,
+ * optionally followed by one parenthesized note (`Approved (2026-11-01 owner)`).
+ * Case variants and trailing words are not approvals.
+ */
+export function isApprovedValue(value) {
+  return /^Approved(?:[ \t]*\([^()\n]*\))?$/.test(String(value ?? '').trim());
+}
+
 export function canonicalSpecContractText(text, fileName) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
   let combined = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;

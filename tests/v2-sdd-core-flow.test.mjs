@@ -514,3 +514,24 @@ describe('Phase 2 SDD Core skill & template contracts', () => {
     assert.match(tsk, /## Spec Amendments/);
   });
 });
+
+describe('#827 re-verifying a fixed review ticket reaches the gate for exactly that task', () => {
+  it('fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete', () => {
+    const fix = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md'), 'utf8');
+    const ship = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/skills/ship/SKILL.md'), 'utf8');
+    assert.match(fix, /\/sdd-ship:ship specs\/<feature>\/tasks\.md#<task>/, 'the re-run names the ticket feature and task');
+    assert.match(fix, /target[^\n]*(?:feature|task)[^\n]*停止/, 'a ticket without feature and task stops instead of guessing');
+    const selection = ship.split('### Step 1')[1].split('### Step 2')[0];
+    assert.match(selection, /Implementation Complete/, 'a feature whose only open work awaits the gate is selectable');
+  });
+});
+
+describe('#832 a Done task affected by a spec change has a re-verification path', () => {
+  it('ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status', () => {
+    const ship = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-ship/skills/ship/SKILL.md'), 'utf8');
+    const gate = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md'), 'utf8');
+    assert.match(ship, /影響を受けた `Done` タスク[^\n]*sdd-gate[^\n]*再実行/);
+    assert.match(ship, /Status[^\n]*変えない|状態を変えず/);
+    assert.match(gate.split('## Process')[0], /再検証[^\n]*`Done`|`Done`[^\n]*再検証/);
+  });
+});

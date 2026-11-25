@@ -90,6 +90,29 @@ class ConceptTests(unittest.TestCase):
         shutil.rmtree(self.root / 'domain')
         self.assertEqual('SKIP\n', self.gate().stdout)
 
+    def test_no_domain_skips_for_any_feature_name_ship_accepts(self):
+        # #809: applicability comes before the DDD naming rule, so a project
+        # without domain/ never stops on a feature name ship accepts.
+        shutil.rmtree(self.root / 'domain')
+        wrappers = [[sys.executable, str(SCRIPT)]]
+        if os.name != 'nt' and shutil.which('sh'):
+            wrappers.append(['sh', str(SCRIPT.with_suffix('.sh'))])
+        for wrapper in wrappers:
+            for feature in ('order_sync', 'order-sync', 'Order.v2'):
+                result = subprocess.run(wrapper + ['--root', str(self.root), '--feature', feature],
+                                        env=self.env, capture_output=True, text=True)
+                self.assertEqual((0, 'SKIP\n'), (result.returncode, result.stdout), feature + result.stderr)
+            for feature in ('..', 'a/b', ''):
+                result = subprocess.run(wrapper + ['--root', str(self.root), '--feature', feature],
+                                        env=self.env, capture_output=True, text=True)
+                self.assertEqual(1, result.returncode, feature)
+
+    def test_ddd_feature_outside_naming_rule_says_so(self):
+        result = subprocess.run([sys.executable, str(SCRIPT), '--root', str(self.root), '--feature', 'order_sync'],
+                                env=self.env, capture_output=True, text=True)
+        self.assertEqual(1, result.returncode)
+        self.assertIn('lowercase', result.stderr)
+
     def test_fits_and_dispatchers(self):
         self.assertEqual('CONTINUE\n', self.gate().stdout)
         if os.name != 'nt' and shutil.which('sh'):

@@ -225,3 +225,136 @@ describe('#820 AMENDED names the changed IDs no amendment entry mentions', () =>
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });
+
+describe('#818 staged human approval is not spec drift', () => {
+  const addDraftTask = (repo) => {
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    const text = fs.readFileSync(tasksPath, 'utf8').replace(
+      '## Spec Amendments',
+      '## T-002 Render receipt\nApproval: Draft\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-002 passes\n\n## Spec Amendments',
+    );
+    fs.writeFileSync(tasksPath, text, 'utf8');
+    return tasksPath;
+  };
+  const edit = (file, from, to) => fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace(from, to), 'utf8');
+
+  it('approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = addDraftTask(repo);
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+
+    edit(tasksPath, 'Approval: Draft', 'Approval: Approved');
+    const approved = runCheck(repo, 'checkout', ['--fail-on-undeclared']);
+    assert.equal(approved.status, 0, approved.stdout);
+    const approvedResult = JSON.parse(approved.stdout);
+    assert.equal(approvedResult.status, 'CLEAN');
+    assert.deepEqual(approvedResult.newlyApprovedTasks, ['T-002']);
+
+    edit(tasksPath, 'Approval: Approved\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001', 'Approval: Draft\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001');
+    const revoked = JSON.parse(runCheck(repo, 'checkout').stdout);
+    assert.equal(revoked.status, 'UNDECLARED_DRIFT');
+    assert.deepEqual(revoked.revokedApprovals, ['T-001']);
+
+    edit(tasksPath, 'Approval: Draft\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001', 'Approval: Approved\nStatus: Planned\nRisk: standard\n\n### Done When\n- AC-001');
+    edit(tasksPath, '- AC-002 passes', '- AC-002 passes for carts of any size');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNDECLARED_DRIFT', 'body edits stay drift');
+  });
+
+  it('a baseline recorded before this change keeps its old comparison', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = addDraftTask(repo);
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    const baselinePath = path.join(repo, 'specs', 'checkout', '.spec-baseline.json');
+    const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+    for (const info of Object.values(baseline.files)) {
+      delete info.approvalContractSha256;
+      delete info.taskApprovals;
+    }
+    fs.writeFileSync(baselinePath, JSON.stringify(baseline), 'utf8');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'CLEAN');
+    edit(tasksPath, 'Approval: Draft', 'Approval: Approved');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNDECLARED_DRIFT', 'old baselines cannot tell approval from body edits');
+  });
+});
+
+describe('#834 unreadable spec files are reported apart from deletions', () => {
+  it('an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins', async () => {
+    const { checkSpecDriftCore } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const { createFsReadonlyIo } = await import('../plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs');
+    const repo = setupFeatureRepo();
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    const real = createFsReadonlyIo(repo);
+    const capped = { ...real, readText: (rel) => (rel.endsWith('/design.md') ? null : real.readText(rel)) };
+
+    const unreadable = checkSpecDriftCore(capped, { feature: 'checkout' });
+    assert.equal(unreadable.status, 'UNVERIFIABLE');
+    assert.deepEqual(unreadable.unreadableFiles, ['specs/checkout/design.md']);
+    assert.deepEqual(unreadable.deletedFiles, []);
+
+    const reqPath = path.join(repo, 'specs', 'checkout', 'requirements.md');
+    fs.writeFileSync(reqPath, fs.readFileSync(reqPath, 'utf8').replace('HTTP 400', 'HTTP 422'), 'utf8');
+    assert.equal(checkSpecDriftCore(capped, { feature: 'checkout' }).status, 'UNDECLARED_DRIFT');
+    const res = runCheck(repo, 'checkout', ['--fail-on-undeclared']);
+    assert.equal(res.status, 1);
+  });
+});
+
+describe('#972 review: unreadable and newly approved are visible and enforced', () => {
+  const GATE = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs');
+  const breakDesign = (repo) => {
+    // Over the CLI's 8 MiB read cap: present, but not read for drift.
+    const design = path.join(repo, 'specs', 'checkout', 'design.md');
+    const text = fs.readFileSync(design, 'utf8');
+    const cut = text.indexOf('\n') + 1;
+    fs.writeFileSync(design, `${text.slice(0, cut)}\n<!-- ${'x'.repeat(9 * 1024 * 1024)} -->\n${text.slice(cut)}`, 'utf8');
+  };
+  const gate = (repo, task = 'T-001') =>
+    spawnSync(process.execPath, [GATE, '--feature', 'checkout', '--task', task, '--root', repo, '--cmd', 'ok=node -e "process.exit(0)"'], { cwd: repo, encoding: 'utf8' });
+
+  it('UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Status: Planned', 'Status: Implementation Complete'), 'utf8');
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    breakDesign(repo);
+    const res = runCheck(repo, 'checkout', ['--fail-on-undeclared']);
+    assert.equal(JSON.parse(res.stdout).status, 'UNVERIFIABLE');
+    assert.equal(res.status, 1, 'UNVERIFIABLE on its own must fail');
+    const gated = JSON.parse(gate(repo).stdout);
+    assert.equal(gated.checks.specDrift.status, 'UNVERIFIABLE');
+    assert.equal(gated.verdict, 'FAIL');
+
+    const reqPath = path.join(repo, 'specs', 'checkout', 'requirements.md');
+    fs.writeFileSync(reqPath, fs.readFileSync(reqPath, 'utf8')
+      .replace('HTTP 400', 'HTTP 422')
+      .replace('- （初期版のため変更なし）', '- 2026-11-25: AC-002 uses 422 (owner agreed).'), 'utf8');
+    assert.equal(JSON.parse(runCheck(repo, 'checkout').stdout).status, 'UNVERIFIABLE', 'an amendment does not excuse an unread file');
+  });
+
+  it('a task approved after the baseline is listed even when CLEAN, and its gate run warns', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8')
+      .replace('Approval: Approved', 'Approval: Draft')
+      .replace('Status: Planned', 'Status: Implementation Complete'), 'utf8');
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Approval: Draft', 'Approval: Approved'), 'utf8');
+    const md = runCheck(repo, 'checkout', ['--format', 'markdown']).stdout;
+    assert.match(md, /CLEAN/);
+    assert.match(md, /T-001/, 'the approval change is shown to the PR reviewer');
+    const gated = JSON.parse(gate(repo).stdout);
+    assert.ok(gated.warnings.some((w) => /^APPROVED_AFTER_BASELINE: .*T-001/.test(w)), JSON.stringify(gated.warnings));
+  });
+});
+
+describe('#972 re-review: text added to an Approval line is drift', () => {
+  it('only a bare approval value is normalized', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Approval: Approved', 'Approval: Draft'), 'utf8');
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Approval: Draft', 'Approval: Draft — Scope now covers src/** and AC-001 is waived'), 'utf8');
+    const res = JSON.parse(runCheck(repo, 'checkout').stdout);
+    assert.equal(res.status, 'UNDECLARED_DRIFT');
+  });
+});

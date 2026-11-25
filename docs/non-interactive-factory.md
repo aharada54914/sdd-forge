@@ -30,14 +30,16 @@ Then hand the issue context to `/sdd-bootstrap:bootstrap feature --feature issue
 Before invoking autonomous implementation in CI or multi-worker pipelines:
 
 ```bash
-# 1. Prevent duplicate concurrent runs (fail-closed atomic lock)
-node <installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs acquire --feature <slug> --root .
+# 1. Prevent duplicate concurrent runs (fail-closed atomic lock).
+#    RUN_ID names this run (e.g. the CI run id). The lock is held by that owner
+#    until --ttl seconds pass; acquiring again with the same owner renews it.
+node <installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs acquire --feature <slug> --owner "$RUN_ID" --root .
 
 # 2. Compute safe parallel execution waves and check Scope conflicts
 node <installed-root>/plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs --feature <slug> --plan-batches --format markdown
 
 # 3. Release lock upon completion (always in trap/finally)
-node <installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs release --feature <slug> --root .
+node <installed-root>/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs release --feature <slug> --owner "$RUN_ID" --root .
 ```
 
 ## 4. Human-on-the-Loop Governance

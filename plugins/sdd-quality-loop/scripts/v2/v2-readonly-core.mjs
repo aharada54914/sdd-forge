@@ -15,6 +15,7 @@ import {
   extractAmendmentEntries,
   extractSpecIdentifiers,
   globToRegExp,
+  isApprovedValue,
   matchProtectedSpecRelPath,
   normalizeGuardrailsConfig,
   normalizeNewlines,
@@ -383,17 +384,108 @@ export function extractScopePaths(taskBlock) {
   for (const line of section.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed.startsWith('-')) continue;
-    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)]
-      .map((m) => normalizeRelPath(m[1]))
-      .filter(Boolean);
-    if (backtickMatches.length > 0) {
-      paths.push(...backtickMatches);
-    } else {
-      const bare = normalizeRelPath(trimmed.replace(/^-\s*/, ''));
-      if (bare && !/^<[^<>]+>$/.test(bare)) paths.push(bare);
-    }
+    const backtickMatches = [...trimmed.matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+    // A backtick path is literal (`src/app/(admin)/page.tsx`); notes are only
+    // dropped from bare prose.
+    const tokens = backtickMatches.length > 0 ? backtickMatches : bareScopeTokens(trimmed.replace(/^-\s*/, ''));
+    for (const token of tokens) paths.push(...expandScopeToken(token.trim()));
   }
   return [...new Set(paths)];
+}
+
+const SCOPE_PLACEHOLDER_RE = /^(?:none|n\/a|tbd|todo|-+|<[^<>]+>)$/i;
+const SCOPE_PATH_CHARS_RE = /^[A-Za-z0-9._\-/*?{},[\]@+~()]+$/;
+
+// A bare Scope bullet names a path either as its only word, or as words that
+// look like file paths inside prose ("src/a.ts を更新", "a.ts / b.ts"): a file
+// extension, a trailing slash, a glob or a brace list. Notes in parentheses
+// are dropped. Prose with no path names nothing, so the task's Scope is
+// unknown (#816).
+function bareScopeTokens(text) {
+  const words = stripScopeNote(text).split(/\s+/).filter(Boolean).map(stripScopeNote);
+  if (words.length === 1) {
+    return SCOPE_PATH_CHARS_RE.test(words[0]) && !SCOPE_PLACEHOLDER_RE.test(words[0]) ? words : [];
+  }
+  return words.filter(
+    (w) => SCOPE_PATH_CHARS_RE.test(w) && /\.[A-Za-z0-9]+$|\/$|[*?]|\{[^{}]*,[^{}]*\}/.test(w),
+  );
+}
+
+// "src/a.ts(note)", "src/a.ts （note）", "src/a.ts:" and a note left open
+// to the next line all name src/a.ts. A parenthesized directory with a slash
+// on both sides is a route group (src/app/(admin)/page.tsx) and stays.
+function stripScopeNote(token) {
+  const text = String(token);
+  let out = '';
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch !== '(' && ch !== '（') {
+      out += ch;
+      continue;
+    }
+    const close = text.indexOf(ch === '(' ? ')' : '）', i + 1);
+    if (close === -1) break; // an unclosed note runs to the end of the line
+    const routeGroup = text[i - 1] === '/' && text[close + 1] === '/';
+    out += routeGroup ? text.slice(i, close + 1) : ' ';
+    i = close;
+  }
+  return out.trim().replace(/[:,;、。]+$/, '');
+}
+
+const MAX_SCOPE_ALTERNATIVES = 64;
+
+// Brace alternatives, nested or not: "src/{a,{b,c}}.ts" -> src/a.ts, src/b.ts,
+// src/c.ts. Expansion is breadth-first and stops at MAX_SCOPE_ALTERNATIVES:
+// beyond it the entry stands for everything ('**'), so the task runs alone
+// and a short line cannot make the planner expand exponentially.
+function expandScopeToken(token) {
+  const cleaned = String(token);
+  if (!cleaned || SCOPE_PLACEHOLDER_RE.test(cleaned)) return [];
+  let pending = [cleaned];
+  const done = [];
+  while (pending.length > 0) {
+    const next = [];
+    for (const item of pending) {
+      const brace = innermostBraceList(item);
+      if (!brace) {
+        done.push(item);
+        continue;
+      }
+      for (const alt of brace.alternatives) next.push(`${brace.head}${alt}${brace.tail}`);
+    }
+    if (done.length + next.length > MAX_SCOPE_ALTERNATIVES) return ['**'];
+    pending = next;
+  }
+  return [...new Set(done.map((p) => normalizeRelPath(p)).filter(Boolean))];
+}
+
+// The first innermost {x,y} group (no braces inside), split into its parts.
+function innermostBraceList(text) {
+  const match = /\{([^{}]*,[^{}]*)\}/.exec(text);
+  if (!match) return null;
+  return {
+    head: text.slice(0, match.index),
+    tail: text.slice(match.index + match[0].length),
+    alternatives: match[1].split(','),
+  };
+}
+
+// The real location of a Scope entry, so two spellings of one file (a
+// symlinked directory, ./, ..) compare equal. The deepest existing ancestor
+// is resolved, so files that do not exist yet are covered too. Without
+// io.canonicalRelPath (other hosts), the written path is used.
+function canonicalScopeEntry(io, entry) {
+  if (!io || typeof io.canonicalRelPath !== 'function') return entry;
+  const parts = entry.split('/');
+  const firstWild = parts.findIndex((p) => /[*?]/.test(p));
+  const staticLen = firstWild === -1 ? parts.length : firstWild;
+  for (let n = staticLen; n > 0; n -= 1) {
+    const real = io.canonicalRelPath(parts.slice(0, n).join('/'));
+    if (real !== null && real !== undefined) {
+      return [real, ...parts.slice(n)].filter((p) => p !== '').join('/') || entry;
+    }
+  }
+  return entry;
 }
 
 export function normalizeRiskTier(raw, fallback = 'standard') {
@@ -546,6 +638,167 @@ function isTestPath(relPath) {
   );
 }
 
+// Only a line that is exactly an approval value is normalized; any other text
+// on the line (a waiver, a scope note) stays part of the contract hash.
+const APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
+
+// An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
+// but unreadable"; IOs without the method fall back to exists().
+function existsButUnreadable(io, relPath) {
+  return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
+}
+
+// Raw text of each task section in tasks.md, fenced code included (the
+// parsed task block drops fences, but a command in a fence is a spec too).
+function rawTaskSections(tasksRaw) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ''));
+  const lines = (afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments).split('\n');
+  const sections = new Map();
+  let fence = false;
+  let current = null;
+  for (const line of lines) {
+    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
+    if (heading) {
+      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
+      if (current && !sections.has(current)) sections.set(current, [line]);
+      else if (current) current = null; // a repeated heading keeps the first section
+      continue;
+    }
+    if (current) sections.get(current).push(line);
+  }
+  return new Map([...sections].map(([id, body]) => [id, body.join('\n')]));
+}
+
+const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
+const LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
+
+// Every line that defines a REQ/AC: its bullet line with the indented
+// continuation lines under it, and table rows whose first cell is the ID.
+function specEntries(text) {
+  const entries = new Map();
+  const add = (id, line) => {
+    const key = id.toUpperCase();
+    if (!entries.has(key)) entries.set(key, []);
+    entries.get(key).push(line.trim().replace(/\s+/g, ' '));
+  };
+  const lines = text.split('\n');
+  let fence = false;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+    if (fence) continue;
+    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
+    if (row) {
+      add(row[1], line);
+      continue;
+    }
+    const head = ENTRY_HEAD_RE.exec(line);
+    if (!head) continue;
+    add(head[2], line);
+    const indent = head[1].length;
+    for (let j = i + 1; j < lines.length; j += 1) {
+      const next = lines[j];
+      // A nested list item for another ID starts its own entry; a wrapped
+      // prose line that merely begins with an ID does not.
+      if (!next.trim() || next.length - next.trimStart().length <= indent || LIST_ENTRY_HEAD_RE.test(next)) break;
+      add(head[2], next);
+      i = j;
+    }
+  }
+  return entries;
+}
+
+/**
+ * What a gate run verifies for each task of a feature (#831): the task's raw
+ * section (fences included) with bare Status / Approval values normalized,
+ * every REQ/AC entry it depends on (its ACs, the REQs those ACs and the task
+ * name; bullet lines with their continuation lines and table rows, from
+ * requirements.md and acceptance-tests.md), and design.md without its
+ * amendment log. The spec files are read once per feature. Changing an input
+ * makes that task's evidence stale; edits to other tasks or to IDs the task
+ * does not use do not. Layer specs and TEST rows are not inputs.
+ */
+export function featureEvidenceInputs(io, { feature }) {
+  assertValidFeatureName(feature);
+  const tasksRaw = io.readText(`specs/${feature}/tasks.md`);
+  const byTask = new Map();
+  if (tasksRaw === null) return byTask;
+  const entries = new Map();
+  const contracts = [];
+  for (const name of ['requirements.md', 'acceptance-tests.md']) {
+    const raw = io.readText(`specs/${feature}/${name}`);
+    if (raw === null) continue;
+    const contract = canonicalSpecContractText(raw, name);
+    contracts.push({ name, contract });
+    for (const [id, lines] of specEntries(contract)) {
+      entries.set(id, [...(entries.get(id) || []), `${name}:`, ...lines]);
+    }
+  }
+  // An ID used in a form specEntries does not read (a heading, prose) is
+  // bound to the whole text of every file that mentions it, so an edit there
+  // still makes the evidence stale (fail closed); only an ID found nowhere is
+  // 'missing'.
+  const fallbackHash = (id) => {
+    const re = new RegExp(`\\b${id}\\b`, 'i');
+    const hits = contracts.filter((c) => re.test(c.contract));
+    return hits.length === 0 ? 'missing' : sha256Text(hits.map((c) => `${c.name}:\n${c.contract}`).join('\n'));
+  };
+  const designRaw = io.readText(`specs/${feature}/design.md`);
+  const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
+  const sections = rawTaskSections(tasksRaw);
+  const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+  for (const task of parseTasksSummary(tasksRaw)) {
+    const wanted = new Set(task.acRefs);
+    for (const req of reqsIn(task.block)) wanted.add(req);
+    for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
+    const ids = {};
+    for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
+    const section = (sections.get(task.id) || task.block)
+      .replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>')
+      .replace(APPROVAL_FIELD_RE, '<NORMALIZED>');
+    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(section.trim()), ids, design });
+  }
+  return byTask;
+}
+
+export function taskEvidenceInputs(io, { feature, taskId }) {
+  return featureEvidenceInputs(io, { feature }).get(String(taskId || '').toUpperCase()) || null;
+}
+
+/**
+ * Which recorded evidence inputs differ from the current ones: 'task',
+ * 'design', or a REQ/AC ID. Returns null when nothing was recorded (evidence
+ * from before #831), so callers can apply their legacy rule.
+ */
+export function diffEvidenceInputs(recorded, current) {
+  if (!recorded || typeof recorded !== 'object' || !current) return null;
+  const changed = [];
+  if (recorded.task !== current.task) changed.push('task');
+  if ((recorded.design ?? null) !== current.design) changed.push('design');
+  const recordedIds = recorded.ids && typeof recorded.ids === 'object' ? recorded.ids : {};
+  for (const key of [...new Set([...Object.keys(recordedIds), ...Object.keys(current.ids)])].sort()) {
+    if (recordedIds[key] !== current.ids[key]) changed.push(key);
+  }
+  return changed;
+}
+
+/**
+ * Baseline fields that let a later human approval of another task leave
+ * tasks.md unchanged for Spec Drift (#818): a contract hash with every bare
+ * `Approval:` value normalized, and each task's approval at recording time so
+ * a revoked approval is still reported. Returns null for other files.
+ */
+export function taskApprovalBaseline(rawText, fileName) {
+  if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
+  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');
+  const taskApprovals = {};
+  for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
+  return { approvalContractSha256: sha256Text(contract), taskApprovals };
+}
+
+export { isApprovedValue };
+
 /**
  * Pure read-only Spec Drift check (C-1 / C-2 safe: validates every baseline.files key).
  */
@@ -575,6 +828,11 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
   const modifiedIdentifiers = [];
   const addedIdentifiers = [];
   const allCurrentAmendments = [];
+  const revokedApprovals = [];
+  const newlyApprovedTasks = [];
+  // Present but not readable through this IO (for example over the MCP 2 MiB
+  // cap): neither a deletion nor a clean read (#834).
+  const unreadableFiles = [];
 
   for (const [rawRelPath, baseInfo] of Object.entries(baseline.files || {})) {
     const safeRel = sanitizeRelPath(rawRelPath);
@@ -583,6 +841,10 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     }
     const baseIds = (baseInfo && typeof baseInfo === 'object' ? baseInfo.identifiers : null) || {};
     const rawText = io.readText(safeRel);
+    if (rawText === null && existsButUnreadable(io, safeRel)) {
+      unreadableFiles.push(safeRel);
+      continue;
+    }
     if (rawText === null) {
       deletedFiles.push(safeRel);
       for (const [id, info] of Object.entries(baseIds)) {
@@ -592,8 +854,20 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     }
 
     const fileName = (baseInfo && baseInfo.fileName) || path.posix.basename(safeRel);
-    const contractHash = sha256Text(canonicalSpecContractText(rawText, fileName));
-    if (contractHash !== baseInfo?.contractSha256) {
+    // Baselines recorded before #818 carry no approval fields and keep the
+    // older comparison, where any Approval: edit changes the file.
+    const approvalView = typeof baseInfo?.approvalContractSha256 === 'string' ? taskApprovalBaseline(rawText, fileName) : null;
+    if (approvalView) {
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+        changedFiles.push(safeRel);
+      }
+      for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
+        if (!(id in approvalView.taskApprovals)) continue; // a removed task already changes the contract hash
+        const now = approvalView.taskApprovals[id];
+        if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
+        else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
+      }
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
       changedFiles.push(safeRel);
     }
 
@@ -623,7 +897,10 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     const matched = matchProtectedSpecRelPath(relFile, effectiveConfig);
     if (!matched || (baseline.files && baseline.files[matched.relPath])) continue;
     const rawText = io.readText(matched.relPath);
-    if (rawText === null) continue;
+    if (rawText === null) {
+      unreadableFiles.push(matched.relPath);
+      continue;
+    }
     addedFiles.push(matched.relPath);
     for (const [id, info] of Object.entries(extractSpecIdentifiers(rawText))) {
       addedIdentifiers.push({ id, file: matched.relPath, after: info.line });
@@ -638,14 +915,20 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     deletedFiles.length > 0 ||
     addedFiles.length > 0 ||
     removedIdentifiers.length > 0 ||
-    modifiedIdentifiers.length > 0;
+    modifiedIdentifiers.length > 0 ||
+    revokedApprovals.length > 0;
 
   const baselineAmendmentCount = Number(baseline.amendmentCount || 0);
   const hasNewDeclaredAmendment = allCurrentAmendments.length > baselineAmendmentCount;
 
+  // Undeclared drift seen in readable files wins; otherwise an unreadable
+  // file means nothing can be claimed (not CLEAN, not AMENDED).
   let status = 'CLEAN';
   if (hasDrift) {
     status = hasNewDeclaredAmendment ? 'AMENDED' : 'UNDECLARED_DRIFT';
+  }
+  if (unreadableFiles.length > 0 && status !== 'UNDECLARED_DRIFT') {
+    status = 'UNVERIFIABLE';
   }
 
   // AMENDED is a count comparison only. Name each changed REQ/AC ID that no
@@ -681,6 +964,9 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     amendments: allCurrentAmendments,
     baselineAmendmentCount,
     changedIdsWithoutAmendment,
+    revokedApprovals,
+    newlyApprovedTasks,
+    unreadableFiles,
   };
 }
 
@@ -724,8 +1010,8 @@ export function computeExecutionPlan(tasks) {
       const bBlocksA = getAncestors(a.id).has(b.id);
       if (aBlocksB || bBlocksA) continue;
       const overlaps = [];
-      for (const sa of a.scopePaths || []) {
-        for (const sb of b.scopePaths || []) {
+      for (const sa of a.planScopes || a.scopePaths || []) {
+        for (const sb of b.planScopes || b.scopePaths || []) {
           if (scopeEntriesOverlap(sa, sb)) {
             overlaps.push(`${sa} <-> ${sb}`);
           }
@@ -773,7 +1059,13 @@ export function computeExecutionPlan(tasks) {
     const wave = [];
     const waveScopes = [];
     for (const candidate of ready) {
-      const candScopes = candidate.scopePaths || [];
+      const candScopes = candidate.planScopes || candidate.scopePaths || [];
+      // A task with no known Scope may touch anything, so it runs alone.
+      if (candScopes.length === 0) {
+        if (wave.length > 0) continue;
+        wave.push(candidate.id);
+        break;
+      }
       const conflicts = waveScopes.some((existing) =>
         candScopes.some((cs) => scopeEntriesOverlap(existing, cs)),
       );
@@ -907,6 +1199,7 @@ export function analyzeTraceabilityCore(
       selfBlocked: Boolean(t.selfBlocked),
       declaredBlockers: t.declaredBlockers || [],
       scopePaths,
+      planScopes: [...new Set(scopePaths.map((sp) => canonicalScopeEntry(io, sp)))],
       domains,
       codePaths,
       testPaths,
@@ -1301,7 +1594,7 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
       requirements: reqIds.length,
       acceptanceCriteria: acIds.length,
       tasksTotal: tasks.length,
-      tasksApproved: tasks.filter((t) => /^Approved\b/i.test(t.approval)).length,
+      tasksApproved: tasks.filter((t) => isApprovedValue(t.approval)).length,
       tasksDone: tasks.filter((t) => t.status === 'Done').length,
       openQuestionsTotal: openQuestions.length,
       openQuestionsProvisional: provisionalCount,

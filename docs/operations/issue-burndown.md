@@ -15,7 +15,9 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | 3 | #969 | #835, #823, #826, #829, #841, #845, #846, #847, #849, #819 | merged (067aaf7); also added publish-release.yml |
 | — | publish-release | v2.1.1 tag + Release | ad19ec42, release.yml signed artifacts attached |
 | 4 | #970 | #869, #870, #866, #867, #868, #863, #864, #817, #814, #820 | merged (e848b32) |
-| — | #971 | release v2.1.2 | this PR; tag via publish-release.yml after merge |
+| — | #971 | release v2.1.2 | merged (520469d); tagged via publish-release.yml |
+| 5 | #972 | #815, #816, #818, #827, #830, #809, #811, #862, #834 | merged |
+| 6 | (pending) | #831, #832 | PR open (stacked on #972) |
 
 ## Resolved
 
@@ -58,6 +60,17 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | #817 | Unknown / self Blockers are reported and never scheduled; `--strict` fails. |
 | #814 | Finalizer diagnostic token names its own operation. |
 | #820 | Drift report lists changed IDs no amendment entry mentions. |
+| #815 | CLI locks are held by `--owner` until their TTL (not the exiting CLI pid); same-owner re-acquire renews; ship passes one owner id through. |
+| #816 | Scope parsing reads paths in prose, drops notes, expands braces, compares real paths; unknown Scope runs alone. |
+| #818 | tasks.md baselines normalize `Approval:` and record per-task approvals: new approvals are not drift, revocations are. |
+| #827 | Ticket re-verification names feature and task; ship auto-selects gate-pending features. |
+| #830 | One `isApprovedValue` grammar for gate, decision view, drift and MCP. |
+| #809 | Concept Test answers SKIP without `domain/` for every ship-valid feature name. |
+| #811 | v1 domain-review precheck documented as same-tree only and unused by the current review. |
+| #862 | Generated report classifies catalog suites against what `test.yml` really runs. |
+| #834 | Files over the read cap are `UNVERIFIABLE` (listed in `unreadableFiles`), never deletions. |
+| #831 | Gate records `specInputs`; MCP readiness requires them unchanged (legacy evidence only while drift is CLEAN). |
+| #832 | Stale Done tasks route to a per-task gate re-run; status is never rewritten without a human. |
 
 ## Deferred (needs human decision)
 
@@ -65,12 +78,14 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 |---|---|
 | #871–#965 (95 `[MCP試験95]` issues) | Each is marked "passed in candidate, awaiting integration": the fixes are on the owner's local `codex/mcp-ddd-next-action` (64812dc8, 369/369 MCP tests). Push that branch to integrate them together. |
 | #865 | The contributor evidence collector calls `generate-evidence-bundle.sh` / `check-evidence-bundle.sh`, retired in v2.0.0 (e2110862). Restore the v1 bundle pipeline, or retire the collector's normal-generation mode with a clear message? Product decision. |
+| #803, #804 | The DDD contract publish step these build on (`domain-model` / `domain-review-loop` publish procedure, validator guarantees) exists only on the owner's local `codex/mcp-ddd-next-action`; editing the same lines here would conflict with that branch. |
+| #812 | Its fix is specified in `specs/native-concept-runtime/` on the owner's local worktree `sdd-forge-n14-spec-review`, not on the remote. |
+| #848 | Needs a product decision: should v2 guarantee automatic collection of domain-conformance findings, or should the retrospective keep reporting N/A? |
 | #850 | Changes GitHub branch-protection / ruleset policy (owner review, required contexts); needs the repository owner's decision. |
 | #805, #806, #807, #808, #810, #813, #836, #839, #842, #853, #854, #856, #860 | Audit marks these "resolved in candidate, awaiting integration": the fix lives on the owner's local branch `codex/mcp-ddd-next-action` (64812dc8), which is not on the remote. Re-implementing would conflict; push that branch (or say to re-implement) to unblock. |
 
 ## Follow-ups
 
-- Design pending (scheduled run): #831 + #832 (stale PASS evidence after a spec change needs input digests and a re-baseline policy), #834 (2 MiB read cap reported as deletion needs an IO status channel).
 - Pre-existing, found by review: Done evidence accepts any `reports/quality-gate/*` file mentioning `T-NNN`, including another feature's report. Should be scoped by feature.
 - Release tags: the session's git proxy refuses tag pushes (HTTP 403). After a release PR merges, dispatch `publish-release.yml` (version + release merge commit), which creates the tag and Release and runs release.yml.
 - Batch-3 re-review minors: flow-style ticket targets fixed in batch 4. Still open: Scope bullets like `path(note)` / `dir/{a,b}` are labelled out of scope (labels only).
@@ -82,4 +97,6 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Batch-4 review minors: a hand-edited baseline without the per-file `amendmentCount` treats every amendment as new; an amendment inserted above older ones in the same file shifts which entries count as new. Ranges like `T-002..T-005` in Blockers are not expanded (prose, ignored as before).
 - Release-suite drift: `tests/bump-version-gate.tests.sh` and `tests/release-config-lock.tests.sh` fail on main too (v1-era expectations, not in CI). Retire or port them.
 
+- Batch-5 review (accepted trade-off): a task approved after the baseline is surfaced (drift Markdown, gate `APPROVED_AFTER_BASELINE`), not blocked; a shell self-approval is caught only by the independent review and CODEOWNERS. A signed approval record would make it deterministic.
+- Batch-5 review minors: a prose Scope directory without extension or trailing slash (`- src/lib を更新`) yields no path, so the gate labels every file in scope for that task; the gate crashes with EISDIR when a spec file is replaced by a directory.
 - `tests/install.tests.ps1` still carries the same v1-era expectations fixed in the bash twin (sdd-lite, MCP default placement, Node 26.13 floor, Claude hook preflight). It is not wired into CI yet; porting needs a PowerShell runtime to verify.

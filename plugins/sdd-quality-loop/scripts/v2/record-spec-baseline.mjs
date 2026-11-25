@@ -23,6 +23,7 @@ import {
   sha256Text,
   isMainModule,
 } from './guardrails-lib.mjs';
+import { taskApprovalBaseline } from './v2-readonly-core.mjs';
 
 function getGitHead(projectRoot) {
   try {
@@ -70,6 +71,7 @@ export function buildSpecBaseline({ feature, projectRoot }) {
       contractSha256: sha256Text(contractText),
       identifiers,
       amendmentCount: amendments.length,
+      ...(taskApprovalBaseline(rawText, entry.name) || {}),
     };
 
     for (const [id, info] of Object.entries(identifiers)) {

@@ -58,7 +58,9 @@ export function formatDriftMarkdown(report) {
       ? '✅ CLEAN'
       : report.status === 'AMENDED'
         ? '📝 AMENDED (Reviewable)'
-        : '⚠️ UNDECLARED_DRIFT';
+        : report.status === 'UNVERIFIABLE'
+          ? '❔ UNVERIFIABLE'
+          : '⚠️ UNDECLARED_DRIFT';
 
   const lines = [
     `## Spec Drift Check: \`${report.feature}\` — ${badge}`,
@@ -68,7 +70,12 @@ export function formatDriftMarkdown(report) {
   ];
 
   if (report.status === 'CLEAN') {
-    lines.push('- 承認済み仕様ファイルに実質的な変更はありません（`tasks.md` の `Status:` 更新のみ許容）。');
+    lines.push('- 承認済み仕様ファイルに実質的な変更はありません（`tasks.md` の `Status:` / `Approval:` 更新のみ許容）。');
+    if ((report.newlyApprovedTasks || []).length > 0) {
+      // Shown even when CLEAN: the reviewer confirms a human made each approval
+      // (the soft guard does not see shell edits).
+      lines.push(`- **Approved since the baseline — confirm a human approved each**: ${report.newlyApprovedTasks.join(', ')}`);
+    }
     return `${lines.join('\n')}\n`;
   }
 
@@ -80,6 +87,15 @@ export function formatDriftMarkdown(report) {
       `- **Changed IDs with no amendment entry mentioning them**: ${report.changedIdsWithoutAmendment.join(', ')}` +
         '（AMENDED は理由の件数増加だけを機械判定する。個々の差分と理由の対応は独立レビュー G2 が判断する）',
     );
+  }
+  if ((report.unreadableFiles || []).length > 0) {
+    lines.push(`- **Unreadable (present but over the read limit or blocked; not checked)**: ${report.unreadableFiles.map((f) => `\`${f}\``).join(', ')}`);
+  }
+  if ((report.revokedApprovals || []).length > 0) {
+    lines.push(`- **Approval revoked since the baseline**: ${report.revokedApprovals.join(', ')}`);
+  }
+  if ((report.newlyApprovedTasks || []).length > 0) {
+    lines.push(`- Newly approved since the baseline (not drift): ${report.newlyApprovedTasks.join(', ')}`);
   }
   if (report.deletedFiles.length > 0) {
     lines.push(`- **Deleted files**: ${report.deletedFiles.map((f) => `\`${f}\``).join(', ')}`);
@@ -114,6 +130,11 @@ export function formatDriftMarkdown(report) {
     for (const a of report.amendments) {
       lines.push(`- (\`${a.file}\`) ${a.text}`);
     }
+  } else if (report.status === 'UNVERIFIABLE') {
+    lines.push(
+      '',
+      '> **Action Required**: 一部の仕様ファイルを読めなかったため差分を判定していません（削除ではありません）。読取上限の大きいローカル CLI（`check-spec-drift.mjs`）で確認するか、ファイルを分割してください。',
+    );
   } else if (report.status === 'UNDECLARED_DRIFT') {
     lines.push(
       '',
@@ -172,7 +193,7 @@ function main() {
     } else {
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     }
-    if (opts.failOnUndeclared && report.status === 'UNDECLARED_DRIFT') {
+    if (opts.failOnUndeclared && (report.status === 'UNDECLARED_DRIFT' || report.status === 'UNVERIFIABLE')) {
       process.exit(1);
     }
     process.exit(0);

@@ -26,6 +26,7 @@ import path from 'node:path';
 import { checkSpecDrift } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
+  createFsReadonlyIo,
   normalizeNewlines,
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
@@ -33,7 +34,7 @@ import {
   isMainModule,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
-import { extractScopePaths, normalizeRiskTier } from './v2-readonly-core.mjs';
+import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
 import { globToRegExp } from './v2-pure-lib.mjs';
 
 const PLACEHOLDER_RE =
@@ -635,7 +636,7 @@ export function runSddGate({
   }
 
   const taskCheckErrors = [];
-  if (!taskState.approval || !/^Approved\b/.test(taskState.approval)) {
+  if (!isApprovedValue(taskState.approval)) {
     taskCheckErrors.push(`Task ${taskId} is not Approved (found: ${taskState.approval || 'missing'})`);
   }
   if (taskState.status !== 'Implementation Complete' && taskState.status !== 'Done') {
@@ -655,7 +656,7 @@ export function runSddGate({
       const report = checkSpecDrift({ feature, projectRoot: root, baselinePath });
       specDrift = {
         skipped: false,
-        passed: report.status !== 'UNDECLARED_DRIFT',
+        passed: report.status !== 'UNDECLARED_DRIFT' && report.status !== 'UNVERIFIABLE',
         ...report,
       };
     } catch (err) {
@@ -717,6 +718,13 @@ export function runSddGate({
     warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
   }
   if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
+  if ((specDrift.newlyApprovedTasks || []).includes(taskState.taskId)) {
+    // A staged human approval and a shell edit look the same in the file; the
+    // independent evaluator must confirm a human approved this task.
+    warnings.push(
+      `APPROVED_AFTER_BASELINE: ${taskState.taskId} became Approved after the spec baseline was recorded; confirm a human approved it.`,
+    );
+  }
   if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
   if (scope.outOfScopeFiles.length > 0) {
     warnings.push(
@@ -734,6 +742,9 @@ export function runSddGate({
     taskId: taskState.taskId,
     executedAt: new Date().toISOString(),
     verdict,
+    // The spec inputs this run verified; a later change to them makes the
+    // verdict stale for Done readiness (#831).
+    specInputs: taskEvidenceInputs(createFsReadonlyIo(root), { feature, taskId: taskState.taskId }),
     coverage,
     scope,
     warnings,

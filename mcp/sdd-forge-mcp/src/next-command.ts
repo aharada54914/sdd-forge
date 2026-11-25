@@ -1,3 +1,4 @@
+import { isApprovedValue } from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
 import type { ReportLookup } from './parsers/report-lookup.js';
 /**
  * `get_next_sdd_command`'s deterministic state -> next-command mapping
@@ -35,7 +36,7 @@ export interface NextCommandData {
 }
 
 function isApprovedShape(approval: string): boolean {
-  return approval === "Approved" || approval.startsWith("Approved (");
+  return isApprovedValue(approval);
 }
 
 function isActiveStatus(status: TaskEntry["status"]): boolean {

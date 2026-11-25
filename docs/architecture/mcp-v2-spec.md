@@ -50,7 +50,8 @@ All tools MUST:
 - **Replaces**: `list_active_specs`, `get_spec_status`, `get_quality_gate_summary`, `get_next_sdd_command` (no-arg).
 - **Input**: `{ includeDoctor?: boolean }` (default `true`, `additionalProperties: false`).
 - **Output (`kind: "project-overview"`)**:
-  - `activeFeatures`: array of `{ feature, highestRisk, taskCounts: { total, approved, inProgress, implComplete, done, blocked }, driftStatus: "CLEAN" | "AMENDED" | "UNDECLARED_DRIFT" | "UNBASELINED" | "BASELINE_ERROR", nextAction: { phase, command, rationale } }`.
+  - `activeFeatures`: array of `{ feature, highestRisk, taskCounts: { total, approved, inProgress, implComplete, done, blocked }, driftStatus: "CLEAN" | "AMENDED" | "UNDECLARED_DRIFT" | "UNVERIFIABLE" | "UNBASELINED" | "BASELINE_ERROR", nextAction: { phase, command, rationale } }`.
+    `UNVERIFIABLE`: a baselined spec file exists but is over the server's 2 MiB read limit, so drift was not checked; it is never reported as a deletion, and `nextAction` is `blocked` with the local `check-spec-drift.mjs` CLI as the next step (#834).
   - `doctor`: optional compact `sdd-doctor` summary (`status: "CLEAN" | "WARN" | "NG"`, `ngCount`, `warnCount`, `driftEventCount`).
 
 ### Tool 2: `sdd_feature_state`
@@ -73,6 +74,7 @@ All tools MUST:
     - `executionArtifact`: `{ exists, path?, verdict?, executedAt?, specDriftStatus?, failedCommands? }` (from `reports/quality-gate/<feature>-<taskId>.execution.json`, verifying `feature` and `taskId` match)
     - `reviewReport`: `{ exists, path?, verdict? }` (from `reports/quality-gate/<feature>-<taskId>.md`, fail-closed on any explicit `FAIL` verdict line)
     - `readyForDone`: boolean — fail-closed, requiring `Approved`, `Implementation Complete` or `Done`, `executionArtifact.verdict === "PASS"`, `reviewReport.verdict === "PASS"`, `drift.status` in `["CLEAN", "AMENDED"]`, and zero unresolved `Provisional` `OQ-NNN` on `Risk: high`.
+      It also requires current evidence (#831): the gate records `specInputs` (the task block with Status / Approval normalized, each REQ/AC line the task uses, and `design.md` without its amendment log), and `executionArtifact.specInputsCurrent` is `true` only while those inputs are unchanged (`specInputsChanged` lists what changed). Runs from before #831 have no `specInputs` and count only while `drift.status` is `CLEAN`. A `Done` task with stale evidence makes `nextAction` re-run the gate for it (`/sdd-ship:ship specs/<feature>/tasks.md#T-NNN`) instead of reporting `done`, and a `Done` task whose latest run on current inputs did not pass with full coverage makes `nextAction` `blocked` for a human (#832). Inputs are a task's raw section (fences included), each REQ/AC entry it uses (bullet with continuation lines, table rows), and `design.md`.
 
 ### Tool 4: `sdd_dashboard_snapshot`
 - **Replaces**: `get_dashboard_snapshot`.

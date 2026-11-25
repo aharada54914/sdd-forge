@@ -37,12 +37,12 @@ flowchart LR
 | **Kill Switch (`AGENT_STOP`)** | Layer 1 (Local) | Fail-closed (`deny` on all tools) | プロジェクトルートに `AGENT_STOP` がある限り全ツール実行を停止 |
 | **Approval Guard** | Layer 1 (Local) | `deny` on net increase of `Approval: Approved` in `tasks.md` | `Status:` 遷移（`Planned` → `Done`）は常に許可 |
 | **Soft Spec Guard** | Layer 1 (Local) | `sdd/guardrails.yaml` の `mode: warn \| confirm \| strict`（既定 `confirm`） | `## Spec Amendments` への追記は許可。意図的変更は合意後 `SDD_ALLOW_SPEC_EDIT=1` で解除＋`.sdd/drift-events.jsonl` 記録 |
-| **Spec Drift Check** | Layer 2 (`sdd-gate`) & Layer 3 (CI) | `CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` | `tasks.md` の `Status:` 変更は除外。理由なき本文変更・`REQ`/`AC` 削除は `--fail-on-undeclared` で FAIL |
+| **Spec Drift Check** | Layer 2 (`sdd-gate`) & Layer 3 (CI) | `CLEAN` / `AMENDED` / `UNDECLARED_DRIFT` / `UNVERIFIABLE` | `tasks.md` の `Status:` 変更と、ベースライン記録後の `Approval:` 変更は差分から除外（承認の取り消しは差分）。理由なき本文変更・`REQ`/`AC` 削除・読取不能な仕様ファイルは `--fail-on-undeclared` で FAIL |
 | **Independent Gate (`sdd-gate`)** | Layer 2 | 決定論コマンド実行 + プレースホルダー検査 + 独立 1 パスレビュー | 実装者の自己申告のみで `Done` にしない |
 | **CODEOWNERS & CI (`sdd-guardrails.yml`)** | Layer 3 (GitHub) | PR ステータスチェック + オーナーレビュー必須 | プラグイン・フック・スキーマ・仕様・CI 変更の最終防衛線 |
 | **Read-Only MCP Servers** | Advisory | `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` は読み取り専用 | write ツールを持たず、ファイルベース手続きを上書きしない |
 
 ## Residual Risks & Explicit Trade-offs
 
-- **ローカルセッション内の意図的な `Bash` 迂回**: `sdd-soft-guard.mjs` は DX 最優先のため `Bash` / `run_shell_command` を解析しません。シェル経由で承認済み仕様を書き換えた場合、ローカル編集中は停止しませんが、直後の `sdd-gate` および PR 上の CI（`check-spec-drift.mjs --fail-on-undeclared`）で必ず `UNDECLARED_DRIFT` として検出・遮断されます。
+- **ローカルセッション内の意図的な `Bash` 迂回**: `sdd-soft-guard.mjs` は DX 最優先のため `Bash` / `run_shell_command` を解析しません。シェル経由で承認済み仕様の本文を書き換えた場合、ローカル編集中は停止しませんが、直後の `sdd-gate` および PR 上の CI（`check-spec-drift.mjs --fail-on-undeclared`）で `UNDECLARED_DRIFT` として検出・遮断されます。例外は `Approval:` の新規承認です。段階承認（#818）を止めないため、ベースライン記録後に `Draft` から `Approved` になったタスクは差分として遮断せず、Spec Drift の出力（`CLEAN` でも Markdown に列挙）と `sdd-gate` の `APPROVED_AFTER_BASELINE` 警告で可視化します。ファイル内容からは人間の承認とシェル経由の自己承認を区別できないため、この経路の最終防衛線は独立レビューでの確認と PR の CODEOWNERS レビューです。
 - **ホスト側権限設定**: Claude Code / Codex / Copilot / Gemini の実行権限は最小権限に保ち、外部 URL や取得テキストはデータとして扱う原則を維持します。

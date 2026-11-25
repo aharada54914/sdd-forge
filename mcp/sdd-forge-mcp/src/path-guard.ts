@@ -570,6 +570,7 @@ export function createGuardedIo(root: SddRoot): {
   readText(relPath: string): string | null;
   listDir(relDir: string): GuardedDirEntry[];
   statMtimeMs(relPath: string): number | null;
+  existsButUnreadable(relPath: string): boolean;
 } {
   return {
     exists(relPath: string): boolean {
@@ -598,6 +599,12 @@ export function createGuardedIo(root: SddRoot): {
     },
     statMtimeMs(relPath: string): number | null {
       return guardedStatMtimeMs(root, relPath);
+    },
+    // The file is there but over the size cap: readText returns null for it
+    // just as for a missing file, so callers ask this to tell them apart (#834).
+    existsButUnreadable(relPath: string): boolean {
+      const res = guardedRead(root, relPath);
+      return !res.ok && res.error.code === "too-large";
     },
   };
 }

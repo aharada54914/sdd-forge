@@ -437,7 +437,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 |---|---|---|---|
 | `check-sdd-structure` | sdd-bootstrap | sh / ps1 | SDD ディレクトリ構造の preflight 検証（[詳細](#check-sdd-structure)） |
 | `design-sync-scan` | sdd-bootstrap | sh / ps1 | design-sync-loop のアップロード前 egress 衛生スキャン |
-| `domain-review-precheck` | sdd-domain | sh / ps1 | domain-review 遷移の決定論的前提・プロベナンスをレビュアー起動前に検証 |
+| `domain-review-precheck` | sdd-domain | sh / ps1 | v1 互換専用（旧 attempt / round 形式の domain-review 案件だけ）。遷移の前提・プロベナンスをレビュアー起動前に検証する。スクリプトの 3 階層上をプロジェクトとして読むため、対象プロジェクトと同じツリー（プロジェクト直下の `plugins/sdd-domain/`）に置いた場合だけ動き、版別キャッシュや別ディレクトリへ導入した場合は `domain/` を見つけられず終了 1 になる。現行の `/sdd-domain:domain-model review`（`domain-review-loop`）はこのスクリプトを使わない |
 | `check-terminal-tier-resume` | sdd-implementation | sh / ps1 | `terminal-tier-recurrence` で Blocked になったタスクの再開可否を、永続化された `terminal-tier-resume/v1` 証跡から判定 |
 | `prepare-task-snapshot` | sdd-implementation | sh / ps1 | タスク入力の不変スナップショットを公開（ハッシュ束縛） |
 | `select-agent-model` | sdd-implementation | sh / ps1 | `contracts/agent-model-capabilities.json` を参照し、リスク階層・失敗履歴からエージェントのモデル / effort 階層を選択 |
