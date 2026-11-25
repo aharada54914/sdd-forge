@@ -95,12 +95,7 @@ export function resolveSafeExternalCommand(adapter, projectRoot, binaryOverride 
 
 function collectFiles(root, relDir = '', out = []) {
   const absDir = relDir ? path.join(root, ...relDir.split('/')) : root;
-  let entries;
-  try {
-    entries = fs.readdirSync(absDir, { withFileTypes: true });
-  } catch {
-    return out;
-  }
+  const entries = fs.readdirSync(absDir, { withFileTypes: true });
   for (const entry of entries) {
     if (IGNORED_DIRS.has(entry.name)) continue;
     const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
@@ -113,13 +108,22 @@ function collectFiles(root, relDir = '', out = []) {
   return out;
 }
 
-export function scanSecretsInFiles(root, relFiles) {
+export function scanSecretsInFiles(root, relFiles, onUnreadable = () => {}) {
   const findings = [];
   const io = createFsReadonlyIo(root);
   for (const rel of relFiles) {
     if (!SCANNABLE_EXT_RE.test(rel)) continue;
     const text = io.readText(rel);
-    if (text == null) continue;
+    if (text == null) {
+      // A changed-file list includes deletions. Every remaining scan target must be readable.
+      try {
+        if (sanitizeRelPath(rel) && !fs.lstatSync(path.join(root, rel), { throwIfNoEntry: false })) continue;
+      } catch {
+        // A failed stat cannot establish that the target was deleted.
+      }
+      onUnreadable();
+      continue;
+    }
     const lines = text.split(/\r?\n/);
     for (let idx = 0; idx < lines.length; idx += 1) {
       const line = lines[idx];
@@ -272,8 +276,12 @@ function scanExternal(adapter, root, runner) {
     if (result.unavailable) return 'unavailable';
     if (adapter === 'socket') {
       const report = JSON.parse(result.stdout);
-      if (result.status === 0 && report.healthy === true) return 'clean';
-      if (result.status === 1 && report.healthy === false) return 'finding';
+      // Socket CLI wraps completed reports in { ok: true, data }. Preserve flat reports from earlier adapters.
+      const wrapped = Object.hasOwn(report, 'ok') || Object.hasOwn(report, 'data');
+      if (wrapped && report.ok !== true) return 'error';
+      const healthy = wrapped ? report.data?.healthy : report.healthy;
+      if (result.status === 0 && healthy === true) return 'clean';
+      if (result.status === 1 && healthy === false) return 'finding';
       return 'error';
     }
     if (result.status === 0) return 'clean';
@@ -337,7 +345,14 @@ export function runSecurityGate({
     };
   }
 
-  const targetFiles = files == null ? collectFiles(root) : files.map(sanitizeRelPath);
+  let targetFiles;
+  try {
+    targetFiles = files == null ? collectFiles(root) : files.map(sanitizeRelPath);
+  } catch {
+    // An incomplete inventory cannot establish that all high-risk paths were scanned.
+    return { schema: 'sdd-security-gate/v1', mode: effectiveMode, status: 'TOOL_ERROR', exitCode: 2,
+      adaptersRun: [], errors: [{ code: 'UNREADABLE_SCAN_INPUT' }], findings: [], warnings: [] };
+  }
   if (targetFiles.some(file => file === null)) {
     return { schema: 'sdd-security-gate/v1', status: 'TOOL_ERROR', exitCode: 2, errors: [{ code: 'INVALID_PATH' }], findings: [] };
   }
@@ -351,7 +366,14 @@ export function runSecurityGate({
   for (const ad of requestedAdapters) {
     adaptersRun.push(ad);
     if (ad === 'builtin-secret-pattern') {
-      findings.push(...scanSecretsInFiles(root, targetFiles));
+      let unreadable = false;
+      findings.push(...scanSecretsInFiles(root, targetFiles, () => { unreadable = true; }));
+      if (unreadable) {
+        const code = 'UNREADABLE_SCAN_INPUT';
+        if (failClosed) return { schema: 'sdd-security-gate/v1', mode: effectiveMode, status: 'TOOL_ERROR', exitCode: 2,
+          adaptersRun, errors: [{ code }], findings, warnings };
+        warnings.push(code);
+      }
     } else if (ad === 'builtin-slopsquatting') {
       try {
         findings.push(...scanSlopsquatting(root, targetFiles));

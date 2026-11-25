@@ -182,6 +182,55 @@ describe('Security adapter contracts and bootstrap integration', () => {
     assert.equal(called, false);
   });
 
+  it('reports incomplete local input scans without disclosing the input path', t => {
+    const root = project(t);
+    fs.mkdirSync(path.join(root, 'sdd'));
+    fs.writeFileSync(path.join(root, 'sdd/guardrails.json'), JSON.stringify({
+      risk_defaults: { high_risk_paths: ['sensitive/**'] },
+    }));
+    const token = ['ghp_', 'A'.repeat(36)].join('');
+    const marker = 'unreadable-fixture';
+    fs.writeFileSync(path.join(root, 'readable.js'), token);
+    for (const parent of ['docs', 'sensitive']) {
+      fs.mkdirSync(path.join(root, parent, marker + '.js'), { recursive: true });
+    }
+    const check = (parent, ci) => runSecurityGate({
+      projectRoot: root, mode: 'shadow', ci, adapters: ['builtin-secret-pattern'],
+      files: ['readable.js', parent + '/' + marker + '.js'],
+    });
+    const local = check('docs', false);
+    assert.equal(local.status, 'WARN');
+    assert.deepEqual(local.warnings, ['UNREADABLE_SCAN_INPUT']);
+    for (const report of [check('docs', true), check('sensitive', false)]) {
+      assert.equal(report.status, 'TOOL_ERROR');
+      assert.equal(report.exitCode, 2);
+      assert.equal(report.errors[0].code, 'UNREADABLE_SCAN_INPUT');
+      assert.deepEqual(report.adaptersRun, ['builtin-secret-pattern']);
+      assert.equal(report.findings.length, 1);
+      assert.ok(!JSON.stringify(report).includes(token));
+      assert.ok(!JSON.stringify(report).includes(marker));
+    }
+    const deleted = runSecurityGate({ projectRoot: root, mode: 'strict', adapters: ['builtin-secret-pattern'], files: ['deleted.js'] });
+    assert.equal(deleted.status, 'PASS');
+  });
+
+  it('fails closed when it cannot enumerate paths for a security scan', t => {
+    const root = project(t);
+    const dir = path.join(root, 'unreadable-fixture');
+    fs.mkdirSync(dir);
+    const readDirectory = fs.readdirSync;
+    t.mock.method(fs, 'readdirSync', (name, ...args) => {
+      if (path.basename(name) === path.basename(dir)) throw new Error('private diagnostic');
+      return readDirectory(name, ...args);
+    });
+    const report = runSecurityGate({ projectRoot: root, mode: 'shadow', ci: true, adapters: ['builtin-secret-pattern'] });
+    assert.equal(report.status, 'TOOL_ERROR');
+    assert.equal(report.exitCode, 2);
+    assert.equal(report.errors[0].code, 'UNREADABLE_SCAN_INPUT');
+    assert.deepEqual(report.adaptersRun, []);
+    assert.ok(!JSON.stringify(report).includes('private diagnostic'));
+  });
+
   it('checks nested package manifests and fails closed on unreadable dependencies', t => {
     const root = project(t);
     const dir = path.join(root, 'packages/api');
@@ -227,6 +276,16 @@ describe('Security adapter contracts and bootstrap integration', () => {
     assert.equal(check({ status: 0, stdout: '{"healthy":true}' }).status, 'PASS');
     assert.equal(check({ status: 1, stdout: '{"healthy":false}' }).status, 'FAIL');
     assert.equal(check({ status: 1, stdout: 'login required' }).status, 'TOOL_ERROR');
+    const response = (status, body) => check({ status, stdout: JSON.stringify(body) });
+    const report = healthy => ({ ok: true, data: { healthy, alerts: ['private diagnostic'] } });
+    assert.equal(response(0, report(true)).status, 'PASS');
+    const policyViolation = response(1, report(false));
+    assert.equal(policyViolation.status, 'FAIL');
+    assert.ok(!JSON.stringify(policyViolation).includes('private diagnostic'));
+    assert.equal(response(0, report(false)).status, 'TOOL_ERROR');
+    assert.equal(response(1, report(true)).status, 'TOOL_ERROR');
+    assert.equal(response(0, { ok: false, data: { healthy: true }, healthy: true }).status, 'TOOL_ERROR');
+    assert.equal(response(0, { ok: true, healthy: true }).status, 'TOOL_ERROR');
   });
 
   it('persists deterministic meta-analysis and reads repository-wide learning, knowledge and OQ inputs', t => {
