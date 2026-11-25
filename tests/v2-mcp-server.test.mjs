@@ -771,28 +771,43 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
   it(
     'install.sh places dashboard CLI runtime by default without registering MCPs, rejects conflicting flags, and supports --with-mcp',
     { skip: process.platform === 'win32' },
-    () => {
-      // 1. Default install: places sdd-forge-mcp/dist/index.js for /sdd-ship:status (C-4), does NOT place local-env/ci-mcp, and skips MCP registration
-      const defaultRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-optin-default-'));
-      const resDefault = spawnSync(
-        'bash',
-        [
-          path.join(REPO_ROOT, 'install.sh'),
-          '--source-directory',
-          REPO_ROOT,
-          '--install-root',
-          defaultRoot,
-          '--target',
-          'FilesOnly',
-          '--skip-agent-install',
-        ],
-        { cwd: REPO_ROOT, encoding: 'utf8' },
-      );
+    (t) => {
+      const sandbox = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-optin-')));
+      t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+      const bin = path.join(sandbox, 'bin');
+      const profile = path.join(sandbox, '.codex');
+      const config = path.join(profile, 'config.toml');
+      const initialConfig = '# isolated Codex profile\n';
+      fs.mkdirSync(bin);
+      fs.mkdirSync(profile);
+      fs.writeFileSync(config, initialConfig);
+      // Codex plugins use the host CLI; MCP registration writes its config.toml directly.
+      fs.writeFileSync(path.join(bin, 'codex'), '#!/bin/sh\n[ "$1" = plugin ]\n', { mode: 0o755 });
+      const defaultRoot = path.join(sandbox, 'install');
+      function installForCodex(...flags) {
+        return spawnSync('bash', [
+          path.join(REPO_ROOT, 'install.sh'), '--source-directory', REPO_ROOT,
+          '--install-root', defaultRoot, '--target', 'Codex', ...flags,
+        ], {
+          cwd: REPO_ROOT, encoding: 'utf8',
+          env: { ...process.env, HOME: sandbox, SDD_CODEX_HOME: profile, PATH: bin + path.delimiter + process.env.PATH },
+        });
+      }
+
+      const resDefault = installForCodex();
       assert.equal(resDefault.status, 0, resDefault.stderr);
+      assert.equal(fs.readFileSync(config, 'utf8'), initialConfig);
       assert.equal(fs.existsSync(path.join(defaultRoot, 'mcp/sdd-forge-mcp/dist/index.js')), true);
       assert.equal(fs.existsSync(path.join(defaultRoot, 'mcp/local-env-mcp')), false);
       assert.equal(fs.existsSync(path.join(defaultRoot, 'mcp/ci-mcp')), false);
       assert.match(resDefault.stdout, /--with-mcp/);
+
+      const optIn = installForCodex('--with-mcp');
+      assert.equal(optIn.status, 0, optIn.stderr);
+      const registered = fs.readFileSync(config, 'utf8');
+      assert.deepEqual(registered.match(/^\[mcp_servers\..*\]$/gm), ['[mcp_servers.sdd-forge-mcp]']);
+      const entry = path.join(defaultRoot, 'mcp/sdd-forge-mcp/dist/index.js');
+      assert.ok(registered.includes(`[mcp_servers.sdd-forge-mcp]\ncommand = "node"\nargs = [${JSON.stringify(entry)}]`));
 
       // 2. Conflicting --skip-mcp --with-mcp rejected explicitly (M-4)
       const resConflict = spawnSync(
@@ -804,7 +819,7 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
       assert.match(resConflict.stderr, /cannot be combined/);
 
       // 3. Explicit --mcp local-env-mcp warns deprecated
-      const depRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-optin-dep-'));
+      const depRoot = path.join(sandbox, 'deprecated');
       const resDep = spawnSync(
         'bash',
         [
