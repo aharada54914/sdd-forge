@@ -1,0 +1,857 @@
+{
+  "method": "Static local replay of the 70 most recent consecutive first-parent revisions through the PR base. For each clean historical tree: node <candidate>/plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --root <historical-tree> --mode shadow --diff-only --base-ref <first_parent> --format json. No historical project code executed. File counts are PR/file observations, not unique files. Generated bundles may duplicate authored findings and third-party code.",
+  "before": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+  "after": "66c5519c68942885c6117865fcf52ba6420eadac",
+  "summary": {
+    "prs": 70,
+    "file_observations": 401,
+    "before_findings": 25,
+    "after_findings": 18,
+    "review_totals": {
+      "generated bundle, actionable attribution unresolved": 11,
+      "same flag pair tested in two sibling conditions": 2,
+      "shell option on subprocess": 1,
+      "literal empty catch in cleanup": 3,
+      "out-of-scope JSON report output": 7,
+      "shipping build CLI stdout, catalog calls for waiver if intentional": 1
+    }
+  },
+  "runs": [
+    {
+      "pr": 980,
+      "merge_or_squash": "2db182ad22706c86734b85a00e4263f23fda03f0",
+      "first_parent": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "scanned_files": 2,
+      "before_ms": 926,
+      "after_ms": 791,
+      "findings": []
+    },
+    {
+      "pr": 979,
+      "merge_or_squash": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "first_parent": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "scanned_files": 3,
+      "before_ms": 153,
+      "after_ms": 133,
+      "findings": []
+    },
+    {
+      "pr": 978,
+      "merge_or_squash": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "first_parent": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "scanned_files": 0,
+      "before_ms": 111,
+      "after_ms": 99,
+      "findings": []
+    },
+    {
+      "pr": 977,
+      "merge_or_squash": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "first_parent": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "scanned_files": 3,
+      "before_ms": 862,
+      "after_ms": 834,
+      "findings": []
+    },
+    {
+      "pr": 975,
+      "merge_or_squash": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "first_parent": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "scanned_files": 2,
+      "before_ms": 140,
+      "after_ms": 132,
+      "findings": []
+    },
+    {
+      "pr": 974,
+      "merge_or_squash": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "first_parent": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "scanned_files": 47,
+      "before_ms": 1290,
+      "after_ms": 1316,
+      "findings": []
+    },
+    {
+      "pr": 973,
+      "merge_or_squash": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "first_parent": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "scanned_files": 2,
+      "before_ms": 860,
+      "after_ms": 843,
+      "findings": []
+    },
+    {
+      "pr": 972,
+      "merge_or_squash": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "first_parent": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "scanned_files": 19,
+      "before_ms": 1103,
+      "after_ms": 1036,
+      "findings": [
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38895,
+          "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 39054,
+          "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38324,
+          "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38330,
+          "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        }
+      ]
+    },
+    {
+      "pr": 971,
+      "merge_or_squash": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "first_parent": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "scanned_files": 2,
+      "before_ms": 821,
+      "after_ms": 782,
+      "findings": []
+    },
+    {
+      "pr": 970,
+      "merge_or_squash": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "first_parent": "067aaf76f75385816036118a159f9f019dc66c81",
+      "scanned_files": 18,
+      "before_ms": 1004,
+      "after_ms": 992,
+      "findings": []
+    },
+    {
+      "pr": 969,
+      "merge_or_squash": "067aaf76f75385816036118a159f9f019dc66c81",
+      "first_parent": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "scanned_files": 12,
+      "before_ms": 987,
+      "after_ms": 902,
+      "findings": []
+    },
+    {
+      "pr": 968,
+      "merge_or_squash": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "first_parent": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "scanned_files": 2,
+      "before_ms": 857,
+      "after_ms": 813,
+      "findings": []
+    },
+    {
+      "pr": 967,
+      "merge_or_squash": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "first_parent": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "scanned_files": 11,
+      "before_ms": 924,
+      "after_ms": 876,
+      "findings": []
+    },
+    {
+      "pr": 966,
+      "merge_or_squash": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "first_parent": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "scanned_files": 9,
+      "before_ms": 1049,
+      "after_ms": 964,
+      "findings": []
+    },
+    {
+      "pr": 800,
+      "merge_or_squash": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "first_parent": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "scanned_files": 35,
+      "before_ms": 2445,
+      "after_ms": 2281,
+      "findings": [
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 20296,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 37065,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40672,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40831,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 41608,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40295,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40301,
+          "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "generated bundle, actionable attribution unresolved",
+          "present_after": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "line": 492,
+          "file_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83",
+          "review": "same flag pair tested in two sibling conditions",
+          "present_after": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "line": 498,
+          "file_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83",
+          "review": "same flag pair tested in two sibling conditions",
+          "present_after": true
+        }
+      ]
+    },
+    {
+      "pr": 794,
+      "merge_or_squash": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "first_parent": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "scanned_files": 7,
+      "before_ms": 758,
+      "after_ms": 758,
+      "findings": []
+    },
+    {
+      "pr": 793,
+      "merge_or_squash": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "first_parent": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "scanned_files": 1,
+      "before_ms": 124,
+      "after_ms": 103,
+      "findings": []
+    },
+    {
+      "pr": 792,
+      "merge_or_squash": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "first_parent": "e219bc594379208189f5504739dcf6df7d315a42",
+      "scanned_files": 7,
+      "before_ms": 152,
+      "after_ms": 156,
+      "findings": []
+    },
+    {
+      "pr": 784,
+      "merge_or_squash": "e219bc594379208189f5504739dcf6df7d315a42",
+      "first_parent": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "scanned_files": 12,
+      "before_ms": 170,
+      "after_ms": 157,
+      "findings": [
+        {
+          "rule": "no-child-process-shell-true",
+          "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+          "line": 113,
+          "file_sha256": "99fd50f8fa4941be30e1bda11ae19c66cb1a1f67feaa895fb30f0d342fbbee0f",
+          "review": "shell option on subprocess",
+          "present_after": true
+        }
+      ]
+    },
+    {
+      "pr": 789,
+      "merge_or_squash": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "first_parent": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "scanned_files": 0,
+      "before_ms": 107,
+      "after_ms": 101,
+      "findings": []
+    },
+    {
+      "pr": 783,
+      "merge_or_squash": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "first_parent": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "scanned_files": 4,
+      "before_ms": 230,
+      "after_ms": 219,
+      "findings": []
+    },
+    {
+      "pr": 782,
+      "merge_or_squash": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "first_parent": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "scanned_files": 1,
+      "before_ms": 103,
+      "after_ms": 95,
+      "findings": []
+    },
+    {
+      "pr": 781,
+      "merge_or_squash": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "first_parent": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "scanned_files": 28,
+      "before_ms": 906,
+      "after_ms": 925,
+      "findings": [
+        {
+          "rule": "no-empty-catch",
+          "path": "plugins/sdd-ship/session-hub/runner.mjs",
+          "line": 22,
+          "file_sha256": "62caa42cf22d80df019f7fa2142f6cf4218c034e3414272ac9da216f90058802",
+          "review": "literal empty catch in cleanup",
+          "present_after": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "plugins/sdd-ship/session-hub/runner.mjs",
+          "line": 52,
+          "file_sha256": "62caa42cf22d80df019f7fa2142f6cf4218c034e3414272ac9da216f90058802",
+          "review": "literal empty catch in cleanup",
+          "present_after": true
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-browser.mjs",
+          "line": 70,
+          "file_sha256": "9954c1edf2e6c97b4ce90e35fd6d0769dda665a56a7418cb6b26264849f637d3",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-native-push.mjs",
+          "line": 21,
+          "file_sha256": "a332d9484e7f95c782a6181b23c03942fc03e5733f1207fcf435b85a582a7fc7",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-native-push.mjs",
+          "line": 28,
+          "file_sha256": "a332d9484e7f95c782a6181b23c03942fc03e5733f1207fcf435b85a582a7fc7",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "tests/session-hub-native-push.mjs",
+          "line": 29,
+          "file_sha256": "a332d9484e7f95c782a6181b23c03942fc03e5733f1207fcf435b85a582a7fc7",
+          "review": "literal empty catch in cleanup",
+          "present_after": true
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-production.mjs",
+          "line": 25,
+          "file_sha256": "194c4704f37ee601f77bbeb91de48379f093ad2c50b95cb44b1be15fc4753d95",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-production.mjs",
+          "line": 30,
+          "file_sha256": "194c4704f37ee601f77bbeb91de48379f093ad2c50b95cb44b1be15fc4753d95",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        }
+      ]
+    },
+    {
+      "pr": 779,
+      "merge_or_squash": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "first_parent": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "scanned_files": 11,
+      "before_ms": 862,
+      "after_ms": 950,
+      "findings": []
+    },
+    {
+      "pr": 777,
+      "merge_or_squash": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "first_parent": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "scanned_files": 0,
+      "before_ms": 101,
+      "after_ms": 91,
+      "findings": []
+    },
+    {
+      "pr": 774,
+      "merge_or_squash": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "first_parent": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "scanned_files": 23,
+      "before_ms": 882,
+      "after_ms": 946,
+      "findings": [
+        {
+          "rule": "no-console-log",
+          "path": "plugins/sdd-ship/status-site/build.mjs",
+          "line": 14,
+          "file_sha256": "e79c8c950b36ad15ef9139dcfee279521c8bc30911d105d95769aa0f609115d6",
+          "review": "shipping build CLI stdout, catalog calls for waiver if intentional",
+          "present_after": true
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/hosted-status-browser.tests.mjs",
+          "line": 84,
+          "file_sha256": "ec1c25163f820789d7165bf01eab51aaa12b41259247901b14b79734bf6e38ee",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        }
+      ]
+    },
+    {
+      "pr": 756,
+      "merge_or_squash": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "first_parent": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "scanned_files": 15,
+      "before_ms": 1569,
+      "after_ms": 1651,
+      "findings": []
+    },
+    {
+      "pr": 720,
+      "merge_or_squash": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "first_parent": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "scanned_files": 0,
+      "before_ms": 105,
+      "after_ms": 115,
+      "findings": []
+    },
+    {
+      "pr": 723,
+      "merge_or_squash": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "first_parent": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "scanned_files": 4,
+      "before_ms": 735,
+      "after_ms": 762,
+      "findings": []
+    },
+    {
+      "pr": 721,
+      "merge_or_squash": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "first_parent": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "scanned_files": 12,
+      "before_ms": 2372,
+      "after_ms": 2380,
+      "findings": []
+    },
+    {
+      "pr": 719,
+      "merge_or_squash": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "first_parent": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "scanned_files": 3,
+      "before_ms": 224,
+      "after_ms": 216,
+      "findings": []
+    },
+    {
+      "pr": 718,
+      "merge_or_squash": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "first_parent": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "scanned_files": 0,
+      "before_ms": 80,
+      "after_ms": 86,
+      "findings": []
+    },
+    {
+      "pr": 717,
+      "merge_or_squash": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "first_parent": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "scanned_files": 0,
+      "before_ms": 81,
+      "after_ms": 86,
+      "findings": []
+    },
+    {
+      "pr": 716,
+      "merge_or_squash": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "first_parent": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "scanned_files": 0,
+      "before_ms": 79,
+      "after_ms": 86,
+      "findings": []
+    },
+    {
+      "pr": 713,
+      "merge_or_squash": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "first_parent": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "scanned_files": 0,
+      "before_ms": 81,
+      "after_ms": 87,
+      "findings": []
+    },
+    {
+      "pr": 715,
+      "merge_or_squash": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "first_parent": "54441b21f5af450dafab374d7dff603e68cff634",
+      "scanned_files": 0,
+      "before_ms": 93,
+      "after_ms": 87,
+      "findings": []
+    },
+    {
+      "pr": 714,
+      "merge_or_squash": "54441b21f5af450dafab374d7dff603e68cff634",
+      "first_parent": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "scanned_files": 0,
+      "before_ms": 83,
+      "after_ms": 98,
+      "findings": []
+    },
+    {
+      "pr": 711,
+      "merge_or_squash": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "first_parent": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "scanned_files": 0,
+      "before_ms": 81,
+      "after_ms": 87,
+      "findings": []
+    },
+    {
+      "pr": 710,
+      "merge_or_squash": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "first_parent": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "scanned_files": 1,
+      "before_ms": 97,
+      "after_ms": 94,
+      "findings": []
+    },
+    {
+      "pr": 709,
+      "merge_or_squash": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "first_parent": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "scanned_files": 0,
+      "before_ms": 93,
+      "after_ms": 98,
+      "findings": []
+    },
+    {
+      "pr": 708,
+      "merge_or_squash": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "first_parent": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "scanned_files": 6,
+      "before_ms": 197,
+      "after_ms": 226,
+      "findings": []
+    },
+    {
+      "pr": 707,
+      "merge_or_squash": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "first_parent": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "scanned_files": 0,
+      "before_ms": 91,
+      "after_ms": 85,
+      "findings": []
+    },
+    {
+      "pr": 706,
+      "merge_or_squash": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "first_parent": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "scanned_files": 0,
+      "before_ms": 78,
+      "after_ms": 100,
+      "findings": []
+    },
+    {
+      "pr": 697,
+      "merge_or_squash": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "first_parent": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "scanned_files": 62,
+      "before_ms": 2543,
+      "after_ms": 2484,
+      "findings": [
+        {
+          "rule": "no-console-log",
+          "path": "reports/verification/coding-standards-mcp-public-20261101/verify.mjs",
+          "line": 60,
+          "file_sha256": "277f171cc2c7a04225724c943ba8ed10b85a218edd62b129491cdca982a9e0f3",
+          "review": "out-of-scope JSON report output",
+          "present_after": false
+        }
+      ]
+    },
+    {
+      "pr": 705,
+      "merge_or_squash": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "first_parent": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "scanned_files": 0,
+      "before_ms": 110,
+      "after_ms": 83,
+      "findings": []
+    },
+    {
+      "pr": 698,
+      "merge_or_squash": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "first_parent": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "scanned_files": 0,
+      "before_ms": 96,
+      "after_ms": 131,
+      "findings": []
+    },
+    {
+      "pr": 703,
+      "merge_or_squash": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "first_parent": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "scanned_files": 0,
+      "before_ms": 83,
+      "after_ms": 84,
+      "findings": []
+    },
+    {
+      "pr": 702,
+      "merge_or_squash": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "first_parent": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "scanned_files": 0,
+      "before_ms": 87,
+      "after_ms": 84,
+      "findings": []
+    },
+    {
+      "pr": 701,
+      "merge_or_squash": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "first_parent": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "scanned_files": 0,
+      "before_ms": 83,
+      "after_ms": 83,
+      "findings": []
+    },
+    {
+      "pr": 700,
+      "merge_or_squash": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "first_parent": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "scanned_files": 0,
+      "before_ms": 96,
+      "after_ms": 83,
+      "findings": []
+    },
+    {
+      "pr": 699,
+      "merge_or_squash": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "first_parent": "82b536954626e73b36853711b264cbf5df400d22",
+      "scanned_files": 0,
+      "before_ms": 83,
+      "after_ms": 110,
+      "findings": []
+    },
+    {
+      "pr": 695,
+      "merge_or_squash": "82b536954626e73b36853711b264cbf5df400d22",
+      "first_parent": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "scanned_files": 0,
+      "before_ms": 85,
+      "after_ms": 78,
+      "findings": []
+    },
+    {
+      "pr": 696,
+      "merge_or_squash": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "first_parent": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "scanned_files": 0,
+      "before_ms": 96,
+      "after_ms": 88,
+      "findings": []
+    },
+    {
+      "pr": 693,
+      "merge_or_squash": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "first_parent": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "scanned_files": 3,
+      "before_ms": 92,
+      "after_ms": 84,
+      "findings": []
+    },
+    {
+      "pr": 683,
+      "merge_or_squash": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "first_parent": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "scanned_files": 0,
+      "before_ms": 96,
+      "after_ms": 78,
+      "findings": []
+    },
+    {
+      "pr": 681,
+      "merge_or_squash": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "first_parent": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "scanned_files": 0,
+      "before_ms": 93,
+      "after_ms": 98,
+      "findings": []
+    },
+    {
+      "pr": 680,
+      "merge_or_squash": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "first_parent": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "scanned_files": 6,
+      "before_ms": 871,
+      "after_ms": 797,
+      "findings": []
+    },
+    {
+      "pr": 679,
+      "merge_or_squash": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "first_parent": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "scanned_files": 0,
+      "before_ms": 98,
+      "after_ms": 77,
+      "findings": []
+    },
+    {
+      "pr": 677,
+      "merge_or_squash": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "first_parent": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "scanned_files": 0,
+      "before_ms": 98,
+      "after_ms": 77,
+      "findings": []
+    },
+    {
+      "pr": 676,
+      "merge_or_squash": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "first_parent": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "scanned_files": 1,
+      "before_ms": 103,
+      "after_ms": 82,
+      "findings": []
+    },
+    {
+      "pr": 657,
+      "merge_or_squash": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "first_parent": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "scanned_files": 4,
+      "before_ms": 839,
+      "after_ms": 831,
+      "findings": []
+    },
+    {
+      "pr": 656,
+      "merge_or_squash": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "first_parent": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "scanned_files": 0,
+      "before_ms": 83,
+      "after_ms": 73,
+      "findings": []
+    },
+    {
+      "pr": 655,
+      "merge_or_squash": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "first_parent": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "scanned_files": 3,
+      "before_ms": 2238,
+      "after_ms": 2209,
+      "findings": []
+    },
+    {
+      "pr": 592,
+      "merge_or_squash": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "first_parent": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "scanned_files": 0,
+      "before_ms": 92,
+      "after_ms": 74,
+      "findings": []
+    },
+    {
+      "pr": 591,
+      "merge_or_squash": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "first_parent": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "scanned_files": 0,
+      "before_ms": 90,
+      "after_ms": 74,
+      "findings": []
+    },
+    {
+      "pr": 590,
+      "merge_or_squash": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "first_parent": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "scanned_files": 11,
+      "before_ms": 1555,
+      "after_ms": 1429,
+      "findings": []
+    },
+    {
+      "pr": 580,
+      "merge_or_squash": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "first_parent": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "scanned_files": 4,
+      "before_ms": 210,
+      "after_ms": 181,
+      "findings": []
+    },
+    {
+      "pr": 579,
+      "merge_or_squash": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "first_parent": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "scanned_files": 3,
+      "before_ms": 204,
+      "after_ms": 186,
+      "findings": []
+    },
+    {
+      "pr": 578,
+      "merge_or_squash": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "first_parent": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "scanned_files": 1,
+      "before_ms": 93,
+      "after_ms": 93,
+      "findings": []
+    },
+    {
+      "pr": 577,
+      "merge_or_squash": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "first_parent": "d1bd02086167bb8914abdaa962f2e4e2877ea78e",
+      "scanned_files": 1,
+      "before_ms": 105,
+      "after_ms": 103,
+      "findings": []
+    }
+  ]
+}
