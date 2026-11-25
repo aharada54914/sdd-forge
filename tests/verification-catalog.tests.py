@@ -109,6 +109,35 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text()), {'results': []})
         self.assertEqual(list(self.root.glob('receipt.json.*')), [])
 
+    def test_cli_receipt_selects_execution_unless_planning_or_listing(self):
+        suite_dir = self.root / 'tests'
+        runner = suite_dir / 'verification.py'
+        shutil.copyfile(ROOT / 'tests/verification.py', runner)
+        (suite_dir / 'verification-catalog.json').write_text(json.dumps(self.catalog))
+        (suite_dir / 'verification-timings.json').write_text(json.dumps({
+            'schema': 'ci-suite-timings/v1', 'suites': {},
+        }))
+        (self.root / self.paths[0]).write_text('raise SystemExit(7)\n')
+        receipt = self.root / 'receipt.json'
+        cmd = [sys.executable, str(runner), '--profile', 'test']
+        for flags in ([], ['--plan', '--receipt', str(receipt)], ['--list', '--receipt', str(receipt)]):
+            with self.subTest(flags=flags):
+                preview = subprocess.run(cmd + flags, capture_output=True, text=True)
+                self.assertEqual(preview.returncode, 0, preview.stderr)
+                paths = preview.stdout.splitlines() if '--list' in flags else json.loads(preview.stdout)['selected']
+                self.assertEqual(paths, self.paths)
+                self.assertFalse(receipt.exists())
+
+        for flags in ([], ['--run']):
+            with self.subTest(flags=flags):
+                result = subprocess.run(cmd + flags + ['--receipt', str(receipt)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                actual = json.loads(receipt.read_text())
+                self.assertEqual(actual['selected'], self.paths)
+                self.assertEqual([(r['suite'], r['exit_code']) for r in actual['results']],
+                                 list(zip(self.paths, [7, 0])))
+                receipt.unlink()
+
     def test_python_runtime_prefers_dispatcher_name_without_changing_fallback(self):
         alias = self.root / 'python3'
         sibling = self.root / 'python'

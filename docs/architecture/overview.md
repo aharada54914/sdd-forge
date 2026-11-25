@@ -270,7 +270,7 @@ Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd
 
 守る対象は**強制の仕組みそのもの**です。エージェントが自らの操作を制限するコードを書き換えられたら、他のすべてのガードが意味を失います。
 
-正準リストは [`plugins/sdd-quality-loop/references/guard-invariants.json`](../../plugins/sdd-quality-loop/references/guard-invariants.json) の `protected_gate_suffixes`（80 エントリ）と `protected_gate_plugin_json_suffixes`（3 エントリ）で、ここから `generate-guard-invariants.py` が sh / ps1 / js / py の 4 実装へ同じ定数を生成します（`scripts/generated/`）。含まれるものの例:
+v1 の保護対象は `protected_gate_suffixes` と `protected_gate_plugin_json_suffixes` で定義され、`generate-guard-invariants.py` が 4 言語向けの定数を生成していました。v2 の保護方式は [ADR-0051](../adr/0051-lightweight-guardrails-and-sdd-core.md) を参照してください。以下は [v1.26.0 の定義ファイル](https://github.com/aharada54914/sdd-forge/blob/b193c75be2a6f2e6c7074bb65401f514268a65fb/plugins/sdd-quality-loop/references/guard-invariants.json) に基づく例です。
 
 - `.github/workflows/test.yml`（CI 定義そのもの）
 - `contracts/capability-registry.json` / `contracts/capability-registry.schema.json` と、その `plugins/sdd-quality-loop/contracts/` 側のベンダーコピー

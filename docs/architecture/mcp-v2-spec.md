@@ -28,8 +28,8 @@ flowchart LR
         RC["v2-readonly-core.mjs"]
     end
 
-    CLI["Local v2 CLIs\n(check-spec-drift / check-traceability /\nrender-decision-view / sdd-doctor)"] -->|createFsReadonlyIo(root)| RC
-    MCP["sdd-forge-mcp v2\n(4 read-only tools + 2 resources)"] -->|createGuardedIo(root) via path-guard.ts| RC
+    CLI["Local v2 CLIs\n(check-spec-drift / check-traceability /\nrender-decision-view / sdd-doctor)"] -->|"createFsReadonlyIo(root)"| RC
+    MCP["sdd-forge-mcp v2\n(4 read-only tools + 2 resources)"] -->|"createGuardedIo(root) via path-guard.ts"| RC
     EXT["Non-Shell / Read-Only Clients\n(Desktop / Web / Dashboard / Antigravity)"] -->|stdio JSON-RPC| MCP
 ```
 

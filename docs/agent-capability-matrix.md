@@ -1,6 +1,6 @@
 # Agent Capability Matrix — SDD Quality Loop
 
-A read-only summary of agent roles, tool scopes, and which actions are enforced by the hook guard vs. by convention.
+This matrix describes the v1 hook guard. The v2 enforcement model is documented in [ADR-0051](adr/0051-lightweight-guardrails-and-sdd-core.md).
 
 ---
 
@@ -338,7 +338,7 @@ The two layers work together: the hook guard catches direct attempts to set appr
 
 ## References
 
-- **SDD Hook Guard** (implementation): [`plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`](../plugins/sdd-quality-loop/scripts/sdd-hook-guard.py)
+- [SDD Hook Guard implementation at v1.26.0](https://github.com/aharada54914/sdd-forge/blob/b193c75be2a6f2e6c7074bb65401f514268a65fb/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py)
 - **sdd-investigator role** (TOML + developer_instructions): [`.codex/agents/sdd-investigator.toml`](../.codex/agents/sdd-investigator.toml)
 - **sdd-evaluator role** (TOML + developer_instructions): [`.codex/agents/sdd-evaluator.toml`](../.codex/agents/sdd-evaluator.toml)
 - **Sudo Mode Policy** (approval guard bypass rules): [`plugins/sdd-quality-loop/references/sudo-mode-policy.md`](../plugins/sdd-quality-loop/references/sudo-mode-policy.md)

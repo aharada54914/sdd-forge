@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { isBuiltin } from 'node:module';
 import { parseSource } from '../plugins/sdd-quality-loop/rules/source-ast.mjs';
@@ -113,6 +114,11 @@ function checkHostParity(read) {
   return violations;
 }
 
+function hasPinnedReleaseLine(readme) {
+  const lines = readme.split(/\r\n|[\n\r\v\f\x1c-\x1e\u0085\u2028\u2029]/u, 5);
+  return lines.some(line => /^v\p{Nd}+\.\p{Nd}+\.\p{Nd}+ — /u.test(line));
+}
+
 describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () => {
   it('1. Pure Read-Only architecture: v2-pure-lib.mjs & v2-readonly-core.mjs have zero fs/child_process/env/argv imports (with negative fixture)', () => {
     for (const rel of PURE_READONLY_TARGETS) {
@@ -205,5 +211,32 @@ describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () =>
       assert.deepEqual(paths.filter(p => !registered.has(p)), [], profile);
     }
     assert.deepEqual(ghosts, [], `Found ${ghosts.length} ghost catalog entries: ${ghosts.slice(0, 5).join(', ')}`);
+  });
+
+  it('checks the pinned README release line within the first five lines', () => {
+    assert.ok(hasPinnedReleaseLine(fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8')));
+  });
+
+  it('matches the legacy doc-diagrams release-line verdict on the same controls', t => {
+    const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-release-line-'));
+    t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
+    const legacySuite = path.join(REPO_ROOT, 'tests/doc-diagrams.tests.py');
+    const boundary = '# Project\n\nDescription\n\n';
+    const release = 'v1.2.3 — Release\n';
+    for (const [label, readme, expected] of [
+      ['line five', boundary + release, true],
+      ['line six', boundary + '\n' + release, false],
+      ['missing version component', boundary + 'v1.2 — Release\n', false],
+      ['wrong separator', boundary + 'v1.2.3 - Release\n', false],
+    ]) {
+      const readmePath = path.join(fixture, 'README.md');
+      fs.writeFileSync(readmePath, readme);
+      const python = process.platform === 'win32' ? 'python' : 'python3';
+      const legacy = spawnSync(python, [legacySuite, '--root', fixture, '--no-selftest'], { encoding: 'utf8' });
+      assert.ifError(legacy.error);
+      assert.equal(legacy.status, expected ? 0 : 1, `${label}: ${legacy.stderr}`);
+      if (!expected) assert.match(legacy.stderr, /README\.md: the release line/);
+      assert.equal(hasPinnedReleaseLine(fs.readFileSync(readmePath, 'utf8')), expected, label);
+    }
   });
 });

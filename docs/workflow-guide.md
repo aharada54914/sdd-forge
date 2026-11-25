@@ -24,6 +24,7 @@ flowchart TD
     GATE -->|FAIL / UNDECLARED_DRIFT| IMP
     GATE -->|PASS| DONE(["Status: Done"])
     DONE --> CI["PR / CI: sdd-guardrails.yml\nSpec Drift サマリ + CODEOWNERS"]
+    DONE -. "全対象タスク完了かつ --retro 指定" .-> RETRO["workflow-retrospective"]
 ```
 
 ## 実装中に仕様変更が必要になったとき（Spec Amendments 手順）
