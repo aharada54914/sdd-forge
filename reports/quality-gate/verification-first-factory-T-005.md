@@ -1,19 +1,19 @@
 Task ID: T-005
 Feature: verification-first-factory
-Run ID: 24645dd2-150b-4e07-a47f-f6489e4bc6c4
-VERDICT: NEEDS_WORK
+Run ID: e72902c5-42fb-4498-9df6-dc69b1484c7e
+VERDICT: PASS
 Critical: 0
-Major: 1
-Minor: 1
+Major: 0
+Minor: 3
 
-- **VERDICT**: NEEDS_WORK
+- **VERDICT**: PASS
 
 # Independent quality gate for T-005
 
-Evaluators verified all 73 admitted hashes at `4f611fe23a6859cb528e4460aaabf2233c660e0e`. G1/G2/G5 were reviewed by `24645dd2-150b-4e07-a47f-f6489e4bc6c4` (ledger 1231) and G3/G4 by `6ce01409-4a81-4ea8-8cf0-3d1996dbaf96` (ledger 1232). Machine execution `2749d120-935b-4f71-82c3-12fb3fe05ce4` returned PASS.
+Evaluators verified all 74 admitted hashes at `4e79762d66a0be7d5910c9e4d78eca80aa1eeb6c`. G1/G2/G5 were reviewed by `e72902c5-42fb-4498-9df6-dc69b1484c7e` (ledger 1236) and G3/G4 by `c025b621-0512-42e6-b6e8-90fbc5f1b6f5` (ledger 1237). Machine execution `cd0d3a65-307b-42fd-b4c8-e773f88a38c8` returned PASS.
 
-G1 found one Major in AC-006. An out-of-order observation with round 99 was rejected, but its HTML decision view attributed rejection to “Reservation (replay): checker exit 0”. A user cannot determine what invalidated the trace from this result. G2 found no scope issue. G5 does not apply to this CLI. A ran 18 native Node tests with TLC/Apalache and eight Python tests.
+G1/G2/G5 PASS. Two real checkers and the canonical task fixtures passed. The reviewer restored the prior implementation and reproduced the two repaired regressions. Spec drift CLEAN. G3/G4 PASS. Both evaluators independently checked all 74 admitted hashes. Native Node 20/20 and Python 8/8 passed with zero skips. TLC explored 15 baseline, 25 negative-control and five replay states. Apalache 0.63.0 produced the expected bounded results. The real two-process capture accepted one write; the lock-removal control accepted two. A reordered capture failed at step 2 (Publish). RT-001 and RT-003 are resolved.
 
-G3 found one Minor. Free prose after the module terminator containing a quotation mark was accepted by native TLC, which visited 15 states. The strict gate rejected it as an invalid delimiter. B independently ran six focused tests, validating six legal comment positions, nine invalid token splits and rejection of an unsupported fairness formula. The original comment follow-up passes. G4 accepted direct Java invocation, CI and local missing-tool behavior, timeouts and escaped HTML diagnostics.
+The three advisory findings remain tracked separately in RT-20261126-006. (1) A quote or unmatched opening comment in free text before the MODULE header is rejected although TLC accepts the model. (2) With zero initial states TLC reports depth one: the gate rejects the incompatible initial observation but attributes it to the next step. (3) A GateLifecycle negative test also passes on a checker timeout. Reviewer B observed both a timeout and a completed isolated run reporting an unreachable step 2 (StartTask).
 
-Ticket RT-20261126-003 records both findings. Native Windows hardware and state spaces beyond the configured finite models were outside this run.
+Non-checks include Windows-native operation, NFS, crash recovery and unbounded liveness.

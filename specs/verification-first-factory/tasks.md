@@ -11,7 +11,7 @@
 ## Wave 1: 基盤・スキーマ・Anti-Tampering・本体 Fitness ＆ カタログ棚卸し
 
 ### T-001: ADR-0054 正式化・`guardrails-lib.mjs` スキーマ拡張・`sdd-doctor.mjs` 診断・`AGENTS.md` 登録
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-009`（アローリスト検証）, `REQ-012`（`sdd-doctor.mjs`）, `NFR-001`, `NFR-003`, `NFR-005`
@@ -65,7 +65,7 @@ T-002
 T-001
 
 ### T-005: 状態機械抽出＆チェッカー非依存・Windows 互換の多層形式検証ゲート（TLA+ 標準・Lean 4 予約）
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-003`, `REQ-004`, `REQ-005`, `REQ-006`

@@ -1,0 +1,10 @@
+ticket_id: RT-20261126-006
+status: open
+type: regression
+severity: minor
+target:
+  feature: verification-first-factory
+  task: T-005
+summary: "Handle free-form prefixes, localize initial replay mismatches and distinguish timeout from unreachable"
+references:
+  - reports/quality-gate/verification-first-factory-T-005.md

@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-004
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -15,3 +15,7 @@ expected_fix:
 owner_decision: "2026-11-26: owner approved one additional correction and independent evaluation."
 references:
   - reports/quality-gate/verification-first-factory-T-002.md
+resolution:
+  commit: 26484310e
+  result: "Native Bash/dash help controls, active comments and installed CLI fixtures now agree."
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-004/public-cli-receipt.json
