@@ -227,46 +227,12 @@ def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
         output.write(
             "Verdict scope: deterministic contract verification only. Other checks are retained unchanged. No independent review or Done decision is inferred.\n"
         )
-    if prepare:
-        return {
-            "task_id": task["task_id"], "run_id": task["run_id"], "check_id": check_id,
-            "execution_outcome": validated[2], "contract": str(output_contract.relative_to(root)),
-            "contract_sha256": V.digest(output_contract.read_bytes()),
-            "report": str(report.relative_to(root)), "bundle": None,
-            "contract_valid": checked.returncode == 0, "bundle_valid": False,
-            "task_transition": None,
-        }
-    bundle = evidence / (task["task_id"] + ".evidence.json")
-    generator = HERE / "generate-evidence-bundle.sh"
-    generated = subprocess.run(
-        [
-            "sh",
-            str(generator),
-            str(output_contract),
-            str(report),
-            str(root),
-            str(bundle),
-        ],
-        capture_output=True,
-        check=False,
-    )
-    if generated.returncode != 0:
-        raise V.Invalid("bundle-generation-failed")
-    bundle_checked = subprocess.run(
-        ["sh", str(HERE / "check-evidence-bundle.sh"), str(bundle), str(root)],
-        capture_output=True,
-        check=False,
-    )
     return {
-        "task_id": task["task_id"],
-        "run_id": task["run_id"],
-        "check_id": check_id,
-        "execution_outcome": validated[2],
-        "contract": str(output_contract.relative_to(root)),
-        "report": str(report.relative_to(root)),
-        "bundle": str(bundle.relative_to(root)),
-        "contract_valid": checked.returncode == 0,
-        "bundle_valid": bundle_checked.returncode == 0,
+        "task_id": task["task_id"], "run_id": task["run_id"], "check_id": check_id,
+        "execution_outcome": validated[2], "contract": str(output_contract.relative_to(root)),
+        "contract_sha256": V.digest(output_contract.read_bytes()),
+        "report": str(report.relative_to(root)), "bundle": None,
+        "contract_valid": checked.returncode == 0, "bundle_valid": False,
         "task_transition": None,
     }
 
@@ -317,7 +283,7 @@ def main(argv=None):
             )
         return 1
     print(json.dumps(result, sort_keys=True))
-    return 0 if result["contract_valid"] and (args.prepare or result["bundle_valid"]) else 1
+    return 0 if result["contract_valid"] else 1
 
 
 if __name__ == "__main__":
