@@ -37,6 +37,16 @@ describe('ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agn
     const valid = validateTlaModelStructure({ tlaPath, cfgPath });
     assert.deepEqual(valid.errors, []);
     assert.deepEqual(valid.invariants, ['TypeOK', 'Ready']);
+    fs.writeFileSync(cfgPath, String.raw`CONSTANT Note = "INVARIANT Enabled \\* \"CONSTRAINT\""
+      (* Reserved words inside (* INVARIANT Enabled *) a comment *)
+      INIT Start NEXT Advance INVARIANTS TypeOK Ready ACTION_CONSTRAINT Allowed
+      \* INVARIANT Enabled
+      CONSTRAINT Reachable`);
+    assert.deepEqual(validateTlaModelStructure({ tlaPath, cfgPath }).invariants, ['TypeOK', 'Ready']);
+    for (const suffix of ['(* unfinished', '"unterminated', '*)']) {
+      fs.writeFileSync(cfgPath, 'INVARIANT TypeOK ' + suffix);
+      assert.equal(validateTlaModelStructure({ tlaPath, cfgPath }).ok, false);
+    }
     fs.writeFileSync(cfgPath, 'INVARIANT Enabled\n');
     const invalid = validateTlaModelStructure({ tlaPath, cfgPath });
     assert.equal(invalid.ok, false);
@@ -534,6 +544,28 @@ it(
         assert.match(replayModel, /Permitted \/\\ Acquire\(1\)/);
       }
     }
+    fs.writeFileSync(model, fs.readFileSync(model, 'utf8').replace('Spec ==', 'OnlyUnlocked == lock = 0\nSpec =='));
+    const constrainedTrace = path.join(projectRoot, 'constrained.ndjson');
+    const observations = ['Init', 'Acquire', 'Check', 'Publish', 'Release'].map((action, step) => ({
+      step, action, ...(step ? { actor: 1 } : {}), state: { accepted: step >= 3 ? [1] : [] },
+    }));
+    fs.writeFileSync(constrainedTrace, observations.map((event) => JSON.stringify(event)).join('\n'));
+    for (const separator of ['\n', ' ']) {
+      fs.writeFileSync(cfg, template.replace('INVARIANT OneAccepted', 'INVARIANT OneAccepted' + separator + 'CONSTRAINT OnlyUnlocked'));
+      const result = runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath: constrainedTrace });
+      t.diagnostic('Constraint layout ' + JSON.stringify(separator) + ': baseline=' + result.checker?.baseline?.distinctStates +
+        ' replay=' + result.checker?.replay?.distinctStates + ' status=' + result.status);
+      assert.equal(result.checker?.baseline?.distinctStates, 1);
+      assert.equal(result.status, 'FAIL', 'the constrained model cannot replay the observation');
+      assert.equal(result.checker.replay.status, 0);
+      assert.equal(result.checker.replay.distinctStates, 1);
+    }
+    // A supported TLC property is outside the finite-prefix replay contract,
+    // even when it shares a line with the preceding invariant.
+    fs.writeFileSync(cfg, template.replace('INVARIANT OneAccepted', 'INVARIANT OneAccepted PROPERTY Spec'));
+    const unsupported = runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
+    assert.equal(unsupported.status, 'FAIL');
+    assert.match(unsupported.errors.join(' '), /Unsupported baseline CFG directive: PROPERTY/);
     // Compare the same observation against both layouts accepted by TLC.
     fs.writeFileSync(model, fs.readFileSync(model, 'utf8').replaceAll('UseLock', 'LOCK'));
     const negative = path.join(projectRoot, 'Reservation.negative.cfg');
@@ -562,6 +594,21 @@ it(
       assert.match(result.errors.join(' '), error);
       fs.writeFileSync(cfg, template.replace('UseLock', 'LOCK'));
     }
+    const quoted = '"PROPERTY Spec INVARIANT Ghost"';
+    fs.writeFileSync(model, fs.readFileSync(model, 'utf8')
+      .replace('CONSTANT LOCK', 'CONSTANTS LOCK, Note')
+      .replace('Spec ==', 'LabelOK == Note = ' + quoted + "\nAllowedStep == lock' >= 0\nSpec =="));
+    fs.appendFileSync(negative, 'CONSTANT Note = ' + quoted + '\n');
+    fs.writeFileSync(cfg, [
+      'CONSTANTS LOCK = TRUE Note = ' + quoted + ' (* PROPERTY Ghost *) SPECIFICATION Spec',
+      'INVARIANT OneAccepted \\* ACTION_CONSTRAINT Ghost',
+      'CONSTRAINT LabelOK ACTION_CONSTRAINT AllowedStep CHECK_DEADLOCK FALSE',
+    ].join('\n'));
+    const preserved = runFormalGate({ projectRoot, tlaPath: model, mode: 'strict', tracePath });
+    assert.equal(preserved.status, 'PASS', JSON.stringify(preserved));
+    const projected = fs.readFileSync(path.join(projectRoot, preserved.evidence, 'SDDTraceReplay.cfg'), 'utf8');
+    for (const clause of ['Note = ' + quoted, 'CONSTRAINT LabelOK', 'ACTION_CONSTRAINT AllowedStep'])
+      assert.ok(projected.includes(clause), clause);
   },
 );
 

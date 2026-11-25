@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { prepareTraceReplay } from './formal-trace.mjs';
+import { parseCfgSections, prepareTraceReplay } from './formal-trace.mjs';
 import { randomUUID } from 'node:crypto';
 import {
   VALID_FORMAL_ADAPTERS,
@@ -33,23 +33,6 @@ import {
 } from './guardrails-lib.mjs';
 
 const TLA_MODULE_RE = /-{4,}\s*MODULE\s+([A-Za-z0-9_]+)\s*-{4,}/;
-const CFG_SECTION = /^(INIT|NEXT|SPECIFICATION|INVARIANTS?|PROPERT(?:Y|IES)|CONSTANTS?|(?:ACTION_)?CONSTRAINTS?|TYPE(?:_CONSTRAINT)?|VIEW|SYMMETRY|CHECK_DEADLOCK|ALIAS|POSTCONDITION)\b/;
-
-function configuredInvariants(cfgText) {
-  const names = [];
-  let inInvariants = false;
-  for (const line of cfgText.split(/\r?\n/)) {
-    let text = line.replace(/\\\*.*/, '').trim();
-    const section = CFG_SECTION.exec(text);
-    if (section) {
-      inInvariants = /^INVARIANTS?$/.test(section[1]);
-      text = text.slice(section[0].length).trim();
-    }
-    if (inInvariants && text) names.push(...text.split(/\s+/));
-  }
-  return names;
-}
-
 // A following operator or module declaration ends the RHS. A continuation
 // such as "/\ predicate" on the next line still belongs to the definition.
 const TLA_TRUE_DEFINITION = /^[ \t]*(\w+)[ \t]*==\s*TRUE[ \t]*\r?$/gm;
@@ -102,7 +85,11 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
       errors.push(`Config file not found: ${cfgPath}`);
     } else {
       const cfgText = fs.readFileSync(cfgPath, 'utf8');
-      invariants = configuredInvariants(cfgText);
+      try {
+        invariants = parseCfgSections(cfgText).filter(({ key }) => /^INVARIANTS?$/.test(key)).flatMap(({ tokens }) => tokens);
+      } catch (error) {
+        errors.push(error.message);
+      }
       if (invariants.length === 0) {
         errors.push(`No INVARIANT declared in ${cfgPath}`);
       }
