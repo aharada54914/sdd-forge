@@ -140,7 +140,19 @@ export function acquireLock({
       const tmpPath = `${lockPath}.new.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
       fs.writeFileSync(tmpPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
       try {
-        fs.linkSync(tmpPath, lockPath);
+        try {
+          fs.linkSync(tmpPath, lockPath);
+        } catch (linkErr) {
+          // Volumes without hard links (FAT/exFAT, some network shares): fall
+          // back to an exclusive create; a racer may briefly see it empty.
+          if (!linkErr || !['EPERM', 'ENOTSUP', 'ENOSYS', 'EXDEV'].includes(linkErr.code)) throw linkErr;
+          const fd = fs.openSync(lockPath, 'wx', 0o600);
+          try {
+            fs.writeFileSync(fd, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
+          } finally {
+            fs.closeSync(fd);
+          }
+        }
       } finally {
         removeQuietly(tmpPath);
       }

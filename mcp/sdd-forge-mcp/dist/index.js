@@ -38366,6 +38366,7 @@ ${afterAmendments}` : beforeAmendments).split("\n");
   return new Map([...sections].map(([id, body]) => [id, body.join("\n")]));
 }
 var ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
+var LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
 function specEntries(text) {
   const entries = /* @__PURE__ */ new Map();
   const add = (id, line) => {
@@ -38379,7 +38380,7 @@ function specEntries(text) {
     const line = lines[i];
     if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
     if (fence) continue;
-    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?[ \t]*\|/i.exec(line);
+    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
     if (row) {
       add(row[1], line);
       continue;
@@ -38390,7 +38391,7 @@ function specEntries(text) {
     const indent = head[1].length;
     for (let j = i + 1; j < lines.length; j += 1) {
       const next = lines[j];
-      if (!next.trim() || next.length - next.trimStart().length <= indent || ENTRY_HEAD_RE.test(next)) break;
+      if (!next.trim() || next.length - next.trimStart().length <= indent || LIST_ENTRY_HEAD_RE.test(next)) break;
       add(head[2], next);
       i = j;
     }

@@ -671,6 +671,7 @@ function rawTaskSections(tasksRaw) {
 }
 
 const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
+const LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
 
 // Every line that defines a REQ/AC: its bullet line with the indented
 // continuation lines under it, and table rows whose first cell is the ID.
@@ -687,7 +688,7 @@ function specEntries(text) {
     const line = lines[i];
     if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
     if (fence) continue;
-    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?[ \t]*\|/i.exec(line);
+    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
     if (row) {
       add(row[1], line);
       continue;
@@ -698,7 +699,9 @@ function specEntries(text) {
     const indent = head[1].length;
     for (let j = i + 1; j < lines.length; j += 1) {
       const next = lines[j];
-      if (!next.trim() || next.length - next.trimStart().length <= indent || ENTRY_HEAD_RE.test(next)) break;
+      // A nested list item for another ID starts its own entry; a wrapped
+      // prose line that merely begins with an ID does not.
+      if (!next.trim() || next.length - next.trimStart().length <= indent || LIST_ENTRY_HEAD_RE.test(next)) break;
       add(head[2], next);
       i = j;
     }
