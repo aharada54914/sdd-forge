@@ -1,0 +1,808 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs b/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
+index 5a23c0ad5..3fcd8766e 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env node
+ /**
+  * Unified deterministic runner for SDD Core's sdd-gate (v2 Lightweight Guardrails).
+- * Zero external dependencies — Node.js >= 20 LTS built-in modules only.
++ * Uses the packaged domain validator for features with v2 Concept Test evidence.
+  *
+  * Runs in one invocation:
+  *   1. Task precondition check (Approval: Approved, Status: Implementation Complete|Done)
+@@ -23,6 +23,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
+ import crypto from 'node:crypto';
+ import fs from 'node:fs';
+ import path from 'node:path';
++import { fileURLToPath } from 'node:url';
+ import { checkAntiTampering, checkSpecDrift } from './check-spec-drift.mjs';
+ import {
+   assertValidFeatureName,
+@@ -31,7 +32,6 @@ import {
+   normalizeNewlines,
+   normalizeRelPath,
+   resolveExplicitOrAutoRoot,
+-  splitSpecAmendments,
+   isMainModule,
+ } from './guardrails-lib.mjs';
+ import { checkWriteScope } from './check-traceability.mjs';
+@@ -42,11 +42,12 @@ import { runAgentLint } from './run-agent-lint.mjs';
+ import { runFormalGate } from './run-formal-gate.mjs';
+ import { runSecurityGate } from './run-security-gate.mjs';
+ import { acquireLock, releaseLock } from './task-lock.mjs';
+-import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
++import { isApprovedValue, parseTaskBlock, taskEvidenceInputs } from './v2-readonly-core.mjs';
+ import { globToRegExp } from './v2-pure-lib.mjs';
+ 
++// The detector is itself scanned. Keep the expression distinct from the text it matches.
+ const PLACEHOLDER_RE =
+-  /\b(?:TODO|FIXME|TBD)\b|NotImplementedError|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
++  /\bTODO\b|\bFIXME\b|\bTBD\b|NotImplemented(?:Error)|throw\s+new\s+Error\(\s*['"]Not implemented|unimplemented!\(\)/;
+ const MAX_OUTPUT_CHARS = 8192;
+ 
+ const SECRET_SENSOR_RULES = [
+@@ -72,40 +73,7 @@ function truncateTail(text) {
+   return `...[truncated ${s.length - MAX_OUTPUT_CHARS} chars]...\n${s.slice(-MAX_OUTPUT_CHARS)}`;
+ }
+ 
+-export function parseTaskBlock(tasksContent, taskId) {
+-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
+-  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
+-  const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+-  // Accept both legacy H2 task headings and the current H3 `### T-NNN:` plan
+-  // format. Keep the identifier boundary strict (`T-001` must not match
+-  // `T-001.1`) and stop at the next task heading, not merely the next H2.
+-  const headerRe = new RegExp(`^#{2,3}[ \\t]+${escaped}(?![A-Za-z0-9_.-])(?:[:][^\\r\\n]*|[ \\t][^\\r\\n]*)?$`, 'im');
+-  const match = headerRe.exec(body);
+-  if (!match) return null;
+-
+-  const rest = body.slice(match.index + match[0].length);
+-  const nextSection = /^(?:##[ \t]+\S|###[ \t]+T-[0-9]{3}\b)/im.exec(rest);
+-  const block = nextSection ? rest.slice(0, nextSection.index) : rest;
+-
+-  const field = (name) => block.match(new RegExp(`^[ \\t]*(?:-\\s*)?(?:\\*\\*)?${name}:(?:\\*\\*)?[ \\t]*(.+?)(?:\\*\\*)?[ \\t]*$`, 'im'));
+-  const value = (match) => match ? match[1].trim().replace(/^[`*_]+|[`*_]+$/g, '') : null;
+-  const approvalMatch = field('Approval');
+-  const statusMatch = field('Status');
+-  const riskMatch = field('Risk');
+-  const scopeMatch = field('Scope');
+-  const scopePaths = scopeMatch
+-    ? extractScopePaths(`### Scope\n- ${scopeMatch[1].replace(/\*\*$/, '').replace(/（[^）]*）|\([^)]*\)/g, '').trim()}\n### EndScope`)
+-    : extractScopePaths(block);
+-
+-  return {
+-    taskId: taskId.toUpperCase(),
+-    approval: value(approvalMatch),
+-    status: value(statusMatch),
+-    // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
+-    risk: normalizeRiskTier(value(riskMatch) || '', 'standard'),
+-    scopePaths,
+-  };
+-}
++export { parseTaskBlock };
+ 
+ export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = null } = {}) {
+   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
+@@ -622,6 +590,89 @@ function runVerificationCommands(projectRoot, commands, failFast) {
+   return results;
+ }
+ 
++function conceptRecordSchema(contents, filename) {
++  let raw = contents;
++  if (filename.endsWith('.md')) {
++    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
++    if (blocks.length !== 1) return null;
++    raw = blocks[0][1];
++  }
++  try {
++    const schema = JSON.parse(raw)?.schema;
++    if (schema === 'concept-test/v2') return schema;
++    if (schema !== 'concept-test/v1') return null;
++    // JSON.parse alone retains only the last duplicate schema key.
++    let schemaKeys = 0;
++    for (const match of raw.matchAll(/("(?:[^"\\]|\\.)*")\s*(:)?/g)) {
++      if (match[2] && JSON.parse(match[1]) === 'schema') schemaKeys++;
++    }
++    return schemaKeys === 1 ? schema : null;
++  } catch {
++    return null;
++  }
++}
++
++function needsConceptCheck(root, feature) {
++  const prefix = `specs/${feature}/concept-test`;
++  const receipt = prefix + '.decision.json';
++  const paths = [receipt, prefix + '.json', prefix + '.md'];
++  for (const rel of paths) {
++    const file = path.join(root, rel);
++    const stat = fs.lstatSync(file, { throwIfNoEntry: false });
++    if (stat && (rel === receipt || !stat.isFile()
++        || conceptRecordSchema(fs.readFileSync(file, 'utf8'), rel) !== 'concept-test/v1')) return true;
++  }
++
++  // The index can still contain current evidence missing from the working tree.
++  let repo = root;
++  while (!fs.existsSync(path.join(repo, '.git'))) {
++    const parent = path.dirname(repo);
++    if (parent === repo) return false;
++    repo = parent;
++  }
++  const marker = path.join(repo, '.git');
++  if (fs.statSync(marker).isDirectory() && !fs.existsSync(path.join(marker, 'HEAD'))
++      && fs.readdirSync(marker).length === 0) return false;
++  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
++  const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
++    encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
++  });
++  let index;
++  try {
++    index = git('ls-files', '--stage', '-z', '--', ...paths);
++  } catch (err) {
++    // Git is optional for SDD Core. Live v2 evidence was checked above.
++    if (err.code === 'ENOENT') return null;
++    throw err;
++  }
++  for (const entry of index.split('\0').filter(Boolean)) {
++    const [meta, filename] = entry.split('\t');
++    if (filename === receipt) return true;
++    const [mode, oid] = meta.split(' ');
++    if (mode !== '100644' && mode !== '100755') return true;
++    if (conceptRecordSchema(git('cat-file', 'blob', oid), filename) !== 'concept-test/v1') return true;
++  }
++  return false;
++}
++
++function checkConceptTest(root, feature) {
++  try {
++    const required = needsConceptCheck(root, feature);
++    if (required === null) return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
++    if (!required) return { passed: true, status: 'NOT_APPLICABLE' };
++    const win = process.platform === 'win32';
++    const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
++    const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
++    const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
++    const status = result.stdout?.trim();
++    if (result.status === 0 && status === 'CONTINUE') return { passed: true, status };
++    if ((result.status === 2 && status === 'DEFER') || (result.status === 3 && status === 'REJECT')) return { passed: false, status };
++    return { passed: false, status: 'BLOCK', error: truncateTail(result.error?.message || result.stderr || 'Invalid concept-test result').trim() };
++  } catch (err) {
++    return { passed: false, status: 'BLOCK', error: truncateTail(err.message) };
++  }
++}
++
+ export function runSddGate({
+   feature,
+   taskId,
+@@ -676,6 +727,7 @@ export function runSddGate({
+     acquiredLockForRelease = Boolean(lockRes.acquired && !lockRes.reentrant);
+   }
+ 
++  let outcome;
+   try {
+     const taskCheckErrors = [];
+     if (!isApprovedValue(taskState.approval)) {
+@@ -813,13 +865,17 @@ export function runSddGate({
+       taskScope,
+       outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
+     };
+-    const commandResults = failFastStoppedAt ? [] : runVerificationCommands(root, commands, failFast);
++    const conceptTest = failFastStoppedAt
++      ? { skipped: true, passed: true, status: 'SKIPPED' }
++      : checkConceptTest(root, feature);
++    if (failFast && !conceptTest.passed) failFastStoppedAt = 'conceptTest';
++    const commandResults = failFastStoppedAt || !conceptTest.passed ? [] : runVerificationCommands(root, commands, failFast);
+     const allCommandsPassed = commandResults.every((r) => r.passed);
+ 
+     if (failFast && !allCommandsPassed) failFastStoppedAt = 'commands';
+ 
+     let rebuildDifferential = { skipped: true, passed: true };
+-    if (mode === 'rebuild' && !failFastStoppedAt) {
++    if (mode === 'rebuild' && !failFastStoppedAt && conceptTest.passed) {
+       rebuildDifferential = {
+         skipped: false,
+         ...runRebuildDifferentialCheck({
+@@ -846,6 +902,7 @@ export function runSddGate({
+       nonFunctionalSensors.passed &&
+       openQuestions.passed &&
+       reviewTickets.passed &&
++      conceptTest.passed &&
+       allCommandsPassed &&
+       rebuildDifferential.passed
+         ? 'PASS'
+@@ -901,16 +958,22 @@ export function runSddGate({
+         nonFunctionalSensors,
+         openQuestions,
+         reviewTickets,
++        conceptTest,
+         commands: commandResults,
+         rebuildDifferential,
+       },
+     };
+ 
+-    const resolvedOutput = outputPath
+-      ? path.resolve(outputPath)
+-      : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
+-    fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
+-    fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
++    // Only the lock holder may publish the task's execution report. A denied
++    // contender still returns its diagnostic through the API and CLI stdout.
++    let resolvedOutput = null;
++    if (lockCheck.passed) {
++      resolvedOutput = outputPath
++        ? path.resolve(outputPath)
++        : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
++      fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
++      fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
++    }
+ 
+     appendFactoryMetric(root, {
+       runId: result.runId,
+@@ -933,13 +996,17 @@ export function runSddGate({
+       commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
+     });
+ 
+-    return { result, outputPath: resolvedOutput };
++    outcome = { result, outputPath: resolvedOutput };
++    return outcome;
+   } finally {
+     if (acquiredLockForRelease && lockOwner) {
+       try {
+-        releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
+-      } catch {
+-        // non-fatal release
++        const cleanup = releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
++        if (!cleanup.released) throw new Error([cleanup.message, cleanup.peerIntent].filter(Boolean).join(' '));
++      } catch (err) {
++        const message = `Could not release ${lockCheck.lockPath} for owner '${lockOwner}': ${err.message}`;
++        if (outcome) outcome.lockCleanupError = message;
++        else process.stderr.write(`run-sdd-gate error: ${message}\n`);
+       }
+     }
+   }
+@@ -1042,7 +1109,7 @@ function main() {
+     process.exit(2);
+   }
+   try {
+-    const { result, outputPath } = runSddGate({
++    const { result, outputPath, lockCleanupError } = runSddGate({
+       feature: opts.feature,
+       taskId: opts.taskId,
+       projectRoot: opts.root || process.cwd(),
+@@ -1069,8 +1136,12 @@ function main() {
+       formalRound: opts.formalRound,
+       failFast: opts.failFast,
+     });
+-    process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);
++    process.stdout.write(`${JSON.stringify({ ...result, outputPath, lockCleanupError }, null, 2)}\n`);
+     for (const warning of result.warnings) process.stderr.write(`run-sdd-gate warning: ${warning}\n`);
++    if (lockCleanupError) {
++      process.stderr.write(`run-sdd-gate error: ${lockCleanupError}\n`);
++      process.exit(2);
++    }
+     process.exit(result.verdict === 'PASS' ? 0 : 1);
+   } catch (err) {
+     process.stderr.write(`run-sdd-gate error: ${err.message}\n`);
+diff --git a/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs b/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs
+index 7bf495476..c3c48a564 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/task-lock.mjs
+@@ -18,6 +18,7 @@
+  * which renews the TTL. Without an owner, the lock is tied to the calling
+  * process, which only makes sense through the in-process API.
+  */
++import { randomUUID } from 'node:crypto';
+ import fs from 'node:fs';
+ import os from 'node:os';
+ import path from 'node:path';
+@@ -42,7 +43,7 @@ function isProcessAlive(pid) {
+     process.kill(pid, 0);
+     return true;
+   } catch (err) {
+-    return err && err.code === 'EPERM';
++    return err?.code !== 'ESRCH';
+   }
+ }
+ 
+@@ -105,6 +106,45 @@ export function getLockStatus({ feature, taskId = null, projectRoot = null }) {
+   return { locked: true, stale, staleReason: reason, lockPath, record };
+ }
+ 
++// Publish a unique intent before inspecting other writers. Two overlapping
++// writers cannot both see an empty set of peers: the later publication sees
++// the earlier intent until its operation finishes. A crashed local process's
++// intent has a unique name, so cleaning it can never unlink a successor's.
++function withLockMutation(lockPath, busy, operation) {
++  // A directory per lock also preserves the filesystem's own case folding.
++  // Keep the empty directory between calls so a new entrant always sees the
++  // same namespace, including when release and acquire overlap.
++  const dir = path.join(path.dirname(lockPath), '..', 'lock-mutations', path.basename(lockPath));
++  fs.mkdirSync(dir, { recursive: true });
++  const host = Buffer.from(os.hostname()).toString('base64url');
++  const self = `${host}.${process.pid}.${randomUUID()}`;
++  const intent = path.join(dir, self);
++  let peerPath;
++  for (let attempt = 0; attempt < 4; attempt++) {
++    fs.writeFileSync(intent, '', { flag: 'wx', mode: 0o600 });
++    try {
++      let contended = false;
++      for (const name of fs.readdirSync(dir)) {
++        if (name === self) continue;
++        const [otherHost, pid] = name.split('.');
++        peerPath = path.join(dir, name);
++        if (otherHost === host && Number(pid) === process.pid) return { ...busy, peerIntent: peerPath };
++        if (otherHost === host && /^[1-9][0-9]*$/.test(pid) && !isProcessAlive(Number(pid))) {
++          removeQuietly(path.join(dir, name));
++          continue;
++        }
++        contended = true;
++        break;
++      }
++      if (!contended) return operation();
++    } finally {
++      fs.unlinkSync(intent);
++    }
++    if (attempt < 3) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 4 + Math.random() * 8);
++  }
++  return { ...busy, peerIntent: peerPath };
++}
++
+ export function acquireLock({
+   feature,
+   taskId = null,
+@@ -116,109 +156,51 @@ export function acquireLock({
+   const root = resolveExplicitOrAutoRoot(projectRoot);
+   const locksDir = path.join(root, '.sdd', 'locks');
+   fs.mkdirSync(locksDir, { recursive: true });
+-  const name = lockFileName(feature, taskId);
+-  const lockPath = path.join(locksDir, name);
+-
+-  const ttl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.min(ttlSeconds, 86400) : DEFAULT_TTL_SECONDS;
+-  const now = new Date();
+-  const record = {
+-    schema: 'sdd-task-lock/v1',
+-    feature,
+-    taskId: taskId ? taskId.toUpperCase() : null,
+-    owner: owner || `${os.hostname()}:${process.pid}`,
+-    pid: owner ? null : process.pid,
+-    hostname: os.hostname(),
+-    acquiredAt: now.toISOString(),
+-    expiresAt: new Date(now.getTime() + ttl * 1000).toISOString(),
+-  };
++  const lockPath = path.join(locksDir, lockFileName(feature, taskId));
++  const busy = { acquired: false, lockPath, stale: false, message: 'Lock contention. Retry after the current lock operation.' };
++  return withLockMutation(lockPath, busy, () => {
++    const ttl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.min(ttlSeconds, 86400) : DEFAULT_TTL_SECONDS;
++    const now = new Date();
++    const record = {
++      schema: 'sdd-task-lock/v1',
++      feature,
++      taskId: taskId ? taskId.toUpperCase() : null,
++      owner: owner || `${os.hostname()}:${process.pid}`,
++      pid: owner ? null : process.pid,
++      hostname: os.hostname(),
++      acquiredAt: now.toISOString(),
++      expiresAt: new Date(now.getTime() + ttl * 1000).toISOString(),
++    };
+ 
+-  for (let attempt = 0; attempt < 2; attempt += 1) {
+-    try {
+-      // The lock appears with its content already written (temp file, then a
+-      // hard link that fails if the lock exists), so a racing --break-stale
+-      // never reads an empty file and takes it for a corrupt, stale lock.
+-      const tmpPath = `${lockPath}.new.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
+-      fs.writeFileSync(tmpPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+-      try {
+-        try {
+-          fs.linkSync(tmpPath, lockPath);
+-        } catch (linkErr) {
+-          // Volumes without hard links (FAT/exFAT, some network shares): fall
+-          // back to an exclusive create; a racer may briefly see it empty.
+-          if (!linkErr || !['EPERM', 'ENOTSUP', 'ENOSYS', 'EXDEV'].includes(linkErr.code)) throw linkErr;
+-          const fd = fs.openSync(lockPath, 'wx', 0o600);
+-          try {
+-            fs.writeFileSync(fd, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
+-          } finally {
+-            fs.closeSync(fd);
+-          }
+-        }
+-      } finally {
+-        removeQuietly(tmpPath);
+-      }
+-      return { acquired: true, lockPath, record };
+-    } catch (err) {
+-      if (!err || err.code !== 'EEXIST') throw err;
++    if (fs.existsSync(lockPath)) {
+       const existing = withLease(readLockRecord(lockPath), lockPath);
++      if (owner && existing?.owner === owner) return renewLock(lockPath, existing, record) || busy;
+       const { stale, reason } = evaluateStale(existing);
+-      // The holder renews its own lock, also after its TTL ran out; the claim
+-      // in renewLock fails if someone else reclaimed it meanwhile.
+-      if (owner && existing && existing.owner === owner) {
+-        const renewed = renewLock(lockPath, existing, record);
+-        if (renewed) return renewed;
+-        continue; // the lock vanished (released meanwhile): try to create it
+-      }
+-      if (stale && breakStale && attempt === 0) {
+-        const claimPath = `${lockPath}.reclaim.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
+-        try {
+-          fs.renameSync(lockPath, claimPath);
+-        } catch {
+-          // Another process already reclaimed or replaced the lock; fail closed.
+-          continue;
+-        }
+-        const claimed = withLease(readLockRecord(claimPath), lockPath);
+-        const claimedEval = evaluateStale(claimed);
+-        if (claimedEval.stale) {
+-          try {
+-            fs.unlinkSync(claimPath);
+-          } catch {
+-            // ignore cleanup error
+-          }
+-          continue;
+-        }
+-        // A fresh active lock replaced the stale one just before our rename — restore without clobbering a 3rd racer.
+-        try {
+-          fs.linkSync(claimPath, lockPath);
+-        } catch {
+-          // Another racer already acquired lockPath; do not overwrite it.
+-        }
+-        try {
+-          fs.unlinkSync(claimPath);
+-        } catch {
+-          // ignore
+-        }
++      if (!stale || !breakStale) {
+         return {
+           acquired: false,
+           lockPath,
+-          stale: false,
+-          staleReason: 'active',
+-          existing: claimed,
+-          message: `Active lock held by ${claimed?.owner || 'unknown'} until ${claimed?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
++          stale,
++          staleReason: reason,
++          existing,
++          message: stale
++            ? `Stale lock exists (${reason}). Re-run with --break-stale after verifying no worker is active.`
++            : `Active lock held by ${existing?.owner || 'unknown'} until ${existing?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
+         };
+       }
+-      return {
+-        acquired: false,
+-        lockPath,
+-        stale,
+-        staleReason: reason,
+-        existing,
+-        message: stale
+-          ? `Stale lock exists (${reason}). Re-run with --break-stale after verifying no worker is active.`
+-          : `Active lock held by ${existing?.owner || 'unknown'} until ${existing?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
+-      };
++      removeQuietly(leasePath(lockPath));
+     }
+-  }
+-  return { acquired: false, lockPath, stale: false, message: 'Lock contention.' };
++    // Readers see the whole new record, even during stale replacement and on
++    // filesystems without hard links. All mutators use the intent protocol.
++    const tmpPath = `${lockPath}.new.${randomUUID()}`;
++    try {
++      fs.writeFileSync(tmpPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
++      fs.renameSync(tmpPath, lockPath);
++    } finally {
++      removeQuietly(tmpPath);
++    }
++    return { acquired: true, lockPath, record };
++  });
+ }
+ 
+ // Re-entry by the holder: write a lease for this exact lock (owner +
+@@ -267,21 +249,24 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner
+   if (!fs.existsSync(lockPath)) {
+     return { released: true, existed: false, lockPath };
+   }
+-  const existing = readLockRecord(lockPath);
+-  if (!force && existing?.owner && (!owner || existing.owner !== owner)) {
+-    return {
+-      released: false,
+-      existed: true,
+-      lockPath,
+-      existing,
+-      message: owner
+-        ? `Lock is owned by '${existing.owner}', not '${owner}'. Pass --force to override.`
+-        : `Lock is owned by '${existing.owner}'. Pass matching --owner or --force to release.`,
+-    };
+-  }
+-  fs.unlinkSync(lockPath);
+-  removeQuietly(leasePath(lockPath));
+-  return { released: true, existed: true, lockPath };
++  const busy = { released: false, existed: true, lockPath, message: 'Lock contention. Retry after the current lock operation.' };
++  return withLockMutation(lockPath, busy, () => {
++    if (!fs.existsSync(lockPath)) return { released: true, existed: false, lockPath };
++    const existing = readLockRecord(lockPath);
++    const recordedOwner = typeof existing?.owner === 'string' ? existing.owner : null;
++    if (force !== true && (!recordedOwner || recordedOwner !== owner)) {
++      let message = 'Cannot verify the lock owner. Pass --force to release after checking for active workers.';
++      if (recordedOwner) {
++        message = owner
++          ? `Lock is owned by '${recordedOwner}', not '${owner}'. Pass --force to override.`
++          : `Lock is owned by '${recordedOwner}'. Pass matching --owner or --force to release.`;
++      }
++      return { released: false, existed: true, lockPath, existing, message };
++    }
++    fs.unlinkSync(lockPath);
++    removeQuietly(leasePath(lockPath));
++    return { released: true, existed: true, lockPath };
++  });
+ }
+ 
+ function parseArgs(argv) {
+diff --git a/specs/self-verification/formal/TaskLockMutation.cfg b/specs/self-verification/formal/TaskLockMutation.cfg
+new file mode 100644
+index 000000000..9d87b335c
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLockMutation.cfg
+@@ -0,0 +1,3 @@
++SPECIFICATION Spec
++CONSTANT CheckPeers = TRUE
++INVARIANT OneWriter
+diff --git a/specs/self-verification/formal/TaskLockMutation.negative.cfg b/specs/self-verification/formal/TaskLockMutation.negative.cfg
+new file mode 100644
+index 000000000..4bb80c9c9
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLockMutation.negative.cfg
+@@ -0,0 +1,3 @@
++SPECIFICATION Spec
++CONSTANT CheckPeers = FALSE
++INVARIANT OneWriter
+diff --git a/specs/self-verification/formal/TaskLockMutation.tla b/specs/self-verification/formal/TaskLockMutation.tla
+new file mode 100644
+index 000000000..cc65ccd64
+--- /dev/null
++++ b/specs/self-verification/formal/TaskLockMutation.tla
+@@ -0,0 +1,28 @@
++------------------------- MODULE TaskLockMutation -------------------------
++EXTENDS Naturals, FiniteSets
++CONSTANT
++    \* @type: Bool;
++    CheckPeers
++Workers == {"w1", "w2", "w3"}
++VARIABLE
++    \* @type: Str -> Str;
++    phase
++
++Init == phase = [w \in Workers |-> "idle"]
++Move(w, target) == phase' = [phase EXCEPT ![w] = target]
++Announce(w) == /\ phase[w] = "idle"
++               /\ Move(w, "announced")
++Enter(w) == /\ phase[w] = "announced"
++            /\ ~CheckPeers \/ \A p \in Workers \ {w} : phase[p] \in {"idle", "dead"}
++            /\ Move(w, "editing")
++Withdraw(w) == /\ phase[w] \in {"announced", "editing"}
++               /\ Move(w, "idle")
++Crash(w) == /\ phase[w] \in {"announced", "editing"}
++            /\ Move(w, "dead")
++Reap(w) == /\ phase[w] = "dead"
++           /\ Move(w, "idle")
++
++Next == \E w \in Workers : Announce(w) \/ Enter(w) \/ Withdraw(w) \/ Crash(w) \/ Reap(w)
++Spec == Init /\ [][Next]_phase
++OneWriter == Cardinality({w \in Workers : phase[w] = "editing"}) <= 1
++===========================================================================
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index 1a954f671..237f0468e 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -6,11 +6,11 @@
+       "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+       "invariant": "SingleOwner",
+       "actions": {
+-        "Acquire": "acquireLock: exclusive link or wx create",
++        "Acquire": "acquireLock: claim a writer intent before atomically publishing the lock",
+         "Renew": "acquireLock -> renewLock: own lock lease",
+         "Expire": "getLockStatus -> evaluateStale: TTL expiration",
+-        "ReclaimStale": "acquireLock: breakStale then retry",
+-        "Release": "releaseLock: matching owner"
++        "ReclaimStale": "acquireLock: replace an expired record under the writer intent",
++        "Release": "releaseLock: matching, non-empty recorded owner under the writer intent"
+       },
+       "sources": [
+         "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
+@@ -36,9 +36,9 @@
+         "StartTask": "tasks.md Status: Planned -> In Progress",
+         "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
+         "RunGatePass": "run-sdd-gate.mjs verdict PASS",
+-        "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
++        "RunGateFail": "run-sdd-gate.mjs verdict FAIL, including a blocking Concept Test decision before project commands",
+         "MarkDone": "quality-gate transitions Status -> Done",
+-        "Approve": "human approval recorded in tasks.md",
++        "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
+         "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
+         "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
+       },
+@@ -47,7 +47,9 @@
+         "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+         "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+         "plugins/sdd-ship/skills/ship/SKILL.md",
+-        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
++        "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md",
++        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
++        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs"
+       ],
+       "expected_violated_invariant": "DoneRequiresGatePass",
+       "invariants": [
+@@ -69,43 +71,67 @@
+         ],
+         "actor_actions": []
+       }
++    },
++    "TaskLockMutation": {
++      "source": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
++      "invariant": "OneWriter",
++      "actions": {
++        "Announce": "withLockMutation: publish a unique intent with wx",
++        "Enter": "withLockMutation: scan published intents and enter only in the absence of live peers",
++        "Withdraw": "withLockMutation: remove own intent after refusal or completion",
++        "Crash": "a local process exits during a mutation, leaving its intent",
++        "Reap": "withLockMutation: remove the unique intent of a local PID confirmed dead"
++      },
++      "sources": [
++        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
++      ],
++      "expected_violated_invariant": "OneWriter"
+     }
+   },
+   "mapping": {
+-    "Acquire": "acquireLock: exclusive link or wx create",
++    "Acquire": "acquireLock: claim a writer intent before atomically publishing the lock",
+     "Renew": "acquireLock -> renewLock: own lock lease",
+     "Expire": "getLockStatus -> evaluateStale: TTL expiration",
+-    "ReclaimStale": "acquireLock: breakStale then retry",
+-    "Release": "releaseLock: matching owner",
++    "ReclaimStale": "acquireLock: replace an expired record under the writer intent",
++    "Release": "releaseLock: matching, non-empty recorded owner under the writer intent",
+     "StartTask": "tasks.md Status: Planned -> In Progress",
+     "CompleteImpl": "tasks.md Status: In Progress -> Implementation Complete",
+     "RunGatePass": "run-sdd-gate.mjs verdict PASS",
+-    "RunGateFail": "run-sdd-gate.mjs verdict FAIL",
++    "RunGateFail": "run-sdd-gate.mjs verdict FAIL, including a blocking Concept Test decision before project commands",
+     "MarkDone": "quality-gate transitions Status -> Done",
+-    "Approve": "human approval recorded in tasks.md",
++    "Approve": "Human approval in tasks.md, read by the shared task parser before gate execution",
+     "Repair": "ship repair round below max_auto_fix_rounds after failed gate",
+-    "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops"
++    "Escalate": "runFormalGate or checkAntiTampering records a provisional question and stops",
++    "Announce": "withLockMutation: publish a unique intent with wx",
++    "Enter": "withLockMutation: scan published intents and enter only in the absence of live peers",
++    "Withdraw": "withLockMutation: remove own intent after refusal or completion",
++    "Crash": "a local process exits during a mutation, leaving its intent",
++    "Reap": "withLockMutation: remove the unique intent of a local PID confirmed dead"
+   },
+   "assumptions": [
+-    "Local POSIX/NTFS atomic file creation or hardlink semantics hold for task-lock.mjs",
++    "Local atomic exclusive creation, atomic rename, and coherent directory enumeration; every writer uses the same intent protocol. Local peers with the same hostname share a PID namespace.",
+     "Only quality-gate sets Status: Done after reading execution.json verdict"
+   ],
+   "excluded": [
+     "Network filesystems (NFS/SMB) without atomic O_EXCL",
+-    "Manual human override via git commit"
++    "Manual human override via git commit",
++    "Explicit operator recovery with task-lock release --force; malformed or ownerless records refuse ordinary Release."
+   ],
+   "bounds": [
+     "Two lock contenders; abstract, indivisible filesystem operations; holders includes the owner of a stale record until reclaimed.",
+-    "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only."
++    "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
++    "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
+   ],
+-  "source_sync_commit": "fc166bd1a8b8303531c0445ff78965897ea59c61",
++  "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+     "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
+     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb",
+-    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "510f5242a04e17c9bc4acd1fb33696fd816bb4a490bc5fc62309979d24c977c9",
+-    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "2e57f256b3772f59666081e2c0dec7cf69d67081155ae4b624e0df43a90f546f",
+-    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "74114588cdb40699479984a5902349fe40055a29731410ae65d3699b4cfac5e8",
++    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d",
++    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
++    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02",
++    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648",
++    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
+     "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
+   }
+ }
+diff --git a/tests/project-skill-formal.tests.py b/tests/project-skill-formal.tests.py
+index 2b40057be..db02e188e 100644
+--- a/tests/project-skill-formal.tests.py
++++ b/tests/project-skill-formal.tests.py
+@@ -41,15 +41,40 @@ class Reservation(unittest.TestCase):
+         self.assertEqual(
+             mapping["source_sha256"], hashlib.sha256(P.SOURCE.read_bytes()).hexdigest()
+         )
+-        self.assertIn(P.ACQUIRE, P.reservation_tail())
++        tail = P.reservation_tail()
++        self.assertEqual(mapping["reservation_tail_sha256"], hashlib.sha256(tail.encode()).hexdigest())
++        self.assertIn(P.ACQUIRE, tail)
++
++    def test_negative_model_requires_a_completed_invariant_violation(self):
++        message = "Error: Invariant OneAccepted is violated.\n"
++        result = subprocess.CompletedProcess([], 12, stdout=message)
++        self.assertTrue(P.expected_tlc_result(result, True))
++        result.returncode = 1
++        self.assertFalse(P.expected_tlc_result(result, True))
++
++    def test_successful_reservation_must_publish_the_winning_actor(self):
++        replay = {
++            "calls": [{"actor": "a", "exit_code": 0}, {"actor": "b", "exit_code": 1,
++                       "stderr": "IDENTITY canonical identity ledger reservation is already in progress"}],
++            "entered": ["a"],
++            "ledger": {"records": []},
++        }
++        self.assertFalse(P.expected_replay(replay, False))
++        replay["ledger"]["records"] = [{"run_id": "b"}]
++        self.assertFalse(P.expected_replay(replay, False))
++        replay["ledger"]["records"] = [{"run_id": "a"}]
++        self.assertTrue(P.expected_replay(replay, False))
++        replay["entered"].append("b")
++        self.assertFalse(P.expected_replay(replay, False))
+ 
+     @unittest.skipUnless(
+         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
+         "POSIX jq/sha256sum replay only",
+     )
+     def test_mutation_and_baseline(self):
+-        self.assertEqual(P.real_race(True)["accepted"], 2)
+-        self.assertEqual(P.real_race(False)["accepted"], 1)
++        for mutated in (True, False):
++            replay = P.real_race(mutated)
++            self.assertTrue(P.expected_replay(replay, mutated), replay)
+ 
+     @unittest.skipUnless(
+         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
+diff --git a/tests/v2-formal-gate.test.mjs b/tests/v2-formal-gate.test.mjs
+index 5d9e7feef..8314824a0 100644
+--- a/tests/v2-formal-gate.test.mjs
++++ b/tests/v2-formal-gate.test.mjs
+@@ -292,6 +292,34 @@ function sandbox(t) {
+   return root;
+ }
+ 
++it('TaskLock Release preserves an unreadable owner and its lease until explicitly forced', (t) => {
++  const projectRoot = sandbox(t);
++  const args = { feature: 'demo', projectRoot };
++  const cli = (...options) => spawnSync(process.execPath, [
++    path.join(scripts, 'task-lock.mjs'), 'release', '--feature', args.feature, '--root', projectRoot, ...options,
++  ], { encoding: 'utf8' });
++  for (const bytes of ['{', '{}', '{"owner":null}', '{"owner":""}', '{"owner":7}']) {
++    const { lockPath } = acquireLock({ ...args, owner: 'w1' });
++    fs.writeFileSync(lockPath, bytes);
++    const leasePath = lockPath + '.lease';
++    fs.writeFileSync(leasePath, 'retained lease');
++    for (const options of [[], ['--owner', 'w1']]) {
++      const attempt = cli(...options);
++      assert.equal(attempt.status, 1, bytes + ' ' + attempt.stdout);
++      const result = JSON.parse(attempt.stdout);
++      assert.equal(result.released, false);
++      assert.match(result.message, /--force/);
++    }
++    assert.equal(releaseLock({ ...args, owner: 7 }).released, false);
++    assert.equal(releaseLock({ ...args, force: 'false' }).released, false);
++    assert.equal(fs.readFileSync(lockPath, 'utf8'), bytes);
++    assert.equal(fs.readFileSync(leasePath, 'utf8'), 'retained lease');
++    assert.equal(cli('--force').status, 0);
++    assert.equal(fs.existsSync(lockPath), false);
++    assert.equal(fs.existsSync(leasePath), false);
++  }
++});
++
+ it('scan finds related compound branches and graph validation fails on unreachable states', (t) => {
+   const root = sandbox(t);
+   fs.writeFileSync(
+@@ -501,6 +529,7 @@ it(
+         ],
+       ],
+       [path.join(formal, 'TaskLock.tla'), 'SingleOwner', captureLock(projectRoot)],
++      [path.join(formal, 'TaskLockMutation.tla'), 'OneWriter'],
+       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(projectRoot)],
+       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(sandbox(t), true)],
+     ];
