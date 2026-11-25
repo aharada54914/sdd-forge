@@ -776,3 +776,47 @@ describe('#972 re-review: nested braces, bare route groups, lease renewal', () =
     assert.deepEqual(fs.readdirSync(path.dirname(lockPath)), [], 'release removes the lock and its lease');
   });
 });
+
+describe('#972 review 4: wrapped prose, table cells, filesystems without hard links', () => {
+  const evidence = async (files) => {
+    const { featureEvidenceInputs, diffEvidenceInputs } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const io = { readText: (rel) => files[rel] ?? null, exists: (rel) => rel in files };
+    return { before: featureEvidenceInputs(io, { feature: 'f' }).get('T-001'), now: () => featureEvidenceInputs(io, { feature: 'f' }).get('T-001'), diffEvidenceInputs };
+  };
+  const tasks = '# t\n\n## T-001 x\nApproval: Approved\nStatus: Done\n\n### Done When\n- AC-001\n';
+
+  it('a wrapped line that starts with an ID stays part of its entry', async () => {
+    const files = { 'specs/f/requirements.md': '# r\n\n- **AC-001**: GET /health answers and per\n  AC-001 the body is JSON; it must never\n  return a 500 status.\n', 'specs/f/tasks.md': tasks };
+    const e = await evidence(files);
+    files['specs/f/requirements.md'] = files['specs/f/requirements.md'].replace('return a 500 status', 'return a 200 status');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), ['AC-001']);
+  });
+
+  it('a table row whose first cell starts with the ID is that ID\'s entry', async () => {
+    const files = { 'specs/f/acceptance-tests.md': '# AT\n\n| AC | Check |\n|---|---|\n| AC-001 health is 200 | curl |\n| AC-002 other | curl |\n', 'specs/f/tasks.md': tasks };
+    const e = await evidence(files);
+    files['specs/f/acceptance-tests.md'] = files['specs/f/acceptance-tests.md'].replace('AC-002 other', 'AC-002 changed').replace('# AT', '# Acceptance');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), [], 'edits outside AC-001 do not stale T-001');
+    files['specs/f/acceptance-tests.md'] = files['specs/f/acceptance-tests.md'].replace('health is 200', 'health is 204');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), ['AC-001']);
+  });
+
+  it('locking still works where hard links are not supported', async () => {
+    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-nolink-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    const spy = mock.method(fs, 'linkSync', () => {
+      const err = new Error('operation not permitted');
+      err.code = 'EPERM';
+      throw err;
+    });
+    try {
+      assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' }).acquired, true);
+      assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'B' }).acquired, false);
+    } finally {
+      spy.mock.restore();
+    }
+    assert.deepEqual(fs.readdirSync(path.join(dir, '.sdd', 'locks')), ['f.lock']);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(dir, '.sdd', 'locks', 'f.lock'), 'utf8')).owner, 'A');
+  });
+});
