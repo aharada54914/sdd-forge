@@ -234,16 +234,48 @@ const DIRECTIVE_START = /^\s*(?:\/\/|\/\*+|\*|#)?\s*sdd-lint-disable\b/i;
 const HASH_NON_CODE = /#[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
 const JS_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`/g;
 
-function shellDelimiter(word) {
-  // A delimiter undergoes quote removal without variable expansion.
-  return word.replace(/'([^']*)'|"((?:\\[\s\S]|[^"\\])*)"|\\([\s\S])/g, (_, single, double, escaped) => {
-    if (single !== undefined) return single;
-    if (double !== undefined) return double.replace(/\\([$"`\\])/g, '$1');
-    return escaped;
+const ANSI_C_ESCAPES = {
+  a: '\x07', b: '\b', e: '\x1b', E: '\x1b', f: '\f', n: '\n', r: '\r',
+  t: '\t', v: '\v', '\\': '\\', "'": "'", '"': '"', '?': '?',
+};
+
+// Work in bytes until all adjacent fragments have been joined: two hexadecimal
+// or octal escapes in separate quoted fragments can spell one UTF-8 character.
+function ansiQuotedBytes(text) {
+  const escapes = /\\(?:([0-7]{1,3})|x([\da-fA-F]{1,2})|u([\da-fA-F]{1,4})|U([\da-fA-F]{1,8})|c(\\\\|[\s\S])|([\s\S]))/g;
+  const bytes = text.replace(escapes, (raw, octal, hex, shortUnicode, longUnicode, control, simple) => {
+    if (octal || hex) return String.fromCharCode(parseInt(octal ?? hex, octal ? 8 : 16) & 255);
+    if (shortUnicode || longUnicode) {
+      const code = parseInt(shortUnicode ?? longUnicode, 16);
+      if (code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) return '\xff';
+      return Buffer.from(String.fromCodePoint(code)).toString('latin1');
+    }
+    if (control) return String.fromCharCode(control === '?' ? 127 : control.charCodeAt(0) & 31);
+    return ANSI_C_ESCAPES[simple] ?? raw;
   });
+  return bytes.split('\0', 1)[0]; // Bash words cannot hold an embedded NUL.
 }
 
-function hereDocumentEnd(source, cursor, { delimiter, stripTabs, quoted }) {
+function shellDelimiter(word, dialect) {
+  const raw = Buffer.from(word).toString('latin1');
+  // No variable/command expansion occurs. In the source locale a dollar-double
+  // quote uses the double-quoted text; dollar-single quotes decode ANSI escapes.
+  const fragments = /\$'((?:\\[\s\S]|[^'\\])*)'|'([^']*)'|\$?"((?:\\[\s\S]|[^"\\])*)"|\\([\s\S])/g;
+  const stripped = raw.replace(fragments, (fragment, ansi, single, double, escaped) => {
+    if (ansi !== undefined) return dialect === 'literal' ? '$' + ansi : ansiQuotedBytes(ansi);
+    if (single !== undefined) return single;
+    if (double !== undefined) {
+      const prefix = dialect !== 'bash' && fragment.startsWith('$') ? '$' : '';
+      return prefix + double.replace(/\\([$"`\\\n])/g, (_, c) => c === '\n' ? '' : c);
+    }
+    return escaped === '\n' ? '' : escaped;
+  });
+  const bytes = Buffer.from(stripped, 'latin1');
+  const delimiter = bytes.toString('utf8');
+  return bytes.equals(Buffer.from(delimiter)) ? delimiter : null;
+}
+
+function hereDocumentEnd(source, cursor, { delimiters, stripTabs, quoted }) {
   let logicalLine = '';
   while (cursor < source.length) {
     const newline = source.indexOf('\n', cursor);
@@ -254,7 +286,7 @@ function hereDocumentEnd(source, cursor, { delimiter, stripTabs, quoted }) {
       logicalLine = logicalLine.slice(0, -1);
       continue;
     }
-    if ((stripTabs ? logicalLine.replace(/^\t+/, '') : logicalLine) === delimiter) return cursor;
+    if (delimiters.includes(stripTabs ? logicalLine.replace(/^\t+/, '') : logicalLine)) return cursor;
     logicalLine = '';
   }
   // Uncertain boundaries must leave later comments visible to the checker.
@@ -263,8 +295,14 @@ function hereDocumentEnd(source, cursor, { delimiter, stripTabs, quoted }) {
 
 // Keep shell words intact so quoted operators and a # within a word are literal.
 // Here-documents start after the command's unescaped newline, in redirect order.
-function* shellComments(source) {
-  const tokens = /\\\n|[ \t]+|#[^\n]*|<<<|<<-?|\(\(|[()]|\n|(?<word>(?:'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)|./g;
+function* shellComments(source, file) {
+  const interpreter = /^#![^\n]*[ \t/](bash|dash|ash|sh|zsh)(?=[ \t\r\n]|$)/.exec(source)?.[1]
+    ?? path.extname(file).slice(1).toLowerCase();
+  // A generic .sh file may run under either interpretation of dollar quotes.
+  // Stop at the first plausible terminator to preserve following source comments.
+  const dialects = interpreter === 'sh' ? ['bash', 'literal'] :
+    [interpreter === 'bash' || interpreter === 'zsh' ? interpreter : 'literal'];
+  const tokens = /\\\n|[ \t]+|#[^\n]*|<<<|<<-?|\(\(|[()]|\n|(?<word>(?:\$'(?:\\[\s\S]|[^'\\])*'|'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)|./g;
   const pending = [];
   let redirect = '';
   let arithmeticDepth = 0;
@@ -282,7 +320,8 @@ function* shellComments(source) {
       yield match;
     } else if (redirect && match.groups.word) {
       const word = token.replace(/\\\n/g, '');
-      pending.push({ delimiter: shellDelimiter(word), stripTabs: redirect === '<<-', quoted: /['"\\]/.test(word) });
+      const delimiters = dialects.map(dialect => shellDelimiter(token, dialect));
+      pending.push({ delimiters, stripTabs: redirect === '<<-', quoted: /['"\\]/.test(word) });
     } else if (token === '((') {
       arithmeticDepth += 2;
     } else if (arithmeticDepth && token === '(') {
@@ -321,7 +360,7 @@ function addedLintDirectives(root, revision, file, status, source, tokens) {
   const directives = [];
   let line = 1;
   let offset = 0;
-  const matches = typeof tokens === 'function' ? tokens(source) : source.matchAll(tokens);
+  const matches = typeof tokens === 'function' ? tokens(source, file) : source.matchAll(tokens);
   for (const token of matches) {
     line += source.slice(offset, token.index).split('\n').length - 1;
     const lines = token[0].split('\n');

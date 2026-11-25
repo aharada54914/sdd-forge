@@ -447,6 +447,66 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
   });
 
+  it('matches Bash dollar-quoted here-document delimiters and preserves the following directive', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const cases = [
+      ["$'HELP'", 'HELP'],
+      [String.raw`PRE$'\x48\105'LP`, 'PREHELP'],
+      [String.raw`$'single\'quote'$"END"`, "single'quoteEND"],
+      [String.raw`$'A\t\cI\102\x43'`, 'A\t\tBC'],
+      [String.raw`$'\xC3'$'\xA9'`, 'é'],
+      [String.raw`$'A\0tail'B`, 'AB'],
+      [String.raw`$"DOC"$'\\'END`, 'DOC\\END'],
+      [String.raw`\$'PLAIN'`, '$PLAIN'],
+    ];
+    const file = path.join(dir, 'help.bash');
+    const body = shellMarker + ' shown-rule';
+    fs.writeFileSync(file, cases.map(([word, end]) => ['cat <<' + word, body, end, ''].join('\n')).join(''));
+    const shown = spawnSync('bash', ['--noprofile', '--norc', 'help.bash'], {
+      cwd: dir, encoding: 'utf8', env: { ...process.env, BASH_ENV: '', LC_ALL: 'C' },
+    });
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.equal(shown.stderr, '');
+    assert.equal(shown.stdout, (body + '\n').repeat(cases.length));
+
+    const clean = runAntiTamper(dir);
+    assert.equal(clean.status, 0, clean.stdout);
+    const report = JSON.parse(clean.stdout);
+    assert.equal(report.status, 'CLEAN');
+    assert.deepEqual(report.violations, []);
+    assert.equal(report.openQuestion, undefined);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+
+    fs.appendFileSync(file, shellMarker + ' active-rule\n');
+    const active = runAntiTamper(dir);
+    assert.equal(active.status, 4, active.stdout);
+    const { status, violations, openQuestion } = JSON.parse(active.stdout);
+    assert.equal(status, 'TAMPER_DETECTED');
+    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' active-rule']);
+    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+    assert.deepEqual(question.violations, [{ code: 'LINT_DISABLE_ADDED', path: 'help.bash' }]);
+    assert.equal(question.id, openQuestion.id);
+  });
+
+  it('uses the declared shell and preserves a literal-dollar terminator in generic sh', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.sh');
+    for (const [shebang, bodyLine, end] of [
+      ['#!/usr/bin/env bash', '$HELP', 'HELP'],
+      ['#!/bin/dash', 'HELP', '$HELP'],
+      ['#!/bin/sh', 'example', '$HELP'],
+    ]) {
+      fs.writeFileSync(file, [shebang, "cat <<$'HELP'", bodyLine, shellMarker + ' shown', end, shellMarker + ' active', ''].join('\n'));
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 4, result.stdout);
+      const report = JSON.parse(result.stdout);
+      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
+      assert.ok(fs.existsSync(path.join(dir, report.openQuestion.path)));
+    }
+  });
+
   it('reports only active shell comments before, beside and after queued here-documents', (t) => {
     const { dir, git } = initGitRepoWithTests();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
