@@ -10,6 +10,7 @@ import { NON_CHECKS, formatDoctorText, runDoctor } from '../plugins/sdd-quality-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DOCTOR_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs');
+const GUARDRAILS_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs');
 
 function makeTempProject() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-doctor-test-'));
@@ -143,8 +144,49 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
     assert.match(createSkill, /3 回以上/);
   });
 
+  it('normalizes inline extension mappings, including nested options and quoted commas', () => {
+    const dir = makeTempProject();
+    fs.writeFileSync(path.join(dir, 'sdd/guardrails.yaml'), [
+      'formal_verification: {enabled: true, checker: {adapter: apalache, adapter_options: {apalache: {jar: "tools/a,b.jar"}}}}',
+      'security_audit: {enabled: true, enabled_adapters: [semgrep, codeql]}',
+      'agent_lint: {enabled: true, mode: strict}',
+      'anti_tampering: {enabled: false}',
+    ].join('\n'));
+    const result = spawnSync(process.execPath, [GUARDRAILS_CLI, '--validate', '--root', dir], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stdout);
+    const { config } = JSON.parse(result.stdout);
+    assert.equal(config.formal_verification.enabled, true);
+    assert.equal(config.formal_verification.checker.adapter_options.apalache.jar, 'tools/a,b.jar');
+    assert.deepEqual(config.security_audit.enabled_adapters, ['semgrep', 'codeql']);
+    assert.equal(config.agent_lint.mode, 'strict');
+    assert.equal(config.anti_tampering.enabled, false);
+    for (const value of ['{enabled: true', '"shadow"']) {
+      fs.writeFileSync(path.join(dir, 'sdd/guardrails.yaml'), 'security_audit: ' + value);
+      const invalid = spawnSync(process.execPath, [GUARDRAILS_CLI, '--validate', '--root', dir], { encoding: 'utf8' });
+      assert.equal(invalid.status, 2, invalid.stdout);
+      assert.equal(JSON.parse(invalid.stdout).ok, false);
+    }
+  });
+
+  it('reports an invalid checker jar path as a JSON configuration finding', () => {
+    const dir = makeTempProject();
+    for (const adapter of ['apalache', 'tlc']) {
+      fs.writeFileSync(path.join(dir, 'sdd/guardrails.json'), JSON.stringify({
+        formal_verification: {
+          enabled: true, checker: { adapter, adapter_options: { [adapter]: { jar: 123 } } },
+        },
+      }));
+      const validation = spawnSync(process.execPath, [GUARDRAILS_CLI, '--validate', '--root', dir], { encoding: 'utf8' });
+      assert.equal(validation.status, 2, validation.stdout);
+      const key = `formal_verification.checker.adapter_options.${adapter}.jar`;
+      assert.ok(JSON.parse(validation.stdout).errors.some((finding) => finding.path === key));
+      const doctor = spawnSync(process.execPath, [DOCTOR_CLI, '--root', dir, '--json'], { encoding: 'utf8' });
+      assert.equal(doctor.status, 1, doctor.stderr);
+      assert.ok(JSON.parse(doctor.stdout).findings.some((f) => f.severity === 'NG' && f.message.includes(key)));
+    }
+  });
+
   it('ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2', () => {
-    const GUARDRAILS_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs');
 
     // 1. Forbidden command key in security_audit
     const dirCmd = makeTempProject();
@@ -201,6 +243,7 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
         '    adapter: apalache',
         '    adapter_options:',
         '      apalache:',
+        '        jar: fixture-apalache.jar',
         '        length: 12',
         'agent_lint:',
         '  enabled: true',
@@ -235,7 +278,8 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
     assert.equal(parsedValid.config.agent_lint.waivers.length, 1);
     assert.deepEqual(parsedValid.config.security_audit.enabled_adapters, ['builtin-secret-pattern', 'semgrep', 'trufflehog', 'codeql', 'socket']);
 
-    const validDoc = runDoctor({ root: dirValid });
+    const probeCommand = (bin, args) => bin === 'java' && args.join(' ') === '-version';
+    const validDoc = runDoctor({ root: dirValid, probeCommand });
     assert.equal(validDoc.summary.ng, 0, JSON.stringify(validDoc.findings, null, 2));
     const diagnosis = validDoc.findings.filter((f) => f.category === 'adapters');
     assert.deepEqual(diagnosis.map((finding) => finding.adapter).sort(), [
@@ -243,5 +287,10 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
     ]);
     assert.equal(diagnosis.find((finding) => finding.adapter === 'builtin-secret-pattern').availability, 'available');
     assert.equal(diagnosis.find((finding) => finding.adapter === 'apalache').availability, 'unavailable');
+    fs.writeFileSync(path.join(dirValid, 'fixture-apalache.jar'), '');
+    const installed = runDoctor({ root: dirValid, probeCommand });
+    assert.equal(installed.findings.find((finding) => finding.adapter === 'apalache').availability, 'available');
+    const withoutJava = runDoctor({ root: dirValid, probeCommand: () => false });
+    assert.equal(withoutJava.findings.find((finding) => finding.adapter === 'apalache').availability, 'unavailable');
   });
 });

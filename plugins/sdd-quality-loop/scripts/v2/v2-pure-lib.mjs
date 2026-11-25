@@ -163,6 +163,45 @@ export function stripYamlComment(line) {
   return line;
 }
 
+// Split only at top-level commas so quoted strings and nested collections remain intact.
+function flowItems(text) {
+  const entries = [];
+  const closers = [];
+  let quote = '';
+  let atScalarStart = true;
+  let start = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === '\\' && quote === '"') i += 1;
+      else if (ch === "'" && quote === "'" && text[i + 1] === "'") i += 1;
+      else if (ch === quote) quote = '';
+    } else if (atScalarStart && (ch === '"' || ch === "'")) {
+      quote = ch;
+      atScalarStart = false;
+    } else if (ch === '[' || ch === '{') {
+      closers.push(ch === '[' ? ']' : '}');
+      atScalarStart = true;
+    } else if (ch === ']' || ch === '}') {
+      if (closers.pop() !== ch) throw new Error('Unbalanced YAML flow collection');
+      atScalarStart = false;
+    } else if (ch === ',' || ch === ':') {
+      if (ch === ',' && !closers.length) {
+        entries.push(text.slice(start, i).trim());
+        start = i + 1;
+      }
+      atScalarStart = true;
+    } else if (ch.trim()) {
+      atScalarStart = false;
+    }
+  }
+  if (quote || closers.length) throw new Error('Unterminated YAML flow collection');
+  const last = text.slice(start).trim();
+  if (last) entries.push(last);
+  if (entries.includes('')) throw new Error('Empty YAML flow collection entry');
+  return entries;
+}
+
 function parseYamlScalar(raw) {
   const trimmed = raw.trim();
   if (trimmed === 'true') return true;
@@ -170,10 +209,17 @@ function parseYamlScalar(raw) {
   if (trimmed === 'null' || trimmed === '~') return null;
   if (trimmed === '[]') return [];
   if (trimmed === '{}') return {};
-  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-    const inner = trimmed.slice(1, -1).trim();
-    if (!inner) return [];
-    return inner.split(',').map((item) => parseYamlScalar(item));
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    const map = trimmed.startsWith('{');
+    if (!trimmed.endsWith(map ? '}' : ']')) throw new Error('Expected a complete single-line YAML flow collection');
+    const parts = flowItems(trimmed.slice(1, -1));
+    if (!map) return parts.map(parseYamlScalar);
+    return Object.fromEntries(parts.map((entry) => {
+      const match = /^("[^"]+"|'[^']+'|[\w.-]+)\s*:\s*(.*)$/.exec(entry);
+      if (!match) throw new Error('Unsupported YAML flow entry: use an indented mapping');
+      const key = match[1].replace(/^(['"])(.*)\1$/, '$2');
+      return [key, match[2] ? parseYamlScalar(match[2]) : null];
+    }));
   }
   if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) return Number(trimmed);
   if (
@@ -222,6 +268,8 @@ export function parseSimpleYaml(text) {
         const colonIdx = afterDash.indexOf(':');
         const looksLikeMapEntry =
           colonIdx > 0 &&
+          !afterDash.startsWith('{') &&
+          !afterDash.startsWith('[') &&
           !afterDash.startsWith('"') &&
           !afterDash.startsWith("'") &&
           (colonIdx === afterDash.length - 1 || afterDash[colonIdx + 1] === ' ');
@@ -306,6 +354,10 @@ export function parseSimpleYaml(text) {
   }
 
   if (tokens.length === 0) return {};
+  if (tokens[0].content.startsWith('{')) {
+    if (tokens.length !== 1) throw new Error('Use a single-line or indented YAML mapping');
+    return parseYamlScalar(tokens[0].content);
+  }
   return parseBlock(0, tokens[0].indent).value;
 }
 
@@ -338,8 +390,25 @@ export function validateGuardrailsExtensions(parsed) {
 
   const forbiddenNames = new Set(['command', 'shell', 'exec', 'cmd']);
 
+  for (const key of ['formal_verification', 'agent_lint', 'security_audit', 'anti_tampering']) {
+    const section = parsed[key];
+    if (section !== undefined && (!section || typeof section !== 'object' || Array.isArray(section))) {
+      errors.push({ code: 'INVALID_EXTENSION_SECTION', path: key,
+        message: key + ' must be a mapping', action: 'Specify named settings in a mapping' });
+    }
+  }
+
   if (parsed.formal_verification && typeof parsed.formal_verification === 'object') {
     const fv = parsed.formal_verification;
+    const options = fv.checker?.adapter_options;
+    for (const name of ['tlc', 'apalache']) {
+      const jar = options?.[name]?.jar;
+      if (jar !== undefined && (typeof jar !== 'string' || !jar.trim() || jar.includes('\0'))) {
+        const key = 'formal_verification.checker.adapter_options.' + name + '.jar';
+        errors.push({ code: 'INVALID_CHECKER_JAR', path: key,
+          message: key + ' must be a nonempty path string', action: 'Specify a path to the checker JAR' });
+      }
+    }
     for (const field of ['timeout_sec', 'pr_total_budget_sec']) {
       if (fv[field] !== undefined && (!Number.isSafeInteger(fv[field]) || fv[field] < 1 || fv[field] > 2147483)) {
         errors.push({code:'INVALID_FORMAL_BUDGET',path:'formal_verification.'+field,

@@ -129,7 +129,7 @@
     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "5f828395a7bfd5504df2a5dc438c134eb007578d4522bebc06a43b620500dabb",
     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d",
     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
-    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02",
+    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
     "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648",
     "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
     "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"

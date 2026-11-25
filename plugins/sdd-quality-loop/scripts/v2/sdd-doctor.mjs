@@ -13,7 +13,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createFsReadonlyIo, loadGuardrailsConfig, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
+import { createFsReadonlyIo, validateGuardrailsFile, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 import { NON_CHECKS, runDoctorCore } from './v2-readonly-core.mjs';
 
 export { NON_CHECKS };
@@ -27,7 +27,7 @@ function probeCommandAvailable(bin, args = ['--version']) {
   }
 }
 
-function configuredAdapterFindings(root, config) {
+function configuredAdapterFindings(root, config, probeCommand = probeCommandAvailable) {
   const findings = [];
   function add(adapter, availability, detail) {
     findings.push({ severity: 'INFO', category: 'adapters', adapter, availability,
@@ -44,7 +44,7 @@ function configuredAdapterFindings(root, config) {
       const envJar = adapter === 'tlc' ? process.env.TLA2TOOLS_JAR : process.env.APALACHE_JAR;
       const jar = path.resolve(root, formal.checker.adapter_options[adapter]?.jar || envJar || jarName);
       const hasJar = fs.statSync(jar, { throwIfNoEntry: false })?.isFile() === true;
-      const hasJava = probeCommandAvailable('java', ['-version']);
+      const hasJava = probeCommand('java', ['-version']);
       add(adapter, hasJava && hasJar ? 'available' : 'unavailable', `java=${hasJava}, ${jarName}=${hasJar}`);
     }
   }
@@ -55,7 +55,7 @@ function configuredAdapterFindings(root, config) {
         add(adapter, 'available', 'built-in');
       } else {
         const args = ['gitleaks', 'codeql'].includes(adapter) ? ['version'] : ['--version'];
-        add(adapter, probeCommandAvailable(adapter, args) ? 'available' : 'unavailable', args.join(' '));
+        add(adapter, probeCommand(adapter, args) ? 'available' : 'unavailable', args.join(' '));
       }
     }
   }
@@ -83,9 +83,12 @@ export function runDoctor(options = {}) {
   });
 
   if (options.probeAdapters !== false) {
-    const findings = configuredAdapterFindings(root, loadGuardrailsConfig(root));
-    report.findings.push(...findings);
-    report.summary.info += findings.length;
+    const settings = validateGuardrailsFile(root);
+    if (settings.ok) {
+      const findings = configuredAdapterFindings(root, settings.config, options.probeCommand);
+      report.findings.push(...findings);
+      report.summary.info += findings.length;
+    }
   }
 
   return report;
