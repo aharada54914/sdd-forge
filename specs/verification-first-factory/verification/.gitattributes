@@ -1,0 +1,2 @@
+# A space is the unified-diff context marker for an empty source line.
+task-scoped.diff whitespace=-blank-at-eol

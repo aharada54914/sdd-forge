@@ -1,0 +1,95 @@
+{
+  "baseline": "484cbe7aef828488ee49fa5d92569917e74c5891",
+  "candidate": "cf53793720d0f3eb996e154627ace69dac893793",
+  "fixture": "v2.1.3 example copied unmodified to sdd/guardrails.yaml with the same tag\u2019s v2-lightweight-guardrails spec. Five alternating-order pairs on macOS. Timings include Node startup.",
+  "fixture_hashes": {
+    "AGENTS.md": "8ad39f40ea53f3bc03ac1f3b95f314df0396b2b0327a859e67c8b578c02a4ab5",
+    "sdd/guardrails.yaml": "79d3cca3689f58c681467e1ab90e4b1e5f276ec8014c6b1ce69cf2e2a3b98557",
+    "specs/v2-lightweight-guardrails/requirements.md": "7a63d1e41c78080060294b2768d7652f45974680b16d213e77495bf5a6366559",
+    "specs/v2-lightweight-guardrails/tasks.md": "df7f192d19fe7b5448ce1aa37bea90cdda072cfbe56a9587b0993f06bbedbb73",
+    "specs/v2-lightweight-guardrails/design.md": "c118f25f62501f9e5a47c8ff6eb7c9a8f797415d765df261f5cbb12818d7f3c9"
+  },
+  "command": "node <runtime>/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root <fixture> --json",
+  "limit_ms": 15000,
+  "pairs": [
+    {
+      "baseline": {
+        "exit_code": 0,
+        "elapsed_ms": 29.925,
+        "status": "CLEAN"
+      },
+      "candidate": {
+        "exit_code": 0,
+        "elapsed_ms": 31.962,
+        "status": "CLEAN"
+      },
+      "increase_ms": 2.037
+    },
+    {
+      "candidate": {
+        "exit_code": 0,
+        "elapsed_ms": 31.922,
+        "status": "CLEAN"
+      },
+      "baseline": {
+        "exit_code": 0,
+        "elapsed_ms": 30.847,
+        "status": "CLEAN"
+      },
+      "increase_ms": 1.075
+    },
+    {
+      "baseline": {
+        "exit_code": 0,
+        "elapsed_ms": 29.299,
+        "status": "CLEAN"
+      },
+      "candidate": {
+        "exit_code": 0,
+        "elapsed_ms": 31.972,
+        "status": "CLEAN"
+      },
+      "increase_ms": 2.673
+    },
+    {
+      "candidate": {
+        "exit_code": 0,
+        "elapsed_ms": 32.73,
+        "status": "CLEAN"
+      },
+      "baseline": {
+        "exit_code": 0,
+        "elapsed_ms": 29.806,
+        "status": "CLEAN"
+      },
+      "increase_ms": 2.924
+    },
+    {
+      "baseline": {
+        "exit_code": 0,
+        "elapsed_ms": 29.493,
+        "status": "CLEAN"
+      },
+      "candidate": {
+        "exit_code": 0,
+        "elapsed_ms": 31.366,
+        "status": "CLEAN"
+      },
+      "increase_ms": 1.873
+    }
+  ],
+  "extra_observation_guardrails_validate": {
+    "baseline": {
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "validation_ok": null
+    },
+    "candidate": {
+      "exit_code": 0,
+      "stdout_bytes": 1937,
+      "validation_ok": true
+    }
+  },
+  "bounds": "Doctor on this old configuration. The older guardrails-lib --validate returned empty output. Global CLI, CI and MCP compatibility are separate measurements.",
+  "result": "PASS"
+}

@@ -1,0 +1,93 @@
+{
+  "kind": "quality-gate-preflight",
+  "feature": "verification-first-factory",
+  "task": "T-001",
+  "source_commit": "cf53793720d0f3eb996e154627ace69dac893793",
+  "legacy_compatibility_commit": "484cbe7aef828488ee49fa5d92569917e74c5891",
+  "historical_implementation_report": {
+    "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/previous-implementation-report.md",
+    "sha256": "6e3a1ee1655814c3332eea9cc5ad7c375cc699d2fdad85038a63552010626dac"
+  },
+  "historical_implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/task-input-manifest.json",
+    "sha256": "4df1799d9b1b5151be099a441d0d753d7c7e50ffde84364e578ee6d96bf3f134"
+  },
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "592fbdc3d43c64c81596c14efafc6d2fc07bf8311f703e4b98c5e20ddb63341a"
+    },
+    {
+      "path": "docs/adr/0054-verification-first-and-agentic-factory.md",
+      "sha256": "1edd1fbc81afcba7863bc67e5637dad3ff8333276c8414bc14c4c29f26212053"
+    },
+    {
+      "path": "sdd/guardrails.example.yaml",
+      "sha256": "3bfb11b809dde42e200f9ca36ff7668b70de8a42a69128a01b2bdbdc2ba93a76"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "sha256": "9729ceab134dfa0302a30289be7d6594cf703e4c507f96eea0cc9e868a2ddf68"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02"
+    },
+    {
+      "path": "tests/v2-sdd-doctor.test.mjs",
+      "sha256": "c4ffda7890149ad1d6f3bf818de816a7d85ab34549253e1946b05b67732545eb"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/previous-report.md",
+      "sha256": "d301ee932a18d8a69f2ef69928ab9bfd39dc9c0be2100025ded91628808ac23b"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "4329f816a9abdb8f8c601d6aaf6911bf4586379bd5db59717c0ec9775c91a28e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-core-spec/templates/design.md",
+      "sha256": "52c23169a5a2f107adc8335696ba11f82d1b551edb63830dd321dc0f445c24f8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/sdd-gate-report.md",
+      "sha256": "5979da50a9e6ecc9a73be44eba3fd4953f06703a66d88a20408999149af821b7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "028735ca86edccad1a8e6eda26d588c14f9c2105d4278650b4507b50ac87ec5d"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md",
+      "sha256": "df7616074c40bf6f9369b245f346f16d6cf8337ed9ae94fb614ef641a3cc82c0"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md",
+      "sha256": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41"
+    },
+    {
+      "path": "specs/verification-first-factory/.spec-baseline.json",
+      "sha256": "77e20bdad7b8f20498611de41ea1eecaa895918d17edafd15023fa4ac7f01f52"
+    }
+  ]
+}

