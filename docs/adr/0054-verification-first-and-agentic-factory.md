@@ -4,7 +4,7 @@
 - **Date:** 2026-11-25
 - **Supersedes / Extends:** Extends [ADR-0051 (Lightweight Guardrails & SDD Core)](https://github.com/aharada54914/sdd-forge/blob/main/docs/adr/0051-lightweight-guardrails-and-sdd-core.md) and [ADR-0052 (MCP Architecture & v2 Consolidation)](https://github.com/aharada54914/sdd-forge/blob/main/docs/adr/0052-mcp-architecture-and-v2-consolidation.md) without breaking changes
 - **Target Version:** `v2.2.0`+（基準: `v2.1.3`）
-- **Numbering Re-Verification (WFI-013):** PR #974 が `docs/adr/0053-keyless-concept-decisions.md` を予約しているため `0054` を仮採番している。**マージ／正式起票直前に `ls docs/adr/` およびオープン PR の `docs/adr/NNNN-*.md` を再確認し、空き番号であることを確認すること。**
+- **Numbering Re-Verification (WFI-013):** 2026-11-26に正式起票番号を `0054` と確認した。`origin/main`（`fa60bc511`）の `docs/adr/` には同番号がなく、オープンPR 2件を全変更パスで照合したところ、該当するのは本PR #976の本ファイルのみだった。マージ直前にも番号の競合を再確認する。
 
 ---
 
