@@ -1,0 +1,80 @@
+# Implementation Report: T-002
+
+- Task ID: T-002
+- Model: gpt-6.2-astra
+- Effort: high
+
+Report Schema: implementation-report/v2
+Run ID: 6de20319-418b-4d91-84ea-816d633b9370
+Task Attempt Count: 3
+Input manifest: `specs/verification-first-factory/verification/T-002/report-revalidation/task-input-manifest.json`, SHA-256 `24eba78c93585dfd61175d1abc2254b375e33f52970f27d89cb97679c07fbdb4`
+
+## Target
+
+725eb86c5ec6 の成果物を再検証した。以下の入力・出力と担当者は今回の記録である。前回の実装記録（Run ID `verification-first-factory-T-002-repair-20261126`、試行 2）を後段に保存した。
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `CODEOWNERS` | `da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c` |
+| `plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs` | `7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b` |
+| `sdd/approved-test-retirements.json` | `79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a` |
+| `tests/v2-spec-drift.test.mjs` | `c52511137cf1a5cd88e13da05e62a5fd3942f4c12516c8010dd15e89662e3f81` |
+| `specs/verification-first-factory/verification/T-002/report-revalidation/test-receipt.json` | `da4a16e1886683e4027f96b597a3cb8a8be4bfbc0d63912b3938bcab4133744c` |
+
+## Test Evidence
+
+- **Test Command**: node --test tests/v2-spec-drift.test.mjs
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/verification-first-factory/verification/T-002/report-revalidation/test-receipt.json`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 3
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Scratch Root**: `/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-T-002-g6dubp9e`
+- **Run ID**: 6de20319-418b-4d91-84ea-816d633b9370
+- **Session ID**: 01a21386-225c-7121-8ed1-576b2469d0cb
+- **Agent Instance ID**: 01a21386-225c-7121-8ed1-576b2469d0cb
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+独立品質ゲートの判定待ち。
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: 独立した品質ゲートで受入条件と証跡を照合する。
+- **Unresolved Items**: 独立品質ゲートの判定待ち。
+
+## 前回の実装記録
+
+### REQ-010 承認境界と OQ 記録
+
+
+## 修正前チェック（WFI-001）
+
+| 永続化・出力フィールド | 対応する契約／仕様 | 不一致を検知する回帰テスト |
+|---|---|---|
+| retirement.path, git_blob_sha | design.md §3、元コミットのツリーのテスト blob | 基準の保護マニフェストに元パスと blob の組がない削除は exit 4 |
+| retirement.approved_by, reason | SELF-REQ-006 の人間承認レコード | 基準レコードで承認者または理由が空の場合は削除拒否 |
+| baseRef、violations[].code/path、status | REQ-010、AC-009 の保護パス・検査結果 | 作業ツリーの設定と任意のマニフェストで保護対象を書換えても削除と保護パス変更を検出し exit 4 |
+| エスカレーションの OQ ID・所見 | REQ-010、TAMPER_DETECTED 時の人間確認 | CLI の OQ 参照を再読し ID と所見が一致すること、再実行は同一 OQ を指すこと |
+
+## 修正と検証
+
+- Git の比較対象をコミットに解決し、そのツリー固定の `sdd/approved-test-retirements.json` と保護ルールを使う。マニフェストのスキーマ、元パス／元 blob、空白でない理由と承認者を確認する。標準の保護対象と CODEOWNERS の探索先はプロジェクト設定で解除できない。
+- 違反時の JSON と Markdown は人間確認用 OQ を参照する。`reports/verification/<feature>/anti-tampering/OQ-NNN.json` には基準コミット・種別・対象パス・Provisional 状態を保存する。同じ基準と所見の再試行は同一レコードを使う。
+- Red。`node --test --test-name-pattern='committed retirement|nonempty retirement' tests/v2-spec-drift.test.mjs` で3件失敗。すべて期待4に対し実際0だった。
+- Green。`node --test tests/v2-spec-drift.test.mjs` で15件成功、失敗／スキップ0。承認済み削除、保護違反、OQ再利用、仕様ベースラインの既存回帰を含む。ベースライン記録コードは変更していない。
