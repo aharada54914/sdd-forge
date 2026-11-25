@@ -94,7 +94,13 @@
           "line": 38895,
           "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 1336,
+            "classification": "source catch has a rationale comment",
+            "file_sha256": "e3a648b02e1c407154d06cf62f30fd3231f9a920a0ca8cc26fddefcd78a53e9f"
+          }
         },
         {
           "rule": "no-empty-catch",
@@ -102,7 +108,13 @@
           "line": 39054,
           "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 1543,
+            "classification": "source catch has a rationale comment",
+            "file_sha256": "e3a648b02e1c407154d06cf62f30fd3231f9a920a0ca8cc26fddefcd78a53e9f"
+          }
         },
         {
           "rule": "no-combinatorial-flags",
@@ -110,7 +122,13 @@
           "line": 38324,
           "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 614,
+            "classification": "same condition as authored-source finding",
+            "file_sha256": "e3a648b02e1c407154d06cf62f30fd3231f9a920a0ca8cc26fddefcd78a53e9f"
+          }
         },
         {
           "rule": "no-combinatorial-flags",
@@ -118,7 +136,13 @@
           "line": 38330,
           "file_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 620,
+            "classification": "same condition as authored-source finding",
+            "file_sha256": "e3a648b02e1c407154d06cf62f30fd3231f9a920a0ca8cc26fddefcd78a53e9f"
+          }
         }
       ]
     },
@@ -190,7 +214,12 @@
           "line": 20296,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "node_modules/zod/v4/core/compile.js",
+            "line": null,
+            "classification": "third-party bundled implementation"
+          }
         },
         {
           "rule": "no-empty-catch",
@@ -198,7 +227,13 @@
           "line": 37065,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+            "line": 167,
+            "classification": "source catch has a rationale comment",
+            "file_sha256": "f960805d192c473fc4c9fb0b2ad480ba482605a15997ddd1473540819f47000b"
+          }
         },
         {
           "rule": "no-empty-catch",
@@ -206,7 +241,13 @@
           "line": 40672,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 950,
+            "classification": "source catch has a rationale comment",
+            "file_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83"
+          }
         },
         {
           "rule": "no-empty-catch",
@@ -214,7 +255,13 @@
           "line": 40831,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 1157,
+            "classification": "source catch has a rationale comment",
+            "file_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83"
+          }
         },
         {
           "rule": "no-empty-catch",
@@ -222,7 +269,13 @@
           "line": 41608,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "mcp/sdd-forge-mcp/src/tools/v2.ts",
+            "line": 436,
+            "classification": "source catch has a rationale comment",
+            "file_sha256": "647f53ec3ef0d675a125644a45631b929c652826d5e2e53850e5e22069233e56"
+          }
         },
         {
           "rule": "no-combinatorial-flags",
@@ -230,7 +283,13 @@
           "line": 40295,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 492,
+            "classification": "same condition as authored-source finding",
+            "file_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83"
+          }
         },
         {
           "rule": "no-combinatorial-flags",
@@ -238,7 +297,13 @@
           "line": 40301,
           "file_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
           "review": "generated bundle, actionable attribution unresolved",
-          "present_after": true
+          "present_after": true,
+          "generated_origin": {
+            "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+            "line": 498,
+            "classification": "same condition as authored-source finding",
+            "file_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83"
+          }
         },
         {
           "rule": "no-combinatorial-flags",
