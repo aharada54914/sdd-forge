@@ -260,8 +260,7 @@ a/b ペアはいずれも「互いの結果を見ない」ことを前提に設�
 
 - 両者とも fresh context（実装者・生成者と履歴を共有しない）・read-only（`tools: Read, Grep, Glob` ± `Bash`、`disallowedTools: Write, Edit, NotebookEdit`）で走ります。
 - 旧レビューの b には `disallowedPaths` と件数・ID のサマリを用いる。公開 v2 のドメインレビューは、A・B に別々の読取専用コンテキストと同じ正本を渡し、互いの生出力を渡さない。並列実行できないホストでも両方を別コンテキストで実行する。
-- `wfi-auditor-b` も同様に、サイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされます。
-- パネリスト2体は互いの verdict も主評価者（`sdd-evaluator`）の verdict も見ない「BLIND」実行で、ベンダーの異なる独立 LLM として並列に走ります。
+- `wfi-auditor-b` はサイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされ、統合サマリ（判定と件数のみ）だけを受け取ります。
 
 これにより、spec-check・domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を避けます。
 

@@ -10,6 +10,7 @@ $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $lib = Join-Path $dir "../../sdd-quality-loop/scripts/lib/py-dispatch.ps1"
 if (-not (Test-Path -LiteralPath $lib)) {
     [Console]::Error.WriteLine("finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    [Console]::Error.WriteLine("finalize-domain-review: operation=finalize-domain-review cause=missing-dispatch-helper (../../sdd-quality-loop/scripts/lib/py-dispatch.ps1 unavailable)")
     exit 3
 }
 . $lib

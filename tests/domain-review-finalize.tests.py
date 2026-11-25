@@ -631,8 +631,7 @@ class DomainFinalizerTests(unittest.TestCase):
                         lines[0],
                         f'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: {helper_label} unavailable beside this script',
                     )
-                    if suffix == '.sh':
-                        self.assertIn('cause=missing-dispatch-helper', lines[1])
+                    self.assertIn('cause=missing-dispatch-helper', lines[1])
 
     def test_wrapper_missing_python_names_its_own_operation(self):
         cases = []
