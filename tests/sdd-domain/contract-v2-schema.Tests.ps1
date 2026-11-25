@@ -2679,6 +2679,15 @@ Describe "T-003 REQ-002 anchor regression -- a trailing newline is rejected by b
 # Both directions are covered below, so the parity property is locked in each
 # polarity rather than assumed from one example.
 #
+# Issue #804 (full schema conformance, addendum-804-full-schema-conformance.md)
+# changed the pinned verdicts but not the property. A case-variant key is an
+# undeclared key under the schema's additionalProperties:false, so each twin
+# now also reports it as V2-UNKNOWN-KEY, and the two "inverted" contracts --
+# which the Concept Test's schema check always rejected -- now exit 1. Their
+# pinned stderr is that ONE line and nothing else: a case-folding lookup would
+# still add the V2-SELF-CONTRADICTION / V2-DANGLING-TERM line the ordinal
+# lookup never produces.
+#
 # This is NOT the already-adjudicated ConvertFrom-Json key-casing class. That
 # one needs BOTH spellings present in ONE document, is rejected at the
 # object-build step before any member is read, and OVER-rejects. Each fixture
@@ -2775,24 +2784,27 @@ function New-CaseKeyParityCase {
 $caseKeyDanglingContextPair = "V2-DANGLING-CONTEXT: concepts[0].context: context order-taking is not declared in contexts`n" +
                               "V2-DANGLING-CONTEXT: concepts[1].context: context order-taking is not declared in contexts"
 $caseKeyDanglingTermLine = "V2-DANGLING-TERM: contexts[0].terms[0].concept_id: CONCEPT-ORDER does not resolve to any declared concept id"
+$caseKeyUnknownKeySuffix = ": key is not declared by the domain-contract/v2 schema"
 
 $caseKeyParityCases = @(
     # --- fail-open polarity: .sh rejected, .ps1 returned 0 ------------------
     (New-CaseKeyParityCase -Class 'fail-open (1) contexts[0] spells its name "Name"' -Polarity "fail-open" `
-        -ExitCode 1 -Expected $caseKeyDanglingContextPair -Marker '"Name":' `
+        -ExitCode 1 -Expected ("V2-MISSING-KEY: contexts[0].name: required key is absent`n" +
+            "V2-UNKNOWN-KEY: contexts[0].Name" + $caseKeyUnknownKeySuffix + "`n" + $caseKeyDanglingContextPair) -Marker '"Name":' `
         -Override @{ CONTEXTS = $caseKeyContextsNameKey }),
     (New-CaseKeyParityCase -Class 'fail-open (2) concepts[0] spells its id "ID"' -Polarity "fail-open" `
-        -ExitCode 1 -Expected ("V2-MISSING-KEY: concepts[0].id: required key is absent`n" + $caseKeyDanglingTermLine) -Marker '"ID":' `
+        -ExitCode 1 -Expected ("V2-MISSING-KEY: concepts[0].id: required key is absent`n" +
+            "V2-UNKNOWN-KEY: concepts[0].ID" + $caseKeyUnknownKeySuffix + "`n" + $caseKeyDanglingTermLine) -Marker '"ID":' `
         -Override @{ C_ID = '"ID": "CONCEPT-ORDER", ' }),
     (New-CaseKeyParityCase -Class 'fail-open (3) the contract root spells its discriminator "Schema"' -Polarity "fail-open" `
         -ExitCode 1 -Expected "V2-MISSING-KEY: schema: required key is absent at the contract root" -Marker '"Schema":' `
         -Override @{ ROOT = $caseKeySchemaKey }),
-    # --- inverted polarity: .sh accepted, .ps1 rejected ---------------------
+    # --- inverted polarity: .sh accepted, .ps1 rejected (before #804) -------
     (New-CaseKeyParityCase -Class 'inverted (1) concepts[0] spells its optional list "Must_Not_Own"' -Polarity "inverted" `
-        -ExitCode 0 -Expected "" -Marker '"Must_Not_Own":' `
+        -ExitCode 1 -Expected ("V2-UNKNOWN-KEY: concepts[0].Must_Not_Own" + $caseKeyUnknownKeySuffix) -Marker '"Must_Not_Own":' `
         -Override @{ CONCEPT_MAIN = $caseKeyMustNotOwnKey; C_MUST_NOT_OWN = '["purchase intent"]' }),
     (New-CaseKeyParityCase -Class 'inverted (2) a term spells its optional link "Concept_Id"' -Polarity "inverted" `
-        -ExitCode 0 -Expected "" -Marker '"Concept_Id":' `
+        -ExitCode 1 -Expected ("V2-UNKNOWN-KEY: contexts[0].terms[0].Concept_Id" + $caseKeyUnknownKeySuffix) -Marker '"Concept_Id":' `
         -Override @{ CONTEXTS = $caseKeyTermConceptIdKey }),
     # --- referent-index locks: these FAIL if either twin's declared-value ---
     # --- index stops being ordinal (the surviving mutant) -------------------
@@ -2800,7 +2812,7 @@ $caseKeyParityCases = @(
         -ExitCode 1 -Expected ("V2-PATTERN: concepts[0].id: value CONCEPT-Order does not match ^CONCEPT-[A-Z][A-Z0-9-]*$`n" + $caseKeyDanglingTermLine) -Marker '"CONCEPT-Order"' `
         -Override @{ C_ID = '"id": "CONCEPT-Order", ' }),
     (New-CaseKeyParityCase -Class 'referent (2) the declared context name differs from the concept reference only in case' -Polarity "referent" `
-        -ExitCode 1 -Expected $caseKeyDanglingContextPair -Marker '"Order-Taking"' `
+        -ExitCode 1 -Expected ("V2-PATTERN: contexts[0].name: value Order-Taking does not match ^[a-z][a-z0-9-]*$`n" + $caseKeyDanglingContextPair) -Marker '"Order-Taking"' `
         -Override @{ CONTEXTS = $caseKeyContextsNameCaseVariant })
 )
 
@@ -2836,11 +2848,16 @@ Describe "RT-20260819-002 case-variant key fixture corpus integrity (non-vacuity
         @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "referent" }).Count | Should Be 2
     }
 
-    It "both polarities really are represented -- some case must reject and some must accept" {
-        # Without this the block could degenerate into a one-sided corpus that
-        # a validator rejecting (or accepting) everything would satisfy.
-        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 1 }).Count | Should Be 5
-        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 0 }).Count | Should Be 2
+    It "the inverted cases pin a lone V2-UNKNOWN-KEY line, so they still fail if the shadowed member is read" {
+        # Since #804 every case rejects: a case-variant key is an undeclared
+        # key. A validator rejecting everything still fails here, because each
+        # case pins its exact stderr, and the base-contract block below pins
+        # acceptance of the unmutated contract.
+        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 1 }).Count | Should Be 7
+        foreach ($caseKeyCase in @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "inverted" })) {
+            ($caseKeyCase.Expected -split "`n").Count | Should Be 1
+            $caseKeyCase.Expected.StartsWith('V2-UNKNOWN-KEY: ', [StringComparison]::Ordinal) | Should Be $true
+        }
     }
 
     It "every fixture body is distinct and really is a mutation of the accepted base contract" {
@@ -3056,5 +3073,317 @@ Describe "Domain contract linked regular-file compatibility" {
             Remove-EphemeralPath -Path $hardlink
             Remove-EphemeralPath -Path $fixture
         }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Issue #804 (audit D2): full conformance to contracts/domain-contract.v2.schema.json.
+#
+# The validator is the pre-publish check for domain/domain-contract.json, and
+# the downstream Concept Test runs a full JSON-Schema check on the same file.
+# Before #804 the validator walked past the v1-inherited boundedContext / term
+# / aggregate / contextRelation shapes, meta.version's pattern, meta.status's
+# enum, meta.generated_from's items and minItems, contexts' minItems and every
+# additionalProperties:false, so it exited 0 on contracts the Concept Test
+# blocks. Owner decision 2026-11-25: the validator rejects everything that
+# schema check rejects, in both twins with identical verdicts
+# (specs/sdd-domain-concept-contract/verification/addendum-804-full-schema-conformance.md).
+#
+# Each case below is one single-point mutation of the T-003 base contract and
+# runs on BOTH twins. Mis-cased values (`approved`, `Order-Taking`,
+# `Partnership`) are the AGENTS.md sweep rule 1 negatives: the schema's
+# pattern and enum checks are case-sensitive, so each twin must reject them.
+# tests/concept-test.tests.py DomainContractSchemaAgreementTests separately
+# proves verdict agreement with the Concept Test's own schema check over a
+# generated mutation corpus.
+# ---------------------------------------------------------------------------
+
+function New-JsonObject804 {
+    # Joins member texts into one object literal; an empty member is dropped,
+    # so a case can delete one member without leaving a dangling comma.
+    param([string[]]$Members)
+    return '{' + ((@($Members | Where-Object { -not [string]::IsNullOrEmpty($_) })) -join ', ') + '}'
+}
+
+$term804 = [ordered]@{
+    canonical          = '"canonical": "Order"'
+    ja                 = '"ja": "chumon"'
+    definition         = '"definition": "A recorded purchase promise."'
+    forbidden_synonyms = '"forbidden_synonyms": ["Purchase"]'
+    concept_id         = '"concept_id": "CONCEPT-ORDER"'
+}
+$aggregate804 = [ordered]@{
+    name                 = '"name": "Order"'
+    root_entity          = '"root_entity": "Order"'
+    invariants           = '"invariants": ["total is never negative"]'
+    transaction_boundary = '"transaction_boundary": "one order"'
+    card                 = '"card": "domain/aggregates/order.md"'
+}
+$relation804 = [ordered]@{
+    from    = '"from": "order-taking"'
+    to      = '"to": "fulfillment"'
+    pattern = '"pattern": "customer-supplier"'
+    note    = '"note": "fulfillment follows order-taking"'
+}
+
+function New-Members804 {
+    # The base member table with the named members replaced (an empty value
+    # deletes the member) and $Extra appended.
+    param([System.Collections.Specialized.OrderedDictionary]$Base, [hashtable]$Replace = @{}, [string]$Extra = '')
+    $members = @()
+    foreach ($key in $Base.Keys) {
+        if ($Replace.ContainsKey($key)) { $members += $Replace[$key] } else { $members += $Base[$key] }
+    }
+    $members += $Extra
+    return New-JsonObject804 -Members $members
+}
+
+function New-Contexts804 {
+    # contexts[] for a #804 case: order-taking (carrying the term and the
+    # aggregate under test) plus an empty fulfillment context the relation
+    # points at. $Context replaces order-taking's members; $Term / $Aggregate
+    # replace the whole term / aggregate element text.
+    param([hashtable]$Context = @{}, [string]$Term = '', [string]$Aggregate = '', [string]$Extra = '')
+    if ([string]::IsNullOrEmpty($Term)) { $Term = New-Members804 -Base $term804 }
+    if ([string]::IsNullOrEmpty($Aggregate)) { $Aggregate = New-Members804 -Base $aggregate804 }
+    $base = [ordered]@{
+        name        = '"name": "order-taking"'
+        description = '"description": "Where a purchase promise is recorded."'
+        terms       = '"terms": [' + $Term + ']'
+        aggregates  = '"aggregates": [' + $Aggregate + ']'
+    }
+    $orderTaking = New-Members804 -Base $base -Replace $Context -Extra $Extra
+    return '[' + $orderTaking + ', {"name": "fulfillment", "description": "Where a promise is delivered.", "terms": [], "aggregates": []}]'
+}
+
+function New-Root804 {
+    param([string]$Relations = '', [string]$Extra = '')
+    if ([string]::IsNullOrEmpty($Relations)) { $Relations = '[' + (New-Members804 -Base $relation804) + ']' }
+    $root = '{%R_SCHEMA%%R_META%%R_CONTEXTS%%R_CONCEPTS%"relations": ' + $Relations
+    if (-not [string]::IsNullOrEmpty($Extra)) { $root += ', ' + $Extra }
+    return $root + '}'
+}
+
+function New-Case804 {
+    param([string]$Case, [hashtable]$Override, [string]$Rule, [string]$Field, [string[]]$Forbidden = @())
+    $merged = @{ CONTEXTS = (New-Contexts804); ROOT = (New-Root804) }
+    foreach ($key in $Override.Keys) { $merged[$key] = $Override[$key] }
+    return New-StructuralFixtureCase -Ac '#804' -Case $Case -Override $merged -Rule $Rule -Field $Field -Forbidden $Forbidden
+}
+
+$fullSchemaFixtures = @(
+    # The three reproductions recorded on issue #804.
+    (New-Case804 -Case 'contexts[].aggregates is absent' `
+        -Override @{ CONTEXTS = (New-Contexts804 -Context @{ aggregates = '' }) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].aggregates' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'meta.status is not in the enum' -Override @{ M_STATUS = '"Bogus"' } `
+        -Rule 'V2-ENUM' -Field 'meta.status' -Forbidden @('V2-TYPE-MISMATCH', 'V2-PATTERN')),
+    (New-Case804 -Case 'meta.version does not match the semver pattern' -Override @{ M_VERSION = '"1.0"' } `
+        -Rule 'V2-PATTERN' -Field 'meta.version' -Forbidden @('V2-TYPE-MISMATCH')),
+
+    # meta
+    (New-Case804 -Case 'meta.status is a mis-cased enum value' -Override @{ M_STATUS = '"approved"' } `
+        -Rule 'V2-ENUM' -Field 'meta.status' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'meta.version carries a trailing newline' -Override @{ M_VERSION = '"1.0.0\n"' } `
+        -Rule 'V2-PATTERN' -Field 'meta.version' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'meta.generated_from is empty' -Override @{ M_GENERATED_FROM = '[]' } `
+        -Rule 'V2-EMPTY-ARRAY' -Field 'meta.generated_from' -Forbidden @('V2-TYPE-MISMATCH', 'V2-MISSING-KEY')),
+    (New-Case804 -Case 'a meta.generated_from element is not a string' -Override @{ M_GENERATED_FROM = '[42]' } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'meta.generated_from[0]' -Forbidden @('V2-EMPTY-ARRAY', 'V2-EMPTY-STRING')),
+    (New-Case804 -Case 'meta carries an undeclared key' `
+        -Override @{ META = '{"version": "1.0.0", "status": "Pending", "generated_from": ["domain/domain-story.md"], "owner": "purchasing"}' } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'meta.owner'),
+
+    # root
+    (New-Case804 -Case 'the root carries an undeclared key' -Override @{ ROOT = (New-Root804 -Extra '"owner": "purchasing"') } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'owner'),
+    (New-Case804 -Case 'contexts is empty' -Override @{ CONTEXTS = '[]' } `
+        -Rule 'V2-EMPTY-ARRAY' -Field 'contexts' -Forbidden @('V2-TYPE-MISMATCH', 'V2-MISSING-KEY')),
+    (New-Case804 -Case 'a contexts[] element is not an object' -Override @{ CONTEXTS = '[42]' } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0]' -Forbidden @('V2-MISSING-KEY')),
+
+    # boundedContext
+    (New-Case804 -Case 'contexts[].name is absent' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ name = '' }) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].name' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'contexts[].name is mis-cased' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ name = '"name": "Order-Taking"' }) } `
+        -Rule 'V2-PATTERN' -Field 'contexts[0].name' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'contexts[].name is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ name = '"name": 42' }) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].name' -Forbidden @('V2-PATTERN')),
+    (New-Case804 -Case 'contexts[].description is absent' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ description = '' }) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].description'),
+    (New-Case804 -Case 'contexts[].description is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ description = '"description": 42' }) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].description'),
+    (New-Case804 -Case 'contexts[].terms is absent' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ terms = '' }) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].terms' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'contexts[].terms is not an array' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ terms = '"terms": "Order"' }) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].terms'),
+    (New-Case804 -Case 'contexts[].aggregates is not an array' -Override @{ CONTEXTS = (New-Contexts804 -Context @{ aggregates = '"aggregates": "Order"' }) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].aggregates'),
+    (New-Case804 -Case 'a context carries an undeclared key' -Override @{ CONTEXTS = (New-Contexts804 -Extra '"owner": "purchasing"') } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'contexts[0].owner'),
+
+    # term
+    (New-Case804 -Case 'a terms[] element is not an object' -Override @{ CONTEXTS = (New-Contexts804 -Term '42') } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].terms[0]' -Forbidden @('V2-MISSING-KEY')),
+    (New-Case804 -Case 'terms[].canonical is absent' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Replace @{ canonical = '' })) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].terms[0].canonical'),
+    (New-Case804 -Case 'terms[].canonical is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Replace @{ canonical = '"canonical": 42' })) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].terms[0].canonical'),
+    (New-Case804 -Case 'terms[].definition is absent' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Replace @{ definition = '' })) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].terms[0].definition'),
+    (New-Case804 -Case 'terms[].ja is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Replace @{ ja = '"ja": 42' })) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].terms[0].ja'),
+    (New-Case804 -Case 'terms[].forbidden_synonyms is not an array' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Replace @{ forbidden_synonyms = '"forbidden_synonyms": "Purchase"' })) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].terms[0].forbidden_synonyms'),
+    (New-Case804 -Case 'a terms[].forbidden_synonyms element is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Replace @{ forbidden_synonyms = '"forbidden_synonyms": [42]' })) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].terms[0].forbidden_synonyms[0]'),
+    (New-Case804 -Case 'a term carries an undeclared key' -Override @{ CONTEXTS = (New-Contexts804 -Term (New-Members804 -Base $term804 -Extra '"owner": "purchasing"')) } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'contexts[0].terms[0].owner'),
+
+    # aggregate
+    (New-Case804 -Case 'an aggregates[] element is not an object' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate '42') } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].aggregates[0]' -Forbidden @('V2-MISSING-KEY')),
+    (New-Case804 -Case 'aggregates[].name is absent' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ name = '' })) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].aggregates[0].name'),
+    (New-Case804 -Case 'aggregates[].name is not PascalCase' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ name = '"name": "order"' })) } `
+        -Rule 'V2-PATTERN' -Field 'contexts[0].aggregates[0].name' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'aggregates[].root_entity is absent' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ root_entity = '' })) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].aggregates[0].root_entity'),
+    (New-Case804 -Case 'aggregates[].invariants is empty' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ invariants = '"invariants": []' })) } `
+        -Rule 'V2-EMPTY-ARRAY' -Field 'contexts[0].aggregates[0].invariants' -Forbidden @('V2-TYPE-MISMATCH', 'V2-MISSING-KEY')),
+    (New-Case804 -Case 'an aggregates[].invariants element is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ invariants = '"invariants": [42]' })) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].aggregates[0].invariants[0]' -Forbidden @('V2-EMPTY-ARRAY')),
+    (New-Case804 -Case 'aggregates[].transaction_boundary is not a string' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ transaction_boundary = '"transaction_boundary": 42' })) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'contexts[0].aggregates[0].transaction_boundary'),
+    (New-Case804 -Case 'aggregates[].card is absent' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ card = '' })) } `
+        -Rule 'V2-MISSING-KEY' -Field 'contexts[0].aggregates[0].card'),
+    (New-Case804 -Case 'an aggregate carries an undeclared key' -Override @{ CONTEXTS = (New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Extra '"owner": "purchasing"')) } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'contexts[0].aggregates[0].owner'),
+
+    # contextRelation
+    (New-Case804 -Case 'relations is not an array' -Override @{ ROOT = (New-Root804 -Relations '"partnership"') } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'relations'),
+    (New-Case804 -Case 'a relations[] element is not an object' -Override @{ ROOT = (New-Root804 -Relations '[42]') } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'relations[0]' -Forbidden @('V2-MISSING-KEY')),
+    (New-Case804 -Case 'relations[].from is absent' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ from = '' }) + ']')) } `
+        -Rule 'V2-MISSING-KEY' -Field 'relations[0].from'),
+    (New-Case804 -Case 'relations[].to is not a string' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ to = '"to": 42' }) + ']')) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'relations[0].to'),
+    (New-Case804 -Case 'relations[].pattern is absent' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ pattern = '' }) + ']')) } `
+        -Rule 'V2-MISSING-KEY' -Field 'relations[0].pattern'),
+    (New-Case804 -Case 'relations[].pattern is a mis-cased enum value' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ pattern = '"pattern": "Partnership"' }) + ']')) } `
+        -Rule 'V2-ENUM' -Field 'relations[0].pattern' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'relations[].pattern is not in the enum' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ pattern = '"pattern": "friendship"' }) + ']')) } `
+        -Rule 'V2-ENUM' -Field 'relations[0].pattern' -Forbidden @('V2-TYPE-MISMATCH')),
+    (New-Case804 -Case 'relations[].pattern is not a string' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ pattern = '"pattern": 42' }) + ']')) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'relations[0].pattern' -Forbidden @('V2-ENUM')),
+    (New-Case804 -Case 'relations[].note is not a string' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Replace @{ note = '"note": 42' }) + ']')) } `
+        -Rule 'V2-TYPE-MISMATCH' -Field 'relations[0].note'),
+    (New-Case804 -Case 'a relation carries an undeclared key' -Override @{ ROOT = (New-Root804 -Relations ('[' + (New-Members804 -Base $relation804 -Extra '"owner": "purchasing"') + ']')) } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'relations[0].owner'),
+
+    # concept, stakeholderPerspective, distinguishedFrom
+    (New-Case804 -Case 'a concept carries an undeclared key' `
+        -Override @{ C_EVIDENCE = '"evidence": ["domain-story:activity-1"], "colour": "blue", ' } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'concepts[0].colour'),
+    (New-Case804 -Case 'a stakeholder perspective carries an undeclared key' `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"actor": "purchasing", "concern": "price and quantity", "weight": "high"}], ' } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'concepts[0].stakeholder_perspectives[0].weight'),
+    (New-Case804 -Case 'a distinguished_from entry carries an undeclared key' `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT", "reasons": ["different lifecycle"], "since": "v2"}], ' } `
+        -Rule 'V2-UNKNOWN-KEY' -Field 'concepts[0].distinguished_from[0].since')
+)
+
+# Every relation pattern, every meta.status value, and the boundary names the
+# looser boundedContext / aggregate patterns admit: the acceptance side of the
+# enum and pattern checks above (stuck-shut guard).
+$fullSchemaPositiveBodies = @(
+    foreach ($status in @('Pending', 'Reviewed', 'Approved')) {
+        New-StructuralFixtureJson -Override @{ M_STATUS = ('"' + $status + '"'); CONTEXTS = (New-Contexts804); ROOT = (New-Root804) }
+    }
+    $allPatterns = @('partnership', 'shared-kernel', 'customer-supplier', 'conformist', 'anticorruption-layer',
+        'open-host-service', 'published-language', 'separate-ways')
+    $relations = @($allPatterns | ForEach-Object { New-Members804 -Base $relation804 -Replace @{ pattern = ('"pattern": "' + $_ + '"') } })
+    New-StructuralFixtureJson -Override @{
+        M_VERSION = '"10.20.30"'
+        CONTEXTS  = ((New-Contexts804 -Aggregate (New-Members804 -Base $aggregate804 -Replace @{ name = '"name": "O"' })).TrimEnd(']') +
+            ', {"name": "returns-", "description": "", "terms": [{"canonical": "", "definition": ""}], "aggregates": []}]')
+        ROOT      = (New-Root804 -Relations ('[' + ($relations -join ', ') + ']'))
+    }
+)
+
+Describe "validate-domain-contract full schema conformance (#804) -- acceptance side" {
+
+    foreach ($body in $fullSchemaPositiveBodies) {
+        $label = $body.Substring(0, [Math]::Min(80, $body.Length))
+        It ("ps1 twin accepts a schema-valid contract: " + $label) {
+            $fixturePath = New-EphemeralContractFile -Content $body
+            try {
+                $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+                $result.StdErr | Should Be ''
+                $result.ExitCode | Should Be 0
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+        It ("sh twin accepts a schema-valid contract: " + $label) -Skip:(-not $shTwinAvailable) {
+            $fixturePath = New-EphemeralContractFile -Content $body
+            try {
+                $result = Invoke-ValidatorSh -ContractPath $fixturePath
+                $result.StdErr | Should Be ''
+                $result.ExitCode | Should Be 0
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+    }
+}
+
+Describe "validate-domain-contract full schema conformance (#804) -- rejection side" {
+
+    It "covers every new rule id the full-conformance pass introduces" {
+        @($fullSchemaFixtures | Where-Object { $_.Rule -ceq 'V2-ENUM' }).Count | Should BeGreaterThan 3
+        @($fullSchemaFixtures | Where-Object { $_.Rule -ceq 'V2-UNKNOWN-KEY' }).Count | Should Be 9
+    }
+
+    foreach ($fullSchemaCase in $fullSchemaFixtures) {
+        $caseLabel = $fullSchemaCase.Ac + " " + $fullSchemaCase.Case
+
+        It ("ps1 twin -- " + $caseLabel) {
+            $fixturePath = New-StructuralFixtureFile -Override $fullSchemaCase.Override
+            try {
+                Assert-StructuralViolation -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath) `
+                    -RuleId $fullSchemaCase.Rule -FieldPath $fullSchemaCase.Field -ForbiddenRuleIds $fullSchemaCase.Forbidden
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+
+        It ("sh twin -- " + $caseLabel) -Skip:(-not $shTwinAvailable) {
+            $fixturePath = New-StructuralFixtureFile -Override $fullSchemaCase.Override
+            try {
+                Assert-StructuralViolation -Result (Invoke-ValidatorSh -ContractPath $fixturePath) `
+                    -RuleId $fullSchemaCase.Rule -FieldPath $fullSchemaCase.Field -ForbiddenRuleIds $fullSchemaCase.Forbidden
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+    }
+
+    It "both twins print byte-identical stderr for every #804 case [SKIPPED when bash/python3 is absent from PATH]" -Skip:(-not $shTwinAvailable) {
+        $mismatches = New-Object System.Collections.ArrayList
+        foreach ($fullSchemaCase in $fullSchemaFixtures) {
+            $fixturePath = New-StructuralFixtureFile -Override $fullSchemaCase.Override
+            try {
+                $ps1Result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+                $shResult = Invoke-ValidatorSh -ContractPath $fixturePath
+                if (($ps1Result.ExitCode -ne $shResult.ExitCode) -or -not ($ps1Result.StdErr -ceq $shResult.StdErr)) {
+                    [void]$mismatches.Add($fullSchemaCase.Case)
+                }
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+        ($mismatches -join "`n") | Should Be ""
     }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **ドメイン契約の発行前検査（Closes #804）**: `validate-domain-contract.sh` / `.ps1` が `contracts/domain-contract.v2.schema.json` の全規則を検査する。`aggregates` のない context、`meta.status` の列挙外の値（`approved` など大文字小文字違いを含む）、`meta.version` の形式違反、宣言されていないキーなどを、Concept Test のスキーマ検査と同じく拒否する。新しい規則 ID は `V2-ENUM` と `V2-UNKNOWN-KEY`。範囲の変更は `specs/sdd-domain-concept-contract/verification/addendum-804-full-schema-conformance.md` に記録した。
+
 ## v2.1.4 (2026-11-25)
 
 ### Fixed
