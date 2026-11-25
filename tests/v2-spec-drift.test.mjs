@@ -346,3 +346,15 @@ describe('#972 review: unreadable and newly approved are visible and enforced', 
     assert.ok(gated.warnings.some((w) => /^APPROVED_AFTER_BASELINE: .*T-001/.test(w)), JSON.stringify(gated.warnings));
   });
 });
+
+describe('#972 re-review: text added to an Approval line is drift', () => {
+  it('only a bare approval value is normalized', () => {
+    const repo = setupFeatureRepo();
+    const tasksPath = path.join(repo, 'specs', 'checkout', 'tasks.md');
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Approval: Approved', 'Approval: Draft'), 'utf8');
+    assert.equal(runRecord(repo, 'checkout').status, 0);
+    fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replace('Approval: Draft', 'Approval: Draft — Scope now covers src/** and AC-001 is waived'), 'utf8');
+    const res = JSON.parse(runCheck(repo, 'checkout').stdout);
+    assert.equal(res.status, 'UNDECLARED_DRIFT');
+  });
+});

@@ -714,3 +714,61 @@ describe('#972 review: bounded braces and owner renewal after expiry', () => {
     assert.ok(Date.parse(JSON.parse(fs.readFileSync(lockPath, 'utf8')).expiresAt) > Date.now());
   });
 });
+
+describe('#972 re-review: nested braces, bare route groups, lease renewal', () => {
+  it('nested brace lists are bounded by what they actually expand to', async () => {
+    const { extractScopePaths } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const nested = `src/${'{1,2,3,4,5,6,7,8,9,{a,b}}'.repeat(4)}.ts`;
+    assert.deepEqual(extractScopePaths(`### Scope\n- \`${nested}\`\n`), ['**']);
+    assert.deepEqual(extractScopePaths('### Scope\n- `src/{a,{b,c}}.ts`\n'), ['src/a.ts', 'src/b.ts', 'src/c.ts']);
+  });
+
+  it('a bare path keeps a route group between slashes and drops a trailing note', async () => {
+    const { extractScopePaths } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    assert.deepEqual(extractScopePaths('### Scope\n- src/app/(admin)/page.tsx(rename) を更新\n'), ['src/app/(admin)/page.tsx']);
+  });
+
+  it('renewal never leaves a moment where another owner can take a live lock', async () => {
+    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-lease-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' }).acquired, true);
+    let stolen = null;
+    const realWrite = fs.writeFileSync;
+    // While A renews, B tries a plain acquire at every write A makes.
+    const spy = mock.method(fs, 'writeFileSync', function (...args) {
+      const out = realWrite.apply(this, args);
+      if (stolen === null && /\.sdd[\\/]locks[\\/]f\.lock\./.test(String(args[0]))) {
+        stolen = acquireLock({ feature: 'f', projectRoot: dir, owner: 'B' }).acquired;
+      }
+      return out;
+    });
+    let renewed;
+    try {
+      renewed = acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' });
+    } finally {
+      spy.mock.restore();
+    }
+    assert.equal(renewed.acquired, true);
+    assert.equal(stolen, false, 'B must be refused while A holds the lock');
+    const locks = path.join(dir, '.sdd', 'locks');
+    assert.equal(JSON.parse(fs.readFileSync(path.join(locks, 'f.lock'), 'utf8')).owner, 'A');
+  });
+
+  it('a renewed lease keeps an otherwise expired lock active; a lease for an older lock is ignored', async () => {
+    const { acquireLock, getLockStatus, releaseLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-lease2-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    const lockPath = path.join(dir, '.sdd', 'locks', 'f.lock');
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A', ttlSeconds: 60 }).acquired, true);
+    const original = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    original.expiresAt = '2020-01-01T00:00:00.000Z';
+    fs.writeFileSync(lockPath, JSON.stringify(original), 'utf8');
+    assert.equal(getLockStatus({ feature: 'f', projectRoot: dir }).stale, true);
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'A' }).acquired, true);
+    assert.equal(getLockStatus({ feature: 'f', projectRoot: dir }).stale, false, 'the lease extends the lock');
+    assert.equal(acquireLock({ feature: 'f', projectRoot: dir, owner: 'B', breakStale: true }).acquired, false);
+    assert.equal(releaseLock({ feature: 'f', projectRoot: dir, owner: 'A' }).released, true);
+    assert.deepEqual(fs.readdirSync(path.dirname(lockPath)), [], 'release removes the lock and its lease');
+  });
+});
