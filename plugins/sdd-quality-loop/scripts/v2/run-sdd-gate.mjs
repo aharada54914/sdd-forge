@@ -690,6 +690,18 @@ function checkConceptTest(root, feature) {
     if (!required) return { passed: true, status: 'NOT_APPLICABLE' };
     const win = process.platform === 'win32';
     const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
+    if (!fs.existsSync(script)) {
+      // Codex's per-plugin, per-version cache has no sibling sdd-domain (#812).
+      return {
+        passed: false,
+        status: 'BLOCK',
+        error: 'Concept Test runtime not found next to sdd-quality-loop (expected '
+          + path.relative(path.dirname(fileURLToPath(import.meta.url)), script)
+          + '). Per-version plugin caches, such as Codex plugin installs, cannot run the Concept Test yet (#812).'
+          + ' For a DDD project, run sdd-gate from the sdd-forge source checkout:'
+          + ' node <sdd-forge>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs.',
+      };
+    }
     const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
     const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
     const status = result.stdout?.trim();

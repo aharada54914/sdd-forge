@@ -84,7 +84,8 @@ class CodexVersionedCacheTests(concept_tests.ConceptTests):
         check = self.gate(self.installed['sdd-quality-loop'])
         self.assertEqual('BLOCK', check['status'])
         self.assertIn('#812', check['error'])
-        self.assertIn('install.sh', check['error'])
+        self.assertIn('source checkout', check['error'])
+        self.assertNotIn('install with install.sh', check['error'])  # Codex installs go through the cache too
 
     @unittest.expectedFailure  # #812: the wrapper reaches ../../sdd-quality-loop and repo-level contracts/.
     def test_versioned_cache_wrapper_continues(self):
