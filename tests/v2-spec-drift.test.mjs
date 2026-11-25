@@ -406,6 +406,48 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
   }
 
+  it('allows documentation and quoted examples of inline lint directives without opening an OQ', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const marker = ['sdd-lint', '-disable'].join('');
+    fs.writeFileSync(path.join(dir, 'README.md'), [
+      'The ' + marker + ' directive is forbidden.',
+      '```js', '// ' + marker + ' example', '```',
+    ].join('\n'));
+    assert.equal(git('add', 'README.md').status, 0);
+    fs.appendFileSync(path.join(dir, 'tests/sample.test.mjs'), [
+      'const inline = "// ' + marker + ' example";',
+      "const block = '/* " + marker + " example */';",
+      'const multiline = `', '// ' + marker + ' example', '`;',
+      '// Explain the ' + marker + ' directive.',
+    ].join('\n'));
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 0, result.stdout);
+    assert.deepEqual(JSON.parse(result.stdout).violations, []);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+  });
+
+  it('reports added lint directives in source comments with a persisted OQ', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const marker = ['sdd-lint', '-disable'].join('');
+    for (const [file, source] of [
+      ['tests/sample.test.mjs', 'const x = 1; // ' + marker + ' rule-a\n'],
+      ['tests/extra.ts', '/**\n * ' + marker + ' rule-b\n */\n'],
+      ['tests/extra.py', 'x = 1  # ' + marker + ' rule-c\n'],
+    ]) {
+      fs.writeFileSync(path.join(dir, file), source);
+    }
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 4, result.stdout);
+    const { violations, openQuestion } = JSON.parse(result.stdout);
+    const expected = ['tests/extra.py', 'tests/extra.ts', 'tests/sample.test.mjs'];
+    assert.deepEqual(violations.map(v => v.path).sort(), expected);
+    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED'));
+    const persisted = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+    assert.deepEqual(persisted.violations, violations.map(({ code, path }) => ({ code, path })));
+  });
+
   it('allows renaming an already skipped test and editing existing skip reasons', (t) => {
     const { dir, git } = initGitRepoWithTests();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
