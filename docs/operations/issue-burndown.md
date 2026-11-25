@@ -23,7 +23,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | 8 | #975 | #865, #848, #803, review follow-ups on #974 (`.ps1` evidence-checker parity, v1 signature order, concept-test messages) | merged (3497bb1) |
 | — | #977 | release v2.1.4 (+ #850 branch-protection docs) | merged (fa60bc5); tagged via publish-release.yml |
 | 9 | #978 | #804 (pre-publish domain-contract validator enforces the full v2 schema in .sh and .ps1) | merged (34f777f) after independent review |
-| 10 | (this PR) | follow-ups: gate EISDIR on a spec path that is a directory; publish-release green-run filter | open |
+| 10 | #979 | follow-ups: gate EISDIR on a spec path that is a directory; publish-release green-run filter | merged (275f0f9) after independent review |
+| — | (this PR) | release v2.1.5 | tag via publish-release.yml after merge |
 
 ## Resolved
 
@@ -107,3 +108,4 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Main ruleset "Protect main branch": 1 approving review, with an always-bypass for the admin role (agent merges through the API pass). The 2026-11-25 merge failures on #974 were GitHub 5xx errors, not the ruleset.
 - Batch-8 review Low 4: `check-evidence-bundle.ps1` renders a non-string `required_workflow` (number, array, object) differently from Python's `str()` in the signed canonical form, so such a critical bundle verifies on `.sh` only. Both v1 signers wrote strings and the generator is retired; a type check (string or absent) on both sides would close it.
 - Found while fixing #804: on pwsh 7.0–7.4, `ConvertFrom-Json` turns ISO-date-like strings into DateTime, so `validate-domain-contract.ps1` rejects such string values that the `.sh` accepts. The validators also still accept duplicate JSON keys (last wins) that the Concept Test parser rejects.
+- Batch-10 review: `run-sdd-gate.mjs` still throws EISDIR when `specs/<feature>/tasks.md` itself is a directory (before any verdict). publish-release's "wait for CI and dispatch again" message does not mention that a push run cancelled by `cancel-in-progress` never comes back; dispatching test.yml on that commit does.

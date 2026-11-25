@@ -13,7 +13,7 @@
       "name": "sdd-bootstrap",
       "source": "./plugins/sdd-bootstrap",
       "description": "Prepare implementation-ready specifications and tasks.",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "author": {
         "name": "Harada"
       }
@@ -22,7 +22,7 @@
       "name": "sdd-ship",
       "source": "./plugins/sdd-ship",
       "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow.",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "author": {
         "name": "Harada"
       }
@@ -31,7 +31,7 @@
       "name": "sdd-implementation",
       "source": "./plugins/sdd-implementation",
       "description": "[internal] Implement one approved task and prepare a quality-gate handoff. Use /sdd-ship:ship for the standard workflow.",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "author": {
         "name": "Harada"
       }
@@ -40,7 +40,7 @@
       "name": "sdd-quality-loop",
       "source": "./plugins/sdd-quality-loop",
       "description": "Lightweight soft guardrails, Spec Drift detection, and unified sdd-gate verification.",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "author": {
         "name": "Harada"
       }
@@ -49,7 +49,7 @@
       "name": "sdd-review-loop",
       "source": "./plugins/sdd-review-loop",
       "description": "[internal] Independent implementation and task decomposition reviews used by sdd-bootstrap.",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "author": {
         "name": "Harada"
       }
@@ -58,14 +58,14 @@
       "name": "sdd-domain",
       "source": "./plugins/sdd-domain",
       "description": "Domain-Driven Design upstream lane producing a human-approved domain model ahead of sdd-forge Phase 1.",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "author": {
         "name": "Harada"
       }
     },
     {
       "name": "sdd-azure-cloud",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "source": "./plugins/sdd-azure-cloud",
       "description": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
       "author": {
@@ -74,7 +74,7 @@
     },
     {
       "name": "sdd-aws-cloud",
-      "version": "2.1.4",
+      "version": "2.1.5",
       "source": "./plugins/sdd-aws-cloud",
       "description": "Explicit opt-in AWS orchestration: local planning and validation, protected CI execution, and read-only verification.",
       "author": {

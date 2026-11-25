@@ -1,6 +1,6 @@
 {
   "name": "sdd-forge-model-selection",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "SDD Forge session model selection, implementation skills, diagnosis, SQL development, and visual verification for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }
