@@ -125,7 +125,7 @@
   "source_sync_commit": "c88c89e500ee106699a9cf2e69754864165836a6",
   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
   "source_sha256": {
-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "f82d676e8e331f3d19eddb69f1c08bfa03cfecd919f659deb29f661eb2a2e339",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "d39bf2d72558974ce36127119a94a3e3aa63a4d77705943035ae3c87e35722a7",
     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "807c73f35ab75e1ae2eeb9d2718663c8f6695ff23baab72da0a5f9a73c1428bd",
     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",

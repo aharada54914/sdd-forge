@@ -157,7 +157,34 @@ const JS_TOKEN = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S
 const TEST_FUNCTIONS = new Set(['it', 'test', 'describe', 'suite']);
 const DISABLED_SKIP_VALUES = new Set(['false', "''", '""', '``', 'null', 'undefined', '0']);
 
+// Remove documentation and literals before counting executable language-specific markers.
+const PYTHON_NON_CODE = /#[^\n]*|"""(?:\\[\s\S]|(?!""")[^\\])*"""|'''(?:\\[\s\S]|(?!''')[^\\])*'''|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
+const GO_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g;
+const PYTHON_SKIP = /@pytest\.mark\.skip(?:if)?\b|\b(?:unittest\.skip(?:If|Unless)?|pytest\.skip|self\.skipTest)\s*\(/g;
+const GO_SKIP = /\bt\.Skip(?:f|Now)?\s*\(/g;
+
+// The first parameter of an inline node:test callback receives its TestContext.
+// Its name is chosen by the caller; an unrelated object's skip method is ordinary code.
+function callbackContext(tokens, offset) {
+  let i = offset;
+  if (tokens[i] === 'async') i++;
+  const functionExpression = tokens[i] === 'function';
+  if (functionExpression) {
+    i++;
+    if (tokens[i] !== '(') i++; // named function expression
+  }
+  const grouped = tokens[i] === '(';
+  if (grouped) i++;
+  const name = tokens[i];
+  if (!/^[A-Za-z_$][\w$]*$/.test(name || '')) return null;
+  if (functionExpression) return grouped ? name : null;
+  const end = grouped ? tokens.indexOf(')', i + 1) + 1 : i + 1;
+  return end > 0 && tokens[end] === '=' && tokens[end + 1] === '>' ? name : null;
+}
+
 function countTestSkips(file, source) {
+  if (/\.pyw?$/i.test(file)) return Array.from(source.replace(PYTHON_NON_CODE, ' ').matchAll(PYTHON_SKIP)).length;
+  if (/\.go$/i.test(file)) return Array.from(source.replace(GO_NON_CODE, ' ').matchAll(GO_SKIP)).length;
   if (!/\.[cm]?[jt]sx?$/i.test(file)) return Array.from(source.matchAll(TEST_SKIP_RE)).length;
   // Keep strings intact and ignore comments so that a label, example or callback
   // object does not become a skip option. Only inspect direct test arguments.
@@ -168,8 +195,14 @@ function countTestSkips(file, source) {
     const token = tokens[i];
     const previous = tokens[i - 1];
     const parent = stack.at(-1);
+    if (parent?.testCall && (previous === '(' || previous === ',')) {
+      const context = callbackContext(tokens, i);
+      if (context) parent.context = context;
+    }
     if (token === '(') {
-      const method = previous === 'skip' && tokens[i - 2] === '.' && TEST_FUNCTIONS.has(tokens[i - 3]);
+      const receiver = tokens[i - 3];
+      const method = previous === 'skip' && tokens[i - 2] === '.' &&
+        (TEST_FUNCTIONS.has(receiver) || stack.some(frame => frame.context && frame.context === receiver));
       const skipped = method || previous === 'xit' || previous === 'xdescribe';
       if (skipped) count++;
       stack.push({ testCall: !skipped && TEST_FUNCTIONS.has(previous) });
@@ -194,7 +227,41 @@ function countTestSkips(file, source) {
 }
 
 const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
-const TLA_TRIVIAL_INVARIANT_RE = /^[A-Za-z0-9_]+\s*==\s*TRUE\b/;
+const TLA_DECLARATION = /^(?:={4,}|-{4,}|(?:LOCAL\s+)?\w+(?:\s*\([^)]*\))?[ \t]*==|(?:ASSUME|ASSUMPTION|AXIOM|CONSTANTS?|VARIABLES?|INSTANCE|THEOREM|LEMMA|RECURSIVE)\b)/;
+
+function unconditionalTrueDefinitions(source) {
+  const names = new Set();
+  // Strings are tokens, including when they contain comment delimiters. Preserve
+  // physical lines across nested block comments so declarations remain anchored.
+  let commentDepth = 0;
+  const lines = source.split(/\r?\n/).map(line => {
+    let code = '';
+    for (let i = 0; i < line.length;) {
+      const pair = line.slice(i, i + 2);
+      if (pair === '(*') { commentDepth++; code += ' '; i += 2; }
+      else if (commentDepth && pair === '*)') { commentDepth--; i += 2; }
+      else if (commentDepth) i++;
+      else if (pair === '\\*') break;
+      else if (line[i] === '"') {
+        const quoted = /^"(?:\\.|[^"\\])*"/.exec(line.slice(i));
+        code += '""';
+        i += quoted ? quoted[0].length : line.length - i;
+      } else code += line[i++];
+    }
+    return code.trim();
+  }).filter(Boolean);
+  for (let i = 0; i < lines.length; i++) {
+    const definition = /^(?:LOCAL\s+)?(\w+)\s*==\s*(TRUE)?$/.exec(lines[i]);
+    if (!definition) continue;
+    let end = i + 1;
+    if (!definition[2]) {
+      if (lines[end] !== 'TRUE') continue;
+      end++;
+    }
+    if (end === lines.length || TLA_DECLARATION.test(lines[end])) names.add(definition[1]);
+  }
+  return names;
+}
 
 function isTestFileRelPath(relPath) {
   const lower = normalizeRelPath(relPath).toLowerCase();
@@ -329,7 +396,7 @@ export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
 export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const testGlobs = ['tests/**', 'test/**', '**/tests/**', '**/__tests__/**', '*.test.*', '*.spec.*', '*_test.*', '*.tests.*'];
-  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, testGlobs);
+  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, [...testGlobs, '*.tla']);
   const approvedRetirements = loadApprovedTestRetirements(root, revision);
   const violations = [];
 
@@ -357,16 +424,25 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
 
   for (const { status, relPath: currentFile } of changedEntries) {
     if (status === 'D') continue;
-    if (isTestFileRelPath(currentFile)) {
-      const absolute = path.join(root, currentFile);
-      if (fs.lstatSync(absolute).isFile()) {
-        const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
-        const after = fs.readFileSync(absolute, 'utf8');
+    const isTest = isTestFileRelPath(currentFile);
+    const isTla = currentFile.toLowerCase().endsWith('.tla');
+    const absolute = path.join(root, currentFile);
+    if ((isTest || isTla) && fs.lstatSync(absolute).isFile()) {
+      const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
+      const after = fs.readFileSync(absolute, 'utf8');
+      if (isTest) {
         const previousCount = countTestSkips(currentFile, before);
         const currentCount = countTestSkips(currentFile, after);
         if (currentCount > previousCount) {
           violations.push({ code: 'TEST_SKIP_ADDED', path: currentFile,
             detail: `テストの skip 指定が ${previousCount} 件から ${currentCount} 件に増えました` });
+        }
+      }
+      if (isTla) {
+        const previous = unconditionalTrueDefinitions(before);
+        for (const name of unconditionalTrueDefinitions(after)) {
+          if (!previous.has(name)) violations.push({ code: 'FORMAL_INVARIANT_WEAKENED', path: currentFile,
+            detail: `TLA+ 不変条件が自明な == TRUE へ弱体化されています: ${name}` });
         }
       }
     }
@@ -381,13 +457,6 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
           code: 'LINT_DISABLE_ADDED',
           path: currentFile,
           detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${addedText.trim()}`,
-        });
-      }
-      if (currentFile.toLowerCase().endsWith('.tla') && TLA_TRIVIAL_INVARIANT_RE.test(addedText.trim())) {
-        violations.push({
-          code: 'FORMAL_INVARIANT_WEAKENED',
-          path: currentFile,
-          detail: `TLA+ 不変条件が自明な == TRUE へ弱体化されています: ${addedText.trim()}`,
         });
       }
     }
