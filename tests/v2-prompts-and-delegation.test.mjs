@@ -736,3 +736,18 @@ describe('#848 domain-conformance findings are opt-in in v2, and "not run" diffe
     assert.match(template, /0[^\n]*ran with no findings|ran with no findings[^\n]*0/);
   });
 });
+
+describe('#803 approving the domain model also publishes the contract', () => {
+  it('every place that tells a human how to approve names the contract publication step', () => {
+    const read = (rel) => fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+    // Approving only context-map.md leaves domain-contract.json Pending, and the
+    // Concept Test then stops with "domain model must be approved".
+    const template = read('plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md');
+    assert.match(template, /publish(es|ing)? the domain contract/i);
+    assert.match(template, /domain-review-loop/);
+    assert.doesNotMatch(template, /signed off by editing this line directly\)/);
+    for (const rel of ['plugins/sdd-domain/skills/domain-interviewer/SKILL.md', 'plugins/sdd-domain/GEMINI.md']) {
+      assert.match(read(rel), /人による承認と契約の発行/, rel);
+    }
+  });
+});
