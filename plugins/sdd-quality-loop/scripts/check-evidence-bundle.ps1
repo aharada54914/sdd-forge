@@ -33,7 +33,7 @@ function Resolve-RepoRelativePath {
         Add-Failure "$Label is empty"
         return $null
     }
-    if ($path.StartsWith("/") -or $path.StartsWith("//") -or $path -match '^[A-Za-z]:') {
+    if ($path.StartsWith("/", [StringComparison]::Ordinal) -or $path -cmatch '^[A-Za-z]:') {
         Add-Failure "$Label is an absolute path: $Value"
         return $null
     }
@@ -41,7 +41,7 @@ function Resolve-RepoRelativePath {
         Add-Failure "$Label escapes repo root: $Value"
         return $null
     }
-    while ($path.StartsWith("./")) {
+    while ($path.StartsWith("./", [StringComparison]::Ordinal)) {
         $path = $path.Substring(2)
     }
     if ([string]::IsNullOrWhiteSpace($path)) {
@@ -111,8 +111,8 @@ function Get-EvidenceCanonical {
     $artifacts = @($Bundle.artifacts)
     $pairs = @()
     foreach ($artifact in $artifacts) {
-        $path = [string]($artifact.path).Trim()
-        $sha = ([string]($artifact.sha256).Trim()).ToLowerInvariant()
+        $path = ([string]$artifact.path).Trim()
+        $sha = ([string]$artifact.sha256).Trim().ToLowerInvariant()
         $pairs += $path + [char]0 + $sha
     }
     # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
@@ -124,17 +124,19 @@ function Get-EvidenceCanonical {
     $hasher = [System.Security.Cryptography.SHA256]::Create()
     $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
 
-    $dirty = if ($Bundle.git_generated_dirty) { "true" } else { "false" }
-    $verdict = [string]($Bundle.review_verdict.verdict).Trim()
+    # Python: "true" only for a JSON true; a verdict only from an object.
+    $dirty = if ($Bundle.git_generated_dirty -is [bool] -and $Bundle.git_generated_dirty) { "true" } else { "false" }
+    $reviewVerdict = $Bundle.review_verdict
+    $verdict = if ($reviewVerdict -is [PSCustomObject]) { ([string]$reviewVerdict.verdict).Trim() } else { "" }
 
     $lines = @(
         "sdd-evidence-v1",
-        [string]($Bundle.task_id).Trim(),
-        [string]($Bundle.feature).Trim(),
-        [string]($Bundle.risk).Trim(),
-        [string]($Bundle.required_workflow).Trim(),
-        [string]($Bundle.spec_revision).Trim(),
-        [string]($Bundle.git_commit).Trim(),
+        ([string]$Bundle.task_id).Trim(),
+        ([string]$Bundle.feature).Trim(),
+        ([string]$Bundle.risk).Trim(),
+        ([string]$Bundle.required_workflow).Trim(),
+        ([string]$Bundle.spec_revision).Trim(),
+        ([string]$Bundle.git_commit).Trim(),
         $dirty,
         $verdict,
         $artifactsDigest
@@ -153,7 +155,7 @@ $bundleFeature = ([string]$bundle.feature).Trim()
 $qualityReport = $bundle.quality_report
 $verificationContract = $bundle.verification_contract
 $gitCommit = $bundle.git_commit
-$gitGeneratedDirty = $bundle.git_generated_dirty
+$gitGeneratedDirty = $bundle.git_generated_dirty -is [bool] -and $bundle.git_generated_dirty
 $artifacts = @()
 
 if ($taskId -cnotmatch '^T-\d+$') {
@@ -387,7 +389,7 @@ if (@("high", "critical") -ccontains $effectiveRisk) {
 
 # Critical-only signature verification (T-007a)
 if ($effectiveRisk -ceq "critical") {
-    if ($gitGeneratedDirty -eq $true) {
+    if ($gitGeneratedDirty) {
         Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
     }
     $signature = $bundle.signature
@@ -409,7 +411,14 @@ if ($effectiveRisk -ceq "critical") {
                 $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
                 $expectedBytes = $hmac.ComputeHash($canonicalBytes)
                 $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
-                if ([string]::Compare($expected, $value, [System.StringComparison]::Ordinal) -ne 0) {
+                # Constant-time like Python's hmac.compare_digest; also runs on Windows PowerShell 5.1.
+                $expectedUtf8 = [System.Text.Encoding]::UTF8.GetBytes($expected)
+                $valueUtf8 = [System.Text.Encoding]::UTF8.GetBytes($value)
+                $diff = $expectedUtf8.Length -bxor $valueUtf8.Length
+                for ($i = 0; $i -lt $expectedUtf8.Length; $i++) {
+                    $diff = $diff -bor ($expectedUtf8[$i] -bxor $valueUtf8[$i % [Math]::Max(1, $valueUtf8.Length)])
+                }
+                if ($diff -ne 0) {
                     Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
                 }
             }
@@ -424,7 +433,7 @@ if ($effectiveRisk -ceq "critical") {
     }
 }
 
-if ($gitGeneratedDirty -eq $true) {
+if ($gitGeneratedDirty) {
     Write-Host "WARNING: evidence bundle for task ${taskId} was generated with a dirty working tree"
 }
 

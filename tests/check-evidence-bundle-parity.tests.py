@@ -263,6 +263,25 @@ class StrictValueTests(unittest.TestCase):
         for message in ("HMAC mismatch", "cannot be verified", "null-valued"):
             self.assert_absent(lambda fx: self.critical(fx, "false"), message, sign=True)
 
+    def test_wrong_key_still_fails_the_signature(self):
+        os.environ["SDD_EVIDENCE_KEY"] = "another-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        with tempfile.TemporaryDirectory() as base:
+            fx = Fixture(base)
+            self.critical(fx, True)
+            bundle = fx.write()
+            data = json.loads(bundle.read_text(encoding="utf-8"))
+            data["signature"]["value"] = hmac.new(b"parity-key", canonical(data).encode("utf-8"),
+                                                  hashlib.sha256).hexdigest()
+            bundle.write_text(json.dumps(data), encoding="utf-8")
+            for name, run in runners():
+                with self.subTest(runner=name):
+                    if run is None:
+                        self.skipTest("pwsh is not installed; the .ps1 half did not run")
+                    output = run(bundle, fx.root, fx.root).stdout
+                    self.assertIn("critical bundle signature is invalid (HMAC mismatch)", output)
+                    self.assertIn("dirty working tree", output)
+
     def test_kelvin_sign_is_not_a_drive_letter(self):
         def mutate(fx):
             fx.extra_artifacts = ["\u212a:x.txt"]
