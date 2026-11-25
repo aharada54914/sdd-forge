@@ -1,0 +1,152 @@
+{
+  "feature": "verification-first-factory",
+  "taskId": "T-006",
+  "runId": 45674122624,
+  "jobId": 139416964240,
+  "jobUrl": "https://github.com/aharada54914/sdd-forge/actions/runs/45674122624/job/139416964240",
+  "jobConclusion": "success",
+  "ciCommit": "cf53793720d0f3eb996e154627ace69dac893793",
+  "comparisonCommit": "f755b33f3a68ee1ec6dd34087d32bdce274da544",
+  "artifact": {
+    "id": 15049379859,
+    "name": "formal-verification",
+    "archiveSha256": "3f50480e6be0914bdd9a59a1f6029d3cfba907d2c736440f18ca866f9de1222d",
+    "members": [
+      {
+        "archiveMember": "formal-verification.tap",
+        "savedAs": "formal-verification.tap",
+        "sha256": "c0f3b20f5117556ee520f545b678cb5a57d716a80529743de21eee970a1c0167"
+      },
+      {
+        "archiveMember": "reservation/report.json",
+        "savedAs": "report.json",
+        "sha256": "63d599924eaefbcd81c816fecc1b4ab232f7e4da035f4ae09bcb65f1d7a0b8d9"
+      }
+    ]
+  },
+  "ciLogExtract": [
+    "2026-11-25T18:21:18.4313335Z python3 tests/project-skill-formal.tests.py",
+    "2026-11-25T18:21:46.9393407Z # tests 11",
+    "2026-11-25T18:21:46.9393799Z # pass 11",
+    "2026-11-25T18:21:46.9394005Z # fail 0",
+    "2026-11-25T18:21:46.9394438Z # skipped 0",
+    "2026-11-25T18:21:48.3154761Z Ran 8 tests in 1.314s",
+    "2026-11-25T18:21:48.3155016Z OK"
+  ],
+  "files": [
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.cfg",
+      "ciSha256": "6b41f039f41d76abd5831c13a7a46c735cd5c697aaa37a9b2562d5994150c1e1",
+      "checkpointSha256": "6b41f039f41d76abd5831c13a7a46c735cd5c697aaa37a9b2562d5994150c1e1",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.drift.negative.cfg",
+      "ciSha256": "15d5957aa471c220b021ee89b1664d97f61147ec97291940f88fca4dc71fa5c2",
+      "checkpointSha256": "15d5957aa471c220b021ee89b1664d97f61147ec97291940f88fca4dc71fa5c2",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.negative.cfg",
+      "ciSha256": "d29b2867058dc810db88bf68417e8ee68bf177fae6c875272384d209980f9154",
+      "checkpointSha256": "d29b2867058dc810db88bf68417e8ee68bf177fae6c875272384d209980f9154",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.oq.negative.cfg",
+      "ciSha256": "5c3c3588ecd115b0c7be254e84cf89fe5956e2a4628b1b55a4d33bf86acc7df8",
+      "checkpointSha256": "5c3c3588ecd115b0c7be254e84cf89fe5956e2a4628b1b55a4d33bf86acc7df8",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.retry.negative.cfg",
+      "ciSha256": "14d1369774c597b73e4debbf5fcfd79fcb75409d345ea6a39876879e3049293e",
+      "checkpointSha256": "14d1369774c597b73e4debbf5fcfd79fcb75409d345ea6a39876879e3049293e",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.tamper.negative.cfg",
+      "ciSha256": "906bb9ee4a554c8d3666d9be912b1d12e13edec4f80bcc83323569a9f074ab02",
+      "checkpointSha256": "906bb9ee4a554c8d3666d9be912b1d12e13edec4f80bcc83323569a9f074ab02",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/GateLifecycle.tla",
+      "ciSha256": "594b2a9f18a78fd0f991cc5af923842a74338badca78c0fe4c7a72438b5d69a9",
+      "checkpointSha256": "594b2a9f18a78fd0f991cc5af923842a74338badca78c0fe4c7a72438b5d69a9",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/TaskLock.cfg",
+      "ciSha256": "01a71771afe5bd21535978e7c205489d2698ec93d442ae1c63c62714570d7a45",
+      "checkpointSha256": "01a71771afe5bd21535978e7c205489d2698ec93d442ae1c63c62714570d7a45",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/TaskLock.negative.cfg",
+      "ciSha256": "ec1003fd3d1b89af8ac596da2c8ece520a2da8cdb8a3e44089f68c4968d55586",
+      "checkpointSha256": "ec1003fd3d1b89af8ac596da2c8ece520a2da8cdb8a3e44089f68c4968d55586",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/TaskLock.tla",
+      "ciSha256": "b668e0db4933a4e1114318afcb2f5a0effb8207a721227781ae2794bde365e99",
+      "checkpointSha256": "b668e0db4933a4e1114318afcb2f5a0effb8207a721227781ae2794bde365e99",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/TaskLockMutation.cfg",
+      "ciSha256": "e7b6a4db26f350d1b40c9311dcf1883567c68cf5ecbb43bed992ddd2cf3c75ce",
+      "checkpointSha256": "e7b6a4db26f350d1b40c9311dcf1883567c68cf5ecbb43bed992ddd2cf3c75ce",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/TaskLockMutation.negative.cfg",
+      "ciSha256": "7223baa56205fcf1c77b4539dbbe480db05d3cf38adf34fd5e059246f3c16d4f",
+      "checkpointSha256": "7223baa56205fcf1c77b4539dbbe480db05d3cf38adf34fd5e059246f3c16d4f",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/TaskLockMutation.tla",
+      "ciSha256": "d61497a5616412a6f7e48c10f449e14b4a803e5eb77733a8a5bcc54212c21c46",
+      "checkpointSha256": "d61497a5616412a6f7e48c10f449e14b4a803e5eb77733a8a5bcc54212c21c46",
+      "sameContent": true
+    },
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "ciSha256": "0fe2061cefd3e8949d9a414699b003e65277c7bfb17023cdba4577e76d179997",
+      "checkpointSha256": "3453e9c06d719ee9b87c6580ca1c4a3cb8f9f10ffa2daebc80e90f3691c565fc",
+      "sameContent": false
+    },
+    {
+      "path": "tests/project-skill-formal.tests.py",
+      "ciSha256": "38571633fbd85098e60a94c3e49a1a78e3ebfb41ab086651a53a323b673dffbb",
+      "checkpointSha256": "38571633fbd85098e60a94c3e49a1a78e3ebfb41ab086651a53a323b673dffbb",
+      "sameContent": true
+    },
+    {
+      "path": "tests/v2-formal-gate.test.mjs",
+      "ciSha256": "0519212ff82d3b8c46bf210a7a6a0c1c9ff5d43a6c51906dbc142d3fa08ab30b",
+      "checkpointSha256": "0519212ff82d3b8c46bf210a7a6a0c1c9ff5d43a6c51906dbc142d3fa08ab30b",
+      "sameContent": true
+    },
+    {
+      "path": ".github/workflows/sdd-guardrails.yml",
+      "ciSha256": "483fe852d3d6d2af2d4d0b50e409b1c5e425d751af9e7ff0446894862cd0b334",
+      "checkpointSha256": "483fe852d3d6d2af2d4d0b50e409b1c5e425d751af9e7ff0446894862cd0b334",
+      "sameContent": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "ciSha256": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+      "checkpointSha256": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+      "sameContent": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "ciSha256": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d",
+      "checkpointSha256": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d",
+      "sameContent": true
+    }
+  ]
+}
