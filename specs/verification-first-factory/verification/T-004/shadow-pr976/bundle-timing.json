@@ -1,0 +1,70 @@
+{
+  "comparison_tool_before": "610bd301237cd97a3bb725f7e69fea608bae023b",
+  "comparison_tool_after": "d630057b02fe877e7109547562767d712689ad22",
+  "method": "Elapsed wall seconds using time.monotonic(), 3 paired rounds per actual changed bundle; alternate order. Same checkout, baseref and warmed OS caches. PR preparation measured separately with warm local npm cache (--offline); hosted download/network time is not measured. No subprocess executed either compiled JavaScript output.",
+  "node": "v24.13.0",
+  "paired_scan_seconds": [
+    {
+      "pr": 800,
+      "round": 1,
+      "before": 2.738,
+      "after": 2.661,
+      "delta_s": -0.077
+    },
+    {
+      "pr": 972,
+      "round": 1,
+      "before": 1.175,
+      "after": 1.362,
+      "delta_s": 0.187
+    },
+    {
+      "pr": 800,
+      "round": 2,
+      "after": 2.56,
+      "before": 2.405,
+      "delta_s": 0.155
+    },
+    {
+      "pr": 972,
+      "round": 2,
+      "after": 1.46,
+      "before": 1.197,
+      "delta_s": 0.263
+    },
+    {
+      "pr": 800,
+      "round": 3,
+      "before": 2.349,
+      "after": 2.73,
+      "delta_s": 0.381
+    },
+    {
+      "pr": 972,
+      "round": 3,
+      "before": 1.351,
+      "after": 1.313,
+      "delta_s": -0.038
+    }
+  ],
+  "workflow_preparation_seconds": [
+    {
+      "round": 1,
+      "npm_ci_s": 1.23,
+      "regression_s": 1.03,
+      "total_s": 2.26
+    },
+    {
+      "round": 2,
+      "npm_ci_s": 1.302,
+      "regression_s": 0.921,
+      "total_s": 2.223
+    },
+    {
+      "round": 3,
+      "npm_ci_s": 1.295,
+      "regression_s": 0.895,
+      "total_s": 2.19
+    }
+  ]
+}
