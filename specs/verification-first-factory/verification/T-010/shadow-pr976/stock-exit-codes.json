@@ -1,0 +1,104 @@
+{
+  "method": "The release and candidate CLIs invoked on one temporary project with the unmodified v2.1.3 example installed as sdd/guardrails.yaml. The fixture, signed with its isolated test identity, comes from the tag’s tests/concept-test.tests.py (ConceptTests.setUp/save/sign). The wrapper copies had no sibling dispatch helper. The expected exit and diagnostic or JSON decision were asserted on every child process.",
+  "config_sha256": "79d3cca3689f58c681467e1ab90e4b1e5f276ec8014c6b1ce69cf2e2a3b98557",
+  "baseline": "484cbe7aef828488ee49fa5d92569917e74c5891",
+  "candidate": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+  "observations": [
+    {
+      "case": "lock acquisition",
+      "arm": "reference",
+      "exit_code": 0,
+      "elapsed_ms": 26.09
+    },
+    {
+      "case": "lock conflict",
+      "arm": "reference",
+      "exit_code": 1,
+      "elapsed_ms": 25.65
+    },
+    {
+      "case": "lock release",
+      "arm": "reference",
+      "exit_code": 0,
+      "elapsed_ms": 24.58
+    },
+    {
+      "case": "soft guard AGENT_STOP",
+      "arm": "reference",
+      "exit_code": 2,
+      "elapsed_ms": 25.3
+    },
+    {
+      "case": "finalizer missing helper sh",
+      "arm": "reference",
+      "exit_code": 3,
+      "elapsed_ms": 6.48
+    },
+    {
+      "case": "finalizer missing helper ps1",
+      "arm": "reference",
+      "exit_code": 3,
+      "elapsed_ms": 936.42
+    },
+    {
+      "case": "lock acquisition",
+      "arm": "candidate",
+      "exit_code": 0,
+      "elapsed_ms": 26.17
+    },
+    {
+      "case": "lock conflict",
+      "arm": "candidate",
+      "exit_code": 1,
+      "elapsed_ms": 25.52
+    },
+    {
+      "case": "lock release",
+      "arm": "candidate",
+      "exit_code": 0,
+      "elapsed_ms": 25.28
+    },
+    {
+      "case": "soft guard AGENT_STOP",
+      "arm": "candidate",
+      "exit_code": 2,
+      "elapsed_ms": 25.85
+    },
+    {
+      "case": "finalizer missing helper sh",
+      "arm": "candidate",
+      "exit_code": 3,
+      "elapsed_ms": 4.67
+    },
+    {
+      "case": "finalizer missing helper ps1",
+      "arm": "candidate",
+      "exit_code": 3,
+      "elapsed_ms": 561.47
+    },
+    {
+      "case": "concept defer-to-domain-update",
+      "arm": "reference",
+      "exit_code": 2,
+      "elapsed_ms": 216.33
+    },
+    {
+      "case": "concept defer-to-domain-update",
+      "arm": "candidate",
+      "exit_code": 2,
+      "elapsed_ms": 221.14
+    },
+    {
+      "case": "concept rejected",
+      "arm": "reference",
+      "exit_code": 3,
+      "elapsed_ms": 419.61
+    },
+    {
+      "case": "concept rejected",
+      "arm": "candidate",
+      "exit_code": 3,
+      "elapsed_ms": 463.56
+    }
+  ]
+}

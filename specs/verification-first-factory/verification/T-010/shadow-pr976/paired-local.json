@@ -1,0 +1,270 @@
+{
+  "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+  "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "base": "2db182ad22706c86734b85a00e4263f23fda03f0",
+  "commands": {
+    "existing_suite": [
+      "python3",
+      "tests/verification.py",
+      "--suite",
+      "tests/constant-parity.tests.sh",
+      "--receipt",
+      "<receipt>"
+    ],
+    "agent_lint": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "--diff-only",
+      "--base-ref",
+      "2db182ad22706c86734b85a00e4263f23fda03f0",
+      "--mode",
+      "shadow",
+      "--format",
+      "json"
+    ],
+    "dependency_check": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "--adapters",
+      "builtin-slopsquatting",
+      "--mode",
+      "shadow"
+    ]
+  },
+  "runs": [
+    {
+      "index": 1,
+      "arm": "baseline",
+      "elapsed_ms": 352,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ms": 352
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.093568
+          }
+        ],
+        "revision_after": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 2,
+      "arm": "shadow",
+      "elapsed_ms": 2708,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ms": 394
+        },
+        {
+          "name": "agent_lint",
+          "exit_code": 0,
+          "elapsed_ms": 2210
+        },
+        {
+          "name": "dependency_check",
+          "exit_code": 0,
+          "elapsed_ms": 103
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.106226
+          }
+        ],
+        "revision_after": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 3,
+      "arm": "shadow",
+      "elapsed_ms": 2037,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ms": 402
+        },
+        {
+          "name": "agent_lint",
+          "exit_code": 0,
+          "elapsed_ms": 1540
+        },
+        {
+          "name": "dependency_check",
+          "exit_code": 0,
+          "elapsed_ms": 95
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.109698
+          }
+        ],
+        "revision_after": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 4,
+      "arm": "baseline",
+      "elapsed_ms": 346,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ms": 346
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.092793
+          }
+        ],
+        "revision_after": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 5,
+      "arm": "baseline",
+      "elapsed_ms": 344,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ms": 344
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.101829
+          }
+        ],
+        "revision_after": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 6,
+      "arm": "shadow",
+      "elapsed_ms": 2081,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ms": 349
+        },
+        {
+          "name": "agent_lint",
+          "exit_code": 0,
+          "elapsed_ms": 1620
+        },
+        {
+          "name": "dependency_check",
+          "exit_code": 0,
+          "elapsed_ms": 111
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.09236
+          }
+        ],
+        "revision_after": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+        "clean_after": true
+      }
+    }
+  ]
+}
