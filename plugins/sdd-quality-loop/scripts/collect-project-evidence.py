@@ -101,8 +101,8 @@ def write_transcript(output, transcript, phase):
 
 def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
             tdd_transition=None, tdd_sources=(), prepare=False):
-    # Normal mode generated a bundle with generate/check-evidence-bundle.sh,
-    # both retired in v2.0.0 (#865). Refuse before running anything.
+    # Normal mode generated a bundle with generate-evidence-bundle.sh, which
+    # was retired in v2.0.0 (#865). Refuse before running anything.
     if not prepare:
         raise V.Invalid("normal-generation-retired")
     if (

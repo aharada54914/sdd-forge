@@ -6,8 +6,7 @@ check; it does not import a PASS observation, issue an independent review, appro
 a task, or set Done.
 
 > **`--prepare` is the only supported mode.** Normal mode generated a v1 evidence
-> bundle with `generate-evidence-bundle.sh` / `check-evidence-bundle.sh`, which were
-> retired in v2.0.0. Without `--prepare` the collector now stops before running
+> bundle with `generate-evidence-bundle.sh`, which was retired in v2.0.0. Without `--prepare` the collector now stops before running
 > anything, with `project-evidence: blocked: normal-generation-retired` (#865). Execution currently requires the runner's Linux process
 ownership backend. Unsupported platforms retain their actual not-run result.
 
@@ -68,8 +67,9 @@ Then use the current quality/review route:
    risk, TDD, or human approval requirements. Task transitions remain outside the
    collector; Done is set only by `sdd-gate`.
 
-The v1 signing route (`generate-evidence-bundle.sh` / `check-evidence-bundle.sh`)
-was retired in v2.0.0 and is no longer part of this procedure. The collector suite
+The v1 signing route (`generate-evidence-bundle.sh`) was retired in v2.0.0 and is
+no longer part of this procedure. `check-evidence-bundle.sh` still ships as the
+historical completion verifier for bundles that already exist. The collector suite
 exercises actual Red/Green and preparation with explicitly synthetic fixtures; it
 verifies integration, not production reviewer authority or real acceptance.
 
