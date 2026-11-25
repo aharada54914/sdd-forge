@@ -1,0 +1,223 @@
+{
+  "base": "2db182ad22706c86734b85a00e4263f23fda03f0",
+  "head": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+  "method": "Six previously unverified historical failures selected for local documentation, repository policy, developer tooling and model selection checks. The base catalog rejects the incomplete inventory. Base uses the catalog host interpreter directly, head uses python3 tests/verification.py --suite <suite> --receipt <external path>. Both use clean detached worktrees. Suite-local statuses are preserved, including first diagnostic.",
+  "checks": [
+    {
+      "suite": "tests/review-prompt-calibration.tests.sh",
+      "suite_identical": true,
+      "base_command": [
+        "bash",
+        "tests/review-prompt-calibration.tests.sh"
+      ],
+      "base_exit": 1,
+      "base_first_diagnostic": "not ok: spec-reviewer-a.md must read spec review calibration",
+      "base_log_sha256": "504909519673916f26ff20496fe1ad45b2ea42356f6ca6dbe1632847308c7420",
+      "head_receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/review-prompt-calibration.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/review-prompt-calibration.tests.sh",
+            "source_sha256": "c82920797bc01e7dfb979358d0cb414d769114a08145de0eedd302a9b1691804",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 0.010688
+          }
+        ],
+        "revision_after": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_after": true
+      },
+      "head_first_diagnostic": "not ok: spec-reviewer-a.md must read spec review calibration",
+      "head_log_sha256": "344cbda5f6eba3172bf133ab31880ec286443ec1b7be4c17c804f346faedc1a7",
+      "first_diagnostic_matches": true
+    },
+    {
+      "suite": "tests/loop-inventory.tests.sh",
+      "suite_identical": true,
+      "base_command": [
+        "bash",
+        "tests/loop-inventory.tests.sh"
+      ],
+      "base_exit": 1,
+      "base_first_diagnostic": "FAIL: TEST-004.1: loop-inventory.tests.sh exists but is NOT registered in run-all.sh and/or test.yml",
+      "base_log_sha256": "ae7e6426dd3bd4bf11bafa98984f6037cdac221287084160ebe1db10e014d2de",
+      "head_receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/loop-inventory.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/loop-inventory.tests.sh",
+            "source_sha256": "c23fbd30c6bc1d8c8243959c48dae5a0d0b5e77ca88c6c9abeb058b6232654a5",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 1.26947
+          }
+        ],
+        "revision_after": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_after": true
+      },
+      "head_first_diagnostic": "FAIL: TEST-004.1: loop-inventory.tests.sh exists but is NOT registered in run-all.sh and/or test.yml",
+      "head_log_sha256": "c0f73888e8a22a4f273ef7da3f0501433631082f054a3dca208c05b6a3052257",
+      "first_diagnostic_matches": true
+    },
+    {
+      "suite": "tests/model-selector-package.tests.py",
+      "suite_identical": true,
+      "base_command": [
+        "python3",
+        "tests/model-selector-package.tests.py"
+      ],
+      "base_exit": 1,
+      "base_first_diagnostic": "FAIL: test_explicit_packaged_v2_selects_only_registered_capability (__main__.SelectorPackage.test_explicit_packaged_v2_selects_only_registered_capability) (shell='bash')",
+      "base_log_sha256": "a340f4e6938a0d14c52f3e617fd085fcfdd5beeb7cf999fe32c6ff8098aafa33",
+      "head_receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/model-selector-package.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/model-selector-package.tests.py",
+            "source_sha256": "e6d9517656a5e13b8652f9eb72b9954d7cb5b16a5af2c852136ad0b5ffd690da",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 9.064817
+          }
+        ],
+        "revision_after": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_after": true
+      },
+      "head_first_diagnostic": "FAIL: test_explicit_packaged_v2_selects_only_registered_capability (__main__.SelectorPackage.test_explicit_packaged_v2_selects_only_registered_capability) (shell='bash')",
+      "head_log_sha256": "212e6fdc447ec04df920233dde12b1e656aa818429665d0bd7c8677c9c678b9d",
+      "first_diagnostic_matches": true
+    },
+    {
+      "suite": "tests/design-system-compliance.tests.sh",
+      "suite_identical": true,
+      "base_command": [
+        "bash",
+        "tests/design-system-compliance.tests.sh"
+      ],
+      "base_exit": 1,
+      "base_first_diagnostic": "FAIL: JSON envelope runtime controls",
+      "base_log_sha256": "2460f74d0f751892fc39c53a18c8561bdcfdbab5dd962f35dec1b08a988a3a25",
+      "head_receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/design-system-compliance.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/design-system-compliance.tests.sh",
+            "source_sha256": "a073ccc199c6b170bf48ba62ce67f24008b023d91318db5645119ce47008560d",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 4.548636
+          }
+        ],
+        "revision_after": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_after": true
+      },
+      "head_first_diagnostic": "FAIL: JSON envelope runtime controls",
+      "head_log_sha256": "47f775fb612ef44a5be977f3d75526e2e2945ca39928a538d40b87151535dc1d",
+      "first_diagnostic_matches": true
+    },
+    {
+      "suite": "tests/design-sync-policy.tests.sh",
+      "suite_identical": true,
+      "base_command": [
+        "bash",
+        "tests/design-sync-policy.tests.sh"
+      ],
+      "base_exit": 1,
+      "base_first_diagnostic": "FAIL: test_full_lite_and_provider_skill_wire_the_shipped_helper (__main__.PolicyTests.test_full_lite_and_provider_skill_wire_the_shipped_helper)",
+      "base_log_sha256": "5692374e1ebd378d6ae4a24f891497473fb77333310a43d0ac091a644286032b",
+      "head_receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/design-sync-policy.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/design-sync-policy.tests.sh",
+            "source_sha256": "2d8d4dee5aba570f6c50db8f793ccef6aa1767fc1db8332ad7f2c2428a69784e",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 1.425097
+          }
+        ],
+        "revision_after": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_after": true
+      },
+      "head_first_diagnostic": "FAIL: test_full_lite_and_provider_skill_wire_the_shipped_helper (__main__.PolicyTests.test_full_lite_and_provider_skill_wire_the_shipped_helper)",
+      "head_log_sha256": "78053849d21e6a0a37fa5addda32a9d08806a36528ebfd396acb957cbcc1c254",
+      "first_diagnostic_matches": true
+    },
+    {
+      "suite": "tests/turn-first-workflow.tests.sh",
+      "suite_identical": true,
+      "base_command": [
+        "bash",
+        "tests/turn-first-workflow.tests.sh"
+      ],
+      "base_exit": 1,
+      "base_first_diagnostic": "not ok: implement-tasks omits policy text: launch exactly one fresh implementation agent",
+      "base_log_sha256": "038a43f307401ce4bc99038784942248e3775ee0885ff2030086177b59da03f2",
+      "head_receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+        "selected": [
+          "tests/turn-first-workflow.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/turn-first-workflow.tests.sh",
+            "source_sha256": "0dd7aa44dcf00c9e12b04fd1126ba66aaf8ab84d7e273b14ad536e131b8d6e9c",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 0.01073
+          }
+        ],
+        "revision_after": "c9c5d24b23431022cd5e6f76aaaf4cbc3e702f9e",
+        "clean_after": true
+      },
+      "head_first_diagnostic": "not ok: implement-tasks omits policy text: launch exactly one fresh implementation agent",
+      "head_log_sha256": "ebc26d87b284da352e3cfe4714cc8dd54acb091fd2328649026c70faf26c5e57",
+      "first_diagnostic_matches": true
+    }
+  ]
+}

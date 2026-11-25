@@ -58,3 +58,7 @@ base/headで直接再実行した12スイートは上表の10件と、元々成�
 `f4b7cc0` で、既存の `lite` プロファイルに `v2-lightweight-guardrails`、`verification-first-factory`、`self-verification` を登録した。tracked `AGENTS.md` は3件を列挙し、ADR-0051/0054はv2のSDD Coreによる検証を定める。`self-verification` はモデル・設定を収め、仕様は親featureが管理する。旧validatorの `lite` は登録・パスを検証し、Full三段レビューを適用しない既存契約である。ShellとPowerShellのregistry検査、両者のparity、各featureを両シェルで検査した計9件が成功した。[修正後の9件と2件のカタログ実レシート](registry-repair.json)・[旧validatorのプロファイル定義](../../../../workflow-state-integrity/design.md#lite-profile)
 
 この修正でregistry欠落は解消した。旧プラグイン配下の欠落を確認したスイートには、各スイートが現在も保護すべき公開契約とv2での後継実装を特定する作業が残る。全195件を完走した同一SHAのレシートは得られていない。
+
+## 統合版での追加6対
+
+旧113失敗の「現行結果未確認」47本のうち6本を、統合版 `c9c5d24b2` のクリーンなカタログ単独実行とPR base `2db182ad2` の直接実行で照合した。6本ともスイートソースが同じで、終了1と先頭診断が一致した。残る現行結果未確認は41本。対象は `review-prompt-calibration`、`loop-inventory`、`model-selector-package`、`design-system-compliance`、`design-sync-policy`、`turn-first-workflow`。統合版は各スイートの前後ともクリーン。同一SHA・全195本のレシートは未取得。[診断とカタログレシート](additional-clean-pairs.json)
