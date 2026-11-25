@@ -43,6 +43,9 @@
 
 初回の厳格パースでは `docs/architecture/mcp-v2-spec.md` の `createFsReadonlyIo(root)` を含む矢印ラベルで構文エラー1件を検出した。同じ図の関数名を含む2つの矢印ラベルを引用符で囲んだ。修正後、`rtk proxy env DOC_DIAGRAMS_REQUIRE_MERMAID=1 python3 tests/doc-diagrams.tests.py` で負例の内蔵セルフテストも実行した。259文書の相対リンク切れ0件、Mermaid 16/16 構文成功、図中の固定版0件。旧スイート全体の終了値は **1**、残る指摘はワークフローの旧固定行のみ。後継の Self-Fitness は **9/9 成功**。README の並走テストはこれらの失敗モードを検査対象にしていない。
 
+追検証では、図に「全対象タスクが Done」「ship に `--retro` を指定」の2条件を示したうえで、旧検査からも識別できる `P --> W[workflow-retrospective]` の接続を復元した。上記の厳格コマンド（内蔵の負例を含む）は終了0。259文書・16図・固定アンカーの全検査が成功した。別スイート `bash tests/workflow-documentation.tests.sh` は、README に旧コマンド `spec-review-loop` の記載を求める先行検査で終了1だった。
+
+
 ## 比較した Git blob
 
 `git ls-tree e9f3e3e00cb85d4c039d88582d7ba541925c3d00:tests` で追跡パスと SHA を再確認できる。
