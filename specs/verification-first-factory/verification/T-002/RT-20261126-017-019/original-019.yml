@@ -1,0 +1,18 @@
+ticket_id: RT-20261126-019
+status: open
+type: regression
+severity: minor
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Path normalization changes the identity of literal Git paths during test classification"
+problem: |
+  A leading space on a directory name and a literal POSIX backslash in a file name are
+  significant in Git. Trimming and converting backslashes can make ordinary source paths
+  appear to be in a test directory, causing a spurious retirement approval requirement.
+expected_fix:
+  - Classify Git-reported path segments using Git path semantics.
+  - Compare a true test directory with benign source paths containing literal spaces and POSIX backslashes.
+references:
+  - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+  - reports/review-context/verification-first-factory-T-002-d4b6ea01-d525-4908-924d-703245ea551e-invocation.json
