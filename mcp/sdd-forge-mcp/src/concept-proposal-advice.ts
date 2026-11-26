@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { conceptStopAction, recordedConceptStop } from "./concept-gate-advice.js";
+import { conceptStopAction, recordedConceptStop, retiredV1Action } from "./concept-gate-advice.js";
 import { isJsonObject, type JsonObject } from "./parsers/json-object.js";
 import { guardedRead, resolveGuarded } from "./path-guard.js";
 import type { SddRoot } from "./root.js";
@@ -49,7 +49,8 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
   // refusal or missing decision no longer describes the feature-local evidence.
   function continuation(): ProposalAdvice | undefined {
     if (stopped) {
-      if (stopped.status === "BLOCK" && !stopped.missingDecision) return undefined;
+      // A recorded v1 retirement is stale once the record was migrated to v2.
+      if (stopped.status === "BLOCK" && !stopped.missingDecision && !stopped.retiredV1) return undefined;
       return blocked(
         `human: run the installed ${validate}`,
         `${stopped.path} の前回判定は ${stopped.status} です。現在の提案・判断を配布版の検証器（PowerShell は .ps1）で再検証し、CONTINUE なら品質ゲートを再実行してください。`,
@@ -68,13 +69,24 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
   const markdown = guardedRead(root, mdPath);
   const receipt = guardedRead(root, decisionPath);
   const noDecision = !receipt.ok && receipt.error.details?.rule === "exists";
+  // The validator refuses a v1 record before any other check, so advise the migration first.
+  const retired = (source: string) => ({ action: retiredV1Action(feature, `${source} は concept-test/v1 の記録です。`) });
   if (!json.ok) {
-    if (json.error.details?.rule !== "exists" || !noDecision) {
+    const missing = json.error.details?.rule === "exists";
+    if (missing && markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return retired(mdPath);
+    if (!missing || !noDecision) {
       return inspect(jsonPath, "提案のJSONを読み取れません。");
     }
-    if (markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return undefined;
     if (markdown.ok || markdown.error.details?.rule !== "exists") {
       return inspect(jsonPath, "Markdownに対応する提案のJSONを読み取れません。");
+    }
+    // No record is left (a project without domain/ deleted its v1 files). Only the gate
+    // can see a v1 record still held by the Git index, so keep its own advice then.
+    if (stopped?.retiredV1 === "working-tree") {
+      return blocked(
+        `human: re-run the quality gate for ${feature}`,
+        `${stopped.path} の前回判定は廃止された concept-test/v1 の記録による BLOCK です。${prefix} の記録は現在ありません。品質ゲートを再実行してください。`,
+      );
     }
     if (inBootstrap && resolveGuarded(root, seedPath).ok) {
       return blocked(
@@ -86,12 +98,7 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
   }
 
   const proposal = readObject(json.data.contents);
-  if (proposal?.schema === "concept-test/v1" && noDecision) {
-    if (markdown.ok ? markdownObject(markdown.data.contents)?.schema === "concept-test/v1" : markdown.error.details?.rule === "exists") {
-      return undefined;
-    }
-    return inspect(mdPath, "旧提案のJSONとMarkdownの形式を確認してください。");
-  }
+  if (proposal?.schema === "concept-test/v1") return retired(jsonPath);
   if (proposal?.schema !== "concept-test/v2" || proposal.feature !== feature) {
     return inspect(jsonPath, "提案の形式・対象を確認できません。");
   }
@@ -149,6 +156,8 @@ export function conceptAdvice(root: SddRoot, feature: string, tasks: readonly { 
     // prove that the runtime and domain inputs now validate.
     return { ...proposal.action, rationale: `${proposal.action.rationale} 前回の品質ゲート（${stop.path}）の判定は ${stop.status} です。現在の入力に対する検証結果と合わせて確認してください。` };
   }
-  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision)) return proposal.action;
+  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision || stop.retiredV1)) {
+    return proposal.action;
+  }
   return stop?.action;
 }

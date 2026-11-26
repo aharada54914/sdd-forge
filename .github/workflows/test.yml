@@ -151,6 +151,11 @@ jobs:
       - name: Run Concept Test from Codex's versioned plugin cache (#812)
         run: python3 tests/codex-versioned-cache.tests.py
 
+      - name: Run workflow-state batch session tests (gate audit binding)
+        # Only the audit-pin binding: WorkflowSession's real-history case fails on main too
+        # (stale pinned review inputs, see the burndown follow-up).
+        run: python3 tests/workflow-state-session.tests.py GateAuditBinding
+
       - name: Run SQL Development Contract tests
         run: python3 tests/sql-development-contract.tests.py
 

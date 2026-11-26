@@ -17,6 +17,7 @@ import unittest
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
+V1_RETIRED_PREFIX = 'concept-test/v1 records are no longer supported'
 SCRIPT = ROOT / 'plugins/sdd-domain/scripts/validate-concept-test.py'
 GENERATOR = ROOT / 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py'
 spec = importlib.util.spec_from_file_location('concept', SCRIPT)
@@ -52,7 +53,7 @@ class ConceptTests(unittest.TestCase):
                           'responsibilities': ['Identify publication'], 'evidence': ['domain/context-map.md']}]})
         self.write('specs/example/concept-test-seed.md', 'Find a publication.\n')
         self.write('sdd/approver-registry.yaml', 'schema: sdd-approver-registry/v1\napprovers:\n  - id: fixture\n    name: Synthetic approver\n')
-        self.record = {'schema': 'concept-test/v1', 'feature': 'example',
+        self.record = {'schema': 'concept-test/v2', 'feature': 'example',
                        'proposal': 'FITS_EXISTING_CONCEPTS', 'rationale': 'Publication identity already exists.',
                        'distinctions': [{'concepts': ['CONCEPT-BOOK'], 'judgment': 'same', 'confirmed': True}],
                        'inputs': [{'path': p, 'sha256': hashlib.sha256((self.root / p).read_bytes()).hexdigest()}
@@ -69,13 +70,15 @@ class ConceptTests(unittest.TestCase):
         self.write('specs/example/concept-test.json', self.record)
         self.write('specs/example/concept-test.md', '# Concept Test\n\n```json\n' + json.dumps(self.record) + '\n```\n')
 
-    def gate(self, expected=0, env=None, wrapper=None):
+    def gate(self, expected=0, env=None, wrapper=None, retired=False):
         before = {p.relative_to(self.root): p.read_bytes() for p in (self.root / 'domain').rglob('*') if p.is_file()}
         command = wrapper or [sys.executable, str(SCRIPT)]
         result = subprocess.run(command + ['--root', str(self.root), '--feature', 'example'],
                                 env=env or self.env, capture_output=True, text=True)
         self.assertEqual(expected, result.returncode, result.stdout + result.stderr)
         self.assertNotIn('Traceback', result.stderr)
+        # A block must come from the check a test targets, not from the v1 retirement.
+        (self.assertIn if retired else self.assertNotIn)(V1_RETIRED_PREFIX, result.stderr)
         self.assertEqual(before, {p.relative_to(self.root): p.read_bytes() for p in (self.root / 'domain').rglob('*') if p.is_file()})
         return result
 
@@ -88,6 +91,16 @@ class ConceptTests(unittest.TestCase):
                                     env=self.env, capture_output=True, text=True)
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             shutil.copyfile(output / 'specs/example/concept-test.approval.json', self.feature / 'concept-test.approval.json')
+
+    def commit(self, message):
+        """Commit the whole fixture project and return the revision a pinned review reads."""
+        git = ['git', '-C', str(self.root)]
+        if not (self.root / '.git').exists():
+            subprocess.run(git + ['init', '-q'], check=True)
+        subprocess.run(git + ['add', '.'], check=True)
+        subprocess.run(git + ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                              'commit', '-qm', message], check=True)
+        return subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
 
     def local_proposal(self, proposal='NEW_CONCEPT_CANDIDATE'):
         self.record.update(schema='concept-test/v2', proposal=proposal)
@@ -210,7 +223,9 @@ class ConceptTests(unittest.TestCase):
                         self.assertEqual(before, {f.name: f.read_bytes() for f in self.feature.iterdir()})
 
     def test_keyless_fits_strict_mode_and_dispatchers(self):
-        with self.assertRaises(ValueError):
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        with self.assertRaisesRegex(ValueError, V1_RETIRED_PREFIX):
             concept.validate(self.root, 'example', require_v2=True)
         path = self.local_proposal('FITS_EXISTING_CONCEPTS')
         self.assertEqual('CONTINUE', concept.validate(self.root, 'example', require_v2=True))
@@ -289,16 +304,23 @@ class ConceptTests(unittest.TestCase):
         self.local_proposal('FITS_EXISTING_CONCEPTS')
         path.unlink()
         self.gate(1)
+        # v1 mixed with v2 decision records: the validator refuses the retired v1 record
+        # first, and the signed v1 reader (decision packets, pinned reviews) refuses the mix.
+        def retired_mix():
+            self.gate(1, retired=True)
+            with self.assertRaisesRegex(ValueError, 'incompatible Concept Test decision records'):
+                concept.evidence(self.root, 'example')
+
         self.record['schema'] = 'concept-test/v1'
         self.save()
-        self.gate(1)
+        retired_mix()
         approval.unlink()
         path.write_text(json.dumps(receipt), encoding='utf-8')
-        self.gate(1)
+        retired_mix()
         self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
         self.save()
         self.sign()
-        self.gate(1)
+        retired_mix()
 
     def test_keyless_cancel_concurrent_choice_and_failed_publication(self):
         path = self.local_proposal()
@@ -456,6 +478,7 @@ class ConceptTests(unittest.TestCase):
         self.assertIn('lowercase', result.stderr)
 
     def test_fits_and_dispatchers(self):
+        self.local_proposal('FITS_EXISTING_CONCEPTS')
         self.assertEqual('CONTINUE\n', self.gate().stdout)
         if os.name != 'nt' and shutil.which('sh'):
             self.gate(wrapper=['sh', str(SCRIPT.with_suffix('.sh'))])
@@ -463,14 +486,93 @@ class ConceptTests(unittest.TestCase):
         if pwsh:
             self.gate(wrapper=[pwsh, '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))])
 
-    def test_all_human_decisions_with_real_signature(self):
-        for proposal in ['NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION']:
-            for decision, code in [('proceed', 0), ('defer-to-domain-update', 2), ('rejected', 3)]:
-                with self.subTest(proposal=proposal, decision=decision):
-                    self.record.update(proposal=proposal, decision=decision)
-                    self.save()
-                    self.sign()
-                    self.gate(code)
+    def test_v1_records_are_no_longer_accepted_by_the_validator(self):
+        # Owner decision 2026-11-26: v1 records are retired; even a correctly signed one stops with a migration hint.
+        self.record.update(schema='concept-test/v1', proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
+        self.save()
+        self.sign()
+        for extra in ([], ['--require-v2']):
+            with self.subTest(args=extra):
+                result = subprocess.run([sys.executable, str(SCRIPT), '--root', str(self.root), '--feature', 'example', *extra],
+                                        env=self.env, capture_output=True, text=True)
+                self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+                self.assertEqual('', result.stdout)
+                self.assertIn('concept-test/v1 records are no longer supported', result.stderr)
+                self.assertIn('concept-test/v2', result.stderr)
+                # Leftover signed approvals and projects without domain/ get their own step.
+                self.assertIn('delete any leftover specs/example/concept-test.approval.json first', result.stderr)
+                # Any v2 run stops while the approval exists, so it goes before recreating.
+                self.assertLess(result.stderr.index('approval.json first'), result.stderr.index('recreate the proposal'))
+                self.assertIn('In a project without domain/', result.stderr)
+        # Without domain/ the Concept Test does not run, but the gate's strict mode still names the cleanup.
+        shutil.rmtree(self.root / 'domain')
+        self.assertEqual('SKIP\n', self.gate().stdout)
+        self.assertIn('delete specs/example/concept-test.md',
+                      self.gate(1, wrapper=[sys.executable, str(SCRIPT), '--require-v2'], retired=True).stderr)
+
+    def test_markdown_only_v1_record_names_the_retirement(self):
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        (self.feature / 'concept-test.json').unlink()
+        wrappers = [[sys.executable, str(SCRIPT)]]
+        if os.name != 'nt' and shutil.which('sh'):
+            wrappers.append(['sh', str(SCRIPT.with_suffix('.sh'))])
+        if shutil.which('pwsh'):
+            wrappers.append(['pwsh', '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))])
+        for wrapper in wrappers:
+            for extra in ([], ['--require-v2']):
+                with self.subTest(wrapper=wrapper[0], args=extra):
+                    self.gate(1, wrapper=wrapper + extra, retired=True)
+        # A Markdown-only v2 mirror is still a missing proposal, not a retirement.
+        self.record['schema'] = 'concept-test/v2'
+        self.save()
+        (self.feature / 'concept-test.json').unlink()
+        self.assertIn('concept-test.json', self.gate(1).stderr)
+
+    def test_signed_v1_evidence_cannot_be_faked(self):
+        # Pinned reviews and decision packets still read signed v1 records through evidence().
+        def evidence(env=None):
+            with mock.patch.dict(os.environ, env or self.env, clear=True):
+                return concept.evidence(self.root, 'example')
+
+        self.record.update(schema='concept-test/v1', proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'signed human decision is required'):
+            evidence()
+        for decision in ('proceed', 'defer-to-domain-update', 'rejected'):
+            self.record['decision'] = decision
+            self.save()
+            self.sign()
+            self.assertEqual(decision, evidence()[0]['decision'])
+        sidecar = self.feature / 'concept-test.approval.json'
+        original = sidecar.read_bytes()
+        document = json.loads(original)
+        document['hmac'] = '0' * 64
+        sidecar.write_text(json.dumps(document))
+        with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
+            evidence()
+        sidecar.write_bytes(original)
+        with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
+            evidence(dict(self.env, SDD_CONTEXT_KEY=''))
+        self.write('sdd/approver-registry.yaml', 'schema: sdd-approver-registry/v1\napprovers: []\n')
+        with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
+            evidence()
+
+    def test_live_review_refuses_every_working_tree_v1_shape_without_domain(self):
+        # Without a v2 domain contract the resolver reads the record only when one exists.
+        shutil.rmtree(self.root / 'domain')
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        for markdown_only in (False, True):
+            if markdown_only:
+                (self.feature / 'concept-test.json').unlink()
+            for stage in ('spec', 'impl', 'task', 'quality'):
+                with self.subTest(markdown_only=markdown_only, stage=stage):
+                    with self.assertRaisesRegex(ValueError, V1_RETIRED_PREFIX):
+                        concept.conditional.resolve(self.root, 'example', stage)
+        # Passed-review provenance is history: a Markdown-only draft adds no input there.
+        self.assertEqual([], concept.conditional.resolve(self.root, 'example', 'spec', v1_history=True)['inputs'])
 
     def test_missing_or_invalid_evidence(self):
         original = copy.deepcopy(self.record)
@@ -509,21 +611,19 @@ class ConceptTests(unittest.TestCase):
         original = copy.deepcopy(self.record)
         for proposal in ['FITS_EXISTING_CONCEPTS', 'NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION']:
             self.record = dict(original, proposal=proposal)
-            if proposal != 'FITS_EXISTING_CONCEPTS':
-                self.record['decision'] = 'proceed'
             self.save()
             for field in self.record:
                 with self.subTest(proposal=proposal, field=field):
                     changed = dict(self.record, **{field: None})
                     self.write('specs/example/concept-test.md', '```json\n' + json.dumps(changed) + '\n```\n')
-                    self.gate(1)
+                    self.assertIn('Markdown and JSON evidence differ', self.gate(1).stderr)
             self.save()
 
     def test_markdown_boolean_numeric_mismatch(self):
         changed = copy.deepcopy(self.record)
         changed['distinctions'][0]['confirmed'] = 1
         self.write('specs/example/concept-test.md', '```json\n' + json.dumps(changed) + '\n```\n')
-        self.gate(1)
+        self.assertIn('Markdown and JSON evidence differ', self.gate(1).stderr)
 
     def test_stale_missing_or_symlinked_input(self):
         target = self.root / 'specs/example/concept-test-seed.md'
@@ -535,23 +635,6 @@ class ConceptTests(unittest.TestCase):
         if os.name != 'nt':
             target.symlink_to(self.root / 'domain/context-map.md')
             self.gate(1)
-
-    def test_approval_cannot_be_faked(self):
-        self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
-        self.save()
-        self.gate(1)
-        self.sign()
-        self.gate()
-        sidecar = self.feature / 'concept-test.approval.json'
-        original = sidecar.read_bytes()
-        document = json.loads(original)
-        document['hmac'] = '0' * 64
-        sidecar.write_text(json.dumps(document))
-        self.gate(1)
-        sidecar.write_bytes(original)
-        self.gate(1, dict(self.env, SDD_CONTEXT_KEY=''))
-        self.write('sdd/approver-registry.yaml', 'schema: sdd-approver-registry/v1\napprovers: []\n')
-        self.gate(1)
 
     def test_reachable_gate_and_manifests(self):
         core_spec = (ROOT / 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md').read_text(encoding='utf-8')
@@ -583,18 +666,27 @@ class ConceptTests(unittest.TestCase):
         expected = {entry['path'] for entry in self.record['inputs']} | {
             'specs/example/concept-test.json', 'specs/example/concept-test.md'}
         self.assertEqual(expected, {item['path'] for item in result['inputs']})
-        self.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        # A signed v1 record is read only at a pinned revision; live reviews refuse it.
+        self.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.sign()
+        revision = self.commit('Signed v1 decision')
         with mock.patch.dict(os.environ, self.env, clear=True):
-            result = concept.conditional.resolve(self.root, 'example', 'spec')
+            with self.assertRaisesRegex(ValueError, V1_RETIRED_PREFIX):
+                concept.conditional.resolve(self.root, 'example', 'spec')
+            result = concept.conditional.resolve(self.root, 'example', 'spec', revision)
         self.assertIn('specs/example/concept-test.approval.json', {item['path'] for item in result['inputs']})
         (self.feature / 'concept-test.md').unlink()
-        with self.assertRaises(ValueError):
-            concept.conditional.resolve(self.root, 'example', 'spec')
+        without_markdown = self.commit('Markdown removed')
+        with mock.patch.dict(os.environ, self.env, clear=True):
+            with self.assertRaisesRegex(ValueError, 'missing conditional input: specs/example/concept-test.md'):
+                concept.conditional.resolve(self.root, 'example', 'spec', without_markdown)
 
     def test_review_cannot_bypass_gate_or_use_live_approval_for_fixed_revision(self):
+        # Live reviews refuse every v1 record; a pinned revision still reads its signed v1 evidence.
         self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        subprocess.run(['git', '-C', str(self.root), 'init', '-q'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'config', 'core.autocrlf', 'true'], check=True)
 
         def resolve(stage, revision=None):
             with mock.patch.dict(os.environ, self.env, clear=True):
@@ -603,31 +695,29 @@ class ConceptTests(unittest.TestCase):
         def reject_all(revision=None):
             for stage in ['spec', 'impl', 'task', 'quality']:
                 with self.subTest(stage=stage, revision=revision):
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(ValueError) as caught:
                         resolve(stage, revision)
+                    # Live reads stop on the retirement; pinned reads on the check under test.
+                    (self.assertNotIn if revision else self.assertIn)(V1_RETIRED_PREFIX, str(caught.exception))
 
-        self.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        self.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.write('specs/example/concept-test.approval.json', {})
+        reject_all(self.commit('Unsigned approval'))
         reject_all()
         self.sign()
+        signed = self.commit('Signed approval')
         for stage in ['spec', 'impl', 'task', 'quality']:
-            self.assertIn('sdd/approver-registry.yaml', resolve(stage)['observed'])
+            self.assertIn('sdd/approver-registry.yaml', resolve(stage, signed)['observed'])
         for decision in ['rejected', 'defer-to-domain-update']:
             self.record['decision'] = decision
             self.save()
             self.sign()
-            reject_all()
+            reject_all(self.commit('Signed ' + decision))
         self.record['decision'] = 'proceed'
         self.save()
         self.sign()
-        def git(*args):
-            return subprocess.check_output(['git', '-C', str(self.root), *args], text=True).strip()
-        git('init', '-q')
-        git('config', 'core.autocrlf', 'true')
-        git('add', '.')
-        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Valid approval')
-        revision = git('rev-parse', 'HEAD')
+        revision = self.commit('Valid approval')
         for item in self.record['inputs']:
             committed = subprocess.check_output(['git', '-C', str(self.root), 'show', revision + ':' + item['path']])
             self.assertEqual(item['sha256'], hashlib.sha256(committed).hexdigest(), item['path'])
@@ -636,10 +726,9 @@ class ConceptTests(unittest.TestCase):
         reject_all()
         for stage in ['spec', 'impl', 'task', 'quality']:
             self.assertTrue(resolve(stage, revision)['inputs'])
-        git('add', '.')
-        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Invalid approval')
-        invalid_revision = git('rev-parse', 'HEAD')
-        git('checkout', revision, '--', 'sdd/approver-registry.yaml', 'specs/example/concept-test.approval.json')
+        invalid_revision = self.commit('Invalid approval')
+        subprocess.run(['git', '-C', str(self.root), 'checkout', revision, '--', 'sdd/approver-registry.yaml',
+                        'specs/example/concept-test.approval.json'], check=True)
         reject_all(invalid_revision)
 
     def test_review_rejects_invalid_domain_and_unapproved_v2_without_concept_record(self):

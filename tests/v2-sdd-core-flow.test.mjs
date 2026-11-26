@@ -694,20 +694,52 @@ describe('human concept-test decisions at the public gate', () => {
     assert.match(guard.stderr, /concept-test\.decision\.json/);
   });
 
-  it('preserves ordinary and v1-only feature history and scopes receipts by feature', (t) => {
+  it('blocks a v1-only Concept Test record with a migration hint, before any command runs', (t) => {
     const { repo, feature, git, run } = setup(t);
     git('init', '-q');
-    const markdown = path.join(feature, 'concept-test.md');
-    fs.writeFileSync(markdown, '# Concept Test\nThe classification is still under discussion.\n');
-    git('add', 'specs');
-    git('commit', '-qm', 'start narrative concept draft');
     const legacy = JSON.stringify({ schema: 'concept-test/v1' });
     fs.writeFileSync(path.join(feature, 'concept-test.json'), legacy);
-    fs.writeFileSync(markdown, '```json\n' + legacy + '\n```\n');
+    fs.writeFileSync(path.join(feature, 'concept-test.md'), '```json\n' + legacy + '\n```\n');
+    git('add', 'specs');
+    git('commit', '-qm', 'legacy record');
+    const report = run();
+    assert.equal(report.verdict, 'FAIL');
+    assert.equal(report.checks.conceptTest.status, 'BLOCK');
+    assert.match(report.checks.conceptTest.error, /concept-test\/v1 records are no longer supported/);
+    assert.deepEqual(report.checks.commands, []);
+  });
+
+  it('names the v1 retirement for a Markdown-only record and for a record left only in the Git index', (t) => {
+    const { feature, git, run } = setup(t);
+    git('init', '-q');
+    const legacy = JSON.stringify({ schema: 'concept-test/v1' });
+    const files = { md: path.join(feature, 'concept-test.md'), json: path.join(feature, 'concept-test.json') };
+    fs.writeFileSync(files.md, '```json\n' + legacy + '\n```\n');
+    const markdownOnly = run().checks.conceptTest;
+    assert.equal(markdownOnly.status, 'BLOCK');
+    assert.match(markdownOnly.error, /^concept-test: BLOCK: concept-test\/v1 records are no longer supported/);
+    assert.match(markdownOnly.error, /delete any leftover specs\/payments\/concept-test\.approval\.json first, then recreate/);
+    for (const kind of ['md', 'json']) {
+      fs.writeFileSync(files[kind], kind === 'md' ? '```json\n' + legacy + '\n```\n' : legacy);
+      git('add', 'specs');
+      fs.unlinkSync(files[kind]);
+      const report = run();
+      assert.equal(report.checks.conceptTest.status, 'BLOCK', kind);
+      assert.deepEqual(report.checks.commands, []);
+      // The gate names the same migration as the validator, plus the index.
+      assert.ok(report.checks.conceptTest.error.startsWith(markdownOnly.error), report.checks.conceptTest.error);
+      assert.match(report.checks.conceptTest.error, /Git index/);
+      git('rm', '-q', '--cached', '--', `specs/payments/concept-test.${kind}`);
+    }
+  });
+
+  it('scopes receipts by feature: another feature\'s record does not apply here', (t) => {
+    const { repo, git, run } = setup(t);
+    git('init', '-q');
     fs.mkdirSync(path.join(repo, 'specs/other'));
     fs.writeFileSync(path.join(repo, 'specs/other/concept-test.decision.json'), '{}');
     git('add', 'specs');
-    git('commit', '-qm', 'legacy project');
+    git('commit', '-qm', 'other feature record');
     const report = run();
     assert.equal(report.verdict, 'PASS');
     assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE');
