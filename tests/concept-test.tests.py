@@ -527,6 +527,35 @@ class ConceptTests(unittest.TestCase):
         (self.feature / 'concept-test.json').unlink()
         self.assertIn('concept-test.json', self.gate(1).stderr)
 
+    def test_signed_v1_evidence_cannot_be_faked(self):
+        # Pinned reviews and decision packets still read signed v1 records through evidence().
+        def evidence(env=None):
+            with mock.patch.dict(os.environ, env or self.env, clear=True):
+                return concept.evidence(self.root, 'example')
+
+        self.record.update(schema='concept-test/v1', proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'signed human decision is required'):
+            evidence()
+        for decision in ('proceed', 'defer-to-domain-update', 'rejected'):
+            self.record['decision'] = decision
+            self.save()
+            self.sign()
+            self.assertEqual(decision, evidence()[0]['decision'])
+        sidecar = self.feature / 'concept-test.approval.json'
+        original = sidecar.read_bytes()
+        document = json.loads(original)
+        document['hmac'] = '0' * 64
+        sidecar.write_text(json.dumps(document))
+        with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
+            evidence()
+        sidecar.write_bytes(original)
+        with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
+            evidence(dict(self.env, SDD_CONTEXT_KEY=''))
+        self.write('sdd/approver-registry.yaml', 'schema: sdd-approver-registry/v1\napprovers: []\n')
+        with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
+            evidence()
+
     def test_missing_or_invalid_evidence(self):
         original = copy.deepcopy(self.record)
         mutations = [lambda d: d.update(proposal='unknown'), lambda d: d.update(decision='unknown'),
