@@ -424,13 +424,18 @@ const NODE_TEST_EXTENSIONS = process.features.typescript ? '{js,mjs,cjs,ts,mts,c
 const NODE_TEST_GLOB = `**/{test,test/**/*,test-*,*[._-]test}.${NODE_TEST_EXTENSIONS}`;
 const USE_NODE_TEST_GLOB = Number.parseInt(process.versions.node, 10) >= 22 && typeof path.posix.matchesGlob === 'function';
 
+// unittest's test*.py glob folds case on Windows. Preserve the original module
+// characters for its word-character check (Unicode case folding can change them).
+const UNITTEST_MODULE_NAME = process.platform === 'win32'
+  ? /^[Tt][Ee][Ss][Tt][\p{L}\p{N}_]*\.[Pp][Yy]$/u
+  : /^test[\p{L}\p{N}_]*\.py$/u;
+
 function isTestFileRelPath(relPath) {
   // Git's -z output uses literal filenames and '/' separators on every host.
   const name = path.posix.basename(relPath);
   if (/^test\/|(?:^|\/)(?:tests|__tests__)\//i.test(relPath)) return true;
   if (/(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(name)) return true;
-  // unittest discovers importable test*.py modules, including at the root.
-  if (/^test[\p{L}\p{N}_]*\.py$/u.test(name)) return true;
+  if (UNITTEST_MODULE_NAME.test(name)) return true;
 
   // All candidate extensions are already covered by the untracked source pathspecs.
   if (!/\.[cm]?[jt]s$/i.test(name)) return false;

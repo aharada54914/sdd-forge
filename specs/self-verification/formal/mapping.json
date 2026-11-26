@@ -122,10 +122,10 @@
     "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
     "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
   ],
-  "source_sync_commit": "e32e794d3531a9e9e421f1b642b957efdc665f38",
+  "source_sync_commit": "2860b6daad4bb28aed5825697dd1ccfce6fcfd7b",
   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
   "source_sha256": {
-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "a14b575f24cbfbaac00b745340242d74ce378f35318ebf970b412dc9cdd4d23c",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "0c0f75a2c14db6e345a1e02833ad17f0028d3b3e1a34f628c0991fd7456d1f06",
     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "e5ea79c8603530352eecfe93955adc45db65bd2e8ca3c8bea90fcb6a82aed3a5",
     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "3d29aeb024834791fe63dcaa599cfc3e70a24960236129deef3d9fa95a211204",
     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
