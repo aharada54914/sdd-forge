@@ -1116,14 +1116,194 @@ def native_strings(value):
             yield from native_strings(item)
 
 
+# Read-only replay of the three denial formats in retired verifier blob
+# d7e2a45e40f151fe81410fa0288c26259b290b5d. These parsers operate only on
+# recorded events and never invoke a hook or create a challenge.
+HOST_DENIAL_SCHEMA = "sdd-codex-host-denial/v1"
+COPILOT_HOST_DENIAL_SCHEMA = "sdd-copilot-host-denial/v1"
+CLAUDE_HOST_DENIAL_SCHEMA = "sdd-claude-host-denial/v1"
+HOST_DENIAL_PREFIX = (
+    "Command blocked by PreToolUse hook: "
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
+    "これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
+    "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, "
+    "or critical test files. These are part of the enforcement chain and cannot be "
+    "bypassed by sudo.. Command: "
+)
+CANARY_TARGET = "sdd/.hook-canary-sentinel"
+
+
+def _codex_canary_patch(nonce):
+    return (
+        f"*** Begin Patch\n*** Add File: {CANARY_TARGET}\n"
+        f"+sdd-hook-challenge:{nonce}\n*** End Patch"
+    )
+
+
+class HookHandshakeError(Exception):
+    """A recorded denial does not satisfy the original host contract."""
+
+    def __init__(self, category, message):
+        super().__init__(message)
+        self.category = category
+        self.message = message
+
+
+def _check_nonce(obj, expected_nonce):
+    recorded_nonce = obj.get("nonce")
+    if not isinstance(recorded_nonce, str) or not recorded_nonce or recorded_nonce != expected_nonce:
+        raise HookHandshakeError(
+            "STALE_CHALLENGE_REJECTED",
+            "recorded evidence's own 'nonce' field is missing, empty, or "
+            f"does not match this invocation's --nonce (expected "
+            f"{expected_nonce!r}, got {recorded_nonce!r}) -- rejected as "
+            "stale/replayed evidence, never trusted as a fresh denial",
+        )
+
+
+def _check_executed_field(obj):
+    executed = obj.get("executed")
+    if not isinstance(executed, bool):
+        raise HookHandshakeError(
+            "UNRECOGNIZED_RESULT",
+            "recorded evidence has no boolean 'executed' field -- cannot "
+            "determine whether the canary tool-call attempt actually ran",
+        )
+    return executed
+
+
+def _verify_codex_host_denial(obj, expected_nonce, runtime):
+    if (set(obj) != {"schema", "runtime", "nonce", "executed", "raw_result"}
+            or runtime != "codex-cli" or obj.get("runtime") != "codex-cli"):
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "invalid host-denial fields or runtime")
+    for nonce in (expected_nonce, obj.get("nonce")):
+        if not isinstance(nonce, str) or re.fullmatch(r"[0-9a-f]{32}", nonce) is None:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    raw_result = obj.get("raw_result")
+    if not isinstance(raw_result, str):
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial raw_result must be a string")
+    # Escape the entire normative envelope; only the one nonce slot varies.
+    # fullmatch accepts no prefix, suffix, normalization or terminal newline.
+    placeholder = "<nonce>"
+    pattern = r"(?:Script error:\n)?" + re.escape(HOST_DENIAL_PREFIX + _codex_canary_patch(placeholder))
+    pattern = pattern.replace(re.escape(placeholder), r"([0-9a-f]{32})")
+    match = re.fullmatch(pattern, raw_result)
+    if match is None:
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial envelope or operation does not match")
+    if match.group(1) != expected_nonce:
+        raise HookHandshakeError("STALE_CHALLENGE_REJECTED", "echoed operation nonce does not match this challenge")
+
+
+def _verify_claude_host_denial(obj, expected_nonce, runtime):
+    """Claude exposes a native tool error, not the hook's numeric exit code."""
+    def require(condition, message):
+        if not condition:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", message)
+
+    require(set(obj) == {"schema", "runtime", "nonce", "executed", "raw_request", "raw_result"}
+            and runtime == obj.get("runtime") == "claude-code", "invalid Claude host-denial envelope")
+    require(isinstance(expected_nonce, str) and re.fullmatch(r"[0-9a-f]{32}", expected_nonce) is not None,
+            "Claude host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    request, result = obj["raw_request"], obj["raw_result"]
+    require(isinstance(request, dict) and set(request) == {"type", "id", "name", "input", "caller"}
+            and request["type"] == "tool_use" and request["name"] == "Write"
+            and request["caller"] == {"type": "direct"}
+            and isinstance(request["id"], str) and bool(request["id"]), "invalid native Claude Write request")
+    arguments = request["input"]
+    require(isinstance(arguments, dict) and set(arguments) == {"file_path", "content"}
+            and arguments["file_path"] in (CANARY_TARGET, os.path.abspath(CANARY_TARGET))
+            and arguments["content"] == "sdd-hook-challenge:" + expected_nonce,
+            "native Write is not the exact nonce-bound canary creation")
+    require(isinstance(result, dict) and set(result) == {"type", "tool_use_id", "is_error", "content"}
+            and result["type"] == "tool_result" and result["tool_use_id"] == request["id"]
+            and result["is_error"] is True and isinstance(result["content"], str),
+            "native Claude result does not match the denied Write")
+    reason = HOST_DENIAL_PREFIX[len("Command blocked by PreToolUse hook: "):-len(". Command: ")]
+    # Accept one absolute script operand, never shell syntax or another argv.
+    # Do not bind it to this helper's checkout: recorded captures can be verified
+    # from another checkout. Spaces are supported only inside a quoted operand.
+    absolute = r"(?:/|[A-Za-z]:[/\\])"
+    plain_path = absolute + r"[\w./\\:+@,-]*"
+    quoted_path = absolute + r"[\w./\\ :+@,-]*"
+    node_script = r"[/\\]scripts[/\\]sdd-hook-guard\.js"
+    command = (r'(?:sh "' + quoted_path + r'/scripts/sdd-hook-guard\.sh"'
+               r'|node (?:' + plain_path + node_script
+               + r'|"' + quoted_path + node_script + r'")) --emit exit')
+    prefix = r"PreToolUse:Write hook error: \[" + command + r"\]: "
+    plugin = r"This hook comes from the sdd-quality-loop@[A-Za-z0-9][A-Za-z0-9._-]* plugin\."
+    # Claude's print stream can render line breaks as literal backslash-n.
+    require(any(re.fullmatch(prefix + re.escape(text + separator + separator) + plugin,
+                             result["content"]) is not None
+                for text, separator in ((reason, "\n"), (reason.replace("\n", "\\n"), "\\n"))),
+            "native Claude result is not the canonical protected-canary hook denial")
+
+
+def _verify_copilot_host_denial(obj, expected_nonce, runtime):
+    """Bind Copilot's native completion to the exact canary dispatch, not prose."""
+    def require(condition, message):
+        if not condition:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", message)
+
+    require(set(obj) == {"schema", "runtime", "nonce", "executed", "raw_events"}
+            and runtime == obj.get("runtime") == "copilot-cli", "invalid Copilot host-denial envelope")
+    require(isinstance(expected_nonce, str) and re.fullmatch(r"[0-9a-f]{32}", expected_nonce) is not None,
+            "Copilot host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    events = obj["raw_events"]
+    require(isinstance(events, list) and len(events) == 2, "expected one native start/completion pair")
+    for event, kind in zip(events, ("tool.execution_start", "tool.execution_complete")):
+        require(isinstance(event, dict) and {"type", "id", "parentId", "timestamp", "data"} <= set(event)
+                and set(event) <= {"type", "id", "parentId", "timestamp", "data", "agentId"}
+                and event.get("type") == kind and isinstance(event.get("data"), dict),
+                "invalid native event envelope")
+        require(all(isinstance(event.get(key), str) and event[key] for key in ("id", "timestamp"))
+                and (event["parentId"] is None or isinstance(event["parentId"], str)),
+                "invalid native event identity")
+    start, complete = [event["data"] for event in events]
+    require({"toolCallId", "toolName", "arguments", "model"} <= set(start)
+            and set(start) <= {"toolCallId", "toolName", "arguments", "model", "turnId", "toolTitle", "parentToolCallId"},
+            "invalid native tool start")
+    require({"toolCallId", "success", "error", "model"} <= set(complete)
+            and set(complete) <= {"toolCallId", "success", "error", "model", "turnId", "interactionId", "rte", "toolTelemetry", "parentToolCallId"},
+            "invalid native tool completion")
+    require(events[0]["id"] != events[1]["id"] and all(
+        isinstance(start[key], str) and start[key] and start[key] == complete[key]
+        for key in ("toolCallId", "model")), "native events are not the same tool call and model")
+    require(start.get("turnId") == complete.get("turnId"), "native events belong to different turns")
+    for first, second, key in ((events[0], events[1], "agentId"), (start, complete, "parentToolCallId")):
+        if key in first or key in second:
+            require(isinstance(first.get(key), str) and first[key] and first.get(key) == second.get(key),
+                    "native subagent identities differ")
+    arguments = start["arguments"]
+    if start["toolName"] == "apply_patch":
+        patch = _codex_canary_patch(expected_nonce)
+        require(isinstance(arguments, str) and arguments in (patch, patch + "\n"),
+                "native patch is not the exact nonce-bound canary creation")
+    elif start["toolName"] == "create":
+        require(isinstance(arguments, dict) and set(arguments) == {"path", "file_text"}
+                and arguments["path"] in (CANARY_TARGET, os.path.abspath(CANARY_TARGET))
+                and arguments["file_text"] == "sdd-hook-challenge:" + expected_nonce,
+                "native create is not the exact nonce-bound canary creation")
+    else:
+        require(False, "unrecognized native canary tool")
+    # A malformed-payload refusal proves that a hook ran, but not that a valid
+    # canary was evaluated. Require the guard's protected-path decision exactly.
+    guard_reason = HOST_DENIAL_PREFIX[len("Command blocked by PreToolUse hook: "):-len(". Command: ")]
+    require(complete["success"] is False and complete["error"] == {
+        "code": "denied", "message": "Denied by preToolUse hook: " + guard_reason,
+    }, "native completion is not the protected-canary hook denial")
+    return start["model"]
+
+
 def validate_native_outcome(call, completion, events, runtime, nonce, status, cell):
-    # Reuse the shipped denial semantics instead of treating helper stdout as
-    # permission to contradict the original native tool completion.
-    spec = importlib.util.spec_from_file_location('sdd_native_handshake', Path(__file__).with_name('check-hook-activation-handshake.py'))
-    if spec is None or spec.loader is None:
-        fail('ERR_SCHEMA_INVALID', 'native handshake verifier unavailable', cell)
-    helper = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helper)
     native_runtime = {'claude':'claude-code', 'codex':'codex-cli', 'copilot':'copilot-cli'}[runtime]
     envelope = {'runtime':native_runtime, 'nonce':nonce, 'executed':False}
     active = False
@@ -1131,26 +1311,26 @@ def validate_native_outcome(call, completion, events, runtime, nonce, status, ce
         if runtime == 'codex':
             for text in native_strings(completion[1]):
                 try:
-                    helper._verify_codex_host_denial(dict(envelope, schema=helper.HOST_DENIAL_SCHEMA, raw_result=text), nonce, native_runtime)
+                    _verify_codex_host_denial(dict(envelope, schema=HOST_DENIAL_SCHEMA, raw_result=text), nonce, native_runtime)
                     active = True
-                except helper.HookHandshakeError:
+                except HookHandshakeError:
                     continue
         elif runtime == 'copilot':
-            helper._verify_copilot_host_denial(dict(envelope, schema=helper.COPILOT_HOST_DENIAL_SCHEMA, raw_events=[call[5], completion[1]]), nonce, native_runtime)
+            _verify_copilot_host_denial(dict(envelope, schema=COPILOT_HOST_DENIAL_SCHEMA, raw_events=[call[5], completion[1]]), nonce, native_runtime)
             active = True
         else:
             request = json.loads(json.dumps(call[5]))
             target = request.get('input', {}).get('file_path')
-            if target != helper.CANARY_TARGET:
+            if target != CANARY_TARGET:
                 roots = [event.get('cwd') for event in events if event.get('type') == 'system' and event.get('subtype') == 'init']
-                if len(roots) != 1 or not isinstance(roots[0], str) or target != str(Path(roots[0]) / helper.CANARY_TARGET):
+                if len(roots) != 1 or not isinstance(roots[0], str) or target != str(Path(roots[0]) / CANARY_TARGET):
                     fail('ERR_SCHEMA_INVALID', 'Claude canary is outside its native session root', cell)
                 # The original bytes were matched above. Normalize only this
                 # validation copy for replay from a different checkout.
-                request['input']['file_path'] = helper.CANARY_TARGET
-            helper._verify_claude_host_denial(dict(envelope, schema=helper.CLAUDE_HOST_DENIAL_SCHEMA, raw_request=request, raw_result=completion[1]), nonce, native_runtime)
+                request['input']['file_path'] = CANARY_TARGET
+            _verify_claude_host_denial(dict(envelope, schema=CLAUDE_HOST_DENIAL_SCHEMA, raw_request=request, raw_result=completion[1]), nonce, native_runtime)
             active = True
-    except helper.HookHandshakeError:
+    except HookHandshakeError:
         active = False
     if active != (status == 'HOOK_ACTIVE'):
         fail('ERR_CELL_RUNTIME_MISMATCH', 'native canary outcome contradicts verifier status', cell)

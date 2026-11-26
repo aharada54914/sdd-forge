@@ -31,6 +31,26 @@ CELLS = {
     "Copilot-primary-active": ("copilot", "not_applicable", "copilot-hooks.json"),
     "Copilot-subagent-observed": ("copilot", "not_applicable", "copilot-hooks.json"),
 }
+# Literal historical output for synthetic transcript fixtures. Keep the
+# expected bytes independent of the production proof reader.
+HOST_DENIAL_PREFIX = (
+    "Command blocked by PreToolUse hook: "
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
+    "これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
+    "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, "
+    "or critical test files. These are part of the enforcement chain and cannot be "
+    "bypassed by sudo.. Command: "
+)
+CANARY_TARGET = "sdd/.hook-canary-sentinel"
+
+
+def _codex_canary_patch(nonce):
+    return (
+        f"*** Begin Patch\n*** Add File: {CANARY_TARGET}\n"
+        f"+sdd-hook-challenge:{nonce}\n*** End Patch"
+    )
+
+
 T008_EXPECTED_CASES = {
     "TEST-013": "semantic-cell-classification",
     "TEST-014": "fallback-classification",
@@ -458,24 +478,20 @@ class Fixture:
                 "native hook denied" if status == "HOOK_ACTIVE" else "write executed",
                 event_id,
             )
-            helper_path = ROOT / 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py'
-            helper_spec = importlib.util.spec_from_file_location('fixture_native_helper', helper_path)
-            helper = importlib.util.module_from_spec(helper_spec)
-            helper_spec.loader.exec_module(helper)
-            reason = helper.HOST_DENIAL_PREFIX[len('Command blocked by PreToolUse hook: '):-len('. Command: ')]
+            reason = HOST_DENIAL_PREFIX[len('Command blocked by PreToolUse hook: '):-len('. Command: ')]
             if runtime == 'claude':
                 request['caller'] = {'type':'direct'}
-                request['input'] = {'file_path':helper.CANARY_TARGET, 'content':'sdd-hook-challenge:'+nonce}
+                request['input'] = {'file_path':CANARY_TARGET, 'content':'sdd-hook-challenge:'+nonce}
                 result['is_error'] = True
                 result['content'] = 'PreToolUse:Write hook error: [node /fixture/plugin/scripts/sdd-hook-guard.js --emit exit]: '+reason+'\n\nThis hook comes from the sdd-quality-loop@fixture plugin.'
             elif runtime == 'codex' and status == 'HOOK_ACTIVE':
-                result['payload']['output'] = helper.HOST_DENIAL_PREFIX + helper._codex_canary_patch(nonce)
+                result['payload']['output'] = HOST_DENIAL_PREFIX + _codex_canary_patch(nonce)
             elif runtime == 'copilot':
                 request['parentId'] = None
                 result['parentId'] = None
                 request['data']['model'] = 'fixture-model'
                 request['data']['toolName'] = 'apply_patch'
-                request['data']['arguments'] = helper._codex_canary_patch(nonce)
+                request['data']['arguments'] = _codex_canary_patch(nonce)
                 result['data'].pop('result')
                 result['data'].update(model='fixture-model', success=False, error={'code':'denied', 'message':'Denied by preToolUse hook: '+reason})
             pair(
