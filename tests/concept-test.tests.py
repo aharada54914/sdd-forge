@@ -500,7 +500,9 @@ class ConceptTests(unittest.TestCase):
                 self.assertIn('concept-test/v1 records are no longer supported', result.stderr)
                 self.assertIn('concept-test/v2', result.stderr)
                 # Leftover signed approvals and projects without domain/ get their own step.
-                self.assertIn('delete any leftover specs/example/concept-test.approval.json', result.stderr)
+                self.assertIn('delete any leftover specs/example/concept-test.approval.json first', result.stderr)
+                # Any v2 run stops while the approval exists, so it goes before recreating.
+                self.assertLess(result.stderr.index('approval.json first'), result.stderr.index('recreate the proposal'))
                 self.assertIn('In a project without domain/', result.stderr)
         # Without domain/ the Concept Test does not run, but the gate's strict mode still names the cleanup.
         shutil.rmtree(self.root / 'domain')

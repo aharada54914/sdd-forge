@@ -718,7 +718,7 @@ describe('human concept-test decisions at the public gate', () => {
     const markdownOnly = run().checks.conceptTest;
     assert.equal(markdownOnly.status, 'BLOCK');
     assert.match(markdownOnly.error, /^concept-test: BLOCK: concept-test\/v1 records are no longer supported/);
-    assert.match(markdownOnly.error, /delete any leftover specs\/payments\/concept-test\.approval\.json/);
+    assert.match(markdownOnly.error, /delete any leftover specs\/payments\/concept-test\.approval\.json first, then recreate/);
     for (const kind of ['md', 'json']) {
       fs.writeFileSync(files[kind], kind === 'md' ? '```json\n' + legacy + '\n```\n' : legacy);
       git('add', 'specs');

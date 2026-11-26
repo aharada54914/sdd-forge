@@ -158,8 +158,12 @@ const RECREATE = "human: recreate the Concept Test proposal for orders as concep
 function assertRecreateAdvice(action: { command: string; rationale: string } | undefined) {
   assert.equal(action?.command, RECREATE);
   assert.match(action.rationale, /concept-test\/v1/);
-  assert.match(action.rationale, /specs\/orders\/concept-test\.approval\.json/);
+  // A leftover approval blocks every v2 run, so it is deleted before recreating.
+  const leftover = action.rationale.indexOf("specs/orders/concept-test.approval.json");
+  assert.ok(leftover >= 0 && leftover < action.rationale.indexOf("作り直"), action.rationale);
   assert.match(action.rationale, /domain\//);
+  // Like the other BLOCK advice: re-validate, then re-run the quality gate.
+  assert.match(action.rationale, /--require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行/);
 }
 
 test("a v1 record, signed or not, is advised to be recreated as v2", t => {
@@ -216,6 +220,9 @@ test("the advice recognizes the retirement exactly as the validator and the gate
   assert.ok(indexed.error.startsWith(workingTree.error), indexed.error);
   for (const [check, staged] of [[workingTree, false], [indexed, true]] as const) {
     assert.equal(check.status, "BLOCK");
+    // The working-tree stop is current only while the v1 record is still there.
+    if (!staged) f.write(".json", JSON.stringify({ schema: "concept-test/v1" }));
+    else rmSync(join(f.dir, "specs/orders/concept-test.json"), { force: true });
     f.recordGate("BLOCK", check.error);
     const advice = f.afterGate();
     assertRecreateAdvice(advice);
@@ -223,21 +230,37 @@ test("the advice recognizes the retirement exactly as the validator and the gate
   }
 });
 
-test("a gate stopped on a retired v1 record advises recreating it", t => {
-  const retired = "concept-test: BLOCK: concept-test/v1 records are no longer supported; recreate the proposal as "
-    + "concept-test/v2 by running the Concept Test again, then delete any leftover "
-    + "specs/orders/concept-test.approval.json. In a project without domain/, where the Concept Test does not run, "
-    + "delete specs/orders/concept-test.md, specs/orders/concept-test.json and "
-    + "specs/orders/concept-test.approval.json instead";
-  for (const [error, staged] of [[retired, false],
-    [retired + ". The Git index still holds the v1 record; stage its removal too.", true]] as const) {
+const RETIRED_STOP = "concept-test: BLOCK: concept-test/v1 records are no longer supported; delete any leftover "
+  + "specs/orders/concept-test.approval.json first, then recreate the proposal as concept-test/v2 by running the "
+  + "Concept Test again. In a project without domain/, where the Concept Test does not run, delete "
+  + "specs/orders/concept-test.md, specs/orders/concept-test.json and specs/orders/concept-test.approval.json instead";
+const INDEXED_STOP = RETIRED_STOP + ". The Git index still holds the v1 record; stage its removal too.";
+
+test("a gate stopped on a retired v1 record advises recreating it while the record remains", t => {
+  for (const [error, staged] of [[RETIRED_STOP, false], [INDEXED_STOP, true]] as const) {
     const f = fixture(t);
+    // The index note is the gate's own observation; the MCP reader cannot see the index.
+    if (!staged) f.propose("FITS_EXISTING_CONCEPTS", "concept-test/v1");
     f.recordGate("BLOCK", error);
     const advice = f.afterGate();
     assertRecreateAdvice(advice);
-    assert.match(advice?.rationale ?? "", /reports\/quality-gate\/orders-T-001\.execution\.json/);
     assert.equal(/インデックス/.test(advice?.rationale ?? ""), staged);
   }
+});
+
+test("after a migration the recorded v1 stop asks for re-validation and a gate re-run", t => {
+  const f = fixture(t);
+  f.recordGate("BLOCK", RETIRED_STOP);
+  f.propose("FITS_EXISTING_CONCEPTS");
+  const migrated = f.afterGate();
+  assert.match(migrated?.command ?? "", /validate-concept-test.*--require-v2/);
+  assert.match(migrated?.rationale ?? "", /CONTINUE なら品質ゲートを再実行/);
+  // Without domain/ the v1 files are deleted and nothing is left to validate.
+  const g = fixture(t);
+  g.recordGate("BLOCK", RETIRED_STOP);
+  const removed = g.afterGate();
+  assert.equal(removed?.command, "human: re-run the quality gate for orders");
+  assert.match(removed?.rationale ?? "", /reports\/quality-gate\/orders-T-001\.execution\.json/);
 });
 
 test("a Markdown-only v2 proposal needs its companion JSON", t => {
