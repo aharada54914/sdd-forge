@@ -22,7 +22,6 @@ import {
   parseSimpleYaml,
   globToRegExp,
   loadGuardrailsConfig,
-  normalizeRelPath,
   resolveExplicitOrAutoRoot,
   toPosixPath,
   isMainModule,
@@ -421,13 +420,28 @@ function unconditionalTrueDefinitions(source) {
   return names;
 }
 
+const NODE_TEST_EXTENSIONS = process.features.typescript ? '{js,mjs,cjs,ts,mts,cts}' : '{js,mjs,cjs}';
+const NODE_TEST_GLOB = `**/{test,test/**/*,test-*,*[._-]test}.${NODE_TEST_EXTENSIONS}`;
+const USE_NODE_TEST_GLOB = Number.parseInt(process.versions.node, 10) >= 22 && typeof path.posix.matchesGlob === 'function';
+
 function isTestFileRelPath(relPath) {
-  const lower = normalizeRelPath(relPath).toLowerCase();
-  return (
-    lower.startsWith('test/') ||
-    /(?:^|\/)(?:tests|__tests__)\//.test(lower) ||
-    /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower)
-  );
+  // Git's -z output uses literal filenames and '/' separators on every host.
+  const name = path.posix.basename(relPath);
+  if (/^test\/|(?:^|\/)(?:tests|__tests__)\//i.test(relPath)) return true;
+  if (/(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(name)) return true;
+  // unittest discovers importable test*.py modules, including at the root.
+  if (/^test[\p{L}\p{N}_]*\.py$/u.test(name)) return true;
+
+  // All candidate extensions are already covered by the untracked source pathspecs.
+  if (!/\.[cm]?[jt]s$/i.test(name)) return false;
+  const segments = relPath.split('/');
+  if (segments.includes('node_modules')) return false;
+  if (USE_NODE_TEST_GLOB) return path.posix.matchesGlob(relPath, NODE_TEST_GLOB);
+
+  // Node 20's runner walks directories (including dot directories) and compares
+  // names case-sensitively on every OS. It does not discover TypeScript files.
+  if (!/\.[cm]?js$/.test(name)) return false;
+  return segments.includes('test') || /^(?:test(?:-.+)?|.+[._-]test)\.[cm]?js$/.test(name);
 }
 
 function gitText(root, args, options = {}) {

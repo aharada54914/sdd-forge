@@ -406,6 +406,98 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
   }
 
+  // Commit the files, remove them in the worktree, then authorize the exact
+  // detected paths and blobs on the baseline. Controls stay deleted throughout.
+  function checkRetirements({ dir, git }, tests, controls) {
+    const files = [...tests, ...controls];
+    assert.equal(git('add', '--', ...files).status, 0);
+    assert.equal(git('commit', '-m', 'record discovery fixtures').status, 0);
+    const retirements = tests.map(file => ({
+      path: file, git_blob_sha: git('rev-parse', 'HEAD:' + file).stdout.trim(),
+      reason: 'covered by replacement', approved_by: 'fixture-owner',
+    }));
+    for (const file of files) fs.unlinkSync(path.join(dir, file));
+    const rejected = runAntiTamper(dir);
+    assert.equal(rejected.status, 4, rejected.stderr || rejected.stdout);
+    const report = JSON.parse(rejected.stdout);
+    assert.equal(report.status, 'TAMPER_DETECTED');
+    const expected = [...tests].sort().map(path => ({ code: 'UNAUTHORIZED_TEST_DELETION', path }));
+    assert.deepEqual(report.violations.map(({ code, path }) => ({ code, path })), expected);
+    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
+    assert.deepEqual(question.violations, expected);
+
+    const manifest = 'sdd/approved-test-retirements.json';
+    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements }));
+    assert.equal(git('add', manifest).status, 0);
+    assert.equal(git('commit', '-m', 'authorize fixture retirements').status, 0);
+    const accepted = runAntiTamper(dir);
+    assert.equal(accepted.status, 0, accepted.stderr || accepted.stdout);
+    const clean = JSON.parse(accepted.stdout);
+    assert.equal(clean.status, 'CLEAN');
+    assert.deepEqual(clean.violations, []);
+    assert.equal(clean.openQuestion, undefined);
+  }
+
+  it('checks retirements of Python modules found by default unittest discovery', (t) => {
+    const repo = initGitRepoWithTests();
+    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
+    const tests = ['test_checkout.py', 'testTotals.py'];
+    const controls = ['checkout.py', 'test-data.py'];
+    for (const [index, file] of [...tests, ...controls].entries()) {
+      fs.writeFileSync(path.join(repo.dir, file),
+        'import unittest\nclass Checkout(unittest.TestCase):\n    def test_amount_' + index + '(self):\n        self.assertEqual(2 + 2, 4)\n');
+    }
+    const python = process.platform === 'win32' ? 'python' : 'python3';
+    const native = spawnSync(python, ['-B', '-m', 'unittest', 'discover', '-v'], { cwd: repo.dir, encoding: 'utf8' });
+    assert.equal(native.status, 0, native.error?.message || native.stderr);
+    assert.match(native.stderr, /test_amount_0/);
+    assert.match(native.stderr, /test_amount_1/);
+    assert.match(native.stderr, /Ran 2 tests/);
+    checkRetirements(repo, tests, controls);
+  });
+
+  it('checks retirements of files found by default Node test discovery', (t) => {
+    const repo = initGitRepoWithTests();
+    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
+    const tests = ['packages/catalog/test/rounding.mjs', 'packages/catalog/test/units/cents.mjs',
+      'test.mjs', 'packages/catalog/test-price.mjs', 'packages/catalog/price-test.mjs'];
+    const controls = ['packages/catalog/contest/rounding.mjs', 'packages/catalog/test/notes.txt',
+      'packages/catalog/test/component.jsx', 'packages/catalog/test/component.tsx'];
+    // Node 20's directory walk and newer Node versions' default glob differ.
+    // Ask the installed runner which of these files it actually executes.
+    const runtimeCases = ['lib/test/demo.CJS', 'tools/TEST/demo.cjs', 'app/TEST-price.CJS',
+      'app/TEST.JS', 'app/cost-TEST.CJS', '.internal/test/money.cjs',
+      'types/test/price.ts', 'types/test/amount.cts', 'types/test/currency.mts'];
+    const files = [...tests, ...controls, ...runtimeCases];
+    for (const [index, file] of files.entries()) {
+      const fullPath = path.join(repo.dir, file);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, 'import("node:test").then(({ test }) => test("catalog [' + index + ']", () => {}));\n');
+    }
+    const env = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    const native = spawnSync(process.execPath, ['--test', '--test-reporter=tap'], { cwd: repo.dir, encoding: 'utf8', env });
+    assert.equal(native.status, 0, native.stderr || native.stdout);
+    const discovered = files.filter((_, index) => native.stdout.includes('catalog [' + index + ']'));
+    assert.ok(tests.every(file => discovered.includes(file)), native.stdout);
+    assert.ok(controls.every(file => !discovered.includes(file)), native.stdout);
+    checkRetirements(repo, discovered, files.filter(file => !discovered.includes(file)));
+  });
+
+  it('checks retirements using exact directory segments in literal Git paths', (t) => {
+    const repo = initGitRepoWithTests();
+    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
+    const tests = ['test/amount.mjs'];
+    const controls = [' test/amount.mjs'];
+    if (process.platform !== 'win32') controls.push('src\\tests\\amount.mjs');
+    for (const file of [...tests, ...controls]) {
+      const fullPath = path.join(repo.dir, file);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, 'export const amount = 1;\n');
+    }
+    checkRetirements(repo, tests, controls);
+  });
+
   it('allows documentation and quoted examples of inline lint directives without opening an OQ', (t) => {
     const { dir, git } = initGitRepoWithTests();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
