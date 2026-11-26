@@ -1,0 +1,204 @@
+{
+  "candidate": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+  "tree": "48acf07f7a5da55b2aaeba198c66e33512f190ba",
+  "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "pr_changed_files": 1044,
+  "environment": {
+    "CI": false,
+    "offline": true,
+    "node": "v24.13.0",
+    "clean_before_and_after": true,
+    "no_project_verification_commands": true
+  },
+  "commands": {
+    "explicit_cli_full_tree": "node plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs --root . --mode <shadow|strict>",
+    "configured_umbrella_pr": "node plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs --root . --feature verification-first-factory --task T-010 --skip-drift --skip-sensors --base <base> --output <private temporary result>",
+    "configured_umbrella_clean": "Same command without --base, on a commit with zero changed files.",
+    "agent_lint_standalone_pr": "node plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --root . --diff-only --base-ref <base> --mode <shadow|strict>"
+  },
+  "config": {
+    "explicit_cli_full_tree": "Unconfigured stock checkout; CLI --mode overrides the default off mode.",
+    "configured_umbrella": "sdd/guardrails.yaml explicitly sets security_audit.enabled and agent_lint.enabled true and their modes to the chosen mode. Shipped default two security adapters retained.",
+    "stock_umbrella": {
+      "security": "SKIPPED",
+      "lint": "SKIPPED"
+    }
+  },
+  "modes": {
+    "shadow": {
+      "explicit_cli_full_tree": {
+        "seconds": 0.652,
+        "security": {
+          "status": "TOOL_ERROR",
+          "exit": 2,
+          "findings": 32,
+          "by_rule": {
+            "aws-access-key": 28,
+            "private-key-pem": 2,
+            "slack-token": 2
+          },
+          "errors": [
+            "UNREADABLE_SCAN_INPUT"
+          ],
+          "scanned_files": null
+        }
+      },
+      "configured_umbrella_pr": {
+        "seconds": 1.595,
+        "cli_exit": 1,
+        "security": {
+          "status": "WARN",
+          "exit": 0,
+          "findings": 1,
+          "by_rule": {
+            "aws-access-key": 1
+          },
+          "errors": [],
+          "scanned_files": null
+        },
+        "lint": {
+          "status": "WARN",
+          "exit": 0,
+          "findings": 11,
+          "by_rule": {
+            "no-child-process-shell-true": 5,
+            "no-console-log": 4,
+            "no-empty-catch": 1,
+            "no-eval-or-new-function": 1
+          },
+          "errors": [],
+          "scanned_files": 55
+        },
+        "other_failed_checks": [
+          "placeholders",
+          "reviewTickets"
+        ]
+      },
+      "configured_umbrella_clean": {
+        "seconds": 0.781,
+        "cli_exit": 1,
+        "security": {
+          "status": "TOOL_ERROR",
+          "exit": 2,
+          "findings": 32,
+          "by_rule": {
+            "aws-access-key": 28,
+            "private-key-pem": 2,
+            "slack-token": 2
+          },
+          "errors": [
+            "UNREADABLE_SCAN_INPUT"
+          ],
+          "scanned_files": null
+        },
+        "other_failed_checks": [
+          "reviewTickets"
+        ]
+      }
+    },
+    "strict": {
+      "explicit_cli_full_tree": {
+        "seconds": 0.616,
+        "security": {
+          "status": "TOOL_ERROR",
+          "exit": 2,
+          "findings": 32,
+          "by_rule": {
+            "aws-access-key": 28,
+            "private-key-pem": 2,
+            "slack-token": 2
+          },
+          "errors": [
+            "UNREADABLE_SCAN_INPUT"
+          ],
+          "scanned_files": null
+        }
+      },
+      "configured_umbrella_pr": {
+        "seconds": 1.716,
+        "cli_exit": 1,
+        "security": {
+          "status": "FAIL",
+          "exit": 1,
+          "findings": 1,
+          "by_rule": {
+            "aws-access-key": 1
+          },
+          "errors": [],
+          "scanned_files": null
+        },
+        "lint": {
+          "status": "FAIL",
+          "exit": 1,
+          "findings": 11,
+          "by_rule": {
+            "no-child-process-shell-true": 5,
+            "no-console-log": 4,
+            "no-empty-catch": 1,
+            "no-eval-or-new-function": 1
+          },
+          "errors": [],
+          "scanned_files": 55
+        },
+        "other_failed_checks": [
+          "placeholders",
+          "reviewTickets"
+        ]
+      },
+      "configured_umbrella_clean": {
+        "seconds": 0.864,
+        "cli_exit": 1,
+        "security": {
+          "status": "TOOL_ERROR",
+          "exit": 2,
+          "findings": 32,
+          "by_rule": {
+            "aws-access-key": 28,
+            "private-key-pem": 2,
+            "slack-token": 2
+          },
+          "errors": [
+            "UNREADABLE_SCAN_INPUT"
+          ],
+          "scanned_files": null
+        },
+        "other_failed_checks": [
+          "reviewTickets"
+        ]
+      }
+    }
+  },
+  "pr_classification": {
+    "builtin_security_findings_by_source_group": {
+      "tests": 1
+    },
+    "ast_findings_by_source_group": {
+      "other": 3,
+      "specifications_and_evidence": 3,
+      "tests": 5
+    },
+    "builtin_findings_matching_AWS_published_documentation_example": 1,
+    "classification_note": "Matching rule or source group alone is insufficient to establish production impact. These indicators are excluded from the Gitleaks/Semgrep hosted denominator."
+  },
+  "whole_tree_input_check": {
+    "scannable_regular_files": 10526,
+    "unreadable_count": 1,
+    "by_reason": {
+      "exceeds_8_MiB": 1
+    },
+    "unreadable_file_sizes": [
+      8675817
+    ],
+    "reader_limit_bytes": 8388608,
+    "matches_git_tracked_regular_file_count": 1,
+    "matched_file_os_readable": true,
+    "outcome": "Zero changed files make the umbrella pass null to security and cause a whole-tree scan. The bounded file reader declines the one file over its 8 MiB limit; the enabled gate stops after its first adapter. The 32 matches are partial and unclassified."
+  },
+  "hosted_comparison": {
+    "available_distinct_ranges": 86,
+    "gitleaks_findings": 0,
+    "semgrep_findings": 0,
+    "reviewed_false_positive_fraction": null,
+    "builtins_and_ast_excluded": true
+  }
+}

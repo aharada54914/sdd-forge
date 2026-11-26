@@ -1,0 +1,201 @@
+{
+  "candidate": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+  "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "tree": "48acf07f7a5da55b2aaeba198c66e33512f190ba",
+  "method": "Pinned clean checkout. Public run-sdd-gate.mjs --feature verification-first-factory --task T-010 --skip-drift --skip-sensors --agent-lint --base <base> --output <temp>. No project verification commands. Earlier configured umbrella Shadow/Strict check independently gave the same counts. No project settings changed.",
+  "stock_lint": "SKIPPED",
+  "forced_strict": {
+    "status": "FAIL",
+    "duration_ms": 1467,
+    "scanned_files": 55,
+    "by_source": {
+      "first-party-product": 1,
+      "bundled-third-party-output": 2,
+      "historical-evidence-copy": 3,
+      "intentional-rule-fixture": 4,
+      "test-cli-status-output": 1
+    },
+    "by_severity": {
+      "error": 7,
+      "warn": 4
+    },
+    "findings": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "line": 96,
+        "rule": "no-child-process-shell-true",
+        "severity": "error",
+        "source": "first-party-product",
+        "context": "Rebuild benchmark shell-command runner; rule construct confirmed, security impact not assessed",
+        "blob_sha256": "a1d576c2cab796e556bd582975090607ba4bb916f0cdb5950808babe8a16027b"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs",
+        "line": 22,
+        "rule": "no-console-log",
+        "severity": "warn",
+        "source": "bundled-third-party-output",
+        "context": "Go runtime output shim",
+        "blob_sha256": "0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs",
+        "line": 473,
+        "rule": "no-console-log",
+        "severity": "warn",
+        "source": "bundled-third-party-output",
+        "context": "Go runtime debug output",
+        "blob_sha256": "0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14"
+      },
+      {
+        "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "line": 572,
+        "rule": "no-child-process-shell-true",
+        "severity": "error",
+        "source": "historical-evidence-copy",
+        "context": "Copied project verification command runner",
+        "blob_sha256": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af"
+      },
+      {
+        "path": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "line": 96,
+        "rule": "no-child-process-shell-true",
+        "severity": "error",
+        "source": "historical-evidence-copy",
+        "context": "Copied rebuild sampler",
+        "blob_sha256": "a0e7158ab4298502b14d05375f3694184dca6fa6c118a68f0bb6e56bde8d9498"
+      },
+      {
+        "path": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+        "line": 726,
+        "rule": "no-child-process-shell-true",
+        "severity": "error",
+        "source": "historical-evidence-copy",
+        "context": "Copied project verification command runner",
+        "blob_sha256": "a0e7158ab4298502b14d05375f3694184dca6fa6c118a68f0bb6e56bde8d9498"
+      },
+      {
+        "path": "tests/fixtures/agent-lint/violations.mjs",
+        "line": 4,
+        "rule": "no-empty-catch",
+        "severity": "error",
+        "source": "intentional-rule-fixture",
+        "context": "Four expected rules asserted by tests/v2-agent-lint.test.mjs:30-35",
+        "blob_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744"
+      },
+      {
+        "path": "tests/fixtures/agent-lint/violations.mjs",
+        "line": 8,
+        "rule": "no-eval-or-new-function",
+        "severity": "error",
+        "source": "intentional-rule-fixture",
+        "context": "Four expected rules asserted by tests/v2-agent-lint.test.mjs:30-35",
+        "blob_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744"
+      },
+      {
+        "path": "tests/fixtures/agent-lint/violations.mjs",
+        "line": 12,
+        "rule": "no-child-process-shell-true",
+        "severity": "error",
+        "source": "intentional-rule-fixture",
+        "context": "Four expected rules asserted by tests/v2-agent-lint.test.mjs:30-35",
+        "blob_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744"
+      },
+      {
+        "path": "tests/fixtures/agent-lint/violations.mjs",
+        "line": 16,
+        "rule": "no-console-log",
+        "severity": "warn",
+        "source": "intentional-rule-fixture",
+        "context": "Four expected rules asserted by tests/v2-agent-lint.test.mjs:30-35",
+        "blob_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744"
+      },
+      {
+        "path": "tests/lib/bootstrap-core-contracts.mjs",
+        "line": 110,
+        "rule": "no-console-log",
+        "severity": "warn",
+        "source": "test-cli-status-output",
+        "context": "Reports completion to invoking shell and PowerShell test suites",
+        "blob_sha256": "372075d7ea7b3ea8884a001a249b74ca6f8ee19c41833d76f1b54eb917ae954d"
+      }
+    ]
+  },
+  "assessment": {
+    "reviewed_pr_ranges": 1,
+    "syntactic_mismatches_observed": 0,
+    "first_party_product_matches": 1,
+    "first_party_shell_impact": "unassessed",
+    "hosted_field_false_positive_rate": null,
+    "reason": "Fixtures, repeated evidence and ancillary outputs on one local range do not establish an independent hosted field rate."
+  },
+  "controls": {
+    "clean": {
+      "ms": 3,
+      "wall_ms": 31,
+      "scanned": 1,
+      "status": "PASS",
+      "exit": 0,
+      "rules": []
+    },
+    "comment": {
+      "ms": 3,
+      "wall_ms": 31,
+      "scanned": 1,
+      "status": "PASS",
+      "exit": 0,
+      "rules": []
+    },
+    "empty": {
+      "ms": 3,
+      "wall_ms": 31,
+      "scanned": 1,
+      "status": "FAIL",
+      "exit": 1,
+      "rules": [
+        "no-empty-catch"
+      ]
+    },
+    "warn": {
+      "ms": 3,
+      "wall_ms": 31,
+      "scanned": 1,
+      "status": "WARN",
+      "exit": 0,
+      "rules": [
+        "no-console-log"
+      ]
+    }
+  },
+  "timing": {
+    "threshold_ms": 3000,
+    "mode": "standalone run-agent-lint.mjs --mode strict --files <list>; explicit full-file scan, three fresh CLI processes per sample. This is diagnostic timing, separate from the PR diff and its accuracy denominator.",
+    "synthetic_method": "100 independent six-line modules consistent with existing tests/v2-agent-lint.test.mjs:213",
+    "synthetic_ms": [
+      11,
+      10,
+      10
+    ],
+    "synthetic_wall_ms": [
+      39,
+      39,
+      39
+    ],
+    "repository_method": "Select tracked regular non-symlink JS/TS under plugins/, mcp/, tests/ and scripts/ in ascending sha256(UTF-8 relative path) order, first 100. Hash selection before reading file contents. Verify LF-delimited selected paths plus trailing LF against manifest digest.",
+    "eligible": 236,
+    "selected": 100,
+    "sample_bytes": 2478129,
+    "sample_manifest_sha256": "f9a01c017bf0303d7c2e9786be76629f9cf240b92de769968d424c9b3091ac36",
+    "repository_ms": [
+      1139,
+      1145,
+      1186
+    ],
+    "repository_wall_ms": [
+      1171,
+      1177,
+      1217
+    ],
+    "repository_status": "FAIL due to rule findings; all three timing observations completed and are below the budget."
+  }
+}

@@ -88,6 +88,8 @@ jobs:
           node plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs --adapters builtin-slopsquatting --mode shadow
 
       - name: Install pinned review scanners
+        id: scanners
+        if: "!cancelled() && steps.review.outcome == 'success'"
         working-directory: ${{ runner.temp }}
         run: |
           curl --fail --silent --show-error --location --retry 2 -o gitleaks.tgz \
@@ -98,6 +100,8 @@ jobs:
           semgrep-venv/bin/pip --disable-pip-version-check install --quiet 'semgrep==1.187.0'
 
       - name: Scan the reviewed range and retain only finding locations
+        id: shadow
+        if: "!cancelled() && steps.scanners.outcome == 'success'"
         env:
           BASE: ${{ steps.review.outputs.base }}
         run: |
@@ -111,17 +115,16 @@ jobs:
           "$RUNNER_TEMP/semgrep-venv/bin/semgrep" scan --baseline-commit "$BASE" \
             --config plugins/sdd-quality-loop/rules/security.yml --strict --metrics=off --disable-version-check \
             --quiet --json-output "$RUNNER_TEMP/semgrep.json" . > /dev/null
-          jq -n --arg base "$BASE" --arg head "$GITHUB_SHA" \
+          jq -en --arg base "$BASE" --arg head "$GITHUB_SHA" --argjson status "$status" \
             --argjson gitleaks_seconds "$gitleaks_seconds" --argjson semgrep_seconds "$SECONDS" \
             --slurpfile leaks "$RUNNER_TEMP/gitleaks.json" --slurpfile sast "$RUNNER_TEMP/semgrep.json" \
-            '{base: $base, head: $head, gitleaks_seconds: $gitleaks_seconds, semgrep_seconds: $semgrep_seconds,
-              gitleaks: [$leaks[0][] | {rule: .RuleID, commit: .Commit, path: .File, line: .StartLine}],
-              semgrep: [$sast[0].results[] | {rule: .check_id, path, line: .start.line}]}' \
-            > "$RUNNER_TEMP/shadow-findings.json"
+            -f .github/scripts/project-shadow-findings.jq > "$RUNNER_TEMP/shadow-findings.tmp"
+          mv "$RUNNER_TEMP/shadow-findings.tmp" "$RUNNER_TEMP/shadow-findings.json"
           jq -r '"Shadow findings: Gitleaks \(.gitleaks|length), Semgrep \(.semgrep|length)."' \
             "$RUNNER_TEMP/shadow-findings.json" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Retain shadow review evidence
+        if: "!cancelled() && steps.shadow.outcome == 'success'"
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: shadow-findings

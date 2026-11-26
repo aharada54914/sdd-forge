@@ -1,7 +1,7 @@
 # Tasks: Verification-First & Self-Verification Factory (`verification-first-factory`)
 
 - **Feature:** `verification-first-factory`
-- **Version:** `v2.2`（正規ステータス `Planned`・タスク別 `Risk` / `### Blockers`・単一責務 10 タスク分割版）
+- **Version:** `v2.2`（2026-11-26 改訂。T-010 の Shadow リリースと T-011 の strict 昇格を分割）
 - **Approval:** `Approved`
 - **Related Spec:** `specs/verification-first-factory/requirements.md`, `specs/verification-first-factory/design.md`
 - **Related ADR:** `docs/adr/0054-verification-first-and-agentic-factory.md`（WFI-013: 起票・マージ前空き番号再確認必須）
@@ -133,7 +133,7 @@ T-008
 
 ## Wave 4: CI 統合・Shadow→Strict 昇格検証・Self-Rebuild（カテゴリ2テスト廃止）
 
-### T-010: CI 2層 SAST / `actions/cache` 統合・純増オーバーヘッド計測・Self-Rebuild 完了後のカテゴリ2廃止
+### T-010: Shadow リリースの検証・CI 2層 SAST 統合・Self-Rebuild 完了後のカテゴリ2廃止
 - **Status:** `Implementation Complete`
 - **Approval:** `Approved`
 - **Risk:** `high`
@@ -141,11 +141,21 @@ T-008
 - **Scope:** `.github/workflows/sdd-guardrails.yml`, `.github/workflows/test.yml`, `tests/verification-catalog.json`, `sdd/approved-test-retirements.json`, `.gitignore`
 - **Implementation Notes:**
   - PR へ Gitleaks（5〜15s）・Semgrep diff-only（20〜60s）・`actions/cache`（`hashFiles('specs/**/formal/**')`）を、夜間へ CodeQL（5〜15m）を配線。
-  - Shadow 運用で誤検知 < 5% かつ 純増オーバーヘッド（ローカル `<= +15s` / PR CI `<= +120s`）を実証後に `strict` へ昇格。
+  - リリース候補 SHA で PR の Gitleaks と Semgrep diff-only がともに完走した実行記録を確認し、Shadow のまま両方の所見件数を記録する。純増時間をローカル `<= +15s`、PR CI `<= +120s` の各上限と照合する。
   - **カテゴリ2（`.ps1`/`.sh` パリティテスト）は、対応本番スクリプトの Node.js ESM 集約と Windows ネイティブ CI 通過を確認した項目のみ** `sdd/approved-test-retirements.json` 経由で廃止する（E2E・3-AI・`tests/golden/**` は保持）。
-- **Verification (`SELF-AC-005`, `SELF-AC-006`, `AC-013`):** `python3 tests/verification.py --profile local-posix --receipt /tmp/receipt.json`
+- **Verification (`SELF-AC-005` の時間予算、`SELF-AC-006`、`AC-013`):** リリース候補 SHA で `tests/verification.py --profile local-posix --receipt` の単一実行が全195件成功し、同じ候補の両スキャナーと両時間予算を確認する。誤検知率の判定と利用者既定の変更は T-011 が担当する。[判定方法](verification/T-010/approved-shadow-release.md)
 ### Blockers
 T-003, T-006, T-009
+
+### T-011: 実 PR の Shadow 所見を評価して利用者既定を strict に昇格
+- **Status:** `Planned`
+- **Approval:** `Draft`
+- **Risk:** `high`
+- **Covers:** `SELF-REQ-005`, `SELF-AC-005`, `NFR-004`
+- **Scope:** `plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs` の `formal_verification.mode`・`agent_lint.mode`・`security_audit.mode` のうち個別承認したキー、`sdd/guardrails.example.yaml`、`specs/verification-first-factory/verification/T-011/` の昇格判断記録。各ゲートの有効化は引き続き利用者が選ぶ。
+- **Verification:** 昇格候補 SHA 自身で `python3 tests/verification.py --profile local-posix --receipt <path>` を1回完走し、全件成功とローカル `<= +15s`・PR CI `<= +120s` を確認する。lint に影響する場合は100ファイル `<= 3s` も実測する。対象キーごとに、利用者と同じアダプタ・入力範囲で実 PR 所見の重複を除き、全件判定後の誤検知率 `< 5%` を示す。分母0件または未判定ならそのキーは保留とする。限定した利用先で既定・明示指定・切り戻しを確認する。[昇格条件と証跡](verification/T-010/approved-shadow-release.md)
+### Blockers
+T-010
 
 ---
 
@@ -153,3 +163,4 @@ T-003, T-006, T-009
 *(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*
 
 - 2026-11-26（所有者承認、T-003・T-004）。AC-007 の Layer 1 基準を上流の677行に更新。上限700行、差分ゼロ、外部依存ゼロを維持する。過去の663行の記述に対する適用範囲と照合手順は [基準変更の記録](verification/T-004/approved-layer1-baseline.md) に示す。
+- 2026-11-26（所有者承認、T-010・T-011）。実 PR で両スキャナーが完走しても所見0件では誤検知率を算出できないため、Shadow リリースの検証と strict 昇格を別タスクに分ける。SELF-REQ-005・SELF-AC-005 の誤検知率判定を T-011 に割り当て、NFR-004 の時間予算は両タスクで検証する。T-011 の実行承認は別途必要。[決定と証跡](verification/T-010/approved-shadow-release.md)

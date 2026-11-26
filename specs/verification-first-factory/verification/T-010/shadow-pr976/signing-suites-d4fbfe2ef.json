@@ -1,0 +1,46 @@
+[
+  {
+    "schema": "verification-receipt/v1",
+    "profile": null,
+    "revision": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+    "clean_before": true,
+    "reusable": false,
+    "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+    "selected": [
+      "tests/context-signing-environment.tests.py"
+    ],
+    "results": [
+      {
+        "suite": "tests/context-signing-environment.tests.py",
+        "source_sha256": "b8653d6a93be5d2de8e9144a4a8fc49f6b526f9d44419eb6682aec58083e3c16",
+        "status": "passed",
+        "exit_code": 0,
+        "seconds": 0.061272
+      }
+    ],
+    "revision_after": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+    "clean_after": true
+  },
+  {
+    "schema": "verification-receipt/v1",
+    "profile": null,
+    "revision": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+    "clean_before": true,
+    "reusable": false,
+    "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+    "selected": [
+      "tests/release-readiness.tests.py"
+    ],
+    "results": [
+      {
+        "suite": "tests/release-readiness.tests.py",
+        "source_sha256": "7e909683527a5f55e5a19e74d4d98f32b6626edf5c839c46f884d518a083357b",
+        "status": "passed",
+        "exit_code": 0,
+        "seconds": 2.427022
+      }
+    ],
+    "revision_after": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+    "clean_after": true
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "commit": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+  "source": "git archive",
+  "archive_sha256": "29ca0b1c05567e06cadef5308c7c0d9d0d9138b75ab07b75d5967053e43a9a38",
+  "vm": "sdd137-ubuntu-native",
+  "platform": "Linux aarch64",
+  "python": "3.12.3",
+  "test_file": "tests/project-evidence-collector.tests.py",
+  "tests": [
+    {
+      "name": "CollectorTests.test_actual_run_prepares_a_valid_contract_without_a_bundle",
+      "returncode": 0,
+      "output": "test_actual_run_prepares_a_valid_contract_without_a_bundle (__main__.CollectorTests.test_actual_run_prepares_a_valid_contract_without_a_bundle) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.124s\n\nOK\n"
+    },
+    {
+      "name": "CollectorTests.test_original_red_and_green_are_in_the_prepared_evidence",
+      "returncode": 0,
+      "output": "test_original_red_and_green_are_in_the_prepared_evidence (__main__.CollectorTests.test_original_red_and_green_are_in_the_prepared_evidence) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.231s\n\nOK\n"
+    },
+    {
+      "name": "CollectorTests.test_cli_live_red_then_green_handoff",
+      "returncode": 0,
+      "output": "test_cli_live_red_then_green_handoff (__main__.CollectorTests.test_cli_live_red_then_green_handoff) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.266s\n\nOK\n"
+    }
+  ]
+}

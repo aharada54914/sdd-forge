@@ -1,0 +1,62 @@
+{
+  "pr": 976,
+  "candidate": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+  "pr_head_at_observation": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+  "superseded": false,
+  "prior_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "pr_base_at_observation": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "baseline_pr": 982,
+  "baseline": {
+    "runs": [
+      {
+        "databaseId": 45730069535,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069535",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      },
+      {
+        "databaseId": 45730069549,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069549",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      }
+    ],
+    "executed_jobs": 11,
+    "completed": true,
+    "all_success": true,
+    "first_started_utc": "2026-11-26T00:37:39Z",
+    "last_completed_utc": "2026-11-26T00:46:32Z",
+    "span_seconds": 533,
+    "longest_job": {
+      "name": "cloud-and-ddd (ubuntu-latest / JST)",
+      "duration_seconds": 518
+    }
+  },
+  "observed_at_utc": "2026-11-26T04:17:24.786811+00:00",
+  "ci": {
+    "runs": [
+      {
+        "databaseId": 45753279040,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45753279040",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 45753279046,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45753279046",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "completed": true,
+    "all_success": true,
+    "executed_jobs": 11,
+    "first_started_utc": "2026-11-26T04:08:18Z",
+    "last_completed_utc": "2026-11-26T04:17:01Z",
+    "span_seconds": 523,
+    "success_path_delta_seconds": -10
+  },
+  "shadow_evidence": "additional-shadow-counts-d4fbfe2ef.json"
+}
