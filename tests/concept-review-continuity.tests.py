@@ -229,7 +229,7 @@ class LateStageAdmission(unittest.TestCase):
             self.assertEqual('proceed', validate_packet()['concept_decision'])
 
     def test_signed_decision_admission_and_persistence(self):
-        self.fixture.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        self.fixture.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.fixture.save()
         self.fixture.sign()
         with mock.patch.dict(os.environ, self.fixture.env, clear=True):
@@ -294,7 +294,7 @@ class LateStageAdmission(unittest.TestCase):
                         self.assertEqual(ledger.read_bytes(), before)
                         if omitted is None:
                             self.assertEqual(launcher.required_dependencies(self.root, invocation)['inputs'], selected)
-                            if stage == 'task' and self.fixture.record['schema'] == 'concept-test/v2':
+                            if stage == 'task' and (self.root / 'specs/example/concept-test.decision.json').exists():
                                 self.check_fixed_with_live_changes(command, runtime, selected)
                             if 'decision' in self.fixture.record:
                                 evidence = {p: (self.root / p).read_bytes() for p in (

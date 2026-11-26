@@ -17,6 +17,7 @@ import unittest
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
+V1_RETIRED_PREFIX = 'concept-test/v1 records are no longer supported'
 SCRIPT = ROOT / 'plugins/sdd-domain/scripts/validate-concept-test.py'
 GENERATOR = ROOT / 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py'
 spec = importlib.util.spec_from_file_location('concept', SCRIPT)
@@ -52,7 +53,7 @@ class ConceptTests(unittest.TestCase):
                           'responsibilities': ['Identify publication'], 'evidence': ['domain/context-map.md']}]})
         self.write('specs/example/concept-test-seed.md', 'Find a publication.\n')
         self.write('sdd/approver-registry.yaml', 'schema: sdd-approver-registry/v1\napprovers:\n  - id: fixture\n    name: Synthetic approver\n')
-        self.record = {'schema': 'concept-test/v1', 'feature': 'example',
+        self.record = {'schema': 'concept-test/v2', 'feature': 'example',
                        'proposal': 'FITS_EXISTING_CONCEPTS', 'rationale': 'Publication identity already exists.',
                        'distinctions': [{'concepts': ['CONCEPT-BOOK'], 'judgment': 'same', 'confirmed': True}],
                        'inputs': [{'path': p, 'sha256': hashlib.sha256((self.root / p).read_bytes()).hexdigest()}
@@ -69,13 +70,15 @@ class ConceptTests(unittest.TestCase):
         self.write('specs/example/concept-test.json', self.record)
         self.write('specs/example/concept-test.md', '# Concept Test\n\n```json\n' + json.dumps(self.record) + '\n```\n')
 
-    def gate(self, expected=0, env=None, wrapper=None):
+    def gate(self, expected=0, env=None, wrapper=None, retired=False):
         before = {p.relative_to(self.root): p.read_bytes() for p in (self.root / 'domain').rglob('*') if p.is_file()}
         command = wrapper or [sys.executable, str(SCRIPT)]
         result = subprocess.run(command + ['--root', str(self.root), '--feature', 'example'],
                                 env=env or self.env, capture_output=True, text=True)
         self.assertEqual(expected, result.returncode, result.stdout + result.stderr)
         self.assertNotIn('Traceback', result.stderr)
+        # A block must come from the check a test targets, not from the v1 retirement.
+        (self.assertIn if retired else self.assertNotIn)(V1_RETIRED_PREFIX, result.stderr)
         self.assertEqual(before, {p.relative_to(self.root): p.read_bytes() for p in (self.root / 'domain').rglob('*') if p.is_file()})
         return result
 
@@ -210,7 +213,9 @@ class ConceptTests(unittest.TestCase):
                         self.assertEqual(before, {f.name: f.read_bytes() for f in self.feature.iterdir()})
 
     def test_keyless_fits_strict_mode_and_dispatchers(self):
-        with self.assertRaises(ValueError):
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        with self.assertRaisesRegex(ValueError, V1_RETIRED_PREFIX):
             concept.validate(self.root, 'example', require_v2=True)
         path = self.local_proposal('FITS_EXISTING_CONCEPTS')
         self.assertEqual('CONTINUE', concept.validate(self.root, 'example', require_v2=True))
@@ -289,16 +294,23 @@ class ConceptTests(unittest.TestCase):
         self.local_proposal('FITS_EXISTING_CONCEPTS')
         path.unlink()
         self.gate(1)
+        # v1 mixed with v2 decision records: the validator refuses the retired v1 record
+        # first, and the signed v1 reader (decision packets, pinned reviews) refuses the mix.
+        def retired_mix():
+            self.gate(1, retired=True)
+            with self.assertRaisesRegex(ValueError, 'incompatible Concept Test decision records'):
+                concept.evidence(self.root, 'example')
+
         self.record['schema'] = 'concept-test/v1'
         self.save()
-        self.gate(1)
+        retired_mix()
         approval.unlink()
         path.write_text(json.dumps(receipt), encoding='utf-8')
-        self.gate(1)
+        retired_mix()
         self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
         self.save()
         self.sign()
-        self.gate(1)
+        retired_mix()
 
     def test_keyless_cancel_concurrent_choice_and_failed_publication(self):
         path = self.local_proposal()
@@ -466,7 +478,7 @@ class ConceptTests(unittest.TestCase):
 
     def test_v1_records_are_no_longer_accepted_by_the_validator(self):
         # Owner decision 2026-11-26: v1 records are retired; even a correctly signed one stops with a migration hint.
-        self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
+        self.record.update(schema='concept-test/v1', proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
         self.save()
         self.sign()
         for extra in ([], ['--require-v2']):
@@ -515,21 +527,19 @@ class ConceptTests(unittest.TestCase):
         original = copy.deepcopy(self.record)
         for proposal in ['FITS_EXISTING_CONCEPTS', 'NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION']:
             self.record = dict(original, proposal=proposal)
-            if proposal != 'FITS_EXISTING_CONCEPTS':
-                self.record['decision'] = 'proceed'
             self.save()
             for field in self.record:
                 with self.subTest(proposal=proposal, field=field):
                     changed = dict(self.record, **{field: None})
                     self.write('specs/example/concept-test.md', '```json\n' + json.dumps(changed) + '\n```\n')
-                    self.gate(1)
+                    self.assertIn('Markdown and JSON evidence differ', self.gate(1).stderr)
             self.save()
 
     def test_markdown_boolean_numeric_mismatch(self):
         changed = copy.deepcopy(self.record)
         changed['distinctions'][0]['confirmed'] = 1
         self.write('specs/example/concept-test.md', '```json\n' + json.dumps(changed) + '\n```\n')
-        self.gate(1)
+        self.assertIn('Markdown and JSON evidence differ', self.gate(1).stderr)
 
     def test_stale_missing_or_symlinked_input(self):
         target = self.root / 'specs/example/concept-test-seed.md'
@@ -572,7 +582,7 @@ class ConceptTests(unittest.TestCase):
         expected = {entry['path'] for entry in self.record['inputs']} | {
             'specs/example/concept-test.json', 'specs/example/concept-test.md'}
         self.assertEqual(expected, {item['path'] for item in result['inputs']})
-        self.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        self.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.sign()
         with mock.patch.dict(os.environ, self.env, clear=True):
@@ -595,7 +605,7 @@ class ConceptTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         resolve(stage, revision)
 
-        self.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        self.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.write('specs/example/concept-test.approval.json', {})
         reject_all()
