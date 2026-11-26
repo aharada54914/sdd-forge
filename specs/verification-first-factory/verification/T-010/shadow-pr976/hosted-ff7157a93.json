@@ -1,0 +1,76 @@
+{
+  "pr": 976,
+  "candidate": "ff7157a93bdb873c97cee7090d5b1475f273a8ca",
+  "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "base_pr": 982,
+  "collected_at_utc": "2026-11-26T04:02:32.901120+00:00",
+  "shadow": {
+    "previous_artifacts": 68,
+    "new_artifacts": 14,
+    "distinct_diff_pairs": 82,
+    "gitleaks": 0,
+    "semgrep": 0
+  },
+  "false_positive_rate": null,
+  "shadow_evidence": "specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-ff7157a93.json",
+  "baseline": {
+    "runs": [
+      {
+        "databaseId": 45730069535,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069535",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      },
+      {
+        "databaseId": 45730069549,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069549",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      }
+    ],
+    "executed_jobs": 11,
+    "completed": true,
+    "all_success": true,
+    "first_started_utc": "2026-11-26T00:37:39Z",
+    "last_completed_utc": "2026-11-26T00:46:32Z",
+    "span_seconds": 533,
+    "longest_job": {
+      "name": "cloud-and-ddd (ubuntu-latest / JST)",
+      "duration_seconds": 518
+    }
+  },
+  "candidate_ci": {
+    "runs": [
+      {
+        "databaseId": 45751698724,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45751698724",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "ff7157a93bdb873c97cee7090d5b1475f273a8ca"
+      },
+      {
+        "databaseId": 45751698741,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45751698741",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "ff7157a93bdb873c97cee7090d5b1475f273a8ca"
+      }
+    ],
+    "executed_jobs": 11,
+    "completed": true,
+    "all_success": true,
+    "first_started_utc": "2026-11-26T03:53:04Z",
+    "last_completed_utc": "2026-11-26T04:01:57Z",
+    "span_seconds": 533,
+    "longest_job": {
+      "name": "cloud-and-ddd (ubuntu-latest / JST)",
+      "duration_seconds": 508
+    }
+  },
+  "success_path_delta_seconds": 0,
+  "within_ci_budget": true,
+  "ci_budget_seconds": 120,
+  "time_method": "Earliest started through latest completed non-skipped job in Test + Guardrails, pull_request events only. Both PRs use independent hosted runners."
+}

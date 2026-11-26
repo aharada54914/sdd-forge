@@ -19,7 +19,7 @@ class CodexIdentityTests(unittest.TestCase):
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
-        self.base = Path(temp.name)
+        self.base = Path(temp.name).resolve(strict=True)
         self.root = self.base / 'project'
         self.root.mkdir()
         self.home = self.base / 'codex'

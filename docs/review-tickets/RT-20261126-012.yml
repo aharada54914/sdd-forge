@@ -24,3 +24,8 @@ progress:
     hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-627f511d7.json
     additional_diffs: specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-627f511d7.json
     result: "ローカル3組の最大増分は1.748秒。全ジョブ成功時のPR全体は533秒から703秒（+170秒、予算を50秒超過）。68差分の両スキャナーの所見は合計0件で、誤検知率は未確定。"
+  follow_up_ff7157a93:
+    local: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-ff7157a93.json
+    hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-ff7157a93.json
+    additional_diffs: specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-ff7157a93.json
+    result: "ローカル3組の最大純増は3.596秒。候補・対照ともPR全体の11ジョブが成功し533秒（差0秒）。82通りの実差分で両スキャナー各0件、誤検知率は判定不能。"
