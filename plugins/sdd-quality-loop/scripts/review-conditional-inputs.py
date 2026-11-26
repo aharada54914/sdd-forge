@@ -215,20 +215,29 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
     prefix = 'specs/' + feature + '/concept-test'
     has_concept = (concept_required or source(prefix + '.json', True) is not None
                    or source(prefix + '.decision.json', True) is not None)
-    if stage in ('task', 'quality') and not has_concept:
-        return {'inputs': [], 'research_inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
-    concept, concept_inputs = {}, []
-    if has_concept:
+
+    def concept_module():
         module_path = Path(__file__).resolve().parents[2] / 'sdd-domain/scripts/validate-concept-test.py'
         spec = importlib.util.spec_from_file_location('conditional_concept', module_path)
         if spec is None or spec.loader is None:
             raise ValueError('Concept Test validator loader unavailable')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        # Live reads refuse retired v1 records (owner decision 2026-11-26). A pinned
-        # historical revision, or the provenance of an already passed review, keeps reading v1.
-        concept, concept_inputs = module.evidence(root, feature, observe, allow_local=True,
-                                                  reject_v1=revision is None and not v1_history)
+        return module
+
+    # Live reads refuse retired v1 records (owner decision 2026-11-26), including a
+    # Markdown-only one. A pinned historical revision, or the provenance of an
+    # already passed review, keeps reading v1.
+    reject_v1 = revision is None and not v1_history
+    if not has_concept and reject_v1:
+        markdown = source(prefix + '.md', True)
+        has_concept = markdown is not None and concept_module().markdown_schema(markdown) == 'concept-test/v1'
+    if stage in ('task', 'quality') and not has_concept:
+        return {'inputs': [], 'research_inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
+    concept, concept_inputs = {}, []
+    if has_concept:
+        concept, concept_inputs = concept_module().evidence(root, feature, observe, allow_local=True,
+                                                            reject_v1=reject_v1)
         if concept.get('decision', 'proceed') != 'proceed':
             raise ValueError('Concept Test does not permit continuing feature work')
     if stage == 'impl':
