@@ -1,0 +1,103 @@
+{
+  "scope": "Selected offline contract checks on the local macOS worktree, before and after the fixture changes. No full-suite or full-profile claim.",
+  "before": {
+    "host": "Darwin arm64",
+    "python": "3.14.5",
+    "head": "e94da1ef5084711d5dc486dee51981a76edfb9db",
+    "inputs_sha256": {
+      "tests/golden-eval.tests.py": "32f10515a3c9bd9ec0088b5a2183117bc4922f0caa3a4f73c25c5e563bc61123",
+      "tests/project-skill-observation.tests.py": "c47514aa73c3c87c950da2a41b2a1559eb1c5d499ac390d996d5821112c5f889",
+      "tests/golden-eval.py": "c2cbf72df13efa870fe1f7ae0c4fb8b33bf180827aa6aefdb074483024a42a8b",
+      "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "a90d0d0e23ff68eb91bbef8ccd26f94722f30a38f4e1158f9c55ec38382be0d0",
+      "plugins/sdd-quality-loop/scripts/validate-project-skill.sh": "0b5fc59984f545c99388a9f11183f25573e590aa825b063edd2392ac9ce453fc",
+      "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh": "abde8035c825c318a56a3d9e1b24b2fd618553f10f9784ceae8ab2173eeadf0c"
+    },
+    "runs": [
+      {
+        "argv": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "tests/golden-eval.tests.py",
+          "-v",
+          "GoldenTests.test_comparison_denominators_medians_and_no_promotion",
+          "GoldenTests.test_interrupted_and_unrun_retained",
+          "GoldenTests.test_budget_and_timeout_refuse",
+          "GoldenTests.test_each_safety_violation_or_regression_refuses"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "test_comparison_denominators_medians_and_no_promotion (__main__.GoldenTests.test_comparison_denominators_medians_and_no_promotion) ... ERROR\ntest_interrupted_and_unrun_retained (__main__.GoldenTests.test_interrupted_and_unrun_retained) ... ERROR\ntest_budget_and_timeout_refuse (__main__.GoldenTests.test_budget_and_timeout_refuse) ... ERROR\ntest_each_safety_violation_or_regression_refuses (__main__.GoldenTests.test_each_safety_violation_or_regression_refuses) ... ERROR\n\n======================================================================\nERROR: test_comparison_denominators_medians_and_no_promotion (__main__.GoldenTests.test_comparison_denominators_medians_and_no_promotion)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 147, in test_comparison_denominators_medians_and_no_promotion\n    result = self.compare(self.manifest())\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 144, in compare\n    return M.compare(path)\n           ~~~~~~~~~^^^^^^\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.py\", line 205, in compare\n    raise ValueError('unsafe output location')\nValueError: unsafe output location\n\n======================================================================\nERROR: test_interrupted_and_unrun_retained (__main__.GoldenTests.test_interrupted_and_unrun_retained)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 166, in test_interrupted_and_unrun_retained\n    result = self.compare(data)\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 144, in compare\n    return M.compare(path)\n           ~~~~~~~~~^^^^^^\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.py\", line 205, in compare\n    raise ValueError('unsafe output location')\nValueError: unsafe output location\n\n======================================================================\nERROR: test_budget_and_timeout_refuse (__main__.GoldenTests.test_budget_and_timeout_refuse)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 181, in test_budget_and_timeout_refuse\n    self.assertFalse(self.compare(dict(data, total_seconds_limit=1))['mechanical_criteria_satisfied'])\n                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 144, in compare\n    return M.compare(path)\n           ~~~~~~~~~^^^^^^\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.py\", line 205, in compare\n    raise ValueError('unsafe output location')\nValueError: unsafe output location\n\n======================================================================\nERROR: test_each_safety_violation_or_regression_refuses (__main__.GoldenTests.test_each_safety_violation_or_regression_refuses)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 177, in test_each_safety_violation_or_regression_refuses\n    self.assertFalse(self.compare(altered)['mechanical_criteria_satisfied'])\n                     ~~~~~~~~~~~~^^^^^^^^^\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.tests.py\", line 144, in compare\n    return M.compare(path)\n           ~~~~~~~~~^^^^^^\n  File \"/Users/jrmag/sdd-forge/tests/golden-eval.py\", line 205, in compare\n    raise ValueError('unsafe output location')\nValueError: unsafe output location\n\n----------------------------------------------------------------------\nRan 4 tests in 0.024s\n\nFAILED (errors=4)\n"
+      },
+      {
+        "argv": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "tests/project-skill-observation.tests.py",
+          "-v",
+          "Contracts.test_cli_and_shell",
+          "Contracts.test_manifest_only",
+          "Contracts.test_valid_trial",
+          "Contracts.test_valid_task",
+          "Contracts.test_runner_interpreter_alias_is_still_bound"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "test_cli_and_shell (__main__.Contracts.test_cli_and_shell) ... FAIL\ntest_manifest_only (__main__.Contracts.test_manifest_only) ... ok\ntest_valid_trial (__main__.Contracts.test_valid_trial) ... ok\ntest_valid_task (__main__.Contracts.test_valid_task) ... ok\ntest_runner_interpreter_alias_is_still_bound (__main__.Contracts.test_runner_interpreter_alias_is_still_bound) ... ok\n\n======================================================================\nFAIL: test_cli_and_shell (__main__.Contracts.test_cli_and_shell)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/sdd-forge/tests/project-skill-observation.tests.py\", line 493, in test_cli_and_shell\n    self.assertEqual(result.returncode, 0, result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : project-skill: INVALID: runtime-changed\n\n\n----------------------------------------------------------------------\nRan 5 tests in 0.175s\n\nFAILED (failures=1)\n"
+      }
+    ]
+  },
+  "after": {
+    "host": "Darwin arm64",
+    "python": "3.14.5",
+    "head": "e94da1ef5084711d5dc486dee51981a76edfb9db",
+    "inputs_sha256": {
+      "tests/golden-eval.tests.py": "0abf212533e5a89c34203a9ac6900ac69939f8b33e74b1f5302c214a2927b5be",
+      "tests/project-skill-observation.tests.py": "50e936a5fc1f83244088c3325dba0cf2e99defd08f95da015bcb7bc28eeb069e",
+      "tests/golden-eval.py": "c2cbf72df13efa870fe1f7ae0c4fb8b33bf180827aa6aefdb074483024a42a8b",
+      "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "a90d0d0e23ff68eb91bbef8ccd26f94722f30a38f4e1158f9c55ec38382be0d0",
+      "plugins/sdd-quality-loop/scripts/validate-project-skill.sh": "0b5fc59984f545c99388a9f11183f25573e590aa825b063edd2392ac9ce453fc",
+      "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh": "abde8035c825c318a56a3d9e1b24b2fd618553f10f9784ceae8ab2173eeadf0c"
+    },
+    "runs": [
+      {
+        "argv": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "tests/golden-eval.tests.py",
+          "-v",
+          "GoldenTests.test_comparison_denominators_medians_and_no_promotion",
+          "GoldenTests.test_interrupted_and_unrun_retained",
+          "GoldenTests.test_budget_and_timeout_refuse",
+          "GoldenTests.test_each_safety_violation_or_regression_refuses"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "test_comparison_denominators_medians_and_no_promotion (__main__.GoldenTests.test_comparison_denominators_medians_and_no_promotion) ... ok\ntest_interrupted_and_unrun_retained (__main__.GoldenTests.test_interrupted_and_unrun_retained) ... ok\ntest_budget_and_timeout_refuse (__main__.GoldenTests.test_budget_and_timeout_refuse) ... ok\ntest_each_safety_violation_or_regression_refuses (__main__.GoldenTests.test_each_safety_violation_or_regression_refuses) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.035s\n\nOK\n"
+      },
+      {
+        "argv": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "tests/project-skill-observation.tests.py",
+          "-v",
+          "Contracts.test_cli_and_shell",
+          "Contracts.test_manifest_only",
+          "Contracts.test_valid_trial",
+          "Contracts.test_valid_task",
+          "Contracts.test_runner_interpreter_alias_is_still_bound"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "test_cli_and_shell (__main__.Contracts.test_cli_and_shell) ... ok\ntest_manifest_only (__main__.Contracts.test_manifest_only) ... ok\ntest_valid_trial (__main__.Contracts.test_valid_trial) ... ok\ntest_valid_task (__main__.Contracts.test_valid_task) ... ok\ntest_runner_interpreter_alias_is_still_bound (__main__.Contracts.test_runner_interpreter_alias_is_still_bound) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.190s\n\nOK\n"
+      }
+    ]
+  }
+}

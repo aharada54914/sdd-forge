@@ -472,8 +472,13 @@ class Contracts(unittest.TestCase):
         ):
             if command[0] == "bash" and os.name == "nt":
                 continue
-            # Bind each observation to the interpreter its actual entry point uses.
-            interpreter = (shutil.which("python3") or shutil.which("python")) if command[0] == "bash" else sys.executable
+            interpreter = sys.executable
+            if command[0] == "bash":
+                # A launcher on PATH may report a different sys.executable (e.g. Homebrew).
+                launcher = shutil.which("python3") or "python"
+                interpreter = subprocess.check_output(
+                    [launcher, "-c", "import sys; print(sys.executable)"], text=True
+                ).rstrip("\r\n")
             with patch.object(V.sys, "executable", interpreter):
                 self.obs["environment"].update(V.runtime_environment(self.manifest))
             self.observation.write_text(json.dumps(self.obs), encoding="utf-8")
