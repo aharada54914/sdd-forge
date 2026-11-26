@@ -120,6 +120,42 @@ class ReleaseReadiness(unittest.TestCase):
             "bash -n install.sh && bash -n uninstall.sh",
         ])
 
+    def test_ci_and_release_verify_the_first_readme_version_heading(self):
+        version = "1.2.3"
+        self.env["RELEASE_TAG"] = f"v{version}"
+        suite = "tests/v2-hooks-and-ci.test.mjs"
+        # Node 20 initializes the Shadow suite even when the name filter selects only the README case.
+        for path in (suite, ".github/workflows/sdd-guardrails.yml"):
+            (self.root / path).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / path, self.root / path)
+        for path in ("plugins/sdd-ship/.claude-plugin/plugin.json", "mcp/sdd-forge-mcp/package.json"):
+            write(self.root, path, json.dumps({"version": version}))
+        for path in (".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"):
+            write(self.root, path, json.dumps({"plugins": [{"name": "sdd-ship", "version": version}]}))
+        for path in ("mcp/sdd-forge-mcp/src/server.ts", "mcp/sdd-forge-mcp/dist/index.js"):
+            write(self.root, path, f'const release = {{version: "{version}"}};\n')
+        write(self.root, "CHANGELOG.md", f"## v{version}\n")
+
+        ci_case = "all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+        ci = ["node", "--test", "--test-reporter=tap", f"--test-name-pattern={ci_case}", suite]
+        release = self.step("loop-gate", "Verify release tag matches all plugin manifests and CHANGELOG")["run"]
+        for case, readme, valid in (
+            ("current", "# Project\n\nRelease notes\n\nv1.2.3 — Current\nv1.2.2 — History\n", True),
+            ("history only", "# Project\n\nv1.2.2 — Current\nv1.2.3 — History\n", False),
+            ("prerelease", "# Project\n\nv1.2.3-rc.1 — Candidate\n", False),
+            ("after line five", "# Project\n\nRelease notes\n\n\nv1.2.3 — History\n", False),
+        ):
+            write(self.root, "README.md", readme)
+            for name, command in (("CI", ci), ("release", ["bash", "-eo", "pipefail", "-c", release])):
+                with self.subTest(case=case, entry=name):
+                    output = self.run_cli(command, valid)
+                    if not valid:
+                        self.assertIn("README.md current release must be v1.2.3", output)
+                    elif name == "CI":
+                        self.assertRegex(output, r"(?m)^# pass 1$")
+                    else:
+                        self.assertIn("Release version consistency verified for v1.2.3", output)
+
     def test_admission_uses_ci_for_the_tagged_commit(self):
         restriction = "Restrict manual dispatch to main or a tag ref"
         for ref, allowed in [("refs/heads/main", True), ("refs/tags/v1.0.0", True),
@@ -386,7 +422,7 @@ esac
             self.assertIn("ENOENT", output)
             self.assertIn("managed-model-entry.py", output)
         else:
-            self.assertIn("The input did not match the regular expression", output)
+            self.assertIn(f"README.md current release must be v{current}", output)
         markers = {self.root / (entry + ".ran") for entry in SUITES if entry != suite}
         after = {p for p in self.root.rglob("*") if p.is_file()}
         self.assertEqual(after, set(before) | markers)

@@ -1,0 +1,160 @@
+{
+  "successful_cloud_steps": [
+    "Run Cloud Orchestration test suites (non-UTC timezone)",
+    "Run Concept Test from Codex's versioned plugin cache (#812)",
+    "Run DDD Concept-Test suite",
+    "Run SQL Development Contract tests",
+    "Run domain-review finalize wrapper tests (.sh and .ps1)",
+    "Run evidence-bundle checker parity tests (.sh vs .ps1)"
+  ],
+  "candidate": "11b7b5141b28a19ff90a449f65e6dd430f4efd6d",
+  "pr": 976,
+  "runs": [
+    {
+      "id": 45805152241,
+      "name": "Test (SDD Forge v2)",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45805152241",
+      "jobs": [
+        {
+          "id": 139858519878,
+          "name": "test (macos-latest)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:56:45Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520126,
+          "name": "mcp-tests (local-env-mcp)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:52:02Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520170,
+          "name": "cloud-and-ddd (cloud / ubuntu-latest / JST)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:58:29Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520219,
+          "name": "cloud-and-ddd (ddd / ubuntu-latest / JST)",
+          "started": "2026-11-26T10:51:36Z",
+          "ended": "2026-11-26T10:56:49Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520232,
+          "name": "test (windows-latest)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:57:29Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520334,
+          "name": "installers (macos-latest)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:58:50Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520367,
+          "name": "test (ubuntu-latest)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:55:55Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520430,
+          "name": "mcp-tests (sdd-forge-mcp)",
+          "started": "2026-11-26T10:51:37Z",
+          "ended": "2026-11-26T10:51:57Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520454,
+          "name": "installers (ubuntu-latest)",
+          "started": "2026-11-26T10:51:38Z",
+          "ended": "2026-11-26T10:53:32Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139858520586,
+          "name": "mcp-tests (ci-mcp)",
+          "started": "2026-11-26T10:51:40Z",
+          "ended": "2026-11-26T10:51:57Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139862391517,
+          "name": "required-checks",
+          "started": "2026-11-26T10:58:54Z",
+          "ended": "2026-11-26T10:58:56Z",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "id": 45805152300,
+      "name": "SDD Guardrails (v2)",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45805152300",
+      "jobs": [
+        {
+          "id": 139858314127,
+          "name": "Lightweight Guardrails & Spec Drift Check",
+          "started": "2026-11-26T10:51:13Z",
+          "ended": "2026-11-26T10:54:47Z",
+          "outcome": "success"
+        }
+      ]
+    }
+  ],
+  "executed_jobs": 12,
+  "started": "2026-11-26T10:51:13Z",
+  "completed": "2026-11-26T10:58:56Z",
+  "span_seconds": 463,
+  "baseline": {
+    "runs": [
+      {
+        "databaseId": 45730069535,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069535",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      },
+      {
+        "databaseId": 45730069549,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069549",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      }
+    ],
+    "executed_jobs": 11,
+    "completed": true,
+    "all_success": true,
+    "first_started_utc": "2026-11-26T00:37:39Z",
+    "last_completed_utc": "2026-11-26T00:46:32Z",
+    "span_seconds": 533,
+    "longest_job": {
+      "name": "cloud-and-ddd (ubuntu-latest / JST)",
+      "duration_seconds": 518
+    }
+  },
+  "delta_seconds": -70,
+  "threshold_seconds": 120,
+  "within_budget": true,
+  "shadow": {
+    "artifact": 15109715373,
+    "archive_digest": "sha256:64f5fc029cfaf01f27e9bba7de59fb7112743063682374dc5c7c2abb25902311",
+    "report_sha256": "8cc0312a66d7ce338e92cc474dbc5ac67da57d227762bf46c3ff127914c86625",
+    "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "merge": "5bde6f7e96a2c8e853e71bff2f215e4e21ea8f8c",
+    "parents": [
+      "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "11b7b5141b28a19ff90a449f65e6dd430f4efd6d"
+    ],
+    "gitleaks": 0,
+    "semgrep": 0
+  }
+}

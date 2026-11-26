@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Exercise the real spec precheck read-only replay path in disposable roots."""
+"""Exercise current pre-approval guidance and historical precheck replay in disposable roots."""
 
 import hashlib
 import json
 import pathlib
-import re
 import shutil
 import subprocess
 import tempfile
@@ -17,6 +16,54 @@ SCRIPTS = ROOT / "plugins/sdd-review-loop/scripts"
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+class CorePreApprovalTest(unittest.TestCase):
+    def test_shipped_core_templates_route_high_risk_drafts_by_review_verdict(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary).resolve()
+            spec = root / "specs/example"
+            spec.mkdir(parents=True)
+            (root / "AGENTS.md").write_text("## Active Spec Directories\n- `specs/example/`\n", encoding="utf-8")
+            bootstrap = ROOT / "plugins/sdd-bootstrap"
+            templates = bootstrap / "skills/sdd-core-spec/templates"
+            shutil.copyfile(templates / "requirements.md", spec / "requirements.md")
+            design = subprocess.run(["node", str(bootstrap / "scripts/render-design-template.mjs"), "--risk", "high"],
+                                    cwd=root, capture_output=True, check=True).stdout
+            (spec / "design.md").write_bytes(design)
+            tasks = (templates / "tasks.md").read_text(encoding="utf-8")
+            self.assertIn("Approval: Draft", tasks.splitlines())
+            self.assertIn("Risk: standard", tasks.splitlines())
+            (spec / "tasks.md").write_text(tasks.replace("Risk: standard", "Risk: high"), encoding="utf-8")
+
+            requests = [
+                {"id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05",
+                 "capabilities": {}, "clientInfo": {"name": "core-pre-approval-test", "version": "1"}}},
+                {"id": 2, "method": "tools/call", "params": {"name": "sdd_feature_state",
+                 "arguments": {"feature": "example"}}},
+            ]
+            payload = "".join(json.dumps({"jsonrpc": "2.0", **request}) + "\n" for request in requests)
+            report = root / "reports/spec-check/example.md"
+            report.parent.mkdir(parents=True)
+            for verdict, phase in ((None, "spec-check"), ("NEEDS_FIX", "spec-check"),
+                                   ("PASS", "approval-gate"), ("PASS_WITH_NOTES", "approval-gate")):
+                with self.subTest(verdict=verdict):
+                    if verdict is not None:
+                        report.write_text(f"- **Verdict**: {verdict}\n", encoding="utf-8")
+                    before = {p: p.read_bytes() for p in root.rglob("*") if p.is_file()}
+                    server = ROOT / "mcp/sdd-forge-mcp/dist/index.js"
+                    result = subprocess.run(["node", str(server), "--root", str(root)], cwd=root,
+                                            input=payload, capture_output=True, text=True, timeout=30)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    reply = next(row for row in map(json.loads, result.stdout.splitlines()) if row.get("id") == 2)
+                    state = json.loads(reply["result"]["content"][0]["text"])
+                    self.assertTrue(state["ok"], state)
+                    self.assertEqual(state["data"]["highestRisk"], "high")
+                    action = state["data"]["nextAction"]
+                    self.assertEqual(action["phase"], phase)
+                    if verdict == "NEEDS_FIX":
+                        self.assertIn(verdict, action["rationale"])
+                    self.assertEqual(before, {p: p.read_bytes() for p in root.rglob("*") if p.is_file()})
 
 
 class VerifyInputsTest(unittest.TestCase):
@@ -77,46 +124,6 @@ class VerifyInputsTest(unittest.TestCase):
     def snapshot(self):
         return {str(p.relative_to(self.root)): p.read_bytes()
                 for p in self.root.rglob("*") if p.is_file()}
-
-    def test_author_template_enters_first_review_with_pending_status(self):
-        templates = ROOT / "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates"
-        rendered = re.sub(r"\{\{[^{}]+\}\}", "Example", (
-            templates / "requirements.template.md").read_text(encoding="utf-8")).encode()
-        design = re.sub(r"\{\{[^{}]+\}\}", "Example", (
-            templates / "design.template.md").read_text(encoding="utf-8")).encode()
-        report_root = self.root / "reports/spec-review/example"
-        first_result = report_root / "attempt-1/round-1/precheck-result.json"
-        for shell in ("sh", "ps1"):
-            if shell == "ps1" and not shutil.which("pwsh"):
-                continue
-            script = self.root / "plugins/sdd-review-loop/scripts" / f"spec-review-precheck.{shell}"
-            argv = (["bash", str(script), "example", "1", "1"] if shell == "sh" else
-                    ["pwsh", "-NoProfile", "-File", str(script), "-Feature", "example",
-                     "-Attempt", "1", "-Round", "1"])
-            cases = (
-                ("template", rendered, design, True),
-                ("missing", rendered.replace(b"Spec-Review-Status: Pending\n", b""), design, False),
-                ("design_only", rendered.replace(b"Spec-Review-Status: Pending\n", b""),
-                 design + b"\nSpec-Review-Status: Pending\n", False),
-                ("passed_without_review", rendered.replace(b"Spec-Review-Status: Pending", b"Spec-Review-Status: Passed"), design, False),
-            )
-            for name, requirements, design_bytes, expected in cases:
-                with self.subTest(shell=shell, case=name):
-                    shutil.rmtree(report_root, ignore_errors=True)
-                    self.requirements.write_bytes(requirements)
-                    (self.spec / "design.md").write_bytes(design_bytes)
-                    result = subprocess.run(argv, cwd=self.root, capture_output=True, text=True)
-                    self.assertEqual(result.returncode == 0, expected, result.stdout + result.stderr)
-                    self.assertEqual(self.requirements.read_bytes(), requirements)
-                    self.assertEqual((self.spec / "design.md").read_bytes(), design_bytes)
-                    if expected:
-                        record = json.loads(first_result.read_text())
-                        self.assertEqual(record["spec_review_status_field"], "Pending")
-                        self.assertEqual(record["requirements_sha256"], digest(requirements))
-                    else:
-                        self.assertIn("requirements.md must declare Spec-Review-Status: Pending",
-                                      result.stdout + result.stderr)
-                        self.assertFalse(first_result.exists())
 
     def write_prior_contract(self, conditional=(), mutate=None):
         """Seal a synthetic round-one NEEDS_WORK review for real next-round prechecks."""

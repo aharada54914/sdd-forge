@@ -122,7 +122,7 @@
     "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
     "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
   ],
-  "source_sync_commit": "2860b6daad4bb28aed5825697dd1ccfce6fcfd7b",
+  "source_sync_commit": "99244e18089d3da61440d35dbfa6c643c900c8df",
   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
   "source_sha256": {
     "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "0c0f75a2c14db6e345a1e02833ad17f0028d3b3e1a34f628c0991fd7456d1f06",
@@ -132,6 +132,6 @@
     "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
     "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05",
     "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "7b8553a16516332bd3145526faca813d3396d6870f1ea35b3d1d9737a8f9e7d9",
-    "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
+    "plugins/sdd-ship/skills/ship/SKILL.md": "3cb71e61462101f5a639858ec09b6ef263a24130132fb281636f94d7afe07101"
   }
 }

@@ -67,6 +67,13 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(owners, /\/contracts\/guardrails\.schema\.json/);
   });
 
+  it('validates release membership and public cloud packages', () => {
+    const check = spawnSync(process.execPath, ['tests/lib/check-cloud-release.mjs'], {
+      cwd: REPO_ROOT, encoding: 'utf8',
+    });
+    assert.equal(check.status, 0, check.error?.message || check.stderr || check.stdout);
+  });
+
   it('keeps the installed managed model entry in the release source', () => {
     const entry = 'plugins/sdd-implementation/scripts/managed-model-entry.py';
     assert.ok(fs.statSync(path.join(REPO_ROOT, entry)).isFile(), entry);
@@ -342,7 +349,8 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(expected, /^[0-9]+\.[0-9]+\.[0-9]+$/);
 
     const readme = fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8');
-    assert.match(readme, new RegExp(`^v${expected.replace(/\./g, '\\.')}[^0-9]`, 'm'));
+    const heading = readme.split(/\r?\n/, 5).find(line => /^v[0-9]/.test(line));
+    assert.ok(heading?.startsWith(`v${expected} — `), `README.md current release must be v${expected}`);
 
     const changelog = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
     assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'));

@@ -135,6 +135,8 @@ jobs:
         env:
           RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+      - name: Install locked cloud-package YAML parser dependencies
+        run: npm ci --prefix mcp/sdd-forge-mcp --omit=dev --ignore-scripts
       - name: Run SDD Forge v2 deterministic release suites
         shell: bash
         run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
@@ -159,7 +161,8 @@ jobs:
           const expected = tag.slice(1);
 
           const readme = fs.readFileSync('README.md', 'utf8');
-          assert.match(readme, new RegExp(`^v${expected.replace(/\./g, '\\.')}[^0-9]`, 'm'), `README.md must declare v${expected}`);
+          const heading = readme.split(/\r?\n/, 5).find(line => /^v[0-9]/.test(line));
+          assert.ok(heading?.startsWith(`v${expected} — `), `README.md current release must be v${expected}`);
 
           const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
           assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'), `CHANGELOG.md must contain ## v${expected}`);

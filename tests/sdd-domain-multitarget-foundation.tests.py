@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Current #423 inventory and boundary checks; historical snapshots stay intact."""
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path, PurePosixPath
@@ -11,6 +12,7 @@ import shutil
 import stat
 import subprocess
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -110,16 +112,52 @@ class CurrentAnchorTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn(path, result.stdout.splitlines())
         data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
-        job = "cloud-native"  # the catalog's ci-cloud profile runs this suite
-        for os_name in ("windows-latest", "macos-latest", "ubuntu-latest"):
+        job = "v2-guardrails"
+        self.assertIn(job, catalog["_suites"][path]["ci_jobs"])
+        self.assertIn(job, data["jobs"]["required-checks"]["needs"])
+        native = data["jobs"][job]
+        admitted_hosts = set()
+        # The Linux registration check must still run if both foundation commands disappear.
+        checker = "verification-ci.tests.py"
+        checker_catalog = {"suites": [{"path": checker, "runtime": "python", "args": [
+            "CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route"]}]}
+        defaults = {**data.get("defaults", {}).get("run", {}), **native.get("defaults", {}).get("run", {})}
+        for row in workflow.matrix_rows(native):
             one = copy.deepcopy(data)
-            # Keep the live planner producer while isolating the native matrix row.
-            one["jobs"][job]["strategy"]["matrix"]["os"] = [os_name]
-            self.assertIn(path, workflow.workflow_coverage(one, catalog)[job])
+            one["jobs"][job]["strategy"]["matrix"] = {"include": [row]}
+            host = workflow.expand_matrix(native["runs-on"], row)
+            if path in workflow.workflow_coverage(one, catalog)[job]:
+                admitted_hosts.add(host)
+            if host == "ubuntu-latest":
+                eligible = ({**defaults, **step} for step in native["steps"]
+                            if workflow.enabled(step.get("if"), row, "Linux")
+                            and step.get("continue-on-error", False) is False)
+                self.assertTrue(any(step.get("working-directory", ".") == "tests"
+                                    and checker in workflow.step_suites(step, checker_catalog, row, step.get("shell", "bash"))
+                                    for step in eligible), "Linux must run the independent CI registration check")
+        self.assertEqual(admitted_hosts, {"windows-latest", "macos-latest", "ubuntu-latest"})
         # The real YAML consumer must detect removed execution, not find prose.
         missing = copy.deepcopy(data)
-        missing["jobs"][job]["steps"] = []
+        for step in missing["jobs"][job]["steps"]:
+            if path in step.get("run", ""):
+                step["run"] = "# " + path
         self.assertNotIn(path, workflow.workflow_coverage(missing, catalog)[job])
+
+    def test_five_archived_inventory_rows_match_v126(self):
+        inventory = json.loads((VERIFICATION / "T-001/current-consumer-inventory.json").read_text(encoding="utf-8"))
+        rows = {entry["id"]: entry for entry in inventory["entries"] if entry["id"] in ARCHIVED_IDS}
+        # The tag's maintained inventory uses section anchors for three of these five rows.
+        encoded = json.dumps(rows, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        self.assertEqual(hashlib.sha256(encoded).hexdigest(),
+                         "2bf6aafdbccc842e830b5b042b5e50f03e90969f34de9885325eb1799b964c92")
+
+    def test_archive_cannot_supply_current_evidence_or_replace_a_retired_source(self):
+        source = {"path": "tests/fixtures/bootstrap-v1.26.0/interviewer.md", "line_start": 203,
+                  "line_end": 238, "keyword": "interview-question-bank.md"}
+        self.assertEqual(ORIGINAL_VALIDATE_SOURCE("example", source, ROOT), [])
+        for entry in ("risk-tier-verifier-contract", "bootstrap-question-bank"):
+            with self.subTest(entry=entry):
+                self.assertTrue(validate_inventory_source(entry, source, ROOT))
 
     def test_line_insertion_preserves_meaning(self):
         text = "# Skill\n\n## Required Outputs\nseven Markdown files\n## Next\nother\n"
@@ -185,14 +223,59 @@ INVENTORY = load_module("historical_consumer_inventory", VERIFICATION / "T-001/c
 BOUNDARIES = load_module("foundation_contract_boundaries", VERIFICATION / "T-002/contract-boundaries.tests.py")
 
 
+# v1.26.0, b193c75be2a6f2e6c7074bb65401f514268a65fb. The other seven
+# classifications continue to read their maintained source from the checkout.
+ARCHIVED_IDS = {"bootstrap-question-bank", "bootstrap-seven-layer-output", "layer-template-fixed-rows",
+                "endpoint-contract-checklist", "host-adapters"}
+INTERVIEWER = "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/"
+ARCHIVED_FILES = {
+    INTERVIEWER + "SKILL.md":
+        ("interviewer.md", "1b4b384d575c829ee941901f44fcff01a71b19d456059b174d7ec23577bab134"),
+    INTERVIEWER + "templates/design.template.md":
+        ("design.template.md", "17c69864fd42ca609fc604699abbe7f4c5860483f844a0cd37bcd63bb6838da5"),
+    INTERVIEWER + "references/architecture-review-checklist.md":
+        ("architecture-review-checklist.md", "fff699c1d03fa41f016b3abdb543e3df0f4c85691e0211e1d01b60093f75c20e"),
+}
+
+
+ORIGINAL_VALIDATE_SOURCE = INVENTORY._validate_source
+
+
+def validate_inventory_source(entry_id, source, repo_root):
+    if not isinstance(source, dict) or not isinstance(source.get("path"), str):
+        return ORIGINAL_VALIDATE_SOURCE(entry_id, source, repo_root)
+    root = Path(repo_root).resolve()
+    fixtures = root / "tests/fixtures"
+    source = source.copy()
+    try:
+        if entry_id in ARCHIVED_IDS:
+            name, digest = ARCHIVED_FILES[source["path"]]
+            path = fixtures / "bootstrap-v1.26.0" / name
+            if path.resolve() != path or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                raise ValueError("v1.26.0 inventory source mismatch: " + source["path"])
+            source["path"] = path.relative_to(root).as_posix()
+        else:
+            target = (root / source["path"]).resolve()
+            if not target.is_relative_to(root) or target.is_relative_to(fixtures):
+                raise ValueError("expected a current checkout source: " + source["path"])
+        if "section" in source:
+            projected = resolve_inventory({"entries": [{"source": [source]}]}, root)
+            source = projected["entries"][0]["source"][0]
+    except (KeyError, OSError, ValueError) as error:
+        return [f"entry '{entry_id}' source verification failed: {error}"]
+    return ORIGINAL_VALIDATE_SOURCE(entry_id, source, repo_root)
+
+
 class CurrentConsumerInventoryTests(INVENTORY.ConsumerInventoryTests):
     repo_root = str(ROOT)
 
     @classmethod
     def setUpClass(cls):
         path = VERIFICATION / "T-001/current-consumer-inventory.json"
-        inventory = json.loads(path.read_text(encoding="utf-8"))
-        cls.inventory = resolve_inventory(inventory, ROOT)
+        cls.inventory = json.loads(path.read_text(encoding="utf-8"))
+        scoped = patch.object(INVENTORY, "_validate_source", validate_inventory_source)
+        scoped.start()
+        cls.addClassCleanup(scoped.stop)
 
 
 def current_ci_mcp_violations(server_text, client_text):

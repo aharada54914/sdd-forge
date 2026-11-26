@@ -181,7 +181,7 @@
       "path": "tests/sdd-domain-multitarget-foundation.tests.py",
       "runtime": "python",
       "ci_jobs": [
-        "cloud-native"
+        "v2-guardrails"
       ]
     },
     {

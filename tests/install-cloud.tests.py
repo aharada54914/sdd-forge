@@ -1,9 +1,4 @@
-"""T-007 offline packaging tests; real installers and extracted validator boundary.
-
-The validation block is read verbatim from validate-repository.ps1. Its global
-workflow-state/role-render prechecks belong to the full repository validation,
-not these isolated manifest mutations. No provider credentials or writes.
-"""
+"""Offline tests of the release cloud-package check and real installers."""
 from __future__ import annotations
 
 import hashlib
@@ -47,38 +42,20 @@ def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2) + '\n')
 
 
-def runtime_sources() -> dict[str, Path]:
-    result = {'scripts/' + name: ROOT / 'plugins/sdd-quality-loop/scripts' / name for name in MODULES}
-    result['references/cloud-verification-registry.json'] = ROOT / 'plugins/sdd-quality-loop/references/cloud-verification-registry.json'
-    for path in (ROOT / 'contracts').glob('cloud-*.schema.json'):
+def runtime_sources(root: Path = ROOT) -> dict[str, Path]:
+    result = {'scripts/' + name: root / 'plugins/sdd-quality-loop/scripts' / name for name in MODULES}
+    result['references/cloud-verification-registry.json'] = root / 'plugins/sdd-quality-loop/references/cloud-verification-registry.json'
+    for path in (root / 'contracts').glob('cloud-*.schema.json'):
         result['contracts/' + path.name] = path
     for name in ('verification-contract-v3.schema.json', 'selected-verification-plan-v2.schema.json'):
-        result['contracts/' + name] = ROOT / 'plugins/sdd-quality-loop/contracts' / name
+        result['contracts/' + name] = root / 'plugins/sdd-quality-loop/contracts' / name
     return result
 
 
-def seeded_manifests(root: Path) -> None:
-    """Supply complete records even before registration exists; no missing setup Red."""
+def materialize_runtime(root: Path) -> None:
     for provider in PROVIDERS:
         name = f'sdd-{provider}-cloud'
-        for host in HOSTS:
-            path = root / f'plugins/{name}/{host}/plugin.json'
-            if not path.exists():
-                write_json(path, dict(name=name, version='1.18.0', description='Synthetic packaging fixture',
-                                     author=dict(name='Harada'), skills=['./skills/'] if host == '.claude-plugin' else './skills/' if host == '.codex-plugin' else 'skills/'))
-        for rel in MARKETS:
-            path = root / rel
-            value = json.loads(path.read_text())
-            if not any(p['name'] == name for p in value['plugins']):
-                source: object = './plugins/' + name
-                entry: dict = dict(name=name, version='1.18.0', source=source)
-                if rel.startswith('.agents'):
-                    entry['source'] = dict(source='local', path=source)
-                    entry['policy'] = dict(installation='AVAILABLE', authentication='ON_INSTALL')
-                    entry['category'] = 'Developer Tools'
-                value['plugins'].append(entry)
-                write_json(path, value)
-        for rel, source_path in runtime_sources().items():
+        for rel, source_path in runtime_sources(root).items():
             dest = root / f'plugins/{name}/runtime' / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source_path, dest)
@@ -92,24 +69,22 @@ def fixture(root: Path) -> None:
     payload_manifest = ROOT / 'install-payload.txt'
     if payload_manifest.is_file():
         shutil.copy2(payload_manifest, root / payload_manifest.name)
-    (root / 'tests').mkdir()
-    shutil.copy2(ROOT / 'tests/validate-repository.ps1', root / 'tests/validate-repository.ps1')
     # Commit explicit fixture directories; never touches the real index.
-    for args in (['git', 'init', '-q'], ['git', 'add', '--', 'plugins', 'contracts', '.agents', '.claude-plugin', '.codex', 'README.md', 'CHANGELOG.md', 'install.sh', 'install.ps1', 'uninstall.sh', 'uninstall.ps1', 'tests', *(['install-payload.txt'] if payload_manifest.is_file() else [])],
+    for args in (['git', 'init', '-q'], ['git', 'add', '--', 'plugins', 'contracts', '.agents', '.claude-plugin', '.codex', 'README.md', 'CHANGELOG.md', 'install.sh', 'install.ps1', 'uninstall.sh', 'uninstall.ps1', *(['install-payload.txt'] if payload_manifest.is_file() else [])],
                  ['git', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'isolated packaging fixture']):
         p = run(args, root)
         if p.returncode:
             raise AssertionError(p.stderr)
 
 
-def validate(root: Path, skills: bool = False) -> subprocess.CompletedProcess[str]:
-    text = (ROOT / 'tests/validate-repository.ps1').read_text()
-    block = text[text.index('$expectedPlugins ='):text.index('$forbiddenPaths =' if skills else '$skillFiles =')]
-    if skills:
-        block += text[text.index('$userVisibleSkills ='):text.index('Write-Host "Repository validation passed."')]
-    driver = root / 'boundary.ps1'
-    driver.write_text('param([string]$repositoryRoot)\n$ErrorActionPreference="Stop"\nSet-StrictMode -Version Latest\n' + block)
-    return run([PWSH, '-NoProfile', '-File', str(driver), str(root)], root)
+def validate(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    return run(['node', str(ROOT / 'tests/lib/check-cloud-release.mjs'), *args], root)
+
+
+def assert_rejected(test: unittest.TestCase, root: Path, reason: str, *args: str) -> None:
+    result = validate(root, *args)
+    test.assertNotEqual(result.returncode, 0, f'accepted {reason}')
+    test.assertIn('AssertionError [ERR_ASSERTION]: ' + reason, result.stderr.splitlines(), result.stderr)
 
 
 class FixtureEnvironment(unittest.TestCase):
@@ -158,7 +133,7 @@ class ManifestBoundary(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory(prefix='cloud-package-fields-')
         cls.root = Path(cls.temp.name).resolve()
         fixture(cls.root)
-        seeded_manifests(cls.root)
+        materialize_runtime(cls.root)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -177,9 +152,7 @@ class ManifestBoundary(unittest.TestCase):
                 record[key] = value
                 try:
                     write_json(path, record)
-                    p = validate(self.root)
-                    self.assertNotEqual(p.returncode, 0)
-                    self.assertIn('differ', p.stderr)
+                    assert_rejected(self, self.root, f'{path.relative_to(self.root).as_posix()}: {key}')
                 finally:
                     path.write_bytes(raw)
 
@@ -195,8 +168,7 @@ class ManifestBoundary(unittest.TestCase):
                         record[key] = value
                         try:
                             write_json(path, record)
-                            p = validate(self.root)
-                            self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+                            assert_rejected(self, self.root, f'plugins/{name}/{host}/plugin.json: {key}')
                         finally:
                             path.write_bytes(raw)
 
@@ -206,21 +178,97 @@ class ManifestBoundary(unittest.TestCase):
             raw = path.read_bytes()
             for provider in PROVIDERS:
                 name = f'sdd-{provider}-cloud'
-                fields = ['name', 'source', 'version'] + (['policy', 'authentication'] if rel.startswith('.agents') else [])
-                for key in fields:
-                    with self.subTest(market=rel, provider=provider, field=key):
+                codex = rel.startswith('.agents')
+                fields = [
+                    ('name', name.upper(), 'membership'), ('version', '0.0.0', 'version'),
+                    ('source', '../outside', 'source kind' if codex else 'source'),
+                ]
+                if codex:
+                    fields.extend([
+                        ('source', {'source': 'local', 'path': '../outside'}, 'source path'),
+                        ('policy', {'installation': 'REQUIRED', 'authentication': 'ON_INSTALL'}, 'policy.installation'),
+                        ('policy', {'installation': 'AVAILABLE', 'authentication': 'on_install'}, 'policy.authentication'),
+                    ])
+                for key, value, reason in fields:
+                    with self.subTest(market=rel, provider=provider, field=reason):
                         record = json.loads(raw)
                         entry = next(p for p in record['plugins'] if p['name'] == name)
-                        if key == 'authentication':
-                            entry['policy']['authentication'] = 'on_install'
-                        else:
-                            entry[key] = {'installation': 'REQUIRED', 'authentication': 'ON_INSTALL'} if key == 'policy' else name.upper() if key == 'name' else '0.0.0' if key == 'version' else '../outside'
+                        entry[key] = value
                         try:
                             write_json(path, record)
-                            p = validate(self.root)
-                            self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+                            assert_rejected(self, self.root, f'{rel}: {name} {reason}')
                         finally:
                             path.write_bytes(raw)
+
+    def test_missing_manifest_and_marketplace_fields(self) -> None:
+        for provider in PROVIDERS:
+            name = f'sdd-{provider}-cloud'
+            for host in HOSTS:
+                rel = f'plugins/{name}/{host}/plugin.json'
+                path = self.root / rel
+                original = path.read_bytes()
+                for field in ('name', 'version', 'skills'):
+                    with self.subTest(path=rel, missing=field):
+                        record = json.loads(original)
+                        del record[field]
+                        try:
+                            write_json(path, record)
+                            assert_rejected(self, self.root, f'{rel}: {field}')
+                        finally:
+                            path.write_bytes(original)
+            for rel in MARKETS:
+                path = self.root / rel
+                original = path.read_bytes()
+                fields = [('name', 'membership'), ('version', 'version'), ('source', 'source')]
+                if rel.startswith('.agents'):
+                    fields[-1] = ('source', 'source kind')
+                    fields.extend([('policy.installation', 'policy.installation'),
+                                   ('policy.authentication', 'policy.authentication')])
+                for field, reason in fields:
+                    with self.subTest(path=rel, plugin=name, missing=field):
+                        record = json.loads(original)
+                        entry = next(p for p in record['plugins'] if p['name'] == name)
+                        if field.startswith('policy.'):
+                            del entry['policy'][field.split('.')[1]]
+                        else:
+                            del entry[field]
+                        try:
+                            write_json(path, record)
+                            assert_rejected(self, self.root, f'{rel}: {name} {reason}')
+                        finally:
+                            path.write_bytes(original)
+        result = validate(self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_installed_mirrors_are_required_and_complete(self) -> None:
+        args = ('--installed-root', str(self.root))
+        for provider in PROVIDERS:
+            mirror = f'plugins/sdd-{provider}-cloud/runtime'
+            fixtures = [(mirror, 'directory'),
+                        (f'{mirror}/scripts/cloud_verification.py', 'runtime mirror')]
+            for rel, reason in fixtures:
+                path = self.root / rel
+                moved = self.root / 'omitted-runtime-input'
+                with self.subTest(missing=rel):
+                    path.rename(moved)
+                    try:
+                        assert_rejected(self, self.root, f'{rel}: {reason}', *args)
+                    finally:
+                        moved.rename(path)
+        result = validate(self.root, *args)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_canonical_schema_is_required_in_release_checkout(self) -> None:
+        rel = 'contracts/cloud-run-request.schema.json'
+        path = self.root / rel
+        raw = path.read_bytes()
+        try:
+            path.unlink()
+            assert_rejected(self, self.root, f'{rel}: canonical runtime')
+        finally:
+            path.write_bytes(raw)
+        result = validate(self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_runtime_field_mismatches(self) -> None:
         for provider in PROVIDERS:
@@ -230,8 +278,7 @@ class ManifestBoundary(unittest.TestCase):
                 with self.subTest(provider=provider, runtime=rel):
                     try:
                         path.write_bytes(raw + b'\n')
-                        p = validate(self.root)
-                        self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+                        assert_rejected(self, self.root, f'plugins/sdd-{provider}-cloud/runtime/{rel}: runtime mirror')
                     finally:
                         path.write_bytes(raw)
 
@@ -635,7 +682,7 @@ class SkillVisibility(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='cloud-skill-exports-') as temp:
             root = Path(temp).resolve()
             fixture(root)
-            result = validate(root, skills=True)
+            result = validate(root)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
@@ -643,36 +690,53 @@ class SkillVisibility(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='cloud-visibility-guards-') as temp:
             root = Path(temp).resolve()
             fixture(root)
-            result = validate(root, skills=True)
+            result = validate(root)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             for provider in PROVIDERS:
                 path = root / f'plugins/sdd-{provider}-cloud/skills/orchestrate/SKILL.md'
                 original = path.read_bytes()
+                body = original.split(b'---', 2)[2]
+
+                def entry(fields: str) -> bytes:
+                    return b'---\n' + fields.encode() + b'\n---' + body
+
+                name = 'name: orchestrate'
+                disabled = 'disable-model-invocation: true'
                 variants = [
-                    original.replace(b'name: orchestrate', b'name: Orchestrate'),
-                    original.replace(b'disable-model-invocation: true', b'disable-model-invocation: false'),
-                    original.replace(b'disable-model-invocation: true', b'disable-model-invocation: true\nuser-invocable: false'),
+                    (f'name: Orchestrate\n{disabled}', 'name'),
+                    (f'{name}\ndisable-model-invocation: false', 'disable-model-invocation'),
+                    (f'{name}\n{disabled}\nuser-invocable: false', 'user-invocable'),
+                    (f'{name}\n{disabled}\n"user-invocable": false', 'user-invocable'),
+                    (f'{name}\n"disable-model-invocation": "true"', 'disable-model-invocation'),
+                    (f'{name}\n{disabled}\nuser-invocable: "true"', 'user-invocable'),
+                    (f'name: [orchestrate]\n{disabled}', 'name'),
+                    (f'{name}\n"name": other\n{disabled}', 'invalid frontmatter (duplicated mapping key)'),
                 ]
-                for index, variant in enumerate(variants):
-                    with self.subTest(provider=provider, variant=index):
+                for fields, reason in variants:
+                    with self.subTest(provider=provider, fields=fields):
                         try:
-                            path.write_bytes(variant)
-                            result = validate(root, skills=True)
-                            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                            path.write_bytes(entry(fields))
+                            assert_rejected(self, root, f'{path.relative_to(root).as_posix()}: {reason}')
                         finally:
                             path.write_bytes(original)
-                result = validate(root, skills=True)
+                quoted = ('"name": "orchestrate"\n"disable-model-invocation": true\n'
+                          "'user-invocable': true\ndescription: >-\n  Public cloud skill.")
+                try:
+                    path.write_bytes(entry(quoted))
+                    result = validate(root)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                finally:
+                    path.write_bytes(original)
+                result = validate(root)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_each_entry_frontmatter_and_relative_links(self) -> None:
         import re
+        result = validate(ROOT)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         for provider in PROVIDERS:
             skill = ROOT / f'plugins/sdd-{provider}-cloud/skills/orchestrate/SKILL.md'
             text = skill.read_text()
-            frontmatter = text.split('---', 2)[1]
-            self.assertIn('name: orchestrate', frontmatter)
-            self.assertIn('disable-model-invocation: true', frontmatter)
-            self.assertNotIn('user-invocable: false', frontmatter)
             for link in re.findall(r'\]\(([^)]+)\)', text):
                 self.assertTrue((skill.parent / link).is_file(), link)
 

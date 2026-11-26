@@ -157,6 +157,13 @@ class CurrentV2WorkflowTests(unittest.TestCase):
                 default_shell = 'pwsh' if os_name == 'Windows' else 'bash'
                 route = next(iter(row.values()), runner)
                 expected = [step for step in self.workloads[name] if route in step.get('routes', [route])]
+                if name == 'v2-guardrails':
+                    # This required suite was added after the pinned baseline workflow.
+                    python = 'python' if os_name == 'Windows' else 'python3'
+                    expected.append({'commands': [python + ' -B tests/sdd-domain-multitarget-foundation.tests.py']})
+                    if os_name == 'Linux':
+                        expected.append({'working-directory': 'tests', 'commands': [
+                            'python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route']})
                 steps = [step for step in self.run_steps(name, row, os_name)
                          if 'uses' in step or self.workload_commands(step.get('run', ''))]
                 self.assertEqual(len(steps), len(expected), (name, route))

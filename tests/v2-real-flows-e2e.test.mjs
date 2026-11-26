@@ -206,6 +206,11 @@ test('AC-002', () => assert.equal(calculateCancelFee(25), 500));
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-aws-cloud/scripts/cloud.py')), true);
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-azure-cloud/scripts/cloud.py')), true);
 
+      const packaged = spawnSync(process.execPath, ['tests/lib/check-cloud-release.mjs', '--installed-root', installRoot], {
+        cwd: REPO_ROOT, encoding: 'utf8',
+      });
+      assert.equal(packaged.status, 0, packaged.error?.message || packaged.stderr || packaged.stdout);
+
       // Verify Issue #786 fix under explicit JST timezone (Asia/Tokyo)
       const pyCheck = spawnSync(
         'python3',

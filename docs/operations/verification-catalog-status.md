@@ -13,7 +13,7 @@
 | カタログのジョブ名 | 現行に存在 | 登録数 | 実行中 | CI 外 | 廃止 |
 |---|---|---|---|---|---|
 | `cloud-and-ddd` | yes | 3 | 3 | 0 | 0 |
-| `cloud-native` | no | 6 | 4 | 2 | 0 |
+| `cloud-native` | no | 5 | 4 | 1 | 0 |
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
 | `installers` | yes | 7 | 2 | 5 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
@@ -25,7 +25,7 @@
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
 | `test` | no | 43 | 3 | 40 | 0 |
 | `test-windows-heavy` | no | 17 | 0 | 17 | 0 |
-| `v2-guardrails` | yes | 13 | 13 | 0 | 0 |
+| `v2-guardrails` | yes | 14 | 14 | 0 | 0 |
 | `version-gates` | no | 35 | 0 | 35 | 0 |
 | `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
 | `windows-powershell` | no | 1 | 0 | 1 | 0 |
