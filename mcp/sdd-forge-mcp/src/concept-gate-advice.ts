@@ -19,8 +19,27 @@ export function parseTaskExecution(contents: string, feature: string, taskId: st
   return undefined;
 }
 
+// The validator's and the gate's diagnostic for a retired v1 record starts with this text.
+const V1_RETIRED = "concept-test: BLOCK: concept-test/v1 records are no longer supported";
+
+/** Owner decision 2026-11-26: v1 records are retired and must be recreated as v2. */
+export function retiredV1Action(feature: string, observation: string): BlockedAction {
+  const prefix = `specs/${feature}/concept-test`;
+  return {
+    phase: "blocked", command: `human: recreate the Concept Test proposal for ${feature} as concept-test/v2`,
+    rationale: `${observation} concept-test/v1 の記録は廃止されました。Concept Test をもう一度実行して concept-test/v2 の提案として作り直し、残った ${prefix}.approval.json を削除してください。domain/ のないプロジェクトでは Concept Test を実行しないため、v1 の ${prefix}.md・${prefix}.json・${prefix}.approval.json を削除してください。`,
+  };
+}
+
 export function conceptStopAction(feature: string, status: Stop, source: string, diagnostic?: string): BlockedAction {
   const observation = `${source} の Concept Test の記録は ${status} です。`;
+  if (status === "BLOCK" && diagnostic?.startsWith(V1_RETIRED)) {
+    const action = retiredV1Action(feature, observation);
+    if (diagnostic.includes("The Git index still holds the v1 record")) {
+      action.rationale += " Git のインデックスに v1 の記録が残っているため、その削除もステージしてください。";
+    }
+    return action;
+  }
   if (status === "DEFER") return {
     phase: "blocked", command: `human: run the installed validate-concept-test.sh --root . --feature ${feature} --require-v2`,
     rationale: `${observation} まず配布版の検証器（PowerShell は .ps1）で現在の入力を確認してください。現在も DEFER でモデルが未更新なら /sdd-domain:domain-model update を実行し、レビュー・本人の承認・契約の発行を経て提案を更新してください。更新済みなら発行済みの契約から提案を作り直してください。`,

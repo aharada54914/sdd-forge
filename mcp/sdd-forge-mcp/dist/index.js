@@ -41365,8 +41365,24 @@ function parseTaskExecution(contents, feature, taskId) {
   }
   return void 0;
 }
+var V1_RETIRED = "concept-test: BLOCK: concept-test/v1 records are no longer supported";
+function retiredV1Action(feature, observation) {
+  const prefix = `specs/${feature}/concept-test`;
+  return {
+    phase: "blocked",
+    command: `human: recreate the Concept Test proposal for ${feature} as concept-test/v2`,
+    rationale: `${observation} concept-test/v1 \u306E\u8A18\u9332\u306F\u5EC3\u6B62\u3055\u308C\u307E\u3057\u305F\u3002Concept Test \u3092\u3082\u3046\u4E00\u5EA6\u5B9F\u884C\u3057\u3066 concept-test/v2 \u306E\u63D0\u6848\u3068\u3057\u3066\u4F5C\u308A\u76F4\u3057\u3001\u6B8B\u3063\u305F ${prefix}.approval.json \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002domain/ \u306E\u306A\u3044\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u306F Concept Test \u3092\u5B9F\u884C\u3057\u306A\u3044\u305F\u3081\u3001v1 \u306E ${prefix}.md\u30FB${prefix}.json\u30FB${prefix}.approval.json \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+  };
+}
 function conceptStopAction(feature, status, source, diagnostic) {
   const observation = `${source} \u306E Concept Test \u306E\u8A18\u9332\u306F ${status} \u3067\u3059\u3002`;
+  if (status === "BLOCK" && diagnostic?.startsWith(V1_RETIRED)) {
+    const action = retiredV1Action(feature, observation);
+    if (diagnostic.includes("The Git index still holds the v1 record")) {
+      action.rationale += " Git \u306E\u30A4\u30F3\u30C7\u30C3\u30AF\u30B9\u306B v1 \u306E\u8A18\u9332\u304C\u6B8B\u3063\u3066\u3044\u308B\u305F\u3081\u3001\u305D\u306E\u524A\u9664\u3082\u30B9\u30C6\u30FC\u30B8\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
+    }
+    return action;
+  }
   if (status === "DEFER") return {
     phase: "blocked",
     command: `human: run the installed validate-concept-test.sh --root . --feature ${feature} --require-v2`,
@@ -41480,11 +41496,13 @@ function conceptProposalAdvice(root, feature, inBootstrap, stopped) {
   const markdown = guardedRead(root, mdPath);
   const receipt = guardedRead(root, decisionPath);
   const noDecision = !receipt.ok && receipt.error.details?.rule === "exists";
+  const retired = (source) => ({ action: retiredV1Action(feature, `${source} \u306F concept-test/v1 \u306E\u8A18\u9332\u3067\u3059\u3002`) });
   if (!json2.ok) {
-    if (json2.error.details?.rule !== "exists" || !noDecision) {
+    const missing = json2.error.details?.rule === "exists";
+    if (missing && markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return retired(mdPath);
+    if (!missing || !noDecision) {
       return inspect(jsonPath, "\u63D0\u6848\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
     }
-    if (markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return void 0;
     if (markdown.ok || markdown.error.details?.rule !== "exists") {
       return inspect(jsonPath, "Markdown\u306B\u5BFE\u5FDC\u3059\u308B\u63D0\u6848\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
     }
@@ -41497,12 +41515,7 @@ function conceptProposalAdvice(root, feature, inBootstrap, stopped) {
     return void 0;
   }
   const proposal = readObject(json2.data.contents);
-  if (proposal?.schema === "concept-test/v1" && noDecision) {
-    if (markdown.ok ? markdownObject(markdown.data.contents)?.schema === "concept-test/v1" : markdown.error.details?.rule === "exists") {
-      return void 0;
-    }
-    return inspect(mdPath, "\u65E7\u63D0\u6848\u306EJSON\u3068Markdown\u306E\u5F62\u5F0F\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
-  }
+  if (proposal?.schema === "concept-test/v1") return retired(jsonPath);
   if (proposal?.schema !== "concept-test/v2" || proposal.feature !== feature) {
     return inspect(jsonPath, "\u63D0\u6848\u306E\u5F62\u5F0F\u30FB\u5BFE\u8C61\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002");
   }

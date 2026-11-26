@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { conceptStopAction, recordedConceptStop } from "./concept-gate-advice.js";
+import { conceptStopAction, recordedConceptStop, retiredV1Action } from "./concept-gate-advice.js";
 import { isJsonObject, type JsonObject } from "./parsers/json-object.js";
 import { guardedRead, resolveGuarded } from "./path-guard.js";
 import type { SddRoot } from "./root.js";
@@ -68,11 +68,14 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
   const markdown = guardedRead(root, mdPath);
   const receipt = guardedRead(root, decisionPath);
   const noDecision = !receipt.ok && receipt.error.details?.rule === "exists";
+  // The validator refuses a v1 record before any other check, so advise the migration first.
+  const retired = (source: string) => ({ action: retiredV1Action(feature, `${source} は concept-test/v1 の記録です。`) });
   if (!json.ok) {
-    if (json.error.details?.rule !== "exists" || !noDecision) {
+    const missing = json.error.details?.rule === "exists";
+    if (missing && markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return retired(mdPath);
+    if (!missing || !noDecision) {
       return inspect(jsonPath, "提案のJSONを読み取れません。");
     }
-    if (markdown.ok && markdownObject(markdown.data.contents)?.schema === "concept-test/v1") return undefined;
     if (markdown.ok || markdown.error.details?.rule !== "exists") {
       return inspect(jsonPath, "Markdownに対応する提案のJSONを読み取れません。");
     }
@@ -86,12 +89,7 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
   }
 
   const proposal = readObject(json.data.contents);
-  if (proposal?.schema === "concept-test/v1" && noDecision) {
-    if (markdown.ok ? markdownObject(markdown.data.contents)?.schema === "concept-test/v1" : markdown.error.details?.rule === "exists") {
-      return undefined;
-    }
-    return inspect(mdPath, "旧提案のJSONとMarkdownの形式を確認してください。");
-  }
+  if (proposal?.schema === "concept-test/v1") return retired(jsonPath);
   if (proposal?.schema !== "concept-test/v2" || proposal.feature !== feature) {
     return inspect(jsonPath, "提案の形式・対象を確認できません。");
   }
