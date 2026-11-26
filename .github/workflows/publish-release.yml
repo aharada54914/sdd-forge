@@ -106,7 +106,8 @@ jobs:
             exit 1
           fi
           if [ "$GREEN" -lt 1 ]; then
-            echo "no successful test.yml run for ${TARGET} yet; wait for CI and dispatch again" >&2
+            echo "no successful test.yml run for ${TARGET} yet; wait for CI and dispatch again." >&2
+            echo "If its push run was cancelled by a later push (cancel-in-progress), push a temporary branch at ${TARGET} and run test.yml on it (gh workflow run test.yml --ref <branch>), then dispatch again." >&2
             exit 1
           fi
           # Release notes: the CHANGELOG section for this version.

@@ -135,8 +135,11 @@ def collect(feature, read, *, allow_local, require_v2=False, preparing=False, re
     decision_path = prefix + '.decision.json'
     approval = read(approval_path, True)
     decision_raw = read(decision_path, True)
+    if not legacy and approval is not None:
+        # Usually the v1 signed approval left behind after migrating to v2.
+        raise ValueError('leftover ' + approval_path + ' from a retired v1 record: delete it, then validate again')
     if (fits and (approval is not None or decision_raw is not None or 'decision' in document)
-            or legacy and decision_raw is not None or not legacy and approval is not None):
+            or legacy and decision_raw is not None):
         raise ValueError('incompatible Concept Test decision records')
     result = [{'path': prefix + ext, 'sha256': hashlib.sha256(read(prefix + ext)).hexdigest()}
               for ext in ('.md', '.json')]

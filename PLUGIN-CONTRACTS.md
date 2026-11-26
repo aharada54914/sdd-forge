@@ -359,8 +359,8 @@ Markdown-only) or left only in the Git index. New review launches that
 read the working tree, and the validator, stop on a working-tree v1
 record; without `domain/` and without `--require-v2` the validator still
 returns `SKIP`. First delete any leftover `concept-test.approval.json`
-(while it exists, every v2 run stops with `incompatible Concept Test
-decision records`), then recreate the proposal as `concept-test/v2`. In
+(while it exists, every v2 run stops with `leftover specs/<feature>/concept-test.approval.json from a
+retired v1 record`), then recreate the proposal as `concept-test/v2`. In
 a project without `domain/`, delete the v1 files instead. History keeps
 reading v1: the provenance of passed reviews (`check-workflow-state`),
 reviews pinned to a historical revision, and decision packets. Passed
