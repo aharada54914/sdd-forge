@@ -55,6 +55,64 @@ class PolicyTests(unittest.TestCase):
         self.assertRegex(rule, r"当該\s*`\(feature,\s*session\)`\s*で未同意なら、[^。]*"
                                r"人間の\s*明示同意を得てから\s*`push`")
 
+    def first_upload_disclosure(self, text=None):
+        branch = self.consent_branch("per-feature", text)
+        self.assert_scope_prompt(branch)
+        rule = "".join(branch.split())
+        prompt = re.search(r"次の文面は、判定結果の`provider`が`claude-design`で、実際の送信先が`claude\.ai/design`の場合に限る。"
+                           r"判定器が`prompt`を返したときだけ、〈機能名〉と〈プロジェクト名〉を実際の名前に置き換え、"
+                           r"次の文面で利用者に同意を求める。"
+                           r"「([^「」]+)この範囲で送信してよいですか？」", rule)
+        self.assertIsNotNone(prompt, "missing operator-facing first-upload prompt")
+        return prompt[1]
+
+    def test_disclosure_payload(self):
+        prompt = self.first_upload_disclosure()
+        self.assertIn("〈機能名〉の要件、受入条件、デザイントークンを反映した"
+                      "HTMLモックアップを送信します。", prompt)
+        self.assertIn("モックアップには未公開の製品仕様、画面の文言、ブランド情報などの"
+                      "機密情報が含まれる場合があります。", prompt)
+
+    def test_disclosure_destination(self):
+        self.assertIn("送信先は外部サービス`claude.ai/design`の、手順1のPullで選んだ"
+                      "プロジェクト〈プロジェクト名〉です。", self.first_upload_disclosure())
+
+    def test_disclosure_retention(self):
+        self.assertIn("送信した内容はサービス側に保持される可能性があり、"
+                      "このリポジトリではその保持や削除を制御できません。", self.first_upload_disclosure())
+
+    def assert_disclosed_scope(self, prompt):
+        self.assertIn("同意の範囲は、このセッション中に〈機能名〉のモックアップを"
+                      "〈プロジェクト名〉へ送ることです。", prompt)
+
+    def test_disclosure_repeated_uploads(self):
+        prompt = self.first_upload_disclosure()
+        self.assert_disclosed_scope(prompt)
+        self.assertIn("同意が有効な間、この範囲での2回目以降の送信時には改めて確認しません。", prompt)
+
+    def test_disclosure_regenerated_mockups(self):
+        prompt = self.first_upload_disclosure()
+        self.assert_disclosed_scope(prompt)
+        self.assertIn("今後この範囲で再生成するモックアップの送信も含みます。", prompt)
+
+    def test_disclosure_operator_authority(self):
+        self.assertIn("同意すると、この内容を外部へ送る権限がご自身にあると表明したことになります。"
+                      "このツールではその権限を検証しません。", self.first_upload_disclosure())
+
+    def test_only_material_shown_in_the_first_upload_question_counts(self):
+        heading = "## 3. Mockup & Egress Consent Loop\n3. **Resolve Egress Consent**:\n"
+        branch = "   - `per-feature`: 当該 `(feature, session)` で未同意なら、人間の明示同意を得てから `push` する。\n"
+        quote = ("     次の文面は、判定結果の `provider` が `claude-design` で、実際の送信先が `claude.ai/design` の場合に限る。\n"
+                 "     判定器が `prompt` を返したときだけ、〈機能名〉と〈プロジェクト名〉を実際の名前に置き換え、"
+                 "次の文面で利用者に同意を求める。\n"
+                 "     「HTML を送信します。この範囲で送信してよいですか？」\n")
+        retention_note = "     サービス側に保持される可能性があります。\n"
+        self.assertNotIn("保持", self.first_upload_disclosure(heading + branch + quote + retention_note))
+        with self.assertRaisesRegex(AssertionError, "missing operator-facing"):
+            self.first_upload_disclosure(heading + branch + "   - `standing`: 設定の説明。\n" + quote)
+        with self.assertRaisesRegex(AssertionError, "missing operator-facing"):
+            self.first_upload_disclosure(heading + branch + quote.replace("`claude-design`", "`other-provider`"))
+
     def test_subsequent_uploads_reuse_current_grant(self):
         rule = self.consent_branch("per-feature")
         self.assertIn("機能・セッション・送信先がすべて同じで、前回の同意が有効なら、"

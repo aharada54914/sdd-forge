@@ -42,6 +42,17 @@ if ($LASTEXITCODE -eq 0) {
     Test-Fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
 }
 
+function Test-Disclosure([string]$method, [string]$label) {
+    & $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') "PolicyTests.$method"
+    if ($LASTEXITCODE -eq 0) { Test-Pass $label } else { Test-Fail $label }
+}
+Test-Disclosure 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
+Test-Disclosure 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
+Test-Disclosure 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
+Test-Disclosure 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
+Test-Disclosure 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
+Test-Disclosure 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
+
 & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-prompt
 if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
@@ -388,30 +399,6 @@ if (($dslFlat -cmatch 'this feature AND this session|this feature and this sessi
     Test-Pass "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
 } else {
     Test-Fail "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
-}
-
-if (($loopFlat -match 'REQ-NNN') -and ($loopFlat -match 'AC-NNN') -and ($loopFlat -match 'confidential|pre-release')) {
-    Test-Pass "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-} else {
-    Test-Fail "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-}
-
-if ($loopFlat.Contains("claude.ai/design") -and ($loopFlat -match 'external') -and ($loopFlat -match 'selected in step 1|project selected')) {
-    Test-Pass "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-} else {
-    Test-Fail "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-}
-
-if (($loopFlat -match 'may be retained') -and ($loopFlat -match 'does not control|outside this repository.{0,3}s control')) {
-    Test-Pass "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-} else {
-    Test-Fail "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-}
-
-if (($loopFlat -match 'for this session') -and ($loopFlat -match 'without asking again|without prompting again|proceed without asking')) {
-    Test-Pass "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
-} else {
-    Test-Fail "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
 }
 
 if ($loopFlat.Contains("finalize_plan") -and ($loopFlat -match 'not (fully )?(known|knowable|established)|opacity|limitation|not (fully )?enumerable')) {
@@ -767,22 +754,10 @@ if (($dslFlat -match 'withdraw') -and ($dslFlat -match 'gated again|does not hol
     Test-Fail "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 }
 
-if (($loopFlat -match 'future regenerations') -and ($loopFlat -match 'for this session')) {
-    Test-Pass "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-} else {
-    Test-Fail "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-}
-
 if (($loopFlat -match 'pull direction') -and ($loopFlat -match 'human-supplied project name')) {
     Test-Pass "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
 } else {
     Test-Fail "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
-}
-
-if (($loopFlat -match 'asserting.{0,20}authority') -and ($loopFlat -match 'claim, not a check|not enforced')) {
-    Test-Pass "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
-} else {
-    Test-Fail "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
 }
 
 if (($loopFlat -match 'not change consent state') -and ($loopFlat -match 'reports the failure') `

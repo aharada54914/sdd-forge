@@ -29,12 +29,19 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
 
 外部プロバイダーを使う前に、同梱の `../../scripts/resolve-design-sync.py` に `design-sync-request/v1` を標準入力で渡す。読み込みは `operation: pull`、書き込みは `operation: upload` とし、毎回、現在の設定、機能・セッション・送信先、既存の判断記録を使う。結果が `prompt` なら同意の回答を加えて再実行する。 `skip` と `manual` は送信しない。`pull` の許可をアップロードに流用しない。
 
-1. **Pull**: `list_projects` / `list_files` / `get_file` で対象プロジェクトのトークンと既存コンポーネント一覧を取得し、`Design-Source` へ記録。
-2. **Generate Mockups**: 各画面・状態（default / empty / loading / error、レスポンシブ）について、外部アセット無し・トークン準拠（生カラーコード禁止）の HTML モックアップを `specs/<feature>/mockups/` に生成。
+1. **Pull**: `list_projects` の一覧から利用者に対象プロジェクトを選んでもらい、`list_files` / `get_file` でそのトークンと既存コンポーネント一覧を取得し、`Design-Source` へ記録。
+2. **Generate Mockups**: 機能の要件（REQ-NNN）と受入条件（AC-NNN）に対応する各画面・状態（default / empty / loading / error、レスポンシブ）について、外部アセット無し・トークン準拠（生カラーコード禁止）の HTML モックアップを `specs/<feature>/mockups/` に生成。
 3. **Resolve Egress Consent**: 毎回 `AGENTS.md` の `ds_upload_consent`（`per-feature` [既定] / `standing` / `off`）を確認する:
    - `off`: アップロードせず手動フォールバック（`Egress-Consent: not-permitted`, `Ds-Upload-Consent-Setting: off`, `Egress-Consent-At: <ISO-8601>` を記録）。
    - `standing`: プロンプト不要で続行し、`(feature, destination)` 初回のみ `Egress-Consent: granted`, `Ds-Upload-Consent-Setting: standing`, `Egress-Consent-At` を記録。
-   - `per-feature`: 当該 `(feature, session)` で未同意なら、送信内容・送信先（`claude.ai/design`）・外部保持リスク・適用範囲を明示説明して人間の明示同意を得てから `push` する。拒否時はアップロードせず手動フォールバック。
+   - `per-feature`: 送信先ごとに判定する。当該 `(feature, session)` で未同意なら、送信内容・送信先（実際のサービス名とプロジェクト名）・外部保持リスク・適用範囲を明示説明して人間の明示同意を得てから `push` する。拒否時はアップロードせず手動フォールバック。
+     次の文面は、判定結果の `provider` が `claude-design` で、実際の送信先が `claude.ai/design` の場合に限る。
+     判定器が `prompt` を返したときだけ、〈機能名〉と〈プロジェクト名〉を実際の名前に置き換え、次の文面で利用者に同意を求める。
+     「〈機能名〉の要件、受入条件、デザイントークンを反映した HTML モックアップを送信します。モックアップには未公開の製品仕様、画面の文言、ブランド情報などの機密情報が含まれる場合があります。
+     送信先は外部サービス `claude.ai/design` の、手順1の Pull で選んだプロジェクト〈プロジェクト名〉です。
+     送信した内容はサービス側に保持される可能性があり、このリポジトリではその保持や削除を制御できません。
+     同意の範囲は、このセッション中に〈機能名〉のモックアップを〈プロジェクト名〉へ送ることです。今後この範囲で再生成するモックアップの送信も含みます。同意が有効な間、この範囲での2回目以降の送信時には改めて確認しません。
+     同意すると、この内容を外部へ送る権限がご自身にあると表明したことになります。このツールではその権限を検証しません。この範囲で送信してよいですか？」
      機能・セッション・送信先がすべて同じで、前回の同意が有効なら、2回目以降のアップロードは再同意を求めず送信前検査に進む。
    判断結果に `audit` がある場合は、`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先・範囲と、返された `party`（`Egress-Consent-Party`）、記録時の ISO-8601 時刻（`Egress-Consent-At`）を残す。同意撤回は `withdrawn` と記録し、次回は再判定する。一度の辞退では継続的な拒否を記録しない。
    アップロード直前に対象の `specs/<feature>/mockups/` を同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` で検査する。終了0なら `Egress-Scan: clean` と検査時刻を記録する。終了1なら検出内容を提示して送信を止め、その検査結果について明示的な上書き承認を得た場合だけ `Egress-Scan: overridden` と時刻を記録して続ける。終了2や異常終了ではツールを復旧して再検査するまで送信しない。

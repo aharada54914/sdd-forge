@@ -270,33 +270,19 @@ else
   fail "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'REQ-NNN' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'AC-NNN' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'confidential|pre-release'; then
-  pass "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-else
-  fail "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'claude.ai/design' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'external' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'selected in step 1|project selected'; then
-  pass "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-else
-  fail "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'may be retained' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'does not control|outside this repository.{0,3}s control'; then
-  pass "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-else
-  fail "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'for this session' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'without asking again|without prompting again|proceed without asking'; then
-  pass "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
-else
-  fail "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
-fi
+check_disclosure() {
+  if python3 -B "$ROOT/tests/design-sync-policy.tests.py" "PolicyTests.$1"; then
+    pass "$2"
+  else
+    fail "$2"
+  fi
+}
+check_disclosure 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
+check_disclosure 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
+check_disclosure 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
+check_disclosure 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
+check_disclosure 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
+check_disclosure 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
 
 if printf '%s' "$LOOP_FLAT" | grep -Fq 'finalize_plan' \
    && printf '%s' "$LOOP_FLAT" | grep -Eiq 'not (fully )?(known|knowable|established)|opacity|limitation|not (fully )?enumerable'; then
@@ -662,23 +648,10 @@ else
   fail "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'future regenerations' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'for this session'; then
-  pass "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-else
-  fail "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-fi
-
 if printf '%s' "$LOOP_FLAT" | grep -Eiq 'pull direction' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'human-supplied project name'; then
   pass "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
 else
   fail "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'asserting.{0,20}authority' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'claim, not a check|not enforced'; then
-  pass "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
-else
-  fail "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
 fi
 
 if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not change consent state' \
