@@ -236,13 +236,15 @@ esac
               'if (process.argv.slice(2).join(" ") !== "--root . --quiet-info") process.exit(2);\n'
               'fs.writeFileSync("doctor.ran", "yes");\n'
               'if (process.env.FAIL_AT === "doctor") throw Error("fixture doctor failed");\n')
+        bash = self.env.get("SDD_TEST_BASH") or shutil.which("bash")
+        self.assertIsNotNone(bash, "Bash is required to test the workstation version bump")
         for fail_at in (SUITES[0], SUITES[-1], "doctor", ""):
             with self.subTest(fail_at=fail_at):
                 self.env["FAIL_AT"] = fail_at
                 (self.root / "doctor.ran").unlink(missing_ok=True)
                 for suite in SUITES:
                     (self.root / (suite + ".ran")).unlink(missing_ok=True)
-                out = self.run_cli(["bash", "scripts/bump-version.sh", "1.1.0"], not fail_at)
+                out = self.run_cli([bash, "scripts/bump-version.sh", "1.1.0"], not fail_at)
                 if fail_at:
                     cause = "doctor" if fail_at == "doctor" else "suite"
                     self.assertIn(f"fixture {cause} failed", out)

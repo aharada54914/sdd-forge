@@ -93,6 +93,9 @@ jobs:
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # Native Python must launch this Git Bash, even when System32 contains bash.exe.
+            SDD_TEST_BASH=$(cygpath -am "${BASH%.exe}.exe")
+            export SDD_TEST_BASH
             export PATH="${BASH%/*}:$PATH"
             python=python
           else
