@@ -290,12 +290,12 @@ def main() -> int:
         drift_codex = base / "drift-codex"
         install_snapshot(drift, drift_codex)
         claude = drift / HOOKS / "claude-hooks.json"
-        hooks = drift / HOOKS / "hooks.json"
+        hooks = drift / HOOKS / "codex-hooks.json"
         copilot = drift / HOOKS / "copilot-hooks.json"
         claude.unlink()
         hooks.write_bytes(hooks.read_bytes() + b"\ninstalled-cache-mutation\n")
         copilot.unlink()
-        copilot.symlink_to("hooks.json")
+        copilot.symlink_to("codex-hooks.json")
         installed_only = drift / "plugins" / "installed-only.txt"
         installed_only.write_bytes(b"installed only\n")
         config = drift_codex / "config.toml"
@@ -313,9 +313,9 @@ def main() -> int:
             report_entry("file", (HOOKS / "copilot-hooks.json").as_posix(),
                          (HOOKS / "copilot-hooks.json").as_posix(), "type-changed",
                          node_bytes(copilot), (REPO / HOOKS / "copilot-hooks.json").read_bytes()),
-            report_entry("file", (HOOKS / "hooks.json").as_posix(),
-                         (HOOKS / "hooks.json").as_posix(), "modified",
-                         hooks.read_bytes(), (REPO / HOOKS / "hooks.json").read_bytes()),
+            report_entry("file", (HOOKS / "codex-hooks.json").as_posix(),
+                         (HOOKS / "codex-hooks.json").as_posix(), "modified",
+                         hooks.read_bytes(), (REPO / HOOKS / "codex-hooks.json").read_bytes()),
             report_entry("file", "plugins/installed-only.txt", "plugins/installed-only.txt",
                          "removed", installed_only.read_bytes(), None),
             report_entry("delimited-region", "install.sh#register_codex_mcp/ci-mcp",
@@ -358,14 +358,14 @@ def main() -> int:
                                checker, lifecycle, lifecycle_codex, "verify", 0,
                                "installed_synced")
             assert initial["diverged"] == []
-            target = lifecycle / HOOKS / "hooks.json"
+            target = lifecycle / HOOKS / "codex-hooks.json"
             target.write_bytes(target.read_bytes() + b"\npost-install mutation\n")
             report = run_case("TEST-022 negative lifecycle detects later mutation",
                               args.runtime, checker, lifecycle, lifecycle_codex,
                               "verify", 1, "installed_drifted")
-            expected_one = report_entry("file", (HOOKS / "hooks.json").as_posix(),
-                                        (HOOKS / "hooks.json").as_posix(), "modified",
-                                        target.read_bytes(), (REPO / HOOKS / "hooks.json").read_bytes())
+            expected_one = report_entry("file", (HOOKS / "codex-hooks.json").as_posix(),
+                                        (HOOKS / "codex-hooks.json").as_posix(), "modified",
+                                        target.read_bytes(), (REPO / HOOKS / "codex-hooks.json").read_bytes())
             assert report["diverged"] == [expected_one]
         except Exception as exc:
             failures.append(f"negative-lifecycle: {exc}")

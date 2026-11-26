@@ -4,8 +4,12 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
+import runpy
+import shlex
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -322,7 +326,80 @@ esac
                 self.assertTrue(any(line.startswith(heading) for line in data.splitlines()[:5]), path)
                 self.assertEqual(actual, data.replace(heading, f"v{new} — ".encode(), 1), path)
 
-    # Both shell drivers select individual cases. CI's existing public test runs all four.
+    def check_bump_release_input(self, missing_helper):
+        self.env.pop("FAIL_AT", None)
+        bash = self.prepare_bump()
+        suite = "tests/v2-hooks-and-ci.test.mjs"
+        helper = "plugins/sdd-implementation/scripts/managed-model-entry.py"
+        readme_case = "all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+        helper_case = "keeps the installed managed model entry in the release source"
+        # Exercise the published payload, optional MCP packages, and every bump target.
+        entries = [line.strip() for line in (ROOT / "install-payload.txt").read_text().splitlines()
+                   if line.strip() and not line.lstrip().startswith("#")]
+        paths = subprocess.check_output(["git", "ls-files", "-z", "--", *entries, "mcp/",
+                                         ".github/workflows/sdd-guardrails.yml"], cwd=ROOT)
+        for raw in paths.split(b"\0"):
+            if raw:
+                path = Path(os.fsdecode(raw))
+                (self.root / path).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / path, self.root / path)
+
+        # Keep both real Node assertions intact. Their fixture runs at the point where
+        # bump invokes this suite, with its unrelated cases filtered by node:test.
+        real_suite = "tests/release-inputs.test.mjs"
+        shutil.copy2(ROOT / suite, self.root / real_suite)
+        arguments = ["--test", "--test-reporter=tap", f"--test-name-pattern={helper_case}|{readme_case}", real_suite]
+        write(self.root, suite,
+              'import { spawnSync } from "node:child_process";\n'
+              'const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;\n'
+              f'const result = spawnSync(process.execPath, {json.dumps(arguments)}, {{ env, stdio: "inherit" }});\n'
+              'if (result.error) throw result.error;\nprocess.exit(result.status ?? 1);\n')
+        ship = self.root / "plugins/sdd-ship/.claude-plugin/plugin.json"
+        current = json.loads(ship.read_bytes())["version"]
+        major, minor, patch = current.split(".")
+        new = f"{major}.{minor}.{int(patch) + 1}"
+        with (self.root / "CHANGELOG.md").open("ab") as stream:
+            stream.write(f"\n## v{new} (fixture)\n".encode())
+        healthy = self.run_cli(["node", *arguments])
+        self.assertRegex(healthy, r"(?m)^# pass 2$")
+
+        if missing_helper:
+            (self.root / helper).unlink()
+            rejected, accepted = helper_case, readme_case
+        else:
+            readme = self.root / "README.md"
+            heading = f"v{current} — ".encode()
+            lines = readme.read_bytes().splitlines(keepends=True)
+            indexes = [i for i, line in enumerate(lines[:5]) if line.startswith(heading)]
+            self.assertEqual(len(indexes), 1)
+            i = indexes[0]
+            lines[i] = lines[i].replace(heading, f"v{new} — ".encode(), 1)
+            readme.write_bytes(b"".join(lines))
+            rejected, accepted = readme_case, helper_case
+
+        before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+        output = self.run_cli([bash, "scripts/bump-version.sh", new], False)
+        self.assertIn("v2 pre-release checks failed; no release surface was modified.", output)
+        self.assertRegex(output, rf"(?m)not ok [0-9]+ - {rejected}$")
+        self.assertRegex(output, rf"(?m)(?<!not )ok [0-9]+ - {accepted}$")
+        if missing_helper:
+            self.assertIn("ENOENT", output)
+            self.assertIn("managed-model-entry.py", output)
+        else:
+            self.assertIn("The input did not match the regular expression", output)
+        markers = {self.root / (entry + ".ran") for entry in SUITES if entry != suite}
+        after = {p for p in self.root.rglob("*") if p.is_file()}
+        self.assertEqual(after, set(before) | markers)
+        for path, data in before.items():
+            self.assertEqual(path.read_bytes(), data, str(path.relative_to(self.root)))
+
+    def check_bump_stale_readme(self):
+        self.check_bump_release_input(missing_helper=False)
+
+    def check_bump_missing_helper(self):
+        self.check_bump_release_input(missing_helper=True)
+
+    # Both shell drivers select individual cases. CI runs them through the public bump test.
     def check_bump_green(self):
         self.check_shipped_bump("")
 
@@ -335,9 +412,146 @@ esac
     def check_bump_doctor_failure(self):
         self.check_shipped_bump("doctor")
 
+    def check_bump_gate_source(self):
+        source = (ROOT / "scripts/bump-version.sh").read_text(encoding="utf-8")
+        bash = self.env.get("SDD_TEST_BASH") or "bash"
+        invocation = ('if ! (cd "${ROOT}" && node --test ' + " ".join(SUITES)
+                      + f' && node {DOCTOR} --root . --quiet-info) >"${{gate_log}}" 2>&1; then')
+
+        def parsed(script):
+            # Bash parses the function definition and prints its canonical nesting.
+            # Its body is never called. A trailing command stabilizes the final separator.
+            program = "bump_source() {\n" + script + "\n:\n}\ndeclare -f bump_source\n"
+            result = subprocess.run([bash, "--noprofile", "--norc"], input=program, capture_output=True,
+                                    text=True, env=self.env, check=True, timeout=10)
+            return result.stdout.splitlines()
+
+        reference = parsed(invocation + "\nexit 1\nfi")
+        gate_line, failure_exit, gate_end = reference[2:5]
+
+        def assert_unconditional(script):
+            lines = parsed(script)
+            self.assertEqual(lines.count(gate_line), 1, "missing top-level suite and doctor gate")
+            gate = lines.index(gate_line)
+            end = lines.index(gate_end, gate + 1)
+            self.assertEqual(lines[end - 1], failure_exit, "gate failure must exit nonzero")
+            # Reject early successful or unknown exits before the gate or in its
+            # failure arm, including inline conditionals rendered by the Bash parser.
+            for line in lines[2:end - 1]:
+                lexer = shlex.shlex(line, posix=True, punctuation_chars=";&|()")
+                lexer.whitespace_split = True
+                words = list(lexer)
+                for index, word in enumerate(words):
+                    if word not in ("exit", "return", "exec"):
+                        continue
+                    if index and words[index - 1] not in (";", "&&", "||", "|", "(", "then", "else", "!"):
+                        continue
+                    value = words[index + 1] if index + 1 < len(words) else ""
+                    self.assertTrue(word != "exec" and value.isascii() and value.isdecimal()
+                                    and 0 < int(value) < 256, "early successful or unknown exit: " + line)
+
+        assert_unconditional(source)
+        # Build source mutations from Bash's normalized output, so comments,
+        # blank lines, quoting layout and source indentation are irrelevant.
+        normal = parsed(source)[2:-2]
+        index = normal.index(gate_line)
+        end = normal.index(gate_end, index + 1)
+        controls = {
+            "conditional": [*normal[:index], 'if [[ -z "${OPTIONAL_GATE:-}" ]]; then',
+                            *normal[index:end + 1], "fi", *normal[end + 1:]],
+            "omitted": [*normal[:index], *normal[end + 1:]],
+            "early success on failure": [*normal[:index + 1], '[[ -z "${OPTIONAL_GATE:-}" ]] && exit 0',
+                                         *normal[index + 1:]],
+        }
+        for name, lines in controls.items():
+            with self.subTest(control=name), self.assertRaisesRegex(AssertionError, "top-level|early successful"):
+                assert_unconditional("\n".join(lines))
+        harmless = [*normal[:index], 'extra_note="fixture"', "", *normal[index:]]
+        assert_unconditional("\n".join(harmless).replace(" && node", " &&\nnode"))
+
+    def test_bump_registration(self):
+        suite = "tests/release-readiness.tests.py"
+        catalog = json.loads((ROOT / "tests/verification-catalog.json").read_bytes())
+        for suffix, profile in (("sh", "local-posix"), ("ps1", "local-powershell")):
+            self.assertIn("tests/bump-version-gate.tests." + suffix, catalog["profiles"][profile])
+        entries = {row["path"]: row for row in catalog["suites"]}
+        self.assertIn("v2-guardrails", entries[suite]["ci_jobs"])
+        parser = runpy.run_path(str(ROOT / "tests/verification-workflow.py"))
+        workflow = parser["load_workflow"](ROOT / ".github/workflows/test.yml")
+        jobs = workflow["jobs"]
+        job = jobs["v2-guardrails"]
+        self.assertIn("v2-guardrails", jobs["required-checks"]["needs"])
+        self.assertEqual(job["runs-on"], "${{ matrix.os }}")
+        self.assertCountEqual([row["os"] for row in parser["matrix_rows"](job)],
+                              ["ubuntu-latest", "macos-latest", "windows-latest"])
+        self.assertNotIn("if", job)
+        self.assertNotIn("continue-on-error", job)
+        defaults = dict(workflow.get("defaults", {}).get("run", {}))
+        defaults.update(job.get("defaults", {}).get("run", {}))
+        # Linux runs the whole public suite. The two workstation runners select its bump test.
+        commands = {
+            "runner.os == 'Linux'": [f"python3 {suite}"],
+            "runner.os != 'Linux'": [
+                'if [[ "$RUNNER_OS" == "Windows" ]]; then',
+                'SDD_TEST_BASH=$(cygpath -am "${BASH%.exe}.exe")', "export SDD_TEST_BASH",
+                'export PATH="${BASH%/*}:$PATH"', "python=python", "else", "python=python3", "fi",
+                f'"$python" {suite} ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files',
+            ],
+        }
+        for condition, expected in commands.items():
+            def matches(step):
+                lines = [line.strip() for line in step.get("run", "").splitlines()
+                         if line.strip() and not line.lstrip().startswith("#")]
+                # Standalone diagnostics do not change which Python invocation runs.
+                log = r"""(?:echo|printf)(?:\s+(?:'[^']*'|"[^"`]*"|[\w.%=:/-]+))+"""
+                lines = [line for line in lines if "$(" in line or not re.fullmatch(log, line)]
+                shell = step.get("shell", defaults.get("shell"))
+                return (step.get("if") == condition and not step.get("continue-on-error")
+                        and step.get("working-directory", defaults.get("working-directory", ".")) == "."
+                        and (shell == "bash" or (shell is None and condition == "runner.os == 'Linux'"))
+                        and lines == expected)
+
+            active = [step for step in job["steps"] if matches(step)]
+            self.assertTrue(active, condition)
+            self.assertTrue(matches(dict(active[0], run="echo 'Starting release checks'\n" + active[0]["run"])))
+            if condition == "runner.os != 'Linux'":
+                literal = active[0]["run"].replace('"$python"', "'$python'")
+                self.assertFalse(matches(dict(active[0], run=literal)))
+            comment_only = [dict(step, run="# " + expected[-1]) if step in active else step
+                            for step in job["steps"]]
+            self.assertFalse(any(matches(step) for step in comment_only), condition)
+
+    def check_bump_inventory(self, command, suite):
+        self.test_bump_registration()
+
+        def registered(runner):
+            result = subprocess.run([*runner, command[-1]], cwd=ROOT, capture_output=True,
+                                    text=True, timeout=45)
+            return result.returncode == 0 and suite in result.stdout.splitlines()
+
+        self.assertTrue(registered(command[:-1]), suite)
+        # Only the executable list result counts, even when runner source mentions the suite.
+        stub = write(self.root, "inventory.py",
+                     f"# {suite}\nimport sys\nassert sys.argv[3] == {command[-1]!r}\n"
+                     "print(sys.argv[2])\nsys.exit(int(sys.argv[1]))\n")
+        self.assertTrue(registered([sys.executable, str(stub), "0", suite]))
+        for code, output in ((0, ""), (0, suite + ".bak"), (7, suite), (0, "# " + suite)):
+            with self.subTest(code=code, output=output):
+                self.assertFalse(registered([sys.executable, str(stub), str(code), output]))
+
+    def check_bump_bash_registration(self):
+        self.check_bump_inventory([os.environ.get("SDD_TEST_BASH") or "bash", "tests/run-all.sh", "--list"],
+                                  "tests/bump-version-gate.tests.sh")
+
+    def check_bump_powershell_registration(self):
+        self.check_bump_inventory([shutil.which("pwsh") or "powershell", "-NoProfile", "-File",
+                                   "tests/run-all.ps1", "-List"], "tests/bump-version-gate.tests.ps1")
+
     def test_bump_stops_before_writing_or_synchronizes_all_files(self):
+        self.check_bump_gate_source()
         for case in (self.check_bump_green, self.check_bump_first_suite_failure,
-                     self.check_bump_last_suite_failure, self.check_bump_doctor_failure):
+                     self.check_bump_last_suite_failure, self.check_bump_doctor_failure,
+                     self.check_bump_stale_readme, self.check_bump_missing_helper):
             with self.subTest(case=case.__name__):
                 case()
 
