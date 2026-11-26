@@ -1,0 +1,16 @@
+ticket_id: RT-20261126-010
+status: open
+type: coverage
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-003
+summary: "Host parity omits the Copilot Bash guard existence path"
+problem: |
+  The separate existence and invocation paths agree in the shipped hook.
+  The checker verifies only the invocation and would miss a stale existence path.
+expected_fix:
+  - Verify that the existence and invocation checks resolve to the prescribed guard.
+  - Check a directory-only discrepancy at each occurrence independently.
+references:
+  - reports/quality-gate/verification-first-factory-T-003.md
