@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-005
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -14,3 +14,7 @@ expected_fix:
   - "Cover directory-only changes, including the alternate command variants."
 references:
   - reports/quality-gate/verification-first-factory-T-003.md
+resolution:
+  commit: 0e5b095
+  result: "Each of the seven command variants rejected a directory-only target mutation. The integrated catalog and fitness suites passed."
+  receipt: specs/verification-first-factory/verification/T-003/RT-20261126-005/test-receipt.json
