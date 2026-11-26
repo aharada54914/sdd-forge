@@ -90,7 +90,7 @@ T-001
 T-002, T-005
 
 ### T-007: 固定アローリスト Security Gate・本体敵対的テスト・Reframing / Meta-Analyze
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-004`, `REQ-001`, `REQ-002`, `REQ-009`

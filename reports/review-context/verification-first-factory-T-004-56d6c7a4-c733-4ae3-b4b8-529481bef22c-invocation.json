@@ -1,0 +1,183 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "verification-first-factory",
+  "task_id": "T-004",
+  "run_id": "56d6c7a4-c733-4ae3-b4b8-529481bef22c",
+  "host_session_id": "01a21531-5579-70c3-a722-0ec5f1aa3528",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ecbd79e442cc4b9e96c79945277e3067467d8ad719fe7bd858c4f3c69dce3bb2",
+  "previous_record_sha256": "0514694fe24a7f1c039a8c3f125442af73bf8ef1aba2fc117c7910ef278f44dc",
+  "sequence": 1247,
+  "implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-004/RT-20261126-009/task-input-manifest.json",
+    "sha256": "b144b75b5e2415c5278b50b7fae3c0766d507689578a8f408a8caab04ef72104"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": ".github/workflows/sdd-guardrails.yml",
+      "sha256": "c5419932bd6e8ebc2568496fab2a3c314258e605dd5f2d5d18c7eba70693b64e"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package-lock.json",
+      "sha256": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/agent-lint-ast.mjs",
+      "sha256": "5870a9ff353dc097e8b2e6015fc2f71f4aaf2e907f831bb8830a8abf1f282a75"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/agent-strict-rules.json",
+      "sha256": "391f63a048cf678dbe0ccb5105121d4a70f9900b3fc752945d313bb2b39c3060"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/lint-diff.mjs",
+      "sha256": "94998d112def4fbafa56f5ce675d227c67c2b4e275b89e941f58d62782baf3eb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/local-module-graph.mjs",
+      "sha256": "45db94d88fb3f62a70fcf297c52540e688be01e8cc77b2e44455fd01ec42f2a8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package-lock.json",
+      "sha256": "11c8bef06f85c87fcae33a7d471e9d0ac43f5432637331102a3f2b7619ba275d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package.json",
+      "sha256": "61acad78570f9db3a87b424e27ff97c84fc7bff2a42b85a715bd4fec6364cdce"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/rebuilt-catches.mjs",
+      "sha256": "e55bbfcf17daae2ebe9a269a776bcca361e681e4c45487d6d0c6b69ff42f711a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/source-ast.mjs",
+      "sha256": "bd55fc26a795ae02a83aca6596d4932ba09d7e9d4fd6ea5978a7ea678a81dabb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "sha256": "fbfffce06914d2cf280eaafafed427a802ab34b900df00aec61a802e8664790e"
+    },
+    {
+      "path": "reports/implementation/verification-first-factory/T-004.md",
+      "sha256": "54dc92e5395239dcf421ae0a7fd92370933d1b375cf423c023ae96e63e382c9b"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "2e1e00e0d02b13959037f5a3b1217fcd1941df7a2fa03825b63db76ae936c5b0"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/RT-20261126-009/task-input-manifest.json",
+      "sha256": "b144b75b5e2415c5278b50b7fae3c0766d507689578a8f408a8caab04ef72104"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/RT-20261126-009/test-receipt.json",
+      "sha256": "f3bcd41195a8495ab188e8665f0d8cd3d89e96e57cd80041b82e03610b5b80ce"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/RT-20261126-009/tested-tasks.md",
+      "sha256": "2e1e00e0d02b13959037f5a3b1217fcd1941df7a2fa03825b63db76ae936c5b0"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/approved-layer1-baseline.md",
+      "sha256": "0cc5e351e96f89eb4a06ab552801b226772de5bd51864cde78f139ba1346451f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/quality-repair-1f7162b988b6/declaration.json",
+      "sha256": "a1040342ea4e4125bdb2649ff16a19a11cc1209024ed7a6f04a6a32d4a5f5b58"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/quality-repair-1f7162b988b6/execution.json",
+      "sha256": "0665909368fcf9a80d9ec70c594c9eda5ffae069bb3c505ec5bdc09f7d978099"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/quality-repair-1f7162b988b6/repair.diff",
+      "sha256": "6bb3cb443b282255314213423592fb24baa8a2faca8a3ccc3f1c717be5bff2d7"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/agent-lint-tests.txt",
+      "sha256": "43670792dc5fc584d4d47d307d4b5d7892547023fe51115f99732b593ae543c3"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/bundle-source-map-comparison.json",
+      "sha256": "927b74ac2c6e849237e8f768b7d7f8a30eda3d426367ae01255126656457baab"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/bundle-timing.json",
+      "sha256": "85a4ba98dc633ca4e4ad423e36d69fd2e2f1c68979a9b754426cee5d901f23d7"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/historical-prs.json",
+      "sha256": "c301d71ad557416ece5e0b431be02c5bf169c1dd933f770cad8083c67188041f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/qualification.md",
+      "sha256": "f03b33136f6cf4778483bea87a70444183e2bdca6b786afb9485faf83fb33fe8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/rebuilt-bundle-shadow.json",
+      "sha256": "b0b6f0087512f217d03d4c7a201c35d78b5e61afd501f7756f21cfdd47c1529b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-pr976/review.json",
+      "sha256": "857180e2362ca55d9c8f372077c3f801aef9aceeca0d56f3736d3a8872a2a84f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-revalidation-123cebf69/task-input-manifest.json",
+      "sha256": "8424d9e0159eaaaa36a45e37912149d8a88531ac7e5a8060dbb8b5c5c26ecba8"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-revalidation-123cebf69/test-receipt.json",
+      "sha256": "6b1c0d649ceccf997ed400bcf5fa1a3f11e99354d6c9d7b8f5f364f9d3276b9b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-004/shadow-revalidation-123cebf69/tested-tasks.md",
+      "sha256": "b03f8c4eba7c1ee015fa3008f97b8d01460796bcbbe696765bdcd31533e5294a"
+    },
+    {
+      "path": "tests/fixtures/agent-lint/clean.mjs",
+      "sha256": "9f59a71c37882b063c85cca88bbd852b04035e39694fe1e5969b2d256cfbd899"
+    },
+    {
+      "path": "tests/fixtures/agent-lint/violations.mjs",
+      "sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744"
+    },
+    {
+      "path": "tests/v2-agent-lint-bundle.test.mjs",
+      "sha256": "a973e574fb598915118f75123d81945ad2c0503e2f51095888963a39a3eeaa68"
+    },
+    {
+      "path": "tests/v2-agent-lint.test.mjs",
+      "sha256": "8c650bc7b54f67b9ad579a30566f8b01b8d8bcfe038dfdb3ca29a4f77ae3d7d6"
+    },
+    {
+      "path": "tests/v2-sdd-doctor.test.mjs",
+      "sha256": "dec857bf04bc568f5adf938dd54d04bb63fe759704bec868c522bd2df9cc80e2"
+    },
+    {
+      "path": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "7ea3772087e4a27c79e81966ebbc18cde23b414f9bd69acad20f9590b72d54e8"
+    }
+  ],
+  "supplemental_delivery_declaration": {
+    "path": "specs/verification-first-factory/verification/T-004/quality-repair-1f7162b988b6/declaration.json",
+    "sha256": "a1040342ea4e4125bdb2649ff16a19a11cc1209024ed7a6f04a6a32d4a5f5b58"
+  },
+  "scratch_root": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-T-004-review-xvnm6uaj"
+}

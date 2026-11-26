@@ -1,10 +1,10 @@
 {
   "schema": "sdd-gate-execution/v1",
-  "runId": "b339313d-90a1-492b-b29d-86888f496fbd",
+  "runId": "2e0317c2-5276-46b5-aae0-42ec9f7cd165",
   "feature": "verification-first-factory",
   "taskId": "T-007",
   "mode": "standard",
-  "executedAt": "2026-11-25T23:40:43.185Z",
+  "executedAt": "2026-11-26T00:08:52.530Z",
   "verdict": "PASS",
   "specInputs": {
     "schema": "sdd-task-evidence-inputs/v2",
@@ -163,12 +163,12 @@
     "commands": [
       {
         "label": "check-1",
-        "command": "node --test tests/self-security-adversarial.test.mjs",
+        "command": "node --test '--test-name-pattern=removed manifest|cannot enumerate paths|reports incomplete local input|renders the design reframing' tests/self-security-adversarial.test.mjs",
         "exitCode": 0,
-        "durationMs": 378,
+        "durationMs": 198,
         "passed": true,
         "error": null,
-        "stdout": "▶ ADR-0054 T-007 (SELF-AC-004 / AC-008): Adversarial Security Suite & Allowlist Security Gate\n  ✔ 1. Rejects arbitrary command keys in guardrails.yaml and unallowed adapters with exit code 2 (28.1595ms)\n  ✔ 2. Refuses Windows .cmd/.bat wrappers (CVE-2024-27980 defense) and enforces shell: false (0.297667ms)\n  ✔ 3. Detects leaked secrets and ALWAYS masks raw secret tokens in output (27.717334ms)\n  ✔ 4. Detects slopsquatting / typosquatting packages and insecure HTTP deps in package.json (1.128083ms)\n  ✔ 5. Fails closed (exit 2) in CI strict mode when an enabled external adapter is unavailable (0.221541ms)\n  ✔ 6. Core path traversal & soft-guard self-approval defense hold against adversarial inputs (29.822625ms)\n✔ ADR-0054 T-007 (SELF-AC-004 / AC-008): Adversarial Security Suite & Allowlist Security Gate (87.807083ms)\n▶ Security adapter contracts and bootstrap integration\n  ✔ rejects incomplete scans in CI and on configured high risk paths (1.450667ms)\n  ✔ uses explicit opt-in and rejects invalid modes, paths and malformed config (0.767708ms)\n  ✔ keeps simulated Issue instructions in the source body and rejects shell metacharacters in adapter IDs (25.320917ms)\n  ✔ reports incomplete local input scans without disclosing the input path (2.131625ms)\n  ✔ fails closed when it cannot enumerate paths for a security scan (0.62425ms)\n  ✔ checks nested package manifests and fails closed on unreadable dependencies (0.939166ms)\n  ✔ interprets CodeQL SARIF results and requires a report after database analysis (0.853916ms)\n  ✔ runs Socket policy checks, identifies malformed reports and masks raw output (0.779084ms)\n  ✔ persists deterministic meta-analysis and reads repository-wide learning, knowledge and OQ inputs (95.29825ms)\n  ✔ renders the design reframing section for standard, high and an explicit low-risk override (96.984334ms)\n✔ Security adapter contracts and bootstrap integration (225.390375ms)\nℹ tests 16\nℹ suites 2\nℹ pass 16\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 352.448583\n",
+        "stdout": "▶ Security adapter contracts and bootstrap integration\n  ✔ reports incomplete local input scans without disclosing the input path (3.604042ms)\n  ✔ accepts a removed manifest in a CI change list and reports an unreadable remaining manifest (1.215ms)\n  ✔ fails closed when it cannot enumerate paths for a security scan (0.650583ms)\n  ✔ renders the design reframing section for standard, high and an explicit low-risk override (113.522875ms)\n✔ Security adapter contracts and bootstrap integration (119.471291ms)\nℹ tests 4\nℹ suites 1\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 165.17225\n",
         "stderr": ""
       }
     ],
