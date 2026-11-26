@@ -491,11 +491,10 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
   });
 });
 
-describe('#821 gate task lookup uses the exact task ID', () => {
-  it('never reads a sibling task whose ID shares a prefix, in either order', async () => {
-    const { parseTaskBlock } = await import(
-      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')).href
-    );
+describe('#821 gate task lookup uses the exact task ID', async () => {
+  const { parseTaskBlock } = await import(pathToFileURL(GATE_SCRIPT).href);
+
+  it('never reads a sibling task whose ID shares a prefix, in either order', () => {
     const sibling = ['## T-001.1 Sibling', 'Approval: Approved', 'Status: Done', 'Risk: high', ''].join('\n');
     const target = ['## T-001 Target', 'Approval: Draft', 'Status: Planned', 'Risk: low', ''].join('\n');
     const extra = ['## T-001-extra', 'Approval: Approved', 'Status: Done', ''].join('\n');
@@ -509,12 +508,35 @@ describe('#821 gate task lookup uses the exact task ID', () => {
     }
     assert.equal(parseTaskBlock(sibling, 'T-001'), null, 'a prefix-only heading must not satisfy the lookup');
     assert.equal(parseTaskBlock('## T-001\nApproval: Approved\n', 'T-001').approval, 'Approved');
-    const realPlan = fs.readFileSync(path.join(REPO_ROOT, 'specs/verification-first-factory/tasks.md'), 'utf8');
-    const implemented = parseTaskBlock(realPlan, 'T-002');
-    assert.equal(implemented.approval, 'Approved');
-    assert.equal(implemented.status, 'Implementation Complete');
-    assert.equal(implemented.risk, 'high');
-    assert.ok(implemented.scopePaths.includes('plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs'));
+  });
+
+  for (const status of ['Implementation Complete', 'Done']) {
+    it(`reads ${status} from a task with inline Markdown fields`, () => {
+      const plan = [
+        '### T-002: Review totals',
+        '- **Status:** `' + status + '`',
+        '- **Approval:** `Approved`',
+        '- **Risk:** `high`',
+        '- **Scope:** `src/totals.js`（新規）, `tests/totals.test.js`',
+      ].join('\n');
+      assert.deepEqual(parseTaskBlock(plan, 'T-002'), {
+        taskId: 'T-002', approval: 'Approved', status, risk: 'high',
+        scopePaths: ['src/totals.js', 'tests/totals.test.js'],
+      });
+    });
+  }
+
+  it('reads the recorded status and scope of the verification-first-factory task', () => {
+    const plan = fs.readFileSync(path.join(REPO_ROOT, 'specs/verification-first-factory/tasks.md'), 'utf8');
+    const section = plan.split(/^(?=### T-)/m).find(text => text.startsWith('### T-002:'));
+    assert.ok(section, 'T-002 heading in the real plan');
+    const statusLine = /^- \*\*Status:\*\* `([^`\r\n]+)`$/m.exec(section);
+    assert.ok(statusLine, 'T-002 has a recorded status');
+    const task = parseTaskBlock(plan, 'T-002');
+    assert.equal(task.status, statusLine[1]);
+    assert.equal(task.approval, 'Approved');
+    assert.equal(task.risk, 'high');
+    assert.ok(task.scopePaths.includes('plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs'));
   });
 });
 
