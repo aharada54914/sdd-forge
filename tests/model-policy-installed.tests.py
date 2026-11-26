@@ -72,7 +72,6 @@ COPILOT = {'plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md': 'ev
            'plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md': 'investigator'}
 PROTECTED = {'plugins/sdd-review-loop/agents/' + name + '.md': name
              for name in ('impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b')}
-TARGETS = {**CLAUDE, **CODEX, **COPILOT, **PROTECTED}
 
 
 def frontmatter(text):
@@ -185,11 +184,16 @@ class ManagedFixture(LaunchFixture):
 
 
 class ManagedClaudeRoles(ManagedFixture):
-    render_targets = TARGETS
+    render_targets = {**CLAUDE, **CODEX, **COPILOT}
 
     def setUp(self):
         super().setUp()
-        self.copy_inputs(*PROTECTED_SKILLS)
+        # These are sibling write detectors in current-role tests. The staging tests
+        # below require and copy the actual protected role and skill sources.
+        for rel in (*PROTECTED, *PROTECTED_SKILLS):
+            sibling = self.root / rel
+            sibling.parent.mkdir(parents=True, exist_ok=True)
+            sibling.write_text(f'---\nname: {sibling.stem}\n---\nProtected fixture sibling: {rel}\n')
         if (ROOT / FROZEN).is_dir():
             shutil.copytree(ROOT / FROZEN, self.root / FROZEN)
         else:  # stand-in only when the frozen copy is absent; it must never change either
@@ -197,6 +201,13 @@ class ManagedClaudeRoles(ManagedFixture):
             (self.root / FROZEN / 'MANIFEST.sha256').write_text('0' * 64 + '  frozen-fixture-sentinel\n')
         self.transport = launch.load_module(launch.TRANSPORT_SCRIPT, 'transport')
         self.addCleanup(sys.modules.pop, self.transport.__name__, None)
+
+    def require_protected_sources(self):
+        sources = (*PROTECTED, *PROTECTED_SKILLS)
+        missing = [rel for rel in sources if not (ROOT / rel).is_file()]
+        self.assertEqual(missing, [], 'protected staging requires all four roles and both skills')
+        self.copy_inputs(*sources)
+        self.originals.update({rel: (self.root / rel).read_bytes() for rel in PROTECTED})
 
     def test_explicit_empty_root_is_rejected_before_any_installed_target_write(self):
         target = next(iter(CLAUDE))
@@ -310,6 +321,7 @@ class ManagedClaudeRoles(ManagedFixture):
                     self.assertEqual(tree(self.root), before)
 
     def test_protected_reviewers_stage_exact_current_copy_and_raw_pin(self):
+        self.require_protected_sources()
         for rel, role in PROTECTED.items():
             resolved = self.bind(role)
             for shell in SHELLS:
@@ -478,6 +490,10 @@ class ManagedClaudeRoles(ManagedFixture):
                 finally:
                     target.unlink()
                     target.write_bytes(original)
+
+    def test_protected_staging_rejects_symlink(self):
+        self.require_protected_sources()
+        for shell in SHELLS:
             protected_rel = 'plugins/sdd-review-loop/agents/impl-reviewer-a.md'
             for case in ('staging-ancestor', 'staged-target', 'manifest'):
                 with self.subTest(shell=shell, staging_symlink=case):
