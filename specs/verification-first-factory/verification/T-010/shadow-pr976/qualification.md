@@ -99,3 +99,7 @@ macOSの一時ディレクトリの祖先 `/var` がシンボリックリンク�
 ### Design Sync の現行呼び出し
 
 v2 の bootstrap から呼ばれる design-sync-loop に、外部データの読み込みと送信を別々に判定する同梱 CLI `resolve-design-sync.py` を接続した。旧 Full/Lite の2入口を検査していた1メソッドを現行の bootstrap → loop → 実ファイルの配線に移植した。実CLIを含む design-sync-policy は14/14成功。旧 standing-consent スイートの手動フォールバック参照を両言語で配布先に修正した結果、TEST-046～050は両方とも成功した。Bashは修正前16件成功・39件失敗。PowerShellは欠落パスから TEST-049 で例外。パス修正直後の両言語は19件成功・36件失敗で、旧 Loop の文書構造と DS-29 ベースライン等の評価が残る。
+
+### モデル・推論レベルの実装報告
+
+`emit-run-record-feature-scope` の両言語版が、削除された旧ゲートを読んでいた。基準 `329e838e9` の Bash は55成功・1失敗、PowerShell はファイル欠落で途中終了した。現行の sdd-gate に v2 実装報告のモデル・推論レベルを確認する指示を追加し、両スイートを現行スキルに接続した。macOS で Bash は56/56、PowerShell は61/61が成功した。モデル・推論レベルの欠落を拒否する既存 validator の負例を含む。
