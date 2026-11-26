@@ -798,6 +798,80 @@ describe('human concept-test decisions at the public gate', () => {
     expectBlock();
   });
 
+  it('reserves v1 migration guidance for unambiguous proposals in the working tree and index', (t) => {
+    const { repo, feature, git, run } = setup(t);
+    git('init', '-q');
+    const proposal = path.join(feature, 'concept-test.json');
+    const ambiguous = String.raw`{"schema":"concept-test/v2","\u0073chema":"concept-test/v1"}`;
+    const nested = '{"schema":"concept-test/v1","data":[{"id":1,"id":2}]}';
+    const legacy = JSON.stringify({ schema: 'concept-test/v1', data: [{ id: '":{}' }, { id: 2 }] });
+    const invalidUtf8 = Buffer.concat([Buffer.from('{"schema":"concept-test/v1","name":"'), Buffer.from([0xff]), Buffer.from('"}')]);
+    const mirror = path.join(feature, 'concept-test.md');
+    for (const [contents, retired] of [[ambiguous, false], [nested, false], [invalidUtf8, false], [legacy, true]]) {
+      fs.writeFileSync(mirror, '```json\n' + legacy + '\n```\n');
+      fs.writeFileSync(proposal, contents);
+      git('add', 'specs');
+      for (const indexOnly of [false, true]) {
+        if (indexOnly) {
+          fs.unlinkSync(proposal);
+          fs.unlinkSync(mirror);
+        }
+        const { verdict, checks } = run();
+        assert.equal(verdict, 'FAIL');
+        assert.equal(checks.conceptTest.status, 'BLOCK');
+        assert.deepEqual(checks.commands, []);
+        assert.equal(fs.existsSync(path.join(repo, 'ran')), false);
+        assert.equal(checks.conceptTest.error.includes('v1 records are no longer supported'), retired);
+        if (!indexOnly && !retired && contents !== invalidUtf8) assert.match(checks.conceptTest.error, /duplicate JSON key/);
+      }
+    }
+
+    git('rm', '--cached', '--', 'specs/payments/concept-test.json', 'specs/payments/concept-test.md');
+    const receipt = path.join(feature, 'concept-test.decision.json');
+    fs.writeFileSync(receipt, legacy);
+    git('add', 'specs');
+    fs.unlinkSync(receipt);
+    const { verdict, checks } = run();
+    assert.equal(verdict, 'FAIL');
+    assert.equal(checks.conceptTest.status, 'BLOCK');
+    assert.deepEqual(checks.commands, []);
+    assert.doesNotMatch(checks.conceptTest.error, /v1 records are no longer supported/);
+  });
+
+  it('matches the validator’s JSON byte encodings and Markdown fence boundaries', (t) => {
+    const { feature, git, run } = setup(t);
+    git('init', '-q');
+    const legacy = '{"schema":"concept-test/v1"}';
+    const fence = '```json\r\n' + legacy + '\r\n```';
+    const utf16 = Buffer.from(legacy, 'utf16le');
+    const utf32 = Buffer.alloc(legacy.length * 4);
+    for (let i = 0; i < legacy.length; i++) utf32.writeUInt32LE(legacy.charCodeAt(i), i * 4);
+    const cases = [
+      ['json', Buffer.from('\ufeff' + legacy), true],
+      ...[[utf16, 'fffe'], [Buffer.from(utf16).swap16(), 'feff'],
+        [utf32, 'fffe0000'], [Buffer.from(utf32).swap32(), '0000feff']].flatMap(([bytes, bom]) => [
+        ['json', bytes, true], ['json', Buffer.concat([Buffer.from(bom, 'hex'), bytes]), true],
+      ]),
+      ['md', 'Notes\n' + fence + '\r\n', true],
+      ['md', 'Notes\r' + fence, false],
+      ['md', 'Notes\u2028' + fence, false],
+      ['md', fence + '\u2029trailing text', false],
+    ];
+    for (const [format, bytes, retired] of cases) {
+      const file = path.join(feature, 'concept-test.' + format);
+      fs.writeFileSync(file, bytes);
+      git('add', 'specs');
+      for (const indexOnly of [false, true]) {
+        if (indexOnly) fs.unlinkSync(file);
+        const { checks } = run();
+        assert.equal(checks.conceptTest.status, 'BLOCK');
+        assert.deepEqual(checks.commands, []);
+        assert.equal(checks.conceptTest.error.includes('v1 records are no longer supported'), retired);
+        assert.equal(checks.conceptTest.error.includes('Git index'), retired && indexOnly);
+      }
+    }
+  });
+
   it('runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs', (t) => {
     const { repo, feature, run, expectBlock } = setup(t, path.join(linkedPackage(t), 'run-sdd-gate.mjs'));
     const files = ['domain/domain-contract.json', 'domain/context-map.md', 'specs/payments/concept-test-seed.md'];
@@ -931,6 +1005,15 @@ describe('human concept-test decisions at the public gate', () => {
     const enrolled = run(repo, { env, commands: [] });
     assert.equal(enrolled.verdict, 'FAIL');
     assert.equal(enrolled.checks.conceptTest.status, 'BLOCK');
+    const proposal = path.join(feature, 'concept-test.json');
+    const legacy = '{"schema":"concept-test/v1"}';
+    for (const [bytes, retired] of [[legacy, true], [Buffer.from(legacy, 'utf16le'), false]]) {
+      fs.writeFileSync(proposal, bytes);
+      const isolated = run(repo, { env, commands: [] });
+      assert.equal(isolated.checks.conceptTest.status, 'BLOCK');
+      assert.equal(isolated.checks.conceptTest.error.includes('v1 records are no longer supported'), retired);
+      assert.deepEqual(isolated.checks.commands, []);
+    }
   });
 
   it('detects an indexed proposal missing from the working tree in an unborn repository', (t) => {

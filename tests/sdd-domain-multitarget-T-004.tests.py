@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
-"""T-004 acceptance coverage; synthetic local fixtures, no provider execution.
-
-The bootstrap is an instruction consumer rather than a document-generation CLI.
-Existing structural and byte suites exercise that contract; these tests exercise
-its actual resolver publication boundary with the retained full-profile files.
-They do not claim that an autonomous interview was executed.
-"""
+"""T-004 acceptance coverage for the shipped resolver and its reviewed consumers."""
 import copy
 import hashlib
 import importlib.util
 import json
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import sys
@@ -21,20 +14,6 @@ import unittest
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / 'plugins/sdd-quality-loop/scripts'
-BOOTSTRAP = ROOT / 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer'
-REQUIREMENTS_TEMPLATE = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md'
-# Reviewed 24fd8033 adds only the initial Pending field; retain the old baseline.
-REVIEWED_REQUIREMENTS_SHA256 = '903a725c445fac4505dfea3a3ac7aaf13b37fdb103ccffc1d1a6d1608dc940b5'
-OLD_REQUIREMENTS_PREFIX = b'# Requirements: {{feature_name}}\n\n'
-REVIEWED_REQUIREMENTS_PREFIX = OLD_REQUIREMENTS_PREFIX + b'Spec-Review-Status: Pending\n\n'
-DESIGN_TEMPLATE = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md'
-REVIEWED_DESIGN_SHA256 = '17c69864fd42ca609fc604699abbe7f4c5860483f844a0cd37bcd63bb6838da5'
-ADR_GUIDANCE = b'''
-Fill `adr_ref` with the full repository-relative path (for example,
-docs/adr/0001-storage.md) inside one pair of backticks. This exact inline
-declaration admits the ADR to implementation review; a bare identifier,
-relative Markdown link, or fenced example does not authorize its contents.
-'''
 DOCUMENTS = ('requirements', 'acceptance-tests', 'design', 'ux-spec',
              'frontend-spec', 'infra-spec', 'security-spec')
 
@@ -65,63 +44,26 @@ class CompatibilityTests(unittest.TestCase):
             self.assertEqual(expected, entry['staged_sha256'])
             self.assertEqual(hashlib.sha256(content).hexdigest(), entry['live_sha256'])
             return
-        if path == REQUIREMENTS_TEMPLATE:
-            self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_REQUIREMENTS_SHA256)
-            self.assertTrue(content.startswith(REVIEWED_REQUIREMENTS_PREFIX))
-            content = OLD_REQUIREMENTS_PREFIX + content[len(REVIEWED_REQUIREMENTS_PREFIX):]
-        if path == DESIGN_TEMPLATE:
-            # cc09eee8 documents the existing explicit ADR admission contract.
-            self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_DESIGN_SHA256)
-            content = content.replace(b"`{{adr_ref}}`", b"{{adr_ref}}", 1).replace(ADR_GUIDANCE, b"", 1)
         self.assertEqual(hashlib.sha256(content).hexdigest(), expected)
 
-    def test_005_007_reviewed_contracts_templates_and_checks_unchanged(self):
-        baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())
-        self.assertTrue(baseline['sha256'])
-        for path, expected in baseline['sha256'].items():
-            with self.subTest(path=path):
-                self.assert_reviewed_consumer(path, (ROOT / path).read_bytes(), expected)
-
-    def test_reviewed_pending_status_requires_exact_change_and_original_baseline(self):
+    def test_005_007_reviewed_contracts_and_checks_unchanged(self):
         baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())['sha256']
-        content = (ROOT / REQUIREMENTS_TEMPLATE).read_bytes()
-        expected = baseline[REQUIREMENTS_TEMPLATE]
-        self.assert_reviewed_consumer(REQUIREMENTS_TEMPLATE, content, expected)
-        status = b'Spec-Review-Status: Pending\n\n'
-        mutations = {
-            'missing': content.replace(status, b'', 1),
-            'passed': content.replace(b'Spec-Review-Status: Pending', b'Spec-Review-Status: Passed', 1),
-            'unknown': content.replace(b'Spec-Review-Status:', b'Unknown-Review-Status:', 1),
-            'duplicate': content.replace(status, status + status, 1),
-            'moved': content.replace(status, b'', 1) + b'\n' + status,
-            'body': content.replace(b'{{overview}}', b'Changed overview', 1),
-        }
-        for label, changed in mutations.items():
-            with self.subTest(mutation=label), self.assertRaises(AssertionError):
-                self.assert_reviewed_consumer(REQUIREMENTS_TEMPLATE, changed, expected)
-        with self.assertRaises(AssertionError):
-            self.assert_reviewed_consumer(REQUIREMENTS_TEMPLATE, content, REVIEWED_REQUIREMENTS_SHA256)
-        unrelated = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md'
-        with self.assertRaises(AssertionError):
-            self.assert_reviewed_consumer(unrelated, (ROOT / unrelated).read_bytes() + b'changed', baseline[unrelated])
+        retired = {f'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/{name}.template.md'
+                   for name in DOCUMENTS}
+        current = baseline.keys() - retired
+        self.assertTrue({'contracts/context-projection.schema.json', 'contracts/facet-manifest.schema.json',
+                         'contracts/project-context.schema.json', 'plugins/sdd-quality-loop/scripts/check-contract.py'} <= current)
+        for path in sorted(current):
+            with self.subTest(path=path):
+                self.assert_reviewed_consumer(path, (ROOT / path).read_bytes(), baseline[path])
+
+    def test_reviewed_check_contract_rejects_changed_bytes_and_wrong_baseline(self):
+        baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())['sha256']
         consumer = 'plugins/sdd-quality-loop/scripts/check-contract.py'
         with self.assertRaises(AssertionError):
             self.assert_reviewed_consumer(consumer, (ROOT / consumer).read_bytes() + b'changed', baseline[consumer])
         with self.assertRaises(AssertionError):
             self.assert_reviewed_consumer(consumer, (ROOT / consumer).read_bytes(), '0' * 64)
-
-    def test_reviewed_adr_guidance_requires_exact_change_and_original_baseline(self):
-        baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())['sha256']
-        content = (ROOT / DESIGN_TEMPLATE).read_bytes()
-        expected = baseline[DESIGN_TEMPLATE]
-        self.assert_reviewed_consumer(DESIGN_TEMPLATE, content, expected)
-        for changed in (content.replace(ADR_GUIDANCE, b'', 1),
-                        content.replace(b'`{{adr_ref}}`', b'{{adr_ref}}', 1),
-                        content + ADR_GUIDANCE, content + b'changed'):
-            with self.subTest(content_sha=hashlib.sha256(changed).hexdigest()), self.assertRaises(AssertionError):
-                self.assert_reviewed_consumer(DESIGN_TEMPLATE, changed, expected)
-        with self.assertRaises(AssertionError):
-            self.assert_reviewed_consumer(DESIGN_TEMPLATE, content, REVIEWED_DESIGN_SHA256)
 
     def test_additive_override_contract_preserves_existing_context_boundaries(self):
         resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')
@@ -161,49 +103,12 @@ class CompatibilityTests(unittest.TestCase):
         changed['shared_paths'][0]['pattern'] = ''
         self.assertFalse(resolver._draft7_conforms(changed, input_schema))
 
-    def test_005_full_profile_output_contract_and_no_context_compatibility(self):
-        text = (BOOTSTRAP / 'SKILL.md').read_text()
-        section = text.split('## Required Outputs\n', 1)[1].split('Phase 2 outputs', 1)[0]
-        paths = re.findall(r'^- `specs/<feature>/([^`]+\.md)`$', section, re.M)
-        self.assertEqual(set(paths), {name + '.md' for name in DOCUMENTS})
-        self.assertEqual(len(paths), 7)
-        self.assertIn('MUST NOT overwrite an existing layer file', text)
-        phase = text.split('### Capability Interview Phase', 1)[1].split('### Full-Profile Layer Interview', 1)[0]
-        self.assertIn('do not spawn a resolver', phase)
-        self.assertIn('event-identical', phase)
-        # Execute the shipped no-context output/copy comparison. This is the
-        # existing compatibility consumer, not a test-local fallback resolver.
-        result = subprocess.run(['bash', str(ROOT / 'tests/compatibility-byte-identical.tests.sh')],
-                                capture_output=True, text=True, cwd=ROOT)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn('25 passed, 0 failed', result.stdout)
-
-    def test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer(self):
-        corpus = ROOT / 'tests/fixtures/structural-fixture-corpus/f1-full.json'
-        original = corpus.read_bytes()
-        fixture = json.loads(original)
-        driver = ROOT / 'tests/structural-compatibility-live-refresh.tests.sh'
-        with tempfile.TemporaryDirectory(prefix='t004-structure-') as folder:
-            candidate = Path(folder) / 'candidate.json'
-            def validate(document):
-                candidate.write_text(json.dumps(document))
-                return subprocess.run(['bash', str(driver), '--state', 'F1',
-                    '--fixture', str(candidate), '--dry-run'], capture_output=True, text=True)
-            result = validate(fixture)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            for name in DOCUMENTS:
-                with self.subTest(layer=name):
-                    omitted = dict(fixture, artifacts=[row for row in fixture['artifacts']
-                        if row['path'] != name + '.md'])
-                    result = validate(omitted)
-                    self.assertNotEqual(result.returncode, 0)
-                    self.assertIn('required output paths/count differ', result.stderr)
-                    rewritten = json.loads(original)
-                    next(row for row in rewritten['artifacts'] if row['path'] == name + '.md')['content'] = '# Changed structure\n'
-                    result = validate(rewritten)
-                    self.assertNotEqual(result.returncode, 0)
-                    self.assertIn('structural mismatch', result.stderr)
-        self.assertEqual(corpus.read_bytes(), original)
+    def test_005_resolver_blocks_when_project_context_is_absent(self):
+        case = next(case for case in helper.CASES if case[0] == 'disabled-legacy-invocation')
+        counts = helper.Counts()
+        helper.run_case('sh', case, counts)
+        self.assertGreater(counts.passed, 0)
+        self.assertEqual(counts.failed, 0)
 
     def test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest(self):
         for target in targets.TARGETS:
@@ -235,7 +140,7 @@ shared_paths: []
 ''')
                 feature, _ = helper.plant_sentinels(repo, scripts)
                 for name in DOCUMENTS:
-                    shutil.copy2(BOOTSTRAP / 'templates' / (name + '.template.md'), feature / (name + '.md'))
+                    shutil.copy2(ROOT / 'specs/sdd-domain-multitarget' / (name + '.md'), feature / (name + '.md'))
                 before = retained(feature)
                 base = helper.git_commit_all(repo, 'synthetic hybrid baseline')
                 (repo / 'comp-a').mkdir()

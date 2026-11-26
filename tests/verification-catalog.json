@@ -1813,7 +1813,7 @@
     {
       "path": "tests/structural-compatibility-live-refresh.tests.sh",
       "runtime": "bash",
-      "delegated_to": "tests/sdd-domain-multitarget-T-004.tests.py"
+      "excluded": "Parameterized live-refresh fixture helper requiring --state; not a standalone default invocation."
     },
     {
       "path": "tests/structural-compatibility.tests.ps1",

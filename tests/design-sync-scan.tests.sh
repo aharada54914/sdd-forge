@@ -847,6 +847,7 @@ t003_section_between() {
 }
 
 DSL_FLAT="$(t003_flatten_file "$DSL")"
+DSL_CONSENT_STEP="$(t003_section_between "$DSL" '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] ')"
 DSL_LOOP_SECTION="$(t003_section_between "$DSL" '^## Loop$' '^## ')"
 DSL_LOOP_FLAT="$(printf '%s\n' "$DSL_LOOP_SECTION" | tr '\n' ' ' | tr -s '[:space:]' ' ')"
 
@@ -879,11 +880,8 @@ fi
 
 echo ""
 echo "=== TEST-033 (AC-018, SKILL.md half): the skill text states the check is egress-hygiene-only, no quality judgment ==="
-if printf '%s' "$DSL_FLAT" | grep -Fiq 'egress hygiene' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'no assessment of mockup quality' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'design fidelity' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'accessibility' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'design-system'; then
+if grep -Fq 'この検査の対象は送信する HTML 内の仮置き表現、機密情報・個人情報に似た文字列に限る。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'モックアップの品質、デザインの再現度、アクセシビリティ、デザインシステムへの適合性は評価しない。' <<< "$DSL_CONSENT_STEP"; then
     ok "TEST-033: SKILL.md states the check is limited to egress hygiene and makes no quality/fidelity/accessibility/design-system judgment"
 else
     fail "TEST-033: SKILL.md must state the egress-hygiene-only boundary in its own words"
@@ -911,13 +909,9 @@ fi
 
 echo ""
 echo "=== TEST-036 (AC-020): an explicit override affordance is stated; absent it, no push occurs -- silence/non-response/agent judgment is not an override ==="
-if printf '%s' "$DSL_FLAT" | grep -Fiq 'explicit human override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'Absent an explicit override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'silence' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'non-response' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq "own judgment" \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'never an override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'no push occurs'; then
+if grep -Fq '終了1の `review` なら、`findings` を利用者に示して回答を待つ。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'この `identity` の上書きを利用者が明示的に承認するまで送信しない。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '沈黙・無回答・エージェント自身の判断を承認として扱わない。' <<< "$DSL_CONSENT_STEP"; then
     ok "TEST-036: an explicit override affordance is stated; silence, non-response, or agent judgment is never an override, and absent it no push occurs"
 else
     fail "TEST-036: the override affordance and its negative (no explicit approval -> no push) must both be stated"
@@ -981,15 +975,14 @@ assert_field_row_present() {
         fail "${label}: expected the unmodified field row ${row} in ${DSL}"
     fi
 }
-assert_field_row_present "TEST-042 (Egress-Consent)"          '| `Egress-Consent` |'
+assert_field_row_present "TEST-042 (Egress-Consent)"          '| `Egress-Consent` | 送信同意の判断（`granted`、`not-permitted`、`withdrawn`） |'
 assert_field_row_present "TEST-065 (Egress-Consent-Scope)"    '| `Egress-Consent-Scope` |'
 assert_field_row_present "TEST-066 (Egress-Consent-Subject)"  '| `Egress-Consent-Subject` |'
-assert_field_row_present "TEST-067 (Egress-Destination)"      '| `Egress-Destination` |'
+assert_field_row_present "TEST-067 (Egress-Destination)"      '| `Egress-Destination` | `claude-design` で実際に `claude.ai/design` を使う場合、手順1で選んだプロジェクトの ID |'
 assert_field_row_present "TEST-068 (Egress-Consent-Expiry)"   '| `Egress-Consent-Expiry` |'
 
 echo ""
 echo "=== TEST-043 (AC-025): on decline, no push, nothing written to Design-Source as an override, remediate before rescan -- distinguished from Egress-Consent's decline/withdrawal ==="
-DSL_CONSENT_STEP="$(t003_section_between "$DSL" '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] ')"
 if grep -Fq '上書きを辞退したら送信を止め' <<< "$DSL_CONSENT_STEP" \
     && grep -Fq '`Design-Source` に `Egress-Scan: overridden` を記録しない' <<< "$DSL_CONSENT_STEP" \
     && grep -Fq '指摘されたモックアップを修正してから再検査する' <<< "$DSL_CONSENT_STEP" \
@@ -1061,10 +1054,8 @@ fi
 
 echo ""
 echo "=== TEST-055 (AC-037): the skill states the exit-2 branch is unconditionally blocking, with no override affordance offered at all ==="
-if printf '%s' "$DSL_FLAT" | grep -Fiq 'unconditionally blocking' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'no override affordance' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'offered at all' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'tool failure'; then
+if grep -Fq '終了2または異常終了は検査ツールの失敗として報告する。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'この場合は上書き承認を提示せず、入力またはツールを復旧して再検査するまで送信しない。' <<< "$DSL_CONSENT_STEP"; then
     ok "TEST-055: the exit-2 branch is stated as unconditionally blocking with no override affordance offered at all, worded as a tool failure"
 else
     fail "TEST-055: the exit-2 branch must state it is unconditionally blocking with no override affordance at all"

@@ -292,7 +292,25 @@ def confirm(root, feature):
         lock.unlink()
 
 
+def probe_v1(kind):
+    """Classify one proposal without opening project files or trusting a receipt."""
+    limit = 16 * 1024 * 1024  # Same input budget as the gate's Git blob reader.
+    raw = sys.stdin.buffer.read(limit + 1)
+    if len(raw) > limit:
+        return False
+    try:
+        if kind == 'md':
+            return markdown_schema(raw) == 'concept-test/v1'
+        document = parse(raw)
+        return isinstance(document, dict) and document.get('schema') == 'concept-test/v1'
+    except (ValueError, RecursionError):
+        return False
+
+
 def main():
+    if sys.argv[1:] in (['--probe-v1', 'json'], ['--probe-v1', 'md']):
+        print('V1' if probe_v1(sys.argv[2]) else 'OTHER')
+        return 0
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument('--root', required=True)
     parser.add_argument('--feature', required=True)

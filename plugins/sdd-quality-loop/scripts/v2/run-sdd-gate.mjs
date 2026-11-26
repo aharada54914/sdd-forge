@@ -864,15 +864,46 @@ function v1Retired(feature) {
     + `${prefix}.md, ${prefix}.json and ${prefix}.approval.json instead`;
 }
 
+const CONCEPT_BLOB_LIMIT = 16 * 1024 * 1024;
+const conceptWindows = process.platform === 'win32';
+const conceptScript = fileURLToPath(new URL(
+  `../../../sdd-domain/scripts/validate-concept-test.${conceptWindows ? 'ps1' : 'sh'}`, import.meta.url));
+function runConceptValidator(args, options) {
+  return spawnSync(conceptWindows ? 'pwsh' : 'sh', [
+    ...(conceptWindows ? ['-NoProfile', '-File'] : []), conceptScript, ...args,
+  ], { encoding: 'utf8', ...options });
+}
+
 function isV1Record(contents, filename) {
-  let raw = contents;
-  if (filename.endsWith('.md')) {
-    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
-    if (blocks.length !== 1) return false;
-    raw = blocks[0][1];
+  if (contents.length > CONCEPT_BLOB_LIMIT) return false;
+  if (fs.existsSync(conceptScript)) {
+    const kind = filename.endsWith('.md') ? 'md' : 'json';
+    const probe = runConceptValidator(['--probe-v1', kind], { input: contents });
+    if (probe.status === 0) return probe.stdout.trim() === 'V1';
+    if (probe.error?.code !== 'ENOENT' && probe.status !== 3) return false;
   }
+  // A standalone Node install can still identify ordinary, unambiguous UTF-8 proposals.
   try {
-    return JSON.parse(raw)?.schema === 'concept-test/v1';
+    let raw = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(contents);
+    if (filename.endsWith('.md')) {
+      const blocks = [...raw.matchAll(/(?<=^|\n)```json\r?\n([\s\S]*?)(?<=\n)```[ \t]*\r?(?=\n|$)/g)];
+      if (blocks.length !== 1) return false;
+      raw = blocks[0][1];
+    }
+    if (JSON.parse(raw)?.schema !== 'concept-test/v1') return false;
+    // JSON.parse accepts duplicate keys. Check each object's keys before naming a migration.
+    const objects = [];
+    for (const [token, literal, colon] of raw.matchAll(/("(?:[^"\\]|\\.)*")\s*(:)?|[{}]/g)) {
+      if (token === '{') objects.push(new Set());
+      else if (token === '}') objects.pop();
+      else if (colon) {
+        const keys = objects.at(-1);
+        const key = JSON.parse(literal);
+        if (keys.has(key)) return false;
+        keys.add(key);
+      }
+    }
+    return true;
   } catch {
     return false;
   }
@@ -890,7 +921,7 @@ function conceptRecord(root, feature) {
     // retirement is named even where the validator cannot run (#812).
     const [, json, md] = stats;
     const [rel, stat] = json ? [paths[1], json] : [paths[2], md];
-    const v1 = stat?.isFile() && isV1Record(fs.readFileSync(path.join(root, rel), 'utf8'), rel);
+    const v1 = stat?.isFile() && stat.size <= CONCEPT_BLOB_LIMIT && isV1Record(fs.readFileSync(path.join(root, rel)), rel);
     return v1 ? 'V1' : 'PRESENT';
   }
 
@@ -906,11 +937,11 @@ function conceptRecord(root, feature) {
       && fs.readdirSync(marker).length === 0) return 'NONE';
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
   const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
-    encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
+    env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: CONCEPT_BLOB_LIMIT,
   });
   let index;
   try {
-    index = git('ls-files', '--stage', '-z', '--', ...paths);
+    index = git('ls-files', '--stage', '-z', '--', ...paths).toString('utf8');
   } catch (err) {
     // Git is optional for SDD Core. Records in the working tree were checked above.
     if (err.code === 'ENOENT') return 'GIT_UNAVAILABLE';
@@ -919,12 +950,14 @@ function conceptRecord(root, feature) {
   const entries = index.split('\0').filter(Boolean);
   if (entries.length === 0) return 'NONE';
   // The validator reads only the working tree, so name a retired v1 record here.
-  const indexedV1 = entries.some(entry => {
-    const [meta, filename] = entry.split('\t');
-    const [mode, oid] = meta.split(' ');
-    return (mode === '100644' || mode === '100755') && isV1Record(git('cat-file', 'blob', oid), filename);
-  });
-  return indexedV1 ? 'INDEXED_V1' : 'PRESENT';
+  // Match the working-tree validator's precedence. A receipt or conflicted stage cannot establish v1.
+  const proposals = entries.filter(entry => entry.endsWith('/concept-test.json'));
+  const candidates = proposals.length ? proposals : entries.filter(entry => entry.endsWith('/concept-test.md'));
+  if (candidates.length !== 1) return 'PRESENT';
+  const [meta, filename] = candidates[0].split('\t');
+  const [mode, oid, stage] = meta.split(' ');
+  const regular = mode === '100644' || mode === '100755';
+  return stage === '0' && regular && isV1Record(git('cat-file', 'blob', oid), filename) ? 'INDEXED_V1' : 'PRESENT';
 }
 
 function checkConceptTest(root, feature) {
@@ -940,22 +973,19 @@ function checkConceptTest(root, feature) {
         error: `concept-test: BLOCK: ${v1Retired(feature)}. The Git index still holds the v1 record; stage its removal too.`,
       };
     }
-    const win = process.platform === 'win32';
-    const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
-    if (!fs.existsSync(script)) {
+    if (!fs.existsSync(conceptScript)) {
       // Codex's per-plugin, per-version cache has no sibling sdd-domain (#812).
       return {
         passed: false,
         status: 'BLOCK',
         error: 'Concept Test runtime not found next to sdd-quality-loop (expected '
-          + path.relative(path.dirname(fileURLToPath(import.meta.url)), script)
+          + path.relative(path.dirname(fileURLToPath(import.meta.url)), conceptScript)
           + '). Per-version plugin caches, such as Codex plugin installs, cannot run the Concept Test yet (#812).'
           + ' For a DDD project, run sdd-gate from the sdd-forge source checkout:'
           + ' node <sdd-forge>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs.',
       };
     }
-    const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
-    const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
+    const result = runConceptValidator(['--root', root, '--feature', feature, '--require-v2'], { cwd: root });
     const status = result.stdout?.trim();
     if (result.status === 0 && status === 'CONTINUE') return { passed: true, status };
     if ((result.status === 2 && status === 'DEFER') || (result.status === 3 && status === 'REJECT')) return { passed: false, status };
