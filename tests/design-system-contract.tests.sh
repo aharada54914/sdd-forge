@@ -251,8 +251,7 @@ else
   fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent already holds' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'continue to 5|proceeds? (directly )?to (the )?(pre-upload|step 5)'; then
+if python3 -B "$ROOT/tests/design-sync-policy.tests.py" PolicyTests.test_subsequent_uploads_reuse_current_grant; then
   pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
 else
   fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"

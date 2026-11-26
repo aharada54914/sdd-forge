@@ -28,6 +28,13 @@ if ($LASTEXITCODE -eq 0) {
 
 $pythonCommand = Get-Command python3 -ErrorAction SilentlyContinue
 if (-not $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction Stop }
+& $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') PolicyTests.test_subsequent_uploads_reuse_current_grant
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
+} else {
+    Test-Fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
+}
+
 & $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') PolicyTests.test_different_feature_or_session_requires_consent
 if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
@@ -376,12 +383,6 @@ $wfgSectionFlat = Get-Flat $wfgSectionLines
 $cdwFlat = Get-FlatText $cdwText
 
 # --- REQ-001 (AC-001, AC-002, AC-026, AC-027, AC-028, AC-030) -----------
-
-if (($loopFlat -match 'consent already holds') -and ($loopFlat -match 'continue to 5|proceeds? (directly )?to (the )?(pre-upload|step 5)')) {
-    Test-Pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
-} else {
-    Test-Fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
-}
 
 if (($dslFlat -cmatch 'this feature AND this session|this feature and this session') -and -not ($dslFlat -match 'feature or session|feature/session|per-feature/session')) {
     Test-Pass "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"

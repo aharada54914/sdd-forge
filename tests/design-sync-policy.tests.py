@@ -55,6 +55,27 @@ class PolicyTests(unittest.TestCase):
         self.assertRegex(rule, r"当該\s*`\(feature,\s*session\)`\s*で未同意なら、[^。]*"
                                r"人間の\s*明示同意を得てから\s*`push`")
 
+    def test_subsequent_uploads_reuse_current_grant(self):
+        rule = self.consent_branch("per-feature")
+        self.assertIn("機能・セッション・送信先がすべて同じで、前回の同意が有効なら、"
+                      "2回目以降のアップロードは再同意を求めず送信前検査に進む。", "".join(rule.split()))
+
+        self.assertEqual(self.resolve(request())["action"], "prompt")
+        first = self.resolve(request(response="grant", party="fixture-operator"))
+        self.assertEqual(first["action"], "proceed")
+        self.assertEqual(first["audit"]["decision"], "granted")
+        records = [first["audit"]]
+        for upload in (2, 3):
+            with self.subTest(upload=upload):
+                result = self.resolve(request(records=records))
+                self.assertEqual(result["action"], "proceed")
+                self.assertIsNone(result["audit"])
+
+        for changes in ({"setting": "off"}, {"egress_permitted": False},
+                        {"capability_resolved": False}, {"provider_available": False}):
+            with self.subTest(changes=changes):
+                self.assertEqual(self.resolve(request(records=records, **changes))["action"], "manual")
+
     def test_different_feature_or_session_requires_consent(self):
         self.assert_scope_prompt(self.consent_branch("per-feature"))
         grant = record()
