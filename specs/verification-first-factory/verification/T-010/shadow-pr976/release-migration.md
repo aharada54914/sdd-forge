@@ -41,4 +41,6 @@
 | actionlint 1.7.12 で test.yml、release.yml、model-freshness-check.yml を検査 | 終了0 |
 | `python3 tests/verification.py --profile local-posix --list` | 195件。新しい独立スイートは別途 CI ジョブで実行 |
 
+製品コミット `805220bb1365f5f6c083b923afc65206e008ddcc` の前後とも clean な状態で、新スイートを単独でカタログ実行した。6テストが成功し、カタログの所要時間は3.062秒。[実行レシート](release-readiness-receipt.json)
+
 [CI の配線](../../../../../.github/workflows/test.yml)は Ubuntu で全6件、macOS・Windows でワークステーション向け bump の1件を実行する。初回の hosted 実行は未測定。旧195スイートの同一 SHA 完走と strict 昇格は未達のため、T-010 全体の判定は FAIL。

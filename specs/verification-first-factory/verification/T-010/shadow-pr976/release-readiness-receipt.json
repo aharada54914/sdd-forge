@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "805220bb1365f5f6c083b923afc65206e008ddcc",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "6bb7710956088cbda16e2bca34e6c75f5ee9670dc7b5e72d2db24bcf9a4bb7f3",
+  "selected": [
+    "tests/release-readiness.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/release-readiness.tests.py",
+      "source_sha256": "366ca73c398c6e1e801bb5fb4fea87c2c0db305e1d08c8955013165cab5263ad",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.062442
+    }
+  ],
+  "revision_after": "805220bb1365f5f6c083b923afc65206e008ddcc",
+  "clean_after": true
+}
