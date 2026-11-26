@@ -39,6 +39,8 @@ TIMEOUT = 900
 MANIFEST = "install-payload.txt"
 MCP = ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]
 ALWAYS_PLACED_MCP = "sdd-forge-mcp"
+# FilesOnly and an empty Codex profile produce this exact local registration baseline.
+EMPTY_CODEX_RECEIPT = {".sdd-codex-mcp-registration": hashlib.sha256(b"legacy codex-mcp/v1\n").hexdigest()}
 RUNTIME_DIRS = (".agents/", ".claude-plugin/", ".codex/agents/", "plugins/", "contracts/",
                 "templates/cloud/", "skills/adversarial-review/")
 EXCLUDED = frozenset([".git", "node_modules", "__pycache__", ".pytest_cache", ".mypy_cache",
@@ -404,18 +406,18 @@ class Bash:
 
 
 class PowerShell:
-    WRAPPER = (
-        "$ErrorActionPreference = 'Stop'\n"
+    ARCHIVE_DOWNLOAD = (
         "function global:Invoke-WebRequest {\n"
         "    param([string]$Uri, $Headers, [string]$OutFile)\n"
         f"    if ($Uri -ne '{ARCHIVE_URL.replace('/tarball/', '/zipball/') if os.name == 'nt' else ARCHIVE_URL}') {{ throw \"Unexpected download URI: $Uri\" }}\n"
         f"    if ($Headers['Authorization'] -ne 'Bearer {TEST_TOKEN}') {{ throw 'Unexpected authorization header' }}\n"
         "    Copy-Item -LiteralPath $env:PAYLOAD_TEST_ARCHIVE -Destination $OutFile -Force\n"
-        "}\n"
+        "}\n")
+    INSTALL = (
         "$params = @{}\n"
         "foreach ($property in (ConvertFrom-Json $env:PAYLOAD_TEST_PARAMS).PSObject.Properties) { $params[$property.Name] = $property.Value }\n"
         "& $env:PAYLOAD_TEST_INSTALLER @params\n"
-        "exit 0\n")
+        "if (-not $?) { exit 1 }\n")
 
     def __init__(self):
         self.pwsh = os.environ.get("PWSH") or shutil.which("pwsh")
@@ -426,26 +428,31 @@ class PowerShell:
     def install(self, tmp, root, *, source=None, archive=None, skip_mcp=False, mcp=(), plugins=()):
         base = [self.pwsh, "-NoLogo", "-NoProfile", "-NonInteractive", "-File"]
         installer, env = str(REPO / "install.ps1"), scenario_env(tmp)
+        if not archive and len(mcp) <= 1 and len(plugins) <= 1:
+            argv = base + [installer, "-InstallRoot", str(root), "-Target", "FilesOnly",
+                           "-SkipPluginInstall", "-SkipAgentInstall"]
+            argv += ["-SourceDirectory", str(source)] if source else []
+            argv += ["-SkipMcp"] if skip_mcp else []
+            argv += ["-Mcp", mcp[0]] if mcp else []
+            argv += ["-Plugins", plugins[0]] if plugins else []
+            return run(argv, cwd=str(tmp), env=env)
+        # Native -File binds each parameter once. Use a real PowerShell array
+        # for multi-server installs, as the archive fixture already does.
+        params = {"InstallRoot": str(root), "Target": "FilesOnly", "SkipPluginInstall": True,
+                  "SkipAgentInstall": True, **({"SkipMcp": True} if skip_mcp else {}),
+                  **({"Mcp": list(mcp)} if mcp else {}), **({"Plugins": list(plugins)} if plugins else {})}
+        script = self.INSTALL
         if archive:
             if os.name == "nt" and not zipfile.is_zipfile(archive):
                 archive = windows_zip_archive(archive, tmp / "source.zip")
-            params = {"InstallRoot": str(root), "Target": "FilesOnly", "SkipPluginInstall": True,
-                      "SkipAgentInstall": True, **({"SkipMcp": True} if skip_mcp else {}),
-                      **({"Mcp": list(mcp)} if mcp else {}), **({"Plugins": list(plugins)} if plugins else {})}
-            wrapper = tmp / "archive-wrapper.ps1"
-            wrapper.write_text(self.WRAPPER)
-            env.update(GH_TOKEN=TEST_TOKEN, PAYLOAD_TEST_ARCHIVE=str(archive), PAYLOAD_TEST_INSTALLER=installer,
-                       PAYLOAD_TEST_PARAMS=json.dumps(params))
-            return run(base + [str(wrapper)], cwd=str(tmp), env=env)
-        argv = base + [installer, "-InstallRoot", str(root), "-Target", "FilesOnly",
-                       "-SkipPluginInstall", "-SkipAgentInstall"]
-        argv += ["-SourceDirectory", str(source)] if source else []
-        argv += ["-SkipMcp"] if skip_mcp else []
-        for name in mcp:  # -File passes one value per use; tests select one MCP at a time
-            argv += ["-Mcp", name]
-        for name in plugins:
-            argv += ["-Plugins", name]
-        return run(argv, cwd=str(tmp), env=env)
+            env.update(GH_TOKEN=TEST_TOKEN, PAYLOAD_TEST_ARCHIVE=str(archive))
+            script = self.ARCHIVE_DOWNLOAD + script
+        elif source:
+            params["SourceDirectory"] = str(source)
+        wrapper = tmp / "payload-installer.ps1"
+        wrapper.write_text("$ErrorActionPreference = 'Stop'\n" + script)
+        env.update(PAYLOAD_TEST_INSTALLER=installer, PAYLOAD_TEST_PARAMS=json.dumps(params))
+        return run(base + [str(wrapper)], cwd=str(tmp), env=env)
 
 
 # ---------------------------------------------------------------------------
@@ -521,10 +528,12 @@ class PayloadChecks(unittest.TestCase):
         rest = {k: v for k, v in actual.items() if not k.startswith("mcp/")}
         self.assertEqual([rel for rel in CLOSURE if rel not in rest], [], "runtime closure missing from the install")
         if self.fx.expected is None:  # no manifest in the source: installed bytes must still be source bytes
-            changed = [k for k, v in rest.items() if not (self.fx.path / k).is_file() or sha256(self.fx.path / k) != v]
+            self.assertEqual({k: rest.get(k) for k in EMPTY_CODEX_RECEIPT}, EMPTY_CODEX_RECEIPT)
+            changed = [k for k, v in rest.items() if k not in EMPTY_CODEX_RECEIPT and
+                       (not (self.fx.path / k).is_file() or sha256(self.fx.path / k) != v)]
             self.assertEqual(changed, [], "installed files differ from the source")
         else:
-            want = self.fx.expected
+            want = {**self.fx.expected, **EMPTY_CODEX_RECEIPT}
             diff = (sorted(set(rest) - set(want))[:10], sorted(set(want) - set(rest))[:10],
                     sorted(k for k in set(rest) & set(want) if rest[k] != want[k])[:10])
             self.assertEqual(diff, ([], [], []), "installed set differs from the manifest (unexpected, missing, changed)")
@@ -840,7 +849,7 @@ class PayloadChecks(unittest.TestCase):
             root = self.root_for("crlf-manifest")
             with manifest_bytes(self.fx, crlf):
                 self.install_ok(root, source=self.fx.path, skip_mcp=True)
-            self.assertEqual(installed_files(root), {**self.fx.expected, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
+            self.assertEqual(installed_files(root), {**self.fx.expected, **EMPTY_CODEX_RECEIPT, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
                                                      MANIFEST: hashlib.sha256(crlf).hexdigest()})
 
 

@@ -20,6 +20,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+$Mcp = @($Mcp | ForEach-Object { $_.ToLowerInvariant() })
 
 # ADR-0052: MCP client registration is opt-in by default for local CLI plugins.
 # Reject conflicting -SkipMcp with -WithMcp or explicit -Mcp (parity with install.sh).
@@ -709,7 +710,8 @@ function Install-SingleMcpPayload {
     param(
         [Parameter(Mandatory)][string]$SourceRootPath,
         [Parameter(Mandatory)][string]$InstallRootPath,
-        [Parameter(Mandatory)][string]$Name
+        [Parameter(Mandatory)][string]$Name,
+        [string]$DestinationName = $Name
     )
     $srcMcp = Join-Path $SourceRootPath "mcp"
     $srcDir = Join-Path $srcMcp $Name
@@ -721,11 +723,69 @@ function Install-SingleMcpPayload {
         -not (Test-PlainItem $srcIndex) -or -not (Test-PlainItem $srcPkg)) {
         return
     }
-    $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $Name
+    $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $DestinationName
     $destDist = Join-Path $destDir "dist"
     New-Item -ItemType Directory -Path $destDist -Force | Out-Null
     Copy-Item -LiteralPath $srcIndex -Destination (Join-Path $destDist "index.js") -Force
     Copy-Item -LiteralPath $srcPkg -Destination (Join-Path $destDir "package.json") -Force
+}
+
+$codexReceiptName = ".sdd-codex-mcp-registration"
+$script:CodexReceiptNames = ""
+function Copy-CodexRegistrationReceipt {
+    param([string]$PreviousRoot, [string]$Stage)
+    $previous = Join-Path $PreviousRoot $codexReceiptName
+    $staged = Join-Path $Stage $codexReceiptName
+    $prior = ""
+    $item = Get-Item -Force -LiteralPath $previous -ErrorAction SilentlyContinue
+    if ($null -ne $item) {
+        $format = '\A(ready|pending|legacy) codex-mcp/v1(?i:( sdd-forge-mcp)?( local-env-mcp)?( ci-mcp)?)\n\z'
+        if (-not ($item -is [IO.FileInfo]) -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Invalid Codex MCP registration receipt; install stopped."
+        }
+        $prior = [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes($previous))
+        if ($prior -cnotmatch $format) { throw "Invalid Codex MCP registration receipt; install stopped." }
+        [IO.File]::Copy($previous, $staged)
+    }
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $config = Join-Path $codexHome "config.toml"
+    $hasConfig = Test-Path -LiteralPath $config -PathType Leaf
+    $knownNames = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+    $targetCodex = $Target -in @("Codex", "All")
+    $oldMcps = Join-Path $PreviousRoot "mcp"
+    $previousInstall = (Test-Path -LiteralPath (Join-Path $PreviousRoot "plugins") -PathType Container) -or (Test-Path -LiteralPath $oldMcps -PathType Container)
+    if ($targetCodex -and $prior.StartsWith("legacy ")) { $prior = "" }
+    $previousNames = @()
+    if ($prior) {
+        $previousNames = $prior.TrimEnd().Split(' ') | Select-Object -Skip 2
+    } elseif (-not $targetCodex -and $previousInstall) {
+        $previousNames = @(Get-ChildItem -LiteralPath $oldMcps -Directory -ErrorAction SilentlyContinue |
+            Where-Object { [IO.File]::Exists((Join-Path $_.FullName "dist/index.js")) } |
+            ForEach-Object { $_.Name })
+    } elseif ($hasConfig) {
+        $previousNames = @(foreach ($line in Get-Content -LiteralPath $config) {
+            if ($line -cmatch '^# >>> ([a-zA-Z-]+) \(managed by sdd-forge installer; do not edit by hand\) >>>$') { $Matches[1] }
+        })
+    }
+    foreach ($name in $knownNames) {
+        if ($targetCodex -and $name -cne "sdd-forge-mcp" -and ($SkipMcp -or $Mcp -notcontains $name)) { continue }
+        $entry = Join-Path $Stage "mcp/$name/dist/index.js"
+        if ($targetCodex -and $script:McpNodeOk -and $hasConfig -and $Mcp -contains $name -and [IO.File]::Exists($entry)) {
+            $registered = $name
+        } else {
+            $registered = $previousNames | Where-Object { $_ -ieq $name } | Select-Object -First 1
+            if (-not $registered) { continue }
+            $entry = Join-Path $Stage "mcp/$registered/dist/index.js"
+            if (-not [IO.File]::Exists($entry)) {
+                Install-SingleMcpPayload -SourceRootPath $sourceRoot -InstallRootPath $Stage -Name $name -DestinationName $registered
+                if (-not [IO.File]::Exists($entry)) { throw "Missing payload for retained Codex registration: $registered" }
+            }
+        }
+        $script:CodexReceiptNames += " $registered"
+    }
+    if (-not $targetCodex -and $prior) { return }
+    $phase = if ($targetCodex) { "pending" } else { "legacy" }
+    [IO.File]::WriteAllText($staged, "$phase codex-mcp/v1$script:CodexReceiptNames`n")
 }
 
 $script:McpNodeOk = $false
@@ -1218,6 +1278,7 @@ $newInstallPlaced = $false
 $registrationStarted = $false
 $mutex = $null
 $mutexAcquired = $false
+$posixLock = $null
 try {
     $isLocalSource = -not [string]::IsNullOrWhiteSpace($SourceDirectory)
     if ($SourceDirectory) {
@@ -1344,6 +1405,46 @@ try {
     }
     if (-not $mutexAcquired) {
         throw "another sdd-forge install is in progress (mutex: $mutexName). Retry later."
+    }
+
+    # On Unix install.sh and install.ps1 can target the same root. Use its
+    # atomic mkdir/PID protocol in addition to the Windows-compatible mutex.
+    if (-not $useZipArchive) {
+        $lock = "$InstallRoot.sdd-install.lock"
+        $deadline = [DateTime]::UtcNow.AddSeconds($mutexTimeoutSeconds)
+        $staleSeconds = if ($env:SDD_INSTALL_LOCK_STALE) { [int]$env:SDD_INSTALL_LOCK_STALE } else { 600 }
+        if ($staleSeconds -lt 0) { throw "SDD_INSTALL_LOCK_STALE must be non-negative." }
+        do {
+            & /bin/mkdir $lock 2>$null
+            if ($LASTEXITCODE -eq 0) {
+                $posixLock = $lock
+                [IO.File]::WriteAllText((Join-Path $lock "pid"), "$PID`n")
+                break
+            }
+            # A process may die between mkdir and publishing its PID. Observe
+            # the age of an ownerless directory again after claiming it.
+            $owner = [string](Get-Content -LiteralPath (Join-Path $lock "pid") -ErrorAction SilentlyContinue)
+            $staleBefore = [DateTime]::UtcNow.AddSeconds(-$staleSeconds)
+            $ownerlessStale = -not $owner -and [IO.Directory]::GetLastWriteTimeUtc($lock) -lt $staleBefore
+            $ownerDead = $owner -cmatch '\A[1-9][0-9]{0,8}\z' -and -not (Get-Process -Id $owner -ErrorAction SilentlyContinue)
+            if ($ownerDead -or $ownerlessStale) {
+                $claim = "$lock.reclaim.$([guid]::NewGuid())"
+                try { [IO.Directory]::Move($lock, $claim) } catch [IO.IOException] {
+                    if ([DateTime]::UtcNow -ge $deadline) { throw "another sdd-forge install is in progress (lock: $lock). Retry later." }
+                    continue
+                }
+                $claimedOwner = [string](Get-Content -LiteralPath (Join-Path $claim "pid") -ErrorAction SilentlyContinue)
+                if ($claimedOwner -ceq $owner -and (($ownerDead -and -not (Get-Process -Id $owner -ErrorAction SilentlyContinue)) -or
+                    ($ownerlessStale -and [IO.Directory]::GetLastWriteTimeUtc($claim) -lt $staleBefore))) {
+                    [IO.Directory]::Delete($claim, $true)
+                } else {
+                    [IO.Directory]::Move($claim, $lock)
+                }
+                continue
+            }
+            if ([DateTime]::UtcNow -ge $deadline) { throw "another sdd-forge install is in progress (lock: $lock). Retry later." }
+            Start-Sleep -Milliseconds 250
+        } while ($true)
     }
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
@@ -1491,6 +1592,9 @@ try {
         }
     }
 
+    Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $stagingRoot
+    Copy-CodexRegistrationReceipt -PreviousRoot $InstallRoot -Stage $stagingRoot
+
     if (Test-Path -LiteralPath $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
         Move-Item -LiteralPath $InstallRoot -Destination $backupRoot
@@ -1500,10 +1604,6 @@ try {
     $newInstallPlaced = $true
 
     $resolvedInstallRoot = (Resolve-Path -LiteralPath $InstallRoot).Path
-
-    # MCP placement mirrors plugin file placement: it happens regardless of
-    # -Target and is controlled only by -SkipMcp / -Mcp.
-    Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $resolvedInstallRoot
 
     # Everything below registers the placed tree with external CLIs. A failure
     # from here on must not revert the install root — see the catch block
@@ -1529,6 +1629,13 @@ try {
         Install-GeminiExtension $resolvedInstallRoot
     }
     Register-McpServers -InstallRootPath $resolvedInstallRoot
+    if ($Target -in @("Codex", "All")) {
+        $receipt = Join-Path $resolvedInstallRoot $codexReceiptName
+        $ready = "$receipt.$([guid]::NewGuid())"
+        [IO.File]::WriteAllText($ready, "ready codex-mcp/v1$script:CodexReceiptNames`n")
+        [IO.File]::Replace($ready, $receipt, "$ready.bak")
+        [IO.File]::Delete("$ready.bak")
+    }
 
     Write-InstallSummary $resolvedInstallRoot
 
@@ -1602,6 +1709,7 @@ finally {
     if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
         Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
     }
+    if ($posixLock) { [IO.Directory]::Delete($posixLock, $true) }
     # Release the exclusive mutex if we acquired it.
     if ($mutexAcquired -and $mutex) {
         try { $mutex.ReleaseMutex() } catch { }

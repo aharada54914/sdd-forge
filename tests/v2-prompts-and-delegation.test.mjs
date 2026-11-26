@@ -221,6 +221,7 @@ describe('SDD Forge v2 Prompts, DDD, Perspective Parity, Frontier Models & Deleg
     const pyCode = `
 import importlib.util, json, sys
 from pathlib import Path
+from unittest import TestCase
 from unittest.mock import patch
 
 root = Path(${JSON.stringify(REPO_ROOT)})
@@ -240,6 +241,8 @@ live_catalog = {
     'providers': {h: {'installed': True, 'status': 'listed', 'reason': 'ok', 'auth_mode': 'oauth'} for h in sm.HOSTS},
     'models': [
         {'host': 'claude-code', 'model': 'claude-opus-5-5[1m]', 'efforts': ['medium', 'high', 'max'], 'source': 'live', 'verification': 'listed', 'selectable': True},
+        {'host': 'claude-code', 'model': 'fixture-minimal-model', 'efforts': ['minimal', 'high'], 'source': 'fixture', 'verification': 'listed', 'selectable': True},
+        {'host': 'claude-code', 'model': 'fixture-ultra-model', 'efforts': ['high', 'ultra'], 'source': 'fixture', 'verification': 'listed', 'selectable': True},
         {'host': 'claude-code', 'model': 'claude-fable', 'efforts': ['high', 'xhigh'], 'source': 'live', 'verification': 'listed', 'selectable': True},
         {'host': 'codex-cli', 'model': 'gpt-6-astra', 'efforts': ['low', 'medium', 'high', 'xhigh'], 'source': 'live', 'verification': 'listed', 'selectable': True},
         {'host': 'gemini-cli', 'model': 'gemini-4-neon', 'efforts': ['high', 'xhigh'], 'source': 'live', 'verification': 'listed', 'selectable': True},
@@ -290,6 +293,27 @@ with patch.object(sm, 'discover', return_value=live_catalog):
     updated2 = sm.policy_request(store, 'sess-2', 'implementer', req2)
     assert updated2['cli'] == {'model_id': 'claude-opus-5-5[1m]', 'policy': 'pinned'}
     assert updated2['requested_effort'] == 'max'
+
+    sm.begin(store, 'claude-code', 'sess-3')
+    sm.set_choice(store, 'sess-3', 'main', 'claude-code', 'fixture-ultra-model', 'ultra')
+    sm.confirm(store, 'sess-3', True)
+    assert sm.selection(store, 'sess-3', 'implementer')['effort'] == 'ultra'
+    for model, effort in [('claude-fable', 'ultra'), ('fixture-ultra-model', 'beyond-ultra')]:
+        with TestCase().assertRaises(sm.SelectionError):
+            sm.set_choice(store, 'sess-3', 'main', 'claude-code', model, effort)
+        assert sm.selection(store, 'sess-3', 'implementer')['effort'] == 'ultra'
+
+    sm.begin(store, 'claude-code', 'sess-4')
+    sm.set_choice(store, 'sess-4', 'main', 'claude-code', 'fixture-minimal-model', 'minimal')
+    assert sm.confirm(store, 'sess-4', True)['status'] == 'confirmed'
+    reopened = sm.Store(${JSON.stringify(projectDir)}, ${JSON.stringify(configHome)})
+    def read_minimal():
+        choice = sm.selection(reopened, 'sess-4', 'implementer')
+        return choice['model'], choice['effort']
+    assert read_minimal() == ('fixture-minimal-model', 'minimal')
+    with TestCase().assertRaises(sm.SelectionError):
+        sm.set_choice(reopened, 'sess-4', 'main', 'claude-code', 'claude-fable', 'minimal')
+    assert read_minimal() == ('fixture-minimal-model', 'minimal')
 print('OK')
 `;
     const res = spawnSync(PY, ['-c', pyCode], { encoding: 'utf8' });

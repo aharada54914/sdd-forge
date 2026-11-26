@@ -163,6 +163,12 @@ The managed entry's `prepare`, `claude-entry`, and `claude-batch-definition`
 commands are explicit managed routes. Once selected, all affected allocations
 retain the managed binding and refusal rules in their skill instructions.
 
+When invoked with `--policy-input` or `-PolicyInput`, the selector accepts
+`minimal`, `low`, `medium`, `high`, `xhigh`, `max` and `ultra` when the
+registry and host observation both support the requested effort for the model.
+For `xhigh`, supply `--xhigh-reason` or `-XhighReason` as well. The standalone
+selector accepts `low`, `medium`, `high` and `xhigh` for explicit requests.
+
 Shared managed policy selects a model per role, risk and host from the shared
 policy, observed availability and project configuration. A request's model
 policy is `latest-compatible` (an eligible observed candidate in registered policy preference order) or

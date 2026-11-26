@@ -249,6 +249,9 @@ def wrapper_contract_checks(runtime: str, checker: Path, base: Path) -> None:
 
 
 def main() -> int:
+    sys.dont_write_bytecode = True
+    from registration_lifecycle import check_registration_lifecycle
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime", choices=("sh", "ps1"), required=True)
     parser.add_argument("--checker", type=Path, required=True)
@@ -265,6 +268,11 @@ def main() -> int:
             wrapper_contract_checks(args.runtime, checker, base / "wrapper-contract")
         except Exception as exc:
             failures.append(f"contract-mismatch-self-check: {exc}")
+        try:
+            check_registration_lifecycle(REPO, base / "registration", args.runtime,
+                                         lambda root: command_for(args.runtime, checker, root, "verify"))
+        except Exception as exc:
+            failures.append(f"registration lifecycle: {exc}")
         missing = base / "not-installed"
         missing_codex = base / "not-installed-codex"
         for mode, expected_exit in (("preflight", 0), ("verify", 1)):

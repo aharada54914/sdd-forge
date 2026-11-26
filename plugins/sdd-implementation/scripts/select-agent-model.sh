@@ -243,10 +243,9 @@ try:
     # `efforts` tiebreak dict above (which is part of the byte-unmodified v1
     # sort key, `efforts[""] == efforts["low"] == 0`, and must not be reused
     # for v2 clamp/bump arithmetic, where "" is never a valid member).
-    EFFORT_VALUES = ("low", "medium", "high", "xhigh")
-    EFFORT_ORDER = ["low", "medium", "high", "xhigh"]
-    # Capability data can advertise levels outside this selector's routing policy.
-    REGISTRY_EFFORTS = {"minimal", *EFFORT_VALUES, "max", "ultra"}
+    STANDALONE_EFFORTS = ("low", "medium", "high", "xhigh")
+    REGISTRY_EFFORTS = ("minimal", *STANDALONE_EFFORTS, "max", "ultra")
+    EFFORT_ORDER = REGISTRY_EFFORTS if policy_mode else STANDALONE_EFFORTS
 
 
     def effort_rank(value):
@@ -310,7 +309,7 @@ try:
     if host not in (("claude-code", "codex-cli", "copilot-cli", "antigravity-cli", "gemini-cli") if policy_mode else ("claude-code", "codex-cli")):
         print("MODEL_SELECTION_ERROR: invalid host", file=sys.stderr)
         sys.exit(1)
-    if requested_effort and requested_effort not in EFFORT_VALUES:
+    if requested_effort and requested_effort not in EFFORT_ORDER:
         print("MODEL_SELECTION_ERROR: invalid requested effort", file=sys.stderr)
         sys.exit(1)
     escalation_tier = None
@@ -427,7 +426,7 @@ try:
                             continue
                         if key not in matrix:
                             continue
-                        if not isinstance(value, str) or value not in EFFORT_VALUES:
+                        if not isinstance(value, str) or value not in EFFORT_ORDER:
                             raise ValueError
                         risk_matrix[key] = value
                 role_defaults_raw = registry.get("role_defaults")
@@ -461,7 +460,7 @@ try:
                         if entry_min_tier in tiers:
                             role_min_tier = entry_min_tier
                         entry_default_effort = role_entry.get("default_effort")
-                        if entry_default_effort in EFFORT_VALUES:
+                        if entry_default_effort in EFFORT_ORDER:
                             role_default_effort = entry_default_effort
                 if not minimum_tier and role_min_tier:
                     minimum_tier = role_min_tier
@@ -469,7 +468,7 @@ try:
                         raise ValueError
                 for item in candidate_data:
                     definition = registered[item["name"]]
-                    supported = [level for level in definition["supported_efforts"] if level in EFFORT_VALUES]
+                    supported = [level for level in definition["supported_efforts"] if level in EFFORT_ORDER]
                     if not supported:
                         raise ValueError
                     if not isinstance(item["available"], bool):

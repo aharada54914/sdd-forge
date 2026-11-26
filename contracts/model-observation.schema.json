@@ -162,10 +162,13 @@
           "items": {
             "type": "string",
             "enum": [
+              "minimal",
               "low",
               "medium",
               "high",
-              "xhigh"
+              "xhigh",
+              "max",
+              "ultra"
             ]
           }
         },

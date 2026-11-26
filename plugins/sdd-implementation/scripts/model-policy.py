@@ -203,7 +203,7 @@ def validate_observation_record(record):
         seen.add(native_id)
         if (not isinstance(efforts, list) or not all(_member(e, EFFORTS) for e in efforts)
                 or len(set(efforts)) != len(efforts)):
-            raise _invalid('Observed efforts must be unique low/medium/high/xhigh values.')
+            raise _invalid('Observed efforts must be unique values from ' + ', '.join(EFFORTS) + '.')
         if type(model['available']) is not bool:
             raise _invalid('Observed available must be a boolean.')
     if record['source'] == 'unsupported' and record['status'] != 'unavailable':

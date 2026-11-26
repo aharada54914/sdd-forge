@@ -22,8 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'plugins/sdd-implementation/scripts/model-policy.py'
 NATIVE = ROOT / 'tests/fixtures/model-policy-native-schema'
 
-HOSTS = {'claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli'}
-EFFORTS = ['low', 'medium', 'high', 'xhigh']
+HOSTS = {'claude-code', 'codex-cli', 'copilot-cli', 'antigravity-cli', 'gemini-cli'}
+EFFORTS = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']
 SOURCES = {'live-discovery', 'verified-configuration', 'unsupported'}
 STATUSES = {'complete', 'incomplete', 'unavailable'}
 SCOPE_KINDS = {'account', 'client'}
@@ -524,7 +524,7 @@ class ObservationRecordTests(HelperCase):
             ('models', [{k: v for k, v in model.items() if k != 'available'}]),
             ('models', [{**model, 'display_name': 'raw'}]),
             ('models', [{**model, 'efforts': ['low', 'low']}]), ('models', [{**model, 'efforts': ['High']}]),
-            ('models', [{**model, 'efforts': ['max']}]), ('models', [{**model, 'efforts': ['ultra']}]),
+            ('models', [{**model, 'efforts': ['MAX']}]),
             ('models', [{**model, 'efforts': 'low'}]), ('models', [{**model, 'efforts': None}]),
             ('models', [{**model, 'available': 1}]), ('models', [{**model, 'available': 'true'}]),
             ('models', [{**model, 'available': None}]),
@@ -541,6 +541,11 @@ class ObservationRecordTests(HelperCase):
         for value in (None, [], 'record', encode(record())):
             with self.subTest(top=type(value).__name__), self.assertRaises(ValueError):
                 validate(value)
+
+    def test_unknown_effort_diagnostic_lists_the_schema_levels(self):
+        model = {**record()['models'][0], 'efforts': ['beyond-ultra']}
+        error = self.assertReason('input-invalid', self.mp().validate_observation_record, record(models=[model]))
+        self.assertIn(', '.join(EFFORTS), error.as_dict()['message'])
 
     def test_valid_digest_with_incoherent_source_status_is_rejected(self):
         for changes in ({'source': 'unsupported', 'status': 'complete'},
@@ -610,8 +615,9 @@ class CodexDiscoveryTests(HelperCase):
                 observation = result.observation
                 self.assertEqual(fake.list_calls(), 3)
                 self.assertEqual(observation['models'], [
-                    {'native_id': 'gpt-5.5-codex', 'efforts': EFFORTS, 'available': True},
-                    {'native_id': 'gpt-5.5-mini', 'efforts': [], 'available': True},
+                    {'native_id': 'gpt-5.5-codex', 'efforts': ['low', 'medium', 'high', 'xhigh', 'max'],
+                     'available': True},
+                    {'native_id': 'gpt-5.5-mini', 'efforts': ['minimal', 'ultra'], 'available': True},
                     {'native_id': 'o4.1:research/preview', 'efforts': ['low', 'xhigh'], 'available': True}])
                 self.assertEqual({k: observation[k] for k in ('schema', 'host', 'cli_version', 'scope_kind',
                                                               'purpose', 'source', 'status')},
@@ -666,13 +672,15 @@ class CodexDiscoveryTests(HelperCase):
             self.assertFalse(shell)
             self.assertFalse(any(word in ('exec', 'login', 'logout', 'resume') for word in argv), argv)
 
-    def test_effort_intersection_never_promotes_max_or_ultra_and_keeps_empty_models(self):
-        fake = self.native([page([native_model('only-max', efforts=('max', 'ultra', 'minimal', 'XHIGH')),
+    def test_effort_intersection_keeps_reported_known_levels_and_empty_models(self):
+        fake = self.native([page([native_model('extended', efforts=('max', 'ultra', 'minimal', 'XHIGH')),
+                                  native_model('unknown', efforts=('beyond-ultra', 'MAX')),
                                   native_model('mixed', efforts=('ultra', 'high', 'low', 'max'))])])
         _, result = self.capture(fake)
         self.assertEqual(result.observation['models'],
-                         [{'native_id': 'only-max', 'efforts': [], 'available': True},
-                          {'native_id': 'mixed', 'efforts': ['low', 'high'], 'available': True}])
+                         [{'native_id': 'extended', 'efforts': ['minimal', 'max', 'ultra'], 'available': True},
+                          {'native_id': 'unknown', 'efforts': [], 'available': True},
+                          {'native_id': 'mixed', 'efforts': ['low', 'high', 'max', 'ultra'], 'available': True}])
         self.assertEqual(result.observation['status'], 'complete')
 
     def test_empty_listing_is_complete_without_invented_models(self):
@@ -961,7 +969,7 @@ class DiscoverCliTests(HelperCase):
         return observation
 
     def test_TEST086_unsupported_hosts_write_unavailable_observation_and_typed_error(self):
-        for host in ('claude-code', 'copilot-cli', 'gemini-cli'):
+        for host in ('claude-code', 'copilot-cli', 'antigravity-cli', 'gemini-cli'):
             with self.subTest(host=host):
                 scopes = []
                 for name in (host + '-1.json', host + '-2.json'):

@@ -27,11 +27,11 @@ CONTRACTS = ROOT / 'contracts'
 SELECTION_SCHEMA = 'model-selection/v1'
 DELIVERY_SCHEMA = 'model-delivery/v1'
 ERROR_SCHEMA = 'model-policy-error/v1'
-HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli')
-UNSUPPORTED_HOSTS = ('claude-code', 'copilot-cli', 'gemini-cli')
+HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'antigravity-cli', 'gemini-cli')
+UNSUPPORTED_HOSTS = ('claude-code', 'copilot-cli', 'antigravity-cli', 'gemini-cli')
 HOST_VERSIONS = {'claude-code': '2.1.3 (Claude Code)', 'codex-cli': 'codex-cli 0.159.2',
-                 'copilot-cli': '1.0.4', 'gemini-cli': '0.9.1'}
-EFFORTS = ('low', 'medium', 'high', 'xhigh')
+                 'copilot-cli': '1.0.4', 'antigravity-cli': 'fixture 1.0', 'gemini-cli': '0.9.1'}
+EFFORTS = ('minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra')
 RISKS = ('low', 'medium', 'high', 'critical')
 POLICIES = ('latest-compatible', 'pinned')
 PROVENANCE = ('cli', 'environment', 'project-role', 'project-default', 'shipped')
@@ -39,7 +39,7 @@ PROOFS = ('host-reported', 'unverified')
 DELIVERY_STATUSES = ('accepted', 'blocked')
 DELIVERY_REASONS = ('identity-unverified', 'reroute-observed', 'actual-id-unavailable', 'actual-id-mismatch')
 DELIVERY_SOURCES = {'codex-cli': 'codex-app-server', 'claude-code': 'unsupported', 'copilot-cli': 'unsupported',
-                    'gemini-cli': 'unsupported'}
+                    'antigravity-cli': 'unsupported', 'gemini-cli': 'unsupported'}
 REROUTE_REASON = 'highRiskCyberActivity'
 REASONS = {'config-invalid', 'config-conflict', 'native-precedence-conflict', 'discovery-unavailable',
            'discovery-incomplete', 'discovery-stale', 'scope-mismatch', 'model-unavailable', 'model-unverified',
@@ -397,8 +397,8 @@ SELECTION_COUNTERPARTS: list[tuple[str, list[dict], list[tuple[dict, set]]]] = [
       ({'resolved.catalog_id': None}, INVALID)]),
     ('resolved.native_id', [{'resolved.native_id': ALT_ID}],
      [({'resolved.native_id': v}, INVALID) for v in ('', 'gpt fixture', '-gpt', None, 3)]),
-    ('resolved.effort', [{'resolved.effort': 'xhigh'}, {'resolved.effort': 'low'}, {'resolved.effort': 'medium'}],
-     [({'resolved.effort': v}, INVALID) for v in ('max', 'ultra', 'High', '', None)]),
+    ('resolved.effort', [{'resolved.effort': value} for value in EFFORTS if value != 'high'],
+     [({'resolved.effort': v}, INVALID) for v in ('MAX', 'beyond-ultra', 'High', '', None)]),
     ('resolved.effort_control', [{'resolved.effort_control': 'none'}, {'resolved.effort_control': 'frontmatter'}],
      [({'resolved.effort_control': v}, INVALID) for v in ('', '   ', None, 'x' * 513, True)]),
     ('policy_sha256', [{'policy_sha256': sha('alternate policy')}],
@@ -1504,7 +1504,7 @@ class BindCliTests(CliCase):
                 self.assertError(self.run_cli(*self.bind_args('bad.json')), 'input-invalid')
                 self.assertEqual(self.snapshot(), before)
             (self.work / 'bad.json').unlink()
-        self.write('invalid.json', changed(pinned_selection(), {'resolved.effort': 'max'}))
+        self.write('invalid.json', changed(pinned_selection(), {'resolved.effort': 'beyond-ultra'}))
         self.assertError(self.run_cli(*self.bind_args('invalid.json')), 'input-invalid')
         self.write('over.json', changed(pinned_selection(), {'estimate.amount': 9.0}))
         self.assertError(self.run_cli(*self.bind_args('over.json')), 'budget-unverifiable')
