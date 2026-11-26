@@ -42,16 +42,16 @@ if ($LASTEXITCODE -eq 0) {
     Test-Fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
 }
 
-function Test-Disclosure([string]$method, [string]$label) {
+function Test-ConsentPolicy([string]$method, [string]$label) {
     & $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') "PolicyTests.$method"
     if ($LASTEXITCODE -eq 0) { Test-Pass $label } else { Test-Fail $label }
 }
-Test-Disclosure 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
-Test-Disclosure 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
-Test-Disclosure 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
-Test-Disclosure 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
-Test-Disclosure 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
-Test-Disclosure 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
+Test-ConsentPolicy 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
+Test-ConsentPolicy 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
+Test-ConsentPolicy 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
+Test-ConsentPolicy 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
+Test-ConsentPolicy 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
+Test-ConsentPolicy 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
 
 & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-prompt
 if ($LASTEXITCODE -eq 0) {
@@ -67,12 +67,13 @@ if ($LASTEXITCODE -eq 0) {
     Test-Fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
 }
 
-& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-decline
-if ($LASTEXITCODE -eq 0) {
-    Test-Pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-} else {
-    Test-Fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-}
+Test-ConsentPolicy 'test_decline_stops_current_upload' "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
+Test-ConsentPolicy 'test_retry_after_decline_prompts_again' "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
+Test-ConsentPolicy 'test_decline_is_distinct_from_prohibition' "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
+Test-ConsentPolicy 'test_consent_binds_selected_project' "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
+Test-ConsentPolicy 'test_destination_change_checks_its_own_grant' "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
+Test-ConsentPolicy 'test_operator_can_withdraw_during_session' "TEST-046 a mid-session withdrawal path is stated (AC-028)"
+Test-ConsentPolicy 'test_withdrawn_consent_needs_fresh_grant' "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 
 # DS-001 both JSON files must parse (PS5.1-safe: ConvertFrom-Json, no Test-Json)
 $schema = Get-Content -Raw -Encoding Utf8 $schemaPath | ConvertFrom-Json
@@ -716,42 +717,6 @@ if (($dslFlat -cmatch 'Ensure `design-system/`') -and $dslText.Contains("ui-ux-p
     Test-Pass "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"
 } else {
     Test-Fail "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"
-}
-
-if ($loopFlat -match 'next (one|attempt).{0,20}asks again|next upload attempt.{0,20}prompts again') {
-    Test-Pass "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-} else {
-    Test-Fail "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-}
-
-if ($loopFlat -match 'not the same thing as a decline at 4') {
-    Test-Pass "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-} else {
-    Test-Fail "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-}
-
-if ($dslFlat.Contains("Egress-Destination") -and ($dslFlat -match 'project selected in step 1|selected in step 1')) {
-    Test-Pass "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-} else {
-    Test-Fail "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-}
-
-if ($dslFlat -match 'does not carry to|re-enters step 4|different destination.{0,30}gated again') {
-    Test-Pass "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-} else {
-    Test-Fail "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-}
-
-if (($dslFlat -match 'withdraw') -and ($dslFlat -match 'mid-session')) {
-    Test-Pass "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-} else {
-    Test-Fail "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-}
-
-if (($dslFlat -match 'withdraw') -and ($dslFlat -match 'gated again|does not hold')) {
-    Test-Pass "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-} else {
-    Test-Fail "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 }
 
 if (($loopFlat -match 'pull direction') -and ($loopFlat -match 'human-supplied project name')) {

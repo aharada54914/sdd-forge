@@ -36,7 +36,7 @@ class PolicyTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
 
-    def consent_branch(self, setting, text=None):
+    def consent_step(self, text=None):
         if text is None:
             skill = ROOT / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
             text = skill.read_text(encoding="utf-8")
@@ -44,10 +44,13 @@ class PolicyTests(unittest.TestCase):
         self.assertIsNotNone(section, "missing mockup and consent loop")
         step = re.search(r"(?ms)^3\. \*\*Resolve Egress Consent\*\*:(.*?)(?=^\d+\. |\Z)", section[1])
         self.assertIsNotNone(step, "missing egress consent step")
+        return step[1].expandtabs(4)
+
+    def consent_branch(self, setting, text=None):
         # Continuation text belongs to a policy only while indented beyond its bullet.
         bullets = re.findall(
             rf"(?m)^( *)- `{re.escape(setting)}`: *([^\n]*(?:\n\1 +(?!- )\S[^\n]*)*)",
-            step[1].expandtabs(4))
+            self.consent_step(text))
         self.assertEqual(len(bullets), 1, f"expected one {setting} branch in the consent step")
         return " ".join(bullets[0][1].split())
 
@@ -273,15 +276,88 @@ class PolicyTests(unittest.TestCase):
             self.assertIn(result["action"], ("skip", "manual", "prompt"))
         self.assertEqual(calls, [])
 
-    def test_decline_is_transient_and_grant_is_audited(self):
+    def test_decline_stops_current_upload(self):
+        self.assertIn("拒否時はアップロードせず手動フォールバック。", self.consent_branch("per-feature"))
+        self.assertEqual(self.resolve(request(response="decline"))["action"], "manual")
+
+    def test_retry_after_decline_prompts_again(self):
+        self.assertIn("辞退後、他の送信条件を満たす次の同一範囲のアップロードは `prompt` となり、改めて同意を求める。",
+                      self.consent_branch("per-feature"))
         declined = self.resolve(request(response="decline"))
-        self.assertEqual(declined["action"], "manual")
-        self.assertIsNone(declined["audit"])
-        self.assertEqual(self.resolve(request())["action"], "prompt")
-        granted = self.resolve(request(response="grant", party="fixture-operator"))
+        history = [declined["audit"]] if declined["audit"] else []
+        self.assertEqual(self.resolve(request(records=history))["action"], "prompt")
+
+    def test_decline_is_distinct_from_prohibition(self):
+        self.assertIn("一度の辞退は今回限りで、継続的な禁止 `not-permitted` を記録せず、設定も `off` に変更しない。",
+                      self.consent_branch("per-feature"))
+        self.assertIsNone(self.resolve(request(response="decline"))["audit"])
+        for policy in ({"egress_permitted": False}, {"setting": "off"}):
+            with self.subTest(policy=policy):
+                denied = self.resolve(request(response="decline", **policy))
+                self.assertEqual(denied["action"], "manual")
+                self.assertEqual(denied["audit"]["decision"], "not-permitted")
+                self.assertEqual(denied["audit"]["setting"], policy.get("setting", "per-feature"))
+                retry = self.resolve(request(records=[denied["audit"]], setting=denied["audit"]["setting"],
+                                             response="grant", party="fixture-operator"))
+                self.assertEqual(retry["action"], "manual")
+
+    def test_consent_binds_selected_project(self):
+        prompt = self.first_upload_disclosure()
+        self.assertIn("手順1のPullで選んだプロジェクト〈プロジェクト名〉", prompt)
+        self.assert_disclosed_scope(prompt)
+        self.assertIn("実際の送信先が `claude.ai/design` の `claude-design` に限り、"
+                      "手順1で選んだプロジェクトの ID を `Egress-Destination` として `Design-Source` に残す。",
+                      self.consent_branch("per-feature"))
+        destination = json.dumps(["claude.ai/design", "selected-project"])
+        granted = self.resolve(request(destination=destination, response="grant", party="fixture-operator"))
         self.assertEqual(granted["action"], "proceed")
+        self.assertEqual(granted["audit"]["destination"], destination)
         self.assertEqual(granted["audit"]["party"], "fixture-operator")
         self.assertEqual(granted["audit"]["setting"], "per-feature")
+
+    def test_destination_change_checks_its_own_grant(self):
+        self.assertIn("送信先を変えた場合、元のプロジェクトの同意は引き継がない。"
+                      "新しい送信先に有効な同意がなく、他の送信条件を満たす場合は、送信前に改めて同意を求める。",
+                      self.consent_branch("per-feature"))
+        common_rule = self.consent_step().partition("\n   - ")[0]
+        self.assertIn("判定用の `destination` は実サービスと対象 ID の組を一意に識別する文字列とし、"
+                      "同じ組には毎回同じ値を使う。", common_rule)
+        self.assertIn("過去の `records` も、記録時の実サービスと対象 ID から同じ表記に揃える。"
+                      "送信先を特定できない過去の同意は使わず、撤回や禁止が今回の送信先に適用されるか不明な場合は"
+                      "手動フォールバックとする。", common_rule)
+        # The resolver accepts an opaque string. Two services can issue the same local ID.
+        native = {"provider": "claude-design", "destination": json.dumps(["claude.ai/design", "project-1"])}
+        grant = self.resolve(request(**native, response="grant", party="fixture-operator"))["audit"]
+        self.assertEqual(self.resolve(request(**native, records=[grant]))["action"], "proceed")
+        for provider, service, target in (("claude-design", "claude.ai/design", "project-2"),
+                                          ("example-adapter", "design.example", "project-1")):
+            with self.subTest(service=service, target=target):
+                data = request(provider=provider, destination=json.dumps([service, target]), records=[grant],
+                               provider_capabilities={"push_mockup": True})
+                self.assertEqual(self.resolve(data)["action"], "prompt")
+
+    def test_operator_can_withdraw_during_session(self):
+        self.assertIn("利用者はセッション中でも同意を撤回できる。"
+                      "撤回を受けたら、同じ機能・セッション・送信先の判断を `withdrawn` として "
+                      "`Design-Source` に追記し、次の判定では `records` の末尾に渡す。",
+                      self.consent_branch("per-feature"))
+        # A withdrawal in one project leaves the other project's active grant usable.
+        grant = self.resolve(request(response="grant", party="fixture-operator"))["audit"]
+        other = self.resolve(request(destination="other-project", response="grant", party="fixture-operator"))["audit"]
+        history = [grant, other, dict(grant, decision="withdrawn")]
+        self.assertEqual(self.resolve(request(records=history))["action"], "prompt")
+        self.assertEqual(self.resolve(request(records=history, destination="other-project"))["action"], "proceed")
+
+    def test_withdrawn_consent_needs_fresh_grant(self):
+        self.assertIn("撤回後、他の送信条件を満たす次の同一範囲のアップロードは `prompt` となり、改めて同意を求める。",
+                      self.consent_branch("per-feature"))
+        grant = self.resolve(request(response="grant", party="fixture-operator"))["audit"]
+        history = [grant, dict(grant, decision="withdrawn")]
+        self.assertEqual(self.resolve(request(records=history))["action"], "prompt")
+        renewed = self.resolve(request(records=history, response="grant", party="fixture-operator"))
+        self.assertEqual(renewed["action"], "proceed")
+        self.assertEqual(renewed["audit"]["decision"], "granted")
+        self.assertEqual(self.resolve(request(records=history + [renewed["audit"]]))["action"], "proceed")
 
     def test_invalid_input_never_authorizes_provider(self):
         for change in ({"ui_app": "false"}, {"provider_available": 1}, {"records": {}},

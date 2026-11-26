@@ -270,19 +270,19 @@ else
   fail "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
 fi
 
-check_disclosure() {
+check_consent_policy() {
   if python3 -B "$ROOT/tests/design-sync-policy.tests.py" "PolicyTests.$1"; then
     pass "$2"
   else
     fail "$2"
   fi
 }
-check_disclosure 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
-check_disclosure 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
-check_disclosure 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
-check_disclosure 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
-check_disclosure 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
-check_disclosure 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
+check_consent_policy 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
+check_consent_policy 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
+check_consent_policy 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
+check_consent_policy 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
+check_consent_policy 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
+check_consent_policy 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
 
 if printf '%s' "$LOOP_FLAT" | grep -Fq 'finalize_plan' \
    && printf '%s' "$LOOP_FLAT" | grep -Eiq 'not (fully )?(known|knowable|established)|opacity|limitation|not (fully )?enumerable'; then
@@ -604,49 +604,13 @@ else
   fail "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression)"
 fi
 
-if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-decline; then
-  pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-else
-  fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'next (one|attempt).{0,20}asks again|next upload attempt.{0,20}prompts again'; then
-  pass "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-else
-  fail "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not the same thing as a decline at 4'; then
-  pass "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-else
-  fail "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Fq 'Egress-Destination' \
-   && printf '%s' "$DSL_FLAT" | grep -Eiq 'project selected in step 1|selected in step 1'; then
-  pass "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-else
-  fail "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'does not carry to|re-enters step 4|different destination.{0,30}gated again'; then
-  pass "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-else
-  fail "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'withdraw' && printf '%s' "$DSL_FLAT" | grep -Eiq 'mid-session'; then
-  pass "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-else
-  fail "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'withdraw' \
-   && printf '%s' "$DSL_FLAT" | grep -Eiq 'gated again|does not hold'; then
-  pass "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-else
-  fail "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-fi
+check_consent_policy 'test_decline_stops_current_upload' "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
+check_consent_policy 'test_retry_after_decline_prompts_again' "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
+check_consent_policy 'test_decline_is_distinct_from_prohibition' "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
+check_consent_policy 'test_consent_binds_selected_project' "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
+check_consent_policy 'test_destination_change_checks_its_own_grant' "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
+check_consent_policy 'test_operator_can_withdraw_during_session' "TEST-046 a mid-session withdrawal path is stated (AC-028)"
+check_consent_policy 'test_withdrawn_consent_needs_fresh_grant' "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 
 if printf '%s' "$LOOP_FLAT" | grep -Eiq 'pull direction' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'human-supplied project name'; then
   pass "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"

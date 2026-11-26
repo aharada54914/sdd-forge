@@ -135,7 +135,7 @@ assert.ok(checks.has(name), 'unknown bootstrap contract: ' + name);
 const temp = mkdtempSync(path.join(tmpdir(), 'bootstrap-core-contract-'));
 try {
   checks.get(name)(temp, process.argv[3]);
-  console.log('Verified Core ' + name);
+  process.stdout.write(`Verified Core ${name}\n`);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }
