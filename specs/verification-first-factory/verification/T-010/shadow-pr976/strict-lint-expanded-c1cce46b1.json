@@ -1,0 +1,339 @@
+{
+  "candidate": "c1cce46b18f6d5ec500597bd5ea071f7999bd475",
+  "measured_on": "2026-11-26",
+  "repository": "aharada54914/sdd-forge",
+  "selection": {
+    "initial": "Starting at the first parent of the oldest previous 30-PR integration (#531), take the next 30 consecutive first-parent commits. Every one maps to a GitHub merged PR. This window yielded zero findings.",
+    "expansion": "Before scanning expansion findings, start at the first parent of #488 (the oldest initial-window integration) and take the first 30 GitHub merged PRs with an added line in a lint extension. Use first-parent integration order and GitHub baseRefOid...headRefOid. git diff --numstat --no-renames --diff-filter=AMT; case-insensitive js, jsx, mjs, cjs, ts, tsx, mts, cts. No filtering on verdict, author or finding.",
+    "initial_start": "52b5ede85a81608263d7a6c1a66aec42cb8f523b",
+    "expansion_start": "7975d2884945634f214406023831fd44148626c3",
+    "expansion_last_merge": "21882d774bd59c829a341f62029ddde2cb48d3d7",
+    "expansion_merged_prs_considered": 185,
+    "expansion_no_added_lint_lines": 155,
+    "expansion_first_parent_commits_unmatched_in_pr_inventory": 24,
+    "reference_inputs": [
+      "specs/verification-first-factory/verification/T-010/shadow-pr976/strict-lint-70-pr-repair.json",
+      "specs/verification-first-factory/verification/T-010/shadow-pr976/strict-lint-70-pr-dispositions.json",
+      "specs/verification-first-factory/verification/T-010/shadow-pr976/strict-qualification-7baad02c4.json",
+      "specs/verification-first-factory/verification/T-010/shadow-pr976/strict-lint-d4fbfe2ef.json",
+      "specs/verification-first-factory/verification/T-010/shadow-pr976/strict-lint-reviewed-finding-reuse.json"
+    ],
+    "overlap_with_70_and_30_or_pr976_control": 0
+  },
+  "execution": {
+    "strict_cli": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "strict_arguments": "--root <detached-pr-head> --feature sdd-forge-refactor --task T-001 --agent-lint --base <merge-base> --skip-drift --skip-sensors --output <discarded-result>",
+    "shadow_cli": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+    "shadow_arguments": "--root <detached-pr-head> --diff-only --base-ref <merge-base> --mode shadow --format json",
+    "scope": "Separate clean, detached historical checkouts; no historical project commands or dependencies were run. Default added-line adapter. Historical dependencies were read for three subsequent static source-map checks. No waivers in either scan. Ignore unrelated umbrella verdict. Every recorded GitHub base equals its unique merge-base.",
+    "parser": "0.51.3",
+    "candidate_esbuild": "0.28.2"
+  },
+  "metrics": {
+    "prs": 60,
+    "prs_with_lintable_changes": 31,
+    "pr_file_observations": 91,
+    "prs_with_findings": 5,
+    "strict_statuses": {
+      "PASS": 55,
+      "WARN": 2,
+      "FAIL": 3
+    },
+    "shadow_statuses": {
+      "PASS": 55,
+      "WARN": 5
+    },
+    "same_files_and_rule_path_line_severity": 60,
+    "raw_observations": 9,
+    "within_sample_duplicates": 4,
+    "unique_findings": 5,
+    "true_positives": 1,
+    "operational_false_positives": 4,
+    "false_positive_percent": 80,
+    "unresolved": 0,
+    "unique_already_seen_in_reference": 1,
+    "previously_unseen_unique": 4,
+    "previously_unseen_true_positives": 1,
+    "previously_unseen_false_positives": 3,
+    "previously_unseen_false_positive_percent": 75,
+    "qualifies_below_five_percent": false
+  },
+  "interpretation": "Within-sample rate uses every distinct original finding across both windows. The separate newly observed rate excludes the previously reviewed Zod origin. Neither candidate repeats nor the paired Shadow scan contribute another denominator. The initial window alone had no denominator. This is a historical sample in one repository.",
+  "unique_dispositions": [
+    {
+      "id": "guard-nesting",
+      "rule": "no-deep-nesting",
+      "assessment": "true_positive",
+      "previous_match": null,
+      "origin": [
+        "1c9e1e2c00a71482f058a31167cd5e35eca5d13d",
+        "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        1256
+      ],
+      "basis": "Nested control checks in the shipped hook exceed its configured limit. The two human-copy snapshots match the entire product file and line byte for byte. The product origin precedes their copy commit.",
+      "identical_file_sha256": "a520d69a04751df0630e641d6424d0f13f7f6ee299824fd98387279879215bc4"
+    },
+    {
+      "id": "regression-output-31",
+      "rule": "no-console-log",
+      "assessment": "false_positive",
+      "previous_match": null,
+      "origin": [
+        "e7c036c89a0243465f5bbc690f267b0126469e2c",
+        "reports/verification/issue359-grep-regression-20260908.cjs",
+        31
+      ],
+      "basis": "Per-case expected and actual results in a standalone historical verification report, misidentified as production logging. #572 concerns different source lines and a different original change."
+    },
+    {
+      "id": "regression-output-32",
+      "rule": "no-console-log",
+      "assessment": "false_positive",
+      "previous_match": null,
+      "origin": [
+        "e7c036c89a0243465f5bbc690f267b0126469e2c",
+        "reports/verification/issue359-grep-regression-20260908.cjs",
+        32
+      ],
+      "basis": "Conditional diagnostic of an error returned by the test subprocess in a standalone historical verification report, misidentified as production logging. #572 concerns different source lines and a different original change."
+    },
+    {
+      "id": "regression-output-35",
+      "rule": "no-console-log",
+      "assessment": "false_positive",
+      "previous_match": null,
+      "origin": [
+        "e7c036c89a0243465f5bbc690f267b0126469e2c",
+        "reports/verification/issue359-grep-regression-20260908.cjs",
+        35
+      ],
+      "basis": "Final pass/fail totals in a standalone historical verification report, misidentified as production logging. #572 concerns different source lines and a different original change."
+    },
+    {
+      "id": "zod-cycle-probe",
+      "rule": "no-empty-catch",
+      "assessment": "false_positive",
+      "previous_match": {
+        "pr": 800,
+        "path": "mcp/sdd-forge-mcp/dist/index.js",
+        "line": 20296
+      },
+      "origin_repository": "colinhacks/zod",
+      "origin": [
+        "fa77a4d7013693de0fdb84ee7385c6a08cbcc266",
+        "packages/zod/src/v4/core/compile.ts",
+        185
+      ],
+      "basis": "An upstream probe leaves its conservative recursive default true on error, then declines compilation. The package explains the fallback immediately before the probe. Each version blames the same original change at the same TS path and line. The builds and package data establish the relationship across repository paths and versions."
+    }
+  ],
+  "zod_provenance": {
+    "method": "From each of the three historical package roots, install from the pinned lock offline with lifecycle scripts disabled. Use candidate esbuild for an in-memory bundle and external source map. Compare emitted JS byte-for-byte with committed JS. Map the generated catch token to the preceding brace (one line before the source catch), compare map sourcesContent and installed bytes with the locked archive member, and check the archived TS against the matching upstream Git tag. No emitted JS or historical project code ran.",
+    "package": "zod",
+    "published_member": "v4/core/compile.js",
+    "matching_rationale_and_fallback_block_sha256": "dfd2f02dfd867548d7dfc445e73e7d18443735c96f4f079baa234d865f6f9553",
+    "npm_archive_lock_integrity_verified_versions": [
+      "4.5.4",
+      "4.6.5",
+      "4.6.7"
+    ],
+    "package_versions": {
+      "4.5.4": {
+        "tag_commit": "e8e206fa33ac5fe7ce20a2beb12d57b1cb3df653",
+        "typescript_catch_line": 216,
+        "locked_npm_member_sha256": "888783d09a521996f26f35de24c38460577ee094b433489e5119d0830d922bfc",
+        "archive_typescript_equals_git_tag": true
+      },
+      "4.6.5": {
+        "tag_commit": "59bbc03e10c636b9eb3c393dfeb552819774ec21",
+        "typescript_catch_line": 242,
+        "locked_npm_member_sha256": "df28853593428e5a2a8729b09f43baf0998eaae7f1e37797993035187833b054",
+        "archive_typescript_equals_git_tag": true
+      },
+      "4.6.7": {
+        "tag_commit": "b500a2ee95134f81d74da7911d7378dd2853d042",
+        "typescript_catch_line": 242,
+        "locked_npm_member_sha256": "53fcf24821f50ecf42492ab7101abe8a50ead8286a53567d71648fe5ca346b99",
+        "archive_typescript_equals_git_tag": true
+      }
+    },
+    "byte_identical_bundle_rebuilds": {
+      "396": {
+        "identical": true,
+        "line": 140,
+        "exact_source": true,
+        "bundle_sha256": "42e180944dd731e52ab41ee1128552f751b2bbc911d7dd885cfe43d41d9c60fe",
+        "package_version": "4.5.4",
+        "generated_line": 19790,
+        "package_member_catch_line": 141
+      },
+      "398": {
+        "identical": true,
+        "line": 140,
+        "exact_source": true,
+        "bundle_sha256": "0bf1845fe17fa4ea70ce4da06ae948d3ab7516c45f0eb7224746754f83ac8137",
+        "package_version": "4.5.4",
+        "generated_line": 19790,
+        "package_member_catch_line": 141
+      },
+      "448": {
+        "identical": true,
+        "line": 156,
+        "exact_source": true,
+        "bundle_sha256": "e5631957581e67d1142cf51b6c66696edefb0d396d057b3146eb826f77466c11",
+        "package_version": "4.6.5",
+        "generated_line": 20198,
+        "package_member_catch_line": 157
+      }
+    }
+  },
+  "observation_columns": [
+    "pr",
+    "path",
+    "line",
+    "severity",
+    "unique_disposition"
+  ],
+  "observations": [
+    [452,"plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",1256,"warn","guard-nesting"],
+    [452,"specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",1256,"warn","guard-nesting"],
+    [452,"specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",1256,"warn","guard-nesting"],
+    [448,"mcp/sdd-forge-mcp/dist/index.js",20198,"error","zod-cycle-probe"],
+    [408,"reports/verification/issue359-grep-regression-20260908.cjs",31,"warn","regression-output-31"],
+    [408,"reports/verification/issue359-grep-regression-20260908.cjs",32,"warn","regression-output-32"],
+    [408,"reports/verification/issue359-grep-regression-20260908.cjs",35,"warn","regression-output-35"],
+    [398,"mcp/local-env-mcp/dist/index.js",19790,"error","zod-cycle-probe"],
+    [396,"mcp/ci-mcp/dist/index.js",19790,"error","zod-cycle-probe"]
+  ],
+  "range_columns": [
+    "pr",
+    "github_base_and_verified_merge_base",
+    "github_head",
+    "strict_run_id",
+    "files",
+    "strict_status",
+    "shadow_status"
+  ],
+  "ranges": [
+    [530,"000b0bb4e28ba768606dfa5153f709f019a08392","2a38dc87c3d8840a7047974ee61ea9eef43dc287","e5c79166-4b8e-42e8-b6e5-03740bf6be75",0,"PASS","PASS"],
+    [529,"3b155fb21aa5cf10ac0811865dc8815b6f103cc3","c45503ef5ef8df0712e80606127260d920fc563f","ea912c5a-74b9-40ff-becb-9df39a7b878b",0,"PASS","PASS"],
+    [517,"96c040a6cf7644981f94956e0878092d0ac85c04","d08de7861e8abee1c46d9be0235edc0be888ca04","875e969b-4959-45fd-a65a-37bd37b0dc80",0,"PASS","PASS"],
+    [516,"4afd8782680f4a7606acbaa8f1c78121b642749d","8e945a29739eb0d2ebeb00aeaa3894636382cc9c","b39e096a-a507-4652-8a86-1eb15fe60056",0,"PASS","PASS"],
+    [515,"5362378989f046a851b5005637abad6f942b1841","76865e9109621c11fb10ba44f8f7a2f801a4e22b","85f6ead0-90f8-4646-ab3c-9df0750752b5",0,"PASS","PASS"],
+    [514,"5d5ada70636b3c4774095b8e4139ed83c21f30c3","71f32e31e4f874ed0ee7c8b740750586a8c125ca","65906e57-ecb9-40cb-ab0b-4244ea830b46",0,"PASS","PASS"],
+    [510,"0528395992638cb48de3e07af6de1f9a3d00f575","fed633ecd5b679e34bbcad46bf070c0b2132fa09","d5c0e1ee-fd7d-4d3d-8eb3-527bdbaa16df",0,"PASS","PASS"],
+    [511,"2474977416e865b13042094abadf16f323c27473","9c30c19731eda8e08ebd049a77b54a8d14759100","b5b0158f-2aa9-4f16-8a36-7bedca68f052",0,"PASS","PASS"],
+    [509,"e32795d81eb5a491d7edfc95297bfb955e7eaa04","e91ea68c89e020137e5b606f280216b71d30f292","607a62d7-224f-4379-838b-58b4752855c0",0,"PASS","PASS"],
+    [508,"cd20889405f06e5b36a44d29f882e3069c41ac13","0f7b57cff744e6563e601663be440516329a3896","88a15d90-1d3f-4dd4-866d-4e8adfba697f",0,"PASS","PASS"],
+    [507,"410e3ebd7b10c240d7cb458c371a6b1f7afbfbc0","86fe4259cb7720ef74fc479369f1eb15f19e18d7","5f988a2c-011e-4fce-90f2-9feb584be4bd",0,"PASS","PASS"],
+    [506,"648724ed6d66cf950f4929188330f6695cb7097a","27b29783b3a2f8b7183af105c87885a64afb962f","7536ec55-7af4-43b3-ab90-59b36322674d",0,"PASS","PASS"],
+    [505,"2dbd2de7f56e3c1770117dcfa4339c878baef3bb","5d9ed360e0d1ccd704e268f0e9e6528aaefb08ff","d93363a3-6e81-46de-bd97-619ec3bf89cb",0,"PASS","PASS"],
+    [504,"82fe894b0d6503cff44ccb354050ac4b2265370f","4902983857185d61f54774973bf5f86088784d2a","14821124-55ca-4198-aafc-27406269730e",0,"PASS","PASS"],
+    [502,"36dbad3128da539ed8b4c70687f0bb03ab89d6d3","6dd6ce2952bff532436cbb14df5c2de31ff8512a","4de9a9d8-48f6-4430-8037-a959d0ea6540",0,"PASS","PASS"],
+    [503,"1428c78e6ef2267183bb8e74328c37ba872c6584","e426b1654af71dad0657569ce1e3c6a6662e3da6","87aad203-33a5-41bd-a521-1f4b781ebb60",0,"PASS","PASS"],
+    [501,"73bba62254a0c6b1994ab258ebd53422156c982b","d4b1abe71c8a9acf3383491115cda81b3c41b5c4","c621cba9-24f5-44a9-b450-c89a7202dfec",0,"PASS","PASS"],
+    [500,"1eeaca35cfa74da879d1328b66174957d209f800","621fb72489fa61d7f50f49c067f6dd60c7cfb5f9","71dee28c-8dfc-44a8-8806-820eb498610a",0,"PASS","PASS"],
+    [499,"d2e4bb83c405a092fbf9fb273cd181e930f2c5fd","a26b691b882a8b0dc74ef2f47a665b30739157c5","22010658-5ac3-4325-9f8c-b21e5208c352",0,"PASS","PASS"],
+    [498,"de00c891b7e341653db05307edb86a644a8593e1","7724607465e434c3e4c7bfa724a207eaddb069d7","27ca5e61-c6dd-4deb-8717-51dbb8433e0c",0,"PASS","PASS"],
+    [497,"0519a52b8c00e8cfc047e6fb34a70e46710f29eb","2ae003ef0596b613385b32fdd3181f2755d71fb1","375b44bf-22c2-439f-9c0a-dfbd21852467",0,"PASS","PASS"],
+    [496,"98e850e036bc6d9fc56107c4603e12ea836e9db8","e0aa28ba8c1f2abf4ac3d0ee0b048f51ac86c978","58bac691-5333-43a3-9a05-04951a25d3eb",3,"PASS","PASS"],
+    [495,"e3e3e4d147252e1b7e83a582e44ae6233ed79930","9fcb400a29191d6f6bfedbcb3beeef436abbec9e","2237fbbb-e50a-47a1-b7c0-86c113c2a29e",0,"PASS","PASS"],
+    [494,"170cf8257a94e74055a738857f083e308535cdee","fbcdc7b8aba8f67ea7f09d2a1d735724f798652c","12928e6c-8438-4f4c-b7c3-b62de36f6043",0,"PASS","PASS"],
+    [492,"4015137d98ce2e521c39ad3fdd0bb59950105fac","01af029c0e1a254b5c04425932316775ff5034c2","378ab296-a3eb-48ef-affd-15582f8ca2bf",0,"PASS","PASS"],
+    [493,"1225a729e1f7b7cc364cff11e92121728f74a3b1","7f476eb1e353f6f0e859e3e766c2624bc40f7ffd","1546e507-5c88-437c-987c-e4dc5489d377",0,"PASS","PASS"],
+    [491,"ac98b9f08a855f6ec4e45b0c1ef7ce4f0f4b72d0","c466e93df74b3793661307cfc8860c8223c4bc55","47a52bdd-478a-497a-94b7-ba05e858a03d",0,"PASS","PASS"],
+    [490,"1ee1cffe8914f756ab0e0c4a8fde991717db9d21","d11503c5d3cb44cbec3bce6290089f651ce5efc9","14d6105d-df92-447b-ab8a-0d62a1c4aa88",0,"PASS","PASS"],
+    [489,"eed2a0744f6b937c07a194812e0ab4361bbac067","ed39e200acc0dbc12106fd7541471079365b75f4","b1db3d3f-349c-44c5-8c88-8e161c041d82",0,"PASS","PASS"],
+    [488,"7975d2884945634f214406023831fd44148626c3","ebbcd50038851747fd7ad295fddef92d28f8285d","3f56a59f-60c9-41d9-8d58-16710ae139ea",0,"PASS","PASS"],
+    [403,"493ff5a84da4ab993dcdceb8cf5d07927ae45db1","dbba110e37b101ed0e2096f1eb826d488119a23b","5fef35c7-5b0f-41cd-8e34-361b10a4d215",3,"PASS","PASS"],
+    [452,"62704e6720b01aa1576a448933e67f1e561ec7df","5876a7a894e25607e7d790b2bb1ef748c40aa569","177650c3-02c3-4408-a97b-2ef3eb3948f6",3,"WARN","WARN"],
+    [440,"a523e733171608b8c245f9edc4630065f3abbccd","ddfb7590afa64d23cb31279a88bcb87a43b23ad2","46149116-0af1-4028-8d61-35514f7b6949",1,"PASS","PASS"],
+    [445,"0cb97c4ea85714fd920cb31dac66418f7067137b","81399d559e50d9389bb3dd3815f1fc7ceff2d04c","8ffa3e4e-9a89-4899-a3e7-8bd3e47dedf8",1,"PASS","PASS"],
+    [448,"d7aeda4be8ef18adb987d7a166466e5aa444ce9d","f2cc4a3c82eb78a591bfce88991a176e8a14cea2","d0736878-2e59-4947-80cf-18ff74412494",1,"FAIL","WARN"],
+    [441,"aee1a53b4982da40ab30592e3b9191e1b4eb1b50","0eca83cd8b8ebd77032a635d7290163601d199c1","ccdaf509-deb3-4d17-b116-f4b119fdcced",1,"PASS","PASS"],
+    [408,"8131c626e8ebcf1e796d360e1088721474353e03","e7c036c89a0243465f5bbc690f267b0126469e2c","b899207b-ac49-4ef6-8d95-889b201a8c2d",1,"WARN","WARN"],
+    [432,"7a880e2826202448cd0b062ebfb8cd4dd570d1fa","1bbd32be02cfecf4deca1ce3c49e1f2832489417","a64ca540-1430-4b2e-b0b0-2a7ec8bd0175",3,"PASS","PASS"],
+    [381,"08baf03a45c7d47f5bc5e73bf2519e47ea500a5d","98289b6ad63478b4abd959d6c2e53a6c6997f467","beaec39e-8403-47b8-997e-85ff5e704f1c",2,"PASS","PASS"],
+    [371,"b16699dbd541a5bb506230bddbcd4623e13795f6","c7fce154c22600dd2fe4860ba56d5b0df56d7dcd","654cd014-2b32-4199-ba21-2339ed7215c8",4,"PASS","PASS"],
+    [398,"ae4dc095ecde352f980ef06dec469b9b286ad10c","c0b1419ea69f305c3777eabc7ad498579c89c1ca","7e666642-6288-4bd4-a389-cdc721522e4b",1,"FAIL","WARN"],
+    [376,"b453fc9351c3bdc2e1a32524db071a4790b80201","89d2b51e7cf070f6b9e12bca16be8c342c4aff48","32928a77-0327-4d84-8c60-61f5c39188ee",1,"PASS","PASS"],
+    [396,"b4fa4ef399f99d3bec0798718b75587ad672c7bf","0aa450cd13969889332bed921167518240baa055","761f05bd-42e5-4bf0-b6aa-013f087f61f5",1,"FAIL","WARN"],
+    [386,"3749a252af31c504387c4cb8855342261c41dbbd","1bd368aa3584a6a435e9b7ad4849dfb7019e3ec7","68b67ed5-336e-472a-b7af-6cd752981d31",3,"PASS","PASS"],
+    [384,"e00478321327b48e4e4ad21a14391d69e0f1baa9","e72e4dcda2ce33dcdb276e1d605bc3ea66852fec","f41ce8d3-64ce-49ff-8d9f-20d5d35fd5df",3,"PASS","PASS"],
+    [357,"d9c80d77a7ab3cfc12bb2a10d34660624af9aee6","07512c84a362dc3f3b4730e59000057a1f981831","7e13180f-b03a-4dae-b53d-cf5dc84baf42",7,"PASS","PASS"],
+    [335,"13febcce53d4d3b7517d6f43ee7f90fa11175993","94600a5cf76bfc4eb550ca19c38445c8cb37879c","4c170cef-b4ed-4d07-a7ae-1cd4012f92fb",1,"PASS","PASS"],
+    [336,"165253540cf4da8bceb99a139282d0d5e845525f","6e1052aaa230bef58f34975258097c7ea7c128db","c5a352d5-7ab8-4c66-84dc-be80c86a20c4",6,"PASS","PASS"],
+    [328,"9775f9f67574760edc8701932a58a02e41d46c1f","d13fabdffb4a71373fd305793b5f91ceea9134d3","229b0d01-0ecb-4f91-bd5e-743516e7f6e2",4,"PASS","PASS"],
+    [325,"b08e6baf58c67070c77b9f0ca8808b019ab382c9","40600f31fa4e207923f1588b1f7f9af0b5e251ba","f0a628a0-b40a-4be2-9295-77a3b0266087",4,"PASS","PASS"],
+    [305,"323a7d8a44bd4d18d4d5625400fdc3c107682c4c","d53c41234aac8223985a8c6a74489e9577cc3b1d","d02e0283-6028-4aca-8a25-5b64ca773042",4,"PASS","PASS"],
+    [294,"8854045908d357db54627ca319dc8badd8032248","c0f3936fc1a2e8f837ed82c47313880df0b621b6","249e6860-3802-406f-b29b-eafcb8b02eb2",3,"PASS","PASS"],
+    [275,"ae6322168bcc755e5c4b7ebca45f0434c79feba6","a0f7a34f791202f2e504680a33019b1821a2dcdb","779fb25c-5798-4885-9fef-aba01e7ce705",4,"PASS","PASS"],
+    [261,"f5129192ca5d071b2cd5e92491472b062e8ece64","0b8b3933483f6b33458b7ffe0d79e7cf018b507c","0d93102e-c2cf-449d-8212-0ef31c656fcb",1,"PASS","PASS"],
+    [260,"f5129192ca5d071b2cd5e92491472b062e8ece64","b0d2aca684773b4c0d8098cbc5302767002ec0c3","c46a5e0d-053f-424d-b5f7-010c9d84e907",1,"PASS","PASS"],
+    [274,"e4042f2f9555c9024997a1b40cc116f798f27ae8","5a49ab54ed4f2dcb5ea93edb2d5ad896bec67176","03124e6e-645a-4dff-b9ca-3f53d8f3d86d",4,"PASS","PASS"],
+    [244,"89d2263f6fdfe312a860508bc9c642d926e60835","80ce31656591410afa71b184b1ce3f203cd51b9e","8858c73a-ca1d-4684-9bbc-25d8c75c95dc",6,"PASS","PASS"],
+    [243,"29837e535318c44bd45200aa2e6651246bc4f706","6011a0cd22db9f18a95f924b6698301ba236904a","3a67764a-286b-4ded-b49a-6a78af4e2eaf",5,"PASS","PASS"],
+    [229,"5a01c514e201faed21c0156aad7533c4867ede43","d04d72e38ce1862b9fa862bd77d63cb30d1da1f3","cde03469-0caa-423c-8772-e0ff823894ca",8,"PASS","PASS"],
+    [233,"151c4dd74d5119e3fc52fbd9ac055f45b793fbe9","a67eafd470aa915033a450535d99c11dea115b49","d9bf4e0b-9339-43a1-bf4d-335e64d44de9",1,"PASS","PASS"]
+  ],
+  "isolated_output_trial": {
+    "measured_on": "2026-11-26",
+    "candidate": "c1cce46b18f6d5ec500597bd5ea071f7999bd475",
+    "pr": 408,
+    "head": "e7c036c89a0243465f5bbc690f267b0126469e2c",
+    "github_base_and_merge_base": "8131c626e8ebcf1e796d360e1088721474353e03",
+    "path": "reports/verification/issue359-grep-regression-20260908.cjs",
+    "source_sha256": "0b82561526bbd47919317dc564d678bab379f1ff6834e49d57cf0c18140af6be",
+    "changed_copy_sha256": "51d962c15f7e11f7cb332e7c5d5e45c356cff593ac3414335453cc2e19cc4aca",
+    "method": "Run the public Strict agent-lint umbrella against the actual PR added-line diff. Replay the same input first. In an isolated copy change exactly the three output calls, preserving the conditional and appending LF. Append an unrelated ordinary log to the same file for the positive control. No catalog change, waivers or exclusions. No historical project code or project-specified commands were executed.",
+    "initial_reference_run_id": "b899207b-ac49-4ef6-8d95-889b201a8c2d",
+    "runs": {
+      "original": {
+        "run_id": "f4ad4d3a-394e-4269-9f68-2dc103b133fe",
+        "lint_status": "WARN",
+        "files": 1,
+        "no_console_log_lines": [
+          31,
+          32,
+          35
+        ]
+      },
+      "changed_isolated_copy": {
+        "run_id": "d0b0a91e-ae16-44d9-a7b8-43dbd6ef70d1",
+        "lint_status": "PASS",
+        "files": 1,
+        "no_console_log_lines": []
+      },
+      "changed_plus_same_file_positive_control": {
+        "run_id": "b63b5e31-bc24-4bb3-9835-f3f5d14060d5",
+        "lint_status": "WARN",
+        "files": 1,
+        "no_console_log_lines": [
+          37
+        ]
+      }
+    },
+    "modified_lines": {
+      "31": "  process.stdout.write(`${pass ? 'PASS' : 'FAIL'} ${name}: expected=${expected}, actual=${result.status}, signal=${result.signal}\\n`);",
+      "32": "  if (result.error) process.stdout.write(result.error.message + '\\n');",
+      "35": "process.stdout.write(`Results: ${cases.length - failed} passed, ${failed} failed\\n`);"
+    },
+    "stdout_check": {
+      "node": "v24.13.0",
+      "method": "Two variants of a fresh benign Node driver, independent of the historical program, compare single-string console.log versus stdout.write with LF using three inert sample records. Separate expected UTF-8 output includes an unchanged raw stderr fragment and final LF.",
+      "fixtures": [
+        "pass",
+        "status mismatch and diagnostic without LF",
+        "subprocess-error record with multiline Unicode string, percent placeholder, and signal",
+        "final totals of 1 pass and 2 failures"
+      ],
+      "bytes": 223,
+      "lf_count": 7,
+      "expected_sha256": "f57be8683cbcc723e4cb7de4dcd6429f6a978d6195b28863c601c39f5d656479",
+      "console_sha256": "f57be8683cbcc723e4cb7de4dcd6429f6a978d6195b28863c601c39f5d656479",
+      "stdout_write_sha256": "f57be8683cbcc723e4cb7de4dcd6429f6a978d6195b28863c601c39f5d656479",
+      "all_bytes_equal": true
+    },
+    "qualification_effect": "Counterfactual only. Zero additional real PRs or findings in the historical denominator."
+  }
+}

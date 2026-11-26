@@ -258,8 +258,7 @@ else
   fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'both must match' \
-   || printf '%s' "$LOOP_FLAT" | grep -Eiq 'session has ended does not hold'; then
+if python3 -B "$ROOT/tests/design-sync-policy.tests.py" PolicyTests.test_different_feature_or_session_requires_consent; then
   pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
 else
   fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"

@@ -26,6 +26,15 @@ if ($LASTEXITCODE -eq 0) {
     Test-Fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
 }
 
+$pythonCommand = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction Stop }
+& $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') PolicyTests.test_different_feature_or_session_requires_consent
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
+} else {
+    Test-Fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
+}
+
 & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-prompt
 if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
@@ -372,12 +381,6 @@ if (($loopFlat -match 'consent already holds') -and ($loopFlat -match 'continue 
     Test-Pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
 } else {
     Test-Fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
-}
-
-if (($loopFlat -match 'both must match') -or ($loopFlat -match 'session has ended does not hold')) {
-    Test-Pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
-} else {
-    Test-Fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
 }
 
 if (($dslFlat -cmatch 'this feature AND this session|this feature and this session') -and -not ($dslFlat -match 'feature or session|feature/session|per-feature/session')) {

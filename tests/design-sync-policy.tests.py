@@ -36,16 +36,45 @@ class PolicyTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
 
-    def consent_branch(self, setting):
-        skill = ROOT / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-        text = skill.read_text(encoding="utf-8")
+    def consent_branch(self, setting, text=None):
+        if text is None:
+            skill = ROOT / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+            text = skill.read_text(encoding="utf-8")
         section = re.search(r"(?ms)^## 3\. Mockup & Egress Consent Loop\b(.*?)(?=^## |\Z)", text)
         self.assertIsNotNone(section, "missing mockup and consent loop")
         step = re.search(r"(?ms)^3\. \*\*Resolve Egress Consent\*\*:(.*?)(?=^\d+\. |\Z)", section[1])
         self.assertIsNotNone(step, "missing egress consent step")
-        bullets = re.findall(rf"(?m)^\s*- `{re.escape(setting)}`: ([^\n]+)$", step[1])
+        # Continuation text belongs to a policy only while indented beyond its bullet.
+        bullets = re.findall(
+            rf"(?m)^( *)- `{re.escape(setting)}`: *([^\n]*(?:\n\1 +(?!- )\S[^\n]*)*)",
+            step[1].expandtabs(4))
         self.assertEqual(len(bullets), 1, f"expected one {setting} branch in the consent step")
-        return bullets[0]
+        return " ".join(bullets[0][1].split())
+
+    def assert_scope_prompt(self, rule):
+        self.assertRegex(rule, r"当該\s*`\(feature,\s*session\)`\s*で未同意なら、[^。]*"
+                               r"人間の\s*明示同意を得てから\s*`push`")
+
+    def test_different_feature_or_session_requires_consent(self):
+        self.assert_scope_prompt(self.consent_branch("per-feature"))
+        grant = record()
+        self.assertEqual(self.resolve(request(records=[grant]))["action"], "proceed")
+        for coordinate in ("feature", "session"):
+            with self.subTest(coordinate=coordinate):
+                decision = self.resolve(request(records=[grant], **{coordinate: "other"}))
+                self.assertEqual(decision["action"], "prompt")
+
+    def test_scope_prompt_markdown_continuations(self):
+        heading = "## 3. Mockup & Egress Consent Loop\n3. **Resolve Egress Consent**:\n"
+        bullet = "   - `per-feature`: 当該  `(feature, session)` で未同意なら、\n"
+        prompt = "人間の明示同意を得てから  `push` する。"
+        wrapped = self.consent_branch("per-feature", heading + bullet + "     " + prompt)
+        self.assert_scope_prompt(wrapped)
+        for sibling in ("   " + prompt, "   - `standing`: " + prompt):
+            with self.subTest(sibling=sibling):
+                rule = self.consent_branch("per-feature", heading + bullet + sibling)
+                with self.assertRaises(AssertionError):
+                    self.assert_scope_prompt(rule)
 
     def test_standing_skips_confirmation(self):
         self.assertIn("プロンプト不要で続行", self.consent_branch("standing"))
