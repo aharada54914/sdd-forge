@@ -25,7 +25,6 @@ def load(name, filename):
 
 m = load('session_models', SCRIPTS / 'session-models.py')
 hook = load('session_hook', SCRIPTS / 'session-model-start.py')
-panelist = load('session_panelist', SCRIPTS / 'session-panelist.py')
 
 
 def catalog():
@@ -321,6 +320,7 @@ class Sessions(unittest.TestCase):
 
 class VersionedPanelists(unittest.TestCase):
     def test_wrappers_and_return_path_use_matching_plugin_version(self):
+        panelist = load('session_panelist', SCRIPTS / 'session-panelist.py')
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder)
             project = base / 'project'
@@ -405,6 +405,7 @@ class Startup(unittest.TestCase):
         self.assertIn('duplicate session adapter control', result.stderr)
 
     def test_panelist_bridge_preserves_collection_arguments(self):
+        panelist = load('session_panelist', SCRIPTS / 'session-panelist.py')
         selected = {'host': 'codex-cli', 'model': 'fixture-model', 'effort': 'high'}
         command = panelist.command(selected, 'gpt', 'bash', ['--task', 'T-001', '--input', 'input bundle.json'])
         self.assertTrue(command[1].endswith('run-panelist-gpt.sh'))
@@ -468,15 +469,15 @@ class GeminiInstaller(unittest.TestCase):
             calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
             resolved_installed = installed.resolve()
             normalized_calls = [
-                [arg if idx != 2 else str(Path(arg).resolve()) for idx, arg in enumerate(c)]
-                if len(c) == 3 and c[:2] == ['extensions', 'link'] else c
+                [*c[:3], str(Path(c[3]).resolve())]
+                if len(c) == 4 and c[:3] == ['extensions', 'link', '--consent'] else c
                 for c in calls
             ]
             if plugins == 'sdd-bootstrap':
                 self.assertEqual(normalized_calls, [
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-bootstrap')],
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-implementation/gemini')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-bootstrap/gemini')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-review-loop/gemini')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-implementation/gemini')],
                 ])
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/session-models.py').is_file())
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/model-discovery.py').is_file())
@@ -499,7 +500,7 @@ class GeminiInstaller(unittest.TestCase):
                 self.assertEqual(calls[-1], ['extensions', 'uninstall', 'sdd-forge-model-selection'])
             else:
                 self.assertEqual(normalized_calls, [
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-review-loop/gemini')],
                 ])
 
     def test_bash_bootstrap_installs_picker_and_unregisters_gemini(self):

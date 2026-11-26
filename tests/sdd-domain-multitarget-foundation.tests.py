@@ -167,6 +167,16 @@ INVENTORY = load_module("historical_consumer_inventory", VERIFICATION / "T-001/c
 BOUNDARIES = load_module("foundation_contract_boundaries", VERIFICATION / "T-002/contract-boundaries.tests.py")
 
 
+class CurrentConsumerInventoryTests(INVENTORY.ConsumerInventoryTests):
+    repo_root = str(ROOT)
+
+    @classmethod
+    def setUpClass(cls):
+        path = VERIFICATION / "T-001/current-consumer-inventory.json"
+        inventory = json.loads(path.read_text(encoding="utf-8"))
+        cls.inventory = resolve_inventory(inventory, ROOT)
+
+
 def current_ci_mcp_violations(server_text, client_text):
     # The shared transport replaced the two historical sibling fetches. All
     # other historical tool, method and import checks still apply to real bytes.
@@ -226,13 +236,10 @@ def current_boundary_tests():
 
 
 if __name__ == "__main__":
-    inventory = json.loads((VERIFICATION / "T-001/current-consumer-inventory.json").read_text(encoding="utf-8"))
-    INVENTORY.ConsumerInventoryTests.repo_root = str(ROOT)
-    INVENTORY.ConsumerInventoryTests.inventory = resolve_inventory(inventory, ROOT)
     BOUNDARIES.REPO_ROOT = ROOT
     suite = unittest.TestSuite([
         unittest.defaultTestLoader.loadTestsFromTestCase(CurrentAnchorTests),
-        unittest.defaultTestLoader.loadTestsFromModule(INVENTORY),
+        unittest.defaultTestLoader.loadTestsFromTestCase(CurrentConsumerInventoryTests),
         current_boundary_tests(),
     ])
     raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())

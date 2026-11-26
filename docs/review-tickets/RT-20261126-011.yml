@@ -7,7 +7,7 @@ target:
   task: T-010
 summary: "同一候補で全195スイートが成功する受入条件を未達"
 problem: |
-  ec13718bc のクリーンな全195件は116成功・79失敗。df85f19d6 は121成功・74失敗。cd51b921c では個別のリリース・レジストリ検査が回復したが、機械ゲート上の bootstrap は8成功・25失敗で AC-013 を満たさない。
+  ec13718bc のクリーンな全195件は116成功・79失敗。df85f19d6 は121成功・74失敗。cd51b921c では個別のリリース・レジストリ検査が回復したが、機械ゲート上の bootstrap は8成功・25失敗。8a9ccfc67 の機械ゲートは5コマンド中4件が成功し、bootstrap は28成功・10失敗となった。10件すべてが TEST-009 に属する。
 expected_fix:
   - 全195スイートについて同一候補の成功結果を照合できるレシートを用意し、未解決の旧契約を個別に判断する。
 references:
@@ -16,3 +16,4 @@ references:
   - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-ec13718bc.json
   - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-df85f19d6.json
   - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-cd51b921c.json
+  - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-8a9ccfc67.json
