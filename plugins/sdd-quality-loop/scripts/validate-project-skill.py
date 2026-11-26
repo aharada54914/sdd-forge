@@ -72,10 +72,17 @@ def runtime_environment(manifest, check=None):
                         hasher.update(chunk)
                     sha = hasher.hexdigest()
                     after = os.fstat(stream.fileno())
+                    if sys.platform == "win32":
+                        # Windows path stat can synthesize execute bits and report creation
+                        # time as ctime. Compare the current path through a second handle.
+                        with Path(path).open("rb") as current:
+                            named = os.fstat(current.fileno())
+                    else:
+                        named = Path(path).stat()
                 def identity(info):
                     return (info.st_dev, info.st_ino, info.st_mode, info.st_size,
                             info.st_mtime_ns, info.st_ctime_ns)
-                if identity(before) != identity(after) or identity(after) != identity(Path(path).stat()):
+                if identity(before) != identity(after) or identity(after) != identity(named):
                     fail("runtime-changed")
                 item.update(sha256=sha, identity_sha256=digest(json.dumps(identity(after)).encode()))
                 loaded = LOADED_SOURCES.get(str(Path(path).resolve()))
