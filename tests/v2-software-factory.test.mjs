@@ -1187,3 +1187,21 @@ describe('batch-5 follow-up: a spec file replaced by a directory fails the gate 
     assert.equal(result.checks.openQuestions.blocking, false, 'not an open-question block');
   });
 });
+
+describe('batch-10 follow-up: tasks.md replaced by a directory stops with a clear message', () => {
+  it('names the path instead of throwing EISDIR', () => {
+    const dir = trackTempDir('sdd-gate-tasks-dir-');
+    fs.mkdirSync(path.join(dir, 'specs', 'f', 'tasks.md'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    assert.throws(
+      () => runSddGate({ feature: 'f', taskId: 'T-001', projectRoot: dir, skipDrift: true, skipSensors: true }),
+      (err) => /specs\/f\/tasks\.md is not a regular file/.test(err.message) && !/EISDIR/.test(err.message),
+    );
+    fs.rmSync(path.join(dir, 'specs', 'f', 'tasks.md'), { recursive: true });
+    fs.symlinkSync('tasks.md', path.join(dir, 'specs', 'f', 'tasks.md'));
+    assert.throws(
+      () => runSddGate({ feature: 'f', taskId: 'T-001', projectRoot: dir, skipDrift: true, skipSensors: true }),
+      (err) => /specs\/f\/tasks\.md could not be read \(ELOOP\)/.test(err.message) && !err.message.includes(dir),
+    );
+  });
+});

@@ -477,6 +477,17 @@ class ConceptTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertIn('lowercase', result.stderr)
 
+    def test_leftover_v1_approval_names_the_file_to_delete(self):
+        # After migrating to v2, a leftover v1 approval must say exactly what to remove.
+        for proposal in ('FITS_EXISTING_CONCEPTS', 'NEW_CONCEPT_CANDIDATE'):
+            with self.subTest(proposal=proposal):
+                self.local_proposal(proposal)
+                self.write('specs/example/concept-test.approval.json', {})
+                result = self.gate(1)
+                self.assertIn('leftover specs/example/concept-test.approval.json', result.stderr)
+                self.assertIn('delete it', result.stderr)
+                (self.feature / 'concept-test.approval.json').unlink()
+
     def test_fits_and_dispatchers(self):
         self.local_proposal('FITS_EXISTING_CONCEPTS')
         self.assertEqual('CONTINUE\n', self.gate().stdout)
