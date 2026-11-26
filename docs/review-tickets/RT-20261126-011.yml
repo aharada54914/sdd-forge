@@ -11,6 +11,7 @@ problem: |
   3624c5d31 の全195件は146成功・49失敗・スキップ0。multitarget T-003 と T-004 が回復し、新規失敗は0件。bf3f666c5 の機械ゲートは同じ TEST-009 の10項目で停止した。
   c0eaf1848 の全195件は147成功・48失敗・スキップ0。d2664b663 は PR の12ジョブが成功し、機械ゲートは bootstrap TEST-009 の10項目で失敗した。
   bf3f666c5 の全195件は147成功・48失敗・スキップ0。c0eaf1848 と各判定が一致した。
+  d2664b663 は147成功・48失敗・スキップ0。配布構成の検査が回復し、Concept Test で PowerShell が異常終了した。d4f449937 の機械ゲートも bootstrap TEST-009 の10項目で失敗した。
 expected_fix:
   - 全195スイートについて同一候補の成功結果を照合できるレシートを用意し、未解決の旧契約を個別に判断する。
 references:
@@ -33,3 +34,5 @@ references:
   - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-c0eaf1848.json
   - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-d2664b663.json
   - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-bf3f666c5.json
+  - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-d2664b663.json
+  - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-d4f449937.json

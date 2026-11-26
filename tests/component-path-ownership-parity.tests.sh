@@ -77,21 +77,28 @@ error_category() {
   fi
 }
 
-registration_audit() {
-  local run_sh="$1" run_ps="$2" workflow="$3" suite sh_count ps_count ci_sh_count ci_ps_count registered_suites
+registration_matches() {
+  local registered_suites="$1" registered_ps1="$2" workflow="$3"
+  local suite sh_count ps_count ci_sh_count ci_ps_count
   shift 3
-  registered_suites="$(bash "$run_sh" --list)" || return 1
-  local registered_ps1
-  registered_ps1="$(python3 "$(dirname "$run_ps")/verification.py" --profile local-powershell --list)" || return 1
   for suite in "$@"; do
     sh_count="$(grep -Fxc -- "tests/$suite.tests.sh" <<< "$registered_suites" || true)"
     ps_count="$(grep -Fxc -- "tests/$suite.tests.ps1" <<< "$registered_ps1" || true)"
-    ci_sh_count="$(grep -Fc -- "tests/$suite.tests.sh" "$workflow" 2>/dev/null || true)"
-    ci_ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$workflow" 2>/dev/null || true)"
+    ci_sh_count="$(grep -Fc -- "tests/$suite.tests.sh" <<< "$workflow" || true)"
+    ci_ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" <<< "$workflow" || true)"
     if [[ "$sh_count" != "1" || "$ps_count" != "1" || "$ci_sh_count" != "1" || "$ci_ps_count" != "1" ]]; then
       return 1
     fi
   done
+}
+
+registration_audit() {
+  local run_sh="$1" run_ps="$2" workflow_file="$3" registered_suites registered_ps1 workflow
+  shift 3
+  registered_suites="$(bash "$run_sh" --list)" || return 1
+  registered_ps1="$(python3 "$(dirname "$run_ps")/verification.py" --profile local-powershell --list)" || return 1
+  workflow="$(cat "$workflow_file")" || return 1
+  registration_matches "$registered_suites" "$registered_ps1" "$workflow" "$@"
 }
 
 for required in "$RESOLVER_SH" "$RESOLVER_PS" "$COVERAGE_SH" "$COVERAGE_PS" \
@@ -268,16 +275,27 @@ else
 fi
 
 first_suite="${suite_bases[0]:-}"
-# Mutate the actual inventory, not a runner-source literal that may not exist.
-# Require a valid baseline so a broken disposable runner cannot yield a false pass.
+# Test this POSIX inventory mutation against a workflow that registers the target.
+# The real workflow and its complete set of suites are checked above.
+control_workflow="$(cat <<EOF
+on: push
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - run: bash ./tests/$first_suite.tests.sh
+      - run: pwsh -File ./tests/$first_suite.tests.ps1
+EOF
+)"
 if [[ -n "$first_suite" ]] \
-  && registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}" \
   && registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" \
+  && registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" \
+  && registration_matches "$registered_suites" "$registered_ps1" "$control_workflow" "$first_suite" \
   && mutant_suites="$(awk -v target="tests/$first_suite.tests.sh" '$0 != target' <<< "$registered_suites")" \
   && printf '[[ "$1" == --list ]] || exit 2\nprintf "%%s\\n" %q\n' "$mutant_suites" > "$TMP/run-all-mutant.sh" \
   && mutant_listing="$(bash "$TMP/run-all-mutant.sh" --list)" \
   && [[ "$mutant_listing" == "$mutant_suites" ]]; then
-  if ! registration_audit "$TMP/run-all-mutant.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}"; then
+  if ! registration_matches "$mutant_listing" "$registered_ps1" "$control_workflow" "$first_suite"; then
     pass "TEST-047 registration audit rejects a disposable missing-suite mutant"
   else
     fail "TEST-047 registration audit rejects a disposable missing-suite mutant"
