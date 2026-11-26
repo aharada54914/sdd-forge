@@ -2,7 +2,7 @@
   "_generated": {
     "source": "contracts/capability-registry.json",
     "schema_version": 1,
-    "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+    "sha256": "1367a2d44284b8d71c37c0d9001658b4aff62e66f993edb2b551c181403a5a7d",
     "notice": "This file is generated. Do not edit."
   },
   "gates": [
@@ -41,12 +41,6 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
-    },
-    {
-      "id": "check-hook-activation-handshake",
-      "stage": "implementation",
-      "blocking": true,
-      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
     },
     {
       "id": "check-installed-plugin-drift",

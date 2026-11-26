@@ -31,6 +31,15 @@ RESOLVER = load("resolve-project-context")
 PLUGIN_IDS = {"sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop",
               "sdd-ship", "sdd-lite", "sdd-domain"}
 CLOUD_PLUGIN_IDS = {"sdd-azure-cloud", "sdd-aws-cloud"}
+CORE_PARSER_SOURCES = (
+    "build.py", "go.mod", "go.sum", "main.go", "zsh-loops.patch", "zsh_loops.go.in",
+)
+CORE_SHARED_RULES = {
+    **{"scripts/vendor-shell-parser/" + name: {"components": ["sdd-quality-loop"]}
+       for name in CORE_PARSER_SOURCES},
+    "sdd/approved-test-retirements.json": {"classification": "cross-cutting"},
+    "sdd/guardrails.example.yaml": {"components": ["installer", "sdd-quality-loop"]},
+}
 
 
 def validate(document, tracked_paths, phase="phase1"):
@@ -46,10 +55,17 @@ def validate(document, tracked_paths, phase="phase1"):
     components = document.get("components", [])
     identities = [c["id"] for c in components]
     core_ids = PLUGIN_IDS | {"mcp", "installer"}
-    restored_cloud = bool(set(identities) & CLOUD_PLUGIN_IDS)
+    tracked_packages = {path.split("/")[1] for path in tracked_paths
+                        if path.startswith("plugins/") and path.count("/") >= 2}
+    restored_cloud = bool((set(identities) | tracked_packages) & CLOUD_PLUGIN_IDS)
+    # The input inventory distinguishes Core from the historical restored-cloud
+    # topology. A candidate cannot opt out of lite while its package is tracked.
+    uses_core = restored_cloud and "sdd-lite" not in tracked_packages
     expected_ids = core_ids | CLOUD_PLUGIN_IDS if restored_cloud else core_ids
+    if uses_core:
+        expected_ids = expected_ids - {"sdd-lite"}
     if len(identities) != len(expected_ids) or set(identities) != expected_ids:
-        errors.append("candidate must contain exactly the nine core or eleven restored-cloud components")
+        errors.append("candidate component inventory mismatch: expected " + ", ".join(sorted(expected_ids)))
     overrides = []
     for component in components:
         identity = component["id"]
@@ -90,6 +106,11 @@ def validate(document, tracked_paths, phase="phase1"):
     dashboard_rules = [entry for entry in shared if entry["pattern"] == "dashboard-labels.json"]
     if (dashboard_rules or "dashboard-labels.json" in tracked_paths) and dashboard_rules != [{"pattern": "dashboard-labels.json", "components": ["mcp"]}]:
         errors.append("dashboard labels must retain exact MCP ownership")
+    if uses_core:
+        for pattern, fields in CORE_SHARED_RULES.items():
+            expected_rule = {"pattern": pattern, **fields}
+            if [entry for entry in shared if entry["pattern"] == pattern] != [expected_rule]:
+                errors.append("Core ownership rule mismatch: " + pattern)
     for entry in shared:
         if "*" in entry["pattern"] and entry["pattern"] not in growing and not (restored_cloud and entry == cloud_shared):
             errors.append("unapproved broad shared rule: " + entry["pattern"])
@@ -106,7 +127,11 @@ def validate(document, tracked_paths, phase="phase1"):
     for record in ownership["records"]:
         if record["classification"] in ("UNOWNED", "OVERLAP"):
             errors.append(record["classification"] + ": " + record["raw_path"])
-    used = {owner for record in ownership["records"] for owner in record["owning_components"]}
+    # The ten-component successor requires a direct include match for every
+    # component. Older candidates keep their original reverse-coverage rule.
+    used = {owner for record in ownership["records"]
+            if not uses_core or record["classification"] == OWNERSHIP.EXCLUSIVE
+            for owner in record["owning_components"]}
     for identity in sorted(set(identities) - used):
         errors.append("component has no tracked paths: " + identity)
     return errors, ownership
@@ -251,7 +276,7 @@ def release_commits(cycle):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-session-hub.yaml")
+    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-core.yaml")
     parser.add_argument("--phase", choices=("phase1", "phase2"), default="phase1")
     for name in ("baseline", "registry", "resolver-evidence", "manifest", "release-evidence"):
         parser.add_argument("--" + name, type=Path)
