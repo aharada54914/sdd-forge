@@ -46,7 +46,7 @@ class ReleaseReadiness(unittest.TestCase):
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
-        self.root = Path(temp.name)
+        self.root = Path(temp.name).resolve()
         self.env = dict(os.environ)
         for name in ("GH_TOKEN", "GITHUB_TOKEN", "GOOGLE_FIXTURE_SOURCE"):
             self.env.pop(name, None)
@@ -221,10 +221,130 @@ esac
             else:
                 self.assertFalse(recorded.exists())
 
-    def test_bump_stops_before_writing_or_synchronizes_all_files(self):
+    def prepare_bump(self):
         target = self.root / "scripts"
-        target.mkdir()
+        target.mkdir(exist_ok=True)
         shutil.copy(ROOT / "scripts/bump-version.sh", target)
+        for path in SUITES:
+            (self.root / (path + ".ran")).unlink(missing_ok=True)
+            write(self.root, path, f'import fs from "node:fs";\nfs.writeFileSync("{path}.ran", "yes");\n'
+                  f'if (process.env.FAIL_AT === "{path}") throw Error("fixture failed: {path}");\n')
+        (self.root / "doctor.ran").unlink(missing_ok=True)
+        write(self.root, DOCTOR, 'import fs from "node:fs";\n'
+              'if (process.argv.slice(2).join(" ") !== "--root . --quiet-info") throw Error("doctor arguments");\n'
+              f'for (const suite of {json.dumps(SUITES)}) {{\n'
+              '  if (!fs.existsSync(suite + ".ran")) throw Error("doctor ran before " + suite);\n'
+              '}\nfs.writeFileSync("doctor.ran", "yes");\n'
+              'if (process.env.FAIL_AT === "doctor") throw Error("fixture failed: doctor");\n')
+        bash = self.env.get("SDD_TEST_BASH")
+        if not bash and os.name == "nt":
+            # The bash.exe on a native PowerShell PATH can be the WSL launcher.
+            git_exe = shutil.which("git")
+            self.assertIsNotNone(git_exe, "Git for Windows is required to locate Git Bash")
+            git = Path(git_exe).parent
+            bash = next((str(p) for p in (git / "bash.exe", git.parent / "bin/bash.exe")
+                         if p.is_file()), None)
+        elif not bash:
+            bash = shutil.which("bash")
+        self.assertIsNotNone(bash, "Bash is required to test the workstation version bump")
+        return bash
+
+    def check_shipped_bump(self, fail_at):
+        bash = self.prepare_bump()
+        markets = [".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"]
+        source = "mcp/sdd-forge-mcp/src/server.ts"
+        surfaces = [*markets, source, "mcp/sdd-forge-mcp/package.json", "README.md"]
+        plugins = set()
+        for market in markets:
+            entries = json.loads((ROOT / market).read_bytes())["plugins"]
+            self.assertTrue(entries, market)
+            plugins.update(entry["name"] for entry in entries)
+        # Discover manifests on disk independently of marketplace membership.
+        # A plugin can ship a host manifest before its marketplace entry lands.
+        manifests = set()
+        host_dirs = (".antigravity-plugin", ".claude-plugin", ".codex-plugin", ".plugin")
+        for root in (ROOT / "plugins").iterdir():
+            if root.is_dir():
+                manifests.update(path.relative_to(ROOT) for path in root.glob(".*/plugin.json")
+                                 if path.parent.name in host_dirs and path.is_file())
+                manifests.update(path.relative_to(ROOT) for path in
+                                 (root / "gemini-extension.json", root / "gemini/gemini-extension.json")
+                                 if path.is_file())
+        for plugin in plugins:
+            base = Path("plugins") / plugin
+            for host in host_dirs:
+                self.assertIn(base / host / "plugin.json", manifests)
+            self.assertTrue({base / "gemini-extension.json", base / "gemini/gemini-extension.json"} & manifests,
+                            f"missing Gemini manifest for {plugin}")
+        surfaces.extend(sorted(path.as_posix() for path in manifests))
+
+        before = {path: (ROOT / path).read_bytes() for path in surfaces}
+        old = json.loads(before["plugins/sdd-ship/.claude-plugin/plugin.json"])["version"]
+        major, minor, patch = old.split(".")
+        new = f"{major}.{minor}.{int(patch) + 1}"
+        for path, data in before.items():
+            target = self.root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        write(self.root, "CHANGELOG.md", f"## v{new} (fixture)\n")
+
+        original_files = {path: path.read_bytes() for path in self.root.rglob("*") if path.is_file()}
+        self.env["FAIL_AT"] = fail_at
+        output = self.run_cli([bash, "scripts/bump-version.sh", new], not fail_at)
+        for suite in SUITES:
+            self.assertTrue((self.root / (suite + ".ran")).is_file(), suite)
+        self.assertEqual((self.root / "doctor.ran").is_file(), fail_at in ("", "doctor"))
+        if fail_at:
+            self.assertIn(f"fixture failed: {fail_at}", output)
+            self.assertIn("v2 pre-release checks failed; no release surface was modified.", output)
+            markers = {self.root / (suite + ".ran") for suite in SUITES} | {self.root / "doctor.ran"}
+            self.assertEqual({path for path in self.root.rglob("*") if path.is_file()} - markers,
+                             set(original_files))
+            for path, data in original_files.items():
+                self.assertEqual(path.read_bytes(), data, str(path.relative_to(self.root)))
+            return
+
+        for path, data in before.items():
+            actual = (self.root / path).read_bytes()
+            if path.endswith(".json"):
+                expected = json.loads(data)
+                entries = expected["plugins"] if path in markets else [expected]
+                for entry in entries:
+                    self.assertEqual(entry["version"], old, path)
+                    entry["version"] = new
+                self.assertEqual(json.loads(actual), expected, path)
+            elif path == source:
+                version = f'version: "{old}"'.encode()
+                self.assertIn(version, data, path)
+                self.assertEqual(actual, data.replace(version, f'version: "{new}"'.encode()), path)
+            else:
+                heading = f"v{old} — ".encode()
+                self.assertTrue(any(line.startswith(heading) for line in data.splitlines()[:5]), path)
+                self.assertEqual(actual, data.replace(heading, f"v{new} — ".encode(), 1), path)
+
+    # Both shell drivers select individual cases. CI's existing public test runs all four.
+    def check_bump_green(self):
+        self.check_shipped_bump("")
+
+    def check_bump_first_suite_failure(self):
+        self.check_shipped_bump(SUITES[0])
+
+    def check_bump_last_suite_failure(self):
+        self.check_shipped_bump(SUITES[-1])
+
+    def check_bump_doctor_failure(self):
+        self.check_shipped_bump("doctor")
+
+    def test_bump_stops_before_writing_or_synchronizes_all_files(self):
+        for case in (self.check_bump_green, self.check_bump_first_suite_failure,
+                     self.check_bump_last_suite_failure, self.check_bump_doctor_failure):
+            with self.subTest(case=case.__name__):
+                case()
+
+        self.env.pop("FAIL_AT", None)
+        self.root = self.root / "readme-and-version-boundaries"
+        self.root.mkdir()
+        bash = self.prepare_bump()
         write(self.root, "CHANGELOG.md", "## v1.1.0 (fixture)\n")
         surfaces = ["README.md", "mcp/sdd-forge-mcp/src/server.ts"]
         surfaces += [f"plugins/sdd-ship/{name}" for name in (
@@ -233,7 +353,7 @@ esac
         surfaces += [".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json",
                      "mcp/sdd-forge-mcp/package.json"]
         preamble = "# Project\n\nDescription\n\n"
-        history = "\n> **v1.0.0**: shipped changes\nv0.8.0 — archived release\n"
+        history = "\n> **v1.0.0**: shipped changes\nv2.1.5 — archived release\nv0.8.0 — archived release\n"
 
         def release_surfaces(version):
             files = {path: json.dumps({"version": version}) + "\n" for path in surfaces}
@@ -242,15 +362,6 @@ esac
             return files
 
         before = release_surfaces("1.0.0")
-        for path in SUITES:
-            write(self.root, path, f'import fs from "node:fs";\nfs.writeFileSync("{path}.ran", "yes");\n'
-                  f'if (process.env.FAIL_AT === "{path}") throw Error("fixture suite failed");\n')
-        write(self.root, DOCTOR, 'import fs from "node:fs";\n'
-              'if (process.argv.slice(2).join(" ") !== "--root . --quiet-info") process.exit(2);\n'
-              'fs.writeFileSync("doctor.ran", "yes");\n'
-              'if (process.env.FAIL_AT === "doctor") throw Error("fixture doctor failed");\n')
-        bash = self.env.get("SDD_TEST_BASH") or shutil.which("bash")
-        self.assertIsNotNone(bash, "Bash is required to test the workstation version bump")
         # An archived heading must never stand in for the current release.
         for heading in ("v0.9.0 — stale release", "v1.0.0-rc.1 — prerelease",
                         "v1.0.0+build.2 — build", "v1.0.0 - wrong separator",
@@ -264,25 +375,6 @@ esac
                 self.assertIn("README.md current release does not match 1.0.0", output)
                 for path, content in fixture.items():
                     self.assertEqual((self.root / path).read_bytes(), content.encode("utf-8"), path)
-        for path, content in before.items():
-            write(self.root, path, content)
-        for fail_at in (SUITES[0], SUITES[-1], "doctor", ""):
-            with self.subTest(fail_at=fail_at):
-                self.env["FAIL_AT"] = fail_at
-                (self.root / "doctor.ran").unlink(missing_ok=True)
-                for suite in SUITES:
-                    (self.root / (suite + ".ran")).unlink(missing_ok=True)
-                out = self.run_cli([bash, "scripts/bump-version.sh", "1.1.0"], not fail_at)
-                if fail_at:
-                    cause = "doctor" if fail_at == "doctor" else "suite"
-                    self.assertIn(f"fixture {cause} failed", out)
-                self.assertEqual((self.root / "doctor.ran").exists(), fail_at in ("", "doctor"))
-                if not fail_at:
-                    self.assertTrue(all((self.root / (p + ".ran")).is_file() for p in SUITES))
-                expected = before if fail_at else release_surfaces("1.1.0")
-                for path, content in expected.items():
-                    self.assertEqual((self.root / path).read_bytes(), content.encode("utf-8"), path)
-
         # The replacement can contain the previous version's digits at either end.
         for new_version in ("2.1.50", "12.1.5"):
             with self.subTest(new_version=new_version):

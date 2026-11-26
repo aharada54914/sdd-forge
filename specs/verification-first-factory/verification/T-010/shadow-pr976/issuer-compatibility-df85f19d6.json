@@ -1,0 +1,238 @@
+{
+  "candidate": "df85f19d65c251e9f0e3dbd3abf26d9c6e30d619",
+  "blobs": {
+    "tests/fixtures/live-host-proof/issuer_cases.py": "587e7e8c2609b65d8f3d9e98bab08facc335f3a0",
+    "tests/fixtures/live-host-proof/run_cases.py": "7c83b7abc28ccbaf8a763c6eec121d61ae1b0df6",
+    "plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py": "daf39b7054cc3a6c7a98199adf8f8f8d66b6444a",
+    "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py": "89e89541bb7c45a0a0ff769546fd99e69bd003ce",
+    "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py": "4826a3767526f184c2cf21c39c908e30516024e7"
+  },
+  "unmodified": {
+    "returncode": 2,
+    "failed_call": "--emit-challenge",
+    "issuer_cases_executed": 0
+  },
+  "experiments": {
+    "static_input": [
+      {
+        "name": "issuer-real-openssl-signature",
+        "passed": true
+      },
+      {
+        "name": "issuer-public-receipt-verification",
+        "passed": true
+      },
+      {
+        "name": "issuer-duplicate-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-consumption-validator-compatible",
+        "passed": true
+      },
+      {
+        "name": "issuer-real-emit-before-actual-issuance",
+        "passed": true
+      },
+      {
+        "name": "issuer-aggregate-consumes-produced-entry",
+        "passed": true
+      },
+      {
+        "name": "issuer-reissue-after-aggregate-consumption-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-wrong-cell-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-existing-directory-lock-preserved",
+        "passed": true
+      },
+      {
+        "name": "issuer-lock-owner-retained-directory",
+        "passed": true
+      },
+      {
+        "name": "issuer-existing-file-lock-preserved",
+        "passed": true
+      },
+      {
+        "name": "issuer-lock-owner-retained-file",
+        "passed": true
+      },
+      {
+        "name": "issuer-receipt-consumed-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-receipt-signature-tamper-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-unknown-key-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-key-mismatch-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-no-backdating-option",
+        "passed": true
+      },
+      {
+        "name": "issuer-receipt-rejects-private-key",
+        "passed": true
+      },
+      {
+        "name": "issuer-append-uses-one-snapshot",
+        "passed": true
+      },
+      {
+        "name": "issuer-sign-failure-atomic",
+        "passed": true
+      },
+      {
+        "name": "issuer-replace-failure-atomic",
+        "passed": true
+      },
+      {
+        "name": "issuer-fsync-failure-atomic",
+        "passed": true
+      },
+      {
+        "name": "issuer-expired-receipt-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-future-receipt-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-duplicate-json-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-symbolic-ledger-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-hard-ledger-rejected",
+        "passed": true
+      }
+    ],
+    "historical_emit": [
+      {
+        "name": "issuer-real-openssl-signature",
+        "passed": true
+      },
+      {
+        "name": "issuer-public-receipt-verification",
+        "passed": true
+      },
+      {
+        "name": "issuer-duplicate-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-consumption-validator-compatible",
+        "passed": true
+      },
+      {
+        "name": "issuer-real-emit-before-actual-issuance",
+        "passed": true
+      },
+      {
+        "name": "issuer-aggregate-consumes-produced-entry",
+        "passed": true
+      },
+      {
+        "name": "issuer-reissue-after-aggregate-consumption-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-wrong-cell-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-existing-directory-lock-preserved",
+        "passed": true
+      },
+      {
+        "name": "issuer-lock-owner-retained-directory",
+        "passed": true
+      },
+      {
+        "name": "issuer-existing-file-lock-preserved",
+        "passed": true
+      },
+      {
+        "name": "issuer-lock-owner-retained-file",
+        "passed": true
+      },
+      {
+        "name": "issuer-receipt-consumed-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-receipt-signature-tamper-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-unknown-key-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-key-mismatch-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-no-backdating-option",
+        "passed": true
+      },
+      {
+        "name": "issuer-receipt-rejects-private-key",
+        "passed": true
+      },
+      {
+        "name": "issuer-append-uses-one-snapshot",
+        "passed": true
+      },
+      {
+        "name": "issuer-sign-failure-atomic",
+        "passed": true
+      },
+      {
+        "name": "issuer-replace-failure-atomic",
+        "passed": true
+      },
+      {
+        "name": "issuer-fsync-failure-atomic",
+        "passed": true
+      },
+      {
+        "name": "issuer-expired-receipt-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-future-receipt-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-duplicate-json-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-symbolic-ledger-rejected",
+        "passed": true
+      },
+      {
+        "name": "issuer-hard-ledger-rejected",
+        "passed": true
+      }
+    ]
+  },
+  "retired_emitter": "d7e2a45e40f151fe81410fa0288c26259b290b5d"
+}

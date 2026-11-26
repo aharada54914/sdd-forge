@@ -1,0 +1,95 @@
+{
+  "genuine": {
+    "passed": 33,
+    "failed": 0,
+    "checks": [
+      "issuer-retired-emitter-not-distributed",
+      "issuer-archived-emitter-integrity",
+      "issuer-real-openssl-signature",
+      "issuer-public-receipt-verification",
+      "issuer-duplicate-rejected",
+      "issuer-challenge-matches-issued-receipt",
+      "issuer-challenge-matches-verified-receipt",
+      "issuer-challenge-matches-ledger-entry",
+      "issuer-consumption-validator-compatible",
+      "issuer-real-emit-before-actual-issuance",
+      "issuer-aggregate-consumes-produced-entry",
+      "issuer-reissue-after-aggregate-consumption-rejected",
+      "issuer-wrong-cell-rejected",
+      "issuer-existing-directory-lock-preserved",
+      "issuer-lock-owner-retained-directory",
+      "issuer-existing-file-lock-preserved",
+      "issuer-lock-owner-retained-file",
+      "issuer-receipt-consumed-rejected",
+      "issuer-receipt-signature-tamper-rejected",
+      "issuer-receipt-other-challenge-rejected",
+      "issuer-unknown-key-rejected",
+      "issuer-key-mismatch-rejected",
+      "issuer-no-backdating-option",
+      "issuer-receipt-rejects-private-key",
+      "issuer-append-uses-one-snapshot",
+      "issuer-sign-failure-atomic",
+      "issuer-replace-failure-atomic",
+      "issuer-fsync-failure-atomic",
+      "issuer-expired-receipt-rejected",
+      "issuer-future-receipt-rejected",
+      "issuer-duplicate-json-rejected",
+      "issuer-symbolic-ledger-rejected",
+      "issuer-hard-ledger-rejected"
+    ]
+  },
+  "wrong_nonce_for_issue_and_verify": {
+    "passed": 30,
+    "failed": 3,
+    "failed_checks": [
+      "issuer-challenge-matches-issued-receipt",
+      "issuer-challenge-matches-verified-receipt",
+      "issuer-challenge-matches-ledger-entry"
+    ]
+  },
+  "original_cli_issuer_blob": "daf39b7054cc3a6c7a98199adf8f8f8d66b6444a",
+  "historical_comparison": {
+    "revision": "d27ce86824ec293b83c4262ca28490086e22a449",
+    "source": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+    "source_blob": "d7e2a45e40f151fe81410fa0288c26259b290b5d",
+    "fixture": "tests/fixtures/live-host-proof/archived_challenge_emitter.py",
+    "method": "Executed the original and fixture entry points with --emit-challenge, replacing only secrets.token_hex(16) with the same value in both subprocesses. Compared the full JSON stdout bytes and exit code.",
+    "samples": [
+      {
+        "fixed_nonce": "00000000000000000000000000000000",
+        "original_and_fixture_stdout_sha256": "ec0cba7acc8687f05e9da0d73a05538efb25a06aea717cf3a0b69b94ff68e66f",
+        "bytes": 4353,
+        "both_exit_codes": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixed_nonce": "fcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfc",
+        "original_and_fixture_stdout_sha256": "4042c97708e2b81cb16ed7918ab841ace0ebabb42724bffc5393b42ba10d6600",
+        "bytes": 4353,
+        "both_exit_codes": [
+          0,
+          0
+        ]
+      }
+    ],
+    "released_cli": {
+      "tag": "v1.26.0",
+      "revision": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "source_blob": "d7e2a45e40f151fe81410fa0288c26259b290b5d",
+      "arguments": [
+        "--emit-challenge"
+      ],
+      "exit_code": 0,
+      "schema": "sdd-hook-challenge/v1",
+      "nonce_length": 32,
+      "host_templates": [
+        "claude-code",
+        "codex-cli",
+        "copilot-cli",
+        "gemini-cli"
+      ]
+    }
+  }
+}

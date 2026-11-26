@@ -129,17 +129,9 @@ STAGED_SCRIPTS = [
     "generate-gate-capabilities.py", "generate-gate-capabilities.sh",
     "generate-gate-capabilities.ps1",
     "registry_discovery.py", "canonicalize-sdd-yaml.py",
-    # The three `check-*.py` masters validate-registry-fully-clean.json's
-    # implementation_ref entries name; an installed plugin ships them, and
-    # their presence is what makes the validator's checks (b) and (c)
-    # non-vacuous inside each simulated context. check-component-coverage.py
-    # joined the scan root when epic-191-a3-path-ownership merged; check (c)
-    # requires every check-*.py master under the scan root to be registered,
-    # so the fixture gained its gates[] entry and this list must ship the
-    # master that entry's implementation_ref names, or check (b)
-    # implementation-ref-missing fires inside the simulated layout.
-    "check-contract.py", "check-hook-activation-handshake.py",
-    "check-component-coverage.py",
+    # Ship the implementation masters referenced by the fully-clean Registry
+    # so the validator checks their presence in each installed layout.
+    "check-contract.py", "check-component-coverage.py",
     "check-a8-classification-table.py", "check-a8-scope-boundary.py",
     "check-a8-citation-compliance.py",
     # check-criterion-freeze.py joined the scan root with WFI-045; by the

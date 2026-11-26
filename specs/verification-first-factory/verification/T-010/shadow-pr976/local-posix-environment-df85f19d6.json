@@ -1,0 +1,23 @@
+{
+  "revision": "df85f19d65c251e9f0e3dbd3abf26d9c6e30d619",
+  "clean_before": true,
+  "suite_count": 195,
+  "host": "macOS-27.2.1-arm64-arm-64bit",
+  "tools": {
+    "node": "v24.22.1",
+    "npm": "11.6.2",
+    "python": "Python 3.12.12",
+    "python_dependencies": "attrs==26.1.0\nfastjsonschema==2.22.3\njsonschema==4.26.0\njsonschema-specifications==2025.9.1\nmypy==1.18.2\nmypy_extensions==1.2.0\npathspec==1.1.1\nPyYAML==6.0.4\nreferencing==0.37.0\nrpds-py==2026.9.1\nruff==0.13.3\nshellcheck_py==0.11.0.1\ntyping_extensions==4.16.0",
+    "powershell": "7.6.2",
+    "pester": "4.10.1",
+    "ajv": "8.20.0",
+    "bash": "GNU bash, version 5.3.9(1)-release (aarch64-apple-darwin25.1.0)"
+  },
+  "node_lock_prefixes": [
+    "mcp/ci-mcp",
+    "mcp/local-env-mcp",
+    "mcp/sdd-forge-mcp",
+    "plugins/sdd-quality-loop/rules",
+    "plugins/sdd-ship/session-hub"
+  ]
+}

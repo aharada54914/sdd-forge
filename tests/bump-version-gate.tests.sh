@@ -1,41 +1,6 @@
 #!/usr/bin/env bash
-# tests/bump-version-gate.tests.sh — fixture-driven lock for the
-# scripts/bump-version.sh loop-gate prerequisite (T-001 / Issue #148 /
-# epic-159-pillar-b REQ-001).
-#
-#   TEST-001 (AC-001) — green path: both loop suites replaced by
-#     trivially-passing stubs (design.md Design Decisions: stub-driven
-#     green path for suite speed/determinism); bump-version.sh exits 0 and
-#     mutates the fixture's release surfaces with the new version string.
-#   TEST-002 (AC-002) — red path A: tests/loop-consistency.tests.sh
-#     replaced by a failing stub (tests/loop-inventory.tests.sh left as the
-#     real, unmodified copy from the fixture's own tar-copy — never
-#     reached, since loop-consistency iterates first in the gate's `for`
-#     loop and fails closed before loop-inventory would run);
-#     bump-version.sh exits non-zero and the fixture reports zero
-#     `git status --porcelain` output (zero release-surface mutation).
-#   TEST-003 (AC-003) — red path B, independent leg:
-#     tests/loop-inventory.tests.sh replaced by a failing stub;
-#     tests/loop-consistency.tests.sh replaced by a passing fixture stub
-#     that emits a marker, so ordering and independent-leg proof do not
-#     rerun the already-covered full loop-consistency suite.
-#   TEST-004 (AC-004) — no-bypass grep self-check over the REAL
-#     scripts/bump-version.sh source: no environment-variable/CLI-flag
-#     conditional wraps the loop-gate invocation (OQ-007 decision).
-#   TEST-005 (AC-005) — line-position ordering assertion: the loop-gate
-#     invocation precedes the first mutation step in the REAL source.
-#   TEST-006 (AC-006) — CI-resilience + self-registration conformance for
-#     this suite itself.
-#
-# Fixture technique: tar-copy (tests/repository-release-validation.tests.sh:9-16
-# precedent), extended with a local `git init` baseline so
-# `git status --porcelain` becomes a meaningful zero-mutation proof
-# (design.md API/Contract Plan). Every fixture root is `pwd -P` normalized
-# immediately after creation (CI-resilience, INV-017,
-# tests/lib/loop-driver.sh:124 convention). This suite never writes a real
-# repository path; `scripts/bump-version.sh`, `tests/loop-consistency.tests.sh`,
-# and `tests/loop-inventory.tests.sh` are read only to build each fixture
-# copy, then driven strictly inside that copy.
+# Run the current release gate against copies of the shipped manifests.
+# TEST-004, TEST-006 and TEST-007 retain their independent legacy checks.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -50,7 +15,6 @@ FAIL=0
 ok()   { PASS=$((PASS + 1)); printf 'ok: %s\n' "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf 'FAIL: %s\n' "$1"; }
 
-SHARED_FIXTURE_ROOT=""
 SHARED_FIXTURE_BASE_COMMIT=""
 
 CLEANUP_ROOTS=()
@@ -62,19 +26,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# build_fixture <label> — creates one tracked-file archive and extracts it
-# into a fresh mktemp root. The archive avoids the Windows/MSYS tar walk over
-# the live checkout (and never includes .git or ignored node_modules), while
-# preserving the same tracked fixture contents used by CI. The shared
-# fixture is reset between cases so the suite avoids three full checkout
-# walks and three full-index commits on Windows. Echoes the fixture root path.
-#
-# NOTE: this function is always invoked via command substitution
-# (`fixture_root="$(build_fixture ...)"`), which runs it in a SUBSHELL --
-# any CLEANUP_ROOTS mutation made here would not propagate back to the
-# parent shell. Callers therefore register the returned path's parent
-# directory with CLEANUP_ROOTS themselves, in their own (non-subshell)
-# scope.
+# Only TEST-007 needs the tracked checkout and its real repository validator.
 build_fixture() {
   local label="$1"
   local temp_root fixture_root archive
@@ -111,19 +63,6 @@ pass_suite_with_marker() {
     'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"' \
     ': > "$marker_file"' \
     'exit 0' > "${fixture_root}/${relpath}"
-  chmod +x "${fixture_root}/${relpath}"
-}
-
-fail_suite_after_marker() {
-  local fixture_root="$1" relpath="$2"
-  printf '%s\n' \
-    '#!/usr/bin/env bash' \
-    'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"' \
-    'if [[ -f "$marker_file" ]]; then' \
-    '  printf "%s\\n" "bump-gate-loop-consistency-pass" >&2' \
-    '  rm -f "$marker_file"' \
-    'fi' \
-    'exit 1' > "${fixture_root}/${relpath}"
   chmod +x "${fixture_root}/${relpath}"
 }
 
@@ -201,133 +140,30 @@ run_bump_version() {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-001 (AC-001): green path
-# ---------------------------------------------------------------------------
-run_test_001() {
-  echo "=== TEST-001 (AC-001): green path (both loop suites stubbed passing) ==="
-  local fixture_root output
-  fixture_root="$SHARED_FIXTURE_ROOT"
-  reset_fixture_case "$fixture_root"
-  stub_suite "$fixture_root" "tests/validate-repository.sh" 0
-  stub_suite "$fixture_root" "tests/loop-consistency.tests.sh" 0
-  stub_suite "$fixture_root" "tests/loop-inventory.tests.sh" 0
-  rename_changelog_heading "$fixture_root" "$VERSION"
-  commit_fixture_case "$fixture_root" \
-    tests/validate-repository.sh tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
-
-  output="$(mktemp)"
-  if run_bump_version "$fixture_root" "$VERSION" "$output"; then
-    ok "TEST-001 (AC-001): bump-version.sh exits 0 when both loop suites are stubbed passing"
-  else
-    fail "TEST-001 (AC-001): expected exit 0; output: $(cat "$output")"
+run_bump_case() {
+  local id="$1" method="$2" python=python3
+  local SDD_TEST_BASH="${SDD_TEST_BASH:-}"
+  if [[ -n "${MSYSTEM:-}" ]]; then
+    python=python
+    export SDD_TEST_BASH
+    SDD_TEST_BASH="$(cygpath -am "${BASH%.exe}.exe")"
   fi
-
-  local manifest matched
-  matched=1
-  for manifest in "$fixture_root"/plugins/*/.claude-plugin/plugin.json; do
-    [[ -f "$manifest" ]] || continue
-    if grep -qF "\"version\": \"${VERSION}\"" "$manifest"; then
-      matched=0
-      break
-    fi
-  done
-  if [[ $matched -eq 0 ]]; then
-    ok "TEST-001 (AC-001): a plugin manifest now carries the new version string ${VERSION}"
+  if "$python" -B "$ROOT/tests/release-readiness.tests.py" "ReleaseReadiness.$method"; then
+    ok "$id $method"
   else
-    fail "TEST-001 (AC-001): no plugin manifest carries the new version string ${VERSION}"
-  fi
-
-  if grep -qF "v${VERSION}" "$fixture_root/README.md"; then
-    ok "TEST-001 (AC-001): README.md current-release line carries the new version string"
-  else
-    fail "TEST-001 (AC-001): README.md current-release line does not carry ${VERSION}"
-  fi
-
-  if grep -qF "${VERSION}" "$fixture_root/tests/validate-repository.ps1"; then
-    ok "TEST-001 (AC-001): tests/validate-repository.ps1 carries the new version string"
-  else
-    fail "TEST-001 (AC-001): tests/validate-repository.ps1 does not carry ${VERSION}"
-  fi
-
-  rm -f "$output"
-}
-
-# ---------------------------------------------------------------------------
-# TEST-002 (AC-002): red path A — loop-consistency stubbed failing
-# ---------------------------------------------------------------------------
-run_test_002() {
-  echo "=== TEST-002 (AC-002): red path A (loop-consistency.tests.sh stubbed failing) ==="
-  local fixture_root output porcelain
-  fixture_root="$SHARED_FIXTURE_ROOT"
-  reset_fixture_case "$fixture_root"
-  stub_suite "$fixture_root" "tests/validate-repository.sh" 0
-  stub_suite "$fixture_root" "tests/loop-consistency.tests.sh" 1
-  rename_changelog_heading "$fixture_root" "$VERSION"
-  commit_fixture_case "$fixture_root" \
-    tests/validate-repository.sh tests/loop-consistency.tests.sh CHANGELOG.md
-
-  output="$(mktemp)"
-  if run_bump_version "$fixture_root" "$VERSION" "$output"; then
-    fail "TEST-002 (AC-002): expected bump-version.sh to exit non-zero when loop-consistency.tests.sh is stubbed failing, but it exited 0"
-  else
-    ok "TEST-002 (AC-002): bump-version.sh exits non-zero when loop-consistency.tests.sh is stubbed failing"
-  fi
-  rm -f "$output"
-
-  porcelain="$(git -C "$fixture_root" status --porcelain)"
-  if [[ -z "$porcelain" ]]; then
-    ok "TEST-002 (AC-002): git status --porcelain is empty after the run (zero release-surface mutation)"
-  else
-    fail "TEST-002 (AC-002): git status --porcelain is non-empty after the run: ${porcelain}"
+    fail "$id $method"
   fi
 }
 
-# ---------------------------------------------------------------------------
-# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, with a
-# passing marker stub for the preceding loop-consistency leg.
-# ---------------------------------------------------------------------------
-run_test_003() {
-  echo "=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ==="
-  local fixture_root output porcelain
-  fixture_root="$SHARED_FIXTURE_ROOT"
-  reset_fixture_case "$fixture_root"
-  stub_suite "$fixture_root" "tests/validate-repository.sh" 0
-  pass_suite_with_marker "$fixture_root" "tests/loop-consistency.tests.sh"
-  fail_suite_after_marker "$fixture_root" "tests/loop-inventory.tests.sh"
-  rename_changelog_heading "$fixture_root" "$VERSION"
-  commit_fixture_case "$fixture_root" \
-    tests/validate-repository.sh tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
-
-  output="$(mktemp)"
-  if run_bump_version "$fixture_root" "$VERSION" "$output"; then
-    fail "TEST-003 (AC-003): expected bump-version.sh to exit non-zero when loop-inventory.tests.sh is stubbed failing, but it exited 0"
-  else
-    ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing"
-  fi
-  if grep -qF 'bump-gate-loop-consistency-pass' "$output"; then
-    ok "TEST-003 (AC-003): the preceding loop-consistency gate leg ran before the inventory failure"
-  else
-    fail "TEST-003 (AC-003): the preceding loop-consistency gate leg did not emit its execution marker"
-  fi
-  rm -f "$output"
-
-  porcelain="$(git -C "$fixture_root" status --porcelain)"
-  if [[ -z "$porcelain" ]]; then
-    ok "TEST-003 (AC-003): git status --porcelain is empty after the run (zero release-surface mutation)"
-  else
-    fail "TEST-003 (AC-003): git status --porcelain is non-empty after the run: ${porcelain}"
-  fi
-}
-
-# The real repository validator owns source completeness. Loop tests above stub
-# it to avoid repeating its scan; here two independent source defects must stop
-# the actual bump before either loops or any release surface changes.
 run_test_007() {
-  local fixture_root="$SHARED_FIXTURE_ROOT" scenario relative output porcelain
+  local fixture_root scenario relative output porcelain
   if ! command -v pwsh >/dev/null 2>&1; then
     echo "SKIP: release-source bump prerequisite requires pwsh"
     return
   fi
+  fixture_root="$(build_fixture source-prerequisite)"
+  CLEANUP_ROOTS+=("$(dirname "$fixture_root")")
+  commit_fixture_baseline "$fixture_root"
   for scenario in missing-managed-entry stale-current-readme; do
     reset_fixture_case "$fixture_root"
     pass_suite_with_marker "$fixture_root" "tests/loop-consistency.tests.sh"
@@ -414,34 +250,6 @@ run_test_004() {
     ok "TEST-004 (AC-004): no statement (conditional or otherwise) precedes the loop-gate 'for' entry"
   else
     fail "TEST-004 (AC-004): a statement precedes the loop-gate 'for' entry, possibly gating it: ${pre_for}"
-  fi
-}
-
-# ---------------------------------------------------------------------------
-# TEST-005 (AC-005): ordering assertion over the REAL
-# scripts/bump-version.sh source
-# ---------------------------------------------------------------------------
-run_test_005() {
-  echo "=== TEST-005 (AC-005): loop-gate precedes the first mutation step (real scripts/bump-version.sh) ==="
-  local src="$BUMP_VERSION_SH"
-  local gate_line mutation_line
-
-  gate_line=$(awk '/^for suite in tests\/loop-consistency\.tests\.sh tests\/loop-inventory\.tests\.sh; do$/ { print NR; exit }' "$src")
-  mutation_line=$(awk '/sed -i /{ print NR; exit }' "$src")
-
-  if [[ -z "$gate_line" ]]; then
-    fail "TEST-005 (AC-005): loop-gate invocation line not found in scripts/bump-version.sh"
-    return
-  fi
-  if [[ -z "$mutation_line" ]]; then
-    fail "TEST-005 (AC-005): no 'sed -i' mutation line found in scripts/bump-version.sh"
-    return
-  fi
-
-  if [[ "$gate_line" -lt "$mutation_line" ]]; then
-    ok "TEST-005 (AC-005): loop-gate invocation (line ${gate_line}) precedes the first mutation step (line ${mutation_line})"
-  else
-    fail "TEST-005 (AC-005): loop-gate invocation (line ${gate_line}) does NOT precede the first mutation step (line ${mutation_line})"
   fi
 }
 
@@ -544,14 +352,11 @@ run_test_006() {
 # ---------------------------------------------------------------------------
 # Run
 # ---------------------------------------------------------------------------
-SHARED_FIXTURE_ROOT="$(build_fixture shared)"
-CLEANUP_ROOTS+=("$(dirname "$SHARED_FIXTURE_ROOT")")
-commit_fixture_baseline "$SHARED_FIXTURE_ROOT"
-run_test_001
-run_test_002
-run_test_003
+run_bump_case TEST-001 check_bump_green
+run_bump_case TEST-002 check_bump_first_suite_failure
+run_bump_case TEST-003 check_bump_last_suite_failure
 run_test_004
-run_test_005
+run_bump_case TEST-005 check_bump_doctor_failure
 run_test_006
 run_test_007
 check_registration_controls
