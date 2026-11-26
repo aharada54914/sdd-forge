@@ -204,7 +204,11 @@ jobs:
           npm test
 
   cloud-and-ddd:
-    name: cloud-and-ddd (ubuntu-latest / JST)
+    name: cloud-and-ddd (${{ matrix.shard }} / ubuntu-latest / JST)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [cloud, ddd]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -220,6 +224,7 @@ jobs:
           python-version: "3.12"
 
       - name: Run Cloud Orchestration test suites (non-UTC timezone)
+        if: matrix.shard == 'cloud'
         run: |
           python3 tests/cloud-orchestration-contracts.tests.py
           python3 tests/cloud-orchestration-routing.tests.py
@@ -227,21 +232,26 @@ jobs:
           python3 tests/cloud-orchestration-verification.tests.py
 
       - name: Run DDD Concept-Test suite
+        if: matrix.shard == 'ddd'
         run: python3 tests/concept-test.tests.py
 
       - name: Run Concept Test from Codex's versioned plugin cache (#812)
+        if: matrix.shard == 'ddd'
         run: python3 tests/codex-versioned-cache.tests.py
 
       - name: Run SQL Development Contract tests
+        if: matrix.shard == 'cloud'
         run: python3 tests/sql-development-contract.tests.py
 
       - name: Run evidence-bundle checker parity tests (.sh vs .ps1)
+        if: matrix.shard == 'cloud'
         shell: bash
         run: |
           command -v pwsh  # the .ps1 half is skipped silently without it
           python3 tests/check-evidence-bundle-parity.tests.py
 
       - name: Run domain-review finalize wrapper tests (.sh and .ps1)
+        if: matrix.shard == 'ddd'
         shell: bash
         run: python3 tests/domain-review-finalize.tests.py
 

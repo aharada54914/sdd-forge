@@ -1439,21 +1439,38 @@ class NormalDriverRegistration(unittest.TestCase):
                 with self.assertRaises(unittest.SkipTest):
                     case.native_prerequisites()
 
-    def test_catalog_and_every_native_ci_cell_admit_all_six_suites(self):
+    def test_required_cloud_and_ddd_shards_run_each_suite_once(self):
         workflow_text = (ROOT / ".github/workflows/test.yml").read_text(encoding="utf-8")
-        self.assertIn("cloud-and-ddd:", workflow_text)
         needs = re.search(r"^  required-checks:\n(?:    .*\n)*?    needs: \[([^\]]+)\]", workflow_text, re.M)
         self.assertIsNotNone(needs, "required-checks must declare needs")
         self.assertIn("cloud-and-ddd", [job.strip() for job in needs.group(1).split(",")])
         self.assertNotIn("continue-on-error: true", workflow_text)
-        for suite in (
-            "tests/cloud-orchestration-contracts.tests.py",
-            "tests/cloud-orchestration-routing.tests.py",
-            "tests/cloud-orchestration-execution.tests.py",
-            "tests/cloud-orchestration-verification.tests.py",
-        ):
-            self.assertIn(suite, workflow_text, suite)
-            self.assertTrue((ROOT / suite).is_file(), suite)
+        job = re.search(r"^  cloud-and-ddd:\n(.*?)(?=^  [\w-]+:|\Z)", workflow_text, re.M | re.S)
+        self.assertIsNotNone(job, "cloud-and-ddd job must exist")
+        self.assertIn("        shard: [cloud, ddd]", job.group(1))
+        routed_steps = []
+        for step in re.split(r"^      - ", job.group(1), flags=re.M):
+            run = re.search(r"^        run: (.+)((?:\n          .*)*)", step, re.M)
+            if not run:
+                continue
+            scalar, block = run.groups()
+            commands = block if scalar == "|" else scalar
+            suites = re.findall(r"^[ \t]*python3 tests/([\w-]+)\.tests\.py[ \t]*$", commands, re.M)
+            if suites:
+                shard = re.search(r"^        if: matrix\.shard == '(cloud|ddd)'$", step, re.M)
+                self.assertIsNotNone(shard, step)
+                routed_steps.append((shard.group(1), suites))
+                for suite in suites:
+                    self.assertTrue((ROOT / "tests" / f"{suite}.tests.py").is_file(), suite)
+        self.assertCountEqual(routed_steps, [
+            ("cloud", ["cloud-orchestration-contracts", "cloud-orchestration-routing",
+                       "cloud-orchestration-execution", "cloud-orchestration-verification"]),
+            ("cloud", ["sql-development-contract"]),
+            ("cloud", ["check-evidence-bundle-parity"]),
+            ("ddd", ["concept-test"]),
+            ("ddd", ["codex-versioned-cache"]),
+            ("ddd", ["domain-review-finalize"]),
+        ])
 
 
 if __name__ == "__main__":
