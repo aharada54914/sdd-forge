@@ -60,6 +60,9 @@ jobs:
       - name: Install AST dependencies
         run: npm ci --prefix plugins/sdd-quality-loop/rules --ignore-scripts
 
+      - name: Install locked MCP dependencies for cloud and bundle checks
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts --no-audit --no-fund
+
       - name: Verify generated catch provenance for reviewed distribution changes
         env:
           BASE: ${{ steps.review.outputs.base }}
@@ -71,7 +74,6 @@ jobs:
           else
             [[ $? == 1 ]] || exit 1
           fi
-          npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts --no-audit --no-fund
           node --test tests/v2-agent-lint-bundle.test.mjs
 
       - name: Run v2 Lightweight Guardrails & ADR-0054 Self-Verification test suite

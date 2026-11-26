@@ -852,7 +852,7 @@ DSL_LOOP_FLAT="$(printf '%s\n' "$DSL_LOOP_SECTION" | tr '\n' ' ' | tr -s '[:spac
 
 # First line number (1-based, within $DSL_LOOP_SECTION) matching regex $1.
 t003_loop_line_of() {
-    printf '%s\n' "$DSL_LOOP_SECTION" | grep -n -iE "$1" | head -1 | cut -d: -f1
+    { grep -nim1 -E "$1" <<< "$DSL_LOOP_SECTION" || [ "$?" -eq 1 ]; } | cut -d: -f1
 }
 
 echo ""
@@ -924,19 +924,19 @@ else
 fi
 
 echo ""
-echo "=== TEST-037 (AC-021.1): a fresh scan after regeneration requires its own override decision -- a prior override does not carry forward ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'fresh scan after any regeneration requires its own override decision'; then
-    ok "TEST-037: a fresh scan after any regeneration is stated to require its own override decision"
+echo "=== TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused ==="
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-037; then
+    ok "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 else
-    fail "TEST-037: step 5 must state that a fresh scan after regeneration requires its own override decision"
+    fail "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 fi
 
 echo ""
-echo "=== TEST-038 (AC-021.2): this holds even when the new scan reproduces IDENTICAL findings -- recurrence is not evidence the human need not be asked again ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'reproduces findings identical to the ones already overridden'; then
-    ok "TEST-038: the no-carry-forward rule is stated to hold even for identical findings, not only different ones"
+echo "=== TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override ==="
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-038; then
+    ok "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 else
-    fail "TEST-038: step 5 must state the no-carry-forward rule holds even when findings are identical to a prior override"
+    fail "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 fi
 
 echo ""
@@ -989,20 +989,19 @@ assert_field_row_present "TEST-068 (Egress-Consent-Expiry)"   '| `Egress-Consent
 
 echo ""
 echo "=== TEST-043 (AC-025): on decline, no push, nothing written to Design-Source as an override, remediate before rescan -- distinguished from Egress-Consent's decline/withdrawal ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'nothing is written to' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'Design-Source' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'as an override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'remediates the flagged mockups' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'distinct from' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq "decline or withdrawal"; then
-    ok "TEST-043: the decline outcome (no push, nothing written as override, remediate) is stated and distinguished from Egress-Consent's own decline/withdrawal vocabulary"
+DSL_CONSENT_STEP="$(t003_section_between "$DSL" '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] ')"
+if grep -Fq '上書きを辞退したら送信を止め' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '`Design-Source` に `Egress-Scan: overridden` を記録しない' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '指摘されたモックアップを修正してから再検査する' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'この辞退は今回の検査結果だけに適用し、送信同意 `Egress-Consent` の辞退や撤回としては扱わない' <<< "$DSL_CONSENT_STEP"; then
+    ok "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 else
-    fail "TEST-043: the decline outcome must be stated in full and distinguished from Egress-Consent's decline/withdrawal vocabulary"
+    fail "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 fi
 
 echo ""
 echo "=== TEST-044 (AC-026): step 5 remains the single named point -- not duplicated, not relocated relative to steps 4 and 6 ==="
-t044_count=$(grep -cE '^5\. \*\*Pre-upload check point' "$DSL")
+t044_count=$(grep -cE '^5\. \*\*Pre-upload check point' "$DSL" || [ "$?" -eq 1 ])
 t044_s4=$(t003_loop_line_of '^4\. \*\*Obtain informed consent')
 t044_s5=$(t003_loop_line_of '^5\. \*\*Pre-upload check point')
 t044_s6=$(t003_loop_line_of '^6\. \*\*Push')
@@ -1088,7 +1087,7 @@ fi
 # assertion content, so calling it here does not modify that block.
 # ============================================================================
 
-CDW="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+CDW="${REPO_ROOT}/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 
 CDW_FLAT="$(t003_flatten_file "$CDW")"
 

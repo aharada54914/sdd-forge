@@ -107,6 +107,36 @@ function profileHandoff() {
   }
 }
 
+function installedCoreDocument(installRoot, name) {
+  const file = name + '.md';
+  const relative = core + '/templates/' + file;
+  const document = readFileSync(path.join(installRoot, relative), 'utf8');
+  assert.equal(document, read(relative), 'installed template differs from source: ' + file);
+  const skill = readFileSync(path.join(installRoot, core, 'SKILL.md'), 'utf8');
+  assert.ok(skill.split(/\r?\n/).some(line => line.trim() ===
+    '- `templates/' + file + '` → `specs/<feature>/' + file + '`:'), 'missing Core output route: ' + file);
+  assert.match(document, /^## Spec Amendments\s*$/m);
+  if (name === 'requirements') {
+    const lines = document.split(/\r?\n/);
+    for (const id of ['001', '002']) {
+      assert.ok(lines.some(line => line.startsWith('- **REQ-' + id + '**:')));
+      assert.ok(lines.some(line => line.startsWith('- **AC-' + id + '** (REQ-' + id + '):')));
+    }
+  } else if (name === 'design') {
+    const renderer = path.join(installRoot, bootstrap, 'scripts/render-design-template.mjs');
+    assert.ok(skill.includes('`node <sdd-bootstrap>/scripts/render-design-template.mjs --risk '));
+    const rendered = run(process.execPath, [renderer, '--risk', 'high']).stdout;
+    assert.match(rendered, /^## データ \/ インターフェース契約$/m);
+    assert.match(rendered, /^## 影響範囲・リスク考慮\r?\n\s*- [^\n]*セキュリティ・移行・ロールバック/m);
+    assert.match(rendered, /^## テスト方針\r?\n\s*- [^\n]*AC-NNN/m);
+  } else {
+    assert.match(document, /^## T-001 [^\n]+\r?\nApproval: Draft\r?\nStatus: Planned\r?\nRisk: standard$/m);
+    assert.match(document, /^### Scope$/m);
+    assert.match(document, /^### Done When\r?\n- [^\n]*AC-001[^\n]*AC-002/m);
+    assert.match(document, /^### Blockers\r?\n- None$/m);
+  }
+}
+
 function layers() {
   const script = bootstrap + '/scripts/render-design-template.mjs';
   for (const risk of ['low', 'standard', 'high']) {
@@ -204,6 +234,7 @@ function designSystem(project, powershell) {
 
 const checks = new Map([
   ['interview', interview], ['TEST-006', humanQuestions], ['TEST-017', bugfixReview], ['TEST-019', profileHandoff],
+  ...['requirements', 'design', 'tasks'].map(doc => ['TEST-007-' + doc, (_, installRoot) => installedCoreDocument(installRoot, doc)]),
   ['layers', layers], ['traceability', traceability],
   ['design-system', designSystem], ['tool-unavailable', () => fallback('利用不可')],
   ['auth-failed', () => fallback('認証失敗')],

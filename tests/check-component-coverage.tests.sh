@@ -95,10 +95,13 @@ if [ "$schema" = "resolve-component-paths-diagnose/v1" ]; then
 else
   fail "TEST-029.1: expected resolve-component-paths-diagnose/v1 schema, got $schema"
 fi
-if ! grep -q "resolve-component-paths --diagnose\|resolve-component-paths.sh --diagnose" "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"; then
+gate_skill="${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+if grep -q "resolve-component-paths --diagnose\|resolve-component-paths.sh --diagnose" "$gate_skill"; then
+  fail "TEST-029.2: --diagnose must never appear in quality-gate/SKILL.md's Process"
+elif [[ $? -eq 1 ]]; then
   ok "TEST-029.2: quality-gate/SKILL.md's ## Process never invokes --diagnose"
 else
-  fail "TEST-029.2: --diagnose must never appear in quality-gate/SKILL.md's Process"
+  fail "TEST-029.2: could not read $gate_skill"
 fi
 
 # ============================================================================
@@ -373,8 +376,8 @@ if printf '%s' "$matrix_block" | grep -Eq '^high[[:space:]]+=.*check-component-c
 else
   fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
 fi
-process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-if [[ "$process_block" == *check-component-coverage* ]]; then
+if process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "$gate_skill") &&
+   [[ "$process_block" == *check-component-coverage* ]]; then
   ok "TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage"
 else
   fail "TEST-036.2: expected check-component-coverage inside SKILL.md's ## Process section"

@@ -41,7 +41,6 @@ ux="$TEMPLATES/ux-spec.template.md"
 frontend="$TEMPLATES/frontend-spec.template.md"
 infra="$TEMPLATES/infra-spec.template.md"
 security="$TEMPLATES/security-spec.template.md"
-DESIGN="$TEMPLATES/design.template.md"
 
 assert_file "$ux" "TEST-001 UX layer template exists"
 assert_file "$frontend" "TEST-001 frontend layer template exists"
@@ -91,7 +90,6 @@ assert_contains "$security" '^## OWASP Mapping$' "TEST-005 OWASP mapping"
 assert_contains "$security" '^## Secrets Management$' "TEST-005 secrets"
 assert_contains "$security" 'SBOM|Supply Chain' "TEST-005 supply chain"
 assert_contains "$security" '^## Security Tests$' "TEST-005 security tests"
-assert_contains "$DESIGN" 'workflow position.*owning task|owning task.*workflow position' "TEST-007 activation clauses key off workflow position"
 
 tmp=${TMPDIR:-/tmp}/sdd-layer-template-test-$$
 mkdir -p "$tmp"
@@ -196,10 +194,9 @@ security-spec.template.md~Entity.*Classification.*At Rest.*In Transit.*Retention
 security-spec.template.md~SBOM|Supply Chain~supply-chain controls
 EOF
 
-# RT-20260821-001: pin the delivered risk-field shapes. Nothing previously
-# asserted that the two task templates carry the four risk fields, or that
-# the classification policy states the legacy-mode rule (its absent->medium
-# paragraph contradicted the other three normative docs for 14 months).
+# RT-20260821-001 covers the Core risk default, the legacy task fields and
+# the classification policy. TEST-007 checks installed Core documents in
+# bootstrap-cross-layer-index.tests.sh.
 assert_contains "$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/templates/tasks.md" '^Risk: standard$' "RT001: Core task template carries the risk field"
 for field in "Risk Rationale:" "Required Workflow:" "Requirements:"; do
   if grep -q "^${field}" "$TEMPLATES/tasks.template.md"; then

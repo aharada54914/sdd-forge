@@ -155,6 +155,7 @@ jobs:
           import assert from 'node:assert/strict';
           import fs from 'node:fs';
           import path from 'node:path';
+          import { countReleaseHeadings } from './.github/scripts/changelog-version.mjs';
 
           const tag = process.env.RELEASE_TAG || '';
           assert.match(tag, /^v[0-9]+\.[0-9]+\.[0-9]+$/, `Invalid release tag: ${tag}`);
@@ -165,7 +166,8 @@ jobs:
           assert.ok(heading?.startsWith(`v${expected} — `), `README.md current release must be v${expected}`);
 
           const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-          assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'), `CHANGELOG.md must contain ## v${expected}`);
+          const headingCount = countReleaseHeadings(changelog, expected);
+          assert.equal(headingCount, 1, `CHANGELOG.md must contain exactly one ## v${expected} heading (found ${headingCount})`);
 
           for (const entry of fs.readdirSync('plugins', { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;

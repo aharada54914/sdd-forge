@@ -22,7 +22,7 @@ user-invocable: false
    - 出典（Issue URL の場合は `gh issue view` / 要件テキスト / `investigation.md` / `reports/diagnosis/*.md`）と関連コードを確認する。
    - `sdd/knowledge/INDEX.md`（および `sdd/knowledge/review-perspectives.yaml`）が存在する場合は作業前に参照し、既存仕様・ルール・プロダクト固有の観点をコンテキストへ取り込む。
    - 重要な設計分岐や曖昧な要件は推測せず、2〜3 案の比較表と推奨案を提示して人間へ確認する（未決事項は 4 分類の `Open Questions` に残す）。
-   - `domain/` がプロジェクトルートに存在する場合のみ、`concept-test` を先に実行し、その後 `domain-sync` で承認済みコンテキスト・用語を同期する。`concept-test` の検証は `domain/context-map.md`（`Domain-Model-Status:`）と `domain/domain-contract.json`（`meta.status`）の**両方が `Approved`** でなければ `BLOCK` となり、仕様生成はそこで停止する（片側だけの承認・未承認・提案の入力変更も停止）。`domain-sync` の「仕様生成を止めない」は `concept-test` が `CONTINUE` した後の注入段階だけの説明である。`domain/` 不在時は両方をオーバーヘッドゼロでスキップする（`domain-sync skipped: no domain/ directory`）。`design-system/` が存在する場合も既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
+   - `domain/` がプロジェクトルートに存在する場合のみ、`concept-test` を先に実行し、その後 `domain-sync` で承認済みコンテキスト・用語を同期する。`concept-test` の検証は `domain/context-map.md`（`Domain-Model-Status:`）と `domain/domain-contract.json`（`meta.status`）の**両方が `Approved`** でなければ `BLOCK` となり、仕様生成はそこで停止する（片側だけの承認・未承認・提案の入力変更も停止）。`domain-sync` の「仕様生成を止めない」は `concept-test` が `CONTINUE` した後の注入段階だけの説明である。`domain/` 不在時は両方をオーバーヘッドゼロでスキップする（`domain-sync skipped: no domain/ directory` を1行記録する）。`design-system/` が存在する場合も既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
 
 2. **タスク単位のリスク判定と試作/本番昇格モード（`--proto` / `--harden`）**:
    - `--risk` 指定があればそれを優先（`--lite` / `--proto` → `low`、`--full` / `--harden` → `high` または既存確定仕様を引き継いだ `standard|high`）。

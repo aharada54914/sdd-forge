@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { countReleaseHeadings } from '../.github/scripts/changelog-version.mjs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -353,7 +354,8 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.ok(heading?.startsWith(`v${expected} — `), `README.md current release must be v${expected}`);
 
     const changelog = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
-    assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'));
+    const headingCount = countReleaseHeadings(changelog, expected);
+    assert.equal(headingCount, 1, `CHANGELOG.md must contain exactly one ## v${expected} heading (found ${headingCount})`);
 
     for (const entry of fs.readdirSync(path.join(REPO_ROOT, 'plugins'), { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;

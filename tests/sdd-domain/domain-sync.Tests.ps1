@@ -172,14 +172,26 @@ Describe "sdd-core-spec invokes domain-sync before the three canonical outputs" 
 
     BeforeAll {
         $script:bootstrapText = Get-Content -Raw -Encoding UTF8 -LiteralPath $bootstrapSkillPath
+        $intake = [regex]::Match($script:bootstrapText, '(?ms)^## Process\s+1\. (.+?)(?=^2\. )')
+        $script:intakeSentences = $intake.Groups[1].Value -split '。'
     }
 
-    It "calls Concept Test and domain-sync in the domain-aware intake" {
-        $script:bootstrapText | Should Match '`concept-test` および `domain-sync`'
+    It "runs Concept Test first and then synchronizes when the project root has domain/" {
+        $presentGuard = '`domain/`[^、。]*プロジェクトルート[^、。]*存在する場合のみ'
+        $present = @($script:intakeSentences | Where-Object { $_ -cmatch $presentGuard })
+        $present.Count | Should Be 1
+        $present[0] | Should MatchExactly ($presentGuard + '[、,]\s*`concept-test`\s*を(?:先に|最初に)実行し[、,]\s*(?:その後|次に|続いて)\s*`domain-sync`\s*(?:で[^、,。]*同期する|を実行する)\s*$')
     }
 
-    It "documents that absence of domain/ produces unchanged behavior (AC-010)" {
-        $script:bootstrapText | Should Match '`domain/` 不在時は `domain-sync skipped: no domain/ directory`'
+    It "skips both domain steps and records the single prescribed message when domain/ is absent (AC-010)" {
+        $absent = @($script:intakeSentences | Where-Object {
+            $_ -cmatch '`domain/`\s*(?:不在時|が存在しない場合)'
+        })
+        $absent.Count | Should Be 1
+        $absent[0] | Should MatchExactly '(?:両方|双方)を[^、,。]*スキップする(?=\s*(?:[（(]|$))'
+        $skipMessage = [regex]::Escape('domain-sync skipped: no domain/ directory')
+        $absent[0] | Should MatchExactly ('[（(]\s*`' + $skipMessage + '`\s*を\s*1\s*行(?:記録|出力)する\s*[）)]\s*$')
+        [regex]::Matches($script:bootstrapText, $skipMessage).Count | Should Be 1
     }
 
     It "runs intake with domain-sync before generating requirements, design and tasks" {

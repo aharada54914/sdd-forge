@@ -1114,19 +1114,22 @@ if ($DslFlat -match 'explicit human override' `
 }
 
 Write-Host ""
-Write-Host "=== TEST-037 (AC-021.1): a fresh scan after regeneration requires its own override decision -- a prior override does not carry forward ==="
-if ($DslFlat.Contains("fresh scan after any regeneration requires its own override decision")) {
-    Ok "TEST-037: a fresh scan after any regeneration is stated to require its own override decision"
+$OverridePython = if (Get-Command python3 -ErrorAction SilentlyContinue) { 'python3' } else { 'python' }
+Write-Host "=== TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused ==="
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-037
+if ($LASTEXITCODE -eq 0) {
+    Ok "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 } else {
-    Fail "TEST-037: step 5 must state that a fresh scan after regeneration requires its own override decision"
+    Fail "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 }
 
 Write-Host ""
-Write-Host "=== TEST-038 (AC-021.2): this holds even when the new scan reproduces IDENTICAL findings -- recurrence is not evidence the human need not be asked again ==="
-if ($DslFlat.Contains("reproduces findings identical to the ones already overridden")) {
-    Ok "TEST-038: the no-carry-forward rule is stated to hold even for identical findings, not only different ones"
+Write-Host "=== TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override ==="
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-038
+if ($LASTEXITCODE -eq 0) {
+    Ok "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 } else {
-    Fail "TEST-038: step 5 must state the no-carry-forward rule holds even when findings are identical to a prior override"
+    Fail "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 }
 
 Write-Host ""
@@ -1178,15 +1181,14 @@ Assert-FieldRowPresent "TEST-068 (Egress-Consent-Expiry)" '| `Egress-Consent-Exp
 
 Write-Host ""
 Write-Host "=== TEST-043 (AC-025): on decline, no push, nothing written to Design-Source as an override, remediate before rescan -- distinguished from Egress-Consent's decline/withdrawal ==="
-if ($DslFlat.Contains("nothing is written to") `
-        -and $DslFlat.Contains("Design-Source") `
-        -and $DslFlat.Contains("as an override") `
-        -and $DslFlat -match 'remediates the flagged mockups' `
-        -and $DslFlat.Contains("distinct from") `
-        -and $DslFlat.Contains("decline or withdrawal")) {
-    Ok "TEST-043: the decline outcome (no push, nothing written as override, remediate) is stated and distinguished from Egress-Consent's own decline/withdrawal vocabulary"
+$DslConsentStep = Get-T003SectionBetween $Dsl '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] '
+if ($DslConsentStep.Contains('上書きを辞退したら送信を止め') `
+        -and $DslConsentStep.Contains('`Design-Source` に `Egress-Scan: overridden` を記録しない') `
+        -and $DslConsentStep.Contains('指摘されたモックアップを修正してから再検査する') `
+        -and $DslConsentStep.Contains('この辞退は今回の検査結果だけに適用し、送信同意 `Egress-Consent` の辞退や撤回としては扱わない')) {
+    Ok "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 } else {
-    Fail "TEST-043: the decline outcome must be stated in full and distinguished from Egress-Consent's decline/withdrawal vocabulary"
+    Fail "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 }
 
 Write-Host ""
@@ -1285,7 +1287,7 @@ if ($DslFlat -match 'unconditionally blocking' `
 # that block.
 # ============================================================================
 
-$Cdw = Join-Path $RepoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+$Cdw = Join-Path $RepoRoot "plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 $CdwFlat = Get-T003FlattenedFile $Cdw
 
 Write-Host ""

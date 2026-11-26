@@ -35,7 +35,11 @@ with tempfile.TemporaryDirectory(prefix='codex-config-') as scratch:
     ordinary_entry.touch()
     env = dict(os.environ, SDD_CODEX_HOME=str(home), TEST_REPO=str(repo), TEST_PAYLOAD=str(payload))
     bash_functions = []
-    for file, function in [('install.sh', 'register_codex_mcp'), ('uninstall.sh', 'unregister_codex_mcp')]:
+    for file, function in [
+        ('install.sh', 'filter_codex_block'),
+        ('install.sh', 'register_codex_mcp'),
+        ('uninstall.sh', 'unregister_codex_mcp'),
+    ]:
         match = re.search(r'^' + function + r'\(\) \{\n.*?^\}', (repo / file).read_text(), re.M | re.S)
         assert match, function
         bash_functions.append(match.group())

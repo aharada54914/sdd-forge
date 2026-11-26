@@ -41,6 +41,8 @@ PowerShell 版は `pwsh -NoProfile -File tests/design-system-contract.tests.ps1`
 
 ## 旧検査と現行契約の対応
 
+2026-11-26 追記。下表の index TEST-007 の保留7件と layer-templates の有効化条件1件は、所有者の判断により退役した。現在の配布3文書の検証と設計同期の再承認条件は[決定記録](bootstrap-and-design-scan-decisions.md)に従う。
+
 Core が生成する3ファイルと full/lite の置換は `docs/adr/0051-lightweight-guardrails-and-sdd-core.md` の Decision 2 と `plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md` の生成手順に従う。次の判断保留分はテストに残っており、失敗は各スイートの終了コードに反映される。
 
 | スイート内のID | 現行契約と残った判断 |

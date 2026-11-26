@@ -49,7 +49,12 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
      送信先を変えた場合、元のプロジェクトの同意は引き継がない。新しい送信先に有効な同意がなく、他の送信条件を満たす場合は、送信前に改めて同意を求める。
      利用者はセッション中でも同意を撤回できる。撤回を受けたら、同じ機能・セッション・送信先の判断を `withdrawn` として `Design-Source` に追記し、次の判定では `records` の末尾に渡す。撤回後、他の送信条件を満たす次の同一範囲のアップロードは `prompt` となり、改めて同意を求める。
    判断結果に `audit` がある場合は、`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先・範囲と、返された `party`（`Egress-Consent-Party`）、記録時の ISO-8601 時刻（`Egress-Consent-At`）を残す。
-   アップロード直前に対象の `specs/<feature>/mockups/` を同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` で検査する。終了0なら `Egress-Scan: clean` と検査時刻を記録する。終了1なら検出内容を提示して送信を止め、その検査結果について明示的な上書き承認を得た場合だけ `Egress-Scan: overridden` と時刻を記録して続ける。終了2や異常終了ではツールを復旧して再検査するまで送信しない。
+   アップロード直前とモックアップの再生成後は毎回、次の送信前検査を行う。手順3の送信同意を先に確認し、送信予定の `specs/<feature>/mockups/` のファイルだけを、送信時と同じ相対パス・内容で1つのディレクトリに用意する。
+   `python3 <sdd-bootstrap>/scripts/design-sync-override.py sh <送信予定ディレクトリ>` を実行する。PowerShell では `sh` を `ps1` に替える。内部で同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` が送信用コピーを検査する。標準入力の JSON に現在の `feature`、`session`、実サービス名 `service`、実際に選択したプロジェクトの `destination_id` を渡す。`latest_override` にはこの機能・セッションについて利用者が最後に示した検査例外の判断だけを渡す。記録がない、不明、または無効になった場合は `null` とし、以前の許可を探し直さない。送信同意の記録はここには使わない。
+   - 終了0の `clean` は `Egress-Scan: clean` と検査時刻を記録する。`reuse` は有効な例外承認と、送信内容（全相対パスとバイト）・送信先（サービスと対象ID）・今回の所見がすべて一致する場合だけ返る。いずれも `upload_directory` が指す検査済みコピーだけを、その相対パス・内容のまま当該送信先へ送り、使用後にコピーを削除する。
+   - 終了1の `review` は `findings` を利用者に示して停止する。この `identity` に対して明示的な上書き承認を得たら、`Design-Source` に `Egress-Scan: overridden`、時刻、承認者と `identity` を記録する。`latest_override` に `{"decision":"granted","party":"<承認者>","identity":<承認したidentity>}` を渡して再検査し、その結果に従う。
+   - 辞退・撤回後は保持した許可を無効にし、次の検査に渡す最新判断はそれぞれ `{"decision":"declined"}`・`{"decision":"withdrawn"}` とする。終了2または異常終了では、入力またはツールを復旧して再検査するまで送信しない。
+   利用者が上書きを辞退したら送信を止め、`Design-Source` に `Egress-Scan: overridden` を記録しない。指摘されたモックアップを修正してから再検査する。この辞退は今回の検査結果だけに適用し、送信同意 `Egress-Consent` の辞退や撤回としては扱わない。
 4. **Iterate & Finalize**: フィードバックを反映して再生成・再確認し、確定した視覚方針を `specs/<feature>/design.md` と `requirements.md`（UX 受入条件）へ反映する。
 
 ## Boundaries

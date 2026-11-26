@@ -23,6 +23,7 @@ SUITES = [
     )
 ]
 DOCTOR = "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
+CHANGELOG_SOURCES = (".github/scripts/changelog-version.mjs", ".github/scripts/vendor/marked/marked.mjs")
 
 
 def workflow_jobs(filename):
@@ -120,12 +121,12 @@ class ReleaseReadiness(unittest.TestCase):
             "bash -n install.sh && bash -n uninstall.sh",
         ])
 
-    def test_ci_and_release_verify_the_first_readme_version_heading(self):
+    def version_check_commands(self):
         version = "1.2.3"
         self.env["RELEASE_TAG"] = f"v{version}"
         suite = "tests/v2-hooks-and-ci.test.mjs"
-        # Node 20 initializes the Shadow suite even when the name filter selects only the README case.
-        for path in (suite, ".github/workflows/sdd-guardrails.yml"):
+        # Node 20 initializes the Shadow suite even when the filter selects only the version check.
+        for path in (suite, ".github/workflows/sdd-guardrails.yml", *CHANGELOG_SOURCES):
             (self.root / path).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / path, self.root / path)
         for path in ("plugins/sdd-ship/.claude-plugin/plugin.json", "mcp/sdd-forge-mcp/package.json"):
@@ -134,11 +135,25 @@ class ReleaseReadiness(unittest.TestCase):
             write(self.root, path, json.dumps({"plugins": [{"name": "sdd-ship", "version": version}]}))
         for path in ("mcp/sdd-forge-mcp/src/server.ts", "mcp/sdd-forge-mcp/dist/index.js"):
             write(self.root, path, f'const release = {{version: "{version}"}};\n')
-        write(self.root, "CHANGELOG.md", f"## v{version}\n")
-
         ci_case = "all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
         ci = ["node", "--test", "--test-reporter=tap", f"--test-name-pattern={ci_case}", suite]
         release = self.step("loop-gate", "Verify release tag matches all plugin manifests and CHANGELOG")["run"]
+        return (("CI", ci), ("release", ["bash", "-eo", "pipefail", "-c", release]))
+
+    def check_version_case(self, commands, case, failure=None):
+        for name, command in commands:
+            with self.subTest(case=case, entry=name):
+                output = self.run_cli(command, failure is None)
+                if failure is not None:
+                    self.assertIn(failure, output)
+                elif name == "CI":
+                    self.assertRegex(output, r"(?m)^# pass 1$")
+                else:
+                    self.assertIn("Release version consistency verified for v1.2.3", output)
+
+    def test_ci_and_release_verify_the_first_readme_version_heading(self):
+        commands = self.version_check_commands()
+        write(self.root, "CHANGELOG.md", "## v1.2.3\n")
         for case, readme, valid in (
             ("current", "# Project\n\nRelease notes\n\nv1.2.3 — Current\nv1.2.2 — History\n", True),
             ("history only", "# Project\n\nv1.2.2 — Current\nv1.2.3 — History\n", False),
@@ -146,15 +161,31 @@ class ReleaseReadiness(unittest.TestCase):
             ("after line five", "# Project\n\nRelease notes\n\n\nv1.2.3 — History\n", False),
         ):
             write(self.root, "README.md", readme)
-            for name, command in (("CI", ci), ("release", ["bash", "-eo", "pipefail", "-c", release])):
-                with self.subTest(case=case, entry=name):
-                    output = self.run_cli(command, valid)
-                    if not valid:
-                        self.assertIn("README.md current release must be v1.2.3", output)
-                    elif name == "CI":
-                        self.assertRegex(output, r"(?m)^# pass 1$")
-                    else:
-                        self.assertIn("Release version consistency verified for v1.2.3", output)
+            self.check_version_case(commands, case, None if valid else "README.md current release must be v1.2.3")
+
+    def test_ci_and_release_require_one_changelog_heading_for_the_candidate(self):
+        commands = self.version_check_commands()
+        write(self.root, "README.md", "v1.2.3 — Current\n")
+        for case, changelog, count in (
+            ("one", "## v1.2.3\n", 1),
+            ("missing", "## Unreleased\n", 0),
+            ("duplicate", "## v1.2.3 (new)\n## v1.2.2\n## v1.2.3\n", 2),
+            ("indented duplicate", "## v1.2.3\n  ## v1.2.3\n", 2),
+            ("heading with tabs", "##\tv1.2.3\t(date)\n", 1),
+            ("setext example", "v1.2.3\n-------\n", 0),
+            ("similar versions", "## v1.2.30\n## v1.2.3-rc.1\n## v1x2x3\n", 0),
+            ("history only", "## v1.2.2\nSee v1.2.3 for the new release.\n", 0),
+            ("HTML comment only", "<!-- proposed entry\n## v1.2.3\n-->\n", 0),
+            ("heading and HTML comment", "## v1.2.3\n<!-- example\n## v1.2.3\n-->\n", 1),
+            ("preformatted HTML example", "<pre>\n## v1.2.3\n</pre>\n", 0),
+            ("fenced example only", "````md\n## v1.2.3\n```\n## v1.2.3\n````\n", 0),
+            ("heading and tilde example", "## v1.2.3\r\n~~~md\r\n## v1.2.3\r\n~~~\r\n", 1),
+            ("heading after example", "```md\n## v1.2.3\n```\n## v1.2.3\n", 1),
+            ("with history", "## Unreleased\n## v1.2.3 (dated release)\n## v1.2.2\n## v1.2.1\n", 1),
+        ):
+            write(self.root, "CHANGELOG.md", changelog)
+            diagnostic = f"CHANGELOG.md must contain exactly one ## v1.2.3 heading (found {count})"
+            self.check_version_case(commands, case, None if count == 1 else diagnostic)
 
     def test_admission_uses_ci_for_the_tagged_commit(self):
         restriction = "Restrict manual dispatch to main or a tag ref"
@@ -168,24 +199,55 @@ class ReleaseReadiness(unittest.TestCase):
 case "$1 $2" in
   "api repos/fixture/repo/git/refs/tags/v1.0.0") cat tag.json ;;
   "api repos/fixture/repo/actions/workflows/test.yml/runs?head_sha=$SHA&status=success&per_page=100")
-    test "$3" = --paginate && cat runs.json ;;
+    test "$#" -eq 3 && test "$3" = --paginate && cat runs.json && exit "$RUNS_EXIT" ;;
   *) exit 6 ;;
 esac
 """)
         gh.chmod(0o755)
-        self.env.update(PATH=f"{self.root}:{self.env['PATH']}", SHA=sha, INPUT_TAG="v1.0.0",
+        self.env.update(PATH=f"{self.root}:{self.env['PATH']}", SHA=sha, INPUT_TAG="v1.0.0", RUNS_EXIT="0",
                         GITHUB_OUTPUT=str(self.root / "outputs"), GITHUB_REPOSITORY="fixture/repo")
         repository = {"full_name": "fixture/repo"}
         run = dict(head_sha=sha, status="completed", conclusion="success", event="push",
                    head_branch="main", path=".github/workflows/test.yml",
                    repository=repository, head_repository=repository)
-        for changes in ({}, {"head_sha": "2" * 40}, {"conclusion": "failure"}, {"event": "pull_request"}):
+        def check_response(response, allowed):
+            output = write(self.root, "outputs", "")
+            write(self.root, "runs.json", response)
+            self.run_step("ci-green", "Verify CI success for the release commit", allowed)
+            wanted = ["tag=v1.0.0", f"sha={sha}", "pkg=sdd-forge-v1.0.0.tar.gz"]
+            self.assertEqual(output.read_text().splitlines(), wanted if allowed else [])
+
+        for changes, allowed in (
+            ({}, True),
+            ({"event": "workflow_dispatch"}, True),
+            ({"event": "workflow_dispatch", "head_branch": "v1.0.0"}, True),
+            ({"event": "pull_request"}, False),
+            ({"event": "pull_request_target"}, False),
+            ({"event": "merge_group"}, False),
+            ({"head_branch": "topic"}, False),
+            ({"head_sha": "2" * 40}, False),
+            ({"status": "in_progress"}, False),
+            ({"conclusion": "failure"}, False),
+            ({"conclusion": "skipped"}, False),
+            ({"path": ".github/workflows/other.yml"}, False),
+            ({"repository": {"full_name": "other/repo"}}, False),
+            ({"head_repository": {"full_name": "other/repo"}}, False),
+            ({"head_repository": None}, False),
+        ):
             with self.subTest(changes=changes):
-                output = write(self.root, "outputs", "")
-                write(self.root, "runs.json", json.dumps({"workflow_runs": [dict(run, **changes)]}))
-                self.run_step("ci-green", "Verify CI success for the release commit", not changes)
-                wanted = ["tag=v1.0.0", f"sha={sha}", "pkg=sdd-forge-v1.0.0.tar.gz"]
-                self.assertEqual(output.read_text().splitlines(), [] if changes else wanted)
+                check_response(json.dumps({"total_count": 99, "workflow_runs": [dict(run, **changes)]}), allowed)
+
+        for response in ("", "null", "not-json", "{}", '{"total_count":99,"workflow_runs":[]}',
+                         '{"workflow_runs":{}}', '{"workflow_runs":[null]}'):
+            with self.subTest(response=response):
+                check_response(response, False)
+
+        pr_runs = [dict(run, event="pull_request", id=n) for n in range(100)]
+        pages = [json.dumps({"total_count": 101, "workflow_runs": rows}) for rows in (pr_runs, [run])]
+        check_response("\n".join(pages), True)
+        # An API error must win even if its partial output contains an otherwise eligible run.
+        self.env["RUNS_EXIT"] = "7"
+        check_response(pages[1], False)
 
     def test_source_archive_sbom_checksums_and_provenance(self):
         self.run_cli(["git", "init", "-q"])
@@ -382,6 +444,9 @@ esac
 
         # Keep both real Node assertions intact. Their fixture runs at the point where
         # bump invokes this suite, with its unrelated cases filtered by node:test.
+        for path in CHANGELOG_SOURCES:
+            (self.root / path).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / path, self.root / path)
         real_suite = "tests/release-inputs.test.mjs"
         shutil.copy2(ROOT / suite, self.root / real_suite)
         arguments = ["--test", "--test-reporter=tap", f"--test-name-pattern={helper_case}|{readme_case}", real_suite]
