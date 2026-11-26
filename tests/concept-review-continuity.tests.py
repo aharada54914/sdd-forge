@@ -84,6 +84,33 @@ class PersistedV1History(ConceptFixture, unittest.TestCase):
         finally:
             seed.write_bytes(before)
 
+    def test_migrating_to_v2_makes_passed_reviews_stale(self):
+        # Documented: history holds only while the v1 inputs are unchanged. Recreating the
+        # record as v2 means re-running the feature's spec/impl/task reviews.
+        self.manifests(self.domain, self.impl)
+        self.check(True)
+        paths = [self.root / f'specs/{self.feature}/concept-test.{ext}' for ext in ('json', 'md')]
+        before = [path.read_bytes() for path in paths]
+        try:
+            record = json.loads(before[0])
+            record['schema'] = 'concept-test/v2'
+            paths[0].write_text(json.dumps(record))
+            paths[1].write_text('```json\n' + json.dumps(record) + '\n```\n')
+            for runtime, suffix in self.runtimes:
+                with self.subTest(runtime=runtime):
+                    command = [runtime] + (['-NoProfile', '-File'] if runtime == 'pwsh' else [])
+                    command += [str(ROOT / ('plugins/sdd-quality-loop/scripts/check-workflow-state' + suffix)),
+                                '--registry', str(self.root / 'specs/workflow-state-registry.json'),
+                                '--feature', self.feature]
+                    result = subprocess.run(command, text=True, capture_output=True)
+                    output = result.stdout + result.stderr
+                    self.assertNotEqual(result.returncode, 0, output)
+                    self.assertIn('stage-provenance', output)
+                    self.assertRegex(output, r'(?i)input hash is stale', output)
+        finally:
+            for path, data in zip(paths, before):
+                path.write_bytes(data)
+
     def test_new_rounds_refuse_v1(self):
         self.manifests(self.domain, self.impl)
         for runtime, suffix in self.runtimes:

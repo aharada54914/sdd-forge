@@ -358,11 +358,16 @@ supported`. The gate stops on a v1 record in the working tree (JSON or
 Markdown-only) or left only in the Git index. New review launches that
 read the working tree, and the validator, stop on a working-tree v1
 record; without `domain/` and without `--require-v2` the validator still
-returns `SKIP`. Recreate the proposal as `concept-test/v2`, then delete
-any leftover `concept-test.approval.json`. In a project without
-`domain/`, delete the v1 files instead. History keeps reading v1: the
-provenance of passed reviews (`check-workflow-state`), reviews pinned to
-a historical revision, and decision packets. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
+returns `SKIP`. First delete any leftover `concept-test.approval.json`
+(while it exists, every v2 run stops with `incompatible Concept Test
+decision records`), then recreate the proposal as `concept-test/v2`. In
+a project without `domain/`, delete the v1 files instead. History keeps
+reading v1: the provenance of passed reviews (`check-workflow-state`),
+reviews pinned to a historical revision, and decision packets. Passed
+reviews stay valid only while their v1 inputs are unchanged: migrating a
+feature that is mid-workflow makes their pinned hashes stale, so its
+spec, impl and task reviews run again. Finished features need no action
+as long as their records stay unchanged. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
 · [ADR-0053](docs/adr/0053-keyless-concept-decisions.md)
 
 ### Handoff Rules
