@@ -352,8 +352,13 @@ human runs the validator with `--confirm` in a terminal. The resulting
 proposal files and the choice. Only `proceed` permits subsequent work.
 Changes to either proposal file require a fresh decision. A proposal that
 fits the existing concepts proceeds after validation without a decision
-record. Historical `concept-test/v1` approvals retain their signature
-checks. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
+record. `concept-test/v1` records are retired (owner decision
+2026-11-26): the validator, the gate and review launches that read the
+working tree stop with `concept-test/v1 records are no longer supported`.
+Recreate the proposal as `concept-test/v2`, then delete any leftover
+`concept-test.approval.json`. In a project without `domain/`, delete the
+v1 files instead. Reviews pinned to a historical revision and decision
+packets still verify signed v1 records. [Decision record schema](contracts/concept-test-decision.v1.schema.json)
 · [ADR-0053](docs/adr/0053-keyless-concept-decisions.md)
 
 ### Handoff Rules

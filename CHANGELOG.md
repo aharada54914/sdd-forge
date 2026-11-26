@@ -4,7 +4,7 @@
 
 ### Breaking
 
-- **旧形式（v1）の Concept Test 記録の廃止**: 検証器（`validate-concept-test`）と品質ゲートは、`concept-test/v1` の記録を署名の有無にかかわらず受け付けず、`concept-test/v1 records are no longer supported` と移行方法（Concept Test をもう一度実行して `concept-test/v2` として作り直す）を示して停止する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。過去のレビューで固定した時点の入力の読み取りは変わらない。
+- **旧形式（v1）の Concept Test 記録の廃止**: 検証器（`validate-concept-test`）、品質ゲート、作業ツリーを読むレビューの起動（仕様・実装方針・タスク分解・品質検証の各レビュー）は、`concept-test/v1` の記録を署名の有無にかかわらず受け付けず、`concept-test/v1 records are no longer supported` と移行方法を示して停止する。Markdown だけの v1 記録や、Git インデックスだけに残った v1 記録も同じ。移行方法: Concept Test をもう一度実行して `concept-test/v2` として作り直し、残った `specs/<feature>/concept-test.approval.json` を削除する。`domain/` のないプロジェクト（Concept Test を実行しない）では、v1 の記録ファイルを削除する。MCP の `get_next_sdd_command` も同じ移行方法を案内する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。過去のレビューで固定したリビジョンの入力の読み取りと decision packet の署名検証は変わらない（ADR-0053 の改訂）。
 
 ### Fixed
 
