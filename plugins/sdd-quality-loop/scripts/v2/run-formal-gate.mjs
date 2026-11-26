@@ -293,13 +293,14 @@ function inputsChanged(root, baseRef, files) {
   );
 }
 
-function checkerFailureReason({ result, expected, violated, checked, replayActions, depth, bound, log }) {
+function checkerFailureReason({ result, expected, violated, checked, replayActions, depth, distinctStates, bound, log }) {
   if (result.timedOut) return 'timeout before the checker completed';
   if (result.status === 0 && checked && replayActions) {
     const reason = 'The baseline model could not reproduce the observed trace';
-    // Each projected transition advances exactly one observation. TLC depth counts the initial state.
-    if (depth !== null && depth < replayActions.length)
-      return reason + ': step ' + depth + ' (' + replayActions[depth] + ') was unreachable';
+    // TLC reports depth one even for an empty graph. Otherwise depth counts the matched observations.
+    const step = distinctStates === 0 ? 0 : depth;
+    if (step !== null && step < replayActions.length)
+      return reason + ': step ' + step + ' (' + replayActions[step] + ') was unreachable';
     return reason + ': the final observation was not reached' + (bound !== null ? ' within ' + bound + ' transitions' : '');
   }
   if (result.status === 0 && checked && expected) return 'The negative control did not violate invariant ' + expected;
@@ -344,17 +345,19 @@ function checkRun({ adapter, model, cfg, options, jar, timeout, work, runner, ex
   const ok =
     !result.timedOut && (expected ? result.status === 12 && violated === expected : result.status === 0 && checked);
   const depth = Number(log.match(/depth of the complete state graph search is (\d+)\./)?.[1]) || null;
+  const stateCount = log.match(/(\d+) distinct states found, \d+ states? left on queue\./);
+  const distinctStates = stateCount ? Number(stateCount[1]) : null;
   const bound = adapter === 'apalache' ? Number(options.length || 10) : null;
   return {
     ok,
     ...(!ok && !result.unavailable ? {
-      reason: checkerFailureReason({ result, expected, violated, checked, replayActions, depth, bound, log }),
+      reason: checkerFailureReason({ result, expected, violated, checked, replayActions, depth, distinctStates, bound, log }),
     } : {}),
     status: result.status,
     unavailable: Boolean(result.unavailable),
     timedOut: Boolean(result.timedOut),
     violatedInvariant: violated || null,
-    distinctStates: Number(log.match(/(\d+) distinct states found, \d+ states? left on queue\./)?.[1]) || null,
+    distinctStates,
     depth,
     version:
       log.match(/^TLC2 Version [^\r\n]+/m)?.[0] ||

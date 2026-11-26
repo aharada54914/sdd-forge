@@ -500,6 +500,16 @@ it('explains the failed checker phase in the decision view and trace result',
     checkQuestion(mismatch, 'replay', /replay.*could not reproduce the observed trace.*step 1 \(Check\)/i);
     assert.deepEqual(mismatch.trace.violations, mismatch.errors);
 
+    const initial = fs.readFileSync(original, 'utf8').trim().split('\n').map(JSON.parse);
+    initial[0].state.accepted = [1];
+    const invalidInit = path.join(projectRoot, 'invalid-init.ndjson');
+    fs.writeFileSync(invalidInit, initial.map((event) => JSON.stringify(event)).join('\n'));
+    const incompatible = runFormalGate({ ...options, tracePath: invalidInit });
+    checkQuestion(incompatible, 'replay', /step 0 \(Init\) was unreachable$/);
+    assert.equal(incompatible.checker.replay.status, 0);
+    assert.equal(incompatible.checker.replay.distinctStates, 0);
+    assert.deepEqual(incompatible.trace.violations, incompatible.errors);
+
     const baseline = runFormalGate({ ...options, cfgPath: reservation.replace('.tla', '.negative.cfg') });
     checkQuestion(baseline, 'baseline', /baseline.*invariant OneAccepted was violated/i);
     const parseFailure = runFormalGate({ ...options, execRunner: () =>
@@ -580,6 +590,8 @@ it(
     const commented = original.replace('EXTENDS', nested + '\nEXTENDS');
     const variants = [
       ['original', original],
+      ['quoted preamble', 'The screen measures 6" across.\n====\n' + original],
+      ['comment-like preamble', '(* unmatched in free text\nOneAccepted == TRUE\n' + original],
       ['ordinary', original.replace('EXTENDS', '(* ordinary note *)\nEXTENDS')],
       ['post-module documentation', original.replace('EXTENDS', '(*\n====\n*)\nEXTENDS') +
         'Documentation: the display measures 6" across.\n(* more prose; Spec == FALSE'],
@@ -978,6 +990,12 @@ it(
         const mismatch = run(model, { tracePath, risk: 'high' });
         assert.equal(mismatch.status, 'FAIL');
         assert.equal(mismatch.trace.ok, false);
+        const step = invariant === 'SingleOwner' ? 1 : 2;
+        assert.equal(mismatch.checker.replay?.timedOut, false, JSON.stringify(mismatch.errors));
+        assert.equal(mismatch.checker.replay.status, 0);
+        assert.deepEqual(mismatch.trace.violations, [
+          `The baseline model could not reproduce the observed trace: step ${step} (${events[step].action}) was unreachable`,
+        ]);
       }
     }
     for (const [fault, invariant] of [

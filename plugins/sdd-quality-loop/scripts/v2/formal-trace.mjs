@@ -42,10 +42,14 @@ function blockCommentEnd(source, start, kind) {
 // Expose only model code to declaration checks. Comments are whitespace and
 // strings remain opaque operands, so neither can introduce a new definition.
 export function tlaDeclarationSource(source) {
+  // The model lexer starts at the outer module. Quotes and comment delimiters in the preamble are prose.
+  const header = source.search(/-{4,}\s*MODULE\b/);
+  if (header < 0) return '';
   const specials = /-{4,}\s*MODULE\b|={4,}|\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/g;
   let code = '';
   let moduleDepth = 0;
-  let start = 0;
+  let start = header;
+  specials.lastIndex = header;
   let match;
   while ((match = specials.exec(source))) {
     code += source.slice(start, match.index);
