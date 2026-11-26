@@ -463,6 +463,20 @@ class ConceptTests(unittest.TestCase):
         if pwsh:
             self.gate(wrapper=[pwsh, '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))])
 
+    def test_v1_records_are_no_longer_accepted_by_the_validator(self):
+        # Owner decision 2026-11-26: v1 records are retired; even a correctly signed one stops with a migration hint.
+        self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
+        self.save()
+        self.sign()
+        for extra in ([], ['--require-v2']):
+            with self.subTest(args=extra):
+                result = subprocess.run([sys.executable, str(SCRIPT), '--root', str(self.root), '--feature', 'example', *extra],
+                                        env=self.env, capture_output=True, text=True)
+                self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+                self.assertEqual('', result.stdout)
+                self.assertIn('concept-test/v1 records are no longer supported', result.stderr)
+                self.assertIn('concept-test/v2', result.stderr)
+
     def test_all_human_decisions_with_real_signature(self):
         for proposal in ['NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION']:
             for decision, code in [('proceed', 0), ('defer-to-domain-update', 2), ('rejected', 3)]:

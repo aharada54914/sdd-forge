@@ -694,6 +694,21 @@ describe('human concept-test decisions at the public gate', () => {
     assert.match(guard.stderr, /concept-test\.decision\.json/);
   });
 
+  it('blocks a v1-only Concept Test record with a migration hint, before any command runs', (t) => {
+    const { repo, feature, git, run } = setup(t);
+    git('init', '-q');
+    const legacy = JSON.stringify({ schema: 'concept-test/v1' });
+    fs.writeFileSync(path.join(feature, 'concept-test.json'), legacy);
+    fs.writeFileSync(path.join(feature, 'concept-test.md'), '```json\n' + legacy + '\n```\n');
+    git('add', 'specs');
+    git('commit', '-qm', 'legacy record');
+    const report = run();
+    assert.equal(report.verdict, 'FAIL');
+    assert.equal(report.checks.conceptTest.status, 'BLOCK');
+    assert.match(report.checks.conceptTest.error, /concept-test\/v1 records are no longer supported/);
+    assert.deepEqual(report.checks.commands, []);
+  });
+
   it('preserves ordinary and v1-only feature history and scopes receipts by feature', (t) => {
     const { repo, feature, git, run } = setup(t);
     git('init', '-q');
