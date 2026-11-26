@@ -53,7 +53,7 @@ T-002
 ## Wave 2: 新規決定論的ゲート群の並列実装（T-004 / T-005 / T-006 / T-007）
 
 ### T-004: Layer 2/3 専用 AST Agent-Strict Lint ＆ 内蔵 Waiver（Shadow 運用開始）
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `REQ-007`, `REQ-008`, `NFR-002`, `NFR-004`

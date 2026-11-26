@@ -1,17 +1,17 @@
 Task ID: T-004
 Feature: verification-first-factory
-Run ID: eb022b4b-fb3d-4c06-88c0-56ae912547ed
-VERDICT: NEEDS_WORK
+Run ID: 56d6c7a4-c733-4ae3-b4b8-529481bef22c
+VERDICT: PASS
 Critical: 0
-Major: 1
+Major: 0
 Minor: 0
 
-- **VERDICT**: NEEDS_WORK
+- **VERDICT**: PASS
 
 # Independent quality gate for T-004
 
-Evaluators verified all 36 admitted hashes at `f1fd85c2f609fc9d79d2bb5d94db519f9182e7a3`. G1 through G5 were reviewed by `eb022b4b-fb3d-4c06-88c0-56ae912547ed` (ledger 1243). Machine execution `e3321adc-da6a-4078-8d39-4bc4fa07a111` returned PASS.
+Evaluators verified all 39 admitted hashes at `1f7162b988b6f28f35da26ed760d0da4d1cc794e`. G1 through G5 were reviewed by `56d6c7a4-c733-4ae3-b4b8-529481bef22c` (ledger 1247). Machine execution `38faad75-9f02-4e7a-86f1-de53648d9e40` returned PASS.
 
-G1, G3 and G4 identified one Major defect affecting REQ-008. In strict mode both invalid-date and 2026-99-99 exempted a real no-empty-catch finding with exit 0. The past-date control returned exit 1 and the current-date control returned 0. RT-20261126-009 tracks the correction.
+G1 passed for shadow-mode delivery. The independent evaluator checked 24 reported output hashes, the failing old implementation, the repaired suite (27/27) and four machine commands. Their own date validation sweep agreed on all 5,082 cases including 1900, 2000 and 2100. G2 passed with CLEAN drift, an unchanged 677-line Layer 1 within the 700-line limit, and three justified paths for the workflow and supporting tests. G3 passed for inclusive, future, expired and invalid waivers, a clean source and invalid --today; strict blocks invalid exemptions, shadow/warn expose them without blocking.
 
-G2 passed. The approved Layer 1 baseline has 677 lines identical to upstream. Drift was CLEAN. Three path warnings concern CI and tests that exercise this feature. G5 does not apply to this CLI. All 70 historical comparisons matched across 401 file observations, including the six generated exceptions matched to their sources. Both tested revisions reported ten shadow warnings across 51 files. The two test groups passed 26/26 and 28/28, and actionlint passed. The two local timing pairs showed +0.173 s and -0.042 s. Independent hosted incremental CI timing and evidence for promotion to strict remain outstanding. No global policy change was authorized by these measurements.
+G4 passed. Unverified generated sources retain their findings; the sample across 70 historical PRs and 401 file observations decreased from 18 to 12 after verified attribution. Five of the twelve could be operational noise, and the full hosted incremental CI bound and zero-denominator SAST rate remain unproven. These measurements do not establish the T-010 strict-promotion criterion. G5 passed for Layer 2/3 and waiver terminology. Visual checks do not apply. Complete CLI runs were checked against persisted receipts, with independently executed calendar validation and sample recomputation.
