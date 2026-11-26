@@ -2,16 +2,9 @@
 # tests/release-loop-gate.tests.sh (T-002 / Issue #148 / epic-159-pillar-b
 # REQ-002). See the bash twin for the full test-technique description.
 #
-# This is a pure text-parsing structural check on the real
-# .github/workflows/release.yml (no bash-only real script is driven, unlike
-# T-001's fixture-copied scripts/bump-version.sh), so both lanes run
-# unconditionally -- no Get-Command-degradation branch is needed here
-# (design.md "release.yml parsing does not depend on any bash-only real
-# script the way T-001's fixture does").
-#
-# The job-slice / marker logic is re-implemented natively (Get-Content -Raw
-# + regex, per design.md's full-parity-port idiom) rather than shelling out
-# to python3, mirroring the bash twin's job_slice() function line for line.
+# TEST-007 shares the executable v2 workflow contract with release readiness.
+# Its Python and pinned Node YAML parser work on each host without Bash.
+# The remaining job-slice and registration checks run in PowerShell.
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -89,10 +82,10 @@ function Test-ReleaseHasNeeds {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-007 (AC-007): loop-gate job slice contains both suite invocations
+# TEST-007 (AC-007): release gate runs the v2 suites and health checks
 # ---------------------------------------------------------------------------
 function Test-007 {
-    Write-Output "=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ==="
+    Write-Output "=== TEST-007 (AC-007): release gate runs the v2 suites and health checks ==="
     $text = Get-Content -LiteralPath $releaseYml -Raw
     $loopGateSlice = Get-JobSlice -Text $text -JobName "loop-gate"
 
@@ -103,16 +96,14 @@ function Test-007 {
         return
     }
 
-    if ($loopGateSlice.Contains("tests/loop-consistency.tests.sh")) {
-        Ok "TEST-007 (AC-007): loop-gate job slice invokes tests/loop-consistency.tests.sh"
-    } else {
-        Fail "TEST-007 (AC-007): loop-gate job slice does not invoke tests/loop-consistency.tests.sh"
-    }
-
-    if ($loopGateSlice.Contains("tests/loop-inventory.tests.sh")) {
-        Ok "TEST-007 (AC-007): loop-gate job slice invokes tests/loop-inventory.tests.sh"
-    } else {
-        Fail "TEST-007 (AC-007): loop-gate job slice does not invoke tests/loop-inventory.tests.sh"
+    $python = if ($IsWindows) { 'python' } else { 'python3' }
+    foreach ($method in @('check_loop_suites', 'check_loop_health')) {
+        & $python -B (Join-Path $PSScriptRoot 'release-readiness.tests.py') "ReleaseReadiness.$method"
+        if ($LASTEXITCODE -eq 0) {
+            Ok "TEST-007 (AC-007): $method"
+        } else {
+            Fail "TEST-007 (AC-007): $method"
+        }
     }
 }
 

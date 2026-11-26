@@ -99,6 +99,34 @@ def files_only_payload(source):
             and any(name.startswith(entry) if entry.endswith('/') else name == entry for entry in entries)}
 
 
+def powershell_for(runtime):
+    if runtime != 'powershell':
+        return None
+    shell = shutil.which('pwsh') or shutil.which('powershell')
+    if not shell:
+        raise ValueError('PowerShell is required for native twin capture')
+    return shell
+
+
+def schema_validator_result(product, workspace, shell, run):
+    contract = {'schema': 'domain-contract/v2',
+                'meta': {'version': '1.0.0', 'status': 'Pending', 'generated_from': ['domain/context-map.md']},
+                'contexts': [{'name': 'catalog', 'description': 'Catalog', 'terms': [], 'aggregates': []}],
+                'concepts': [{'id': 'CONCEPT-BOOK', 'name': 'Book', 'context': 'catalog',
+                              'definition': 'A publication', 'essence': 'Published content',
+                              'responsibilities': ['Identify publication'], 'evidence': ['domain/context-map.md']}]}
+    valid, invalid = workspace / 'valid.json', workspace / 'invalid.json'
+    valid.write_text(json.dumps(contract), encoding='utf-8')
+    invalid.write_text('{}', encoding='utf-8')
+    validator = product / 'plugins/sdd-domain/scripts/validate-domain-contract'
+    command = ([shell, '-NoProfile', '-File', str(validator.with_suffix('.ps1'))]
+               if shell else ['bash', str(validator.with_suffix('.sh'))])
+    accepted, rejected = run(command + [str(valid)]), run(command + [str(invalid)])
+    if rejected.returncode != 1 or not rejected.stderr:
+        raise ValueError('current schema validator did not reject invalid contract')
+    return f'{accepted.returncode}\n'.encode()
+
+
 def capture(product, fixture, destination, canonical, runtime):
     product, fixture = product.resolve(), fixture.resolve()
     if product == fixture or product in fixture.parents or fixture in product.parents:
@@ -178,25 +206,8 @@ def capture(product, fixture, destination, canonical, runtime):
                 shutil.copytree(directory, copied / directory.relative_to(fixture))
             write('template-copy-result', actual_manifest(copied), manifest(templates))
 
-            contract = {'schema': 'domain-contract/v2',
-                        'meta': {'version': '1.0.0', 'status': 'Pending', 'generated_from': ['domain/context-map.md']},
-                        'contexts': [{'name': 'catalog', 'description': 'Catalog', 'terms': [], 'aggregates': []}],
-                        'concepts': [{'id': 'CONCEPT-BOOK', 'name': 'Book', 'context': 'catalog',
-                                      'definition': 'A publication', 'essence': 'Published content',
-                                      'responsibilities': ['Identify publication'], 'evidence': ['domain/context-map.md']}]}
-            valid, invalid = workspace / 'valid.json', workspace / 'invalid.json'
-            valid.write_text(json.dumps(contract), encoding='utf-8')
-            invalid.write_text('{}', encoding='utf-8')
-            shell = shutil.which('pwsh') or shutil.which('powershell')
-            if runtime == 'powershell' and not shell:
-                raise ValueError('PowerShell is required for native twin capture')
-            validator = fixture / 'plugins/sdd-domain/scripts/validate-domain-contract'
-            command = ([shell, '-NoProfile', '-File', str(validator.with_suffix('.ps1'))]
-                       if runtime == 'powershell' else ['bash', str(validator.with_suffix('.sh'))])
-            accepted, rejected = run(command + [str(valid)]), run(command + [str(invalid)])
-            if rejected.returncode != 1 or not rejected.stderr:
-                raise ValueError('current schema validator did not reject invalid contract')
-            write('schema-validator-result', f'{accepted.returncode}\n'.encode())
+            shell = powershell_for(runtime)
+            write('schema-validator-result', schema_validator_result(fixture, workspace, shell, run))
 
             install_root = workspace / 'install-root'
             if runtime == 'powershell':

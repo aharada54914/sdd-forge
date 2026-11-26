@@ -9,6 +9,8 @@ summary: "同一候補で全195スイートが成功する受入条件を未達"
 problem: |
   ec13718bc のクリーンな全195件は116成功・79失敗。df85f19d6 は121成功・74失敗。cd51b921c では個別のリリース・レジストリ検査が回復したが、機械ゲート上の bootstrap は8成功・25失敗。8a9ccfc67 の機械ゲートは5コマンド中4件が成功し、bootstrap は28成功・10失敗となった。10件すべてが TEST-009 に属する。 6b6f911a3 の全195件は131成功・64失敗・スキップ0。11b7b5141 と 8b897854d の機械ゲートも TEST-009 の10件で失敗した。99244e180 の全195件は138成功・57失敗・スキップ0。8b897854d は141成功・54失敗・スキップ0。1048b4c12 は通常 CI の12ジョブが成功し、機械ゲートは引き続き bootstrap TEST-009 の10件で失敗した。クリーンな全195件は144成功・51失敗・スキップ0。前候補から3スイートが回復し、新規失敗は0件。 3624c5d31 は PR の12ジョブが成功し、機械ゲートの5コマンド中4件が成功した。bootstrap TEST-009 の10項目が引き続き失敗した。
   3624c5d31 の全195件は146成功・49失敗・スキップ0。multitarget T-003 と T-004 が回復し、新規失敗は0件。bf3f666c5 の機械ゲートは同じ TEST-009 の10項目で停止した。
+  c0eaf1848 の全195件は147成功・48失敗・スキップ0。d2664b663 は PR の12ジョブが成功し、機械ゲートは bootstrap TEST-009 の10項目で失敗した。
+  bf3f666c5 の全195件は147成功・48失敗・スキップ0。c0eaf1848 と各判定が一致した。
 expected_fix:
   - 全195スイートについて同一候補の成功結果を照合できるレシートを用意し、未解決の旧契約を個別に判断する。
 references:
@@ -28,3 +30,6 @@ references:
   - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-3624c5d31.json
   - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-3624c5d31.json
   - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-bf3f666c5.json
+  - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-c0eaf1848.json
+  - specs/verification-first-factory/verification/T-010/shadow-pr976/machine-gate-d2664b663.json
+  - specs/verification-first-factory/verification/T-010/shadow-pr976/local-posix-bf3f666c5.json

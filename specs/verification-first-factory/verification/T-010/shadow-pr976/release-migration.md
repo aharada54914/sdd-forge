@@ -63,3 +63,9 @@
 | model-schema-id、ci-result-id | 2 | 配布スキーマ内の識別子を個別に v999 にすると拒否される |
 
 末尾の7件（ci-cache 以降）は、CI とリリースの両方で拒否する追加承認の対象。通常スイートの入口は [repository-release-validation.tests.sh](../../../../../tests/repository-release-validation.tests.sh)。CI とリリースに登録したコマンドは [test.yml](../../../../../.github/workflows/test.yml) と [release.yml](../../../../../.github/workflows/release.yml) にある。
+
+## release-loop-gate の TEST-007
+
+Bash と PowerShell の通常入口から、現在のリリースジョブの10本のテストと doctor・構造・installer 検査を照合する。独立レビューで、作業ディレクトリが異なるステップと、最後のテストを別コマンドにしたステップを見逃すことが分かった。修正後はどちらも両入口の TEST-007 が拒否し、正規の行継続を受理した。
+
+基点 `d2664b663` にこの変更だけを適用した場合、両入口は各9成功・1失敗。残る TEST-010 は CI 自己登録を検査する。Bash はその失敗を最終終了値に反映しつつ、後段で採択 SHA、SBOM、provenance、アップロード前のタグ照合も検証した。別評価者がリリースの15コマンドを個別に失敗させ、全ケースで後続ビルドが起動しないことを確認した。旧版の CI では Bash が Ubuntu・macOS・Windows、PowerShell が Ubuntu・macOS で実行されていた。[v1.26.0 の実行記録](https://github.com/aharada54914/sdd-forge/actions/runs/44832117075)

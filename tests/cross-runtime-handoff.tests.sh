@@ -73,9 +73,10 @@ canary_activated() {
   esac
 }
 self_test_activation() {
-  local dir status expected actual rc
+  local dir status expected actual rc main_ref
   dir=$(mktemp -d "$tmp_root/sdd-a8-gate.XXXXXX")
   dir=$(cd "$dir" && pwd -P)
+  main_ref=$(python3 "$repo_root/tests/cross-runtime-live-driver.tests.py" --activation-fixture "$dir") || fail "could not build activation fixture"
   for status in Planned Draft Blocked 'In Progress' 'Implementation Complete' Done; do
     case "$status" in Planned|Draft|Blocked) expected=0 ;; *) expected=1 ;; esac
     awk -v s="$status" '
@@ -88,11 +89,11 @@ self_test_activation() {
     mv "$dir/tasks.next" "$dir/tasks.md"
     actual_status=$(task_status "$dir/tasks.md") || fail "could not read test fixture status"
     actual=0
-    if canary_activated "$actual_status"; then actual=1; else rc=$?; [[ $rc -eq 1 ]] || fail "activation predicate errored for '$status'"; fi
+    if (cd "$dir" && canary_activated "$actual_status"); then actual=1; else rc=$?; [[ $rc -eq 1 ]] || fail "activation predicate errored for '$status'"; fi
     [[ $actual -eq $expected ]] || fail "activation predicate mismatch for '$status'"
   done
   rm -r "$dir"
-  printf 'ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present\n'
+  printf 'ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; historical handshake paths are present in the fixture\n'
 }
 
 self_test_contract() {

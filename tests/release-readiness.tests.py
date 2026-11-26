@@ -14,6 +14,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITES = [
@@ -114,13 +115,68 @@ class ReleaseReadiness(unittest.TestCase):
         for step in gate["steps"]:
             self.assertNotIn("if", step)
             self.assertNotIn("continue-on-error", step)
-        self.assertEqual(self.step("loop-gate", "Run SDD Forge v2 deterministic release suites")["run"].split(),
-                         ["node", "--test", *SUITES])
-        health = self.step("loop-gate", "Run sdd-doctor health check and POSIX installer checks")
-        self.assertEqual(health["run"].splitlines(), [
+        self.check_loop_suites()
+        self.check_loop_health()
+
+    @cached_property
+    def loop_workflow(self):
+        parser = runpy.run_path(str(ROOT / "tests/verification-workflow.py"))
+        return parser["load_workflow"](ROOT / ".github/workflows/release.yml")
+
+    def required_loop_run(self, name):
+        workflow = self.loop_workflow
+        gate = workflow["jobs"]["loop-gate"]
+        steps = [step for step in gate["steps"] if step.get("name") == name]
+        self.assertEqual(len(steps), 1, name)
+        step = steps[0]
+        for scope in (gate, step):
+            for key in ("if", "continue-on-error"):
+                self.assertNotIn(key, scope, name)
+        settings = dict(workflow.get("defaults", {}).get("run", {}))
+        settings.update(gate.get("defaults", {}).get("run", {}))
+        settings.update(step)
+        self.assertEqual(settings.get("shell"), "bash", name)
+        self.assertIn(settings.get("working-directory", "."),
+                      (".", "./", "${{ github.workspace }}", "${{ github.workspace }}/"),
+                      f"{name} must run at the repository root")
+        return step["run"]
+
+    def check_loop_suites(self):
+        command = self.required_loop_run("Run SDD Forge v2 deterministic release suites")
+        # An unquoted continuation between arguments is still one Bash command.
+        command = re.sub(r"(?<=[ \t])\\\n[ \t]*", "", command)
+        lines = [line.strip() for line in command.splitlines()
+                 if line.strip() and not line.lstrip().startswith("#")]
+        self.assertEqual(len(lines), 1, "release suites must run in a single command")
+        self.assertEqual(shlex.split(lines[0]), ["node", "--test", *SUITES])
+
+    def check_loop_health(self):
+        command = self.required_loop_run("Run sdd-doctor health check and POSIX installer checks")
+        self.assertEqual(command.splitlines(), [
             f"node {DOCTOR} --root . --quiet-info", "bash scripts/check-sdd-structure.sh",
             "bash -n install.sh && bash -n uninstall.sh",
         ])
+
+    def test_loop_workload_execution_context(self):
+        step = {"name": "Run SDD Forge v2 deterministic release suites",
+                "shell": "bash", "run": "node --test " + " ".join(SUITES)}
+        gate = {"steps": [step]}
+        workflow = {"jobs": {"loop-gate": gate}}
+        self.loop_workflow = workflow
+        for scope, change in ((workflow, {"defaults": {"run": {"working-directory": "tests"}}}),
+                              (gate, {"defaults": {"run": {"working-directory": "tests"}}}),
+                              (step, {"working-directory": "tests"})):
+            with patch.dict(scope, change):
+                with self.assertRaisesRegex(AssertionError, "repository root"):
+                    self.check_loop_suites()
+                with patch.dict(step, {"working-directory": "."}):
+                    self.check_loop_suites()
+        command, last = step["run"].rsplit(" ", 1)
+        with patch.dict(step, run=command + " \\\n  " + last):
+            self.check_loop_suites()
+        with patch.dict(step, run=command + "\n" + last):
+            with self.assertRaisesRegex(AssertionError, "single command"):
+                self.check_loop_suites()
 
     def source_commands(self):
         step_name = "Verify release source contracts"

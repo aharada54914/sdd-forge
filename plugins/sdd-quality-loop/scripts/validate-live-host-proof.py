@@ -83,8 +83,13 @@ def fail(code, message, cell=None):
     raise ValidationError(code, message, cell)
 
 
+# Executable input for validating recorded denials. Older validators loaded
+# a separate handshake verifier for their native outcome checks.
+REPLAY_CODE_INPUTS = {"canonicalizer": "canonicalize-sdd-yaml.py"}
+
+
 def load_canonicalizer():
-    path = Path(__file__).with_name("canonicalize-sdd-yaml.py")
+    path = Path(__file__).with_name(REPLAY_CODE_INPUTS["canonicalizer"])
     spec = importlib.util.spec_from_file_location("sdd_canonicalizer", path)
     if spec is None or spec.loader is None:
         fail("ERR_SCHEMA_INVALID", "RFC 8785 canonicalizer could not be loaded")

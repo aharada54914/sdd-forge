@@ -174,17 +174,23 @@ class CurrentCaptureTests(unittest.TestCase):
         self.edit(GENERATOR, 'print("CURRENT_PRODUCT_REGRESSION")\nraise SystemExit(42)\n')
         self.assertTrue({'exit-code', 'stdout-stderr', 'deterministic-script-output'} <= self.capture())
 
+    def validator_result(self):
+        def run(command):
+            return subprocess.run(command, cwd=self.fixture, capture_output=True)
+        return CAPTURE.schema_validator_result(self.product, self.work, CAPTURE.powershell_for(RUNTIME), run)
+
     def test_current_validator_must_reject_invalid_contract(self):
         extension = '.ps1' if RUNTIME == 'powershell' else '.sh'
         self.edit('plugins/sdd-domain/scripts/validate-domain-contract' + extension, 'exit 0\n')
         with self.assertRaisesRegex(ValueError, 'did not reject invalid contract'):
-            self.capture()
+            self.validator_result()
 
     def test_current_validator_must_accept_valid_contract(self):
+        self.assertEqual((CANONICAL / 'targets/schema-validator-result.txt').read_bytes(), self.validator_result())
         extension = '.ps1' if RUNTIME == 'powershell' else '.sh'
         code = '[Console]::Error.WriteLine("rejected"); exit 1\n' if RUNTIME == 'powershell' else 'echo rejected >&2\nexit 1\n'
         self.edit('plugins/sdd-domain/scripts/validate-domain-contract' + extension, code)
-        self.assertIn('schema-validator-result', self.capture())
+        self.assertEqual(b'1\n', self.validator_result())
 
     def test_installer_missing_extra_and_corrupt_payload_are_detected(self):
         name = 'install.ps1' if RUNTIME == 'powershell' else 'install.sh'

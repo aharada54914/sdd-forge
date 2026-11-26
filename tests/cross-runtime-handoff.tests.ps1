@@ -55,6 +55,9 @@ function Test-CanaryActivated([string]$Status) {
 }
 function Invoke-ActivationSelfTest {
     $tasksText = [IO.File]::ReadAllText($tasksFile)
+    $activationRepo = Join-Path $evidenceDir 'activation'
+    $mainRef = & python3 (Join-Path $repoRoot 'tests/cross-runtime-live-driver.tests.py') --activation-fixture $activationRepo
+    if ($LASTEXITCODE -ne 0) { Stop-Test 'could not build activation fixture' }
     foreach ($status in @('Planned', 'Draft', 'Blocked', 'In Progress', 'Implementation Complete', 'Done')) {
         $pattern = '(?ms)(^## T-005 .+?^Status: )[^\r\n]+'
         if (-not [regex]::IsMatch($tasksText, $pattern)) { Stop-Test 'could not locate T-005 status for disposable fixture' }
@@ -63,10 +66,11 @@ function Invoke-ActivationSelfTest {
         [IO.File]::WriteAllText($copyPath, $copy, [Text.UTF8Encoding]::new($false))
         $fixtureStatus = Get-TaskStatus $copyPath
         $expected = $status -in @('In Progress', 'Implementation Complete', 'Done')
-        $actual = Test-CanaryActivated $fixtureStatus
+        Push-Location -LiteralPath $activationRepo
+        try { $actual = Test-CanaryActivated $fixtureStatus } finally { Pop-Location }
         if ([bool]$actual -ne [bool]$expected) { Stop-Test "activation predicate mismatch for $status" }
     }
-    [Console]::Out.WriteLine('ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present')
+    [Console]::Out.WriteLine('ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; historical handshake paths are present in the fixture')
 }
 function Invoke-ContractSelfTest {
     $required = @(('SDD_A8_' + 'CODEX_BIN'), ('gpt-5.6-' + 'sol'), ('son' + 'net'), ('SDD_A8_' + 'COPILOT_MODEL'))
