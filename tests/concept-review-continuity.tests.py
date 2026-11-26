@@ -28,7 +28,10 @@ concept = load('concept_fixture', ROOT / 'tests/concept-test.tests.py')
 launcher = load('concept_launcher', ROOT / 'plugins/sdd-review-loop/scripts/launch-impl-review.py')
 
 
-class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
+class ConceptFixture(workflow.WorkflowFixture):
+    """Passed spec/impl/task reviews whose manifests pin a FITS Concept Test record."""
+    schema = 'concept-test/v2'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -36,7 +39,7 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
                          'plugins/sdd-domain/scripts/validate-domain-contract.sh',
                          'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
                          'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py',
-                         'contracts/concept-test.v2.schema.json'):
+                         'contracts/concept-test.v1.schema.json', 'contracts/concept-test.v2.schema.json'):
             cls.put(relative, (ROOT / relative).read_text())
         contract = json.loads((cls.root / 'domain/domain-contract.json').read_text())
         contract['schema'] = 'domain-contract/v2'
@@ -49,7 +52,7 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
         cls.put(f'specs/{cls.feature}/concept-test-seed.md', 'Record a purchase.\n')
         pinned = ['domain/context-map.md', 'domain/domain-contract.json', 'domain/domain-story.md',
                   f'specs/{cls.feature}/concept-test-seed.md']
-        record = dict(schema='concept-test/v2', feature=cls.feature, proposal='FITS_EXISTING_CONCEPTS',
+        record = dict(schema=cls.schema, feature=cls.feature, proposal='FITS_EXISTING_CONCEPTS',
                       rationale='Purchase intent is already modeled.',
                       distinctions=[dict(concepts=['CONCEPT-ORDER'], judgment='same', confirmed=True)],
                       inputs=[dict(path=p, sha256=hashlib.sha256((cls.root / p).read_bytes()).hexdigest()) for p in pinned])
@@ -59,6 +62,39 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
         cls.impl = cls.domain + ['domain/aggregates/Order.md', 'design-system/design-tokens.json',
                                  'design-system/design-system.md', 'design-system/ui-patterns.md']
 
+
+class PersistedV1History(ConceptFixture, unittest.TestCase):
+    """Owner decision 2026-11-26: passed reviews keep their v1 provenance; new rounds refuse v1."""
+    schema = 'concept-test/v1'
+
+    def test_passed_reviews_keep_their_v1_provenance(self):
+        self.manifests(self.domain, self.impl)
+        self.check(True)
+
+    def test_changed_seed_still_invalidates_v1_provenance(self):
+        self.manifests(self.domain, self.impl)
+        seed = self.root / f'specs/{self.feature}/concept-test-seed.md'
+        before = seed.read_bytes()
+        try:
+            seed.write_bytes(before + b'changed')
+            self.check(False)
+        finally:
+            seed.write_bytes(before)
+
+    def test_new_rounds_refuse_v1(self):
+        self.manifests(self.domain, self.impl)
+        for runtime, suffix in self.runtimes:
+            with self.subTest(runtime=runtime):
+                command = [runtime] + (['-NoProfile', '-File'] if runtime == 'pwsh' else [])
+                command += [str(self.root / f'plugins/sdd-review-loop/scripts/task-review-precheck{suffix}'),
+                            self.feature, '2', '1']
+                result = subprocess.run(command, cwd=self.root, text=True, capture_output=True)
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(concept.V1_RETIRED_PREFIX, result.stdout + result.stderr)
+                self.assertFalse((self.root / f'reports/task-review/{self.feature}/attempt-2').exists())
+
+
+class PersistedConcept(ConceptFixture, unittest.TestCase):
     def test_persisted_and_next_round_accept_all_pins(self):
         self.manifests(self.domain, self.impl)
         self.check(True)
