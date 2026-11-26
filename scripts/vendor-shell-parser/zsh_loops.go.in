@@ -66,7 +66,9 @@ func (p *Parser) zshForWords(start Pos) *WordIter {
 	}
 	if pos, ok := p.gotRsrv("in"); ok {
 		wi.InPos = pos
-		for !p.stopToken() {
+		// In an in-list, { is a value. A standalone unquoted } ends
+		// the list token stream and cannot supply its required separator.
+		for !p.stopToken() && !(p.tok == _LitWord && p.val == "}") {
 			word := p.getWord()
 			if word == nil {
 				p.curErr("expected a word in for list")

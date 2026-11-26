@@ -293,7 +293,7 @@ function shellParser() {
       performance, setTimeout, clearTimeout, console });
     runInContext(parserAsset('wasm_exec.cjs', '0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14').toString('utf8'), context);
     const go = new context.Go();
-    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '4f081f94132585a1115a4bf1c8151e71056cc83a4ff09daf26e17f7ea0c027bb'));
+    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '9be325198675db18e31af53f2995f66942a304488745a1fcdcf101db5df496f3'));
     void go.run(new WebAssembly.Instance(new WebAssembly.Module(bytes), go.importObject));
     parseShell = context.sddParseShellComments;
   }
@@ -424,10 +424,8 @@ function unconditionalTrueDefinitions(source) {
 function isTestFileRelPath(relPath) {
   const lower = normalizeRelPath(relPath).toLowerCase();
   return (
-    lower.startsWith('tests/') ||
     lower.startsWith('test/') ||
-    lower.includes('/tests/') ||
-    lower.includes('/__tests__/') ||
+    /(?:^|\/)(?:tests|__tests__)\//.test(lower) ||
     /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower)
   );
 }

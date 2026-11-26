@@ -546,6 +546,9 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
   for (const [name, header, footer] of [
     ['short for', 'for item (one) ', ''],
     ['brace for', 'for item in one; { ', '}'],
+    ['newline brace for', 'for item in one\n{ ', '}'],
+    ['literal brace in short for', 'for item in {; ', ''],
+    ['quoted brace in short for', "for item in '}'; ", ''],
     ['parenthesized brace for', 'for v (one two) { ', '}'],
     ['short in for', 'for item in one; ', ''],
     ['repeat do', 'repeat 1 do ', 'done'],
@@ -585,6 +588,20 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
       assert.deepEqual(oq.violations, [{ code: 'LINT_DISABLE_ADDED', path: file }, { code: 'LINT_DISABLE_ADDED', path: file }]);
     });
   }
+
+  it('rejects a zsh for list with an unquoted closing brace before its separator', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.zsh');
+    const script = "for item in one { print -r -- '" + shellMarker + " shown' }\n";
+    const native = spawnSync('zsh', ['-fn'], { input: script, encoding: 'utf8' });
+    if (native.error?.code !== 'ENOENT') assert.equal(native.status, 1, native.stderr);
+    fs.writeFileSync(file, script);
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 2, result.stderr + result.stdout);
+    assert.match(result.stderr, /Cannot parse shell source help\.zsh/);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+  });
 
   it('keeps repeat an ordinary command in Bash and POSIX shells', (t) => {
     const { dir } = initGitRepoWithTests();
@@ -968,5 +985,46 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.equal(approved.status, 0, approved.stdout);
     assert.equal(JSON.parse(approved.stdout).status, 'CLEAN');
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('checks retirement approvals for complete __tests__ directory segments at root and nested levels', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+    const approved = ['__tests__/old.mjs', 'pkg/__tests__/old.mjs'];
+    const unapproved = ['__tests__/current.mjs', 'pkg/__tests__/current.mjs'];
+    const ordinary = ['__tests__helpers/old.mjs', 'pkg/my__tests__/old.mjs'];
+    const files = [...approved, ...unapproved, ...ordinary];
+    for (const file of files) {
+      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+      fs.writeFileSync(path.join(dir, file), 'export const fixture = true;\n');
+    }
+    assert.equal(git('add', ...files).status, 0);
+    assert.equal(git('commit', '-m', 'add fixture files').status, 0);
+    // All fixtures share a blob. Approval for a sibling path must not carry over.
+    const blobSha = git('rev-parse', 'HEAD:' + approved[0]).stdout.trim();
+    const retirements = approved.map(file => ({
+      path: file, git_blob_sha: blobSha, approved_by: 'fixture-owner', reason: 'superseded',
+    }));
+    // The nested current file has a path approval for a different blob.
+    const otherBlobSha = git('rev-parse', 'HEAD:tests/sample.test.mjs').stdout.trim();
+    retirements.push({ ...retirements[0], path: unapproved[1], git_blob_sha: otherBlobSha });
+    const manifest = 'sdd/approved-test-retirements.json';
+    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements }));
+    assert.equal(git('add', manifest).status, 0);
+    assert.equal(git('commit', '-m', 'approve fixture retirements').status, 0);
+
+    for (const file of files) fs.unlinkSync(path.join(dir, file));
+    const rejected = runAntiTamper(dir);
+    assert.equal(rejected.status, 4, rejected.stderr || rejected.stdout);
+    assert.deepEqual(
+      JSON.parse(rejected.stdout).violations.map(({ code, path }) => ({ code, path })),
+      unapproved.map(path => ({ code: 'UNAUTHORIZED_TEST_DELETION', path })),
+    );
+
+    assert.equal(git('restore', '--', ...unapproved).status, 0);
+    const accepted = runAntiTamper(dir);
+    assert.equal(accepted.status, 0, accepted.stderr || accepted.stdout);
+    assert.deepEqual(JSON.parse(accepted.stdout).violations, []);
   });
 });
