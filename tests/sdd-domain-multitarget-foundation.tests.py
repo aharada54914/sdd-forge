@@ -8,6 +8,7 @@ import re
 import tempfile
 import os
 import shutil
+import stat
 import subprocess
 import unittest
 
@@ -76,7 +77,12 @@ def resolve_inventory(inventory, root):
                 path = path / part
                 if path.is_symlink():
                     raise ValueError("source path traverses a symlink")
-            if not path.is_file() or root not in path.resolve().parents:
+            try:
+                mode = path.stat().st_mode
+            except FileNotFoundError:
+                # The inventory validator reports the missing file against its entry.
+                continue
+            if not stat.S_ISREG(mode) or root not in path.resolve().parents:
                 raise ValueError("source is not a contained regular file")
             start, end = section_range(path.read_text(encoding="utf-8"), source.pop("section"))
             source.update(line_start=start, line_end=end)
@@ -145,6 +151,18 @@ class CurrentAnchorTests(unittest.TestCase):
         for path in ["../skill.md", "/skill.md", "a/../skill.md", "a\\skill.md", "./skill.md"]:
             with self.subTest(path=path), self.assertRaises(ValueError):
                 resolve_inventory({"entries": [{"source": [{"path": path, "section": "## Required Outputs"}]}]}, ROOT)
+
+    def test_missing_section_source_does_not_hide_other_entries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "present.md").write_text("## Scope\ncurrent evidence\n", encoding="utf-8")
+            inventory = {"entries": [
+                {"id": name, "source": [{"path": name + ".md", "section": "## Scope", "keyword": "current evidence"}]}
+                for name in ("missing", "present")]}
+            resolved = resolve_inventory(inventory, root)
+            failures = [issue for entry in resolved["entries"]
+                        for issue in INVENTORY._validate_source(entry["id"], entry["source"][0], root)]
+            self.assertEqual(failures, ["entry 'missing' source file does not exist under repo-root: missing.md"])
 
     def test_mixed_section_and_line_evidence_is_rejected(self):
         with self.assertRaises(ValueError):

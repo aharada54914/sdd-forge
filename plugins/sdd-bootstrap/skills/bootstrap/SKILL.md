@@ -8,6 +8,8 @@ disable-model-invocation: true
 
 要件から実装可能な仕様・設計・タスク契約を生成し、着工前レビューまで完了させるエントリポイント。
 
+SessionStart フックが使えない場合も、現在のモデルを継承して作業を開始する。利用者がモデル一覧の確認や役割別の変更を希望した場合のみ、`/sdd-implementation:model-selection` を案内する。スキル一覧に表示されない場合は、ホストが示す同じ版の `sdd-implementation` のインストール先から `skills/model-selection/SKILL.md` を開く。
+
 ## Invocation
 
 ```txt

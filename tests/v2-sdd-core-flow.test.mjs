@@ -686,6 +686,39 @@ describe('Phase 2 SDD Core skill & template contracts', () => {
     assert.match(tsk, /Risk: standard/);
     assert.match(tsk, /## Spec Amendments/);
   });
+
+  it('links every shipped Core template requirement and acceptance criterion through a task', (t) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-core-templates-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const templates = path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-core-spec/templates');
+    const spec = path.join(root, 'specs', 'example');
+    fs.mkdirSync(spec, { recursive: true });
+    for (const name of ['requirements.md', 'design.md', 'tasks.md']) {
+      fs.copyFileSync(path.join(templates, name), path.join(spec, name));
+    }
+
+    function trace(expectedStatus) {
+      const script = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs');
+      const result = spawnSync(process.execPath, [script, '--root', root, '--feature', 'example', '--strict'], { encoding: 'utf8' });
+      assert.equal(result.status, expectedStatus, result.stderr || result.stdout);
+      return JSON.parse(result.stdout);
+    }
+
+    assert.equal(trace(0).complete, true);
+    const requirements = path.join(spec, 'requirements.md');
+    const original = fs.readFileSync(requirements, 'utf8');
+    fs.writeFileSync(requirements, original.replace(/(\*\*AC-002\*\*\s*\()REQ-002\)/, '$1REQ-001)'));
+    const orphan = trace(1).gaps;
+    assert.deepEqual(orphan.orphanReqs, ['REQ-002']);
+    assert.deepEqual(orphan.unassignedAcs, []);
+
+    fs.copyFileSync(path.join(templates, 'requirements.md'), requirements);
+    const tasks = path.join(spec, 'tasks.md');
+    fs.writeFileSync(tasks, fs.readFileSync(tasks, 'utf8').replace(/\bAC-002\b/g, ''));
+    const unassigned = trace(1).gaps;
+    assert.deepEqual(unassigned.unassignedAcs, ['AC-002']);
+    assert.deepEqual(unassigned.orphanReqs, []);
+  });
 });
 
 describe('#827 re-verifying a fixed review ticket reaches the gate for exactly that task', () => {
