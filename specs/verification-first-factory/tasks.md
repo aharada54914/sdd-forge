@@ -35,7 +35,7 @@ None
 T-001
 
 ### T-003: 本体 Self-Fitness Functions（`tests/self-fitness.test.mjs`）＆ ゴースト 56 件掃除・カテゴリ1/4 安全廃止
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `medium`
 - **Covers:** `SELF-REQ-003`, `SELF-REQ-006`（カテゴリ1・4）, `NFR-002`
