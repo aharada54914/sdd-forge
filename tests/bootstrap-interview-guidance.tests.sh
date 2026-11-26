@@ -4,9 +4,10 @@ set -u
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 BASE="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer"
 INTERVIEWER="$BASE/SKILL.md"
+CORE="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md"
 RUN="$ROOT/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
 BANK="$BASE/references/interview-question-bank.md"
-GUIDE="$BASE/references/claude-design-workflow.md"
+GUIDE="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 PASS=0
 FAIL=0
 
@@ -71,7 +72,10 @@ else
 fi
 assert_contains "$BANK" '^## Layer Coverage Checklist$' "TEST-006 layer coverage checklist"
 
-for output in requirements.md acceptance-tests.md design.md ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+for output in requirements.md design.md; do
+  assert_contains "$CORE" "specs/<feature>/$output" "TEST-009 declares Core output $output"
+done
+for output in acceptance-tests.md ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
   assert_contains "$INTERVIEWER" "specs/<feature>/$output" "TEST-009 declares Phase 1 output $output"
 done
 assert_contains "$INTERVIEWER" 'layer-local unknown|Layer-local unknown' "TEST-009 records layer-local unknowns"
@@ -79,7 +83,7 @@ assert_contains "$INTERVIEWER" 'MUST NOT overwrite|must not overwrite' "TEST-009
 assert_contains "$INTERVIEWER" 'preserv(e|ed).*SHA-256|SHA-256.*preserv' "TEST-009 existing-layer-files preserved hashes"
 assert_contains "$INTERVIEWER" 'N/A — no change: <reason>' "TEST-017 bugfix-unaffected-layers reasoned N/A"
 assert_contains "$INTERVIEWER" 'security impact.*always|always.*security impact' "TEST-017 security assessment always required"
-assert_contains "$INTERVIEWER" 'No mockup provided — optional visualization skipped' "TEST-018 no-mockup clean skip"
+assert_contains "$GUIDE" 'No mockup provided — optional visualization skipped' "TEST-018 no-mockup clean skip"
 assert_contains "$RUN" 'ux-spec\.md.*frontend-spec\.md.*infra-spec\.md.*security-spec\.md' "TEST-009 run skill knows layer outputs"
 assert_contains "$RUN" 'LITE.*zero layer outputs|zero layer outputs.*LITE' "TEST-009 LITE produces zero layer outputs"
 
@@ -99,6 +103,12 @@ fi
 assert_contains "$INTERVIEWER" 'ds_profile' "TEST-019 ds_profile question present"
 assert_contains "$INTERVIEWER" 'skip design-system integration entirely' "TEST-019 none profile skips integration"
 assert_contains "$INTERVIEWER" 'ds_profile: <value>' "TEST-019 ds_profile recorded in ux-spec"
+
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" interview; then
+  pass "Core interview contract"
+else
+  fail "Core interview contract"
+fi
 
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"

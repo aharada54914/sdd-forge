@@ -3,7 +3,10 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $schemaPath = Join-Path $repositoryRoot "contracts/design-system.contract.v1.schema.json"
-$tokensPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json"
+$tokensPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json"
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") design-system ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
+if ($LASTEXITCODE -ne 0) { throw "not ok: Core design-system contract" }
 
 # DS-001 both JSON files must parse (PS5.1-safe: ConvertFrom-Json, no Test-Json)
 $schema = Get-Content -Raw -Encoding Utf8 $schemaPath | ConvertFrom-Json
@@ -29,8 +32,8 @@ if ($tokens.color.primary.'$value' -notmatch '^#[0-9a-fA-F]{6}$') { throw "not o
 Write-Host "ok: DS-002 tokens template conforms"
 
 # DS-003 / DS-004 markdown templates
-$dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md"
-$uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
+$dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
+$uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
 $ds = Get-Content -Raw -Encoding Utf8 $dsPath
 $uip = Get-Content -Raw -Encoding Utf8 $uipPath
 # PS5.1 reads BOM-less .ps1 as ANSI, so non-ASCII literals must be built from code points.
@@ -56,7 +59,7 @@ Write-Host "ok: DS-005 PLUGIN-CONTRACTS section"
 
 # DS-006 design-sync-loop v2 (ASCII-only assertions; the em-dash fallback note is asserted by the sh twin)
 $dsl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md")
-foreach ($needle in @('## Ensure design-system/', 'ui-ux-pro-max', 'design-system --persist', 'figma-dtcg-import', 'design-system/design-tokens.json', 'MASTER.md')) {
+foreach ($needle in @('Ensure `design-system/`', 'ui-ux-pro-max', 'design-system --persist', 'Figma DTCG JSON', 'design-tokens.json', 'MASTER.md')) {
     if ($dsl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-006 missing $needle" }
 }
 Write-Host "ok: DS-006 design-sync-loop v2"
@@ -98,7 +101,7 @@ Write-Host "ok: DS-012 implementation policy UI rules"
 
 # DS-013 visual-verify-loop design-system comparison
 $vvl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md")
-foreach ($needle in @('design-system/design-tokens.json', 'design-system/ui-patterns.md', 'check-design-system')) {
+foreach ($needle in @('design-system/{design-tokens.json,ui-patterns.md}', 'check-design-system')) {
     if ($vvl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-013 missing $needle" }
 }
 Write-Host "ok: DS-013 visual-verify-loop design-system comparison"
@@ -191,7 +194,7 @@ function Test-Fail([string]$label) {
 $dslPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
 $bsiPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 $wfgPath = Join-Path $repositoryRoot "docs/workflow-guide.md"
-$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 $chgPath = Join-Path $repositoryRoot "CHANGELOG.md"
 $dscDraftPath = Join-Path $repositoryRoot "specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md"
 $dscManifestPath = Join-Path $repositoryRoot "specs/design-sync-consent/human-copy/MANIFEST.sha256"
@@ -322,7 +325,6 @@ $dslLines = Get-LinesOrEmpty $dslPath
 $dslText = Get-TextOrEmpty $dslPath
 $loopLines = Get-SectionBetween $dslLines '^## Loop$' '^## '
 $boundariesLines = Get-SectionBetween $dslLines '^## Boundaries$' '^## '
-$capLines = Get-SectionBetween $dslLines '^## Capability Detection$' '^## '
 $bsiLines = Get-LinesOrEmpty $bsiPath
 $bsiUiBulletLines = Get-SectionBetween $bsiLines '^- When the target is a UI application' '^- Otherwise ask whether the human has a local mockup'
 $wfgLines = Get-LinesOrEmpty $wfgPath
@@ -332,7 +334,6 @@ $cdwText = Get-TextOrEmpty $cdwPath
 $dslFlat = Get-FlatText $dslText
 $loopFlat = Get-Flat $loopLines
 $boundariesFlat = Get-Flat $boundariesLines
-$capFlat = Get-Flat $capLines
 $bsiUiBulletFlat = Get-Flat $bsiUiBulletLines
 $wfgSectionFlat = Get-Flat $wfgSectionLines
 $cdwFlat = Get-FlatText $cdwText
@@ -463,13 +464,15 @@ if ($dslFlat -match 'audit trace[^.]{0,100}not[^.]{0,60}authorization') {
     Test-Fail "TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)"
 }
 
-if (($capFlat -match 'tool is unavailable') -and $capFlat.Contains("design tools unavailable")) {
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") tool-unavailable
+if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 } else {
     Test-Fail "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 }
 
-if (($capFlat -match 'authentication fails') -and $capFlat.Contains("design tools unavailable")) {
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") auth-failed
+if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
 } else {
     Test-Fail "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
@@ -481,7 +484,7 @@ if ($cdwText.Contains("does not automatically inspect, upload, or retain") -and 
     Test-Fail "TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)"
 }
 
-if ($boundariesFlat -match 'absence of mockups.{0,20}never blocks|mockups or design tools') {
+if ($cdwFlat -match 'mockups and HTML previews are optional attachments.{0,25}absence never blocks specification review') {
     Test-Pass "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
 } else {
     Test-Fail "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
@@ -706,7 +709,7 @@ if (Test-039CiRegistered) {
     Test-Fail "TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)"
 }
 
-if (($dslFlat -cmatch '## Ensure design-system/') -and $dslText.Contains("ui-ux-pro-max") `
+if (($dslFlat -cmatch 'Ensure `design-system/`') -and $dslText.Contains("ui-ux-pro-max") `
         -and $dslText.Contains("design-system --persist") -and $dslText.Contains("figma-dtcg-import") `
         -and $dslText.Contains("design-system/design-tokens.json") -and $dslText.Contains("MASTER.md")) {
     Test-Pass "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"

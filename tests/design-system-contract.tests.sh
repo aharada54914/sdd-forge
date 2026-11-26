@@ -3,7 +3,7 @@ set -u
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 SCHEMA="$ROOT/contracts/design-system.contract.v1.schema.json"
-TOKENS="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json"
+TOKENS="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json"
 PASS=0
 FAIL=0
 
@@ -36,7 +36,7 @@ assert_contains "$TOKENS" '"\$type"' "DS-002 DTCG \$type present"
 assert_contains "$TOKENS" '"\$value"' "DS-002 DTCG \$value present"
 
 # DS-003 design-system.md template required sections
-DS="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md"
+DS="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
 assert_contains "$DS" '^## Layer 1 — Tokens \(machine-extracted\)$' "DS-003 layer 1 section"
 assert_contains "$DS" '^## Layer 2 — Do / Don'"'"'t \(component conventions\)$' "DS-003 layer 2 section"
 assert_contains "$DS" '^## Layer 3 — Review checklist \(human-curated\)$' "DS-003 layer 3 section"
@@ -44,7 +44,7 @@ assert_contains "$DS" '^## Change Process$' "DS-003 change process section"
 assert_contains "$DS" 'WCAG 2\.2 AA' "DS-003 WCAG 2.2 AA"
 
 # DS-004 ui-patterns.md template required sections (D6 categories)
-UIP="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
+UIP="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
 for section in Actions Dialogs Icons Flow States 'Cognitive Load'; do
   assert_contains "$UIP" "^## $section$" "DS-004 ui-patterns section $section"
 done
@@ -59,12 +59,12 @@ assert_contains "$PC" 'absence never blocks' "DS-005 absence contract"
 
 # DS-006 design-sync-loop v2 ensures design-system/ and token-driven mockups
 DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-assert_contains "$DSL" '^## Ensure design-system/$' "DS-006 ensure section"
+assert_contains "$DSL" '^## [0-9]+\. Ensure `design-system/`' "DS-006 ensure section"
 assert_contains "$DSL" 'ui-ux-pro-max' "DS-006 seed generator detection"
 assert_contains "$DSL" 'design-system --persist' "DS-006 seed generation command"
 assert_contains "$DSL" 'ui-ux-pro-max unavailable — D6 template interview used' "DS-006 D6 fallback note"
-assert_contains "$DSL" 'figma-dtcg-import' "DS-006 figma DTCG import path"
-assert_contains "$DSL" 'design-system/design-tokens\.json' "DS-006 mockups reference tokens"
+assert_contains "$DSL" 'Figma DTCG JSON.*ローカルファイル.*design-tokens\.json' "DS-006 figma DTCG import path"
+assert_contains "$DSL" 'Generate Mockups.*トークン準拠' "DS-006 mockups reference tokens"
 assert_contains "$DSL" 'MASTER\.md' "DS-006 seed is input, artifacts authoritative"
 
 # DS-007 investigate-codebase brownfield design inventory
@@ -103,8 +103,8 @@ assert_contains "$ITSK" 'design-system/design-system\.md' "DS-012 conditional re
 
 # DS-013 visual-verify-loop design-system comparison
 VVL="$ROOT/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md"
-assert_contains "$VVL" 'design-system/design-tokens\.json' "DS-013 token conformance in loop"
-assert_contains "$VVL" 'design-system/ui-patterns\.md' "DS-013 ui-patterns in loop"
+assert_contains "$VVL" 'design-system/\{design-tokens\.json,ui-patterns\.md\}' "DS-013 token conformance in loop"
+assert_contains "$VVL" 'design-system/\{design-tokens\.json,ui-patterns\.md\}' "DS-013 ui-patterns in loop"
 assert_contains "$VVL" 'check-design-system' "DS-013 deterministic gate ownership"
 
 # DS-014 design-system checklist and evaluator wiring
@@ -159,7 +159,7 @@ assert_contains "$ROOT/CHANGELOG.md" '統一デザインシステム統合' "DS-
 
 BSI="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 WFG="$ROOT/docs/workflow-guide.md"
-CDW="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+CDW="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 CHG="$ROOT/CHANGELOG.md"
 DSC_DRAFT="$ROOT/specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md"
 DSC_MANIFEST="$ROOT/specs/design-sync-consent/human-copy/MANIFEST.sha256"
@@ -228,14 +228,12 @@ BANNED_JA_PER_UPLOAD="$(printf '%s' '都度人間')$(printf '%s' '承認')"
 
 LOOP_SECTION=$(section_between "$DSL" '^## Loop$' '^## ')
 BOUNDARIES_SECTION=$(section_between "$DSL" '^## Boundaries$' '^## ')
-DSL_CAP_SECTION=$(section_between "$DSL" '^## Capability Detection$' '^## ')
 BSI_UI_BULLET=$(section_between "$BSI" '^- When the target is a UI application' '^- Otherwise ask whether the human has a local mockup')
 WFG_SECTION=$(section_between "$WFG" '^### 3\.1b ' '^### 3\.2 ')
 
 DSL_FLAT=$(flatten_file "$DSL")
 LOOP_FLAT=$(flatten_text "$LOOP_SECTION")
 BOUNDARIES_FLAT=$(flatten_text "$BOUNDARIES_SECTION")
-DSL_CAP_FLAT=$(flatten_text "$DSL_CAP_SECTION")
 BSI_UI_BULLET_FLAT=$(flatten_text "$BSI_UI_BULLET")
 WFG_FLAT=$(flatten_text "$WFG_SECTION")
 CDW_FLAT=$(flatten_file "$CDW")
@@ -382,15 +380,13 @@ else
   fail "TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)"
 fi
 
-if printf '%s' "$DSL_CAP_FLAT" | grep -Eiq 'tool is unavailable' \
-   && printf '%s' "$DSL_CAP_FLAT" | grep -Fq 'design tools unavailable'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" tool-unavailable; then
   pass "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 else
   fail "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 fi
 
-if printf '%s' "$DSL_CAP_FLAT" | grep -Eiq 'authentication fails' \
-   && printf '%s' "$DSL_CAP_FLAT" | grep -Fq 'design tools unavailable'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" auth-failed; then
   pass "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
 else
   fail "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
@@ -403,7 +399,7 @@ else
   fail "TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)"
 fi
 
-if printf '%s' "$BOUNDARIES_FLAT" | grep -Eiq 'absence of mockups.{0,20}never blocks|mockups or design tools'; then
+if printf '%s' "$CDW_FLAT" | grep -Eiq 'mockups and HTML previews are optional attachments.{0,25}absence never blocks specification review'; then
   pass "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
 else
   fail "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
@@ -617,7 +613,7 @@ else
   fail "TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)"
 fi
 
-if grep -Eq '^## Ensure design-system/$' "$DSL" && grep -Fq 'ui-ux-pro-max' "$DSL" \
+if grep -Eq '^## [0-9]+\. Ensure `design-system/`' "$DSL" && grep -Fq 'ui-ux-pro-max' "$DSL" \
    && grep -Fq 'design-system --persist' "$DSL" \
    && grep -Fq 'ui-ux-pro-max unavailable — D6 template interview used' "$DSL" \
    && grep -Fq 'figma-dtcg-import' "$DSL" && grep -Eq 'design-system/design-tokens\.json' "$DSL" \
@@ -697,6 +693,12 @@ if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not change consent state' \
   pass "TEST-051 push-failure rule, all four parts (AC-030)"
 else
   fail "TEST-051 push-failure rule, all four parts (AC-030)"
+fi
+
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" design-system; then
+  pass "Core design-system contract"
+else
+  fail "Core design-system contract"
 fi
 
 printf 'PASS: %s\n' "$PASS"

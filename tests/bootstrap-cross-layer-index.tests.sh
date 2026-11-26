@@ -4,6 +4,7 @@ set -u
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 TEMPLATES="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates"
 DESIGN="$TEMPLATES/design.template.md"
+CORE_TEMPLATES="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/templates"
 TRACEABILITY="$TEMPLATES/traceability.template.md"
 PASS=0
 FAIL=0
@@ -22,7 +23,8 @@ assert_absent() {
   file=$1
   pattern=$2
   label=$3
-  if grep -Eq "$pattern" "$file"; then fail "$label"; else pass "$label"; fi
+  grep -Eq "$pattern" "$file"
+  if [ "$?" -eq 1 ]; then pass "$label"; else fail "$label"; fi
 }
 
 assert_contains "$DESIGN" 'ux-spec\.md#[a-z0-9-]+' "TEST-007 design links UX layer"
@@ -31,11 +33,11 @@ assert_contains "$DESIGN" 'infra-spec\.md#[a-z0-9-]+' "TEST-007 design links inf
 assert_contains "$DESIGN" 'security-spec\.md#[a-z0-9-]+' "TEST-007 design links security layer"
 assert_contains "$DESIGN" '^## Cross-Layer Dependencies$' "TEST-007 cross-layer dependencies"
 assert_contains "$DESIGN" '^## ADR Change Log$' "TEST-007 ADR change log"
-assert_contains "$DESIGN" '^## Test Strategy$' "TEST-007 retains test strategy"
+assert_contains "$CORE_TEMPLATES/design.md" '^## テスト方針$' "TEST-007 retains test strategy"
 assert_contains "$DESIGN" '^## Constraint Compliance$' "TEST-007 retains constraints"
-assert_contains "$DESIGN" '^## Open Questions$' "TEST-007 retains open questions"
-assert_contains "$DESIGN" '^## Risks$' "TEST-007 retains risks"
-assert_absent "$DESIGN" '^## (Frontend|Backend) Plan$' "TEST-007 removes legacy inline plan placeholders"
+assert_contains "$CORE_TEMPLATES/requirements.md" '^## Open Questions' "TEST-007 retains open questions"
+assert_contains "$CORE_TEMPLATES/design.md" '^## 影響範囲・リスク考慮$' "TEST-007 retains risks"
+assert_absent "$CORE_TEMPLATES/design.md" '^## (Frontend|Backend) Plan$' "TEST-007 removes legacy inline plan placeholders"
 
 assert_contains "$TRACEABILITY" 'Requirement.*Layer Spec.*Test ID' "TEST-008 Layer Spec traceability column"
 trace_header=$(grep -m 1 '^| Requirement |' "$TRACEABILITY")
@@ -51,7 +53,7 @@ assert_contains "$TRACEABILITY" 'infra-spec\.md#[a-z0-9-]+' "TEST-008 canonical 
 assert_contains "$TRACEABILITY" 'security-spec\.md#[a-z0-9-]+' "TEST-008 canonical security anchor example"
 assert_contains "$TRACEABILITY" 'N/A — cross-layer only: [^|]+' "TEST-008 reasoned cross-layer example"
 
-if awk -F '|' '
+if ! awk -F '|' '
   /^\| Requirement / {
     for (i = 2; i < NF; i++) {
       name = $i
@@ -60,11 +62,12 @@ if awk -F '|' '
     }
   }
   /^\| REQ-/ {
+    rows++
     value = $layer_spec
     gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
     if (value == "" || value == "N/A") invalid = 1
   }
-  END { exit invalid ? 0 : 1 }
+  END { exit (!layer_spec || !rows || invalid) ? 1 : 0 }
 ' "$TRACEABILITY"; then
   fail "TEST-008 no blank or bare N/A Layer Spec examples"
 else
@@ -83,7 +86,19 @@ cat > "$TMP_WORK/requirements.md" <<'EOF'
 - REQ-005
 - REQ-006
 EOF
-cp "$TRACEABILITY" "$TMP_WORK/traceability.md"
+if python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" "$TRACEABILITY" "$TMP_WORK/requirements.md"; then
+  pass "TEST-008 shipped layer table template passes the validator"
+else
+  fail "TEST-008 shipped layer table template passes the validator"
+fi
+# The validator remains public for existing layer tables. Exercise its input
+# independently from the install-time template assertions above.
+{
+  printf '| Requirement | Layer Spec |\n|---|---|\n'
+  for id in 001 002 003 004 005 006; do
+    printf '| REQ-%s | ux-spec.md#journey |\n' "$id"
+  done
+} > "$TMP_WORK/traceability.md"
 cat >> "$TMP_WORK/traceability.md" <<'EOF'
 
 ## Investigation Notes
@@ -184,6 +199,12 @@ for boundary in '# Notes' '## Notes' '### Notes' '#### Notes' '##### Notes' '###
     fi
   done
 done
+
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" traceability; then
+  pass "Core traceability contract"
+else
+  fail "Core traceability contract"
+fi
 
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"

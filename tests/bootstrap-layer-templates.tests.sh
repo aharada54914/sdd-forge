@@ -122,6 +122,10 @@ while IFS='|' read -r template_name heading; do
   [ -n "$template_name" ] || continue
   template="$TEMPLATES/$template_name"
   malformed="$tmp/$template_name"
+  if ! validate_required_heading "$template" "$heading" >/dev/null 2>&1; then
+    fail "cannot mutate $template_name without original $heading"
+    continue
+  fi
   grep -Fvx "$heading" "$template" > "$malformed"
   if diagnostic=$(validate_required_heading "$malformed" "$heading" 2>&1); then
     fail "malformed $template_name rejects removed $heading"
@@ -157,6 +161,10 @@ while IFS='~' read -r template_name pattern label; do
   [ -n "$template_name" ] || continue
   template="$TEMPLATES/$template_name"
   malformed="$tmp/$template_name"
+  if ! validate_required_pattern "$template" "$pattern" "$label" >/dev/null 2>&1; then
+    fail "cannot mutate $template_name without original $label"
+    continue
+  fi
   grep -Ev "$pattern" "$template" > "$malformed"
   if diagnostic=$(validate_required_pattern "$malformed" "$pattern" "$label" 2>&1); then
     fail "malformed $template_name rejects removed $label"
@@ -192,7 +200,8 @@ EOF
 # asserted that the two task templates carry the four risk fields, or that
 # the classification policy states the legacy-mode rule (its absent->medium
 # paragraph contradicted the other three normative docs for 14 months).
-for field in "Risk:" "Risk Rationale:" "Required Workflow:" "Requirements:"; do
+assert_contains "$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/templates/tasks.md" '^Risk: standard$' "RT001: Core task template carries the risk field"
+for field in "Risk Rationale:" "Required Workflow:" "Requirements:"; do
   if grep -q "^${field}" "$TEMPLATES/tasks.template.md"; then
     pass "RT001: tasks.template.md carries '$field' line"
   else
@@ -240,6 +249,12 @@ else
   else
     pass "RT001: no absent->medium mapping statement in the policy doc (heuristic; behavioral pin is gates T-004.1)"
   fi
+fi
+
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" layers; then
+  pass "Core layers contract"
+else
+  fail "Core layers contract"
 fi
 
 printf 'PASS: %s\n' "$PASS"
