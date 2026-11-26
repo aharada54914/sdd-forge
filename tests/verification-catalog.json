@@ -528,14 +528,14 @@
       "path": "tests/check-placeholders-brownfield.tests.ps1",
       "runtime": "powershell",
       "ci_jobs": [
-        "loops-routing"
+        "v2-guardrails"
       ]
     },
     {
       "path": "tests/check-placeholders-brownfield.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
-        "loops-routing"
+        "v2-guardrails"
       ]
     },
     {
@@ -1036,14 +1036,14 @@
       "path": "tests/hitl-wfi-terminal.tests.ps1",
       "runtime": "powershell",
       "ci_jobs": [
-        "loops-routing"
+        "v2-guardrails"
       ]
     },
     {
       "path": "tests/hitl-wfi-terminal.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
-        "loops-routing"
+        "v2-guardrails"
       ]
     },
     {
@@ -1375,7 +1375,7 @@
       "path": "tests/quality-gate-cycle-limit.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
-        "test"
+        "v2-guardrails"
       ]
     },
     {

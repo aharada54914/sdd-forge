@@ -45,6 +45,25 @@ jobs:
           SDD_REQUIRE_AJV: "1"
         run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs tests/v2-agent-lint.test.mjs tests/v2-formal-gate.test.mjs tests/v2-wave3-integration.test.mjs tests/self-fitness.test.mjs tests/self-security-adversarial.test.mjs
 
+      - name: Test HITL, WFI and brownfield CLI behavior in Bash and PowerShell
+        shell: bash
+        run: |
+          # The PowerShell tests invoke bash for the HITL template and inventory.
+          # On Windows, keep the runner's Git Bash ahead of the WSL launcher.
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="${BASH%/*}:$PATH"
+          fi
+          bash tests/hitl-wfi-terminal.tests.sh
+          bash tests/check-placeholders-brownfield.tests.sh
+          pwsh -NoProfile -File tests/hitl-wfi-terminal.tests.ps1
+          pwsh -NoProfile -File tests/check-placeholders-brownfield.tests.ps1
+
+      - name: Test the feature-scoped cycle limit in Bash and PowerShell
+        shell: bash
+        run: |
+          command -v pwsh
+          bash tests/quality-gate-cycle-limit.tests.sh
+
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'
         shell: bash
