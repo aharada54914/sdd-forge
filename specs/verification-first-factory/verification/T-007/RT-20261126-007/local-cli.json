@@ -1,0 +1,548 @@
+{
+  "node": "v24.13.0",
+  "git": "git version 2.54.0 (Apple Git-157)",
+  "trackedFixtureContent": "{\"name\":\"ordinary-example\",\"private\":true,\"dependencies\":{\"react\":\"18.2.0\"}}\n",
+  "versions": [
+    {
+      "revision": "cc4c4427ddfde62a5cb03deebd5f3b3bdb303d08",
+      "moduleSHA256": {
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+        "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs": "cefd20ec49f570dac4f1809c87015afb1c81572fd826dc65addc78f61bbe1c84"
+      },
+      "gitReportedDeleted": [
+        "deleted/package.json"
+      ],
+      "observations": [
+        {
+          "case": "trackedDeletion",
+          "files": [
+            "deleted/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "trackedDeletion",
+          "files": [
+            "deleted/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "absent",
+          "files": [
+            "missing/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "absent",
+          "files": [
+            "missing/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readable",
+          "files": [
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readable",
+          "files": [
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "mixed",
+          "files": [
+            "deleted/package.json",
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "mixed",
+          "files": [
+            "deleted/package.json",
+            "present/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "directory",
+          "files": [
+            "directory/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_SCAN_INPUT"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "directory",
+          "files": [
+            "directory/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readDenied",
+          "files": [
+            "unreadable/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_SCAN_INPUT"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readDenied",
+          "files": [
+            "unreadable/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "revision": "517ac392a19bbdef2ab8a4c3201f307395b8891c",
+      "moduleSHA256": {
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+        "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs": "9061d23d72f60d2ab33c228a3e0cbe82246deb6738999f43c3fa4d69dd3dd16a"
+      },
+      "gitReportedDeleted": [
+        "deleted/package.json"
+      ],
+      "observations": [
+        {
+          "case": "trackedDeletion",
+          "files": [
+            "deleted/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "trackedDeletion",
+          "files": [
+            "deleted/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "absent",
+          "files": [
+            "missing/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "absent",
+          "files": [
+            "missing/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readable",
+          "files": [
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readable",
+          "files": [
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "mixed",
+          "files": [
+            "deleted/package.json",
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "mixed",
+          "files": [
+            "deleted/package.json",
+            "present/package.json"
+          ],
+          "processExit": 0,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "PASS",
+            "exitCode": 0,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "directory",
+          "files": [
+            "directory/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_SCAN_INPUT"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "directory",
+          "files": [
+            "directory/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readDenied",
+          "files": [
+            "unreadable/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-secret-pattern"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_SCAN_INPUT"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        },
+        {
+          "case": "readDenied",
+          "files": [
+            "unreadable/package.json"
+          ],
+          "processExit": 2,
+          "stderrBytes": 0,
+          "public": {
+            "schema": "sdd-security-gate/v1",
+            "mode": "strict",
+            "status": "TOOL_ERROR",
+            "exitCode": 2,
+            "adaptersRun": [
+              "builtin-slopsquatting"
+            ],
+            "errors": [
+              {
+                "code": "UNREADABLE_MANIFEST"
+              }
+            ],
+            "findings": [],
+            "warnings": []
+          }
+        }
+      ]
+    }
+  ]
+}
