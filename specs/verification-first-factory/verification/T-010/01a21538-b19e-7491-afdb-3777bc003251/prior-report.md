@@ -1,0 +1,120 @@
+# Implementation Report: T-010
+
+- Task ID: T-010
+- Model: gpt-6.2-astra
+- Effort: high
+
+Report Schema: implementation-report/v2
+Run ID: 7d3c742a-5175-45d2-8e2e-f32d86a08f0c
+Task Attempt Count: 3
+Input manifest: `specs/verification-first-factory/verification/T-010/report-revalidation/task-input-manifest.json`, SHA-256 `245684f2071f4287bbb01025f19678e5148e320d9cd6e1abda55b956dfd77f76`
+
+## 2026-11-26　継続提供する CLI の CI 配線
+
+| 事前に照合した項目 | 対応する契約 | 修正前の不一致（`3519cb1d5`） |
+| --- | --- | --- |
+| 各スイートの `ci_jobs` とカタログレポートの実行先 | 3 OS の `v2-guardrails` が Bash・PowerShell 双方で HITL/WFI と brownfield を実行し、cycle-limit が両 CLI を検査する。 | 5 ファイルとも `classifyCatalog()` が `not-in-ci` を返し、実行先は空だった。各スイートにある CI 登録検査も失敗した。 |
+
+## 2026-11-26 のPR照合
+
+対象PR headは `cc5872c29`、PR baseは `2db182ad2`。旧版v2.1.3の配布時設定そのままで、ロック、AGENT_STOP、署名付きConcept Test、旧dispatch helperに関する公開CLIの8条件で終了コードが一致した。通常CIのMCPは73/73成功。Shadow追加時のローカル差は3回とも+2.356秒以内、同じpull_requestイベントの全体実行時間差は+33秒、Guardrails単体は+125秒だった。3回のGitleaks・Semgrepの所見はいずれも0件。ASTの実差分の所見を含む昇格判定は未達。廃止は0件。[旧設定の8条件・計測コマンド・ジョブURL](../../../specs/verification-first-factory/verification/T-010/shadow-pr976/qualification.md)
+
+local-posixの計画は195件。旧スナップショットの失敗113件を全件照合し、base/headで安全な12本を同じ条件で再実行した。両版で同じ失敗9、両版で成功2、headで成功に変わったもの1。旧版・base・headの全てに欠ける41パスを44スイートの診断で確認した。PRで2件増えたregistry欠落を `f4b7cc0` で既存の軽量プロファイルに登録し、Shell/PowerShellで9件成功した。次の表の `FAIL` は試行3の総合判定。AC-013の同一SHA・全195件レシートは未取得で、部分実行はこれを満たさない。[失敗113件の根拠と判定](../../../specs/verification-first-factory/verification/T-010/shadow-pr976/historical-failure-triage.json)・[registry修正後の実行記録](../../../specs/verification-first-factory/verification/T-010/shadow-pr976/registry-repair.json)
+
+クリーンな統合版 `c9c5d24b2` でさらに6本のカタログレシートを取得し、同一スイートをPR base `2db182ad2` で比較した。両版のソースは6本とも同一で、終了1と先頭の失敗項目が一致した。対象は reviewer の指示、loop登録、モデル選択パッケージ、デザインシステムのJSON契約、design syncの利用側、実装者起動ポリシー。追加確認により旧113失敗の「現行結果未確認」は47本から41本になった。上流にも存在する失敗をPRの新規回帰に加算していない。[追加6対のSHA、終了コード、診断とレシート](../../../specs/verification-first-factory/verification/T-010/shadow-pr976/additional-clean-pairs.json)
+
+T-004の生成物照合を含む候補では、同じ70 PRのAST所見が12件となり、全件で対象構文が実在した。重複4件と第三者1件を修正不要として数える場合の運用上の不要警告は5/12。この変更で増えるローカル検査時間は実バンドル各3回の比較で最大+0.381秒、CI追加ステップをキャッシュ済み依存で実行して最大2.260秒だった。統合後GitHub CIの実測は別途必要。[生成物による時間増分](../../../specs/verification-first-factory/verification/T-004/shadow-pr976/bundle-timing.json)
+
+個別の再実行は、各比較SHAのクリーンなcheckoutから `bash tests/<suite>.tests.sh`、カタログレシートには `python3 tests/verification.py --suite tests/<suite>.tests.sh --receipt <path>` を用いた。指定された全件コマンドは `python3 tests/verification.py --profile local-posix --receipt <path>`。[各コマンドの結果](../../../specs/verification-first-factory/verification/T-010/shadow-pr976/paired-triage.json)
+
+## カタログの統合版照合と未解決の契約
+
+`123cebf69` の local-posix 195件は、v2.1.3・PR base に実在した195件と同じ順序で、baseと195件の登録行すべて、194件のスイート本体が一致した。旧版の全カタログ欠落77件のうち42件がこのプロファイルに属していた。旧113失敗のうち、44スイートが参照する欠落依存41パスでは40パスの上流削除を5コミットに特定した。別の6件では旧CI名が現行カタログにも残るが、ワークフロー中の登録アサーションを満たさない。カテゴリ2の本番ESM化・Windows同値性・負例パリティが揃う候補は0件。全件レシートと上流の既存失敗を解消する契約別の判断は双方が未完了。後者には現役のモデル選択・jq不足の診断、旧Full/LiteとCoreの継承対象、CI実行ジョブの照合を含む。[版ごとの集計と所有者が判断する変更](../../../specs/verification-first-factory/verification/T-010/shadow-pr976/qualification.md#全件レシート取得後に残る判断)
+
+## Target
+
+725eb86c5ec6 の成果物を再検証した。以下の入力・出力と担当者は今回の記録である。前回の実装記録（Run ID `verification-first-factory-T-010-repair-20261126`、試行 2）を後段に保存した。
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `.github/workflows/sdd-guardrails.yml` | `483fe852d3d6d2af2d4d0b50e409b1c5e425d751af9e7ff0446894862cd0b334` |
+| `.github/workflows/test.yml` | `3d6b5a2f8b96a026c2f243e035bfdedfd4d08bf23ec5d3cfa54f3e9ae85b2f92` |
+| `.gitignore` | `af2bd6082058b56fb9bd366e6b10d65020bc074d56d4930be405add4aefeba0b` |
+| `specs/verification-first-factory/verification/T-010/report-revalidation/test-receipt.json` | `f7e3a5b5985ece2ebdc870d833f4f4fe52408818d33ca0a3cefa23613e081716` |
+
+## Test Evidence
+
+- **Test Command**: `actionlint .github/workflows/sdd-guardrails.yml .github/workflows/test.yml`、`node --test tests/v2-hooks-and-ci.test.mjs`。過去のログと部分レシートの照合を含む全コマンドと終了コードは下記 JSON に記録した。
+- **Test Result**: FAIL
+- **Test Evidence Path**: `specs/verification-first-factory/verification/T-010/report-revalidation/test-receipt.json`
+
+725eb86c5ec6 で両ワークフローの actionlint 1.7.12 は成功し、ワークフロー契約テストは 16/16 件成功した。総合結果の FAIL は、下記の AC-013 フルプロファイルに対する判定である。
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 3
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Scratch Root**: `/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-T-010-9q86ld_u`
+- **Run ID**: 7d3c742a-5175-45d2-8e2e-f32d86a08f0c
+- **Session ID**: 01a21386-d1da-7fa0-adf2-acf9fd7fb9b4
+- **Agent Instance ID**: 01a21386-d1da-7fa0-adf2-acf9fd7fb9b4
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+AC-013 のフルプロファイルは FAIL。過去の fc166bd1a の作業スナップショットで、初回は 78 成功・104 失敗、残り13件は別実行で 4 成功・9 失敗だった。両記録の SHA-256 は今回の再照合で一致した。全195件を同一実行で確認した証跡と、今回のリビジョンでのフルプロファイル再実行結果はない。Shadow の誤検知率とローカル・PR CI の純増時間、ホスト上の実行、カテゴリ2の廃止条件・承認も未確認。
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: 独立した品質ゲートで受入条件と証跡を照合する。
+- **Unresolved Items**: AC-013 のフルプロファイルは FAIL。過去の fc166bd1a の作業スナップショットで、初回は 78 成功・104 失敗、残り13件は別実行で 4 成功・9 失敗だった。両記録の SHA-256 は今回の再照合で一致した。全195件を同一実行で確認した証跡と、今回のリビジョンでのフルプロファイル再実行結果はない。Shadow の誤検知率とローカル・PR CI の純増時間、ホスト上の実行、カテゴリ2の廃止条件・承認も未確認。
+
+## 前回の実装記録
+
+### CI integration and shadow qualification
+
+## WFI-001 preflight
+
+Recorded before editing the workflows. At the starting revision a static contract probe against both checked-in workflows failed all five checks: full-history diff base, Gitleaks and differential Semgrep, nightly CodeQL, cached TLC execution, and AST dependency installation on both runners.
+
+| Persisted evidence field or claim | Contract counterpart | Failing mismatch test |
+| --- | --- | --- |
+| Reviewed base and head commit IDs | Push before SHA or pull request merge base versus actual checkout | A clean HEAD checkout still containing a finding relative to its parent must be scanned. A multi-commit branch push must include its first changed commit. |
+| Gitleaks and Semgrep finding totals | Redacted Gitleaks commit range and Semgrep baseline JSON | A newly added test finding increments the corresponding total. An unavailable/failed tool fails the job. |
+| Nightly CodeQL execution | Default-branch schedule with JavaScript/TypeScript analysis | An event-to-job check fails if PRs run nightly-only analysis or the cron lacks its analysis job. |
+| TLC verification outcome and evidence | Hash-verified TLC jar, real baseline and named negative control, repository model/bridge inputs | A modified jar fails checksum validation before Java. A changed model must rerun the tests and a surviving negative control must fail them. |
+| Shadow qualification | SELF-AC-005 and AC-013, reviewed false positives below 5% and paired elapsed-time increases at most 15s locally and 120s on PR CI | Missing classifications, missing baseline, or an exceeded bound must prevent a strict promotion. |
+| Category 2 retirement eligibility | Per-file ESM replacement, failure-mode coverage, Windows native evidence and approved path+blob pair | Missing any required item leaves the suite in the catalog. |
+
+## Verification on macOS arm64
+
+- GitHub Actions job syntax and pinned action references passed actionlint 1.7.12. The existing workflow contract suite passed 16/16 tests. Both review workflows install the pinned AST dependency using the lockfile.
+- Executed the review scanner shell step with Gitleaks 8.30.1 and Semgrep 1.187.0 on a disposable repository. A change introducing no new findings excluded the baseline TLS rule violation (1.84s). Two later commits, with a new synthetic credential and new TLS finding in the first, reported exactly one location per tool (1.55s). The published evidence contained no synthetic credential or source line. Pull request, push and first branch push cases resolved the intended base. A force-push fixture fetched the unreachable previous tip by SHA, and changing the mapped reservation script activated the TLC step.
+- Replayed the complete TLC shell step using the pinned jar (SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88) and Java 21. The step passed in 21.76s and passed again in 28.86s with its TAP artifact enabled. Both runs covered 10 Node tests, six Python tests and the real two-contender replay. The negative control accepted two contenders and the baseline accepted one.
+- PR and push scans use the review range and record redacted locations and per-scanner time. The repository-wide manifest check passed locally under CI=true with zero findings. Under the nightly schedule, the dependency adapter checks package manifests and CodeQL runs the JavaScript/TypeScript extended queries and retains SARIF with read-only repository permissions. The hosted cache, artifact upload, and scheduled CodeQL job are pending first real execution at CI/release time (WFI-015). A changed model or checker now enables the real TLC branch on the Ubuntu runner.
+- The fixture timings measure scanner wall time, not the net production overhead. No paired before/after PR timings or reviewed field false-positive rate were available when wiring CI. Strict promotion requires those measurements and the local delta. No category 2 suite was retired.
+- On the pristine v2.1.3 reference (484cbe7aef828488ee49fa5d92569917e74c5891), local-posix catalog planning exited 2 before executing any suite. Of its 237 registered profile paths, 42 did not exist in the same Git tree. A paired full-profile timing delta against that historical catalog is unavailable.
+
+## Full profile status
+
+An isolated working snapshot rooted at fc166bd1a started the 195-suite local-posix selection with four workers. The run was stopped after 23.9 minutes of logged progress. Matching unique status lines against the selected paths gave 182 finished (78 passed, 104 failed) and 13 with no final status. The runner emitted no receipt before termination. The partial log SHA-256 is f98c593f97d71b5ca7f83f6a89ef6968f0d4eb7e24f97a88657046c3962c0568. One observed failure depended on plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh, which is absent in both the candidate and v2.1.3. Reproduce in an isolated candidate checkout after installing the rules and MCP lockfiles with `python3 tests/verification.py --profile local-posix --run --jobs 4 --receipt /tmp/local-posix.json`. The runner writes its final receipt after all workers finish. Its supported catalog runtimes are Bash, PowerShell and Python. This profile alone does not exercise the added Node gates or adjudicate a shadow finding as a false positive. Those measurements require the review evidence and comparable baseline runs.
+
+The same isolated snapshot subsequently ran the remaining 13 suites through the catalog executor with the local-posix profile and four workers. Its 13-suite partial receipt records 4 passed and 9 failed, SHA-256 45b8fb123d4dccb1a039739d6b554d95ca3dc870ccf27b9c6824d70000cee300. Both observations covered distinct selected suites. A single receipt for the full 195-suite run is unavailable.
+
+## Upstream contracts
+
+The review scan uses Gitleaks' Git range and redaction flags, and Semgrep's baseline comparison and repository rules. The pinned releases were exercised with the same flags as CI. [Gitleaks CLI](https://github.com/gitleaks/gitleaks/tree/v8.30.1) · [Semgrep scan CLI](https://docs.semgrep.dev/cli-reference)
+
+The formal job verifies the existing reservation bridge's pinned tool bytes. The nightly job retains SARIF as an artifact using the action's supported upload mode. [TLC 1.7.4 release](https://github.com/tlaplus/tlaplus/releases/tag/v1.7.4) · [CodeQL analysis inputs](https://github.com/github/codeql-action/blob/915412ff23e8b7659517e607487dbeae018f2934/analyze/action.yml)

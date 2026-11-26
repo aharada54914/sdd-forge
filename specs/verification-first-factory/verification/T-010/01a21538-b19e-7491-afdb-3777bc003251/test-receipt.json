@@ -1,0 +1,137 @@
+{
+  "revision": "a2ea4f00a1aae638fe0b8d9d537f570a8e9a3ef4",
+  "run_id": "01a21538-b19e-7491-afdb-3777bc003251",
+  "input_manifest_sha256": "efe4741f469def7d7f6b0c42f79bcb3b945a35f08c9c8b4d1aaf05d439d94d8f",
+  "platform": "Darwin arm64",
+  "execution_host": "local",
+  "commands": [
+    {
+      "name": "Test HITL, WFI and brownfield CLI behavior in Bash and PowerShell",
+      "argv": [
+        "bash",
+        "--noprofile",
+        "--norc",
+        "-eo",
+        "pipefail",
+        "-c",
+        "# The PowerShell tests invoke bash for the HITL template and inventory.\n# On Windows, keep the runner's Git Bash ahead of the WSL launcher.\nif [[ \"$RUNNER_OS\" == \"Windows\" ]]; then\n  export PATH=\"${BASH%/*}:$PATH\"\nfi\nbash tests/hitl-wfi-terminal.tests.sh\nbash tests/check-placeholders-brownfield.tests.sh\npwsh -NoProfile -File tests/hitl-wfi-terminal.tests.ps1\npwsh -NoProfile -File tests/check-placeholders-brownfield.tests.ps1\n"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.757,
+      "summary": [
+        "hitl-wfi-terminal.tests.sh: 25 passed, 0 failed, 0s elapsed",
+        "check-placeholders-brownfield.tests.sh: 14 passed, 0 failed",
+        "hitl-wfi-terminal.tests.ps1: 16 passed, 0 failed, 1s elapsed",
+        "check-placeholders-brownfield.tests.ps1: 14 passed, 0 failed"
+      ]
+    },
+    {
+      "name": "Test the feature-scoped cycle limit in Bash and PowerShell",
+      "argv": [
+        "bash",
+        "--noprofile",
+        "--norc",
+        "-eo",
+        "pipefail",
+        "-c",
+        "command -v pwsh\nbash tests/quality-gate-cycle-limit.tests.sh\n"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.198,
+      "summary": [
+        "Results: 75 passed, 0 failed"
+      ]
+    },
+    {
+      "name": "actionlint version",
+      "argv": [
+        "/private/tmp/sdd-ci-t010.YINA8zmr/actionlint",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.025,
+      "summary": [
+        "1.7.12",
+        "installed by downloading from release page",
+        "built with go1.26.1 compiler for darwin/arm64"
+      ]
+    },
+    {
+      "name": "CI workflow syntax",
+      "argv": [
+        "/private/tmp/sdd-ci-t010.YINA8zmr/actionlint",
+        ".github/workflows/sdd-guardrails.yml",
+        ".github/workflows/test.yml"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.009,
+      "summary": []
+    },
+    {
+      "name": "workflow contract",
+      "argv": [
+        "node",
+        "--test",
+        "tests/v2-hooks-and-ci.test.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.139,
+      "summary": [
+        "ℹ tests 18",
+        "ℹ pass 18",
+        "ℹ fail 0",
+        "ℹ skipped 0"
+      ]
+    },
+    {
+      "name": "catalog contract",
+      "argv": [
+        "python3",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.769,
+      "summary": [
+        "Ran 23 tests in 4.680s",
+        "OK"
+      ]
+    },
+    {
+      "name": "catalog planning",
+      "argv": [
+        "python3",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08,
+      "summary": [
+        "195 distinct suites"
+      ]
+    },
+    {
+      "name": "catalog job ownership",
+      "argv": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import assert from 'node:assert/strict'; import { classifyCatalog } from './tests/verification-catalog-status.mjs'; const five = classifyCatalog().suites.filter(s => /^tests\\/(hitl-wfi-terminal|check-placeholders-brownfield|quality-gate-cycle-limit)\\.tests\\.(sh|ps1)$/.test(s.path)); assert.equal(five.length,5); for(const s of five) { assert.equal(s.state,'run'); assert.deepEqual(s.catalogJobs,['v2-guardrails']); assert.deepEqual(s.runIn,s.catalogJobs); console.log(s.path, s.runIn[0]); }"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.033,
+      "summary": [
+        "tests/check-placeholders-brownfield.tests.ps1 v2-guardrails",
+        "tests/check-placeholders-brownfield.tests.sh v2-guardrails",
+        "tests/hitl-wfi-terminal.tests.ps1 v2-guardrails",
+        "tests/hitl-wfi-terminal.tests.sh v2-guardrails",
+        "tests/quality-gate-cycle-limit.tests.sh v2-guardrails"
+      ]
+    }
+  ],
+  "overall_result": "FAIL",
+  "full_195_same_sha_receipt": false,
+  "strict_promotion_qualified": false,
+  "hosted_three_os": "pending first real execution at CI/release time"
+}
