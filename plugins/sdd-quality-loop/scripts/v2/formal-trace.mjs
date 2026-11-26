@@ -45,40 +45,49 @@ export const tlaModuleStart = /-{4,} *MODULE/;
 
 // Expose only model code to declaration checks. Comments are whitespace and
 // strings remain opaque operands, so neither can introduce a new definition.
-export function tlaDeclarationSource(source) {
+export function scanTlaModule(source) {
+  // Offsets refer to the returned code. Only tokens in the original input
+  // can open or close modules; removing a comment can make text look like a header.
+  const result = { code: '', headerEnd: 0, footerStart: -1, moduleCount: 0 };
   // The model lexer starts at the outer module. Quotes and comment delimiters in the preamble are prose.
-  const header = source.search(tlaModuleStart);
-  if (header < 0) return '';
+  const header = tlaModuleStart.exec(source);
+  if (!header) return result;
+  result.headerEnd = header[0].length;
   const specials = new RegExp(tlaModuleStart.source + '|' + /={4,}|\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/.source, 'g');
-  let code = '';
   let moduleDepth = 0;
-  let start = header;
-  specials.lastIndex = header;
+  let start = header.index;
+  specials.lastIndex = start;
   let match;
   while ((match = specials.exec(source))) {
-    code += source.slice(start, match.index);
+    result.code += source.slice(start, match.index);
     const token = match[0];
     if (token.startsWith('-')) {
       moduleDepth++;
-      code += token;
+      result.moduleCount++;
+      result.code += token;
     } else if (token.startsWith('=')) {
-      code += token;
-      // Source files may contain free-form prose after the outer module.
-      if (moduleDepth > 0) {
-        moduleDepth--;
-        if (moduleDepth === 0) return code;
+      moduleDepth--;
+      result.code += token;
+      if (moduleDepth === 0) {
+        result.footerStart = result.code.length - token.length;
+        return result;
       }
     } else if (token === '(*') {
       specials.lastIndex = blockCommentEnd(source, specials.lastIndex, 'TLA+');
-      code += source.slice(match.index, specials.lastIndex).replace(/[^\r\n]+/g, ' ');
+      result.code += source.slice(match.index, specials.lastIndex).replace(/[^\r\n]+/g, ' ');
     } else if (token === '"' || token === '*)') {
       throw new Error('Invalid TLA+ string or comment delimiter');
     } else {
-      code += token.startsWith('"') ? '""' : ' ';
+      result.code += token.startsWith('"') ? '""' : ' ';
     }
     start = specials.lastIndex;
   }
-  return code + source.slice(start);
+  result.code += source.slice(start);
+  return result;
+}
+
+export function tlaDeclarationSource(source) {
+  return scanTlaModule(source).code;
 }
 
 export function parseCfgSections(config) {
@@ -132,19 +141,17 @@ function replayBehavior(model, cfg) {
 
   if (operators.SPECIFICATION) {
     const spec = operators.SPECIFICATION;
-    const source = tlaDeclarationSource(fs.readFileSync(model, 'utf8'));
+    const { code, moduleCount, footerStart } = scanTlaModule(fs.readFileSync(model, 'utf8'));
     // Do not infer the behavior from an overridden or ambiguously scoped definition.
     const overridden = sections.some(({ key, tokens }) => /^CONSTANTS?$/.test(key) &&
       tokens.some((token, index) => token === spec && tokens[index + 1] === '<-'));
-    const headers = [...source.matchAll(new RegExp(tlaModuleStart, 'g'))];
-    const footer = /^[ \t]*={4,}[ \t]*\r?$/m.exec(source);
-    const module = headers.length === 1 && footer ? source.slice(headers[0].index, footer.index) : '';
+    const module = moduleCount === 1 && footerStart >= 0 ? code.slice(0, footerStart) : '';
     const parts = module.split(new RegExp('^[ \\t]*' + spec + '\\s*==', 'm'));
     // A LET-local definition can shadow an operator inherited through EXTENDS.
     // Only match a definition outside the declaration lists of active LETs.
     let letDepth = 0;
     for (const [token] of parts[0].matchAll(/\b(?:LET|IN)\b/g)) letDepth += token === 'LET' ? 1 : -1;
-    const nextDefinition = /^[ \t]*[A-Za-z]\w*\s*(?:\([^()]*\)\s*)?==/m;
+    const nextDefinition = /-{4,}|^[ \t]*[A-Za-z]\w*\s*(?:\([^()]*\)\s*)?==/m;
     const body = parts[1]?.split(nextDefinition, 1)[0].trim();
     const safety = safetyFormula.exec(body || '');
     if (

@@ -65,6 +65,16 @@ describe('ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agn
     assert.ok(result.errors.some((error) => error.includes('Foo == TRUE')));
   });
 
+  it('requires an outer footer after a nested module closes', (t) => {
+    const dir = sandbox(t);
+    const tlaPath = path.join(dir, 'Outer.tla');
+    fs.writeFileSync(tlaPath, ['---- MODULE Outer ----', '---- MODULE Nested ----', '===='].join('\n'));
+    const result = validateTlaModelStructure({ tlaPath });
+    assert.equal(result.moduleName, 'Outer');
+    assert.equal(result.ok, false);
+    assert.match(result.errors.join(' '), /Missing TLA\+ ==== footer/);
+  });
+
   it('stops a disabled formal gate in CI and honors an explicit checker mode', (t) => {
     const projectRoot = sandbox(t);
     const settings = path.join(projectRoot, 'sdd/guardrails.json');
@@ -616,6 +626,15 @@ it(
       assert.equal(result.checker.replay.violatedInvariant, 'TraceIncomplete');
       t.diagnostic(label + ' ' + JSON.stringify(phases));
     }
+    const actualNested = original.replace('CONSTANT UseLock', '----MODULENested----\n====\nCONSTANT UseLock');
+    fs.writeFileSync(model, actualNested);
+    const native = spawnSync('java', ['-cp', process.env.TLA2TOOLS_JAR, 'tla2sany.SANY', 'Reservation.tla'],
+      { cwd: projectRoot, encoding: 'utf8' });
+    assert.equal(native.status, 0, native.stdout);
+    assert.match(native.stdout, /Semantic processing of module Reservation/);
+    const nestedResult = run(actualNested);
+    assert.equal(nestedResult.structure.ok, true);
+    assert.match(nestedResult.errors.join(' '), /Unsupported baseline SPECIFICATION/);
     const unsupported = commented.replace(real, real + '\n  /\\ WF_vars(Next)');
     const result = run(unsupported.replace('WrongInit /\\ [][WrongNext]_vars', 'Init /\\ [][Next]_vars'));
     assert.equal(result.status, 'FAIL');
@@ -646,6 +665,14 @@ it(
     const cases = [
       ...['\n', '\r\n', '\t', '\f', '\u00a0'].map((gap) =>
         ['separator ' + JSON.stringify(gap), '----' + gap + 'MODULE Pretend ----\nUnclosed " in prose\n' + original, true]),
+      ['section followed by a MODULE-prefixed name', original.replace('CONSTANT UseLock',
+        '---- (* end of declarations *) MODULECount == 1\nCONSTANT UseLock'), true],
+      ['adjacent nested block comments', original.replace('CONSTANT UseLock',
+        '-----(* nested (* ---- MODULE Hidden ---- *) *) (* more *)MODULECount == 1\nCONSTANT UseLock'), true],
+      ['line comment after a separator', original.replace('CONSTANT UseLock',
+        '---- \\* ---- MODULE Hidden ----\nMODULECount == 1\nCONSTANT UseLock'), true],
+      ['inline separator after selected specification', original.replace('\nOneAccepted ==',
+        ' ----(* section *)MODULECount == 1\nOneAccepted =='), true],
       ['inline compact header', original.replace(/^.*\n/, 'Text ends here.----MODULEReservation----\n'), true],
       ['newline before module name', original.replace('MODULE Reservation', 'MODULE\nReservation'), true],
       ['form feed before module name', original.replace('MODULE Reservation', 'MODULE\fReservation'), false],

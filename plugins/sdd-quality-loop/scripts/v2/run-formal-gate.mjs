@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { parseCfgSections, prepareTraceReplay, tlaDeclarationSource, tlaModuleStart } from './formal-trace.mjs';
+import { parseCfgSections, prepareTraceReplay, scanTlaModule } from './formal-trace.mjs';
 import { randomUUID } from 'node:crypto';
 import {
   VALID_FORMAL_ADAPTERS,
@@ -32,7 +32,7 @@ import {
   resolveExplicitOrAutoRoot,
 } from './guardrails-lib.mjs';
 
-const TLA_MODULE_RE = new RegExp('^' + tlaModuleStart.source + /[ \t\r\n]*([A-Za-z0-9_]+)[ \t\r\n]*-{4,}/.source);
+const TLA_MODULE_NAME = /^[ \t\r\n]*([A-Za-z0-9_]+)[ \t\r\n]*-{4,}/;
 // A following operator or module declaration ends the RHS. A continuation
 // such as "/\ predicate" on the next line still belongs to the definition.
 const TLA_TRUE_DEFINITION = /^[ \t]*(\w+)[ \t]*==\s*TRUE[ \t]*\r?$/gm;
@@ -70,17 +70,18 @@ export function validateTlaModelStructure({ tlaPath, cfgPath = null, mappingPath
   if (!fs.existsSync(tlaPath)) {
     return { ok: false, moduleName: null, invariants: [], errors: [`TLA+ file not found: ${tlaPath}`] };
   }
-  let tlaText;
+  let model;
   try {
-    tlaText = tlaDeclarationSource(fs.readFileSync(tlaPath, 'utf8'));
+    model = scanTlaModule(fs.readFileSync(tlaPath, 'utf8'));
   } catch (error) {
     return { ok: false, moduleName: null, invariants: [], errors: [error.message] };
   }
-  const modMatch = TLA_MODULE_RE.exec(tlaText);
+  const { code: tlaText, headerEnd, footerStart } = model;
+  const modMatch = TLA_MODULE_NAME.exec(tlaText.slice(headerEnd));
   if (!modMatch) {
     errors.push(`Missing TLA+ MODULE header in ${tlaPath}`);
   }
-  if (!/={4,}/.test(tlaText)) {
+  if (footerStart < 0) {
     errors.push(`Missing TLA+ ==== footer in ${tlaPath}`);
   }
 
