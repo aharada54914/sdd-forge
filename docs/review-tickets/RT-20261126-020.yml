@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-020
-status: open
+status: resolved
 type: regression
 severity: major
 target:
@@ -17,3 +17,8 @@ references:
   - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
   - tests/v2-spec-drift.test.mjs
   - reports/review-context/verification-first-factory-T-002-c3d262b6-0c0d-4089-8466-99c20102d403-invocation.json
+owner_decision: "2026-11-26、所有者が Windows の修正と再検証を承認。"
+resolution:
+  commit: 3fca5ee5668d1579839c4d7ea67fffd192a61fc1
+  windows_evidence: specs/verification-first-factory/verification/T-002/RT-20261126-020/windows-ci.json
+  posix_evidence: specs/verification-first-factory/verification/T-002/RT-20261126-020/posix-run.json
