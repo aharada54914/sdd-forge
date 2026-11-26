@@ -441,19 +441,22 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
   it('checks retirements of Python modules found by default unittest discovery', (t) => {
     const repo = initGitRepoWithTests();
     t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
-    const tests = ['test_checkout.py', 'testTotals.py'];
-    const controls = ['checkout.py', 'test-data.py'];
-    for (const [index, file] of [...tests, ...controls].entries()) {
+    const ordinary = ['test_checkout.py', 'testTotals.py'];
+    const mixedCase = ['TestInvoice.py', 'tEsTBalance.py', 'testRefund.Py', 'TeSTCredit.PY'];
+    const controls = ['checkout.py', 'test-data.py', 'Test-Currency.py', 'testPrice.pyi', 'TeſtLabel.py'];
+    const files = [...ordinary, ...mixedCase, ...controls];
+    for (const [index, file] of files.entries()) {
       fs.writeFileSync(path.join(repo.dir, file),
         'import unittest\nclass Checkout(unittest.TestCase):\n    def test_amount_' + index + '(self):\n        self.assertEqual(2 + 2, 4)\n');
     }
     const python = process.platform === 'win32' ? 'python' : 'python3';
     const native = spawnSync(python, ['-B', '-m', 'unittest', 'discover', '-v'], { cwd: repo.dir, encoding: 'utf8' });
     assert.equal(native.status, 0, native.error?.message || native.stderr);
-    assert.match(native.stderr, /test_amount_0/);
-    assert.match(native.stderr, /test_amount_1/);
-    assert.match(native.stderr, /Ran 2 tests/);
-    checkRetirements(repo, tests, controls);
+    const identifiers = new Set([...native.stderr.matchAll(/\btest_amount_(\d+)\b/g)].map(match => Number(match[1])));
+    const discovered = files.filter((_, index) => identifiers.has(index));
+    t.diagnostic(`${process.platform} unittest discovered ${discovered.join(', ')}`);
+    assert.deepEqual(discovered, process.platform === 'win32' ? [...ordinary, ...mixedCase] : ordinary);
+    checkRetirements(repo, discovered, files.filter(file => !discovered.includes(file)));
   });
 
   it('checks retirements of files found by default Node test discovery', (t) => {

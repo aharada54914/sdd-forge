@@ -1,0 +1,19 @@
+ticket_id: RT-20261126-020
+status: open
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Windows unittest discovery and the Python test retirement classifier disagree on letter case"
+problem: |
+  Python unittest uses fnmatch for the default discovery pattern. On Windows its
+  path comparison folds case. The classifier applies a case-sensitive prefix and
+  extension on all hosts, so it can miss a discoverable module in the approval check.
+expected_fix:
+  - Match the host's supported unittest discovery semantics on Windows and POSIX.
+  - Compare harmless normal and mixed-case module names against native unittest discovery and the public approval check on both platforms.
+references:
+  - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+  - tests/v2-spec-drift.test.mjs
+  - reports/review-context/verification-first-factory-T-002-c3d262b6-0c0d-4089-8466-99c20102d403-invocation.json
