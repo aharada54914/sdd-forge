@@ -22,7 +22,7 @@ spec.loader.exec_module(V)
 
 
 class Contracts(unittest.TestCase):
-    def setUp(self):
+    def setUp(self, runtime="python3"):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -33,7 +33,7 @@ class Contracts(unittest.TestCase):
             "schema": "project-skill-manifest/v1",
             "name": "example",
             "checks": ["smoke"],
-            "runtime": "python3",
+            "runtime": runtime,
             "entry": "run.py",
             "args": [],
             "requires": [],

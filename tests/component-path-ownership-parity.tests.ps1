@@ -233,19 +233,30 @@ exit 0
     }
     $firstSuite = $suiteBases[0]
     $firstToken = "tests/$firstSuite.tests.sh"
-    $withoutFirst = @($inventory | Where-Object { $_ -cne $firstToken })
+    # Isolate POSIX inventory mutations from unrelated omissions in the live workflow.
+    $psToken = "tests/$firstSuite.tests.ps1"
+    $controlRunPs = Join-Path $mutantTests 'run-all.ps1'
+    Set-Content -LiteralPath $controlRunPs -Value @('param([switch]$List)', 'if (-not $List) { exit 2 }', "'$psToken'", 'exit 0')
+    $controlWorkflow = Join-Path $mutantTests 'test.yml'
+    Set-Content -LiteralPath $controlWorkflow -Value @(
+        'on: push', 'jobs:', '  parity:', '    runs-on: ubuntu-latest', '    steps:',
+        "      - run: bash ./$firstToken", "      - run: pwsh -File ./$psToken"
+    )
+    [IO.File]::WriteAllLines($mutantInventory, [string[]]@($firstToken))
+    $baselineAccepted = Test-RegistrationAudit $mutantRunSh $controlRunPs $controlWorkflow @($firstSuite)
     $mutations = @(
-        @{ Name = 'missing'; Lines = $withoutFirst },
-        @{ Name = 'duplicate'; Lines = @($inventory) + @($firstToken) },
-        @{ Name = 'case'; Lines = $withoutFirst + @($firstToken.ToUpperInvariant()) },
-        @{ Name = 'suffix'; Lines = $withoutFirst + @("$firstToken.bak") }
+        @{ Name = 'missing'; Lines = @() },
+        @{ Name = 'duplicate'; Lines = @($firstToken, $firstToken) },
+        @{ Name = 'case'; Lines = @($firstToken.ToUpperInvariant()) },
+        @{ Name = 'suffix'; Lines = @("$firstToken.bak") }
     )
     foreach ($mutation in $mutations) {
         [System.IO.File]::WriteAllLines($mutantInventory, [string[]]$mutation.Lines)
-        if (-not (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases)) {
+        $mutantAccepted = Test-RegistrationAudit $mutantRunSh $controlRunPs $controlWorkflow @($firstSuite)
+        if ($baselineAccepted -and -not $mutantAccepted) {
             Pass "TEST-047 registration audit rejects a disposable $($mutation.Name)-suite mutant"
         } else {
-            Fail "TEST-047 registration audit rejects a disposable $($mutation.Name)-suite mutant"
+            Fail "TEST-047 $($mutation.Name)-suite control (baseline accepted=$baselineAccepted, mutant accepted=$mutantAccepted)"
         }
     }
 

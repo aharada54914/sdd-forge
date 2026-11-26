@@ -106,6 +106,39 @@ class CurrentCaptureTests(unittest.TestCase):
         self.fixture = alias
         self.test_real_f1_and_f2_fixture_cwd_and_marker_reach_current_generator()
 
+    def test_only_the_shipped_guardrails_example_reaches_the_fixture_sdd_directory(self):
+        source = CAPTURE.indexed_source(self.product)
+        example = 'sdd/guardrails.example.yaml'
+        self.assertEqual({example}, {name for name in source if name.lower().startswith('sdd/')})
+        self.assertEqual((self.product / example).read_bytes(), CAPTURE.files_only_payload(source)[example])
+
+    def test_git_index_aliases_cannot_populate_the_fixture_sdd_directory(self):
+        aliases = ('SDD/local-config.yaml', 'sDd/guardrails.example.yaml', 'sdd/GUARDRAILS.example.yaml')
+        for number, alias in enumerate(aliases):
+            with self.subTest(alias=alias):
+                repo = self.work / f'alias-{number}'
+                path = repo / alias
+                path.parent.mkdir(parents=True)
+                path.write_bytes(b'project data')
+                subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+                subprocess.run(['git', '-C', str(repo), 'add', '-f', '--', alias], check=True)
+                indexed = subprocess.check_output(['git', '-C', str(repo), 'ls-files', '-z'])
+                self.assertEqual(alias.encode() + b'\0', indexed)
+                source = CAPTURE.indexed_source(repo)
+                self.assertEqual({}, source)
+                with self.assertRaisesRegex(ValueError, 'source is missing the declared'):
+                    CAPTURE.files_only_payload({**source, 'install-payload.txt': b'sdd/guardrails.example.yaml\n'})
+
+    def test_files_only_payload_checks_project_entries_before_matching_source_files(self):
+        source = CAPTURE.indexed_source(self.product)
+        manifest = source['install-payload.txt']
+        for entry in ('sdd/project-context.yaml', 'sdd/not-in-the-checkout.yaml', 'sdd/'):
+            with self.subTest(entry=entry):
+                self.assertNotIn(entry, source)
+                changed = {**source, 'install-payload.txt': manifest + b'\n' + entry.encode() + b'\n'}
+                with self.assertRaisesRegex(ValueError, 'public install-payload.txt must list only'):
+                    CAPTURE.files_only_payload(changed)
+
     def test_product_project_metadata_cannot_populate_absent_context_fixture(self):
         names = ('sdd/project-context.yaml', 'sdd/approver-registry.yaml')
         originals = {name: (self.product / name).read_bytes() if (self.product / name).exists() else None for name in names}

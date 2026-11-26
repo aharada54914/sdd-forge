@@ -21,9 +21,11 @@ import tempfile
 
 # Same bounded source fixture as installer acceptance tests: documentation
 # archives are not product payload. Project AGENTS is supplied by F1/F2, not by
-# the development repository. Root sdd/ is project-owned metadata as well.
+# the development repository. In sdd/, only the shipped example belongs to
+# the product; the other tracked files contain project-specific metadata.
 # Exclude fixture symlinks on native Windows too.
-SOURCE_EXCLUDED = ('specs/', 'reports/', 'tests/fixtures/', 'sdd/')
+SOURCE_EXCLUDED = ('specs/', 'reports/', 'tests/fixtures/')
+GUARDRAILS_EXAMPLE = 'sdd/guardrails.example.yaml'
 
 
 def sha(data):
@@ -58,6 +60,8 @@ def indexed_source(root):
     for name in result.stdout.decode('utf-8').split('\0'):
         if not name or name == 'AGENTS.md' or name.startswith(SOURCE_EXCLUDED):
             continue
+        if name.partition('/')[0].lower() == 'sdd' and name != GUARDRAILS_EXAMPLE:
+            continue
         path = root / name
         if path.is_symlink():
             raise ValueError(f'unsupported product source symlink: {name}')
@@ -80,6 +84,13 @@ def files_only_payload(source):
                           or any(part and set(part) == {'.'} for part in entry.split('/'))
                           for entry in entries):
         raise ValueError('invalid public install-payload.txt contract')
+    # Project files are absent from F1/F2 by design. Check raw declarations
+    # before matching files so that an oversized allowlist cannot disappear.
+    sdd_entries = [entry for entry in entries if entry.split('/', 1)[0].lower() == 'sdd']
+    if sdd_entries != [GUARDRAILS_EXAMPLE]:
+        raise ValueError('public install-payload.txt must list only sdd/guardrails.example.yaml under sdd/')
+    if GUARDRAILS_EXAMPLE not in source:
+        raise ValueError('source is missing the declared sdd/guardrails.example.yaml')
     excluded = {'.git', 'node_modules', '__pycache__', '.pytest_cache', '.mypy_cache',
                 '.ruff_cache', '.cache', '.venv', '.private', '.learnings', '.DS_Store'}
     return {name: data for name, data in source.items()

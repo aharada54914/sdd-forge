@@ -157,6 +157,14 @@ jobs:
         if: runner.os == 'Windows'
         run: python -B tests/sdd-domain-multitarget-foundation.tests.py
 
+      - name: Test the project evidence collector on Linux and macOS
+        if: runner.os != 'Windows'
+        run: python3 -B tests/project-evidence-collector.tests.py
+
+      - name: Test the project evidence collector on Windows
+        if: runner.os == 'Windows'
+        run: python -B tests/project-evidence-collector.tests.py
+
       - name: Verify the required CI workload on each matrix route
         if: runner.os == 'Linux'
         working-directory: tests
