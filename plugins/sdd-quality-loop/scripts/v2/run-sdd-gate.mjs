@@ -618,37 +618,14 @@ function runVerificationCommands(projectRoot, commands) {
   return results;
 }
 
-function conceptRecordSchema(contents, filename) {
-  let raw = contents;
-  if (filename.endsWith('.md')) {
-    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
-    if (blocks.length !== 1) return null;
-    raw = blocks[0][1];
-  }
-  try {
-    const schema = JSON.parse(raw)?.schema;
-    if (schema === 'concept-test/v2') return schema;
-    if (schema !== 'concept-test/v1') return null;
-    // JSON.parse alone retains only the last duplicate schema key.
-    let schemaKeys = 0;
-    for (const match of raw.matchAll(/("(?:[^"\\]|\\.)*")\s*(:)?/g)) {
-      if (match[2] && JSON.parse(match[1]) === 'schema') schemaKeys++;
-    }
-    return schemaKeys === 1 ? schema : null;
-  } catch {
-    return null;
-  }
-}
-
 function needsConceptCheck(root, feature) {
   const prefix = `specs/${feature}/concept-test`;
   const receipt = prefix + '.decision.json';
   const paths = [receipt, prefix + '.json', prefix + '.md'];
   for (const rel of paths) {
     const file = path.join(root, rel);
-    const stat = fs.lstatSync(file, { throwIfNoEntry: false });
-    if (stat && (rel === receipt || !stat.isFile()
-        || conceptRecordSchema(fs.readFileSync(file, 'utf8'), rel) !== 'concept-test/v1')) return true;
+    // Any record makes the check apply; the validator rejects retired v1 records.
+    if (fs.lstatSync(file, { throwIfNoEntry: false })) return true;
   }
 
   // The index can still contain current evidence missing from the working tree.
@@ -674,11 +651,7 @@ function needsConceptCheck(root, feature) {
     throw err;
   }
   for (const entry of index.split('\0').filter(Boolean)) {
-    const [meta, filename] = entry.split('\t');
-    if (filename === receipt) return true;
-    const [mode, oid] = meta.split(' ');
-    if (mode !== '100644' && mode !== '100755') return true;
-    if (conceptRecordSchema(git('cat-file', 'blob', oid), filename) !== 'concept-test/v1') return true;
+    if (entry) return true;
   }
   return false;
 }

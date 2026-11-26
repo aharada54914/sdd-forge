@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking
+
+- **旧形式（v1）の Concept Test 記録の廃止**: 検証器（`validate-concept-test`）と品質ゲートは、`concept-test/v1` の記録を署名の有無にかかわらず受け付けず、`concept-test/v1 records are no longer supported` と移行方法（Concept Test をもう一度実行して `concept-test/v2` として作り直す）を示して停止する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。過去のレビューで固定した時点の入力の読み取りは変わらない。
+
 ### Fixed
 
 - **導入スキルの検査スクリプトのパス**: `sdd-adopt` が構造検査を `scripts/check-sdd-structure.sh`（スキルのフォルダー基準では存在しない）と案内していた。配布先のパス `<installed-root>/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh` に直し、スキルが示す配布物のパスがすべて実在することを試験で検査する。実ホスト（Claude Code）での `/sdd-bootstrap:bootstrap adopt` 実行で判明。

@@ -456,6 +456,7 @@ class ConceptTests(unittest.TestCase):
         self.assertIn('lowercase', result.stderr)
 
     def test_fits_and_dispatchers(self):
+        self.local_proposal('FITS_EXISTING_CONCEPTS')
         self.assertEqual('CONTINUE\n', self.gate().stdout)
         if os.name != 'nt' and shutil.which('sh'):
             self.gate(wrapper=['sh', str(SCRIPT.with_suffix('.sh'))])
@@ -476,15 +477,6 @@ class ConceptTests(unittest.TestCase):
                 self.assertEqual('', result.stdout)
                 self.assertIn('concept-test/v1 records are no longer supported', result.stderr)
                 self.assertIn('concept-test/v2', result.stderr)
-
-    def test_all_human_decisions_with_real_signature(self):
-        for proposal in ['NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION']:
-            for decision, code in [('proceed', 0), ('defer-to-domain-update', 2), ('rejected', 3)]:
-                with self.subTest(proposal=proposal, decision=decision):
-                    self.record.update(proposal=proposal, decision=decision)
-                    self.save()
-                    self.sign()
-                    self.gate(code)
 
     def test_missing_or_invalid_evidence(self):
         original = copy.deepcopy(self.record)
@@ -549,23 +541,6 @@ class ConceptTests(unittest.TestCase):
         if os.name != 'nt':
             target.symlink_to(self.root / 'domain/context-map.md')
             self.gate(1)
-
-    def test_approval_cannot_be_faked(self):
-        self.record.update(proposal='NEW_CONCEPT_CANDIDATE', decision='proceed')
-        self.save()
-        self.gate(1)
-        self.sign()
-        self.gate()
-        sidecar = self.feature / 'concept-test.approval.json'
-        original = sidecar.read_bytes()
-        document = json.loads(original)
-        document['hmac'] = '0' * 64
-        sidecar.write_text(json.dumps(document))
-        self.gate(1)
-        sidecar.write_bytes(original)
-        self.gate(1, dict(self.env, SDD_CONTEXT_KEY=''))
-        self.write('sdd/approver-registry.yaml', 'schema: sdd-approver-registry/v1\napprovers: []\n')
-        self.gate(1)
 
     def test_reachable_gate_and_manifests(self):
         core_spec = (ROOT / 'plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md').read_text(encoding='utf-8')

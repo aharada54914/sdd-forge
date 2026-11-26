@@ -84,7 +84,6 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | Issue | Reason |
 |---|---|
 | #812 | Owner decision (2026-11-25): workaround and a CI reproduction first; the full fix (`specs/native-concept-runtime/` T-001, Draft, on `codex/n14-package-spec`) waits until Codex-plugin DDD support is a goal. `tests/codex-versioned-cache.tests.py` rebuilds the cache layout; its two expected failures turn into the T-001 acceptance test. |
-| (v1 Concept Test records) | The gate treats an unsigned v1-only record like no record (`NOT_APPLICABLE`) while the validator blocks it. Deliberate: verifying a v1 signature needs `SDD_CONTEXT_KEY`, which CI lacks, so blocking would also stop legitimately signed v1 records. Decide: keep v1 as unverified history, or provide the key to CI. |
 
 ## Follow-ups
 
@@ -110,3 +109,4 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - Found while fixing #804: on pwsh 7.0–7.4, `ConvertFrom-Json` turns ISO-date-like strings into DateTime, so `validate-domain-contract.ps1` rejects such string values that the `.sh` accepts. The validators also still accept duplicate JSON keys (last wins) that the Concept Test parser rejects.
 - Batch-10 review: `run-sdd-gate.mjs` still throws EISDIR when `specs/<feature>/tasks.md` itself is a directory (before any verdict). publish-release's "wait for CI and dispatch again" message does not mention that a push run cancelled by `cancel-in-progress` never comes back; dispatching test.yml on that commit does.
 - Real-host run of adopt (2026-11-26): `sdd-adopt` named `scripts/check-sdd-structure.sh`, which does not exist beside the skill; fixed in this batch.
+- v1 Concept Test records retired for the validator and the gate (owner decision 2026-11-26, step 1). Step 2 (deleting the now-unused v1 signing/finalizer code) was declined by the owner; the code stays, and `review-conditional-inputs.py` still reads v1 records at a pinned historical revision.

@@ -709,20 +709,13 @@ describe('human concept-test decisions at the public gate', () => {
     assert.deepEqual(report.checks.commands, []);
   });
 
-  it('preserves ordinary and v1-only feature history and scopes receipts by feature', (t) => {
-    const { repo, feature, git, run } = setup(t);
+  it('scopes receipts by feature: another feature\'s record does not apply here', (t) => {
+    const { repo, git, run } = setup(t);
     git('init', '-q');
-    const markdown = path.join(feature, 'concept-test.md');
-    fs.writeFileSync(markdown, '# Concept Test\nThe classification is still under discussion.\n');
-    git('add', 'specs');
-    git('commit', '-qm', 'start narrative concept draft');
-    const legacy = JSON.stringify({ schema: 'concept-test/v1' });
-    fs.writeFileSync(path.join(feature, 'concept-test.json'), legacy);
-    fs.writeFileSync(markdown, '```json\n' + legacy + '\n```\n');
     fs.mkdirSync(path.join(repo, 'specs/other'));
     fs.writeFileSync(path.join(repo, 'specs/other/concept-test.decision.json'), '{}');
     git('add', 'specs');
-    git('commit', '-qm', 'legacy project');
+    git('commit', '-qm', 'other feature record');
     const report = run();
     assert.equal(report.verdict, 'PASS');
     assert.equal(report.checks.conceptTest.status, 'NOT_APPLICABLE');
