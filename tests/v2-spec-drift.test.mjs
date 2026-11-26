@@ -551,6 +551,7 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     ['quoted brace in short for', "for item in '}'; ", ''],
     ['parenthesized brace for', 'for v (one two) { ', '}'],
     ['short in for', 'for item in one; ', ''],
+    ['short for in an outer block', '{ for item in one; ', '}'],
     ['repeat do', 'repeat 1 do ', 'done'],
     ['repeat', 'repeat 1 { ', '}'],
   ]) {
@@ -589,19 +590,25 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     });
   }
 
-  it('rejects a zsh for list with an unquoted closing brace before its separator', (t) => {
-    const { dir } = initGitRepoWithTests();
-    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-    const file = path.join(dir, 'help.zsh');
-    const script = "for item in one { print -r -- '" + shellMarker + " shown' }\n";
-    const native = spawnSync('zsh', ['-fn'], { input: script, encoding: 'utf8' });
-    if (native.error?.code !== 'ENOENT') assert.equal(native.status, 1, native.stderr);
-    fs.writeFileSync(file, script);
-    const result = runAntiTamper(dir);
-    assert.equal(result.status, 2, result.stderr + result.stdout);
-    assert.match(result.stderr, /Cannot parse shell source help\.zsh/);
-    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
-  });
+  for (const [name, ending] of [
+    ['in the word list', ' }'],
+    ['after a semicolon', '; }'],
+    ['after a newline', '\n}'],
+  ]) {
+    it('rejects a zsh for list with an unmatched closing brace ' + name, (t) => {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      const file = path.join(dir, 'help.zsh');
+      const script = "for item in a b { print -r -- '" + shellMarker + " shown'" + ending + '\n';
+      const native = spawnSync('zsh', ['-fn'], { input: script, encoding: 'utf8' });
+      if (native.error?.code !== 'ENOENT') assert.equal(native.status, 1, native.stderr);
+      fs.writeFileSync(file, script);
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 2, result.stderr + result.stdout);
+      assert.match(result.stderr, /Cannot parse shell source help\.zsh/);
+      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+    });
+  }
 
   it('keeps repeat an ordinary command in Bash and POSIX shells', (t) => {
     const { dir } = initGitRepoWithTests();
