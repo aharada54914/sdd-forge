@@ -24,8 +24,10 @@ if sys.platform == 'linux':
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 GATE = HERE / 'check-workflow-state.sh'
-# The jq grouping change adds no files, tools, or external dependencies.
-AUDITED_GATE_SHA256 = '6a5fd28ead3e1bdc8ec5d377c72f4925d57d92ebc7302ed306351756b834e10e'
+# --allow-v1-history only adds an argument to the existing review-conditional-inputs.py
+# call, which stays behind snapshot_dependency conditional-validator: no new files, tools,
+# or external dependencies.
+AUDITED_GATE_SHA256 = 'd60cb1bbd4bbd78afac2f1cf544aa865aab46fe21521afc64afff09717688187'
 TOOLS = ('bash', 'jq', 'awk', 'find', 'iconv', 'sha256sum', 'cat', 'dirname', 'basename',
          'head', 'sed', 'grep', 'tr', 'sort', 'mktemp', 'rm', 'rmdir', 'cmp', 'cut', 'wc', 'tail', 'uniq')
 ENVIRONMENT = {'PATH': '/usr/bin', 'LC_ALL': 'C', 'LANG': 'C', 'TZ': 'UTC', 'HOME': '/nonexistent', 'TMPDIR': '/tmp'}
