@@ -1,0 +1,6 @@
+parser sha256 9be325198675db18e31af53f2995f66942a304488745a1fcdcf101db5df496f3
+{"script":"for v in a b { print -r -- 'help' }","native":1,"wasm":"1:35: expected a separator after for list"}
+{"script":"for v in a b { print -r -- 'help'; }","native":1,"wasm":"1:36: `}` can only be used to close a block"}
+{"script":"for v in a b { print -r -- 'help'\n}","native":1,"wasm":"2:1: `}` can only be used to close a block"}
+{"script":"for v in a b; { print -r -- 'help'; }","native":0,"wasm":[]}
+{"script":"{ for v in a b; print -r -- 'help'; }","native":0,"wasm":[]}

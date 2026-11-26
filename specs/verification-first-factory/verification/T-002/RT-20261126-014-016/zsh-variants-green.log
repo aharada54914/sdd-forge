@@ -1,0 +1,24 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ distinguishes help and active comments in a native zsh short for loop (278.204541ms)
+  ✔ distinguishes help and active comments in a native zsh brace for loop (279.846667ms)
+  ✔ distinguishes help and active comments in a native zsh newline brace for loop (270.951292ms)
+  ✔ distinguishes help and active comments in a native zsh literal brace in short for loop (270.24775ms)
+  ✔ distinguishes help and active comments in a native zsh quoted brace in short for loop (273.798583ms)
+  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (272.383792ms)
+  ✔ distinguishes help and active comments in a native zsh short in for loop (271.752292ms)
+  ✔ distinguishes help and active comments in a native zsh short for in an outer block loop (268.459791ms)
+  ✔ distinguishes help and active comments in a native zsh repeat do loop (272.920458ms)
+  ✔ distinguishes help and active comments in a native zsh repeat loop (269.856667ms)
+  ✔ rejects a zsh for list with an unmatched closing brace in the word list (160.650292ms)
+  ✔ rejects a zsh for list with an unmatched closing brace after a semicolon (162.653792ms)
+  ✔ rejects a zsh for list with an unmatched closing brace after a newline (159.790958ms)
+  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (656.013334ms)
+✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (3868.278375ms)
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3903.326667

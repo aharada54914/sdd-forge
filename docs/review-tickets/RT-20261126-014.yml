@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-014
-status: open
+status: resolved
 type: regression
 severity: minor
 target:
@@ -15,3 +15,7 @@ expected_fix:
 references:
   - scripts/vendor-shell-parser/zsh_loops.go.in
   - reports/review-context/verification-first-factory-T-002-d51c85ee-2dfe-4522-9a08-3cbbd10ba66d-invocation.json
+resolution:
+  owner_decision: "2026-11-26: RT-016 と RT-014 の両方を承認"
+  commit: 936f182edd83a650458efccb032f111cd211c8c9
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-014-016/public-cli-receipt.json

@@ -1,0 +1,123 @@
+{
+  "revision": "936f182edd83a650458efccb032f111cd211c8c9",
+  "target": "FilesOnly",
+  "os": "darwin",
+  "installers": {
+    "bash": {
+      "assets": {
+        "wasm_exec.cjs": "0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14",
+        "parser.wasm.gz": "9be325198675db18e31af53f2995f66942a304488745a1fcdcf101db5df496f3",
+        "LICENSE.Go": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "LICENSE.mvdan-sh": "ce63850f77649f00d1394045e2794ffb09a5596beabac51c9548edd958845d7c"
+      },
+      "cases": {
+        "help": {
+          "exit": 0,
+          "status": "CLEAN",
+          "violations": [],
+          "oq_files": 0
+        },
+        "comment": {
+          "exit": 4,
+          "status": "TAMPER_DETECTED",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "example.zsh",
+              "detail": "\u30a4\u30f3\u30e9\u30a4\u30f3 Lint \u6291\u6b62\u30b3\u30e1\u30f3\u30c8\u304c\u8ffd\u52a0\u3055\u308c\u307e\u3057\u305f\uff08sdd/guardrails.yaml \u306e agent_lint.waivers \u3092\u4f7f\u7528\u3057\u3066\u304f\u3060\u3055\u3044\uff09: # sdd-lint-disable real"
+            }
+          ],
+          "oq_files": 1
+        },
+        "missing-separator": {
+          "exit": 2,
+          "status": null,
+          "violations": [],
+          "oq_files": 0
+        },
+        "word-list": {
+          "exit": 2,
+          "status": null,
+          "violations": [],
+          "oq_files": 0
+        },
+        "unscanned-help": {
+          "exit": 0,
+          "status": "CLEAN",
+          "violations": [],
+          "oq_files": 0
+        },
+        "separated": {
+          "exit": 0,
+          "status": "CLEAN",
+          "violations": [],
+          "oq_files": 0
+        },
+        "unclosed": {
+          "exit": 2,
+          "status": null,
+          "violations": [],
+          "oq_files": 0
+        }
+      }
+    },
+    "pwsh": {
+      "assets": {
+        "wasm_exec.cjs": "0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14",
+        "parser.wasm.gz": "9be325198675db18e31af53f2995f66942a304488745a1fcdcf101db5df496f3",
+        "LICENSE.Go": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "LICENSE.mvdan-sh": "ce63850f77649f00d1394045e2794ffb09a5596beabac51c9548edd958845d7c"
+      },
+      "cases": {
+        "help": {
+          "exit": 0,
+          "status": "CLEAN",
+          "violations": [],
+          "oq_files": 0
+        },
+        "comment": {
+          "exit": 4,
+          "status": "TAMPER_DETECTED",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "example.zsh",
+              "detail": "\u30a4\u30f3\u30e9\u30a4\u30f3 Lint \u6291\u6b62\u30b3\u30e1\u30f3\u30c8\u304c\u8ffd\u52a0\u3055\u308c\u307e\u3057\u305f\uff08sdd/guardrails.yaml \u306e agent_lint.waivers \u3092\u4f7f\u7528\u3057\u3066\u304f\u3060\u3055\u3044\uff09: # sdd-lint-disable real"
+            }
+          ],
+          "oq_files": 1
+        },
+        "missing-separator": {
+          "exit": 2,
+          "status": null,
+          "violations": [],
+          "oq_files": 0
+        },
+        "word-list": {
+          "exit": 2,
+          "status": null,
+          "violations": [],
+          "oq_files": 0
+        },
+        "unscanned-help": {
+          "exit": 0,
+          "status": "CLEAN",
+          "violations": [],
+          "oq_files": 0
+        },
+        "separated": {
+          "exit": 0,
+          "status": "CLEAN",
+          "violations": [],
+          "oq_files": 0
+        },
+        "unclosed": {
+          "exit": 2,
+          "status": null,
+          "violations": [],
+          "oq_files": 0
+        }
+      }
+    }
+  }
+}

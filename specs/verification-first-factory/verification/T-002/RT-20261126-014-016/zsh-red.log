@@ -1,0 +1,45 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ distinguishes help and active comments in a native zsh newline brace for loop (282.806541ms)
+  ✔ distinguishes help and active comments in a native zsh literal brace in short for loop (271.81675ms)
+  ✖ rejects a zsh for list with an unquoted closing brace before its separator (163.549625ms)
+✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (718.900834ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 753.750708
+
+✖ failing tests:
+
+test at tests/v2-spec-drift.test.mjs:591:3
+✖ rejects a zsh for list with an unquoted closing brace before its separator (163.549625ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "CLEAN",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 1,
+    "violations": []
+  }
+
+
+  0 !== 2
+
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:600:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at node:internal/test_runner/test:1040:31
+      at node:internal/process/task_queues:149:7
+      at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+      at AsyncResource.runMicrotask (node:internal/process/task_queues:146:8) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,71 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "decd4ff8-1309-4c10-9cbb-7d1c04a513a0",
+  "session_id": "01a215e6-7f68-7da2-a693-d5cf25127247",
+  "agent_instance_id": "01a215e6-7f68-7da2-a693-d5cf25127247",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Previous T-002 estimate for the same model and effort on the Codex subscription. No per-run bill was collected.",
+  "cost_estimate_timestamp": "2026-11-26T03:31:36Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "docs/review-tickets/RT-20261126-013.yml",
+      "sha256": "98d2f327460a2dd29b7063a8d0ba96452243eb6a07767a1c2b37633001f0a004"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-014.yml",
+      "sha256": "6c13d9a40355756aa481509d8b9d36bbd21ca05bb93d8aca1e6472e1c668e336"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-015.yml",
+      "sha256": "fcf6065c64eb7a88cc25c33b7bfe0d4a90a38c921520287e9945e3f1b41d6abd"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-016.yml",
+      "sha256": "558b097e0b05193c6f4be4305a6b687b5800c3ab8b14ac69c02aafe038634cac"
+    },
+    {
+      "path": "CODEOWNERS",
+      "sha256": "da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "scripts/vendor-shell-parser/build.py",
+      "sha256": "4d491862b0f90113803cc6600f27b5f6b8cbd28d19ffb1e397994f2352b7ebb2"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/quality-repair-2b097b985c0a/execution.json",
+      "sha256": "23d80736ac547209dec0d84489f2046e6cccd633a1f20292f11ca31c400147ba"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "7846fdee96b5cc1730ad20a05c833a5f4b8e3156627cef90b316ace1494edbaf"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-002.md",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "tests/v2-spec-drift.test.mjs",
+    "specs/self-verification/formal/mapping.json",
+    "scripts/vendor-shell-parser/zsh_loops.go.in",
+    "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-014-016/public-cli-receipt.json"
+  ]
+}
