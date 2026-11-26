@@ -6,7 +6,10 @@ BASE="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer"
 INTERVIEWER="$BASE/SKILL.md"
 CORE="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md"
 RUN="$ROOT/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
-BANK="$BASE/references/interview-question-bank.md"
+# v1.26.0 (b193c75be2): archived SKILL.md and references/interview-question-bank.md
+# from plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/.
+ARCHIVE="$ROOT/tests/fixtures/bootstrap-v1.26.0"
+BANK="$ARCHIVE/interview-question-bank.md"
 GUIDE="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 PASS=0
 FAIL=0
@@ -20,6 +23,12 @@ assert_contains() {
   label=$3
   if [ -f "$file" ] && grep -Eq "$pattern" "$file"; then pass "$label"; else fail "$label"; fi
 }
+
+assert_blob() {
+  if [ "$(git hash-object -- "$1")" = "$2" ]; then pass "$3"; else fail "$3"; fi
+}
+assert_blob "$BANK" a4ecaddae9d760020ac6cf8df66ef6f1e8f24788 'v1.26.0 interview question bank provenance'
+assert_blob "$ARCHIVE/interviewer.md" 631074c4deb08121d5a95ff981e00d7a8d34c450 'v1.26.0 interviewer provenance'
 
 categories='Product and Scope
 Users, Roles, and UX
@@ -72,6 +81,25 @@ else
 fi
 assert_contains "$BANK" '^## Layer Coverage Checklist$' "TEST-006 layer coverage checklist"
 
+assert_contains "$ARCHIVE/interviewer.md" 'N/A — no change: <reason>' "TEST-017 bugfix-unaffected-layers reasoned N/A"
+assert_contains "$ARCHIVE/interviewer.md" 'security impact.*always|always.*security impact' "TEST-017 security assessment always required"
+assert_contains "$ARCHIVE/interviewer.md" 'ds_profile' "TEST-019 ds_profile question present"
+assert_contains "$ARCHIVE/interviewer.md" 'skip design-system integration entirely' "TEST-019 none profile skips integration"
+assert_contains "$ARCHIVE/interviewer.md" 'ds_profile: <value>' "TEST-019 ds_profile recorded in ux-spec"
+
+for contract in TEST-006 TEST-017 TEST-019; do
+  if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" "$contract"; then
+    pass "$contract Core interview guidance"
+  else
+    fail "$contract Core interview guidance"
+  fi
+done
+
+if [ "${1:-}" = '--interview-contracts' ]; then
+  printf 'PASS: %s\nFAIL: %s\n' "$PASS" "$FAIL"
+  [ "$FAIL" -eq 0 ]; exit $?
+fi
+
 for output in requirements.md design.md; do
   assert_contains "$CORE" "specs/<feature>/$output" "TEST-009 declares Core output $output"
 done
@@ -81,8 +109,6 @@ done
 assert_contains "$INTERVIEWER" 'layer-local unknown|Layer-local unknown' "TEST-009 records layer-local unknowns"
 assert_contains "$INTERVIEWER" 'MUST NOT overwrite|must not overwrite' "TEST-009 existing-layer-files create-only rule"
 assert_contains "$INTERVIEWER" 'preserv(e|ed).*SHA-256|SHA-256.*preserv' "TEST-009 existing-layer-files preserved hashes"
-assert_contains "$INTERVIEWER" 'N/A — no change: <reason>' "TEST-017 bugfix-unaffected-layers reasoned N/A"
-assert_contains "$INTERVIEWER" 'security impact.*always|always.*security impact' "TEST-017 security assessment always required"
 assert_contains "$GUIDE" 'No mockup provided — optional visualization skipped' "TEST-018 no-mockup clean skip"
 assert_contains "$RUN" 'ux-spec\.md.*frontend-spec\.md.*infra-spec\.md.*security-spec\.md' "TEST-009 run skill knows layer outputs"
 assert_contains "$RUN" 'LITE.*zero layer outputs|zero layer outputs.*LITE' "TEST-009 LITE produces zero layer outputs"
@@ -99,10 +125,6 @@ if [ -f "$GUIDE" ] && [ "$(grep -Ec '^### Prompt [123]$' "$GUIDE")" -eq 3 ]; the
 else
   fail "TEST-010 three copy-ready prompts"
 fi
-
-assert_contains "$INTERVIEWER" 'ds_profile' "TEST-019 ds_profile question present"
-assert_contains "$INTERVIEWER" 'skip design-system integration entirely' "TEST-019 none profile skips integration"
-assert_contains "$INTERVIEWER" 'ds_profile: <value>' "TEST-019 ds_profile recorded in ux-spec"
 
 if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" interview; then
   pass "Core interview contract"

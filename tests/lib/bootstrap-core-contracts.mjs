@@ -11,8 +11,8 @@ const core = bootstrap + '/skills/sdd-core-spec';
 const quality = 'plugins/sdd-quality-loop/scripts';
 const read = (name) => readFileSync(path.join(root, name), 'utf8');
 
-function run(command, args, status = 0, env = process.env) {
-  const result = spawnSync(command, args, { cwd: root, encoding: 'utf8', env });
+function run(command, args, status = 0, env = process.env, input) {
+  const result = spawnSync(command, args, { cwd: root, encoding: 'utf8', env, input });
   if (result.error) throw result.error;
   assert.equal(result.status, status, [command, ...args, result.stdout, result.stderr].join('\n'));
   return result;
@@ -27,6 +27,84 @@ function interview() {
   assert.deepEqual(outputs, ['requirements.md', 'design.md', 'tasks.md'].map(name => [name, name]));
   for (const [name] of outputs) assert.ok(read(core + '/templates/' + name).length > 0);
   assert.match(read(core + '/templates/requirements.md'), /^\| OQ-001 \|.*\| Provisional \| T-001 \|$/m);
+}
+
+function humanQuestions(project) {
+  assert.match(read(core + '/SKILL.md'), /(?:設計分岐|曖昧な要件)[^。\n]*推測せず[^。\n]*人間へ確認する[^。\n]*`Open Questions`/);
+  const dir = path.join(project, 'specs', 'sample');
+  mkdirSync(dir, { recursive: true });
+  const question = '公開前に担当者の確認を必要としますか？';
+  const template = read(core + '/templates/requirements.md');
+  assert.match(read(bootstrap + '/skills/bootstrap/SKILL.md'), /render-decision-view\.mjs[^。\n]*人間へ提示して停止/);
+  const sample = template.replace(/^\| OQ-001 \|.*$/m,
+    `| OQ-001 | 事業判断 | 公開前に確認 | 誤公開を防ぐ | ${question} | Provisional | T-001 |`);
+  writeFileSync(path.join(dir, 'requirements.md'), sample);
+  const view = run(process.execPath, [quality + '/v2/render-decision-view.mjs', '--root', project, '--feature', 'sample']).stdout;
+  assert.match(view, /^### OQ-001 .*Provisional（要判断）/m);
+  assert.ok(view.includes('**人が判断する問い**: ' + question));
+}
+
+function bugfixReview(project) {
+  const spec = read(core + '/SKILL.md');
+  const route = read(bootstrap + '/skills/bootstrap/SKILL.md');
+  const review = read('plugins/sdd-review-loop/skills/spec-check/SKILL.md');
+  assert.match(spec, /^\s*- `low`: [^\n]*小規模バグ修正/m);
+  assert.match(spec, /^\s*- `high`: [^\n]*認証\/認可/m);
+  assert.match(route, /^\| `bugfix` \| `sdd-core-spec` → `spec-check`/m);
+  assert.match(route, /`auto` かつ全タスク `Risk: low` → スキップ/);
+  assert.match(route, /`Risk: high` → `dual-parallel`[^\n]*設計・セキュリティ/);
+  assert.match(review, /`auto` かつ全タスク `Risk: low` \| `skipped`/);
+  assert.match(review, /`Risk: high`\** \| \**`dual-parallel`\** \|[^|\n]*`spec-reviewer-a`[^|\n]*`spec-reviewer-b`/);
+
+  // Ask the distributed read-only MCP for the next action of each Draft under auto review.
+  const scenarios = [
+    ['small-fix', 'low', '表示上の誤字を修正する', 'approval-gate'],
+    ['auth-policy', 'high', '認可方針を変更する', 'spec-check'],
+  ];
+  writeFileSync(path.join(project, 'AGENTS.md'), '## Active Spec Directories\n' +
+    scenarios.map(([feature]) => `- \`specs/${feature}/\``).join('\n') + '\n');
+  mkdirSync(path.join(project, 'sdd'));
+  writeFileSync(path.join(project, 'sdd/guardrails.yaml'), 'review:\n  pre_impl_check: auto\n');
+  const messages = [{ id: 1, method: 'initialize', params: {
+    protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'test', version: '1' },
+  } }];
+  for (const [feature, risk, description] of scenarios) {
+    const dir = path.join(project, 'specs', feature);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(dir, 'requirements.md'), `- **REQ-001**: ${description}\n- **AC-001** (REQ-001): ${description}\n`);
+    writeFileSync(path.join(dir, 'design.md'), `# 設計\n${description}\n`);
+    writeFileSync(path.join(dir, 'tasks.md'), `## T-001 ${description}\nApproval: Draft\nStatus: Planned\nRisk: ${risk}\n`);
+    messages.push({ id: messages.length + 1, method: 'tools/call', params: { name: 'sdd_feature_state', arguments: { feature } } });
+  }
+  const input = messages.map(msg => JSON.stringify({ jsonrpc: '2.0', ...msg })).join('\n') + '\n';
+  const output = run(process.execPath, ['mcp/sdd-forge-mcp/dist/index.js', '--root', project], 0, process.env, input).stdout;
+  const responses = output.trim().split(/\r?\n/).map(line => JSON.parse(line));
+  for (const [i, [feature, , , phase]] of scenarios.entries()) {
+    const result = responses.find(reply => reply.id === i + 2);
+    const state = JSON.parse(result.result.content[0].text);
+    assert.equal(state.data?.nextAction.phase, phase, feature + ': ' + JSON.stringify(state));
+  }
+}
+
+function profileHandoff() {
+  assert.match(read(bootstrap + '/skills/bootstrap/SKILL.md'), /`design-system\/` 存在時のみ `design-sync-loop` を委譲/);
+  assert.match(read(core + '/SKILL.md'), /`design-system\/` が存在する場合も既存規約へ整合/);
+  const loop = read(bootstrap + '/skills/design-sync-loop/SKILL.md');
+  assert.match(loop, /UI 対象かつ `design-system\/` 運用時のみ/);
+  assert.match(loop, /resolve-design-sync\.py[^\n]*`skip` と `manual` は送信しない/);
+  assert.match(loop, /`audit` がある場合は[^。\n]*`Design-Source` に/);
+  for (const operation of ['pull', 'upload']) {
+    for (const profile of ['none', 'custom']) {
+      const request = { schema: 'design-sync-request/v1', ui_app: true, ds_profile: profile, operation,
+        capability_resolved: true, provider_available: true, egress_permitted: true, setting: 'standing',
+        feature: 'sample', session: 'local', destination: 'sample-design', records: [] };
+      const decision = JSON.parse(run('python3', [bootstrap + '/scripts/resolve-design-sync.py'],
+        0, process.env, JSON.stringify(request)).stdout);
+      assert.equal(decision.action, profile === 'none' ? 'skip' : 'proceed', profile + ': ' + operation);
+      if (profile === 'custom' && operation === 'upload') assert.equal(decision.audit?.decision, 'granted');
+      else assert.equal(decision.audit, null, profile + ': ' + operation);
+    }
+  }
 }
 
 function layers() {
@@ -125,7 +203,8 @@ function designSystem(project, powershell) {
 }
 
 const checks = new Map([
-  ['interview', interview], ['layers', layers], ['traceability', traceability],
+  ['interview', interview], ['TEST-006', humanQuestions], ['TEST-017', bugfixReview], ['TEST-019', profileHandoff],
+  ['layers', layers], ['traceability', traceability],
   ['design-system', designSystem], ['tool-unavailable', () => fallback('利用不可')],
   ['auth-failed', () => fallback('認証失敗')],
   ...['initial', 'prompt', 'off', 'decline'].map(test => ['consent-' + test, () => designConsent(test)]),

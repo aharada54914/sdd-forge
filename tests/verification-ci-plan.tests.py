@@ -28,6 +28,8 @@ def module(name, filename):
 
 IMPACT = module('impact', 'verification-impact.py')
 W = module('workflow', 'verification-workflow.py')
+# Preserve the original case IDs when replaying the e2110862f deployment.
+RELEASED = module('released_ci_inputs', 'fixtures/verification-ci/released_inputs.py')
 
 
 def digest(value):
@@ -372,9 +374,10 @@ class PlanningTests(GitFixture):
         self.assertFalse(github_output.exists())
 
     def test_current_native_windows_and_coding_standard_obligations_are_retained(self):
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
-        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
-        obligations = W.plan_obligations(live, catalog)
+        released = RELEASED.load(self, W)
+        workflow = released.workflow
+        catalog = released.catalog
+        obligations = W.plan_obligations(workflow, catalog, released.weights)
         native = [row for row in obligations if row['job'] == 'windows-powershell' and row['suites']]
         self.assertEqual(len(native), 2)
         self.assertEqual({row['matrix']['executable'] for row in native}, {'powershell', 'pwsh'})
@@ -391,38 +394,41 @@ class PlanningTests(GitFixture):
         self.assertEqual(standards[0]['suites'], sorted(catalog['profiles']['coding-standards']))
 
     def test_current_readme_candidate_without_evidence_never_omits_work(self):
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
-        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
-        obligations = W.plan_obligations(live, catalog)
-        categories = IMPACT.rules(catalog, live)['categories']
+        released = RELEASED.load(self, W)
+        workflow = released.workflow
+        catalog = released.catalog
+        obligations = W.plan_obligations(workflow, catalog, released.weights)
+        categories = IMPACT.rules(catalog, workflow)['categories']
         self.assertTrue(categories)
         for category in categories:
             category.update(active=False, evidence=None)
-        selected, evidence, reason = IMPACT.classify({'README.md'}, catalog, live, obligations, ROOT, 'a' * 40)
+        selected, evidence, reason = IMPACT.classify({'README.md'}, catalog, workflow, obligations, released.root, 'a' * 40)
         self.assertEqual((selected, evidence, reason), (obligations, [], 'unproven-category'))
 
     def test_cancelable_native_wrapper_keeps_workload_without_assuming_execution(self):
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
-        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
-        expected = W.workflow_coverage(live, catalog)
-        obligations = W.plan_obligations(live, catalog)
+        released = RELEASED.load(self, W)
+        workflow = released.workflow
+        catalog = released.catalog
+        expected = W.workflow_coverage(workflow, catalog)
+        obligations = W.plan_obligations(workflow, catalog, released.weights)
         for condition in ('always()', '${{ !cancelled() }}'):
-            changed = copy.deepcopy(live)
+            changed = copy.deepcopy(workflow)
             changed['jobs']['test']['if'] = condition
             self.assertEqual(W.workflow_coverage(changed, catalog), expected)
-            self.assertEqual(W.plan_obligations(changed, catalog), obligations)
+            self.assertEqual(W.plan_obligations(changed, catalog, released.weights), obligations)
             self.assertIsNone(W.condition_value(condition, {}, 'Windows'))
         for condition in ('!cancelled()', '${{ !cancelled() || true }}', '${{ failure() }}'):
-            changed = copy.deepcopy(live)
+            changed = copy.deepcopy(workflow)
             changed['jobs']['test']['if'] = condition
             self.assertTrue(W.coverage_errors(changed, catalog))
-        self.assertEqual(live['jobs']['required-checks']['if'], 'always()')
+        self.assertEqual(workflow['jobs']['required-checks']['if'], 'always()')
 
     def test_control_verifier_is_not_its_own_completed_workload(self):
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
-        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
-        workload = W.plan_obligations(live, catalog)
-        controls = W.control_dispositions(live, catalog)
+        released = RELEASED.load(self, W)
+        workflow = released.workflow
+        catalog = released.catalog
+        workload = W.plan_obligations(workflow, catalog, released.weights)
+        controls = W.control_dispositions(workflow, catalog, released.weights)
         self.assertEqual([row['step'] for row in controls], [
             'Install structural YAML parser', 'Download original same-run CI plan',
             'Collect actual same-run execution observations', 'Check all required tests passed'])
@@ -432,10 +438,10 @@ class PlanningTests(GitFixture):
         self.assertEqual({r['runner'] for r in workload if r['job'] == 'test'},
                          {'ubuntu-latest', 'macos-26-intel', 'windows-latest'})
         aggregate = 'python3 -B tests/verification-ci.py aggregate --root . --plan plan.json --observations observations --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA"'
-        future = copy.deepcopy(live)
+        future = copy.deepcopy(workflow)
         future['jobs']['required-checks']['steps'] = [
             {'name': 'Check all required tests passed', 'shell': 'bash', 'run': aggregate}]
-        self.assertEqual(len(W.control_dispositions(future, catalog)), 1)
+        self.assertEqual(len(W.control_dispositions(future, catalog, released.weights)), 1)
         for mutate in (
             lambda w: w['jobs']['required-checks']['steps'].append(
                 {'name': 'hidden tests', 'run': 'python3 tests/verification-impact.tests.py'}),
@@ -444,14 +450,14 @@ class PlanningTests(GitFixture):
             lambda w: w['jobs']['required-checks'].update(name='other'),
             lambda w: w['jobs']['required-checks'].update(**{'continue-on-error': True}),
         ):
-            bad = copy.deepcopy(live)
+            bad = copy.deepcopy(workflow)
             mutate(bad)
             with self.assertRaises(ValueError):
-                W.plan_obligations(bad, catalog)
-        copied = copy.deepcopy(live)
+                W.plan_obligations(bad, catalog, released.weights)
+        copied = copy.deepcopy(workflow)
         copied['jobs']['arbitrary'] = copied['jobs'].pop('required-checks')
-        self.assertIn('arbitrary', {r['job'] for r in W.plan_obligations(copied, catalog)})
-        self.assertEqual(W.control_dispositions(copied, catalog), [])
+        self.assertIn('arbitrary', {r['job'] for r in W.plan_obligations(copied, catalog, released.weights)})
+        self.assertEqual(W.control_dispositions(copied, catalog, released.weights), [])
 
     def test_full_inventory_runner_matrix_shards_and_opaque_body(self):
         workflow = {'jobs': {'test': {'runs-on': '${{ matrix.os }}', 'strategy': {
@@ -1401,33 +1407,35 @@ class PreparedVerifierTests(unittest.TestCase):
                 W.verifier_job(bad)
 
     def test_runtime_and_installers_agree_on_node26_floor(self):
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
-        for name, job in live['jobs'].items():
+        released = RELEASED.load(self, W)
+        workflow = released.workflow
+        for name, job in workflow['jobs'].items():
             if name.startswith('a9-') or name == 'required-checks':
                 continue  # Advisory jobs and the base-qualified aggregation job use runner tools.
             setups = [step for step in job['steps'] if step.get('uses', '').startswith('actions/setup-node@')]
             self.assertTrue(setups, name)
             self.assertTrue(all(step['with']['node-version'] == '26.13.0' for step in setups), name)
         for name in ('ci-mcp', 'local-env-mcp', 'sdd-forge-mcp'):
-            package = json.loads((ROOT / 'mcp' / name / 'package.json').read_text())
+            package = json.loads((released.root / 'mcp' / name / 'package.json').read_text())
             self.assertEqual(package['engines']['node'], '>=26.13.0')
             self.assertTrue(package['devDependencies']['@types/node'].startswith('^26.'))
 
     def test_live_workload_and_a9_inventory_survives_preparation(self):
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
-        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
-        before = W.plan_obligations(live, catalog)
-        a9 = {name: copy.deepcopy(live['jobs'][name]) for name in ('a9-advisory', 'a9-advisory-inputs')}
-        live['jobs']['ci-plan'] = self.workflow['jobs']['ci-plan']
-        live['jobs']['required-checks'] = prepared_verifier([n for n in live['jobs'] if n != 'required-checks'])
-        after, controls = W.plan_inventory(live, catalog)
+        released = RELEASED.load(self, W)
+        workflow = released.workflow
+        catalog = released.catalog
+        before = W.plan_obligations(workflow, catalog, released.weights)
+        a9 = {name: copy.deepcopy(workflow['jobs'][name]) for name in ('a9-advisory', 'a9-advisory-inputs')}
+        workflow['jobs']['ci-plan'] = self.workflow['jobs']['ci-plan']
+        workflow['jobs']['required-checks'] = prepared_verifier([n for n in workflow['jobs'] if n != 'required-checks'])
+        after, controls = W.plan_inventory(workflow, catalog, released.weights)
         self.assertEqual([o for o in after if o['job'] != 'ci-plan'],
                          [o for o in before if o['job'] != 'ci-plan'])
-        self.assertEqual({n: live['jobs'][n] for n in a9}, a9)
+        self.assertEqual({n: workflow['jobs'][n] for n in a9}, a9)
         self.assertEqual(len(controls), 4)
-        for step, row in zip(live['jobs']['required-checks']['steps'][1:], controls):
+        for step, row in zip(workflow['jobs']['required-checks']['steps'][1:], controls):
             self.assertEqual(row['command_sha256'], digest({'run': step['run'], 'shell': 'bash',
-                'env': {**live.get('env', {}), **step.get('env', {})}}))
+                'env': {**workflow.get('env', {}), **step.get('env', {})}}))
         self.assertEqual({o['runner'] for o in after if o['job'] == 'test'},
                          {'ubuntu-latest', 'macos-26-intel', 'windows-latest'})
 
