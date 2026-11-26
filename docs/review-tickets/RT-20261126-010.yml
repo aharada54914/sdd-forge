@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-010
-status: open
+status: resolved
 type: coverage
 severity: major
 target:
@@ -14,3 +14,7 @@ expected_fix:
   - Check a directory-only discrepancy at each occurrence independently.
 references:
   - reports/quality-gate/verification-first-factory-T-003.md
+resolution:
+  commit: f809c5359
+  receipt: specs/verification-first-factory/verification/T-003/RT-20261126-010/test-receipt.json
+  result: "All six separate Copilot command references are checked."
