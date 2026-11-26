@@ -1,6 +1,6 @@
 Task ID: T-002
 Feature: verification-first-factory
-Run ID: 1bc22715-d3ef-456a-9e7c-c1dd10fbd0a4
+Run ID: cc094906-12cd-4784-a7e5-60377e7bc0ab
 VERDICT: NEEDS_WORK
 Critical: 0
 Major: 1
@@ -10,14 +10,14 @@ Minor: 2
 
 # Independent quality gate for T-002
 
-Evaluators verified all 73 admitted hashes at `95aa6c281472a0d5ab199f54dc7f1a7197a7c0b4`. G1/G2/G5 were reviewed by `1bc22715-d3ef-456a-9e7c-c1dd10fbd0a4` (ledger 1253) and G3/G4 by `8bf11285-8296-40ae-b48c-49b275c1c1b3` (ledger 1254). Machine execution `cc55e7b7-4bea-457f-8132-314e9e1906ea` returned PASS.
+Evaluators verified all 81 admitted hashes at `2b097b985c0ab9d84eee522060564c6dcaa0d723`. G1/G2/G5 were reviewed by `cc094906-12cd-4784-a7e5-60377e7bc0ab` (ledger 1255) and G3/G4 by `2a9573a2-7a9f-4eb1-9dea-7d01d91826cb` (ledger 1256). Machine execution `c57c254f-f9b8-48d5-90c5-5c2d03423e32` returned PASS.
 
 | Perspective | Result | Independent observation |
 |---|---|---|
-| G1 | FAIL | Git accepted a mixed text and binary patch produced by git diff --binary. The public gate reported the removed comment at patch line 15 as its sole finding and exited 1. |
-| G2 | PASS | The baseline covers three documents. Root CODEOWNERS owns the retirement manifest. The design names .github/CODEOWNERS. This documentation discrepancy is Minor. |
-| G3 | FAIL | Git accepted a patch produced with diff.suppressBlankEmpty=true. A blank context line caused the gate to report a deleted marker at line 8. The ordinary diff of the same change passed. RT-014 remains open for invalid zsh brace syntax. |
-| G4 | PASS | The packaged runtime hashes match and retirement approvals are loaded from the pinned base. |
-| G5 | PASS | Both repaired execution scopes passed. The expanded run passed 40 drift tests, 28 core gate tests and one model correspondence check. |
+| G1 | PASS | Public regression controls confirmed physical line numbers, binary and blank-context patches, ordinary source and invalid patch text. The five new controls failed before repair and the updated suites passed 73/73. |
+| G2 | PASS | The shared gate change is owner approved and the model mapping matches. The design path discrepancy remains a Minor (RT-015). |
+| G3 | FAIL | The path classifier excludes root-level __tests__/sum.js while accepting the same nested directory. RT-016 records the Major. Native zsh rejects an invalid brace loop accepted by the bundled parser (RT-014, Minor). |
+| G4 | FAIL | The deleted-test approval lookup depends on the same classifier. This is the same Major as G3. |
+| G5 | N/A | No domain model, terminology or UI changes. |
 
-The two evaluations identified separate valid Git inputs exposing the same Major defect, tracked together in RT-20261126-013. RT-20261126-014 and RT-20261126-015 track the two Minor findings. The task stays Implementation Complete.
+RT-013 passed both independent evaluations. The previous exact scope passed with zero placeholder findings. The expanded machine run passed 40 drift tests, 33 shared-gate tests and one model check. Reviewer B independently reran all 40 drift tests and six CLI patch controls. The task stays Implementation Complete.

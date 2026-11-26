@@ -11367,6 +11367,26 @@
       "previous_record_sha256": "2ee0b859254f9eb0ef221262ff7fa454c148e06b05901bd090f1d964e36ca1bc",
       "record_sha256": "3939835781bc6f0ad80413762f636acba9b41fe2bdb28b5c78c4e68ddd6cbd08",
       "scratch_declaration_sha256": "b20771b81c368e494a1cce08440dc5ac3483ed80dbc809eff3bdbb9373e633e7"
+    },
+    {
+      "sequence": 1255,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "cc094906-12cd-4784-a7e5-60377e7bc0ab",
+      "host_session_id": "01a215de-47d8-76c1-803e-99bca1362cd6",
+      "previous_record_sha256": "3939835781bc6f0ad80413762f636acba9b41fe2bdb28b5c78c4e68ddd6cbd08",
+      "record_sha256": "4fd7f702ed36ba35b228df04cc9d9101e03109706f87a0ae67a4aa2908b2e9d3",
+      "scratch_declaration_sha256": "5422af0e74b6afd11507917068f91ee746b0952bc93c8188362bbfdbd69c8832"
+    },
+    {
+      "sequence": 1256,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "2a9573a2-7a9f-4eb1-9dea-7d01d91826cb",
+      "host_session_id": "01a215de-6aea-7712-b6d4-2f9b9b30dd47",
+      "previous_record_sha256": "4fd7f702ed36ba35b228df04cc9d9101e03109706f87a0ae67a4aa2908b2e9d3",
+      "record_sha256": "3e847bd18eaa99194442e26ffaa8d6b2c23a566bd096f04c218f844c51a57020",
+      "scratch_declaration_sha256": "69344266ccf9fe424e778e89ee36f06c3b71644e838785208ae78b8035869504"
     }
   ]
 }

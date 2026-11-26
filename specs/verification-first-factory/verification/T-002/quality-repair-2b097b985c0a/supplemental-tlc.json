@@ -1,0 +1,30 @@
+{
+  "revision": "2b097b985c0ab9d84eee522060564c6dcaa0d723",
+  "scope": "Supplemental parent-run model check after independent inputs were reserved",
+  "module": "specs/self-verification/formal/GateLifecycle.tla",
+  "module_sha256": "594b2a9f18a78fd0f991cc5af923842a74338badca78c0fe4c7a72438b5d69a9",
+  "jar_sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+  "command": "java -cp <tla2tools.jar> tlc2.TLC -workers 1 -config <cfg> GateLifecycle.tla",
+  "runs": [
+    {
+      "config": "GateLifecycle.cfg",
+      "sha256": "6b41f039f41d76abd5831c13a7a46c735cd5c697aaa37a9b2562d5994150c1e1",
+      "exitCode": 0,
+      "diagnostics": [
+        "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+        "Model checking completed. No error has been found.",
+        "50 states generated, 38 distinct states found, 0 states left on queue."
+      ]
+    },
+    {
+      "config": "GateLifecycle.negative.cfg",
+      "sha256": "d29b2867058dc810db88bf68417e8ee68bf177fae6c875272384d209980f9154",
+      "exitCode": 12,
+      "diagnostics": [
+        "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+        "Error: Invariant DoneRequiresGatePass is violated.",
+        "18 states generated, 17 distinct states found, 9 states left on queue."
+      ]
+    }
+  ]
+}
