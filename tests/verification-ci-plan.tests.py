@@ -276,7 +276,9 @@ class PlanningTests(GitFixture):
         self.write('Old.txt', 'old')
         self.write('type.txt', 'regular')
         start = self.commit('start')
-        (self.root / 'Old.txt').rename(self.root / 'old.txt')
+        # Stage both spellings even on a case-insensitive filesystem.
+        self.git('mv', 'Old.txt', 'rename-in-progress')
+        self.git('mv', 'rename-in-progress', 'old.txt')
         (self.root / 'type.txt').unlink()
         (self.root / 'type.txt').symlink_to('old.txt')
         (self.root / 'docs/guide.txt').unlink()
@@ -1092,10 +1094,10 @@ class A9ConsumerTests(GitFixture):
     def setUp(self):
         super().setUp()
         self.git('checkout', '-q', self.base)
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
-        self.workflow['env'] = live.get('env', {})
-        for job in ('a9-advisory-inputs', 'a9-advisory'):
-            self.workflow['jobs'][job] = copy.deepcopy(live['jobs'][job])
+        # Exact protocol inputs from e2110862, the last workflow carrying the advisory jobs.
+        historical = json.loads((ROOT / 'tests/fixtures/verification-ci/a9-activation-workflow.json').read_text())
+        self.workflow.update(env=historical['env'], defaults=historical['defaults'])
+        self.workflow['jobs'].update(historical['jobs'])
         self.catalog['impact']['categories'] = [dict(
             id='guide', paths=['docs/guide.txt'], prefixes=[], suites=[self.suites[0]],
             groups=[], active=False, evidence=None)]

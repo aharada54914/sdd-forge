@@ -88,6 +88,11 @@ jobs:
         if: runner.os == 'Linux'
         run: python3 tests/release-readiness.tests.py
 
+      - name: Run the full Bash model freshness suite
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash tests/model-freshness-check.tests.sh
+
       - name: Exercise the workstation version bump on macOS and Windows
         if: runner.os != 'Linux'
         shell: bash

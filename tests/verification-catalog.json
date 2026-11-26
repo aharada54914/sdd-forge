@@ -1312,7 +1312,7 @@
       "path": "tests/model-freshness-check.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
-        "version-gates"
+        "v2-guardrails"
       ]
     },
     {

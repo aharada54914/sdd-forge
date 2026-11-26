@@ -463,7 +463,7 @@ class AggregateFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.scratch = Path(self.temp.name)
+        self.scratch = Path(self.temp.name).resolve(strict=True)
         self.root = self.scratch / 'repo'
         self.root.mkdir()
         self.git('init', '-q')
@@ -919,10 +919,10 @@ class A9AggregateTests(AggregateFixture):
     def setUp(self):
         super().setUp()
         self.ci = module(SCRIPT, 'a9_ci_test')
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
-        self.workflow['env'] = live.get('env', {})
-        for job in ('a9-advisory-inputs', 'a9-advisory'):
-            self.workflow['jobs'][job] = copy.deepcopy(live['jobs'][job])
+        # Exact protocol inputs from e2110862, the last workflow carrying the advisory jobs.
+        historical = json.loads((ROOT / 'tests/fixtures/verification-ci/a9-activation-workflow.json').read_text())
+        self.workflow.update(env=historical['env'], defaults=historical['defaults'])
+        self.workflow['jobs'].update(historical['jobs'])
         self.write('.github/workflows/test.yml', json.dumps(self.workflow))
         self.a9_base = self.commit('synthetic exact A9 workflow')
         self.normal_jobs = copy.deepcopy(self.jobs)

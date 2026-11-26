@@ -1,0 +1,92 @@
+{
+  "env": {},
+  "defaults": {},
+  "jobs": {
+    "a9-advisory-inputs": {
+      "name": "A9 advisory activation detection",
+      "runs-on": "ubuntu-latest",
+      "permissions": {
+        "contents": "read"
+      },
+      "outputs": {
+        "active": "${{ steps.detect.outputs.active }}"
+      },
+      "steps": [
+        {
+          "name": "Read trusted base",
+          "if": "github.event_name == 'pull_request'",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.event.pull_request.base.sha }}",
+            "path": "trusted",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Read exact PR head",
+          "if": "github.event_name == 'pull_request'",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "repository": "${{ github.event.pull_request.head.repo.full_name }}",
+            "ref": "${{ github.event.pull_request.head.sha }}",
+            "path": "subject",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Detect advisory activation without executing repository code",
+          "id": "detect",
+          "shell": "bash",
+          "env": {
+            "A9_EVENT_NAME": "${{ github.event_name }}"
+          },
+          "run": "python3 - <<'PYCODE'\nimport json, os\nactive = os.environ['A9_EVENT_NAME'] == 'pull_request' and any(\n    os.path.lexists(root + '/sdd/project-context.yaml') for root in ('trusted', 'subject'))\nwith open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:\n    output.write('active=' + str(active).lower() + '\\n')\nprint(json.dumps({'state': 'inputs_required' if active else 'not_activated',\n                  'advisory_observed': False}))\nPYCODE\n"
+        }
+      ]
+    },
+    "a9-advisory": {
+      "name": "capability-mode Gate",
+      "needs": [
+        "a9-advisory-inputs"
+      ],
+      "if": "needs.a9-advisory-inputs.outputs.active == 'true'",
+      "runs-on": "ubuntu-latest",
+      "timeout-minutes": 10,
+      "permissions": {
+        "contents": "read"
+      },
+      "steps": [
+        {
+          "name": "Checkout trusted collection implementation",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.event.pull_request.base.sha }}",
+            "path": "trusted",
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Checkout isolated exact PR head as data",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "repository": "${{ github.event.pull_request.head.repo.full_name }}",
+            "ref": "${{ github.event.pull_request.head.sha }}",
+            "path": "subject",
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Collect actual advisory consumers with explicit request",
+          "shell": "bash",
+          "env": {
+            "A9_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+            "A9_HEAD_SHA": "${{ github.event.pull_request.head.sha }}"
+          },
+          "run": "set -euo pipefail\numask 077\nif [ ! -f trusted/scripts/observe-a9-advisory.py ]; then\n  echo '{\"state\":\"blocked\",\"result\":\"BLOCKED\",\"authorization_checked\":false,\"missing_inputs\":[\"trusted_collector\"]}'\n  exit 1\nfi\nif ! git -C subject fetch --no-tags ../trusted \"$A9_BASE_SHA\" >/dev/null 2>&1; then\n  echo '{\"state\":\"blocked\",\"result\":\"BLOCKED\",\"authorization_checked\":false,\"missing_inputs\":[\"base_revision\"]}'\n  exit 1\nfi\nprivate_dir=$(mktemp -d \"$RUNNER_TEMP/a9-observation.XXXXXX\")\npython3 trusted/scripts/observe-a9-advisory.py \\\n  --repo-root \"$GITHUB_WORKSPACE/subject\" \\\n  --base-sha \"$A9_BASE_SHA\" --head-sha \"$A9_HEAD_SHA\" \\\n  --request sdd/a9-advisory-request.json \\\n  --output \"$private_dir/observation.json\"\n# Raw evidence stays private and is deliberately never uploaded.\n# A safe summary/check success alone cannot complete release evidence.\n"
+        }
+      ]
+    }
+  }
+}
