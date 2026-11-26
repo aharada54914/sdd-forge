@@ -52,27 +52,50 @@ def snapshot_reader(source):
     return read, observed
 
 
-V1_RETIRED = ('concept-test/v1 records are no longer supported; recreate the proposal as concept-test/v2 '
-              'by running the Concept Test again')
+JSON_BLOCK = re.compile(r'^```json\r?\n(.*?)^```[ \t]*\r?$', re.M | re.S)
+
+
+def v1_retired(feature):
+    # run-sdd-gate.mjs repeats this text for a v1 record left only in the Git index.
+    prefix = 'specs/' + feature + '/concept-test'
+    return ('concept-test/v1 records are no longer supported; recreate the proposal as concept-test/v2 '
+            'by running the Concept Test again, then delete any leftover ' + prefix + '.approval.json. '
+            'In a project without domain/, where the Concept Test does not run, delete '
+            + prefix + '.md, ' + prefix + '.json and ' + prefix + '.approval.json instead')
+
+
+def markdown_schema(raw):
+    """The schema named by the single JSON block of a Markdown mirror, or None."""
+    try:
+        blocks = JSON_BLOCK.findall(raw.decode('utf-8'))
+        document = parse(blocks[0]) if len(blocks) == 1 else None
+    except (ValueError, UnicodeError):
+        return None
+    return document.get('schema') if isinstance(document, dict) else None
 
 
 def collect(feature, read, *, allow_local, require_v2=False, preparing=False, reject_v1=False):
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
         raise ValueError('invalid feature')
     prefix = 'specs/' + feature + '/concept-test'
+    retire_v1 = require_v2 or reject_v1
+    if retire_v1 and read(prefix + '.json', True) is None:
+        markdown = read(prefix + '.md', True)
+        if markdown is not None and markdown_schema(markdown) == 'concept-test/v1':
+            raise ValueError(v1_retired(feature))
     document = parse(read(prefix + '.json'))
     version = document.get('schema') if isinstance(document, dict) else None
     if version == 'concept-test/v2' and allow_local:
         check_schema('concept-test.v2.schema.json', document)
-    elif version == 'concept-test/v1' and (require_v2 or reject_v1):
-        raise ValueError(V1_RETIRED)
+    elif version == 'concept-test/v1' and retire_v1:
+        raise ValueError(v1_retired(feature))
     elif version == 'concept-test/v1':
         check_schema('concept-test.v1.schema.json', document)
     else:
         raise ValueError('unsupported Concept Test version for this operation')
     if document['feature'] != feature:
         raise ValueError('wrong Concept Test feature')
-    blocks = re.findall(r'^```json\r?\n(.*?)^```[ \t]*\r?$', read(prefix + '.md').decode('utf-8'), re.M | re.S)
+    blocks = JSON_BLOCK.findall(read(prefix + '.md').decode('utf-8'))
     if len(blocks) != 1 or json.dumps(parse(blocks[0]), sort_keys=True) != json.dumps(document, sort_keys=True):
         raise ValueError('Markdown and JSON evidence differ')
     paths = set()

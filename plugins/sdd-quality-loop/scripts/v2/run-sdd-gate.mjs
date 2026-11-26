@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Unified deterministic runner for SDD Core's sdd-gate (v2 Lightweight Guardrails).
- * Uses the packaged domain validator for features with v2 Concept Test evidence.
+ * Uses the packaged domain validator for features with a Concept Test record.
  *
  * Runs in one invocation:
  *   1. Task precondition check (Approval: Approved, Status: Implementation Complete|Done)
@@ -618,26 +618,47 @@ function runVerificationCommands(projectRoot, commands) {
   return results;
 }
 
-function needsConceptCheck(root, feature) {
+// Same text as v1_retired() in sdd-domain/scripts/validate-concept-test.py.
+function v1Retired(feature) {
   const prefix = `specs/${feature}/concept-test`;
-  const receipt = prefix + '.decision.json';
-  const paths = [receipt, prefix + '.json', prefix + '.md'];
-  for (const rel of paths) {
-    const file = path.join(root, rel);
-    // Any record makes the check apply; the validator rejects retired v1 records.
-    if (fs.lstatSync(file, { throwIfNoEntry: false })) return true;
+  return 'concept-test/v1 records are no longer supported; recreate the proposal as concept-test/v2 '
+    + `by running the Concept Test again, then delete any leftover ${prefix}.approval.json. `
+    + 'In a project without domain/, where the Concept Test does not run, delete '
+    + `${prefix}.md, ${prefix}.json and ${prefix}.approval.json instead`;
+}
+
+function isV1Record(contents, filename) {
+  let raw = contents;
+  if (filename.endsWith('.md')) {
+    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
+    if (blocks.length !== 1) return false;
+    raw = blocks[0][1];
   }
+  try {
+    return JSON.parse(raw)?.schema === 'concept-test/v1';
+  } catch {
+    return false;
+  }
+}
+
+/** Where the feature's Concept Test record is: NONE, PRESENT (working tree or index),
+ * INDEXED_V1 (only the index holds it, as a v1 record), or GIT_UNAVAILABLE. */
+function conceptRecord(root, feature) {
+  const prefix = `specs/${feature}/concept-test`;
+  const paths = [prefix + '.decision.json', prefix + '.json', prefix + '.md'];
+  // Any record makes the check apply; the validator rejects retired v1 records.
+  if (paths.some(rel => fs.lstatSync(path.join(root, rel), { throwIfNoEntry: false }))) return 'PRESENT';
 
   // The index can still contain current evidence missing from the working tree.
   let repo = root;
   while (!fs.existsSync(path.join(repo, '.git'))) {
     const parent = path.dirname(repo);
-    if (parent === repo) return false;
+    if (parent === repo) return 'NONE';
     repo = parent;
   }
   const marker = path.join(repo, '.git');
   if (fs.statSync(marker).isDirectory() && !fs.existsSync(path.join(marker, 'HEAD'))
-      && fs.readdirSync(marker).length === 0) return false;
+      && fs.readdirSync(marker).length === 0) return 'NONE';
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
   const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
     encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
@@ -646,21 +667,33 @@ function needsConceptCheck(root, feature) {
   try {
     index = git('ls-files', '--stage', '-z', '--', ...paths);
   } catch (err) {
-    // Git is optional for SDD Core. Live v2 evidence was checked above.
-    if (err.code === 'ENOENT') return null;
+    // Git is optional for SDD Core. Records in the working tree were checked above.
+    if (err.code === 'ENOENT') return 'GIT_UNAVAILABLE';
     throw err;
   }
-  for (const entry of index.split('\0').filter(Boolean)) {
-    if (entry) return true;
-  }
-  return false;
+  const entries = index.split('\0').filter(Boolean);
+  if (entries.length === 0) return 'NONE';
+  // The validator reads only the working tree, so name a retired v1 record here.
+  const indexedV1 = entries.some(entry => {
+    const [meta, filename] = entry.split('\t');
+    const [mode, oid] = meta.split(' ');
+    return (mode === '100644' || mode === '100755') && isV1Record(git('cat-file', 'blob', oid), filename);
+  });
+  return indexedV1 ? 'INDEXED_V1' : 'PRESENT';
 }
 
 function checkConceptTest(root, feature) {
   try {
-    const required = needsConceptCheck(root, feature);
-    if (required === null) return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
-    if (!required) return { passed: true, status: 'NOT_APPLICABLE' };
+    const record = conceptRecord(root, feature);
+    if (record === 'GIT_UNAVAILABLE') return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
+    if (record === 'NONE') return { passed: true, status: 'NOT_APPLICABLE' };
+    if (record === 'INDEXED_V1') {
+      return {
+        passed: false,
+        status: 'BLOCK',
+        error: `concept-test: BLOCK: ${v1Retired(feature)}. The Git index still holds the v1 record; stage its removal too.`,
+      };
+    }
     const win = process.platform === 'win32';
     const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
     if (!fs.existsSync(script)) {
