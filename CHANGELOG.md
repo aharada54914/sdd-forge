@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- **導入スキルの検査スクリプトのパス**: `sdd-adopt` が構造検査を `scripts/check-sdd-structure.sh`（スキルのフォルダー基準では存在しない）と案内していた。配布先のパス `<installed-root>/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh` に直し、スキルが示す配布物のパスがすべて実在することを試験で検査する。実ホスト（Claude Code）での `/sdd-bootstrap:bootstrap adopt` 実行で判明。
 - **Codex の版別導入で DDD の Concept Test が止まる件（#812、回避策と再現試験）**: Codex はプラグインを版ごとのフォルダーに導入するため、Concept Test が他プラグインと共通定義を見つけられず `BLOCK` になる。品質ゲートの停止メッセージに原因と回避策（sdd-forge のソースから直接実行）を示し、障害対応ガイドに手順を追加。配布定義どおりの配置を再現する試験 `tests/codex-versioned-cache.tests.py` を CI に追加（修正までは想定失敗として記録）。DDD を使わない機能には影響しない。
 
 ## v2.1.5 (2026-11-25)
