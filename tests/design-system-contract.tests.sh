@@ -245,8 +245,7 @@ loop_line_of() {
 
 # --- REQ-001 (AC-001, AC-002, AC-026, AC-027, AC-028, AC-030) --------------
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent has not been obtained for this scope' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'Obtain informed consent'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-initial; then
   pass "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
 else
   fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
@@ -472,7 +471,7 @@ else
   fail "TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent has not been obtained for this scope'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-prompt; then
   pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
 else
   fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
@@ -484,9 +483,7 @@ else
   fail "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'egress is not permitted' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'manual fallback' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'no upload'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-off; then
   pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
 else
   fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
@@ -623,7 +620,7 @@ else
   fail "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'no upload' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'decline'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-decline; then
   pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
 else
   fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"

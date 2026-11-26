@@ -130,6 +130,16 @@ jobs:
         shell: bash
         run: bash -n install.sh && bash -n uninstall.sh
 
+      - name: Select Git Bash for the PowerShell inventory check
+        if: runner.os == 'Windows'
+        shell: bash
+        run: cygpath -aw "${BASH%/*}" >> "$GITHUB_PATH"
+
+      - name: Test the native PowerShell model catalog on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/model-freshness-check.tests.ps1
+
   sdd-forge-mcp-v2:
     name: mcp-tests (sdd-forge-mcp)
     runs-on: ubuntu-latest

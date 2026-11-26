@@ -65,7 +65,7 @@ class ReleaseReadiness(unittest.TestCase):
         return self.run_cli(["bash", "-eo", "pipefail", "-c", self.step(job, name)["run"]], success)
 
     def test_config_and_model_catalog(self):
-        self.run_cli(["bash", str(ROOT / "tests/release-config-lock.tests.sh"), "--release-config-only"])
+        self.run_cli(["bash", str(ROOT / "tests/release-config-lock.tests.sh")])
         job = workflow_jobs("model-freshness-check.yml")["freshness-check"]
         self.assertIn("bash .github/scripts/check-model-freshness.sh",
                       [step.get("run") for step in job["steps"]])

@@ -17,7 +17,7 @@
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
 | `installers` | yes | 7 | 2 | 5 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
-| `loops-routing` | no | 19 | 0 | 19 | 0 |
+| `loops-routing` | no | 18 | 0 | 18 | 0 |
 | `posix-regression` | no | 58 | 1 | 57 | 0 |
 | `sql-contract` | no | 1 | 1 | 0 | 0 |
 | `sql-mysql` | no | 1 | 0 | 1 | 0 |
@@ -25,8 +25,8 @@
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
 | `test` | no | 43 | 3 | 40 | 0 |
 | `test-windows-heavy` | no | 17 | 0 | 17 | 0 |
-| `v2-guardrails` | yes | 10 | 10 | 0 | 0 |
-| `version-gates` | no | 37 | 0 | 37 | 0 |
+| `v2-guardrails` | yes | 11 | 11 | 0 | 0 |
+| `version-gates` | no | 36 | 0 | 36 | 0 |
 | `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
 | `windows-powershell` | no | 1 | 0 | 1 | 0 |
 

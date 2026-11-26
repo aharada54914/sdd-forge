@@ -1305,7 +1305,7 @@
       "path": "tests/model-freshness-check.tests.ps1",
       "runtime": "powershell",
       "ci_jobs": [
-        "version-gates"
+        "v2-guardrails"
       ]
     },
     {
@@ -1422,9 +1422,7 @@
     {
       "path": "tests/release-config-lock.tests.sh",
       "runtime": "bash",
-      "ci_jobs": [
-        "loops-routing"
-      ]
+      "delegated_to": "tests/release-readiness.tests.py"
     },
     {
       "path": "tests/release-host-smoke.sh",

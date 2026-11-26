@@ -8,6 +8,45 @@ $tokensPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-syn
 & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") design-system ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
 if ($LASTEXITCODE -ne 0) { throw "not ok: Core design-system contract" }
 
+$Script:TestPass = 0
+$Script:TestFail = 0
+function Test-Pass([string]$label) {
+    $Script:TestPass++
+    Write-Host "PASS: $label"
+}
+function Test-Fail([string]$label) {
+    $Script:TestFail++
+    Write-Host "FAIL: $label"
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-initial
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
+} else {
+    Test-Fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-prompt
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
+} else {
+    Test-Fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-off
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
+} else {
+    Test-Fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-decline
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
+} else {
+    Test-Fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
+}
+
 # DS-001 both JSON files must parse (PS5.1-safe: ConvertFrom-Json, no Test-Json)
 $schema = Get-Content -Raw -Encoding Utf8 $schemaPath | ConvertFrom-Json
 $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
@@ -180,17 +219,6 @@ Write-Host "ok: design-system contract tests passed"
 # cover here.
 # -----------------------------------------------------------------------
 
-$Script:TestPass = 0
-$Script:TestFail = 0
-function Test-Pass([string]$label) {
-    $Script:TestPass++
-    Write-Host "PASS: $label"
-}
-function Test-Fail([string]$label) {
-    $Script:TestFail++
-    Write-Host "FAIL: $label"
-}
-
 $dslPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
 $bsiPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 $wfgPath = Join-Path $repositoryRoot "docs/workflow-guide.md"
@@ -339,12 +367,6 @@ $wfgSectionFlat = Get-Flat $wfgSectionLines
 $cdwFlat = Get-FlatText $cdwText
 
 # --- REQ-001 (AC-001, AC-002, AC-026, AC-027, AC-028, AC-030) -----------
-
-if (($loopFlat -match 'consent has not been obtained for this scope') -and ($loopFlat -match 'Obtain informed consent')) {
-    Test-Pass "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
-} else {
-    Test-Fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
-}
 
 if (($loopFlat -match 'consent already holds') -and ($loopFlat -match 'continue to 5|proceeds? (directly )?to (the )?(pre-upload|step 5)')) {
     Test-Pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
@@ -556,22 +578,10 @@ if ($loopFlat.Contains("property of the check") -and ($loopFlat -match 'does not
     Test-Fail "TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)"
 }
 
-if ($loopFlat -match 'consent has not been obtained for this scope') {
-    Test-Pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
-} else {
-    Test-Fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
-}
-
 if ($loopFlat -match 'consent already holds for this feature') {
     Test-Pass "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
 } else {
     Test-Fail "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
-}
-
-if (($loopFlat -match 'egress is not permitted') -and ($loopFlat -match 'manual fallback') -and ($loopFlat -match 'no upload')) {
-    Test-Pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
-} else {
-    Test-Fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
 }
 
 if (($dslFlat -match 'extensible') -and ($dslFlat -match 'ignored|non-conforming')) {
@@ -715,12 +725,6 @@ if (($dslFlat -cmatch 'Ensure `design-system/`') -and $dslText.Contains("ui-ux-p
     Test-Pass "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"
 } else {
     Test-Fail "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"
-}
-
-if (($loopFlat -match 'no upload') -and ($loopFlat -match 'decline')) {
-    Test-Pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-} else {
-    Test-Fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
 }
 
 if ($loopFlat -match 'next (one|attempt).{0,20}asks again|next upload attempt.{0,20}prompts again') {

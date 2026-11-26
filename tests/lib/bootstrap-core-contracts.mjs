@@ -73,6 +73,33 @@ function fallback(reason) {
   }
 }
 
+function designConsent(test) {
+  const skill = read(bootstrap + '/skills/design-sync-loop/SKILL.md');
+  const loop = skill.split(/^## /m).find(section => /^(?:\d+\.\s*)?Mockup & Egress Consent Loop\b/.test(section));
+  assert.ok(loop, 'missing mockup and egress consent loop');
+  const [intro, ...steps] = loop.split(/^\d+\. (?=\*\*)/m);
+  const resolution = steps.find(step => step.startsWith('**Resolve Egress Consent**'));
+  assert.ok(resolution, 'missing consent resolution step');
+  const setting = test === 'off' ? 'off' : 'per-feature';
+  const rule = resolution.split(/\r?\n/).find(line => line.trimStart().startsWith('- `' + setting + '`:'));
+  assert.ok(rule, 'missing consent policy for ' + setting);
+  switch (test) {
+    case 'initial':
+      assert.match(rule, /当該 `\(feature, session\)` で未同意なら、[^。]*送信内容・送信先[^。]*外部保持リスク・適用範囲を明示説明して人間の明示同意を得てから `push`/);
+      break;
+    case 'prompt':
+      assert.match(intro, /結果が `prompt` なら同意の回答を加えて再実行する/);
+      assert.match(rule, /で未同意なら、[^。]*人間の明示同意を得てから `push`/);
+      break;
+    case 'off':
+      assert.match(rule, /アップロードせず手動フォールバック（`Egress-Consent: not-permitted`, `Ds-Upload-Consent-Setting: off`/);
+      break;
+    case 'decline':
+      assert.match(rule, /拒否時はアップロードせず手動フォールバック/);
+      break;
+  }
+}
+
 function designSystem(project, powershell) {
   const skill = read(bootstrap + '/skills/design-sync-loop/SKILL.md');
   assert.match(skill, /Figma DTCG JSON[^\n]*ローカルファイル[^\n]*design-tokens\.json/);
@@ -101,6 +128,7 @@ const checks = new Map([
   ['interview', interview], ['layers', layers], ['traceability', traceability],
   ['design-system', designSystem], ['tool-unavailable', () => fallback('利用不可')],
   ['auth-failed', () => fallback('認証失敗')],
+  ...['initial', 'prompt', 'off', 'decline'].map(test => ['consent-' + test, () => designConsent(test)]),
 ]);
 const name = process.argv[2];
 assert.ok(checks.has(name), 'unknown bootstrap contract: ' + name);
