@@ -30,7 +30,8 @@ this file from its entry command:
 
 ## Process
 
-1. Run `scripts/check-sdd-structure.sh [project-root]` (or `.ps1` on Windows)
+1. Run `<installed-root>/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh [project-root]`
+   (or the `.ps1` beside it on Windows)
    and treat its output as the source of truth.
    - Lines prefixed `missing:` are required items that must be created.
    - Lines prefixed `advisory:` are recommended items; confirm with the user
