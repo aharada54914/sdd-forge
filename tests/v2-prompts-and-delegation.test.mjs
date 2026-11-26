@@ -751,3 +751,25 @@ describe('#803 approving the domain model also publishes the contract', () => {
     }
   });
 });
+
+describe('real-host finding: skills name shipped scripts by their installed path', () => {
+  it('every <installed-root>/plugins/... path a skill names exists, and sdd-adopt does not use a skill-relative scripts/ path', () => {
+    const missing = [];
+    for (const plugin of fs.readdirSync(path.join(REPO_ROOT, 'plugins'))) {
+      const skillsDir = path.join(REPO_ROOT, 'plugins', plugin, 'skills');
+      if (!fs.existsSync(skillsDir)) continue;
+      for (const skill of fs.readdirSync(skillsDir)) {
+        const file = path.join(skillsDir, skill, 'SKILL.md');
+        if (!fs.existsSync(file)) continue;
+        for (const m of fs.readFileSync(file, 'utf8').matchAll(/<installed-root>\/((?:plugins|mcp)\/[A-Za-z0-9._\/-]+\.[A-Za-z0-9]+)/g)) {
+          if (!fs.existsSync(path.join(REPO_ROOT, m[1]))) missing.push(`${plugin}/${skill}: ${m[1]}`);
+        }
+      }
+    }
+    assert.deepEqual(missing, []);
+    const adopt = fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md'), 'utf8');
+    // A bare scripts/ path resolves inside the skill directory, where no script exists.
+    assert.doesNotMatch(adopt, /(^|[\s`(])scripts\/check-sdd-structure\./m);
+    assert.match(adopt, /<installed-root>\/plugins\/sdd-bootstrap\/scripts\/check-sdd-structure\.sh/);
+  });
+});
