@@ -1,0 +1,15 @@
+ticket_id: RT-20261126-011
+status: open
+type: verification
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-010
+summary: "同一SHAでの195スイート完走証跡が欠落"
+problem: |
+  個別の現役契約は回復したが、今回の20項目と過去の二つのスナップショットでは AC-013 の全体互換性を確定できない。
+expected_fix:
+  - 全195スイートについて同一候補の成功結果を照合できるレシートを用意し、未解決の旧契約を個別に判断する。
+references:
+  - reports/quality-gate/verification-first-factory-T-010.md
+  - specs/verification-first-factory/verification/T-010/quality-repair-e2f726ab4808/admission.json

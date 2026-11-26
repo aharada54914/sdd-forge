@@ -1,0 +1,15 @@
+ticket_id: RT-20261126-012
+status: open
+type: verification
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-010
+summary: "strict 移行に必要な誤検知率と時間予算が未確定"
+problem: |
+  62差分で両スキャナーの所見が0件。候補リビジョンでのローカルおよびPR CIの時間差を示す比較もない。
+expected_fix:
+  - 判定可能な Shadow 所見と同じ候補の対照計測を集め、誤検知率5%未満、ローカル+15秒以内、PR全体+120秒以内を検証する。
+references:
+  - reports/quality-gate/verification-first-factory-T-010.md
+  - specs/verification-first-factory/verification/T-010/quality-repair-e2f726ab4808/admission.json
