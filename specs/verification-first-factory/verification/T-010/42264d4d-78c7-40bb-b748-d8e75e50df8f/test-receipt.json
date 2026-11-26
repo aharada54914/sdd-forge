@@ -1,0 +1,354 @@
+{
+  "revision": "d1f4fde1ce1bd7eff5289f97a84dace8dff2a916",
+  "range_base": "329e838e9f27145944d57901fba46ef1dfcbb8a0",
+  "run_id": "42264d4d-78c7-40bb-b748-d8e75e50df8f",
+  "agent_instance_id": "01a21538-b19e-7491-afdb-3777bc003251",
+  "input_manifest_sha256": "59804f3c348d9b3cfb8732e4a2f1c80bfe9aff581727a310bd4d84b12984437a",
+  "prior_report": {
+    "revision": "d1f4fde1ce1bd7eff5289f97a84dace8dff2a916",
+    "original_path": "reports/implementation/verification-first-factory/T-010.md",
+    "archive_path": "specs/verification-first-factory/verification/T-010/42264d4d-78c7-40bb-b748-d8e75e50df8f/prior-report.md",
+    "sha256": "3e85ca6fd63fd01f9e44495410c3c81cb005cf6437ce4e523010870ebd78d4f9"
+  },
+  "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "dependencies": {
+    "install": "npm ci --offline --ignore-scripts --no-audit --no-fund --prefix mcp/sdd-forge-mcp",
+    "node": "v24.13.0",
+    "pwsh": "PowerShell 7.6.2",
+    "python": "3.14.5"
+  },
+  "selection": {
+    "catalog_total": 350,
+    "baseline_catalog_total": 349,
+    "local_posix_count": 195,
+    "ordered_profile_equal_to_range_base": true,
+    "registered_suites_added": [
+      "tests/release-readiness.tests.py"
+    ],
+    "registered_suites_removed": []
+  },
+  "commands": [
+    {
+      "name": "actionlint",
+      "argv": [
+        "/private/tmp/sdd-ci-t010.YINA8zmr/actionlint",
+        ".github/workflows/sdd-guardrails.yml",
+        ".github/workflows/test.yml",
+        ".github/workflows/release.yml",
+        ".github/workflows/model-freshness-check.yml"
+      ],
+      "started_at": "2026-11-26T00:45:43.226782+00:00",
+      "seconds": 0.006,
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "name": "bootstrap-auth-failed",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "auth-failed"
+      ],
+      "started_at": "2026-11-26T00:45:43.442968+00:00",
+      "seconds": 0.049,
+      "exit_code": 0,
+      "output_sha256": "34f88464a72fa79c463234b72ebe75b89deb8ae49b4efc959dfc727f592532c6",
+      "output": "Verified Core auth-failed\n"
+    },
+    {
+      "name": "bootstrap-design-system-pwsh",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "design-system",
+        "pwsh"
+      ],
+      "started_at": "2026-11-26T00:45:43.419296+00:00",
+      "seconds": 2.505,
+      "exit_code": 0,
+      "output_sha256": "cfb20ec17d7411013d11d8f823290b0bf29d68a4c205a624462685bc907db30e",
+      "output": "Verified Core design-system\n"
+    },
+    {
+      "name": "bootstrap-design-system",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "design-system"
+      ],
+      "started_at": "2026-11-26T00:45:43.330366+00:00",
+      "seconds": 0.232,
+      "exit_code": 0,
+      "output_sha256": "cfb20ec17d7411013d11d8f823290b0bf29d68a4c205a624462685bc907db30e",
+      "output": "Verified Core design-system\n"
+    },
+    {
+      "name": "bootstrap-interview",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "interview"
+      ],
+      "started_at": "2026-11-26T00:45:43.253992+00:00",
+      "seconds": 0.133,
+      "exit_code": 0,
+      "output_sha256": "2a40d2b7b1343e3c3180c82e1b4aa66e4cd9603fc5ef7291ce282e7e2cb541bf",
+      "output": "Verified Core interview\n"
+    },
+    {
+      "name": "bootstrap-layers",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "layers"
+      ],
+      "started_at": "2026-11-26T00:45:43.376990+00:00",
+      "seconds": 0.232,
+      "exit_code": 0,
+      "output_sha256": "a5e9d8106141b76c6edae922ab26aac54beae4c5f9dc7e706c894d1e5da3a843",
+      "output": "Verified Core layers\n"
+    },
+    {
+      "name": "bootstrap-tool-unavailable",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "tool-unavailable"
+      ],
+      "started_at": "2026-11-26T00:45:43.460506+00:00",
+      "seconds": 0.045,
+      "exit_code": 0,
+      "output_sha256": "1fe2e1f24f27083f5dd605bee195c28392c3a6cce2dd6d119f89b70789447c45",
+      "output": "Verified Core tool-unavailable\n"
+    },
+    {
+      "name": "bootstrap-traceability",
+      "argv": [
+        "node",
+        "tests/lib/bootstrap-core-contracts.mjs",
+        "traceability"
+      ],
+      "started_at": "2026-11-26T00:45:43.335521+00:00",
+      "seconds": 0.2,
+      "exit_code": 0,
+      "output_sha256": "7acb3ebbc63ec67b54a98550f0568b7b22acb661b1202930cf228ff9c921bae6",
+      "output": "Verified Core traceability\n"
+    },
+    {
+      "name": "catalog-contracts",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py",
+        "CatalogTests.test_real_catalog_and_wrappers_list_exact_same_suites",
+        "CatalogTests.test_balanced_shards_are_deterministic_disjoint_complete",
+        "CatalogTests.test_failed_suite_does_not_hide_later_results_and_receipt",
+        "CatalogTests.test_cli_direct_suite_and_receipt_are_bound_to_selection"
+      ],
+      "started_at": "2026-11-26T00:45:43.243975+00:00",
+      "seconds": 1.577,
+      "exit_code": 0,
+      "output_sha256": "6fa61bbe879431be1ef0efd54abd6de79d362a8fc2416ad76d56f75b69a753f0",
+      "output": "..==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n..\n----------------------------------------------------------------------\nRan 4 tests in 1.277s\n\nOK\n"
+    },
+    {
+      "name": "catalog-count",
+      "argv": [
+        "python3",
+        "-c",
+        "import json; c=json.load(open('tests/verification-catalog.json')); print('suites',len(c['suites']),'local-posix',len(c['profiles']['local-posix'])); assert len({s['path'] for s in c['suites']})==len(c['suites'])"
+      ],
+      "started_at": "2026-11-26T00:45:43.417198+00:00",
+      "seconds": 0.038,
+      "exit_code": 0,
+      "output_sha256": "bc0a7c08cbb6e2ad6cef40c99c8e8f765293842fefc94c1868fbec23ba1675d1",
+      "output": "suites 350 local-posix 195\n"
+    },
+    {
+      "name": "catalog",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--list"
+      ],
+      "started_at": "2026-11-26T00:45:43.323625+00:00",
+      "seconds": 0.224,
+      "exit_code": 0,
+      "output_sha256": "02a3a483c3a579249ce97ea995686d5eceb019cba6ea118ba760e8a7671174b3",
+      "output": "tests/session-hub.tests.py\ntests/merge-readiness.tests.py\ntests/dashboard-publisher.tests.py\ntests/dashboard-runtime.tests.py\ntests/workflow-state-installed-root.tests.py\ntests/codex-review-identity.tests.py\ntests/risk-upgrade-context.tests.sh\ntests/installed-review-precheck.tests.py\ntests/cloud-orchestration-contracts.tests.py\ntests/cloud-orchestration-routing.tests.py\ntests/cloud-orchestration-execution.tests.py\ntests/cloud-orchestration-verification.tests.py\ntests/install-cloud.tests.py\ntests/sdd-domain-multitarget-foundation.tests.py\ntests/codex-mcp-config.tests.py\ntests/spec-review-interrupted-recovery.tests.sh\ntests/benchmark-gates.tests.py\ntests/factory-workflow.tests.py\ntests/run-measurement.tests.py\ntests/gemini-environment-loops.tests.py\ntests/run-measurement-integration.tests.py\ntests/project-evidence-collector.tests.py\ntests/project-skill-lifecycle.tests.py\ntests/project-skill-observation.tests.py\ntests/research-owner-integration.tests.py\ntests/research-discovery.tests.py\ntests/research-consumers.tests.py\ntests/research-acquire.tests.py\ntests/research-evidence.tests.py\ntests/golden-eval.tests.py\ntests/project-skill-formal.tests.py\ntests/ci-suite-wiring.tests.sh\ntests/ci-claude-install.tests.sh\ntests/wfi-034-scratch-metric.tests.sh\ntests/adversarial-review-contracts.tests.sh\ntests/install.tests.sh\ntests/installer-idempotency.tests.sh\ntests/install-uninstall-matrix.tests.sh\ntests/uninstall.tests.sh\ntests/gates.tests.sh\ntests/check-placeholders.tests.sh\ntests/wfi-058-outputs-anchor.tests.sh\ntests/wfi-059-evidence-path-base.tests.sh\ntests/review-contract-foundation.tests.sh\ntests/review-contract-foundation-parity.tests.sh\ntests/spec-review-loop.tests.sh\ntests/downstream-review-precheck.tests.sh\ntests/impl-layer-review-inputs.tests.sh\ntests/task-layer-review-inputs.tests.sh\ntests/task-layer-full-profile.tests.sh\ntests/downstream-review-precheck-parity.tests.sh\ntests/task-review-precheck.tests.sh\ntests/task-prior-pass-receipt.tests.sh\ntests/impl-review-adr-inputs.tests.sh\ntests/review-agent-isolation.tests.sh\ntests/agent-model-routing.tests.sh\ntests/agent-capabilities-v2.tests.sh\ntests/render-agent-frontmatter.tests.sh\ntests/task-context-isolation.tests.sh\ntests/turn-first-workflow.tests.sh\ntests/retrospective-loop.tests.sh\ntests/emit-run-record-feature-scope.tests.sh\ntests/rollback-1.5.0.tests.sh\ntests/release-config-lock.tests.sh\ntests/cross-model.tests.sh\ntests/eval.tests.sh\ntests/crlf-parity.tests.sh\ntests/constant-parity.tests.sh\ntests/scenario.tests.sh\ntests/workflow-scenarios/workflow-scenarios.tests.sh\ntests/apply-branch-protection.tests.sh\ntests/workflow-state-registry.tests.sh\ntests/workflow-state-registry-parity.tests.sh\ntests/workflow-state.tests.sh\ntests/workflow-state-parity.tests.sh\ntests/workflow-state-ci-integration.tests.sh\ntests/structure-check-feature-mode.tests.sh\ntests/quality-gate-cycle-limit.tests.sh\ntests/quality-loop-calibration.tests.sh\ntests/self-improvement-guard.tests.sh\ntests/p0-hardening.tests.sh\ntests/deterministic-lane-selfcheck.tests.sh\ntests/repository-release-validation.tests.sh\ntests/template-validator-parity.tests.sh\ntests/criterion-freeze.tests.sh\ntests/task-lifecycle-enum-parity.tests.sh\ntests/task-state-grammar-parity.tests.sh\ntests/task-plan-binding-durability.tests.sh\ntests/schema-engine-identity.tests.sh\ntests/loop-inventory.tests.sh\ntests/loop-driver.tests.sh\ntests/loop-consistency.tests.sh\ntests/review-prompt-calibration.tests.sh\ntests/review-context-boundary.tests.sh\ntests/boundary-reference-authorization-parity.tests.sh\ntests/design-system-contract.tests.sh\ntests/design-system-compliance.tests.sh\ntests/loop-escalation.tests.sh\ntests/hitl-wfi-terminal.tests.sh\ntests/check-placeholders-brownfield.tests.sh\ntests/bootstrap-layer-templates.tests.sh\ntests/bootstrap-interview-guidance.tests.sh\ntests/bootstrap-cross-layer-index.tests.sh\ntests/workflow-documentation.tests.sh\ntests/doc-diagrams.tests.sh\ntests/bump-version-gate.tests.sh\ntests/release-loop-gate.tests.sh\ntests/run-panelist-effort.tests.sh\ntests/model-freshness-check.tests.sh\ntests/facet-manifest-schema.tests.sh\ntests/facet-manifest-semantics.tests.sh\ntests/capability-summary-schema.tests.sh\ntests/context-projection-schema.tests.sh\ntests/facet-manifest-staleness.tests.sh\ntests/facet-manifest-parity.tests.sh\ntests/project-context-schema.tests.sh\ntests/a9-dogfood.tests.sh\ntests/detect-policy-weakening.tests.sh\ntests/design-sync-standing-consent.tests.sh\ntests/design-sync-scan.tests.sh\ntests/resolver-evidence-schema.tests.sh\ntests/resolve-project-context-block.tests.sh\ntests/resolve-project-context-match.tests.sh\ntests/resolve-project-context-cli.tests.sh\ntests/resolve-project-context-discovery.tests.sh\ntests/resolve-project-context-lite.tests.sh\ntests/validate-resolver-evidence.tests.sh\ntests/resolve-project-context-parity.tests.sh\ntests/resolve-project-context-metamorphic.tests.sh\ntests/resolve-project-context-caller-contract.tests.sh\ntests/compatibility-byte-identical.tests.sh\ntests/golden-baseline-contract.tests.sh\ntests/structural-compatibility.tests.sh\ntests/skip-allowlist-manifest.tests.sh\ntests/promote-golden-baseline-ci-guard.tests.sh\ntests/path-lineending-regression.tests.sh\ntests/validate-live-host-proof.tests.sh\ntests/human-copy-runner-contract.tests.sh\ntests/lite-gate-summary-absent.tests.sh\ntests/capability-registry-schema.tests.sh\ntests/evaluate-predicate.tests.sh\ntests/registry-discovery.tests.sh\ntests/registry-migration-cli.tests.sh\ntests/validate-capability-registry.tests.sh\ntests/generate-registry-digest.tests.sh\ntests/generate-gate-capabilities.tests.sh\ntests/capability-registry-parity.tests.sh\ntests/component-path-resolver.tests.sh\ntests/component-path-diff-basis.tests.sh\ntests/ownership-digest.tests.sh\ntests/check-component-coverage.tests.sh\ntests/component-path-ownership-parity.tests.sh\ntests/cross-runtime-handoff.tests.sh\ntests/check-installed-plugin-drift.tests.sh\ntests/check-a8-process-integrity.tests.sh\ntests/sdd-domain-multitarget-T-004.tests.sh\ntests/design-sync-policy.tests.sh\ntests/upstream-concept-issue.tests.sh\ntests/issue311-scratch-isolation.tests.py\ntests/review-implementation-binding.tests.py\ntests/sdd-domain-multitarget-T-003.tests.py\ntests/quality-nontty-transport.tests.py\ntests/traceability-freeze-contract.tests.py\ntests/sdd-domain.tests.ps1\ntests/current-byte-capture.tests.py\ntests/concept-test.tests.py\ntests/concept-review-continuity.tests.py\ntests/domain-review-finalize.tests.py\ntests/fixed-review-inputs.tests.py\ntests/fixed-review-state.tests.py\ntests/fixed-review-launch.tests.py\ntests/codex-review-launcher.tests.py\ntests/session-models.tests.py\ntests/model-discovery.tests.py\ntests/fixed-review-precheck-ps.tests.py\ntests/fixed-review-precheck-bash.tests.py\ntests/review-conditional-inputs.tests.py\ntests/workflow-conditional-inputs.tests.py\ntests/spec-review-verify-inputs.tests.py\ntests/host-review-preflight.tests.py\ntests/unified-launch-order.tests.py\ntests/unified-task-launch.tests.py\ntests/task-structured-output.tests.py\ntests/supplemental-delivery-declaration.tests.py\ntests/t001-evaluation-preparation.tests.py\ntests/verification-impact.tests.py\ntests/model-observation.tests.py\ntests/model-identity.tests.py\ntests/model-policy.tests.py\ntests/model-selector-package.tests.py\ntests/model-policy-launch-platform.tests.py\ntests/model-policy-launch.tests.py\ntests/model-policy-installed.tests.py\ntests/verification-ci-plan.tests.py\ntests/verification-ci.tests.py\n"
+    },
+    {
+      "name": "ci-contracts",
+      "argv": [
+        "node",
+        "--test",
+        "--test-name-pattern",
+        "Spec Drift|workflow and CODEOWNERS|aggregates every dependency|suite counts as run|every required check",
+        "tests/v2-hooks-and-ci.test.mjs"
+      ],
+      "started_at": "2026-11-26T00:45:43.252417+00:00",
+      "seconds": 0.205,
+      "exit_code": 0,
+      "output_sha256": "5a12b9c9b79f9751f31fed1af2e1cfd6d8b786830457091acdfe8a931ae28cf6",
+      "output": "▶ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer\n  ✔ CI workflow and CODEOWNERS cover Layer 3 guardrails boundary (0.540458ms)\n  ✔ #852: Spec Drift CI reports its coverage and lists approved features without a baseline (0.230875ms)\n  ✔ #851/#801: required-checks aggregates every dependency result and installers job runs install suites (0.241334ms)\n✔ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer (1.658125ms)\n▶ #862 the verification catalog report matches what CI runs\n  ✔ a suite counts as run only when a current test.yml job names it; the committed report is current (4.964ms)\n✔ #862 the verification catalog report matches what CI runs (5.022417ms)\n▶ #850 the committed ruleset, the CI jobs and the threat model agree\n  ✔ every required check is a real job, the Spec Drift job is required, and docs do not claim owner review (0.715084ms)\n✔ #850 the committed ruleset, the CI jobs and the threat model agree (0.76575ms)\nℹ tests 5\nℹ suites 3\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 158.192459\n"
+    },
+    {
+      "name": "core-approvals",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/lib/core-lifecycle-checks.py",
+        "approvals"
+      ],
+      "started_at": "2026-11-26T00:45:43.361532+00:00",
+      "seconds": 1.499,
+      "exit_code": 0,
+      "output_sha256": "f3e4b3fd12b30b03428e4c4483848a4d1814f6b951bd6106d858616b30621858",
+      "output": "Core gate distinguished exact Approved and a single annotation from malformed approval values.\n"
+    },
+    {
+      "name": "core-lifecycle",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/lib/core-lifecycle-checks.py",
+        "lifecycle"
+      ],
+      "started_at": "2026-11-26T00:45:43.292831+00:00",
+      "seconds": 1.1,
+      "exit_code": 0,
+      "output_sha256": "ca0df85a2f9f2cf0ddff72a05aad42b357ab405f0b2e3b4244b21268c63c16f5",
+      "output": "Core lifecycle precondition exercised all five statuses, unknown and mis-cased Done.\n"
+    },
+    {
+      "name": "core-templates",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/lib/core-lifecycle-checks.py",
+        "templates"
+      ],
+      "started_at": "2026-11-26T00:45:43.244788+00:00",
+      "seconds": 1.007,
+      "exit_code": 0,
+      "output_sha256": "d543491c8603bbd51c00230757fccb532a574034a7cafd043029ed35f0b67754",
+      "output": "Core gate blocked critical/major and accepted minor. Only the target PASS report enabled Done readiness.\n"
+    },
+    {
+      "name": "implementation-report-Effort",
+      "argv": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "/private/tmp/t010-attempt5-receipts-a1hvgcy7/without-Effort.md"
+      ],
+      "started_at": "2026-11-26T00:46:26.331986+00:00",
+      "seconds": 0.021,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output_sha256": "2211be03d0c0e64f2e949650cd718bc51476c0f06e4a9713c4fc413dcfdfd5d5",
+      "output": "IMPLEMENTATION_REPORT_FIELD: missing or invalid Effort\n"
+    },
+    {
+      "name": "implementation-report-Model",
+      "argv": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "/private/tmp/t010-attempt5-receipts-a1hvgcy7/without-Model.md"
+      ],
+      "started_at": "2026-11-26T00:46:26.310822+00:00",
+      "seconds": 0.021,
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output_sha256": "bd40d4c185c6665d31d5dff64d4fbaba2e6608e87401601c8025d0b693bef453",
+      "output": "IMPLEMENTATION_REPORT_FIELD: missing or invalid Model\n"
+    },
+    {
+      "name": "implementation-report-control",
+      "argv": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "reports/implementation/verification-first-factory/T-010.md"
+      ],
+      "started_at": "2026-11-26T00:46:26.287896+00:00",
+      "seconds": 0.022,
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "output_sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c",
+      "output": "IMPLEMENTATION_REPORT_OK\n"
+    },
+    {
+      "name": "ownership-registration",
+      "argv": [
+        "node",
+        "tests/lib/ownership-ci-registration.cjs",
+        "/private/tmp/sdd-t010-attempt5-d1f4fde1c",
+        ".github/workflows/test.yml"
+      ],
+      "started_at": "2026-11-26T00:45:43.247088+00:00",
+      "seconds": 0.105,
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "name": "release",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--suite",
+        "tests/release-readiness.tests.py",
+        "--run",
+        "--receipt",
+        "/private/tmp/t010-attempt5-receipts-a1hvgcy7/release.json"
+      ],
+      "started_at": "2026-11-26T00:45:43.243514+00:00",
+      "seconds": 3.704,
+      "exit_code": 0,
+      "output_sha256": "9c6b97a20ef920c6074d2758eeb366ff783e5f10993355852c111973a8bd83cd",
+      "output": "==> tests/release-readiness.tests.py\ntest_admission_uses_ci_for_the_tagged_commit (__main__.ReleaseReadiness.test_admission_uses_ci_for_the_tagged_commit) ... ok\ntest_bump_stops_before_writing_or_synchronizes_all_files (__main__.ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files) ... ok\ntest_config_and_model_catalog (__main__.ReleaseReadiness.test_config_and_model_catalog) ... ok\ntest_release_prerequisites (__main__.ReleaseReadiness.test_release_prerequisites) ... ok\ntest_source_archive_sbom_checksums_and_provenance (__main__.ReleaseReadiness.test_source_archive_sbom_checksums_and_provenance) ... ok\ntest_upload_rechecks_tag_before_selecting_files (__main__.ReleaseReadiness.test_upload_rechecks_tag_before_selecting_files) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 3.127s\n\nOK\nPASSED: tests/release-readiness.tests.py\n"
+    },
+    {
+      "name": "workflow-order",
+      "argv": [
+        "bash",
+        "tests/workflow-state-ci-integration.tests.sh"
+      ],
+      "started_at": "2026-11-26T00:45:43.290147+00:00",
+      "seconds": 1.316,
+      "exit_code": 0,
+      "output_sha256": "623208c5e160648ac991e93a8f0e3986ed7560b90a86be9201b7b6b9a0e1e6b3",
+      "output": "Core gate accepted the target baseline and rejected its unrecorded AC-001 change.\nWorkflow-state CI integration tests passed.\n"
+    }
+  ],
+  "single_suite_catalog_receipt": {
+    "schema": "verification-receipt/v1",
+    "profile": null,
+    "revision": "d1f4fde1ce1bd7eff5289f97a84dace8dff2a916",
+    "clean_before": true,
+    "reusable": false,
+    "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+    "selected": [
+      "tests/release-readiness.tests.py"
+    ],
+    "results": [
+      {
+        "suite": "tests/release-readiness.tests.py",
+        "source_sha256": "366ca73c398c6e1e801bb5fb4fea87c2c0db305e1d08c8955013165cab5263ad",
+        "status": "passed",
+        "exit_code": 0,
+        "seconds": 3.184735
+      }
+    ],
+    "revision_after": "d1f4fde1ce1bd7eff5289f97a84dace8dff2a916",
+    "clean_after": true
+  },
+  "overall_result": "FAIL",
+  "full_195_same_sha_receipt": false,
+  "strict_promotion_qualified": false,
+  "hosted_three_os": "not measured by this local implementation run"
+}
