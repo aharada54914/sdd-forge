@@ -1,0 +1,118 @@
+{
+  "scope": "Offline manual evidence-reuse trial for a single previously reviewed finding on exactly the recorded historical input. Runs no scanner, modifies no checkout and never changes gate status.",
+  "baseline": "strict-lint-70-pr-dispositions.json",
+  "checks": [
+    "Exact PR head from frozen range, rule, path and line",
+    "Existing byte-identical historical rebuild and matching tracked bundle SHA-256",
+    "Pinned lock bytes, cached archive SHA-512 and exact package member verified against the original",
+    "Unique corresponding source and generated block, reviewed upstream rationale and conservative fallback"
+  ],
+  "identity": {
+    "pr": 800,
+    "rule": "no-empty-catch",
+    "path": "mcp/sdd-forge-mcp/dist/index.js",
+    "line": 20296
+  },
+  "head": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+  "frozen_bundle_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+  "evidence": {
+    "pr": 800,
+    "package": "zod",
+    "version": "4.6.7",
+    "lock_sha256": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd",
+    "tarball_matches_lock_sha512": true,
+    "source_path_in_package": "v4/core/compile.js",
+    "source_sha256": "53fcf24821f50ecf42492ab7101abe8a50ead8286a53567d71648fe5ca346b99",
+    "source_matches_both_retained_installations": true,
+    "documented_fallback_line": 152,
+    "catch_line": 157,
+    "reject_line": 159,
+    "unique_matching_fallback_blocks_after_whitespace_and_generated_variable_name_normalization": true
+  },
+  "retrospective": {
+    "pr_ranges": 70,
+    "raw_findings": 12,
+    "matching_reviewed_finding": 1,
+    "other_observations_unchanged": 11,
+    "retained_in_current_gate_denominator": true,
+    "original_false_positive_rate_percent": 12.5
+  },
+  "controls": [
+    {
+      "case": "unchanged reviewed finding",
+      "disposition": "confirmed_human_review",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "unrelated authored empty catch",
+      "disposition": "unrelated_location",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "different line in the same bundle",
+      "disposition": "unrelated_location",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "same PR and location on a different head",
+      "disposition": "unrelated_location",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "different rule at the same location",
+      "disposition": "unrelated_location",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "same location in a different PR",
+      "disposition": "unrelated_location",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "single harmless trailing newline added to the bundle",
+      "disposition": "artifact_bytes_mismatch",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "single harmless trailing newline added to the reviewed dependency source",
+      "disposition": "artifact_bytes_mismatch",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "single extra byte in the saved archive",
+      "disposition": "locked_package_mismatch",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "single harmless trailing newline added to the lock",
+      "disposition": "locked_package_mismatch",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "missing archived source",
+      "disposition": "missing_evidence",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "missing origin attribution",
+      "disposition": "missing_evidence",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "missing human-reviewed rationale",
+      "disposition": "missing_evidence",
+      "disposition_matched_expectation": true
+    },
+    {
+      "case": "missing byte-identical rebuild evidence",
+      "disposition": "missing_evidence",
+      "disposition_matched_expectation": true
+    }
+  ],
+  "control_counts": {
+    "total": 14,
+    "confirmed": 1,
+    "not_confirmed": 13
+  },
+  "limits": "Recognition is scoped to one reviewed identity and input. No path-level rule, suppression, fresh scanner run, predictive holdout, or revised false-positive rate is inferred."
+}

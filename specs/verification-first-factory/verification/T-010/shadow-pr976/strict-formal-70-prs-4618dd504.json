@@ -1,0 +1,254 @@
+{
+  "schema": "historical-formal-trace-survey/v1",
+  "candidate": "4618dd504154aaff3cf0eed0ac74f4bdeba1e976",
+  "date": "2026-11-26 JST",
+  "key": "formal_verification.mode",
+  "decision": "HOLD",
+  "default_mode": "shadow (enabled explicitly in the isolated consumer)",
+  "default_checker": "TLC 2.19 (pinned tla2tools release 1.7.4)",
+  "adapter_jar_sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+  "scope": {
+    "selection": "70 most recently created repository PRs, open and closed, GitHub GraphQL exact base/head. Scanned head trees only.",
+    "pr_numbers": [
+      983,
+      982,
+      981,
+      980,
+      979,
+      978,
+      977,
+      976,
+      975,
+      974,
+      973,
+      972,
+      971,
+      970,
+      969,
+      968,
+      967,
+      966,
+      800,
+      799,
+      794,
+      793,
+      792,
+      791,
+      790,
+      789,
+      784,
+      783,
+      782,
+      781,
+      780,
+      779,
+      777,
+      774,
+      773,
+      760,
+      756,
+      754,
+      723,
+      722,
+      721,
+      720,
+      719,
+      718,
+      717,
+      716,
+      715,
+      714,
+      713,
+      712,
+      711,
+      710,
+      709,
+      708,
+      707,
+      706,
+      705,
+      703,
+      702,
+      701,
+      700,
+      699,
+      698,
+      697,
+      696,
+      695,
+      694,
+      693,
+      684,
+      683
+    ],
+    "heads_read": 70,
+    "mapped_source_change_count": 23,
+    "mapped_source_change_prs": [
+      983,
+      981,
+      979,
+      976,
+      974,
+      972,
+      970,
+      969,
+      967,
+      966,
+      800,
+      794,
+      792,
+      791,
+      784,
+      783,
+      782,
+      780,
+      774,
+      760,
+      756,
+      754,
+      710
+    ],
+    "without_mapped_source_changes": 47,
+    "method": "Searched all git-tracked regular .ndjson, .jsonl, .json, .tap, .log blobs in all 70 heads for the mapped projected state and consecutive observation records. Parsed NDJSON/JSON lines and embedded JSON arrays. Source relevance uses PR base...head diff and the candidate mapping source lists. Inspected JSONL-only legacy event surfaces independently.",
+    "distinct_blobs": 9849,
+    "distinct_blob_bytes": 88350057,
+    "with_full_observed_trace_prs": [
+      976
+    ],
+    "mapped_source_changed_without_applicable_capture": 22,
+    "other_prs_without_applicable_capture": 69,
+    "legacy_jsonl": "Five paths outside PR 976 expose Codex thread/turn/tool events (native-model.jsonl and four plugin-real-task event files); they lack the mapped model state. A final gate outcome alone cannot recover the before/after state/mapped transition sequence.",
+    "limitations": "Search covers committed head snapshots and named formats. The six listed artifact checks only inspect archived artifact availability at those PR heads. Earlier pushes, expired artifacts, arbitrary text and unrecorded runs could contain additional evidence."
+  },
+  "hosted_artifact_checks": {
+    "979": [
+      45699942811,
+      45699942698
+    ],
+    "975": [
+      45652393984,
+      45652393919
+    ],
+    "974": [
+      45648701627,
+      45648701795
+    ],
+    "972": [
+      45554366237,
+      45554366215
+    ],
+    "969": [
+      45411190137,
+      45411190116
+    ],
+    "967": [
+      45405508213,
+      45405508272
+    ]
+  },
+  "hosted_artifact_result": "The two final-head pull_request workflows for each of #967, #969, #972, #974, #975 and #979 listed zero artifacts at query time.",
+  "eligible_pr": {
+    "number": 976,
+    "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "head": "4618dd504154aaff3cf0eed0ac74f4bdeba1e976",
+    "url": "https://github.com/aharada54914/sdd-forge/pull/976",
+    "capture_commit": "5006c3747efc8f959ebcb37387d4c0d072dbce97",
+    "correspondence_sources": "reports/implementation/verification-first-factory/T-006.md and tests/v2-formal-gate.test.mjs (captureLock/captureGate). Historical implementation observations are from exercises, not production sessions.",
+    "mapping_sha256": "49287cab8017d9d21f500e92fefe94583e0c4677cdccb69cd53ccd471626b82d",
+    "all_mapping_source_digests_match_candidate": true,
+    "runner_path": "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+    "runner_sha256": "e5ea79c8603530352eecfe93955adc45db65bd2e8ca3c8bea90fcb6a82aed3a5",
+    "command": "node <runner> --feature self-verification --risk high --base-ref <pr.base> --run-id <run_id> --tla specs/self-verification/formal/<model>.tla --trace <path>"
+  },
+  "runs": [
+    {
+      "pr": 976,
+      "run_id": "historical-pr976-lock",
+      "model": "TaskLock",
+      "path": "specs/verification-first-factory/verification/T-006/3d72bf09-a546-4283-9ce2-8fe5fdb02fb5/lock-observed.ndjson",
+      "git_blob": "90f59d6d5be1ba77b32e003a66fd12bfe9de3bed",
+      "captured_case": "lock acquire, renew, release",
+      "steps": 4,
+      "verdict": "PASS",
+      "exit": 0,
+      "termination": {
+        "baseline": [
+          0,
+          null
+        ],
+        "negative": [
+          12,
+          "SingleOwner"
+        ],
+        "replay": [
+          12,
+          "TraceIncomplete"
+        ]
+      }
+    },
+    {
+      "pr": 976,
+      "run_id": "historical-pr976-pass",
+      "model": "GateLifecycle",
+      "path": "specs/verification-first-factory/verification/T-006/3d72bf09-a546-4283-9ce2-8fe5fdb02fb5/pass-observed.ndjson",
+      "git_blob": "9da21d56398fa7397ead7fdf8df70ea86aa5edd4",
+      "captured_case": "approved task reaches gate PASS",
+      "steps": 5,
+      "verdict": "PASS",
+      "exit": 0,
+      "termination": {
+        "baseline": [
+          0,
+          null
+        ],
+        "negative": [
+          12,
+          "DoneRequiresGatePass"
+        ],
+        "replay": [
+          12,
+          "TraceIncomplete"
+        ]
+      }
+    },
+    {
+      "pr": 976,
+      "run_id": "historical-pr976-tamperTrace",
+      "model": "GateLifecycle",
+      "path": "specs/verification-first-factory/verification/T-006/3d72bf09-a546-4283-9ce2-8fe5fdb02fb5/tamperTrace-observed.ndjson",
+      "git_blob": "9dd05cbec2f331f40e1488be7bf0c12b5520d48a",
+      "captured_case": "controlled drift in test harness, gate FAIL and provisional OQ observed; expected protected transition",
+      "steps": 5,
+      "verdict": "PASS",
+      "exit": 0,
+      "termination": {
+        "baseline": [
+          0,
+          null
+        ],
+        "negative": [
+          12,
+          "DoneRequiresGatePass"
+        ],
+        "replay": [
+          12,
+          "TraceIncomplete"
+        ]
+      }
+    }
+  ],
+  "real_pr_findings": {
+    "detected": 0,
+    "unique": 0,
+    "false_positives": 0,
+    "unclassified": 0,
+    "denominator": 0,
+    "false_positive_rate": null
+  },
+  "exclusions": [
+    "The deliberate checker invariant violations (negative CFG and TraceIncomplete witness) are expected assertions.",
+    "The stored tamperTrace captures a correct controlled refusal. Its model match is PASS, not a new finding.",
+    "Historical fix descriptions, CI failures, and PRs lacking matched captures are not observations or clean runs.",
+    "The same capture used by more than one experiment is not a distinct PR source."
+  ]
+}

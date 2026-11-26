@@ -1,0 +1,204 @@
+{
+  "scope": "Retrospective review of the 70 real PR inputs in the paired public CLI experiment; no hosted or new scanner run.",
+  "evidence": {
+    "paired_run": "specs/verification-first-factory/verification/T-010/shadow-pr976/strict-lint-70-pr-repair.json",
+    "prior_locations": "specs/verification-first-factory/verification/T-004/shadow-pr976/historical-prs.json",
+    "rebuilt_bundle_checks": "specs/verification-first-factory/verification/T-004/shadow-pr976/bundle-source-map-comparison.json",
+    "criterion": "specs/verification-first-factory/verification/T-010/approved-shadow-release.md:29",
+    "catalog": "plugins/sdd-quality-loop/rules/agent-strict-rules.json",
+    "repair_commit": "e6c347cc643c47377e6c638940d7cd4419f16a8e",
+    "paired_candidate_files_sha256": {
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "3d29aeb024834791fe63dcaa599cfc3e70a24960236129deef3d9fa95a211204",
+      "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs": "fbfffce06914d2cf280eaafafed427a802ab34b900df00aec61a802e8664790e",
+      "plugins/sdd-quality-loop/rules/lint-diff.mjs": "0ab6b20700d71f4108262f43ac45c6d90de63c7c74a01b77f02156b329ff6b59"
+    }
+  },
+  "metric": {
+    "observations": 12,
+    "duplicates": 4,
+    "denominator": 8,
+    "true_positive": 7,
+    "false_positive_numerator": 1,
+    "unresolved": 0,
+    "false_positive_percent": 12.5,
+    "qualifies_below_five_percent": false
+  },
+  "by_rule": {
+    "no-child-process-shell-true": {
+      "denominator": 1,
+      "false_positives": 0
+    },
+    "no-combinatorial-flags": {
+      "denominator": 2,
+      "false_positives": 0
+    },
+    "no-console-log": {
+      "denominator": 1,
+      "false_positives": 0
+    },
+    "no-empty-catch": {
+      "denominator": 4,
+      "false_positives": 1
+    }
+  },
+  "ranges_with_findings": {
+    "774": {
+      "base": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "head": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a"
+    },
+    "781": {
+      "base": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "head": "519c581dfa460f3f7ad40becc8be4a475ba6cd39"
+    },
+    "784": {
+      "base": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "head": "e219bc594379208189f5504739dcf6df7d315a42"
+    },
+    "800": {
+      "base": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "head": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9"
+    },
+    "972": {
+      "base": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "head": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2"
+    }
+  },
+  "duplicate_evidence": {
+    "origin_pr": 800,
+    "origin_path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+    "origin_lines": [
+      492,
+      498
+    ],
+    "context_sha256": "7f1f39561ee195370d29407895d5ea06858eaf2fc62a112607187071462201e2",
+    "context_lines": 11,
+    "unique_in_both_source_and_bundle_of_each_pr": [
+      800,
+      972
+    ],
+    "origin_file_absent_in_parent": true,
+    "consecutive_first_parent_pr_heads_preserving_exact_source_context": [
+      800,
+      966,
+      967,
+      968,
+      969,
+      970,
+      971,
+      972
+    ]
+  },
+  "dependency_evidence": {
+    "pr": 800,
+    "package": "zod",
+    "version": "4.6.7",
+    "lock_sha256": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd",
+    "tarball_matches_lock_sha512": true,
+    "source_path_in_package": "v4/core/compile.js",
+    "source_sha256": "53fcf24821f50ecf42492ab7101abe8a50ead8286a53567d71648fe5ca346b99",
+    "source_matches_both_retained_installations": true,
+    "documented_fallback_line": 152,
+    "catch_line": 157,
+    "reject_line": 159,
+    "unique_matching_fallback_blocks_after_whitespace_and_generated_variable_name_normalization": true
+  },
+  "findings": [
+    {
+      "pr": 972,
+      "rule": "no-combinatorial-flags",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 38324,
+      "assessment": "duplicate",
+      "rationale": "Same originating condition as #800 source line 492."
+    },
+    {
+      "pr": 972,
+      "rule": "no-combinatorial-flags",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 38330,
+      "assessment": "duplicate",
+      "rationale": "Same originating condition as #800 source line 498."
+    },
+    {
+      "pr": 800,
+      "rule": "no-empty-catch",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 20296,
+      "assessment": "false_positive",
+      "rationale": "Locked dependency documents why an indeterminate probe must keep the conservative default. The catch preserves that default and declines unsupported compilation. Bundling removes the rationale. Counted as an operational false positive."
+    },
+    {
+      "pr": 800,
+      "rule": "no-combinatorial-flags",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 40295,
+      "assessment": "duplicate",
+      "rationale": "Same originating condition as #800 source line 492."
+    },
+    {
+      "pr": 800,
+      "rule": "no-combinatorial-flags",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 40301,
+      "assessment": "duplicate",
+      "rationale": "Same originating condition as #800 source line 498."
+    },
+    {
+      "pr": 800,
+      "rule": "no-combinatorial-flags",
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "line": 492,
+      "assessment": "true_positive",
+      "rationale": "The literal-path branch of scopeEntriesOverlap tests two flags used again by the glob branch, warranting decision-table review under the catalog."
+    },
+    {
+      "pr": 800,
+      "rule": "no-combinatorial-flags",
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "line": 498,
+      "assessment": "true_positive",
+      "rationale": "The glob-pair branch uses the same pair at a second authored location; count each distinct location once."
+    },
+    {
+      "pr": 784,
+      "rule": "no-child-process-shell-true",
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "line": 113,
+      "assessment": "true_positive",
+      "rationale": "The verification runner intentionally passes configured command strings to the shell. That choice deserves the boundary review requested by the rule."
+    },
+    {
+      "pr": 781,
+      "rule": "no-empty-catch",
+      "path": "plugins/sdd-ship/session-hub/runner.mjs",
+      "line": 22,
+      "assessment": "true_positive",
+      "rationale": "Every process-group termination error is silently discarded. A vanished process is expected, but unrelated failures disappear too."
+    },
+    {
+      "pr": 781,
+      "rule": "no-empty-catch",
+      "path": "plugins/sdd-ship/session-hub/runner.mjs",
+      "line": 52,
+      "assessment": "true_positive",
+      "rationale": "The runner says descendant termination is necessary for success, yet discards every termination error. Its comment explains the requirement, not the discard."
+    },
+    {
+      "pr": 781,
+      "rule": "no-empty-catch",
+      "path": "tests/session-hub-native-push.mjs",
+      "line": 29,
+      "assessment": "true_positive",
+      "rationale": "Test cleanup silently loses any failure to archive the thread. No rationale for discarding the cleanup result accompanies it."
+    },
+    {
+      "pr": 774,
+      "rule": "no-console-log",
+      "path": "plugins/sdd-ship/status-site/build.mjs",
+      "line": 14,
+      "assessment": "true_positive",
+      "rationale": "Intentional human-facing completion output. The catalog explicitly includes CLI output and permits the same message through stdout or a time-limited waiver. The finding concerns the output API."
+    }
+  ],
+  "limits": "A true positive warrants remediation or review under the shipped catalog. It does not assert a runtime failure. Per-rule zero numerators have one or two observed sites; unsampled rules have no rate. Hosted qualification is separate."
+}
