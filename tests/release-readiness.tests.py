@@ -87,7 +87,11 @@ class ReleaseReadiness(unittest.TestCase):
         self.assertCountEqual(release["needs"], ["ci-green", "loop-gate"])
         self.assertEqual(gate["runs-on"], "ubuntu-latest")
         self.assertNotIn("strategy", gate)
+        self.assertEqual(self.jobs["ci-green"]["permissions"], {"contents": "read", "actions": "read"})
         self.assertEqual(gate["permissions"], {"contents": "read"})
+        self.assertEqual(release["permissions"], {
+            "contents": "write", "id-token": "write", "attestations": "write",
+        })
         for job in (gate, release):
             self.assertNotIn("if", job)
             self.assertNotIn("continue-on-error", job)
@@ -185,7 +189,10 @@ esac
         deps = provenance["buildDefinition"]["resolvedDependencies"]
         self.assertEqual([(d["uri"].split("@")[-1], d["digest"]["gitCommit"]) for d in deps],
                          [("refs/heads/main", "2" * 40), (f"refs/tags/{tag}", sha)])
-        attest = self.step("release", "Attest build provenance (sigstore keyless)")["with"]
+        signing = self.step("release", "Attest build provenance (sigstore keyless)")
+        self.assertRegex(signing["uses"], r"^actions/attest-build-provenance@[0-9a-f]{40}\Z")
+        attest = signing["with"]
+        self.assertEqual(attest["predicate-type"], "https://slsa.dev/provenance/v1")
         self.assertEqual(attest["predicate-path"], "release-provenance.json")
         self.assertEqual(attest["subject-path"].splitlines(), ["${{ needs.ci-green.outputs.pkg }}", "sdd-forge-sbom.cdx.json"])
 
