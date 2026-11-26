@@ -107,3 +107,11 @@ v2 の bootstrap から呼ばれる design-sync-loop に、外部データの読
 ### PR #976 の Shadow アーティファクト62件
 
 GitHub Actions に保存されていた `shadow-findings.json` を62実行分照合した。Git の base と head の組も62通りで、Gitleaks と Semgrep はそれぞれ合計0件だった。誤検知率を算出する分母が得られず、5%未満の条件は未確認。各行に実行ID、アーティファクトID、差分の両端、証跡のハッシュを記録した。[集計元の一覧](archived-shadow-counts.json)
+
+### 統合候補 9d874e502 の実行
+
+同じクリーンな候補で既存スイート1本を測り、ローカル検査を追加した場合との時間差を交互に比較した。3組の増分は +2.215、+1.514、+1.545 秒で、すべて +15 秒以内だった。[6実行のレシート](paired-local-9d874e502.json)
+
+GitHub Actions の全体状態検査は PowerShell で Ubuntu・macOS・Windows のすべてが成功。POSIX と、公開 CLI を使う Core のライフサイクル・ドリフト検査は Ubuntu と macOS で成功した。Guardrails と Ubuntu のテストジョブは成功した。macOS では T-002 の Bash 診断、Windows ではリリース準備テストが選んだ WSL ランチャーのために後続の検査が省略された。
+
+比較元 PR #982 のテストと Guardrails は全体で533秒、候補 PR #976 は529秒（差は −4 秒）。比較元の Git ツリーは候補の base と一致する。候補では上記の未実行ステップがあるため、全経路成功時の +120 秒予算は未確認。[各ジョブと検証ステップ](hosted-9d874e502.json)

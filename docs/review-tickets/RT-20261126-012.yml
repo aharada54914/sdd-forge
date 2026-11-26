@@ -13,3 +13,9 @@ expected_fix:
 references:
   - reports/quality-gate/verification-first-factory-T-010.md
   - specs/verification-first-factory/verification/T-010/quality-repair-e2f726ab4808/admission.json
+progress:
+  local_candidate: 9d874e50279b83be443a5ba9a43cafcb754b1db2
+  local_evidence: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-9d874e502.json
+  local_result: "同一候補上の交互3組で +2.215、+1.514、+1.545 秒。既存1スイートとローカル追加処理の測定。"
+  ci_evidence: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-9d874e502.json
+  ci_result: "PR全体の観測差は −4 秒。候補の一部ステップが先行失敗で省略され、成功経路の時間差は未確定。"

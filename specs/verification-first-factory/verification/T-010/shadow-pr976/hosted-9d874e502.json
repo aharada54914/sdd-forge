@@ -1,0 +1,283 @@
+{
+  "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "candidate": "9d874e50279b83be443a5ba9a43cafcb754b1db2",
+  "base_pr": 982,
+  "candidate_pr": 976,
+  "base_jobs": {
+    "span_seconds": 533,
+    "jobs": [
+      {
+        "run": 45730069535,
+        "id": 139609582872,
+        "name": "installers (ubuntu-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:39Z",
+        "end": "2026-11-26T00:40:13Z",
+        "steps": []
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583082,
+        "name": "installers (macos-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:48Z",
+        "end": "2026-11-26T00:43:16Z",
+        "steps": []
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583096,
+        "name": "mcp-tests (local-env-mcp)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:43Z",
+        "end": "2026-11-26T00:38:09Z",
+        "steps": []
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583206,
+        "name": "cloud-and-ddd (ubuntu-latest / JST)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:47Z",
+        "end": "2026-11-26T00:46:25Z",
+        "steps": []
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583239,
+        "name": "mcp-tests (ci-mcp)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:38:09Z",
+        "end": "2026-11-26T00:38:23Z",
+        "steps": []
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583244,
+        "name": "mcp-tests (sdd-forge-mcp)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:49Z",
+        "end": "2026-11-26T00:38:07Z",
+        "steps": []
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583270,
+        "name": "test (ubuntu-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:38:11Z",
+        "end": "2026-11-26T00:38:58Z",
+        "steps": [
+          {
+            "name": "Run v2 Lightweight Guardrails & SDD Core tests",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583293,
+        "name": "test (windows-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:42Z",
+        "end": "2026-11-26T00:39:17Z",
+        "steps": [
+          {
+            "name": "Run v2 Lightweight Guardrails & SDD Core tests",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run": 45730069535,
+        "id": 139609583328,
+        "name": "test (macos-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:39:05Z",
+        "end": "2026-11-26T00:40:24Z",
+        "steps": [
+          {
+            "name": "Run v2 Lightweight Guardrails & SDD Core tests",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run": 45730069535,
+        "id": 139613069368,
+        "name": "required-checks",
+        "conclusion": "success",
+        "start": "2026-11-26T00:46:28Z",
+        "end": "2026-11-26T00:46:32Z",
+        "steps": []
+      },
+      {
+        "run": 45730069549,
+        "id": 139609582593,
+        "name": "Lightweight Guardrails & Spec Drift Check",
+        "conclusion": "success",
+        "start": "2026-11-26T00:37:39Z",
+        "end": "2026-11-26T00:38:11Z",
+        "steps": []
+      }
+    ]
+  },
+  "candidate_jobs": {
+    "span_seconds": 529,
+    "jobs": [
+      {
+        "run": 45732338050,
+        "id": 139617283348,
+        "name": "installers (ubuntu-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:19Z",
+        "end": "2026-11-26T00:59:56Z",
+        "steps": []
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283593,
+        "name": "mcp-tests (ci-mcp)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:19Z",
+        "end": "2026-11-26T00:57:42Z",
+        "steps": []
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283699,
+        "name": "test (macos-latest)",
+        "conclusion": "failure",
+        "start": "2026-11-26T00:57:20Z",
+        "end": "2026-11-26T01:03:05Z",
+        "steps": [
+          {
+            "name": "Validate workflow state (PowerShell)",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate workflow state (POSIX)",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check persisted workflow integration and Core lifecycle",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run v2 Lightweight Guardrails & SDD Core tests",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283732,
+        "name": "cloud-and-ddd (ubuntu-latest / JST)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:20Z",
+        "end": "2026-11-26T01:05:40Z",
+        "steps": []
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283750,
+        "name": "mcp-tests (sdd-forge-mcp)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:19Z",
+        "end": "2026-11-26T00:57:41Z",
+        "steps": []
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283809,
+        "name": "mcp-tests (local-env-mcp)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:19Z",
+        "end": "2026-11-26T00:57:48Z",
+        "steps": []
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283817,
+        "name": "installers (macos-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:20Z",
+        "end": "2026-11-26T01:03:03Z",
+        "steps": []
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283878,
+        "name": "test (windows-latest)",
+        "conclusion": "failure",
+        "start": "2026-11-26T00:57:19Z",
+        "end": "2026-11-26T01:01:00Z",
+        "steps": [
+          {
+            "name": "Validate workflow state (PowerShell)",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate workflow state (POSIX)",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Check persisted workflow integration and Core lifecycle",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Run v2 Lightweight Guardrails & SDD Core tests",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run": 45732338050,
+        "id": 139617283944,
+        "name": "test (ubuntu-latest)",
+        "conclusion": "success",
+        "start": "2026-11-26T00:57:19Z",
+        "end": "2026-11-26T01:01:02Z",
+        "steps": [
+          {
+            "name": "Validate workflow state (PowerShell)",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate workflow state (POSIX)",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check persisted workflow integration and Core lifecycle",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run v2 Lightweight Guardrails & SDD Core tests",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run": 45732338050,
+        "id": 139620552945,
+        "name": "required-checks",
+        "conclusion": "failure",
+        "start": "2026-11-26T01:05:42Z",
+        "end": "2026-11-26T01:05:44Z",
+        "steps": []
+      },
+      {
+        "run": 45732337130,
+        "id": 139617137562,
+        "name": "Lightweight Guardrails & Spec Drift Check",
+        "conclusion": "success",
+        "start": "2026-11-26T00:56:55Z",
+        "end": "2026-11-26T01:00:46Z",
+        "steps": []
+      }
+    ]
+  },
+  "observed_delta_seconds": -4,
+  "all_executed_jobs_successful": false,
+  "method": "First executed job start to last executed job end across Test and Guardrails, excluding queued time. The base PR head and bad6aff7c have the same Git tree. The candidate matrix stopped on macOS and Windows, so the observed delta cannot qualify strict mode."
+}
