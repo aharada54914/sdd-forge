@@ -1,11 +1,11 @@
 {
   "schema": "sdd-gate-execution/v1",
-  "runId": "98a805fe-abb9-463d-af6c-af261b327a38",
+  "runId": "44729f45-83ce-4cc0-a666-60d1b50dd316",
   "feature": "verification-first-factory",
   "taskId": "T-002",
   "mode": "standard",
-  "executedAt": "2026-11-25T23:56:37.404Z",
-  "verdict": "PASS",
+  "executedAt": "2026-11-26T02:09:16.502Z",
+  "verdict": "FAIL",
   "specInputs": {
     "schema": "sdd-task-evidence-inputs/v2",
     "task": "7df343ae4070a46630e5603e9d45d9d75576a9e4f2bc31179bf9a4621f3982e2",
@@ -25,7 +25,7 @@
   },
   "scope": {
     "mode": "explicit",
-    "baseRef": "HEAD",
+    "baseRef": "1ea38d9ec7fa13879220e288581d7cd074cfc48f",
     "taskScope": [
       "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
       "sdd/approved-test-retirements.json",
@@ -42,11 +42,13 @@
       "scripts/vendor-shell-parser/build.py",
       "scripts/vendor-shell-parser/go.mod",
       "scripts/vendor-shell-parser/go.sum",
-      "scripts/vendor-shell-parser/main.go"
+      "scripts/vendor-shell-parser/main.go",
+      "scripts/vendor-shell-parser/zsh-loops.patch",
+      "scripts/vendor-shell-parser/zsh_loops.go.in"
     ]
   },
   "warnings": [
-    "OUT_OF_SCOPE_CHANGES: 11 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+    "OUT_OF_SCOPE_CHANGES: 13 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
   ],
   "checks": {
     "lockCheck": {
@@ -106,8 +108,8 @@
       "passed": true,
       "schema": "sdd-anti-tamper/v1",
       "status": "CLEAN",
-      "baseRef": "HEAD",
-      "checkedFilesCount": 0,
+      "baseRef": "1ea38d9ec7fa13879220e288581d7cd074cfc48f",
+      "checkedFilesCount": 13,
       "violations": []
     },
     "writeScope": {
@@ -130,7 +132,7 @@
       "status": "SKIPPED"
     },
     "placeholders": {
-      "passed": true,
+      "passed": false,
       "scannedFiles": [
         "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
         "install.ps1",
@@ -142,9 +144,24 @@
         "scripts/vendor-shell-parser/build.py",
         "scripts/vendor-shell-parser/go.mod",
         "scripts/vendor-shell-parser/go.sum",
-        "scripts/vendor-shell-parser/main.go"
+        "scripts/vendor-shell-parser/main.go",
+        "scripts/vendor-shell-parser/zsh-loops.patch",
+        "scripts/vendor-shell-parser/zsh_loops.go.in"
       ],
-      "findings": []
+      "findings": [
+        {
+          "file": "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz",
+          "line": 324,
+          "text": "�*>7�D��\u0002��TBD)a�쨸]�&\u000f�iD\"Y���^*H",
+          "inTaskScope": false
+        },
+        {
+          "file": "scripts/vendor-shell-parser/zsh-loops.patch",
+          "line": 4,
+          "text": "-\t\t\t// TODO(zsh): \"repeat\"",
+          "inTaskScope": false
+        }
+      ]
     },
     "nonFunctionalSensors": {
       "skipped": false,
@@ -171,10 +188,10 @@
         "label": "task-tests",
         "command": "node --test tests/v2-spec-drift.test.mjs",
         "exitCode": 0,
-        "durationMs": 8339,
+        "durationMs": 10192,
         "passed": true,
         "error": null,
-        "stdout": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (101.766167ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (69.746875ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (100.392208ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (272.260375ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (212.313708ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (212.380792ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (133.495ms)\n  ✔ a baseline recorded before this change keeps its old comparison (101.387917ms)\n✔ #818 staged human approval is not spec drift (234.977333ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (82.534ms)\n✔ #834 unreadable spec files are reported apart from deletions (82.611458ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (182.718583ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (140.841708ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (323.63875ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (70.400166ms)\n✔ #972 re-review: text added to an Approval line is drift (70.44325ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (254.405291ms)\n  ✔ allows documentation and quoted examples of inline lint directives without opening an OQ (162.695167ms)\n  ✔ accepts the shell here-document help example without a diagnostic or OQ (166.622709ms)\n  ✔ distinguishes help from active comments in nested shell command substitutions (330.223083ms)\n  ✔ parses compound shell grammar around captured help and its actual comments (599.365125ms)\n  ✔ matches the native sh delimiter when both dialect spellings occur in the body (192.924375ms)\n  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (356.80325ms)\n  ✔ matches Bash dollar-quoted here-document delimiters and preserves the following directive (306.972541ms)\n  ✔ uses the declared shell and preserves a literal-dollar terminator in generic sh (400.151916ms)\n  ✔ reports only active shell comments before, beside and after queued here-documents (204.497417ms)\n  ✔ reports added lint directives in source comments with a persisted OQ (160.373125ms)\n  ✔ allows renaming an already skipped test and editing existing skip reasons (163.707084ms)\n  ✔ counts active Node options across layout changes alongside prior Python and Go directives (576.968042ms)\n  ✔ counts Node test context calls using the callback parameter, including subtests (467.48475ms)\n  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (546.204667ms)\n  ✔ ignores Python and Go documentation while counting executable skip directives (235.755084ms)\n  ✔ preserves an existing question with invalid JSON and records a valid replacement (312.86275ms)\n  ✔ preserves an existing question with wrong id and records a valid replacement (312.034834ms)\n  ✔ preserves an existing question with wrong feature and records a valid replacement (321.088834ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (246.875333ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (200.391917ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (246.404167ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (318.722041ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (7084.061375ms)\nℹ tests 33\nℹ suites 7\nℹ pass 33\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 8316.036125\n",
+        "stdout": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (113.153959ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (69.31625ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (98.481ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (281.3175ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (203.293708ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (203.361291ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (128.543375ms)\n  ✔ a baseline recorded before this change keeps its old comparison (98.934208ms)\n✔ #818 staged human approval is not spec drift (227.571375ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (78.569084ms)\n✔ #834 unreadable spec files are reported apart from deletions (78.640708ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (176.236208ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (137.325625ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (313.630833ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (67.971917ms)\n✔ #972 re-review: text added to an Approval line is drift (68.0205ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (250.130875ms)\n  ✔ allows documentation and quoted examples of inline lint directives without opening an OQ (156.836041ms)\n  ✔ accepts the shell here-document help example without a diagnostic or OQ (162.209583ms)\n  ✔ distinguishes help from active comments in nested shell command substitutions (317.539041ms)\n  ✔ parses compound shell grammar around captured help and its actual comments (562.705ms)\n  ✔ distinguishes help and active comments in a native zsh short for loop (273.295917ms)\n  ✔ distinguishes help and active comments in a native zsh brace for loop (271.381875ms)\n  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (279.756292ms)\n  ✔ distinguishes help and active comments in a native zsh short in for loop (276.831667ms)\n  ✔ distinguishes help and active comments in a native zsh repeat do loop (273.109917ms)\n  ✔ distinguishes help and active comments in a native zsh repeat loop (270.600292ms)\n  ✔ keeps repeat an ordinary command in Bash and POSIX shells (273.366ms)\n  ✔ matches the native sh delimiter when both dialect spellings occur in the body (163.107167ms)\n  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (664.329166ms)\n  ✔ matches Bash dollar-quoted here-document delimiters and preserves the following directive (301.597708ms)\n  ✔ uses the declared shell and preserves a literal-dollar terminator in generic sh (410.344292ms)\n  ✔ reports only active shell comments before, beside and after queued here-documents (202.273791ms)\n  ✔ reports added lint directives in source comments with a persisted OQ (154.63175ms)\n  ✔ allows renaming an already skipped test and editing existing skip reasons (166.42775ms)\n  ✔ counts active Node options across layout changes alongside prior Python and Go directives (585.056041ms)\n  ✔ counts Node test context calls using the callback parameter, including subtests (455.420417ms)\n  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (529.079917ms)\n  ✔ ignores Python and Go documentation while counting executable skip directives (222.779833ms)\n  ✔ preserves an existing question with invalid JSON and records a valid replacement (301.202833ms)\n  ✔ preserves an existing question with wrong id and records a valid replacement (305.956458ms)\n  ✔ preserves an existing question with wrong feature and records a valid replacement (300.00525ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (235.296875ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (164.556208ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (169.03675ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (263.371792ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (8962.837208ms)\nℹ tests 40\nℹ suites 7\nℹ pass 40\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 10169.760083\n",
         "stderr": ""
       }
     ],

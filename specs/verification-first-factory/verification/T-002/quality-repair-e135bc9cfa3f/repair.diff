@@ -1,0 +1,333 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index c0de76224..55cb41d37 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -293,7 +293,7 @@ function shellParser() {
+       performance, setTimeout, clearTimeout, console });
+     runInContext(parserAsset('wasm_exec.cjs', '0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14').toString('utf8'), context);
+     const go = new context.Go();
+-    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '8d4529039652d0258776efde1ea0cc3cc10e4a70689d5de2c009fcea00b34d06'));
++    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '4f081f94132585a1115a4bf1c8151e71056cc83a4ff09daf26e17f7ea0c027bb'));
+     void go.run(new WebAssembly.Instance(new WebAssembly.Module(bytes), go.importObject));
+     parseShell = context.sddParseShellComments;
+   }
+diff --git a/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz b/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz
+index 2c61cf377..61b7a4df3 100644
+Binary files a/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz and b/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz differ
+diff --git a/scripts/vendor-shell-parser/build.py b/scripts/vendor-shell-parser/build.py
+index f228fb40d..6cb9412da 100644
+--- a/scripts/vendor-shell-parser/build.py
++++ b/scripts/vendor-shell-parser/build.py
+@@ -22,21 +22,25 @@ if go("env", "GOVERSION").strip() != "go1.26.11":
+ dependency = json.loads(go("mod", "download", "-json", "mvdan.cc/sh/v3"))
+ module = Path(dependency["Dir"])
+ goroot = Path(go("env", "GOROOT").strip())
+-parser = module / "syntax/parser.go"
+-original = parser.read_text()
+-# Preserve the product's dialect-aware quote removal for the delimiter word supplied
+-# by the actual grammar. Upstream leaves ANSI-C escapes in the stop word verbatim.
+-signature = "func (p *Parser) unquotedWordBytes(w *Word) ([]byte, bool) {"
+-assert original.count(signature) == 1
+-modified = original.replace(signature, "var HeredocDelimiter func(*Word) ([]byte, bool)\n\n" + signature
+-                            + "\n\tif HeredocDelimiter != nil { return HeredocDelimiter(w) }")
+ with tempfile.TemporaryDirectory() as temp:
+     temp = Path(temp)
+     for name in ("main.go", "go.mod", "go.sum"):
+         shutil.copyfile(here / name, temp / name)
+     os.chdir(temp)
+     go("mod", "vendor", capture=False)
+-    (temp / "vendor/mvdan.cc/sh/v3/syntax/parser.go").write_text(modified)
++    syntax = temp / "vendor/mvdan.cc/sh/v3/syntax"
++    # Apply the zero-context patch against the pristine, checksum-pinned module.
++    subprocess.run(["git", "apply", "--unidiff-zero", str(here / "zsh-loops.patch")], cwd=temp, check=True)
++    shutil.copyfile(here / "zsh_loops.go.in", syntax / "zsh_loops.go")
++    parser = syntax / "parser.go"
++    original = parser.read_text()
++    # Preserve the product's dialect-aware quote removal for the delimiter word supplied
++    # by the actual grammar. Upstream leaves ANSI-C escapes in the stop word verbatim.
++    signature = "func (p *Parser) unquotedWordBytes(w *Word) ([]byte, bool) {"
++    assert original.count(signature) == 1
++    modified = original.replace(signature, "var HeredocDelimiter func(*Word) ([]byte, bool)\n\n" + signature
++                                + "\n\tif HeredocDelimiter != nil { return HeredocDelimiter(w) }")
++    parser.write_text(modified)
+     # The lexer measures the first rune of a delimiter line in bytes. Its
+     # upstream one-byte subtraction splits non-ASCII terminators such as é.
+     lexer = temp / "vendor/mvdan.cc/sh/v3/syntax/lexer.go"
+diff --git a/scripts/vendor-shell-parser/zsh-loops.patch b/scripts/vendor-shell-parser/zsh-loops.patch
+new file mode 100644
+index 000000000..d7519444d
+--- /dev/null
++++ b/scripts/vendor-shell-parser/zsh-loops.patch
+@@ -0,0 +1,34 @@
++--- a/vendor/mvdan.cc/sh/v3/syntax/parser.go
+++++ b/vendor/mvdan.cc/sh/v3/syntax/parser.go
++@@ -2201 +2200,0 @@
++-			// TODO(zsh): "repeat"
++@@ -2202,0 +2202,4 @@
+++		case "repeat":
+++			if p.lang.in(LangZsh) {
+++				p.zshLoop(s, true)
+++			}
++@@ -2204 +2207,5 @@
++-			p.forClause(s)
+++			if p.lang.in(LangZsh) {
+++				p.zshLoop(s, false)
+++			} else {
+++				p.forClause(s)
+++			}
++--- a/vendor/mvdan.cc/sh/v3/syntax/nodes.go
+++++ b/vendor/mvdan.cc/sh/v3/syntax/nodes.go
++@@ -444,0 +445,2 @@
+++	RepeatCount            *Word // zsh repeat in place of a for iterator
+++	ShortEnd               Pos   // end of a zsh loop with a single sublist
++@@ -451,0 +454,3 @@
+++	if f.ShortEnd.IsValid() {
+++		return f.ShortEnd
+++	}
++--- a/vendor/mvdan.cc/sh/v3/syntax/walk.go
+++++ b/vendor/mvdan.cc/sh/v3/syntax/walk.go
++@@ -70 +70,5 @@
++-		Walk(node.Loop, f)
+++		if node.RepeatCount != nil {
+++			Walk(node.RepeatCount, f)
+++		} else {
+++			Walk(node.Loop, f)
+++		}
+diff --git a/scripts/vendor-shell-parser/zsh_loops.go.in b/scripts/vendor-shell-parser/zsh_loops.go.in
+new file mode 100644
+index 000000000..859d31cd3
+--- /dev/null
++++ b/scripts/vendor-shell-parser/zsh_loops.go.in
+@@ -0,0 +1,123 @@
++// Overlay for the pinned mvdan shell syntax package. See zsh's Shell Grammar
++// sections 6.3–6.4 and the par_for and par_repeat productions in Src/parse.c.
++package syntax
++
++import (
++	"strings"
++	"unicode"
++)
++
++// Zsh shell grammar 6.3–6.4: both loop forms accept do/done, braces, or
++// a single sublist. Parse that sublist in its original lexical context so
++// nested substitutions, redirects and pending here-documents remain intact.
++func (p *Parser) zshLoop(s *Stmt, repeat bool) {
++	fc := &ForClause{ForPos: p.pos}
++	s.Cmd = fc
++	p.next()
++	if repeat {
++		fc.RepeatCount = p.getWord()
++		if fc.RepeatCount == nil {
++			p.followErr(fc.ForPos, "repeat", noQuote("a word"))
++			return
++		}
++	} else if p.tok == dblLeftParen {
++		fc.Loop = p.loop(fc.ForPos)
++	} else {
++		fc.Loop = p.zshForWords(fc.ForPos)
++	}
++	if p.err != nil {
++		return
++	}
++	for p.got(semicolon) || p.got(_Newl) {
++	}
++	s.Comments = append(s.Comments, p.accComs...)
++	p.accComs = nil
++	fc.DoPos = p.pos
++	end := "done"
++	if _, ok := p.gotRsrv("{"); ok {
++		fc.Braces = true
++		end = "}"
++	} else if _, ok := p.gotRsrv("do"); !ok {
++		fc.ShortEnd = p.pos
++		if stmt := p.getStmt(false, false, false); stmt != nil {
++			fc.Do = []*Stmt{stmt}
++			fc.ShortEnd = stmt.End()
++		}
++		return
++	}
++	fc.Do, fc.DoLast = p.stmtList(end)
++	fc.DonePos = p.stmtEnd(fc, "loop", end)
++}
++
++func (p *Parser) zshForWords(start Pos) *WordIter {
++	wi := &WordIter{}
++	if p.tok != _LitWord || !zshIteratorName(p.val) {
++		p.followErr(start, "for", noQuote("a variable name"))
++		return wi
++	}
++	wi.Name = p.getLit()
++	// Multiple names bind successive values. Extra names are literals and
++	// have no expansions or comments inside them.
++	for p.tok == _LitWord && p.val != "in" && !zshLoopKeyword(p.val) && zshIteratorName(p.val) {
++		p.next()
++	}
++	afterNewline := p.tok == _Newl
++	for p.got(_Newl) {
++	}
++	if pos, ok := p.gotRsrv("in"); ok {
++		wi.InPos = pos
++		for !p.stopToken() {
++			word := p.getWord()
++			if word == nil {
++				p.curErr("expected a word in for list")
++				return wi
++			}
++			wi.Items = append(wi.Items, word)
++		}
++		if p.tok != _Newl && p.tok != semicolon && p.tok != _EOF {
++			p.curErr("expected a separator after for list")
++		}
++	} else if !afterNewline && p.tok == leftParen {
++		left := p.pos
++		p.next()
++		for p.tok != rightParen && p.tok != _EOF {
++			if p.got(_Newl) || p.got(semicolon) {
++				continue
++			}
++			word := p.getWord()
++			if word == nil {
++				p.curErr("expected a word in parenthesized for list")
++				return wi
++			}
++			wi.Items = append(wi.Items, word)
++		}
++		p.matched(left, leftParen, rightParen)
++	} else if !afterNewline && p.tok != semicolon && p.tok != _EOF &&
++		!(p.tok == _LitWord && zshLoopKeyword(p.val)) {
++		p.curErr("expected a for list or loop separator")
++	}
++	return wi
++}
++
++func zshIteratorName(name string) bool {
++	if name == "" {
++		return false
++	}
++	if strings.Trim(name, "0123456789") == "" {
++		return true
++	}
++	for i, c := range name {
++		if c != '_' && !unicode.IsLetter(c) && !(i > 0 && unicode.IsDigit(c)) {
++			return false
++		}
++	}
++	return true
++}
++
++func zshLoopKeyword(word string) bool {
++	switch word {
++	case "repeat", "{}", "always", "elif", "foreach", "end", "nocorrect", "declare", "export", "float", "integer", "local", "readonly", "typeset":
++		return true
++	}
++	return IsKeyword(word)
++}
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index d3590d024..14560eaf8 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -514,15 +514,18 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+         "help) cat <<'HELP'", body, 'HELP', ';;', suffix, ')"',
+         'printf \'%s\\n\' "$value"', ''
+       ].join('\n');
+-      fs.writeFileSync(file, script);
+-      const native = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
+-      // Old system Bash versions reject an unmatched literal quote in a
+-      // substitution's quoted here-document. Always exercise the static CLI.
+-      if (!native.error && !(shell === 'bash' && native.status === 2 && native.stderr.includes('unexpected EOF'))) {
++      // System Bash 3.2 needs balanced parentheses in the case arm and
++      // balanced quotes in the captured here-document. Keep the original
++      // native oracle on newer shells and the original CLI fixture everywhere.
++      const oldBash = shell === 'bash' && spawnSync(shell, ['-c', '(( BASH_VERSINFO[0] <= 3 ))']).status === 0;
++      const nativeBody = oldBash ? body.replace('"', '"inches"') : body;
++      const nativeScript = oldBash ? script.replace('help)', '(help)').replace(body, nativeBody) : script;
++      const native = spawnSync(shell, [], { cwd: dir, input: nativeScript, encoding: 'utf8' });
++      if (native.error?.code !== 'ENOENT') {
+         assert.equal(native.status, 0, native.stderr);
+-        assert.equal(native.stdout, body + '\n');
++        assert.equal(native.stdout, nativeBody + '\n');
+       }
+-      fs.appendFileSync(file, ': > would-run\n');
++      fs.writeFileSync(file, script + ': > would-run\n');
+       const clean = runAntiTamper(dir);
+       assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+       assert.deepEqual(JSON.parse(clean.stdout).violations, []);
+@@ -540,6 +543,61 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     }
+   });
+ 
++  for (const [name, header, footer] of [
++    ['short for', 'for item (one) ', ''],
++    ['brace for', 'for item in one; { ', '}'],
++    ['parenthesized brace for', 'for v (one two) { ', '}'],
++    ['short in for', 'for item in one; ', ''],
++    ['repeat do', 'repeat 1 do ', 'done'],
++    ['repeat', 'repeat 1 { ', '}'],
++  ]) {
++    it('distinguishes help and active comments in a native zsh ' + name + ' loop', (t) => {
++      const { dir } = initGitRepoWithTests();
++      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++      // Test both extension dispatch and an explicit zsh shebang on a .sh file.
++      const file = name === 'repeat' ? 'help.sh' : 'help.zsh';
++      const script = [
++        ...(file.endsWith('.sh') ? ['#!/usr/bin/env zsh'] : []),
++        header + "print -r -- '" + shellMarker + " quoted'" + (footer ? '; ' + footer : ''),
++        header + "cat <<'HELP'", shellMarker + ' shown', 'HELP', footer, '',
++      ].join('\n');
++      const native = spawnSync('zsh', ['-f'], { input: script, encoding: 'utf8' });
++      if (native.error?.code !== 'ENOENT') {
++        assert.equal(native.status, 0, native.stderr);
++        const iterations = name === 'parenthesized brace for' ? 2 : 1;
++        assert.equal(native.stdout, (shellMarker + ' quoted\n').repeat(iterations) + (shellMarker + ' shown\n').repeat(iterations));
++      }
++      const target = path.join(dir, file);
++      fs.writeFileSync(target, script + ': > would-run\n');
++      const clean = runAntiTamper(dir);
++      assert.equal(clean.status, 0, clean.stderr + clean.stdout);
++      assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
++      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++      assert.equal(fs.existsSync(path.join(dir, 'would-run')), false);
++
++      fs.writeFileSync(target, script.replace("cat <<'HELP'", "cat <<'HELP' " + shellMarker + ' inner')
++        + shellMarker + ' after\n');
++      const flagged = runAntiTamper(dir);
++      assert.equal(flagged.status, 4, flagged.stderr + flagged.stdout);
++      const report = JSON.parse(flagged.stdout);
++      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
++      const oq = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
++      assert.deepEqual(oq.violations, [{ code: 'LINT_DISABLE_ADDED', path: file }, { code: 'LINT_DISABLE_ADDED', path: file }]);
++    });
++  }
++
++  it('keeps repeat an ordinary command in Bash and POSIX shells', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    for (const shell of ['bash', 'dash']) {
++      fs.writeFileSync(path.join(dir, 'help.sh'), '#!/bin/' + shell + "\nrepeat() { printf '%s\\n' \"$1\"; }\n"
++        + "repeat '" + shellMarker + " quoted' " + shellMarker + ' active\n');
++      const result = runAntiTamper(dir);
++      assert.equal(result.status, 4, result.stderr + result.stdout);
++      assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
++    }
++  });
++
+   it('matches the native sh delimiter when both dialect spellings occur in the body', (t) => {
+     const { dir } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+@@ -566,8 +624,15 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
+     assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
+ 
++    for (const invalidZsh of ["repeat 1 { print 'unclosed", 'for v (one two', 'repeat 1 do print ok']) {
++      fs.writeFileSync(file, '#!/bin/zsh\n' + invalidZsh + '\n' + shellMarker + ' active\n');
++      const invalid = runAntiTamper(dir);
++      assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
++      assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
++    }
+     fs.cpSync(path.dirname(CHECK_SCRIPT), copy, { recursive: true });
+-    fs.writeFileSync(file, '#!/bin/sh\n' + shellMarker + ' active\n');
++    // This valid zsh loop still requires the authenticated parser artifact.
++    fs.writeFileSync(file, '#!/bin/zsh\nfor v (one two) { print ok; }\n' + shellMarker + ' active\n');
+     const asset = path.join(copy, 'shell-parser/parser.wasm.gz');
+     for (const damaged of [true, false]) {
+       if (damaged) fs.appendFileSync(asset, 'damaged');
