@@ -23,7 +23,7 @@
 None
 
 ### T-002: `git diff` ベース Anti-Tampering ＆ `CODEOWNERS` 保護 `sdd/approved-test-retirements.json`
-- **Status:** `Implementation Complete`
+- **Status:** `Done`
 - **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `REQ-010`, `SELF-REQ-006`（承認マニフェスト分離）, `NFR-001`
