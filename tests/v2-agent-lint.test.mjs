@@ -77,6 +77,51 @@ describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & B
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it('checks waiver calendar dates through the CLI in strict, shadow and warn modes', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-waiver-dates-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(root, 'sdd'));
+    const expiries = {
+      text: 'invalid-date', month: '2028-99-99', rollover: '2028-04-31',
+      nonleap: '2100-02-29', timestamp: '2028-02-29T23:59:59Z', missing: null,
+      yesterday: '2028-02-28', today: '2028-02-29', tomorrow: '2028-03-01',
+    };
+    const invalidFiles = ['text', 'month', 'rollover', 'nonleap', 'timestamp', 'missing'].map(k => k + '.mjs');
+    const waivers = [];
+    for (const [name, expiry] of Object.entries(expiries)) {
+      const file = name + '.mjs';
+      fs.writeFileSync(path.join(root, file), 'console.log(1);');
+      waivers.push('    - rule: no-console-log', '      path: ' + file, '      reason: CLI output');
+      if (expiry !== null) waivers.push('      expires_on: ' + expiry);
+    }
+    fs.writeFileSync(path.join(root, 'sdd/guardrails.yaml'), ['agent_lint:', '  enabled: true',
+      '  waivers:', ...waivers, ''].join('\n'));
+    fs.writeFileSync(path.join(root, 'clean.mjs'), 'export const clean = true;');
+    const files = Object.keys(expiries).map(k => k + '.mjs').join(',');
+    const run = (mode, today, targets = files) => spawnSync(process.execPath, [LINT_CLI, '--root', root,
+      '--files', targets, '--mode', mode, '--today', today], { encoding: 'utf8' });
+    for (const mode of ['strict', 'shadow', 'warn']) {
+      const result = run(mode, '2028-02-29');
+      assert.equal(result.status, mode === 'strict' ? 1 : 0, result.stderr);
+      const report = JSON.parse(result.stdout);
+      assert.equal(report.status, mode === 'strict' ? 'FAIL' : 'WARN');
+      assert.deepEqual(report.waived.map(w => w.path).sort(), ['today.mjs', 'tomorrow.mjs']);
+      assert.deepEqual(report.findings.map(f => f.path).sort(), [...invalidFiles, 'yesterday.mjs'].sort());
+      assert.deepEqual(report.expiredWaivers.map(w => [w.path, w.code]), [['yesterday.mjs', 'EXPIRED_WAIVER']]);
+      assert.deepEqual(report.invalidWaivers.map(w => [w.path, w.code]),
+        invalidFiles.map(file => [file, 'INVALID_WAIVER_EXPIRY']));
+    }
+    // At an earlier reference date the invalid waivers alone must still affect the result.
+    for (const mode of ['strict', 'shadow']) {
+      const clean = run(mode, '2028-02-01', 'clean.mjs');
+      assert.equal(clean.status, mode === 'strict' ? 1 : 0, clean.stderr);
+      assert.equal(JSON.parse(clean.stdout).status, mode === 'strict' ? 'FAIL' : 'WARN');
+    }
+    const invalidToday = run('strict', '2028-02-30');
+    assert.equal(invalidToday.status, 2);
+    assert.match(invalidToday.stderr, /--today/);
+  });
+
   it('reports changed lines, untracked files and changed local imports on a clean branch checkout', t => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-diff-'));
     t.after(() => fs.rmSync(root, { recursive: true, force: true }));

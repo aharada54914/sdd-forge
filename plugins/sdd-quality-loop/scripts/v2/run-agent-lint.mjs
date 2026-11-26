@@ -13,7 +13,7 @@
  *
  * Exit codes:
  *   0 — Pass (or shadow/warn/off mode)
- *   1 — Strict mode failure (unwaived error or expired waiver)
+ *   1 — Strict mode failure (unwaived error, invalid expiry or expired waiver)
  *   2 — Tool / argument error
  */
 import fs from 'node:fs';
@@ -36,6 +36,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RULES_PATH = path.resolve(__dirname, '../../rules/agent-strict-rules.json');
 
 const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'dist-test', 'build', '.next', '.worktrees']);
+
+function isCalendarDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(value + 'T00:00:00Z');
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
 
 function loadRulesCatalog() {
   const raw = JSON.parse(fs.readFileSync(RULES_PATH, 'utf8'));
@@ -86,7 +92,8 @@ export function runAgentLint({
   const effectiveMode = mode || (alCfg.enabled ? alCfg.mode : 'off');
   if (!['off', 'shadow', 'warn', 'strict'].includes(effectiveMode)) throw new Error('Invalid Agent Lint mode');
   const effectiveDiffOnly = typeof diffOnly === 'boolean' ? diffOnly : Boolean(alCfg.diff_only);
-  const todayStr = today || new Date().toISOString().slice(0, 10);
+  const todayStr = today ?? new Date().toISOString().slice(0, 10);
+  if (!isCalendarDate(todayStr)) throw new Error('--today requires a calendar date in YYYY-MM-DD format');
 
   if (effectiveMode === 'off') {
     return {
@@ -98,6 +105,7 @@ export function runAgentLint({
       findings: [],
       waived: [],
       expiredWaivers: [],
+      invalidWaivers: [],
     };
   }
 
@@ -113,11 +121,23 @@ export function runAgentLint({
   const rulesMap = loadRulesCatalog();
   const waivers = Array.isArray(alCfg.waivers) ? alCfg.waivers : [];
   const expiredWaivers = [];
+  const invalidWaivers = [];
   const activeWaivers = [];
 
   for (const w of waivers) {
-    if (!w || typeof w !== 'object' || !w.rule || !w.path || !w.expires_on) continue;
-    const exp = String(w.expires_on).trim();
+    if (!w || typeof w !== 'object' || !w.rule || !w.path) continue;
+    const exp = w.expires_on;
+    if (!isCalendarDate(exp)) {
+      invalidWaivers.push({
+        code: 'INVALID_WAIVER_EXPIRY',
+        rule: String(w.rule),
+        path: String(w.path),
+        expires_on: exp ?? null,
+        message: 'Waiver の有効期限が不正です',
+        remediation_hint: 'expires_on に実在する日付を YYYY-MM-DD 形式で指定してください',
+      });
+      continue;
+    }
     if (exp < todayStr) {
       expiredWaivers.push({
         code: 'EXPIRED_WAIVER',
@@ -192,11 +212,12 @@ export function runAgentLint({
   const importsFor = rel => cache.get(rel)?.imports ?? readImports(fs.readFileSync(projectFile(root, rel), 'utf8'), rel);
   for (const finding of dependencyCycles(root, cycleSeeds, importsFor, inScope)) add(finding.path, finding);
 
-  const hasErrors = findings.some((f) => f.severity === 'error') || expiredWaivers.length > 0;
+  const waiverErrors = expiredWaivers.length > 0 || invalidWaivers.length > 0;
+  const hasErrors = findings.some((f) => f.severity === 'error') || waiverErrors;
   const status =
     hasErrors && effectiveMode === 'strict'
       ? 'FAIL'
-      : findings.length > 0 || expiredWaivers.length > 0
+      : findings.length > 0 || waiverErrors
         ? 'WARN'
         : 'PASS';
 
@@ -209,6 +230,7 @@ export function runAgentLint({
     findings,
     waived,
     expiredWaivers,
+    invalidWaivers,
   };
 }
 
@@ -219,6 +241,12 @@ export function formatAgentLintMarkdown(report) {
     `- **Scanned Files**: ${report.scannedFiles} (${report.durationMs}ms)`,
     `- **Findings**: ${report.findings.length} / **Waived**: ${report.waived.length} / **Expired Waivers**: ${report.expiredWaivers.length}`,
   ];
+  if (report.invalidWaivers?.length) {
+    lines.push('', '### Invalid Waiver Expiry Dates');
+    for (const w of report.invalidWaivers) {
+      lines.push(`- **${w.rule}** (\`${w.path}\`): ${w.message}`, `  - Hint: ${w.remediation_hint}`);
+    }
+  }
   if (report.expiredWaivers.length > 0) {
     lines.push('', '### Expired Waivers');
     for (const ew of report.expiredWaivers) {
