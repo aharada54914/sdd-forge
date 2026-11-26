@@ -302,47 +302,99 @@ function isPlaceholderScanTarget(relPath) {
   return true;
 }
 
-// Return physical line indexes so findings still point into the submitted patch.
-// Unknown or malformed patch text falls back to the ordinary full-text scan.
-function addedUnifiedDiffLines(lines) {
-  const additions = new Set();
-  let hasFileHeader = false;
-  let hasHunk = false;
-  for (let i = 0; i < lines.length;) {
+const GIT_PATCH_METADATA = /^(?:index [a-f0-9]+\.\.[a-f0-9]+(?: \d+)?|(?:old|new|new file|deleted file) mode \d+|(?:dis)?similarity index \d+%|(?:rename|copy) (?:from|to) .+)$/;
+
+function unifiedHunkEnd(lines, start) {
+  const hunk = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@(?: .*)?$/.exec(lines[start]);
+  if (!hunk) return null;
+  let oldCount = Number(hunk[1] ?? 1);
+  let newCount = Number(hunk[2] ?? 1);
+  if (!oldCount && !newCount) return null;
+  let i = start + 1;
+  while (oldCount > 0 || newCount > 0) {
+    // diff.suppressBlankEmpty allows a physical empty context line. The
+    // final split sentinel after the last newline is not a physical line.
     const line = lines[i];
-    if (line === '' && i === lines.length - 1) break;
-    if (line.startsWith('diff --git ')) {
-      hasFileHeader = false;
-      i++;
-      while (/^(?:index [a-f0-9]+\.\.[a-f0-9]+(?: \d+)?|(?:old|new|new file|deleted file) mode \d+|(?:dis)?similarity index \d+%|(?:rename|copy) (?:from|to) .+)$/.test(lines[i])) i++;
-      continue;
+    if ((line === '' && i < lines.length - 1) || line?.startsWith(' ')) {
+      oldCount--;
+      newCount--;
+    } else if (line?.startsWith('-')) {
+      oldCount--;
+    } else if (line?.startsWith('+')) {
+      newCount--;
+    } else {
+      return null;
     }
-    if (/^---\s+\S/.test(line) && /^\+\+\+\s+\S/.test(lines[i + 1])) {
-      if (!lines[i + 2]?.startsWith('@@ ')) return null;
-      hasFileHeader = true;
-      i += 2;
-      continue;
-    }
-    const hunk = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@(?: .*)?$/.exec(line);
-    if (!hasFileHeader || !hunk) return null;
-    let oldCount = Number(hunk[1] ?? 1);
-    let newCount = Number(hunk[2] ?? 1);
-    if (oldCount === 0 && newCount === 0) return null;
-    hasHunk = true;
+    if (oldCount < 0 || newCount < 0) return null;
     i++;
-    while (oldCount > 0 || newCount > 0) {
-      switch (lines[i]?.[0]) {
-        case ' ': oldCount--; newCount--; break;
-        case '-': oldCount--; break;
-        case '+': newCount--; additions.add(i); break;
-        default: return null;
-      }
-      if (oldCount < 0 || newCount < 0) return null;
+    if (lines[i] === '\\ No newline at end of file') i++;
+  }
+  // Extra prefixed rows belong to this hunk unless a new file header or
+  // the standard mail signature starts here.
+  if (/^[ +-]/.test(lines[i]) && lines[i] !== '-- ' && !isUnifiedFileHeader(lines, i)) return null;
+  return i;
+}
+
+// Git can validate the encoded blocks without applying the patch. Delimit the
+// input first: git apply --numstat by itself also accepts trailing prose.
+function gitBinaryPatchEnd(lines, gitHeader, body) {
+  let end = body + 1;
+  let blocks = 0;
+  while (blocks < 2 && /^(?:literal|delta) \d+$/.test(lines[end])) {
+    const blank = lines.indexOf('', end + 1);
+    if (blank < 0) return null;
+    end = blank + 1;
+    blocks++;
+  }
+  if (!blocks) return null;
+  const input = lines.slice(gitHeader, end).join('\n') + '\n';
+  const check = spawnSync('git', ['apply', '--numstat', '-'], { input, stdio: ['pipe', 'ignore', 'ignore'] });
+  return check.status === 0 ? end : null;
+}
+
+function isUnifiedFileHeader(lines, i) {
+  return /^---\s+\S/.test(lines[i]) && /^\+\+\+\s+\S/.test(lines[i + 1]);
+}
+
+// Keep original physical indexes. Mask each verified hunk independently so
+// malformed or unfamiliar text stays visible without reopening earlier hunks.
+function maskUnchangedPatchLines(lines) {
+  let inFile = false;
+  for (let i = 0; i < lines.length;) {
+    const header = i;
+    if (lines[i].startsWith('diff --git ')) {
+      inFile = false;
       i++;
-      if (lines[i] === '\\ No newline at end of file') i++;
+      while (GIT_PATCH_METADATA.test(lines[i])) i++;
+      if (lines[i] === 'GIT binary patch') {
+        const end = gitBinaryPatchEnd(lines, header, i);
+        if (end !== null) {
+          lines.fill('', header, end);
+          i = end;
+        }
+        continue;
+      }
+      if (/^Binary files .+ and .+ differ$/.test(lines[i])) {
+        i++;
+        lines.fill('', header, i);
+        continue;
+      }
+    }
+    if (isUnifiedFileHeader(lines, i)) {
+      inFile = true;
+      i += 2;
+    }
+    const end = inFile ? unifiedHunkEnd(lines, i) : null;
+    if (end === null) {
+      inFile = false;
+      i++;
+      continue;
+    }
+    lines.fill('', header, i + 1);
+    for (i++; i < end; i++) {
+      if (!lines[i].startsWith('+')) lines[i] = '';
     }
   }
-  return hasHunk ? additions : null;
 }
 
 function scanPlaceholders(projectRoot, changedFiles) {
@@ -357,9 +409,9 @@ function scanPlaceholders(projectRoot, changedFiles) {
     if (bytes.subarray(0, 8000).includes(0)) continue;
     scannedFiles.push(rel);
     const lines = normalizeNewlines(bytes.toString('utf8')).split('\n');
-    const additions = /\.(?:patch|diff)$/i.test(rel) ? addedUnifiedDiffLines(lines) : null;
+    if (/\.(?:patch|diff)$/i.test(rel)) maskUnchangedPatchLines(lines);
     for (let i = 0; i < lines.length; i += 1) {
-      if ((!additions || additions.has(i)) && PLACEHOLDER_RE.test(lines[i])) {
+      if (PLACEHOLDER_RE.test(lines[i])) {
         findings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
       }
     }

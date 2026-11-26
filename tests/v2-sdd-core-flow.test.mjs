@@ -379,6 +379,67 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
     ]);
   });
 
+  for (const variant of ['binary patch', 'binary summary', 'binary damaged', 'unprefixed blank context', 'malformed tail']) {
+    it(`scans Git-generated text additions with ${variant}`, t => {
+      const repo = setupCoreRepo();
+      t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+      const baseline = spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo]);
+      assert.equal(baseline.status, 0, baseline.stderr.toString());
+      const producer = path.join(repo, 'producer');
+      fs.mkdirSync(producer);
+      const git = (...args) => {
+        const result = spawnSync('git', args, { cwd: producer, encoding: 'utf8' });
+        assert.equal(result.status, 0, result.stderr);
+        return result.stdout;
+      };
+      git('init', '--quiet');
+      const marker = ['TO', 'DO'].join('');
+      const source = path.join(producer, 'a.js');
+      const binaryName = variant === 'binary summary' ? '0-' + marker + '.bin' : 'z.bin';
+      const binary = path.join(producer, binaryName);
+      fs.writeFileSync(source, `unchanged\n\n// ${marker} removed\nend\n`);
+      fs.writeFileSync(binary, Buffer.from([0, 1, 2, 3]));
+      git('add', 'a.js', binaryName);
+      if (variant.startsWith('binary')) fs.writeFileSync(binary, Buffer.from([0, 4, 5]));
+      const patch = 'src/change.patch';
+      const gateArgs = [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', patch];
+      for (const addition of ['implemented', `// ${marker} added`]) {
+        fs.writeFileSync(source, `unchanged\n\n${addition}\nend\n`);
+        const suppressBlank = variant === 'unprefixed blank context';
+        let diff = git('-c', `diff.suppressBlankEmpty=${suppressBlank}`, 'diff', '--no-color', '--no-ext-diff',
+          '--no-textconv', ...(['binary patch', 'binary damaged'].includes(variant) ? ['--binary'] : []));
+        assert.ok(diff.includes(`-// ${marker} removed\n`));
+        if (variant === 'binary patch') assert.match(diff, /\nGIT binary patch\nliteral /);
+        if (variant === 'binary summary') assert.match(diff, /\nBinary files .* differ\n/);
+        if (suppressBlank) assert.match(diff, /\n unchanged\n\n-/);
+        const expected = new Set(['+' + addition].filter(line => line.includes(marker)));
+        if (variant === 'binary damaged') {
+          const broken = marker + ' in invalid encoded data';
+          assert.match(diff, /\nliteral \d+\n[^\n]+/);
+          diff = diff.replace(/(\nliteral \d+\n)[^\n]+/, '$1' + broken);
+          expected.add(broken);
+        }
+        if (variant === 'malformed tail') {
+          const broken = '-' + marker + ' inside truncated hunk';
+          const unknown = marker + ' in unrecognized text';
+          const extra = '-' + marker + ' inside overlong hunk';
+          diff += ['@@ -17,2 +18 @@', broken, '+one', unknown, '--- a/end', '+++ b/end',
+            '@@ -1 +1 @@', extra, '+one', '-excess', ''].join('\n');
+          expected.add(broken);
+          expected.add(unknown);
+          expected.add(extra);
+        }
+        fs.writeFileSync(path.join(repo, patch), diff);
+        const result = spawnSync(process.execPath, gateArgs, { encoding: 'utf8' });
+        const check = JSON.parse(result.stdout).checks.placeholders;
+        assert.deepEqual(check.findings, diff.split('\n').flatMap((text, i) => expected.has(text)
+          ? [{ file: patch, line: i + 1, text, inTaskScope: false }] : []));
+        assert.equal(check.passed, expected.size === 0);
+        assert.equal(result.status, expected.size === 0 ? 0 : 1, result.stdout + result.stderr);
+      }
+    });
+  }
+
   it('fails gate when changed production code contains placeholders or a verification command fails', () => {
     const repo = setupCoreRepo();
     assert.equal(
