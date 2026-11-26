@@ -327,6 +327,58 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
       defects.map((text, i) => ({ file, line: firstLine + i, text: '// ' + text, inTaskScope: false })));
   });
 
+  it('scans text and unified patch additions while excluding binary assets and removed lines', t => {
+    const repo = setupCoreRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const baseline = spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo]);
+    assert.equal(baseline.status, 0, baseline.stderr.toString());
+    const scan = (files, status) => {
+      const result = spawnSync(process.execPath, [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001',
+        '--root', repo, '--changed-files', files.join(',')], { encoding: 'utf8' });
+      const report = JSON.parse(result.stdout);
+      const check = report.checks.placeholders;
+      assert.equal(result.status, status, JSON.stringify(check.findings));
+      assert.equal(report.verdict, status === 0 ? 'PASS' : 'FAIL');
+      assert.equal(check.passed, status === 0);
+      return check;
+    };
+    const asset = 'plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz';
+    const patch = 'scripts/vendor-shell-parser/zsh-loops.patch';
+    for (const file of [asset, patch]) {
+      fs.mkdirSync(path.dirname(path.join(repo, file)), { recursive: true });
+      fs.copyFileSync(path.join(REPO_ROOT, file), path.join(repo, file));
+    }
+    const clean = scan([asset, patch], 0);
+    assert.deepEqual(clean.scannedFiles, [patch]);
+    assert.deepEqual(clean.findings, []);
+
+    const marker = ['TO', 'DO'].join('');
+    const source = 'src/refund.js';
+    const diff = 'src/changes.diff';
+    const malformed = 'src/truncated.patch';
+    const textAsset = 'src/plain.gz';
+    const sourceLine = '// ' + marker;
+    fs.writeFileSync(path.join(repo, source), sourceLine + '\n');
+    fs.writeFileSync(path.join(repo, textAsset), sourceLine);
+    const diffLines = [
+      'diff --git a/one b/one', '--- a/one', '+++ b/one', '@@ -1,2 +1,2 @@',
+      ' ' + marker, '-' + marker, '+first change', '\\ No newline at end of file',
+      '--- a/two', '+++ b/two', '@@ -0,0 +1 @@',
+      '+++ ' + marker, '@@ -1 +2 @@', '-' + marker, '+' + sourceLine,
+    ];
+    fs.writeFileSync(path.join(repo, diff), diffLines.join('\r\n') + '\r\n');
+    fs.writeFileSync(path.join(repo, malformed), ['--- a/one', '+++ b/one',
+      '@@ -1,2 +1 @@', '-' + marker, '+replacement'].join('\n'));
+    const dirty = scan([source, diff, malformed, textAsset], 1);
+    assert.deepEqual(dirty.findings, [
+      { file: source, line: 1, text: sourceLine, inTaskScope: true },
+      { file: diff, line: 12, text: diffLines[11], inTaskScope: false },
+      { file: diff, line: 15, text: diffLines[14], inTaskScope: false },
+      { file: malformed, line: 4, text: '-' + marker, inTaskScope: false },
+      { file: textAsset, line: 1, text: sourceLine, inTaskScope: false },
+    ]);
+  });
+
   it('fails gate when changed production code contains placeholders or a verification command fails', () => {
     const repo = setupCoreRepo();
     assert.equal(

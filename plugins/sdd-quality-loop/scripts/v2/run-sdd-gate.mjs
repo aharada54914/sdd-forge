@@ -302,22 +302,71 @@ function isPlaceholderScanTarget(relPath) {
   return true;
 }
 
+// Return physical line indexes so findings still point into the submitted patch.
+// Unknown or malformed patch text falls back to the ordinary full-text scan.
+function addedUnifiedDiffLines(lines) {
+  const additions = new Set();
+  let hasFileHeader = false;
+  let hasHunk = false;
+  for (let i = 0; i < lines.length;) {
+    const line = lines[i];
+    if (line === '' && i === lines.length - 1) break;
+    if (line.startsWith('diff --git ')) {
+      hasFileHeader = false;
+      i++;
+      while (/^(?:index [a-f0-9]+\.\.[a-f0-9]+(?: \d+)?|(?:old|new|new file|deleted file) mode \d+|(?:dis)?similarity index \d+%|(?:rename|copy) (?:from|to) .+)$/.test(lines[i])) i++;
+      continue;
+    }
+    if (/^---\s+\S/.test(line) && /^\+\+\+\s+\S/.test(lines[i + 1])) {
+      if (!lines[i + 2]?.startsWith('@@ ')) return null;
+      hasFileHeader = true;
+      i += 2;
+      continue;
+    }
+    const hunk = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@(?: .*)?$/.exec(line);
+    if (!hasFileHeader || !hunk) return null;
+    let oldCount = Number(hunk[1] ?? 1);
+    let newCount = Number(hunk[2] ?? 1);
+    if (oldCount === 0 && newCount === 0) return null;
+    hasHunk = true;
+    i++;
+    while (oldCount > 0 || newCount > 0) {
+      switch (lines[i]?.[0]) {
+        case ' ': oldCount--; newCount--; break;
+        case '-': oldCount--; break;
+        case '+': newCount--; additions.add(i); break;
+        default: return null;
+      }
+      if (oldCount < 0 || newCount < 0) return null;
+      i++;
+      if (lines[i] === '\\ No newline at end of file') i++;
+    }
+  }
+  return hasHunk ? additions : null;
+}
+
 function scanPlaceholders(projectRoot, changedFiles) {
   const findings = [];
+  const scannedFiles = [];
   for (const rel of changedFiles) {
     if (!isPlaceholderScanTarget(rel)) continue;
     const abs = path.join(projectRoot, rel);
     if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) continue;
-    const lines = normalizeNewlines(fs.readFileSync(abs, 'utf8')).split('\n');
+    const bytes = fs.readFileSync(abs);
+    // Git uses a NUL byte in the first 8000 bytes to identify binary content.
+    if (bytes.subarray(0, 8000).includes(0)) continue;
+    scannedFiles.push(rel);
+    const lines = normalizeNewlines(bytes.toString('utf8')).split('\n');
+    const additions = /\.(?:patch|diff)$/i.test(rel) ? addedUnifiedDiffLines(lines) : null;
     for (let i = 0; i < lines.length; i += 1) {
-      if (PLACEHOLDER_RE.test(lines[i])) {
+      if ((!additions || additions.has(i)) && PLACEHOLDER_RE.test(lines[i])) {
         findings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
       }
     }
   }
   return {
     passed: findings.length === 0,
-    scannedFiles: changedFiles.filter(isPlaceholderScanTarget),
+    scannedFiles,
     findings,
   };
 }
