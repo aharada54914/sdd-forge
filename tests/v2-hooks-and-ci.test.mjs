@@ -67,6 +67,11 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(owners, /\/contracts\/guardrails\.schema\.json/);
   });
 
+  it('keeps the installed managed model entry in the release source', () => {
+    const entry = 'plugins/sdd-implementation/scripts/managed-model-entry.py';
+    assert.ok(fs.statSync(path.join(REPO_ROOT, entry)).isFile(), entry);
+  });
+
   it(
     'install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts',
     { skip: process.platform === 'win32' },
@@ -112,6 +117,8 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs')),
         true,
       );
+      const managedEntry = 'plugins/sdd-implementation/scripts/managed-model-entry.py';
+      assert.deepEqual(fs.readFileSync(path.join(installRoot, managedEntry)), fs.readFileSync(path.join(REPO_ROOT, managedEntry)));
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
       assert.equal(fs.existsSync(path.join(installRoot, 'sdd/guardrails.example.yaml')), true);
       assert.equal(fs.existsSync(path.join(installRoot, 'docs/non-interactive-factory.md')), true);

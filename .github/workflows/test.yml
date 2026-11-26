@@ -64,6 +64,22 @@ jobs:
           command -v pwsh
           bash tests/quality-gate-cycle-limit.tests.sh
 
+      - name: Exercise release readiness and model catalog checks offline
+        if: runner.os == 'Linux'
+        run: python3 tests/release-readiness.tests.py
+
+      - name: Exercise the workstation version bump on macOS and Windows
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="${BASH%/*}:$PATH"
+            python=python
+          else
+            python=python3
+          fi
+          "$python" tests/release-readiness.tests.py ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files
+
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'
         shell: bash

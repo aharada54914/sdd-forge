@@ -1413,6 +1413,13 @@
       "delegated_to": "tests/release-config-lock.tests.sh"
     },
     {
+      "path": "tests/release-readiness.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "v2-guardrails"
+      ]
+    },
+    {
       "path": "tests/release-config-lock.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
