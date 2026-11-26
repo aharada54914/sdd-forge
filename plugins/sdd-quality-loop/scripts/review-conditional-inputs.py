@@ -135,7 +135,8 @@ def failed_research_history(root, feature, stage, relative):
     return [dict(path=path, sha256=sha) for path, sha in sorted(all_pins[0].items())]
 
 
-def resolve(root, feature, stage, revision=None, *, include_research=True, history_contract=None):
+def resolve(root, feature, stage, revision=None, *, include_research=True, history_contract=None,
+            v1_history=False):
     root = Path(root).resolve(strict=True)
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature) or stage not in ('spec', 'impl', 'task', 'quality'):
         raise ValueError('unsupported feature or review stage')
@@ -224,10 +225,10 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
             raise ValueError('Concept Test validator loader unavailable')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        # Live reads refuse retired v1 records (owner decision 2026-11-26);
-        # a pinned historical revision keeps reading its own record.
+        # Live reads refuse retired v1 records (owner decision 2026-11-26). A pinned
+        # historical revision, or the provenance of an already passed review, keeps reading v1.
         concept, concept_inputs = module.evidence(root, feature, observe, allow_local=True,
-                                                  reject_v1=revision is None)
+                                                  reject_v1=revision is None and not v1_history)
         if concept.get('decision', 'proceed') != 'proceed':
             raise ValueError('Concept Test does not permit continuing feature work')
     if stage == 'impl':
@@ -303,11 +304,14 @@ def main():
     parser.add_argument('--without-research', action='store_true',
                         help='Historical manifests without research inputs only')
     parser.add_argument('--history-contract', help='Canonical failed impl review record; no current-input authority')
+    parser.add_argument('--allow-v1-history', action='store_true',
+                        help='Validate a passed review contract that pinned a retired concept-test/v1 record')
     args = parser.parse_args()
     try:
         print(json.dumps(resolve(args.root, args.feature, args.stage, args.revision,
                                  include_research=not args.without_research,
-                                 history_contract=args.history_contract), sort_keys=True))
+                                 history_contract=args.history_contract,
+                                 v1_history=args.allow_v1_history), sort_keys=True))
     except (OSError, ValueError, UnicodeError, subprocess.SubprocessError) as error:
         print('CONDITIONAL_INPUTS: ' + str(error), file=sys.stderr)
         return 1

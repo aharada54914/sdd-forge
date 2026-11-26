@@ -78,6 +78,9 @@ class PersistedV1History(ConceptFixture, unittest.TestCase):
         try:
             seed.write_bytes(before + b'changed')
             self.check(False)
+            # The stale pin, not the retirement, refuses the history.
+            with self.assertRaisesRegex(ValueError, 'Concept Test input changed'):
+                concept.concept.conditional.resolve(self.root, self.feature, 'spec', v1_history=True)
         finally:
             seed.write_bytes(before)
 

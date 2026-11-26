@@ -636,7 +636,8 @@ function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stag
     elseif ($Contract.stage -ceq 'impl' -and $Contract.verdict -cin @('NEEDS_WORK', 'BLOCKED')) {
         $researchArgs = @('--history-contract', "reports/impl-review/$Feature/attempt-$($Contract.attempt)/round-$($Contract.round)/impl-review-contract.json")
     }
-    $output = & python3 $resolver --root $RepositoryRoot --feature $Feature --stage $Stage @researchArgs
+    # Passed review contracts are history: they keep their concept-test/v1 provenance.
+    $output = & python3 $resolver --root $RepositoryRoot --feature $Feature --stage $Stage --allow-v1-history @researchArgs
     if ($LASTEXITCODE -ne 0) { throw 'conditional input resolution failed' }
     $resolved = ($output -join "`n") | ConvertFrom-Json
     foreach ($reviewer in @($Contract.reviewers)) {
