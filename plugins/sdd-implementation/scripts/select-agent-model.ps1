@@ -228,6 +228,8 @@ function Convert-CandidateCost($Value) {
 # per this repository's established mis-cased-value hazard guard.
 $EffortValues = @('low','medium','high','xhigh')
 $EffortOrder = @('low','medium','high','xhigh')
+# Capability data can advertise levels outside this selector's routing policy.
+$RegistryEfforts = @('minimal') + $EffortValues + @('max','ultra')
 function Get-EffortRank([string]$Value) {
   $index = [Array]::IndexOf($EffortOrder, $Value)
   if ($index -lt 0) { throw "MODEL_SELECTION_ERROR: invalid effort value: $Value" }
@@ -414,7 +416,7 @@ if ($CandidatesFile -or $policyMode) {
         $supported = $model.supported_efforts
         if ($supported -isnot [Array] -or @($supported).Count -eq 0 -or
             @(@($supported) | Where-Object {
-              $_ -isnot [string] -or $_ -cnotin $EffortValues
+              $_ -isnot [string] -or $_ -cnotin $RegistryEfforts
             }).Count -gt 0) {
           throw 'supported-efforts'
         }
@@ -455,7 +457,8 @@ if ($CandidatesFile -or $policyMode) {
         $name = $item.name
         if (-not $registered.ContainsKey($name)) { throw 'model' }
         $definition = $registered[$name]
-        $supported = @($definition.supported_efforts)
+        $supported = @($definition.supported_efforts | Where-Object { $_ -cin $EffortValues })
+        if ($supported.Count -eq 0) { throw 'supported-efforts' }
         if ($item.available -isnot [bool]) { throw 'candidate' }
         $cost = if ($policyMode) { $item.cost } else { Convert-CandidateCost $item.cost }
         $declaredEffort = $null

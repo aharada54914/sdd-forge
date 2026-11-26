@@ -41,18 +41,22 @@ class SelectorPackage(unittest.TestCase):
         (self.work / 'candidates.json').write_text(json.dumps([
             {'name': 'openai/gpt-5.1-codex', 'cost': '0.02', 'available': True, 'effort': 'medium'}]))
 
-    def invoke(self, shell, *, policy=False, explicit=None, cwd=None):
+    def invoke(self, shell, *, policy=False, explicit=None, cwd=None, requested_effort=None):
         scripts = self.package / 'scripts'
         if shell == 'bash':
             command = fixture.bash_command(scripts / 'select-agent-model.sh', [])
             command += ['--policy-input', 'request.json'] if policy else ['--risk', 'low', '--candidates-file', 'candidates.json', '--json']
             if explicit:
                 command += ['--registry', str(explicit)]
+            if requested_effort is not None:
+                command += ['--requested-effort', requested_effort]
         else:
             command = [PWSH, '-NoProfile', '-File', str(scripts / 'select-agent-model.ps1')]
             command += ['-PolicyInput', 'request.json'] if policy else ['-Risk', 'low', '-CandidatesFile', 'candidates.json', '-Json']
             if explicit:
                 command += ['-Registry', str(explicit)]
+            if requested_effort is not None:
+                command += ['-RequestedEffort', requested_effort]
         return subprocess.run(command, cwd=cwd or self.work, text=True, capture_output=True,
                               env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}, timeout=45)
 
@@ -102,11 +106,47 @@ class SelectorPackage(unittest.TestCase):
             {'name': 'gpt-6-astra', 'cost': '0.02', 'available': True, 'effort': 'high'}]))
         for shell in ('bash', 'powershell'):
             with self.subTest(shell=shell):
-                result = self.invoke(shell, explicit=self.package / 'contracts/agent-model-capabilities.v2.json')
+                result = self.invoke(shell, explicit=self.package / 'contracts/agent-model-capabilities.v2.json',
+                                     requested_effort='high')
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertIn('gpt-6-astra', result.stdout)
-                self.assertIn('strong', result.stdout)
-                self.assertNotIn('BLOCKED', result.stdout)
+                selection = json.loads(result.stdout)
+                self.assertEqual((selection['model'], selection['canonical_tier'], selection['effort']),
+                                 ('gpt-6-astra', 'strong', 'high'))
+
+    def test_registry_efforts_are_validated_separately_from_routing_efforts(self):
+        registry_file = self.package / 'contracts/agent-model-capabilities.v2.json'
+        registry = json.loads(registry_file.read_text())
+        registry.pop('risk_effort_matrix')
+        model = next(item for item in registry['models'] if item['name'] == 'gpt-6-astra')
+        candidate = {'name': model['name'], 'available': True, 'cost': '0.02'}
+        extended = ['minimal', 'medium', 'high', 'max', 'ultra']
+        # Without a matrix, an omitted request must use a routable model default.
+        cases = [
+            (extended, 'high', None, None, 'high'),
+            (extended, 'max', 'low', None, 'medium'),
+            (extended, 'max', None, None, None),
+            (extended, 'high', 'max', None, None),
+            (extended, 'high', None, 'ultra', None),
+            (['max'], 'max', 'high', None, None),
+            (['high', 'Max'], 'high', None, None, None),
+            (['high', 'unrecognized'], 'high', None, None, None),
+        ]
+        for supported, default, requested, declared, expected in cases:
+            model.update(supported_efforts=supported, default_effort=default)
+            registry_file.write_text(json.dumps(registry))
+            item = dict(candidate, effort=declared) if declared is not None else candidate
+            (self.work / 'candidates.json').write_text(json.dumps([item]))
+            for shell in ('bash', 'powershell'):
+                with self.subTest(shell=shell, supported=supported, default=default,
+                                  requested=requested, declared=declared):
+                    result = self.invoke(shell, explicit=registry_file, requested_effort=requested)
+                    if expected is None:
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn('MODEL_SELECTION_ERROR', result.stderr)
+                        self.assertEqual(result.stdout, '')
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        self.assertEqual(json.loads(result.stdout)['effort'], expected)
 
     def test_standalone_package_default_and_policy_bridge(self):
         standalone = self.root / 'standalone/sdd-implementation'

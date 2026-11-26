@@ -245,6 +245,8 @@ try:
     # for v2 clamp/bump arithmetic, where "" is never a valid member).
     EFFORT_VALUES = ("low", "medium", "high", "xhigh")
     EFFORT_ORDER = ["low", "medium", "high", "xhigh"]
+    # Capability data can advertise levels outside this selector's routing policy.
+    REGISTRY_EFFORTS = {"minimal", *EFFORT_VALUES, "max", "ultra"}
 
 
     def effort_rank(value):
@@ -436,7 +438,7 @@ try:
                         continue
                     supported = item.get("supported_efforts")
                     if (not isinstance(supported, list) or len(supported) == 0
-                            or any((not isinstance(entry, str)) or entry not in EFFORT_VALUES
+                            or any((not isinstance(entry, str)) or entry not in REGISTRY_EFFORTS
                                    for entry in supported)):
                         raise ValueError
                     default_effort = item.get("default_effort")
@@ -467,7 +469,9 @@ try:
                         raise ValueError
                 for item in candidate_data:
                     definition = registered[item["name"]]
-                    supported = definition["supported_efforts"]
+                    supported = [level for level in definition["supported_efforts"] if level in EFFORT_VALUES]
+                    if not supported:
+                        raise ValueError
                     if not isinstance(item["available"], bool):
                         raise ValueError
                     cost = ((None if item["cost"] is None else decimal.Decimal(item["cost"]))
