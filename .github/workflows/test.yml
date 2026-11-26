@@ -41,6 +41,25 @@ jobs:
       - name: Install AST dependencies
         run: npm ci --prefix plugins/sdd-quality-loop/rules --ignore-scripts
 
+      - name: Validate workflow state (PowerShell)
+        shell: pwsh
+        run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+
+      - name: Validate workflow state (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+
+      - name: Check persisted workflow integration and Core lifecycle
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash ./tests/workflow-state-ci-integration.tests.sh
+          bash ./tests/task-lifecycle-enum-parity.tests.sh
+          python3 tests/lib/core-lifecycle-checks.py approvals
+          python3 tests/lib/core-lifecycle-checks.py templates
+          python3 tests/lib/task-done-parity.py plugins/sdd-quality-loop/scripts/check-task-state.sh plugins/sdd-quality-loop/scripts/check-task-state.ps1
+
       - name: Run v2 Lightweight Guardrails & SDD Core tests
         env:
           SDD_REQUIRE_AJV: "1"
@@ -81,15 +100,6 @@ jobs:
           fi
           "$python" tests/release-readiness.tests.py ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files
 
-      - name: Validate workflow state (PowerShell)
-        shell: pwsh
-        run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
-
-      - name: Validate workflow state (POSIX)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
-
       - name: Check ownership digests and registration (Bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -99,16 +109,6 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/ownership-digest.tests.ps1
-
-      - name: Check persisted workflow integration and Core lifecycle
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash ./tests/workflow-state-ci-integration.tests.sh
-          bash ./tests/task-lifecycle-enum-parity.tests.sh
-          python3 tests/lib/core-lifecycle-checks.py approvals
-          python3 tests/lib/core-lifecycle-checks.py templates
-          python3 tests/lib/task-done-parity.py plugins/sdd-quality-loop/scripts/check-task-state.sh plugins/sdd-quality-loop/scripts/check-task-state.ps1
 
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'
