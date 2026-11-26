@@ -44,3 +44,22 @@
 製品コミット `805220bb1365f5f6c083b923afc65206e008ddcc` の前後とも clean な状態で、新スイートを単独でカタログ実行した。6テストが成功し、カタログの所要時間は3.062秒。[実行レシート](release-readiness-receipt.json)
 
 [CI の配線](../../../../../.github/workflows/test.yml)は Ubuntu で全6件、macOS・Windows でワークステーション向け bump の1件を実行する。初回の hosted 実行は未測定。旧195スイートの同一 SHA 完走と strict 昇格は未達のため、T-010 全体の判定は FAIL。
+
+## repository-release-validation の20件
+
+2026年11月26日に、正常・復元の4件を現在の配布構成へ移し、版異常4件と構造異常12件で同じ不備を検出することが個別に承認された。v1.26.0（`b193c75be`）では旧入口で20件すべてが成功した。`bf3f666c5` では最初に README の固定版の検査が失敗し、版だけを直しても配布終了した sdd-lite の欠落で停止した。旧一覧の106ファイル中23ファイルが現行ツリーに存在しない。
+
+| 対象 | 件数 | 合否の根拠 |
+|---|---:|---|
+| 有効な配布ツリー、全変異を戻した配布ツリー | 4 | 現在の CI とリリースの両入口が変更前と復元後に成功する |
+| README の先頭版 | 2 | 現行版を変更すると両入口が版ずれを示す |
+| CHANGELOG の候補版見出し | 2 | 同じ版の見出しを増やすと両入口が重複を示す |
+| managed-entry、policy-engine | 2 | 委譲入口または方針処理本体を個別に削除し、配布元検査または実インストールで欠落を検出する |
+| cloud-entry、cloud-marketplace | 2 | Azure の実行ファイルを削除、または marketplace の配布元を変更すると該当するクラウド検査が失敗する |
+| payload-contracts | 1 | インストーラーの配布対象から contracts/ を外すと、配布必須の契約を実インストールで検出できない |
+| ci-cache | 1 | キャッシュ用スクリプトを削除するとそのパスが診断に出る |
+| role-reference | 1 | モデル方針の役を未登録の能力名に変えると拒否される |
+| ci-plan、ci-observations、ci-result | 3 | 3スキーマを個別に削除すると対象のパスが診断に出る |
+| model-schema-id、ci-result-id | 2 | 配布スキーマ内の識別子を個別に v999 にすると拒否される |
+
+末尾の7件（ci-cache 以降）は、CI とリリースの両方で拒否する追加承認の対象。通常スイートの入口は [repository-release-validation.tests.sh](../../../../../tests/repository-release-validation.tests.sh)。CI とリリースに登録したコマンドは [test.yml](../../../../../.github/workflows/test.yml) と [release.yml](../../../../../.github/workflows/release.yml) にある。

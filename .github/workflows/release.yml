@@ -137,6 +137,10 @@ jobs:
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
       - name: Install locked cloud-package YAML parser dependencies
         run: npm ci --prefix mcp/sdd-forge-mcp --omit=dev --ignore-scripts
+      - name: Verify release source contracts
+        shell: bash
+        run: node .github/scripts/check-release-source.mjs
+
       - name: Run SDD Forge v2 deterministic release suites
         shell: bash
         run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs

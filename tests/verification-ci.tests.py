@@ -158,13 +158,14 @@ class CurrentV2WorkflowTests(unittest.TestCase):
                 route = next(iter(row.values()), runner)
                 expected = [step for step in self.workloads[name] if route in step.get('routes', [route])]
                 if name == 'v2-guardrails':
-                    # This required suite was added after the pinned baseline workflow.
+                    # Required workloads added after the pinned baseline workflow.
                     python = 'python' if os_name == 'Windows' else 'python3'
                     expected.append({'commands': [python + ' -B tests/sdd-domain-multitarget-foundation.tests.py']})
                     expected.append({'commands': [python + ' -B tests/project-evidence-collector.tests.py']})
                     if os_name == 'Linux':
                         expected.append({'working-directory': 'tests', 'commands': [
                             'python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route']})
+                    expected.append({'shell': 'bash', 'commands': ['node .github/scripts/check-release-source.mjs']})
                 if name == 'cloud-and-ddd' and route == 'ddd':
                     # main added the audit binding after the pinned workflow.
                     expected.append({'env': {'TZ': 'Asia/Tokyo'}, 'commands': [

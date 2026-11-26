@@ -1,4 +1,5 @@
 """Offline contracts for the release, version bump, and scheduled catalog check."""
+from contextlib import contextmanager
 from functools import cached_property
 import hashlib
 import json
@@ -121,6 +122,223 @@ class ReleaseReadiness(unittest.TestCase):
             "bash -n install.sh && bash -n uninstall.sh",
         ])
 
+    def source_commands(self):
+        step_name = "Verify release source contracts"
+        ci = workflow_jobs("test.yml")["v2-guardrails"]
+        commands = []
+        for entry, job in (("CI", ci), ("release", self.jobs["loop-gate"])):
+            steps = [step for step in job["steps"] if step.get("name") == step_name]
+            self.assertEqual(len(steps), 1, entry)
+            step = steps[0]
+            for option in ("if", "continue-on-error"):
+                self.assertNotIn(option, job, entry)
+                self.assertNotIn(option, step, entry)
+            self.assertEqual(step["shell"], "bash")
+            commands.append((entry, ["bash", "-eo", "pipefail", "-c", step["run"]]))
+        return dict(commands)
+
+    @staticmethod
+    def source_mutations():
+        policy = "contracts/model-policy.v1.json"
+        controls = "contracts/model-launch-controls.schema.json"
+        result = "contracts/verification-ci-result.schema.json"
+        files = ("tests/ci-dependency-cache.py", "contracts/verification-ci-plan.schema.json",
+                 "contracts/verification-ci-observations.schema.json", result)
+        return (
+            *((file, (), None, f"Missing required file: {file}") for file in files),
+            (policy, ("roles", "diagnosis", "capability_role"), "missing-release-role",
+             "Model policy role references an unknown registry role: diagnosis -> missing-release-role"),
+            (controls, ("properties", "schema", "const"), "model-launch-controls/v999",
+             f"Schema identity differs: {controls}"),
+            (result, ("$defs", "result", "properties", "schema", "const"), "verification-ci-result/v999",
+             f"Schema identity differs: {result}"),
+        )
+
+    def test_repository_release_validation(self):
+        # Stage the candidate's working-tree bytes. Node's filtered suites and the local
+        # installer need the tracked distribution, a Git index and the installed YAML parser.
+        hooks = "tests/v2-hooks-and-ci.test.mjs"
+        e2e = "tests/v2-real-flows-e2e.test.mjs"
+        helper = ".github/scripts/check-release-source.mjs"
+        cache = "tests/ci-dependency-cache.py"
+        self.copy_payload_inputs([hooks, e2e, cache, *CHANGELOG_SOURCES, "tests/lib/check-cloud-release.mjs",
+                                  ".github/workflows/sdd-guardrails.yml", "mcp/sdd-forge-mcp/package.json",
+                                  "mcp/sdd-forge-mcp/src/server.ts", "mcp/sdd-forge-mcp/dist/index.js"])
+        (self.root / helper).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / helper, self.root / helper)
+        self.run_cli(["git", "init", "-q"])
+        self.run_cli(["git", "add", "-f", "."])
+        version = json.loads((self.root / "plugins/sdd-ship/.claude-plugin/plugin.json").read_bytes())["version"]
+        self.env["RELEASE_TAG"] = f"v{version}"
+        self.env["NODE_PATH"] = str(ROOT / "mcp/sdd-forge-mcp/node_modules")
+        runs = tempfile.TemporaryDirectory(prefix="sdd-release-install-")
+        self.addCleanup(runs.cleanup)
+        temporary = Path(runs.name).resolve()
+        self.env["TMPDIR"] = str(temporary)
+
+        versions = dict(self.version_commands())
+        sources = self.source_commands()
+        ci = workflow_jobs("test.yml")["v2-guardrails"]
+        for job in (ci, self.jobs["loop-gate"]):
+            steps = [step for step in job["steps"]
+                     if step.get("run", "").split()[:2] == ["node", "--test"]
+                     and hooks in shlex.split(step["run"]) and e2e in shlex.split(step["run"])]
+            self.assertEqual(len(steps), 1, "expected both release suites in a required node --test step")
+            self.assertNotIn("if", steps[0])
+            self.assertNotIn("continue-on-error", steps[0])
+
+        managed = "plugins/sdd-implementation/scripts/managed-model-entry.py"
+        engine = "plugins/sdd-implementation/scripts/model-policy.py"
+        cloud = "plugins/sdd-azure-cloud/scripts/cloud.py"
+        marketplace = ".agents/plugins/marketplace.json"
+        package_tests = {
+            "managed": self.node_case(hooks, "keeps the installed managed model entry in the release source"),
+            "installer": self.node_case(hooks, "install.sh --target FilesOnly succeeds end-to-end"),
+            "membership": self.node_case(hooks, "validates release membership and public cloud packages"),
+            "cloud": self.node_case(e2e, r"Flow 3 \(Cloud\): AWS/Azure plugins install cleanly"),
+        }
+
+        def check(command, diagnostic=None, success=None):
+            result = subprocess.run(command, cwd=self.root, env=self.env, capture_output=True, text=True, timeout=120)
+            output = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 1 if diagnostic else 0, output)
+            if "--test" in command:
+                self.assertRegex(output, rf"(?m)^# {'fail' if diagnostic else 'pass'} 1$", output)
+            if diagnostic or success:
+                self.assertIn(diagnostic or success, output)
+            return output
+
+        completed = set()
+
+        def passed(case):
+            self.assertNotIn(case, completed)
+            completed.add(case)
+            print(f"PASS {case}", flush=True)
+
+        def healthy(phase):
+            for entry, command in versions.items():
+                check(command, success=f"Release version consistency verified for v{version}" if entry == "release" else None)
+                check(sources[entry], success="Release source contracts verified.")
+                for package in package_tests.values():
+                    check(package)
+                passed(f"{phase} ({entry})")
+
+        @contextmanager
+        def original(name):
+            path = self.root / name
+            before = path.read_bytes()
+            try:
+                yield path
+                self.assertTrue(not path.exists() or path.read_bytes() != before, f"mutation did not change {name}")
+            finally:
+                path.write_bytes(before)
+
+        healthy("valid tree")
+        for name, old, new, diagnostic in (
+            ("README.md", f"v{version} — ", "v999.999.999 — ", f"README.md current release must be v{version}"),
+            ("CHANGELOG.md", "# Changelog", f"# Changelog\n\n## v{version} duplicate",
+             f"CHANGELOG.md must contain exactly one ## v{version} heading (found 2)"),
+        ):
+            with original(name) as path:
+                path.write_bytes(path.read_bytes().replace(old.encode(), new.encode(), 1))
+                for entry, command in versions.items():
+                    check(command, diagnostic)
+                    passed(f"{name} ({entry})")
+
+        for name, key, diagnostic in (
+            (managed, "managed", f"no such file or directory, stat '{self.root / managed}'"),
+            (engine, "installer", f"Required file is missing: {engine}"),
+            (cloud, "cloud", f"Required file is missing: {cloud}"),
+            (marketplace, "membership", f"{marketplace}: sdd-azure-cloud source path"),
+            ("install-payload.txt", "installer", "install-payload.txt does not admit required file: contracts/agent-model-capabilities.v2.json"),
+        ):
+            with original(name) as path:
+                if name == marketplace:
+                    data = json.loads(path.read_bytes())
+                    next(p for p in data["plugins"] if p["name"] == "sdd-azure-cloud")["source"]["path"] = "./plugins/missing-cloud"
+                    path.write_text(json.dumps(data), encoding="utf-8")
+                elif name == "install-payload.txt":
+                    path.write_bytes(path.read_bytes().replace(b"\ncontracts/\n", b"\n"))
+                else:
+                    path.unlink()
+                check(package_tests[key], diagnostic)
+                passed(name)
+
+        for name, keys, bad, diagnostic in self.source_mutations():
+            with original(name) as path:
+                if not keys:
+                    path.unlink()
+                else:
+                    data = json.loads(path.read_bytes())
+                    field = data
+                    for key in keys[:-1]:
+                        field = field[key]
+                    field[keys[-1]] = bad
+                    path.write_text(json.dumps(data), encoding="utf-8")
+                for command in sources.values():
+                    check(command, diagnostic)
+                passed(f"{name} {'.'.join(keys)}".rstrip() + " (CI, release)")
+        healthy("restored tree")
+        self.assertEqual(len(completed), 20)
+        print(f"Repository release validation tests passed: {len(completed)} checks.", flush=True)
+
+    def test_ci_and_release_reject_incomplete_release_sources(self):
+        commands = self.source_commands().items()
+
+        required = ("tests/ci-dependency-cache.py", "contracts/verification-ci-plan.schema.json",
+                    "contracts/verification-ci-observations.schema.json", "contracts/verification-ci-result.schema.json")
+        controls = "contracts/model-launch-controls.schema.json"
+        policy = "contracts/model-policy.v1.json"
+        registry = "contracts/agent-model-capabilities.v2.json"
+        for file in (*required, controls, policy, registry, "contracts/model-policy.schema.json",
+                     ".github/scripts/check-release-source.mjs"):
+            (self.root / file).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / file, self.root / file)
+
+        def check(case, diagnostic=None):
+            for entry, command in commands:
+                with self.subTest(case=case, entry=entry):
+                    run = subprocess.run(command, cwd=self.root, env=self.env, capture_output=True,
+                                         text=True, timeout=45)
+                    self.assertEqual(run.returncode, 1 if diagnostic else 0, run.stdout + run.stderr)
+                    self.assertIn(diagnostic or "Release source contracts verified.", run.stderr if diagnostic else run.stdout)
+
+        roles = json.loads((self.root / policy).read_bytes())["roles"]
+        self.assertIsNone(roles["implementer"]["capability_role"])
+        check("valid tree")
+        missing = object()
+        role_set_error = "Model policy roles differ from the policy contract."
+        role_error = "Model policy capability role differs from its contract: diagnosis"
+        for file, keys, bad, diagnostic in (
+            (policy, ("roles",), {}, role_set_error),
+            (policy, ("roles",), [], role_set_error),
+            (policy, ("roles",), missing, role_set_error),
+            (policy, ("roles", "diagnosis"), missing, role_set_error),
+            (policy, ("roles", "diagnosis", "capability_role"), missing, role_error),
+            (policy, ("roles", "diagnosis", "capability_role"), None, role_error),
+            (policy, ("roles", "diagnosis", "capability_role"), "spec-reviewer", role_error),
+            (policy, ("roles", "diagnosis", "capability_role"), 0, role_error),
+            (policy, ("roles", "diagnosis", "capability_role"), ["diagnosis"], role_error),
+            (registry, ("role_defaults",), [], "Registry role defaults must be an object."),
+            (registry, ("role_defaults",), "diagnosis", "Registry role defaults must be an object."),
+            (registry, ("role_defaults",), missing, "Registry role defaults must be an object."),
+            (registry, ("role_defaults", "diagnosis"), missing,
+             "Model policy role references an unknown registry role: diagnosis -> diagnosis"),
+        ):
+            data = json.loads((self.root / file).read_bytes())
+            field = data
+            for key in keys[:-1]:
+                field = field[key]
+            self.assertNotEqual(field[keys[-1]], bad)
+            if bad is missing:
+                del field[keys[-1]]
+            else:
+                field[keys[-1]] = bad
+            write(self.root, file, json.dumps(data))
+            check(f"{file} {'.'.join(keys)} = {'missing' if bad is missing else repr(bad)}", diagnostic)
+            shutil.copyfile(ROOT / file, self.root / file)
+        check("restored tree")
+
     def version_check_commands(self):
         version = "1.2.3"
         self.env["RELEASE_TAG"] = f"v{version}"
@@ -135,10 +353,17 @@ class ReleaseReadiness(unittest.TestCase):
             write(self.root, path, json.dumps({"plugins": [{"name": "sdd-ship", "version": version}]}))
         for path in ("mcp/sdd-forge-mcp/src/server.ts", "mcp/sdd-forge-mcp/dist/index.js"):
             write(self.root, path, f'const release = {{version: "{version}"}};\n')
+        return self.version_commands()
+
+    def version_commands(self):
         ci_case = "all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
-        ci = ["node", "--test", "--test-reporter=tap", f"--test-name-pattern={ci_case}", suite]
+        ci = self.node_case("tests/v2-hooks-and-ci.test.mjs", ci_case)
         release = self.step("loop-gate", "Verify release tag matches all plugin manifests and CHANGELOG")["run"]
         return (("CI", ci), ("release", ["bash", "-eo", "pipefail", "-c", release]))
+
+    @staticmethod
+    def node_case(suite, name):
+        return ["node", "--test", "--test-reporter=tap", f"--test-name-pattern={name}", suite]
 
     def check_version_case(self, commands, case, failure=None):
         for name, command in commands:
@@ -424,6 +649,16 @@ esac
                 self.assertTrue(any(line.startswith(heading) for line in data.splitlines()[:5]), path)
                 self.assertEqual(actual, data.replace(heading, f"v{new} — ".encode(), 1), path)
 
+    def copy_payload_inputs(self, extra_paths):
+        entries = [line.strip() for line in (ROOT / "install-payload.txt").read_text().splitlines()
+                   if line.strip() and not line.lstrip().startswith("#")]
+        paths = subprocess.check_output(["git", "ls-files", "-z", "--", *entries, *extra_paths], cwd=ROOT)
+        for raw in paths.split(b"\0"):
+            if raw:
+                path = Path(os.fsdecode(raw))
+                (self.root / path).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / path, self.root / path)
+
     def check_bump_release_input(self, missing_helper):
         self.env.pop("FAIL_AT", None)
         bash = self.prepare_bump()
@@ -432,15 +667,7 @@ esac
         readme_case = "all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
         helper_case = "keeps the installed managed model entry in the release source"
         # Exercise the published payload, optional MCP packages, and every bump target.
-        entries = [line.strip() for line in (ROOT / "install-payload.txt").read_text().splitlines()
-                   if line.strip() and not line.lstrip().startswith("#")]
-        paths = subprocess.check_output(["git", "ls-files", "-z", "--", *entries, "mcp/",
-                                         ".github/workflows/sdd-guardrails.yml"], cwd=ROOT)
-        for raw in paths.split(b"\0"):
-            if raw:
-                path = Path(os.fsdecode(raw))
-                (self.root / path).parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(ROOT / path, self.root / path)
+        self.copy_payload_inputs(["mcp/", ".github/workflows/sdd-guardrails.yml"])
 
         # Keep both real Node assertions intact. Their fixture runs at the point where
         # bump invokes this suite, with its unrelated cases filtered by node:test.
