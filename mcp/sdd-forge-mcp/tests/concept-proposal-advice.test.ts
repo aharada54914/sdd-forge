@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { rmSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { test, type TestContext } from "node:test";
 import { conceptAdvice, conceptProposalAdvice } from "../src/concept-proposal-advice.js";
+import { repoPath } from "./locate-source.js";
 import { makeTempSddRoot, writeFile } from "./test-helpers.js";
 
 function fixture(t: TestContext) {
@@ -178,6 +183,44 @@ test("a Markdown-only v1 record is advised to be recreated, not to re-open the b
   f.write("-seed.md", "Order a book.\n");
   f.write(".md", '```json\n{"schema":"concept-test/v1"}\n```\n');
   for (const bootstrap of [true, false]) assertRecreateAdvice(f.advise(bootstrap)?.action);
+});
+
+test("the advice recognizes the retirement exactly as the validator and the gate emit it", t => {
+  // Run the shipped producers so their wording cannot drift from the MCP copies.
+  const f = fixture(t);
+  writeFile(f.dir, "specs/orders/tasks.md", "## T-001 t\nApproval: Approved\nStatus: Implementation Complete\n"
+    + "Risk: standard\n\n### Scope\n- `src/a.js`\n\n### Done When\n- AC-001\n");
+  f.write(".json", JSON.stringify({ schema: "concept-test/v1" }));
+  const run = (command: string, args: string[]) => {
+    const result = spawnSync(command, args, { cwd: f.dir, encoding: "utf8" });
+    assert.equal(result.error, undefined, String(result.error));
+    return result;
+  };
+  const validator = run(process.platform === "win32" ? "python" : "python3",
+    [repoPath("plugins/sdd-domain/scripts/validate-concept-test.py"), "--root", f.dir, "--feature", "orders", "--require-v2"]);
+  assert.equal(validator.status, 1, validator.stderr);
+  const program = "import(process.argv[1]).then((m) => console.log(JSON.stringify(m.runSddGate({ feature: 'orders', "
+    + "taskId: 'T-001', projectRoot: process.argv[2], skipDrift: true, skipSensors: true }).result.checks.conceptTest)))";
+  const gate = () => {
+    const result = run(process.execPath, ["--input-type=module", "-e", program,
+      pathToFileURL(repoPath("plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs")).href, f.dir]);
+    assert.equal(result.status, 0, result.stderr);
+    return JSON.parse(result.stdout.trim().split("\n").at(-1) ?? "") as { status: string; error: string };
+  };
+  const workingTree = gate();
+  assert.equal(workingTree.error, validator.stderr.trim());
+  run("git", ["init", "-q"]);
+  run("git", ["add", "specs/orders/concept-test.json"]);
+  rmSync(join(f.dir, "specs/orders/concept-test.json"));
+  const indexed = gate();
+  assert.ok(indexed.error.startsWith(workingTree.error), indexed.error);
+  for (const [check, staged] of [[workingTree, false], [indexed, true]] as const) {
+    assert.equal(check.status, "BLOCK");
+    f.recordGate("BLOCK", check.error);
+    const advice = f.afterGate();
+    assertRecreateAdvice(advice);
+    assert.equal(/インデックス/.test(advice?.rationale ?? ""), staged, check.error);
+  }
 });
 
 test("a gate stopped on a retired v1 record advises recreating it", t => {
