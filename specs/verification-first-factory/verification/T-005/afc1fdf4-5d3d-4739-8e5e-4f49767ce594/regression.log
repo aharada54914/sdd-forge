@@ -1,0 +1,29 @@
+RT-20261126-006 | T-005 | run afc1fdf4-5d3d-4739-8e5e-4f49767ce594 | attempt 7
+RED source 517ac392a19bbdef2ab8a4c3201f307395b8891c
+Repair source 87ce626c84f6a3352639283d205169d5c95266ae
+GREEN with verified model-to-source SHA binding 27b2ff55e35f34f4ed8b040e6a86f26e1941d65d
+TLC 2.19 (5a47802) jar sha256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88
+Apalache 0.63.0 jar sha256 f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9
+
+Public CLI: node plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs --root <fixture> --feature review --round 99 --adapter tlc --mode strict --tla <model> --trace <observations> --risk high
+Reservation: canonical model, CFGs, mapping and five observations in the task input manifest.
+                                               RED                                     GREEN
+Prefix: The display is 6" across.               FAIL Invalid TLA+ string or comment     PASS baseline 15, negative 25, replay 5 states
+Prefix: (* unmatched in free text               FAIL Unterminated TLA+ comment          PASS baseline 15, negative 25, replay 5 states
+Init.state.accepted = [1], rest unchanged       FAIL step 1 (Acquire) was unreachable   FAIL step 0 (Init) was unreachable
+TLC on the Init mismatch: exit 0, 0 distinct states, depth 1. Gate exit 1. GREEN JSON preserves the zero.
+GateLifecycle: normal gate-pass trace with only StartTask.state.rounds changed from 0 to 1.
+Repeated all four public CLI runs on 27b2ff55. Status, error attribution and state counts agreed with the repair source.
+Completed forbidden-action check: gate exit 1, TLC replay exit 0, 2 distinct states, depth 2, step 2 (StartTask) was unreachable.
+For both mismatches, trace.violations and the top-level error agree. The saved OQ fact appears in render-decision-view.mjs --format html and links the replay evidence.
+
+Deadline control: node --import <deadline.mjs> --test --test-name-pattern='TLC checks reservation' tests/v2-formal-gate.test.mjs
+The controlled run used the real pinned TLC jar with Apalache disabled. The preload wrapped node:child_process.execFileSync, synchronized named exports and invoked the original method with timeout=1 ms only for SDDTraceReplay.tla extending GateLifecycle with rounds'=1 in the StartTask transition. All other Java invocations used the original options.
+RED: real replay timed out twice, suite exit 0, 1 passed (false positive).
+GREEN: same real timeout, suite exit 1, assertion failed with "timeout before the checker completed".
+First full run: 18/20; stale GateLifecycle source digest, and isolated checkout missing ast-grep. Updated only the formal runner digest after checking the action mapping. Installed the locked dependencies with npm ci --prefix plugins/sdd-quality-loop/rules --offline.
+Strict changed-line agent lint on the three changed .mjs files, base 517ac392a: zero findings.
+CI bridge tests/verify-review-reservation.py with the pinned TLC jar passed; baseline accepted one contender and the negative control accepted two.
+Normal run without the preload, both pinned jars: node --test tests/v2-formal-gate.test.mjs | 20 passed, 0 failed, 0 skipped.
+python3 tests/project-skill-formal.tests.py -v | 8 passed, 0 failed, 0 skipped.
+validate-task-input-manifest.sh --manifest <manifest> --snapshot-root . --expected-task T-005 | TASK_INPUT_OK (37 inputs at GREEN).
