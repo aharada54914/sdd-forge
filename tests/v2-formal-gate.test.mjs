@@ -634,6 +634,56 @@ it(
 );
 
 it(
+  'SANY and the formal gate select the same outer module in free-form text',
+  { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
+  (t) => {
+    const projectRoot = sandbox(t);
+    fs.cpSync(path.dirname(reservation), projectRoot, { recursive: true });
+    const model = path.join(projectRoot, 'Reservation.tla');
+    const original = fs.readFileSync(model, 'utf8');
+    const tracePath = path.join(REPO_ROOT, 'specs/verification-first-factory/verification/T-005',
+      'a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson');
+    const cases = [
+      ...['\n', '\r\n', '\t', '\f', '\u00a0'].map((gap) =>
+        ['separator ' + JSON.stringify(gap), '----' + gap + 'MODULE Pretend ----\nUnclosed " in prose\n' + original, true]),
+      ['inline compact header', original.replace(/^.*\n/, 'Text ends here.----MODULEReservation----\n'), true],
+      ['newline before module name', original.replace('MODULE Reservation', 'MODULE\nReservation'), true],
+      ['form feed before module name', original.replace('MODULE Reservation', 'MODULE\fReservation'), false],
+      ['dotted header before the real module', '---- MODULE. More text.\n' + original, false],
+    ];
+    for (const [label, source, valid] of cases) {
+      fs.writeFileSync(model, source);
+      const native = spawnSync('java', ['-cp', process.env.TLA2TOOLS_JAR, 'tla2sany.SANY', 'Reservation.tla'],
+        { cwd: projectRoot, encoding: 'utf8' });
+      assert.ifError(native.error);
+      if (valid) {
+        assert.equal(native.status, 0, label);
+        assert.match(native.stdout, /Semantic processing of module Reservation/, label);
+      } else {
+        assert.notEqual(native.status, 0, label);
+        assert.match(native.stdout, /Could not parse module Reservation/, label);
+      }
+      const cli = spawnSync(process.execPath, [path.join(scripts, 'run-formal-gate.mjs'), '--root', projectRoot,
+        '--tla', model, '--adapter', 'tlc', '--mode', 'strict', '--trace', tracePath], { encoding: 'utf8' });
+      assert.ifError(cli.error);
+      const result = JSON.parse(cli.stdout);
+      assert.equal(cli.status, valid ? 0 : 1, label + ': ' + JSON.stringify(result));
+      assert.equal(result.structure.moduleName, valid ? 'Reservation' : null, label);
+      if (valid) {
+        assert.equal(result.status, 'PASS', label);
+        assert.deepEqual(['baseline', 'negative', 'replay'].map((phase) =>
+          [result.checker[phase].distinctStates, result.checker[phase].violatedInvariant]),
+        [[15, null], [25, 'OneAccepted'], [5, 'TraceIncomplete']], label);
+      } else {
+        assert.equal(result.structure.ok, false, label);
+        assert.match(result.structure.errors.join(' '), /Missing TLA\+ MODULE header/, label);
+      }
+      t.diagnostic(label + ': SANY=' + native.status + ', gate=' + cli.status);
+    }
+  },
+);
+
+it(
   'TLC and replay agree on token boundaries in canonical safety specifications',
   { skip: process.env.TLA2TOOLS_JAR ? false : 'requires pinned TLA2TOOLS_JAR' },
   (t) => {

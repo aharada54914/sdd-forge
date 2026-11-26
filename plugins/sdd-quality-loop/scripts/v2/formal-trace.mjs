@@ -39,13 +39,17 @@ function blockCommentEnd(source, start, kind) {
   return delimiters.lastIndex;
 }
 
+// SANY's BEGIN_MODULE token consumes four or more hyphens, ASCII spaces, and
+// the literal MODULE. The module name can start immediately after the token.
+export const tlaModuleStart = /-{4,} *MODULE/;
+
 // Expose only model code to declaration checks. Comments are whitespace and
 // strings remain opaque operands, so neither can introduce a new definition.
 export function tlaDeclarationSource(source) {
   // The model lexer starts at the outer module. Quotes and comment delimiters in the preamble are prose.
-  const header = source.search(/-{4,}\s*MODULE\b/);
+  const header = source.search(tlaModuleStart);
   if (header < 0) return '';
-  const specials = /-{4,}\s*MODULE\b|={4,}|\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/g;
+  const specials = new RegExp(tlaModuleStart.source + '|' + /={4,}|\\\*[^\r\n]*|\(\*|\*\)|"(?:[^"\\\r\n]|\\[^\r\n])*"|"/.source, 'g');
   let code = '';
   let moduleDepth = 0;
   let start = header;
@@ -132,7 +136,7 @@ function replayBehavior(model, cfg) {
     // Do not infer the behavior from an overridden or ambiguously scoped definition.
     const overridden = sections.some(({ key, tokens }) => /^CONSTANTS?$/.test(key) &&
       tokens.some((token, index) => token === spec && tokens[index + 1] === '<-'));
-    const headers = [...source.matchAll(/-{4,}\s*MODULE\b/g)];
+    const headers = [...source.matchAll(new RegExp(tlaModuleStart, 'g'))];
     const footer = /^[ \t]*={4,}[ \t]*\r?$/m.exec(source);
     const module = headers.length === 1 && footer ? source.slice(headers[0].index, footer.index) : '';
     const parts = module.split(new RegExp('^[ \\t]*' + spec + '\\s*==', 'm'));
