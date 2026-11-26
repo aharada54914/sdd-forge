@@ -27,12 +27,16 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
 
 ## 3. Mockup & Egress Consent Loop（`DesignSync` 利用可能時）
 
+外部プロバイダーを使う前に、同梱の `../../scripts/resolve-design-sync.py` に `design-sync-request/v1` を標準入力で渡す。読み込みは `operation: pull`、書き込みは `operation: upload` とし、毎回、現在の設定、機能・セッション・送信先、既存の判断記録を使う。結果が `prompt` なら同意の回答を加えて再実行する。 `skip` と `manual` は送信しない。`pull` の許可をアップロードに流用しない。
+
 1. **Pull**: `list_projects` / `list_files` / `get_file` で対象プロジェクトのトークンと既存コンポーネント一覧を取得し、`Design-Source` へ記録。
 2. **Generate Mockups**: 各画面・状態（default / empty / loading / error、レスポンシブ）について、外部アセット無し・トークン準拠（生カラーコード禁止）の HTML モックアップを `specs/<feature>/mockups/` に生成。
 3. **Resolve Egress Consent**: 毎回 `AGENTS.md` の `ds_upload_consent`（`per-feature` [既定] / `standing` / `off`）を確認する:
    - `off`: アップロードせず手動フォールバック（`Egress-Consent: not-permitted`, `Ds-Upload-Consent-Setting: off`, `Egress-Consent-At: <ISO-8601>` を記録）。
    - `standing`: プロンプト不要で続行し、`(feature, destination)` 初回のみ `Egress-Consent: granted`, `Ds-Upload-Consent-Setting: standing`, `Egress-Consent-At` を記録。
    - `per-feature`: 当該 `(feature, session)` で未同意なら、送信内容・送信先（`claude.ai/design`）・外部保持リスク・適用範囲を明示説明して人間の明示同意を得てから `push` する。拒否時はアップロードせず手動フォールバック。
+   判断結果に `audit` がある場合は、`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先・範囲と、返された `party`（`Egress-Consent-Party`）、記録時の ISO-8601 時刻（`Egress-Consent-At`）を残す。同意撤回は `withdrawn` と記録し、次回は再判定する。一度の辞退では継続的な拒否を記録しない。
+   アップロード直前に対象の `specs/<feature>/mockups/` を同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` で検査する。終了0なら `Egress-Scan: clean` と検査時刻を記録する。終了1なら検出内容を提示して送信を止め、その検査結果について明示的な上書き承認を得た場合だけ `Egress-Scan: overridden` と時刻を記録して続ける。終了2や異常終了ではツールを復旧して再検査するまで送信しない。
 4. **Iterate & Finalize**: フィードバックを反映して再生成・再確認し、確定した視覚方針を `specs/<feature>/design.md` と `requirements.md`（UX 受入条件）へ反映する。
 
 ## Boundaries

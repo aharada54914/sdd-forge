@@ -30,12 +30,17 @@ fail() { FAIL=$((FAIL + 1)); printf 'FAIL: %s\n' "$1"; }
 
 AG="$ROOT/AGENTS.md"
 DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-CDW="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+CDW="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 RUN_ALL_SH="$ROOT/tests/run-all.sh"
 RUN_ALL_PS1="$ROOT/tests/run-all.ps1"
 DSC_SH="$ROOT/tests/design-system-contract.tests.sh"
 CI_DIR="$ROOT/.github/workflows"
 BASELINE_SH="$ROOT/specs/design-sync-standing-consent/verification/T-001/ds29-baseline-sh.log"
+
+if [ ! -s "$CDW" ]; then
+  printf 'Missing design-sync-loop manual fallback: %s\n' "$CDW" >&2
+  exit 1
+fi
 
 # Lines from the first line matching $2 (inclusive) up to, but excluding,
 # the first later line matching $3, from file $1. Mirrors

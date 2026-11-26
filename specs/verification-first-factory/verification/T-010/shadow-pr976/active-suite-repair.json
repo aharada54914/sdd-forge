@@ -1,0 +1,205 @@
+{
+  "scope": "Individually selected local suites, macOS. Each receipt is independent.",
+  "runs": [
+    {
+      "label": "design-system-compliance.tests.sh",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "c50568de66db13929b84a75f30f12f7587df6e54e3de645e4a510a51385cce1a",
+        "selected": [
+          "tests/design-system-compliance.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/design-system-compliance.tests.sh",
+            "source_sha256": "8161694a9536f254beb4a26ca56d271a65895c2a574e3105e0264d4fd1d16dff",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 3.529456
+          }
+        ],
+        "revision_after": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "model-selector-package.tests.py",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "c50568de66db13929b84a75f30f12f7587df6e54e3de645e4a510a51385cce1a",
+        "selected": [
+          "tests/model-selector-package.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/model-selector-package.tests.py",
+            "source_sha256": "5d1938903a8b9ac666a41d8344ba9b4416afbef8be2b6583016ee54ea7901145",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 11.760648
+          }
+        ],
+        "revision_after": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "ownership-digest.tests.sh",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "c50568de66db13929b84a75f30f12f7587df6e54e3de645e4a510a51385cce1a",
+        "selected": [
+          "tests/ownership-digest.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/ownership-digest.tests.sh",
+            "source_sha256": "6d870f16b1245f2cee388c847fde747e539c29e7e8d2b05acee285f75fd5806d",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 3.580294
+          }
+        ],
+        "revision_after": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "research-consumers.tests.py.fixed",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "d24368af68ecbe157705810a51043fa212844830",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "952672a8b44f3a6d8d70b9bfbf251abc0d98e02153ac7bf088856f2875d6f8ab",
+        "selected": [
+          "tests/research-consumers.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/research-consumers.tests.py",
+            "source_sha256": "1880aa1edbbd0b5f5fa47fa64c83ff0ad65f90d0c21e251e3701546539fff836",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.355129
+          }
+        ],
+        "revision_after": "d24368af68ecbe157705810a51043fa212844830",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "research-consumers.tests.py",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "c50568de66db13929b84a75f30f12f7587df6e54e3de645e4a510a51385cce1a",
+        "selected": [
+          "tests/research-consumers.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/research-consumers.tests.py",
+            "source_sha256": "af841b5d200a6b73b66aca8448e64e75ec06bd1dfd6f5832287f40f0ab5e5f9c",
+            "status": "failed",
+            "exit_code": 1,
+            "seconds": 0.287961
+          }
+        ],
+        "revision_after": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "research-consumers.tests.py.physical",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "c50568de66db13929b84a75f30f12f7587df6e54e3de645e4a510a51385cce1a",
+        "selected": [
+          "tests/research-consumers.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/research-consumers.tests.py",
+            "source_sha256": "af841b5d200a6b73b66aca8448e64e75ec06bd1dfd6f5832287f40f0ab5e5f9c",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.441748
+          }
+        ],
+        "revision_after": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "research-evidence.tests.py.fixed",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "d24368af68ecbe157705810a51043fa212844830",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "952672a8b44f3a6d8d70b9bfbf251abc0d98e02153ac7bf088856f2875d6f8ab",
+        "selected": [
+          "tests/research-evidence.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/research-evidence.tests.py",
+            "source_sha256": "248be4a9b477b1984f8353c5d8821533353aef562b007c7452f82d7d126354e2",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.508185
+          }
+        ],
+        "revision_after": "d24368af68ecbe157705810a51043fa212844830",
+        "clean_after": true
+      }
+    },
+    {
+      "label": "research-evidence.tests.py.physical",
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "c50568de66db13929b84a75f30f12f7587df6e54e3de645e4a510a51385cce1a",
+        "selected": [
+          "tests/research-evidence.tests.py"
+        ],
+        "results": [
+          {
+            "suite": "tests/research-evidence.tests.py",
+            "source_sha256": "a66bc1bf3952e25b180057458a9f2f70d1658cdb45b5d8f0116c87374a101498",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.518136
+          }
+        ],
+        "revision_after": "3519cb1d5e8fb23ed2bd36782845fc02d6b36279",
+        "clean_after": true
+      }
+    }
+  ]
+}

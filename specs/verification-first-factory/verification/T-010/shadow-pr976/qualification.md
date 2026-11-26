@@ -87,3 +87,15 @@ base/headで直接再実行した12スイートは上表の10件と、元々成�
 [41パスごとの削除コミットと6件の登録行](catalog-lineage.json)・[6対の実行結果](additional-clean-pairs.json)・[v2の統合方針](../../../../../docs/adr/0051-lightweight-guardrails-and-sdd-core.md)・[所有者](../../../../../CODEOWNERS)
 
 T-010 が扱う廃止はカテゴリ2。base～統合版で変更した本番 `.sh/.ps1` は `validate-review-context-set.sh` のみで、同じ `.ps1` は既存実装のまま。20本の `*-parity.tests.{sh,ps1}` には、Python/PowerShellの定数、BashのCRLF処理、Pythonを共有するパス解決、Shell/PowerShellのregistry実装など14系統の異なる比較が入る。registry比較は実際にこのPRの登録欠落を検知した。個別の本番ESMへの統合、旧版と後継のWindows実行結果、各失敗モードの負例100%検知、承認済み blob を揃えた候補は今回0件。E2E・3-AI・goldenを保持し、スイート廃止は0件のままとした。旧Full/Liteの廃止（カテゴリ1）をT-010のカテゴリ2として処理するには対象範囲が異なる。[14系統・20本の対象名](parity-inventory.json)・[承認要件](../../../requirements.md)
+
+## 11月26日、現役スイートの修復
+
+`3519cb1d5` で jq 非搭載を模した fixture は8件、モデル選択の package は9件が成功した。後者では Bash・PowerShell 両方の製品を修正した。上記の本番シェル変更1件は旧比較点の集計である。現役349スイートのうち local-posix の選択は195本。ownership-digest は13件のうち登録検査1件が失敗した。
+
+macOSの一時ディレクトリの祖先 `/var` がシンボリックリンクで、通常ファイルの検査がテストの準備段階で失敗していた。実ファイルのパスを使ってfixtureを作ると、修正 `d24368af6` のクリーンなツリーで research-consumers 17件、research-evidence 21件が成功した。子のシンボリックリンクを拒否する検査を含む。[個別実行のレシート](active-suite-repair.json)
+
+所有者はv2に残る保証の個別移植と、証拠に基づく廃止候補の個別判断を承認した。全195件を同一SHAで完走したレシートと各廃止の承認は引き続き別途必要となる。
+
+### Design Sync の現行呼び出し
+
+v2 の bootstrap から呼ばれる design-sync-loop に、外部データの読み込みと送信を別々に判定する同梱 CLI `resolve-design-sync.py` を接続した。旧 Full/Lite の2入口を検査していた1メソッドを現行の bootstrap → loop → 実ファイルの配線に移植した。実CLIを含む design-sync-policy は14/14成功。旧 standing-consent スイートの手動フォールバック参照を両言語で配布先に修正した結果、TEST-046～050は両方とも成功した。Bashは修正前16件成功・39件失敗。PowerShellは欠落パスから TEST-049 で例外。パス修正直後の両言語は19件成功・36件失敗で、旧 Loop の文書構造と DS-29 ベースライン等の評価が残る。

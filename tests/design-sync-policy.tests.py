@@ -209,16 +209,20 @@ class PolicyTests(unittest.TestCase):
             bad_sqlite = subprocess.run([sys.executable, "-B", str(validator), str(path)], capture_output=True, text=True)
             self.assertEqual(bad_sqlite.returncode, 1)
 
-    def test_full_lite_and_provider_skill_wire_the_shipped_helper(self):
-        for relative in ("plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
-                         "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
-                         "plugins/sdd-lite/skills/lite-spec/SKILL.md"):
-            text = (ROOT / relative).read_text(encoding="utf-8")
-            self.assertIn("resolve-design-sync.py", text)
-        skill = (ROOT / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md").read_text()
-        self.assertIn("design-sync-request/v1", skill)
-        self.assertIn("before every provider operation", skill)
-        self.assertIn("proceed does not authorize an upload", skill)
+    def test_core_delegates_provider_operations_to_the_shipped_resolver(self):
+        bootstrap = ROOT / "plugins/sdd-bootstrap"
+        entry = (bootstrap / "skills/bootstrap/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("design-sync-loop", entry)
+        loop = bootstrap / "skills/design-sync-loop"
+        skill = (loop / "SKILL.md").read_text(encoding="utf-8")
+        step = skill.split("## 3.", 1)[1].split("1. **Pull**", 1)[0]
+        resolver = "../../scripts/resolve-design-sync.py"
+        self.assertTrue((loop / resolver).is_file())
+        for marker in (resolver, "design-sync-request/v1", "operation: pull",
+                       "operation: upload", "prompt", "skip", "manual"):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, step)
+        self.assertIn("`pull` の許可をアップロードに流用しない", step)
 
 
 if __name__ == "__main__":

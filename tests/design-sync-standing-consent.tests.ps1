@@ -42,12 +42,16 @@ function Test-Fail([string]$label) {
 
 $agPath = Join-Path $repositoryRoot "AGENTS.md"
 $dslPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 $runAllShPath = Join-Path $repositoryRoot "tests/run-all.sh"
 $runAllPs1Path = Join-Path $repositoryRoot "tests/run-all.ps1"
 $dscPs1Path = Join-Path $repositoryRoot "tests/design-system-contract.tests.ps1"
 $ciDir = Join-Path $repositoryRoot ".github/workflows"
 $baselinePs1 = Join-Path $repositoryRoot "specs/design-sync-standing-consent/verification/T-001/ds29-baseline-ps1.log"
+
+if (-not (Test-Path -LiteralPath $cdwPath -PathType Leaf) -or (Get-Item -LiteralPath $cdwPath).Length -eq 0) {
+    throw "Missing design-sync-loop manual fallback: $cdwPath"
+}
 
 function Get-LinesOrEmpty([string]$path) {
     if (-not (Test-Path -LiteralPath $path)) { return @() }
