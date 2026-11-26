@@ -1,0 +1,23 @@
+RT-20261126-006 / T-005 / repair cycle 2 / implementation attempt 8
+Run 7849a594-94b3-43af-b0df-d1909f66c66f, following attempt 7 run afc1fdf4-5d3d-4739-8e5e-4f49767ce594. Same dedicated T-005 worker continued the ticket.
+Product RED 27b2ff55e35f34f4ed8b040e6a86f26e1941d65d; report baseline b68f8e95750cafeed47fb4a1121bf2975f7193cf
+Product GREEN cb7939a22fa6f99d9b8e964a7ba0043e6adb8b7b
+Pinned tla2tools.jar SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88 (TLC 2.19, 5a47802).
+Grammar source https://github.com/tlaplus/tlaplus/blob/5a47802/tlatools/org.lamport.tlatools/javacc/tla%2B.jj#L1075-L1085
+The DEFAULT lexer skips prose until BEGIN_MODULE. It requires four or more dashes followed by zero or more ASCII spaces and literal MODULE, without a line-start or word-boundary check. In SPEC mode, space, tab, LF and CR are skipped (line 1122); BeginModule then consumes the module identifier and separator (lines 1692-1706).
+RED command: node --test --test-name-pattern='SANY and the formal gate' tests/v2-formal-gate.test.mjs
+The LF false header followed by a dangling quote passed the pinned SANY parser. The public gate returned exit 1, null moduleName, Invalid TLA+ string or comment delimiter.
+GREEN command: node --test tests/v2-formal-gate.test.mjs (both pinned jars)
+Each case executed java -cp <pinned-jar> tla2sany.SANY Reservation.tla and the public run-formal-gate.mjs with --adapter tlc --mode strict --trace <five-observation trace>, on the same file. Seven accepted inputs preserved baseline 15, negative 25 (OneAccepted), and replay 5 (TraceIncomplete) states. Both rejected inputs failed the gate's structural check without selecting a later module.
+separator "\n": SANY=0, gate=0
+separator "\r\n": SANY=0, gate=0
+separator "\t": SANY=0, gate=0
+separator "\f": SANY=0, gate=0
+separator " ": SANY=0, gate=0
+inline compact header: SANY=0, gate=0
+newline before module name: SANY=0, gate=0
+form feed before module name: SANY=255, gate=1
+dotted header before the real module: SANY=255, gate=1
+Node 21 passed, 0 failed, 0 skipped. Python tests/project-skill-formal.tests.py 8 passed, 0 failed, 0 skipped.
+run-agent-lint.mjs strict changed-line check against 27b2ff55e: 3 source files, 0 findings.
+validate-task-input-manifest.sh: TASK_INPUT_OK (37 inputs on product GREEN).
