@@ -9,12 +9,15 @@
   - 新しいレビューの起動（仕様・実装方針・タスク分解・品質検証の各レビューで、作業ツリーを読む場合）: 作業ツリーの v1 記録（JSON、または Markdown だけの記録）。
   - 検証器（`validate-concept-test`）: 作業ツリーの v1 記録（JSON、または Markdown だけの記録）。ただし `domain/` がなく `--require-v2` も指定しない場合は、従来どおり Concept Test を実行せず `SKIP` を返す。
 
-  移行方法: まず残った `specs/<feature>/concept-test.approval.json` を削除し（残っている間は v2 の実行が `incompatible Concept Test decision records` で停止する）、その後 Concept Test をもう一度実行して `concept-test/v2` として作り直す。`domain/` のないプロジェクト（Concept Test を実行しない）では、v1 の記録ファイルを削除する。MCP の `get_next_sdd_command` も同じ移行方法を案内し、移行後は再検証と品質ゲートの再実行を案内する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。次の読み取りは履歴として v1 を読み続ける（ADR-0053 の改訂）: 合格済みレビューの入力の照合（`check-workflow-state` の stage-provenance）、固定リビジョンを指定したレビュー、decision packet の署名検証。合格済みレビューが有効なのは、固定した v1 の入力が変わらない間だけである。作業途中の feature を v2 に移行すると入力のハッシュが変わるため、仕様・実装方針・タスク分解の各レビューをやり直す必要がある。完了済みの feature は、記録を変更しなければ対応不要。
+  移行方法: まず残った `specs/<feature>/concept-test.approval.json` を削除し（残っている間は v2 の実行が `leftover ... concept-test.approval.json from a retired v1 record` で停止する）、その後 Concept Test をもう一度実行して `concept-test/v2` として作り直す。`domain/` のないプロジェクト（Concept Test を実行しない）では、v1 の記録ファイルを削除する。MCP の `get_next_sdd_command` も同じ移行方法を案内し、移行後は再検証と品質ゲートの再実行を案内する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。次の読み取りは履歴として v1 を読み続ける（ADR-0053 の改訂）: 合格済みレビューの入力の照合（`check-workflow-state` の stage-provenance）、固定リビジョンを指定したレビュー、decision packet の署名検証。合格済みレビューが有効なのは、固定した v1 の入力が変わらない間だけである。作業途中の feature を v2 に移行すると入力のハッシュが変わるため、仕様・実装方針・タスク分解の各レビューをやり直す必要がある。完了済みの feature は、記録を変更しなければ対応不要。
 
 ### Fixed
 
 - **導入スキルの検査スクリプトのパス**: `sdd-adopt` が構造検査を `scripts/check-sdd-structure.sh`（スキルのフォルダー基準では存在しない）と案内していた。配布先のパス `<installed-root>/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh` に直し、スキルが示す配布物のパスがすべて実在することを試験で検査する。実ホスト（Claude Code）での `/sdd-bootstrap:bootstrap adopt` 実行で判明。
 - **Codex の版別導入で DDD の Concept Test が止まる件（#812、回避策と再現試験）**: Codex はプラグインを版ごとのフォルダーに導入するため、Concept Test が他プラグインと共通定義を見つけられず `BLOCK` になる。品質ゲートの停止メッセージに原因と回避策（sdd-forge のソースから直接実行）を示し、障害対応ガイドに手順を追加。配布定義どおりの配置を再現する試験 `tests/codex-versioned-cache.tests.py` を CI に追加（修正までは想定失敗として記録）。DDD を使わない機能には影響しない。
+- **v2 へ移行した後に残った旧承認ファイル**: `concept-test.approval.json` が残っていると、v2 の実行が `incompatible Concept Test decision records` という分かりにくい理由で止まっていた。残ったファイルの場所と、削除すればよいことを示して止まるようにした。
+- **tasks.md の位置にフォルダーがある場合のゲート**: EISDIR で落ちず、パスを示して止まる。
+- **リリース前の CI 確認の案内**: 後続の push で CI が取り消されたコミットは、そのコミットで test.yml を手動実行するよう案内する。
 
 ## v2.1.5 (2026-11-25)
 
