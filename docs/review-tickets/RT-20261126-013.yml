@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-013
-status: open
+status: resolved
 type: verification
 severity: major
 target:
@@ -17,3 +17,8 @@ expected_fix:
 references:
   - specs/verification-first-factory/verification/T-002/quality-repair-e135bc9cfa3f/execution.json
   - plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
+owner_decision: "2026-11-26: 共通ゲートの修正と再検証を承認する。"
+resolution:
+  commit: 5518abfe0128fcd9ca18d39cb499e7ba967ed78a
+  result: "実資産での誤検出と通常ソース・追加行の対照テストを含む68件が成功。独立ゲートの判定は品質レポートに記録する。"
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-013/public-cli-receipt.json

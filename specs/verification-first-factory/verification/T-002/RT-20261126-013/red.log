@@ -1,0 +1,37 @@
+▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)
+  ✖ scans text and unified patch additions while excluding binary assets and removed lines (111.316667ms)
+✖ run-sdd-gate.mjs (SDD Core unified deterministic gate) (111.760167ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.968083
+
+✖ failing tests:
+
+test at tests/v2-sdd-core-flow.test.mjs:330:3
+✖ scans text and unified patch additions while excluding binary assets and removed lines (111.316667ms)
+  AssertionError [ERR_ASSERTION]: [{"file":"plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz","line":324,"text":"�*>7�D��\u0002��TBD)a�쨸]�&\u000f�iD\"Y���^*H","inTaskScope":false},{"file":"scripts/vendor-shell-parser/zsh-loops.patch","line":4,"text":"-\t\t\t// TODO(zsh): \"repeat\"","inTaskScope":false}]
+  
+  1 !== 0
+  
+      at scan (file:///private/tmp/sdd-RT-20261126-013-kgRumTjD/before/tests/v2-sdd-core-flow.test.mjs:340:14)
+      at TestContext.<anonymous> (file:///private/tmp/sdd-RT-20261126-013-kgRumTjD/before/tests/v2-sdd-core-flow.test.mjs:351:19)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9 {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
