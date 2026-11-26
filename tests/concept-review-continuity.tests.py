@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -35,7 +36,7 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
                          'plugins/sdd-domain/scripts/validate-domain-contract.sh',
                          'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
                          'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py',
-                         'contracts/concept-test.v1.schema.json'):
+                         'contracts/concept-test.v2.schema.json'):
             cls.put(relative, (ROOT / relative).read_text())
         contract = json.loads((cls.root / 'domain/domain-contract.json').read_text())
         contract['schema'] = 'domain-contract/v2'
@@ -48,7 +49,7 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
         cls.put(f'specs/{cls.feature}/concept-test-seed.md', 'Record a purchase.\n')
         pinned = ['domain/context-map.md', 'domain/domain-contract.json', 'domain/domain-story.md',
                   f'specs/{cls.feature}/concept-test-seed.md']
-        record = dict(schema='concept-test/v1', feature=cls.feature, proposal='FITS_EXISTING_CONCEPTS',
+        record = dict(schema='concept-test/v2', feature=cls.feature, proposal='FITS_EXISTING_CONCEPTS',
                       rationale='Purchase intent is already modeled.',
                       distinctions=[dict(concepts=['CONCEPT-ORDER'], judgment='same', confirmed=True)],
                       inputs=[dict(path=p, sha256=hashlib.sha256((cls.root / p).read_bytes()).hexdigest()) for p in pinned])
@@ -228,12 +229,27 @@ class LateStageAdmission(unittest.TestCase):
         with mock.patch.dict(os.environ, self.fixture.env, clear=True):
             self.assertEqual('proceed', validate_packet()['concept_decision'])
 
-    def test_signed_decision_admission_and_persistence(self):
+    def test_live_v1_is_refused_while_a_pinned_revision_still_resolves(self):
+        # Owner decision 2026-11-26: new review launches read the working tree and refuse v1;
+        # a review pinned to a historical revision still reads that revision's signed v1 record.
         self.fixture.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.fixture.save()
         self.fixture.sign()
-        with mock.patch.dict(os.environ, self.fixture.env, clear=True):
-            self.test_task_and_quality_require_every_concept_pin()
+        self.fixture.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        revision = self.fixture.commit('Signed v1 decision')
+        script = ROOT / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'
+        for stage in ('spec', 'impl', 'task', 'quality'):
+            with self.subTest(stage=stage), mock.patch.dict(os.environ, self.fixture.env, clear=True):
+                with self.assertRaisesRegex(ValueError, concept.V1_RETIRED_PREFIX):
+                    concept.concept.conditional.resolve(self.root, 'example', stage)
+                pinned = concept.concept.conditional.resolve(self.root, 'example', stage, revision)
+                self.assertIn('specs/example/concept-test.approval.json', {e['path'] for e in pinned['inputs']})
+                command = [sys.executable, str(script), '--root', str(self.root), '--feature', 'example', '--stage', stage]
+                live = subprocess.run(command, capture_output=True, text=True)
+                self.assertEqual(1, live.returncode, live.stdout + live.stderr)
+                self.assertIn('CONDITIONAL_INPUTS: ' + concept.V1_RETIRED_PREFIX, live.stderr)
+                fixed = subprocess.run(command + ['--revision', revision], capture_output=True, text=True)
+                self.assertEqual(0, fixed.returncode, fixed.stdout + fixed.stderr)
 
     def test_task_and_quality_require_every_concept_pin(self):
         self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required for parity')
@@ -296,28 +312,6 @@ class LateStageAdmission(unittest.TestCase):
                             self.assertEqual(launcher.required_dependencies(self.root, invocation)['inputs'], selected)
                             if stage == 'task' and (self.root / 'specs/example/concept-test.decision.json').exists():
                                 self.check_fixed_with_live_changes(command, runtime, selected)
-                            if 'decision' in self.fixture.record:
-                                evidence = {p: (self.root / p).read_bytes() for p in (
-                                    'specs/example/concept-test.md', 'specs/example/concept-test.json',
-                                    'specs/example/concept-test.approval.json')}
-                                for invalid in ('forged', 'rejected', 'defer-to-domain-update'):
-                                    if invalid == 'forged':
-                                        self.fixture.write('specs/example/concept-test.approval.json', {})
-                                    else:
-                                        self.fixture.record['decision'] = invalid
-                                        self.fixture.save()
-                                        self.fixture.sign()
-                                    changed = dict(invocation, allowed_input_manifest=[
-                                        dict(path=e['path'], sha256=hashlib.sha256((self.root / e['path']).read_bytes()).hexdigest())
-                                        for e in invocation['allowed_input_manifest']])
-                                    path.write_text(json.dumps(changed))
-                                    refused = subprocess.run(command, capture_output=True, text=True, timeout=40)
-                                    self.assertNotEqual(refused.returncode, 0, refused.stdout + refused.stderr)
-                                    self.assertEqual(ledger.read_bytes(), before)
-                                    for name, content in evidence.items():
-                                        (self.root / name).write_bytes(content)
-                                    self.fixture.record['decision'] = 'proceed'
-                                path.write_text(json.dumps(invocation))
                             reserved = subprocess.run(command + ['--reserve' if runtime == 'bash' else '-Reserve'],
                                                       capture_output=True, text=True, timeout=40)
                             self.assertEqual(reserved.returncode, 0, reserved.stdout + reserved.stderr)

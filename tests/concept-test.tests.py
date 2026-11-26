@@ -92,6 +92,16 @@ class ConceptTests(unittest.TestCase):
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             shutil.copyfile(output / 'specs/example/concept-test.approval.json', self.feature / 'concept-test.approval.json')
 
+    def commit(self, message):
+        """Commit the whole fixture project and return the revision a pinned review reads."""
+        git = ['git', '-C', str(self.root)]
+        if not (self.root / '.git').exists():
+            subprocess.run(git + ['init', '-q'], check=True)
+        subprocess.run(git + ['add', '.'], check=True)
+        subprocess.run(git + ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                              'commit', '-qm', message], check=True)
+        return subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+
     def local_proposal(self, proposal='NEW_CONCEPT_CANDIDATE'):
         self.record.update(schema='concept-test/v2', proposal=proposal)
         self.record.pop('decision', None)
@@ -582,18 +592,27 @@ class ConceptTests(unittest.TestCase):
         expected = {entry['path'] for entry in self.record['inputs']} | {
             'specs/example/concept-test.json', 'specs/example/concept-test.md'}
         self.assertEqual(expected, {item['path'] for item in result['inputs']})
+        # A signed v1 record is read only at a pinned revision; live reviews refuse it.
         self.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.sign()
+        revision = self.commit('Signed v1 decision')
         with mock.patch.dict(os.environ, self.env, clear=True):
-            result = concept.conditional.resolve(self.root, 'example', 'spec')
+            with self.assertRaisesRegex(ValueError, V1_RETIRED_PREFIX):
+                concept.conditional.resolve(self.root, 'example', 'spec')
+            result = concept.conditional.resolve(self.root, 'example', 'spec', revision)
         self.assertIn('specs/example/concept-test.approval.json', {item['path'] for item in result['inputs']})
         (self.feature / 'concept-test.md').unlink()
-        with self.assertRaises(ValueError):
-            concept.conditional.resolve(self.root, 'example', 'spec')
+        without_markdown = self.commit('Markdown removed')
+        with mock.patch.dict(os.environ, self.env, clear=True):
+            with self.assertRaisesRegex(ValueError, 'missing conditional input: specs/example/concept-test.md'):
+                concept.conditional.resolve(self.root, 'example', 'spec', without_markdown)
 
     def test_review_cannot_bypass_gate_or_use_live_approval_for_fixed_revision(self):
+        # Live reviews refuse every v1 record; a pinned revision still reads its signed v1 evidence.
         self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        subprocess.run(['git', '-C', str(self.root), 'init', '-q'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'config', 'core.autocrlf', 'true'], check=True)
 
         def resolve(stage, revision=None):
             with mock.patch.dict(os.environ, self.env, clear=True):
@@ -602,31 +621,29 @@ class ConceptTests(unittest.TestCase):
         def reject_all(revision=None):
             for stage in ['spec', 'impl', 'task', 'quality']:
                 with self.subTest(stage=stage, revision=revision):
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(ValueError) as caught:
                         resolve(stage, revision)
+                    # Live reads stop on the retirement; pinned reads on the check under test.
+                    (self.assertNotIn if revision else self.assertIn)(V1_RETIRED_PREFIX, str(caught.exception))
 
         self.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.write('specs/example/concept-test.approval.json', {})
+        reject_all(self.commit('Unsigned approval'))
         reject_all()
         self.sign()
+        signed = self.commit('Signed approval')
         for stage in ['spec', 'impl', 'task', 'quality']:
-            self.assertIn('sdd/approver-registry.yaml', resolve(stage)['observed'])
+            self.assertIn('sdd/approver-registry.yaml', resolve(stage, signed)['observed'])
         for decision in ['rejected', 'defer-to-domain-update']:
             self.record['decision'] = decision
             self.save()
             self.sign()
-            reject_all()
+            reject_all(self.commit('Signed ' + decision))
         self.record['decision'] = 'proceed'
         self.save()
         self.sign()
-        def git(*args):
-            return subprocess.check_output(['git', '-C', str(self.root), *args], text=True).strip()
-        git('init', '-q')
-        git('config', 'core.autocrlf', 'true')
-        git('add', '.')
-        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Valid approval')
-        revision = git('rev-parse', 'HEAD')
+        revision = self.commit('Valid approval')
         for item in self.record['inputs']:
             committed = subprocess.check_output(['git', '-C', str(self.root), 'show', revision + ':' + item['path']])
             self.assertEqual(item['sha256'], hashlib.sha256(committed).hexdigest(), item['path'])
@@ -635,10 +652,9 @@ class ConceptTests(unittest.TestCase):
         reject_all()
         for stage in ['spec', 'impl', 'task', 'quality']:
             self.assertTrue(resolve(stage, revision)['inputs'])
-        git('add', '.')
-        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Invalid approval')
-        invalid_revision = git('rev-parse', 'HEAD')
-        git('checkout', revision, '--', 'sdd/approver-registry.yaml', 'specs/example/concept-test.approval.json')
+        invalid_revision = self.commit('Invalid approval')
+        subprocess.run(['git', '-C', str(self.root), 'checkout', revision, '--', 'sdd/approver-registry.yaml',
+                        'specs/example/concept-test.approval.json'], check=True)
         reject_all(invalid_revision)
 
     def test_review_rejects_invalid_domain_and_unapproved_v2_without_concept_record(self):
