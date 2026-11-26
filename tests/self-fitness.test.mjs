@@ -90,9 +90,12 @@ function checkHostParity(read) {
     const hooks = read(hookPath);
     if (hookPath.includes('copilot')) {
       const hook = hooks.hooks.preToolUse?.[0];
+      const bashPreflight = 'if [ -z "$root" ] || [ ! -f "$root/scripts/v2/sdd-soft-guard.mjs" ]; then';
       const bashTarget = /(?:^|;)\s*node "\$root\/scripts\/v2\/sdd-soft-guard\.mjs" --emit copilot\s*$/;
       const psTarget = /\$guard\s*=\s*if\s*\(\$root\)\s*\{\s*Join-Path \$root 'scripts\/v2\/sdd-soft-guard\.mjs'\s*\}/;
-      if (hook?.type !== 'command' || !bashTarget.test(hook.bash) || !psTarget.test(hook.powershell)
+      const psPreflight = 'if (-not $guard -or -not (Test-Path -LiteralPath $guard))';
+      if (hook?.type !== 'command' || !hook.bash?.includes(bashPreflight) || !bashTarget.test(hook.bash)
+          || !psTarget.test(hook.powershell) || !hook.powershell?.includes(psPreflight)
           || !/& node \$guard --emit copilot\s*$/.test(hook.powershell)) violations.push(hookPath);
       continue;
     }
@@ -215,6 +218,30 @@ describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () =>
       assert.ok(checkHostParity(read).includes(target), target + ' ' + key);
     }
   });
+
+  const copilotPath = 'hooks/copilot-hooks.json';
+  const guardFile = 'scripts/v2/sdd-soft-guard.mjs';
+  for (const [site, key, operand, changedOperand] of [
+    ['Bash existence path', 'bash', `-f "$root/${guardFile}"`, `-f "$root/archive/${guardFile}"`],
+    ['Bash launcher path', 'bash', `node "$root/${guardFile}"`, `node "$root/archive/${guardFile}"`],
+    ['PowerShell assignment path', 'powershell', `Join-Path $root '${guardFile}'`, `Join-Path $root 'archive/${guardFile}'`],
+    ['PowerShell guard presence reference', 'powershell', '-not $guard -or', '-not $other -or'],
+    ['PowerShell existence reference', 'powershell', '-LiteralPath $guard)', '-LiteralPath $other)'],
+    ['PowerShell launcher reference', 'powershell', '& node $guard ', '& node $other '],
+  ]) {
+    it(`detects Copilot configuration drift at the ${site}`, () => {
+      const read = rel => {
+        const data = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', rel), 'utf8'));
+        if (rel === copilotPath) {
+          const hook = data.hooks.preToolUse[0];
+          assert.equal(hook[key].split(operand).length, 2, `expected a unique ${site}`);
+          hook[key] = hook[key].replace(operand, changedOperand);
+        }
+        return data;
+      };
+      assert.deepEqual(checkHostParity(read), [copilotPath], site);
+    });
+  }
 
   it('4. Doc-Gardening: AGENTS.md Active Spec Directories matches specs/*/ on disk', () => {
     const agentsText = fs.readFileSync(path.join(REPO_ROOT, 'AGENTS.md'), 'utf8');
