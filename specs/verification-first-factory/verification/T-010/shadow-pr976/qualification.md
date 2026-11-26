@@ -103,3 +103,7 @@ v2 の bootstrap から呼ばれる design-sync-loop に、外部データの読
 ### モデル・推論レベルの実装報告
 
 `emit-run-record-feature-scope` の両言語版が、削除された旧ゲートを読んでいた。基準 `329e838e9` の Bash は55成功・1失敗、PowerShell はファイル欠落で途中終了した。現行の sdd-gate に v2 実装報告のモデル・推論レベルを確認する指示を追加し、両スイートを現行スキルに接続した。macOS で Bash は56/56、PowerShell は61/61が成功した。モデル・推論レベルの欠落を拒否する既存 validator の負例を含む。
+
+### PR #976 の Shadow アーティファクト62件
+
+GitHub Actions に保存されていた `shadow-findings.json` を62実行分照合した。Git の base と head の組も62通りで、Gitleaks と Semgrep はそれぞれ合計0件だった。誤検知率を算出する分母が得られず、5%未満の条件は未確認。各行に実行ID、アーティファクトID、差分の両端、証跡のハッシュを記録した。[集計元の一覧](archived-shadow-counts.json)
