@@ -61,9 +61,7 @@ $script:failCount = 0
 function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
 function Fail([string]$Name) { Write-Output "not ok: $Name"; $script:failCount++ }
 
-# Suite-wide safety proof: the two real Codex .toml reference-comment files
-# this suite reads (T-006 Out of Scope: reads, never edits further) --
-# captured BEFORE and AFTER this suite's own full run.
+# Check that the suite leaves both distributed Codex role files unchanged.
 $evaluatorTomlShaBefore = (Get-FileHash -LiteralPath $evaluatorToml -Algorithm SHA256).Hash
 $investigatorTomlShaBefore = (Get-FileHash -LiteralPath $investigatorToml -Algorithm SHA256).Hash
 
@@ -220,8 +218,7 @@ if ((Get-ArgvFlat) -clike "*-c model_reasoning_effort=medium*") {
 # ===========================================================================
 # TEST-037 (AC-037): the Codex-host evaluator/investigator startup path
 # supplies select-agent-model -HostName codex-cli output (model + effort)
-# as CLI flags to the launching codex command. Real registry, real .toml
-# reference comments.
+# as CLI flags to the launching codex command, using the real registry.
 # ===========================================================================
 $codexCandidates = Join-Path $work "codex-candidates.json"
 Set-Content -Path $codexCandidates -Value @'
@@ -237,26 +234,17 @@ function Get-SelJsonForRole([string]$Role) {
         -Role $Role -HostName codex-cli -Json | ConvertFrom-Json
 }
 
-function Get-TomlRef([string]$Path) {
-    $lines = Get-Content -LiteralPath $Path -TotalCount 2
-    $m = $lines[0] -replace '^# x-sdd-model: ', ''
-    $e = $lines[1] -replace '^# x-sdd-effort: ', ''
-    return @{ Model = $m; Effort = $e }
-}
-
 $test037Ok = $true
-foreach ($pair in @(@{ Role = "sdd-evaluator"; Toml = $evaluatorToml }, @{ Role = "sdd-investigator"; Toml = $investigatorToml })) {
-    $selJson = Get-SelJsonForRole $pair.Role
+foreach ($role in @("sdd-evaluator", "sdd-investigator")) {
+    $selJson = Get-SelJsonForRole $role
     $selModel = [string]$selJson.model
     $selEffort = [string]$selJson.effort
-    $tomlRef = Get-TomlRef $pair.Toml
-    if (($selModel -cne $tomlRef.Model) -or ($selEffort -cne $tomlRef.Effort)) {
+    if (-not $selModel -or -not $selEffort) {
         $test037Ok = $false
-        Write-Output "not ok: TEST-037 sanity: $($pair.Role) live=$selModel/$selEffort toml=$($tomlRef.Model)/$($tomlRef.Effort) diverge"
         continue
     }
     Reset-StubState
-    Invoke-RunGpt @("--task", "T-037-$($pair.Role)", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
+    Invoke-RunGpt @("--task", "T-037-$role", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
         "--model", $selModel, "--effort", $selEffort, "--digest", $zeroDigest)
     if (-not ((Test-Path -LiteralPath $markerFile) -and (Test-CodexArgv -Model $selModel -Effort $selEffort))) {
         $test037Ok = $false
@@ -274,6 +262,21 @@ if ($test037Ok) {
 # they diverge -- GREEN (real, in-sync content) and RED (mutation-based
 # negative self-check) pair.
 # ===========================================================================
+$renderedToml = Join-Path $work 'evaluator.toml'
+$targetsFile = Join-Path $work 'targets.json'
+Set-Content -LiteralPath $renderedToml -Value 'name = "sdd-evaluator"'
+Set-Content -LiteralPath $targetsFile -Value '[{"role":"sdd-evaluator","kind":"codex","path":"evaluator.toml","protected":false}]'
+& $powerShellHost -NoProfile -File (Join-Path $repoRoot 'render-agent-frontmatter.ps1') `
+    -RepoRoot $work -Registry $registryV2 -TargetsFile $targetsFile | Out-Null
+if ($LASTEXITCODE -ne 0) { throw 'TEST-038: rendering the scratch evaluator TOML failed' }
+
+function Get-TomlRef([string]$Path) {
+    $lines = Get-Content -LiteralPath $Path -TotalCount 2
+    $m = $lines[0] -creplace '^# x-sdd-model: ', ''
+    $e = $lines[1] -creplace '^# x-sdd-effort: ', ''
+    return @{ Model = $m; Effort = $e }
+}
+
 function Test-CrossCheckToml {
     param([string]$TomlPath, [string]$LiveModel, [string]$LiveEffort)
     $tomlRef = Get-TomlRef $TomlPath
@@ -287,8 +290,8 @@ $evaluatorSelJson = Get-SelJsonForRole "sdd-evaluator"
 $evaluatorSelModel = [string]$evaluatorSelJson.model
 $evaluatorSelEffort = [string]$evaluatorSelJson.effort
 
-$green038 = Test-CrossCheckToml $evaluatorToml $evaluatorSelModel $evaluatorSelEffort
-if ($green038 -ceq "OK: $evaluatorToml") {
+$green038 = Test-CrossCheckToml $renderedToml $evaluatorSelModel $evaluatorSelEffort
+if ($green038 -ceq "OK: $renderedToml") {
     Ok "TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree"
 } else {
     Fail "TEST-038 GREEN: cross-check did not report OK for in-sync content -- $green038"
@@ -296,8 +299,8 @@ if ($green038 -ceq "OK: $evaluatorToml") {
 
 $mutatedEffort = "medium"
 if ($evaluatorSelEffort -ceq "medium") { $mutatedEffort = "high" }
-$red038 = Test-CrossCheckToml $evaluatorToml $evaluatorSelModel $mutatedEffort
-$expectedRed038 = "DRIFT: $evaluatorToml toml=$evaluatorSelModel/$evaluatorSelEffort live=$evaluatorSelModel/$mutatedEffort"
+$red038 = Test-CrossCheckToml $renderedToml $evaluatorSelModel $mutatedEffort
+$expectedRed038 = "DRIFT: $renderedToml toml=$evaluatorSelModel/$evaluatorSelEffort live=$evaluatorSelModel/$mutatedEffort"
 if ($red038 -ceq $expectedRed038) {
     Ok "TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report"
 } else {
@@ -468,14 +471,13 @@ if (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1
     Fail "self-registration: run-panelist-effort.tests.ps1 NOT registered in tests/run-all.ps1"
 }
 
-# Sanity: the two Codex .toml reference-comment files this suite reads were
-# never mutated by this suite's own run.
+# Verify that rendering in scratch preserved both distributed role files.
 $evaluatorTomlShaAfter = (Get-FileHash -LiteralPath $evaluatorToml -Algorithm SHA256).Hash
 $investigatorTomlShaAfter = (Get-FileHash -LiteralPath $investigatorToml -Algorithm SHA256).Hash
 if (($evaluatorTomlShaAfter -ceq $evaluatorTomlShaBefore) -and ($investigatorTomlShaAfter -ceq $investigatorTomlShaBefore)) {
-    Ok "AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged"
+    Ok "AC-038 boundary: this suite's own run left both real .codex/agents/*.toml files byte-unchanged"
 } else {
-    Fail "AC-038 boundary: a real .codex/agents/*.toml reference-comment file changed during this suite's own run"
+    Fail "AC-038 boundary: a real .codex/agents/*.toml file changed during this suite's own run"
 }
 
 } finally {

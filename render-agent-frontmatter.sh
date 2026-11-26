@@ -293,7 +293,7 @@ def upsert_manifest(manifest_path, relpath, sha):
         fh.writelines(new_lines)
 
 
-def render_target(root, registry, target, manifest_path, check_mode):
+def render_target(root, registry, target, manifest_path, check_mode, default_targets):
     role, kind, relpath, protected = target["role"], target["kind"], target["path"], target["protected"]
     tier, effort = role_values(registry, role, kind)
     model_name = model_for_tier(registry, tier, kind)
@@ -303,6 +303,11 @@ def render_target(root, registry, target, manifest_path, check_mode):
         die(f"target file not found: {relpath}")
     with open(real_path, encoding="utf-8") as fh:
         current = fh.read()
+
+    # Shipped Codex roles inherit the caller's settings. Explicit target lists
+    # still request the registry's rendered reference comments.
+    if check_mode and default_targets and kind == "codex" and role in ("sdd-evaluator", "sdd-investigator"):
+        return {"relpath": relpath, "protected": protected, "drift": False}
 
     if kind == "claude":
         computed, changed = transform_claude(current, model_name, effort)
@@ -405,7 +410,8 @@ def main():
     registry = load_registry(registry_path)
     manifest_path = os.path.join(root, HUMAN_COPY_RELDIR, "MANIFEST.sha256")
 
-    results = [render_target(root, registry, t, manifest_path, check_mode) for t in targets]
+    results = [render_target(root, registry, t, manifest_path, check_mode, targets is DEFAULT_TARGETS)
+               for t in targets]
 
     if check_mode:
         drift_count = 0

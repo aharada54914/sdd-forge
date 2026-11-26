@@ -113,6 +113,43 @@ describe('SDD Forge v2 Prompts, DDD, Perspective Parity, Frontier Models & Deleg
     }
   });
 
+  for (const [runtime, args, checkFlag, targetsFlag] of [
+    ['bash', ['render-agent-frontmatter.sh'], '--check', '--targets-file'],
+    ['pwsh', ['-NoProfile', '-File', 'render-agent-frontmatter.ps1'], '-Check', '-TargetsFile'],
+  ]) {
+    it(`checks legacy Codex comments only for explicit targets (${runtime})`, (t) => {
+      const run = (...flags) => spawnSync(runtime, [...args, ...flags], { cwd: REPO_ROOT, encoding: 'utf8' });
+      const shipped = run(checkFlag);
+      if (shipped.error?.code === 'ENOENT') return t.skip(`${runtime} unavailable`);
+      assert.equal(shipped.status, 0, shipped.stderr + shipped.stdout);
+
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-codex-comments-'));
+      t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+      const targets = ['sdd-evaluator', 'sdd-investigator'].map((role) => {
+        const rel = `.codex/agents/${role}.toml`;
+        assert.ok(shipped.stdout.split(/\r?\n/).includes(`OK: ${rel}`));
+        const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+        assert.match(content, /^sandbox_mode\s*=\s*"read-only"\s*$/m);
+        assert.doesNotMatch(content, /^(?:model|model_reasoning_effort)\s*=/m);
+        const dest = path.join(tmp, role + '.toml');
+        fs.writeFileSync(dest, content.replace(/^# x-sdd-(?:model|effort):[^\n]*\n/gm, ''));
+        return { role, kind: 'codex', path: path.basename(dest), protected: false };
+      });
+      const manifest = path.join(tmp, 'targets.json');
+      fs.writeFileSync(manifest, JSON.stringify(targets));
+      const registry = path.join(REPO_ROOT, 'contracts', 'agent-model-capabilities.v2.json');
+      const flags = runtime === 'bash' ? ['--root', tmp, '--registry', registry] : ['-RepoRoot', tmp, '-Registry', registry];
+      const explicit = [...flags, targetsFlag, manifest];
+      const missing = run(...explicit, checkFlag);
+      assert.equal(missing.status, 1, missing.stderr + missing.stdout);
+      for (const target of targets) assert.ok(missing.stdout.split(/\r?\n/).includes(`DRIFT: ${target.path}`));
+      const rendered = run(...explicit);
+      assert.equal(rendered.status, 0, rendered.stderr + rendered.stdout);
+      const rechecked = run(...explicit, checkFlag);
+      assert.equal(rechecked.status, 0, rechecked.stderr + rechecked.stdout);
+    });
+  }
+
   it('delegation graph has zero unreachable user-invocable: false skills', () => {
     const skillFiles = collectFiles(path.join(REPO_ROOT, 'plugins'), (_full, name) => name === 'SKILL.md');
     const skillContents = new Map();

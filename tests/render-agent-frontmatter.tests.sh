@@ -208,21 +208,26 @@ CHECK_EXIT=$?
 set -e
 
 if [[ "$CHECK_EXIT" -ne 0 ]]; then
-  ok "TEST-016: --check exits non-zero when every target still has drift"
+  ok "TEST-016: --check exits non-zero on Claude target drift"
 else
   bad "TEST-016: --check exited 0 despite injected/pre-existing drift"
 fi
 
 drift_all_present=1
-for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${CODEX_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
+for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
   if ! grep -Fq "DRIFT: $rel" "$CHECK_LOG"; then
     drift_all_present=0
   fi
 done
+for rel in "${CODEX_RELPATHS[@]}"; do
+  if ! grep -Fxq "OK: $rel" "$CHECK_LOG"; then
+    drift_all_present=0
+  fi
+done
 if [[ "$drift_all_present" -eq 1 ]]; then
-  ok "TEST-016: --check reports DRIFT for every un-rendered target (unprotected and protected)"
+  ok "TEST-016: --check accepts shipped Codex roles and reports un-rendered Claude targets"
 else
-  bad "TEST-016: --check did not report DRIFT for every un-rendered target -- $(cat "$CHECK_LOG")"
+  bad "TEST-016: --check unexpected default target status -- $(cat "$CHECK_LOG")"
 fi
 
 # TEST-020 read-boundary: --check performed ZERO writes anywhere in the

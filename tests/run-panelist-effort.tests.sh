@@ -68,9 +68,7 @@ sha256_of() {
   fi
 }
 
-# Suite-wide safety proof: this suite reads the two real Codex .toml
-# reference-comment files (T-006 Out of Scope: reads, never edits them
-# further) -- captured BEFORE and AFTER this suite's own full run.
+# Check that the suite leaves both distributed Codex role files unchanged.
 EVALUATOR_TOML_SHA_BEFORE="$(sha256_of "$EVALUATOR_TOML")"
 INVESTIGATOR_TOML_SHA_BEFORE="$(sha256_of "$INVESTIGATOR_TOML")"
 
@@ -203,9 +201,7 @@ fi
 # ===========================================================================
 # TEST-037 (AC-037): the Codex-host evaluator/investigator startup path
 # supplies select-agent-model --host codex-cli output (model + effort) as
-# CLI flags to the launching codex command. Real registry, real .toml
-# reference comments -- proving this against production content, not only
-# a synthetic fixture (mirrors TEST-017's zero-diff real-content style).
+# CLI flags to the launching codex command, using the real registry.
 # ===========================================================================
 CODEX_CANDIDATES="$TMP/codex-candidates.json"
 cat > "$CODEX_CANDIDATES" <<'JSON'
@@ -222,30 +218,11 @@ sel_json_for_role() {
     --candidates-file "$CODEX_CANDIDATES" --role "$1" --host codex-cli --json
 }
 
-toml_ref() {
-  # $1 = toml path. Prints "<model> <effort>" from the first two
-  # # x-sdd-model:/# x-sdd-effort: reference comment lines.
-  local m e
-  m="$(sed -n '1p' "$1" | sed 's/^# x-sdd-model: //')"
-  e="$(sed -n '2p' "$1" | sed 's/^# x-sdd-effort: //')"
-  printf '%s %s\n' "$m" "$e"
-}
-
 test037_ok=1
-for pair in "sdd-evaluator:$EVALUATOR_TOML" "sdd-investigator:$INVESTIGATOR_TOML"; do
-  role="${pair%%:*}"
-  toml="${pair#*:}"
+for role in sdd-evaluator sdd-investigator; do
   sel_json="$(sel_json_for_role "$role")"
-  sel_model="$(jq -r '.model' <<<"$sel_json")"
-  sel_effort="$(jq -r '.effort' <<<"$sel_json")"
-
-  read -r toml_model toml_effort <<<"$(toml_ref "$toml")"
-  if [[ "$sel_model" != "$toml_model" || "$sel_effort" != "$toml_effort" ]]; then
-    test037_ok=0
-    printf 'not ok: TEST-037 sanity: %s live=%s/%s toml=%s/%s diverge (should agree on an unmutated repo)\n' \
-      "$role" "$sel_model" "$sel_effort" "$toml_model" "$toml_effort" >&2
-    continue
-  fi
+  sel_model="$(jq -er '.model | select(type == "string" and length > 0)' <<<"$sel_json")"
+  sel_effort="$(jq -er '.effort | select(type == "string" and length > 0)' <<<"$sel_json")"
 
   reset_stub_state
   run_gpt --task "T-037-$role" --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
@@ -267,6 +244,21 @@ fi
 # they diverge -- GREEN (real, in-sync content) and RED (mutation-based
 # negative self-check: a deliberately diverged "live" value) pair.
 # ===========================================================================
+rendered_toml="$TMP/evaluator.toml"
+printf '%s\n' 'name = "sdd-evaluator"' > "$rendered_toml"
+printf '%s\n' '[{"role":"sdd-evaluator","kind":"codex","path":"evaluator.toml","protected":false}]' > "$TMP/targets.json"
+bash "$ROOT/render-agent-frontmatter.sh" --root "$TMP" --registry "$REGISTRY_V2" \
+  --targets-file "$TMP/targets.json" >/dev/null
+
+toml_ref() {
+  # $1 = toml path. Prints "<model> <effort>" from the first two
+  # # x-sdd-model:/# x-sdd-effort: reference comment lines.
+  local m e
+  m="$(sed -n '1p' "$1" | sed 's/^# x-sdd-model: //')"
+  e="$(sed -n '2p' "$1" | sed 's/^# x-sdd-effort: //')"
+  printf '%s %s\n' "$m" "$e"
+}
+
 cross_check_toml() {
   # $1=toml path $2=live model $3=live effort
   local toml_model toml_effort
@@ -282,20 +274,18 @@ evaluator_sel_json="$(sel_json_for_role sdd-evaluator)"
 evaluator_sel_model="$(jq -r '.model' <<<"$evaluator_sel_json")"
 evaluator_sel_effort="$(jq -r '.effort' <<<"$evaluator_sel_json")"
 
-GREEN038_OUT="$(cross_check_toml "$EVALUATOR_TOML" "$evaluator_sel_model" "$evaluator_sel_effort")"
-if [[ "$GREEN038_OUT" == "OK: $EVALUATOR_TOML" ]]; then
+GREEN038_OUT="$(cross_check_toml "$rendered_toml" "$evaluator_sel_model" "$evaluator_sel_effort")"
+if [[ "$GREEN038_OUT" == "OK: $rendered_toml" ]]; then
   ok "TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree"
 else
   bad "TEST-038 GREEN: cross-check did not report OK for in-sync content -- $GREEN038_OUT"
 fi
 
-# Mutation-based negative self-check: deliberately diverge the "live" value
-# (never the real, checked-in .toml file -- T-006 reads it read-only) and
-# confirm the cross-check goes red, proving the divergence report is live.
+# Mutate the live effort to exercise the drift report.
 MUTATED_EFFORT="medium"
 if [[ "$evaluator_sel_effort" == "medium" ]]; then MUTATED_EFFORT="high"; fi
-RED038_OUT="$(cross_check_toml "$EVALUATOR_TOML" "$evaluator_sel_model" "$MUTATED_EFFORT")"
-if [[ "$RED038_OUT" == "DRIFT: $EVALUATOR_TOML toml=$evaluator_sel_model/$evaluator_sel_effort live=$evaluator_sel_model/$MUTATED_EFFORT" ]]; then
+RED038_OUT="$(cross_check_toml "$rendered_toml" "$evaluator_sel_model" "$MUTATED_EFFORT")"
+if [[ "$RED038_OUT" == "DRIFT: $rendered_toml toml=$evaluator_sel_model/$evaluator_sel_effort live=$evaluator_sel_model/$MUTATED_EFFORT" ]]; then
   ok "TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report"
 else
   bad "TEST-038 RED: mutated live value did NOT turn the cross-check red -- $RED038_OUT"
@@ -480,14 +470,12 @@ else
   bad "self-registration: run-panelist-effort.tests.ps1 NOT registered in tests/run-all.ps1"
 fi
 
-# Sanity: the two Codex .toml reference-comment files this suite reads were
-# never mutated by this suite's own run (T-006 reads them, never edits),
-# captured before/after the ENTIRE suite (Suite-wide safety proof, above).
+# Verify that rendering in scratch preserved both distributed role files.
 if [[ "$(sha256_of "$EVALUATOR_TOML")" == "$EVALUATOR_TOML_SHA_BEFORE" ]] \
   && [[ "$(sha256_of "$INVESTIGATOR_TOML")" == "$INVESTIGATOR_TOML_SHA_BEFORE" ]]; then
-  ok "AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged"
+  ok "AC-038 boundary: this suite's own run left both real .codex/agents/*.toml files byte-unchanged"
 else
-  bad "AC-038 boundary: a real .codex/agents/*.toml reference-comment file changed during this suite's own run"
+  bad "AC-038 boundary: a real .codex/agents/*.toml file changed during this suite's own run"
 fi
 
 printf -- '---- summary: pass=%d fail=%d ----\n' "$pass" "$fail"
