@@ -14,7 +14,7 @@ function git(root, args) {
 export function changedHunks(root, baseRef = 'HEAD') {
   const sha = git(root, ['rev-parse', '--verify', '--end-of-options', baseRef + '^{commit}']).trim();
   const paths = EXT.map(ext => ':(icase,glob)**/*.' + ext);
-  const data = git(root, ['diff', '--no-ext-diff', '--no-textconv', '--no-color', '--no-renames',
+  const data = git(root, ['diff', '--relative', '--no-ext-diff', '--no-textconv', '--no-color', '--no-renames',
     '--diff-filter=AMT', '--raw', '-z', '--patch', '--unified=0', sha, '--', ...paths]);
   const files = new Map();
   if (data) {

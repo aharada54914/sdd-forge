@@ -1068,16 +1068,19 @@ export function runSddGate({
       }
       if (failFast && !writeScope.passed) failFastStoppedAt = 'writeScope';
     }
+    const explicitFiles = Array.isArray(changedFiles) && changedFiles.length > 0;
     const resolvedChanged = failFastStoppedAt ? [] : discoverChangedFiles(root, changedFiles, { baseRef });
 
     let agentLint = { skipped: true, passed: true, status: 'SKIPPED' };
     if ((enableAgentLint || config.agent_lint?.enabled) && !failFastStoppedAt) {
+      const diffOnly = config.agent_lint.diff_only && (!Array.isArray(changedFiles) || baseRef !== null ||
+        spawnSync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0);
       const lintReport = runAgentLint({
         projectRoot: root,
-        files: resolvedChanged,
+        // Let lint discover its own hunks so auto-detected paths retain their report and bundle context.
+        files: diffOnly && !explicitFiles ? null : resolvedChanged,
         baseRef,
-        diffOnly: config.agent_lint.diff_only && (!Array.isArray(changedFiles) || baseRef !== null ||
-          spawnSync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0),
+        diffOnly,
         mode: enableAgentLint ? 'strict' : config.agent_lint?.mode,
       });
       agentLint = { skipped: false, passed: lintReport.status !== 'FAIL', ...lintReport };
@@ -1135,7 +1138,7 @@ export function runSddGate({
       if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
     }
     const scope = {
-      mode: Array.isArray(changedFiles) && changedFiles.length > 0 ? 'explicit' : baseRef ? 'base' : 'uncommitted',
+      mode: explicitFiles ? 'explicit' : baseRef ? 'base' : 'uncommitted',
       ...(baseRef ? { baseRef } : {}),
       taskScope,
       outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),

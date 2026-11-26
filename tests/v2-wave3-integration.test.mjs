@@ -342,6 +342,56 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  it('agent lint preserves automatic diff, explicit files and whole changed files at the gate CLI', t => {
+    const dir = setupGateProject();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const report = 'tests/summary.mjs';
+    const app = 'src/app.mjs';
+    const log = ['console', 'log'].join('.');
+    fs.writeFileSync(path.join(dir, app), log + "('existing');\n");
+    fs.writeFileSync(path.join(dir, 'src/untouched.mjs'), log + "('untouched');\n");
+    git(dir, 'add', 'src');
+    git(dir, 'commit', '-qm', 'existing diagnostics');
+    const check = (...args) => gate(dir, '--agent-lint', ...args).checks.agentLint;
+    const locations = result => result.findings.map(f => [f.rule, f.path, f.line]).sort();
+    assert.equal(check().scannedFiles, 0);
+    fs.writeFileSync(path.join(dir, report), log + '(JSON.stringify({ ok: true }));\n');
+    fs.appendFileSync(path.join(dir, app), log + "('new');\n");
+    const diagnostic = ['no-console-log', app, 2];
+    assert.deepEqual(locations(check()), [diagnostic]);
+    git(dir, 'add', app, report);
+    git(dir, 'commit', '-qm', 'add summary and new diagnostic');
+    assert.deepEqual(locations(check('--base', 'HEAD^')), [diagnostic]);
+    const explicit = check('--base', 'HEAD^', '--changed-files', report);
+    assert.equal(explicit.scannedFiles, 1);
+    assert.deepEqual(locations(explicit), [['no-console-log', report, 1]]);
+
+    fs.mkdirSync(path.join(dir, 'sdd'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'sdd/guardrails.json'), JSON.stringify({ agent_lint: { diff_only: false } }));
+    const wholeFiles = check('--base', 'HEAD^');
+    assert.equal(wholeFiles.scannedFiles, 2);
+    assert.deepEqual(locations(wholeFiles), [
+      ['no-console-log', app, 1], diagnostic, ['no-console-log', report, 1],
+    ]);
+  });
+
+  it('agent lint preserves project-relative paths in a nested Git project', t => {
+    const dir = setupGateProject();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const project = path.join(dir, 'project');
+    fs.mkdirSync(project);
+    for (const name of ['specs', 'src']) git(dir, 'mv', name, 'project/');
+    git(dir, 'commit', '-qm', 'move project under repository root');
+    const log = ['console', 'log'].join('.');
+    fs.writeFileSync(path.join(dir, 'outside.mjs'), log + "('outside');\n");
+    fs.appendFileSync(path.join(project, 'src/app.mjs'), log + "('inside');\n");
+    const lint = gate(project, '--agent-lint', '--skip-drift').checks.agentLint;
+    assert.equal(lint.scannedFiles, 1);
+    assert.deepEqual(lint.findings.map(f => [f.rule, f.path, f.line]), [
+      ['no-console-log', 'src/app.mjs', 2],
+    ]);
+  });
+
   it('T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor', () => {
     const dir = setupGateProject();
     const otelRes = spawnSync(process.execPath, [METRICS_CLI, '--root', dir, '--format', 'otel'], { encoding: 'utf8' });
