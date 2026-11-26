@@ -247,20 +247,6 @@ function Test-001 {
         return
     }
 
-    # Capability probe (CI-resilience convention, INV-017): GNU sed accepts
-    # --version; BSD/macOS sed does not. scripts/bump-version.sh's mutation
-    # section (scripts/bump-version.sh:51-70) is unedited by this task
-    # (design.md API/Contract Plan) and its existing `sed -i "<script>"
-    # "<file>"` calls are GNU-only syntax -- a pre-existing, out-of-scope
-    # portability gap discovered via this suite, unrelated to REQ-001's
-    # loop-gate prerequisite. TEST-002..006 are unaffected: their red paths
-    # never reach the mutation section, and TEST-004..006 never invoke it.
-    & sed --version *> $null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Output "SKIP: TEST-001 (AC-001) mutation-success assertions -- this host's sed is BSD-style; scripts/bump-version.sh's unedited mutation section (scripts/bump-version.sh:51-70) requires GNU sed. Pre-existing portability gap, out of scope for T-001 (REQ-001 loop-gate logic itself is proven by TEST-002..006, none of which reach the mutation section on this host)."
-        return
-    }
-
     $fixtureRoot = $script:fixtureRoot
     Reset-FixtureCase -FixtureRoot $fixtureRoot
     # The shared Bash suite covers real source-validator refusal; isolate this loop leg.

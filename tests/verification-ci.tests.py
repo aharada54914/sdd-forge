@@ -1477,7 +1477,7 @@ class DependencyCacheIntegrationTests(unittest.TestCase):
         self.cache = module(path, 't003_cache')
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.directory = Path(self.temp.name)
+        self.directory = Path(self.temp.name).resolve(strict=True)
         self.target = self.directory / 'pester.nupkg'
         self.payload = b'fixture dependency bytes; never executed'
         self.digest = sha(self.payload)

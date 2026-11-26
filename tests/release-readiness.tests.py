@@ -232,10 +232,16 @@ esac
             ".plugin/plugin.json", "gemini-extension.json", "gemini/gemini-extension.json")]
         surfaces += [".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json",
                      "mcp/sdd-forge-mcp/package.json"]
-        before = {p: '{"version": "1.0.0"}\n' for p in surfaces}
-        before.update({"README.md": "v1.0.0 — release\n", "mcp/sdd-forge-mcp/src/server.ts": 'version: "1.0.0"\n'})
-        for path, content in before.items():
-            write(self.root, path, content)
+        preamble = "# Project\n\nDescription\n\n"
+        history = "\n> **v1.0.0**: shipped changes\nv0.8.0 — archived release\n"
+
+        def release_surfaces(version):
+            files = {path: json.dumps({"version": version}) + "\n" for path in surfaces}
+            files["README.md"] = preamble + f"v{version} — release\n" + history
+            files["mcp/sdd-forge-mcp/src/server.ts"] = f'version: "{version}"\n'
+            return files
+
+        before = release_surfaces("1.0.0")
         for path in SUITES:
             write(self.root, path, f'import fs from "node:fs";\nfs.writeFileSync("{path}.ran", "yes");\n'
                   f'if (process.env.FAIL_AT === "{path}") throw Error("fixture suite failed");\n')
@@ -245,6 +251,21 @@ esac
               'if (process.env.FAIL_AT === "doctor") throw Error("fixture doctor failed");\n')
         bash = self.env.get("SDD_TEST_BASH") or shutil.which("bash")
         self.assertIsNotNone(bash, "Bash is required to test the workstation version bump")
+        # An archived heading must never stand in for the current release.
+        for heading in ("v0.9.0 — stale release", "v1.0.0-rc.1 — prerelease",
+                        "v1.0.0+build.2 — build", "v1.0.0 - wrong separator",
+                        preamble + "\nv1.0.0 — line six"):
+            with self.subTest(heading=heading):
+                stale_readme = heading + "\nv1.0.0 — archived release\n"
+                fixture = {**before, "README.md": stale_readme}
+                for path, content in fixture.items():
+                    write(self.root, path, content)
+                output = self.run_cli([bash, "scripts/bump-version.sh", "1.1.0"], False)
+                self.assertIn("README.md current release does not match 1.0.0", output)
+                for path, content in fixture.items():
+                    self.assertEqual((self.root / path).read_bytes(), content.encode("utf-8"), path)
+        for path, content in before.items():
+            write(self.root, path, content)
         for fail_at in (SUITES[0], SUITES[-1], "doctor", ""):
             with self.subTest(fail_at=fail_at):
                 self.env["FAIL_AT"] = fail_at
@@ -258,9 +279,30 @@ esac
                 self.assertEqual((self.root / "doctor.ran").exists(), fail_at in ("", "doctor"))
                 if not fail_at:
                     self.assertTrue(all((self.root / (p + ".ran")).is_file() for p in SUITES))
-                for path, old in before.items():
-                    expected = old if fail_at else old.replace("1.0.0", "1.1.0")
-                    self.assertEqual((self.root / path).read_bytes(), expected.encode("utf-8"), path)
+                expected = before if fail_at else release_surfaces("1.1.0")
+                for path, content in expected.items():
+                    self.assertEqual((self.root / path).read_bytes(), content.encode("utf-8"), path)
+
+        # The replacement can contain the previous version's digits at either end.
+        for new_version in ("2.1.50", "12.1.5"):
+            with self.subTest(new_version=new_version):
+                for path, content in release_surfaces("2.1.5").items():
+                    write(self.root, path, content)
+                write(self.root, "CHANGELOG.md", f"## v{new_version} (fixture)\n")
+                self.run_cli([bash, "scripts/bump-version.sh", new_version])
+                for path, content in release_surfaces(new_version).items():
+                    self.assertEqual((self.root / path).read_bytes(), content.encode("utf-8"), path)
+
+        # A separate full old-version reference on a release surface still fails verification.
+        files = release_surfaces("2.1.5")
+        source = "mcp/sdd-forge-mcp/src/server.ts"
+        files[source] += 'const stale = "2.1.5";\n'
+        for path, content in files.items():
+            write(self.root, path, content)
+        write(self.root, "CHANGELOG.md", "## v2.1.50 (fixture)\n")
+        out = self.run_cli([bash, "scripts/bump-version.sh", "2.1.50"], False)
+        self.assertEqual([line for line in out.splitlines() if line.startswith("WARNING:")],
+                         [f"WARNING: stale 2.1.5 reference remains in: {source}"])
 
 
 if __name__ == "__main__":

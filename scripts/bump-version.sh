@@ -52,6 +52,23 @@ rm -f "${gate_log}"
 
 OLD_PLAIN_RE="${OLD//./\\.}"
 
+# The README pins its current "vX.Y.Z — " heading within the first five lines.
+# Release history further down can legitimately mention previous versions.
+readme_release_line() {
+    awk -v heading="v$1 — " '
+        NR > 5 { exit }
+        /^v[0-9]/ {
+            if (index($0, heading) == 1) print NR
+            exit
+        }
+    ' "${ROOT}/README.md"
+}
+readme_line="$(readme_release_line "$OLD")"
+if [[ -z "$readme_line" ]]; then
+    echo "Error: README.md current release does not match ${OLD}; no release surface was modified." >&2
+    exit 1
+fi
+
 # Portable in-place sed helper (GNU sed and BSD/macOS sed).
 sed_inplace() {
     local expr="$1" file="$2"
@@ -85,7 +102,7 @@ if [[ -d "${ROOT}/mcp/sdd-forge-mcp/node_modules" ]]; then
 fi
 
 # 2. README current-release line (first line starting with vX.Y.Z).
-sed_inplace "s/^v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
+sed_inplace "${readme_line}s/^v${OLD_PLAIN_RE}/v${NEW}/" "${ROOT}/README.md"
 
 # 3. Verify: no stale old-version strings remain on release surfaces.
 stale=0
@@ -98,14 +115,18 @@ for f in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
          "${ROOT}/.claude-plugin/marketplace.json" \
          "${ROOT}/.agents/plugins/marketplace.json" \
          "${ROOT}/mcp/sdd-forge-mcp/package.json" \
-         "${ROOT}/mcp/sdd-forge-mcp/src/server.ts" \
-         "${ROOT}/README.md"; do
+         "${ROOT}/mcp/sdd-forge-mcp/src/server.ts"; do
     [[ -f "$f" ]] || continue
-    if grep -q "${OLD_PLAIN_RE}" "$f" 2>/dev/null; then
+    if grep -Eq "(^|[^0-9])${OLD_PLAIN_RE}([^0-9]|$)" "$f" 2>/dev/null; then
         echo "WARNING: stale ${OLD} reference remains in: ${f#"$ROOT"/}" >&2
         stale=1
     fi
 done
+
+if [[ "$(readme_release_line "$NEW")" != "$readme_line" ]]; then
+    echo "WARNING: README.md current release was not updated to ${NEW}." >&2
+    stale=1
+fi
 
 if [[ $stale -eq 1 ]]; then
     echo "Bump completed with warnings — review the files above manually." >&2

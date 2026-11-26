@@ -205,18 +205,6 @@ run_bump_version() {
 # ---------------------------------------------------------------------------
 run_test_001() {
   echo "=== TEST-001 (AC-001): green path (both loop suites stubbed passing) ==="
-  # Capability probe (CI-resilience convention, INV-017): GNU sed accepts
-  # --version; BSD/macOS sed does not. scripts/bump-version.sh's mutation
-  # section (scripts/bump-version.sh:51-70) is unedited by this task
-  # (design.md API/Contract Plan) and its existing `sed -i "<script>"
-  # "<file>"` calls are GNU-only syntax -- a pre-existing, out-of-scope
-  # portability gap discovered via this suite, unrelated to REQ-001's
-  # loop-gate prerequisite. TEST-002..006 are unaffected: their red paths
-  # never reach the mutation section, and TEST-004..006 never invoke it.
-  if ! sed --version >/dev/null 2>&1; then
-    echo "SKIP: TEST-001 (AC-001) mutation-success assertions -- this host's sed is BSD-style; scripts/bump-version.sh's unedited mutation section (scripts/bump-version.sh:51-70) requires GNU sed. Pre-existing portability gap, out of scope for T-001 (REQ-001 loop-gate logic itself is proven by TEST-002..006, none of which reach the mutation section on this host)."
-    return
-  fi
   local fixture_root output
   fixture_root="$SHARED_FIXTURE_ROOT"
   reset_fixture_case "$fixture_root"
