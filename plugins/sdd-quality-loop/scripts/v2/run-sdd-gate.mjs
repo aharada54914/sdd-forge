@@ -642,12 +642,20 @@ function isV1Record(contents, filename) {
 }
 
 /** Where the feature's Concept Test record is: NONE, PRESENT (working tree or index),
- * INDEXED_V1 (only the index holds it, as a v1 record), or GIT_UNAVAILABLE. */
+ * V1 (a retired v1 record in the working tree), INDEXED_V1 (only the index holds it,
+ * as a v1 record), or GIT_UNAVAILABLE. */
 function conceptRecord(root, feature) {
   const prefix = `specs/${feature}/concept-test`;
   const paths = [prefix + '.decision.json', prefix + '.json', prefix + '.md'];
-  // Any record makes the check apply; the validator rejects retired v1 records.
-  if (paths.some(rel => fs.lstatSync(path.join(root, rel), { throwIfNoEntry: false }))) return 'PRESENT';
+  const stats = paths.map(rel => fs.lstatSync(path.join(root, rel), { throwIfNoEntry: false }));
+  if (stats.some(Boolean)) {
+    // Classify v1 as the validator does (the JSON, or a Markdown-only record) so the
+    // retirement is named even where the validator cannot run (#812).
+    const [, json, md] = stats;
+    const [rel, stat] = json ? [paths[1], json] : [paths[2], md];
+    const v1 = stat?.isFile() && isV1Record(fs.readFileSync(path.join(root, rel), 'utf8'), rel);
+    return v1 ? 'V1' : 'PRESENT';
+  }
 
   // The index can still contain current evidence missing from the working tree.
   let repo = root;
@@ -687,6 +695,7 @@ function checkConceptTest(root, feature) {
     const record = conceptRecord(root, feature);
     if (record === 'GIT_UNAVAILABLE') return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
     if (record === 'NONE') return { passed: true, status: 'NOT_APPLICABLE' };
+    if (record === 'V1') return { passed: false, status: 'BLOCK', error: `concept-test: BLOCK: ${v1Retired(feature)}` };
     if (record === 'INDEXED_V1') {
       return {
         passed: false,
