@@ -499,6 +499,33 @@ class ConceptTests(unittest.TestCase):
                 self.assertEqual('', result.stdout)
                 self.assertIn('concept-test/v1 records are no longer supported', result.stderr)
                 self.assertIn('concept-test/v2', result.stderr)
+                # Leftover signed approvals and projects without domain/ get their own step.
+                self.assertIn('delete any leftover specs/example/concept-test.approval.json', result.stderr)
+                self.assertIn('In a project without domain/', result.stderr)
+        # Without domain/ the Concept Test does not run, but the gate's strict mode still names the cleanup.
+        shutil.rmtree(self.root / 'domain')
+        self.assertEqual('SKIP\n', self.gate().stdout)
+        self.assertIn('delete specs/example/concept-test.md',
+                      self.gate(1, wrapper=[sys.executable, str(SCRIPT), '--require-v2'], retired=True).stderr)
+
+    def test_markdown_only_v1_record_names_the_retirement(self):
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        (self.feature / 'concept-test.json').unlink()
+        wrappers = [[sys.executable, str(SCRIPT)]]
+        if os.name != 'nt' and shutil.which('sh'):
+            wrappers.append(['sh', str(SCRIPT.with_suffix('.sh'))])
+        if shutil.which('pwsh'):
+            wrappers.append(['pwsh', '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))])
+        for wrapper in wrappers:
+            for extra in ([], ['--require-v2']):
+                with self.subTest(wrapper=wrapper[0], args=extra):
+                    self.gate(1, wrapper=wrapper + extra, retired=True)
+        # A Markdown-only v2 mirror is still a missing proposal, not a retirement.
+        self.record['schema'] = 'concept-test/v2'
+        self.save()
+        (self.feature / 'concept-test.json').unlink()
+        self.assertIn('concept-test.json', self.gate(1).stderr)
 
     def test_missing_or_invalid_evidence(self):
         original = copy.deepcopy(self.record)

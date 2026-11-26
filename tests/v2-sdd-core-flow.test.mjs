@@ -709,6 +709,30 @@ describe('human concept-test decisions at the public gate', () => {
     assert.deepEqual(report.checks.commands, []);
   });
 
+  it('names the v1 retirement for a Markdown-only record and for a record left only in the Git index', (t) => {
+    const { feature, git, run } = setup(t);
+    git('init', '-q');
+    const legacy = JSON.stringify({ schema: 'concept-test/v1' });
+    const files = { md: path.join(feature, 'concept-test.md'), json: path.join(feature, 'concept-test.json') };
+    fs.writeFileSync(files.md, '```json\n' + legacy + '\n```\n');
+    const markdownOnly = run().checks.conceptTest;
+    assert.equal(markdownOnly.status, 'BLOCK');
+    assert.match(markdownOnly.error, /^concept-test: BLOCK: concept-test\/v1 records are no longer supported/);
+    assert.match(markdownOnly.error, /delete any leftover specs\/payments\/concept-test\.approval\.json/);
+    for (const kind of ['md', 'json']) {
+      fs.writeFileSync(files[kind], kind === 'md' ? '```json\n' + legacy + '\n```\n' : legacy);
+      git('add', 'specs');
+      fs.unlinkSync(files[kind]);
+      const report = run();
+      assert.equal(report.checks.conceptTest.status, 'BLOCK', kind);
+      assert.deepEqual(report.checks.commands, []);
+      // The gate names the same migration as the validator, plus the index.
+      assert.ok(report.checks.conceptTest.error.startsWith(markdownOnly.error), report.checks.conceptTest.error);
+      assert.match(report.checks.conceptTest.error, /Git index/);
+      git('rm', '-q', '--cached', '--', `specs/payments/concept-test.${kind}`);
+    }
+  });
+
   it('scopes receipts by feature: another feature\'s record does not apply here', (t) => {
     const { repo, git, run } = setup(t);
     git('init', '-q');
