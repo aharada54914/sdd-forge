@@ -1,0 +1,17 @@
+ticket_id: RT-20261126-008
+status: open
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "The shell comment scanner rejects native zsh loop syntax"
+problem: |
+  The public scanner accepts .zsh inputs but its new parser treats them as Bash.
+  Native zsh and the previous scanner accepted short for and repeat loops that print quoted help.
+  The candidate returns exit 2 and emits no result.
+expected_fix:
+  - Preserve zsh syntax while distinguishing literal help and active comments.
+  - Check the public CLI with native for and repeat loops, a real directive and a broken parser asset.
+references:
+  - reports/quality-gate/verification-first-factory-T-002.md
