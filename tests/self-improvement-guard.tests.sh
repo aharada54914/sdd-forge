@@ -474,8 +474,10 @@ with tempfile.TemporaryDirectory(prefix='self-improvement-route-') as temporary:
         else:
             values = dict(line.split('=', 1) for line in output.read_text().splitlines())
             assert values['model'] == 'fixture-model-1' and values['effort'] == 'high'
-            assert re.fullmatch(r'[0-9a-f-]{36}', values['session_id'])
-            assert values['executable'].startswith(str(root))
+            session = argv[argv.index('--session-id') + 1]
+            assert values['session_id'] == session and re.fullmatch(r'[0-9a-f-]{36}', session)
+            expected = root.resolve() / '.sdd-self-improvement' / session / 'claude-sdk-entry'
+            assert values['executable'] == str(expected), (values['executable'], expected)
 PYMODELROUTE
 then
   ok 'managed action: explicit route, exact argv, output forwarding and no failure fallback'

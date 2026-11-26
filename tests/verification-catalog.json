@@ -724,7 +724,10 @@
     },
     {
       "path": "tests/design-sync-policy.tests.py",
-      "runtime": "python"
+      "runtime": "python",
+      "ci_jobs": [
+        "v2-guardrails"
+      ]
     },
     {
       "path": "tests/design-sync-policy.tests.sh",

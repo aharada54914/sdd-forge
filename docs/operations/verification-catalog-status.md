@@ -25,7 +25,7 @@
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
 | `test` | no | 43 | 3 | 40 | 0 |
 | `test-windows-heavy` | no | 17 | 0 | 17 | 0 |
-| `v2-guardrails` | yes | 12 | 12 | 0 | 0 |
+| `v2-guardrails` | yes | 13 | 13 | 0 | 0 |
 | `version-gates` | no | 35 | 0 | 35 | 0 |
 | `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
 | `windows-powershell` | no | 1 | 0 | 1 | 0 |
