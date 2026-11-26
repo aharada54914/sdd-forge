@@ -748,7 +748,12 @@ export function runSddGate({
 
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const tasksPath = path.join(root, 'specs', feature, 'tasks.md');
-  const tasksStat = fs.statSync(tasksPath, { throwIfNoEntry: false });
+  let tasksStat;
+  try {
+    tasksStat = fs.statSync(tasksPath, { throwIfNoEntry: false });
+  } catch (err) {
+    throw new Error(`Tasks file specs/${feature}/tasks.md could not be read (${err.code || err.message})`);
+  }
   if (!tasksStat) {
     throw new Error(`Tasks file not found: specs/${feature}/tasks.md`);
   }
