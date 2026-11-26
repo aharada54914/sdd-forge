@@ -19,3 +19,8 @@ progress:
   local_result: "同一候補上の交互3組で +2.215、+1.514、+1.545 秒。既存1スイートとローカル追加処理の測定。"
   ci_evidence: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-9d874e502.json
   ci_result: "PR全体の観測差は −4 秒。候補の一部ステップが先行失敗で省略され、成功経路の時間差は未確定。"
+  follow_up_627f511d7:
+    local: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-627f511d7.json
+    hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-627f511d7.json
+    additional_diffs: specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-627f511d7.json
+    result: "ローカル3組の最大増分は1.748秒。全ジョブ成功時のPR全体は533秒から703秒（+170秒、予算を50秒超過）。68差分の両スキャナーの所見は合計0件で、誤検知率は未確定。"

@@ -115,3 +115,9 @@ GitHub Actions に保存されていた `shadow-findings.json` を62実行分照
 GitHub Actions の全体状態検査は PowerShell で Ubuntu・macOS・Windows のすべてが成功。POSIX と、公開 CLI を使う Core のライフサイクル・ドリフト検査は Ubuntu と macOS で成功した。Guardrails と Ubuntu のテストジョブは成功した。macOS では T-002 の Bash 診断、Windows ではリリース準備テストが選んだ WSL ランチャーのために後続の検査が省略された。
 
 比較元 PR #982 のテストと Guardrails は全体で533秒、候補 PR #976 は529秒（差は −4 秒）。比較元の Git ツリーは候補の base と一致する。候補では上記の未実行ステップがあるため、全経路成功時の +120 秒予算は未確認。[各ジョブと検証ステップ](hosted-9d874e502.json)
+
+### 統合候補 627f511d7 の成功経路
+
+PR #976 の Test と Guardrails はともに成功し、比較元 PR #982 と候補で各11ジョブが実行された。両ワークフロー全体は比較元533秒、候補703秒で、差は **+170秒**。この観測では予算 +120秒を50秒超えた。最長の cloud-and-ddd ジョブは518秒から695秒、Guardrails は32秒から228秒になった。異なる hosted runner で測った1組のため、差の原因はこの比較だけでは特定できない。[各ジョブの開始・終了時刻](hosted-627f511d7.json) · [Test](https://github.com/aharada54914/sdd-forge/actions/runs/45740305778) · [Guardrails](https://github.com/aharada54914/sdd-forge/actions/runs/45740305781)
+
+同じ候補のローカルでは既存スイートと追加検査を交互に3組実行し、差は +1.748、+1.574、+1.545 秒だった。各組が +15 秒以内。過去の62差分に続く6差分のアーティファクトを照合した。合計68差分で Gitleaks・Semgrep は各0件で、誤検知率の分母は依然0件。[ローカル6実行](paired-local-627f511d7.json) · [追加6差分](additional-shadow-counts-627f511d7.json)

@@ -1,0 +1,350 @@
+{
+  "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+  "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "node": "v24.13.0",
+  "python": "3.14.5",
+  "started_at_utc": "2026-11-26T02:08:32.496621+00:00",
+  "reference_protocol": "specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local.json",
+  "reference_protocol_sha256": "d68e5bf9109c733a6cc44d819e645045718975e56df94119e9436269f07d3918",
+  "method": "Both arms use the same integrated checkout. The base selects the diff for agent-lint. The three pairs run serially, with alternating arm order. Only the verification subprocesses are timed. Receipt reads and worktree status checks are outside each interval. There is no warm-up in this checkout and no discarded sample.",
+  "setup": [
+    "npm",
+    "ci",
+    "--offline",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "--prefix",
+    "plugins/sdd-quality-loop/rules"
+  ],
+  "commands": {
+    "existing_suite": [
+      "python3",
+      "tests/verification.py",
+      "--suite",
+      "tests/constant-parity.tests.sh",
+      "--receipt",
+      "<receipt>"
+    ],
+    "agent_lint": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "--diff-only",
+      "--base-ref",
+      "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "--mode",
+      "shadow",
+      "--format",
+      "json"
+    ],
+    "dependency_check": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "--adapters",
+      "builtin-slopsquatting",
+      "--mode",
+      "shadow"
+    ]
+  },
+  "clock": "time.perf_counter_ns",
+  "runs": [
+    {
+      "index": 1,
+      "pair": 1,
+      "arm": "baseline",
+      "elapsed_ns": 600349083,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ns": 600342041,
+          "stdout_sha256": "2c2d4f392554784f6779180e0f7eb65ca391e9e38d8bdb49bafb8a16dd8dcfb8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.08038
+          }
+        ],
+        "revision_after": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 2,
+      "pair": 1,
+      "arm": "shadow",
+      "elapsed_ns": 2348506792,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ns": 309306666,
+          "stdout_sha256": "2c2d4f392554784f6779180e0f7eb65ca391e9e38d8bdb49bafb8a16dd8dcfb8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "agent_lint",
+          "exit_code": 0,
+          "elapsed_ns": 1949237125,
+          "stdout_sha256": "5149360986f8dcaa47497a2b4b7063ead8660da90a1c0d77ea47deb0ad0bd00b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reported_status": "WARN",
+          "scannedFiles": 54,
+          "durationMs": 1921
+        },
+        {
+          "name": "dependency_check",
+          "exit_code": 0,
+          "elapsed_ns": 89951708,
+          "stdout_sha256": "c70e0758716b8029ec0ae3c3051a030ef7ab0b3eefd41f0e2c85106195bc79be",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reported_status": "PASS",
+          "adaptersRun": [
+            "builtin-slopsquatting"
+          ]
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.079215
+          }
+        ],
+        "revision_after": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 3,
+      "pair": 2,
+      "arm": "shadow",
+      "elapsed_ns": 1888340542,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ns": 303653084,
+          "stdout_sha256": "2c2d4f392554784f6779180e0f7eb65ca391e9e38d8bdb49bafb8a16dd8dcfb8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "agent_lint",
+          "exit_code": 0,
+          "elapsed_ns": 1511615083,
+          "stdout_sha256": "9658b48f600d8611b4cd90f7cbef3b3ea4367594de82166287ead051a4c22621",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reported_status": "WARN",
+          "scannedFiles": 54,
+          "durationMs": 1485
+        },
+        {
+          "name": "dependency_check",
+          "exit_code": 0,
+          "elapsed_ns": 73061333,
+          "stdout_sha256": "c70e0758716b8029ec0ae3c3051a030ef7ab0b3eefd41f0e2c85106195bc79be",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reported_status": "PASS",
+          "adaptersRun": [
+            "builtin-slopsquatting"
+          ]
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.077306
+          }
+        ],
+        "revision_after": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 4,
+      "pair": 2,
+      "arm": "baseline",
+      "elapsed_ns": 314525542,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ns": 314522416,
+          "stdout_sha256": "2c2d4f392554784f6779180e0f7eb65ca391e9e38d8bdb49bafb8a16dd8dcfb8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.078968
+          }
+        ],
+        "revision_after": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 5,
+      "pair": 3,
+      "arm": "baseline",
+      "elapsed_ns": 307342292,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ns": 307339083,
+          "stdout_sha256": "2c2d4f392554784f6779180e0f7eb65ca391e9e38d8bdb49bafb8a16dd8dcfb8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.077778
+          }
+        ],
+        "revision_after": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_after": true
+      }
+    },
+    {
+      "index": 6,
+      "pair": 3,
+      "arm": "shadow",
+      "elapsed_ns": 1852445083,
+      "components": [
+        {
+          "name": "existing_suite",
+          "exit_code": 0,
+          "elapsed_ns": 314562541,
+          "stdout_sha256": "2c2d4f392554784f6779180e0f7eb65ca391e9e38d8bdb49bafb8a16dd8dcfb8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "agent_lint",
+          "exit_code": 0,
+          "elapsed_ns": 1445696750,
+          "stdout_sha256": "100bf78f7fe7d207390df084a26f07d102592928e12afabbf7e01c86cca77ba3",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reported_status": "WARN",
+          "scannedFiles": 54,
+          "durationMs": 1417
+        },
+        {
+          "name": "dependency_check",
+          "exit_code": 0,
+          "elapsed_ns": 92175250,
+          "stdout_sha256": "c70e0758716b8029ec0ae3c3051a030ef7ab0b3eefd41f0e2c85106195bc79be",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reported_status": "PASS",
+          "adaptersRun": [
+            "builtin-slopsquatting"
+          ]
+        }
+      ],
+      "receipt": {
+        "schema": "verification-receipt/v1",
+        "profile": null,
+        "revision": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_before": true,
+        "reusable": false,
+        "catalog_sha256": "74d8b72e50ced653f3b603e0b004275b1958b74e1215d38c5b790d653b3a69f5",
+        "selected": [
+          "tests/constant-parity.tests.sh"
+        ],
+        "results": [
+          {
+            "suite": "tests/constant-parity.tests.sh",
+            "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+            "status": "passed",
+            "exit_code": 0,
+            "seconds": 0.078816
+          }
+        ],
+        "revision_after": "627f511d71d24190c91a5779b65363b85df080fc",
+        "clean_after": true
+      }
+    }
+  ],
+  "finished_at_utc": "2026-11-26T02:08:40.733780+00:00",
+  "local_overhead": {
+    "shadow_minus_baseline_ns": [
+      1748157709,
+      1573815000,
+      1545102791
+    ],
+    "median_ns": 1573815000,
+    "observed_max_ns": 1748157709,
+    "budget_ns": 15000000000,
+    "all_three_within_budget": true
+  }
+}
