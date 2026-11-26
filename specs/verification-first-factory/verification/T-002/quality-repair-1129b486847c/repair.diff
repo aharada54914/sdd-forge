@@ -1,0 +1,167 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index 44bdf5721..7dec05dad 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -22,7 +22,6 @@ import {
+   parseSimpleYaml,
+   globToRegExp,
+   loadGuardrailsConfig,
+-  normalizeRelPath,
+   resolveExplicitOrAutoRoot,
+   toPosixPath,
+   isMainModule,
+@@ -421,13 +420,28 @@ function unconditionalTrueDefinitions(source) {
+   return names;
+ }
+ 
++const NODE_TEST_EXTENSIONS = process.features.typescript ? '{js,mjs,cjs,ts,mts,cts}' : '{js,mjs,cjs}';
++const NODE_TEST_GLOB = `**/{test,test/**/*,test-*,*[._-]test}.${NODE_TEST_EXTENSIONS}`;
++const USE_NODE_TEST_GLOB = Number.parseInt(process.versions.node, 10) >= 22 && typeof path.posix.matchesGlob === 'function';
++
+ function isTestFileRelPath(relPath) {
+-  const lower = normalizeRelPath(relPath).toLowerCase();
+-  return (
+-    lower.startsWith('test/') ||
+-    /(?:^|\/)(?:tests|__tests__)\//.test(lower) ||
+-    /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower)
+-  );
++  // Git's -z output uses literal filenames and '/' separators on every host.
++  const name = path.posix.basename(relPath);
++  if (/^test\/|(?:^|\/)(?:tests|__tests__)\//i.test(relPath)) return true;
++  if (/(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(name)) return true;
++  // unittest discovers importable test*.py modules, including at the root.
++  if (/^test[\p{L}\p{N}_]*\.py$/u.test(name)) return true;
++
++  // All candidate extensions are already covered by the untracked source pathspecs.
++  if (!/\.[cm]?[jt]s$/i.test(name)) return false;
++  const segments = relPath.split('/');
++  if (segments.includes('node_modules')) return false;
++  if (USE_NODE_TEST_GLOB) return path.posix.matchesGlob(relPath, NODE_TEST_GLOB);
++
++  // Node 20's runner walks directories (including dot directories) and compares
++  // names case-sensitively on every OS. It does not discover TypeScript files.
++  if (!/\.[cm]?js$/.test(name)) return false;
++  return segments.includes('test') || /^(?:test(?:-.+)?|.+[._-]test)\.[cm]?js$/.test(name);
+ }
+ 
+ function gitText(root, args, options = {}) {
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index b72749e08..071a8b64d 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -122,10 +122,10 @@
+     "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
+     "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
+   ],
+-  "source_sync_commit": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
++  "source_sync_commit": "e32e794d3531a9e9e421f1b642b957efdc665f38",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "c2dd0cab187df4c207de6de67db33d1b78dc1de26d3de05301af75bb9a6ed640",
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "a14b575f24cbfbaac00b745340242d74ce378f35318ebf970b412dc9cdd4d23c",
+     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "e5ea79c8603530352eecfe93955adc45db65bd2e8ca3c8bea90fcb6a82aed3a5",
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "3d29aeb024834791fe63dcaa599cfc3e70a24960236129deef3d9fa95a211204",
+     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index 85b10d4e2..f7f0bee1b 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -406,6 +406,98 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+   }
+ 
++  // Commit the files, remove them in the worktree, then authorize the exact
++  // detected paths and blobs on the baseline. Controls stay deleted throughout.
++  function checkRetirements({ dir, git }, tests, controls) {
++    const files = [...tests, ...controls];
++    assert.equal(git('add', '--', ...files).status, 0);
++    assert.equal(git('commit', '-m', 'record discovery fixtures').status, 0);
++    const retirements = tests.map(file => ({
++      path: file, git_blob_sha: git('rev-parse', 'HEAD:' + file).stdout.trim(),
++      reason: 'covered by replacement', approved_by: 'fixture-owner',
++    }));
++    for (const file of files) fs.unlinkSync(path.join(dir, file));
++    const rejected = runAntiTamper(dir);
++    assert.equal(rejected.status, 4, rejected.stderr || rejected.stdout);
++    const report = JSON.parse(rejected.stdout);
++    assert.equal(report.status, 'TAMPER_DETECTED');
++    const expected = [...tests].sort().map(path => ({ code: 'UNAUTHORIZED_TEST_DELETION', path }));
++    assert.deepEqual(report.violations.map(({ code, path }) => ({ code, path })), expected);
++    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
++    assert.deepEqual(question.violations, expected);
++
++    const manifest = 'sdd/approved-test-retirements.json';
++    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements }));
++    assert.equal(git('add', manifest).status, 0);
++    assert.equal(git('commit', '-m', 'authorize fixture retirements').status, 0);
++    const accepted = runAntiTamper(dir);
++    assert.equal(accepted.status, 0, accepted.stderr || accepted.stdout);
++    const clean = JSON.parse(accepted.stdout);
++    assert.equal(clean.status, 'CLEAN');
++    assert.deepEqual(clean.violations, []);
++    assert.equal(clean.openQuestion, undefined);
++  }
++
++  it('checks retirements of Python modules found by default unittest discovery', (t) => {
++    const repo = initGitRepoWithTests();
++    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
++    const tests = ['test_checkout.py', 'testTotals.py'];
++    const controls = ['checkout.py', 'test-data.py'];
++    for (const [index, file] of [...tests, ...controls].entries()) {
++      fs.writeFileSync(path.join(repo.dir, file),
++        'import unittest\nclass Checkout(unittest.TestCase):\n    def test_amount_' + index + '(self):\n        self.assertEqual(2 + 2, 4)\n');
++    }
++    const python = process.platform === 'win32' ? 'python' : 'python3';
++    const native = spawnSync(python, ['-B', '-m', 'unittest', 'discover', '-v'], { cwd: repo.dir, encoding: 'utf8' });
++    assert.equal(native.status, 0, native.error?.message || native.stderr);
++    assert.match(native.stderr, /test_amount_0/);
++    assert.match(native.stderr, /test_amount_1/);
++    assert.match(native.stderr, /Ran 2 tests/);
++    checkRetirements(repo, tests, controls);
++  });
++
++  it('checks retirements of files found by default Node test discovery', (t) => {
++    const repo = initGitRepoWithTests();
++    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
++    const tests = ['packages/catalog/test/rounding.mjs', 'packages/catalog/test/units/cents.mjs',
++      'test.mjs', 'packages/catalog/test-price.mjs', 'packages/catalog/price-test.mjs'];
++    const controls = ['packages/catalog/contest/rounding.mjs', 'packages/catalog/test/notes.txt',
++      'packages/catalog/test/component.jsx', 'packages/catalog/test/component.tsx'];
++    // Node 20's directory walk and newer Node versions' default glob differ.
++    // Ask the installed runner which of these files it actually executes.
++    const runtimeCases = ['lib/test/demo.CJS', 'tools/TEST/demo.cjs', 'app/TEST-price.CJS',
++      'app/TEST.JS', 'app/cost-TEST.CJS', '.internal/test/money.cjs',
++      'types/test/price.ts', 'types/test/amount.cts', 'types/test/currency.mts'];
++    const files = [...tests, ...controls, ...runtimeCases];
++    for (const [index, file] of files.entries()) {
++      const fullPath = path.join(repo.dir, file);
++      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
++      fs.writeFileSync(fullPath, 'import("node:test").then(({ test }) => test("catalog [' + index + ']", () => {}));\n');
++    }
++    const env = { ...process.env };
++    delete env.NODE_TEST_CONTEXT;
++    const native = spawnSync(process.execPath, ['--test', '--test-reporter=tap'], { cwd: repo.dir, encoding: 'utf8', env });
++    assert.equal(native.status, 0, native.stderr || native.stdout);
++    const discovered = files.filter((_, index) => native.stdout.includes('catalog [' + index + ']'));
++    assert.ok(tests.every(file => discovered.includes(file)), native.stdout);
++    assert.ok(controls.every(file => !discovered.includes(file)), native.stdout);
++    checkRetirements(repo, discovered, files.filter(file => !discovered.includes(file)));
++  });
++
++  it('checks retirements using exact directory segments in literal Git paths', (t) => {
++    const repo = initGitRepoWithTests();
++    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
++    const tests = ['test/amount.mjs'];
++    const controls = [' test/amount.mjs'];
++    if (process.platform !== 'win32') controls.push('src\\tests\\amount.mjs');
++    for (const file of [...tests, ...controls]) {
++      const fullPath = path.join(repo.dir, file);
++      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
++      fs.writeFileSync(fullPath, 'export const amount = 1;\n');
++    }
++    checkRetirements(repo, tests, controls);
++  });
++
+   it('allows documentation and quoted examples of inline lint directives without opening an OQ', (t) => {
+     const { dir, git } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

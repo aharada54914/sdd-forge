@@ -1,0 +1,20 @@
+{
+  "revision": "1129b486847c4351d84b223ca82728bb82b59e97",
+  "jar_sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+  "model": "GateLifecycle",
+  "max_rounds": 2,
+  "checks": [
+    {
+      "config": "GateLifecycle.cfg",
+      "exit_code": 0,
+      "distinct_states": 38,
+      "outcome": "Model checking completed. No error has been found."
+    },
+    {
+      "config": "GateLifecycle.negative.cfg",
+      "exit_code": 12,
+      "distinct_states": 17,
+      "outcome": "Invariant DoneRequiresGatePass is violated."
+    }
+  ]
+}

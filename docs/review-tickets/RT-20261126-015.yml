@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-015
-status: open
+status: resolved
 type: documentation
 severity: minor
 target:
@@ -13,3 +13,7 @@ expected_fix:
 references:
   - specs/verification-first-factory/design.md
   - CODEOWNERS
+resolution:
+  commit: d1c723a4d9fe055ff6951bb28403c41fc0230fab
+  evidence: reports/spec-check/verification-first-factory.md
+  note: "Owner approved the path correction; both independent specification reviewers confirmed the root rule on the corrected revision."
