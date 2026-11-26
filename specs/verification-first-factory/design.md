@@ -61,7 +61,7 @@ interface FormalCheckerAdapter {
 
 ## 3. 安全廃止プロトコル・CI 時間予算・ロールバック区分
 
-- **人間専用廃止承認マニフェスト（M2 対応）**: `sdd/approved-test-retirements.json` を `.github/CODEOWNERS` および `anti_tampering.protected_repo_paths` で保護し、`{ path, git_blob_sha, reason, approved_by }` の完全一致のみを `REQ-010` のテスト削除例外として受理する。
+- **人間専用廃止承認マニフェスト（M2 対応）**: `sdd/approved-test-retirements.json` をルートの `CODEOWNERS` および `anti_tampering.protected_repo_paths` で保護し、`{ path, git_blob_sha, reason, approved_by }` の完全一致のみを `REQ-010` のテスト削除例外として受理する。
 - **負例ミュータント・パリティ証明（M3 対応）**: 置換先（Fitness Function / TLA+＋Trace Validation / 単一 `.test.mjs`）は、廃止対象テストの各失敗モードに対応する最低1件の明示的ミュータント（負例）を 100% 検知することを Shadow 並走で証明する。カテゴリ2（`.ps1`/`.sh` パリティテスト）は対応本番スクリプトの ESM 集約＋Windows ネイティブ CI 検証完了までブロック（廃止禁止）。
 - **CI 時間・コスト見積もり（NFR-004）**: Gitleaks（5〜15s/PR）、Semgrep diff-only（20〜60s/PR）、TLC 有界検査（変更時のみ `<= 120s`）、CodeQL（夜間のみ 5〜15分、公開リポジトリ無料）。
 - **ロールバック区分（M4 対応）**: 新規ゲート実行は `sdd/guardrails.yaml` の各 `enabled: false` で即座に無効化できる（可逆）。削除済み旧テストおよび `verification-catalog.json` 変更の復元は該当 PR の `git revert` で行う（フラグ不可逆）。
