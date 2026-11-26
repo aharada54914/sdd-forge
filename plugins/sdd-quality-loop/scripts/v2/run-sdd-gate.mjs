@@ -621,8 +621,8 @@ function runVerificationCommands(projectRoot, commands) {
 // Same text as v1_retired() in sdd-domain/scripts/validate-concept-test.py.
 function v1Retired(feature) {
   const prefix = `specs/${feature}/concept-test`;
-  return 'concept-test/v1 records are no longer supported; recreate the proposal as concept-test/v2 '
-    + `by running the Concept Test again, then delete any leftover ${prefix}.approval.json. `
+  return `concept-test/v1 records are no longer supported; delete any leftover ${prefix}.approval.json `
+    + 'first, then recreate the proposal as concept-test/v2 by running the Concept Test again. '
     + 'In a project without domain/, where the Concept Test does not run, delete '
     + `${prefix}.md, ${prefix}.json and ${prefix}.approval.json instead`;
 }

@@ -49,7 +49,8 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
   // refusal or missing decision no longer describes the feature-local evidence.
   function continuation(): ProposalAdvice | undefined {
     if (stopped) {
-      if (stopped.status === "BLOCK" && !stopped.missingDecision) return undefined;
+      // A recorded v1 retirement is stale once the record was migrated to v2.
+      if (stopped.status === "BLOCK" && !stopped.missingDecision && !stopped.retiredV1) return undefined;
       return blocked(
         `human: run the installed ${validate}`,
         `${stopped.path} の前回判定は ${stopped.status} です。現在の提案・判断を配布版の検証器（PowerShell は .ps1）で再検証し、CONTINUE なら品質ゲートを再実行してください。`,
@@ -78,6 +79,14 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
     }
     if (markdown.ok || markdown.error.details?.rule !== "exists") {
       return inspect(jsonPath, "Markdownに対応する提案のJSONを読み取れません。");
+    }
+    // No record is left (a project without domain/ deleted its v1 files). Only the gate
+    // can see a v1 record still held by the Git index, so keep its own advice then.
+    if (stopped?.retiredV1 === "working-tree") {
+      return blocked(
+        `human: re-run the quality gate for ${feature}`,
+        `${stopped.path} の前回判定は廃止された concept-test/v1 の記録による BLOCK です。${prefix} の記録は現在ありません。品質ゲートを再実行してください。`,
+      );
     }
     if (inBootstrap && resolveGuarded(root, seedPath).ok) {
       return blocked(
@@ -147,6 +156,8 @@ export function conceptAdvice(root: SddRoot, feature: string, tasks: readonly { 
     // prove that the runtime and domain inputs now validate.
     return { ...proposal.action, rationale: `${proposal.action.rationale} 前回の品質ゲート（${stop.path}）の判定は ${stop.status} です。現在の入力に対する検証結果と合わせて確認してください。` };
   }
-  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision)) return proposal.action;
+  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision || stop.retiredV1)) {
+    return proposal.action;
+  }
   return stop?.action;
 }

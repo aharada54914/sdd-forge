@@ -58,8 +58,9 @@ JSON_BLOCK = re.compile(r'^```json\r?\n(.*?)^```[ \t]*\r?$', re.M | re.S)
 def v1_retired(feature):
     # run-sdd-gate.mjs repeats this text for a v1 record left only in the Git index.
     prefix = 'specs/' + feature + '/concept-test'
-    return ('concept-test/v1 records are no longer supported; recreate the proposal as concept-test/v2 '
-            'by running the Concept Test again, then delete any leftover ' + prefix + '.approval.json. '
+    # A leftover approval stops every v2 run, so it is deleted before recreating.
+    return ('concept-test/v1 records are no longer supported; delete any leftover ' + prefix + '.approval.json '
+            'first, then recreate the proposal as concept-test/v2 by running the Concept Test again. '
             'In a project without domain/, where the Concept Test does not run, delete '
             + prefix + '.md, ' + prefix + '.json and ' + prefix + '.approval.json instead')
 

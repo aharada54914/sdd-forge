@@ -21,13 +21,16 @@ export function parseTaskExecution(contents: string, feature: string, taskId: st
 
 // The validator's and the gate's diagnostic for a retired v1 record starts with this text.
 const V1_RETIRED = "concept-test: BLOCK: concept-test/v1 records are no longer supported";
+// run-sdd-gate.mjs adds this when only the Git index holds the v1 record.
+const V1_INDEX_NOTE = "The Git index still holds the v1 record";
 
 /** Owner decision 2026-11-26: v1 records are retired and must be recreated as v2. */
 export function retiredV1Action(feature: string, observation: string): BlockedAction {
   const prefix = `specs/${feature}/concept-test`;
   return {
     phase: "blocked", command: `human: recreate the Concept Test proposal for ${feature} as concept-test/v2`,
-    rationale: `${observation} concept-test/v1 の記録は廃止されました。Concept Test をもう一度実行して concept-test/v2 の提案として作り直し、残った ${prefix}.approval.json を削除してください。domain/ のないプロジェクトでは Concept Test を実行しないため、v1 の ${prefix}.md・${prefix}.json・${prefix}.approval.json を削除してください。`,
+    // A leftover approval stops every v2 run, so it is deleted before recreating.
+    rationale: `${observation} concept-test/v1 の記録は廃止されました。まず残った ${prefix}.approval.json を削除し、その後 Concept Test をもう一度実行して concept-test/v2 の提案として作り直してください。domain/ のないプロジェクトでは Concept Test を実行しないため、v1 の ${prefix}.md・${prefix}.json・${prefix}.approval.json を削除してください。作り直した後は配布版の validate-concept-test.sh（PowerShell は .ps1）を --root . --feature ${feature} --require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行してください。domain/ のないプロジェクトでは、削除後に品質ゲートを再実行してください。`,
   };
 }
 
@@ -35,7 +38,7 @@ export function conceptStopAction(feature: string, status: Stop, source: string,
   const observation = `${source} の Concept Test の記録は ${status} です。`;
   if (status === "BLOCK" && diagnostic?.startsWith(V1_RETIRED)) {
     const action = retiredV1Action(feature, observation);
-    if (diagnostic.includes("The Git index still holds the v1 record")) {
+    if (diagnostic.includes(V1_INDEX_NOTE)) {
       action.rationale += " Git のインデックスに v1 の記録が残っているため、その削除もステージしてください。";
     }
     return action;
@@ -77,6 +80,8 @@ interface GateStop {
   status: Stop;
   path: string;
   missingDecision: boolean;
+  /** The stop was the v1 retirement, seen in the working tree or only in the Git index. */
+  retiredV1?: "working-tree" | "index";
   action: BlockedAction;
 }
 
@@ -98,9 +103,12 @@ export function recordedConceptStop(root: SddRoot, feature: string, tasks: reado
       if (check.status !== "BLOCK") {
         action.rationale += " この実行後に提案や判断を更新済みの場合は、対象の Concept Test を再検証し、CONTINUE を確認後に品質ゲートを再実行してください。";
       }
+      const error = typeof check.error === "string" ? check.error.trim() : "";
+      const retiredV1 = check.status !== "BLOCK" || !error.startsWith(V1_RETIRED) ? undefined
+        : error.includes(V1_INDEX_NOTE) ? "index" as const : "working-tree" as const;
       return {
-        status: check.status, path, action,
-        missingDecision: check.error === "concept-test: BLOCK: run --confirm in a separate human-operated terminal",
+        status: check.status, path, action, retiredV1,
+        missingDecision: error === "concept-test: BLOCK: run --confirm in a separate human-operated terminal",
       };
     }
   }

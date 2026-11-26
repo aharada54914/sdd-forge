@@ -41366,19 +41366,21 @@ function parseTaskExecution(contents, feature, taskId) {
   return void 0;
 }
 var V1_RETIRED = "concept-test: BLOCK: concept-test/v1 records are no longer supported";
+var V1_INDEX_NOTE = "The Git index still holds the v1 record";
 function retiredV1Action(feature, observation) {
   const prefix = `specs/${feature}/concept-test`;
   return {
     phase: "blocked",
     command: `human: recreate the Concept Test proposal for ${feature} as concept-test/v2`,
-    rationale: `${observation} concept-test/v1 \u306E\u8A18\u9332\u306F\u5EC3\u6B62\u3055\u308C\u307E\u3057\u305F\u3002Concept Test \u3092\u3082\u3046\u4E00\u5EA6\u5B9F\u884C\u3057\u3066 concept-test/v2 \u306E\u63D0\u6848\u3068\u3057\u3066\u4F5C\u308A\u76F4\u3057\u3001\u6B8B\u3063\u305F ${prefix}.approval.json \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002domain/ \u306E\u306A\u3044\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u306F Concept Test \u3092\u5B9F\u884C\u3057\u306A\u3044\u305F\u3081\u3001v1 \u306E ${prefix}.md\u30FB${prefix}.json\u30FB${prefix}.approval.json \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+    // A leftover approval stops every v2 run, so it is deleted before recreating.
+    rationale: `${observation} concept-test/v1 \u306E\u8A18\u9332\u306F\u5EC3\u6B62\u3055\u308C\u307E\u3057\u305F\u3002\u307E\u305A\u6B8B\u3063\u305F ${prefix}.approval.json \u3092\u524A\u9664\u3057\u3001\u305D\u306E\u5F8C Concept Test \u3092\u3082\u3046\u4E00\u5EA6\u5B9F\u884C\u3057\u3066 concept-test/v2 \u306E\u63D0\u6848\u3068\u3057\u3066\u4F5C\u308A\u76F4\u3057\u3066\u304F\u3060\u3055\u3044\u3002domain/ \u306E\u306A\u3044\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u306F Concept Test \u3092\u5B9F\u884C\u3057\u306A\u3044\u305F\u3081\u3001v1 \u306E ${prefix}.md\u30FB${prefix}.json\u30FB${prefix}.approval.json \u3092\u524A\u9664\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u4F5C\u308A\u76F4\u3057\u305F\u5F8C\u306F\u914D\u5E03\u7248\u306E validate-concept-test.sh\uFF08PowerShell \u306F .ps1\uFF09\u3092 --root . --feature ${feature} --require-v2 \u3067\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u3092\u78BA\u8A8D\u5F8C\u306B\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002domain/ \u306E\u306A\u3044\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3067\u306F\u3001\u524A\u9664\u5F8C\u306B\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
   };
 }
 function conceptStopAction(feature, status, source, diagnostic) {
   const observation = `${source} \u306E Concept Test \u306E\u8A18\u9332\u306F ${status} \u3067\u3059\u3002`;
   if (status === "BLOCK" && diagnostic?.startsWith(V1_RETIRED)) {
     const action = retiredV1Action(feature, observation);
-    if (diagnostic.includes("The Git index still holds the v1 record")) {
+    if (diagnostic.includes(V1_INDEX_NOTE)) {
       action.rationale += " Git \u306E\u30A4\u30F3\u30C7\u30C3\u30AF\u30B9\u306B v1 \u306E\u8A18\u9332\u304C\u6B8B\u3063\u3066\u3044\u308B\u305F\u3081\u3001\u305D\u306E\u524A\u9664\u3082\u30B9\u30C6\u30FC\u30B8\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
     }
     return action;
@@ -41435,11 +41437,14 @@ function recordedConceptStop(root, feature, tasks) {
       if (check2.status !== "BLOCK") {
         action.rationale += " \u3053\u306E\u5B9F\u884C\u5F8C\u306B\u63D0\u6848\u3084\u5224\u65AD\u3092\u66F4\u65B0\u6E08\u307F\u306E\u5834\u5408\u306F\u3001\u5BFE\u8C61\u306E Concept Test \u3092\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u3092\u78BA\u8A8D\u5F8C\u306B\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002";
       }
+      const error62 = typeof check2.error === "string" ? check2.error.trim() : "";
+      const retiredV1 = check2.status !== "BLOCK" || !error62.startsWith(V1_RETIRED) ? void 0 : error62.includes(V1_INDEX_NOTE) ? "index" : "working-tree";
       return {
         status: check2.status,
         path: path3,
         action,
-        missingDecision: check2.error === "concept-test: BLOCK: run --confirm in a separate human-operated terminal"
+        retiredV1,
+        missingDecision: error62 === "concept-test: BLOCK: run --confirm in a separate human-operated terminal"
       };
     }
   }
@@ -41477,7 +41482,7 @@ function conceptProposalAdvice(root, feature, inBootstrap, stopped) {
   );
   function continuation() {
     if (stopped) {
-      if (stopped.status === "BLOCK" && !stopped.missingDecision) return void 0;
+      if (stopped.status === "BLOCK" && !stopped.missingDecision && !stopped.retiredV1) return void 0;
       return blocked(
         `human: run the installed ${validate2}`,
         `${stopped.path} \u306E\u524D\u56DE\u5224\u5B9A\u306F ${stopped.status} \u3067\u3059\u3002\u73FE\u5728\u306E\u63D0\u6848\u30FB\u5224\u65AD\u3092\u914D\u5E03\u7248\u306E\u691C\u8A3C\u5668\uFF08PowerShell \u306F .ps1\uFF09\u3067\u518D\u691C\u8A3C\u3057\u3001CONTINUE \u306A\u3089\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
@@ -41505,6 +41510,12 @@ function conceptProposalAdvice(root, feature, inBootstrap, stopped) {
     }
     if (markdown.ok || markdown.error.details?.rule !== "exists") {
       return inspect(jsonPath, "Markdown\u306B\u5BFE\u5FDC\u3059\u308B\u63D0\u6848\u306EJSON\u3092\u8AAD\u307F\u53D6\u308C\u307E\u305B\u3093\u3002");
+    }
+    if (stopped?.retiredV1 === "working-tree") {
+      return blocked(
+        `human: re-run the quality gate for ${feature}`,
+        `${stopped.path} \u306E\u524D\u56DE\u5224\u5B9A\u306F\u5EC3\u6B62\u3055\u308C\u305F concept-test/v1 \u306E\u8A18\u9332\u306B\u3088\u308B BLOCK \u3067\u3059\u3002${prefix} \u306E\u8A18\u9332\u306F\u73FE\u5728\u3042\u308A\u307E\u305B\u3093\u3002\u54C1\u8CEA\u30B2\u30FC\u30C8\u3092\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+      );
     }
     if (inBootstrap && resolveGuarded(root, seedPath).ok) {
       return blocked(
@@ -41569,7 +41580,9 @@ function conceptAdvice(root, feature, tasks, inBootstrap) {
   if (proposal?.decision && stop) {
     return { ...proposal.action, rationale: `${proposal.action.rationale} \u524D\u56DE\u306E\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08${stop.path}\uFF09\u306E\u5224\u5B9A\u306F ${stop.status} \u3067\u3059\u3002\u73FE\u5728\u306E\u5165\u529B\u306B\u5BFE\u3059\u308B\u691C\u8A3C\u7D50\u679C\u3068\u5408\u308F\u305B\u3066\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002` };
   }
-  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision)) return proposal.action;
+  if (proposal && (!stop || proposal.decision || stop.status !== "BLOCK" || stop.missingDecision || stop.retiredV1)) {
+    return proposal.action;
+  }
   return stop?.action;
 }
 
