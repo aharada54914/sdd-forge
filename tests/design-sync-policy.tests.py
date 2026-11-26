@@ -2,6 +2,7 @@
 """Exercise the shipped UI provider decision boundary without network access."""
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import unittest
@@ -34,6 +35,51 @@ class PolicyTests(unittest.TestCase):
             input=json.dumps(data), text=True, capture_output=True, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
+
+    def consent_branch(self, setting):
+        skill = ROOT / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        section = re.search(r"(?ms)^## 3\. Mockup & Egress Consent Loop\b(.*?)(?=^## |\Z)", text)
+        self.assertIsNotNone(section, "missing mockup and consent loop")
+        step = re.search(r"(?ms)^3\. \*\*Resolve Egress Consent\*\*:(.*?)(?=^\d+\. |\Z)", section[1])
+        self.assertIsNotNone(step, "missing egress consent step")
+        bullets = re.findall(rf"(?m)^\s*- `{re.escape(setting)}`: ([^\n]+)$", step[1])
+        self.assertEqual(len(bullets), 1, f"expected one {setting} branch in the consent step")
+        return bullets[0]
+
+    def test_standing_skips_confirmation(self):
+        self.assertIn("プロンプト不要で続行", self.consent_branch("standing"))
+        for records in ([], [record(setting="standing")]):
+            with self.subTest(records=records):
+                self.assertEqual(self.resolve(request(setting="standing", records=records))["action"], "proceed")
+
+    def test_standing_first_audit_is_granted(self):
+        self.assertIn("`Egress-Consent: granted`", self.consent_branch("standing"))
+        first = self.resolve(request(setting="standing"))["audit"]
+        self.assertEqual(first["decision"], "granted")
+        self.assertIsNone(self.resolve(request(setting="standing", records=[first]))["audit"])
+
+    def test_off_routes_without_upload(self):
+        self.assertIn("アップロードせず手動フォールバック", self.consent_branch("off"))
+        for available in (False, True):
+            result = self.resolve(request(setting="off", records=[record()], provider_available=available))
+            with self.subTest(provider_available=available):
+                self.assertEqual(result["action"], "manual")
+
+    def test_off_records_the_outcome(self):
+        # Match the outcome among the listed fields governed by the recording instruction.
+        self.assertRegex(self.consent_branch("off"),
+                         r"`Egress-Consent: [^`]+`(?:[\s,、]*`[^`]+`)*\s*を記録(?:する|します)?(?=\W|$)")
+        data = request(setting="off")
+        audit = self.resolve(data)["audit"]
+        self.assertIsInstance(audit, dict)
+        self.assertEqual(audit["decision"], "not-permitted")
+        for coordinate in ("feature", "session", "destination"):
+            self.assertEqual(audit[coordinate], data[coordinate])
+
+    def test_off_audit_names_the_setting(self):
+        self.assertIn("`Ds-Upload-Consent-Setting: off`", self.consent_branch("off"))
+        self.assertEqual(self.resolve(request(setting="off"))["audit"]["setting"], "off")
 
     def test_default_unknown_and_case_variants_require_consent(self):
         for setting in (None, "per-feature", "unknown", "Standing", "OFF", ""):
