@@ -94,6 +94,13 @@
       ]
     },
     {
+      "path": "tests/codex-versioned-cache.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "cloud-and-ddd"
+      ]
+    },
+    {
       "path": "tests/sql-development-contract.tests.py",
       "runtime": "python",
       "ci_jobs": [

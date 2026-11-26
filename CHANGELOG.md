@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Codex の版別導入で DDD の Concept Test が止まる件（#812、回避策と再現試験）**: Codex はプラグインを版ごとのフォルダーに導入するため、Concept Test が他プラグインと共通定義を見つけられず `BLOCK` になる。品質ゲートの停止メッセージに原因と回避策（sdd-forge のソースから直接実行）を示し、障害対応ガイドに手順を追加。配布定義どおりの配置を再現する試験 `tests/codex-versioned-cache.tests.py` を CI に追加（修正までは想定失敗として記録）。DDD を使わない機能には影響しない。
+
 ## v2.1.5 (2026-11-25)
 
 ### Fixed

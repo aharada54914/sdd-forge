@@ -151,6 +151,9 @@ jobs:
       - name: Run DDD Concept-Test suite
         run: python3 tests/concept-test.tests.py
 
+      - name: Run Concept Test from Codex's versioned plugin cache (#812)
+        run: python3 tests/codex-versioned-cache.tests.py
+
       - name: Run SQL Development Contract tests
         run: python3 tests/sql-development-contract.tests.py
 
