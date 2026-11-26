@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Breaking
+
+- **旧形式（v1）の Concept Test 記録の廃止**: `concept-test/v1` の記録を署名の有無にかかわらず受け付けず、`concept-test/v1 records are no longer supported` と移行方法を示して停止する。停止する場所と対象は次のとおり。
+  - 品質ゲート（`run-sdd-gate`）: 作業ツリーの v1 記録（JSON、または Markdown だけの記録）と、Git インデックスだけに残った v1 記録。
+  - 新しいレビューの起動（仕様・実装方針・タスク分解・品質検証の各レビューで、作業ツリーを読む場合）: 作業ツリーの v1 記録（JSON、または Markdown だけの記録）。
+  - 検証器（`validate-concept-test`）: 作業ツリーの v1 記録（JSON、または Markdown だけの記録）。ただし `domain/` がなく `--require-v2` も指定しない場合は、従来どおり Concept Test を実行せず `SKIP` を返す。
+
+  移行方法: まず残った `specs/<feature>/concept-test.approval.json` を削除し（残っている間は v2 の実行が `incompatible Concept Test decision records` で停止する）、その後 Concept Test をもう一度実行して `concept-test/v2` として作り直す。`domain/` のないプロジェクト（Concept Test を実行しない）では、v1 の記録ファイルを削除する。MCP の `get_next_sdd_command` も同じ移行方法を案内し、移行後は再検証と品質ゲートの再実行を案内する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。次の読み取りは履歴として v1 を読み続ける（ADR-0053 の改訂）: 合格済みレビューの入力の照合（`check-workflow-state` の stage-provenance）、固定リビジョンを指定したレビュー、decision packet の署名検証。合格済みレビューが有効なのは、固定した v1 の入力が変わらない間だけである。作業途中の feature を v2 に移行すると入力のハッシュが変わるため、仕様・実装方針・タスク分解の各レビューをやり直す必要がある。完了済みの feature は、記録を変更しなければ対応不要。
+
 ### Fixed
 
 - **導入スキルの検査スクリプトのパス**: `sdd-adopt` が構造検査を `scripts/check-sdd-structure.sh`（スキルのフォルダー基準では存在しない）と案内していた。配布先のパス `<installed-root>/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh` に直し、スキルが示す配布物のパスがすべて実在することを試験で検査する。実ホスト（Claude Code）での `/sdd-bootstrap:bootstrap adopt` 実行で判明。

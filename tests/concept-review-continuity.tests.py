@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -27,7 +28,10 @@ concept = load('concept_fixture', ROOT / 'tests/concept-test.tests.py')
 launcher = load('concept_launcher', ROOT / 'plugins/sdd-review-loop/scripts/launch-impl-review.py')
 
 
-class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
+class ConceptFixture(workflow.WorkflowFixture):
+    """Passed spec/impl/task reviews whose manifests pin a FITS Concept Test record."""
+    schema = 'concept-test/v2'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -35,7 +39,7 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
                          'plugins/sdd-domain/scripts/validate-domain-contract.sh',
                          'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
                          'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py',
-                         'contracts/concept-test.v1.schema.json'):
+                         'contracts/concept-test.v1.schema.json', 'contracts/concept-test.v2.schema.json'):
             cls.put(relative, (ROOT / relative).read_text())
         contract = json.loads((cls.root / 'domain/domain-contract.json').read_text())
         contract['schema'] = 'domain-contract/v2'
@@ -48,7 +52,7 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
         cls.put(f'specs/{cls.feature}/concept-test-seed.md', 'Record a purchase.\n')
         pinned = ['domain/context-map.md', 'domain/domain-contract.json', 'domain/domain-story.md',
                   f'specs/{cls.feature}/concept-test-seed.md']
-        record = dict(schema='concept-test/v1', feature=cls.feature, proposal='FITS_EXISTING_CONCEPTS',
+        record = dict(schema=cls.schema, feature=cls.feature, proposal='FITS_EXISTING_CONCEPTS',
                       rationale='Purchase intent is already modeled.',
                       distinctions=[dict(concepts=['CONCEPT-ORDER'], judgment='same', confirmed=True)],
                       inputs=[dict(path=p, sha256=hashlib.sha256((cls.root / p).read_bytes()).hexdigest()) for p in pinned])
@@ -58,6 +62,69 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
         cls.impl = cls.domain + ['domain/aggregates/Order.md', 'design-system/design-tokens.json',
                                  'design-system/design-system.md', 'design-system/ui-patterns.md']
 
+
+class PersistedV1History(ConceptFixture, unittest.TestCase):
+    """Owner decision 2026-11-26: passed reviews keep their v1 provenance; new rounds refuse v1."""
+    schema = 'concept-test/v1'
+
+    def test_passed_reviews_keep_their_v1_provenance(self):
+        self.manifests(self.domain, self.impl)
+        self.check(True)
+
+    def test_changed_seed_still_invalidates_v1_provenance(self):
+        self.manifests(self.domain, self.impl)
+        seed = self.root / f'specs/{self.feature}/concept-test-seed.md'
+        before = seed.read_bytes()
+        try:
+            seed.write_bytes(before + b'changed')
+            self.check(False)
+            # The stale pin, not the retirement, refuses the history.
+            with self.assertRaisesRegex(ValueError, 'Concept Test input changed'):
+                concept.concept.conditional.resolve(self.root, self.feature, 'spec', v1_history=True)
+        finally:
+            seed.write_bytes(before)
+
+    def test_migrating_to_v2_makes_passed_reviews_stale(self):
+        # Documented: history holds only while the v1 inputs are unchanged. Recreating the
+        # record as v2 means re-running the feature's spec/impl/task reviews.
+        self.manifests(self.domain, self.impl)
+        self.check(True)
+        paths = [self.root / f'specs/{self.feature}/concept-test.{ext}' for ext in ('json', 'md')]
+        before = [path.read_bytes() for path in paths]
+        try:
+            record = json.loads(before[0])
+            record['schema'] = 'concept-test/v2'
+            paths[0].write_text(json.dumps(record))
+            paths[1].write_text('```json\n' + json.dumps(record) + '\n```\n')
+            for runtime, suffix in self.runtimes:
+                with self.subTest(runtime=runtime):
+                    command = [runtime] + (['-NoProfile', '-File'] if runtime == 'pwsh' else [])
+                    command += [str(ROOT / ('plugins/sdd-quality-loop/scripts/check-workflow-state' + suffix)),
+                                '--registry', str(self.root / 'specs/workflow-state-registry.json'),
+                                '--feature', self.feature]
+                    result = subprocess.run(command, text=True, capture_output=True)
+                    output = result.stdout + result.stderr
+                    self.assertNotEqual(result.returncode, 0, output)
+                    self.assertIn('stage-provenance', output)
+                    self.assertRegex(output, r'(?i)input hash is stale', output)
+        finally:
+            for path, data in zip(paths, before):
+                path.write_bytes(data)
+
+    def test_new_rounds_refuse_v1(self):
+        self.manifests(self.domain, self.impl)
+        for runtime, suffix in self.runtimes:
+            with self.subTest(runtime=runtime):
+                command = [runtime] + (['-NoProfile', '-File'] if runtime == 'pwsh' else [])
+                command += [str(self.root / f'plugins/sdd-review-loop/scripts/task-review-precheck{suffix}'),
+                            self.feature, '2', '1']
+                result = subprocess.run(command, cwd=self.root, text=True, capture_output=True)
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(concept.V1_RETIRED_PREFIX, result.stdout + result.stderr)
+                self.assertFalse((self.root / f'reports/task-review/{self.feature}/attempt-2').exists())
+
+
+class PersistedConcept(ConceptFixture, unittest.TestCase):
     def test_persisted_and_next_round_accept_all_pins(self):
         self.manifests(self.domain, self.impl)
         self.check(True)
@@ -228,12 +295,27 @@ class LateStageAdmission(unittest.TestCase):
         with mock.patch.dict(os.environ, self.fixture.env, clear=True):
             self.assertEqual('proceed', validate_packet()['concept_decision'])
 
-    def test_signed_decision_admission_and_persistence(self):
-        self.fixture.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+    def test_live_v1_is_refused_while_a_pinned_revision_still_resolves(self):
+        # Owner decision 2026-11-26: new review launches read the working tree and refuse v1;
+        # a review pinned to a historical revision still reads that revision's signed v1 record.
+        self.fixture.record.update(schema='concept-test/v1', proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.fixture.save()
         self.fixture.sign()
-        with mock.patch.dict(os.environ, self.fixture.env, clear=True):
-            self.test_task_and_quality_require_every_concept_pin()
+        self.fixture.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        revision = self.fixture.commit('Signed v1 decision')
+        script = ROOT / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'
+        for stage in ('spec', 'impl', 'task', 'quality'):
+            with self.subTest(stage=stage), mock.patch.dict(os.environ, self.fixture.env, clear=True):
+                with self.assertRaisesRegex(ValueError, concept.V1_RETIRED_PREFIX):
+                    concept.concept.conditional.resolve(self.root, 'example', stage)
+                pinned = concept.concept.conditional.resolve(self.root, 'example', stage, revision)
+                self.assertIn('specs/example/concept-test.approval.json', {e['path'] for e in pinned['inputs']})
+                command = [sys.executable, str(script), '--root', str(self.root), '--feature', 'example', '--stage', stage]
+                live = subprocess.run(command, capture_output=True, text=True)
+                self.assertEqual(1, live.returncode, live.stdout + live.stderr)
+                self.assertIn('CONDITIONAL_INPUTS: ' + concept.V1_RETIRED_PREFIX, live.stderr)
+                fixed = subprocess.run(command + ['--revision', revision], capture_output=True, text=True)
+                self.assertEqual(0, fixed.returncode, fixed.stdout + fixed.stderr)
 
     def test_task_and_quality_require_every_concept_pin(self):
         self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required for parity')
@@ -294,30 +376,8 @@ class LateStageAdmission(unittest.TestCase):
                         self.assertEqual(ledger.read_bytes(), before)
                         if omitted is None:
                             self.assertEqual(launcher.required_dependencies(self.root, invocation)['inputs'], selected)
-                            if stage == 'task' and self.fixture.record['schema'] == 'concept-test/v2':
+                            if stage == 'task' and (self.root / 'specs/example/concept-test.decision.json').exists():
                                 self.check_fixed_with_live_changes(command, runtime, selected)
-                            if 'decision' in self.fixture.record:
-                                evidence = {p: (self.root / p).read_bytes() for p in (
-                                    'specs/example/concept-test.md', 'specs/example/concept-test.json',
-                                    'specs/example/concept-test.approval.json')}
-                                for invalid in ('forged', 'rejected', 'defer-to-domain-update'):
-                                    if invalid == 'forged':
-                                        self.fixture.write('specs/example/concept-test.approval.json', {})
-                                    else:
-                                        self.fixture.record['decision'] = invalid
-                                        self.fixture.save()
-                                        self.fixture.sign()
-                                    changed = dict(invocation, allowed_input_manifest=[
-                                        dict(path=e['path'], sha256=hashlib.sha256((self.root / e['path']).read_bytes()).hexdigest())
-                                        for e in invocation['allowed_input_manifest']])
-                                    path.write_text(json.dumps(changed))
-                                    refused = subprocess.run(command, capture_output=True, text=True, timeout=40)
-                                    self.assertNotEqual(refused.returncode, 0, refused.stdout + refused.stderr)
-                                    self.assertEqual(ledger.read_bytes(), before)
-                                    for name, content in evidence.items():
-                                        (self.root / name).write_bytes(content)
-                                    self.fixture.record['decision'] = 'proceed'
-                                path.write_text(json.dumps(invocation))
                             reserved = subprocess.run(command + ['--reserve' if runtime == 'bash' else '-Reserve'],
                                                       capture_output=True, text=True, timeout=40)
                             self.assertEqual(reserved.returncode, 0, reserved.stdout + reserved.stderr)

@@ -52,21 +52,51 @@ def snapshot_reader(source):
     return read, observed
 
 
-def collect(feature, read, *, allow_local, require_v2=False, preparing=False):
+JSON_BLOCK = re.compile(r'^```json\r?\n(.*?)^```[ \t]*\r?$', re.M | re.S)
+
+
+def v1_retired(feature):
+    # run-sdd-gate.mjs repeats this text for a v1 record left only in the Git index.
+    prefix = 'specs/' + feature + '/concept-test'
+    # A leftover approval stops every v2 run, so it is deleted before recreating.
+    return ('concept-test/v1 records are no longer supported; delete any leftover ' + prefix + '.approval.json '
+            'first, then recreate the proposal as concept-test/v2 by running the Concept Test again. '
+            'In a project without domain/, where the Concept Test does not run, delete '
+            + prefix + '.md, ' + prefix + '.json and ' + prefix + '.approval.json instead')
+
+
+def markdown_schema(raw):
+    """The schema named by the single JSON block of a Markdown mirror, or None."""
+    try:
+        blocks = JSON_BLOCK.findall(raw.decode('utf-8'))
+        document = parse(blocks[0]) if len(blocks) == 1 else None
+    except (ValueError, UnicodeError):
+        return None
+    return document.get('schema') if isinstance(document, dict) else None
+
+
+def collect(feature, read, *, allow_local, require_v2=False, preparing=False, reject_v1=False):
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
         raise ValueError('invalid feature')
     prefix = 'specs/' + feature + '/concept-test'
+    retire_v1 = require_v2 or reject_v1
+    if retire_v1 and read(prefix + '.json', True) is None:
+        markdown = read(prefix + '.md', True)
+        if markdown is not None and markdown_schema(markdown) == 'concept-test/v1':
+            raise ValueError(v1_retired(feature))
     document = parse(read(prefix + '.json'))
     version = document.get('schema') if isinstance(document, dict) else None
     if version == 'concept-test/v2' and allow_local:
         check_schema('concept-test.v2.schema.json', document)
-    elif version == 'concept-test/v1' and not require_v2:
+    elif version == 'concept-test/v1' and retire_v1:
+        raise ValueError(v1_retired(feature))
+    elif version == 'concept-test/v1':
         check_schema('concept-test.v1.schema.json', document)
     else:
         raise ValueError('unsupported Concept Test version for this operation')
     if document['feature'] != feature:
         raise ValueError('wrong Concept Test feature')
-    blocks = re.findall(r'^```json\r?\n(.*?)^```[ \t]*\r?$', read(prefix + '.md').decode('utf-8'), re.M | re.S)
+    blocks = JSON_BLOCK.findall(read(prefix + '.md').decode('utf-8'))
     if len(blocks) != 1 or json.dumps(parse(blocks[0]), sort_keys=True) != json.dumps(document, sort_keys=True):
         raise ValueError('Markdown and JSON evidence differ')
     paths = set()
@@ -161,11 +191,11 @@ class FeatureNameError(ValueError):
     """A feature name the DDD lane cannot use; the message says why."""
 
 
-def evidence(root, feature, read=None, *, allow_local=False, require_v2=False):
+def evidence(root, feature, read=None, *, allow_local=False, require_v2=False, reject_v1=False):
     """Legacy decision packets require signed evidence. Other consumers opt in explicitly."""
     source = read or (lambda path, optional: conditional.read_safe(root, path, optional))
     cached, observed = snapshot_reader(source)
-    document, inputs = collect(feature, cached, allow_local=allow_local, require_v2=require_v2)
+    document, inputs = collect(feature, cached, allow_local=allow_local, require_v2=require_v2, reject_v1=reject_v1)
     for path, data in observed.items():
         if source(path, True) != data:
             raise ValueError('Concept Test inputs changed during validation')
@@ -186,7 +216,8 @@ def validate(root, feature, require_v2=False):
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
         raise FeatureNameError('concept-test: BLOCK: DDD features need lowercase kebab-case names '
                                '([a-z0-9][a-z0-9-]*); rename specs/' + feature + '/ to use the DDD lane')
-    document, _ = evidence(root, feature, allow_local=True, require_v2=require_v2)
+    # v1 records are retired for the validator and the gate (owner decision 2026-11-26).
+    document, _ = evidence(root, feature, allow_local=True, require_v2=require_v2, reject_v1=True)
     return DECISIONS[document['decision']] if 'decision' in document else 'CONTINUE'
 
 

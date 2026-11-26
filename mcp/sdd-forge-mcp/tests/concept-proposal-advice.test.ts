@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { rmSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { test, type TestContext } from "node:test";
 import { conceptAdvice, conceptProposalAdvice } from "../src/concept-proposal-advice.js";
+import { repoPath } from "./locate-source.js";
 import { makeTempSddRoot, writeFile } from "./test-helpers.js";
 
 function fixture(t: TestContext) {
@@ -148,12 +153,26 @@ test("FITS without a decision gives no stop advice and mixed FITS records requir
   assert.match(f.advise()?.action.command ?? "", /--require-v2/);
 });
 
-test("historical v1 routes are left to the signed validator", t => {
-  const f = fixture(t);
-  f.propose("NEW_CONCEPT_CANDIDATE", "concept-test/v1");
-  f.write(".approval.json", "{}");
-  assert.equal(f.advise(true), undefined);
-  assert.equal(f.advise(false), undefined);
+const RECREATE = "human: recreate the Concept Test proposal for orders as concept-test/v2";
+
+function assertRecreateAdvice(action: { command: string; rationale: string } | undefined) {
+  assert.equal(action?.command, RECREATE);
+  assert.match(action.rationale, /concept-test\/v1/);
+  // A leftover approval blocks every v2 run, so it is deleted before recreating.
+  const leftover = action.rationale.indexOf("specs/orders/concept-test.approval.json");
+  assert.ok(leftover >= 0 && leftover < action.rationale.indexOf("作り直"), action.rationale);
+  assert.match(action.rationale, /domain\//);
+  // Like the other BLOCK advice: re-validate, then re-run the quality gate.
+  assert.match(action.rationale, /--require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行/);
+}
+
+test("a v1 record, signed or not, is advised to be recreated as v2", t => {
+  for (const classification of ["FITS_EXISTING_CONCEPTS", "NEW_CONCEPT_CANDIDATE"]) {
+    const f = fixture(t);
+    f.propose(classification, "concept-test/v1");
+    if (classification !== "FITS_EXISTING_CONCEPTS") f.write(".approval.json", "{}");
+    for (const bootstrap of [true, false]) assertRecreateAdvice(f.advise(bootstrap)?.action);
+  }
 });
 
 test("a v2 proposal combined with an old approval does not prompt for another decision", t => {
@@ -163,12 +182,85 @@ test("a v2 proposal combined with an old approval does not prompt for another de
   assert.match(f.advise()?.action.command ?? "", /--require-v2/);
 });
 
-test("a Markdown-only v1 history does not re-open a past bootstrap seed", t => {
+test("a Markdown-only v1 record is advised to be recreated, not to re-open the bootstrap seed", t => {
   const f = fixture(t);
   f.write("-seed.md", "Order a book.\n");
   f.write(".md", '```json\n{"schema":"concept-test/v1"}\n```\n');
-  assert.equal(f.advise(true), undefined);
-  assert.equal(f.advise(false), undefined);
+  for (const bootstrap of [true, false]) assertRecreateAdvice(f.advise(bootstrap)?.action);
+});
+
+test("the advice recognizes the retirement exactly as the validator and the gate emit it", t => {
+  // Run the shipped producers so their wording cannot drift from the MCP copies.
+  const f = fixture(t);
+  writeFile(f.dir, "specs/orders/tasks.md", "## T-001 t\nApproval: Approved\nStatus: Implementation Complete\n"
+    + "Risk: standard\n\n### Scope\n- `src/a.js`\n\n### Done When\n- AC-001\n");
+  f.write(".json", JSON.stringify({ schema: "concept-test/v1" }));
+  const run = (command: string, args: string[]) => {
+    const result = spawnSync(command, args, { cwd: f.dir, encoding: "utf8" });
+    assert.equal(result.error, undefined, String(result.error));
+    return result;
+  };
+  const validator = run(process.platform === "win32" ? "python" : "python3",
+    [repoPath("plugins/sdd-domain/scripts/validate-concept-test.py"), "--root", f.dir, "--feature", "orders", "--require-v2"]);
+  assert.equal(validator.status, 1, validator.stderr);
+  const program = "import(process.argv[1]).then((m) => console.log(JSON.stringify(m.runSddGate({ feature: 'orders', "
+    + "taskId: 'T-001', projectRoot: process.argv[2], skipDrift: true, skipSensors: true }).result.checks.conceptTest)))";
+  const gate = () => {
+    const result = run(process.execPath, ["--input-type=module", "-e", program,
+      pathToFileURL(repoPath("plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs")).href, f.dir]);
+    assert.equal(result.status, 0, result.stderr);
+    return JSON.parse(result.stdout.trim().split("\n").at(-1) ?? "") as { status: string; error: string };
+  };
+  const workingTree = gate();
+  assert.equal(workingTree.error, validator.stderr.trim());
+  run("git", ["init", "-q"]);
+  run("git", ["add", "specs/orders/concept-test.json"]);
+  rmSync(join(f.dir, "specs/orders/concept-test.json"));
+  const indexed = gate();
+  assert.ok(indexed.error.startsWith(workingTree.error), indexed.error);
+  for (const [check, staged] of [[workingTree, false], [indexed, true]] as const) {
+    assert.equal(check.status, "BLOCK");
+    // The working-tree stop is current only while the v1 record is still there.
+    if (!staged) f.write(".json", JSON.stringify({ schema: "concept-test/v1" }));
+    else rmSync(join(f.dir, "specs/orders/concept-test.json"), { force: true });
+    f.recordGate("BLOCK", check.error);
+    const advice = f.afterGate();
+    assertRecreateAdvice(advice);
+    assert.equal(/インデックス/.test(advice?.rationale ?? ""), staged, check.error);
+  }
+});
+
+const RETIRED_STOP = "concept-test: BLOCK: concept-test/v1 records are no longer supported; delete any leftover "
+  + "specs/orders/concept-test.approval.json first, then recreate the proposal as concept-test/v2 by running the "
+  + "Concept Test again. In a project without domain/, where the Concept Test does not run, delete "
+  + "specs/orders/concept-test.md, specs/orders/concept-test.json and specs/orders/concept-test.approval.json instead";
+const INDEXED_STOP = RETIRED_STOP + ". The Git index still holds the v1 record; stage its removal too.";
+
+test("a gate stopped on a retired v1 record advises recreating it while the record remains", t => {
+  for (const [error, staged] of [[RETIRED_STOP, false], [INDEXED_STOP, true]] as const) {
+    const f = fixture(t);
+    // The index note is the gate's own observation; the MCP reader cannot see the index.
+    if (!staged) f.propose("FITS_EXISTING_CONCEPTS", "concept-test/v1");
+    f.recordGate("BLOCK", error);
+    const advice = f.afterGate();
+    assertRecreateAdvice(advice);
+    assert.equal(/インデックス/.test(advice?.rationale ?? ""), staged);
+  }
+});
+
+test("after a migration the recorded v1 stop asks for re-validation and a gate re-run", t => {
+  const f = fixture(t);
+  f.recordGate("BLOCK", RETIRED_STOP);
+  f.propose("FITS_EXISTING_CONCEPTS");
+  const migrated = f.afterGate();
+  assert.match(migrated?.command ?? "", /validate-concept-test.*--require-v2/);
+  assert.match(migrated?.rationale ?? "", /CONTINUE なら品質ゲートを再実行/);
+  // Without domain/ the v1 files are deleted and nothing is left to validate.
+  const g = fixture(t);
+  g.recordGate("BLOCK", RETIRED_STOP);
+  const removed = g.afterGate();
+  assert.equal(removed?.command, "human: re-run the quality gate for orders");
+  assert.match(removed?.rationale ?? "", /reports\/quality-gate\/orders-T-001\.execution\.json/);
 });
 
 test("a Markdown-only v2 proposal needs its companion JSON", t => {

@@ -2108,7 +2108,10 @@
     },
     {
       "path": "tests/workflow-state-session.tests.py",
-      "runtime": "python"
+      "runtime": "python",
+      "ci_jobs": [
+        "cloud-and-ddd"
+      ]
     },
     {
       "path": "tests/workflow-state-parity.tests.sh",

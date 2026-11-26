@@ -1149,8 +1149,9 @@ workflow_conditional_paths() {
       research_args=(--history-contract "$history_contract")
     fi
   fi
+  # Passed review contracts are history: they keep their concept-test/v1 provenance.
   selected=$(python3 "$SCRIPT_DIRECTORY/review-conditional-inputs.py" \
-    --root "$REPO_ROOT" --feature "$feature" --stage "$stage" "${research_args[@]}") || return 1
+    --root "$REPO_ROOT" --feature "$feature" --stage "$stage" --allow-v1-history "${research_args[@]}") || return 1
   jq -ce --slurpfile contracts "$contract" --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
     def relative:
       gsub("\\\\"; "/") |

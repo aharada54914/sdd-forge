@@ -23,8 +23,8 @@ user-invocable: false
 1. **決定論チェックの一括実行（`run-sdd-gate.mjs`）**:
    プロジェクトの lint / typecheck / build / test コマンドを渡し、単一コマンドで以下を実行・記録する:
    - タスク前提確認（`Approval: Approved`, `Status: Implementation Complete`、または仕様変更後の再検証では `Done`）
-   - 対象 feature に `concept-test/v2` の提案・人手判断記録がある場合、同梱の読取専用 `validate-concept-test --require-v2` で現在の入力と判断を照合する。結果は `checks.conceptTest` に保存し、`DEFER`、`REJECT`、`BLOCK` では指定コマンドの実行前に停止する。変更ファイルの絞り込み、drift・sensor の省略はこの判定に影響しない。
-   - 対象プロジェクト・featureの現在の作業木とGitインデックスで適用を判定する。祖先にだけある草稿や判断は適用根拠に含めない。現在のv2提案、判断記録、不完全な証拠は配布validatorで照合する。Git CLIが使えず作業木にも対象証拠がなければ `history: GIT_UNAVAILABLE` を記録する。Gitが起動してもインデックスの読取りに失敗した場合は停止する。
+   - 対象 feature に Concept Test の提案・人手判断記録がある場合（形式を問わない）、同梱の読取専用 `validate-concept-test --require-v2` で現在の入力と判断を照合する。結果は `checks.conceptTest` に保存し、`DEFER`、`REJECT`、`BLOCK` では指定コマンドの実行前に停止する。変更ファイルの絞り込み、drift・sensor の省略はこの判定に影響しない。
+   - 対象プロジェクト・featureの現在の作業木とGitインデックスで適用を判定する。祖先にだけある草稿や判断は適用根拠に含めない。現在の提案、判断記録、不完全な証拠は配布validatorで照合する。廃止した `concept-test/v1` の記録は、作業木にあっても Git インデックスだけにあっても `concept-test/v1 records are no longer supported` と移行方法を示して `BLOCK` になる。Git CLIが使えず作業木にも対象証拠がなければ `history: GIT_UNAVAILABLE` を記録する。Gitが起動してもインデックスの読取りに失敗した場合は停止する。
    - `concept-test.decision.json` は人が対話確認で作成する。ソフトガードは対応ホストのファイル編集とパッチからの作成・変更・削除・移動を拒否する。端末操作はフックの検査対象外で、記録だけから操作者の本人性は判定できない。
    - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` と `UNVERIFIABLE`（読取上限超で未判定の仕様ファイルあり）は自動 FAIL。ベースライン後に承認されたタスクは `APPROVED_AFTER_BASELINE` 警告になるため、独立レビューで人間の承認であることを確認する）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。

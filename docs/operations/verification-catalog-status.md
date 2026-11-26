@@ -12,7 +12,7 @@
 
 | カタログのジョブ名 | 現行に存在 | 登録数 | 実行中 | CI 外 | 廃止 |
 |---|---|---|---|---|---|
-| `cloud-and-ddd` | yes | 3 | 3 | 0 | 0 |
+| `cloud-and-ddd` | yes | 4 | 4 | 0 | 0 |
 | `cloud-native` | no | 5 | 4 | 1 | 0 |
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
 | `installers` | yes | 7 | 2 | 5 | 0 |

@@ -87,6 +87,21 @@ class CodexVersionedCacheTests(concept_tests.ConceptTests):
         self.assertIn('source checkout', check['error'])
         self.assertNotIn('install with install.sh', check['error'])  # Codex installs go through the cache too
 
+    def test_versioned_cache_gate_names_the_v1_retirement_before_the_runtime(self):
+        # A retired v1 record needs recreating whatever the runtime layout; #812 would mislead.
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        for markdown_only in (False, True):
+            with self.subTest(markdown_only=markdown_only):
+                if markdown_only:
+                    (self.feature / 'concept-test.json').unlink()
+                check = self.gate(self.installed['sdd-quality-loop'])
+                self.assertEqual('BLOCK', check['status'])
+                self.assertTrue(check['error'].startswith(
+                    'concept-test: BLOCK: ' + concept_tests.V1_RETIRED_PREFIX), check['error'])
+                self.assertNotIn('#812', check['error'])
+                self.assertNotIn('Git index', check['error'])
+
     @unittest.expectedFailure  # #812: the wrapper reaches ../../sdd-quality-loop and repo-level contracts/.
     def test_versioned_cache_wrapper_continues(self):
         result = self.wrapper(self.installed['sdd-domain'])
