@@ -816,7 +816,7 @@ sh plugins/sdd-domain/scripts/validate-concept-test.sh --root . --feature catalo
 
 PowerShell では `plugins/sdd-domain/scripts/validate-concept-test.ps1` に同じ引数を渡します。表示された提案と根拠を確認して、進行・ドメインモデル更新まで保留・却下のいずれかを選びます。新形式では個人の署名鍵や承認者の事前登録は不要です。
 
-判断は対象の feature と提案の内容に結び付けて保存されます。内容を変更した場合は、新しい内容を確認してください。自動検証は `--confirm` を省いて実行します。`concept-test/v1` の記録は廃止しました（2026-11-26 の所有者判断）。検証器、品質ゲート、作業ツリーを読むレビューの起動は、署名付きの v1 記録でも `concept-test/v1 records are no longer supported` で停止します。Concept Test をもう一度実行して `concept-test/v2` の提案として作り直し、残った `concept-test.approval.json` を削除してください。`domain/` のないプロジェクトでは、v1 の記録ファイルを削除してください。固定リビジョンのレビューで過去の署名付き判断を調べるときは、当時の承認者登録と署名検証手順を使います。
+判断は対象の feature と提案の内容に結び付けて保存されます。内容を変更した場合は、新しい内容を確認してください。自動検証は `--confirm` を省いて実行します。`concept-test/v1` の記録は廃止しました（2026-11-26 の所有者判断）。検証器、品質ゲート、作業ツリーを読むレビューの起動は、署名付きの v1 記録でも `concept-test/v1 records are no longer supported` で停止します。Concept Test をもう一度実行して `concept-test/v2` の提案として作り直し、残った `concept-test.approval.json` を削除してください。`domain/` のないプロジェクトでは、v1 の記録ファイルを削除してください。合格済みレビューの照合、固定リビジョンのレビュー、decision packet は履歴として v1 の記録を読み続けます。過去の署名付き判断を調べるときは、当時の承認者登録と署名検証手順を使います。
 
 ---
 

@@ -23,6 +23,6 @@ user-invocable: false
 
 提案や入力の変更後は、ピンを更新した提案を示して再確認する。再確認画面には前の判断が表示され、ファイルの生バイトが変われば古い判断は失効する。別担当の確認中は再試行する。実行が強制終了して `concept-test.decision.lock` が残った場合は、確認プロセスが終了したことを人が確かめてからそのロックだけを除き、改めて確認する。
 
-`concept-test/v1` の記録は廃止した（2026-11-26 の所有者判断）。検証器、品質ゲート、作業ツリーを読むレビューの起動は、署名付きの v1 記録も `concept-test/v1 records are no longer supported` で停止する。この Concept Test をもう一度実行し、`concept-test/v2` の提案として作り直してから、残った `concept-test.approval.json` を削除する。`domain/` のないプロジェクトでは Concept Test を実行しないため、v1 の記録ファイルを削除する。自動移行は行わない。過去のレビューで固定した時点の入力を読む場合（`review-conditional-inputs.py --revision`）は、その時点の v1 記録をそのまま読む。
+`concept-test/v1` の記録は廃止した（2026-11-26 の所有者判断）。検証器、品質ゲート、作業ツリーを読むレビューの起動は、署名付きの v1 記録も `concept-test/v1 records are no longer supported` で停止する。この Concept Test をもう一度実行し、`concept-test/v2` の提案として作り直してから、残った `concept-test.approval.json` を削除する。`domain/` のないプロジェクトでは Concept Test を実行しないため、v1 の記録ファイルを削除する。自動移行は行わない。合格済みレビューの入力の照合（`check-workflow-state`）と、過去のレビューで固定した時点の入力を読む場合（`review-conditional-inputs.py --revision`）は、履歴として v1 記録をそのまま読む。
 
 モノレポでは対象プロジェクトを `--root` に指定する。通常の検査と四つのレビュー段階の `review-conditional-inputs.py --revision <SHA>` は、そのプロジェクト配下の提案・判断を読む。旧固定レビューの入力一覧は Git 作業ツリーのルートを基準とし、サブディレクトリを対象にしてその一覧を渡すと停止する。この場合、対象プロジェクトの live レビューを使う。固定 SHA で条件入力を照合することもできるが、その照合だけではレビューの合否は確定しない。

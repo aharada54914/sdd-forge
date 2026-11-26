@@ -20,6 +20,6 @@ Git ワークツリー内のサブディレクトリをプロジェクトにし�
 
 ## 改訂（2026-11-26）: v1 の廃止
 
-所有者の判断（2026-11-26、PR #983 の第1段階）で、`concept-test/v1` の記録を廃止した。検証器、品質ゲート、作業ツリーを読むレビューの起動（`review-conditional-inputs.py` を固定リビジョンなしで実行する場合）は、署名付きの v1 記録も `concept-test/v1 records are no longer supported` で停止する。利用者は Concept Test をもう一度実行して `concept-test/v2` の提案として作り直し、残った `concept-test.approval.json` を削除する。`domain/` のないプロジェクトでは v1 の記録ファイルを削除する。自動移行は行わない。
+所有者の判断（2026-11-26、PR #983 の第1段階）で、`concept-test/v1` の記録を廃止した。署名付きの v1 記録も `concept-test/v1 records are no longer supported` で停止する。品質ゲートは作業ツリーの v1 記録（JSON、または Markdown だけの記録）と Git インデックスだけに残った v1 記録で停止する。新しいレビューの起動（`review-conditional-inputs.py` を固定リビジョンなしで実行する場合）と検証器は、作業ツリーの v1 記録で停止する。検証器は `domain/` がなく `--require-v2` も指定しない場合、従来どおり `SKIP` を返す。利用者は Concept Test をもう一度実行して `concept-test/v2` の提案として作り直し、残った `concept-test.approval.json` を削除する。`domain/` のないプロジェクトでは v1 の記録ファイルを削除する。自動移行は行わない。
 
-固定リビジョンを指定したレビューと decision packet は、v1 の署名付き記録を引き続き従来の方式で検証する。このため v1 の署名と検証のコードは残す。コードの削除（第2段階）は所有者が見送った。「互換性」の第1段落のうち、作業ツリーの v1 記録を従来の方式で検証するという部分は、この改訂で置き換える。
+合格済みレビューの入力の照合（`check-workflow-state` が `review-conditional-inputs.py --allow-v1-history` で行う stage-provenance）、固定リビジョンを指定したレビュー、decision packet は履歴の読み取りであり、v1 の記録を引き続き従来の方式で検証する。v1 の時期に合格したレビューは、その v1 の入力を根拠として有効なままである。このため v1 の署名と検証のコードは残す。コードの削除（第2段階）は所有者が見送った。「互換性」の第1段落のうち、作業ツリーの v1 記録を従来の方式で検証するという部分は、この改訂で置き換える。
