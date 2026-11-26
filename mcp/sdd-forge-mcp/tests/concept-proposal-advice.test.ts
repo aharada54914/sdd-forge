@@ -148,12 +148,22 @@ test("FITS without a decision gives no stop advice and mixed FITS records requir
   assert.match(f.advise()?.action.command ?? "", /--require-v2/);
 });
 
-test("historical v1 routes are left to the signed validator", t => {
-  const f = fixture(t);
-  f.propose("NEW_CONCEPT_CANDIDATE", "concept-test/v1");
-  f.write(".approval.json", "{}");
-  assert.equal(f.advise(true), undefined);
-  assert.equal(f.advise(false), undefined);
+const RECREATE = "human: recreate the Concept Test proposal for orders as concept-test/v2";
+
+function assertRecreateAdvice(action: { command: string; rationale: string } | undefined) {
+  assert.equal(action?.command, RECREATE);
+  assert.match(action.rationale, /concept-test\/v1/);
+  assert.match(action.rationale, /specs\/orders\/concept-test\.approval\.json/);
+  assert.match(action.rationale, /domain\//);
+}
+
+test("a v1 record, signed or not, is advised to be recreated as v2", t => {
+  for (const classification of ["FITS_EXISTING_CONCEPTS", "NEW_CONCEPT_CANDIDATE"]) {
+    const f = fixture(t);
+    f.propose(classification, "concept-test/v1");
+    if (classification !== "FITS_EXISTING_CONCEPTS") f.write(".approval.json", "{}");
+    for (const bootstrap of [true, false]) assertRecreateAdvice(f.advise(bootstrap)?.action);
+  }
 });
 
 test("a v2 proposal combined with an old approval does not prompt for another decision", t => {
@@ -163,12 +173,28 @@ test("a v2 proposal combined with an old approval does not prompt for another de
   assert.match(f.advise()?.action.command ?? "", /--require-v2/);
 });
 
-test("a Markdown-only v1 history does not re-open a past bootstrap seed", t => {
+test("a Markdown-only v1 record is advised to be recreated, not to re-open the bootstrap seed", t => {
   const f = fixture(t);
   f.write("-seed.md", "Order a book.\n");
   f.write(".md", '```json\n{"schema":"concept-test/v1"}\n```\n');
-  assert.equal(f.advise(true), undefined);
-  assert.equal(f.advise(false), undefined);
+  for (const bootstrap of [true, false]) assertRecreateAdvice(f.advise(bootstrap)?.action);
+});
+
+test("a gate stopped on a retired v1 record advises recreating it", t => {
+  const retired = "concept-test: BLOCK: concept-test/v1 records are no longer supported; recreate the proposal as "
+    + "concept-test/v2 by running the Concept Test again, then delete any leftover "
+    + "specs/orders/concept-test.approval.json. In a project without domain/, where the Concept Test does not run, "
+    + "delete specs/orders/concept-test.md, specs/orders/concept-test.json and "
+    + "specs/orders/concept-test.approval.json instead";
+  for (const [error, staged] of [[retired, false],
+    [retired + ". The Git index still holds the v1 record; stage its removal too.", true]] as const) {
+    const f = fixture(t);
+    f.recordGate("BLOCK", error);
+    const advice = f.afterGate();
+    assertRecreateAdvice(advice);
+    assert.match(advice?.rationale ?? "", /reports\/quality-gate\/orders-T-001\.execution\.json/);
+    assert.equal(/インデックス/.test(advice?.rationale ?? ""), staged);
+  }
 });
 
 test("a Markdown-only v2 proposal needs its companion JSON", t => {
