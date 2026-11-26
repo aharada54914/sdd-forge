@@ -748,8 +748,12 @@ export function runSddGate({
 
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const tasksPath = path.join(root, 'specs', feature, 'tasks.md');
-  if (!fs.existsSync(tasksPath)) {
+  const tasksStat = fs.statSync(tasksPath, { throwIfNoEntry: false });
+  if (!tasksStat) {
     throw new Error(`Tasks file not found: specs/${feature}/tasks.md`);
+  }
+  if (!tasksStat.isFile()) {
+    throw new Error(`Tasks file specs/${feature}/tasks.md is not a regular file`);
   }
 
   const taskState = parseTaskBlock(fs.readFileSync(tasksPath, 'utf8'), taskId);
