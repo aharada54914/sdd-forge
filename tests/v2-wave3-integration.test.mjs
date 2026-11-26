@@ -200,11 +200,32 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock 
     // console.log can emit different line endings, which is a real byte difference.
     const versionCommand = 'node -e "console.log(process.version)"';
     const rebuild = (...args) => gate(dir, '--mode', 'rebuild', '--baseline-cmd', versionCommand, ...args);
-    const slow = rebuild('--candidate-cmd', 'node -e "setTimeout(() => console.log(process.version), 60)"');
-    assert.equal(slow.code, 1);
-    assert.equal(slow.checks.rebuildDifferential.differentialMatched, true);
-    assert.equal(slow.checks.rebuildDifferential.nfrPassed, false);
-    assert.match(slow.checks.rebuildDifferential.nfrViolations.join(' '), /1\.1/);
+    // Advance the gate's clock from the two commands so host scheduling cannot mask a regression.
+    const elapsed = path.join(dir, 'elapsed.txt');
+    const clock = path.join(dir, 'sample-clock.cjs');
+    fs.writeFileSync(elapsed, '0');
+    fs.writeFileSync(clock, [
+      "const fs = require('node:fs');",
+      `const elapsed = ${JSON.stringify(elapsed)};`,
+      "const now = () => Number(fs.readFileSync(elapsed, 'utf8'));",
+      'if (require.main === module) {',
+      '  fs.writeFileSync(elapsed, String(now() + Number(process.argv[2])));',
+      '  process.stdout.write(process.version);',
+      '} else {',
+      "  Object.defineProperty(performance, 'now', { value: now });",
+      '}',
+    ].join('\n'));
+    const sample = `node "${clock}"`;
+    const slow = spawnSync(process.execPath, ['--require', clock, GATE_CLI, '--root', dir,
+      '--feature', 'rebuild-demo', '--task', 'T-001', '--mode', 'rebuild',
+      '--baseline-cmd', sample + ' 100', '--candidate-cmd', sample + ' 111'], { encoding: 'utf8' });
+    assert.equal(slow.status, 1, slow.stderr || slow.stdout);
+    const measured = JSON.parse(slow.stdout).checks.rebuildDifferential;
+    assert.deepEqual([measured.baseline.samples, measured.candidate.samples], [20, 20]);
+    assert.deepEqual([measured.baseline.p95Ms, measured.candidate.p95Ms], [100, 111]);
+    assert.equal(measured.differentialMatched, true);
+    assert.equal(measured.nfrPassed, false);
+    assert.match(measured.nfrViolations.join(' '), /1\.1/);
     fs.writeFileSync(path.join(dir, 'nfr-budget.json'), '{"max_duration_ms":0.1,"max_regression_ratio":10}');
     git(dir, 'commit', '-qam', 'absolute budget');
     const capped = rebuild('--candidate-cmd', versionCommand);

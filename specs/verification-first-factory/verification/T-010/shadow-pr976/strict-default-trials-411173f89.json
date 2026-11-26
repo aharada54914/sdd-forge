@@ -1,0 +1,1087 @@
+{
+  "candidate": "411173f896d28345f1d81021e8fadc89300157d6",
+  "offline_defaults": {
+    "candidate": "411173f896d28345f1d81021e8fadc89300157d6",
+    "tree": "26ebb7a24e8193aa578c437bd593fea2a6a171b1",
+    "source": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+    "source_sha256_stock_and_reverted": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+    "source_sha256_single_default_edit": {
+      "agent_lint": "81de70f72fba1e226df203dc01a81e852d6feaa971c49a5c7e1033c4701be6f3",
+      "security_audit": "33720f9c94bff2a16ab01c548150a131937a354a7e483f4351b63c0c18d33534"
+    },
+    "candidate_checkout_clean_after_revert": true,
+    "method": "Offline local CLI controls, CI=false. Start from pinned source in a detached temporary copy. Per gate independently, change only DEFAULT_CONFIG.<gate>.mode from shadow to strict; enabled remains false. Restore original source bytes before testing rollback. Fixtures contain one explicit input each; no historical or fixture program ran. No scanner CLI mode flags, gate-enabling flags or adapter overrides were passed. run-sdd-gate receives --skip-drift --skip-sensors --changed-files <fixture>; no unrelated checks failed and no verification commands ran. Only counts, status, and mode retained.",
+    "fixture_notes": {
+      "agent_lint": "Ordinary JSON parser, console-output warning, empty catch error. Source parsed only.",
+      "security_audit": "Ordinary package manifest, public documentation example for builtin-secret-pattern, existing synthetic manifest for builtin-slopsquatting. Both shipped adapters ran whenever enabled; no packages fetched, installed, or executed."
+    },
+    "controls": [
+      {
+        "name": "stock_absent",
+        "distribution": "stock",
+        "settings": null
+      },
+      {
+        "name": "stock_mode_only",
+        "distribution": "stock",
+        "settings": {
+          "mode": "strict"
+        }
+      },
+      {
+        "name": "stock_enabled",
+        "distribution": "stock",
+        "settings": {
+          "enabled": true
+        }
+      },
+      {
+        "name": "stock_user_strict",
+        "distribution": "stock",
+        "settings": {
+          "enabled": true,
+          "mode": "strict"
+        }
+      },
+      {
+        "name": "distribution_absent",
+        "distribution": "modified",
+        "settings": null
+      },
+      {
+        "name": "distribution_mode_only",
+        "distribution": "modified",
+        "settings": {
+          "mode": "strict"
+        }
+      },
+      {
+        "name": "distribution_enabled",
+        "distribution": "modified",
+        "settings": {
+          "enabled": true
+        }
+      },
+      {
+        "name": "distribution_user_shadow",
+        "distribution": "modified",
+        "settings": {
+          "enabled": true,
+          "mode": "shadow"
+        }
+      },
+      {
+        "name": "distribution_user_off",
+        "distribution": "modified",
+        "settings": {
+          "enabled": true,
+          "mode": "off"
+        }
+      },
+      {
+        "name": "reverted_enabled",
+        "distribution": "restored",
+        "settings": {
+          "enabled": true
+        }
+      }
+    ],
+    "columns": [
+      "standalone_mode",
+      "standalone_status",
+      "standalone_exit",
+      "umbrella_check_mode_or_null_if_omitted",
+      "umbrella_check_status",
+      "umbrella_process_exit",
+      "finding_count_each_entry_point"
+    ],
+    "public_cli_executions": 120,
+    "matrix": {
+      "agent_lint": {
+        "stock_absent": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "warn_only": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "error": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "stock_mode_only": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "warn_only": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "error": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "stock_enabled": {
+          "clean": [
+            "shadow",
+            "PASS",
+            0,
+            "shadow",
+            "PASS",
+            0,
+            0
+          ],
+          "warn_only": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ],
+          "error": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ]
+        },
+        "stock_user_strict": {
+          "clean": [
+            "strict",
+            "PASS",
+            0,
+            "strict",
+            "PASS",
+            0,
+            0
+          ],
+          "warn_only": [
+            "strict",
+            "WARN",
+            0,
+            "strict",
+            "WARN",
+            0,
+            1
+          ],
+          "error": [
+            "strict",
+            "FAIL",
+            1,
+            "strict",
+            "FAIL",
+            1,
+            1
+          ]
+        },
+        "distribution_absent": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "warn_only": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "error": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "distribution_mode_only": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "warn_only": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "error": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "distribution_enabled": {
+          "clean": [
+            "strict",
+            "PASS",
+            0,
+            "strict",
+            "PASS",
+            0,
+            0
+          ],
+          "warn_only": [
+            "strict",
+            "WARN",
+            0,
+            "strict",
+            "WARN",
+            0,
+            1
+          ],
+          "error": [
+            "strict",
+            "FAIL",
+            1,
+            "strict",
+            "FAIL",
+            1,
+            1
+          ]
+        },
+        "distribution_user_shadow": {
+          "clean": [
+            "shadow",
+            "PASS",
+            0,
+            "shadow",
+            "PASS",
+            0,
+            0
+          ],
+          "warn_only": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ],
+          "error": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ]
+        },
+        "distribution_user_off": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            "off",
+            "SKIPPED",
+            0,
+            0
+          ],
+          "warn_only": [
+            "off",
+            "SKIPPED",
+            0,
+            "off",
+            "SKIPPED",
+            0,
+            0
+          ],
+          "error": [
+            "off",
+            "SKIPPED",
+            0,
+            "off",
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "reverted_enabled": {
+          "clean": [
+            "shadow",
+            "PASS",
+            0,
+            "shadow",
+            "PASS",
+            0,
+            0
+          ],
+          "warn_only": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ],
+          "error": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ]
+        }
+      },
+      "security_audit": {
+        "stock_absent": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "known_manifest_fixture": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "stock_mode_only": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "known_manifest_fixture": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "stock_enabled": {
+          "clean": [
+            "shadow",
+            "PASS",
+            0,
+            "shadow",
+            "PASS",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ],
+          "known_manifest_fixture": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ]
+        },
+        "stock_user_strict": {
+          "clean": [
+            "strict",
+            "PASS",
+            0,
+            "strict",
+            "PASS",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "strict",
+            "FAIL",
+            1,
+            "strict",
+            "FAIL",
+            1,
+            1
+          ],
+          "known_manifest_fixture": [
+            "strict",
+            "FAIL",
+            1,
+            "strict",
+            "FAIL",
+            1,
+            1
+          ]
+        },
+        "distribution_absent": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "known_manifest_fixture": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "distribution_mode_only": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ],
+          "known_manifest_fixture": [
+            "off",
+            "SKIPPED",
+            0,
+            null,
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "distribution_enabled": {
+          "clean": [
+            "strict",
+            "PASS",
+            0,
+            "strict",
+            "PASS",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "strict",
+            "FAIL",
+            1,
+            "strict",
+            "FAIL",
+            1,
+            1
+          ],
+          "known_manifest_fixture": [
+            "strict",
+            "FAIL",
+            1,
+            "strict",
+            "FAIL",
+            1,
+            1
+          ]
+        },
+        "distribution_user_shadow": {
+          "clean": [
+            "shadow",
+            "PASS",
+            0,
+            "shadow",
+            "PASS",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ],
+          "known_manifest_fixture": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ]
+        },
+        "distribution_user_off": {
+          "clean": [
+            "off",
+            "SKIPPED",
+            0,
+            "off",
+            "SKIPPED",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "off",
+            "SKIPPED",
+            0,
+            "off",
+            "SKIPPED",
+            0,
+            0
+          ],
+          "known_manifest_fixture": [
+            "off",
+            "SKIPPED",
+            0,
+            "off",
+            "SKIPPED",
+            0,
+            0
+          ]
+        },
+        "reverted_enabled": {
+          "clean": [
+            "shadow",
+            "PASS",
+            0,
+            "shadow",
+            "PASS",
+            0,
+            0
+          ],
+          "public_doc_example": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ],
+          "known_manifest_fixture": [
+            "shadow",
+            "WARN",
+            0,
+            "shadow",
+            "WARN",
+            0,
+            1
+          ]
+        }
+      }
+    }
+  },
+  "offline_formal": {
+    "schema": "formal-consumer-canary/v1",
+    "candidate": "411173f896d28345f1d81021e8fadc89300157d6",
+    "result": "all expected assertions matched",
+    "environment": {
+      "platform": "macOS arm64",
+      "node": "24.13.0",
+      "java": "Temurin 21.0.13.1+2",
+      "adapter": "Default TLC, release 1.7.4",
+      "jar_sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+    },
+    "temporary_mutation": {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "key": "formal_verification.mode",
+      "from": "shadow",
+      "to": "strict",
+      "numstat": [
+        1,
+        1
+      ],
+      "original_sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+      "canary_sha256": "2194a0daac694bf1f28f26ec2750df9bdf59b3b867296e0736e7c5f4913555bd",
+      "restored_sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+      "checkout_clean_after": true
+    },
+    "fixture": {
+      "task": "Synthetic high-risk Approved / Implementation Complete",
+      "traces": "Candidate-tracked lock-observed.ndjson and pass-observed.ndjson. Invalid TaskLock changes Acquire.leaseActive to false; invalid GateLifecycle changes StartTask.rounds to 1.",
+      "normal_result": "The default TLC baseline exits 0, built-in named negative exits 12, trace replay exits 12 on reaching the last observation.",
+      "invalid_result": "Actual trace no longer reachable: baseline 0, built-in named negative 12, trace replay 0 and formal FAIL.",
+      "scope": "Isolated consumer with drift/sensors omitted and no project verification commands; aggregate verdicts are limited to this controlled routing/exit test."
+    },
+    "routes": {
+      "full": "node run-sdd-gate.mjs --root <project> --feature canary --task T-001 --changed-files changed.txt --skip-drift --skip-sensors [--formal-tla models/<model>.tla] [--formal-trace <trace>.ndjson]",
+      "standalone": "node run-formal-gate.mjs --root <project> --risk high --tla models/<model>.tla --trace <trace>.ndjson [--mode shadow]"
+    },
+    "result_columns": [
+      "formal.mode, or null when not invoked",
+      "formal.status",
+      "process exit code"
+    ],
+    "cases": [
+      {
+        "case": "ordinary-install",
+        "route": "full",
+        "source_default": "strict",
+        "config": null,
+        "model": "TaskLock",
+        "trace": "invalid",
+        "result": [
+          "off",
+          "SKIPPED",
+          0
+        ],
+        "aggregate_verdict": "PASS"
+      },
+      {
+        "case": "enabled-no-model",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": null,
+        "trace": null,
+        "result": [
+          null,
+          "SKIPPED",
+          0
+        ],
+        "aggregate_verdict": "PASS"
+      },
+      {
+        "case": "enabled-only-trace",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": null,
+        "trace": "invalid",
+        "result": [
+          null,
+          "SKIPPED",
+          0
+        ],
+        "aggregate_verdict": "PASS"
+      },
+      {
+        "case": "enabled-default-valid-TaskLock",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "TaskLock",
+        "trace": "valid",
+        "result": [
+          "strict",
+          "PASS",
+          0
+        ],
+        "aggregate_verdict": "PASS",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 12
+        }
+      },
+      {
+        "case": "enabled-default-invalid-TaskLock",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "TaskLock",
+        "trace": "invalid",
+        "result": [
+          "strict",
+          "FAIL",
+          1
+        ],
+        "aggregate_verdict": "FAIL",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 0
+        },
+        "errors": [
+          "The baseline model could not reproduce the observed trace: step 1 (Acquire) was unreachable"
+        ]
+      },
+      {
+        "case": "enabled-default-valid-GateLifecycle",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "GateLifecycle",
+        "trace": "valid",
+        "result": [
+          "strict",
+          "PASS",
+          0
+        ],
+        "aggregate_verdict": "PASS",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 12
+        }
+      },
+      {
+        "case": "enabled-default-invalid-GateLifecycle",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "GateLifecycle",
+        "trace": "invalid",
+        "result": [
+          "strict",
+          "FAIL",
+          1
+        ],
+        "aggregate_verdict": "FAIL",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 0
+        },
+        "errors": [
+          "The baseline model could not reproduce the observed trace: step 2 (StartTask) was unreachable"
+        ]
+      },
+      {
+        "case": "standalone-default",
+        "route": "standalone",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "TaskLock",
+        "trace": "invalid",
+        "result": [
+          "strict",
+          "FAIL",
+          1
+        ],
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 0
+        },
+        "errors": [
+          "The baseline model could not reproduce the observed trace: step 1 (Acquire) was unreachable"
+        ]
+      },
+      {
+        "case": "standalone-explicit-shadow",
+        "route": "standalone",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "TaskLock",
+        "trace": "invalid",
+        "result": [
+          "shadow",
+          "FAIL",
+          0
+        ],
+        "cli_mode": "shadow",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 0
+        },
+        "errors": [
+          "The baseline model could not reproduce the observed trace: step 1 (Acquire) was unreachable"
+        ]
+      },
+      {
+        "case": "enabled-high-risk-missing-trace",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true
+        },
+        "model": "TaskLock",
+        "trace": null,
+        "result": [
+          "strict",
+          "FAIL",
+          1
+        ],
+        "aggregate_verdict": "FAIL",
+        "errors": [
+          "High-risk checking needs a supported implementation trace projection"
+        ]
+      },
+      {
+        "case": "config-rollback-shadow",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true,
+          "mode": "shadow"
+        },
+        "model": "TaskLock",
+        "trace": "invalid",
+        "result": [
+          "shadow",
+          "FAIL",
+          0
+        ],
+        "aggregate_verdict": "PASS",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 0
+        },
+        "errors": [
+          "The baseline model could not reproduce the observed trace: step 1 (Acquire) was unreachable"
+        ]
+      },
+      {
+        "case": "config-rollback-shadow-valid",
+        "route": "full",
+        "source_default": "strict",
+        "config": {
+          "enabled": true,
+          "mode": "shadow"
+        },
+        "model": "GateLifecycle",
+        "trace": "valid",
+        "result": [
+          "shadow",
+          "PASS",
+          0
+        ],
+        "aggregate_verdict": "PASS",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 12
+        }
+      },
+      {
+        "case": "restore-distributed-default-invalid",
+        "route": "full",
+        "source_default": "shadow",
+        "config": {
+          "enabled": true
+        },
+        "model": "TaskLock",
+        "trace": "invalid",
+        "result": [
+          "shadow",
+          "FAIL",
+          0
+        ],
+        "aggregate_verdict": "PASS",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 0
+        },
+        "errors": [
+          "The baseline model could not reproduce the observed trace: step 1 (Acquire) was unreachable"
+        ]
+      },
+      {
+        "case": "restore-distributed-default-valid",
+        "route": "full",
+        "source_default": "shadow",
+        "config": {
+          "enabled": true
+        },
+        "model": "GateLifecycle",
+        "trace": "valid",
+        "result": [
+          "shadow",
+          "PASS",
+          0
+        ],
+        "aggregate_verdict": "PASS",
+        "phases": {
+          "baseline": 0,
+          "negative": 12,
+          "replay": 12
+        }
+      }
+    ],
+    "promotion_evidence": {
+      "eligible_findings": 0,
+      "false_positive_rate": null,
+      "reason": "Synthetic isolated consumer controls and recorded-trace replays. This is not a real PR findings cohort, production rollout or release change."
+    }
+  },
+  "public_pr_diff": {
+    "head": "411173f896d28345f1d81021e8fadc89300157d6",
+    "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "checks": {
+      "lint": {
+        "umbrella_exit": 1,
+        "umbrella_verdict": "FAIL",
+        "commands_run": 0,
+        "mode": "strict",
+        "status": "FAIL",
+        "scanned_files": 55,
+        "findings": 11,
+        "severities": {
+          "error": 7,
+          "warn": 4
+        },
+        "by_adapter": {},
+        "adapters_run": null,
+        "warnings": 0,
+        "component_exit": null
+      },
+      "security": {
+        "umbrella_exit": 1,
+        "umbrella_verdict": "FAIL",
+        "commands_run": 0,
+        "mode": "strict",
+        "status": "FAIL",
+        "scanned_files": null,
+        "findings": 1,
+        "severities": {
+          "high": 1
+        },
+        "by_adapter": {
+          "builtin-secret-pattern": 1
+        },
+        "adapters_run": [
+          "builtin-secret-pattern",
+          "builtin-slopsquatting"
+        ],
+        "warnings": 0,
+        "component_exit": 1
+      }
+    }
+  },
+  "hosted_partial": {
+    "run_id": "45756107201",
+    "artifact_id": "15087866128",
+    "archive_sha256": "73b5069d4f9ba49f8a243863d89c2e2bb13c4817da4f0767345d162cbb57e704",
+    "conclusion": "failure",
+    "shadow": {
+      "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "head": "60118f9e2b889a4300672e3947480bb6b476b8aa",
+      "gitleaks_seconds": 1,
+      "semgrep_seconds": 2,
+      "gitleaks": [],
+      "semgrep": []
+    }
+  }
+}
