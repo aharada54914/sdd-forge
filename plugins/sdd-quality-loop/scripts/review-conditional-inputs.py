@@ -224,7 +224,10 @@ def resolve(root, feature, stage, revision=None, *, include_research=True, histo
             raise ValueError('Concept Test validator loader unavailable')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        concept, concept_inputs = module.evidence(root, feature, observe, allow_local=True)
+        # Live reads refuse retired v1 records (owner decision 2026-11-26);
+        # a pinned historical revision keeps reading its own record.
+        concept, concept_inputs = module.evidence(root, feature, observe, allow_local=True,
+                                                  reject_v1=revision is None)
         if concept.get('decision', 'proceed') != 'proceed':
             raise ValueError('Concept Test does not permit continuing feature work')
     if stage == 'impl':
