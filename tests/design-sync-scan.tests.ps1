@@ -1150,7 +1150,8 @@ if ($DslFlat.Contains("Egress-Scan: clean")) {
 
 Write-Host ""
 Write-Host "=== TEST-041 (AC-023, clean value): Egress-Scan-At (ISO-8601) is stated for the clean branch ==="
-if ($DslFlat -match 'Egress-Scan: clean.{0,120}ISO-8601') {
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-041
+if ($LASTEXITCODE -eq 0) {
     Ok "TEST-041: the clean branch states Egress-Scan-At as an ISO-8601 timestamp"
 } else {
     Fail "TEST-041: the clean branch must state Egress-Scan-At (ISO-8601)"
@@ -1158,7 +1159,8 @@ if ($DslFlat -match 'Egress-Scan: clean.{0,120}ISO-8601') {
 
 Write-Host ""
 Write-Host "=== TEST-064 (AC-023, overridden value): Egress-Scan-At (ISO-8601) is stated for the overridden branch too, not only the exceptional one ==="
-if ($DslFlat -match 'Egress-Scan: overridden.{0,120}ISO-8601') {
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-064
+if ($LASTEXITCODE -eq 0) {
     Ok "TEST-064: the overridden branch also states Egress-Scan-At as an ISO-8601 timestamp"
 } else {
     Fail "TEST-064: the overridden branch must state Egress-Scan-At (ISO-8601), not only the clean branch"

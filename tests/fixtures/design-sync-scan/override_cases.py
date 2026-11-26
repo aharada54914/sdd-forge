@@ -1,6 +1,8 @@
 """Exercise the deployed pre-upload helper and selected native scanner offline."""
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -34,8 +36,10 @@ with tempfile.TemporaryDirectory() as work:
     def run(expected, previous=None, **changes):
         request = dict(scope, latest_override=previous)
         request.update(changes)
+        started = datetime.now(timezone.utc)
         p = subprocess.run([sys.executable, str(helper), runtime, str(payload)], capture_output=True,
                            text=True, input=json.dumps(request), timeout=30)
+        finished = datetime.now(timezone.utc)
         assert p.returncode == {"review": 1, "reuse": 0, "clean": 0, "error": 2}[expected], (p.returncode, p.stdout, p.stderr)
         if expected == "error":
             assert not p.stdout
@@ -53,12 +57,37 @@ with tempfile.TemporaryDirectory() as work:
                 assert contents(stage) == contents(payload)
             finally:
                 shutil.rmtree(stage)
+        if case in ("TEST-041", "TEST-064"):
+            stamp = datetime.fromisoformat(result["scan_at"].replace("Z", "+00:00"))
+            assert stamp.utcoffset() == timedelta(0) and started <= stamp <= finished, result
+            assert re.search(r"<scan_at>[^。]*ISO-8601", skill)
+            timing = {"clean": "スキャン成功時", "review": "この identity に対する明示的な上書き承認後",
+                      "reuse": "有効な例外承認との一致を確認した時"}
+            rows = [[cell.strip().replace("`", "") for cell in line.strip().strip("|").split("|")]
+                    for line in skill.splitlines() if line.strip().startswith("|")]
+            matched = [row for row in rows if row[0] == expected]
+            assert len(matched) == 1 and len(matched[0]) == 3, (expected, matched)
+            _, when, fields = matched[0]
+            value = "clean" if expected == "clean" else "overridden"
+            fields = [field.strip() for field in fields.split("、")]
+            assert when == timing[expected] and "Egress-Scan: " + value in fields, matched
+            assert "Egress-Scan-At: <scan_at>" in fields, matched
         return result
+
+    if case == "TEST-041":
+        page.write_bytes(b"<p>clean</p>")
+        run("clean")
+        print(case, runtime, "verified")
+        sys.exit(0)
 
     first = run("review")
     identity = first["identity"]
     grant = dict(decision="granted", party="reviewer", identity=identity)
-    if case == "TEST-037":
+    if case == "TEST-064":
+        reused = run("reuse", grant)
+        assert reused["identity"] == identity and "scan_at" not in identity
+        assert reused["scan_at"] != first["scan_at"]
+    elif case == "TEST-037":
         consent = {
             "schema": "design-sync-request/v1", "operation": "upload", "ui_app": True,
             "ds_profile": "custom", "capability_resolved": True, "provider_available": True,

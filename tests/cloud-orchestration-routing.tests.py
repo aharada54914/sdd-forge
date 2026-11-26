@@ -1455,21 +1455,22 @@ class NormalDriverRegistration(unittest.TestCase):
                 continue
             scalar, block = run.groups()
             commands = block if scalar == "|" else scalar
-            suites = re.findall(r"^[ \t]*python3 tests/([\w-]+)\.tests\.py[ \t]*$", commands, re.M)
+            suites = re.findall(r"^[ \t]*python3 tests/([\w-]+\.tests\.py(?:[ \t]+[\w.]+)?)[ \t]*$", commands, re.M)
             if suites:
                 shard = re.search(r"^        if: matrix\.shard == '(cloud|ddd)'$", step, re.M)
                 self.assertIsNotNone(shard, step)
                 routed_steps.append((shard.group(1), suites))
                 for suite in suites:
-                    self.assertTrue((ROOT / "tests" / f"{suite}.tests.py").is_file(), suite)
+                    self.assertTrue((ROOT / "tests" / suite.split()[0]).is_file(), suite)
         self.assertCountEqual(routed_steps, [
-            ("cloud", ["cloud-orchestration-contracts", "cloud-orchestration-routing",
-                       "cloud-orchestration-execution", "cloud-orchestration-verification"]),
-            ("cloud", ["sql-development-contract"]),
-            ("cloud", ["check-evidence-bundle-parity"]),
-            ("ddd", ["concept-test"]),
-            ("ddd", ["codex-versioned-cache"]),
-            ("ddd", ["domain-review-finalize"]),
+            ("cloud", ["cloud-orchestration-contracts.tests.py", "cloud-orchestration-routing.tests.py",
+                       "cloud-orchestration-execution.tests.py", "cloud-orchestration-verification.tests.py"]),
+            ("cloud", ["sql-development-contract.tests.py"]),
+            ("cloud", ["check-evidence-bundle-parity.tests.py"]),
+            ("ddd", ["concept-test.tests.py"]),
+            ("ddd", ["codex-versioned-cache.tests.py"]),
+            ("ddd", ["domain-review-finalize.tests.py"]),
+            ("ddd", ["workflow-state-session.tests.py GateAuditBinding"]),
         ])
 
 

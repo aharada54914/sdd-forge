@@ -261,11 +261,6 @@ jobs:
         if: matrix.shard == 'ddd'
         run: python3 tests/codex-versioned-cache.tests.py
 
-      - name: Run workflow-state batch session tests (gate audit binding)
-        # Only the audit-pin binding: WorkflowSession's real-history case fails on main too
-        # (stale pinned review inputs, see the burndown follow-up).
-        run: python3 tests/workflow-state-session.tests.py GateAuditBinding
-
       - name: Run SQL Development Contract tests
         if: matrix.shard == 'cloud'
         run: python3 tests/sql-development-contract.tests.py
@@ -281,6 +276,12 @@ jobs:
         if: matrix.shard == 'ddd'
         shell: bash
         run: python3 tests/domain-review-finalize.tests.py
+
+      - name: Run workflow-state batch session tests (gate audit binding)
+        if: matrix.shard == 'ddd'
+        # Only the audit-pin binding: WorkflowSession's real-history case fails on main too
+        # (stale pinned review inputs, see the burndown follow-up).
+        run: python3 tests/workflow-state-session.tests.py GateAuditBinding
 
   installers:
     # tests/verification-catalog.json routes install/uninstall suites to the

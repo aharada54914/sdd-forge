@@ -957,7 +957,7 @@ fi
 
 echo ""
 echo "=== TEST-041 (AC-023, clean value): Egress-Scan-At (ISO-8601) is stated for the clean branch ==="
-if printf '%s' "$DSL_FLAT" | grep -Eq 'Egress-Scan: clean.{0,120}ISO-8601'; then
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-041; then
     ok "TEST-041: the clean branch states Egress-Scan-At as an ISO-8601 timestamp"
 else
     fail "TEST-041: the clean branch must state Egress-Scan-At (ISO-8601)"
@@ -965,7 +965,7 @@ fi
 
 echo ""
 echo "=== TEST-064 (AC-023, overridden value): Egress-Scan-At (ISO-8601) is stated for the overridden branch too, not only the exceptional one ==="
-if printf '%s' "$DSL_FLAT" | grep -Eq 'Egress-Scan: overridden.{0,120}ISO-8601'; then
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-064; then
     ok "TEST-064: the overridden branch also states Egress-Scan-At as an ISO-8601 timestamp"
 else
     fail "TEST-064: the overridden branch must state Egress-Scan-At (ISO-8601), not only the clean branch"

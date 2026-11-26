@@ -96,3 +96,10 @@
 - 42 — `plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md`（削除 `e2110862fef5`）
 - 42 — `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md`（削除 `e2110862fef5`）
 - 1 — `tests/risk-upgrade-context-cases.py`（削除 `220f60afda93`）
+
+### multitarget T-003 の個別決定（2026-11-26）
+
+上表37の扱いを所有者が次のように決定した。
+
+- 配布を終了した Lite → Full の昇格検査を退役する。旧版の実行では通常成功、昇格要求による停止、昇格指定後の成功、子検査の失敗、サマリーの欠落の5分岐を確認した。現行では高リスクの未確定事項がある場合の停止、確認後の成功、子検査の失敗を公開ゲートで検証する。
+- 旧 quality-gate の手順に評価器名と `--facet-manifest` を記載するという2項目を退役する。配布中の対象別評価 CLI は5ターゲットの成功・異常系を維持し、local-posix と local-powershell の各プロファイルから対象スイートを実行する。

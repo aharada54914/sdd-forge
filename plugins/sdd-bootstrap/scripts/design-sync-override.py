@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check the actual upload snapshot against the latest human scan override."""
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -103,7 +104,7 @@ def main():
         stage = Path(tempfile.mkdtemp(prefix="design-sync-send-")).resolve()
         manifest = snapshot(args.payload, stage)
         findings = scan(stage, args.runtime, manifest)
-        result = {"action": "clean"}
+        result = {"action": "clean", "scan_at": datetime.now(timezone.utc).isoformat()}
         if findings:
             identity = dict(scope, schema="design-sync-override/v1",
                             payload_sha256=digest(manifest), findings_sha256=digest(findings))
@@ -112,7 +113,7 @@ def main():
                      and previous["decision"] == "granted"
                      and isinstance(previous.get("party"), str) and bool(previous["party"].strip())
                      and previous.get("identity") == identity)
-            result = {"action": "reuse" if reuse else "review", "identity": identity, "findings": findings}
+            result.update(action="reuse" if reuse else "review", identity=identity, findings=findings)
         if result["action"] != "review":
             result["upload_directory"] = str(stage)
         print(json.dumps(result))

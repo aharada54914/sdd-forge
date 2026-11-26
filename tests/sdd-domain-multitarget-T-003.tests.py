@@ -538,55 +538,49 @@ class SelectedPlanTests(unittest.TestCase):
                 node[path[-1]] = value
                 self.assertTrue(evaluator.validate_plan(changed, expected))
 
-    def test_c3_lite_full_promotion_uses_summary_runner(self):
-        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text(encoding='utf-8')
-        self.assertIn('C3 PROMOTE_FULL', skill)
-        self.assertIn('run-lite-gate.py', skill)
-        self.assertIn('--full-gate-promotion', skill)
-        self.assertIn('spec_profile: full', skill)
-        runner = ROOT / 'plugins/sdd-lite/lib/run-lite-gate.py'
+    def test_core_gate_blocks_unresolved_high_risk_and_checks_command_result(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            (root / 'scripts').mkdir()
-            summary = root / 'capability-summary.json'
-            summary.write_text(json.dumps({'schema': 'sdd-capability-summary/v1', 'feature': 'example',
-                'track': 'lite', 'capabilities': ['ui'], 'required_lite_checks': ['installer-dry-run'],
-                'full_upgrade_required': False}))
-            runtime = 'powershell' if os.name == 'nt' else 'posix'
-            for extension in ('sh', 'ps1'):
-                (root / ('scripts/installer-dry-run.' + extension)).write_text('echo synthetic-check\nexit 0\n')
-            shell = root / ('scripts/installer-dry-run.' + ('ps1' if os.name == 'nt' else 'sh'))
-            argv = [sys.executable, str(runner), '--repo-root', str(root), '--summary', str(summary),
-                    '--enforcement', 'required', '--runtime', runtime]
-            run = subprocess.run(argv, capture_output=True, text=True)
-            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
-            result = json.loads(run.stdout)
-            self.assertEqual(result['verdict'], 'PASS')
-            self.assertEqual(result['checks'][0]['exit_code'], 0)
-            upgraded = json.loads(summary.read_text())
-            upgraded['full_upgrade_required'] = True
-            summary.write_text(json.dumps(upgraded))
-            run = subprocess.run(argv, capture_output=True, text=True)
-            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
-            self.assertEqual(json.loads(run.stdout)['checks'], [])
-            self.assertEqual(json.loads(run.stdout)['reason'], 'full_upgrade_required: true')
-            argv.append('--full-gate-promotion')
-            run = subprocess.run(argv, capture_output=True, text=True)
-            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
-            self.assertEqual(json.loads(run.stdout)['checks'][0]['exit_code'], 0)
-            shell.write_text('echo synthetic-failure\nexit 7\n')
-            run = subprocess.run(argv, capture_output=True, text=True)
-            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
-            self.assertEqual(json.loads(run.stdout)['checks'][0]['exit_code'], 7)
-            summary.unlink()
-            run = subprocess.run(argv, capture_output=True, text=True)
-            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
-            self.assertEqual(json.loads(run.stdout)['verdict'], 'FAIL')
+            feature = root / 'specs/example'
+            feature.mkdir(parents=True)
+            (feature / 'tasks.md').write_text(
+                '## T-003 Verify target\nApproval: Approved\nStatus: Implementation Complete\nRisk: high\n')
+            (feature / 'design.md').write_text('# Design\n')
+            requirements = feature / 'requirements.md'
+            pending = ('# Requirements\n\n## Open Questions\n'
+                       '| ID | Category | Decision | Rationale | Question | Status | Tasks |\n'
+                       '|---|---|---|---|---|---|---|\n'
+                       '| OQ-001 | Scope | Check all targets | Coverage | Confirm? | Provisional | T-003 |\n')
+            requirements.write_text(pending)
+            (root / 'check.js').write_text('process.exit(Number(process.argv[2]));\n')
+            common = ['--feature', 'example', '--root', str(root)]
+            subprocess.run(['node', str(SCRIPTS / 'v2/record-spec-baseline.mjs'), *common],
+                           capture_output=True, text=True, check=True)
 
-    def test_quality_gate_and_both_runners_invoke_evaluator(self):
-        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text(encoding='utf-8')
-        self.assertIn('evaluate-selected-plan.py', skill)
-        self.assertIn('--facet-manifest', skill)
+            def gate(child_exit, expected_exit):
+                run = subprocess.run(['node', str(SCRIPTS / 'v2/run-sdd-gate.mjs'), *common,
+                                      '--task', 'T-003', '--changed-files', 'check.js', '--fail-fast',
+                                      '--cmd', f'unit=node check.js {child_exit}'], capture_output=True, text=True)
+                self.assertEqual(run.returncode, expected_exit, run.stdout + run.stderr)
+                return json.loads(run.stdout)
+
+            blocked = gate(0, 1)
+            self.assertEqual(blocked['verdict'], 'FAIL')
+            self.assertTrue(blocked['checks']['openQuestions']['blocking'])
+            self.assertEqual(blocked['checks']['openQuestions']['provisionalIds'], ['OQ-001'])
+            self.assertEqual(blocked['checks']['commands'], [])
+
+            requirements.write_text(pending.replace('| Provisional |', '| Confirmed |') +
+                                    '\n## Spec Amendments\n- Confirmed OQ-001 for T-003.\n')
+            for child_exit, expected_exit, verdict in [(0, 0, 'PASS'), (7, 1, 'FAIL')]:
+                with self.subTest(child_exit=child_exit):
+                    result = gate(child_exit, expected_exit)
+                    self.assertEqual(result['verdict'], verdict)
+                    self.assertTrue(result['checks']['openQuestions']['passed'])
+                    self.assertEqual(result['checks']['openQuestions']['provisionalIds'], [])
+                    self.assertEqual([c['exitCode'] for c in result['checks']['commands']], [child_exit])
+
+    def test_both_verification_profiles_register_this_suite(self):
         for profile in ('local-posix', 'local-powershell'):
             listed = subprocess.check_output([sys.executable, str(ROOT / 'tests/verification.py'), '--profile', profile, '--list'], text=True).splitlines()
             self.assertIn('tests/sdd-domain-multitarget-T-003.tests.py', listed)

@@ -164,6 +164,10 @@ class CurrentV2WorkflowTests(unittest.TestCase):
                     if os_name == 'Linux':
                         expected.append({'working-directory': 'tests', 'commands': [
                             'python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route']})
+                if name == 'cloud-and-ddd' and route == 'ddd':
+                    # main added the audit binding after the pinned workflow.
+                    expected.append({'env': {'TZ': 'Asia/Tokyo'}, 'commands': [
+                        'python3 tests/workflow-state-session.tests.py GateAuditBinding']})
                 steps = [step for step in self.run_steps(name, row, os_name)
                          if 'uses' in step or self.workload_commands(step.get('run', ''))]
                 self.assertEqual(len(steps), len(expected), (name, route))
