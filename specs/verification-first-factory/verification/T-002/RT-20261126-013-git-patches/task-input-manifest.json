@@ -1,0 +1,65 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "8250a485-d620-4fa8-91aa-100642f634da",
+  "session_id": "01a215d3-467a-7831-879b-e27e471624a4",
+  "agent_instance_id": "01a215d3-467a-7831-879b-e27e471624a4",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Previous T-002 estimate for the same model and effort on the Codex subscription. No per-run bill was collected.",
+  "cost_estimate_timestamp": "2026-11-26T03:20:03Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "docs/review-tickets/RT-20261126-013.yml",
+      "sha256": "2d9c917b2e369498532fdd6417471abf50d88eae8bbfb2adfce8678e5ac13987"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-014.yml",
+      "sha256": "6c13d9a40355756aa481509d8b9d36bbd21ca05bb93d8aca1e6472e1c668e336"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-015.yml",
+      "sha256": "fcf6065c64eb7a88cc25c33b7bfe0d4a90a38c921520287e9945e3f1b41d6abd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz",
+      "sha256": "4f081f94132585a1115a4bf1c8151e71056cc83a4ff09daf26e17f7ea0c027bb"
+    },
+    {
+      "path": "scripts/vendor-shell-parser/zsh-loops.patch",
+      "sha256": "02da4b0a7dafe4e527f129783983783ac1f31b1aa0c1d9f893ef179862fc2058"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "7846fdee96b5cc1730ad20a05c833a5f4b8e3156627cef90b316ace1494edbaf"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/quality-repair-95aa6c281472/execution.json",
+      "sha256": "2b1245bf7fc465a946cfa0d4bbd026806ddb09d0b5688203e04e7342c6d304e5"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/quality-repair-e135bc9cfa3f/execution.json",
+      "sha256": "ec71772fb46edd8dd10c0ad3b70f9faed2274006db8c658bb86ef7cfab6732a3"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-002.md",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "tests/v2-sdd-core-flow.test.mjs",
+    "specs/self-verification/formal/mapping.json",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-013-git-patches/public-cli-receipt.json"
+  ]
+}

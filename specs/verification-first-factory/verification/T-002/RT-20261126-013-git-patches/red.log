@@ -1,0 +1,195 @@
+▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)
+  ✖ scans Git-generated text additions with binary patch (116.245291ms)
+  ✖ scans Git-generated text additions with binary summary (116.514291ms)
+  ✖ scans Git-generated text additions with binary damaged (116.327417ms)
+  ✖ scans Git-generated text additions with unprefixed blank context (116.357583ms)
+  ✖ scans Git-generated text additions with malformed tail (115.739458ms)
+✖ run-sdd-gate.mjs (SDD Core unified deterministic gate) (581.733083ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 617.881792
+
+✖ failing tests:
+
+test at tests/v2-sdd-core-flow.test.mjs:383:5
+✖ scans Git-generated text additions with binary patch (116.245291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+  +     line: 8,
+  +     text: '-// TODO removed'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/sdd-RT-20261126-013-followup-RzeEkhrj/before/tests/v2-sdd-core-flow.test.mjs:435:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'src/change.patch', line: 8, text: '-// TODO removed', inTaskScope: false } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-sdd-core-flow.test.mjs:383:5
+✖ scans Git-generated text additions with binary summary (116.514291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+  +     line: 1,
+  +     text: 'diff --git a/0-TODO.bin b/0-TODO.bin'
+  +   },
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+  +     line: 3,
+  +     text: 'Binary files a/0-TODO.bin and b/0-TODO.bin differ'
+  +   },
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+  +     line: 11,
+  +     text: '-// TODO removed'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/sdd-RT-20261126-013-followup-RzeEkhrj/before/tests/v2-sdd-core-flow.test.mjs:435:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Promise.all (index 7)
+      at async Suite.run (node:internal/test_runner/test:1518:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'src/change.patch', line: 1, text: 'diff --git a/0-TODO.bin b/0-TODO.bin', inTaskScope: false }, { file: 'src/change.patch', line: 3, text: 'Binary files a/0-TODO.bin and b/0-TODO.bin differ', inTaskScope: false }, { file: 'src/change.patch', line: 11, text: '-// TODO removed', inTaskScope: false } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-sdd-core-flow.test.mjs:383:5
+✖ scans Git-generated text additions with binary damaged (116.327417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      {
+        file: 'src/change.patch',
+        inTaskScope: false,
+  +     line: 8,
+  +     text: '-// TODO removed'
+  +   },
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+        line: 15,
+        text: 'TODO in invalid encoded data'
+      }
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/sdd-RT-20261126-013-followup-RzeEkhrj/before/tests/v2-sdd-core-flow.test.mjs:435:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'src/change.patch', line: 8, text: '-// TODO removed', inTaskScope: false }, { file: 'src/change.patch', line: 15, text: 'TODO in invalid encoded data', inTaskScope: false } ],
+    expected: [ { file: 'src/change.patch', line: 15, text: 'TODO in invalid encoded data', inTaskScope: false } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-sdd-core-flow.test.mjs:383:5
+✖ scans Git-generated text additions with unprefixed blank context (116.357583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+  +     line: 8,
+  +     text: '-// TODO removed'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/sdd-RT-20261126-013-followup-RzeEkhrj/before/tests/v2-sdd-core-flow.test.mjs:435:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'src/change.patch', line: 8, text: '-// TODO removed', inTaskScope: false } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-sdd-core-flow.test.mjs:383:5
+✖ scans Git-generated text additions with malformed tail (115.739458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      {
+        file: 'src/change.patch',
+        inTaskScope: false,
+  +     line: 8,
+  +     text: '-// TODO removed'
+  +   },
+  +   {
+  +     file: 'src/change.patch',
+  +     inTaskScope: false,
+        line: 12,
+        text: '-TODO inside truncated hunk'
+      },
+      {
+        file: 'src/change.patch',
+  
+      at TestContext.<anonymous> (file:///private/tmp/sdd-RT-20261126-013-followup-RzeEkhrj/before/tests/v2-sdd-core-flow.test.mjs:435:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'src/change.patch', line: 8, text: '-// TODO removed', inTaskScope: false }, { file: 'src/change.patch', line: 12, text: '-TODO inside truncated hunk', inTaskScope: false }, { file: 'src/change.patch', line: 14, text: 'TODO in unrecognized text', inTaskScope: false }, { file: 'src/change.patch', line: 18, text: '-TODO inside overlong hunk', inTaskScope: false } ],
+    expected: [ { file: 'src/change.patch', line: 12, text: '-TODO inside truncated hunk', inTaskScope: false }, { file: 'src/change.patch', line: 14, text: 'TODO in unrecognized text', inTaskScope: false }, { file: 'src/change.patch', line: 18, text: '-TODO inside overlong hunk', inTaskScope: false } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
