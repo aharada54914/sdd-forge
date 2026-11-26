@@ -556,6 +556,22 @@ class ConceptTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'invalid Concept Test approval'):
             evidence()
 
+    def test_live_review_refuses_every_working_tree_v1_shape_without_domain(self):
+        # Without a v2 domain contract the resolver reads the record only when one exists.
+        shutil.rmtree(self.root / 'domain')
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        self.record['schema'] = 'concept-test/v1'
+        self.save()
+        for markdown_only in (False, True):
+            if markdown_only:
+                (self.feature / 'concept-test.json').unlink()
+            for stage in ('spec', 'impl', 'task', 'quality'):
+                with self.subTest(markdown_only=markdown_only, stage=stage):
+                    with self.assertRaisesRegex(ValueError, V1_RETIRED_PREFIX):
+                        concept.conditional.resolve(self.root, 'example', stage)
+        # Passed-review provenance is history: a Markdown-only draft adds no input there.
+        self.assertEqual([], concept.conditional.resolve(self.root, 'example', 'spec', v1_history=True)['inputs'])
+
     def test_missing_or_invalid_evidence(self):
         original = copy.deepcopy(self.record)
         mutations = [lambda d: d.update(proposal='unknown'), lambda d: d.update(decision='unknown'),
