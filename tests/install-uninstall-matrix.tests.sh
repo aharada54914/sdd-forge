@@ -58,7 +58,7 @@ PY
 make_fake_cli() {
     local bin_dir="$1" log="$2"
     mkdir -p "$bin_dir"
-    for command in codex claude copilot gh; do
+    for command in codex claude copilot gh agy gemini; do
         cat > "${bin_dir}/${command}" <<EOF
 #!/bin/sh
 printf '%s %s\\n' '${command}' "\$*" >> $(shell_literal "$log")
@@ -69,10 +69,27 @@ EOF
     done
 }
 
+check_codex_config() {
+    local target="$1" phase="$2" config="$3" initial="$4"
+    shift 4
+    if [[ "$target" == Claude || "$target" == Copilot ]]; then
+        cmp -s "$config" "$initial" || { fail "$target $phase changed the Codex config"; return; }
+    else
+        local mcp expected=1
+        [[ "$phase" == uninstall ]] && expected=0
+        for mcp in "$@"; do
+            [[ "$(grep -Fxc "[mcp_servers.$mcp]" "$config")" == "$expected" ]] || { fail "$target $phase Codex registration for $mcp"; return; }
+        done
+    fi
+    ok "$target $phase Codex config"
+}
+
 cell() {
     local target="$1"
     local root; root="$(mktemp -d)"
     local install_root="${root}/install"
+    local mcps=(sdd-forge-mcp local-env-mcp ci-mcp)
+    local selection; selection="$(IFS=,; echo "${mcps[*]}")"
     local codex_home="${root}/codex"
     local vscode_dir="${root}/vscode"
     local cursor_dir="${root}/cursor"
@@ -85,18 +102,17 @@ cell() {
     if compgen -G "${REPO_ROOT}/.codex/agents/*.toml" >/dev/null; then
         cp -p "${REPO_ROOT}"/.codex/agents/*.toml "${codex_home}/agents/"
     fi
-    # Seed the Codex config with the current managed regions. For non-Codex
-    # cells these are pre-existing, unchanged state; for Codex/All the
-    # installer re-writes the same regions. This lets the required drift
-    # verifier run on every target without changing the registration oracle.
-    {
-        printf '# fixture config\n'
-        for mcp in sdd-forge-mcp local-env-mcp ci-mcp; do
+    # Codex/All register from scratch. Other targets inherit a synced Codex profile.
+    local config="${codex_home}/config.toml" initial_config="${root}/initial-config.toml"
+    printf '# fixture config\n' > "$config"
+    if [[ "$target" == Claude || "$target" == Copilot ]]; then
+        for mcp in "${mcps[@]}"; do
             printf '\n# >>> %s (managed by sdd-forge installer; do not edit by hand) >>>\n' "$mcp"
             printf '[mcp_servers.%s]\ncommand = "node"\nargs = ["%s/mcp/%s/dist/index.js"]\n' "$mcp" "$resolved_install_root" "$mcp"
             printf '# <<< %s <<<\n' "$mcp"
-        done
-    } > "${codex_home}/config.toml"
+        done >> "$config"
+    fi
+    cp "$config" "$initial_config"
     printf '{"servers":{}}\n' > "${vscode_dir}/mcp.json"
     printf '{"mcpServers":{}}\n' > "${cursor_dir}/mcp.json"
     make_fake_cli "$bin_dir" "$log"
@@ -106,13 +122,15 @@ cell() {
     export SDD_VSCODE_USER_DIR="$vscode_dir"
     export SDD_CURSOR_DIR="$cursor_dir"
     export SDD_GEMINI_DIR="${root}/gemini-not-installed"
+    export SDD_ANTIGRAVITY_CONFIG_DIR="${root}/antigravity-not-installed"
     export CI_MCP_GITHUB_TOKEN="${CI_MCP_GITHUB_TOKEN:-fixture-readonly-token}"
 
     local install1 install2 install1_manifest install2_manifest drift_json residuals
-    if ! install1="$(bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship 2>&1)"; then
+    if ! install1="$(bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship --mcp "$selection" 2>&1)"; then
         fail "$target install_1"; rm -rf "$root"; return
     fi
     [[ -d "$install_root" ]] && ok "$target install_1 present" || fail "$target install_1 install root"
+    check_codex_config "$target" install_1 "$config" "$initial_config" "${mcps[@]}"
     install1_manifest="$(json_manifest "$install_root")"
     if drift_json="$(bash "$DRIFT" --install-root "$install_root" --mode verify 2>&1)"; then
         if grep -q '"mode":"verify"' <<<"$drift_json" && grep -q '"state":"installed_synced"' <<<"$drift_json"; then
@@ -126,14 +144,16 @@ cell() {
         fail "$target verify_1 drift_check"
     fi
 
-    if ! install2="$(bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship 2>&1)"; then
+    if ! install2="$(bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship --mcp "$selection" 2>&1)"; then
         fail "$target install_2";
     else
+        check_codex_config "$target" install_2 "$config" "$initial_config" "${mcps[@]}"
         install2_manifest="$(json_manifest "$install_root")"
         [[ "$install1_manifest" == "$install2_manifest" ]] && ok "$target install_2 idempotent" || fail "$target install_2 diff_from_install_1"
     fi
 
     if bash "$UNINSTALLER" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud >/dev/null 2>&1; then
+        check_codex_config "$target" uninstall "$config" "$initial_config" "${mcps[@]}"
         residuals=""
         [[ -e "$install_root" ]] && residuals="$install_root"
         [[ -z "$residuals" ]] && ok "$target verify_residue empty" || fail "$target verify_residue residual_paths=$residuals"

@@ -44,7 +44,7 @@ trap 'rm -rf "$WORK"' EXIT INT TERM
 
 DETECT_SH="$ROOT/plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh"
 DETECT_PY="$ROOT/plugins/sdd-quality-loop/scripts/detect-policy-weakening.py"
-GEN_SH="$ROOT/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh"
+GEN_PY="$ROOT/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py"
 
 PASS=0
 FAIL=0
@@ -554,7 +554,7 @@ cat > "$WORK/wiring/live-sidecar.json" <<'EOF'
 EOF
 (
   cd "$WORK/wiring" && \
-  SDD_CONTEXT_KEY="test-context-key-epic189-t005" "$GEN_SH" \
+  SDD_CONTEXT_KEY="test-context-key-epic189-t005" "$PY" "$GEN_PY" \
     --schema sdd-project-context-approval/v1 \
     --content project-context.yaml \
     --approver alice \

@@ -7,11 +7,9 @@
 # that file's header for the TEST-016/017/018/030/031/046 <-> AC mapping
 # and the WIRING / TEST-HARDEN sections.
 #
-# Every invocation below runs the wrapper (or python3/python directly for
-# the seam carry-forward fixtures) as a REAL CHILD PROCESS via
+# The detector wrapper and Python generator both run as child processes via
 # [System.Diagnostics.Process], never PowerShell's own `&` call operator
-# (detect-policy-weakening.ps1/generate-approval-sidecar.ps1 themselves
-# call `exit $LASTEXITCODE`/return, which would terminate THIS test
+# (detect-policy-weakening.ps1 can call `exit $LASTEXITCODE`, ending the test
 # session if invoked in-process; raw stream capture also avoids
 # PowerShell's success-pipeline byte mangling, mirroring
 # canonicalize-sdd-yaml.tests.ps1's own rationale).
@@ -22,7 +20,7 @@ $Work = Join-Path ([IO.Path]::GetTempPath()) ("detect-policy-weakening-test-" + 
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
 
 $DetectPs1 = Join-Path $Root 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1'
-$GenPs1 = Join-Path $Root 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1'
+$Generator = Join-Path $Root 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py'
 # The SAME PowerShell binary currently running this suite, matching
 # tests/run-all.ps1's own convention.
 $PowerShellExe = (Get-Process -Id $PID).Path
@@ -105,9 +103,7 @@ function Invoke-Detect {
 
 function Invoke-Gen {
   param([string[]]$ArgList = @(), [hashtable]$EnvSet = @{})
-  return Invoke-ChildProcess -Exe $PowerShellExe `
-    -ArgList (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $GenPs1) + $ArgList) `
-    -EnvSet $EnvSet
+  return Invoke-ChildProcess -Exe $PythonExe -ArgList (@($Generator) + $ArgList) -EnvSet $EnvSet
 }
 
 function Get-VerdictJson([string]$Path) {
