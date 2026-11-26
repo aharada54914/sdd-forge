@@ -2,45 +2,34 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-workflow="$repo_root/.github/workflows/test.yml"
-quality_gate="$repo_root/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
-
-python3 - "$workflow" "$quality_gate" <<'PY'
-from pathlib import Path
-import sys
-
-text = Path(sys.argv[1]).read_text(encoding="utf-8")
-quality = Path(sys.argv[2]).read_text(encoding="utf-8")
-
-required = (
-    "Validate workflow state (PowerShell)",
-    "./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
-    "Validate workflow state (POSIX)",
-    "bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
-)
-missing = [marker for marker in required if marker not in text]
-if missing:
-    raise SystemExit("CI workflow-state integration is missing: " + ", ".join(missing))
-
-windows = text.index("Validate workflow state (PowerShell)")
-posix = text.index("Validate workflow state (POSIX)")
-repository = text.index("Validate repository")
-if windows > repository or posix > repository:
-    raise SystemExit("CI workflow-state checks must run before repository validation")
-
-power_shell_block = text[windows:posix]
-if "if: runner.os" in power_shell_block:
-    raise SystemExit("PowerShell workflow-state validation must run on every matrix host")
-if "if: runner.os != 'Windows'" not in text[posix:repository]:
-    raise SystemExit("POSIX workflow-state validation must run on non-Windows hosts")
-
-workflow_gate = quality.index("`check-workflow-state`")
-task_gate = quality.index("`check-task-state`")
-if workflow_gate > task_gate:
-    raise SystemExit("quality-gate must run global workflow-state validation before task-state checks")
-if "without `--feature`" not in quality[workflow_gate:task_gate]:
-    raise SystemExit("quality-gate workflow-state validation must be repository-global")
-PY
+# Inspect executable steps, their host conditions and order in the required job.
+node - "$repo_root" <<'JS'
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const root = process.argv[2];
+const yaml = require(path.join(root, 'mcp/sdd-forge-mcp/node_modules/js-yaml'));
+const workflow = yaml.load(fs.readFileSync(path.join(root, '.github/workflows/test.yml'), 'utf8'));
+const job = workflow.jobs['v2-guardrails'];
+assert.deepEqual(job.strategy.matrix.os.toSorted(), ['macos-latest', 'ubuntu-latest', 'windows-latest']);
+assert.ok(workflow.jobs['required-checks'].needs.includes('v2-guardrails'));
+const steps = job.steps;
+const indexOf = command => {
+  const index = steps.findIndex(step => step.run?.split('\n').map(line => line.trim()).includes(command));
+  assert.ok(index >= 0, 'missing executable step: ' + command);
+  return index;
+};
+const ps = indexOf('./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1');
+const sh = indexOf('bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh');
+assert.equal(steps[ps].shell, 'pwsh');
+assert.equal(steps[ps].if, undefined);
+assert.equal(steps[sh].shell, 'bash');
+assert.equal(steps[sh].if, "runner.os != 'Windows'");
+assert.ok(!steps[ps]['continue-on-error'] && !steps[sh]['continue-on-error']);
+for (const validation of ['bash scripts/check-sdd-structure.sh', './tests/structure-check-feature-mode.tests.ps1']) {
+  assert.ok(Math.max(ps, sh) < indexOf(validation), 'global state checks precede structure validation');
+}
+JS
 
 fixture="$(mktemp -d)"
 trap 'rm -rf "$fixture"' EXIT
@@ -76,4 +65,5 @@ if [[ "$bash_output" != *"registry-dangling"* || "$pwsh_output" != *"registry-da
   exit 1
 fi
 
+python3 "$repo_root/tests/lib/core-lifecycle-checks.py" workflow
 echo "Workflow-state CI integration tests passed."

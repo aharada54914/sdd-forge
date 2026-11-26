@@ -322,11 +322,15 @@ components:
         $runAllPs1 = Join-Path $repoRoot 'tests/run-all.ps1'
         if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains 'tests/ownership-digest.tests.sh') { $wiringCount++ }
         if ((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1).Contains("tests/ownership-digest.tests.ps1")) { $wiringCount++ }
-        $liveWorkflow = [IO.File]::ReadAllText((Join-Path $repoRoot '.github/workflows/test.yml'))
-        if ($liveWorkflow.Contains('bash ./tests/ownership-digest.tests.sh')) { $wiringCount++ }
-        if ($liveWorkflow.Contains('./tests/ownership-digest.tests.ps1')) { $wiringCount++ }
+        $workflow = Join-Path $repoRoot '.github/workflows/test.yml'
+        if (Is-Mutated 'TEST-041') {
+            $incomplete = [IO.File]::ReadAllText($workflow).Replace('run: ./tests/ownership-digest.tests.ps1', 'run: node --version')
+            $workflow = Join-Path $tempRoot 'incomplete-workflow.yml'
+            Write-Utf8 $workflow $incomplete
+        }
+        & node (Join-Path $repoRoot 'tests/lib/ownership-ci-registration.cjs') $repoRoot $workflow
+        if ($LASTEXITCODE -eq 0) { $wiringCount += 2 }
         if ([IO.File]::ReadAllText((Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/design.md')).Contains('`tests/ownership-digest.tests.sh` / `.ps1`')) { $wiringCount++ }
-        if (Is-Mutated 'TEST-041') { $wiringCount = 4; Write-Output 'MUTATION: TEST-041 removes one required registration from the observed inventory' }
         Record 'TEST-041' 'both suites are wired in run-all, live CI, and the design inventory' ($wiringCount -eq 5)
     }
 

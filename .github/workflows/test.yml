@@ -23,11 +23,12 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -79,6 +80,35 @@ jobs:
             python=python3
           fi
           "$python" tests/release-readiness.tests.py ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files
+
+      - name: Validate workflow state (PowerShell)
+        shell: pwsh
+        run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+
+      - name: Validate workflow state (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+
+      - name: Check ownership digests and registration (Bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/ownership-digest.tests.sh
+
+      - name: Check ownership digests and registration (PowerShell)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/ownership-digest.tests.ps1
+
+      - name: Check persisted workflow integration and Core lifecycle
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash ./tests/workflow-state-ci-integration.tests.sh
+          bash ./tests/task-lifecycle-enum-parity.tests.sh
+          python3 tests/lib/core-lifecycle-checks.py approvals
+          python3 tests/lib/core-lifecycle-checks.py templates
+          python3 tests/lib/task-done-parity.py plugins/sdd-quality-loop/scripts/check-task-state.sh plugins/sdd-quality-loop/scripts/check-task-state.ps1
 
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'

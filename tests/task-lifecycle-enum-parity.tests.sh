@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
-# task-lifecycle-enum-parity.tests.sh — audit Cluster 2 (enum half).
-#
-# The task lifecycle vocabulary {Planned, In Progress, Blocked,
-# Implementation Complete, Done} is embedded independently in six places:
-# the full and lite task-state checkers (sh awk conditional, ps1
-# $validStatuses array) and the workflow-state twins' REQ-row
-# normalization alternation. Nothing asserted they agree, so a sixth
-# status added to one site would drift silently — the WFI-038
-# "two surfaces must agree and nothing asserts it" class.
-#
-# This suite extracts the vocabulary from each site's own representation
-# and requires every extraction to equal the canonical set. It pins the
-# ENUM only; the Approval-line grammar split between the full checker
-# (any non-empty annotation) and the lite checker (strict
-# "<id> <ISO8601>") is a recorded gate-semantics decision awaiting its
-# own WFI and is deliberately not asserted here.
+# The retained task/workflow validators and contract share the five lifecycle
+# values. The Core gate accepts exactly the two statuses eligible for review.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -33,41 +19,30 @@ Planned"
 assert_enum() {
     local label=$1 values
     values="$(printf '%s\n' "$2" | LC_ALL=C sort)"
-    if [ "$values" = "$CANONICAL" ]; then
+    if same_enum "$values"; then
         ok "$label carries exactly the canonical 5-value lifecycle enum"
     else
         bad "$label lifecycle enum diverges from canonical: [$(printf '%s' "$values" | tr '\n' ';')]"
     fi
 }
 
-# 1-2. Full and lite sh checkers: the awk validity conditional
-#    status != "Planned" && status != "In Progress" && ...
-for f in \
-    plugins/sdd-quality-loop/scripts/check-task-state.sh \
-    plugins/sdd-lite/scripts/check-task-state-lite.sh; do
-    line="$(grep 'status != "' "$ROOT/$f" | head -1)"
-    if [ -z "$line" ]; then
-        bad "$f: awk status-validity conditional not found"
-        continue
-    fi
-    values="$(printf '%s\n' "$line" | grep -o 'status != "[^"]*"' | sed 's/status != "//; s/"$//')"
-    assert_enum "$f" "$values"
-done
+# Keep the same comparison live in the negative control without touching the contract.
+same_enum() {
+    [ "$1" = "$CANONICAL" ]
+}
 
-# 3-4. Full and lite ps1 checkers: the $validStatuses array
-for f in \
-    plugins/sdd-quality-loop/scripts/check-task-state.ps1 \
-    plugins/sdd-lite/scripts/check-task-state-lite.ps1; do
-    line="$(grep '^\$validStatuses = @(' "$ROOT/$f" | head -1)"
-    if [ -z "$line" ]; then
-        bad "$f: \$validStatuses array not found"
-        continue
-    fi
-    values="$(printf '%s\n' "$line" | grep -o '"[^"]*"' | sed 's/"//g')"
-    assert_enum "$f" "$values"
-done
+# Extract each persisted-state checker's case-sensitive vocabulary.
+f=plugins/sdd-quality-loop/scripts/check-task-state.sh
+line="$(grep 'status != "' "$ROOT/$f" | head -1)"
+values="$(printf '%s\n' "$line" | grep -o 'status != "[^"]*"' | sed 's/status != "//; s/"$//')"
+assert_enum "$f" "$values"
 
-# 5-6. Workflow-state twins: the REQ-row normalization alternation
+f=plugins/sdd-quality-loop/scripts/check-task-state.ps1
+line="$(grep '^\$validStatuses = @(' "$ROOT/$f" | head -1)"
+values="$(printf '%s\n' "$line" | grep -o '"[^"]*"' | sed 's/"//g')"
+assert_enum "$f" "$values"
+
+# Workflow-state twins: the REQ-row normalization alternation
 #    (Planned|In Progress|Implementation Complete|Done|Blocked)
 for f in \
     plugins/sdd-quality-loop/scripts/check-workflow-state.sh \
@@ -81,14 +56,19 @@ for f in \
     assert_enum "$f" "$values"
 done
 
-# Non-vacuity: the extractors must actually be reading live code, so a
-# canonical-set typo in this file cannot pass silently. Corrupt one value
-# in a copy of the sh conditional and assert the comparison would fail.
-mutated="$(printf '%s\n' "$CANONICAL" | sed 's/^Done$/Donee/')"
-if [ "$mutated" = "$CANONICAL" ]; then
-    bad "non-vacuity: mutation produced an identical set — the check is inert"
+contract="$ROOT/contracts/sdd-forge-mcp-tools.v1.schema.json"
+values="$(jq -er '.["$defs"].status.enum[]' "$contract")"
+assert_enum "task status contract" "$values"
+mutated="$(jq -er '.["$defs"].status.enum | map(if . == "Done" then "Donee" else . end) | sort[]' "$contract")"
+if same_enum "$mutated"; then
+    bad "contract mutation: renamed Done was accepted"
 else
-    ok "non-vacuity: a mutated vocabulary is distinguished from the canonical set"
+    ok "contract mutation: renamed Done was rejected"
+fi
+if python3 "$ROOT/tests/lib/core-lifecycle-checks.py" lifecycle; then
+    ok "Core gate checks all lifecycle statuses"
+else
+    bad "Core gate eligibility disagrees with lifecycle"
 fi
 
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$PASS" "$FAIL"

@@ -1319,14 +1319,14 @@
       "path": "tests/ownership-digest.tests.ps1",
       "runtime": "powershell",
       "ci_jobs": [
-        "version-gates"
+        "v2-guardrails"
       ]
     },
     {
       "path": "tests/ownership-digest.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
-        "version-gates"
+        "v2-guardrails"
       ]
     },
     {
@@ -1882,7 +1882,10 @@
     },
     {
       "path": "tests/task-lifecycle-enum-parity.tests.sh",
-      "runtime": "bash"
+      "runtime": "bash",
+      "ci_jobs": [
+        "v2-guardrails"
+      ]
     },
     {
       "path": "tests/task-plan-binding-durability.tests.sh",
@@ -2097,7 +2100,10 @@
     },
     {
       "path": "tests/workflow-state-ci-integration.tests.sh",
-      "runtime": "bash"
+      "runtime": "bash",
+      "ci_jobs": [
+        "v2-guardrails"
+      ]
     },
     {
       "path": "tests/workflow-state-session.tests.py",

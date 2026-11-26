@@ -319,45 +319,27 @@ if grep -Fq '(Task ID|Task):' "$EMIT_RUN_RECORD"; then
 else
     fail "consumer pin: run-record counter lacks the canonical Task ID identity"
 fi
-GEN_BUNDLE="$REPO_ROOT/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
-if grep -Fq 'Critical:' "$GEN_BUNDLE"; then
-    ok "consumer pin: severity-count parser still present in generate-evidence-bundle"
+if python3 "$REPO_ROOT/tests/lib/core-lifecycle-checks.py" templates; then
+    ok "Core gate classifies ticket severity and its report determines Done readiness"
 else
-    fail "consumer pin: severity-count parser missing from generate-evidence-bundle"
-fi
-
-# An untouched distributed Lite report must never certify a completed task.
-mkdir -p "$WORK/lite/qa" "$WORK/lite/impl"
-printf '# Tasks\n## T-001 Example\nApproval: Approved\nStatus: Done\n' > "$WORK/lite/tasks.md"
-printf 'Task ID: T-001\n' > "$WORK/lite/impl/T-001.md"
-cp "$REPO_ROOT/plugins/sdd-lite/templates/quality-report-lite.md" "$WORK/lite/qa/T-001.md"
-LITE_STATE="$REPO_ROOT/plugins/sdd-lite/scripts/check-task-state-lite.sh"
-if sh "$LITE_STATE" "$WORK/lite/tasks.md" "$WORK/lite/qa" "$WORK/lite/impl" "$WORK/lite" > "$WORK/lite/default.log" 2>&1; then
-    fail "untouched Lite report cannot certify Done"
-else
-    ok "untouched Lite report cannot certify Done"
-fi
-# Normal control exercises the existing state consumer, not a copied parser.
-printf 'Task ID: T-001\nVERDICT: PASS\n' > "$WORK/lite/qa/T-001.md"
-if sh "$LITE_STATE" "$WORK/lite/tasks.md" "$WORK/lite/qa" "$WORK/lite/impl" "$WORK/lite" > "$WORK/lite/completed.log" 2>&1; then
-    ok "explicit Lite PASS still satisfies task-state consumer"
-else
-    fail "explicit Lite PASS still satisfies task-state consumer"
+    fail "Core ticket severity or report readiness changed"
 fi
 
 # Parse with the same pinned YAML dependency used by repository workflow checks.
-if node - "$REPO_ROOT" <<'JS'
+if node - "$REPO_ROOT" "$WORK" <<'JS'
 const fs = require('node:fs');
 const cp = require('node:child_process');
 const root = process.argv[2];
 const yaml = require(root + '/mcp/sdd-forge-mcp/node_modules/js-yaml');
-const base = root + '/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/';
+const base = root + '/plugins/sdd-bootstrap/skills/sdd-adopt/templates/';
 for (const name of ['ci-github.template.yml', 'ci-gitlab.template.yml']) {
   const doc = yaml.load(fs.readFileSync(base + name, 'utf8'));
   const commands = name.includes('github') ? [doc.jobs.verify.steps.at(-1).run] : doc.verify.script;
-  if (!commands.every(value => typeof value === 'string')) throw new Error(name + ': command must be text');
-  const result = cp.spawnSync('bash', ['-c', commands.join('\n')], {encoding: 'utf8', timeout: 10000});
-  if (result.error || result.status !== 1) throw new Error(name + ': unconfigured CI must fail');
+  if (!commands.length || !commands.every(value => typeof value === 'string')) throw new Error(name + ': command must be text');
+  const result = cp.spawnSync('bash', ['-c', commands.join('\n')], {cwd: process.argv[3], encoding: 'utf8', timeout: 10000});
+  if (result.error || result.status !== 1 || !result.stdout.includes('TODO_REPLACE_WITH_PROJECT_COMMANDS')) {
+    throw new Error(name + ': unconfigured CI must name the missing project commands and exit 1');
+  }
 }
 JS
 then

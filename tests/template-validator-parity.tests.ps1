@@ -213,11 +213,13 @@ if ((Get-Content -Raw $emitRunRecord).Contains("(Task ID|Task):")) {
 } else {
     Fail "consumer pin: run-record counter lacks the canonical Task ID identity"
 }
-$genBundle = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1"
-if ((Get-Content -Raw $genBundle).Contains("Critical:")) {
-    Ok "consumer pin: severity-count parser still present in generate-evidence-bundle"
+$python = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+& $python.Source (Join-Path $repoRoot 'tests/lib/core-lifecycle-checks.py') templates
+if ($LASTEXITCODE -eq 0) {
+    Ok "Core gate classifies ticket severity and its report determines Done readiness"
 } else {
-    Fail "consumer pin: severity-count parser missing from generate-evidence-bundle"
+    Fail "Core ticket severity or report readiness changed"
 }
 
 Write-Output ""

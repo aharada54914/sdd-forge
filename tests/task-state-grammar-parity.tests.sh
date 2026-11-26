@@ -1,29 +1,11 @@
 #!/usr/bin/env bash
-# task-state-grammar-parity.tests.sh — WFI-042: the task approval field has ONE
-# annotated grammar across every deterministic checker.
-#
-# Two properties, fixture-driven:
-#  1. ACCEPT/REJECT PARITY: the full checker (check-task-state.sh) and the lite
-#     checker (check-task-state-lite.sh) agree on every fixture — bare,
-#     strict-annotated, minutes-precision, fractional-seconds, empty-annotation,
-#     free-text. The ps1 twins run when pwsh is available (CI), with a visible
-#     skip line otherwise.
-#  2. EXTRACTION AGREEMENT: no fixture may reproduce the pre-WFI-042
-#     disagreement class — a line the validity test accepts as an annotated
-#     approval but approver_id() cannot extract a named approver from. Run
-#     against the pre-change checkers this suite FAILS on the minutes-precision
-#     and fractional-seconds fixtures (the committed 8-line class), which is
-#     the discriminating order Verification Plan item 1 requires.
-#
-# Checker paths are env-overridable (FULL_SH / LITE_SH / FULL_PS1 / LITE_PS1)
-# so the discriminating replay can point at a pre-change copy.
+# Verify the persisted-state validators on both runtimes and the current Core gate.
+# The former enforces the WFI-042 dated approver grammar; Core allows one note.
 set -u
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FULL_SH="${FULL_SH:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-task-state.sh}"
-LITE_SH="${LITE_SH:-${REPO_ROOT}/plugins/sdd-lite/scripts/check-task-state-lite.sh}"
 FULL_PS1="${FULL_PS1:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-task-state.ps1}"
-LITE_PS1="${LITE_PS1:-${REPO_ROOT}/plugins/sdd-lite/scripts/check-task-state-lite.ps1}"
 
 PASS=0
 FAIL=0
@@ -34,11 +16,7 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$WORK/reports/quality-gate" "$WORK/reports/implementation"
 
-HAVE_PWSH=0
-if command -v pwsh >/dev/null 2>&1; then HAVE_PWSH=1; fi
-if [ "$HAVE_PWSH" -eq 0 ]; then
-    echo "skip - ps1 legs: pwsh not found on this host (CI runs them)"
-fi
+command -v pwsh >/dev/null || { echo "pwsh is required for parity" >&2; exit 1; }
 
 # write_fixture <dir> <approval-line> [status-line]: a task carrying the forms
 # under test. The default status, In Progress, requires a valid approval and
@@ -87,27 +65,12 @@ run_parity_cases() {
 
         full_rc=0
         sh "$FULL_SH" "$dir/tasks.md" "$WORK/reports/quality-gate" "$WORK/reports/implementation" "$WORK" >/dev/null 2>&1 || full_rc=$?
-        lite_rc=0
-        sh "$LITE_SH" "$dir/tasks.md" "$WORK/reports/quality-gate" "$WORK/reports/implementation" "$WORK" >/dev/null 2>&1 || lite_rc=$?
-
-        if [ "$full_rc" != "$lite_rc" ]; then
-            fail "parity [$name]: full=$full_rc lite=$lite_rc — the checkers disagree"
-        elif [ "$full_rc" != "$expected" ]; then
-            fail "parity [$name]: both exit $full_rc but expected $expected"
+        ps_rc=0
+        pwsh -NoProfile -File "$FULL_PS1" "$dir/tasks.md" -ReportsDir "$WORK/reports/quality-gate" -ImplReportsDir "$WORK/reports/implementation" -RepoRoot "$WORK" >/dev/null 2>&1 || ps_rc=$?
+        if [ "$full_rc" -ne "$expected" ] || [ "$ps_rc" -ne "$expected" ]; then
+            fail "persisted grammar [$name]: sh=$full_rc ps1=$ps_rc expected=$expected"
         else
-            ok "parity [$name]: full and lite agree (exit $full_rc)"
-        fi
-
-        if [ "$HAVE_PWSH" -eq 1 ]; then
-            fullps_rc=0
-            pwsh -NoProfile -File "$FULL_PS1" "$dir/tasks.md" -ReportsDir "$WORK/reports/quality-gate" -ImplReportsDir "$WORK/reports/implementation" -RepoRoot "$WORK" >/dev/null 2>&1 || fullps_rc=$?
-            liteps_rc=0
-            pwsh -NoProfile -File "$LITE_PS1" "$dir/tasks.md" "$WORK/reports/quality-gate" "$WORK/reports/implementation" "$WORK" >/dev/null 2>&1 || liteps_rc=$?
-            if [ "$fullps_rc" != "$expected" ] || [ "$liteps_rc" != "$expected" ]; then
-                fail "parity-ps1 [$name]: full=$fullps_rc lite=$liteps_rc expected $expected"
-            else
-                ok "parity-ps1 [$name]: both ps1 twins agree (exit $expected)"
-            fi
+            ok "persisted grammar [$name]: sh and ps1 returned $expected"
         fi
     done <<'CASES'
 bare-approved|Approved|In Progress|Approval|Status|## T-001|0
@@ -162,59 +125,20 @@ check_extraction_agreement "minutes-precision" "Approved (human 2026-08-17T03:35
 check_extraction_agreement "fractional-seconds" "Approved (sudo 2026-07-13T05:53:16.481Z)"
 check_extraction_agreement "free-text" "Approved (waived pending human sign-off)"
 
-# ---------------------------------------------------------------------------
-# Cmdlet layer (AGENTS.md WFI-012 list (b)): the lite checker's Done path
-# searches quality-gate reports for the task id and for `VERDICT: PASS`. The
-# awk twin does that with `grep -rlw` and `grep -Eq`, both case-SENSITIVE;
-# the ps1 twin used Select-String, which is case-INSENSITIVE by default. A
-# report writing `verdict: pass` therefore satisfied Done on PowerShell hosts
-# and failed it on POSIX. The operator fixtures above cannot reach this: they
-# never write a report at all.
-# ---------------------------------------------------------------------------
-check_verdict_case() {
-    name="$1"; verdict_line="$2"; task_ref="$3"; expected="$4"
-    dir="$WORK/verdict-$name"
-    reports="$dir/reports/quality-gate"
-    mkdir -p "$reports" "$dir/reports/implementation"
-    printf '# Tasks\n\n## T-001\n\nApproval: Approved\nStatus: Done\n' > "$dir/tasks.md"
-    printf '# Quality Gate\n\nTask ID: %s\n%s\n' "$task_ref" "$verdict_line" \
-        > "$reports/report.md"
-    # Done also requires an implementation report mentioning the task; it is
-    # held constant at the canonical id so the verdict/task-id casing under
-    # test is the only thing that varies.
-    printf '# Implementation\n\nTask ID: T-001\n' \
-        > "$dir/reports/implementation/impl.md"
+if python3 "$REPO_ROOT/tests/lib/core-lifecycle-checks.py" approvals; then
+    ok "Core gate approval grammar"
+else
+    fail "Core gate approval grammar"
+fi
 
-    lite_rc=0
-    sh "$LITE_SH" "$dir/tasks.md" "$reports" "$dir/reports/implementation" "$dir" >/dev/null 2>&1 || lite_rc=$?
-    if [ "$lite_rc" != "$expected" ]; then
-        fail "verdict-case [$name]: lite sh exit $lite_rc, expected $expected"
-    else
-        ok "verdict-case [$name]: lite sh exit $lite_rc"
-    fi
+if python3 "$REPO_ROOT/tests/lib/task-done-parity.py" "$FULL_SH" "$FULL_PS1"; then
+    ok "Done requires the exact task and PASS in its declared report on both hosts"
+else
+    fail "Done report identity or verdict"
+fi
 
-    if [ "$HAVE_PWSH" -eq 1 ]; then
-        liteps_rc=0
-        pwsh -NoProfile -File "$LITE_PS1" "$dir/tasks.md" "$reports" "$dir/reports/implementation" "$dir" >/dev/null 2>&1 || liteps_rc=$?
-        if [ "$liteps_rc" != "$expected" ]; then
-            fail "verdict-case-ps1 [$name]: lite ps1 exit $liteps_rc, expected $expected"
-        else
-            ok "verdict-case-ps1 [$name]: lite ps1 exit $liteps_rc"
-        fi
-    fi
-}
-# Control: the canonical forms must still satisfy Done on both legs.
-check_verdict_case "canonical" "VERDICT: PASS" "T-001" 0
-# Mis-cased verdict keyword and value: must NOT satisfy Done on either leg.
-check_verdict_case "verdict-lower" "verdict: pass" "T-001" 1
-check_verdict_case "verdict-value-lower" "VERDICT: pass" "T-001" 1
-check_verdict_case "verdict-key-lower" "verdict: PASS" "T-001" 1
-# Mis-cased task id in the report: the report no longer mentions the task.
-check_verdict_case "task-id-lower" "VERDICT: PASS" "t-001" 1
-
-# Exercise awk's real subprocess boundary with hostile path data. The Full
-# and Lite policies stay separate; both must transport values literally.
-if python3 - "$FULL_SH" "$LITE_SH" <<'PY'
+# Exercise awk's real subprocess boundary with hostile path data. The persisted checker must transport values literally.
+if python3 - "$FULL_SH" <<'PY'
 import json
 from pathlib import Path
 import subprocess
@@ -245,39 +169,25 @@ with tempfile.TemporaryDirectory() as temporary:
     assert not (root / 'SENTINEL').exists()
 PY
 then
-    ok 'Full/Lite task-state subprocesses preserve path data and reject absent evidence'
+    ok 'Persisted task-state subprocesses preserve path data and reject absent evidence'
 else
     fail 'task-state subprocess data boundary regression'
 fi
 
 # Root and discovered report filenames are data, even when brackets form a glob.
-if [ "$HAVE_PWSH" -eq 1 ]; then
-    mkdir -p "$WORK/impl[x]" "$WORK/implx" "$WORK/qg[x]" "$WORK/qgx"
-    printf '## T-001\nApproval: Approved\nStatus: Implementation Complete\n' > "$WORK/tasks[x].md"
-    printf 'unrelated task\n' > "$WORK/impl[x]/report[x].md"
-    printf 'T-001\n' > "$WORK/implx/reportx.md"
-    for checker in "$FULL_PS1" "$LITE_PS1"; do
-        code=0
-        output="$(pwsh -NoProfile -File "$checker" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
-        if [ "$code" -eq 1 ]; then ok "$(basename "$checker") ignores wildcard sibling report roots";
-        else fail "$(basename "$checker") accepted unrelated literal reports: $code $output"; fi
-    done
-    printf 'T-001\n' > "$WORK/impl[x]/report[x].md"
-    for checker in "$FULL_PS1" "$LITE_PS1"; do
-        code=0
-        output="$(pwsh -NoProfile -File "$checker" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
-        if [ "$code" -eq 0 ]; then ok "$(basename "$checker") reads literal bracket report filenames";
-        else fail "$(basename "$checker") rejected valid literal report: $code $output"; fi
-    done
-    printf '## T-001\nApproval: Approved\nStatus: Done\n' > "$WORK/tasks[x].md"
-    printf 'T-001\nVERDICT: FAIL\n' > "$WORK/qg[x]/report[x].md"
-    printf 'T-001\nVERDICT: PASS\n' > "$WORK/qgx/reportx.md"
-    code=0
-    output="$(pwsh -NoProfile -File "$LITE_PS1" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
-    if [ "$code" -eq 1 ]; then ok 'Lite Done cannot borrow PASS from wildcard sibling root';
-    else fail "Lite Done accepted sibling report: $code $output"; fi
-fi
-
+mkdir -p "$WORK/impl[x]" "$WORK/implx" "$WORK/qg[x]" "$WORK/qgx"
+printf '## T-001\nApproval: Approved\nStatus: Implementation Complete\n' > "$WORK/tasks[x].md"
+printf 'unrelated task\n' > "$WORK/impl[x]/report[x].md"
+printf 'T-001\n' > "$WORK/implx/reportx.md"
+code=0
+output="$(pwsh -NoProfile -File "$FULL_PS1" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+if [ "$code" -eq 1 ]; then ok "$(basename "$FULL_PS1") ignores wildcard sibling report roots";
+else fail "$(basename "$FULL_PS1") accepted unrelated literal reports: $code $output"; fi
+printf 'T-001\n' > "$WORK/impl[x]/report[x].md"
+code=0
+output="$(pwsh -NoProfile -File "$FULL_PS1" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+if [ "$code" -eq 0 ]; then ok "$(basename "$FULL_PS1") reads literal bracket report filenames";
+else fail "$(basename "$FULL_PS1") rejected valid literal report: $code $output"; fi
 echo ""
 echo "task-state-grammar-parity.tests.sh: ${PASS} passed, ${FAIL} failed"
 [ "$FAIL" -eq 0 ] || exit 1
