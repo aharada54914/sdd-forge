@@ -1,0 +1,15 @@
+ticket_id: RT-20261126-015
+status: open
+type: documentation
+severity: minor
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Design cites .github/CODEOWNERS while the task and repository use root CODEOWNERS"
+problem: |
+  The retirement manifest is owned in the root CODEOWNERS. The design's path reference differs.
+expected_fix:
+  - Reconcile the design reference with the approved task and repository placement through the authorized spec amendment process.
+references:
+  - specs/verification-first-factory/design.md
+  - CODEOWNERS

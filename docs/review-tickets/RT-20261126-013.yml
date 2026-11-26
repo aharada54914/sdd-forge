@@ -1,5 +1,5 @@
 ticket_id: RT-20261126-013
-status: resolved
+status: open
 type: verification
 severity: major
 target:
@@ -22,3 +22,4 @@ resolution:
   commit: 5518abfe0128fcd9ca18d39cb499e7ba967ed78a
   result: "実資産での誤検出と通常ソース・追加行の対照テストを含む68件が成功。独立ゲートの判定は品質レポートに記録する。"
   evidence: specs/verification-first-factory/verification/T-002/RT-20261126-013/public-cli-receipt.json
+reopened: "Independent review at 95aa6c281472 found removed-line false positives in Git binary patches and diff.suppressBlankEmpty context."
