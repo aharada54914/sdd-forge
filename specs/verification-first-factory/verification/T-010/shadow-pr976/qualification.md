@@ -1,6 +1,6 @@
 # T-010　既存契約、Shadow の実測と廃止候補
 
-対象は PR #976 の head `cc5872c29`。Actions のマージコミット `124c57a18` と同じ Git ツリーである。実行は 2026-11-25 UTC。測定値と実行レシートはこのディレクトリの JSON に収録した。
+初回の実行対象は PR #976 の head `cc5872c29`。Actions のマージコミット `124c57a18` と同じ Git ツリーである。実行は 2026-11-25 UTC。測定値と実行レシートはこのディレクトリの JSON に収録した。
 
 ## AC-013 の互換性
 
@@ -32,7 +32,7 @@ PR 全体では +120秒以内。Guardrails 単独の増分は上限を5秒超え
 
 実プロファイル195件から指定した5スイートを、候補では標準の `--suite ... --receipt`、v2.1.3 では同じファイルの直接実行で比較した。定数と CRLF の検査は両版で0、P0 文書とワークフロー文書は両版で1、図のリンク検査は旧版1から候補0に改善した。後者はスイートの結果であり、旧 CLI 公開契約の変更を示さない。[個別レシート](local-suite-comparison.json)
 
-対象 SHA の全195件を完走したレシートは未取得。旧版は参照先42件欠落によるカタログ計画エラー（終了2）。過去の部分実行の原因とハッシュは既存報告に記録されている。現行の通常 CI は別のスイート選択で完走した。全件選択には実サブプロセスへのコード注入試験（`tests/cross-model.tests.sh:1194`、`tests/task-state-grammar-parity.tests.sh:215`）と、実サンドボックス境界の試験（`tests/research-acquire.tests.py:762`）が含まれる。今回の実行は上記の個別スイートと通常 CI の記録収集まで。[過去の全件調査](../2026-11-26-local-profile.md)
+対象 SHA の全195件を完走したレシートは未取得。旧版は全カタログ検証の参照先欠落で計画エラー（終了2）。欠落77件中、local-posix に含まれるものは42件。過去の部分実行の原因とハッシュは既存報告に記録されている。現行の通常 CI は別のスイート選択で完走した。全件選択には実サブプロセスへのコード注入試験（`tests/cross-model.tests.sh:1194`、`tests/task-state-grammar-parity.tests.sh:215`）と、実サンドボックス境界の試験（`tests/research-acquire.tests.py:762`）が含まれる。今回の実行は上記の個別スイートと通常 CI の記録収集まで。[過去の全件調査](../2026-11-26-local-profile.md)
 
 カタログ348件には同一 stem の `.tests.sh` / `.tests.ps1` が85組あり、名前が `-parity.tests.sh` のものは14、`-parity.tests.ps1` は6。定数などの契約照合も含まれるので、ファイル名や Windows ジョブの成功だけでは後継 ESM への同値集約を証明できない。承認台帳の記載は0件で、今回の廃止は0件。[棚卸し](parity-inventory.json) · [Windows を含むテスト実行](https://github.com/aharada54914/sdd-forge/actions/runs/45719350065)
 
@@ -62,3 +62,28 @@ base/headで直接再実行した12スイートは上表の10件と、元々成�
 ## 統合版での追加6対
 
 旧113失敗の「現行結果未確認」47本のうち6本を、統合版 `c9c5d24b2` のクリーンなカタログ単独実行とPR base `2db182ad2` の直接実行で照合した。6本ともスイートソースが同じで、終了1と先頭診断が一致した。残る現行結果未確認は41本。対象は `review-prompt-calibration`、`loop-inventory`、`model-selector-package`、`design-system-compliance`、`design-sync-policy`、`turn-first-workflow`。統合版は各スイートの前後ともクリーン。同一SHA・全195本のレシートは未取得。[診断とカタログレシート](additional-clean-pairs.json)
+
+## カタログと既存契約の変更履歴（統合版 `123cebf69`）
+
+3版の `tests/verification-catalog.json` と `git ls-tree -r <rev>` を突き合わせた。3版とも `verification-catalog/v1` を使用する。旧版の計画エラーは `tests/verification.py:44` の全カタログ検証で最初の欠落パスに達した時点で発生する。[カタログ SHA-256・除外パス・スイート blob の比較](catalog-lineage.json)
+
+| Git ツリー | カタログ登録 / 欠落 | local-posix 登録 / 欠落 | 実在する選択数 |
+|---|---:|---:|---:|
+| 配布版 v2.1.3 | 424 / 77 | 237 / 42 | 195 |
+| PR base `2db182ad2` | 425 / 77 | 237 / 42 | 195 |
+| 統合版 `123cebf69` | 348 / 0 | 195 / 0 | 195 |
+
+この195件は3版で順序まで一致する。baseと統合版の195件の `runtime`、引数、CI名など登録行全体も一致する。スイート本体の Git blob が一致したのはbase比較で194件、配布版比較で187件。baseから変わった1件は形式検証の `project-skill-formal.tests.py` で、TLCの終了値や予約の勝者を検査するアサーションを追加した。`tests/verification.py` 自体のbaseとの差分は `--receipt` 単独指定時に実行する経路で、個別の合否の集計は両版とも一つでも `failed` があれば終了1。`--list` と `--plan` は選択のみを実行する。ソースが同じ場合も、依存ファイルや環境によって終了値は変わる。[実行・集計](../../../../../tests/verification.py#L177)
+
+### 全件レシート取得後に残る判断
+
+| 実測・静的根拠 | 契約の所有者が選ぶ変更と検証 |
+|---|---|
+| 44スイートの依存欠落41パス。40パスは配布前に削除された。`e2110862f` が17件（Full/Lite、旧ガード、3段階レビュー）、`0da63039a` が15件（旧テンプレート・スキル）、`03a3f4573` が5件（旧reviewer等）、`220f60afd` が2件（旧workflow・fixture）、`8e7c693b5` が1件（重複hook）。残り1件 `.github/scripts/check-model-freshness.ps1` の削除履歴は見つからなかった。 | ADR-0051に沿って、廃止した機能だけを検査する箇所と、後継Coreでも保証する箇所をスイート内で切り分ける。後者は現役CLI・公開契約に対応づけ、同じ失敗を検知するアサーションを移す。旧機能そのものを再導入する場合は別の製品変更として仕様・ADRの承認を要する。41パスを一括再作成する根拠はない。 |
+| 6スイートが自身の名前を `.github/workflows/test.yml` に要求する。この6本は現行カタログの `ci_jobs` に旧ジョブ名を持ち、プロフィールでは `local-posix` だけに所属する。`test.yml` はカタログランナーを起動せず、該当の6文字列を含まない。 | `.github/` の所有者が各契約を実行する現役ジョブと予算を決める。現役ジョブが同じ検査を間接起動する場合は実ログと同じ失敗モードを確認して登録アサーションを更新する。未配線の現役契約には個別にCI配線を追加する。カタログの `ci_jobs` の値だけでは実行実績にならない。 |
+| base と `c9c5d24b2` の clean 比較6件は全て同じ失敗。`model-selector-package` は bash/pwsh で登録済み capability を選べず、`design-system-compliance` は jq 不在を模した場合に期待する診断が空だった（`tests/design-system-compliance.tests.sh:114`）。他4本は旧reviewer・loop登録・Full/Liteの呼び出し・実装エージェント起動指示。 | モデル選択のパッケージfixtureと製品入力、jq不在時の `check-design-system.sh` の終了値・診断を各担当で照合する。前2件には現役製品とfixtureのどちらを改めるべきかの調査が残る。文書・登録の4件は現在のCoreの対応要件に照合する。6件を同じ廃止カテゴリには入れられない。 |
+| 残る41本の過去失敗は現行結果が未判定。汚れたスナップショットの182＋13件と通常CIの結果にはSHA・選択範囲の差がある。 | 対象SHA・全195件の正規レシートの `results[]` と個別診断を照合する。スイートを減らす、失敗を任意扱いする、過去レシートを連結する変更はこの判定を満たさない。 |
+
+[41パスごとの削除コミットと6件の登録行](catalog-lineage.json)・[6対の実行結果](additional-clean-pairs.json)・[v2の統合方針](../../../../../docs/adr/0051-lightweight-guardrails-and-sdd-core.md)・[所有者](../../../../../CODEOWNERS)
+
+T-010 が扱う廃止はカテゴリ2。base～統合版で変更した本番 `.sh/.ps1` は `validate-review-context-set.sh` のみで、同じ `.ps1` は既存実装のまま。20本の `*-parity.tests.{sh,ps1}` には、Python/PowerShellの定数、BashのCRLF処理、Pythonを共有するパス解決、Shell/PowerShellのregistry実装など14系統の異なる比較が入る。registry比較は実際にこのPRの登録欠落を検知した。個別の本番ESMへの統合、旧版と後継のWindows実行結果、各失敗モードの負例100%検知、承認済み blob を揃えた候補は今回0件。E2E・3-AI・goldenを保持し、スイート廃止は0件のままとした。旧Full/Liteの廃止（カテゴリ1）をT-010のカテゴリ2として処理するには対象範囲が異なる。[14系統・20本の対象名](parity-inventory.json)・[承認要件](../../../requirements.md)
