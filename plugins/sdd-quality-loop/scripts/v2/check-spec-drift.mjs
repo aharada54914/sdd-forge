@@ -293,7 +293,7 @@ function shellParser() {
       performance, setTimeout, clearTimeout, console });
     runInContext(parserAsset('wasm_exec.cjs', '0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14').toString('utf8'), context);
     const go = new context.Go();
-    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '8d4529039652d0258776efde1ea0cc3cc10e4a70689d5de2c009fcea00b34d06'));
+    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '4f081f94132585a1115a4bf1c8151e71056cc83a4ff09daf26e17f7ea0c027bb'));
     void go.run(new WebAssembly.Instance(new WebAssembly.Module(bytes), go.importObject));
     parseShell = context.sddParseShellComments;
   }

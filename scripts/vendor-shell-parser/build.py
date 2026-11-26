@@ -22,21 +22,25 @@ if go("env", "GOVERSION").strip() != "go1.26.11":
 dependency = json.loads(go("mod", "download", "-json", "mvdan.cc/sh/v3"))
 module = Path(dependency["Dir"])
 goroot = Path(go("env", "GOROOT").strip())
-parser = module / "syntax/parser.go"
-original = parser.read_text()
-# Preserve the product's dialect-aware quote removal for the delimiter word supplied
-# by the actual grammar. Upstream leaves ANSI-C escapes in the stop word verbatim.
-signature = "func (p *Parser) unquotedWordBytes(w *Word) ([]byte, bool) {"
-assert original.count(signature) == 1
-modified = original.replace(signature, "var HeredocDelimiter func(*Word) ([]byte, bool)\n\n" + signature
-                            + "\n\tif HeredocDelimiter != nil { return HeredocDelimiter(w) }")
 with tempfile.TemporaryDirectory() as temp:
     temp = Path(temp)
     for name in ("main.go", "go.mod", "go.sum"):
         shutil.copyfile(here / name, temp / name)
     os.chdir(temp)
     go("mod", "vendor", capture=False)
-    (temp / "vendor/mvdan.cc/sh/v3/syntax/parser.go").write_text(modified)
+    syntax = temp / "vendor/mvdan.cc/sh/v3/syntax"
+    # Apply the zero-context patch against the pristine, checksum-pinned module.
+    subprocess.run(["git", "apply", "--unidiff-zero", str(here / "zsh-loops.patch")], cwd=temp, check=True)
+    shutil.copyfile(here / "zsh_loops.go.in", syntax / "zsh_loops.go")
+    parser = syntax / "parser.go"
+    original = parser.read_text()
+    # Preserve the product's dialect-aware quote removal for the delimiter word supplied
+    # by the actual grammar. Upstream leaves ANSI-C escapes in the stop word verbatim.
+    signature = "func (p *Parser) unquotedWordBytes(w *Word) ([]byte, bool) {"
+    assert original.count(signature) == 1
+    modified = original.replace(signature, "var HeredocDelimiter func(*Word) ([]byte, bool)\n\n" + signature
+                                + "\n\tif HeredocDelimiter != nil { return HeredocDelimiter(w) }")
+    parser.write_text(modified)
     # The lexer measures the first rune of a delimiter line in bytes. Its
     # upstream one-byte subtraction splits non-ASCII terminators such as é.
     lexer = temp / "vendor/mvdan.cc/sh/v3/syntax/lexer.go"

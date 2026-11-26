@@ -514,15 +514,18 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
         "help) cat <<'HELP'", body, 'HELP', ';;', suffix, ')"',
         'printf \'%s\\n\' "$value"', ''
       ].join('\n');
-      fs.writeFileSync(file, script);
-      const native = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
-      // Old system Bash versions reject an unmatched literal quote in a
-      // substitution's quoted here-document. Always exercise the static CLI.
-      if (!native.error && !(shell === 'bash' && native.status === 2 && native.stderr.includes('unexpected EOF'))) {
+      // System Bash 3.2 needs balanced parentheses in the case arm and
+      // balanced quotes in the captured here-document. Keep the original
+      // native oracle on newer shells and the original CLI fixture everywhere.
+      const oldBash = shell === 'bash' && spawnSync(shell, ['-c', '(( BASH_VERSINFO[0] <= 3 ))']).status === 0;
+      const nativeBody = oldBash ? body.replace('"', '"inches"') : body;
+      const nativeScript = oldBash ? script.replace('help)', '(help)').replace(body, nativeBody) : script;
+      const native = spawnSync(shell, [], { cwd: dir, input: nativeScript, encoding: 'utf8' });
+      if (native.error?.code !== 'ENOENT') {
         assert.equal(native.status, 0, native.stderr);
-        assert.equal(native.stdout, body + '\n');
+        assert.equal(native.stdout, nativeBody + '\n');
       }
-      fs.appendFileSync(file, ': > would-run\n');
+      fs.writeFileSync(file, script + ': > would-run\n');
       const clean = runAntiTamper(dir);
       assert.equal(clean.status, 0, clean.stderr + clean.stdout);
       assert.deepEqual(JSON.parse(clean.stdout).violations, []);
@@ -537,6 +540,61 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
       assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
       const oq = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
       assert.deepEqual(oq.violations, violations.map(({ code, path }) => ({ code, path })));
+    }
+  });
+
+  for (const [name, header, footer] of [
+    ['short for', 'for item (one) ', ''],
+    ['brace for', 'for item in one; { ', '}'],
+    ['parenthesized brace for', 'for v (one two) { ', '}'],
+    ['short in for', 'for item in one; ', ''],
+    ['repeat do', 'repeat 1 do ', 'done'],
+    ['repeat', 'repeat 1 { ', '}'],
+  ]) {
+    it('distinguishes help and active comments in a native zsh ' + name + ' loop', (t) => {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      // Test both extension dispatch and an explicit zsh shebang on a .sh file.
+      const file = name === 'repeat' ? 'help.sh' : 'help.zsh';
+      const script = [
+        ...(file.endsWith('.sh') ? ['#!/usr/bin/env zsh'] : []),
+        header + "print -r -- '" + shellMarker + " quoted'" + (footer ? '; ' + footer : ''),
+        header + "cat <<'HELP'", shellMarker + ' shown', 'HELP', footer, '',
+      ].join('\n');
+      const native = spawnSync('zsh', ['-f'], { input: script, encoding: 'utf8' });
+      if (native.error?.code !== 'ENOENT') {
+        assert.equal(native.status, 0, native.stderr);
+        const iterations = name === 'parenthesized brace for' ? 2 : 1;
+        assert.equal(native.stdout, (shellMarker + ' quoted\n').repeat(iterations) + (shellMarker + ' shown\n').repeat(iterations));
+      }
+      const target = path.join(dir, file);
+      fs.writeFileSync(target, script + ': > would-run\n');
+      const clean = runAntiTamper(dir);
+      assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+      assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
+      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+      assert.equal(fs.existsSync(path.join(dir, 'would-run')), false);
+
+      fs.writeFileSync(target, script.replace("cat <<'HELP'", "cat <<'HELP' " + shellMarker + ' inner')
+        + shellMarker + ' after\n');
+      const flagged = runAntiTamper(dir);
+      assert.equal(flagged.status, 4, flagged.stderr + flagged.stdout);
+      const report = JSON.parse(flagged.stdout);
+      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
+      const oq = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
+      assert.deepEqual(oq.violations, [{ code: 'LINT_DISABLE_ADDED', path: file }, { code: 'LINT_DISABLE_ADDED', path: file }]);
+    });
+  }
+
+  it('keeps repeat an ordinary command in Bash and POSIX shells', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    for (const shell of ['bash', 'dash']) {
+      fs.writeFileSync(path.join(dir, 'help.sh'), '#!/bin/' + shell + "\nrepeat() { printf '%s\\n' \"$1\"; }\n"
+        + "repeat '" + shellMarker + " quoted' " + shellMarker + ' active\n');
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 4, result.stderr + result.stdout);
+      assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
     }
   });
 
@@ -566,8 +624,15 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
     assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
     assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
 
+    for (const invalidZsh of ["repeat 1 { print 'unclosed", 'for v (one two', 'repeat 1 do print ok']) {
+      fs.writeFileSync(file, '#!/bin/zsh\n' + invalidZsh + '\n' + shellMarker + ' active\n');
+      const invalid = runAntiTamper(dir);
+      assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
+      assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
+    }
     fs.cpSync(path.dirname(CHECK_SCRIPT), copy, { recursive: true });
-    fs.writeFileSync(file, '#!/bin/sh\n' + shellMarker + ' active\n');
+    // This valid zsh loop still requires the authenticated parser artifact.
+    fs.writeFileSync(file, '#!/bin/zsh\nfor v (one two) { print ok; }\n' + shellMarker + ' active\n');
     const asset = path.join(copy, 'shell-parser/parser.wasm.gz');
     for (const damaged of [true, false]) {
       if (damaged) fs.appendFileSync(asset, 'damaged');
