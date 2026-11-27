@@ -160,6 +160,40 @@ describe('sdd-soft-guard.mjs (v2 Lightweight Guardrails)', () => {
     assert.equal(paired.status, 2);
   });
 
+  it('AC-003: denies self-approval in every approval form the gate accepts, not only the plain line', () => {
+    // The gate reads `- **Approval:** `Approved`` as approved; the guard must count it too.
+    for (const approved of ['- **Approval:** `Approved`', '**Approval:** Approved', '- Approval: `Approved`',
+      'approval: Approved', 'Approval: Approved (human, 2026-11-28)']) {
+      const draftRepo = createTempRepo({ approved: false });
+      const result = runGuard(draftRepo, {
+        tool_name: 'Edit',
+        tool_input: {
+          file_path: path.join(draftRepo, 'specs', 'demo-feature', 'tasks.md'),
+          old_string: 'Approval: Draft',
+          new_string: approved,
+        },
+      });
+      assert.equal(result.status, 2, approved + ': ' + result.stdout + result.stderr);
+      assert.match(result.stderr, /Approval: Approved/);
+    }
+  });
+
+  it('AC-003: the guard approval counter and the gate task parser agree on every approval line', async () => {
+    const { countPrimaryApprovals } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs')).href);
+    const { parseTasksSummary } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs')).href);
+    const lines = ['Approval: Approved', '- **Approval:** `Approved`', '**Approval:** Approved', '- Approval: `Approved`',
+      'approval: Approved', 'APPROVAL: Approved', 'Approval: Approved (human)', '  - **Approval:**   `Approved`  ',
+      'Approval: Draft', '- **Approval:** `Draft`', 'Approval: approved', 'Approval: Approvedx',
+      'Second Approval: Approved', '- **Second Approval:** `Approved`', 'Status: Approved'];
+    for (const line of lines) {
+      const gate = parseTasksSummary('### T-001: x\n' + line + '\n')[0].approval;
+      const gateApproved = /^Approved(?:[ \t]*\([^()\n]*\))?$/.test(gate);
+      assert.equal(countPrimaryApprovals('### T-001: x\n' + line + '\n') > 0, gateApproved, JSON.stringify(line));
+    }
+  });
+
   it('AC-003: denies adding Approval: Approved in tasks.md, but allows Status transitions', () => {
     const draftRepo = createTempRepo({ approved: false });
     const selfApprove = runGuard(draftRepo, {

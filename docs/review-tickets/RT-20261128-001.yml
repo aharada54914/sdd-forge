@@ -1,0 +1,31 @@
+ticket_id: RT-20261128-001
+status: open
+type: defect
+severity: major
+target:
+  feature: v2-lightweight-guardrails
+  task: null
+summary: "ソフトガードが、ゲートの承認と認める表記の自己承認を通す"
+problem: |
+  ソフトガードの承認数（v2-pure-lib.mjs の countPrimaryApprovals）は、行頭の
+  `Approval: Approved` だけを数えていた。一方、ゲートのタスクパーサー
+  （v2-readonly-core.mjs の parseTasksSummary が使う taskField）は、
+  `- **Approval:** \`Approved\`` などのリスト・太字・バッククォートの表記も
+  Approved として読む。そのため、エージェントがその表記で Draft を Approved に
+  書き換えるとソフトガードは許可し、ゲートは承認済みとして扱う。
+  ADR-0051 決定1の Layer 1 にある「人間だけがタスクを承認する」が成り立っていなかった。
+  2026-11-28、T-010 の gemini-environment-loops の移行中に、v2 ガードへ同じ入力を与えて発見した。
+expected_fix:
+  - ソフトガードの承認数をゲートのタスクパーサーと同じ項目文法（taskField と isApprovedValue）で数える。
+  - ゲートが承認と読むすべての表記で、自己承認が拒否されることを検査する。
+  - 承認数とゲートのパーサーの判定が、表記ごとに一致することを検査する。
+references:
+  - plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
+  - plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+  - tests/v2-soft-guard.test.mjs
+  - specs/self-verification/formal/mapping.json
+  - docs/adr/0051-lightweight-guardrails-and-sdd-core.md
+fix_notes: |
+  修正は修正前に失敗するテストを先に追加して行った。v2 のノードテスト全319件が成功した（TLC を含む）。
+  GateLifecycle の Approve の対応「タスクの承認は共有パーサーで読む」に実装が揃ったことを確認し、
+  mapping.json の v2-pure-lib.mjs のダイジェストを更新した。所有者の確認と独立レビューを経て resolved にする。

@@ -89,7 +89,6 @@ export const VALID_SECURITY_ADAPTERS = new Set([
 export const VALID_GATE_MODES = new Set(['off', 'shadow', 'warn', 'strict']);
 export const VALID_ANTI_TAMPER_MODES = new Set(['off', 'warn', 'strict']);
 
-const APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
 const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approved\b/g;
 const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
 const IDENTIFIER_LINE_RE =
@@ -689,11 +688,18 @@ export function matchProtectedSpecRelPath(relPath, config) {
 
 export function countPrimaryApprovals(text) {
   if (!text) return 0;
-  // APPROVAL_LINE_RE is anchored to the line start, so legacy
+  // The field grammar is anchored to the line start, so legacy
   // `Second Approval: Approved` lines are already excluded. Subtracting them
   // again undercounted primary approvals and let a paired insertion of both
   // lines net to zero in the soft guard (#833).
-  return (normalizeNewlines(text).match(APPROVAL_LINE_RE) || []).length;
+  // Count with the same field grammar the gate's task parser uses (taskField +
+  // isApprovedValue), so a list/bold/backtick form such as
+  // `- **Approval:** `Approved`` cannot pass the guard yet count as approved
+  // at the gate. Lines inside code fences still count (conservative).
+  return normalizeNewlines(text).split('\n').filter((line) => {
+    const field = taskField(line);
+    return field?.name === 'approval' && isApprovedValue(field.value);
+  }).length;
 }
 
 export function countDomainModelApprovals(text) {
