@@ -195,7 +195,8 @@ const QUALITY_GATE_REPORT_REQUIREMENT = "quality-gate-report-pass";
  *
  * `required` always lists the same three baseline requirements: the evidence
  * bundle file, the verification contract file, and a quality-gate report
- * that mentions the task id with `VERDICT: PASS`. Each is reported by a
+ * of this feature (no `Feature:` line naming another one) that mentions the
+ * task id with `VERDICT: PASS`. Each is reported by a
  * relative path (bundle/contract) or a requirement name (quality-gate
  * report, since "which of possibly several reports" is not a single path).
  */
@@ -244,7 +245,7 @@ export function evidenceFindMissing(
   const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
   if (qgScan.errors.length > 0) {
     undeterminable.push(QUALITY_GATE_REPORT_REQUIREMENT);
-  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId, feature)) {
     present.push(QUALITY_GATE_REPORT_REQUIREMENT);
   } else {
     missing.push(QUALITY_GATE_REPORT_REQUIREMENT);

@@ -87,7 +87,7 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 
 ## Follow-ups
 
-- Pre-existing, found by review: Done evidence accepts any `reports/quality-gate/*` file mentioning `T-NNN`, including another feature's report. Should be scoped by feature.
+- Done evidence scoped by feature (batch 13): the MCP lookup skips a quality-gate report whose first `Feature:` line names another feature; reports without a `Feature:` line still count (legacy).
 - Release tags: the session's git proxy refuses tag pushes (HTTP 403). After a release PR merges, dispatch `publish-release.yml` (version + release merge commit), which creates the tag and Release and runs release.yml.
 - Batch-3 re-review minors: flow-style ticket targets fixed in batch 4. Still open: Scope bullets like `path(note)` / `dir/{a,b}` are labelled out of scope (labels only).
 - publish-release review minor (open): document recovery when a run fails after the tag is created. The green-run count and event filter are fixed (batch 10).

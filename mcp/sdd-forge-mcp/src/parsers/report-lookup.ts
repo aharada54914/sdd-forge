@@ -121,6 +121,18 @@ export function isExecutionCoverageComplete(parsed: Record<string, unknown>): bo
   );
 }
 
+const FEATURE_LINE = /^Feature:[ \t]*(.*?)[ \t]*$/m;
+
+/**
+ * Task ids are unique only within a feature, so a quality-gate report counts
+ * for `feature` unless its first `Feature:` line names another one. Reports
+ * written before the identity block was required have no such line and count.
+ */
+function isReportForFeature(contents: string, feature: string): boolean {
+  const declared = FEATURE_LINE.exec(contents.replace(/\r\n/g, "\n"));
+  return declared === null || declared[1] === feature;
+}
+
 function isQualityGatePassContent(relFilePath: string, contents: string): boolean {
   // Done evidence is the independent G1-G5 verdict. A run-sdd-gate
   // `.execution.json` is the mechanical pre-review result and never counts on
@@ -129,14 +141,23 @@ function isQualityGatePassContent(relFilePath: string, contents: string): boolea
   return parseReviewReportVerdict(contents) === "PASS";
 }
 
+/** Every quality-gate report under `relDir` that mentions `taskId` and belongs to `feature`. */
+export function qualityGateReportsFor(root: SddRoot, relDir: string, taskId: string, feature: string): string[] {
+  return anyFileContaining(root, relDir, taskId).filter((relFilePath) => {
+    const read = guardedRead(root, relFilePath);
+    return read.ok && isReportForFeature(read.data.contents, feature);
+  });
+}
+
 /**
- * True if, among every quality-gate report mentioning `taskId`, at least one
- * independent report's verdict is PASS (see review-verdict.ts).
+ * True if, among every quality-gate report of `feature` mentioning `taskId`,
+ * at least one independent report's verdict is PASS (see review-verdict.ts).
  */
-export function hasQualityGateVerdictPass(root: SddRoot, relDir: string, taskId: string): boolean {
+export function hasQualityGateVerdictPass(root: SddRoot, relDir: string, taskId: string, feature: string): boolean {
   return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
     const read = guardedRead(root, relFilePath);
-    return read.ok && isQualityGatePassContent(relFilePath, read.data.contents);
+    return read.ok && isReportForFeature(read.data.contents, feature) &&
+      isQualityGatePassContent(relFilePath, read.data.contents);
   });
 }
 
@@ -150,6 +171,7 @@ export interface ReportLookup {
   anyFileContainingWithDiagnostics: typeof anyFileContainingWithDiagnostics;
   anyFileContaining: typeof anyFileContaining;
   hasAnyFileMentioning: typeof hasAnyFileMentioning;
+  qualityGateReportsFor: typeof qualityGateReportsFor;
   hasQualityGateVerdictPass: typeof hasQualityGateVerdictPass;
 }
 
@@ -190,7 +212,10 @@ export function createReportLookup(): ReportLookup {
     }),
     anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map(file => file.path),
     hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
-    hasQualityGateVerdictPass: (root, relDir, taskId) =>
-      matching(root, relDir, taskId).some(file => isQualityGatePassContent(file.path, file.contents)),
+    qualityGateReportsFor: (root, relDir, taskId, feature) =>
+      matching(root, relDir, taskId).filter(file => isReportForFeature(file.contents, feature)).map(file => file.path),
+    hasQualityGateVerdictPass: (root, relDir, taskId, feature) =>
+      matching(root, relDir, taskId).some(file =>
+        isReportForFeature(file.contents, feature) && isQualityGatePassContent(file.path, file.contents)),
   };
 }

@@ -37402,14 +37402,25 @@ function isExecutionCoverageComplete(parsed) {
   const sensors = checks.nonFunctionalSensors;
   return Array.isArray(commands) && commands.length > 0 && drift?.skipped !== true && sensors?.skipped !== true;
 }
+var FEATURE_LINE = /^Feature:[ \t]*(.*?)[ \t]*$/m;
+function isReportForFeature(contents, feature) {
+  const declared = FEATURE_LINE.exec(contents.replace(/\r\n/g, "\n"));
+  return declared === null || declared[1] === feature;
+}
 function isQualityGatePassContent(relFilePath, contents) {
   if (relFilePath.endsWith(".execution.json")) return false;
   return parseReviewReportVerdict(contents) === "PASS";
 }
-function hasQualityGateVerdictPass(root, relDir, taskId) {
+function qualityGateReportsFor(root, relDir, taskId, feature) {
+  return anyFileContaining(root, relDir, taskId).filter((relFilePath) => {
+    const read = guardedRead(root, relFilePath);
+    return read.ok && isReportForFeature(read.data.contents, feature);
+  });
+}
+function hasQualityGateVerdictPass(root, relDir, taskId, feature) {
   return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
     const read = guardedRead(root, relFilePath);
-    return read.ok && isQualityGatePassContent(relFilePath, read.data.contents);
+    return read.ok && isReportForFeature(read.data.contents, feature) && isQualityGatePassContent(relFilePath, read.data.contents);
   });
 }
 function createReportLookup() {
@@ -37444,7 +37455,8 @@ function createReportLookup() {
     }),
     anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map((file2) => file2.path),
     hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
-    hasQualityGateVerdictPass: (root, relDir, taskId) => matching(root, relDir, taskId).some((file2) => isQualityGatePassContent(file2.path, file2.contents))
+    qualityGateReportsFor: (root, relDir, taskId, feature) => matching(root, relDir, taskId).filter((file2) => isReportForFeature(file2.contents, feature)).map((file2) => file2.path),
+    hasQualityGateVerdictPass: (root, relDir, taskId, feature) => matching(root, relDir, taskId).some((file2) => isReportForFeature(file2.contents, feature) && isQualityGatePassContent(file2.path, file2.contents))
   };
 }
 
@@ -41062,7 +41074,7 @@ function approverId(value) {
 function isApprovedShape(value) {
   return value === "Approved" || APPROVED_ANNOTATION_PATTERN.test(value);
 }
-function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile = "full") {
+function finishTask(draft, root, feature, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile = "full") {
   const taskId = draft.id;
   const fail = (rule, message) => {
     failures.push({ taskId, rule, message });
@@ -41091,7 +41103,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
   if (status === "Done" && profile === "full") {
-    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
+    validateDoneEvidence(root, feature, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
   if (status === "Implementation Complete" || status === "Done" && profile === "lite") {
     if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
@@ -41101,7 +41113,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
       );
     }
   }
-  if (status === "Done" && profile === "lite" && !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
+  if (status === "Done" && profile === "lite" && !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
     fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
   }
   let blockersNonEmpty = false;
@@ -41124,7 +41136,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     tasks.push(buildTaskEntry(taskId, draft, approval, status, blockersNonEmpty));
   }
 }
-function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail, reportLookup) {
+function validateDoneEvidence(root, feature, taskId, taskRisk, tasksDir, reportsDir, fail, reportLookup) {
   const isV2CoreFeature = guardedExists(root, `${tasksDir}/.spec-baseline.json`);
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
@@ -41179,13 +41191,13 @@ function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail
       }
     }
   }
-  const qgMatches = (reportLookup?.anyFileContaining ?? anyFileContaining)(root, reportsDir, taskId);
+  const qgMatches = (reportLookup?.qualityGateReportsFor ?? qualityGateReportsFor)(root, reportsDir, taskId, feature);
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
       `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`
     );
-  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
+  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
     fail(
       "done-quality-gate-verdict-fail",
       `${taskId} is Done but quality-gate report does not contain VERDICT: PASS: ${qgMatches[0]}`
@@ -41277,7 +41289,7 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
   let draft;
   const finish = () => {
     if (draft !== void 0) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
+      finishTask(draft, root, feature, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
     }
   };
   for (const rawLine of lines) {
