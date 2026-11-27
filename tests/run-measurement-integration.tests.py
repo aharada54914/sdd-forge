@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / "plugins/sdd-quality-loop/scripts/run_measurement.py"
@@ -116,79 +117,6 @@ class OwnerIntegration(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertFalse(marker.exists())
         self.assertFalse((self.root / "measurements").exists())
-        result = subprocess.run([
-            sys.executable, str(ROOT / "plugins/sdd-lite/lib/run-lite-gate.py"),
-            "--repo-root", str(self.root), "--runtime", "posix",
-            "--enforcement", "none", "--check", "probe",
-            "--measure-dir", str(self.root / "measurements"),
-        ], cwd=self.root, capture_output=True, text=True)
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("outside the repository", result.stderr)
-        self.assertFalse(marker.exists())
-        self.assertFalse((self.root / "measurements").exists())
-
-    def test_lite_measurement_requires_quality_plugin_before_running(self):
-        installed = Path(self.tmp.name) / "installed/plugins/sdd-lite/lib"
-        installed.mkdir(parents=True)
-        runner = installed / "run-lite-gate.py"
-        shutil.copyfile(ROOT / "plugins/sdd-lite/lib/run-lite-gate.py", runner)
-        marker = self.root / "marker"
-        scripts = self.root / "scripts"
-        scripts.mkdir()
-        (scripts / "probe.sh").write_text("touch marker\n")
-        result = subprocess.run([
-            sys.executable, str(runner), "--repo-root", str(self.root),
-            "--runtime", "posix", "--enforcement", "none", "--check", "probe",
-            "--measure-dir", str(Path(self.tmp.name) / "measurement"),
-        ], cwd=self.root, capture_output=True, text=True)
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("measurement requires the sdd-quality-loop plugin", result.stderr)
-        self.assertNotIn("Traceback", result.stderr)
-        self.assertFalse(marker.exists())
-
-    def test_lite_pass_failure_and_timeout(self):
-        scripts = self.root / "scripts"
-        scripts.mkdir()
-        for name, body in [
-            ("pass", "exit 0"),
-            ("fail", "exit 3"),
-            ("timeout", "sleep 5"),
-        ]:
-            (scripts / (name + ".sh")).write_text(body + "\n")
-            (scripts / (name + ".ps1")).write_text("exit 0\n")
-            argv = [
-                sys.executable,
-                str(ROOT / "plugins/sdd-lite/lib/run-lite-gate.py"),
-                "--repo-root",
-                str(self.root),
-                "--runtime",
-                "posix",
-                "--enforcement",
-                "none",
-                "--check",
-                name,
-                "--timeout",
-                "0.05",
-            ]
-            bare = subprocess.run(argv, capture_output=True)
-            directory = Path(self.tmp.name).resolve() / ("lite-" + name)
-            measured = subprocess.run(
-                argv + ["--measure-dir", str(directory)], capture_output=True
-            )
-            self.assertEqual(bare.returncode, measured.returncode)
-            self.assertEqual(bare.stderr, measured.stderr)
-            a, b = json.loads(bare.stdout), json.loads(measured.stdout)
-            for payload in (a, b):
-                payload.pop("recorded_at")
-                for check in payload["checks"]:
-                    check.pop("duration_ms")
-            self.assertEqual(a, b)
-            summary = self.m.summarize(directory, as_of=None)
-            gate = next(s for s in summary["spans"] if s["phase"] == "gate")
-            self.assertEqual(
-                gate["outcome"],
-                {"pass": "success", "fail": "failure", "timeout": "timeout"}[name],
-            )
 
     def test_post_start_failure_does_not_change_owner_exit(self):
         import contextlib
@@ -222,6 +150,52 @@ class OwnerIntegration(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 2)
             self.assertFalse(directory.exists())
+
+
+class HistoricalLiteMeasurement(unittest.TestCase):
+    """sdd-lite left the distribution in v2.0.0 (Q05): its three measurement
+    guarantees stay pinned to the v1.26.0 product and its original tests."""
+
+    # git archive --format=zip v1.26.0 (b193c75be2a6f2e6c7074bb65401f514268a65fb)
+    #   tests/run-measurement-integration.tests.py tests/verification.py
+    #   plugins/sdd-lite/lib/run-lite-gate.py
+    #   plugins/sdd-quality-loop/scripts/{run_measurement,canonicalize-sdd-yaml,validate-capability-summary}.py
+    ARCHIVE = ROOT / "tests/fixtures/run-measurement-v1.26.0/lite-measurement.zip"
+    SHA256 = "0d7e02f27eade50aac51057a498752502b3512ef1959e183cf022c6709ee4a21"
+
+    @classmethod
+    def setUpClass(cls):
+        payload = cls.ARCHIVE.read_bytes()
+        if hashlib.sha256(payload).hexdigest() != cls.SHA256:
+            raise ValueError("v1.26.0 Lite measurement fixture digest mismatch")
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        root = Path(temporary.name).resolve()
+        with zipfile.ZipFile(cls.ARCHIVE) as bundle:
+            bundle.extractall(root)
+        spec = importlib.util.spec_from_file_location(
+            "v126_run_measurement_integration", root / "tests/run-measurement-integration.tests.py"
+        )
+        cls.source = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.source)
+        cls.source_root = root
+
+    def run_original(self, method):
+        self.assertEqual(self.source.ROOT, self.source_root)
+        result = unittest.TestResult()
+        self.source.OwnerIntegration(method).run(result)
+        self.assertEqual(result.testsRun, 1)
+        self.assertTrue(result.wasSuccessful(), result.errors + result.failures)
+        self.assertEqual(result.skipped, [])
+
+    def test_in_tree_measurement_is_rejected_before_either_runner_executes(self):
+        self.run_original("test_in_tree_measurement_is_rejected_before_either_runner_executes")
+
+    def test_lite_measurement_requires_quality_plugin_before_running(self):
+        self.run_original("test_lite_measurement_requires_quality_plugin_before_running")
+
+    def test_lite_pass_failure_and_timeout(self):
+        self.run_original("test_lite_pass_failure_and_timeout")
 
 
 if __name__ == "__main__":
