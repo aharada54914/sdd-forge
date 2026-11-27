@@ -215,6 +215,22 @@ class MisCasedInputTests(unittest.TestCase):
             })
         self.assert_rejected(mutate, "unsupported signature alg: HMAC-SHA256")
 
+    def test_signed_fields_must_be_strings(self):
+        # Python's str() and PowerShell's [string] render a number, array or
+        # object differently, so the signed canonical form would differ.
+        for field, value in (("required_workflow", 5), ("required_workflow", ["full"]),
+                             ("required_workflow", {"name": "full"}), ("git_commit", 7)):
+            with self.subTest(field=field, value=value):
+                def mutate(fx):
+                    fx.contract["risk"] = "critical"
+                    fx.bundle.update({
+                        "risk": "critical", "spec_revision": "a" * 64, "build_env": {"os": "linux"},
+                        "review_verdict": {"verdict": "PASS"},
+                        "signature": {"alg": "hmac-sha256", "value": "ab"},
+                    })
+                    fx.bundle[field] = value
+                self.assert_rejected(mutate, "critical bundle field %s must be a string" % field)
+
     def test_upper_case_risk_is_not_a_provenance_tier(self):
         with tempfile.TemporaryDirectory() as base:
             fx = Fixture(base)
