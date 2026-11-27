@@ -310,6 +310,15 @@ class StrictValueTests(unittest.TestCase):
             with self.subTest(order=order):
                 self.assert_absent(mutate, "HMAC mismatch", sign=True, order=order)
 
+    def test_mis_cased_signed_keys_read_as_absent_on_both_runners(self):
+        # Python's dict lookup is exact-case; a PowerShell property read is not.
+        os.environ["SDD_EVIDENCE_KEY"] = "parity-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        def mutate(fx):
+            self.critical(fx, False)
+            fx.bundle["Required_Workflow"] = "full"
+        self.assert_absent(mutate, "HMAC mismatch", sign=True)
+
     def test_wrong_key_still_fails_the_signature(self):
         os.environ["SDD_EVIDENCE_KEY"] = "another-key"
         self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
