@@ -27,6 +27,7 @@ from typing import Any, Callable
 import unittest
 from unittest import mock
 import uuid
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = 'plugins/sdd-implementation/scripts/model-policy.py'
@@ -2413,6 +2414,23 @@ class ModelRunRecords(unittest.TestCase):
         self.assertEqual(summary['model_delivery_binding_sha256'], sha_file(output / 'model-delivery-binding.json'))
 
 
+# git archive --format=zip v1.26.0 (b193c75be2a6f2e6c7074bb65401f514268a65fb) of
+# plugins/sdd-quality-loop/scripts/{run-panelist-gpt,run-panelist-gemini,prepare-panelist-input}.{sh,ps1}
+RETIRED_PANELIST_ARCHIVE = ROOT / 'tests/fixtures/panelist-launch-v1.26.0/retired-panelist-scripts.zip'
+RETIRED_PANELIST_SHA256 = '237a25e248ba60a39f36f27dd4a254afb06d40c6fcfb58c1b23a30d996a65969'
+
+
+def retired_panelist_scripts():
+    payload = RETIRED_PANELIST_ARCHIVE.read_bytes()
+    if hashlib.sha256(payload).hexdigest() != RETIRED_PANELIST_SHA256:
+        raise ValueError('v1.26.0 retired panelist fixture digest mismatch')
+    with zipfile.ZipFile(RETIRED_PANELIST_ARCHIVE) as bundle:
+        files = {name: bundle.read(name) for name in bundle.namelist() if not name.endswith('/')}
+    if len(files) != 6:
+        raise ValueError('v1.26.0 retired panelist fixture must hold exactly six scripts')
+    return files
+
+
 class SelectedPanelistLaunch(LaunchFixture):
     """Real selectors/consent gates and both wrappers; native commands are recording stubs only."""
     TASK = 'T-007'
@@ -2441,12 +2459,19 @@ class SelectedPanelistLaunch(LaunchFixture):
         self.request.update(role='panelist-gpt', host='codex-cli', requested_effort='high',
                             cli={'model_id': 'gpt-6-astra', 'policy': 'pinned'})
         scripts = 'plugins/sdd-quality-loop/scripts/'
+        # Q10: v2 no longer ships the four panelist wrappers or the two consent
+        # scripts. They run from their v1.26.0 originals; every other input
+        # (selectors, policy, shared library, run records, transport) is current.
+        retired = retired_panelist_scripts()
         for name in ('run-panelist-gpt.sh', 'run-panelist-gpt.ps1', 'run-panelist-gemini.sh',
                      'run-panelist-gemini.ps1', 'prepare-panelist-input.sh', 'prepare-panelist-input.ps1',
                      'lib/panelist-common.sh', 'emit-run-record.sh', 'emit-run-record.ps1'):
             target = self.root / (scripts + name)
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / (scripts + name), target)
+            if scripts + name in retired:
+                target.write_bytes(retired[scripts + name])
+            else:
+                shutil.copyfile(ROOT / (scripts + name), target)
         driver = self.root / 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
         driver.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / driver.relative_to(self.root), driver)
