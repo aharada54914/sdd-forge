@@ -976,10 +976,13 @@ function Test-StrictJsonText {
     $position = 0
 
     # 123 marks an open object on the stack, 91 an open array. The parallel
-    # lists hold each open container's path, its member names so far and the
-    # names that repeated (objects), and its next item index (arrays).
+    # lists hold, per open container: the member name or item index it sits
+    # under in its parent (the path is built from these only when a duplicate
+    # is reported, so memory stays linear in the nesting depth), its member
+    # names so far and the names that repeated (objects, created on first
+    # use), and its next item index (arrays).
     $stack = New-Object 'System.Collections.Generic.List[int]'
-    $paths = New-Object 'System.Collections.Generic.List[string]'
+    $segments = New-Object 'System.Collections.Generic.List[object]'
     $names = New-Object 'System.Collections.Generic.List[object]'
     $repeated = New-Object 'System.Collections.Generic.List[object]'
     $counts = New-Object 'System.Collections.Generic.List[int]'
@@ -997,15 +1000,25 @@ function Test-StrictJsonText {
     # and changes this call's lists through PowerShell's dynamic scope.
     function Close-StrictJsonContainer {
         $top = $stack.Count - 1
-        if ($stack[$top] -eq 123 -and $null -ne $Duplicates) {
-            $where = $paths[$top]
+        if ($null -ne $repeated[$top] -and $null -ne $Duplicates) {
+            # The .sh twin's member_path() and "%s[%d]", from the root down.
+            $where = ''
+            for ($level = 1; $level -le $top; $level++) {
+                if ($stack[$level - 1] -eq 91) {
+                    $where = $where + '[' + $segments[$level] + ']'
+                } elseif ($where.Length -eq 0) {
+                    $where = ConvertTo-SafeText $segments[$level]
+                } else {
+                    $where = $where + '.' + (ConvertTo-SafeText $segments[$level])
+                }
+            }
             if ($where.Length -eq 0) { $where = 'root' }
             foreach ($name in $repeated[$top]) {
                 $Duplicates.Add($where + ': member "' + (ConvertTo-SafeText $name) + '" appears more than once')
             }
         }
         $stack.RemoveAt($top)
-        $paths.RemoveAt($top)
+        $segments.RemoveAt($top)
         $names.RemoveAt($top)
         $repeated.RemoveAt($top)
         $counts.RemoveAt($top)
@@ -1054,8 +1067,9 @@ function Test-StrictJsonText {
             if ($end -lt 0) { return $false }
             $memberName = Get-StrictJsonStringValue -Chars $chars -Start $position -End $end
             $top = $stack.Count - 1
-            if (-not $names[$top].Add($memberName) -and -not $repeated[$top].Contains($memberName)) {
-                $repeated[$top].Add($memberName)
+            if (-not $names[$top].Add($memberName)) {
+                if ($null -eq $repeated[$top]) { $repeated[$top] = New-Object 'System.Collections.Generic.List[string]' }
+                if (-not $repeated[$top].Contains($memberName)) { $repeated[$top].Add($memberName) }
             }
             $position = $end
             while ($position -lt $limit) {
@@ -1080,29 +1094,20 @@ function Test-StrictJsonText {
 
         if ($position -ge $limit) { return $false }
         $code = [int]$chars[$position]
-        if ($code -eq 123 -or $code -eq 91) {
-            # The path this container will report under: the .sh twin's
-            # member_path() and "%s[%d]".
-            $childPath = ''
-            if ($stack.Count -gt 0) {
-                $top = $stack.Count - 1
-                if ($stack[$top] -eq 91) {
-                    $childPath = $paths[$top] + '[' + $counts[$top] + ']'
-                } elseif ($paths[$top].Length -eq 0) {
-                    $childPath = ConvertTo-SafeText $memberName
-                } else {
-                    $childPath = $paths[$top] + '.' + (ConvertTo-SafeText $memberName)
-                }
-            }
-        }
+        $segment = $memberName
         if ($stack.Count -gt 0 -and $stack[$stack.Count - 1] -eq 91) {
+            $segment = $counts[$stack.Count - 1]
             $counts[$stack.Count - 1] = $counts[$stack.Count - 1] + 1
         }
         if ($code -eq 123 -or $code -eq 91) {
             $stack.Add($code)
-            $paths.Add($childPath)
-            $names.Add((New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)))
-            $repeated.Add((New-Object 'System.Collections.Generic.List[string]'))
+            $segments.Add($segment)
+            if ($code -eq 123) {
+                $names.Add((New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)))
+            } else {
+                $names.Add($null)
+            }
+            $repeated.Add($null)
             $counts.Add(0)
             $position++
             if ($code -eq 123) { $state = 'key-or-close' } else { $state = 'value-or-close' }
