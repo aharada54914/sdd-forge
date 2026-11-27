@@ -258,8 +258,9 @@ def run_at_root(args, check):
         return {'schema': 'a9-rollback-validation/v1', 'result': 'ADMISSIBLE', 'branch': branch,
                 'authorization_checked': True, 'applied': False,
                 'current_registry_sha256': record['bindings']['current_registry']['sha256']}
-    # The v1 publisher left the plugin payload in v2; it is kept for operators beside this script.
-    publisher = SOURCE / 'scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
+    # v2 removed the transactional publisher from the plugin payload. Its approved
+    # bytes remain tracked (and owned) in the A1 human-copy bundle; run them there.
+    publisher = SOURCE / 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
     # Publish a private byte-for-byte snapshot of the authenticated inputs. The
     # original staged manifest cannot be replaced after admission to expand the
     # publisher's targets. Its existing hash checks and transaction recovery stay

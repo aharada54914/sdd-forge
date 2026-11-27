@@ -320,8 +320,9 @@ def run(args):
             # Revalidate current trust, clock, live anchor and all nested evidence before publication.
             admit(args, ROLLBACK.Check(root))
             check.unchanged()
-            # The v1 publisher left the plugin payload in v2; it is kept for operators beside this script.
-            publisher = SOURCE / 'scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
+            # v2 removed the transactional publisher from the plugin payload. Its approved
+            # bytes remain tracked (and owned) in the A1 human-copy bundle; run them there.
+            publisher = SOURCE / 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
             command = (['pwsh', '-NoProfile', '-File', str(publisher), '-StagingDir', str(staged), '-Manifest', str(manifest)]
                        if args.publisher_runtime == 'ps1' else ['bash', str(publisher), '--staging-dir', str(staged), '--manifest', str(manifest)])
             completed = subprocess.run(command, cwd=root, text=True, capture_output=True, encoding="utf-8")
