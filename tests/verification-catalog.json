@@ -1067,6 +1067,11 @@
       "runtime": "powershell"
     },
     {
+      "path": "tests/human-copy-runner-contract.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/human-copy-runner-contract.tests.sh"
+    },
+    {
       "path": "tests/human-copy-runner-contract.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
