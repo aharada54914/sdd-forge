@@ -19,6 +19,7 @@ SDD_TEST_PWSH or pwsh on PATH. Both shells are required; absence is a setup fail
 """
 import copy
 import hashlib
+import zipfile
 import importlib.util
 import json
 import os
@@ -786,10 +787,35 @@ def runtime_tree(root):
     return {path: digest for path, digest in tree(root).items() if '__pycache__' not in path.split('/')}
 
 
+# git archive --format=zip v1.26.0 (b193c75be2a6f2e6c7074bb65401f514268a65fb)
+#   plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md
+RETIRED_CALLER_SKILL_ARCHIVE = ROOT / 'tests/fixtures/model-policy-installed-v1.26.0/cross-model-verify-skill.zip'
+RETIRED_CALLER_SKILL_SHA256 = 'b36930aceaa8c09fa72f3b4a933193169abe578225f84c4dd9f61f3f632df555'
+
+
+def retired_runtime():
+    """Q10: the retired panelist caller (skill, four wrappers, two consent scripts) runs from v1.26.0 originals."""
+    payload = RETIRED_CALLER_SKILL_ARCHIVE.read_bytes()
+    if hashlib.sha256(payload).hexdigest() != RETIRED_CALLER_SKILL_SHA256:
+        raise ValueError('v1.26.0 cross-model-verify fixture digest mismatch')
+    with zipfile.ZipFile(RETIRED_CALLER_SKILL_ARCHIVE) as bundle:
+        files = {name: bundle.read(name) for name in bundle.namelist() if not name.endswith('/')}
+    if list(files) != [CALLER_SKILL]:
+        raise ValueError('v1.26.0 cross-model-verify fixture must hold exactly the caller skill')
+    return {**launch.retired_panelist_scripts(), **files}
+
+
+def runtime_source_exists(relative):
+    return (ROOT / relative).is_file() or relative in retired_runtime()
+
+
 def fixture_runtime_bytes(fixture, relative):
-    """Only the isolated policy authority is synthetic; other runtime bytes stay current."""
+    """Only the isolated policy authority is synthetic and retired callers are v1.26.0 originals; the rest is current."""
     if relative == launch.TRUSTED_POLICY:
         return fixture.trusted_policy_raw()
+    retired = retired_runtime()
+    if relative in retired:
+        return retired[relative]
     return (ROOT / relative).read_bytes()
 
 
@@ -3328,7 +3354,7 @@ class InstalledPanelistCallerTests(unittest.TestCase):
         empty.mkdir()
         for relative in sorted(set(PACKAGE) | set(CALLER_RUNTIME)):
             source, target = ROOT / relative, package / relative
-            self.assertTrue(source.is_file(), 'Admitted package input missing: ' + relative)
+            self.assertTrue(runtime_source_exists(relative), 'Admitted package input missing: ' + relative)
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(fixture_runtime_bytes(f, relative))
         for args in (['init', '-q', '--template=' + str(empty)], ['add', '--all'],
