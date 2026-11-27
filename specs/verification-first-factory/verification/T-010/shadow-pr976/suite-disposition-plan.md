@@ -54,8 +54,8 @@
 | wfi-059-evidence-path-base | 旧パネル入力生成器 | R + N1 | 決定2。現行ゲートの証拠パス解決は N1 で新規テストにする |
 | risk-upgrade-context | Full/Lite トラック切替 | R | 決定2。Core の Risk 別確認は v2-sdd-core-flow が後継 |
 | workflow-scenarios | 旧 interviewer スキル | R | 決定2 |
-| current-byte-capture | guard-invariants 生成器 | R | 決定3（224ファイルロック不変条件の廃止） |
-| generate-gate-capabilities | guard-invariants 入力 | R | 決定3。現行能力一覧の生成に価値が残る場合は P に変更する |
+| current-byte-capture | guard-invariants 生成器 | P | 試験対象の `tests/lib/current-byte-capture.py` は Q09 の compatibility-byte-identical が使う。退役した生成器への依存だけ外す（2026-11-28 再分類） |
+| generate-gate-capabilities | guard-invariants 入力 | P | 生成器は配布物に残るので、退役した guard-invariants 入力だけ外す（2026-11-28 再分類） |
 | deterministic-lane-selfcheck | v1 の単一ジョブ CI 構成 | R | 決定4。後継は verification-ci の経路契約 |
 | gemini-environment-loops | 旧ハンドシェイク・Python guard | P | ハンドシェイクは退役する。Gemini の soft guard 配線は現行 hooks.json で検証する |
 | check-component-coverage | guard-invariants、quality-gate の Process 節 | P + N2 | 旧部分は退役。Core ゲートから必須時に呼ばれ、N/A と失敗を区別するかを N2 で検証する |
@@ -72,7 +72,7 @@
 | turn-first-workflow | 「1タスクに1つの新しい実装エージェント」の文言 | P + 確認 | 同上 |
 | model-policy-installed（残り31件） | 退役した呼出し元スキル・旧記述、ManagedClaudeRoles | P / Q15 | 退役スキルと旧記述を読む約29件は退役する。2件は Q15 |
 
-集計は E 8、Q 11、R 15、P 14 スイート。新規テストは下記の N1〜N5。
+集計は E 8、Q 11、R 13、P 16 スイート（2026-11-28 再分類後）。R の `.ps1` 対と、cross-model の子3件も合わせて退役する。review-agent-isolation の子 `review-scratch-history.tests.py` は現行スクリプトを検証して合格するので、独立スイートとして残す。新規テストは下記の N1〜N5。
 
 ## 新規テスト（v2 の保証で、テストがないもの）
 
@@ -102,7 +102,7 @@ F1・F2 が通れば、状態遷移を個別の例で確かめていた旧テス
 ## 前提となる変更（承認が必要）
 
 1. **T-010 の合格条件の文言変更。** `tasks.md` の T-010 Verification と `approved-shadow-release.md` は「全195件成功」と書いている。退役すると件数が変わるので、文言を「退役台帳に記録したものを除く登録済み全スイート」に改める。凍結された task plan の変更なので、人間の承認を記録し、実装後の provenance 再レビューを行う（AGENTS.md WFI-004）。
-2. **退役台帳。** `verification/T-010/shadow-pr976/retirement-ledger.json` に、スイート、ADR-0051 の決定番号、後継テスト、承認日を記録する。必須チェックを黙って削らないための記録とする。
+2. **退役台帳。** 新設せず、T-010 の Scope にある既存の `sdd/approved-test-retirements.json`（CODEOWNERS 保護）を使う。path・git_blob_sha・理由（ADR-0051 の決定番号）・後継テスト・承認者を記録する。anti-tampering は台帳を比較元リビジョンから読むので、台帳を削除より前のコミットにする。
 3. **受入実行の環境。** 合格判定のための単一実行は、非 root ユーザー・全履歴・Pester 4.10.1・`node` と `pwsh` が使える環境で行う。それが用意できない場合は、E 分類を CI の結果で判定する。
 4. **既に実装した Q05・Q10・Q12・Q14 の v1.26.0 固定。** 所有者の回答どおりなので維持する。新方針に合わせて退役へ切り替えるかは別途判断する。
 

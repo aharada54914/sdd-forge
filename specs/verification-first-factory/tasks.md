@@ -143,7 +143,7 @@ T-008
   - PR へ Gitleaks（5〜15s）・Semgrep diff-only（20〜60s）・`actions/cache`（`hashFiles('specs/**/formal/**')`）を、夜間へ CodeQL（5〜15m）を配線。
   - リリース候補 SHA で PR の Gitleaks と Semgrep diff-only がともに完走した実行記録を確認し、Shadow のまま両方の所見件数を記録する。純増時間をローカル `<= +15s`、PR CI `<= +120s` の各上限と照合する。
   - **カテゴリ2（`.ps1`/`.sh` パリティテスト）は、対応本番スクリプトの Node.js ESM 集約と Windows ネイティブ CI 通過を確認した項目のみ** `sdd/approved-test-retirements.json` 経由で廃止する（E2E・3-AI・`tests/golden/**` は保持）。
-- **Verification (`SELF-AC-005` の時間予算、`SELF-AC-006`、`AC-013`):** リリース候補 SHA で `tests/verification.py --profile local-posix --receipt` の単一実行が全195件成功し、同じ候補の両スキャナーと両時間予算を確認する。誤検知率の判定と利用者既定の変更は T-011 が担当する。[判定方法](verification/T-010/approved-shadow-release.md)
+- **Verification (`SELF-AC-005` の時間予算、`SELF-AC-006`、`AC-013`):** リリース候補 SHA で `tests/verification.py --profile local-posix --receipt` の単一実行で、`sdd/approved-test-retirements.json` に記録して退役したものを除く登録済み全スイートが成功し、同じ候補の両スキャナーと両時間予算を確認する。誤検知率の判定と利用者既定の変更は T-011 が担当する。[判定方法](verification/T-010/approved-shadow-release.md)
 ### Blockers
 T-003, T-006, T-009
 
@@ -164,5 +164,7 @@ T-010
 
 - 2026-11-26（所有者承認、T-003・T-004）。AC-007 の Layer 1 基準を上流の677行に更新。上限700行、差分ゼロ、外部依存ゼロを維持する。過去の663行の記述に対する適用範囲と照合手順は [基準変更の記録](verification/T-004/approved-layer1-baseline.md) に示す。
 - 2026-11-26（所有者承認、T-010・T-011）。実 PR で両スキャナーが完走しても所見0件では誤検知率を算出できないため、Shadow リリースの検証と strict 昇格を別タスクに分ける。SELF-REQ-005・SELF-AC-005 の誤検知率判定を T-011 に割り当て、NFR-004 の時間予算は両タスクで検証する。T-011 の実行承認は別途必要。[決定と証跡](verification/T-010/approved-shadow-release.md)
+
+- 2026-11-28（所有者承認、T-010）。合格条件の「全195件成功」を「`sdd/approved-test-retirements.json` に記録して退役したものを除く登録済み全スイートが成功」に改めた。ADR-0051 が廃止した面だけを検証するスイートは、path・git_blob_sha・理由・後継テスト・承認者をこの台帳に記録して退役させ、v2 の保証にテストがないものは新設する。台帳はスイートの削除より前のコミットで記録する。実装後の provenance 再レビューで再拘束する（AGENTS.md WFI-004）。[処置計画](verification/T-010/shadow-pr976/suite-disposition-plan.md)
 
 - 2026-11-26（所有者承認、T-002、RT-015）。設計第3節の廃止承認マニフェストに対する所有者定義の参照先を、実ファイルとタスクに合わせてルートの `CODEOWNERS` に訂正した。対象は REQ-010 と SELF-REQ-006。

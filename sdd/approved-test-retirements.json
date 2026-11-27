@@ -1,5 +1,182 @@
 {
   "schema": "sdd-approved-test-retirements/v1",
   "policy": "Protected by CODEOWNERS. Every test file deletion or retirement excluded from Anti-Tampering must list its exact repository-relative path and git_blob_sha (from `git rev-parse HEAD:<path>`), plus rationale and human approver.",
-  "retirements": []
+  "retirements": [
+    {
+      "path": "tests/gates.tests.sh",
+      "git_blob_sha": "7ce37de938ca8dd7697feb6ab63e2f2301af36f9",
+      "reason": "ADR-0051 決定1・2: HMAC 署名付き証跡束と Lite 状態検査の廃止",
+      "successors": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs; tests/v2-sdd-core-flow.test.mjs; specs/self-verification/formal/GateLifecycle.tla (DoneRequiresGatePass)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/eval.tests.sh",
+      "git_blob_sha": "9c8dd8645b610cbd9176f1ce4e132eb1f0c1d48f",
+      "reason": "ADR-0051 決定1: 署名付き証跡束の生成の廃止",
+      "successors": "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs; tests/v2-software-factory.test.mjs; tests/golden-eval.tests.py",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/scenario.tests.sh",
+      "git_blob_sha": "8dc31fd951f0c3ac27ede0922cef98a0733ab9a3",
+      "reason": "ADR-0051 決定1・3: 署名付き全工程と v1 フック契約の廃止",
+      "successors": "tests/v2-real-flows-e2e.test.mjs; tests/v2-hooks-and-ci.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/scenario.tests.ps1",
+      "git_blob_sha": "190a4ebed8258585d57b741b0e84853499c5324b",
+      "reason": "ADR-0051 決定1・3: 署名付き全工程と v1 フック契約の廃止",
+      "successors": "tests/v2-real-flows-e2e.test.mjs; tests/v2-hooks-and-ci.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/spec-review-loop.tests.sh",
+      "git_blob_sha": "4d49b9abf0323db9372a8f1464c38b2260de4a3f",
+      "reason": "ADR-0051 決定2: 3ループレビュー（6役）の廃止",
+      "successors": "plugins/sdd-review-loop/skills/spec-check/SKILL.md; tests/v2-sdd-core-flow.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/review-agent-isolation.tests.sh",
+      "git_blob_sha": "1e2cb4b6eb9d7dadb7634766b7fffd78f47dae29",
+      "reason": "ADR-0051 決定2: 3ループレビューのスキルと役の廃止",
+      "successors": "tests/v2-sdd-core-flow.test.mjs; tests/review-scratch-history.tests.py (独立スイートとして存続)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/review-prompt-calibration.tests.sh",
+      "git_blob_sha": "ed22cc577a617664405b8124f41a41cfa6dd09c1",
+      "reason": "ADR-0051 決定2: 3ループレビュー役の較正の廃止",
+      "successors": "plugins/sdd-review-loop/skills/spec-check/SKILL.md; tests/v2-prompts-and-delegation.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/cross-model.tests.sh",
+      "git_blob_sha": "b4ab969371beb9c8b824cbcecdf0e7660f84a318",
+      "reason": "ADR-0051 決定2: 外部パネル（cross-model-verify）の廃止。high は2視点",
+      "successors": "tests/v2-sdd-core-flow.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/cross-model.tests.ps1",
+      "git_blob_sha": "8dbd983f57bcaa309c47499d043ee9ec26f195cd",
+      "reason": "ADR-0051 決定2: 外部パネル（cross-model-verify）の廃止。high は2視点",
+      "successors": "tests/v2-sdd-core-flow.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/cross-model-empty-phase.tests.ps1",
+      "git_blob_sha": "d67a447794257f4305ea22f942b3a3fd35ccc220",
+      "reason": "ADR-0051 決定2: 外部パネル（cross-model-verify）の廃止。high は2視点",
+      "successors": "tests/v2-sdd-core-flow.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/cross-model-encoding.tests.ps1",
+      "git_blob_sha": "c79af0ce402b3334e9830b182d565e58d8be5920",
+      "reason": "ADR-0051 決定2: 外部パネル（cross-model-verify）の廃止。high は2視点",
+      "successors": "tests/v2-sdd-core-flow.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/cross-model-process-state.tests.py",
+      "git_blob_sha": "d521c1c090d5315f4f2d1802569e2ed5c53719b9",
+      "reason": "ADR-0051 決定2: 外部パネル（cross-model-verify）の廃止。high は2視点",
+      "successors": "tests/v2-sdd-core-flow.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/run-panelist-effort.tests.sh",
+      "git_blob_sha": "ea7e8dfb21a4e005abe4ef0765890b2e7c7c19f9",
+      "reason": "ADR-0051 決定2: 旧パネルランナーの廃止",
+      "successors": "tests/model-policy-launch.tests.py (v1.26.0 原本で維持, Q10)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/run-panelist-effort.tests.ps1",
+      "git_blob_sha": "ddf56d87fc2592474add6788c62a4cd4377a0f9b",
+      "reason": "ADR-0051 決定2: 旧パネルランナーの廃止",
+      "successors": "tests/model-policy-launch.tests.py (v1.26.0 原本で維持, Q10)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/wfi-058-outputs-anchor.tests.sh",
+      "git_blob_sha": "dfe580e1bb9e863989e7fdb4f18e7d6f0981a7e6",
+      "reason": "ADR-0051 決定2: 旧パネル入力生成器の廃止",
+      "successors": "tests/v2-sdd-core-flow.test.mjs (baseline 再入)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/wfi-058-outputs-anchor.tests.ps1",
+      "git_blob_sha": "5e99fa3ab6969342b8e33044880b08d6f24039ec",
+      "reason": "ADR-0051 決定2: 旧パネル入力生成器の廃止",
+      "successors": "tests/v2-sdd-core-flow.test.mjs (baseline 再入)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/wfi-059-evidence-path-base.tests.sh",
+      "git_blob_sha": "98b8c18f3560325fcf113a9c3c5212f03010e8a1",
+      "reason": "ADR-0051 決定2: 旧パネル入力生成器の廃止",
+      "successors": "run-sdd-gate の証拠パス解決の新規テスト (処置計画 N1)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/wfi-059-evidence-path-base.tests.ps1",
+      "git_blob_sha": "e49009f47e2f357a819c49e79a9dd9490ddf514b",
+      "reason": "ADR-0051 決定2: 旧パネル入力生成器の廃止",
+      "successors": "run-sdd-gate の証拠パス解決の新規テスト (処置計画 N1)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/risk-upgrade-context.tests.sh",
+      "git_blob_sha": "7e038a004a11b1ed2f750a0c8a56c39e5306f290",
+      "reason": "ADR-0051 決定2: Full/Lite トラック切替の廃止",
+      "successors": "tests/v2-sdd-core-flow.test.mjs (Risk 別確認)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/risk-upgrade-context.tests.ps1",
+      "git_blob_sha": "fbbd5275829f72387f89bbd3337f8476de285e7e",
+      "reason": "ADR-0051 決定2: Full/Lite トラック切替の廃止",
+      "successors": "tests/v2-sdd-core-flow.test.mjs (Risk 別確認)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+      "git_blob_sha": "4d4c746ee3dc9cc81235be76aeff8c36f447bc4a",
+      "reason": "ADR-0051 決定2: 旧 sdd-bootstrap-interviewer スキルの廃止",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/deterministic-lane-selfcheck.tests.sh",
+      "git_blob_sha": "02357d98db8ab8595779cd3b821e23eb350445d0",
+      "reason": "ADR-0051 決定4: v1 の単一ジョブ CI 構成の廃止",
+      "successors": "tests/verification-ci.tests.py (CurrentV2WorkflowTests)",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    }
+  ]
 }
