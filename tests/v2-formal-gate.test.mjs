@@ -230,11 +230,12 @@ describe('ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agn
       ].join('\n'),
       'utf8',
     );
+    const fixture = path.join(REPO_ROOT, 'tests/fixtures/project-skills/formal-review-reservation');
     const badRes = runFormalGate({
-      projectRoot: REPO_ROOT,
-      tlaPath: 'tests/fixtures/project-skills/formal-review-reservation/Reservation.tla',
-      cfgPath: 'tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg',
-      mappingPath: 'tests/fixtures/project-skills/formal-review-reservation/mapping.json',
+      projectRoot: dir,
+      tlaPath: path.join(fixture, 'Reservation.tla'),
+      cfgPath: path.join(fixture, 'Reservation.cfg'),
+      mappingPath: path.join(fixture, 'mapping.json'),
       tracePath: badTrace,
       adapter: 'none',
       mode: 'strict',
@@ -242,6 +243,8 @@ describe('ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agn
     assert.equal(badRes.status, 'FAIL');
     assert.equal(badRes.exitCode, 1);
     assert.ok(badRes.trace.violations.some((v) => /OneAccepted/.test(v)));
+    // The failure evidence belongs to the test's own root, never the checkout.
+    assert.ok(fs.existsSync(path.join(dir, badRes.evidence, 'trace.log')), badRes.evidence);
 
     fs.rmSync(dir, { recursive: true, force: true });
   });

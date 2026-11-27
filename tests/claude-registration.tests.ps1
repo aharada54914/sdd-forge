@@ -38,6 +38,7 @@ function New-FakeClaudeCommand {
 function New-FakeSuccessfulPluginCommands {
     param([Parameter(Mandatory)][string]$BinRoot)
 
+    New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
     foreach ($command in @("codex", "copilot", "agy", "gemini")) {
         if ($isWindowsPlatform) {
             "@exit /b 0`r`n" | Set-Content -Path (Join-Path $BinRoot "$command.cmd") -Encoding Ascii

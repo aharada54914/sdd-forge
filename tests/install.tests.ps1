@@ -93,7 +93,8 @@ if ($Lane -in @('all', 'core')) {
 
 $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
+# v2 distribution set (sdd-lite was retired in v2.0.0); mirrors ALL_PLUGINS in install.tests.sh.
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
 function New-TrackedFixture {
@@ -310,9 +311,10 @@ function Resolve-ExpectedPlugins {
         foreach ($plugin in @($resolved)) {
             $dependencies = switch ($plugin) {
                 "sdd-bootstrap" { @("sdd-review-loop", "sdd-implementation"); break }
+                "sdd-azure-cloud" { @("sdd-quality-loop"); break }
+                "sdd-aws-cloud" { @("sdd-quality-loop"); break }
                 "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
-                "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
-                "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
+                "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop"); break }
                 default { @() }
             }
             foreach ($dependency in $dependencies) {
@@ -560,38 +562,28 @@ try {
             $claudeBody = (Get-Content -LiteralPath $claudePath -Raw).Replace('2.1.317', $(if ($hookCase -eq 'valid') { '2.1.295' } else { '2.1.294' }))
             Set-Content -LiteralPath $claudePath -Encoding Ascii -Value $claudeBody
         }
+        # v2 soft guardrails (Q18, mirrors install.tests.sh): the v1 preflight that
+        # refused to install was retired. An unusable Node only warns; every case
+        # registers the plugin with Claude and completes the placement.
         $hookInstall = Join-Path $hookRoot "$hookCase/installed"
-        New-Item -ItemType Directory -Path $hookInstall -Force | Out-Null
-        [IO.File]::WriteAllText((Join-Path $hookInstall 'old.marker'), 'preserve me')
+        $commandsLog = Join-Path $hookRoot 'commands.log'
+        Remove-Item -LiteralPath $commandsLog -Force -ErrorAction SilentlyContinue
         $env:PATH = $hookBin
         $caught = $null
+        $hookOutput = ''
         try {
-            & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $hookInstall -Target Claude -Plugins sdd-quality-loop -SkipAgentInstall -SkipMcp
+            $hookOutput = & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $hookInstall -Target Claude -Plugins sdd-quality-loop -SkipAgentInstall -SkipMcp *>&1 | Out-String
         } catch { $caught = $_ }
         finally { $env:PATH = $hookOriginalPath }
-        if ($hookCase -eq 'valid') {
-            if ($caught -or -not (Test-Path -LiteralPath (Join-Path $hookInstall 'plugins/sdd-quality-loop/.claude-plugin/plugin.json'))) {
-                throw "Supported hook runtimes failed with -SkipMcp: $caught"
-            }
-            Write-Host 'ok: Claude hooks supported runtimes install with -SkipMcp'
-        } else {
-            if (-not $caught -or "$caught" -notmatch 'quality-loop hooks' -or "$caught" -notmatch 'Installation was not changed' -or
-                [IO.File]::ReadAllText((Join-Path $hookInstall 'old.marker')) -cne 'preserve me') {
-                throw "Hook runtime $hookCase did not stop before replacing the install: $caught"
-            }
-            Write-Host "ok: Claude hooks $hookCase leaves existing install untouched"
-            Remove-Item -LiteralPath $hookInstall -Recurse -Force
-            $env:PATH = $hookBin
-            $caught = $null
-            try {
-                & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $hookInstall -Target Claude -Plugins sdd-quality-loop -SkipAgentInstall -SkipMcp
-            } catch { $caught = $_ }
-            finally { $env:PATH = $hookOriginalPath }
-            if (-not $caught -or "$caught" -notmatch 'Installation was not changed' -or (Test-Path -LiteralPath $hookInstall)) {
-                throw "Hook runtime $hookCase created a new install or failed for the wrong reason: $caught"
-            }
-            Write-Host "ok: Claude hooks $hookCase does not create a new install"
+        $expectWarning = $hookCase -in @('missing', 'broken', 'invalid')
+        $warned = $hookOutput.Contains('Node.js >= 20.0.0 is recommended on PATH for v2 soft guardrail hooks')
+        $registered = (Test-Path -LiteralPath $commandsLog) -and
+            ([IO.File]::ReadAllText($commandsLog) -cmatch '(?m)^claude plugin install sdd-quality-loop@')
+        if ($caught -or $warned -ne $expectWarning -or -not $registered -or
+            -not (Test-Path -LiteralPath (Join-Path $hookInstall 'plugins/sdd-quality-loop/.claude-plugin/plugin.json'))) {
+            throw "Hook runtime $hookCase did not warn=$expectWarning, register and install (warned=$warned registered=$registered): $caught`n$hookOutput"
         }
+        Write-Host "ok: Claude hooks $hookCase installs and registers (soft-guard warning=$expectWarning)"
     }
 } finally {
     $env:PATH = $hookOriginalPath
@@ -600,7 +592,17 @@ try {
 
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
-Invoke-InstallerScenario -Plugins @("sdd-lite")
+Invoke-InstallerScenario -Plugins @("sdd-ship")
+# sdd-lite is no longer distributed: the parameter rejects it before any placement.
+$retiredRoot = Join-Path ([IO.Path]::GetTempPath()) ("sdd-installer-retired-" + [guid]::NewGuid())
+$retiredCaught = $null
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path $retiredRoot "installed") -Target FilesOnly -Plugins sdd-lite
+} catch { $retiredCaught = $_ }
+if (-not $retiredCaught -or "$retiredCaught" -notmatch "sdd-lite" -or (Test-Path -LiteralPath $retiredRoot)) {
+    throw "Retired sdd-lite was not rejected before placement: $retiredCaught"
+}
+Write-Host "ok: retired sdd-lite is rejected before placement"
 Invoke-InstallerScenario -Plugins @("sdd-domain")
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins"
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins" -SeedExistingInstall
@@ -1177,7 +1179,7 @@ try {
     New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
 
     # *>&1 also merges the information stream; 2>&1 alone would miss Write-Host.
-    $mcpDefaultOut = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpDefaultInstall -Target All -SkipAgentInstall *>&1 | Out-String
+    $mcpDefaultOut = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpDefaultInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp *>&1 | Out-String
 
     foreach ($mcpName in @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")) {
         if (-not (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/dist/index.js"))) {
@@ -1262,8 +1264,13 @@ try {
 
     & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpSkipInstall -Target All -SkipAgentInstall -SkipMcp
 
-    if (Test-Path (Join-Path $mcpSkipInstall "mcp")) {
-        throw "-SkipMcp (u): mcp/ was placed despite -SkipMcp"
+    # ADR-0052 / C-4 (mirrors install.tests.sh): sdd-forge-mcp's runtime is always
+    # placed for /sdd-ship:status; -SkipMcp skips opt-in servers and every registration.
+    if (-not (Test-Path -LiteralPath (Join-Path $mcpSkipInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "-SkipMcp (u): always-placed sdd-forge-mcp runtime missing"
+    }
+    if ((Test-Path -LiteralPath (Join-Path $mcpSkipInstall "mcp/local-env-mcp")) -or (Test-Path -LiteralPath (Join-Path $mcpSkipInstall "mcp/ci-mcp"))) {
+        throw "-SkipMcp (u): opt-in MCP was placed despite -SkipMcp"
     }
     if (Test-Path $mcpSkipLog) {
         $mcpSkipLogContent = Get-Content -Raw $mcpSkipLog
@@ -1281,7 +1288,7 @@ try {
     if ((Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")) -ne $vscodeBefore) {
         throw "-SkipMcp (u): VS Code mcp.json was modified despite -SkipMcp"
     }
-    Write-Host "ok: -SkipMcp skips both MCP placement and registration"
+    Write-Host "ok: -SkipMcp skips opt-in MCP placement and all registration"
 }
 finally {
     $env:PATH = $mcpSkipOriginalPath
@@ -1324,8 +1331,9 @@ try {
     if (-not (Test-Path (Join-Path $mcpLeInstall "mcp/local-env-mcp/dist/index.js"))) {
         throw "-Mcp local-env-mcp (v-le): local-env-mcp dist/index.js not placed"
     }
-    if (Test-Path (Join-Path $mcpLeInstall "mcp/sdd-forge-mcp")) {
-        throw "-Mcp local-env-mcp (v-le): sdd-forge-mcp was placed despite not being selected"
+    # ADR-0052 / C-4: the sdd-forge-mcp runtime is always placed (mirrors install.tests.sh).
+    if (-not (Test-Path -LiteralPath (Join-Path $mcpLeInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "-Mcp local-env-mcp (v-le): always-placed sdd-forge-mcp runtime missing"
     }
     Write-Host "ok: -Mcp local-env-mcp installs only the selected MCP"
 }
@@ -1333,8 +1341,8 @@ finally {
     if (Test-Path $mcpLeRoot) { Remove-Item -Path $mcpLeRoot -Recurse -Force }
 }
 
-# Scenario (v-ci): -Mcp ci-mcp is a valid selection that places ONLY ci-mcp
-# (sdd-forge-mcp / local-env-mcp absent). Confirms ci-mcp is in the
+# Scenario (v-ci): -Mcp ci-mcp is a valid selection that places ci-mcp but not
+# local-env-mcp (sdd-forge-mcp is always placed). Confirms ci-mcp is in the
 # ValidateSet, per-name selection is honoured in both directions (AC-016), and
 # the token guidance notice appears even with -Target FilesOnly (placement
 # happens regardless of -Target).
@@ -1346,8 +1354,9 @@ try {
     if (-not (Test-Path (Join-Path $mcpCiInstall "mcp/ci-mcp/dist/index.js"))) {
         throw "-Mcp ci-mcp (v-ci): ci-mcp dist/index.js not placed"
     }
-    if (Test-Path (Join-Path $mcpCiInstall "mcp/sdd-forge-mcp")) {
-        throw "-Mcp ci-mcp (v-ci): sdd-forge-mcp was placed despite not being selected"
+    # ADR-0052 / C-4: the sdd-forge-mcp runtime is always placed (mirrors install.tests.sh).
+    if (-not (Test-Path -LiteralPath (Join-Path $mcpCiInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "-Mcp ci-mcp (v-ci): always-placed sdd-forge-mcp runtime missing"
     }
     if (Test-Path (Join-Path $mcpCiInstall "mcp/local-env-mcp")) {
         throw "-Mcp ci-mcp (v-ci): local-env-mcp was placed despite not being selected"
@@ -1433,10 +1442,13 @@ try {
     $env:PATH = "$mcpOldNodeBin$([System.IO.Path]::PathSeparator)$mcpOldNodeOriginalPath"
 
     $warnings = $null
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpOldNodeInstall -Target FilesOnly -WarningVariable warnings -WarningAction SilentlyContinue
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpOldNodeInstall -Target FilesOnly -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningVariable warnings -WarningAction SilentlyContinue
 
-    if (Test-Path (Join-Path $mcpOldNodeInstall "mcp")) {
-        throw "old Node (w): MCP was placed below Node 26.13.0"
+    if ((Test-Path -LiteralPath (Join-Path $mcpOldNodeInstall "mcp/local-env-mcp")) -or (Test-Path -LiteralPath (Join-Path $mcpOldNodeInstall "mcp/ci-mcp"))) {
+        throw "old Node (w): opt-in MCP was placed below Node 20.0.0"
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $mcpOldNodeInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "old Node (w): always-placed sdd-forge-mcp runtime missing"
     }
     foreach ($plugin in $allPlugins) {
         if (-not (Test-Path (Join-Path $mcpOldNodeInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
@@ -1453,15 +1465,16 @@ finally {
     if (Test-Path $mcpOldNodeRoot) { Remove-Item -Path $mcpOldNodeRoot -Recurse -Force }
 }
 
-# Scenario (w1): enforce the exact supported MCP runtime floor. Versions below
-# 26.13.0 and malformed output fail closed; 26.13.0 and newer stable releases are accepted.
+# Scenario (w1): enforce the exact supported MCP runtime floor (Node 20.0.0 LTS,
+# install.ps1 Test-NodeVersionOk; mirrors install.tests.sh). Older releases and
+# malformed output fail closed; 20.0.0 and newer stable releases are accepted.
 $nodeBoundaryCases = @(
-    @{ Version = "v22.19.0"; Accept = $false },
-    @{ Version = "v24.19.0"; Accept = $false },
-    @{ Version = "v26.12.1"; Accept = $false },
-    @{ Version = "v26.13.0"; Accept = $true },
+    @{ Version = "v18.20.4"; Accept = $false },
+    @{ Version = "v19.9.0"; Accept = $false },
+    @{ Version = "v20.0.0"; Accept = $true },
+    @{ Version = "v22.19.0"; Accept = $true },
     @{ Version = "v26.14.0"; Accept = $true },
-    @{ Version = "v26.13.0-rc.1"; Accept = $false },
+    @{ Version = "v20.0.0-rc.1"; Accept = $false },
     @{ Version = "v999999999999999999999.0.0"; Accept = $false },
     @{ Version = "not-a-version"; Accept = $false }
 )
@@ -1484,7 +1497,7 @@ foreach ($nodeBoundaryCase in $nodeBoundaryCases) {
         }
         $env:PATH = "$nodeBoundaryBin$([System.IO.Path]::PathSeparator)$nodeBoundaryOriginalPath"
         $warnings = $null
-        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $nodeBoundaryInstall -Target FilesOnly -WarningVariable warnings -WarningAction SilentlyContinue
+        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $nodeBoundaryInstall -Target FilesOnly -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningVariable warnings -WarningAction SilentlyContinue
 
         if ($nodeBoundaryCase.Accept) {
             foreach ($mcpName in @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")) {
@@ -1494,7 +1507,7 @@ foreach ($nodeBoundaryCase in $nodeBoundaryCases) {
             }
         }
         else {
-            if (Test-Path (Join-Path $nodeBoundaryInstall "mcp")) {
+            if ((Test-Path -LiteralPath (Join-Path $nodeBoundaryInstall "mcp/local-env-mcp")) -or (Test-Path -LiteralPath (Join-Path $nodeBoundaryInstall "mcp/ci-mcp"))) {
                 throw "Node boundary (w1): $($nodeBoundaryCase.Version) installed MCP below the supported floor"
             }
             if (-not ($warnings | Where-Object { $_.Message -match "(?i)node" })) {
@@ -1510,10 +1523,10 @@ foreach ($nodeBoundaryCase in $nodeBoundaryCases) {
     }
 }
 
-# Scenario (w2): an unsupported v18.x runtime for the DEFAULT multi-MCP install
+# Scenario (w2): an unsupported v18.x runtime for an opt-in multi-MCP install
 # under -Target All. The MCP gate skips placement and registration below
-# Node 26.13.0. A v18.x node shim ahead of
-# the real node must cause NO placement of EITHER MCP and NO Claude/Codex/
+# Node 20.0.0. A v18.x node shim ahead of
+# the real node must cause NO placement of an opt-in MCP and NO Claude/Codex/
 # Cursor/VS Code registration, while a warning mentioning Node is raised.
 $mcpV18Root = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-v18-" + [guid]::NewGuid())
 $mcpV18Install = Join-Path $mcpV18Root "installed"
@@ -1548,26 +1561,26 @@ try {
     $v18VSCodeBefore = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
 
     $warnings = $null
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpV18Install -Target All -Plugins sdd-bootstrap -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpV18Install -Target All -Plugins sdd-bootstrap -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningVariable warnings -WarningAction SilentlyContinue
 
-    if (Test-Path (Join-Path $mcpV18Install "mcp")) {
-        throw "old Node v18 (w2): MCP was placed below Node 26.13.0"
+    if ((Test-Path -LiteralPath (Join-Path $mcpV18Install "mcp/local-env-mcp")) -or (Test-Path -LiteralPath (Join-Path $mcpV18Install "mcp/ci-mcp"))) {
+        throw "old Node v18 (w2): opt-in MCP was placed below Node 20.0.0"
     }
     if (Test-Path $mcpV18Log) {
         $v18LogContent = Get-Content -Raw $mcpV18Log
         if ($v18LogContent -match [regex]::Escape("claude mcp add")) {
-            throw "old Node v18 (w2): claude mcp add was invoked below Node 26.13.0"
+            throw "old Node v18 (w2): claude mcp add was invoked below Node 20.0.0"
         }
     }
     $v18ConfigToml = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
     if ($v18ConfigToml -match "sdd-forge-mcp" -or $v18ConfigToml -match "local-env-mcp") {
-        throw "old Node v18 (w2): Codex config.toml was modified below Node 26.13.0"
+        throw "old Node v18 (w2): Codex config.toml was modified below Node 20.0.0"
     }
     if ((Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")) -ne $v18CursorBefore) {
-        throw "old Node v18 (w2): Cursor mcp.json was modified below Node 26.13.0"
+        throw "old Node v18 (w2): Cursor mcp.json was modified below Node 20.0.0"
     }
     if ((Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")) -ne $v18VSCodeBefore) {
-        throw "old Node v18 (w2): VS Code mcp.json was modified below Node 26.13.0"
+        throw "old Node v18 (w2): VS Code mcp.json was modified below Node 20.0.0"
     }
     if (-not ($warnings | Where-Object { $_.Message -match "(?i)node" })) {
         throw "old Node v18 (w2): expected warning mentioning Node was not raised"
@@ -1596,7 +1609,7 @@ try {
     $env:SDD_CODEX_HOME = Join-Path $mcpNoConfigRoot "codex-home-missing"
 
     $warnings = $null
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpNoConfigInstall -Target All -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpNoConfigInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningVariable warnings -WarningAction SilentlyContinue
 
     if (Test-Path (Join-Path $env:SDD_CODEX_HOME "config.toml")) {
         throw "missing config.toml (x): installer created a new config.toml"
@@ -1657,9 +1670,9 @@ try {
     Set-Content -Path (Join-Path $env:SDD_CURSOR_DIR "mcp.json") -Value $cursorSeed -Encoding Utf8NoBOM
 
     $cursorWarnings = $null
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $cursorInstall -Target All -SkipAgentInstall -WarningVariable cursorWarnings -WarningAction SilentlyContinue
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $cursorInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningVariable cursorWarnings -WarningAction SilentlyContinue
     $cursorAfterFirst = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $cursorInstall -Target All -SkipAgentInstall -WarningAction SilentlyContinue | Out-Null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $cursorInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningAction SilentlyContinue | Out-Null
     $cursorAfterSecond = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
 
     $cursorCheck = & node -e '
@@ -1734,9 +1747,9 @@ try {
     Set-Content -Path (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") -Value $vscodeSeed -Encoding Utf8NoBOM
 
     $vscodeWarnings = $null
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $vscodeInstall -Target All -SkipAgentInstall -WarningVariable vscodeWarnings -WarningAction SilentlyContinue
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $vscodeInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningVariable vscodeWarnings -WarningAction SilentlyContinue
     $vscodeAfterFirst = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $vscodeInstall -Target All -SkipAgentInstall -WarningAction SilentlyContinue | Out-Null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $vscodeInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp -WarningAction SilentlyContinue | Out-Null
     $vscodeAfterSecond = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
 
     & node -e '
@@ -1800,7 +1813,7 @@ try {
     $corruptCursorFailed = $false
     $corruptCursorOutput = ""
     try {
-        $corruptCursorOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $corruptCursorInstall -Target All -SkipAgentInstall *>&1 | Out-String
+        $corruptCursorOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $corruptCursorInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp *>&1 | Out-String
     }
     catch {
         $corruptCursorFailed = $true
@@ -1863,7 +1876,7 @@ try {
     $corruptVSCodeFailed = $false
     $corruptVSCodeOutput = ""
     try {
-        $corruptVSCodeOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $corruptVSCodeInstall -Target All -SkipAgentInstall *>&1 | Out-String
+        $corruptVSCodeOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $corruptVSCodeInstall -Target All -SkipAgentInstall -Mcp sdd-forge-mcp,local-env-mcp,ci-mcp *>&1 | Out-String
     }
     catch {
         $corruptVSCodeFailed = $true
