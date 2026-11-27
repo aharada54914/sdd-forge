@@ -232,10 +232,8 @@ computation at all.
 
 | Role | Required tier | Anthropic route | OpenAI/Codex route |
 |---|---|---|---|
-| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |
+| sdd-investigator | inherited (v2, 2026-11-28 owner decision) | Claude: `model: inherit` (the calling session's model) | OpenAI/Codex: no `model` key (inherits the session configuration) |
 | spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
 | sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |
 
 ### Escalation

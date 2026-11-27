@@ -111,18 +111,19 @@ assert_literal "$MATRIX" '| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |
 assert_literal "$MATRIX" '| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies |' \
   "strong Codex mapping must use the available registry and preserve the role floor"
 
-assert_literal "$MATRIX" '| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |' \
-  "investigator must be lightweight/Haiku with Codex low equivalent"
+# v2 (2026-11-28 owner decision): the investigator inherits the calling session's model on every host.
+assert_literal "$MATRIX" '| sdd-investigator | inherited (v2, 2026-11-28 owner decision) | Claude: `model: inherit` (the calling session'"'"'s model) | OpenAI/Codex: no `model` key (inherits the session configuration) |' \
+  "investigator must inherit the calling session's model on every host"
 assert_literal "$MATRIX" '| spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' \
   "spec reviewers must be at least standard/Sonnet"
-assert_literal "$MATRIX" '| impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' \
-  "implementation reviewers must be at least standard/Sonnet"
-assert_literal "$MATRIX" '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' \
-  "task reviewers must be at least standard/Sonnet"
 assert_literal "$MATRIX" '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |' \
   "evaluator must use Claude Sonnet and retain Codex strong high/xhigh"
 
-assert_contains "$INVESTIGATOR" '^model: haiku$' "Claude investigator must be downgraded to Haiku"
+assert_contains "$INVESTIGATOR" '^model: inherit$' "Claude investigator must inherit the calling session's model"
+if grep -Eq '^model[[:space:]]*=' "$ROOT/.codex/agents/sdd-investigator.toml"; then
+  fail "Codex investigator must not pin a model (inherits the session configuration)"
+fi
+printf 'ok: Codex investigator pins no model\n'
 assert_literal "$COPILOT_INVESTIGATOR" "Model tier: lightweight" "Copilot investigator must document lightweight tier"
 assert_contains "$EVALUATOR" '^model: sonnet$' "Claude evaluator must use approved Sonnet"
 
@@ -132,11 +133,7 @@ assert_contains "$EVALUATOR" '^model: sonnet$' "Claude evaluator must use approv
 # evaluator). Pin all six declarations at sonnet-or-stronger.
 for reviewer_decl in \
   plugins/sdd-review-loop/agents/spec-reviewer-a.md \
-  plugins/sdd-review-loop/agents/spec-reviewer-b.md \
-  plugins/sdd-review-loop/agents/impl-reviewer-a.md \
-  plugins/sdd-review-loop/agents/impl-reviewer-b.md \
-  plugins/sdd-review-loop/agents/task-reviewer-a.md \
-  plugins/sdd-review-loop/agents/task-reviewer-b.md; do
+  plugins/sdd-review-loop/agents/spec-reviewer-b.md; do
   grep -Eq '^model: (sonnet|opus)$' "$ROOT/$reviewer_decl" ||
     fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewer_decl"
   printf 'ok: reviewer declaration meets the standard floor: %s\n' "$reviewer_decl"
