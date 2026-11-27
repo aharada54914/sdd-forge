@@ -104,34 +104,46 @@ function Get-Sha256 {
     return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
+function Remove-NonLowercaseMembers {
+    # The .sh twin reads every JSON key by its exact lowercase name
+    # (dict.get), so a mis-cased key such as Verdict or Spec_Revision is
+    # absent there. A PowerShell property read ignores case and would find
+    # it. Every key this checker reads is lowercase, so dropping each member
+    # whose name has an upper-case letter makes every read here see exactly
+    # what Python sees. pwsh 7 cannot hold verdict and Verdict in one object
+    # (ConvertFrom-Json throws), so no exact-case value is ever dropped.
+    param($Value)
+    $pending = New-Object System.Collections.Stack
+    $pending.Push($Value)
+    while ($pending.Count -gt 0) {
+        $item = $pending.Pop()
+        if ($item -is [PSCustomObject]) {
+            foreach ($property in @($item.PSObject.Properties)) {
+                if ($property.Name -cne $property.Name.ToLowerInvariant()) {
+                    $item.PSObject.Properties.Remove($property.Name)
+                } else {
+                    $pending.Push($property.Value)
+                }
+            }
+        } elseif ($item -is [System.Array]) {
+            foreach ($element in $item) { $pending.Push($element) }
+        }
+    }
+}
+
 # --- Signing verification helpers (T-007a) ---
 
 # v1 signers sorted artifact pairs differently: the Python signer by code point,
 # the PowerShell signer by UTF-16 code unit. A signature matching either is valid.
 $SignerOrders = @("code-point", "utf-16")
 
-function Get-ExactMember {
-    # Python's dict.get(): the exact-case name only. A PowerShell property read
-    # ($o.name) ignores case, which would sign a mis-cased key the .sh twin
-    # treats as absent.
-    param($Object, [string]$Name)
-    if ($null -eq $Object -or -not ($Object -is [PSCustomObject])) { return $null }
-    foreach ($property in $Object.PSObject.Properties) {
-        # The leading comma keeps an array value whole instead of unrolling it.
-        if ($property.Name -ceq $Name) { return ,$property.Value }
-    }
-    return $null
-}
-
 function Get-EvidenceCanonical {
     param([Parameter(Mandatory)]$Bundle, [Parameter(Mandatory)][string]$Order)
-    # Not @(...): that would wrap the returned array in another one.
-    $artifacts = Get-ExactMember $Bundle "artifacts"
-    if ($null -eq $artifacts) { $artifacts = @() } elseif ($artifacts -isnot [System.Array]) { $artifacts = @($artifacts) }
+    $artifacts = @($Bundle.artifacts)
     $pairs = @()
     foreach ($artifact in $artifacts) {
-        $path = ([string](Get-ExactMember $artifact "path")).Trim()
-        $sha = ([string](Get-ExactMember $artifact "sha256")).Trim().ToLowerInvariant()
+        $path = ([string]$artifact.path).Trim()
+        $sha = ([string]$artifact.sha256).Trim().ToLowerInvariant()
         $pairs += $path + [char]0 + $sha
     }
     # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
@@ -151,19 +163,18 @@ function Get-EvidenceCanonical {
     $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
 
     # Python: "true" only for a JSON true; a verdict only from an object.
-    $dirtyValue = Get-ExactMember $Bundle "git_generated_dirty"
-    $dirty = if ($dirtyValue -is [bool] -and $dirtyValue) { "true" } else { "false" }
-    $reviewVerdict = Get-ExactMember $Bundle "review_verdict"
-    $verdict = if ($reviewVerdict -is [PSCustomObject]) { ([string](Get-ExactMember $reviewVerdict "verdict")).Trim() } else { "" }
+    $dirty = if ($Bundle.git_generated_dirty -is [bool] -and $Bundle.git_generated_dirty) { "true" } else { "false" }
+    $reviewVerdict = $Bundle.review_verdict
+    $verdict = if ($reviewVerdict -is [PSCustomObject]) { ([string]$reviewVerdict.verdict).Trim() } else { "" }
 
     $lines = @(
         "sdd-evidence-v1",
-        ([string](Get-ExactMember $Bundle "task_id")).Trim(),
-        ([string](Get-ExactMember $Bundle "feature")).Trim(),
-        ([string](Get-ExactMember $Bundle "risk")).Trim(),
-        ([string](Get-ExactMember $Bundle "required_workflow")).Trim(),
-        ([string](Get-ExactMember $Bundle "spec_revision")).Trim(),
-        ([string](Get-ExactMember $Bundle "git_commit")).Trim(),
+        ([string]$Bundle.task_id).Trim(),
+        ([string]$Bundle.feature).Trim(),
+        ([string]$Bundle.risk).Trim(),
+        ([string]$Bundle.required_workflow).Trim(),
+        ([string]$Bundle.spec_revision).Trim(),
+        ([string]$Bundle.git_commit).Trim(),
         $dirty,
         $verdict,
         $artifactsDigest
@@ -173,6 +184,7 @@ function Get-EvidenceCanonical {
 
 $bundleJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $BundlePath
 $bundle = $bundleJson | ConvertFrom-Json
+Remove-NonLowercaseMembers $bundle
 if ($bundleJson.TrimStart() -notmatch '^\{' -or $bundle -isnot [PSCustomObject]) {
     [Console]::Error.WriteLine('check-evidence-bundle: bundle must be a JSON object')
     exit 1
@@ -230,6 +242,7 @@ if ($contractInfo) {
     try {
         $contractJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $contractInfo.Resolved
         $contract = $contractJson | ConvertFrom-Json
+        Remove-NonLowercaseMembers $contract
         if ($contractJson.TrimStart() -notmatch '^\{' -or $contract -isnot [PSCustomObject]) {
             $contract = $null
             throw 'verification_contract must be a JSON object'
@@ -420,7 +433,7 @@ if ($effectiveRisk -ceq "critical") {
     # twin; [string] renders a number, array or object differently, so only a
     # string (or an absent field) can be verified the same way by both.
     foreach ($field in @("task_id", "feature", "risk", "required_workflow", "spec_revision", "git_commit")) {
-        $value = Get-ExactMember $bundle $field
+        $value = $bundle.$field
         if ($null -ne $value -and $value -isnot [string]) {
             Add-Failure "critical bundle field $field must be a string"
         }
